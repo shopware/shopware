@@ -4,7 +4,8 @@
  */
 
 if (!version_compare(PHP_VERSION, '7.1', '>=')) {
-    throw new Exception('you need a php version 7.1 or higher');
+    print 'PHP >= 7.1 is required.'.PHP_EOL;
+    exit(1);
 }
 
 $db = new PDO('mysql:host=__DB_HOST__;port=__DB_PORT__;', '__DB_USER__', '__DB_PASSWORD__');
@@ -12,10 +13,22 @@ $db = new PDO('mysql:host=__DB_HOST__;port=__DB_PORT__;', '__DB_USER__', '__DB_P
 $mysqlVersion = $db->query('SELECT VERSION();')->fetchColumn();
 
 if (!version_compare($mysqlVersion, '5.7', '>=')) {
-    throw new Exception('you need a mysql version 5.7 or higher');
+    print 'MySQL >= 5.7 is required. Provided: ' . $mysqlVersion.PHP_EOL;
+    exit(1);
 }
 
 $mysqlGroupConcat = $db->query('SHOW VARIABLES LIKE "group_concat_max_len"')->fetchColumn(1);
 if ($mysqlGroupConcat < 320000) {
-    throw new Exception('MySQL parameter "group_concat_max_len" must be at least 320000.');
+    print 'MySQL parameter "group_concat_max_len" must be at least 320000.'.PHP_EOL;
+
+    if (version_compare($mysqlVersion, '8.0', '>=')) {
+        print 'MySQL 8 detected, setting "group_concat_max_len" to 320000 and persist.'.PHP_EOL;
+        $db->query('SET PERSIST group_concat_max_len = 320000');
+    } else {
+        exit(1);
+    }
 }
+
+print 'Requirements check: OK!' .PHP_EOL;
+
+exit(0);

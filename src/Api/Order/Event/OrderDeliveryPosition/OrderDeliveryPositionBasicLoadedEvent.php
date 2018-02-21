@@ -4,7 +4,7 @@ namespace Shopware\Api\Order\Event\OrderDeliveryPosition;
 
 use Shopware\Api\Order\Collection\OrderDeliveryPositionBasicCollection;
 use Shopware\Api\Order\Event\OrderLineItem\OrderLineItemBasicLoadedEvent;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 
@@ -13,7 +13,7 @@ class OrderDeliveryPositionBasicLoadedEvent extends NestedEvent
     public const NAME = 'order_delivery_position.basic.loaded';
 
     /**
-     * @var TranslationContext
+     * @var ShopContext
      */
     protected $context;
 
@@ -22,7 +22,7 @@ class OrderDeliveryPositionBasicLoadedEvent extends NestedEvent
      */
     protected $orderDeliveryPositions;
 
-    public function __construct(OrderDeliveryPositionBasicCollection $orderDeliveryPositions, TranslationContext $context)
+    public function __construct(OrderDeliveryPositionBasicCollection $orderDeliveryPositions, ShopContext $context)
     {
         $this->context = $context;
         $this->orderDeliveryPositions = $orderDeliveryPositions;
@@ -33,7 +33,7 @@ class OrderDeliveryPositionBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): TranslationContext
+    public function getContext(): ShopContext
     {
         return $this->context;
     }

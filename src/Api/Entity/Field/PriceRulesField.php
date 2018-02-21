@@ -3,11 +3,11 @@
 namespace Shopware\Api\Entity\Field;
 
 use Shopware\Api\Entity\Write\FieldAware\SqlParseAware;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 
 class PriceRulesField extends StringField implements SqlParseAware
 {
-    public function parse(string $root, TranslationContext $context): string
+    public function parse(string $root, ShopContext $context): string
     {
         //todo@dr Build keys by current context
         $keys = ['H_D_E', 'H_D', 'H_E'];

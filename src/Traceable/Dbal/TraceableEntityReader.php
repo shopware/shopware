@@ -5,7 +5,7 @@ namespace Shopware\Traceable\Dbal;
 use Shopware\Api\Entity\EntityCollection;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Read\EntityReaderInterface;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Symfony\Component\Stopwatch\Stopwatch;
 
 class TraceableEntityReader implements EntityReaderInterface
@@ -26,7 +26,7 @@ class TraceableEntityReader implements EntityReaderInterface
         $this->stopwatch = $stopwatch;
     }
 
-    public function readRaw(string $definition, array $ids, TranslationContext $context): EntityCollection
+    public function readRaw(string $definition, array $ids, ShopContext $context): EntityCollection
     {
         /** @var EntityDefinition $definition */
         $entity = $definition::getEntityName();
@@ -42,7 +42,7 @@ class TraceableEntityReader implements EntityReaderInterface
         return $result;
     }
 
-    public function readDetail(string $definition, array $ids, TranslationContext $context): EntityCollection
+    public function readDetail(string $definition, array $ids, ShopContext $context): EntityCollection
     {
         /** @var EntityDefinition $definition */
         $entity = $definition::getEntityName();
@@ -58,7 +58,7 @@ class TraceableEntityReader implements EntityReaderInterface
         return $result;
     }
 
-    public function readBasic(string $definition, array $ids, TranslationContext $context): EntityCollection
+    public function readBasic(string $definition, array $ids, ShopContext $context): EntityCollection
     {
         /** @var EntityDefinition $definition */
         $entity = $definition::getEntityName();

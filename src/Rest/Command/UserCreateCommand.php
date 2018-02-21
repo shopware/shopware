@@ -6,7 +6,7 @@ use Ramsey\Uuid\Uuid;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\User\Repository\UserRepository;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -81,7 +81,7 @@ class UserCreateCommand extends Command
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('user.username', $username));
 
-        $result = $this->userRepository->searchIds($criteria, TranslationContext::createDefaultContext());
+        $result = $this->userRepository->searchIds($criteria, ShopContext::createDefaultContext());
 
         return $result->getTotal() > 0;
     }
@@ -91,7 +91,7 @@ class UserCreateCommand extends Command
         $encoder = $this->encoderFactory->getEncoder(User::class);
         $password = $encoder->encodePassword($password, $username);
 
-        $context = TranslationContext::createDefaultContext();
+        $context = ShopContext::createDefaultContext();
 
         $this->userRepository->create([
             [

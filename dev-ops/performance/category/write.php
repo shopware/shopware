@@ -15,8 +15,8 @@ $kernel->boot();
  */
 function createWriteContext(): \Shopware\Api\Entity\Write\WriteContext
 {
-    return \Shopware\Api\Entitiy\Write\WriteContext::createFromTranslationContext(
-        new \Shopware\Context\Struct\TranslationContext('FFA32A50-E2D0-4CF3-8389-A53F8D6CD594', true, null)
+    return \Shopware\Api\Entity\Write\WriteContext::createFromShopContext(
+        \Shopware\Context\Struct\ShopContext::createDefaultContext()
     );
 }
 

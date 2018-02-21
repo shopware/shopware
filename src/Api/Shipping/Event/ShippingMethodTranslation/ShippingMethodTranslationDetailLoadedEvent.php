@@ -5,7 +5,7 @@ namespace Shopware\Api\Shipping\Event\ShippingMethodTranslation;
 use Shopware\Api\Shipping\Collection\ShippingMethodTranslationDetailCollection;
 use Shopware\Api\Shipping\Event\ShippingMethod\ShippingMethodBasicLoadedEvent;
 use Shopware\Api\Shop\Event\Shop\ShopBasicLoadedEvent;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 
@@ -14,7 +14,7 @@ class ShippingMethodTranslationDetailLoadedEvent extends NestedEvent
     public const NAME = 'shipping_method_translation.detail.loaded';
 
     /**
-     * @var TranslationContext
+     * @var ShopContext
      */
     protected $context;
 
@@ -23,7 +23,7 @@ class ShippingMethodTranslationDetailLoadedEvent extends NestedEvent
      */
     protected $shippingMethodTranslations;
 
-    public function __construct(ShippingMethodTranslationDetailCollection $shippingMethodTranslations, TranslationContext $context)
+    public function __construct(ShippingMethodTranslationDetailCollection $shippingMethodTranslations, ShopContext $context)
     {
         $this->context = $context;
         $this->shippingMethodTranslations = $shippingMethodTranslations;
@@ -34,7 +34,7 @@ class ShippingMethodTranslationDetailLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): TranslationContext
+    public function getContext(): ShopContext
     {
         return $this->context;
     }

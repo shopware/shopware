@@ -5,7 +5,7 @@ namespace Shopware\Storefront\Test;
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
 use Shopware\Api\Entity\Search\Term\SearchTerm;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Shopware\Defaults;
 use Shopware\Storefront\Page\Search\KeywordSearchTermInterpreter;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -50,7 +50,7 @@ class KeywordSearchTermInterpreterTest extends KernelTestCase
      */
     public function testMatching(string $term, array $expected)
     {
-        $context = TranslationContext::createDefaultContext();
+        $context = ShopContext::createDefaultContext();
 
         $matches = $this->interpreter->interpret($term, $context);
 

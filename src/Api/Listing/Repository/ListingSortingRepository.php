@@ -21,7 +21,7 @@ use Shopware\Api\Listing\Event\ListingSorting\ListingSortingDetailLoadedEvent;
 use Shopware\Api\Listing\Event\ListingSorting\ListingSortingIdSearchResultLoadedEvent;
 use Shopware\Api\Listing\Event\ListingSorting\ListingSortingSearchResultLoadedEvent;
 use Shopware\Api\Listing\Struct\ListingSortingSearchResult;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ListingSortingRepository implements RepositoryInterface
@@ -65,7 +65,7 @@ class ListingSortingRepository implements RepositoryInterface
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function search(Criteria $criteria, TranslationContext $context): ListingSortingSearchResult
+    public function search(Criteria $criteria, ShopContext $context): ListingSortingSearchResult
     {
         $ids = $this->searchIds($criteria, $context);
 
@@ -84,7 +84,7 @@ class ListingSortingRepository implements RepositoryInterface
         return $result;
     }
 
-    public function aggregate(Criteria $criteria, TranslationContext $context): AggregationResult
+    public function aggregate(Criteria $criteria, ShopContext $context): AggregationResult
     {
         $result = $this->aggregator->aggregate(ListingSortingDefinition::class, $criteria, $context);
 
@@ -94,7 +94,7 @@ class ListingSortingRepository implements RepositoryInterface
         return $result;
     }
 
-    public function searchIds(Criteria $criteria, TranslationContext $context): IdSearchResult
+    public function searchIds(Criteria $criteria, ShopContext $context): IdSearchResult
     {
         $result = $this->searcher->search(ListingSortingDefinition::class, $criteria, $context);
 
@@ -104,7 +104,7 @@ class ListingSortingRepository implements RepositoryInterface
         return $result;
     }
 
-    public function readBasic(array $ids, TranslationContext $context): ListingSortingBasicCollection
+    public function readBasic(array $ids, ShopContext $context): ListingSortingBasicCollection
     {
         /** @var ListingSortingBasicCollection $entities */
         $entities = $this->reader->readBasic(ListingSortingDefinition::class, $ids, $context);
@@ -115,7 +115,7 @@ class ListingSortingRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $ids, TranslationContext $context): ListingSortingDetailCollection
+    public function readDetail(array $ids, ShopContext $context): ListingSortingDetailCollection
     {
         /** @var ListingSortingDetailCollection $entities */
         $entities = $this->reader->readDetail(ListingSortingDefinition::class, $ids, $context);
@@ -126,36 +126,36 @@ class ListingSortingRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function update(array $data, TranslationContext $context): GenericWrittenEvent
+    public function update(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->update(ListingSortingDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->update(ListingSortingDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function upsert(array $data, TranslationContext $context): GenericWrittenEvent
+    public function upsert(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->upsert(ListingSortingDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->upsert(ListingSortingDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function create(array $data, TranslationContext $context): GenericWrittenEvent
+    public function create(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->insert(ListingSortingDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->insert(ListingSortingDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function delete(array $ids, TranslationContext $context): GenericWrittenEvent
+    public function delete(array $ids, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->delete(ListingSortingDefinition::class, $ids, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->delete(ListingSortingDefinition::class, $ids, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithDeletedEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 

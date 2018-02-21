@@ -46,7 +46,7 @@ class NavigationService
 
     public function load(string $categoryId, StorefrontContext $context): Navigation
     {
-        $activeCategory = $this->repository->readBasic([$categoryId], $context->getTranslationContext())
+        $activeCategory = $this->repository->readBasic([$categoryId], $context->getShopContext())
             ->get($categoryId);
 
         $systemCategory = $context->getShop()->getCategory();
@@ -58,7 +58,7 @@ class NavigationService
         $criteria->addFilter(new TermQuery('category.active', 1));
 
         /** @var CategorySearchResult $categories */
-        $categories = $this->repository->search($criteria, $context->getTranslationContext());
+        $categories = $this->repository->search($criteria, $context->getShopContext());
 
         $tree = TreeBuilder::buildTree(
             $systemCategory->getId(),

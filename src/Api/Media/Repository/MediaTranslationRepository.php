@@ -21,7 +21,7 @@ use Shopware\Api\Media\Event\MediaTranslation\MediaTranslationDetailLoadedEvent;
 use Shopware\Api\Media\Event\MediaTranslation\MediaTranslationIdSearchResultLoadedEvent;
 use Shopware\Api\Media\Event\MediaTranslation\MediaTranslationSearchResultLoadedEvent;
 use Shopware\Api\Media\Struct\MediaTranslationSearchResult;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class MediaTranslationRepository implements RepositoryInterface
@@ -65,7 +65,7 @@ class MediaTranslationRepository implements RepositoryInterface
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function search(Criteria $criteria, TranslationContext $context): MediaTranslationSearchResult
+    public function search(Criteria $criteria, ShopContext $context): MediaTranslationSearchResult
     {
         $ids = $this->searchIds($criteria, $context);
 
@@ -84,7 +84,7 @@ class MediaTranslationRepository implements RepositoryInterface
         return $result;
     }
 
-    public function aggregate(Criteria $criteria, TranslationContext $context): AggregationResult
+    public function aggregate(Criteria $criteria, ShopContext $context): AggregationResult
     {
         $result = $this->aggregator->aggregate(MediaTranslationDefinition::class, $criteria, $context);
 
@@ -94,7 +94,7 @@ class MediaTranslationRepository implements RepositoryInterface
         return $result;
     }
 
-    public function searchIds(Criteria $criteria, TranslationContext $context): IdSearchResult
+    public function searchIds(Criteria $criteria, ShopContext $context): IdSearchResult
     {
         $result = $this->searcher->search(MediaTranslationDefinition::class, $criteria, $context);
 
@@ -104,7 +104,7 @@ class MediaTranslationRepository implements RepositoryInterface
         return $result;
     }
 
-    public function readBasic(array $ids, TranslationContext $context): MediaTranslationBasicCollection
+    public function readBasic(array $ids, ShopContext $context): MediaTranslationBasicCollection
     {
         /** @var MediaTranslationBasicCollection $entities */
         $entities = $this->reader->readBasic(MediaTranslationDefinition::class, $ids, $context);
@@ -115,7 +115,7 @@ class MediaTranslationRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $ids, TranslationContext $context): MediaTranslationDetailCollection
+    public function readDetail(array $ids, ShopContext $context): MediaTranslationDetailCollection
     {
         /** @var MediaTranslationDetailCollection $entities */
         $entities = $this->reader->readDetail(MediaTranslationDefinition::class, $ids, $context);
@@ -126,36 +126,36 @@ class MediaTranslationRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function update(array $data, TranslationContext $context): GenericWrittenEvent
+    public function update(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->update(MediaTranslationDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->update(MediaTranslationDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function upsert(array $data, TranslationContext $context): GenericWrittenEvent
+    public function upsert(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->upsert(MediaTranslationDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->upsert(MediaTranslationDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function create(array $data, TranslationContext $context): GenericWrittenEvent
+    public function create(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->insert(MediaTranslationDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->insert(MediaTranslationDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function delete(array $ids, TranslationContext $context): GenericWrittenEvent
+    public function delete(array $ids, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->delete(MediaTranslationDefinition::class, $ids, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->delete(MediaTranslationDefinition::class, $ids, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithDeletedEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 

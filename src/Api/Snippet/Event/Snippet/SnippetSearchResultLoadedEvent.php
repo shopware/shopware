@@ -3,7 +3,7 @@
 namespace Shopware\Api\Snippet\Event\Snippet;
 
 use Shopware\Api\Snippet\Struct\SnippetSearchResult;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class SnippetSearchResultLoadedEvent extends NestedEvent
@@ -25,7 +25,7 @@ class SnippetSearchResultLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): TranslationContext
+    public function getContext(): ShopContext
     {
         return $this->result->getContext();
     }

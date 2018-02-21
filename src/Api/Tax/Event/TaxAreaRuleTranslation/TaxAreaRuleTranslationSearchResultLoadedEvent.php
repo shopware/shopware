@@ -3,7 +3,7 @@
 namespace Shopware\Api\Tax\Event\TaxAreaRuleTranslation;
 
 use Shopware\Api\Tax\Struct\TaxAreaRuleTranslationSearchResult;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class TaxAreaRuleTranslationSearchResultLoadedEvent extends NestedEvent
@@ -25,7 +25,7 @@ class TaxAreaRuleTranslationSearchResultLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): TranslationContext
+    public function getContext(): ShopContext
     {
         return $this->result->getContext();
     }

@@ -21,7 +21,7 @@ use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Entity\Write\WriteContext;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class CountryStateRepository implements RepositoryInterface
@@ -65,7 +65,7 @@ class CountryStateRepository implements RepositoryInterface
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function search(Criteria $criteria, TranslationContext $context): CountryStateSearchResult
+    public function search(Criteria $criteria, ShopContext $context): CountryStateSearchResult
     {
         $ids = $this->searchIds($criteria, $context);
 
@@ -84,7 +84,7 @@ class CountryStateRepository implements RepositoryInterface
         return $result;
     }
 
-    public function aggregate(Criteria $criteria, TranslationContext $context): AggregationResult
+    public function aggregate(Criteria $criteria, ShopContext $context): AggregationResult
     {
         $result = $this->aggregator->aggregate(CountryStateDefinition::class, $criteria, $context);
 
@@ -94,7 +94,7 @@ class CountryStateRepository implements RepositoryInterface
         return $result;
     }
 
-    public function searchIds(Criteria $criteria, TranslationContext $context): IdSearchResult
+    public function searchIds(Criteria $criteria, ShopContext $context): IdSearchResult
     {
         $result = $this->searcher->search(CountryStateDefinition::class, $criteria, $context);
 
@@ -104,7 +104,7 @@ class CountryStateRepository implements RepositoryInterface
         return $result;
     }
 
-    public function readBasic(array $ids, TranslationContext $context): CountryStateBasicCollection
+    public function readBasic(array $ids, ShopContext $context): CountryStateBasicCollection
     {
         /** @var CountryStateBasicCollection $entities */
         $entities = $this->reader->readBasic(CountryStateDefinition::class, $ids, $context);
@@ -115,7 +115,7 @@ class CountryStateRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $ids, TranslationContext $context): CountryStateDetailCollection
+    public function readDetail(array $ids, ShopContext $context): CountryStateDetailCollection
     {
         /** @var CountryStateDetailCollection $entities */
         $entities = $this->reader->readDetail(CountryStateDefinition::class, $ids, $context);
@@ -126,36 +126,36 @@ class CountryStateRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function update(array $data, TranslationContext $context): GenericWrittenEvent
+    public function update(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->update(CountryStateDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->update(CountryStateDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function upsert(array $data, TranslationContext $context): GenericWrittenEvent
+    public function upsert(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->upsert(CountryStateDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->upsert(CountryStateDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function create(array $data, TranslationContext $context): GenericWrittenEvent
+    public function create(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->insert(CountryStateDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->insert(CountryStateDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function delete(array $ids, TranslationContext $context): GenericWrittenEvent
+    public function delete(array $ids, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->delete(CountryStateDefinition::class, $ids, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->delete(CountryStateDefinition::class, $ids, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithDeletedEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 

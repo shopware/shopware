@@ -16,7 +16,7 @@ use Shopware\Api\Shop\Definition\ShopDefinition;
 use Shopware\Api\Shop\Definition\ShopTemplateDefinition;
 use Shopware\Api\Shop\Repository\ShopRepository;
 use Shopware\Api\Test\TestWriteContext;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Shopware\Defaults;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -61,7 +61,7 @@ class CategoryRepositoryTest extends KernelTestCase
         $this->repository->create([
             ['id' => $parentId->toString(), 'name' => 'parent-1'],
             ['id' => $childId->toString(), 'name' => 'child', 'parentId' => $parentId->toString()],
-        ], TranslationContext::createDefaultContext());
+        ], ShopContext::createDefaultContext());
 
         $exists = $this->connection->fetchAll(
             'SELECT * FROM category WHERE id IN (:ids)',
@@ -82,7 +82,7 @@ class CategoryRepositoryTest extends KernelTestCase
 
         $result = $this->repository->delete(
             [['id' => $parentId->toString()]],
-            TranslationContext::createDefaultContext()
+            ShopContext::createDefaultContext()
         );
 
         $this->assertInstanceOf(GenericWrittenEvent::class, $result);
@@ -113,7 +113,7 @@ class CategoryRepositoryTest extends KernelTestCase
         $this->repository->create([
             ['id' => $parentId->toString(), 'name' => 'parent-1'],
             ['id' => $childId->toString(), 'name' => 'child', 'parentId' => $parentId->toString()],
-        ], TranslationContext::createDefaultContext());
+        ], ShopContext::createDefaultContext());
 
         $exists = $this->connection->fetchAll(
             'SELECT * FROM category WHERE id IN (:ids)',
@@ -132,7 +132,7 @@ class CategoryRepositoryTest extends KernelTestCase
 
         $result = $this->repository->delete(
             [['id' => $childId->toString()]],
-            TranslationContext::createDefaultContext()
+            ShopContext::createDefaultContext()
         );
 
         $this->assertInstanceOf(GenericWrittenEvent::class, $result);
@@ -164,7 +164,7 @@ class CategoryRepositoryTest extends KernelTestCase
         $this->repository->create([
             ['id' => $parentId->toString(), 'name' => 'parent-1'],
             ['id' => $childId->toString(), 'name' => 'child', 'parentId' => $parentId->toString()],
-        ], TranslationContext::createDefaultContext());
+        ], ShopContext::createDefaultContext());
 
         $exists = $this->connection->fetchAll(
             'SELECT * FROM category WHERE id IN (:ids)',
@@ -185,7 +185,7 @@ class CategoryRepositoryTest extends KernelTestCase
 
         $result = $this->repository->delete([
             ['id' => $parentId->toString()],
-        ], TranslationContext::createDefaultContext());
+        ], ShopContext::createDefaultContext());
 
         $this->assertInstanceOf(GenericWrittenEvent::class, $result);
 
@@ -203,7 +203,7 @@ class CategoryRepositoryTest extends KernelTestCase
 
         $this->repository->create(
             [['id' => $categoryId->toString(), 'name' => 'System']],
-            TranslationContext::createDefaultContext()
+            ShopContext::createDefaultContext()
         );
 
         $this->container->get(EntityWriter::class)->insert(
@@ -231,12 +231,12 @@ class CategoryRepositoryTest extends KernelTestCase
                 'baseUrl' => 'a',
                 'position' => 1,
             ],
-        ], TranslationContext::createDefaultContext());
+        ], ShopContext::createDefaultContext());
 
         try {
             $this->repository->delete(
                 [['id' => $categoryId->toString()]],
-                TranslationContext::createDefaultContext()
+                ShopContext::createDefaultContext()
             );
         } catch (RestrictDeleteViolationException $e) {
             $restrictions = $e->getRestrictions();

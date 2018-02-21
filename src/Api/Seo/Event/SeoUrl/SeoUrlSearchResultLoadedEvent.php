@@ -3,7 +3,7 @@
 namespace Shopware\Api\Seo\Event\SeoUrl;
 
 use Shopware\Api\Seo\Struct\SeoUrlSearchResult;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class SeoUrlSearchResultLoadedEvent extends NestedEvent
@@ -25,7 +25,7 @@ class SeoUrlSearchResultLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): TranslationContext
+    public function getContext(): ShopContext
     {
         return $this->result->getContext();
     }

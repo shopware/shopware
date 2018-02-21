@@ -5,7 +5,7 @@ namespace Shopware\Api\Product\Event\ProductSearchKeyword;
 use Shopware\Api\Product\Collection\ProductSearchKeywordDetailCollection;
 use Shopware\Api\Product\Event\Product\ProductBasicLoadedEvent;
 use Shopware\Api\Shop\Event\Shop\ShopBasicLoadedEvent;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 
@@ -14,7 +14,7 @@ class ProductSearchKeywordDetailLoadedEvent extends NestedEvent
     public const NAME = 'product_search_keyword.detail.loaded';
 
     /**
-     * @var TranslationContext
+     * @var ShopContext
      */
     protected $context;
 
@@ -23,7 +23,7 @@ class ProductSearchKeywordDetailLoadedEvent extends NestedEvent
      */
     protected $productSearchKeywords;
 
-    public function __construct(ProductSearchKeywordDetailCollection $productSearchKeywords, TranslationContext $context)
+    public function __construct(ProductSearchKeywordDetailCollection $productSearchKeywords, ShopContext $context)
     {
         $this->context = $context;
         $this->productSearchKeywords = $productSearchKeywords;
@@ -34,7 +34,7 @@ class ProductSearchKeywordDetailLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): TranslationContext
+    public function getContext(): ShopContext
     {
         return $this->context;
     }

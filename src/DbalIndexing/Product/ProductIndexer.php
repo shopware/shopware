@@ -17,7 +17,7 @@ use Shopware\Api\Product\Repository\ProductRepository;
 use Shopware\Api\Shop\Repository\ShopRepository;
 use Shopware\Api\Shop\Struct\ShopBasicStruct;
 use Shopware\Category\Extension\CategoryPathBuilder;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Shopware\DbalIndexing\Common\RepositoryIterator;
 use Shopware\DbalIndexing\Event\ProgressAdvancedEvent;
 use Shopware\DbalIndexing\Event\ProgressFinishedEvent;
@@ -71,7 +71,7 @@ class ProductIndexer implements IndexerInterface
     {
         $shop = $this->getDefaultShop();
 
-        $context = TranslationContext::createFromShop($shop);
+        $context = ShopContext::createFromShop($shop);
 
         $this->pathBuilder->update(Defaults::ROOT_CATEGORY, $context);
 
@@ -110,7 +110,7 @@ class ProductIndexer implements IndexerInterface
         });
     }
 
-    private function indexCategoryAssignment(array $ids, TranslationContext $context): void
+    private function indexCategoryAssignment(array $ids, ShopContext $context): void
     {
         if (empty($ids)) {
             return;
@@ -145,7 +145,7 @@ class ProductIndexer implements IndexerInterface
         }
     }
 
-    private function fetchCategories(array $ids, TranslationContext $context): array
+    private function fetchCategories(array $ids, ShopContext $context): array
     {
         $query = $this->connection->createQueryBuilder();
         $query->select([
@@ -192,12 +192,12 @@ class ProductIndexer implements IndexerInterface
     {
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('shop.isDefault', true));
-        $result = $this->shopRepository->search($criteria, TranslationContext::createDefaultContext());
+        $result = $this->shopRepository->search($criteria, ShopContext::createDefaultContext());
 
         return $result->first();
     }
 
-    private function refreshJoinIds(array $ids = [], TranslationContext $context)
+    private function refreshJoinIds(array $ids = [], ShopContext $context)
     {
         $version = Uuid::fromString($context->getVersionId())->getBytes();
         if (empty($ids)) {
@@ -303,7 +303,7 @@ class ProductIndexer implements IndexerInterface
         }
     }
 
-    private function mediaWritten(array $mediaIds, TranslationContext $context)
+    private function mediaWritten(array $mediaIds, ShopContext $context)
     {
         $version = Uuid::fromString($context->getVersionId())->getBytes();
 

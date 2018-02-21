@@ -19,7 +19,7 @@ use Shopware\Api\Log\Event\Log\LogBasicLoadedEvent;
 use Shopware\Api\Log\Event\Log\LogIdSearchResultLoadedEvent;
 use Shopware\Api\Log\Event\Log\LogSearchResultLoadedEvent;
 use Shopware\Api\Log\Struct\LogSearchResult;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class LogRepository implements RepositoryInterface
@@ -63,7 +63,7 @@ class LogRepository implements RepositoryInterface
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function search(Criteria $criteria, TranslationContext $context): LogSearchResult
+    public function search(Criteria $criteria, ShopContext $context): LogSearchResult
     {
         $ids = $this->searchIds($criteria, $context);
 
@@ -82,7 +82,7 @@ class LogRepository implements RepositoryInterface
         return $result;
     }
 
-    public function aggregate(Criteria $criteria, TranslationContext $context): AggregationResult
+    public function aggregate(Criteria $criteria, ShopContext $context): AggregationResult
     {
         $result = $this->aggregator->aggregate(LogDefinition::class, $criteria, $context);
 
@@ -92,7 +92,7 @@ class LogRepository implements RepositoryInterface
         return $result;
     }
 
-    public function searchIds(Criteria $criteria, TranslationContext $context): IdSearchResult
+    public function searchIds(Criteria $criteria, ShopContext $context): IdSearchResult
     {
         $result = $this->searcher->search(LogDefinition::class, $criteria, $context);
 
@@ -102,7 +102,7 @@ class LogRepository implements RepositoryInterface
         return $result;
     }
 
-    public function readBasic(array $ids, TranslationContext $context): LogBasicCollection
+    public function readBasic(array $ids, ShopContext $context): LogBasicCollection
     {
         /** @var LogBasicCollection $entities */
         $entities = $this->reader->readBasic(LogDefinition::class, $ids, $context);
@@ -113,41 +113,41 @@ class LogRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $ids, TranslationContext $context): LogBasicCollection
+    public function readDetail(array $ids, ShopContext $context): LogBasicCollection
     {
         return $this->readBasic($ids, $context);
     }
 
-    public function update(array $data, TranslationContext $context): GenericWrittenEvent
+    public function update(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->update(LogDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->update(LogDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function upsert(array $data, TranslationContext $context): GenericWrittenEvent
+    public function upsert(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->upsert(LogDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->upsert(LogDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function create(array $data, TranslationContext $context): GenericWrittenEvent
+    public function create(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->insert(LogDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->insert(LogDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function delete(array $ids, TranslationContext $context): GenericWrittenEvent
+    public function delete(array $ids, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->delete(LogDefinition::class, $ids, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->delete(LogDefinition::class, $ids, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithDeletedEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 

@@ -10,7 +10,7 @@ use Shopware\Api\Entity\Field\OneToManyAssociationField;
 use Shopware\Api\Entity\Write\EntityExistence;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\WrittenEvent;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 
 abstract class EntityDefinition
 {
@@ -91,7 +91,7 @@ abstract class EntityDefinition
             });
     }
 
-    public static function createWrittenEvent(array $identifiers, TranslationContext $context, array $errors): ?WrittenEvent
+    public static function createWrittenEvent(array $identifiers, ShopContext $context, array $errors): ?WrittenEvent
     {
         if (!array_key_exists(static::class, $identifiers)) {
             return null;

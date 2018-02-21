@@ -3,7 +3,7 @@
 namespace Shopware\Api\Config\Event\ConfigFormTranslation;
 
 use Shopware\Api\Config\Struct\ConfigFormTranslationSearchResult;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class ConfigFormTranslationSearchResultLoadedEvent extends NestedEvent
@@ -25,7 +25,7 @@ class ConfigFormTranslationSearchResultLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): TranslationContext
+    public function getContext(): ShopContext
     {
         return $this->result->getContext();
     }

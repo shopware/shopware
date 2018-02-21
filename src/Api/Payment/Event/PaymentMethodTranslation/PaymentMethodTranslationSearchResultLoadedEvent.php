@@ -3,7 +3,7 @@
 namespace Shopware\Api\Payment\Event\PaymentMethodTranslation;
 
 use Shopware\Api\Payment\Struct\PaymentMethodTranslationSearchResult;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class PaymentMethodTranslationSearchResultLoadedEvent extends NestedEvent
@@ -25,7 +25,7 @@ class PaymentMethodTranslationSearchResultLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): TranslationContext
+    public function getContext(): ShopContext
     {
         return $this->result->getContext();
     }

@@ -18,7 +18,7 @@ use Shopware\Api\Entity\Search\AggregationResult;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntityAggregatorInterface;
 use Shopware\Api\Entity\Search\Parser\SqlQueryParser;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 
 class EntityAggregator implements EntityAggregatorInterface
 {
@@ -38,7 +38,7 @@ class EntityAggregator implements EntityAggregatorInterface
         $this->reader = $reader;
     }
 
-    public function aggregate(string $definition, Criteria $criteria, TranslationContext $context): AggregationResult
+    public function aggregate(string $definition, Criteria $criteria, ShopContext $context): AggregationResult
     {
         $aggregations = [];
         foreach ($criteria->getAggregations() as $aggregation) {
@@ -50,7 +50,7 @@ class EntityAggregator implements EntityAggregatorInterface
         return new AggregationResult($aggregations, $context, $criteria);
     }
 
-    private function createAggregationQuery(Aggregation $aggregation, string $definition, Criteria $criteria, TranslationContext $context): QueryBuilder
+    private function createAggregationQuery(Aggregation $aggregation, string $definition, Criteria $criteria, ShopContext $context): QueryBuilder
     {
         /** @var EntityDefinition $definition */
         $table = $definition::getEntityName();
@@ -80,7 +80,7 @@ class EntityAggregator implements EntityAggregatorInterface
         return $query;
     }
 
-    private function fetchAggregation(string $definition, QueryBuilder $query, Aggregation $aggregation, TranslationContext $context)
+    private function fetchAggregation(string $definition, QueryBuilder $query, Aggregation $aggregation, ShopContext $context)
     {
         /** @var EntityDefinition $definition */
         $field = EntityDefinitionQueryHelper::getFieldAccessor(

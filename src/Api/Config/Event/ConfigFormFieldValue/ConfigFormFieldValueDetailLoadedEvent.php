@@ -5,7 +5,7 @@ namespace Shopware\Api\Config\Event\ConfigFormFieldValue;
 use Shopware\Api\Config\Collection\ConfigFormFieldValueDetailCollection;
 use Shopware\Api\Config\Event\ConfigFormField\ConfigFormFieldBasicLoadedEvent;
 use Shopware\Api\Shop\Event\Shop\ShopBasicLoadedEvent;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 
@@ -14,7 +14,7 @@ class ConfigFormFieldValueDetailLoadedEvent extends NestedEvent
     public const NAME = 'config_form_field_value.detail.loaded';
 
     /**
-     * @var TranslationContext
+     * @var ShopContext
      */
     protected $context;
 
@@ -23,7 +23,7 @@ class ConfigFormFieldValueDetailLoadedEvent extends NestedEvent
      */
     protected $configFormFieldValues;
 
-    public function __construct(ConfigFormFieldValueDetailCollection $configFormFieldValues, TranslationContext $context)
+    public function __construct(ConfigFormFieldValueDetailCollection $configFormFieldValues, ShopContext $context)
     {
         $this->context = $context;
         $this->configFormFieldValues = $configFormFieldValues;
@@ -34,7 +34,7 @@ class ConfigFormFieldValueDetailLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): TranslationContext
+    public function getContext(): ShopContext
     {
         return $this->context;
     }

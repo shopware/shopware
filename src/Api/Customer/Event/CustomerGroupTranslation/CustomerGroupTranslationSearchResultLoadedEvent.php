@@ -3,7 +3,7 @@
 namespace Shopware\Api\Customer\Event\CustomerGroupTranslation;
 
 use Shopware\Api\Customer\Struct\CustomerGroupTranslationSearchResult;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class CustomerGroupTranslationSearchResultLoadedEvent extends NestedEvent
@@ -25,7 +25,7 @@ class CustomerGroupTranslationSearchResultLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): TranslationContext
+    public function getContext(): ShopContext
     {
         return $this->result->getContext();
     }

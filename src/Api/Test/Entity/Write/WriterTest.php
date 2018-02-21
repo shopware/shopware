@@ -11,7 +11,7 @@ use Shopware\Api\Entity\Write\FieldException\WriteStackException;
 use Shopware\Api\Entity\Write\WriteContext;
 use Shopware\Api\Product\Definition\ProductCategoryDefinition;
 use Shopware\Api\Product\Definition\ProductDefinition;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Shopware\Defaults;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
@@ -539,7 +539,7 @@ class WriterTest extends KernelTestCase
      */
     protected function createWriteContext(): WriteContext
     {
-        $context = WriteContext::createFromTranslationContext(TranslationContext::createDefaultContext());
+        $context = WriteContext::createFromShopContext(ShopContext::createDefaultContext());
 
         return $context;
     }

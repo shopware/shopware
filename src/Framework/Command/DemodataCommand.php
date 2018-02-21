@@ -10,7 +10,7 @@ use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\WriteContext;
 use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Api\Product\Definition\ProductManufacturerDefinition;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Shopware\Defaults;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -73,8 +73,8 @@ class DemodataCommand extends ContainerAwareCommand
 
     private function getContext()
     {
-        return WriteContext::createFromTranslationContext(
-            TranslationContext::createDefaultContext()
+        return WriteContext::createFromShopContext(
+            ShopContext::createDefaultContext()
         );
     }
 

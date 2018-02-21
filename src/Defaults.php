@@ -13,4 +13,8 @@ final class Defaults
     public const ORDER_STATE_OPEN = '1194a493-8067-42c9-b85e-61f1f2cf9be8';
 
     public const LIVE_VERSION = 'ffffffff-ffff-ffff-ffff-ffffffffffff';
+
+    public const CATALOGUE = 'ffffffff-ffff-ffff-ffff-ffffffffffff';
+
+    public const CURRENCY = '4c8eba11-bd35-46d7-86af-bed481a6e665';
 }

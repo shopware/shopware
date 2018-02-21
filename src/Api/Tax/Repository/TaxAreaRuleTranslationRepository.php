@@ -21,7 +21,7 @@ use Shopware\Api\Tax\Event\TaxAreaRuleTranslation\TaxAreaRuleTranslationDetailLo
 use Shopware\Api\Tax\Event\TaxAreaRuleTranslation\TaxAreaRuleTranslationIdSearchResultLoadedEvent;
 use Shopware\Api\Tax\Event\TaxAreaRuleTranslation\TaxAreaRuleTranslationSearchResultLoadedEvent;
 use Shopware\Api\Tax\Struct\TaxAreaRuleTranslationSearchResult;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class TaxAreaRuleTranslationRepository implements RepositoryInterface
@@ -65,7 +65,7 @@ class TaxAreaRuleTranslationRepository implements RepositoryInterface
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function search(Criteria $criteria, TranslationContext $context): TaxAreaRuleTranslationSearchResult
+    public function search(Criteria $criteria, ShopContext $context): TaxAreaRuleTranslationSearchResult
     {
         $ids = $this->searchIds($criteria, $context);
 
@@ -84,7 +84,7 @@ class TaxAreaRuleTranslationRepository implements RepositoryInterface
         return $result;
     }
 
-    public function aggregate(Criteria $criteria, TranslationContext $context): AggregationResult
+    public function aggregate(Criteria $criteria, ShopContext $context): AggregationResult
     {
         $result = $this->aggregator->aggregate(TaxAreaRuleTranslationDefinition::class, $criteria, $context);
 
@@ -94,7 +94,7 @@ class TaxAreaRuleTranslationRepository implements RepositoryInterface
         return $result;
     }
 
-    public function searchIds(Criteria $criteria, TranslationContext $context): IdSearchResult
+    public function searchIds(Criteria $criteria, ShopContext $context): IdSearchResult
     {
         $result = $this->searcher->search(TaxAreaRuleTranslationDefinition::class, $criteria, $context);
 
@@ -104,7 +104,7 @@ class TaxAreaRuleTranslationRepository implements RepositoryInterface
         return $result;
     }
 
-    public function readBasic(array $ids, TranslationContext $context): TaxAreaRuleTranslationBasicCollection
+    public function readBasic(array $ids, ShopContext $context): TaxAreaRuleTranslationBasicCollection
     {
         /** @var TaxAreaRuleTranslationBasicCollection $entities */
         $entities = $this->reader->readBasic(TaxAreaRuleTranslationDefinition::class, $ids, $context);
@@ -115,7 +115,7 @@ class TaxAreaRuleTranslationRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $ids, TranslationContext $context): TaxAreaRuleTranslationDetailCollection
+    public function readDetail(array $ids, ShopContext $context): TaxAreaRuleTranslationDetailCollection
     {
         /** @var TaxAreaRuleTranslationDetailCollection $entities */
         $entities = $this->reader->readDetail(TaxAreaRuleTranslationDefinition::class, $ids, $context);
@@ -126,36 +126,36 @@ class TaxAreaRuleTranslationRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function update(array $data, TranslationContext $context): GenericWrittenEvent
+    public function update(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->update(TaxAreaRuleTranslationDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->update(TaxAreaRuleTranslationDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function upsert(array $data, TranslationContext $context): GenericWrittenEvent
+    public function upsert(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->upsert(TaxAreaRuleTranslationDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->upsert(TaxAreaRuleTranslationDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function create(array $data, TranslationContext $context): GenericWrittenEvent
+    public function create(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->insert(TaxAreaRuleTranslationDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->insert(TaxAreaRuleTranslationDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function delete(array $ids, TranslationContext $context): GenericWrittenEvent
+    public function delete(array $ids, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->delete(TaxAreaRuleTranslationDefinition::class, $ids, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->delete(TaxAreaRuleTranslationDefinition::class, $ids, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithDeletedEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 

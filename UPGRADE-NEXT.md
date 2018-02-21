@@ -56,7 +56,7 @@ This changelog references changes done in Shopware Next patch versions.
 * Changed 3rd constructor parameter in `shopware_media.garbage_collector_factory` from `Shopware\Bundle\MediaBundle\MediaServiceInterface` to `Shopware\Bundle\MediaBundle\Strategy\StrategyInterface`
 * Changed constructor of `shopware_media.strategy_factory` to require a collection of `Shopware\Bundle\MediaBundle\Strategy\StrategyInterface`
 * Changed default path of `media` to `web/media`
-* Changed context requirement to new `\Shopware\Context\TranslationContext` in all `Shopware\Bundle\StoreFrontBundle` gateways
+* Changed context requirement to new `\Shopware\Context\ShopContext` in all `Shopware\Bundle\StoreFrontBundle` gateways
 * Changed `Shopware\Bundle\StoreFrontBundle\Tax\TaxGateway::getRules` parameters. Removed area, country, state and use new `ShippingLocation` 
 * Changed service structure in StoreFrontBundle. Services, structs and gateways are now stored in domain namespaces. 
     * Example: `Shopware\Bundle\StoreFrontBundle\Service\Core\ManufacturerService` moved to `Shopware\Bundle\StoreFrontBundle\Manufacturer\ManufacturerService`

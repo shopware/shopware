@@ -21,7 +21,7 @@ use Shopware\Api\Product\Event\ProductStream\ProductStreamDetailLoadedEvent;
 use Shopware\Api\Product\Event\ProductStream\ProductStreamIdSearchResultLoadedEvent;
 use Shopware\Api\Product\Event\ProductStream\ProductStreamSearchResultLoadedEvent;
 use Shopware\Api\Product\Struct\ProductStreamSearchResult;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductStreamRepository implements RepositoryInterface
@@ -65,7 +65,7 @@ class ProductStreamRepository implements RepositoryInterface
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function search(Criteria $criteria, TranslationContext $context): ProductStreamSearchResult
+    public function search(Criteria $criteria, ShopContext $context): ProductStreamSearchResult
     {
         $ids = $this->searchIds($criteria, $context);
 
@@ -84,7 +84,7 @@ class ProductStreamRepository implements RepositoryInterface
         return $result;
     }
 
-    public function aggregate(Criteria $criteria, TranslationContext $context): AggregationResult
+    public function aggregate(Criteria $criteria, ShopContext $context): AggregationResult
     {
         $result = $this->aggregator->aggregate(ProductStreamDefinition::class, $criteria, $context);
 
@@ -94,7 +94,7 @@ class ProductStreamRepository implements RepositoryInterface
         return $result;
     }
 
-    public function searchIds(Criteria $criteria, TranslationContext $context): IdSearchResult
+    public function searchIds(Criteria $criteria, ShopContext $context): IdSearchResult
     {
         $result = $this->searcher->search(ProductStreamDefinition::class, $criteria, $context);
 
@@ -104,7 +104,7 @@ class ProductStreamRepository implements RepositoryInterface
         return $result;
     }
 
-    public function readBasic(array $ids, TranslationContext $context): ProductStreamBasicCollection
+    public function readBasic(array $ids, ShopContext $context): ProductStreamBasicCollection
     {
         /** @var ProductStreamBasicCollection $entities */
         $entities = $this->reader->readBasic(ProductStreamDefinition::class, $ids, $context);
@@ -115,7 +115,7 @@ class ProductStreamRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $ids, TranslationContext $context): ProductStreamDetailCollection
+    public function readDetail(array $ids, ShopContext $context): ProductStreamDetailCollection
     {
         /** @var ProductStreamDetailCollection $entities */
         $entities = $this->reader->readDetail(ProductStreamDefinition::class, $ids, $context);
@@ -126,36 +126,36 @@ class ProductStreamRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function update(array $data, TranslationContext $context): GenericWrittenEvent
+    public function update(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->update(ProductStreamDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->update(ProductStreamDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function upsert(array $data, TranslationContext $context): GenericWrittenEvent
+    public function upsert(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->upsert(ProductStreamDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->upsert(ProductStreamDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function create(array $data, TranslationContext $context): GenericWrittenEvent
+    public function create(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->insert(ProductStreamDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->insert(ProductStreamDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function delete(array $ids, TranslationContext $context): GenericWrittenEvent
+    public function delete(array $ids, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->delete(ProductStreamDefinition::class, $ids, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->delete(ProductStreamDefinition::class, $ids, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithDeletedEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 

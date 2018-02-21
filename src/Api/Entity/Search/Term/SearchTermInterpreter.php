@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Entity\Search\Term;
 
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 
 class SearchTermInterpreter
 {
@@ -16,7 +16,7 @@ class SearchTermInterpreter
         $this->tokenizer = $tokenizer;
     }
 
-    public function interpret(string $term, TranslationContext $context): SearchPattern
+    public function interpret(string $term, ShopContext $context): SearchPattern
     {
         $terms = $this->tokenizer->tokenize($term);
 

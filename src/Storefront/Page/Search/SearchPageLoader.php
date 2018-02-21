@@ -78,7 +78,7 @@ class SearchPageLoader
         $criteria->setFetchCount(true);
         $criteria->addFilter(new TermQuery('product.active', 1));
 
-        $pattern = $this->termInterpreter->interpret($searchTerm, $context->getTranslationContext());
+        $pattern = $this->termInterpreter->interpret($searchTerm, $context->getShopContext());
         $keywords = $queries = [];
         foreach ($pattern->getTerms() as $term) {
             $queries[] = new ScoreQuery(

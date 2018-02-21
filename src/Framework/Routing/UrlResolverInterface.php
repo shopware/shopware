@@ -25,11 +25,11 @@
 namespace Shopware\Framework\Routing;
 
 use Shopware\Api\Seo\Struct\SeoUrlBasicStruct;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 
 interface UrlResolverInterface
 {
-    public function getPathInfo(string $shopId, string $url, TranslationContext $context): ?SeoUrlBasicStruct;
+    public function getPathInfo(string $shopId, string $url, ShopContext $context): ?SeoUrlBasicStruct;
 
-    public function getUrl(string $shopId, string $pathInfo, TranslationContext $context): ?SeoUrlBasicStruct;
+    public function getUrl(string $shopId, string $pathInfo, ShopContext $context): ?SeoUrlBasicStruct;
 }

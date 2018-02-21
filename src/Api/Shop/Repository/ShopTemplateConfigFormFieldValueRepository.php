@@ -21,7 +21,7 @@ use Shopware\Api\Shop\Event\ShopTemplateConfigFormFieldValue\ShopTemplateConfigF
 use Shopware\Api\Shop\Event\ShopTemplateConfigFormFieldValue\ShopTemplateConfigFormFieldValueIdSearchResultLoadedEvent;
 use Shopware\Api\Shop\Event\ShopTemplateConfigFormFieldValue\ShopTemplateConfigFormFieldValueSearchResultLoadedEvent;
 use Shopware\Api\Shop\Struct\ShopTemplateConfigFormFieldValueSearchResult;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ShopTemplateConfigFormFieldValueRepository implements RepositoryInterface
@@ -65,7 +65,7 @@ class ShopTemplateConfigFormFieldValueRepository implements RepositoryInterface
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function search(Criteria $criteria, TranslationContext $context): ShopTemplateConfigFormFieldValueSearchResult
+    public function search(Criteria $criteria, ShopContext $context): ShopTemplateConfigFormFieldValueSearchResult
     {
         $ids = $this->searchIds($criteria, $context);
 
@@ -84,7 +84,7 @@ class ShopTemplateConfigFormFieldValueRepository implements RepositoryInterface
         return $result;
     }
 
-    public function aggregate(Criteria $criteria, TranslationContext $context): AggregationResult
+    public function aggregate(Criteria $criteria, ShopContext $context): AggregationResult
     {
         $result = $this->aggregator->aggregate(ShopTemplateConfigFormFieldValueDefinition::class, $criteria, $context);
 
@@ -94,7 +94,7 @@ class ShopTemplateConfigFormFieldValueRepository implements RepositoryInterface
         return $result;
     }
 
-    public function searchIds(Criteria $criteria, TranslationContext $context): IdSearchResult
+    public function searchIds(Criteria $criteria, ShopContext $context): IdSearchResult
     {
         $result = $this->searcher->search(ShopTemplateConfigFormFieldValueDefinition::class, $criteria, $context);
 
@@ -104,7 +104,7 @@ class ShopTemplateConfigFormFieldValueRepository implements RepositoryInterface
         return $result;
     }
 
-    public function readBasic(array $ids, TranslationContext $context): ShopTemplateConfigFormFieldValueBasicCollection
+    public function readBasic(array $ids, ShopContext $context): ShopTemplateConfigFormFieldValueBasicCollection
     {
         /** @var ShopTemplateConfigFormFieldValueBasicCollection $entities */
         $entities = $this->reader->readBasic(ShopTemplateConfigFormFieldValueDefinition::class, $ids, $context);
@@ -115,7 +115,7 @@ class ShopTemplateConfigFormFieldValueRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $ids, TranslationContext $context): ShopTemplateConfigFormFieldValueDetailCollection
+    public function readDetail(array $ids, ShopContext $context): ShopTemplateConfigFormFieldValueDetailCollection
     {
         /** @var ShopTemplateConfigFormFieldValueDetailCollection $entities */
         $entities = $this->reader->readDetail(ShopTemplateConfigFormFieldValueDefinition::class, $ids, $context);
@@ -126,36 +126,36 @@ class ShopTemplateConfigFormFieldValueRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function update(array $data, TranslationContext $context): GenericWrittenEvent
+    public function update(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->update(ShopTemplateConfigFormFieldValueDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->update(ShopTemplateConfigFormFieldValueDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function upsert(array $data, TranslationContext $context): GenericWrittenEvent
+    public function upsert(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->upsert(ShopTemplateConfigFormFieldValueDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->upsert(ShopTemplateConfigFormFieldValueDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function create(array $data, TranslationContext $context): GenericWrittenEvent
+    public function create(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->insert(ShopTemplateConfigFormFieldValueDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->insert(ShopTemplateConfigFormFieldValueDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function delete(array $ids, TranslationContext $context): GenericWrittenEvent
+    public function delete(array $ids, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->delete(ShopTemplateConfigFormFieldValueDefinition::class, $ids, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->delete(ShopTemplateConfigFormFieldValueDefinition::class, $ids, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithDeletedEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 

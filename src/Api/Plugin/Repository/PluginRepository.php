@@ -21,7 +21,7 @@ use Shopware\Api\Plugin\Event\Plugin\PluginDetailLoadedEvent;
 use Shopware\Api\Plugin\Event\Plugin\PluginIdSearchResultLoadedEvent;
 use Shopware\Api\Plugin\Event\Plugin\PluginSearchResultLoadedEvent;
 use Shopware\Api\Plugin\Struct\PluginSearchResult;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class PluginRepository implements RepositoryInterface
@@ -65,7 +65,7 @@ class PluginRepository implements RepositoryInterface
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function search(Criteria $criteria, TranslationContext $context): PluginSearchResult
+    public function search(Criteria $criteria, ShopContext $context): PluginSearchResult
     {
         $ids = $this->searchIds($criteria, $context);
 
@@ -84,7 +84,7 @@ class PluginRepository implements RepositoryInterface
         return $result;
     }
 
-    public function aggregate(Criteria $criteria, TranslationContext $context): AggregationResult
+    public function aggregate(Criteria $criteria, ShopContext $context): AggregationResult
     {
         $result = $this->aggregator->aggregate(PluginDefinition::class, $criteria, $context);
 
@@ -94,7 +94,7 @@ class PluginRepository implements RepositoryInterface
         return $result;
     }
 
-    public function searchIds(Criteria $criteria, TranslationContext $context): IdSearchResult
+    public function searchIds(Criteria $criteria, ShopContext $context): IdSearchResult
     {
         $result = $this->searcher->search(PluginDefinition::class, $criteria, $context);
 
@@ -104,7 +104,7 @@ class PluginRepository implements RepositoryInterface
         return $result;
     }
 
-    public function readBasic(array $ids, TranslationContext $context): PluginBasicCollection
+    public function readBasic(array $ids, ShopContext $context): PluginBasicCollection
     {
         /** @var PluginBasicCollection $entities */
         $entities = $this->reader->readBasic(PluginDefinition::class, $ids, $context);
@@ -115,7 +115,7 @@ class PluginRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $ids, TranslationContext $context): PluginDetailCollection
+    public function readDetail(array $ids, ShopContext $context): PluginDetailCollection
     {
         /** @var PluginDetailCollection $entities */
         $entities = $this->reader->readDetail(PluginDefinition::class, $ids, $context);
@@ -126,36 +126,36 @@ class PluginRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function update(array $data, TranslationContext $context): GenericWrittenEvent
+    public function update(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->update(PluginDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->update(PluginDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function upsert(array $data, TranslationContext $context): GenericWrittenEvent
+    public function upsert(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->upsert(PluginDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->upsert(PluginDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function create(array $data, TranslationContext $context): GenericWrittenEvent
+    public function create(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->insert(PluginDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->insert(PluginDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function delete(array $ids, TranslationContext $context): GenericWrittenEvent
+    public function delete(array $ids, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->delete(PluginDefinition::class, $ids, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->delete(PluginDefinition::class, $ids, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithDeletedEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 

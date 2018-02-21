@@ -3,7 +3,7 @@
 namespace Shopware\Api\Shop\Event\ShopTemplate;
 
 use Shopware\Api\Entity\Search\AggregationResult;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class ShopTemplateAggregationResultLoadedEvent extends NestedEvent
@@ -25,7 +25,7 @@ class ShopTemplateAggregationResultLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): TranslationContext
+    public function getContext(): ShopContext
     {
         return $this->result->getContext();
     }

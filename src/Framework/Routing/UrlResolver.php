@@ -28,7 +28,7 @@ use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\Seo\Repository\SeoUrlRepository;
 use Shopware\Api\Seo\Struct\SeoUrlBasicStruct;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 
 class UrlResolver implements UrlResolverInterface
 {
@@ -42,7 +42,7 @@ class UrlResolver implements UrlResolverInterface
         $this->seoUrlRepository = $seoUrlRepository;
     }
 
-    public function getPathInfo(string $shopId, string $url, TranslationContext $context): ?SeoUrlBasicStruct
+    public function getPathInfo(string $shopId, string $url, ShopContext $context): ?SeoUrlBasicStruct
     {
         $url = ltrim($url, '/');
 
@@ -54,7 +54,7 @@ class UrlResolver implements UrlResolverInterface
         return $urls->getBySeoPathInfo($url);
     }
 
-    public function getUrl(string $shopId, string $pathInfo, TranslationContext $context): ?SeoUrlBasicStruct
+    public function getUrl(string $shopId, string $pathInfo, ShopContext $context): ?SeoUrlBasicStruct
     {
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('seo_url.shopId', $shopId));

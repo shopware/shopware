@@ -5,7 +5,7 @@ namespace Shopware\Api\Order\Event\OrderAddress;
 use Shopware\Api\Country\Event\Country\CountryBasicLoadedEvent;
 use Shopware\Api\Country\Event\CountryState\CountryStateBasicLoadedEvent;
 use Shopware\Api\Order\Collection\OrderAddressBasicCollection;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 
@@ -14,7 +14,7 @@ class OrderAddressBasicLoadedEvent extends NestedEvent
     public const NAME = 'order_address.basic.loaded';
 
     /**
-     * @var TranslationContext
+     * @var ShopContext
      */
     protected $context;
 
@@ -23,7 +23,7 @@ class OrderAddressBasicLoadedEvent extends NestedEvent
      */
     protected $orderAddresses;
 
-    public function __construct(OrderAddressBasicCollection $orderAddresses, TranslationContext $context)
+    public function __construct(OrderAddressBasicCollection $orderAddresses, ShopContext $context)
     {
         $this->context = $context;
         $this->orderAddresses = $orderAddresses;
@@ -34,7 +34,7 @@ class OrderAddressBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): TranslationContext
+    public function getContext(): ShopContext
     {
         return $this->context;
     }

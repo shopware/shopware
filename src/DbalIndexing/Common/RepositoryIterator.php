@@ -5,7 +5,7 @@ namespace Shopware\DbalIndexing\Common;
 use Shopware\Api\Entity\RepositoryInterface;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\SearchResultInterface;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 
 class RepositoryIterator
 {
@@ -20,11 +20,11 @@ class RepositoryIterator
     private $repository;
 
     /**
-     * @var TranslationContext
+     * @var ShopContext
      */
     private $context;
 
-    public function __construct(RepositoryInterface $repository, TranslationContext $context, Criteria $criteria = null)
+    public function __construct(RepositoryInterface $repository, ShopContext $context, Criteria $criteria = null)
     {
         if ($criteria === null) {
             $criteria = new Criteria();

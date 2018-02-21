@@ -46,14 +46,14 @@ class StorefrontProductRepository
 
     public function read(array $ids, StorefrontContext $context): ProductBasicCollection
     {
-        $basics = $this->repository->readBasic($ids, $context->getTranslationContext());
+        $basics = $this->repository->readBasic($ids, $context->getShopContext());
 
         return $this->loadListProducts($basics, $context);
     }
 
     public function search(Criteria $criteria, StorefrontContext $context): ProductSearchResult
     {
-        $basics = $this->repository->search($criteria, $context->getTranslationContext());
+        $basics = $this->repository->search($criteria, $context->getShopContext());
         $listProducts = $this->loadListProducts($basics, $context);
 
         $basics->clear();
@@ -70,7 +70,7 @@ class StorefrontProductRepository
         $criteria->addSorting(new FieldSorting('product_media.isCover', FieldSorting::DESCENDING));
         $criteria->addSorting(new FieldSorting('product_media.position'));
 
-        return $this->productMediaRepository->search($criteria, $context->getTranslationContext());
+        return $this->productMediaRepository->search($criteria, $context->getShopContext());
     }
 
     private function loadListProducts(ProductBasicCollection $products, StorefrontContext $context): ProductBasicCollection

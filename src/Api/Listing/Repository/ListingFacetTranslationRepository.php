@@ -21,7 +21,7 @@ use Shopware\Api\Listing\Event\ListingFacetTranslation\ListingFacetTranslationDe
 use Shopware\Api\Listing\Event\ListingFacetTranslation\ListingFacetTranslationIdSearchResultLoadedEvent;
 use Shopware\Api\Listing\Event\ListingFacetTranslation\ListingFacetTranslationSearchResultLoadedEvent;
 use Shopware\Api\Listing\Struct\ListingFacetTranslationSearchResult;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ListingFacetTranslationRepository implements RepositoryInterface
@@ -65,7 +65,7 @@ class ListingFacetTranslationRepository implements RepositoryInterface
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function search(Criteria $criteria, TranslationContext $context): ListingFacetTranslationSearchResult
+    public function search(Criteria $criteria, ShopContext $context): ListingFacetTranslationSearchResult
     {
         $ids = $this->searchIds($criteria, $context);
 
@@ -84,7 +84,7 @@ class ListingFacetTranslationRepository implements RepositoryInterface
         return $result;
     }
 
-    public function aggregate(Criteria $criteria, TranslationContext $context): AggregationResult
+    public function aggregate(Criteria $criteria, ShopContext $context): AggregationResult
     {
         $result = $this->aggregator->aggregate(ListingFacetTranslationDefinition::class, $criteria, $context);
 
@@ -94,7 +94,7 @@ class ListingFacetTranslationRepository implements RepositoryInterface
         return $result;
     }
 
-    public function searchIds(Criteria $criteria, TranslationContext $context): IdSearchResult
+    public function searchIds(Criteria $criteria, ShopContext $context): IdSearchResult
     {
         $result = $this->searcher->search(ListingFacetTranslationDefinition::class, $criteria, $context);
 
@@ -104,7 +104,7 @@ class ListingFacetTranslationRepository implements RepositoryInterface
         return $result;
     }
 
-    public function readBasic(array $ids, TranslationContext $context): ListingFacetTranslationBasicCollection
+    public function readBasic(array $ids, ShopContext $context): ListingFacetTranslationBasicCollection
     {
         /** @var ListingFacetTranslationBasicCollection $entities */
         $entities = $this->reader->readBasic(ListingFacetTranslationDefinition::class, $ids, $context);
@@ -115,7 +115,7 @@ class ListingFacetTranslationRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $ids, TranslationContext $context): ListingFacetTranslationDetailCollection
+    public function readDetail(array $ids, ShopContext $context): ListingFacetTranslationDetailCollection
     {
         /** @var ListingFacetTranslationDetailCollection $entities */
         $entities = $this->reader->readDetail(ListingFacetTranslationDefinition::class, $ids, $context);
@@ -126,36 +126,36 @@ class ListingFacetTranslationRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function update(array $data, TranslationContext $context): GenericWrittenEvent
+    public function update(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->update(ListingFacetTranslationDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->update(ListingFacetTranslationDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function upsert(array $data, TranslationContext $context): GenericWrittenEvent
+    public function upsert(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->upsert(ListingFacetTranslationDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->upsert(ListingFacetTranslationDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function create(array $data, TranslationContext $context): GenericWrittenEvent
+    public function create(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->insert(ListingFacetTranslationDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->insert(ListingFacetTranslationDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function delete(array $ids, TranslationContext $context): GenericWrittenEvent
+    public function delete(array $ids, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->delete(ListingFacetTranslationDefinition::class, $ids, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->delete(ListingFacetTranslationDefinition::class, $ids, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithDeletedEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 

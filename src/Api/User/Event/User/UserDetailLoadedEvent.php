@@ -5,7 +5,7 @@ namespace Shopware\Api\User\Event\User;
 use Shopware\Api\Locale\Event\Locale\LocaleBasicLoadedEvent;
 use Shopware\Api\Media\Event\Media\MediaBasicLoadedEvent;
 use Shopware\Api\User\Collection\UserDetailCollection;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 
@@ -14,7 +14,7 @@ class UserDetailLoadedEvent extends NestedEvent
     public const NAME = 'user.detail.loaded';
 
     /**
-     * @var TranslationContext
+     * @var ShopContext
      */
     protected $context;
 
@@ -23,7 +23,7 @@ class UserDetailLoadedEvent extends NestedEvent
      */
     protected $users;
 
-    public function __construct(UserDetailCollection $users, TranslationContext $context)
+    public function __construct(UserDetailCollection $users, ShopContext $context)
     {
         $this->context = $context;
         $this->users = $users;
@@ -34,7 +34,7 @@ class UserDetailLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): TranslationContext
+    public function getContext(): ShopContext
     {
         return $this->context;
     }

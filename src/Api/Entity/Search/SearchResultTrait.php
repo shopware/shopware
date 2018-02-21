@@ -4,7 +4,7 @@ namespace Shopware\Api\Entity\Search;
 
 use Shopware\Api\Entity\Entity;
 use Shopware\Api\Entity\EntityCollection;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Struct\ArrayStruct;
 
 trait SearchResultTrait
@@ -34,7 +34,7 @@ trait SearchResultTrait
         return $this->idResult->getCriteria();
     }
 
-    public function getContext(): TranslationContext
+    public function getContext(): ShopContext
     {
         return $this->idResult->getContext();
     }

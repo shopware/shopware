@@ -2,9 +2,9 @@
 
 namespace Shopware\Api\Entity\Search;
 
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 
 interface EntityAggregatorInterface
 {
-    public function aggregate(string $definition, Criteria $criteria, TranslationContext $context): AggregationResult;
+    public function aggregate(string $definition, Criteria $criteria, ShopContext $context): AggregationResult;
 }

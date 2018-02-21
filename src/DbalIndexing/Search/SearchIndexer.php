@@ -8,7 +8,7 @@ use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Api\Product\Repository\ProductRepository;
 use Shopware\Api\Product\Struct\ProductSearchResult;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Shopware\DbalIndexing\Common\ContextVariationService;
 use Shopware\DbalIndexing\Common\IndexTableOperator;
 use Shopware\DbalIndexing\Common\RepositoryIterator;
@@ -116,14 +116,14 @@ class SearchIndexer implements IndexerInterface
         $queue->execute();
     }
 
-    private function indexContext(TranslationContext $context, \DateTime $timestamp): void
+    private function indexContext(ShopContext $context, \DateTime $timestamp): void
     {
         $iterator = new RepositoryIterator($this->productRepository, $context);
 
         $this->eventDispatcher->dispatch(
             ProgressStartedEvent::NAME,
             new ProgressStartedEvent(
-                sprintf('Start analyzing search keywords for shop %s', $context->getShopId()),
+                sprintf('Start analyzing search keywords for shop %s', $context->getApplicationId()),
                 $iterator->getTotal()
             )
         );
@@ -148,19 +148,19 @@ class SearchIndexer implements IndexerInterface
 
         $this->eventDispatcher->dispatch(
             ProgressFinishedEvent::NAME,
-            new ProgressFinishedEvent(sprintf('Finished analyzing search keywords for shop id %s', $context->getShopId()))
+            new ProgressFinishedEvent(sprintf('Finished analyzing search keywords for shop id %s', $context->getApplicationId()))
         );
     }
 
     private function updateQueryQueue(
         MultiInsertQueryQueue $queue,
-        TranslationContext $context,
+        ShopContext $context,
         string $productId,
         array $keywords,
         string $table,
         string $documentTable
     ) {
-        $shopId = Uuid::fromString($context->getShopId())->getBytes();
+        $shopId = Uuid::fromString($context->getApplicationId())->getBytes();
         $productId = Uuid::fromString($productId)->getBytes();
         $versionId = Uuid::fromString($context->getVersionId())->getBytes();
         $liveVersionId = Uuid::fromString(Defaults::LIVE_VERSION)->getBytes();

@@ -6,55 +6,55 @@ use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Search\SearchResultInterface;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 
 interface RepositoryInterface
 {
     /**
      * @param Criteria           $criteria
-     * @param TranslationContext $context
+     * @param ShopContext $context
      *
      * @return AggregationResult
      */
-    public function aggregate(Criteria $criteria, TranslationContext $context);
+    public function aggregate(Criteria $criteria, ShopContext $context);
 
     /**
      * @param Criteria           $criteria
-     * @param TranslationContext $context
+     * @param ShopContext $context
      *
      * @return IdSearchResult
      */
-    public function searchIds(Criteria $criteria, TranslationContext $context);
+    public function searchIds(Criteria $criteria, ShopContext $context);
 
     /**
      * @param Criteria           $criteria
-     * @param TranslationContext $context
+     * @param ShopContext $context
      *
      * @return SearchResultInterface
      */
-    public function search(Criteria $criteria, TranslationContext $context);
+    public function search(Criteria $criteria, ShopContext $context);
 
     /**
      * @param array              $ids
-     * @param TranslationContext $context
+     * @param ShopContext $context
      *
      * @return EntityCollection
      */
-    public function readBasic(array $ids, TranslationContext $context);
+    public function readBasic(array $ids, ShopContext $context);
 
     /**
      * @param array              $ids
-     * @param TranslationContext $context
+     * @param ShopContext $context
      *
      * @return EntityCollection
      */
-    public function readDetail(array $ids, TranslationContext $context);
+    public function readDetail(array $ids, ShopContext $context);
 
-    public function update(array $data, TranslationContext $context): GenericWrittenEvent;
+    public function update(array $data, ShopContext $context): GenericWrittenEvent;
 
-    public function upsert(array $data, TranslationContext $context): GenericWrittenEvent;
+    public function upsert(array $data, ShopContext $context): GenericWrittenEvent;
 
-    public function create(array $data, TranslationContext $context): GenericWrittenEvent;
+    public function create(array $data, ShopContext $context): GenericWrittenEvent;
 
-    public function delete(array $data, TranslationContext $context): GenericWrittenEvent;
+    public function delete(array $data, ShopContext $context): GenericWrittenEvent;
 }

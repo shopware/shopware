@@ -21,7 +21,7 @@ use Shopware\Api\Mail\Event\Mail\MailDetailLoadedEvent;
 use Shopware\Api\Mail\Event\Mail\MailIdSearchResultLoadedEvent;
 use Shopware\Api\Mail\Event\Mail\MailSearchResultLoadedEvent;
 use Shopware\Api\Mail\Struct\MailSearchResult;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class MailRepository implements RepositoryInterface
@@ -65,7 +65,7 @@ class MailRepository implements RepositoryInterface
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function search(Criteria $criteria, TranslationContext $context): MailSearchResult
+    public function search(Criteria $criteria, ShopContext $context): MailSearchResult
     {
         $ids = $this->searchIds($criteria, $context);
 
@@ -84,7 +84,7 @@ class MailRepository implements RepositoryInterface
         return $result;
     }
 
-    public function aggregate(Criteria $criteria, TranslationContext $context): AggregationResult
+    public function aggregate(Criteria $criteria, ShopContext $context): AggregationResult
     {
         $result = $this->aggregator->aggregate(MailDefinition::class, $criteria, $context);
 
@@ -94,7 +94,7 @@ class MailRepository implements RepositoryInterface
         return $result;
     }
 
-    public function searchIds(Criteria $criteria, TranslationContext $context): IdSearchResult
+    public function searchIds(Criteria $criteria, ShopContext $context): IdSearchResult
     {
         $result = $this->searcher->search(MailDefinition::class, $criteria, $context);
 
@@ -104,7 +104,7 @@ class MailRepository implements RepositoryInterface
         return $result;
     }
 
-    public function readBasic(array $ids, TranslationContext $context): MailBasicCollection
+    public function readBasic(array $ids, ShopContext $context): MailBasicCollection
     {
         /** @var MailBasicCollection $entities */
         $entities = $this->reader->readBasic(MailDefinition::class, $ids, $context);
@@ -115,7 +115,7 @@ class MailRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $ids, TranslationContext $context): MailDetailCollection
+    public function readDetail(array $ids, ShopContext $context): MailDetailCollection
     {
         /** @var MailDetailCollection $entities */
         $entities = $this->reader->readDetail(MailDefinition::class, $ids, $context);
@@ -126,36 +126,36 @@ class MailRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function update(array $data, TranslationContext $context): GenericWrittenEvent
+    public function update(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->update(MailDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->update(MailDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function upsert(array $data, TranslationContext $context): GenericWrittenEvent
+    public function upsert(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->upsert(MailDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->upsert(MailDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function create(array $data, TranslationContext $context): GenericWrittenEvent
+    public function create(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->insert(MailDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->insert(MailDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function delete(array $ids, TranslationContext $context): GenericWrittenEvent
+    public function delete(array $ids, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->delete(MailDefinition::class, $ids, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->delete(MailDefinition::class, $ids, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithDeletedEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 

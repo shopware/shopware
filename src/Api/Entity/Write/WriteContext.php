@@ -27,7 +27,7 @@ namespace Shopware\Api\Entity\Write;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Shop\Definition\ShopDefinition;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 
 class WriteContext
 {
@@ -39,9 +39,9 @@ class WriteContext
     public $paths = [];
 
     /**
-     * @var TranslationContext
+     * @var ShopContext
      */
-    private $translationContext;
+    private $shopContext;
 
     /**
      * @var array[]
@@ -55,9 +55,9 @@ class WriteContext
      */
     private $inheritance = [];
 
-    private function __construct(TranslationContext $translationContext)
+    private function __construct(ShopContext $shopContext)
     {
-        $this->translationContext = $translationContext;
+        $this->shopContext = $shopContext;
     }
 
     public function addInheritance(string $definition, array $inheritance): void
@@ -72,10 +72,10 @@ class WriteContext
         );
     }
 
-    public static function createFromTranslationContext(TranslationContext $context): self
+    public static function createFromShopContext(ShopContext $context): self
     {
         $self = new self($context);
-        $self->set(ShopDefinition::class, 'id', $context->getShopId());
+        $self->set(ShopDefinition::class, 'id', $context->getApplicationId());
 
         return $self;
     }
@@ -154,27 +154,20 @@ class WriteContext
         return isset($inheritance[$raw['id']]);
     }
 
-    public function getTranslationContext(): TranslationContext
+    public function getShopContext(): ShopContext
     {
-        return $this->translationContext;
+        return $this->shopContext;
     }
 
     public function resetPaths(): void
     {
         $this->paths = [];
-        $this->set(ShopDefinition::class, 'id', $this->translationContext->getShopId());
+        $this->set(ShopDefinition::class, 'id', $this->shopContext->getApplicationId());
     }
 
     public function createWithVersionId(string $versionId): self
     {
-        return self::createFromTranslationContext(
-            new TranslationContext(
-                $this->getTranslationContext()->getShopId(),
-                $this->getTranslationContext()->isDefaultShop(),
-                $this->getTranslationContext()->getFallbackId(),
-                $versionId
-            )
-        );
+        return self::createFromShopContext($this->getShopContext()->createWithVersionId($versionId));
     }
 
     /**

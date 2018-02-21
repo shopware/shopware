@@ -21,7 +21,7 @@ use Shopware\Api\Seo\Event\SeoUrl\SeoUrlDetailLoadedEvent;
 use Shopware\Api\Seo\Event\SeoUrl\SeoUrlIdSearchResultLoadedEvent;
 use Shopware\Api\Seo\Event\SeoUrl\SeoUrlSearchResultLoadedEvent;
 use Shopware\Api\Seo\Struct\SeoUrlSearchResult;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class SeoUrlRepository implements RepositoryInterface
@@ -65,7 +65,7 @@ class SeoUrlRepository implements RepositoryInterface
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function search(Criteria $criteria, TranslationContext $context): SeoUrlSearchResult
+    public function search(Criteria $criteria, ShopContext $context): SeoUrlSearchResult
     {
         $ids = $this->searchIds($criteria, $context);
 
@@ -84,7 +84,7 @@ class SeoUrlRepository implements RepositoryInterface
         return $result;
     }
 
-    public function aggregate(Criteria $criteria, TranslationContext $context): AggregationResult
+    public function aggregate(Criteria $criteria, ShopContext $context): AggregationResult
     {
         $result = $this->aggregator->aggregate(SeoUrlDefinition::class, $criteria, $context);
 
@@ -94,7 +94,7 @@ class SeoUrlRepository implements RepositoryInterface
         return $result;
     }
 
-    public function searchIds(Criteria $criteria, TranslationContext $context): IdSearchResult
+    public function searchIds(Criteria $criteria, ShopContext $context): IdSearchResult
     {
         $result = $this->searcher->search(SeoUrlDefinition::class, $criteria, $context);
 
@@ -104,7 +104,7 @@ class SeoUrlRepository implements RepositoryInterface
         return $result;
     }
 
-    public function readBasic(array $ids, TranslationContext $context): SeoUrlBasicCollection
+    public function readBasic(array $ids, ShopContext $context): SeoUrlBasicCollection
     {
         /** @var SeoUrlBasicCollection $entities */
         $entities = $this->reader->readBasic(SeoUrlDefinition::class, $ids, $context);
@@ -115,7 +115,7 @@ class SeoUrlRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $ids, TranslationContext $context): SeoUrlDetailCollection
+    public function readDetail(array $ids, ShopContext $context): SeoUrlDetailCollection
     {
         /** @var SeoUrlDetailCollection $entities */
         $entities = $this->reader->readDetail(SeoUrlDefinition::class, $ids, $context);
@@ -126,36 +126,36 @@ class SeoUrlRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function update(array $data, TranslationContext $context): GenericWrittenEvent
+    public function update(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->update(SeoUrlDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->update(SeoUrlDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function upsert(array $data, TranslationContext $context): GenericWrittenEvent
+    public function upsert(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->upsert(SeoUrlDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->upsert(SeoUrlDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function create(array $data, TranslationContext $context): GenericWrittenEvent
+    public function create(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->insert(SeoUrlDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->insert(SeoUrlDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function delete(array $ids, TranslationContext $context): GenericWrittenEvent
+    public function delete(array $ids, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->delete(SeoUrlDefinition::class, $ids, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->delete(SeoUrlDefinition::class, $ids, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithDeletedEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 

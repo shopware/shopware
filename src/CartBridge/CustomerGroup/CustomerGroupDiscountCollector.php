@@ -66,7 +66,7 @@ class CustomerGroupDiscountCollector implements CollectorInterface
                 $context->getCurrentCustomerGroup()->getId()
             )
         );
-        $discounts = $this->customerGroupDiscountRepository->search($criteria, $context->getTranslationContext());
+        $discounts = $this->customerGroupDiscountRepository->search($criteria, $context->getShopContext());
 
         $discounts->sort(function (CustomerGroupDiscountBasicStruct $a, CustomerGroupDiscountBasicStruct $b) {
             if ($a->getMinimumCartAmount() !== $b->getMinimumCartAmount()) {

@@ -6,7 +6,7 @@ use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Sorting\FieldSorting;
 use Shopware\Api\Shop\Repository\ShopRepository;
 use Shopware\Api\Shop\Struct\ShopBasicStruct;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 
 class ContextVariationService
 {
@@ -21,17 +21,17 @@ class ContextVariationService
     }
 
     /**
-     * @return TranslationContext[]
+     * @return ShopContext[]
      */
     public function createContexts(): array
     {
-        $context = TranslationContext::createDefaultContext();
+        $context = ShopContext::createDefaultContext();
         $criteria = new Criteria();
         $criteria->addSorting(new FieldSorting('shop.is_default'));
         $shops = $this->shopRepository->search(new Criteria(), $context);
 
         return $shops->map(function (ShopBasicStruct $shop) {
-            return TranslationContext::createFromShop($shop);
+            return ShopContext::createFromShop($shop);
         });
     }
 }

@@ -21,7 +21,7 @@ use Shopware\Api\Payment\Event\PaymentMethodTranslation\PaymentMethodTranslation
 use Shopware\Api\Payment\Event\PaymentMethodTranslation\PaymentMethodTranslationIdSearchResultLoadedEvent;
 use Shopware\Api\Payment\Event\PaymentMethodTranslation\PaymentMethodTranslationSearchResultLoadedEvent;
 use Shopware\Api\Payment\Struct\PaymentMethodTranslationSearchResult;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class PaymentMethodTranslationRepository implements RepositoryInterface
@@ -65,7 +65,7 @@ class PaymentMethodTranslationRepository implements RepositoryInterface
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function search(Criteria $criteria, TranslationContext $context): PaymentMethodTranslationSearchResult
+    public function search(Criteria $criteria, ShopContext $context): PaymentMethodTranslationSearchResult
     {
         $ids = $this->searchIds($criteria, $context);
 
@@ -84,7 +84,7 @@ class PaymentMethodTranslationRepository implements RepositoryInterface
         return $result;
     }
 
-    public function aggregate(Criteria $criteria, TranslationContext $context): AggregationResult
+    public function aggregate(Criteria $criteria, ShopContext $context): AggregationResult
     {
         $result = $this->aggregator->aggregate(PaymentMethodTranslationDefinition::class, $criteria, $context);
 
@@ -94,7 +94,7 @@ class PaymentMethodTranslationRepository implements RepositoryInterface
         return $result;
     }
 
-    public function searchIds(Criteria $criteria, TranslationContext $context): IdSearchResult
+    public function searchIds(Criteria $criteria, ShopContext $context): IdSearchResult
     {
         $result = $this->searcher->search(PaymentMethodTranslationDefinition::class, $criteria, $context);
 
@@ -104,7 +104,7 @@ class PaymentMethodTranslationRepository implements RepositoryInterface
         return $result;
     }
 
-    public function readBasic(array $ids, TranslationContext $context): PaymentMethodTranslationBasicCollection
+    public function readBasic(array $ids, ShopContext $context): PaymentMethodTranslationBasicCollection
     {
         /** @var PaymentMethodTranslationBasicCollection $entities */
         $entities = $this->reader->readBasic(PaymentMethodTranslationDefinition::class, $ids, $context);
@@ -115,7 +115,7 @@ class PaymentMethodTranslationRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $ids, TranslationContext $context): PaymentMethodTranslationDetailCollection
+    public function readDetail(array $ids, ShopContext $context): PaymentMethodTranslationDetailCollection
     {
         /** @var PaymentMethodTranslationDetailCollection $entities */
         $entities = $this->reader->readDetail(PaymentMethodTranslationDefinition::class, $ids, $context);
@@ -126,36 +126,36 @@ class PaymentMethodTranslationRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function update(array $data, TranslationContext $context): GenericWrittenEvent
+    public function update(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->update(PaymentMethodTranslationDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->update(PaymentMethodTranslationDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function upsert(array $data, TranslationContext $context): GenericWrittenEvent
+    public function upsert(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->upsert(PaymentMethodTranslationDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->upsert(PaymentMethodTranslationDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function create(array $data, TranslationContext $context): GenericWrittenEvent
+    public function create(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->insert(PaymentMethodTranslationDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->insert(PaymentMethodTranslationDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function delete(array $ids, TranslationContext $context): GenericWrittenEvent
+    public function delete(array $ids, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->delete(PaymentMethodTranslationDefinition::class, $ids, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->delete(PaymentMethodTranslationDefinition::class, $ids, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithDeletedEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 

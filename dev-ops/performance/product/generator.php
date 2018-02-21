@@ -24,31 +24,10 @@ $genTpl = function(int $i) use($faker): array {
         ],
         'active' => true,
         'categories' => [
-            ['categoryId' => \Shopware\Category\Extension\CategoryPathBuilder::ROOT]
+            ['id' => \Shopware\Category\Extension\CategoryPathBuilder::ROOT]
         ],
         'stock' => $faker->randomNumber(),
-        'prices' => [
-            [
-                'customerGroupId' => '3294e6f6-372b-415f-ac73-71cbc191548f',
-                'price' => $faker->randomFloat(2, 60, 100),
-                'quantityStart' => 1,
-                'quantityEnd' => 4
-            ], [
-                'customerGroupId' => '3294e6f6-372b-415f-ac73-71cbc191548f',
-                'price' => $faker->randomFloat(2, 40, 59),
-                'quantityStart' => 5,
-                'quantityEnd' => 10
-            ], [
-                'customerGroupId' => '3294e6f6-372b-415f-ac73-71cbc191548f',
-                'price' => $faker->randomFloat(2, 30, 39),
-                'quantityStart' => 11,
-                'quantityEnd' => 15
-            ], [
-                'customerGroupId' => '3294e6f6-372b-415f-ac73-71cbc191548f',
-                'price' => $faker->randomFloat(2, 10, 29),
-                'quantityStart' => 16
-            ]
-        ]
+        'price' => $faker->randomFloat(2, 60, 100),
     ];
 
     return $ret;

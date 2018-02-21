@@ -16,7 +16,7 @@ use Shopware\Api\Entity\Write\FieldAware\SqlParseAware;
 use Shopware\Api\Entity\Write\FieldAware\StorageAware;
 use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\Inherited;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Shopware\Defaults;
 
 class EntityDefinitionQueryHelper
@@ -63,7 +63,7 @@ class EntityDefinitionQueryHelper
         );
     }
 
-    public static function getFieldAccessor(string $fieldName, string $definition, string $root, TranslationContext $context): string
+    public static function getFieldAccessor(string $fieldName, string $definition, string $root, ShopContext $context): string
     {
         $original = $fieldName;
         $prefix = $root . '.';
@@ -130,7 +130,7 @@ class EntityDefinitionQueryHelper
         );
     }
 
-    public static function getBaseQuery(Connection $connection, string $definition, TranslationContext $context): QueryBuilder
+    public static function getBaseQuery(Connection $connection, string $definition, ShopContext $context): QueryBuilder
     {
         /** @var string|EntityDefinition $definition */
         $table = $definition::getEntityName();
@@ -148,7 +148,7 @@ class EntityDefinitionQueryHelper
         return $query;
     }
 
-    public static function joinField(string $fieldName, string $definition, string $root, QueryBuilder $query, TranslationContext $context): void
+    public static function joinField(string $fieldName, string $definition, string $root, QueryBuilder $query, ShopContext $context): void
     {
         $original = $fieldName;
         $prefix = $root . '.';
@@ -223,7 +223,7 @@ class EntityDefinitionQueryHelper
      * @param ManyToOneAssociationField $field
      * @param QueryBuilder              $query
      */
-    public static function joinManyToOne(string $definition, string $root, ManyToOneAssociationField $field, QueryBuilder $query, TranslationContext $context): void
+    public static function joinManyToOne(string $definition, string $root, ManyToOneAssociationField $field, QueryBuilder $query, ShopContext $context): void
     {
         /** @var EntityDefinition|string $reference */
         $reference = $field->getReferenceClass();
@@ -306,7 +306,7 @@ class EntityDefinitionQueryHelper
         self::joinManyToOne($reference, $alias, $parent, $query, $context);
     }
 
-    public static function joinOneToMany(string $definition, string $root, OneToManyAssociationField $field, QueryBuilder $query, TranslationContext $context): void
+    public static function joinOneToMany(string $definition, string $root, OneToManyAssociationField $field, QueryBuilder $query, ShopContext $context): void
     {
         /** @var EntityDefinition|string $reference */
         $reference = $field->getReferenceClass();
@@ -353,7 +353,7 @@ class EntityDefinitionQueryHelper
         self::joinManyToOne($reference, $alias, $parent, $query, $context);
     }
 
-    public static function joinManyToMany(string $definition, string $root, ManyToManyAssociationField $field, QueryBuilder $query, TranslationContext $context): void
+    public static function joinManyToMany(string $definition, string $root, ManyToManyAssociationField $field, QueryBuilder $query, ShopContext $context): void
     {
         /** @var EntityDefinition $mapping */
         $mapping = $field->getMappingDefinition();
@@ -430,7 +430,7 @@ class EntityDefinitionQueryHelper
         self::joinManyToOne($reference, $alias, $parent, $query, $context);
     }
 
-    public static function joinTranslation(string $root, string $definition, QueryBuilder $query, TranslationContext $context, bool $raw = false): void
+    public static function joinTranslation(string $root, string $definition, QueryBuilder $query, ShopContext $context, bool $raw = false): void
     {
         self::joinTranslationTable($root, $definition, $query, $context);
 
@@ -445,7 +445,7 @@ class EntityDefinitionQueryHelper
         self::joinTranslationTable($alias, $definition, $query, $context);
     }
 
-    public static function addTranslationSelect(string $root, string $definition, QueryBuilder $query, TranslationContext $context, FieldCollection $fields, bool $raw = false): void
+    public static function addTranslationSelect(string $root, string $definition, QueryBuilder $query, ShopContext $context, FieldCollection $fields, bool $raw = false): void
     {
         self::joinTranslation($root, $definition, $query, $context, $raw);
 
@@ -468,7 +468,7 @@ class EntityDefinitionQueryHelper
         }, $ids);
     }
 
-    private static function joinVersion(QueryBuilder $query, string $definition, string $root, TranslationContext $context): void
+    private static function joinVersion(QueryBuilder $query, string $definition, string $root, ShopContext $context): void
     {
         /** @var string|EntityDefinition $definition */
         $table = $definition::getEntityName();
@@ -500,7 +500,7 @@ class EntityDefinitionQueryHelper
         );
     }
 
-    private static function joinTranslationTable(string $root, string $definition, QueryBuilder $query, TranslationContext $context): void
+    private static function joinTranslationTable(string $root, string $definition, QueryBuilder $query, ShopContext $context): void
     {
         $alias = $root . '.translation';
         if ($query->hasState($alias)) {
@@ -512,7 +512,7 @@ class EntityDefinitionQueryHelper
         /** @var EntityDefinition $definition */
         $table = $definition::getEntityName() . '_translation';
 
-        $languageId = Uuid::fromString($context->getShopId())->getBytes();
+        $languageId = Uuid::fromString($context->getApplicationId())->getBytes();
         $query->setParameter('languageId', $languageId);
 
         $versionJoin = '';
@@ -555,7 +555,7 @@ class EntityDefinitionQueryHelper
                 '#alias#.#entity#_id = #root#.id AND #alias#.language_id = :fallbackLanguageId' . $versionJoin
             )
         );
-        $languageId = Uuid::fromString($context->getFallbackId())->getBytes();
+        $languageId = Uuid::fromString($context->getFallbackLanguageId())->getBytes();
         $query->setParameter('fallbackLanguageId', $languageId);
     }
 
@@ -579,7 +579,7 @@ class EntityDefinitionQueryHelper
         return sprintf('COALESCE(%s)', implode(',', $chainSelect));
     }
 
-    private static function buildTranslationChain(string $root, string $definition, TranslationContext $context, bool $raw = false): array
+    private static function buildTranslationChain(string $root, string $definition, ShopContext $context, bool $raw = false): array
     {
         $chain = [$root . '.translation'];
         $inheritedChain = [$root . '.translation'];

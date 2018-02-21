@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Entity\Search;
 
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 
 interface SearchResultInterface
 {
@@ -12,7 +12,7 @@ interface SearchResultInterface
 
     public function getCriteria(): Criteria;
 
-    public function getContext(): TranslationContext;
+    public function getContext(): ShopContext;
 
     public function getAggregationResult(): ?AggregationResult;
 

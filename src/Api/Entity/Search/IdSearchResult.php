@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Entity\Search;
 
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Struct\Struct;
 
 class IdSearchResult extends Struct
@@ -23,7 +23,7 @@ class IdSearchResult extends Struct
     protected $criteria;
 
     /**
-     * @var TranslationContext
+     * @var ShopContext
      */
     protected $context;
 
@@ -32,7 +32,7 @@ class IdSearchResult extends Struct
      */
     protected $ids;
 
-    public function __construct(int $total, array $data, Criteria $criteria, TranslationContext $context)
+    public function __construct(int $total, array $data, Criteria $criteria, ShopContext $context)
     {
         $this->total = $total;
         $this->ids = array_keys($data);
@@ -56,7 +56,7 @@ class IdSearchResult extends Struct
         return $this->criteria;
     }
 
-    public function getContext(): TranslationContext
+    public function getContext(): ShopContext
     {
         return $this->context;
     }

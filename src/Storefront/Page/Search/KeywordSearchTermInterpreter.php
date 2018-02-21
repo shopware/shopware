@@ -8,7 +8,7 @@ use Ramsey\Uuid\Uuid;
 use Shopware\Api\Entity\Search\Term\SearchPattern;
 use Shopware\Api\Entity\Search\Term\SearchTerm;
 use Shopware\Api\Entity\Search\Term\TokenizerInterface;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 
 class KeywordSearchTermInterpreter
 {
@@ -34,7 +34,7 @@ class KeywordSearchTermInterpreter
         $this->logger = $logger;
     }
 
-    public function interpret(string $word, TranslationContext $context): SearchPattern
+    public function interpret(string $word, ShopContext $context): SearchPattern
     {
         $tokens = $this->tokenizer->tokenize($word);
 
@@ -85,7 +85,7 @@ class KeywordSearchTermInterpreter
         return $slops;
     }
 
-    private function fetchKeywords(TranslationContext $context, array $slops): array
+    private function fetchKeywords(ShopContext $context, array $slops): array
     {
         $query = $this->connection->createQueryBuilder();
         $query->select('keyword');
@@ -101,12 +101,12 @@ class KeywordSearchTermInterpreter
 
         $query->andWhere('(' . implode(' OR ', $wheres) . ')');
         $query->andWhere('shop_id = :shop');
-        $query->setParameter('shop', Uuid::fromString($context->getShopId())->getBytes());
+        $query->setParameter('shop', Uuid::fromString($context->getApplicationId())->getBytes());
 
         return $query->execute()->fetchAll(\PDO::FETCH_COLUMN);
     }
 
-    private function score(array $tokens, array $matches, TranslationContext $context): array
+    private function score(array $tokens, array $matches, ShopContext $context): array
     {
         $scoring = [];
 

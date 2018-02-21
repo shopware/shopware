@@ -45,7 +45,7 @@ class VersionField extends FkField
      */
     public function __invoke(EntityExistence $existence, KeyValuePair $kvPair): \Generator
     {
-        $value = $this->writeContext->getTranslationContext()->getVersionId();
+        $value = $this->writeContext->getShopContext()->getVersionId();
 
         //write version id of current object to write context
         $this->writeContext->set($this->definition, 'versionId', $value);

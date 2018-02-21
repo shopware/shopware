@@ -3,7 +3,7 @@
 namespace Shopware\Api\Tax\Event\Tax;
 
 use Shopware\Api\Tax\Struct\TaxSearchResult;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class TaxSearchResultLoadedEvent extends NestedEvent
@@ -25,7 +25,7 @@ class TaxSearchResultLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): TranslationContext
+    public function getContext(): ShopContext
     {
         return $this->result->getContext();
     }

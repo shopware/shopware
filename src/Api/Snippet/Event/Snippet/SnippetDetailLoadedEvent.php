@@ -4,7 +4,7 @@ namespace Shopware\Api\Snippet\Event\Snippet;
 
 use Shopware\Api\Shop\Event\Shop\ShopBasicLoadedEvent;
 use Shopware\Api\Snippet\Collection\SnippetDetailCollection;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 
@@ -13,7 +13,7 @@ class SnippetDetailLoadedEvent extends NestedEvent
     public const NAME = 'snippet.detail.loaded';
 
     /**
-     * @var TranslationContext
+     * @var ShopContext
      */
     protected $context;
 
@@ -22,7 +22,7 @@ class SnippetDetailLoadedEvent extends NestedEvent
      */
     protected $snippets;
 
-    public function __construct(SnippetDetailCollection $snippets, TranslationContext $context)
+    public function __construct(SnippetDetailCollection $snippets, ShopContext $context)
     {
         $this->context = $context;
         $this->snippets = $snippets;
@@ -33,7 +33,7 @@ class SnippetDetailLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): TranslationContext
+    public function getContext(): ShopContext
     {
         return $this->context;
     }

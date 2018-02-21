@@ -11,7 +11,7 @@ use Shopware\Api\Product\Repository\ProductRepository;
 use Shopware\Api\Product\Struct\ProductSearchResult;
 use Shopware\Api\Seo\Definition\SeoUrlDefinition;
 use Shopware\Api\Shop\Repository\ShopRepository;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Shopware\DbalIndexing\Common\RepositoryIterator;
 use Shopware\DbalIndexing\Event\ProgressAdvancedEvent;
 use Shopware\DbalIndexing\Event\ProgressFinishedEvent;
@@ -75,12 +75,12 @@ class DetailPageSeoUrlIndexer implements IndexerInterface
 
     public function index(\DateTime $timestamp): void
     {
-        $shops = $this->shopRepository->search(new Criteria(), TranslationContext::createDefaultContext());
+        $shops = $this->shopRepository->search(new Criteria(), ShopContext::createDefaultContext());
 
         $liveVersionId = Uuid::fromString(Defaults::LIVE_VERSION);
 
         foreach ($shops as $shop) {
-            $context = TranslationContext::createFromShop($shop);
+            $context = ShopContext::createFromShop($shop);
 
             $iterator = new RepositoryIterator($this->productRepository, $context);
 

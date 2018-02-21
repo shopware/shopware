@@ -1,5 +1,7 @@
-use Doctrine\DBAL\Connection;#!/usr/bin/env php
+#!/usr/bin/env php
 <?php
+
+use Doctrine\DBAL\Connection;
 
 require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/../Measurement.php';
@@ -15,8 +17,8 @@ $kernel->boot();
  */
 function createWriteContext(): \Shopware\Api\Entity\Write\WriteContext
 {
-    return \Shopware\Api\Entity\Write\WriteContext::createFromTranslationContext(
-        new \Shopware\Context\Struct\TranslationContext('FFA32A50-E2D0-4CF3-8389-A53F8D6CD594', true, null)
+    return \Shopware\Api\Entity\Write\WriteContext::createFromShopContext(
+        \Shopware\Context\Struct\ShopContext::createDefaultContext()
     );
 }
 
@@ -27,7 +29,7 @@ $con = $container->get(Connection::class);
 //$con->executeUpdate('DELETE FROM product');
 
 echo "\nPreparing\n\n";
-$writer = $container->get('shopware.api.entity_writer');
+$writer = $container->get(\Shopware\Api\Entity\Write\EntityWriter::class);
 
 echo "\nInserting\n\n";
 $measurement = new Measurement();
@@ -51,7 +53,7 @@ foreach ($products as $i => $product) {
             1,
             $e->getMessage(),
             $e->getTraceAsString(),
-            $product
+//            $product
         ]);
         return;
     }

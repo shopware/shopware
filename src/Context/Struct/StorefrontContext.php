@@ -153,8 +153,8 @@ class StorefrontContext extends Struct
         return $this->shippingLocation;
     }
 
-    public function getTranslationContext(): TranslationContext
+    public function getShopContext(): ShopContext
     {
-        return TranslationContext::createFromShop($this->shop);
+        return ShopContext::createFromShop($this->shop);
     }
 }

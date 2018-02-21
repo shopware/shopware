@@ -3,7 +3,7 @@
 namespace Shopware\Api\Tax\Event\Tax;
 
 use Shopware\Api\Tax\Collection\TaxBasicCollection;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class TaxBasicLoadedEvent extends NestedEvent
@@ -11,7 +11,7 @@ class TaxBasicLoadedEvent extends NestedEvent
     public const NAME = 'tax.basic.loaded';
 
     /**
-     * @var TranslationContext
+     * @var ShopContext
      */
     protected $context;
 
@@ -20,7 +20,7 @@ class TaxBasicLoadedEvent extends NestedEvent
      */
     protected $taxes;
 
-    public function __construct(TaxBasicCollection $taxes, TranslationContext $context)
+    public function __construct(TaxBasicCollection $taxes, ShopContext $context)
     {
         $this->context = $context;
         $this->taxes = $taxes;
@@ -31,7 +31,7 @@ class TaxBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): TranslationContext
+    public function getContext(): ShopContext
     {
         return $this->context;
     }

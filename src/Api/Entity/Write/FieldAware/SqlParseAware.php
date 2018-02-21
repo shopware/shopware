@@ -2,9 +2,9 @@
 
 namespace Shopware\Api\Entity\Write\FieldAware;
 
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 
 interface SqlParseAware
 {
-    public function parse(string $selection, TranslationContext $context): string;
+    public function parse(string $selection, ShopContext $context): string;
 }

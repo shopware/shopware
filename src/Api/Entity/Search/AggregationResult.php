@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Entity\Search;
 
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Struct\Struct;
 
 class AggregationResult extends Struct
@@ -13,7 +13,7 @@ class AggregationResult extends Struct
     protected $aggregations;
 
     /**
-     * @var TranslationContext
+     * @var ShopContext
      */
     private $context;
 
@@ -22,7 +22,7 @@ class AggregationResult extends Struct
      */
     private $criteria;
 
-    public function __construct(array $aggregations, TranslationContext $context, Criteria $criteria)
+    public function __construct(array $aggregations, ShopContext $context, Criteria $criteria)
     {
         $this->aggregations = $aggregations;
         $this->context = $context;
@@ -34,7 +34,7 @@ class AggregationResult extends Struct
         return $this->aggregations;
     }
 
-    public function getContext(): TranslationContext
+    public function getContext(): ShopContext
     {
         return $this->context;
     }

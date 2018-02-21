@@ -3,7 +3,7 @@
 namespace Shopware\Api\Mail\Event\MailTranslation;
 
 use Shopware\Api\Mail\Collection\MailTranslationBasicCollection;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class MailTranslationBasicLoadedEvent extends NestedEvent
@@ -11,7 +11,7 @@ class MailTranslationBasicLoadedEvent extends NestedEvent
     public const NAME = 'mail_translation.basic.loaded';
 
     /**
-     * @var TranslationContext
+     * @var ShopContext
      */
     protected $context;
 
@@ -20,7 +20,7 @@ class MailTranslationBasicLoadedEvent extends NestedEvent
      */
     protected $mailTranslations;
 
-    public function __construct(MailTranslationBasicCollection $mailTranslations, TranslationContext $context)
+    public function __construct(MailTranslationBasicCollection $mailTranslations, ShopContext $context)
     {
         $this->context = $context;
         $this->mailTranslations = $mailTranslations;
@@ -31,7 +31,7 @@ class MailTranslationBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): TranslationContext
+    public function getContext(): ShopContext
     {
         return $this->context;
     }

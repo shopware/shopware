@@ -124,9 +124,11 @@ class ShopFinder
             'shop.base_path',
             'shop.is_secure',
             'locale.code as locale_code',
+            'currency.factor as currency_factor',
         ]);
         $query->from('shop', 'shop');
         $query->innerJoin('shop', 'locale', 'locale', 'locale.id = shop.locale_id');
+        $query->innerJoin('shop', 'currency', 'currency', 'currency.id = shop.currency_id');
 
         return $query;
     }

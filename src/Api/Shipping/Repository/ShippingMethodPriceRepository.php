@@ -21,7 +21,7 @@ use Shopware\Api\Shipping\Event\ShippingMethodPrice\ShippingMethodPriceDetailLoa
 use Shopware\Api\Shipping\Event\ShippingMethodPrice\ShippingMethodPriceIdSearchResultLoadedEvent;
 use Shopware\Api\Shipping\Event\ShippingMethodPrice\ShippingMethodPriceSearchResultLoadedEvent;
 use Shopware\Api\Shipping\Struct\ShippingMethodPriceSearchResult;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ShippingMethodPriceRepository implements RepositoryInterface
@@ -65,7 +65,7 @@ class ShippingMethodPriceRepository implements RepositoryInterface
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function search(Criteria $criteria, TranslationContext $context): ShippingMethodPriceSearchResult
+    public function search(Criteria $criteria, ShopContext $context): ShippingMethodPriceSearchResult
     {
         $ids = $this->searchIds($criteria, $context);
 
@@ -84,7 +84,7 @@ class ShippingMethodPriceRepository implements RepositoryInterface
         return $result;
     }
 
-    public function aggregate(Criteria $criteria, TranslationContext $context): AggregationResult
+    public function aggregate(Criteria $criteria, ShopContext $context): AggregationResult
     {
         $result = $this->aggregator->aggregate(ShippingMethodPriceDefinition::class, $criteria, $context);
 
@@ -94,7 +94,7 @@ class ShippingMethodPriceRepository implements RepositoryInterface
         return $result;
     }
 
-    public function searchIds(Criteria $criteria, TranslationContext $context): IdSearchResult
+    public function searchIds(Criteria $criteria, ShopContext $context): IdSearchResult
     {
         $result = $this->searcher->search(ShippingMethodPriceDefinition::class, $criteria, $context);
 
@@ -104,7 +104,7 @@ class ShippingMethodPriceRepository implements RepositoryInterface
         return $result;
     }
 
-    public function readBasic(array $ids, TranslationContext $context): ShippingMethodPriceBasicCollection
+    public function readBasic(array $ids, ShopContext $context): ShippingMethodPriceBasicCollection
     {
         /** @var ShippingMethodPriceBasicCollection $entities */
         $entities = $this->reader->readBasic(ShippingMethodPriceDefinition::class, $ids, $context);
@@ -115,7 +115,7 @@ class ShippingMethodPriceRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $ids, TranslationContext $context): ShippingMethodPriceDetailCollection
+    public function readDetail(array $ids, ShopContext $context): ShippingMethodPriceDetailCollection
     {
         /** @var ShippingMethodPriceDetailCollection $entities */
         $entities = $this->reader->readDetail(ShippingMethodPriceDefinition::class, $ids, $context);
@@ -126,36 +126,36 @@ class ShippingMethodPriceRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function update(array $data, TranslationContext $context): GenericWrittenEvent
+    public function update(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->update(ShippingMethodPriceDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->update(ShippingMethodPriceDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function upsert(array $data, TranslationContext $context): GenericWrittenEvent
+    public function upsert(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->upsert(ShippingMethodPriceDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->upsert(ShippingMethodPriceDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function create(array $data, TranslationContext $context): GenericWrittenEvent
+    public function create(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->insert(ShippingMethodPriceDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->insert(ShippingMethodPriceDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function delete(array $ids, TranslationContext $context): GenericWrittenEvent
+    public function delete(array $ids, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->delete(ShippingMethodPriceDefinition::class, $ids, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->delete(ShippingMethodPriceDefinition::class, $ids, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithDeletedEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 

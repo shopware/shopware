@@ -19,7 +19,7 @@ use Shopware\Api\Version\Event\VersionCommitData\VersionCommitDataBasicLoadedEve
 use Shopware\Api\Version\Event\VersionCommitData\VersionCommitDataIdSearchResultLoadedEvent;
 use Shopware\Api\Version\Event\VersionCommitData\VersionCommitDataSearchResultLoadedEvent;
 use Shopware\Api\Version\Struct\VersionCommitSearchResult;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class VersionCommitRepository implements RepositoryInterface
@@ -63,7 +63,7 @@ class VersionCommitRepository implements RepositoryInterface
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function search(Criteria $criteria, TranslationContext $context): VersionCommitSearchResult
+    public function search(Criteria $criteria, ShopContext $context): VersionCommitSearchResult
     {
         $ids = $this->searchIds($criteria, $context);
 
@@ -82,7 +82,7 @@ class VersionCommitRepository implements RepositoryInterface
         return $result;
     }
 
-    public function aggregate(Criteria $criteria, TranslationContext $context): AggregationResult
+    public function aggregate(Criteria $criteria, ShopContext $context): AggregationResult
     {
         $result = $this->aggregator->aggregate(VersionCommitDefinition::class, $criteria, $context);
 
@@ -92,7 +92,7 @@ class VersionCommitRepository implements RepositoryInterface
         return $result;
     }
 
-    public function searchIds(Criteria $criteria, TranslationContext $context): IdSearchResult
+    public function searchIds(Criteria $criteria, ShopContext $context): IdSearchResult
     {
         $result = $this->searcher->search(VersionCommitDefinition::class, $criteria, $context);
 
@@ -102,7 +102,7 @@ class VersionCommitRepository implements RepositoryInterface
         return $result;
     }
 
-    public function readBasic(array $ids, TranslationContext $context): VersionCommitBasicCollection
+    public function readBasic(array $ids, ShopContext $context): VersionCommitBasicCollection
     {
         /** @var VersionCommitBasicCollection $entities */
         $entities = $this->reader->readBasic(VersionCommitDefinition::class, $ids, $context);
@@ -113,41 +113,41 @@ class VersionCommitRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $ids, TranslationContext $context): VersionCommitBasicCollection
+    public function readDetail(array $ids, ShopContext $context): VersionCommitBasicCollection
     {
         return $this->readBasic($ids, $context);
     }
 
-    public function update(array $data, TranslationContext $context): GenericWrittenEvent
+    public function update(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->update(VersionCommitDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->update(VersionCommitDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function upsert(array $data, TranslationContext $context): GenericWrittenEvent
+    public function upsert(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->upsert(VersionCommitDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->upsert(VersionCommitDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function create(array $data, TranslationContext $context): GenericWrittenEvent
+    public function create(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->insert(VersionCommitDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->insert(VersionCommitDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function delete(array $ids, TranslationContext $context): GenericWrittenEvent
+    public function delete(array $ids, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->delete(VersionCommitDefinition::class, $ids, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->delete(VersionCommitDefinition::class, $ids, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithDeletedEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 

@@ -21,7 +21,7 @@ use Shopware\Api\Media\Event\MediaAlbum\MediaAlbumDetailLoadedEvent;
 use Shopware\Api\Media\Event\MediaAlbum\MediaAlbumIdSearchResultLoadedEvent;
 use Shopware\Api\Media\Event\MediaAlbum\MediaAlbumSearchResultLoadedEvent;
 use Shopware\Api\Media\Struct\MediaAlbumSearchResult;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class MediaAlbumRepository implements RepositoryInterface
@@ -65,7 +65,7 @@ class MediaAlbumRepository implements RepositoryInterface
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function search(Criteria $criteria, TranslationContext $context): MediaAlbumSearchResult
+    public function search(Criteria $criteria, ShopContext $context): MediaAlbumSearchResult
     {
         $ids = $this->searchIds($criteria, $context);
 
@@ -84,7 +84,7 @@ class MediaAlbumRepository implements RepositoryInterface
         return $result;
     }
 
-    public function aggregate(Criteria $criteria, TranslationContext $context): AggregationResult
+    public function aggregate(Criteria $criteria, ShopContext $context): AggregationResult
     {
         $result = $this->aggregator->aggregate(MediaAlbumDefinition::class, $criteria, $context);
 
@@ -94,7 +94,7 @@ class MediaAlbumRepository implements RepositoryInterface
         return $result;
     }
 
-    public function searchIds(Criteria $criteria, TranslationContext $context): IdSearchResult
+    public function searchIds(Criteria $criteria, ShopContext $context): IdSearchResult
     {
         $result = $this->searcher->search(MediaAlbumDefinition::class, $criteria, $context);
 
@@ -104,7 +104,7 @@ class MediaAlbumRepository implements RepositoryInterface
         return $result;
     }
 
-    public function readBasic(array $ids, TranslationContext $context): MediaAlbumBasicCollection
+    public function readBasic(array $ids, ShopContext $context): MediaAlbumBasicCollection
     {
         /** @var MediaAlbumBasicCollection $entities */
         $entities = $this->reader->readBasic(MediaAlbumDefinition::class, $ids, $context);
@@ -115,7 +115,7 @@ class MediaAlbumRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $ids, TranslationContext $context): MediaAlbumDetailCollection
+    public function readDetail(array $ids, ShopContext $context): MediaAlbumDetailCollection
     {
         /** @var MediaAlbumDetailCollection $entities */
         $entities = $this->reader->readDetail(MediaAlbumDefinition::class, $ids, $context);
@@ -126,36 +126,36 @@ class MediaAlbumRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function update(array $data, TranslationContext $context): GenericWrittenEvent
+    public function update(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->update(MediaAlbumDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->update(MediaAlbumDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function upsert(array $data, TranslationContext $context): GenericWrittenEvent
+    public function upsert(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->upsert(MediaAlbumDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->upsert(MediaAlbumDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function create(array $data, TranslationContext $context): GenericWrittenEvent
+    public function create(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->insert(MediaAlbumDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->insert(MediaAlbumDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function delete(array $ids, TranslationContext $context): GenericWrittenEvent
+    public function delete(array $ids, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->delete(MediaAlbumDefinition::class, $ids, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->delete(MediaAlbumDefinition::class, $ids, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithDeletedEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 

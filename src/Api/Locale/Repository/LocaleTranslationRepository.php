@@ -21,7 +21,7 @@ use Shopware\Api\Locale\Event\LocaleTranslation\LocaleTranslationDetailLoadedEve
 use Shopware\Api\Locale\Event\LocaleTranslation\LocaleTranslationIdSearchResultLoadedEvent;
 use Shopware\Api\Locale\Event\LocaleTranslation\LocaleTranslationSearchResultLoadedEvent;
 use Shopware\Api\Locale\Struct\LocaleTranslationSearchResult;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class LocaleTranslationRepository implements RepositoryInterface
@@ -65,7 +65,7 @@ class LocaleTranslationRepository implements RepositoryInterface
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function search(Criteria $criteria, TranslationContext $context): LocaleTranslationSearchResult
+    public function search(Criteria $criteria, ShopContext $context): LocaleTranslationSearchResult
     {
         $ids = $this->searchIds($criteria, $context);
 
@@ -84,7 +84,7 @@ class LocaleTranslationRepository implements RepositoryInterface
         return $result;
     }
 
-    public function aggregate(Criteria $criteria, TranslationContext $context): AggregationResult
+    public function aggregate(Criteria $criteria, ShopContext $context): AggregationResult
     {
         $result = $this->aggregator->aggregate(LocaleTranslationDefinition::class, $criteria, $context);
 
@@ -94,7 +94,7 @@ class LocaleTranslationRepository implements RepositoryInterface
         return $result;
     }
 
-    public function searchIds(Criteria $criteria, TranslationContext $context): IdSearchResult
+    public function searchIds(Criteria $criteria, ShopContext $context): IdSearchResult
     {
         $result = $this->searcher->search(LocaleTranslationDefinition::class, $criteria, $context);
 
@@ -104,7 +104,7 @@ class LocaleTranslationRepository implements RepositoryInterface
         return $result;
     }
 
-    public function readBasic(array $ids, TranslationContext $context): LocaleTranslationBasicCollection
+    public function readBasic(array $ids, ShopContext $context): LocaleTranslationBasicCollection
     {
         /** @var LocaleTranslationBasicCollection $entities */
         $entities = $this->reader->readBasic(LocaleTranslationDefinition::class, $ids, $context);
@@ -115,7 +115,7 @@ class LocaleTranslationRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $ids, TranslationContext $context): LocaleTranslationDetailCollection
+    public function readDetail(array $ids, ShopContext $context): LocaleTranslationDetailCollection
     {
         /** @var LocaleTranslationDetailCollection $entities */
         $entities = $this->reader->readDetail(LocaleTranslationDefinition::class, $ids, $context);
@@ -126,36 +126,36 @@ class LocaleTranslationRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function update(array $data, TranslationContext $context): GenericWrittenEvent
+    public function update(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->update(LocaleTranslationDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->update(LocaleTranslationDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function upsert(array $data, TranslationContext $context): GenericWrittenEvent
+    public function upsert(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->upsert(LocaleTranslationDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->upsert(LocaleTranslationDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function create(array $data, TranslationContext $context): GenericWrittenEvent
+    public function create(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->insert(LocaleTranslationDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->insert(LocaleTranslationDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function delete(array $ids, TranslationContext $context): GenericWrittenEvent
+    public function delete(array $ids, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->delete(LocaleTranslationDefinition::class, $ids, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->delete(LocaleTranslationDefinition::class, $ids, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithDeletedEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 

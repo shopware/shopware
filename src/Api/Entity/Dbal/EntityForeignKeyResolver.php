@@ -13,7 +13,7 @@ use Shopware\Api\Entity\Field\OneToManyAssociationField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\RestrictDelete;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Shopware\Defaults;
 
 class EntityForeignKeyResolver
@@ -50,7 +50,7 @@ class EntityForeignKeyResolver
      *
      * @return array
      */
-    public function getAffectedDeleteRestrictions(string $definition, array $ids, TranslationContext $context): array
+    public function getAffectedDeleteRestrictions(string $definition, array $ids, ShopContext $context): array
     {
         return $this->fetch($definition, $ids, RestrictDelete::class, $context);
     }
@@ -77,7 +77,7 @@ class EntityForeignKeyResolver
      *
      * @return array
      */
-    public function getAffectedDeletes(string $definition, array $ids, TranslationContext $context): array
+    public function getAffectedDeletes(string $definition, array $ids, ShopContext $context): array
     {
         return $this->fetch($definition, $ids, CascadeDelete::class, $context);
     }
@@ -90,7 +90,7 @@ class EntityForeignKeyResolver
      *
      * @return array
      */
-    private function fetch(string $definition, array $ids, string $class, TranslationContext $context): array
+    private function fetch(string $definition, array $ids, string $class, ShopContext $context): array
     {
         if ($context->getVersionId() !== Defaults::LIVE_VERSION) {
             return [];
@@ -122,7 +122,7 @@ class EntityForeignKeyResolver
         return $this->extractValues($definition, $result, $root);
     }
 
-    private function joinCascades(string $definition, FieldCollection $cascades, string $root, QueryBuilder $query, string $class, TranslationContext $context): void
+    private function joinCascades(string $definition, FieldCollection $cascades, string $root, QueryBuilder $query, string $class, ShopContext $context): void
     {
         foreach ($cascades as $cascade) {
             $alias = $root . '.' . $cascade->getPropertyName();

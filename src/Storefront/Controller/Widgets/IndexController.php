@@ -70,7 +70,7 @@ class IndexController extends StorefrontController
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('shop.active', 1));
 
-        $shops = $this->shopRepository->search($criteria, $context->getTranslationContext());
+        $shops = $this->shopRepository->search($criteria, $context->getShopContext());
         $shops->add($context->getShop());
 
         return $shops->sortByPosition();

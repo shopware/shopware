@@ -26,7 +26,9 @@ namespace Shopware\Framework\Routing;
 
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerInterface;
-use Shopware\Context\Struct\TranslationContext;
+use Ramsey\Uuid\Uuid;
+use Shopware\Context\Struct\ShopContext;
+use Shopware\Defaults;
 use Shopware\Kernel;
 use Shopware\Rest\Routing\RouteCollector;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -201,13 +203,24 @@ class Router implements RouterInterface, RequestMatcherInterface
 
         $pathInfo = '/' . trim($pathInfo, '/');
 
-        $translationContext = new TranslationContext(
-            (string) $shop['id'],
-            (bool) $shop['is_default'],
-            (string) $shop['fallback_translation_id']
+        $fallbackTranslationId = null;
+        if ($shop['fallback_translation_id']) {
+            $fallbackTranslationId = $shop['fallback_translation_id'];
+        }
+
+        $shopContext = new ShopContext(
+            $shop['id'],
+            [Defaults::CATALOGUE],
+            [],
+            $shop['currency_id'],
+            $shop['locale_id'],
+            $fallbackTranslationId,
+            Defaults::LIVE_VERSION,
+            (float) $shop['currency_factor']
         );
 
-        $seoUrl = $this->urlResolver->getUrl($shop['id'], $pathInfo, $translationContext);
+
+        $seoUrl = $this->urlResolver->getUrl($shop['id'], $pathInfo, $shopContext);
 
         //generate new url with shop base path/url
         $url = $generator->generate($name, $parameters, $referenceType);
@@ -274,10 +287,20 @@ class Router implements RouterInterface, RequestMatcherInterface
         $pathInfo = preg_replace('#^' . $stripBaseUrl . '#i', '', $pathInfo);
         $pathInfo = '/' . trim($pathInfo, '/');
 
-        $translationContext = new TranslationContext(
-            (string) $shop['id'],
-            (bool) $shop['is_default'],
-            (string) $shop['fallback_translation_id']
+        $fallbackTranslationId = null;
+        if ($shop['fallback_translation_id']) {
+            $fallbackTranslationId = $shop['fallback_translation_id'];
+        }
+
+        $shopContext = new ShopContext(
+            $shop['id'],
+            [Defaults::CATALOGUE],
+            [],
+            $shop['currency_id'],
+            $shop['locale_id'],
+            $fallbackTranslationId,
+            Defaults::LIVE_VERSION,
+            (float) $shop['currency_factor']
         );
 
         if (strpos($pathInfo, '/widgets/') !== false) {
@@ -289,7 +312,7 @@ class Router implements RouterInterface, RequestMatcherInterface
         }
 
         //resolve seo urls to use symfony url matcher for route detection
-        $seoUrl = $this->urlResolver->getPathInfo($shop['id'], $pathInfo, $translationContext);
+        $seoUrl = $this->urlResolver->getPathInfo($shop['id'], $pathInfo, $shopContext);
 
         if (!$seoUrl) {
             return $this->match($pathInfo);
@@ -297,7 +320,7 @@ class Router implements RouterInterface, RequestMatcherInterface
 
         $pathInfo = $seoUrl->getPathInfo();
         if (!$seoUrl->getIsCanonical()) {
-            $redirectUrl = $this->urlResolver->getUrl($shop['id'], $seoUrl->getPathInfo(), $translationContext);
+            $redirectUrl = $this->urlResolver->getUrl($shop['id'], $seoUrl->getPathInfo(), $shopContext);
             $request->attributes->set(self::SEO_REDIRECT_URL, $redirectUrl);
         }
 

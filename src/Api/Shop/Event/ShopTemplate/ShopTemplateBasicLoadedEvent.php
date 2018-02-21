@@ -3,7 +3,7 @@
 namespace Shopware\Api\Shop\Event\ShopTemplate;
 
 use Shopware\Api\Shop\Collection\ShopTemplateBasicCollection;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class ShopTemplateBasicLoadedEvent extends NestedEvent
@@ -11,7 +11,7 @@ class ShopTemplateBasicLoadedEvent extends NestedEvent
     public const NAME = 'shop_template.basic.loaded';
 
     /**
-     * @var TranslationContext
+     * @var ShopContext
      */
     protected $context;
 
@@ -20,7 +20,7 @@ class ShopTemplateBasicLoadedEvent extends NestedEvent
      */
     protected $shopTemplates;
 
-    public function __construct(ShopTemplateBasicCollection $shopTemplates, TranslationContext $context)
+    public function __construct(ShopTemplateBasicCollection $shopTemplates, ShopContext $context)
     {
         $this->context = $context;
         $this->shopTemplates = $shopTemplates;
@@ -31,7 +31,7 @@ class ShopTemplateBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): TranslationContext
+    public function getContext(): ShopContext
     {
         return $this->context;
     }

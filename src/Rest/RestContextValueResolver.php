@@ -6,7 +6,8 @@ use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
 use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\User\Definition\UserDefinition;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Storefront\Session\ShopSubscriber;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ArgumentValueResolverInterface;
@@ -44,16 +45,17 @@ class RestContextValueResolver implements ArgumentValueResolverInterface
 
     public function resolve(Request $request, ArgumentMetadata $argument): iterable
     {
-        $shopContext = $request->attributes->get(ShopSubscriber::SHOP_CONTEXT_PROPERTY);
+        /** @var StorefrontContext $storefrontContext */
+        $storefrontContext = $request->attributes->get(ShopSubscriber::SHOP_CONTEXT_PROPERTY);
 
         yield new RestContext(
             $request,
-            $shopContext,
-            $this->getUserId($shopContext->getTranslationContext())
+            $storefrontContext->getShopContext(),
+            $this->getUserId($storefrontContext->getShopContext())
         );
     }
 
-    private function getUserId(TranslationContext $context): ?string
+    private function getUserId(ShopContext $context): ?string
     {
         $token = $this->tokenStorage->getToken();
         if (!$token) {

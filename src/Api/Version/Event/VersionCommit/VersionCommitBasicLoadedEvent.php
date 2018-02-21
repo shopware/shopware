@@ -3,7 +3,7 @@
 namespace Shopware\Api\Version\Event\VersionCommit;
 
 use Shopware\Api\Version\Collection\VersionCommitBasicCollection;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class VersionCommitBasicLoadedEvent extends NestedEvent
@@ -11,7 +11,7 @@ class VersionCommitBasicLoadedEvent extends NestedEvent
     public const NAME = 'version_commit.basic.loaded';
 
     /**
-     * @var TranslationContext
+     * @var ShopContext
      */
     protected $context;
 
@@ -20,7 +20,7 @@ class VersionCommitBasicLoadedEvent extends NestedEvent
      */
     protected $versionCommits;
 
-    public function __construct(VersionCommitBasicCollection $versionCommits, TranslationContext $context)
+    public function __construct(VersionCommitBasicCollection $versionCommits, ShopContext $context)
     {
         $this->context = $context;
         $this->versionCommits = $versionCommits;
@@ -31,7 +31,7 @@ class VersionCommitBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): TranslationContext
+    public function getContext(): ShopContext
     {
         return $this->context;
     }

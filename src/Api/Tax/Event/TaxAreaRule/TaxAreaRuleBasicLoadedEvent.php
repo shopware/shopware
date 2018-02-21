@@ -3,7 +3,7 @@
 namespace Shopware\Api\Tax\Event\TaxAreaRule;
 
 use Shopware\Api\Tax\Collection\TaxAreaRuleBasicCollection;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class TaxAreaRuleBasicLoadedEvent extends NestedEvent
@@ -11,7 +11,7 @@ class TaxAreaRuleBasicLoadedEvent extends NestedEvent
     public const NAME = 'tax_area_rule.basic.loaded';
 
     /**
-     * @var TranslationContext
+     * @var ShopContext
      */
     protected $context;
 
@@ -20,7 +20,7 @@ class TaxAreaRuleBasicLoadedEvent extends NestedEvent
      */
     protected $taxAreaRules;
 
-    public function __construct(TaxAreaRuleBasicCollection $taxAreaRules, TranslationContext $context)
+    public function __construct(TaxAreaRuleBasicCollection $taxAreaRules, ShopContext $context)
     {
         $this->context = $context;
         $this->taxAreaRules = $taxAreaRules;
@@ -31,7 +31,7 @@ class TaxAreaRuleBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): TranslationContext
+    public function getContext(): ShopContext
     {
         return $this->context;
     }

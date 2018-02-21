@@ -26,7 +26,7 @@ namespace Shopware\Category\Command;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Category\Extension\CategoryPathBuilder;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Shopware\DbalIndexing\Event\ProgressAdvancedEvent;
 use Shopware\DbalIndexing\Event\ProgressFinishedEvent;
 use Shopware\DbalIndexing\Event\ProgressStartedEvent;
@@ -109,7 +109,7 @@ class BuildCategoryPathCommand extends ContainerAwareCommand implements EventSub
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->io = new SymfonyStyle($input, $output);
-        $context = TranslationContext::createDefaultContext();
+        $context = ShopContext::createDefaultContext();
 
         $this->pathBuilder->update(Defaults::ROOT_CATEGORY, $context);
     }

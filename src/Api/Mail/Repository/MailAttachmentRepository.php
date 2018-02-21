@@ -21,7 +21,7 @@ use Shopware\Api\Mail\Event\MailAttachment\MailAttachmentDetailLoadedEvent;
 use Shopware\Api\Mail\Event\MailAttachment\MailAttachmentIdSearchResultLoadedEvent;
 use Shopware\Api\Mail\Event\MailAttachment\MailAttachmentSearchResultLoadedEvent;
 use Shopware\Api\Mail\Struct\MailAttachmentSearchResult;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class MailAttachmentRepository implements RepositoryInterface
@@ -65,7 +65,7 @@ class MailAttachmentRepository implements RepositoryInterface
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function search(Criteria $criteria, TranslationContext $context): MailAttachmentSearchResult
+    public function search(Criteria $criteria, ShopContext $context): MailAttachmentSearchResult
     {
         $ids = $this->searchIds($criteria, $context);
 
@@ -84,7 +84,7 @@ class MailAttachmentRepository implements RepositoryInterface
         return $result;
     }
 
-    public function aggregate(Criteria $criteria, TranslationContext $context): AggregationResult
+    public function aggregate(Criteria $criteria, ShopContext $context): AggregationResult
     {
         $result = $this->aggregator->aggregate(MailAttachmentDefinition::class, $criteria, $context);
 
@@ -94,7 +94,7 @@ class MailAttachmentRepository implements RepositoryInterface
         return $result;
     }
 
-    public function searchIds(Criteria $criteria, TranslationContext $context): IdSearchResult
+    public function searchIds(Criteria $criteria, ShopContext $context): IdSearchResult
     {
         $result = $this->searcher->search(MailAttachmentDefinition::class, $criteria, $context);
 
@@ -104,7 +104,7 @@ class MailAttachmentRepository implements RepositoryInterface
         return $result;
     }
 
-    public function readBasic(array $ids, TranslationContext $context): MailAttachmentBasicCollection
+    public function readBasic(array $ids, ShopContext $context): MailAttachmentBasicCollection
     {
         /** @var MailAttachmentBasicCollection $entities */
         $entities = $this->reader->readBasic(MailAttachmentDefinition::class, $ids, $context);
@@ -115,7 +115,7 @@ class MailAttachmentRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $ids, TranslationContext $context): MailAttachmentDetailCollection
+    public function readDetail(array $ids, ShopContext $context): MailAttachmentDetailCollection
     {
         /** @var MailAttachmentDetailCollection $entities */
         $entities = $this->reader->readDetail(MailAttachmentDefinition::class, $ids, $context);
@@ -126,36 +126,36 @@ class MailAttachmentRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function update(array $data, TranslationContext $context): GenericWrittenEvent
+    public function update(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->update(MailAttachmentDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->update(MailAttachmentDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function upsert(array $data, TranslationContext $context): GenericWrittenEvent
+    public function upsert(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->upsert(MailAttachmentDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->upsert(MailAttachmentDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function create(array $data, TranslationContext $context): GenericWrittenEvent
+    public function create(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->insert(MailAttachmentDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->insert(MailAttachmentDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function delete(array $ids, TranslationContext $context): GenericWrittenEvent
+    public function delete(array $ids, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->delete(MailAttachmentDefinition::class, $ids, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->delete(MailAttachmentDefinition::class, $ids, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithDeletedEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 

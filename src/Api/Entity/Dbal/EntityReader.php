@@ -22,7 +22,7 @@ use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\Deferred;
 use Shopware\Api\Entity\Write\Flag\Extension;
 use Shopware\Api\Entity\Write\Flag\Inherited;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Struct\ArrayStruct;
 use Shopware\Framework\Struct\Struct;
 
@@ -44,7 +44,7 @@ class EntityReader implements EntityReaderInterface
         $this->searcher = $searcher;
     }
 
-    public function readDetail(string $definition, array $ids, TranslationContext $context): EntityCollection
+    public function readDetail(string $definition, array $ids, ShopContext $context): EntityCollection
     {
         /** @var EntityDefinition $definition */
         $collectionClass = $definition::getDetailCollectionClass();
@@ -61,7 +61,7 @@ class EntityReader implements EntityReaderInterface
         );
     }
 
-    public function readBasic(string $definition, array $ids, TranslationContext $context): EntityCollection
+    public function readBasic(string $definition, array $ids, ShopContext $context): EntityCollection
     {
         /** @var EntityDefinition $definition */
         $collectionClass = $definition::getBasicCollectionClass();
@@ -78,7 +78,7 @@ class EntityReader implements EntityReaderInterface
         );
     }
 
-    public function readRaw(string $definition, array $ids, TranslationContext $context): EntityCollection
+    public function readRaw(string $definition, array $ids, ShopContext $context): EntityCollection
     {
         /** @var EntityDefinition $definition */
         $collectionClass = EntityCollection::class;
@@ -100,7 +100,7 @@ class EntityReader implements EntityReaderInterface
         return $details;
     }
 
-    private function read(array $ids, string $definition, TranslationContext $context, Entity $entity, EntityCollection $collection, FieldCollection $fields, bool $raw = false): EntityCollection
+    private function read(array $ids, string $definition, ShopContext $context, Entity $entity, EntityCollection $collection, FieldCollection $fields, bool $raw = false): EntityCollection
     {
         if (empty($ids)) {
             return $collection;
@@ -140,7 +140,7 @@ class EntityReader implements EntityReaderInterface
 
     private function joinBasic(
         string $definition,
-        TranslationContext $context,
+        ShopContext $context,
         string $root,
         QueryBuilder $query,
         FieldCollection $fields,
@@ -236,12 +236,12 @@ class EntityReader implements EntityReaderInterface
     /**
      * @param array                   $ids
      * @param string|EntityDefinition $definition
-     * @param TranslationContext      $context
+     * @param ShopContext      $context
      * @param FieldCollection         $fields
      *
      * @return array
      */
-    private function fetch(array $ids, string $definition, TranslationContext $context, FieldCollection $fields, bool $raw): array
+    private function fetch(array $ids, string $definition, ShopContext $context, FieldCollection $fields, bool $raw): array
     {
         $table = $definition::getEntityName();
 
@@ -258,10 +258,10 @@ class EntityReader implements EntityReaderInterface
     /**
      * @param string|EntityDefinition   $definition
      * @param ManyToOneAssociationField $association
-     * @param TranslationContext        $context
+     * @param ShopContext        $context
      * @param EntityCollection          $collection
      */
-    private function loadManyToOne(string $definition, ManyToOneAssociationField $association, TranslationContext $context, EntityCollection $collection)
+    private function loadManyToOne(string $definition, ManyToOneAssociationField $association, ShopContext $context, EntityCollection $collection)
     {
         $reference = $association->getReferenceClass();
 
@@ -293,7 +293,7 @@ class EntityReader implements EntityReaderInterface
         }
     }
 
-    private function loadOneToMany(string $definition, OneToManyAssociationField $association, TranslationContext $context, EntityCollection $collection): void
+    private function loadOneToMany(string $definition, OneToManyAssociationField $association, ShopContext $context, EntityCollection $collection): void
     {
         $ids = array_values($collection->getIds());
         /** @var string|EntityDefinition $definition */
@@ -340,7 +340,7 @@ class EntityReader implements EntityReaderInterface
         }
     }
 
-    private function loadManyToMany(ManyToManyAssociationField $association, TranslationContext $context, EntityCollection $collection): void
+    private function loadManyToMany(ManyToManyAssociationField $association, ShopContext $context, EntityCollection $collection): void
     {
         $idProperty = $association->getStructIdMappingProperty();
 

@@ -20,7 +20,7 @@ use Shopware\Api\Tax\Event\Tax\TaxDetailLoadedEvent;
 use Shopware\Api\Tax\Event\Tax\TaxIdSearchResultLoadedEvent;
 use Shopware\Api\Tax\Event\Tax\TaxSearchResultLoadedEvent;
 use Shopware\Api\Tax\Struct\TaxSearchResult;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Shopware\Version\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -65,7 +65,7 @@ class TaxRepository implements RepositoryInterface
         $this->versionManager = $versionManager;
     }
 
-    public function search(Criteria $criteria, TranslationContext $context): TaxSearchResult
+    public function search(Criteria $criteria, ShopContext $context): TaxSearchResult
     {
         $ids = $this->searchIds($criteria, $context);
 
@@ -84,7 +84,7 @@ class TaxRepository implements RepositoryInterface
         return $result;
     }
 
-    public function aggregate(Criteria $criteria, TranslationContext $context): AggregationResult
+    public function aggregate(Criteria $criteria, ShopContext $context): AggregationResult
     {
         $result = $this->aggregator->aggregate(TaxDefinition::class, $criteria, $context);
 
@@ -94,7 +94,7 @@ class TaxRepository implements RepositoryInterface
         return $result;
     }
 
-    public function searchIds(Criteria $criteria, TranslationContext $context): IdSearchResult
+    public function searchIds(Criteria $criteria, ShopContext $context): IdSearchResult
     {
         $result = $this->searcher->search(TaxDefinition::class, $criteria, $context);
 
@@ -104,7 +104,7 @@ class TaxRepository implements RepositoryInterface
         return $result;
     }
 
-    public function readBasic(array $ids, TranslationContext $context): TaxBasicCollection
+    public function readBasic(array $ids, ShopContext $context): TaxBasicCollection
     {
         /** @var TaxBasicCollection $entities */
         $entities = $this->reader->readBasic(TaxDefinition::class, $ids, $context);
@@ -115,7 +115,7 @@ class TaxRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $ids, TranslationContext $context): TaxDetailCollection
+    public function readDetail(array $ids, ShopContext $context): TaxDetailCollection
     {
         /** @var TaxDetailCollection $entities */
         $entities = $this->reader->readDetail(TaxDefinition::class, $ids, $context);
@@ -126,49 +126,49 @@ class TaxRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function update(array $data, TranslationContext $context): GenericWrittenEvent
+    public function update(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->versionManager->update(TaxDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->versionManager->update(TaxDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function upsert(array $data, TranslationContext $context): GenericWrittenEvent
+    public function upsert(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->versionManager->upsert(TaxDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->versionManager->upsert(TaxDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function create(array $data, TranslationContext $context): GenericWrittenEvent
+    public function create(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->versionManager->insert(TaxDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->versionManager->insert(TaxDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function delete(array $ids, TranslationContext $context): GenericWrittenEvent
+    public function delete(array $ids, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->versionManager->delete(TaxDefinition::class, $ids, WriteContext::createFromTranslationContext($context));
+        $affected = $this->versionManager->delete(TaxDefinition::class, $ids, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithDeletedEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function createVersion(string $id, TranslationContext $context, ?string $name = null): string
+    public function createVersion(string $id, ShopContext $context, ?string $name = null): string
     {
-        return $this->versionManager->createVersion(TaxDefinition::class, $id, WriteContext::createFromTranslationContext($context), $name);
+        return $this->versionManager->createVersion(TaxDefinition::class, $id, WriteContext::createFromShopContext($context), $name);
     }
 
-    public function merge(string $versionId, TranslationContext $context)
+    public function merge(string $versionId, ShopContext $context)
     {
-        $this->versionManager->merge($versionId, WriteContext::createFromTranslationContext($context));
+        $this->versionManager->merge($versionId, WriteContext::createFromShopContext($context));
     }
 }

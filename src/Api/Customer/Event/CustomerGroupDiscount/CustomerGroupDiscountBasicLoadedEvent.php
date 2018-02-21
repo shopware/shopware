@@ -3,7 +3,7 @@
 namespace Shopware\Api\Customer\Event\CustomerGroupDiscount;
 
 use Shopware\Api\Customer\Collection\CustomerGroupDiscountBasicCollection;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class CustomerGroupDiscountBasicLoadedEvent extends NestedEvent
@@ -11,7 +11,7 @@ class CustomerGroupDiscountBasicLoadedEvent extends NestedEvent
     public const NAME = 'customer_group_discount.basic.loaded';
 
     /**
-     * @var TranslationContext
+     * @var ShopContext
      */
     protected $context;
 
@@ -20,7 +20,7 @@ class CustomerGroupDiscountBasicLoadedEvent extends NestedEvent
      */
     protected $customerGroupDiscounts;
 
-    public function __construct(CustomerGroupDiscountBasicCollection $customerGroupDiscounts, TranslationContext $context)
+    public function __construct(CustomerGroupDiscountBasicCollection $customerGroupDiscounts, ShopContext $context)
     {
         $this->context = $context;
         $this->customerGroupDiscounts = $customerGroupDiscounts;
@@ -31,7 +31,7 @@ class CustomerGroupDiscountBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): TranslationContext
+    public function getContext(): ShopContext
     {
         return $this->context;
     }

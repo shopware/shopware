@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\#bundle#\Event\#classUc#;
 
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 use Shopware\Api\#bundle#\Collection\#classUc#BasicCollection;
@@ -13,7 +13,7 @@ class #classUc#BasicLoadedEvent extends NestedEvent
     public const NAME = '#table#.basic.loaded';
 
     /**
-     * @var TranslationContext
+     * @var ShopContext
      */
     protected $context;
 
@@ -22,7 +22,7 @@ class #classUc#BasicLoadedEvent extends NestedEvent
      */
     protected $#pluralLc#;
 
-    public function __construct(#classUc#BasicCollection $#pluralLc#, TranslationContext $context)
+    public function __construct(#classUc#BasicCollection $#pluralLc#, ShopContext $context)
     {
         $this->context = $context;
         $this->#pluralLc# = $#pluralLc#;
@@ -33,7 +33,7 @@ class #classUc#BasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): TranslationContext
+    public function getContext(): ShopContext
     {
         return $this->context;
     }

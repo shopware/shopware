@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Entity\Search\Term;
 
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use voku\helper\StopWords;
 
 class StopWordFilter implements SearchFilterInterface
@@ -17,7 +17,7 @@ class StopWordFilter implements SearchFilterInterface
         $this->filter = new StopWords();
     }
 
-    public function filter(array $tokens, TranslationContext $context): array
+    public function filter(array $tokens, ShopContext $context): array
     {
         $words = $this->filter->getStopWordsFromLanguage('en');
         $fallback = $this->filter->getStopWordsFromLanguage();

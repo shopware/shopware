@@ -21,7 +21,7 @@ use Shopware\Api\Order\Event\OrderStateTranslation\OrderStateTranslationDetailLo
 use Shopware\Api\Order\Event\OrderStateTranslation\OrderStateTranslationIdSearchResultLoadedEvent;
 use Shopware\Api\Order\Event\OrderStateTranslation\OrderStateTranslationSearchResultLoadedEvent;
 use Shopware\Api\Order\Struct\OrderStateTranslationSearchResult;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class OrderStateTranslationRepository implements RepositoryInterface
@@ -65,7 +65,7 @@ class OrderStateTranslationRepository implements RepositoryInterface
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function search(Criteria $criteria, TranslationContext $context): OrderStateTranslationSearchResult
+    public function search(Criteria $criteria, ShopContext $context): OrderStateTranslationSearchResult
     {
         $ids = $this->searchIds($criteria, $context);
 
@@ -84,7 +84,7 @@ class OrderStateTranslationRepository implements RepositoryInterface
         return $result;
     }
 
-    public function aggregate(Criteria $criteria, TranslationContext $context): AggregationResult
+    public function aggregate(Criteria $criteria, ShopContext $context): AggregationResult
     {
         $result = $this->aggregator->aggregate(OrderStateTranslationDefinition::class, $criteria, $context);
 
@@ -94,7 +94,7 @@ class OrderStateTranslationRepository implements RepositoryInterface
         return $result;
     }
 
-    public function searchIds(Criteria $criteria, TranslationContext $context): IdSearchResult
+    public function searchIds(Criteria $criteria, ShopContext $context): IdSearchResult
     {
         $result = $this->searcher->search(OrderStateTranslationDefinition::class, $criteria, $context);
 
@@ -104,7 +104,7 @@ class OrderStateTranslationRepository implements RepositoryInterface
         return $result;
     }
 
-    public function readBasic(array $ids, TranslationContext $context): OrderStateTranslationBasicCollection
+    public function readBasic(array $ids, ShopContext $context): OrderStateTranslationBasicCollection
     {
         /** @var OrderStateTranslationBasicCollection $entities */
         $entities = $this->reader->readBasic(OrderStateTranslationDefinition::class, $ids, $context);
@@ -115,7 +115,7 @@ class OrderStateTranslationRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $ids, TranslationContext $context): OrderStateTranslationDetailCollection
+    public function readDetail(array $ids, ShopContext $context): OrderStateTranslationDetailCollection
     {
         /** @var OrderStateTranslationDetailCollection $entities */
         $entities = $this->reader->readDetail(OrderStateTranslationDefinition::class, $ids, $context);
@@ -126,36 +126,36 @@ class OrderStateTranslationRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function update(array $data, TranslationContext $context): GenericWrittenEvent
+    public function update(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->update(OrderStateTranslationDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->update(OrderStateTranslationDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function upsert(array $data, TranslationContext $context): GenericWrittenEvent
+    public function upsert(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->upsert(OrderStateTranslationDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->upsert(OrderStateTranslationDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function create(array $data, TranslationContext $context): GenericWrittenEvent
+    public function create(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->insert(OrderStateTranslationDefinition::class, $data, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->insert(OrderStateTranslationDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function delete(array $ids, TranslationContext $context): GenericWrittenEvent
+    public function delete(array $ids, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->delete(OrderStateTranslationDefinition::class, $ids, WriteContext::createFromTranslationContext($context));
+        $affected = $this->writer->delete(OrderStateTranslationDefinition::class, $ids, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithDeletedEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 

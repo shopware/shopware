@@ -3,7 +3,7 @@
 namespace Shopware\Api\Product\Event\Product;
 
 use Shopware\Api\Product\Struct\ProductSearchResult;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class ProductSearchResultLoadedEvent extends NestedEvent
@@ -25,7 +25,7 @@ class ProductSearchResultLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): TranslationContext
+    public function getContext(): ShopContext
     {
         return $this->result->getContext();
     }

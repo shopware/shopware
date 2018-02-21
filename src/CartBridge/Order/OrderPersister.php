@@ -59,7 +59,7 @@ class OrderPersister implements OrderPersisterInterface
     {
         $order = $this->convert($calculatedCart, $context);
 
-        $this->repository->create([$order], $context->getTranslationContext());
+        $this->repository->create([$order], $context->getShopContext());
     }
 
     private function convert(CalculatedCart $calculatedCart, StorefrontContext $context): array

@@ -10,7 +10,7 @@ use Shopware\Api\Category\Repository\CategoryRepository;
 use Shopware\Api\Category\Struct\CategoryBasicStruct;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\TermQuery;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Shopware\DbalIndexing\Event\ProgressAdvancedEvent;
 use Shopware\DbalIndexing\Event\ProgressFinishedEvent;
 use Shopware\DbalIndexing\Event\ProgressStartedEvent;
@@ -62,7 +62,7 @@ class CategoryPathBuilder implements EventSubscriberInterface
         }
     }
 
-    public function update(string $parentId, TranslationContext $context): void
+    public function update(string $parentId, ShopContext $context): void
     {
         $version = Uuid::fromString($context->getVersionId())->getBytes();
 
@@ -90,7 +90,7 @@ class CategoryPathBuilder implements EventSubscriberInterface
         );
     }
 
-    private function updateRecursive(CategoryBasicStruct $parent, CategoryBasicCollection $parents, TranslationContext $context): void
+    private function updateRecursive(CategoryBasicStruct $parent, CategoryBasicCollection $parents, ShopContext $context): void
     {
         $categories = $this->updateByParent($parent, $parents, $context);
         foreach ($categories as $category) {
@@ -100,7 +100,7 @@ class CategoryPathBuilder implements EventSubscriberInterface
         }
     }
 
-    private function updateByParent(CategoryBasicStruct $parent, CategoryBasicCollection $parents, TranslationContext $context): CategoryBasicCollection
+    private function updateByParent(CategoryBasicStruct $parent, CategoryBasicCollection $parents, ShopContext $context): CategoryBasicCollection
     {
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('category.parentId', $parent->getId()));
@@ -152,7 +152,7 @@ class CategoryPathBuilder implements EventSubscriberInterface
         return $categories;
     }
 
-    private function loadParents(string $parentId, TranslationContext $context): CategoryBasicCollection
+    private function loadParents(string $parentId, ShopContext $context): CategoryBasicCollection
     {
         $parents = $this->repository->readBasic([$parentId], $context);
         $parent = $parents->get($parentId);
@@ -166,7 +166,7 @@ class CategoryPathBuilder implements EventSubscriberInterface
         return $parents;
     }
 
-    private function fetchParentIds(array $ids, TranslationContext $context): array
+    private function fetchParentIds(array $ids, ShopContext $context): array
     {
         $query = $this->connection->createQueryBuilder();
         $query->select(['parent_id']);

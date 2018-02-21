@@ -4,7 +4,7 @@ namespace Shopware\Api\Version\Event\VersionCommitData;
 
 use Shopware\Api\Version\Struct\VersionCommitDataSearchResult;
 use Shopware\Api\Version\Struct\VersionCommitSearchResult;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class VersionCommitDataSearchResultLoadedEvent extends NestedEvent
@@ -26,7 +26,7 @@ class VersionCommitDataSearchResultLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): TranslationContext
+    public function getContext(): ShopContext
     {
         return $this->result->getContext();
     }

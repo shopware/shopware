@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
 use Shopware\Api\Category\Repository\CategoryRepository;
 use Shopware\Api\Product\Repository\ProductRepository;
-use Shopware\Context\Struct\TranslationContext;
+use Shopware\Context\Struct\ShopContext;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -49,7 +49,7 @@ class EntityReaderTest extends KernelTestCase
         }
 
         $this->container->get(CategoryRepository::class)
-            ->create($categories, TranslationContext::createDefaultContext());
+            ->create($categories, ShopContext::createDefaultContext());
 
         $mapping = array_map(function (array $category) {
             return ['id' => $category['id']];
@@ -66,10 +66,10 @@ class EntityReaderTest extends KernelTestCase
         ];
 
         $this->container->get(ProductRepository::class)
-            ->create([$product], TranslationContext::createDefaultContext());
+            ->create([$product], ShopContext::createDefaultContext());
 
         $detail = $this->container->get(ProductRepository::class)
-            ->readDetail([$id], TranslationContext::createDefaultContext());
+            ->readDetail([$id], ShopContext::createDefaultContext());
 
         $this->assertCount(401, $detail->getAllCategories());
     }

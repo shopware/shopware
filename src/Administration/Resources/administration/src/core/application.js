@@ -58,7 +58,7 @@ class ApplicationBootstrapper {
      *
      * @param {String} name Name of the factory
      * @param {Function} factory Factory method
-     * @returns {ApplicationBootstrapper}
+     * @returns {module:core/application.ApplicationBootstrapper}
      */
     addFactory(name, factory) {
         this.$container.factory(`factory.${name}`, factory.bind(this));
@@ -82,7 +82,7 @@ class ApplicationBootstrapper {
      * });
      *
      * @param args
-     * @returns {ApplicationBootstrapper}
+     * @returns {module:core/application.ApplicationBootstrapper}
      */
     addFactoryMiddleware(...args) {
         return this._addMiddleware('factory', args);
@@ -104,7 +104,7 @@ class ApplicationBootstrapper {
      * });
      *
      * @param args
-     * @returns {ApplicationBootstrapper}
+     * @returns {module:core/application.ApplicationBootstrapper}
      */
     addFactoryDecorator(...args) {
         return this._addDecorator('factory', args);
@@ -123,7 +123,7 @@ class ApplicationBootstrapper {
      *
      * @param {String} name Name of the initializer
      * @param {Function} initializer Factory method
-     * @returns {ApplicationBootstrapper}
+     * @returns {module:core/application.ApplicationBootstrapper}
      */
     addInitializer(name, initializer) {
         this.$container.factory(`init.${name}`, initializer.bind(this));
@@ -143,7 +143,7 @@ class ApplicationBootstrapper {
      *
      * @param {String} name Name of the service
      * @param {Function} provider Factory method for the service
-     * @returns {ApplicationBootstrapper}
+     * @returns {module:core/application.ApplicationBootstrapper}
      */
     addServiceProvider(name, provider) {
         this.$container.factory(`service.${name}`, provider.bind(this));
@@ -178,7 +178,7 @@ class ApplicationBootstrapper {
      * });
      *
      * @param args
-     * @returns {ApplicationBootstrapper}
+     * @returns {module:core/application.ApplicationBootstrapper}
      */
     addInitializerMiddleware(...args) {
         return this._addMiddleware('init', args);
@@ -200,7 +200,7 @@ class ApplicationBootstrapper {
      * });
      *
      * @param args
-     * @returns {ApplicationBootstrapper}
+     * @returns {module:core/application.ApplicationBootstrapper}
      */
     addServiceProviderMiddleware(...args) {
         return this._addMiddleware('service', args);
@@ -211,7 +211,7 @@ class ApplicationBootstrapper {
      *
      * @param {String} containerName
      * @param {Array} args
-     * @returns {ApplicationBootstrapper}
+     * @returns {module:core/application.ApplicationBootstrapper}
      * @private
      */
     _addMiddleware(containerName, args) {
@@ -239,7 +239,7 @@ class ApplicationBootstrapper {
      * });
      *
      * @param args
-     * @returns {ApplicationBootstrapper}
+     * @returns {module:core/application.ApplicationBootstrapper}
      */
     addInitializerDecorator(...args) {
         return this._addDecorator('init', args);
@@ -261,7 +261,7 @@ class ApplicationBootstrapper {
      * });
      *
      * @param args
-     * @returns {ApplicationBootstrapper}
+     * @returns {module:core/application.ApplicationBootstrapper}
      */
     addServiceProviderDecorator(...args) {
         return this._addDecorator('service', args);
@@ -272,7 +272,7 @@ class ApplicationBootstrapper {
      *
      * @param {String} containerName
      * @param {Array} args
-     * @returns {ApplicationBootstrapper}
+     * @returns {module:core/application.ApplicationBootstrapper}
      * @private
      */
     _addDecorator(containerName, args) {
@@ -287,7 +287,8 @@ class ApplicationBootstrapper {
     /**
      * Starts the bootstrapping process of the application.
      *
-     * @param context
+     * @param {Object} [context={}]
+     * @returns {void}
      */
     start(context = {}) {
         this.registerContext(context)
@@ -311,21 +312,38 @@ class ApplicationBootstrapper {
      * Creates the application root and injects the provider container into the
      * view instance to keep the dependency injection of Vue.js in place.
      *
-     * @returns {ApplicationBootstrapper}
+     * @returns {module:core/application.ApplicationBootstrapper}
      */
     createApplicationRoot() {
         const container = this.getContainer('init');
         const router = container.router;
         const view = container.view;
 
-        // ToDo: What about async initializers?
-        container.entity.then(() => {
-            this.applicationRoot = view.createInstance(
-                '#app',
-                router,
-                this.getContainer('service')
-            );
+        this.instantiateInitializers(container);
+
+        this.applicationRoot = view.createInstance(
+            '#app',
+            router,
+            this.getContainer('service')
+        );
+
+        return this;
+    }
+
+    /**
+     * Instantiates the initializers right away cause these are the mandatory services for the application
+     * to boot successfully.
+     *
+     * @private
+     * @param {Bottle.IContainer} container
+     * @param {String} [prefix='init']
+     * @returns {module:core/application.ApplicationBootstrapper}
+     */
+    instantiateInitializers(container, prefix = 'init') {
+        const services = container.$list().map((serviceName) => {
+            return `${prefix}.${serviceName}`;
         });
+        this.$container.digest(services);
 
         return this;
     }

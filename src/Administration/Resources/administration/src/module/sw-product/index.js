@@ -8,7 +8,7 @@ Module.register('sw-product', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#7AD5C8',
-    icon: 'box',
+    icon: 'default-symbol-products',
 
     routes: {
         index: {
@@ -40,7 +40,7 @@ Module.register('sw-product', {
         path: 'sw.product.index',
         label: 'Produktübersicht',
         color: '#7AD5C8',
-        icon: 'box'
+        icon: 'default-symbol-products'
     }, {
         path: 'sw.product.create',
         label: 'Produkt anlegen',

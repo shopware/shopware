@@ -33,7 +33,10 @@
                                 {% endblock %}
 
                                 {% block core_product_list_grid_columns_active %}
-                                    <sw-grid-column flex="100px" label="Active"><i class="icon-checkmark" v-if="item.active"></i><i class="icon-cross" v-else></i></sw-grid-column>
+                                    <sw-grid-column flex="100px" label="Active">
+                                        <sw-icon name="small-default-checkmark-line-medium" small v-if="item.active" />
+                                        <sw-icon name="small-default-x-line-medium" small v-else />
+                                    </sw-grid-column>
                                 {% endblock %}
 
                                 {% block core_product_list_grid_columns_price %}

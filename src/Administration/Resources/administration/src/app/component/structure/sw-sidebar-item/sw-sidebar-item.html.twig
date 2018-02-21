@@ -1,6 +1,6 @@
 <li class="nav--link">
     <router-link :to="{ name: entry.path }">
-        <i :class="getIconName(entry.icon)" :style="{ 'color': entry.color }"></i>
+        <sw-icon :name="getIconName(entry.icon)" size="20" :style="{ 'color': entry.color }" />
         {{ entry.label }}
     </router-link>
 

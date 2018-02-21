@@ -23,9 +23,15 @@
 
                             <slot name="actions" v-if="actions.length > 0">
                                 <div class="sw-grid__cell">
-                                    <button class="sw-grid__action-button" v-on:click="$emit('edit', item)" v-if="actions.indexOf('edit') !== -1"><i class="icon-document-edit"></i></button>
-                                    <button class="sw-grid__action-button" v-on:click="$emit('delete', item)" v-if="actions.indexOf('delete') !== -1"><i class="icon-document-delete"></i></button>
-                                    <button class="sw-grid__action-button" v-on:click="$emit('duplicate', item)" v-if="actions.indexOf('duplicate') !== -1"><i class="icon-copy"></i></button>
+                                    <button class="sw-grid__action-button" v-on:click="$emit('edit', item)" v-if="actions.indexOf('edit') !== -1">
+                                        <sw-icon name="small-pencil-paper" title="Edit" small />
+                                    </button>
+                                    <button class="sw-grid__action-button" v-on:click="$emit('delete', item)" v-if="actions.indexOf('delete') !== -1">
+                                        <sw-icon name="small-default-x-line-medium" title="Delete" small />
+                                    </button>
+                                    <button class="sw-grid__action-button" v-on:click="$emit('duplicate', item)" v-if="actions.indexOf('duplicate') !== -1">
+                                        <sw-icon name="small-copy" title="Copy" small />
+                                    </button>
                                 </div>
                             </slot>
                         </div>
@@ -42,9 +48,15 @@
 
     <div class="sw-grid__sidebar" v-if="sidebar">
         <slot name="sidebar">
-            <button class="sw-grid__sidebar-button"><i class="icon-gear"></i></button>
-            <button class="sw-grid__sidebar-button"><i class="icon-clockwise"></i></button>
-            <button class="sw-grid__sidebar-button"><i class="icon-experiment"></i></button>
+            <button class="sw-grid__sidebar-button">
+                <sw-icon name="default-action-settings" title="Settings" />
+            </button>
+            <button class="sw-grid__sidebar-button">
+                <sw-icon name="default-arrow-360-right" title="Reload" />
+            </button>
+            <button class="sw-grid__sidebar-button">
+                <sw-icon name="default-action-filter" title="Filter" />
+            </button>
         </slot>
     </div>
 </div>

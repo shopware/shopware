@@ -30,7 +30,7 @@ Module.register('sw-order', {
         path: 'sw.order.index',
         label: 'Bestellübersicht',
         color: '#CA8EE0',
-        icon: 'cart'
+        icon: 'default-shopping-paper-bag'
     }],
 
     commands: [{

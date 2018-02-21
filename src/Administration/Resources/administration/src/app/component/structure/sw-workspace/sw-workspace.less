@@ -10,6 +10,7 @@
 
     .workspace--toolbar {
         height: 70px;
+        line-height: 65px;
         border-bottom: 2px solid;
         background: @color-white;
         position: absolute;
@@ -20,15 +21,14 @@
 
     .workspace--headline {
         display: block;
-        padding-top: 24px;
         font-size: 18px;
-        line-height: 23px;
         color: @color-kashmir;
         font-weight: 600;
         float: left;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        margin-bottom: 0;
 
         .headline--empty {
             color: lighten(@color-gutenberg, 35%);
@@ -47,7 +47,6 @@
 
         .toolbar--primary-actions {
             float: right;
-            margin-top: 12px;
         }
     }
 
@@ -56,17 +55,6 @@
         padding-left: 32px;
         display: block;
         float: left;
-
-        i {
-            font-size: 21px;
-            line-height: 28px;
-
-            &.chevron {
-                font-style: normal;
-                font-size: 38px;
-                line-height: 65px;
-            }
-        }
     }
 
     .workspace--content {

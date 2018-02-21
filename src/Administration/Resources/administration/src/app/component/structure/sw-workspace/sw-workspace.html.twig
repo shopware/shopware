@@ -3,8 +3,8 @@
 
         <!-- Contains the name and icon of the parent root if defined -->
         <router-link :to="{ name: parentRoute }" v-if="parentRoute" :style="{ 'color': primaryColor }" class="toolbar--back-btn">
-            <i class="chevron">&#8249;</i>
-            <i :class="iconClassName"></i>
+            <sw-icon name="small-arrow-large-left" />
+            <sw-icon :name="iconClassName" />
         </router-link>
 
         <!-- Mainly for primary actions like saving, canceling, etc. -->

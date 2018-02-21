@@ -10,7 +10,7 @@ Component.register('sw-workspace', {
                 return 'icon--empty';
             }
 
-            return `icon-${this.icon}`;
+            return `${this.icon}`;
         }
     },
 

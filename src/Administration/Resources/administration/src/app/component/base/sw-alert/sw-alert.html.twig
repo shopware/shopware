@@ -1,0 +1,7 @@
+<div class="sw-alert" :class="alertClasses">
+    <sw-icon :name="alertIcon" decorative />
+    <div v-if="title" class="sw-alert__title">{{ title }}</div>
+    <div class="sw-alert__message">
+        <slot></slot>
+    </div>
+</div>

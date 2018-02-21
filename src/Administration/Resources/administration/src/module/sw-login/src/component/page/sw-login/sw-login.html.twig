@@ -1,19 +1,18 @@
 <div class="sw-login">
     <sw-card class="sw-login__container" title="">
         <transition name="bounce">
-            <div class="sw-alert sw-alert--warning" v-if="message.length && error.length">
-                <strong class="sw-alert__title">{{ error }}!</strong> {{ message }}
-            </div>
+            <sw-alert warning v-if="login.message.length && login.error.length" :title="error">
+                {{ message }}
+            </sw-alert>
         </transition>
 
         <form v-on:submit.prevent="loginUserWithPassword">
             <sw-field v-model="username" label="Username" placeholder="Your username..."></sw-field>
             <sw-field v-model="password" label="Password" type="password" placeholder="Your password..."></sw-field>
 
-            <p class="sw-alert sw-alert--info">
-                <strong class="sw-alert__title">Info</strong>
+            <sw-alert title="Info" info>
                 The default username is <strong>"admin"</strong> and the default password <strong>"shopware"</strong>.
-            </p>
+            </sw-alert>
 
             <sw-button :isPrimary="true">Login</sw-button>
         </form>

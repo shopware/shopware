@@ -44,23 +44,21 @@
                 display: block;
                 padding: 12px 30px;
                 text-decoration: none;
-                color: @color-steam-cloud;
+                color: @color-white;
                 font-size: 14px;
                 font-weight: 600;
                 line-height: 24px;
-                vertical-align: middle;
 
-                [class^="icon-"] {
+                .sw-icon {
                     margin: 0 20px 0 0;
                     line-height: 24px;
-                    font-size: 24px;
                     vertical-align: middle;
-                    text-align: center;
+                    position: relative;
+                    top: -2px;
                 }
 
                 &:hover {
                     background: lighten(@color-gradient-dark-gray-start, 4%);
-                    color: @color-white;
                 }
             }
         }

@@ -18,7 +18,7 @@ Module.register('sw-dashboard', {
 
     navigation: [{
         path: 'sw.dashboard.index',
-        icon: 'browser',
+        icon: 'default-device-dashboard',
         color: '#6abff0',
         label: 'Dashboard'
     }]

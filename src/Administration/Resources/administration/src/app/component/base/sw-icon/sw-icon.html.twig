@@ -1,0 +1,9 @@
+<svg class="sw-icon"
+     :class="[iconNamePrefix + name, iconClasses]"
+     :style="[iconSize, iconColor]"
+     :aria-hidden="decorative">
+    <title v-if="title">{{ title }}</title>
+    <slot>
+        <use :href="iconSetPath | asset"></use>
+    </slot>
+</svg>

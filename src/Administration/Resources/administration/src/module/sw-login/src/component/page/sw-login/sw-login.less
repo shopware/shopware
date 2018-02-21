@@ -1,61 +1,16 @@
 @import "~less/variables";
 
 .sw-login {
-    background: url('assets/login-background.jpg');
-    background-size: cover;
     display: flex;
     align-items: center;
     justify-content: center;
-    height:100%;
+    height: 100%;
+    background: url('assets/login-background.jpg');
+    background-size: cover;
 }
 
 .sw-login__container {
     width: 400px;
-}
-
-.sw-alert {
-    padding: 15px 30px 15px 50px;
-    border: 1px solid @color-steam-cloud;
-    border-left: 4px solid @color-steam-cloud;
-    border-radius: @border-radius-default;
-    color: @color-gutenberg;
-    background-color: @color-white;
-    position: relative;
-    max-width: 450px;
-    margin: 0 auto 20px;
-    box-shadow: 1px 2px 5px rgba(0, 0, 0, 0.1);
-
-    &:after {
-        display: block;
-        font-family: 'sw-icons';
-        font-size: 20px;
-        content: "\78";
-        top: 15px;
-        left: 15px;
-        position: absolute;
-        color: @color-steam-cloud;
-    }
-
-    .sw-alert__title {
-        margin-bottom: 8px;
-        display: block;
-    }
-
-    &.sw-alert--warning {
-        border-left-color: @color-pumpkin-spice;
-
-        &:after {
-            color: @color-pumpkin-spice;
-        }
-    }
-
-    &.sw-alert--info {
-        border-left-color: @color-shopware-blue;
-
-        &:after {
-            color: @color-shopware-blue;
-        }
-    }
 }
 
 .bounce-enter-active {

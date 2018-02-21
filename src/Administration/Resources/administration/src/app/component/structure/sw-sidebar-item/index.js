@@ -6,7 +6,7 @@ Component.register('sw-sidebar-item', {
     template,
     methods: {
         getIconName(name) {
-            return `icon-${name}`;
+            return `${name}`;
         }
     }
 });

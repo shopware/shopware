@@ -48,6 +48,13 @@ Component.register('sw-multi-select', {
             });
         },
 
+        displayValues() {
+            return this.entries.filter((entry) => {
+                const isValue = this.values.find(value => value.id === entry.id);
+                return (typeof isValue !== 'undefined');
+            });
+        },
+
         stringifyValues() {
             return this.values.join('|');
         }
@@ -59,12 +66,18 @@ Component.register('sw-multi-select', {
 
     created() {
         // Get data from the service provider
-        this.serviceProvider.getList(0, 40).then((response) => {
+        this.serviceProvider.getList(0, 500).then((response) => {
             this.entries = response.data;
         });
     },
 
     methods: {
+        getCategoryEntry(id) {
+            return this.entries.find((entry) => {
+                return entry.id === id;
+            });
+        },
+
         onDismissEntry(id) {
             // Remove the field from the value attribute of the hidden field
             this.values = this.values.filter((entry) => entry.id !== id);
@@ -79,27 +92,17 @@ Component.register('sw-multi-select', {
 
         onSelectEntry(id) {
             if (!id) {
-                return false;
-            }
-
-            const selectedEntry = this.entries.find((item) => {
-                return item.id === id;
-            });
-
-            if (!selectedEntry) {
-                return false;
+                return;
             }
 
             // Update values array
-            this.values.push(selectedEntry);
+            this.values.push({ id });
 
             // Reset search term to reset the filtered list and collapse the drop down
             this.searchTerm = '';
 
             // Emit change for v-model support
             this.$emit('input', this.values);
-
-            return selectedEntry;
         }
     },
 

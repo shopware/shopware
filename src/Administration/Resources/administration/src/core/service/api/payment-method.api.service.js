@@ -6,8 +6,8 @@ import ApiService from './api.service';
  * @extends ApiService
  */
 class PaymentMethodApiService extends ApiService {
-    constructor(httpClient, loginService, apiEndpoint = 'payment-method', returnFormat = 'json') {
-        super(httpClient, loginService, apiEndpoint, returnFormat);
+    constructor(httpClient, loginService, apiEndpoint = 'payment-method') {
+        super(httpClient, loginService, apiEndpoint);
     }
 }
 

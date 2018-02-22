@@ -13,9 +13,26 @@ Component.register('sw-product-basic-form', {
             required: true,
             default: []
         },
+        taxRates: {
+            type: Array,
+            required: true,
+            default: []
+        },
         serviceProvider: {
             type: Object,
             required: true
+        }
+    },
+
+    computed: {
+        productCategoryIds() {
+            const categoryIds = [];
+
+            this.product.categories.forEach((category) => {
+                categoryIds.push({ id: category.id });
+            });
+
+            return categoryIds;
         }
     },
 

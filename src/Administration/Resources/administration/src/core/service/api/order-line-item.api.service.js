@@ -6,8 +6,8 @@ import ApiService from './api.service';
  * @extends ApiService
  */
 class OrderLineItemApiService extends ApiService {
-    constructor(httpClient, loginService, apiEndpoint = 'order-line-item', returnFormat = 'json') {
-        super(httpClient, loginService, apiEndpoint, returnFormat);
+    constructor(httpClient, loginService, apiEndpoint = 'order-line-item') {
+        super(httpClient, loginService, apiEndpoint);
     }
 
     /**

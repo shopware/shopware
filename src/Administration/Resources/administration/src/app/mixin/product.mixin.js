@@ -91,8 +91,12 @@ Mixin.register('product', {
         saveProduct() {
             this.isLoading = true;
 
-            return this.$store.dispatch('product/saveProduct', this.product).then(() => {
+            return this.$store.dispatch('product/saveProduct', this.product).then((product) => {
                 this.isLoading = false;
+
+                if (this.$route.name === 'sw.product.create') {
+                    this.$router.push({ name: 'sw.product.detail', params: { id: product.id } });
+                }
             });
         },
 

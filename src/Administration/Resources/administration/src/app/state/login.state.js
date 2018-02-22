@@ -13,8 +13,8 @@ State.register('login', {
             password: '',
             token: '',
             expiry: -1,
-            error: '',
-            message: ''
+            errorTitle: '',
+            errorMessage: ''
         };
     },
 
@@ -53,19 +53,19 @@ State.register('login', {
 
         loginUserWithPasswordFailure(state, payload) {
             if (!payload.response) {
-                state.error = payload.message;
-                state.message = `Something went wrong requesting "${payload.config.url}".`;
+                state.errorTitle = payload.message;
+                state.errorMessage = `Something went wrong requesting "${payload.config.url}".`;
                 return;
             }
 
-            let data = payload.response.data.errors;
-            data = data.length > 1 ? data : data[0];
+            let error = payload.response.data.error;
+            error = error.length > 1 ? error : error[0];
 
             state.token = '';
             state.expiry = -1;
 
-            state.error = data.title;
-            state.message = data.detail;
+            state.errorTitle = error.title;
+            state.errorMessage = error.detail;
         }
     }
 });

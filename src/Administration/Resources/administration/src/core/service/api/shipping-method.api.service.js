@@ -6,8 +6,8 @@ import ApiService from './api.service';
  * @extends ApiService
  */
 class ShippingMethodApiService extends ApiService {
-    constructor(httpClient, loginService, apiEndpoint = 'shipping-method', returnFormat = 'json') {
-        super(httpClient, loginService, apiEndpoint, returnFormat);
+    constructor(httpClient, loginService, apiEndpoint = 'shipping-method') {
+        super(httpClient, loginService, apiEndpoint);
     }
 }
 

@@ -6,8 +6,8 @@ import ApiService from './api.service';
  * @extends ApiService
  */
 class CurrencyApiService extends ApiService {
-    constructor(httpClient, loginService, apiEndpoint = 'currency', returnFormat = 'json') {
-        super(httpClient, loginService, apiEndpoint, returnFormat);
+    constructor(httpClient, loginService, apiEndpoint = 'currency') {
+        super(httpClient, loginService, apiEndpoint);
     }
 }
 

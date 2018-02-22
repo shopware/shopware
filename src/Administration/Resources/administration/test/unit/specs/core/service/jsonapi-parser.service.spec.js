@@ -66,13 +66,13 @@ describe('core/service/jsonapi-parser.service.js', () => {
                 links: {},
                 meta: {},
                 title: 'Foo bar',
-                author: [{
+                author: {
                     id: 1,
                     type: 'people',
                     links: {},
                     meta: {},
                     name: 'Peter'
-                }]
+                }
             }],
             parsed: true
         }));

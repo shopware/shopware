@@ -26,11 +26,11 @@ Component.register('sw-login', {
                 this.$store.commit('login/setUserPassword', value);
             }
         },
-        error() {
-            return this.$store.state.login.error;
+        errorTitle() {
+            return this.$store.state.login.errorTitle;
         },
-        message() {
-            return this.$store.state.login.message;
+        errorMessage() {
+            return this.$store.state.login.errorMessage;
         }
     },
 

@@ -6,8 +6,8 @@ import ApiService from './api.service';
  * @extends ApiService
  */
 class CustomerApiService extends ApiService {
-    constructor(httpClient, loginService, apiEndpoint = 'customer', returnFormat = 'json') {
-        super(httpClient, loginService, apiEndpoint, returnFormat);
+    constructor(httpClient, loginService, apiEndpoint = 'customer') {
+        super(httpClient, loginService, apiEndpoint);
     }
 }
 

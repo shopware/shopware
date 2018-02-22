@@ -6,8 +6,8 @@ import ApiService from './api.service';
  * @extends ApiService
  */
 class CategoryApiService extends ApiService {
-    constructor(httpClient, loginService, apiEndpoint = 'category', returnFormat = 'json') {
-        super(httpClient, loginService, apiEndpoint, returnFormat);
+    constructor(httpClient, loginService, apiEndpoint = 'category') {
+        super(httpClient, loginService, apiEndpoint);
     }
 }
 

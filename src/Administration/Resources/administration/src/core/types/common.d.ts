@@ -113,11 +113,6 @@ declare namespace Shopware {
     }
 
     export namespace Utils {
-        export function merge(
-            target: object,
-            source: object
-        ): object;
-
         export function formDataToObject(
             formData: FormData
         ): object;

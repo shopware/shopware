@@ -6,8 +6,8 @@ import ApiService from './api.service';
  * @extends ApiService
  */
 class MediaApiService extends ApiService {
-    constructor(httpClient, loginService, apiEndpoint = 'media', returnFormat = 'json') {
-        super(httpClient, loginService, apiEndpoint, returnFormat);
+    constructor(httpClient, loginService, apiEndpoint = 'media') {
+        super(httpClient, loginService, apiEndpoint);
     }
 }
 

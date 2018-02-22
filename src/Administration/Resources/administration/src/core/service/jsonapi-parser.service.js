@@ -113,12 +113,13 @@ function parseDataStructure(json) {
 
     const includedMap = createIncludeMap(json.included);
 
-    // Always cast data to an array, we're flattening it afterwards
-    if (!utils.isArray(json.data)) {
-        json.data = [json.data];
+    if (utils.isArray(json.data)) {
+        data.data = json.data.map((record) => createItem(record, includedMap));
+    } else if (utils.isObject(json.data)) {
+        data.data = createItem(json.data, includedMap);
+    } else {
+        data.data = null;
     }
-
-    data.data = json.data.map((record) => createItem(record, includedMap));
 
     if (json.meta && Object.keys(json.meta).length) {
         data.meta = renameObjectPropertiesToCamelCase(json.meta);
@@ -194,12 +195,15 @@ function createRelationships(relationships, includedMap) {
             return;
         }
 
-        let data = relationship.data;
-        if (!utils.isArray(relationship.data)) {
-            data = [relationship.data];
-        }
+        const data = relationship.data;
 
-        mappedRelations[prop] = data.map((item) => mapIncluded(item, includedMap));
+        if (utils.isArray(data)) {
+            mappedRelations[prop] = data.map((item) => mapIncluded(item, includedMap));
+        } else if (utils.isObject(data)) {
+            mappedRelations[prop] = mapIncluded(data, includedMap);
+        } else {
+            mappedRelations[prop] = null;
+        }
     });
 
     return mappedRelations;

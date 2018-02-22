@@ -1,3 +1,5 @@
+import parseJsonApi from 'src/core/service/jsonapi-parser.service';
+
 /**
  * ApiService class which provides the common methods for our REST API
  * @class
@@ -8,17 +10,13 @@ class ApiService {
      * @param {AxiosInstance} httpClient
      * @param {LoginService} loginService
      * @param {String} apiEndpoint
-     * @param {String} [returnFormat=json]
+     * @param {String} [contentType='application/vnd.api+json']
      */
-    constructor(httpClient, loginService, apiEndpoint, returnFormat = 'json') {
+    constructor(httpClient, loginService, apiEndpoint, contentType = 'application/vnd.api+json') {
         this.httpClient = httpClient;
-        this.httpClient.defaults.headers.common.Authorization = `Bearer ${loginService.getToken()}`;
-
+        this.loginService = loginService;
         this.apiEndpoint = apiEndpoint;
-        this.returnFormat = returnFormat;
-
-        // TODO - Use return format
-        this.returnFormat = '';
+        this.contentType = contentType;
     }
 
     /**
@@ -26,13 +24,21 @@ class ApiService {
      *
      * @param {Number} [offset=0]
      * @param {Number} [limit=25]
+     * @param {Object} additionalParams
+     * @param {Object} additionalHeaders
      * @returns {Promise<T>}
      */
-    getList(offset = 0, limit = 25) {
+    getList(offset = 0, limit = 25, additionalParams = {}, additionalHeaders = {}) {
+        const headers = this.getBasicHeaders(additionalHeaders);
+        const params = Object.assign({ offset, limit }, additionalParams);
+
         return this.httpClient
-            .get(`${this.getApiBasePath()}?offset=${offset}&limit=${limit}`)
+            .get(this.getApiBasePath(), {
+                params,
+                headers
+            })
             .then((response) => {
-                return response.data;
+                return ApiService.handleResponse(response);
             });
     }
 
@@ -40,17 +46,25 @@ class ApiService {
      * Get the detail entity from the API end point using the provided entity id.
      *
      * @param {String|Number} id
+     * @param {Object} additionalParams
+     * @param {Object} additionalHeaders
      * @returns {Promise<T>}
      */
-    getById(id) {
+    getById(id, additionalParams = {}, additionalHeaders = {}) {
         if (!id) {
             return Promise.reject(new Error('Missing required argument: id'));
         }
 
+        const params = additionalParams;
+        const headers = this.getBasicHeaders(additionalHeaders);
+
         return this.httpClient
-            .get(this.getApiBasePath(id))
+            .get(this.getApiBasePath(id), {
+                params,
+                headers
+            })
             .then((response) => {
-                return response.data;
+                return ApiService.handleResponse(response);
             });
     }
 
@@ -59,17 +73,25 @@ class ApiService {
      *
      * @param {String|Number} id
      * @param {any} payload
+     * @param {Object} additionalParams
+     * @param {Object} additionalHeaders
      * @returns {Promise<T>}
      */
-    updateById(id, payload) {
+    updateById(id, payload, additionalParams = {}, additionalHeaders = {}) {
         if (!id) {
             return Promise.reject(new Error('Missing required argument: id'));
         }
 
+        const params = Object.assign({ _response: 'detail' }, additionalParams);
+        const headers = this.getBasicHeaders(additionalHeaders);
+
         return this.httpClient
-            .patch(`${this.getApiBasePath(id)}?_response=detail`, payload)
+            .patch(this.getApiBasePath(id), payload, {
+                params,
+                headers
+            })
             .then((response) => {
-                return response.data;
+                return ApiService.handleResponse(response);
             });
     }
 
@@ -77,13 +99,21 @@ class ApiService {
      * Creates a new entity
      *
      * @param {any} payload
+     * @param {Object} additionalParams
+     * @param {Object} additionalHeaders
      * @returns {Promise<T>}
      */
-    create(payload) {
+    create(payload, additionalParams = {}, additionalHeaders = {}) {
+        const params = Object.assign({ _response: 'detail' }, additionalParams);
+        const headers = this.getBasicHeaders(additionalHeaders);
+
         return this.httpClient
-            .post(`${this.getApiBasePath()}?_response=detail`, payload)
+            .post(this.getApiBasePath(), payload, {
+                params,
+                headers
+            })
             .then((response) => {
-                return response.data;
+                return ApiService.handleResponse(response);
             });
     }
 
@@ -94,13 +124,58 @@ class ApiService {
      * @returns {String}
      */
     getApiBasePath(id) {
-        const returnFormat = (this.returnFormat.length) ? `.${this.returnFormat}` : '';
-
         if (id && id.length > 0) {
-            return `${this.apiEndpoint}/${id}${returnFormat}`;
+            return `${this.apiEndpoint}/${id}`;
         }
 
-        return `${this.apiEndpoint}${returnFormat}`;
+        return this.apiEndpoint;
+    }
+
+    /**
+     * Get the basic headers for a request.
+     *
+     * @param additionalHeaders
+     * @returns {{} & {Accept: String} & {}}
+     */
+    getBasicHeaders(additionalHeaders = {}) {
+        const basicHeaders = {
+            Accept: this.contentType,
+            Authorization: `Bearer ${this.loginService.getToken()}`
+        };
+
+        return Object.assign({}, basicHeaders, additionalHeaders);
+    }
+
+    /**
+     * Basic response handling.
+     * Converts the JSON api data when the specific content type is set.
+     *
+     * @param response
+     * @returns {*}
+     */
+    static handleResponse(response) {
+        if (!response.data) {
+            return response;
+        }
+
+        let data = response.data;
+        const headers = response.headers;
+
+        if (headers && headers['content-type'] && headers['content-type'] === 'application/vnd.api+json') {
+            data = ApiService.parseJsonApiData(data);
+        }
+
+        return data;
+    }
+
+    /**
+     * Parses a JSON api data structure to a simplified object.
+     *
+     * @param data
+     * @returns {Object}
+     */
+    static parseJsonApiData(data) {
+        return parseJsonApi(data);
     }
 
     /**
@@ -135,19 +210,17 @@ class ApiService {
     }
 
     /**
-     * Getter & setter for the http client
-     *
      * @type {String}
      */
-    get returnFormat() {
-        return this.format;
+    get contentType() {
+        return this.type;
     }
 
     /**
      * @type {String}
      */
-    set returnFormat(format) {
-        this.format = format;
+    set contentType(contentType) {
+        this.type = contentType;
     }
 }
 

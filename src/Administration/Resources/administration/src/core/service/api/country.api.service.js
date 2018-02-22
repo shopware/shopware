@@ -6,8 +6,8 @@ import ApiService from './api.service';
  * @extends ApiService
  */
 class CountryApiService extends ApiService {
-    constructor(httpClient, loginService, apiEndpoint = 'country', returnFormat = 'json') {
-        super(httpClient, loginService, apiEndpoint, returnFormat);
+    constructor(httpClient, loginService, apiEndpoint = 'country') {
+        super(httpClient, loginService, apiEndpoint);
     }
 }
 

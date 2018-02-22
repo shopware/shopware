@@ -37,7 +37,7 @@ State.register('product', {
 
             return productService.getList(offset, limit).then((response) => {
                 const products = response.data;
-                const total = response.total;
+                const total = response.meta.total;
 
                 products.forEach((product) => {
                     commit('initProduct', product);
@@ -128,17 +128,17 @@ State.register('product', {
 
             const changeset = Shopware.Utils.getObjectChangeSet(state.original[product.id], product);
 
+            if (Shopware.Utils.isEmpty(changeset)) {
+                return false;
+            }
+
             if (product.isNew) {
                 return productService.create(changeset).then((response) => {
-                    const newProduct = response.data[0];
+                    const newProduct = response.data;
 
                     commit('initProduct', newProduct);
                     return newProduct;
                 });
-            }
-
-            if (Shopware.Utils.isEmpty(changeset)) {
-                return false;
             }
 
             return productService.updateById(product.id, changeset).then((response) => {
@@ -161,14 +161,12 @@ State.register('product', {
                 return;
             }
 
-            // If the product draft already exists in the state, merge it with the new data
-            if (typeof state.draft[product.id] !== 'undefined') {
-                product = Object.assign(state.draft[product.id], product);
-            }
+            const originalProduct = Shopware.Utils.deepCopyObject(product);
+            const draftProduct = Shopware.Utils.deepCopyObject(product);
 
             product.isLoaded = true;
-            state.original[product.id] = Shopware.Utils.deepCopyObject(product);
-            state.draft[product.id] = Shopware.Utils.deepCopyObject(product);
+            state.original[product.id] = Object.assign(state.original[product.id] || {}, originalProduct);
+            state.draft[product.id] = Object.assign(state.draft[product.id] || {}, draftProduct);
         },
 
         /**

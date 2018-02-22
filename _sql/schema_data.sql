@@ -1,6 +1,11 @@
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS=0;
 
+INSERT INTO `catalog` (`id`, `name`)
+VALUES
+  (unhex('ffffffffffffffffffffffffffffffff'), 'Default catalog')
+;
+
 INSERT INTO `country` (`id`, `version_id`, `iso`, `country_area_id`, `position`, `shipping_free`, `tax_free`, `taxfree_for_vat_id`, `taxfree_vatid_checked`, `active`, `iso3`, `display_state_in_registration`, `force_state_in_registration`, `created_at`, `updated_at`) VALUES
   (unhex('ffe61e1c99154f9597014a310ab5482d'), unhex('ffffffffffffffffffffffffffffffff'),	'GR',	unhex('dde2e7c598144e73ba03b093107ce5cf'),	10,	0,	0,	0,	0,	0,	'GRC',	0,	0,	'2017-12-14 15:25:56',	NULL),
   (unhex('6c72828ec5e240588a35114cf1d4d5ef'), unhex('ffffffffffffffffffffffffffffffff'),	'GB',	unhex('dde2e7c598144e73ba03b093107ce5cf'),	10,	0,	0,	0,	0,	0,	'GBR',	0,	0,	'2017-12-14 15:25:56',	NULL),

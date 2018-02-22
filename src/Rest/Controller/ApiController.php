@@ -40,6 +40,9 @@ class ApiController extends Controller
     public const WRITE_UPDATE = 'update';
     public const WRITE_CREATE = 'create';
 
+    public const RESPONSE_BASIC = 'basic';
+    public const RESPONSE_DETAIL = 'detail';
+
     /**
      * @var DefinitionRegistry
      */
@@ -335,7 +338,11 @@ class ApiController extends Controller
 
             $event = $events->getEventByDefinition($definition);
 
-            $entities = $repository->readBasic($event->getIds(), $context->getShopContext());
+            if ($responseDataType === self::RESPONSE_DETAIL) {
+                $entities = $repository->readDetail($event->getIds(), $context->getShopContext());
+            } else {
+                $entities = $repository->readBasic($event->getIds(), $context->getShopContext());
+            }
 
             return $this->responseFactory->createDetailResponse($entities->first(), $definition, $context, $appendLocationHeader);
         }
@@ -372,7 +379,12 @@ class ApiController extends Controller
             $event = $events->getEventByDefinition($definition);
 
             $repository = $this->get($definition::getRepositoryClass());
-            $entities = $repository->readBasic($event->getIds(), $context->getShopContext());
+
+            if ($responseDataType === self::RESPONSE_DETAIL) {
+                $entities = $repository->readDetail($event->getIds(), $context->getShopContext());
+            } else {
+                $entities = $repository->readBasic($event->getIds(), $context->getShopContext());
+            }
 
             return $this->responseFactory->createDetailResponse($entities->first(), $definition, $context, $appendLocationHeader);
         }
@@ -398,7 +410,11 @@ class ApiController extends Controller
                 return $this->responseFactory->createRedirectResponse($definition, $entityId, $context);
             }
 
-            $entities = $repository->readBasic($event->getIds(), $context->getShopContext());
+            if ($responseDataType === self::RESPONSE_DETAIL) {
+                $entities = $repository->readDetail($event->getIds(), $context->getShopContext());
+            } else {
+                $entities = $repository->readBasic($event->getIds(), $context->getShopContext());
+            }
 
             return $this->responseFactory->createDetailResponse($entities->first(), $definition, $context, $appendLocationHeader);
         }
@@ -412,7 +428,13 @@ class ApiController extends Controller
         $event = $events->getEventByDefinition($reference);
 
         $repository = $this->get($reference::getRepositoryClass());
-        $entities = $repository->readBasic($event->getIds(), $context->getShopContext());
+
+        if ($responseDataType === self::RESPONSE_DETAIL) {
+            $entities = $repository->readDetail($event->getIds(), $context->getShopContext());
+        } else {
+            $entities = $repository->readBasic($event->getIds(), $context->getShopContext());
+        }
+
         $entity = $entities->first();
 
         $repository = $this->get($parentDefinition::getRepositoryClass());
@@ -671,7 +693,7 @@ class ApiController extends Controller
             return null;
         }
 
-        $responses = ['basic', 'detail'];
+        $responses = [self::RESPONSE_BASIC, self::RESPONSE_DETAIL];
         $response = $request->query->get('_response');
 
         if (!\in_array($response, $responses, true)) {

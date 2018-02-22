@@ -317,16 +317,16 @@ class ApplicationBootstrapper {
     createApplicationRoot() {
         const container = this.getContainer('init');
 
-        this.instantiateInitializers(container);
+        this.instantiateInitializers(container).then(() => {
+            const router = container.router;
+            const view = container.view;
 
-        const router = container.router;
-        const view = container.view;
-
-        this.applicationRoot = view.createInstance(
-            '#app',
-            router,
-            this.getContainer('service')
-        );
+            this.applicationRoot = view.createInstance(
+                '#app',
+                router,
+                this.getContainer('service')
+            );
+        });
 
         return this;
     }
@@ -338,7 +338,7 @@ class ApplicationBootstrapper {
      * @private
      * @param {Bottle.IContainer} container Bottle container
      * @param {String} [prefix='init'] Nested container prefix
-     * @returns {module:core/application.ApplicationBootstrapper}
+     * @returns {Promise<any[]>}
      */
     instantiateInitializers(container, prefix = 'init') {
         const services = container.$list().map((serviceName) => {
@@ -346,7 +346,15 @@ class ApplicationBootstrapper {
         });
         this.$container.digest(services);
 
-        return this;
+        const asyncInitializers = [];
+        Object.keys(container).forEach((serviceKey) => {
+            const service = container[serviceKey];
+            if (service && service instanceof Promise) {
+                asyncInitializers.push(service);
+            }
+        });
+
+        return Promise.all(asyncInitializers);
     }
 }
 

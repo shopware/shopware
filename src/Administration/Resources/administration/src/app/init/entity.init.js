@@ -1,4 +1,4 @@
-export default async function initializeEntities(container) {
+export default function initializeEntities(container) {
     const httpClient = container.httpClient;
     const factoryContainer = this.getContainer('factory');
     const entityFactory = factoryContainer.entity;

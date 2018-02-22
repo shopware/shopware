@@ -1,5 +1,3 @@
-/* global Shopware */
-
 import VueRouter from 'vue-router';
 import RouterFactory from 'src/core/factory/router.factory';
 import coreRoutes from 'src/app/routes';

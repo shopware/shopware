@@ -1,3 +1,5 @@
+import 'module';
+
 export default function initializeCoreModules() {
     const factoryContainer = this.getContainer('factory');
     const moduleFactory = factoryContainer.module;

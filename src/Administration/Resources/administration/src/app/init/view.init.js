@@ -1,4 +1,3 @@
-/* global Shopware */
 import VueAdapter from 'src/app/adapter/view/vue.adapter';
 import ViewFactory from 'src/core/factory/view.factory';
 

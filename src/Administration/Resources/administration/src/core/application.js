@@ -316,10 +316,11 @@ class ApplicationBootstrapper {
      */
     createApplicationRoot() {
         const container = this.getContainer('init');
-        const router = container.router;
-        const view = container.view;
 
         this.instantiateInitializers(container);
+
+        const router = container.router;
+        const view = container.view;
 
         this.applicationRoot = view.createInstance(
             '#app',

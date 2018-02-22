@@ -1,9 +1,18 @@
-<svg class="sw-icon"
-     :class="[iconNamePrefix + name, iconClasses]"
-     :style="[iconSize, iconColor]"
-     :aria-hidden="decorative">
-    <title v-if="title">{{ title }}</title>
-    <slot>
-        <use :href="iconSetPath | asset"></use>
-    </slot>
-</svg>
+{% block sw_icon %}
+    <svg class="sw-icon"
+         :class="[iconNamePrefix + name, iconClasses]"
+         :style="[iconSize, iconColor]"
+         :aria-hidden="decorative">
+        {% block sw_icon_inner %}
+            {% block sw_icon_title %}
+                <title v-if="title">{{ title }}</title>
+            {% endblock %}
+
+            <slot>
+                {% block sw_icon_slot_default %}
+                    <use :href="iconSetPath | asset"></use>
+                {% endblock %}
+            </slot>
+        {% endblock %}
+    </svg>
+{% endblock %}

@@ -1,4 +1,4 @@
-# CSS naming conventions
+# Component and CSS conventions
 
 Because the shopware administration is a component based application with reusable elements, the CSS structure is also component-driven. The Markup and CSS of the administration is using BEM as a naming convention. 
 
@@ -77,7 +77,7 @@ All CSS sub-classes rely on the root element of the component &ndash; even when 
 // Primary
 @color-shopware-blue:     #189EFF;
 @color-biscay:            #16325C;
-@color-deep-cove:		  #303A4F;
+@color-deep-cove:         #303A4F;
 @color-crimson:           #DE294C;
 @color-pumpkin-spice:     #FFB75D;
 
@@ -109,4 +109,36 @@ All CSS sub-classes rely on the root element of the component &ndash; even when 
     background-color: @sw-button-primary-color-background;
   }  
 }
+```
+
+## Component blocks
+
+- The core components contain twig blocks to provide the possibility to extend or override the components.
+- The root block wraps the component and has the component name: `{% block sw_component %}`
+- All block names of a component have the component name as a prefix.
+- The `<slot>` element has an inner block: `{% block sw_component_slot_default %}`
+- If there are multiple slots, they should be named after the slot name: `{% block sw_component_slot_message %}`
+
+### Component twig blocks example
+
+```
+{% block sw_alert %}
+    <div class="sw-alert" :class="alertClasses">
+        {% block sw_alert_inner %}
+            {% block sw_alert_icon %}
+                <sw-icon :name="alertIcon" decorative />
+            {% endblock %}
+
+            {% block sw_alert_title %}
+                <div v-if="title" class="sw-alert__title">{{ title }}</div>
+            {% endblock %}
+
+            {% block sw_alert_message %}
+                <div class="sw-alert__message">
+                    <slot>{% block sw_alert_slot_default %}{% endblock %}</slot>
+                </div>
+            {% endblock %}
+        {% endblock %}
+    </div>
+{% endblock %}
 ```

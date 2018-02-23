@@ -145,6 +145,15 @@ class EntityDefinitionQueryHelper
             $query->setParameter('version', Uuid::fromString($context->getVersionId())->getBytes());
         }
 
+        if ($definition::isCatalogAware()) {
+            $catalogIds = array_map(function (string $catalogId) {
+                return Uuid::fromString($catalogId)->getBytes();
+            }, $context->getCatalogIds());
+
+            $query->andWhere(self::escape($table) . '.`catalog_id` IN (:catalogIds)');
+            $query->setParameter('catalogIds', $catalogIds, Connection::PARAM_STR_ARRAY);
+        }
+
         return $query;
     }
 
@@ -235,6 +244,11 @@ class EntityDefinitionQueryHelper
         }
         $query->addState($alias);
 
+        $catalogJoinCondition = '';
+        if ($definition::isCatalogAware() && $reference::isCatalogAware()) {
+            $catalogJoinCondition = ' AND #root#.catalog_id = #alias#.catalog_id';
+        }
+
         $versionAware = ($definition::isVersionAware() && $reference::isVersionAware());
 
         if ($versionAware && $context->getVersionId() !== Defaults::LIVE_VERSION) {
@@ -257,7 +271,7 @@ class EntityDefinitionQueryHelper
                         self::escape($alias),
                         self::escape($field->getReferenceField()),
                     ],
-                    '#root#.#source_column# = #alias#.#reference_column#'
+                    '#root#.#source_column# = #alias#.#reference_column#' . $catalogJoinCondition
                 )
             );
         } elseif ($versionAware) {
@@ -273,7 +287,7 @@ class EntityDefinitionQueryHelper
                         self::escape($alias),
                         self::escape($field->getReferenceField()),
                     ],
-                    '#root#.#source_column# = #alias#.#reference_column# AND #root#.version_id = #alias#.version_id'
+                    '#root#.#source_column# = #alias#.#reference_column# AND #root#.version_id = #alias#.version_id' . $catalogJoinCondition
                 )
             );
         } else {
@@ -289,7 +303,7 @@ class EntityDefinitionQueryHelper
                         self::escape($alias),
                         self::escape($field->getReferenceField()),
                     ],
-                    '#root#.#source_column# = #alias#.#reference_column#'
+                    '#root#.#source_column# = #alias#.#reference_column#' . $catalogJoinCondition
                 )
             );
         }
@@ -325,6 +339,11 @@ class EntityDefinitionQueryHelper
             $versionJoin = ' AND #root#.version_id = #alias#.version_id';
         }
 
+        $catalogJoinCondition = '';
+        if ($definition::isCatalogAware() && $reference::isCatalogAware()) {
+            $catalogJoinCondition = ' AND #root#.catalog_id = #alias#.catalog_id';
+        }
+
         $query->leftJoin(
             self::escape($root),
             self::escape($table),
@@ -337,7 +356,7 @@ class EntityDefinitionQueryHelper
                     self::escape($alias),
                     self::escape($field->getReferenceField()),
                 ],
-                '#root#.#source_column# = #alias#.#reference_column#' . $versionJoin
+                '#root#.#source_column# = #alias#.#reference_column#' . $versionJoin . $catalogJoinCondition
             )
         );
 
@@ -366,11 +385,11 @@ class EntityDefinitionQueryHelper
         }
         $query->addState($mappingAlias);
 
-        $versionJoin = '';
+        $versionJoinCondition = '';
         /** @var string|EntityDefinition $definition */
         if ($definition::isVersionAware() && $mapping::isVersionAware() && $field->is(CascadeDelete::class)) {
             $versionField = $definition::getEntityName() . '_version_id';
-            $versionJoin = ' AND #root#.version_id = #alias#.' . $versionField;
+            $versionJoinCondition = ' AND #root#.version_id = #alias#.' . $versionField;
         }
 
         $query->leftJoin(
@@ -385,7 +404,7 @@ class EntityDefinitionQueryHelper
                     self::escape($mappingAlias),
                     self::escape($field->getMappingLocalColumn()),
                 ],
-                '#root#.#source_column# = #alias#.#reference_column#' . $versionJoin
+                '#root#.#source_column# = #alias#.#reference_column#' . $versionJoinCondition
             )
         );
 
@@ -395,11 +414,16 @@ class EntityDefinitionQueryHelper
 
         $alias = $root . '.' . $field->getPropertyName();
 
-        $versionJoin = '';
+        $versionJoinCondition = '';
         /* @var string|EntityDefinition $definition */
         if ($reference::isVersionAware()) {
             $versionField = $reference::getEntityName() . '_version_id';
-            $versionJoin = 'AND #alias#.version_id = #mapping#.' . $versionField;
+            $versionJoinCondition = 'AND #alias#.version_id = #mapping#.' . $versionField;
+        }
+
+        $catalogJoinCondition = '';
+        if ($definition::isCatalogAware() && $reference::isCatalogAware()) {
+            $catalogJoinCondition = ' AND #root#.catalog_id = #alias#.catalog_id';
         }
 
         $query->leftJoin(
@@ -407,14 +431,15 @@ class EntityDefinitionQueryHelper
             self::escape($table),
             self::escape($alias),
             str_replace(
-                ['#mapping#', '#source_column#', '#alias#', '#reference_column#'],
+                ['#mapping#', '#source_column#', '#alias#', '#reference_column#', '#root#'],
                 [
                     self::escape($mappingAlias),
                     self::escape($field->getMappingReferenceColumn()),
                     self::escape($alias),
                     self::escape($field->getReferenceField()),
+                    self::escape($root),
                 ],
-                '#mapping#.#source_column# = #alias#.#reference_column# ' . $versionJoin
+                '#mapping#.#source_column# = #alias#.#reference_column# ' . $versionJoinCondition . $catalogJoinCondition
             )
         );
 

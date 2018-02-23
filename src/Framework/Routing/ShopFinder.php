@@ -123,6 +123,7 @@ class ShopFinder
             'shop.host',
             'shop.base_path',
             'shop.is_secure',
+            'shop.catalog_ids as shop_catalog_ids',
             'locale.code as locale_code',
             'currency.factor as currency_factor',
         ]);

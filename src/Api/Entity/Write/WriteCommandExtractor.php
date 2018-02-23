@@ -25,6 +25,7 @@
 namespace Shopware\Api\Entity\Write;
 
 use Shopware\Api\Entity\EntityDefinition;
+use Shopware\Api\Entity\Field\ChildrenAssociationField;
 use Shopware\Api\Entity\Field\DateField;
 use Shopware\Api\Entity\Field\Field;
 use Shopware\Api\Entity\Field\FkField;
@@ -83,7 +84,11 @@ class WriteCommandExtractor
         $existence = $this->entityExistenceGateway->getExistence($definition, $pkData, $rawData, $commandQueue);
         $rawData = $this->integrateDefaults($definition, $rawData, $existence);
 
-        $fields = $fields->filter(function (Field $field) {
+        $mainFields = $fields->filter(function (Field $field) {
+            if ($field instanceof ChildrenAssociationField) {
+                return false;
+            }
+
             if (!$field->is(PrimaryKey::class)) {
                 return true;
             }
@@ -91,9 +96,16 @@ class WriteCommandExtractor
             return $field instanceof FkField;
         });
 
-        $data = $this->map($fields, $rawData, $existence, $exceptionStack, $extender);
+        // without child association
+        $data = $this->map($mainFields, $rawData, $existence, $exceptionStack, $extender);
 
         $this->updateCommandQueue($definition, $commandQueue, $existence, $pkData, $data);
+
+        // call map with child associations only
+        $children = $fields->filterInstance(ChildrenAssociationField::class);
+        if ($children->count() > 0) {
+            $this->map($children, $rawData, $existence, $exceptionStack, $extender);
+        }
 
         return $pkData;
     }

@@ -115,6 +115,7 @@ class JsonApiEncoderTest extends TestCase
                     'updatedAt' => null,
                     'versionId' => null,
                     'parentVersionId' => null,
+                    'catalogId' => null,
                 ],
                 'links' => [
                     'self' => '/api/media-album/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe',
@@ -165,6 +166,7 @@ class JsonApiEncoderTest extends TestCase
                     'updatedAt' => null,
                     'versionId' => null,
                     'parentVersionId' => null,
+                    'catalogId' => null,
                 ],
                 'links' => [
                     'self' => '/api/media-album/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe',

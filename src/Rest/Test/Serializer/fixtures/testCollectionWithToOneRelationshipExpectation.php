@@ -30,6 +30,7 @@ return [
                 'versionId' => null,
                 'mediaAlbumVersionId' => null,
                 'userVersionId' => null,
+                'catalogId' => null,
             ],
             'links' => [
                 'self' => '/api/media/3e352be2-d858-46dd-9752-9c0f6b544870',
@@ -74,6 +75,7 @@ return [
                 'versionId' => null,
                 'mediaAlbumVersionId' => null,
                 'userVersionId' => null,
+                'catalogId' => null,
             ],
             'relationships' => [
                 'album' => [
@@ -109,6 +111,7 @@ return [
                 'name' => 'Manufacturer',
                 'versionId' => null,
                 'parentVersionId' => null,
+                'catalogId' => null,
             ],
             'links' => [
                 'self' => '/api/media-album/f343a3c1-19cf-42a7-841a-a0ac5094908c',

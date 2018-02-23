@@ -63,7 +63,7 @@ class VersionCommitDefinition extends EntityDefinition
             (new FkField('version_id', 'versionId', VersionDefinition::class))->setFlags(new Required()),
             new IdField('user_id', 'userId'),
             (new IntField('ai', 'ai'))->setFlags(new ReadOnly()),
-            (new BoolField('is_merge', 'isMerge'))->setFlags(new ReadOnly()),
+            new BoolField('is_merge', 'isMerge'),
             (new StringField('message', 'message'))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
             (new DateField('created_at', 'createdAt'))->setFlags(new Required()),
             (new OneToManyAssociationField('data', VersionCommitDataDefinition::class, 'version_commit_id', true))->setFlags(new CascadeDelete()),

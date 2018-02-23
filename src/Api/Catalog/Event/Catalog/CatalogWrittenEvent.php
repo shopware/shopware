@@ -2,8 +2,8 @@
 
 namespace Shopware\Api\Catalog\Event\Catalog;
 
-use Shopware\Api\Entity\Write\WrittenEvent;
 use Shopware\Api\Catalog\Definition\CatalogDefinition;
+use Shopware\Api\Entity\Write\WrittenEvent;
 
 class CatalogWrittenEvent extends WrittenEvent
 {

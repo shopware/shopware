@@ -2,6 +2,13 @@
 
 namespace Shopware\Api\Catalog\Repository;
 
+use Shopware\Api\Catalog\Collection\CatalogBasicCollection;
+use Shopware\Api\Catalog\Definition\CatalogDefinition;
+use Shopware\Api\Catalog\Event\Catalog\CatalogAggregationResultLoadedEvent;
+use Shopware\Api\Catalog\Event\Catalog\CatalogBasicLoadedEvent;
+use Shopware\Api\Catalog\Event\Catalog\CatalogIdSearchResultLoadedEvent;
+use Shopware\Api\Catalog\Event\Catalog\CatalogSearchResultLoadedEvent;
+use Shopware\Api\Catalog\Struct\CatalogSearchResult;
 use Shopware\Api\Entity\Read\EntityReaderInterface;
 use Shopware\Api\Entity\RepositoryInterface;
 use Shopware\Api\Entity\Search\AggregationResult;
@@ -12,14 +19,6 @@ use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Entity\Write\WriteContext;
-use Shopware\Api\Catalog\Collection\CatalogBasicCollection;
-use Shopware\Api\Catalog\Definition\CatalogDefinition;
-use Shopware\Api\Catalog\Event\Catalog\CatalogAggregationResultLoadedEvent;
-use Shopware\Api\Catalog\Event\Catalog\CatalogBasicLoadedEvent;
-use Shopware\Api\Catalog\Event\Catalog\CatalogDetailLoadedEvent;
-use Shopware\Api\Catalog\Event\Catalog\CatalogIdSearchResultLoadedEvent;
-use Shopware\Api\Catalog\Event\Catalog\CatalogSearchResultLoadedEvent;
-use Shopware\Api\Catalog\Struct\CatalogSearchResult;
 use Shopware\Context\Struct\ShopContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -148,5 +147,10 @@ class CatalogRepository implements RepositoryInterface
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
+    }
+
+    public function readDetail(array $ids, ShopContext $context): CatalogBasicCollection
+    {
+        return $this->readBasic($ids, $context);
     }
 }

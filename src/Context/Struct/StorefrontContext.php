@@ -171,7 +171,7 @@ class StorefrontContext extends Struct
     {
         return new ShopContext(
             $this->shop->getId(),
-            [Defaults::CATALOGUE],
+            $this->shop->getCatalogIds(),
             $this->contextRulesIds,
             $this->currency->getId(),
             $this->shop->getId(),

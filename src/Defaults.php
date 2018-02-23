@@ -14,7 +14,7 @@ final class Defaults
 
     public const LIVE_VERSION = 'ffffffff-ffff-ffff-ffff-ffffffffffff';
 
-    public const CATALOGUE = 'ffffffff-ffff-ffff-ffff-ffffffffffff';
+    public const CATALOG = 'ffffffff-ffff-ffff-ffff-ffffffffffff';
 
     public const CURRENCY = '4c8eba11-bd35-46d7-86af-bed481a6e665';
 }

@@ -263,6 +263,7 @@ class ContextFactory implements ContextFactoryInterface
             'shop.locale_id as shop_locale_id',
             'shop.currency_id as shop_currency_id',
             'shop.fallback_translation_id as shop_fallback_translation_id',
+            'shop.catalog_ids as shop_catalog_ids',
             'currency.factor as shop_currency_factor',
         ]);
         $query->from('shop', 'shop');
@@ -279,7 +280,7 @@ class ContextFactory implements ContextFactoryInterface
 
         return new ShopContext(
             Uuid::fromBytes($data['shop_id'])->toString(),
-            [Defaults::CATALOGUE],
+            json_decode($data['shop_catalog_ids'], true),
             [],
             Uuid::fromBytes($data['shop_currency_id'])->toString(),
             Uuid::fromBytes($data['shop_locale_id'])->toString(),

@@ -2,8 +2,8 @@
 
 namespace Shopware\Api\Catalog\Collection;
 
-use Shopware\Api\Entity\EntityCollection;
 use Shopware\Api\Catalog\Struct\CatalogBasicStruct;
+use Shopware\Api\Entity\EntityCollection;
 
 class CatalogBasicCollection extends EntityCollection
 {

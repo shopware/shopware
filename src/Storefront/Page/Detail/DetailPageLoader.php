@@ -22,6 +22,10 @@ class DetailPageLoader
     {
         $collection = $this->productRepository->read([$productId], $context);
 
+        if (!$collection->has($productId)) {
+            throw new \RuntimeException('Product was not found.');
+        }
+
         return $collection->get($productId);
     }
 }

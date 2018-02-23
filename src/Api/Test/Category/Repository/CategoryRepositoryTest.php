@@ -213,7 +213,7 @@ class CategoryRepositoryTest extends KernelTestCase
 
         $this->container->get(EntityWriter::class)->insert(
             ShopTemplateDefinition::class,
-            [['id' => $shopId->toString(), 'template' => 'Test', 'name' => 'test']],
+            [['id' => $shopId->toString(), 'catalogId' => Defaults::CATALOG, 'template' => 'Test', 'name' => 'test']],
             TestWriteContext::create()
         );
 
@@ -221,6 +221,7 @@ class CategoryRepositoryTest extends KernelTestCase
         $shopRepo->create([
             [
                 'id' => $shopId->toString(),
+                'catalogIds' => [Defaults::CATALOG],
                 'categoryId' => $categoryId->toString(),
                 'templateId' => $shopId->toString(),
                 'documentTemplateId' => $shopId->toString(),

@@ -381,7 +381,7 @@ class ProductRepositoryTest extends KernelTestCase
 
         $context = new ShopContext(
             Defaults::SHOP,
-            [Defaults::CATALOGUE],
+            [Defaults::CATALOG],
             [$ruleA],
             Defaults::CURRENCY,
             Defaults::SHOP

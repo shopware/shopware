@@ -209,7 +209,7 @@ class Router implements RouterInterface, RequestMatcherInterface
 
         $shopContext = new ShopContext(
             $shop['id'],
-            [Defaults::CATALOGUE],
+            json_decode($shop['shop_catalog_ids'], true),
             [],
             $shop['currency_id'],
             $shop['locale_id'],
@@ -295,7 +295,7 @@ class Router implements RouterInterface, RequestMatcherInterface
 
         $shopContext = new ShopContext(
             $shop['id'],
-            [Defaults::CATALOGUE],
+            json_decode($shop['shop_catalog_ids'], true),
             [],
             $shop['currency_id'],
             $shop['locale_id'],

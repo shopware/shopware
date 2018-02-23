@@ -18,6 +18,7 @@ return [
             'updatedAt' => null,
             'versionId' => null,
             'parentVersionId' => null,
+            'catalogId' => null,
         ],
         'relationships' => [
             'media' => [
@@ -74,6 +75,7 @@ return [
                 'versionId' => null,
                 'mediaAlbumVersionId' => null,
                 'userVersionId' => null,
+                'catalogId' => null,
             ],
             'relationships' => [
                 'album' => [

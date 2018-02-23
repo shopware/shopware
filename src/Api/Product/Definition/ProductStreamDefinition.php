@@ -5,6 +5,7 @@ namespace Shopware\Api\Product\Definition;
 use Shopware\Api\Category\Definition\CategoryDefinition;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\EntityExtensionInterface;
+use Shopware\Api\Entity\Field\CatalogField;
 use Shopware\Api\Entity\Field\DateField;
 use Shopware\Api\Entity\Field\FkField;
 use Shopware\Api\Entity\Field\IdField;
@@ -63,6 +64,8 @@ class ProductStreamDefinition extends EntityDefinition
         self::$fields = new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
+            new CatalogField(),
+
             new FkField('listing_sorting_id', 'listingSortingId', ListingSortingDefinition::class),
             new ReferenceVersionField(ListingSortingDefinition::class),
             (new StringField('name', 'name'))->setFlags(new Required(), new SearchRanking(self::HIGH_SEARCH_RANKING)),

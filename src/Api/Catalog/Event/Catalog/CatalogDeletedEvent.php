@@ -2,9 +2,9 @@
 
 namespace Shopware\Api\Catalog\Event\Catalog;
 
+use Shopware\Api\Catalog\Definition\CatalogDefinition;
 use Shopware\Api\Entity\Write\DeletedEvent;
 use Shopware\Api\Entity\Write\WrittenEvent;
-use Shopware\Api\Catalog\Definition\CatalogDefinition;
 
 class CatalogDeletedEvent extends WrittenEvent implements DeletedEvent
 {

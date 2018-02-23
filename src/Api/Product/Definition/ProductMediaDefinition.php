@@ -5,6 +5,7 @@ namespace Shopware\Api\Product\Definition;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\Field\BoolField;
+use Shopware\Api\Entity\Field\CatalogField;
 use Shopware\Api\Entity\Field\DateField;
 use Shopware\Api\Entity\Field\FkField;
 use Shopware\Api\Entity\Field\IdField;
@@ -55,6 +56,8 @@ class ProductMediaDefinition extends EntityDefinition
         self::$fields = new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
+            new CatalogField(),
+
             (new FkField('product_id', 'productId', ProductDefinition::class))->setFlags(new Required()),
             (new ReferenceVersionField(ProductDefinition::class))->setFlags(new Required()),
 

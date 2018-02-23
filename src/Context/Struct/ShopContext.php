@@ -50,7 +50,7 @@ class ShopContext extends Struct
     /**
      * @var array
      */
-    protected $catalogueIds;
+    protected $catalogIds;
 
     /**
      * @var string
@@ -67,13 +67,13 @@ class ShopContext extends Struct
      */
     protected $contextRules;
 
-    public function __construct(string $applicationId, array $catalogueIds, array $contextRules, string $currencyId, string $languageId, ?string $fallbackLanguageId = null, string $versionId = Defaults::LIVE_VERSION, float $currencyFactor = 1.0)
+    public function __construct(string $applicationId, array $catalogIds, array $contextRules, string $currencyId, string $languageId, ?string $fallbackLanguageId = null, string $versionId = Defaults::LIVE_VERSION, float $currencyFactor = 1.0)
     {
         $this->languageId = $languageId;
         $this->fallbackLanguageId = $fallbackLanguageId;
         $this->versionId = $versionId;
         $this->applicationId = $applicationId;
-        $this->catalogueIds = $catalogueIds;
+        $this->catalogIds = $catalogIds;
         $this->currencyId = $currencyId;
         $this->currencyFactor = $currencyFactor;
         $this->contextRules = $contextRules;
@@ -81,14 +81,14 @@ class ShopContext extends Struct
 
     public static function createDefaultContext(): self
     {
-        return new self(Defaults::SHOP, [Defaults::CATALOGUE], [], Defaults::CURRENCY, Defaults::SHOP);
+        return new self(Defaults::SHOP, [Defaults::CATALOG], [], Defaults::CURRENCY, Defaults::SHOP);
     }
 
     public static function createFromShop(ShopBasicStruct $shop): self
     {
         return new self(
             $shop->getId(),
-            [Defaults::CATALOGUE],
+            $shop->getCatalogIds(),
             [],
             $shop->getCurrency()->getId(),
             $shop->getLocaleId(),
@@ -119,9 +119,9 @@ class ShopContext extends Struct
         return $this->languageId;
     }
 
-    public function getCatalogueIds(): array
+    public function getCatalogIds(): array
     {
-        return $this->catalogueIds;
+        return $this->catalogIds;
     }
 
     public function getCurrencyId(): string
@@ -148,7 +148,7 @@ class ShopContext extends Struct
     {
         return new self(
             $this->applicationId,
-            $this->catalogueIds,
+            $this->catalogIds,
             $this->contextRules,
             $this->currencyId,
             $this->languageId,

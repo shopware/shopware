@@ -119,6 +119,11 @@ class ShopBasicStruct extends Entity
     protected $taxCalculationType;
 
     /**
+     * @var string[]
+     */
+    protected $catalogIds = [];
+
+    /**
      * @var \DateTime|null
      */
     protected $createdAt;
@@ -396,5 +401,21 @@ class ShopBasicStruct extends Entity
     public function setCurrency(CurrencyBasicStruct $currency): void
     {
         $this->currency = $currency;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getCatalogIds(): array
+    {
+        return $this->catalogIds;
+    }
+
+    /**
+     * @param string[] $catalogIds
+     */
+    public function setCatalogIds(array $catalogIds): void
+    {
+        $this->catalogIds = $catalogIds;
     }
 }

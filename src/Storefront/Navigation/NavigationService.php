@@ -44,12 +44,16 @@ class NavigationService
         $this->repository = $repository;
     }
 
-    public function load(string $categoryId, StorefrontContext $context): Navigation
+    public function load(string $categoryId, StorefrontContext $context): ?Navigation
     {
         $activeCategory = $this->repository->readBasic([$categoryId], $context->getShopContext())
             ->get($categoryId);
 
         $systemCategory = $context->getShop()->getCategory();
+
+        if (!$activeCategory) {
+            return null;
+        }
 
         $ids = array_merge($activeCategory->getPathArray(), [$activeCategory->getId()]);
 

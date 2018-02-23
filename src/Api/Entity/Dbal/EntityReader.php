@@ -394,6 +394,11 @@ class EntityReader implements EntityReaderInterface
             $versionCondition = ' AND #alias#.' . $versionField . ' = #root#.version_id';
         }
 
+        $catalogCondition = '';
+        if ($mapping::isCatalogAware() && $definition::isCatalogAware()) {
+            $catalogCondition = ' AND #alias#.catalog_id = #root#.catalog_id';
+        }
+
         $query->addSelect(
             str_replace(
                 [
@@ -418,6 +423,7 @@ class EntityReader implements EntityReaderInterface
                   FROM #mapping_table# #alias#
                   WHERE #alias#.#mapping_local_column# = #root#.#source_column#
                   ' . $versionCondition . '
+                  ' . $catalogCondition . '
                   ) as #property#'
             )
         );

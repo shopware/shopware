@@ -103,11 +103,6 @@ class SearchPageLoader
             $context->getShop()->getId()
         ));
 
-        $criteria->addFilter(new TermQuery(
-            'product.categoryTree',
-            $context->getShop()->getCategory()->getId()
-        ));
-
         return $criteria;
     }
 }

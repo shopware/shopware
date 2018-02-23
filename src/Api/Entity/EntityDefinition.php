@@ -144,6 +144,11 @@ abstract class EntityDefinition
         return static::getFields()->has('versionId');
     }
 
+    public static function isCatalogAware(): bool
+    {
+        return static::getFields()->has('catalogId');
+    }
+
     protected static function filterAssociationReferences(string $type, FieldCollection $fields)
     {
         $associations = $fields->filterInstance($type)->getElements();

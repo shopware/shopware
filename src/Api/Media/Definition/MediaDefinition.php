@@ -5,6 +5,7 @@ namespace Shopware\Api\Media\Definition;
 use Shopware\Api\Category\Definition\CategoryDefinition;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\EntityExtensionInterface;
+use Shopware\Api\Entity\Field\CatalogField;
 use Shopware\Api\Entity\Field\DateField;
 use Shopware\Api\Entity\Field\FkField;
 use Shopware\Api\Entity\Field\IdField;
@@ -67,6 +68,7 @@ class MediaDefinition extends EntityDefinition
         self::$fields = new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
+            new CatalogField(),
 
             (new FkField('media_album_id', 'albumId', MediaAlbumDefinition::class))->setFlags(new Required()),
             (new ReferenceVersionField(MediaAlbumDefinition::class))->setFlags(new Required()),

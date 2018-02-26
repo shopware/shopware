@@ -135,7 +135,7 @@ class ApiService {
      * Get the basic headers for a request.
      *
      * @param additionalHeaders
-     * @returns {{} & {Accept: String} & {}}
+     * @returns {Object}
      */
     getBasicHeaders(additionalHeaders = {}) {
         const basicHeaders = {

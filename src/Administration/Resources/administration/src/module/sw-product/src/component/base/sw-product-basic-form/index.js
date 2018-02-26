@@ -26,13 +26,9 @@ Component.register('sw-product-basic-form', {
 
     computed: {
         productCategoryIds() {
-            const categoryIds = [];
-
-            this.product.categories.forEach((category) => {
-                categoryIds.push({ id: category.id });
+            return this.product.categories.map((category) => {
+                return { id: category.id };
             });
-
-            return categoryIds;
         }
     },
 

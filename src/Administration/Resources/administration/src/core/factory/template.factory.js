@@ -2,7 +2,7 @@
  * @module core/factory/template
  */
 import Twig from 'twig';
-import utils from 'src/core/service/util.service';
+import { warn } from 'src/core/service/utils/debug.utils';
 
 export default {
     registerComponentTemplate,
@@ -106,7 +106,7 @@ function registerComponentTemplate(componentName, componentTemplate = null) {
     try {
         template.baseTemplate = Twig.twig(templateConfig);
     } catch (error) {
-        utils.warn(error.message);
+        warn(error.message);
         return false;
     }
 

@@ -1,7 +1,7 @@
 /**
  * @module core/factory/component
  */
-import utils from 'src/core/service/util.service';
+import { warn } from 'src/core/service/utils/debug.utils';
 import TemplateFactory from 'src/core/factory/template.factory';
 
 export default {
@@ -57,7 +57,7 @@ function register(componentName, componentConfiguration = {}) {
     const config = componentConfiguration;
 
     if (!componentName || !componentName.length) {
-        utils.warn(
+        warn(
             'ComponentFactory',
             'A component always needs a name.',
             componentConfiguration
@@ -66,7 +66,7 @@ function register(componentName, componentConfiguration = {}) {
     }
 
     if (componentRegistry.has(componentName)) {
-        utils.warn(
+        warn(
             'ComponentFactory',
             `The component "${componentName}" is already registered. Please select a unique name for your component.`,
             config
@@ -88,7 +88,7 @@ function register(componentName, componentConfiguration = {}) {
          */
         delete config.template;
     } else {
-        utils.warn(
+        warn(
             'ComponentFactory',
             `The component "${config.name}" needs a template to be functional.`,
             'Please add a "template" property to your component definition',

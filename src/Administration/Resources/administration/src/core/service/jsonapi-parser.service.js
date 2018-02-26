@@ -1,7 +1,7 @@
 /**
  * @module core/helper/jsonapi-parser
  */
-import utils from 'src/core/service/util.service';
+import types from 'src/core/service/utils/types.utils';
 
 /**
  * Converts a JSONApi compliant data structure into a nested object structure which suits the data entry management
@@ -47,13 +47,13 @@ export default function jsonApiParserService(data) {
  */
 function convertRawDataToJson(data) {
     let jsonData;
-    if (utils.isString(data)) {
+    if (types.isString(data)) {
         try {
             jsonData = JSON.parse(data);
         } catch (err) {
             return false;
         }
-    } else if (utils.isObject(data)) {
+    } else if (types.isObject(data) && !types.isArray(data)) {
         jsonData = data;
     } else {
         return false;
@@ -113,9 +113,9 @@ function parseDataStructure(json) {
 
     const includedMap = createIncludeMap(json.included);
 
-    if (utils.isArray(json.data)) {
+    if (types.isArray(json.data)) {
         data.data = json.data.map((record) => createItem(record, includedMap));
-    } else if (utils.isObject(json.data)) {
+    } else if (types.isObject(json.data)) {
         data.data = createItem(json.data, includedMap);
     } else {
         data.data = null;
@@ -197,9 +197,9 @@ function createRelationships(relationships, includedMap) {
 
         const data = relationship.data;
 
-        if (utils.isArray(data)) {
+        if (types.isArray(data)) {
             mappedRelations[prop] = data.map((item) => mapIncluded(item, includedMap));
-        } else if (utils.isObject(data)) {
+        } else if (types.isObject(data)) {
             mappedRelations[prop] = mapIncluded(data, includedMap);
         } else {
             mappedRelations[prop] = null;

@@ -1,4 +1,6 @@
 import { State } from 'src/core/shopware';
+import utils, { types } from 'src/core/service/util.service';
+import { deepCopyObject, getObjectChangeSet } from 'src/core/service/utils/object.utils';
 
 /**
  * @module app/state/product
@@ -64,7 +66,7 @@ State.register('product', {
             const product = state.draft[id];
 
             if (typeof product !== 'undefined' && product.isDetail) {
-                return (localCopy === true) ? Shopware.Utils.deepCopyObject(product) : product;
+                return (localCopy === true) ? deepCopyObject(product) : product;
             }
 
             const providerContainer = Shopware.Application.getContainer('service');
@@ -76,7 +78,7 @@ State.register('product', {
 
                 commit('initProduct', loadedProduct);
 
-                return (localCopy === true) ? Shopware.Utils.deepCopyObject(state.draft[id]) : state.draft[id];
+                return (localCopy === true) ? deepCopyObject(state.draft[id]) : state.draft[id];
             });
         },
 
@@ -92,7 +94,7 @@ State.register('product', {
          */
         createEmptyProduct({ commit, state }, productId = null) {
             if (productId === null) {
-                productId = Shopware.Utils.createId();
+                productId = utils.createId();
             }
 
             if (typeof state.draft[productId] !== 'undefined') {
@@ -126,9 +128,9 @@ State.register('product', {
             const providerContainer = Shopware.Application.getContainer('service');
             const productService = providerContainer.productService;
 
-            const changeset = Shopware.Utils.getObjectChangeSet(state.original[product.id], product);
+            const changeset = getObjectChangeSet(state.original[product.id], product);
 
-            if (Shopware.Utils.isEmpty(changeset)) {
+            if (types.isEmpty(changeset)) {
                 return false;
             }
 
@@ -161,8 +163,8 @@ State.register('product', {
                 return;
             }
 
-            const originalProduct = Shopware.Utils.deepCopyObject(product);
-            const draftProduct = Shopware.Utils.deepCopyObject(product);
+            const originalProduct = deepCopyObject(product);
+            const draftProduct = deepCopyObject(product);
 
             product.isLoaded = true;
             state.original[product.id] = Object.assign(state.original[product.id] || {}, originalProduct);

@@ -1,7 +1,7 @@
 /**
  * @module core/factory/mixin
  */
-import utils from 'src/core/service/util.service';
+import { warn } from 'src/core/service/utils/debug.utils';
 
 export default {
     register,
@@ -34,7 +34,7 @@ function getMixinRegistry() {
  */
 function register(mixinName, mixin = {}) {
     if (!mixinName || !mixinName.length) {
-        utils.warn(
+        warn(
             'MixinFactory',
             'A mixin always needs a name.',
             mixin
@@ -43,7 +43,7 @@ function register(mixinName, mixin = {}) {
     }
 
     if (mixinRegistry.has(mixinName)) {
-        utils.warn(
+        warn(
             'MixinFactory',
             `The mixin "${mixinName}" is already registered. Please select a unique name for your mixin.`,
             mixin

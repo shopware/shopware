@@ -1,7 +1,7 @@
 /**
  * @module core/factory/entity
  */
-import utils from 'src/core/service/util.service';
+import { warn } from 'src/core/service/utils/debug.utils';
 
 export default {
     addEntityDefinition,
@@ -84,7 +84,7 @@ function getRawEntityObject(entityName, includeObjectAssociations = false) {
         } else if (property.type === 'number' || property.type === 'integer') {
             entity[propertyName] = 0;
         } else {
-            utils.warn('EntityFactory', `Unknown property type ${property.type} in ${entityName} entity.`, definition);
+            warn('EntityFactory', `Unknown property type ${property.type} in ${entityName} entity.`, definition);
             entity[propertyName] = null;
         }
     });

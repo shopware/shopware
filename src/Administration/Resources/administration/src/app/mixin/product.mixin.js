@@ -1,3 +1,4 @@
+import utils from 'src/core/service/util.service';
 import { Mixin, Entity } from 'src/core/shopware';
 
 /**
@@ -23,7 +24,7 @@ Mixin.register('product', {
      */
     beforeRouteEnter(to, from, next) {
         if (to.name === 'sw.product.create' && !to.params.id) {
-            to.params.id = Shopware.Utils.createId();
+            to.params.id = utils.createId();
         }
 
         next();
@@ -55,7 +56,7 @@ Mixin.register('product', {
         product: {
             deep: true,
             handler() {
-                Shopware.Utils.debounce(this.commitProduct, 500);
+                this.commitProduct();
             }
         }
     },
@@ -100,8 +101,8 @@ Mixin.register('product', {
             });
         },
 
-        commitProduct() {
+        commitProduct: utils.throttle(function throttledCommitProduct() {
             return this.$store.commit('product/setProduct', this.product);
-        }
+        }, 500)
     }
 });

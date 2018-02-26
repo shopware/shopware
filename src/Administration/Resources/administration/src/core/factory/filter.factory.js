@@ -1,7 +1,7 @@
 /**
  * @module core/factory/filter
  */
-import utils from 'src/core/service/util.service';
+import { warn } from 'src/core/service/utils/debug.utils';
 
 export default {
     getRegistry,
@@ -47,7 +47,7 @@ function getRegistry() {
  */
 function register(filterName, filterFactoryMethod = noop) {
     if (!filterName || !filterName.length) {
-        utils.warn(
+        warn(
             name,
             'A filter always needs a name'
         );
@@ -55,7 +55,7 @@ function register(filterName, filterFactoryMethod = noop) {
     }
 
     if (filterRegistry.has(filterName)) {
-        utils.warn(
+        warn(
             name,
             `The filter "${filterName}" is already registered. Please select a unique name for your filter.`,
         );

@@ -6,7 +6,7 @@ import VueRouter from 'vue-router';
 import VueX from 'vuex';
 import { sync } from 'vuex-router-sync';
 import storeDefinition from 'src/app/store';
-import utils from 'src/core/service/util.service';
+import { warn } from 'src/core/service/utils/debug.utils';
 
 import 'src/app/component/components';
 
@@ -200,7 +200,7 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
                              * if the called method does not exist on a super class.
                              */
                             function empty() {
-                                utils.warn('View', `The method "${key}" is not defined in any super class.`, target);
+                                warn('View', `The method "${key}" is not defined in any super class.`, target);
                             }
 
                             /**

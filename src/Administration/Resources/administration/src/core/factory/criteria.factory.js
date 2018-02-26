@@ -39,7 +39,7 @@
  * )
  *
  */
-import utils from 'src/core/service/util.service';
+import types from 'src/core/service/utils/types.utils';
 
 export default {
     term: createTerm,
@@ -82,7 +82,7 @@ const rangeOperatorAliases = {
  * @returns {{getQueryString, getQuery}}
  */
 function createTerm(field, value) {
-    if (utils.isArray(value)) {
+    if (types.isArray(value)) {
         return createTerms(field, value);
     }
 

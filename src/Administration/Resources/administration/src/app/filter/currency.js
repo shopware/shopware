@@ -1,6 +1,6 @@
-import utils from 'src/core/service/util.service';
+import { currency } from 'src/core/service/utils/format.utils';
 import { Filter } from 'src/core/shopware';
 
 Filter.register('currency', (value, format = 'EUR') => {
-    return utils.currency(value, format);
+    return currency(value, format);
 });

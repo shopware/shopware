@@ -124,10 +124,6 @@ declare namespace Shopware {
     }
 
     export namespace Utils {
-        export function formDataToObject(
-            formData: FormData
-        ): object;
-
         export function warn(
             name?: string = 'Core',
             message?: any
@@ -184,11 +180,6 @@ declare namespace Shopware {
             baseObject: object,
             compareObject: object
         ): object;
-
-        export function getArrayChangeSet(
-            baseArray: Array<any>,
-            compareArray: Array<any>,
-        ): Array<any>;
     }
 
     export namespace Application {

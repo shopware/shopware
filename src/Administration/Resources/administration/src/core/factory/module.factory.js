@@ -1,7 +1,9 @@
+/* eslint-disable */
+
 /**
  * @module core/factory/module
  */
-import utils from 'src/core/service/util.service';
+import { warn } from 'src/core/service/utils/debug.utils';
 
 export default {
     getModuleRoutes,
@@ -38,7 +40,7 @@ function registerModule(moduleId, module) {
 
     // A module should always have an unique identifier cause overloading modules can cause unexpected side effects
     if (!moduleId) {
-        utils.warn(
+        warn(
             'ModuleFactory',
             'Module has no unique identifier "id". Abort registration.',
             module
@@ -47,7 +49,7 @@ function registerModule(moduleId, module) {
     }
 
     if (modules.has(moduleId)) {
-        utils.warn(
+        warn(
             'ModuleFactory',
             `A module with the identifier "${moduleId}" is registered already. Abort registration.`,
             modules.get(moduleId)
@@ -59,7 +61,7 @@ function registerModule(moduleId, module) {
     const splitModuleId = moduleId.split('-');
 
     if (splitModuleId.length < 2) {
-        utils.warn(
+        warn(
             'ModuleFactory',
             'Module identifier does not match the necessary format "[namespace]-[name]":',
             moduleId,
@@ -71,7 +73,7 @@ function registerModule(moduleId, module) {
     // Modules will be mounted using the routes definition in the manifest file. If the module doesn't contains a routes
     // definition it isn't accessible in the application.
     if (!Object.prototype.hasOwnProperty.call(module, 'routes')) {
-        utils.warn(
+        warn(
             'ModuleFactory',
             `Module "${moduleId}" has no configured routes. The module will not be accessible in the administration UI.`,
             'Abort registration.',
@@ -100,7 +102,7 @@ function registerModule(moduleId, module) {
 
                 // Don't register a component without a name
                 if (!component.length || component.length <= 0) {
-                    utils.warn(
+                    warn(
                         'ModuleFactory',
                         `The route definition of module "${moduleId}" is not valid. 
                         A route needs an assigned component name.`
@@ -114,7 +116,7 @@ function registerModule(moduleId, module) {
             route.components = componentList;
         } else {
             if (!route.component || !route.component.length) {
-                utils.warn(
+                warn(
                     'ModuleFactory',
                     `The route definition of module "${moduleId}" is not valid. 
                     A route needs an assigned component name.`
@@ -141,7 +143,7 @@ function registerModule(moduleId, module) {
 
     // When we're not having at least one valid route definition we're not registering the module
     if (moduleRoutes.size === 0) {
-        utils.warn(
+        warn(
             'ModuleFactory',
             `The module "${moduleId}" was not registered cause it hasn't a valid route definition`,
             'Abort registration.',

@@ -1,4 +1,4 @@
-import utils from 'src/core/service/util.service';
+import { warn } from 'src/core/service/utils/debug.utils';
 
 /**
  * The flat tree converts a collection of flat objects into a data tree hierarchy.
@@ -56,7 +56,7 @@ class FlatTree {
         const nodeIdentifier = node.path;
 
         if (this._registeredNodes.has(nodeIdentifier)) {
-            utils.warn(
+            warn(
                 'FlatTree',
                 `Tree contains node with unique identifier ${nodeIdentifier} already.`,
                 'Please remove it first before adding a new one.',

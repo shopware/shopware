@@ -1,7 +1,7 @@
 /**
  * @module core/factory/state
  */
-import utils from 'src/core/service/util.service';
+import { warn } from 'src/core/service/utils/debug.utils';
 
 export default {
     registerStateModule,
@@ -25,7 +25,7 @@ const stateRegistry = new Map();
  */
 function registerStateModule(name, module = {}) {
     if (!name || !name.length) {
-        utils.warn(
+        warn(
             'SateFactory',
             'A state module always needs a name.',
             module
@@ -34,7 +34,7 @@ function registerStateModule(name, module = {}) {
     }
 
     if (stateRegistry.has(name)) {
-        utils.warn(
+        warn(
             'SateFactory',
             `A state module with the name ${name} already exists.`,
             module

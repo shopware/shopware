@@ -25,8 +25,8 @@ declare(strict_types=1);
 
 namespace Shopware\CartBridge\Service;
 
-use Shopware\Cart\Cart\CartCalculator;
 use Shopware\Cart\Cart\CartPersisterInterface;
+use Shopware\Cart\Cart\CircularCartCalculation;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Cart\Struct\Cart;
 use Shopware\Cart\Exception\LineItemNotFoundException;
@@ -44,7 +44,7 @@ class StoreFrontCartService
     public const CART_TOKEN_KEY = 'cart_token_' . self::CART_NAME;
 
     /**
-     * @var CartCalculator
+     * @var CircularCartCalculation
      */
     private $calculation;
 
@@ -69,12 +69,12 @@ class StoreFrontCartService
     private $orderPersister;
 
     /**
-     * @var \Shopware\Cart\Cart\Struct\Cart
+     * @var Cart
      */
     private $cart;
 
     public function __construct(
-        CartCalculator $calculation,
+        CircularCartCalculation $calculation,
         CartPersisterInterface $persister,
         StorefrontContextServiceInterface $contextService,
         SessionInterface $session,

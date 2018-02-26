@@ -103,8 +103,8 @@ class AmountCalculator
      * `Price::price` contains the summed gross prices
      * Calculated taxes are based on the gross prices
      *
-     * @param PriceCollection                      $prices
-     * @param PriceCollection                      $shippingCosts
+     * @param PriceCollection                            $prices
+     * @param PriceCollection                            $shippingCosts
      * @param \Shopware\Context\Struct\StorefrontContext $context
      *
      * @return CartPrice
@@ -138,8 +138,8 @@ class AmountCalculator
      * `Price::price` contains the summed net prices plus amount of calculated taxes
      * Calculated taxes are based on the net prices
      *
-     * @param PriceCollection                      $prices
-     * @param PriceCollection                      $shippingCosts
+     * @param PriceCollection                            $prices
+     * @param PriceCollection                            $shippingCosts
      * @param \Shopware\Context\Struct\StorefrontContext $context
      *
      * @return CartPrice

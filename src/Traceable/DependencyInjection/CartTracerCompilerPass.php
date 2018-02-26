@@ -2,9 +2,9 @@
 
 namespace Shopware\Traceable\DependencyInjection;
 
-use Shopware\Cart\Cart\CartCalculator;
-use Shopware\Traceable\Cart\CartCalculatorTracer;
-use Shopware\Traceable\Cart\CollectorTracer;
+use Shopware\Cart\Cart\CircularCartCalculation;
+use Shopware\Traceable\Cart\CartCollectorTracer;
+use Shopware\Traceable\Cart\CircularCartCalculationTracer;
 use Shopware\Traceable\Cart\ProcessorTracer;
 use Shopware\Traceable\Cart\TracedCartActions;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
@@ -24,18 +24,18 @@ class CartTracerCompilerPass implements CompilerPassInterface
 
         $services = $container->findTaggedServiceIds('cart.collector');
         foreach ($services as $id => $tags) {
-            $this->decorateService($container, $id, CollectorTracer::class);
+            $this->decorateService($container, $id, CartCollectorTracer::class);
         }
 
         $definition = new Definition(
-            CartCalculatorTracer::class,
+            CircularCartCalculationTracer::class,
             [
-                new Reference('Shopware\Cart\Cart\CartCalculator.tracer.inner'),
+                new Reference('Shopware\Cart\Cart\CircularCartCalculation.tracer.inner'),
                 new Reference(TracedCartActions::class),
             ]
         );
-        $definition->setDecoratedService(CartCalculator::class);
-        $container->setDefinition('Shopware\Cart\Cart\CartCalculator.tracer', $definition);
+        $definition->setDecoratedService(CircularCartCalculation::class);
+        $container->setDefinition('Shopware\Cart\Cart\CircularCartCalculation.tracer', $definition);
     }
 
     protected function decorateService(ContainerBuilder $container, string $serviceId, string $class): void

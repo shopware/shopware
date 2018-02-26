@@ -224,7 +224,7 @@ class StructureCollector
             case 'Boolean':
                 return 'BoolField';
             case 'Json':
-                return 'ArrayField';
+                return 'JsonArrayField';
             case 'Binary':
                 return 'IdField';
             default:

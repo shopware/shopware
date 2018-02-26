@@ -4,8 +4,8 @@ namespace Shopware\Cart\LineItem;
 
 use Shopware\Api\Media\Struct\MediaBasicStruct;
 use Shopware\Cart\Price\Struct\Price;
-use Shopware\Cart\Rule\Rule;
-use Shopware\Cart\Rule\Validatable;
+use Shopware\Context\Rule\Rule;
+use Shopware\Context\Rule\Validatable;
 use Shopware\Framework\Struct\Struct;
 
 class CalculatedLineItem extends Struct implements CalculatedLineItemInterface, Validatable

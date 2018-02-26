@@ -125,6 +125,6 @@ $context = new Context(
     $prevent
 );
 
-$generator = new ApiGenerator(__DIR__ . '/../../src/Api/');
+$generator = new ApiGenerator(__DIR__ . '/../../var/cache');
 
 $generator->generate($context);

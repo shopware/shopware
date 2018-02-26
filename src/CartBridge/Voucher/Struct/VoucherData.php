@@ -25,8 +25,8 @@
 namespace Shopware\CartBridge\Voucher\Struct;
 
 use Shopware\Cart\Price\Struct\PriceDefinition;
-use Shopware\Cart\Rule\Rule;
-use Shopware\Cart\Rule\Validatable;
+use Shopware\Context\Rule\Rule;
+use Shopware\Context\Rule\Validatable;
 use Shopware\Framework\Struct\Struct;
 
 class VoucherData extends Struct implements Validatable

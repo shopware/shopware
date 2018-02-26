@@ -8,10 +8,10 @@ For example, some shops have products which are called "premium products". This 
 In case that the cart has to be calculated multiple times, the data for a processor will be loaded multiple times too.
 In order to prevent duplicate data queries to the storage, we defined the collector pattern. 
 
-Collectors get cart access before the calculation loop starts. This pattern is implemented in the CartCalculator:
-https://github.com/shopware/shopware/blob/labs/src/Cart/Cart/CartCalculator.php#L72
+Collectors get cart access before the calculation loop starts. This pattern is implemented in the CartProcessor:
+https://github.com/shopware/shopware/blob/labs/src/Cart/Cart/CartProcessor.php#L72
 
-Each collector has to implement the `\Shopware\Cart\Cart\CollectorInterface` which expects the following functions to be implemented:
+Each collector has to implement the `\Shopware\Cart\Cart\CartCollectorInterface` which expects the following functions to be implemented:
 
 ```php
 <?php
@@ -20,7 +20,7 @@ namespace Shopware\Cart\Cart;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Struct\StructCollection;
 
-interface CollectorInterface
+interface CartCollectorInterface
 {
     public function prepare(
         StructCollection $fetchDefinition,

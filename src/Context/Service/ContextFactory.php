@@ -26,6 +26,8 @@ namespace Shopware\Context\Service;
 
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
+use Shopware\Api\Context\Collection\ContextRuleBasicCollection;
+use Shopware\Api\Context\Repository\ContextRuleRepository;
 use Shopware\Api\Country\Repository\CountryRepository;
 use Shopware\Api\Country\Repository\CountryStateRepository;
 use Shopware\Api\Currency\Repository\CurrencyRepository;
@@ -46,9 +48,9 @@ use Shopware\Api\Tax\Repository\TaxRepository;
 use Shopware\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Context\Struct\CheckoutScope;
 use Shopware\Context\Struct\CustomerScope;
-use Shopware\Context\Struct\StorefrontContext;
-use Shopware\Context\Struct\ShopScope;
 use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ShopScope;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Defaults;
 
 class ContextFactory implements ContextFactoryInterface
@@ -108,6 +110,11 @@ class ContextFactory implements ContextFactoryInterface
      */
     private $countryStateRepository;
 
+    /**
+     * @var ContextRuleRepository
+     */
+    private $contextRuleRepository;
+
     public function __construct(
         ShopRepository $shopRepository,
         CurrencyRepository $currencyRepository,
@@ -119,7 +126,8 @@ class ContextFactory implements ContextFactoryInterface
         PaymentMethodRepository $paymentMethodRepository,
         ShippingMethodRepository $shippingMethodRepository,
         Connection $connection,
-        CountryStateRepository $countryStateRepository
+        CountryStateRepository $countryStateRepository,
+        ContextRuleRepository $contextRuleRepository
     ) {
         $this->shopRepository = $shopRepository;
         $this->currencyRepository = $currencyRepository;
@@ -132,6 +140,7 @@ class ContextFactory implements ContextFactoryInterface
         $this->shippingMethodRepository = $shippingMethodRepository;
         $this->connection = $connection;
         $this->countryStateRepository = $countryStateRepository;
+        $this->contextRuleRepository = $contextRuleRepository;
     }
 
     public function create(
@@ -141,7 +150,6 @@ class ContextFactory implements ContextFactoryInterface
     ): StorefrontContext {
         $shopContext = $this->getShopContext($shopScope->getShopId());
 
-        //select shop with all fallbacks
         /** @var ShopDetailStruct $shop */
         $shop = $this->shopRepository->readDetail([$shopScope->getShopId()], $shopContext)
             ->get($shopScope->getShopId());
@@ -193,6 +201,8 @@ class ContextFactory implements ContextFactoryInterface
         //detect active delivery method, at first checkout scope, at least shop default method
         $delivery = $this->getShippingMethod($shop, $shopContext, $checkoutScope);
 
+        $contextRules = $this->contextRuleRepository->search(new Criteria(), $shopContext);
+
         $context = new StorefrontContext(
             $shop,
             $currency,
@@ -202,6 +212,7 @@ class ContextFactory implements ContextFactoryInterface
             $payment,
             $delivery,
             $shippingLocation,
+            new ContextRuleBasicCollection($contextRules->getElements()),
             $customer
         );
 

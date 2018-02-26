@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace Shopware\Cart\Tax;
 
+use Shopware\Cart\Price\Struct\CartPrice;
 use Shopware\Context\Struct\StorefrontContext;
 
 class TaxDetector
@@ -37,5 +38,18 @@ class TaxDetector
     public function isNetDelivery(StorefrontContext $context): bool
     {
         return $context->getShippingLocation()->getCountry()->getTaxFree();
+    }
+
+    public function getTaxState(StorefrontContext $context): string
+    {
+        if ($this->isNetDelivery($context)) {
+            return CartPrice::TAX_STATE_FREE;
+        }
+
+        if ($this->useGross($context)) {
+            return CartPrice::TAX_STATE_GROSS;
+        }
+
+        return CartPrice::TAX_STATE_NET;
     }
 }

@@ -387,7 +387,7 @@ class VersionManager
 
         $commands = [$insert];
 
-        /**
+        /*
          * @var string|EntityDefinition
          * @var array                   $item
          */

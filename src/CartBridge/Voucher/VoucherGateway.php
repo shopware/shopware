@@ -27,17 +27,17 @@ namespace Shopware\CartBridge\Voucher;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Shopware\Cart\Price\Struct\PriceDefinition;
-use Shopware\Cart\Rule\Container\AndRule;
-use Shopware\Cart\Rule\Rule;
 use Shopware\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\CartBridge\Rule\CustomerGroupRule;
-use Shopware\CartBridge\Rule\DateRangeRule;
-use Shopware\CartBridge\Rule\GoodsPriceRule;
-use Shopware\CartBridge\Rule\LineItemInCartRule;
-use Shopware\CartBridge\Rule\ProductOfManufacturerRule;
-use Shopware\CartBridge\Rule\ShopRule;
 use Shopware\CartBridge\Voucher\Struct\VoucherData;
 use Shopware\CartBridge\Voucher\Struct\VoucherDataCollection;
+use Shopware\Context\Rule\Container\AndRule;
+use Shopware\Context\Rule\CustomerGroupRule;
+use Shopware\Context\Rule\DateRangeRule;
+use Shopware\Context\Rule\GoodsPriceRule;
+use Shopware\Context\Rule\LineItemInCartRule;
+use Shopware\Context\Rule\ProductOfManufacturerRule;
+use Shopware\Context\Rule\Rule;
+use Shopware\Context\Rule\ShopRule;
 use Shopware\Context\Struct\StorefrontContext;
 
 class VoucherGateway implements VoucherGatewayInterface

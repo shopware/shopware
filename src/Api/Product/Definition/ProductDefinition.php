@@ -5,7 +5,7 @@ namespace Shopware\Api\Product\Definition;
 use Shopware\Api\Category\Definition\CategoryDefinition;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\EntityExtensionInterface;
-use Shopware\Api\Entity\Field\ArrayField;
+use Shopware\Api\Entity\Field\JsonArrayField;
 use Shopware\Api\Entity\Field\BoolField;
 use Shopware\Api\Entity\Field\DateField;
 use Shopware\Api\Entity\Field\FkField;
@@ -121,7 +121,7 @@ class ProductDefinition extends EntityDefinition
             (new BoolField('allow_notification', 'allowNotification'))->setFlags(new Inherited()),
             (new DateField('release_date', 'releaseDate'))->setFlags(new Inherited()),
             (new IdField('price_group_id', 'priceGroupId'))->setFlags(new Inherited()),
-            (new ArrayField('category_tree', 'categoryTree'))->setFlags(new Inherited()),
+            (new JsonArrayField('category_tree', 'categoryTree'))->setFlags(new Inherited()),
             (new PriceRulesField('prices', 'prices'))->setFlags(new Inherited()),
 
             //Read only join ids for inheritance

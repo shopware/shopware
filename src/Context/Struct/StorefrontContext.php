@@ -24,6 +24,7 @@
 
 namespace Shopware\Context\Struct;
 
+use Shopware\Api\Context\Collection\ContextRuleBasicCollection;
 use Shopware\Api\Currency\Struct\CurrencyBasicStruct;
 use Shopware\Api\Customer\Struct\CustomerBasicStruct;
 use Shopware\Api\Customer\Struct\CustomerGroupBasicStruct;
@@ -86,6 +87,16 @@ class StorefrontContext extends Struct
      */
     protected $shippingLocation;
 
+    /**
+     * @var ContextRuleBasicCollection
+     */
+    protected $contextRules;
+
+    /**
+     * @var bool
+     */
+    protected $rulesLocked;
+
     public function __construct(
         ShopDetailStruct $shop,
         CurrencyBasicStruct $currency,
@@ -95,6 +106,7 @@ class StorefrontContext extends Struct
         PaymentMethodBasicStruct $paymentMethod,
         ShippingMethodBasicStruct $shippingMethod,
         ShippingLocation $shippingLocation,
+        ContextRuleBasicCollection $contextRules,
         ?CustomerBasicStruct $customer
     ) {
         $this->currentCustomerGroup = $currentCustomerGroup;
@@ -106,6 +118,8 @@ class StorefrontContext extends Struct
         $this->paymentMethod = $paymentMethod;
         $this->shippingMethod = $shippingMethod;
         $this->shippingLocation = $shippingLocation;
+        $this->contextRules = $contextRules;
+        $this->rulesLocked = false;
     }
 
     public function getCurrentCustomerGroup(): CustomerGroupBasicStruct
@@ -156,5 +170,26 @@ class StorefrontContext extends Struct
     public function getShopContext(): ShopContext
     {
         return ShopContext::createFromShop($this->shop);
+    }
+
+    public function getContextRules(): ContextRuleBasicCollection
+    {
+        return $this->contextRules;
+    }
+
+    public function setContextRules(ContextRuleBasicCollection $rules): void
+    {
+        if ($this->rulesLocked) {
+            throw new \RuntimeException(
+                sprintf('Context rules can not be switch any more')
+            );
+        }
+
+        $this->contextRules = $rules;
+    }
+
+    public function lockRules()
+    {
+        $this->rulesLocked = true;
     }
 }

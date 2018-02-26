@@ -25,8 +25,8 @@
 namespace Shopware\Cart\Test\Common;
 
 use Shopware\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Cart\Rule\Match;
-use Shopware\Cart\Rule\Rule;
+use Shopware\Context\Rule\Match;
+use Shopware\Context\Rule\Rule;
 use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
@@ -34,8 +34,7 @@ class FalseRule extends Rule
 {
     public function match(
         CalculatedCart $calculatedCart,
-        StorefrontContext $context,
-        StructCollection $collection
+        StorefrontContext $context
     ): Match {
         return new Match(false);
     }

@@ -5,7 +5,7 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <parameters>
-        <parameter key="Shopware\Cart\Price\PriceRounding.precision">2</parameter>
+        <parameter key="price.rounding.precision">2</parameter>
     </parameters>
 
     <services>
@@ -18,7 +18,7 @@
         </service>
 
         <service class="Shopware\Cart\Price\PriceRounding" id="Shopware\Cart\Price\PriceRounding">
-            <argument>%Shopware\Cart\Price\PriceRounding.precision%</argument>
+            <argument>%price.rounding.precision%</argument>
         </service>
 
         <service class="Shopware\Cart\Price\PriceCalculator" id="Shopware\Cart\Price\PriceCalculator">
@@ -64,12 +64,6 @@
             <argument type="service" id="Shopware\Cart\Tax\TaxDetector" />
         </service>
 
-        <service class="Shopware\Cart\Cart\CartCalculator" id="Shopware\Cart\Cart\CartCalculator">
-            <argument type="tagged" tag="cart.processor" />
-            <argument type="tagged" tag="cart.collector" />
-            <argument type="service" id="Shopware\Cart\Price\AmountCalculator" />
-        </service>
-
         <service class="Shopware\Cart\Delivery\StockDeliverySeparator" id="Shopware\Cart\Delivery\StockDeliverySeparator">
             <argument type="service" id="Shopware\Cart\Price\PriceCalculator" />
         </service>
@@ -80,9 +74,26 @@
             <argument id="Shopware\Cart\Tax\PercentageTaxRuleBuilder" type="service"/>
         </service>
 
-        <!-- cart processors-->
+        <service class="Shopware\Cart\Cart\CircularCartCalculation" id="Shopware\Cart\Cart\CircularCartCalculation">
+            <argument id="Shopware\Cart\Cart\CartProcessor" type="service"/>
+            <argument id="Shopware\Cart\Cart\CartCollector" type="service"/>
+            <argument id="Shopware\Cart\Cart\CartValidator" type="service"/>
+        </service>
 
-        <!--processors-->
+        <service class="Shopware\Cart\Cart\CartValidator" id="Shopware\Cart\Cart\CartValidator">
+            <argument type="tagged" tag="cart.validator" />
+        </service>
+
+        <service class="Shopware\Cart\Cart\CartCollector" id="Shopware\Cart\Cart\CartCollector">
+            <argument type="tagged" tag="cart.collector" />
+        </service>
+
+        <service class="Shopware\Cart\Cart\CartProcessor" id="Shopware\Cart\Cart\CartProcessor">
+            <argument type="tagged" tag="cart.processor" />
+            <argument type="service" id="Shopware\Cart\Price\AmountCalculator" />
+        </service>
+
+        <!-- cart processors-->
         <service class="Shopware\Cart\Delivery\DeliverySeparatorProcessor" id="Shopware\Cart\Delivery\DeliverySeparatorProcessor">
             <argument type="service" id="Shopware\Cart\Delivery\StockDeliverySeparator" />
             <tag name="cart.processor" priority="-100" />

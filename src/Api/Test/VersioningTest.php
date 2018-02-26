@@ -74,7 +74,9 @@ class VersioningTest extends KernelTestCase
 
         $taxData['versionId'] = Defaults::LIVE_VERSION;
 
-        $this->assertEquals($taxData, json_decode($change['payload'], true));
+        $payload = json_decode($change['payload'], true);
+        unset($payload['createdAt']);
+        $this->assertEquals($taxData, $payload);
     }
 
     public function testVersionChangeOnInsertWithSubresources(): void
@@ -108,7 +110,9 @@ class VersioningTest extends KernelTestCase
             'name' => 'foo tax',
             'rate' => 20,
         ];
-        $this->assertEquals($taxChange, json_decode($changes[0]['payload'], true));
+        $payload = json_decode($changes[0]['payload'], true);
+        unset($payload['createdAt']);
+        $this->assertEquals($taxChange, $payload);
 
         $changes = $this->getVersionData(TaxAreaRuleDefinition::getEntityName(), $ruleId, Defaults::LIVE_VERSION);
         $this->assertCount(1, $changes);
@@ -125,7 +129,9 @@ class VersioningTest extends KernelTestCase
             'countryAreaVersionId' => 'ffffffff-ffff-ffff-ffff-ffffffffffff',
             'countryStateVersionId' => 'ffffffff-ffff-ffff-ffff-ffffffffffff',
         ];
-        $this->assertEquals($taxAreaChange, json_decode($changes[0]['payload'], true));
+        $payload = json_decode($changes[0]['payload'], true);
+        unset($payload['createdAt']);
+        $this->assertEquals($taxAreaChange, $payload);
 
         $changes = $this->getTranslationVersionData(TaxAreaRuleTranslationDefinition::getEntityName(), Defaults::SHOP, 'taxAreaRuleId', $ruleId, Defaults::LIVE_VERSION);
         $this->assertCount(1, $changes);
@@ -136,7 +142,10 @@ class VersioningTest extends KernelTestCase
             'versionId' => Defaults::LIVE_VERSION,
             'languageVersionId' => Defaults::LIVE_VERSION,
         ];
-        $this->assertEquals($taxAreaTranslationChange, json_decode($changes[0]['payload'], true));
+        $payload = json_decode($changes[0]['payload'], true);
+        unset($payload['createdAt']);
+
+        $this->assertEquals($taxAreaTranslationChange, $payload);
     }
 
     public function testCreateNewVersion(): void

@@ -32,7 +32,7 @@ class SearchController extends StorefrontController
      * @Route("/search", name="search_index", options={"seo"=false})
      *
      * @param StorefrontContext $context
-     * @param Request     $request
+     * @param Request           $request
      *
      * @throws MinimumSearchTermLengthNotGiven
      *
@@ -71,7 +71,7 @@ class SearchController extends StorefrontController
      * @Route("/suggestSearch", name="search_ajax")
      *
      * @param StorefrontContext $context
-     * @param Request     $request
+     * @param Request           $request
      *
      * @return Response
      */

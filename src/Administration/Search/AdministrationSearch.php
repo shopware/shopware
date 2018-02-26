@@ -99,7 +99,7 @@ class AdministrationSearch
     /**
      * @param string|EntityDefinition $definition
      * @param string                  $term
-     * @param ShopContext      $context
+     * @param ShopContext             $context
      *
      * @return SearchResultInterface
      */

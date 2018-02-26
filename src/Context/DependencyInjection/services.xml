@@ -17,7 +17,7 @@
             <argument type="service" id="Shopware\Api\Shipping\Repository\ShippingMethodRepository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Api\Country\Repository\CountryStateRepository"/>
+            <argument type="service" id="Shopware\Api\Context\Repository\ContextRuleRepository"/>
         </service>
-
     </services>
 </container>

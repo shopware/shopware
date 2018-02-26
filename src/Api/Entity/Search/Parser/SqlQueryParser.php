@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
 use Shopware\Api\Entity\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Api\Entity\EntityDefinition;
-use Shopware\Api\Entity\Field\ArrayField;
+use Shopware\Api\Entity\Field\JsonArrayField;
 use Shopware\Api\Entity\Field\FkField;
 use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Search\Query\MatchQuery;
@@ -137,7 +137,7 @@ class SqlQueryParser
 
         $result = new ParseResult();
 
-        if ($field instanceof ArrayField) {
+        if ($field instanceof JsonArrayField) {
             $result->addWhere('JSON_CONTAINS(' . $select . ', JSON_ARRAY(:' . $key . '))');
             $result->addParameter($key, $query->getValue());
 
@@ -165,7 +165,7 @@ class SqlQueryParser
 
         $result = new ParseResult();
 
-        if ($field instanceof ArrayField) {
+        if ($field instanceof JsonArrayField) {
             $result->addWhere('JSON_CONTAINS(' . $select . ', JSON_ARRAY(:' . $key . '))');
             $result->addParameter($key, $query->getValue());
 

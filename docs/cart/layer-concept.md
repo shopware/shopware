@@ -21,7 +21,7 @@ $container->getLineItems()->add(
 
 
 ## Calculated cart
-After the shopping list is defined, this shopping list will be calculated by the `\Shopware\Cart\Cart\CartCalculator`.
+After the shopping list is defined, this shopping list will be calculated by the `\Shopware\Cart\Cart\CartProcessor`.
 At the end of the calculation process the cart calculator returns a `\Shopware\Cart\Cart\CalculatedCart`. This layer
 contains delivery information, prices, taxes and availability of line items. Deliveries have already been determined and subsequently calculated.
 This layer can be viewed as a receipt. It provides prices, taxes, total amounts, order numbers and labels for positions.

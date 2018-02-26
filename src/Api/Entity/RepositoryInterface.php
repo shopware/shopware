@@ -11,7 +11,7 @@ use Shopware\Context\Struct\ShopContext;
 interface RepositoryInterface
 {
     /**
-     * @param Criteria           $criteria
+     * @param Criteria    $criteria
      * @param ShopContext $context
      *
      * @return AggregationResult
@@ -19,7 +19,7 @@ interface RepositoryInterface
     public function aggregate(Criteria $criteria, ShopContext $context);
 
     /**
-     * @param Criteria           $criteria
+     * @param Criteria    $criteria
      * @param ShopContext $context
      *
      * @return IdSearchResult
@@ -27,7 +27,7 @@ interface RepositoryInterface
     public function searchIds(Criteria $criteria, ShopContext $context);
 
     /**
-     * @param Criteria           $criteria
+     * @param Criteria    $criteria
      * @param ShopContext $context
      *
      * @return SearchResultInterface
@@ -35,7 +35,7 @@ interface RepositoryInterface
     public function search(Criteria $criteria, ShopContext $context);
 
     /**
-     * @param array              $ids
+     * @param array       $ids
      * @param ShopContext $context
      *
      * @return EntityCollection
@@ -43,7 +43,7 @@ interface RepositoryInterface
     public function readBasic(array $ids, ShopContext $context);
 
     /**
-     * @param array              $ids
+     * @param array       $ids
      * @param ShopContext $context
      *
      * @return EntityCollection

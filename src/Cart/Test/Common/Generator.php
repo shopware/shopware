@@ -26,6 +26,7 @@ namespace Shopware\Cart\Test\Common;
 
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
+use Shopware\Api\Context\Collection\ContextRuleBasicCollection;
 use Shopware\Api\Country\Struct\CountryAreaBasicStruct;
 use Shopware\Api\Country\Struct\CountryBasicStruct;
 use Shopware\Api\Country\Struct\CountryStateBasicStruct;
@@ -122,6 +123,7 @@ class Generator extends TestCase
             $paymentMethod,
             $shippingMethod,
             ShippingLocation::createFromAddress($shipping),
+            new ContextRuleBasicCollection(),
             $customer
         );
     }

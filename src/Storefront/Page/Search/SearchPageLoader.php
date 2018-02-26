@@ -39,8 +39,8 @@ class SearchPageLoader
     }
 
     /**
-     * @param string      $searchTerm
-     * @param Request     $request
+     * @param string            $searchTerm
+     * @param Request           $request
      * @param StorefrontContext $context
      *
      * @return SearchPageStruct

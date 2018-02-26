@@ -46,16 +46,23 @@ class CheckoutScope implements \JsonSerializable
      */
     protected $stateId;
 
+    /**
+     * @var string|null
+     */
+    protected $cartToken;
+
     public function __construct(
         ?string $paymentMethodId = null,
         ?string $shippingMethodId = null,
         ?string $countryId = null,
-        ?string $stateId = null
+        ?string $stateId = null,
+        ?string $cartToken = null
     ) {
         $this->paymentMethodId = $paymentMethodId;
         $this->shippingMethodId = $shippingMethodId;
         $this->countryId = $countryId;
         $this->stateId = $stateId;
+        $this->cartToken = $cartToken;
     }
 
     public function getPaymentMethodId(): ?string
@@ -93,5 +100,10 @@ class CheckoutScope implements \JsonSerializable
     public function jsonSerialize()
     {
         return get_object_vars($this);
+    }
+
+    public function getCartToken(): ?string
+    {
+        return $this->cartToken;
     }
 }

@@ -67,6 +67,20 @@ class CartPersister implements CartPersisterInterface
         return $this->serializer->deserialize((string) $content, null, 'json');
     }
 
+    public function loadCalculated(string $token, string $name): CalculatedCart
+    {
+        $content = $this->connection->fetchColumn(
+            'SELECT calculated FROM cart WHERE `token` = :token AND `name` = :name',
+            ['token' => $token, 'name' => $name]
+        );
+
+        if ($content === false) {
+            throw new CartTokenNotFoundException($token);
+        }
+
+        return $this->serializer->deserialize((string) $content, null, 'json');
+    }
+
     public function save(CalculatedCart $cart, StorefrontContext $context): void
     {
         //prevent empty carts

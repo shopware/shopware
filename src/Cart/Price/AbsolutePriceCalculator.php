@@ -52,9 +52,9 @@ class AbsolutePriceCalculator
     }
 
     /**
-     * @param float           $price
-     * @param PriceCollection $prices
-     * @param StorefrontContext     $context
+     * @param float             $price
+     * @param PriceCollection   $prices
+     * @param StorefrontContext $context
      *
      * @return DerivedPrice
      */

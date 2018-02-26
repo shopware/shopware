@@ -26,7 +26,6 @@ namespace Shopware\Framework\Routing;
 
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerInterface;
-use Ramsey\Uuid\Uuid;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Defaults;
 use Shopware\Kernel;
@@ -219,7 +218,6 @@ class Router implements RouterInterface, RequestMatcherInterface
             (float) $shop['currency_factor']
         );
 
-
         $seoUrl = $this->urlResolver->getUrl($shop['id'], $pathInfo, $shopContext);
 
         //generate new url with shop base path/url
@@ -287,9 +285,12 @@ class Router implements RouterInterface, RequestMatcherInterface
         $pathInfo = preg_replace('#^' . $stripBaseUrl . '#i', '', $pathInfo);
         $pathInfo = '/' . trim($pathInfo, '/');
 
-        $fallbackTranslationId = null;
-        if ($shop['fallback_translation_id']) {
-            $fallbackTranslationId = $shop['fallback_translation_id'];
+        if (strpos($pathInfo, '/widgets/') !== false) {
+            return $this->match($pathInfo);
+        }
+
+        if ($request->attributes->get(self::IS_API_REQUEST_ATTRIBUTE)) {
+            return $this->match($pathInfo);
         }
 
         $shopContext = new ShopContext(
@@ -298,18 +299,10 @@ class Router implements RouterInterface, RequestMatcherInterface
             [],
             $shop['currency_id'],
             $shop['locale_id'],
-            $fallbackTranslationId,
+            $shop['fallback_translation_id'] ?? null,
             Defaults::LIVE_VERSION,
             (float) $shop['currency_factor']
         );
-
-        if (strpos($pathInfo, '/widgets/') !== false) {
-            return $this->match($pathInfo);
-        }
-
-        if ($request->attributes->get(self::IS_API_REQUEST_ATTRIBUTE)) {
-            return $this->match($pathInfo);
-        }
 
         //resolve seo urls to use symfony url matcher for route detection
         $seoUrl = $this->urlResolver->getPathInfo($shop['id'], $pathInfo, $shopContext);

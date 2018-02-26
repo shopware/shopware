@@ -244,7 +244,7 @@ The following diagram shows the architecture behind the cart process for product
 
 ![image](img/img.001.png)
 
-The cart calculation is done in the `Shopware\Cart\Cart\CartCalculator` class.  
+The cart calculation is done in the `Shopware\Cart\Cart\CartProcessor` class.  
 This class contains a list of `Shopware\Cart\Cart\CartProcessorInterface`, which are the access points for the Shopware core and third party developers in the cart process. 
 
 ```php

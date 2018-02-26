@@ -86,7 +86,7 @@ class Util
                 return 'float';
             case 'BoolField':
                 return 'bool';
-            case 'ArrayField':
+            case 'JsonArrayField':
                 return 'array';
             case 'LongTextField':
             case 'StringField':

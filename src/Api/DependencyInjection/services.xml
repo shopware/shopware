@@ -6,6 +6,10 @@
 
     <services>
 
+        <service class="Shopware\Api\Entity\Dbal\EntityHydrator" id="Shopware\Api\Entity\Dbal\EntityHydrator">
+            <argument type="service" id="serializer"/>
+        </service>
+
         <service class="Shopware\Api\Entity\Search\Term\Tokenizer" id="Shopware\Api\Entity\Search\Term\Tokenizer"/>
 
         <service class="Shopware\Api\Entity\Search\Term\StopWordFilter" id="Shopware\Api\Entity\Search\Term\StopWordFilter"/>
@@ -27,6 +31,7 @@
         <service class="Shopware\Api\Entity\Dbal\EntityReader" id="Shopware\Api\Entity\Dbal\EntityReader">
             <argument id="Doctrine\DBAL\Connection" type="service"/>
             <argument type="service" id="Shopware\Api\Entity\Dbal\EntitySearcher"/>
+            <argument type="service" id="Shopware\Api\Entity\Dbal\EntityHydrator"/>
         </service>
 
         <service class="Shopware\Api\Entity\Dbal\EntityAggregator" id="Shopware\Api\Entity\Dbal\EntityAggregator">

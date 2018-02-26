@@ -31,7 +31,25 @@ use Shopware\Context\Struct\StorefrontContext;
 
 interface CartPersisterInterface
 {
+    /**
+     * @param string $token
+     * @param string $name
+     *
+     * @return Cart
+     *
+     * @throws CartTokenNotFoundException
+     */
     public function load(string $token, string $name): Cart;
+
+    /**
+     * @param string $token
+     * @param string $name
+     *
+     * @return CalculatedCart
+     *
+     * @throws CartTokenNotFoundException
+     */
+    public function loadCalculated(string $token, string $name): CalculatedCart;
 
     public function save(CalculatedCart $cart, StorefrontContext $context): void;
 

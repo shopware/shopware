@@ -113,11 +113,16 @@ class CartPrice extends Struct
 
     public function hasNetPrices(): bool
     {
-        return in_array($this->taxStatus, [self::TAX_STATE_NET, self::TAX_STATE_FREE], true);
+        return \in_array($this->taxStatus, [self::TAX_STATE_NET, self::TAX_STATE_FREE], true);
     }
 
     public function isTaxFree(): bool
     {
         return $this->taxStatus === self::TAX_STATE_FREE;
+    }
+
+    public static function createEmpty(string $taxState = self::TAX_STATE_GROSS)
+    {
+        return new self(0, 0, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), $taxState);
     }
 }

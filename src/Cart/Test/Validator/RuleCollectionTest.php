@@ -25,11 +25,11 @@
 namespace Shopware\Cart\Test\Validator;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Cart\Rule\Container\AndRule;
-use Shopware\Cart\Rule\Container\OrRule;
-use Shopware\Cart\Rule\RuleCollection;
 use Shopware\Cart\Test\Common\FalseRule;
 use Shopware\Cart\Test\Common\TrueRule;
+use Shopware\Context\Rule\Container\AndRule;
+use Shopware\Context\Rule\Container\OrRule;
+use Shopware\Context\Rule\RuleCollection;
 
 class RuleCollectionTest extends TestCase
 {

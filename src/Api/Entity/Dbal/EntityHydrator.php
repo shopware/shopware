@@ -5,7 +5,7 @@ namespace Shopware\Api\Entity\Dbal;
 use Ramsey\Uuid\Uuid;
 use Shopware\Api\Entity\Entity;
 use Shopware\Api\Entity\EntityDefinition;
-use Shopware\Api\Entity\Field\ArrayField;
+use Shopware\Api\Entity\Field\JsonArrayField;
 use Shopware\Api\Entity\Field\AssociationInterface;
 use Shopware\Api\Entity\Field\BoolField;
 use Shopware\Api\Entity\Field\DateField;
@@ -14,6 +14,7 @@ use Shopware\Api\Entity\Field\FkField;
 use Shopware\Api\Entity\Field\FloatField;
 use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\IntField;
+use Shopware\Api\Entity\Field\JsonObjectField;
 use Shopware\Api\Entity\Field\LongTextField;
 use Shopware\Api\Entity\Field\LongTextWithHtmlField;
 use Shopware\Api\Entity\Field\ManyToManyAssociationField;
@@ -24,11 +25,24 @@ use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\Extension;
+use Shopware\Api\Entity\Write\Flag\Serialized;
+use Symfony\Component\Serializer\SerializerInterface;
 use Shopware\Framework\Struct\ArrayStruct;
 
 class EntityHydrator
 {
-    public static function hydrate(Entity $entity, string $definition, array $row, string $root): Entity
+
+    /**
+     * @var SerializerInterface
+     */
+    private $serializer;
+
+    public function __construct(SerializerInterface $serializer)
+    {
+        $this->serializer = $serializer;
+    }
+
+    public function hydrate(Entity $entity, string $definition, array $row, string $root): Entity
     {
         /** @var EntityDefinition $definition */
         $fields = $definition::getFields()->getDetailProperties();
@@ -36,7 +50,7 @@ class EntityHydrator
         $data = [];
         $toOneAssociations = [];
         foreach ($row as $originalKey => $value) {
-            $field = self::getField($fields, $originalKey, $root);
+            $field = $this->getField($fields, $originalKey, $root);
 
             if (!$field) {
                 continue;
@@ -44,13 +58,13 @@ class EntityHydrator
 
             if (!$field instanceof AssociationInterface) {
                 //reduce data set for nested calls
-                $data[$field->getPropertyName()] = self::castValue($field, $value);
+                $data[$field->getPropertyName()] = $this->castValue($field, $value);
                 unset($row[$originalKey]);
                 continue;
             }
 
             if ($field instanceof ManyToOneAssociationField) {
-                if (self::isManyToOneLoaded($field, $row, $root)) {
+                if ($this->isManyToOneLoaded($field, $row, $root)) {
                     $toOneAssociations[$field->getPropertyName()] = $field;
                 }
                 continue;
@@ -82,7 +96,7 @@ class EntityHydrator
             /** @var EntityDefinition $reference */
             $structClass = $reference::getBasicStructClass();
 
-            $hydrated = self::hydrate(
+            $hydrated = $this->hydrate(
                 new $structClass(),
                 $field->getReferenceClass(),
                 $row,
@@ -99,7 +113,7 @@ class EntityHydrator
         return $entity->assign($data);
     }
 
-    private static function getField(FieldCollection $fields, string $fieldName, string $root): ?Field
+    private function getField(FieldCollection $fields, string $fieldName, string $root): ?Field
     {
         if (strpos($fieldName, $root . '.') !== 0) {
             return null;
@@ -117,7 +131,7 @@ class EntityHydrator
             return $field;
         }
 
-        $key = self::stripAssociationKey($key);
+        $key = $this->stripAssociationKey($key);
         if (!$key) {
             return null;
         }
@@ -125,7 +139,7 @@ class EntityHydrator
         return $fields->get($key);
     }
 
-    private static function stripAssociationKey(string $key): ?string
+    private function stripAssociationKey(string $key): ?string
     {
         if (strpos($key, '.') === false) {
             return null;
@@ -135,7 +149,7 @@ class EntityHydrator
         return array_shift($parts);
     }
 
-    private static function castValue(Field $field, $value)
+    private function castValue(Field $field, $value)
     {
         switch (true) {
             case $field instanceof FkField:
@@ -156,9 +170,15 @@ class EntityHydrator
                 return $value === null ? null : (string) $value;
             case $field instanceof DateField:
                 return $value === null ? null : new \DateTime($value);
-            case $field instanceof ArrayField:
+            case $field instanceof JsonArrayField:
             case $field instanceof PriceRulesField:
                 return json_decode((string) $value, true);
+            case $field instanceof JsonObjectField:
+                if ($field->is(Serialized::class)) {
+                    return $this->serializer->deserialize($value, '', 'json');
+                }
+                return json_decode((string) $value, true);
+
             case $field instanceof LongTextField:
             case $field instanceof LongTextWithHtmlField:
             case $field instanceof StringField:
@@ -167,7 +187,7 @@ class EntityHydrator
         }
     }
 
-    private static function isManyToOneLoaded(ManyToOneAssociationField $field, array $row, string $root): bool
+    private function isManyToOneLoaded(ManyToOneAssociationField $field, array $row, string $root): bool
     {
         $name = implode('.', [$root, $field->getPropertyName(), $field->getReferenceField()]);
 

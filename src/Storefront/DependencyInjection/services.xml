@@ -71,6 +71,11 @@
             <argument id="shopware.cache" type="service"/>
             <argument id="serializer" type="service"/>
             <argument id="security.token_storage" type="service"/>
+            <argument type="service" id="Shopware\CartBridge\Cart\CartPersister"/>
+            <argument type="service" id="Shopware\Cart\Tax\TaxDetector"/>
+            <argument type="service" id="Shopware\Cart\Cart\CartCollector"/>
+            <argument type="service" id="Shopware\Cart\Cart\CartProcessor"/>
+            <argument type="service" id="Shopware\Cart\Cart\CartValidator"/>
         </service>
 
         <service class="Shopware\Storefront\Context\StorefrontContextSwitcher" id="Shopware\Storefront\Context\StorefrontContextSwitcher">

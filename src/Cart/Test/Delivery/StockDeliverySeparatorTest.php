@@ -42,7 +42,6 @@ use Shopware\Cart\LineItem\LineItem;
 use Shopware\Cart\Price\PriceCalculator;
 use Shopware\Cart\Price\PriceRounding;
 use Shopware\Cart\Price\Struct\Price;
-use Shopware\Cart\Rule\Container\AndRule;
 use Shopware\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Cart\Tax\Struct\TaxRule;
@@ -53,6 +52,7 @@ use Shopware\Cart\Test\Common\Generator;
 use Shopware\CartBridge\Product\ProductProcessor;
 use Shopware\CartBridge\Product\Struct\CalculatedProduct;
 use Shopware\CartBridge\Voucher\Struct\CalculatedVoucher;
+use Shopware\Context\Rule\Container\AndRule;
 
 class StockDeliverySeparatorTest extends TestCase
 {

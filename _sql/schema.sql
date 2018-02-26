@@ -1507,6 +1507,14 @@ CREATE TABLE `user` (
   CONSTRAINT `fk_user.locale_id` FOREIGN KEY (`locale_id`, `locale_version_id`) REFERENCES `locale` (`id`, `version_id`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE `context_rule` (
+  `id` binary(16) NOT NULL,
+  `name` varchar(500) NOT NULL,
+  `payload` longtext NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 DROP TABLE IF EXISTS `version`;
 CREATE TABLE `version` (
   `id` binary(16) NOT NULL,

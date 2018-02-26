@@ -39,9 +39,9 @@ use Shopware\Cart\LineItem\LineItemInterface;
 use Shopware\Cart\LineItem\NestedInterface;
 use Shopware\Cart\Price\Struct\CartPrice;
 use Shopware\Cart\Price\Struct\Price;
-use Shopware\Cart\Rule\Rule;
 use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Context\Rule\Rule;
 
 class CalculatedCartTest extends TestCase
 {

@@ -25,7 +25,7 @@
 namespace Shopware\Cart\Test\Cart;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Cart\Cart\CartCalculator;
+use Shopware\Cart\Cart\CartProcessor;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Cart\Struct\Cart;
 use Shopware\Cart\Delivery\Struct\DeliveryCollection;
@@ -37,6 +37,7 @@ use Shopware\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\CartBridge\Product\ProductProcessor;
 use Shopware\CartBridge\Voucher\VoucherProcessor;
 use Shopware\Context\Struct\StorefrontContext;
+use Shopware\Framework\Struct\StructCollection;
 
 class CartCalculatorTest extends TestCase
 {
@@ -55,9 +56,8 @@ class CartCalculatorTest extends TestCase
         $voucherProcessor = $this->createMock(VoucherProcessor::class);
         $voucherProcessor->expects($this->once())->method('process');
 
-        $calculator = new CartCalculator(
+        $calculator = new CartProcessor(
             [$productProcessor, $voucherProcessor],
-            [],
             $generator
         );
 
@@ -72,7 +72,7 @@ class CartCalculatorTest extends TestCase
 
         $this->assertEquals(
             $cart,
-            $calculator->calculate($container, $this->createMock(StorefrontContext::class))
+            $calculator->process($container, $this->createMock(StorefrontContext::class), new StructCollection())
         );
     }
 }

@@ -33,6 +33,7 @@ use Shopware\Api\Shipping\Struct\ShippingMethodBasicStruct;
 use Shopware\Api\Shop\Struct\ShopDetailStruct;
 use Shopware\Api\Tax\Collection\TaxBasicCollection;
 use Shopware\Cart\Delivery\Struct\ShippingLocation;
+use Shopware\Defaults;
 use Shopware\Framework\Struct\Struct;
 
 /**
@@ -169,7 +170,16 @@ class StorefrontContext extends Struct
 
     public function getShopContext(): ShopContext
     {
-        return ShopContext::createFromShop($this->shop);
+        return new ShopContext(
+            $this->shop->getId(),
+            [Defaults::CATALOGUE],
+            $this->contextRules->getIds(),
+            $this->currency->getId(),
+            $this->shop->getId(),
+            $this->shop->getFallbackTranslationId(),
+            Defaults::LIVE_VERSION,
+            $this->currency->getFactor()
+        );
     }
 
     public function getContextRules(): ContextRuleBasicCollection

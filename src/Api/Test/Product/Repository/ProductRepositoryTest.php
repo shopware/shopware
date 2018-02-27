@@ -11,6 +11,7 @@ use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\Entity\Search\Sorting\FieldSorting;
 use Shopware\Api\Entity\Write\FieldException\WriteStackException;
+use Shopware\Api\Product\Collection\PriceRuleCollection;
 use Shopware\Api\Product\Collection\ProductBasicCollection;
 use Shopware\Api\Product\Event\Product\ProductBasicLoadedEvent;
 use Shopware\Api\Product\Event\Product\ProductWrittenEvent;
@@ -18,6 +19,7 @@ use Shopware\Api\Product\Event\ProductManufacturer\ProductManufacturerBasicLoade
 use Shopware\Api\Product\Event\ProductManufacturer\ProductManufacturerWrittenEvent;
 use Shopware\Api\Product\Repository\ProductManufacturerRepository;
 use Shopware\Api\Product\Repository\ProductRepository;
+use Shopware\Api\Product\Struct\PriceRuleStruct;
 use Shopware\Api\Product\Struct\ProductBasicStruct;
 use Shopware\Api\Product\Struct\ProductDetailStruct;
 use Shopware\Api\Product\Struct\ProductManufacturerBasicStruct;
@@ -25,6 +27,7 @@ use Shopware\Api\Tax\Definition\TaxDefinition;
 use Shopware\Api\Tax\Event\Tax\TaxWrittenEvent;
 use Shopware\Api\Tax\Struct\TaxBasicStruct;
 use Shopware\Context\Struct\ShopContext;
+use Shopware\Defaults;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -291,6 +294,14 @@ class ProductRepositoryTest extends KernelTestCase
 
     public function testReadAndWriteProductPriceRules()
     {
+        $ruleA = Uuid::uuid4()->toString();
+        $ruleB = Uuid::uuid4()->toString();
+
+        $prices = new \Shopware\Api\Product\Collection\PriceRuleCollection([
+            new PriceRuleStruct(Defaults::CURRENCY, 1, null, $ruleA, 15, 15/1.19),
+            new PriceRuleStruct(Defaults::CURRENCY, 1, null, $ruleB, 10, 10/1.19)
+        ]);
+
         $id = Uuid::uuid4();
         $data = [
             'id' => $id->toString(),
@@ -298,11 +309,7 @@ class ProductRepositoryTest extends KernelTestCase
             'price' => 100,
             'manufacturer' => ['name' => 'test'],
             'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
-            'prices' => json_encode([
-                'H_D_E' => 5,
-                'H_D' => 10,
-                'H' => 15,
-            ]),
+            'prices' => $prices->toArray(),
         ];
 
         $this->repository->create([$data], ShopContext::createDefaultContext());
@@ -319,10 +326,7 @@ class ProductRepositoryTest extends KernelTestCase
         $this->assertEquals($id->toString(), $product->getId());
 
         $this->assertEquals(100, $product->getPrice());
-        $this->assertEquals(
-            ['H_D_E' => 5, 'H_D' => 10, 'H' => 15],
-            $product->getPrices()
-        );
+        $this->assertEquals($prices, $product->getPrices());
     }
 
     public function testPriceRulesSorting()
@@ -331,6 +335,19 @@ class ProductRepositoryTest extends KernelTestCase
         $id2 = Uuid::uuid4();
         $id3 = Uuid::uuid4();
 
+        $ruleA = Uuid::uuid4()->toString();
+
+        $price1 = new \Shopware\Api\Product\Collection\PriceRuleCollection([
+            new PriceRuleStruct(Defaults::CURRENCY, 1, null, $ruleA, 15, 15/1.19)
+        ]);
+        $price2 = new \Shopware\Api\Product\Collection\PriceRuleCollection([
+            new PriceRuleStruct(Defaults::CURRENCY, 1, null, $ruleA, 5, 5/1.19)
+        ]);
+        $price3 = new \Shopware\Api\Product\Collection\PriceRuleCollection([
+            new PriceRuleStruct(Defaults::CURRENCY, 1, null, $ruleA, 10, 10/1.19)
+        ]);
+
+
         $data = [
             [
                 'id' => $id->toString(),
@@ -338,7 +355,7 @@ class ProductRepositoryTest extends KernelTestCase
                 'price' => 100,
                 'manufacturer' => ['name' => 'test'],
                 'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
-                'prices' => json_encode(['H_D_E' => 15]),
+                'prices' => $price1->toArray()
             ],
             [
                 'id' => $id2->toString(),
@@ -346,7 +363,7 @@ class ProductRepositoryTest extends KernelTestCase
                 'price' => 500,
                 'manufacturer' => ['name' => 'test'],
                 'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
-                'prices' => json_encode(['H_D_E' => 5]),
+                'prices' => $price2->toArray()
             ],
             [
                 'id' => $id3->toString(),
@@ -354,7 +371,7 @@ class ProductRepositoryTest extends KernelTestCase
                 'price' => 500,
                 'manufacturer' => ['name' => 'test'],
                 'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
-                'prices' => json_encode(['H_D_E' => 10]),
+                'prices' => $price3->toArray()
             ],
         ];
 
@@ -363,8 +380,16 @@ class ProductRepositoryTest extends KernelTestCase
         $criteria = new Criteria();
         $criteria->addSorting(new FieldSorting('product.prices', FieldSorting::ASCENDING));
 
+        $context = new ShopContext(
+            Defaults::SHOP,
+            [Defaults::CATALOGUE],
+            [$ruleA],
+            Defaults::CURRENCY,
+            Defaults::SHOP
+        );
+
         /** @var IdSearchResult $products */
-        $products = $this->repository->searchIds($criteria, ShopContext::createDefaultContext());
+        $products = $this->repository->searchIds($criteria, $context);
 
         $this->assertEquals(
             [$id2->toString(), $id3->toString(), $id->toString()],
@@ -374,8 +399,9 @@ class ProductRepositoryTest extends KernelTestCase
         $criteria = new Criteria();
         $criteria->addSorting(new FieldSorting('product.prices', FieldSorting::DESCENDING));
 
+
         /** @var IdSearchResult $products */
-        $products = $this->repository->searchIds($criteria, ShopContext::createDefaultContext());
+        $products = $this->repository->searchIds($criteria, $context);
 
         $this->assertEquals(
             [$id->toString(), $id3->toString(), $id2->toString()],

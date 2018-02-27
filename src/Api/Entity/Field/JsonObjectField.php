@@ -75,7 +75,7 @@ class JsonObjectField extends Field implements StorageAware
      * @param string $fieldName
      * @param $value
      */
-    private function validate(array $constraints, string $fieldName, $value)
+    protected function validate(array $constraints, string $fieldName, $value)
     {
         $violationList = new ConstraintViolationList();
 
@@ -110,7 +110,7 @@ class JsonObjectField extends Field implements StorageAware
     /**
      * @return array
      */
-    private function getInsertConstraints(): array
+    protected function getInsertConstraints(): array
     {
         return $this->constraintBuilder
             ->isNotBlank()
@@ -120,7 +120,7 @@ class JsonObjectField extends Field implements StorageAware
     /**
      * @return array
      */
-    private function getUpdateConstraints(): array
+    protected function getUpdateConstraints(): array
     {
         return $this->constraintBuilder
             ->getConstraints();

@@ -3,8 +3,10 @@
 namespace Shopware\Api\Product\Struct;
 
 use Shopware\Api\Entity\Entity;
+use Shopware\Api\Product\Collection\PriceRuleCollection;
 use Shopware\Api\Tax\Struct\TaxBasicStruct;
 use Shopware\Api\Unit\Struct\UnitBasicStruct;
+use Shopware\Context\Struct\ShopContext;
 
 class ProductBasicStruct extends Entity
 {
@@ -174,7 +176,7 @@ class ProductBasicStruct extends Entity
     protected $categoryTree;
 
     /**
-     * @var array|null
+     * @var PriceRuleCollection|null
      */
     protected $prices;
 
@@ -227,6 +229,11 @@ class ProductBasicStruct extends Entity
      * @var UnitBasicStruct|null
      */
     protected $unit;
+
+    public function __construct()
+    {
+        $this->prices = new PriceRuleCollection();
+    }
 
     public function getParentId(): ?string
     {
@@ -558,12 +565,12 @@ class ProductBasicStruct extends Entity
         $this->categoryTree = $categoryTree;
     }
 
-    public function getPrices(): ?array
+    public function getPrices(): PriceRuleCollection
     {
         return $this->prices;
     }
 
-    public function setPrices(?array $prices): void
+    public function setPrices(PriceRuleCollection $prices): void
     {
         $this->prices = $prices;
     }
@@ -666,5 +673,21 @@ class ProductBasicStruct extends Entity
     public function setUnit(?UnitBasicStruct $unit): void
     {
         $this->unit = $unit;
+    }
+
+    public function getPriceRulesForContext(ShopContext $context): ?PriceRuleCollection
+    {
+        foreach ($context->getContextRules() as $ruleId) {
+            $rules = $this->prices->filter(
+                function(PriceRuleStruct $rule) use ($ruleId) {
+                    return $rule->getRuleId() === $ruleId;
+                }
+            );
+            if ($rules->count() > 0) {
+                $rules->sortByQuantity();
+                return $rules;
+            }
+        }
+        return null;
     }
 }

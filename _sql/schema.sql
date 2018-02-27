@@ -1507,6 +1507,7 @@ CREATE TABLE `user` (
   CONSTRAINT `fk_user.locale_id` FOREIGN KEY (`locale_id`, `locale_version_id`) REFERENCES `locale` (`id`, `version_id`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+DROP TABLE IF EXISTS `context_rule`;
 CREATE TABLE `context_rule` (
   `id` binary(16) NOT NULL,
   `name` varchar(500) NOT NULL,

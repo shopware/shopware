@@ -26,6 +26,7 @@ use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\Extension;
 use Shopware\Api\Entity\Write\Flag\Serialized;
+use Shopware\Api\Product\Collection\PriceRuleCollection;
 use Symfony\Component\Serializer\SerializerInterface;
 use Shopware\Framework\Struct\ArrayStruct;
 
@@ -171,8 +172,18 @@ class EntityHydrator
             case $field instanceof DateField:
                 return $value === null ? null : new \DateTime($value);
             case $field instanceof JsonArrayField:
-            case $field instanceof PriceRulesField:
                 return json_decode((string) $value, true);
+            case $field instanceof PriceRulesField:
+                $value = json_decode((string) $value, true);
+
+                $structs = [];
+                if (isset($value['raw'])) {
+                    foreach ($value['raw'] as $record) {
+                        $structs[] = $this->serializer->deserialize(json_encode($record), '', 'json');
+                    }
+                }
+                return new PriceRuleCollection($structs);
+
             case $field instanceof JsonObjectField:
                 if ($field->is(Serialized::class)) {
                     return $this->serializer->deserialize($value, '', 'json');

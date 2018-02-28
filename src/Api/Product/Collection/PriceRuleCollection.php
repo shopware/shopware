@@ -3,6 +3,7 @@
 namespace Shopware\Api\Product\Collection;
 
 use Shopware\Api\Product\Struct\PriceRuleStruct;
+use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Struct\Collection;
 
 class PriceRuleCollection extends Collection
@@ -52,4 +53,22 @@ class PriceRuleCollection extends Collection
 
         throw new \RuntimeException(sprintf('Price for quantity %s not found', $quantity));
     }
+
+    public function getPriceRulesForContext(ShopContext $context): ?PriceRuleCollection
+    {
+        foreach ($context->getContextRules() as $ruleId) {
+            $rules = $this->filter(
+                function(PriceRuleStruct $rule) use ($ruleId) {
+                    return $rule->getRuleId() === $ruleId;
+                }
+            );
+
+            if ($rules->count() > 0) {
+                $rules->sortByQuantity();
+                return $rules;
+            }
+        }
+        return null;
+    }
+
 }

@@ -33,7 +33,7 @@ class ContextRuleBasicCollection extends EntityCollection
     {
         return $this->filter(
             function(ContextRuleBasicStruct $rule) use ($cart, $context) {
-                return $rule->getPayload()->match($cart, $context);
+                return $rule->getPayload()->match($cart, $context)->matches();
             }
         );
     }

@@ -17,7 +17,7 @@ use Shopware\Api\Product\Struct\PriceRuleStruct;
 use Shopware\Context\Rule\Container\AndRule;
 use Shopware\Context\Rule\Container\NotRule;
 use Shopware\Context\Rule\CurrencyRule;
-use Shopware\Context\Rule\CustomerGroupRule;
+use Shopware\Context\Rule\OrderAmountRule;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Defaults;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
@@ -257,9 +257,9 @@ class DemodataCommand extends ContainerAwareCommand
         $payload = [
             [
                 'id' => Uuid::uuid4()->toString(),
-                'name' => 'Shopkunden',
+                'name' => 'High cart value',
                 'payload' => new AndRule([
-                    new CustomerGroupRule([Defaults::FALLBACK_CUSTOMER_GROUP])
+                    new OrderAmountRule(5000, OrderAmountRule::OPERATOR_GTE)
                 ])
             ],
             [
@@ -282,11 +282,22 @@ class DemodataCommand extends ContainerAwareCommand
         $prices = new PriceRuleCollection();
 
         foreach ($contextRules as $ruleId) {
-            $gross = random_int(10, 5000);
+            $gross = random_int(500, 1000);
 
             $prices->add(new PriceRuleStruct(
                 Defaults::CURRENCY,
                 1,
+                10,
+                $ruleId,
+                $gross,
+                $gross / 1.19
+            ));
+
+            $gross = random_int(1, 499);
+
+            $prices->add(new PriceRuleStruct(
+                Defaults::CURRENCY,
+                11,
                 null,
                 $ruleId,
                 $gross,

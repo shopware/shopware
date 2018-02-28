@@ -6,6 +6,7 @@ use Shopware\Api\Product\Collection\ProductMediaBasicCollection;
 use Shopware\Api\Product\Struct\ProductBasicStruct as ApiBasicStruct;
 use Shopware\Api\Product\Struct\ProductMediaBasicStruct;
 use Shopware\Cart\Price\Struct\Price;
+use Shopware\Cart\Price\Struct\PriceCollection;
 
 class ProductBasicStruct extends ApiBasicStruct
 {
@@ -17,7 +18,12 @@ class ProductBasicStruct extends ApiBasicStruct
     /**
      * @var Price
      */
-    protected $calculatedPrice;
+    protected $calculatedListingPrice;
+
+    /**
+     * @var PriceCollection
+     */
+    private $calculatedPrices;
 
     public function getCover(): ?ProductMediaBasicStruct
     {
@@ -47,13 +53,23 @@ class ProductBasicStruct extends ApiBasicStruct
         return $this->getStock() >= $this->getMinPurchase();
     }
 
-    public function getCalculatedPrice(): Price
+    public function getCalculatedListingPrice(): Price
     {
-        return $this->calculatedPrice;
+        return $this->calculatedListingPrice;
     }
 
-    public function setCalculatedPrice(Price $calculatedPrice): void
+    public function setCalculatedListingPrice(Price $calculatedListingPrice): void
     {
-        $this->calculatedPrice = $calculatedPrice;
+        $this->calculatedListingPrice = $calculatedListingPrice;
+    }
+
+    public function setCalculatedPrices(PriceCollection $prices): void
+    {
+        $this->calculatedPrices = $prices;
+    }
+
+    public function getCalculatedPrices(): PriceCollection
+    {
+        return $this->calculatedPrices;
     }
 }

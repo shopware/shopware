@@ -71,7 +71,10 @@ class ProductCalculator
 
             $priceDefinition = $lineItem->getPriceDefinition();
             if (!$priceDefinition) {
-                $priceDefinition = $this->getQuantityPrice($lineItem->getQuantity(), $product);
+                $priceDefinition = $product->getPriceDefinitionForQuantity(
+                    $context->getShopContext(),
+                    $lineItem->getQuantity()
+                );
             }
 
             $priceDefinition = new PriceDefinition(
@@ -124,15 +127,4 @@ class ProductCalculator
         );
     }
 
-    private function getQuantityPrice(int $quantity, ProductBasicStruct $product): PriceDefinition
-    {
-        return new PriceDefinition(
-            $product->getPrice(),
-            new TaxRuleCollection([
-                new TaxRule($product->getTax()->getRate()),
-            ]),
-            $quantity,
-            true
-        );
-    }
 }

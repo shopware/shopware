@@ -51,7 +51,9 @@ class NotRule extends Container
         CalculatedCart $calculatedCart,
         StorefrontContext $context
     ): Match {
-        $rule = array_shift($this->rules);
+        $rules = $this->rules;
+
+        $rule = array_shift($rules);
 
         $match = $rule->match($calculatedCart, $context);
 

@@ -308,7 +308,14 @@ class Router implements RouterInterface, RequestMatcherInterface
         $seoUrl = $this->urlResolver->getPathInfo($shop['id'], $pathInfo, $shopContext);
 
         if (!$seoUrl) {
-            return $this->match($pathInfo);
+            try {
+                return $this->match($pathInfo);
+            } catch (\Exception $e) {
+                if ($requestType === self::REQUEST_TYPE_STOREFRONT) {
+                    return $this->match('/');
+                }
+                throw $e;
+            }
         }
 
         $pathInfo = $seoUrl->getPathInfo();
@@ -317,7 +324,14 @@ class Router implements RouterInterface, RequestMatcherInterface
             $request->attributes->set(self::SEO_REDIRECT_URL, $redirectUrl);
         }
 
-        return $this->match($pathInfo);
+        try {
+            return $this->match($pathInfo);
+        } catch (\Exception $e) {
+            if ($requestType === self::REQUEST_TYPE_STOREFRONT) {
+                return $this->match('/');
+            }
+            throw $e;
+        }
     }
 
     public function assemble(string $url): string

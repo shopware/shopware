@@ -11,9 +11,8 @@ use Shopware\Api\Product\Repository\ProductRepository;
 use Shopware\Api\Product\Struct\ProductMediaSearchResult;
 use Shopware\Api\Product\Struct\ProductSearchResult;
 use Shopware\Cart\Price\PriceCalculator;
+use Shopware\Cart\Price\Struct\PriceCollection;
 use Shopware\Cart\Price\Struct\PriceDefinition;
-use Shopware\Cart\Tax\Struct\PercentageTaxRule;
-use Shopware\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Storefront\Bridge\Product\Struct\ProductBasicStruct;
 
@@ -83,14 +82,22 @@ class StorefrontProductRepository
             /** @var ProductBasicStruct $product */
             $product = ProductBasicStruct::createFrom($base);
 
-            $taxRules = new TaxRuleCollection([
-                new PercentageTaxRule($product->getTax()->getRate(), 100),
-            ]);
+            $price = $product->getListingPriceDefinition($context->getShopContext());
 
-            $definition = new PriceDefinition($product->getPrice(), $taxRules, 1, true);
-            $product->setCalculatedPrice(
-                $this->priceCalculator->calculate($definition, $context)
+            $product->setCalculatedListingPrice(
+                $this->priceCalculator->calculate($price, $context)
             );
+
+            $prices = $product->getPricesDefinition($context->getShopContext());
+
+            $prices = array_map(
+                function(PriceDefinition $definition) use ($context) {
+                    return $this->priceCalculator->calculate($definition, $context);
+                },
+                $prices
+            );
+
+            $product->setCalculatedPrices(new PriceCollection($prices));
 
             $product->setMedia(
                 $media->filterByProductId($product->getId())
@@ -101,4 +108,5 @@ class StorefrontProductRepository
 
         return $listingProducts;
     }
+
 }

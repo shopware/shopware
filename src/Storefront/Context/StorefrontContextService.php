@@ -237,10 +237,15 @@ class StorefrontContextService implements StorefrontContextServiceInterface
             $context->setContextRules($rules);
 
             //recalculate cart for new context rules
-            $calculated = $this->cartProcessor->process($calculated->getCart(), $context, $processorData);
+            $newCart = $this->cartProcessor->process($calculated->getCart(), $context, $processorData);
 
             //if cart isn't valid, return the context rule finding
             $valid = $this->cartValidator->isValid($calculated, $context);
+
+            if ($this->cartChanged($calculated, $newCart)) {
+                $valid = false;
+                $calculated = $newCart;
+            }
         }
 
         $context->lockRules();
@@ -355,5 +360,10 @@ class StorefrontContextService implements StorefrontContextServiceInterface
     private function getStorefrontCartToken(): ?string
     {
         return $this->getSessionValueOrNull(StoreFrontCartService::CART_TOKEN_KEY);
+    }
+
+    private function cartChanged(CalculatedCart $previous, CalculatedCart $current): bool
+    {
+        return md5(json_encode($previous)) !== md5(json_encode($current));
     }
 }

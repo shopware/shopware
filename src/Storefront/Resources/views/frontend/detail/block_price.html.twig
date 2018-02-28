@@ -41,8 +41,11 @@
                         <tbody class="block-prices--body">
                             {% block frontend_detail_data_block_prices_table_body_inner %}
                                 {% set cylceClasses = ['is--primary', 'is--secondary'] %}
-                                {% for price in product.prices %}
-                                    {# @var price \Shopware\ProductPrice\Struct\ProductPriceBasicStruct #}
+
+                                {% for key, price in product.calculatedPrices %}
+                                    {% set next = product.calculatedPrices[key+1]  %}
+
+                                    {# @var price \Shopware\Cart\Price\Struct\Price #}
                                     {% block frontend_detail_data_block_prices %}
                                         <tr class="block-prices--row {{ cycle(cylceClasses, loop.index) }}" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
                                             {% block frontend_detail_data_block_prices_table_body_row %}
@@ -50,21 +53,21 @@
                                                     <td class="block-prices--cell">
 
                                                         <meta itemprop="priceCurrency" content="{$Shop->getCurrency()->getCurrency()}" />
-                                                        <meta itemprop="price" content="{$blockPrice.price}" />
+                                                        <meta itemprop="price" content="{{ price.unitPrice }}" />
                                                         <link itemprop="availability" href="http://schema.org/InStock" />
 
-                                                        {% if price.quantityStart == 1 %}
+                                                        {% if key == 0 %}
                                                             {% trans from 'frontend/detail/data' %}DetailDataInfoUntil{% endtrans %}
-                                                            <span class="block-prices--quantity">{{ price.quantityEnd }}</span>
+                                                            <span class="block-prices--quantity">{{ price.quantity }}</span>
                                                         {% else %}
                                                             {% trans from 'frontend/detail/data' %}DetailDataInfoFrom{% endtrans %}
-                                                            <span class="block-prices--quantity">{{ price.quantityStart }}</span>
+                                                            <span class="block-prices--quantity">{{ price.quantity }}</span>
                                                         {% endif %}
                                                     </td>
                                                 {% endblock %}
                                                 {% block frontend_detail_data_block_prices_table_body_cell_price %}
                                                     <td class="block-prices--cell">
-                                                        {{ price.price|localizedcurrency(context.currency.shortName) }}{% trans from 'frontend/listing/box_article' %}Star{% endtrans %}
+                                                        {{ price.unitPrice|localizedcurrency(context.currency.shortName) }}{% trans from 'frontend/listing/box_article' %}Star{% endtrans %}
                                                     </td>
                                                 {% endblock %}
                                                 {% if hasReferencePrice %}

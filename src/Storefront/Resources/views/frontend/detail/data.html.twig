@@ -1,12 +1,12 @@
 {% block frontend_detail_data %}
     {# @var product \Shopware\Storefront\Bridge\Product\Struct\DetailProductStruct #}
 
-    {%  if product.prices.count > 1 %}
+    {% if product.calculatedPrices.count > 1 %}
         {% sw_include '@Storefront/frontend/detail/block_price.html.twig' %}
     {% else %}
         <div class="product--price price--default{if $sArticle.has_pseudoprice} price--discount{/if}">
             {% block frontend_detail_data_price_configurator %}
-                {% set price = product.calculatedPrice %}
+                {% set price = product.calculatedListingPrice %}
 
                 {% if price %}
                     {% block frontend_detail_data_price_default %}

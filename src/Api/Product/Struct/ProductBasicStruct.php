@@ -6,6 +6,9 @@ use Shopware\Api\Entity\Entity;
 use Shopware\Api\Product\Collection\PriceRuleCollection;
 use Shopware\Api\Tax\Struct\TaxBasicStruct;
 use Shopware\Api\Unit\Struct\UnitBasicStruct;
+use Shopware\Cart\Price\Struct\PriceDefinition;
+use Shopware\Cart\Tax\Struct\PercentageTaxRule;
+use Shopware\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Context\Struct\ShopContext;
 
 class ProductBasicStruct extends Entity
@@ -675,19 +678,65 @@ class ProductBasicStruct extends Entity
         $this->unit = $unit;
     }
 
-    public function getPriceRulesForContext(ShopContext $context): ?PriceRuleCollection
+    public function getPricesDefinition(ShopContext $context): array
     {
-        foreach ($context->getContextRules() as $ruleId) {
-            $rules = $this->prices->filter(
-                function(PriceRuleStruct $rule) use ($ruleId) {
-                    return $rule->getRuleId() === $ruleId;
-                }
-            );
-            if ($rules->count() > 0) {
-                $rules->sortByQuantity();
-                return $rules;
-            }
+        $taxRules = new TaxRuleCollection([
+            new PercentageTaxRule($this->getTax()->getRate(), 100),
+        ]);
+
+        $prices = $this->getPrices()->getPriceRulesForContext($context);
+
+        if (!$prices) {
+            return [];
         }
-        return null;
+
+        return $prices->map(function(PriceRuleStruct $rule) use ($taxRules) {
+            $quantity = $rule->getQuantityEnd() ?? $rule->getQuantityStart();
+            return new PriceDefinition($rule->getGross(), $taxRules, $quantity, true);
+        });
+    }
+
+    public function getListingPriceDefinition(ShopContext $context): PriceDefinition
+    {
+        $taxRules = new TaxRuleCollection([
+            new PercentageTaxRule($this->getTax()->getRate(), 100),
+        ]);
+
+        $prices = $this->getPrices()->getPriceRulesForContext($context);
+
+        if (!$prices) {
+            return new PriceDefinition($this->getPrice(), $taxRules, 1, true);
+        }
+
+        $prices->filter(function(PriceRuleStruct $priceRule) {
+            return $priceRule->getQuantityEnd() === null;
+        });
+
+        if ($prices->count() <= 0) {
+            return new PriceDefinition($this->getPrice(), $taxRules, 1, true);
+        }
+
+        /** @var PriceRuleStruct $price */
+        $price = $prices->first();
+
+        return new PriceDefinition($price->getGross(), $taxRules, 1, true);
+    }
+
+    public function getPriceDefinitionForQuantity(ShopContext $context, int $quantity): PriceDefinition
+    {
+        $taxRules = new TaxRuleCollection([
+            new PercentageTaxRule($this->getTax()->getRate(), 100),
+        ]);
+
+        $prices = $this->getPrices()->getPriceRulesForContext($context);
+
+        if (!$prices) {
+            return new PriceDefinition($this->getPrice(), $taxRules, $quantity, true);
+        }
+
+        /** @var PriceRuleStruct $price */
+        $price = $prices->getQuantityPrice($quantity);
+
+        return new PriceDefinition($price->getGross(), $taxRules, $quantity, true);
     }
 }

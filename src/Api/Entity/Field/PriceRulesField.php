@@ -11,6 +11,26 @@ use Shopware\Defaults;
 
 class PriceRulesField extends JsonObjectField implements SqlParseAware
 {
+    public function __invoke(EntityExistence $existence, KeyValuePair $data): \Generator
+    {
+        $value = $data->getValue();
+        if (!empty($data->getValue())) {
+            $value = $this->convertToStorage($value);
+        }
+
+        if ($existence->exists()) {
+            $this->validate($this->getUpdateConstraints(), $data->getKey(), $value);
+        } else {
+            $this->validate($this->getInsertConstraints(), $data->getKey(), $value);
+        }
+
+        if (!is_string($value) && $value !== null) {
+            $value = json_encode($value);
+        }
+
+        yield $this->storageName => $value;
+    }
+
     public function parse(string $root, ShopContext $context): string
     {
         $keys = $context->getContextRules();
@@ -34,37 +54,17 @@ class PriceRulesField extends JsonObjectField implements SqlParseAware
         return sprintf('(CAST(COALESCE(%s) AS DECIMAL))', implode(',', $select));
     }
 
-    public function __invoke(EntityExistence $existence, KeyValuePair $data): \Generator
-    {
-        $value = $data->getValue();
-        if (!empty($data->getValue())) {
-            $value = $this->convertToStorage($value);
-        }
-
-        if ($existence->exists()) {
-            $this->validate($this->getUpdateConstraints(), $data->getKey(), $value);
-        } else {
-            $this->validate($this->getInsertConstraints(), $data->getKey(), $value);
-        }
-
-        if (!is_string($value) && $value !== null) {
-            $value = json_encode($value);
-        }
-
-        yield $this->storageName => $value;
-    }
-
     public static function format(string $ruleId, string $currencyId, int $quantityStart, ?int $quantityEnd, float $gross, float $net)
     {
         $quantityKey = $quantityStart . '-' . $quantityEnd;
         if ($quantityEnd === null) {
             $quantityKey = 'last';
-        } else if ($quantityStart === 1) {
+        } elseif ($quantityStart === 1) {
             $quantityKey = 'first';
         }
 
         $ruleId = Uuid::fromString($ruleId)->getHex();
-        $currencyId  = Uuid::fromString($currencyId )->getHex();
+        $currencyId = Uuid::fromString($currencyId)->getHex();
 
         return [
             'r' . $ruleId => [
@@ -72,8 +72,8 @@ class PriceRulesField extends JsonObjectField implements SqlParseAware
                     'quantityStart' => $quantityStart,
                     'quantityEnd' => $quantityEnd,
                     'c' . $currencyId => ['gross' => $gross, 'net' => $net],
-                ]
-            ]
+                ],
+            ],
         ];
     }
 
@@ -96,7 +96,7 @@ class PriceRulesField extends JsonObjectField implements SqlParseAware
 
         return [
             'raw' => $data,
-            'merged' => $queryOptimized
+            'merged' => $queryOptimized,
         ];
     }
 }

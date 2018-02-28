@@ -81,7 +81,6 @@ class CartPersister implements CartPersisterInterface
         return $this->serializer->deserialize((string) $content, null, 'json');
     }
 
-
     public function save(CalculatedCart $cart, StorefrontContext $context): void
     {
         //prevent empty carts

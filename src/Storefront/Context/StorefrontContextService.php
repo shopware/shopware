@@ -26,8 +26,8 @@ namespace Shopware\Storefront\Context;
 
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Cart\Cart\CartCollector;
-use Shopware\Cart\Cart\CartProcessor;
 use Shopware\Cart\Cart\CartPersisterInterface;
+use Shopware\Cart\Cart\CartProcessor;
 use Shopware\Cart\Cart\CartValidator;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Cart\Struct\Cart;
@@ -210,7 +210,7 @@ class StorefrontContextService implements StorefrontContextServiceInterface
     {
         try {
             $calculated = $this->cartPersister->loadCalculated(
-                (string)$checkoutScope->getCartToken(),
+                (string) $checkoutScope->getCartToken(),
                 StoreFrontCartService::CART_NAME
             );
         } catch (CartTokenNotFoundException $e) {

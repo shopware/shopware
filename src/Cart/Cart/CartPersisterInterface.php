@@ -35,9 +35,9 @@ interface CartPersisterInterface
      * @param string $token
      * @param string $name
      *
-     * @return Cart
-     *
      * @throws CartTokenNotFoundException
+     *
+     * @return Cart
      */
     public function load(string $token, string $name): Cart;
 
@@ -45,9 +45,9 @@ interface CartPersisterInterface
      * @param string $token
      * @param string $name
      *
-     * @return CalculatedCart
-     *
      * @throws CartTokenNotFoundException
+     *
+     * @return CalculatedCart
      */
     public function loadCalculated(string $token, string $name): CalculatedCart;
 

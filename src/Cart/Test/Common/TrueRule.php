@@ -28,7 +28,6 @@ use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Context\Rule\Match;
 use Shopware\Context\Rule\Rule;
 use Shopware\Context\Struct\StorefrontContext;
-use Shopware\Framework\Struct\StructCollection;
 
 class TrueRule extends Rule
 {

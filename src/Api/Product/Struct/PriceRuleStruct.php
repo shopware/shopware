@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Api\Product\Struct;
 
@@ -51,7 +51,6 @@ class PriceRuleStruct extends Struct
         $this->gross = $gross;
         $this->net = $net;
     }
-
 
     public function getCurrencyId(): string
     {

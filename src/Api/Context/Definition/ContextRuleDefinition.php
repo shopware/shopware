@@ -12,7 +12,6 @@ use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\Field\DateField;
 use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\JsonObjectField;
-use Shopware\Api\Entity\Field\LongTextField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;

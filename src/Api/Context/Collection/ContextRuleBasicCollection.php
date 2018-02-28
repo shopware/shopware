@@ -24,17 +24,17 @@ class ContextRuleBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    protected function getExpectedClass(): string
-    {
-        return ContextRuleBasicStruct::class;
-    }
-
     public function filterMatchingRules(CalculatedCart $cart, StorefrontContext $context)
     {
         return $this->filter(
-            function(ContextRuleBasicStruct $rule) use ($cart, $context) {
+            function (ContextRuleBasicStruct $rule) use ($cart, $context) {
                 return $rule->getPayload()->match($cart, $context)->matches();
             }
         );
+    }
+
+    protected function getExpectedClass(): string
+    {
+        return ContextRuleBasicStruct::class;
     }
 }

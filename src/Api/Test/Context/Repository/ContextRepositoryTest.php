@@ -4,13 +4,8 @@ namespace Shopware\Api\Test\Context\Repository;
 
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
-use Shopware\Api\Category\Definition\CategoryDefinition;
-use Shopware\Api\Category\Event\Category\CategoryDeletedEvent;
 use Shopware\Api\Context\Repository\ContextRuleRepository;
 use Shopware\Api\Entity\RepositoryInterface;
-use Shopware\Api\Entity\Write\GenericWrittenEvent;
-use Shopware\Cart\Test\Common\FalseRule;
-use Shopware\Cart\Test\Common\TrueRule;
 use Shopware\Context\Rule\Container\AndRule;
 use Shopware\Context\Rule\Container\OrRule;
 use Shopware\Context\Struct\ShopContext;
@@ -62,7 +57,7 @@ class ContextRepositoryTest extends KernelTestCase
         $data = [
             'id' => $id,
             'name' => 'test rule',
-            'payload' => new AndRule([new OrRule()])
+            'payload' => new AndRule([new OrRule()]),
         ];
 
         $this->repository->create([$data], $this->context);

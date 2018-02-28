@@ -4,11 +4,11 @@ namespace Shopware\Api\Version\Definition;
 
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\EntityExtensionInterface;
-use Shopware\Api\Entity\Field\JsonArrayField;
 use Shopware\Api\Entity\Field\DateField;
 use Shopware\Api\Entity\Field\FkField;
 use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\IntField;
+use Shopware\Api\Entity\Field\JsonArrayField;
 use Shopware\Api\Entity\Field\LongTextField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\StringField;

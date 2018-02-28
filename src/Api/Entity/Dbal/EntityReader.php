@@ -45,7 +45,6 @@ class EntityReader implements EntityReaderInterface
      */
     private $hydrator;
 
-
     public function __construct(
         Connection $connection,
         EntitySearcherInterface $searcher,

@@ -213,7 +213,7 @@ class DemodataCommand extends ContainerAwareCommand
                     ['id' => $categories[random_int(0, $categoryCount)]],
                 ],
                 'stock' => $this->faker->randomNumber(),
-                'prices' => $this->createPrices($contextRules)
+                'prices' => $this->createPrices($contextRules),
             ];
 
             if ($i % $size === 0) {
@@ -259,18 +259,17 @@ class DemodataCommand extends ContainerAwareCommand
                 'id' => Uuid::uuid4()->toString(),
                 'name' => 'High cart value',
                 'payload' => new AndRule([
-                    new OrderAmountRule(5000, OrderAmountRule::OPERATOR_GTE)
-                ])
+                    new OrderAmountRule(5000, OrderAmountRule::OPERATOR_GTE),
+                ]),
             ],
             [
                 'id' => Uuid::uuid4()->toString(),
                 'name' => 'Other currency',
                 'payload' => new NotRule([
-                    new CurrencyRule([Defaults::CURRENCY])
-                ])
-            ]
+                    new CurrencyRule([Defaults::CURRENCY]),
+                ]),
+            ],
         ];
-
 
         $this->writer->insert(ContextRuleDefinition::class, $payload, $this->getContext());
 

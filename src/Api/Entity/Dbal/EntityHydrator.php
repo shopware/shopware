@@ -5,7 +5,6 @@ namespace Shopware\Api\Entity\Dbal;
 use Ramsey\Uuid\Uuid;
 use Shopware\Api\Entity\Entity;
 use Shopware\Api\Entity\EntityDefinition;
-use Shopware\Api\Entity\Field\JsonArrayField;
 use Shopware\Api\Entity\Field\AssociationInterface;
 use Shopware\Api\Entity\Field\BoolField;
 use Shopware\Api\Entity\Field\DateField;
@@ -14,6 +13,7 @@ use Shopware\Api\Entity\Field\FkField;
 use Shopware\Api\Entity\Field\FloatField;
 use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\IntField;
+use Shopware\Api\Entity\Field\JsonArrayField;
 use Shopware\Api\Entity\Field\JsonObjectField;
 use Shopware\Api\Entity\Field\LongTextField;
 use Shopware\Api\Entity\Field\LongTextWithHtmlField;
@@ -32,7 +32,6 @@ use Shopware\Framework\Struct\ArrayStruct;
 
 class EntityHydrator
 {
-
     /**
      * @var SerializerInterface
      */
@@ -182,12 +181,14 @@ class EntityHydrator
                         $structs[] = $this->serializer->deserialize(json_encode($record), '', 'json');
                     }
                 }
+
                 return new PriceRuleCollection($structs);
 
             case $field instanceof JsonObjectField:
                 if ($field->is(Serialized::class)) {
                     return $this->serializer->deserialize($value, '', 'json');
                 }
+
                 return json_decode((string) $value, true);
 
             case $field instanceof LongTextField:

@@ -31,7 +31,6 @@ use Shopware\Cart\Test\Common\TrueRule;
 use Shopware\Context\Rule\Container\AndRule;
 use Shopware\Context\Rule\Match;
 use Shopware\Context\Struct\StorefrontContext;
-use Shopware\Framework\Struct\StructCollection;
 
 class AndRuleTest extends TestCase
 {

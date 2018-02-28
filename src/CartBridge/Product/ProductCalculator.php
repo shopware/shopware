@@ -32,8 +32,6 @@ use Shopware\Cart\LineItem\LineItemCollection;
 use Shopware\Cart\LineItem\LineItemInterface;
 use Shopware\Cart\Price\PriceCalculator;
 use Shopware\Cart\Price\Struct\PriceDefinition;
-use Shopware\Cart\Tax\Struct\TaxRule;
-use Shopware\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\CartBridge\Product\Struct\CalculatedProduct;
 use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
@@ -126,5 +124,4 @@ class ProductCalculator
                 ->add(new \DateInterval('P3D'))
         );
     }
-
 }

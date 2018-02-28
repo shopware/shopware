@@ -91,7 +91,7 @@ class StorefrontProductRepository
             $prices = $product->getPricesDefinition($context->getShopContext());
 
             $prices = array_map(
-                function(PriceDefinition $definition) use ($context) {
+                function (PriceDefinition $definition) use ($context) {
                     return $this->priceCalculator->calculate($definition, $context);
                 },
                 $prices
@@ -108,5 +108,4 @@ class StorefrontProductRepository
 
         return $listingProducts;
     }
-
 }

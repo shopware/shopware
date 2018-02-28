@@ -85,7 +85,6 @@ class CartProcessor
         Cart $container,
         StorefrontContext $context
     ): CalculatedCart {
-
         $price = $this->calculator->calculateAmount(
             $lineItems->getPrices(),
             $deliveries->getShippingCosts(),

@@ -690,8 +690,9 @@ class ProductBasicStruct extends Entity
             return [];
         }
 
-        return $prices->map(function(PriceRuleStruct $rule) use ($taxRules) {
+        return $prices->map(function (PriceRuleStruct $rule) use ($taxRules) {
             $quantity = $rule->getQuantityEnd() ?? $rule->getQuantityStart();
+
             return new PriceDefinition($rule->getGross(), $taxRules, $quantity, true);
         });
     }
@@ -708,7 +709,7 @@ class ProductBasicStruct extends Entity
             return new PriceDefinition($this->getPrice(), $taxRules, 1, true);
         }
 
-        $prices->filter(function(PriceRuleStruct $priceRule) {
+        $prices->filter(function (PriceRuleStruct $priceRule) {
             return $priceRule->getQuantityEnd() === null;
         });
 

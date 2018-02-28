@@ -11,7 +11,6 @@ use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\Entity\Search\Sorting\FieldSorting;
 use Shopware\Api\Entity\Write\FieldException\WriteStackException;
-use Shopware\Api\Product\Collection\PriceRuleCollection;
 use Shopware\Api\Product\Collection\ProductBasicCollection;
 use Shopware\Api\Product\Event\Product\ProductBasicLoadedEvent;
 use Shopware\Api\Product\Event\Product\ProductWrittenEvent;
@@ -298,8 +297,8 @@ class ProductRepositoryTest extends KernelTestCase
         $ruleB = Uuid::uuid4()->toString();
 
         $prices = new \Shopware\Api\Product\Collection\PriceRuleCollection([
-            new PriceRuleStruct(Defaults::CURRENCY, 1, null, $ruleA, 15, 15/1.19),
-            new PriceRuleStruct(Defaults::CURRENCY, 1, null, $ruleB, 10, 10/1.19)
+            new PriceRuleStruct(Defaults::CURRENCY, 1, null, $ruleA, 15, 15 / 1.19),
+            new PriceRuleStruct(Defaults::CURRENCY, 1, null, $ruleB, 10, 10 / 1.19),
         ]);
 
         $id = Uuid::uuid4();
@@ -338,15 +337,14 @@ class ProductRepositoryTest extends KernelTestCase
         $ruleA = Uuid::uuid4()->toString();
 
         $price1 = new \Shopware\Api\Product\Collection\PriceRuleCollection([
-            new PriceRuleStruct(Defaults::CURRENCY, 1, null, $ruleA, 15, 15/1.19)
+            new PriceRuleStruct(Defaults::CURRENCY, 1, null, $ruleA, 15, 15 / 1.19),
         ]);
         $price2 = new \Shopware\Api\Product\Collection\PriceRuleCollection([
-            new PriceRuleStruct(Defaults::CURRENCY, 1, null, $ruleA, 5, 5/1.19)
+            new PriceRuleStruct(Defaults::CURRENCY, 1, null, $ruleA, 5, 5 / 1.19),
         ]);
         $price3 = new \Shopware\Api\Product\Collection\PriceRuleCollection([
-            new PriceRuleStruct(Defaults::CURRENCY, 1, null, $ruleA, 10, 10/1.19)
+            new PriceRuleStruct(Defaults::CURRENCY, 1, null, $ruleA, 10, 10 / 1.19),
         ]);
-
 
         $data = [
             [
@@ -355,7 +353,7 @@ class ProductRepositoryTest extends KernelTestCase
                 'price' => 100,
                 'manufacturer' => ['name' => 'test'],
                 'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
-                'prices' => $price1->toArray()
+                'prices' => $price1->toArray(),
             ],
             [
                 'id' => $id2->toString(),
@@ -363,7 +361,7 @@ class ProductRepositoryTest extends KernelTestCase
                 'price' => 500,
                 'manufacturer' => ['name' => 'test'],
                 'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
-                'prices' => $price2->toArray()
+                'prices' => $price2->toArray(),
             ],
             [
                 'id' => $id3->toString(),
@@ -371,7 +369,7 @@ class ProductRepositoryTest extends KernelTestCase
                 'price' => 500,
                 'manufacturer' => ['name' => 'test'],
                 'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
-                'prices' => $price3->toArray()
+                'prices' => $price3->toArray(),
             ],
         ];
 
@@ -398,7 +396,6 @@ class ProductRepositoryTest extends KernelTestCase
 
         $criteria = new Criteria();
         $criteria->addSorting(new FieldSorting('product.prices', FieldSorting::DESCENDING));
-
 
         /** @var IdSearchResult $products */
         $products = $this->repository->searchIds($criteria, $context);

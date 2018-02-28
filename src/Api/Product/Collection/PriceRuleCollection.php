@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Api\Product\Collection;
 
@@ -31,12 +31,13 @@ class PriceRuleCollection extends Collection
     public function toArray()
     {
         $data = json_decode(json_encode($this), true);
+
         return $data['elements'];
     }
 
     public function sortByQuantity()
     {
-        $this->sort(function(PriceRuleStruct $a, PriceRuleStruct $b) {
+        $this->sort(function (PriceRuleStruct $a, PriceRuleStruct $b) {
             return $a->getQuantityStart() <=> $b->getQuantityStart();
         });
     }
@@ -54,21 +55,22 @@ class PriceRuleCollection extends Collection
         throw new \RuntimeException(sprintf('Price for quantity %s not found', $quantity));
     }
 
-    public function getPriceRulesForContext(ShopContext $context): ?PriceRuleCollection
+    public function getPriceRulesForContext(ShopContext $context): ?self
     {
         foreach ($context->getContextRules() as $ruleId) {
             $rules = $this->filter(
-                function(PriceRuleStruct $rule) use ($ruleId) {
+                function (PriceRuleStruct $rule) use ($ruleId) {
                     return $rule->getRuleId() === $ruleId;
                 }
             );
 
             if ($rules->count() > 0) {
                 $rules->sortByQuantity();
+
                 return $rules;
             }
         }
+
         return null;
     }
-
 }

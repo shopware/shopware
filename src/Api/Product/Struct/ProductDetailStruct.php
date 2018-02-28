@@ -37,19 +37,9 @@ class ProductDetailStruct extends ProductBasicStruct
     protected $translations;
 
     /**
-     * @var string[]
-     */
-    protected $categoryIds = [];
-
-    /**
      * @var CategoryBasicCollection
      */
     protected $categories;
-
-    /**
-     * @var string[]
-     */
-    protected $seoCategoryIds = [];
 
     /**
      * @var CategoryBasicCollection
@@ -57,19 +47,9 @@ class ProductDetailStruct extends ProductBasicStruct
     protected $seoCategories;
 
     /**
-     * @var string[]
-     */
-    protected $tabIds = [];
-
-    /**
      * @var ProductStreamBasicCollection
      */
     protected $tabs;
-
-    /**
-     * @var string[]
-     */
-    protected $streamIds = [];
 
     /**
      * @var ProductStreamBasicCollection
@@ -145,16 +125,6 @@ class ProductDetailStruct extends ProductBasicStruct
         $this->translations = $translations;
     }
 
-    public function getCategoryIds(): array
-    {
-        return $this->categoryIds;
-    }
-
-    public function setCategoryIds(array $categoryIds): void
-    {
-        $this->categoryIds = $categoryIds;
-    }
-
     public function getCategories(): CategoryBasicCollection
     {
         return $this->categories;
@@ -163,16 +133,6 @@ class ProductDetailStruct extends ProductBasicStruct
     public function setCategories(CategoryBasicCollection $categories): void
     {
         $this->categories = $categories;
-    }
-
-    public function getSeoCategoryIds(): array
-    {
-        return $this->seoCategoryIds;
-    }
-
-    public function setSeoCategoryIds(array $seoCategoryIds): void
-    {
-        $this->seoCategoryIds = $seoCategoryIds;
     }
 
     public function getSeoCategories(): CategoryBasicCollection
@@ -185,16 +145,6 @@ class ProductDetailStruct extends ProductBasicStruct
         $this->seoCategories = $seoCategories;
     }
 
-    public function getTabIds(): array
-    {
-        return $this->tabIds;
-    }
-
-    public function setTabIds(array $tabIds): void
-    {
-        $this->tabIds = $tabIds;
-    }
-
     public function getTabs(): ProductStreamBasicCollection
     {
         return $this->tabs;
@@ -203,16 +153,6 @@ class ProductDetailStruct extends ProductBasicStruct
     public function setTabs(ProductStreamBasicCollection $tabs): void
     {
         $this->tabs = $tabs;
-    }
-
-    public function getStreamIds(): array
-    {
-        return $this->streamIds;
-    }
-
-    public function setStreamIds(array $streamIds): void
-    {
-        $this->streamIds = $streamIds;
     }
 
     public function getStreams(): ProductStreamBasicCollection

@@ -109,18 +109,6 @@ class ProductDetailCollection extends ProductBasicCollection
         return $collection;
     }
 
-    public function getAllCategoryIds(): array
-    {
-        $ids = [];
-        foreach ($this->elements as $element) {
-            foreach ($element->getCategoryIds() as $id) {
-                $ids[] = $id;
-            }
-        }
-
-        return $ids;
-    }
-
     public function getAllCategories(): CategoryBasicCollection
     {
         $collection = new CategoryBasicCollection();
@@ -129,18 +117,6 @@ class ProductDetailCollection extends ProductBasicCollection
         }
 
         return $collection;
-    }
-
-    public function getAllSeoCategoryIds(): array
-    {
-        $ids = [];
-        foreach ($this->elements as $element) {
-            foreach ($element->getSeoCategoryIds() as $id) {
-                $ids[] = $id;
-            }
-        }
-
-        return $ids;
     }
 
     public function getAllSeoCategories(): CategoryBasicCollection
@@ -153,18 +129,6 @@ class ProductDetailCollection extends ProductBasicCollection
         return $collection;
     }
 
-    public function getAllTabIds(): array
-    {
-        $ids = [];
-        foreach ($this->elements as $element) {
-            foreach ($element->getTabIds() as $id) {
-                $ids[] = $id;
-            }
-        }
-
-        return $ids;
-    }
-
     public function getAllTabs(): ProductStreamBasicCollection
     {
         $collection = new ProductStreamBasicCollection();
@@ -173,18 +137,6 @@ class ProductDetailCollection extends ProductBasicCollection
         }
 
         return $collection;
-    }
-
-    public function getAllStreamIds(): array
-    {
-        $ids = [];
-        foreach ($this->elements as $element) {
-            foreach ($element->getStreamIds() as $id) {
-                $ids[] = $id;
-            }
-        }
-
-        return $ids;
     }
 
     public function getAllStreams(): ProductStreamBasicCollection

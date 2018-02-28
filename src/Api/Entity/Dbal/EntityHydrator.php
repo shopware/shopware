@@ -24,6 +24,7 @@ use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\Extension;
+use Shopware\Framework\Struct\ArrayStruct;
 
 class EntityHydrator
 {
@@ -63,7 +64,13 @@ class EntityHydrator
                     return Uuid::fromString($bytes)->toString();
                 }, $ids);
 
-                $data[$field->getStructIdMappingProperty()] = $ids;
+                $extension = $entity->getExtension(EntityReader::MANY_TO_MANY_EXTENSION_STORAGE);
+                if (!$extension) {
+                    $extension = new ArrayStruct([]);
+                    $entity->addExtension(EntityReader::MANY_TO_MANY_EXTENSION_STORAGE, $extension);
+                }
+
+                $extension->set($field->getPropertyName(), $ids);
                 continue;
             }
         }

@@ -33,11 +33,6 @@ class ManyToManyAssociationField extends SubresourceField implements Association
     /**
      * @var string
      */
-    private $structIdMappingProperty;
-
-    /**
-     * @var string
-     */
     private $sourceColumn;
 
     /**
@@ -52,7 +47,6 @@ class ManyToManyAssociationField extends SubresourceField implements Association
         bool $loadInBasic,
         string $mappingLocalColumn,
         string $mappingReferenceColumn,
-        string $structIdMappingProperty,
         string $sourceColumn = 'id',
         string $referenceColumn = 'id'
     ) {
@@ -62,7 +56,6 @@ class ManyToManyAssociationField extends SubresourceField implements Association
         $this->mappingDefinition = $mappingDefinition;
         $this->mappingLocalColumn = $mappingLocalColumn;
         $this->mappingReferenceColumn = $mappingReferenceColumn;
-        $this->structIdMappingProperty = $structIdMappingProperty;
         $this->sourceColumn = $sourceColumn;
         $this->referenceColumn = $referenceColumn;
     }
@@ -134,11 +127,6 @@ class ManyToManyAssociationField extends SubresourceField implements Association
     public function getMappingReferenceColumn(): string
     {
         return $this->mappingReferenceColumn;
-    }
-
-    public function getStructIdMappingProperty(): string
-    {
-        return $this->structIdMappingProperty;
     }
 
     public function getLocalField(): string

@@ -111,18 +111,6 @@ class ShopDetailCollection extends ShopBasicCollection
         return $collection;
     }
 
-    public function getAllCurrencyIds(): array
-    {
-        $ids = [];
-        foreach ($this->elements as $element) {
-            foreach ($element->getCurrencyIds() as $id) {
-                $ids[] = $id;
-            }
-        }
-
-        return $ids;
-    }
-
     public function getAllCurrencies(): CurrencyBasicCollection
     {
         $collection = new CurrencyBasicCollection();

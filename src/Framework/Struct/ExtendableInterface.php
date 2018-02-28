@@ -19,7 +19,7 @@ interface ExtendableInterface
      */
     public function addExtensions(array $extensions): void;
 
-    public function getExtension(string $name): Struct;
+    public function getExtension(string $name): ?Struct;
 
     public function hasExtension(string $name): bool;
 

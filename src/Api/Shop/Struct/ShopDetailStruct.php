@@ -58,11 +58,6 @@ class ShopDetailStruct extends ShopBasicStruct
     protected $children;
 
     /**
-     * @var string[]
-     */
-    protected $currencyIds = [];
-
-    /**
      * @var CurrencyBasicCollection
      */
     protected $currencies;
@@ -162,16 +157,6 @@ class ShopDetailStruct extends ShopBasicStruct
     public function setChildren(ShopBasicCollection $children): void
     {
         $this->children = $children;
-    }
-
-    public function getCurrencyIds(): array
-    {
-        return $this->currencyIds;
-    }
-
-    public function setCurrencyIds(array $currencyIds): void
-    {
-        $this->currencyIds = $currencyIds;
     }
 
     public function getCurrencies(): CurrencyBasicCollection

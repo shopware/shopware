@@ -30,19 +30,9 @@ class CategoryDetailStruct extends CategoryBasicStruct
     protected $shops;
 
     /**
-     * @var string[]
-     */
-    protected $productIds = [];
-
-    /**
      * @var ProductBasicCollection
      */
     protected $products;
-
-    /**
-     * @var string[]
-     */
-    protected $seoProductIds = [];
 
     /**
      * @var ProductBasicCollection
@@ -102,16 +92,6 @@ class CategoryDetailStruct extends CategoryBasicStruct
         $this->shops = $shops;
     }
 
-    public function getProductIds(): array
-    {
-        return $this->productIds;
-    }
-
-    public function setProductIds(array $productIds): void
-    {
-        $this->productIds = $productIds;
-    }
-
     public function getProducts(): ProductBasicCollection
     {
         return $this->products;
@@ -120,16 +100,6 @@ class CategoryDetailStruct extends CategoryBasicStruct
     public function setProducts(ProductBasicCollection $products): void
     {
         $this->products = $products;
-    }
-
-    public function getSeoProductIds(): array
-    {
-        return $this->seoProductIds;
-    }
-
-    public function setSeoProductIds(array $seoProductIds): void
-    {
-        $this->seoProductIds = $seoProductIds;
     }
 
     public function getSeoProducts(): ProductBasicCollection

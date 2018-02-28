@@ -73,7 +73,7 @@ class CurrencyDefinition extends EntityDefinition
             new DateField('updated_at', 'updatedAt'),
             (new TranslationsAssociationField('translations', CurrencyTranslationDefinition::class, 'currency_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
             (new OneToManyAssociationField('orders', OrderDefinition::class, 'currency_id', false, 'id'))->setFlags(new RestrictDelete()),
-            (new ManyToManyAssociationField('shops', ShopDefinition::class, ShopCurrencyDefinition::class, false, 'currency_id', 'shop_id', 'shopIds'))->setFlags(new CascadeDelete()),
+            (new ManyToManyAssociationField('shops', ShopDefinition::class, ShopCurrencyDefinition::class, false, 'currency_id', 'shop_id'))->setFlags(new CascadeDelete()),
         ]);
 
         foreach (self::$extensions as $extension) {

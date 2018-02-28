@@ -138,8 +138,8 @@ class ShopDefinition extends EntityDefinition
             (new OneToManyAssociationField('seoUrls', SeoUrlDefinition::class, 'shop_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
             (new OneToManyAssociationField('templateConfigFormFieldValues', ShopTemplateConfigFormFieldValueDefinition::class, 'shop_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
             (new OneToManyAssociationField('snippets', SnippetDefinition::class, 'shop_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
-            (new ManyToManyAssociationField('productSeoCategories', CategoryDefinition::class, ProductSeoCategoryDefinition::class, false, 'shop_id', 'id', 'productSeoCategories'))->setFlags(new CascadeDelete(), new WriteOnly()),
-            (new ManyToManyAssociationField('currencies', CurrencyDefinition::class, ShopCurrencyDefinition::class, false, 'shop_id', 'currency_id', 'currencyIds'))->setFlags(new CascadeDelete()),
+            (new ManyToManyAssociationField('productSeoCategories', CategoryDefinition::class, ProductSeoCategoryDefinition::class, false, 'shop_id', 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
+            (new ManyToManyAssociationField('currencies', CurrencyDefinition::class, ShopCurrencyDefinition::class, false, 'shop_id', 'currency_id'))->setFlags(new CascadeDelete()),
         ]);
 
         foreach (self::$extensions as $extension) {

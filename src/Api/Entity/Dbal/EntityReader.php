@@ -28,6 +28,8 @@ use Shopware\Framework\Struct\Struct;
 
 class EntityReader implements EntityReaderInterface
 {
+    public const MANY_TO_MANY_EXTENSION_STORAGE = 'many_to_many_storage';
+
     /**
      * @var Connection
      */
@@ -131,6 +133,11 @@ class EntityReader implements EntityReaderInterface
         $associations = $fields->filterInstance(ManyToManyAssociationField::class);
         foreach ($associations as $association) {
             $this->loadManyToMany($association, $context, $collection);
+        }
+
+        /** @var Entity $struct */
+        foreach ($collection as $struct) {
+            $struct->removeExtension(self::MANY_TO_MANY_EXTENSION_STORAGE);
         }
 
         $collection->sortByIdArray($ids);
@@ -342,16 +349,18 @@ class EntityReader implements EntityReaderInterface
 
     private function loadManyToMany(ManyToManyAssociationField $association, ShopContext $context, EntityCollection $collection): void
     {
-        $idProperty = $association->getStructIdMappingProperty();
-
         //collect all ids of many to many association which already stored inside the struct instances
-        $ids = $this->collectManyToManyIds($collection, $idProperty);
+        $ids = $this->collectManyToManyIds($collection, $association);
 
         $data = $this->readBasic($association->getReferenceDefinition(), $ids, $context);
 
+        /** @var Entity $struct */
         foreach ($collection as $struct) {
+            /** @var ArrayStruct $extension */
+            $extension = $struct->getExtension('many_to_many_storage');
+
             //use assign function to avoid setter name building
-            $structData = $data->getList($struct->get($idProperty));
+            $structData = $data->getList($extension->get($association->getPropertyName()));
 
             if ($association->is(Extension::class)) {
                 $struct->addExtension($association->getPropertyName(), $structData);
@@ -405,11 +414,12 @@ class EntityReader implements EntityReaderInterface
         );
     }
 
-    private function collectManyToManyIds(EntityCollection $collection, string $property): array
+    private function collectManyToManyIds(EntityCollection $collection, AssociationInterface $association): array
     {
         $ids = [];
         foreach ($collection as $struct) {
-            $tmp = $struct->get($property);
+            /** @var Field $association */
+            $tmp = $struct->getExtension(self::MANY_TO_MANY_EXTENSION_STORAGE)->get($association->getPropertyName());
             foreach ($tmp as $id) {
                 $ids[] = $id;
             }

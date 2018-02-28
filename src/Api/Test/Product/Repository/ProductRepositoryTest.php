@@ -771,9 +771,9 @@ class ProductRepositoryTest extends KernelTestCase
         /** @var ProductDetailStruct $red */
         $red = $products->get($redId);
 
-        $this->assertEquals([$parentCategory], $parent->getCategoryIds());
-        $this->assertEquals([$parentCategory], $red->getCategoryIds());
-        $this->assertEquals([$greenCategory], $green->getCategoryIds());
+        $this->assertEquals([$parentCategory], array_values($parent->getCategories()->getIds()));
+        $this->assertEquals([$parentCategory], array_values($red->getCategories()->getIds()));
+        $this->assertEquals([$greenCategory], array_values($green->getCategories()->getIds()));
 
         $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromString($parentId)->getBytes()]);
         $this->assertContains($parentCategory, json_decode($row['category_tree'], true));

@@ -88,18 +88,6 @@ class CategoryDetailCollection extends CategoryBasicCollection
         return $collection;
     }
 
-    public function getAllProductIds(): array
-    {
-        $ids = [];
-        foreach ($this->elements as $element) {
-            foreach ($element->getProductIds() as $id) {
-                $ids[] = $id;
-            }
-        }
-
-        return $ids;
-    }
-
     public function getAllProducts(): ProductBasicCollection
     {
         $collection = new ProductBasicCollection();
@@ -108,18 +96,6 @@ class CategoryDetailCollection extends CategoryBasicCollection
         }
 
         return $collection;
-    }
-
-    public function getAllSeoProductIds(): array
-    {
-        $ids = [];
-        foreach ($this->elements as $element) {
-            foreach ($element->getSeoProductIds() as $id) {
-                $ids[] = $id;
-            }
-        }
-
-        return $ids;
     }
 
     public function getAllSeoProducts(): ProductBasicCollection

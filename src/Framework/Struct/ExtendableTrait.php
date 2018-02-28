@@ -67,11 +67,14 @@ trait ExtendableTrait
      *
      * @param $name
      *
-     * @return Struct
+     * @return null|Struct
      */
-    public function getExtension(string $name): Struct
+    public function getExtension(string $name): ?Struct
     {
-        return $this->extensions[$name];
+        if ($this->hasExtension($name)) {
+            return $this->extensions[$name];
+        }
+        return null;
     }
 
     /**
@@ -102,4 +105,13 @@ trait ExtendableTrait
     {
         $this->extensions = $extensions;
     }
+
+
+    public function removeExtension(string $name)
+    {
+        if ($this->hasExtension($name)) {
+            unset($this->extensions[$name]);
+        }
+    }
 }
+

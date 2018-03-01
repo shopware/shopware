@@ -41,7 +41,7 @@ Component.register('sw-icon', {
         },
 
         iconSetPath() {
-            return `/static/svg/sw-icons.svg#${this.iconNamePrefix + this.name}`;
+            return `/static/img/sw-icons.svg#${this.iconNamePrefix + this.name}`;
         },
 
         iconClasses() {

@@ -4,25 +4,15 @@ import template from './sw-alert.html.twig';
 
 Component.register('sw-alert', {
     props: {
-        info: {
-            type: Boolean,
-            required: false,
-            default: false
-        },
-        warning: {
-            type: Boolean,
-            required: false,
-            default: false
-        },
-        error: {
-            type: Boolean,
-            required: false,
-            default: false
-        },
-        success: {
-            type: Boolean,
-            required: false,
-            default: false
+        variant: {
+            type: String,
+            default: '',
+            validator(value) {
+                if (!value.length) {
+                    return true;
+                }
+                return ['info', 'warning', 'error', 'success'].indexOf(value) !== -1;
+            }
         },
         title: {
             type: String,
@@ -31,32 +21,30 @@ Component.register('sw-alert', {
     },
     computed: {
         alertClasses() {
-            return {
-                'sw-alert--info': this.info,
-                'sw-alert--warning': this.warning,
-                'sw-alert--error': this.error,
-                'sw-alert--success': this.success
-            };
+            return `sw-alert--${this.variant}`;
         },
 
         alertIcon() {
-            if (this.info) {
-                return 'default-badge-info';
+            let alertIcon;
+
+            switch (this.variant) {
+            case 'info':
+                alertIcon = 'default-badge-info';
+                break;
+            case 'warning':
+                alertIcon = 'default-badge-warning';
+                break;
+            case 'error':
+                alertIcon = 'default-badge-error';
+                break;
+            case 'success':
+                alertIcon = 'default-basic-checkmark-circle';
+                break;
+            default:
+                alertIcon = 'default-bell-bell';
             }
 
-            if (this.warning) {
-                return 'default-badge-warning';
-            }
-
-            if (this.error) {
-                return 'default-badge-error';
-            }
-
-            if (this.success) {
-                return 'default-basic-checkmark-circle';
-            }
-
-            return 'default-bell-bell';
+            return alertIcon;
         }
     },
 

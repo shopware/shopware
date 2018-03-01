@@ -21,6 +21,7 @@ use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
+use Shopware\Api\Entity\Write\Flag\SearchRanking;
 use Shopware\Api\Mail\Collection\MailBasicCollection;
 use Shopware\Api\Mail\Collection\MailDetailCollection;
 use Shopware\Api\Mail\Event\Mail\MailDeletedEvent;
@@ -63,21 +64,21 @@ class MailDefinition extends EntityDefinition
             new VersionField(),
             new FkField('order_state_id', 'orderStateId', OrderStateDefinition::class),
             new ReferenceVersionField(OrderStateDefinition::class),
-            (new StringField('name', 'name'))->setFlags(new Required()),
+            (new StringField('name', 'name'))->setFlags(new Required(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
             (new BoolField('is_html', 'isHtml'))->setFlags(new Required()),
             (new StringField('attachment', 'attachment'))->setFlags(new Required()),
             new TranslatedField(new StringField('from_mail', 'fromMail')),
             new TranslatedField(new StringField('from_name', 'fromName')),
-            new TranslatedField(new StringField('subject', 'subject')),
-            new TranslatedField(new LongTextField('content', 'content')),
-            new TranslatedField(new LongTextField('content_html', 'contentHtml')),
+            (new TranslatedField(new StringField('subject', 'subject')))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
+            (new TranslatedField(new LongTextField('content', 'content')))->setFlags(new SearchRanking(self::LOW_SEARCH_RAKING)),
+            (new TranslatedField(new LongTextField('content_html', 'contentHtml')))->setFlags(new SearchRanking(self::LOW_SEARCH_RAKING)),
             new IntField('mail_type', 'type'),
             new LongTextField('context', 'context'),
             new BoolField('dirty', 'dirty'),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
             new ManyToOneAssociationField('orderState', 'order_state_id', OrderStateDefinition::class, false),
-            (new OneToManyAssociationField('attachments', MailAttachmentDefinition::class, 'mail_id', false, 'id'))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('attachments', MailAttachmentDefinition::class, 'mail_id', false, 'id'))->setFlags(new CascadeDelete(), new SearchRanking(self::ASSOCIATION_SEARCH_RANKING)),
             (new TranslationsAssociationField('translations', MailTranslationDefinition::class, 'mail_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
         ]);
 

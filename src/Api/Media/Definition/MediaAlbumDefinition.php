@@ -22,6 +22,7 @@ use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Entity\Write\Flag\RestrictDelete;
+use Shopware\Api\Entity\Write\Flag\SearchRanking;
 use Shopware\Api\Media\Collection\MediaAlbumBasicCollection;
 use Shopware\Api\Media\Collection\MediaAlbumDetailCollection;
 use Shopware\Api\Media\Event\MediaAlbum\MediaAlbumDeletedEvent;
@@ -63,7 +64,7 @@ class MediaAlbumDefinition extends EntityDefinition
             new VersionField(),
             new FkField('parent_id', 'parentId', self::class),
             new ReferenceVersionField(self::class, 'parent_version_id'),
-            new TranslatedField(new StringField('name', 'name')),
+            (new TranslatedField(new StringField('name', 'name')))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
             new IntField('position', 'position'),
             new BoolField('create_thumbnails', 'createThumbnails'),
             new LongTextField('thumbnail_size', 'thumbnailSize'),

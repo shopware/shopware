@@ -23,6 +23,7 @@ use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
+use Shopware\Api\Entity\Write\Flag\SearchRanking;
 
 class CustomerAddressDefinition extends EntityDefinition
 {
@@ -66,18 +67,18 @@ class CustomerAddressDefinition extends EntityDefinition
             new ReferenceVersionField(CountryStateDefinition::class),
 
             (new StringField('salutation', 'salutation'))->setFlags(new Required()),
-            (new StringField('first_name', 'firstName'))->setFlags(new Required()),
-            (new StringField('last_name', 'lastName'))->setFlags(new Required()),
-            (new StringField('zipcode', 'zipcode'))->setFlags(new Required()),
-            (new StringField('city', 'city'))->setFlags(new Required()),
-            new StringField('company', 'company'),
+            (new StringField('first_name', 'firstName'))->setFlags(new Required(), new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
+            (new StringField('last_name', 'lastName'))->setFlags(new Required(), new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
+            (new StringField('zipcode', 'zipcode'))->setFlags(new Required(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
+            (new StringField('city', 'city'))->setFlags(new Required(), new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
+            (new StringField('company', 'company'))->setFlags(new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
             new StringField('department', 'department'),
             new StringField('title', 'title'),
-            new StringField('street', 'street'),
+            (new StringField('street', 'street'))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
             new StringField('vat_id', 'vatId'),
             new StringField('phone_number', 'phoneNumber'),
-            new StringField('additional_address_line1', 'additionalAddressLine1'),
-            new StringField('additional_address_line2', 'additionalAddressLine2'),
+            (new StringField('additional_address_line1', 'additionalAddressLine1'))->setFlags(new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
+            (new StringField('additional_address_line2', 'additionalAddressLine2'))->setFlags(new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
             new ManyToOneAssociationField('customer', 'customer_id', CustomerDefinition::class, false),

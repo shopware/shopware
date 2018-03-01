@@ -20,6 +20,9 @@ use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
+use Shopware\Api\Entity\Write\Flag\RestrictDelete;
+use Shopware\Api\Entity\Write\Flag\SearchRanking;
+use Shopware\Api\Entity\Write\Flag\WriteOnly;
 use Shopware\Api\Listing\Definition\ListingSortingDefinition;
 use Shopware\Api\Product\Collection\ProductStreamBasicCollection;
 use Shopware\Api\Product\Collection\ProductStreamDetailCollection;
@@ -62,15 +65,15 @@ class ProductStreamDefinition extends EntityDefinition
             new VersionField(),
             new FkField('listing_sorting_id', 'listingSortingId', ListingSortingDefinition::class),
             new ReferenceVersionField(ListingSortingDefinition::class),
-            (new StringField('name', 'name'))->setFlags(new Required()),
+            (new StringField('name', 'name'))->setFlags(new Required(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
             new LongTextField('conditions', 'conditions'),
             new IntField('type', 'type'),
-            new LongTextField('description', 'description'),
+            (new LongTextField('description', 'description'))->setFlags(new SearchRanking(self::LOW_SEARCH_RAKING)),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            new ManyToOneAssociationField('listingSorting', 'listing_sorting_id', ListingSortingDefinition::class, true),
-            new OneToManyAssociationField('categories', CategoryDefinition::class, 'product_stream_id', false, 'id'),
-            (new ManyToManyAssociationField('productTabs', ProductDefinition::class, ProductStreamTabDefinition::class, false, 'product_stream_id', 'product_id', 'productTabIds'))->setFlags(new CascadeDelete()),
+            (new ManyToOneAssociationField('listingSorting', 'listing_sorting_id', ListingSortingDefinition::class, true))->setFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('categories', CategoryDefinition::class, 'product_stream_id', false, 'id'))->setFlags(new WriteOnly()),
+            (new ManyToManyAssociationField('productTabs', ProductDefinition::class, ProductStreamTabDefinition::class, false, 'product_stream_id', 'product_id', 'productTabIds'))->setFlags(new CascadeDelete(), new WriteOnly()),
             (new ManyToManyAssociationField('products', ProductDefinition::class, ProductStreamAssignmentDefinition::class, false, 'product_stream_id', 'product_id', 'productIds'))->setFlags(new CascadeDelete()),
         ]);
 

@@ -8,30 +8,13 @@ use Shopware\Api\Tax\Collection\TaxAreaRuleBasicCollection;
 class TaxDetailStruct extends TaxBasicStruct
 {
     /**
-     * @var ProductBasicCollection
-     */
-    protected $products;
-
-    /**
      * @var TaxAreaRuleBasicCollection
      */
     protected $areaRules;
 
     public function __construct()
     {
-        $this->products = new ProductBasicCollection();
-
         $this->areaRules = new TaxAreaRuleBasicCollection();
-    }
-
-    public function getProducts(): ProductBasicCollection
-    {
-        return $this->products;
-    }
-
-    public function setProducts(ProductBasicCollection $products): void
-    {
-        $this->products = $products;
     }
 
     public function getAreaRules(): TaxAreaRuleBasicCollection

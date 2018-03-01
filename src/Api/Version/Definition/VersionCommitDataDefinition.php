@@ -15,6 +15,7 @@ use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
+use Shopware\Api\Entity\Write\Flag\SearchRanking;
 use Shopware\Api\Version\Collection\VersionCommitDataBasicCollection;
 use Shopware\Api\Version\Event\VersionCommitData\VersionCommitDataDeletedEvent;
 use Shopware\Api\Version\Event\VersionCommitData\VersionCommitDataWrittenEvent;
@@ -60,10 +61,10 @@ class VersionCommitDataDefinition extends EntityDefinition
             new ManyToOneAssociationField('commit', 'version_commit_id', VersionCommitDefinition::class, false),
             new IdField('user_id', 'userId'),
             new IntField('ai', 'ai'),
-            (new StringField('entity_name', 'entityName'))->setFlags(new Required()),
+            (new StringField('entity_name', 'entityName'))->setFlags(new Required(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
             (new ArrayField('entity_id', 'entityId'))->setFlags(new Required()),
-            (new StringField('action', 'action'))->setFlags(new Required()),
-            (new LongTextField('payload', 'payload'))->setFlags(new Required()),
+            (new StringField('action', 'action'))->setFlags(new Required(), new SearchRanking(self::LOW_SEARCH_RAKING)),
+            (new LongTextField('payload', 'payload'))->setFlags(new Required(), new SearchRanking(self::LOW_SEARCH_RAKING)),
             (new DateField('created_at', 'createdAt'))->setFlags(new Required()),
         ]);
 

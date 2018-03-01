@@ -29,6 +29,7 @@ use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\Inherited;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
+use Shopware\Api\Entity\Write\Flag\SearchRanking;
 use Shopware\Api\Product\Collection\ProductBasicCollection;
 use Shopware\Api\Product\Collection\ProductDetailCollection;
 use Shopware\Api\Product\Event\Product\ProductDeletedEvent;
@@ -97,8 +98,8 @@ class ProductDefinition extends EntityDefinition
 
             //inherited data fields
             (new FloatField('price', 'price'))->setFlags(new Inherited(), new Required()),
-            (new StringField('supplier_number', 'supplierNumber'))->setFlags(new Inherited()),
-            (new StringField('ean', 'ean'))->setFlags(new Inherited()),
+            (new StringField('supplier_number', 'supplierNumber'))->setFlags(new Inherited(), new SearchRanking(self::LOW_SEARCH_RAKING)),
+            (new StringField('ean', 'ean'))->setFlags(new Inherited(), new SearchRanking(self::LOW_SEARCH_RAKING)),
             (new BoolField('is_closeout', 'isCloseout'))->setFlags(new Inherited()),
             (new IntField('min_stock', 'minStock'))->setFlags(new Inherited()),
             (new IntField('purchase_steps', 'purchaseSteps'))->setFlags(new Inherited()),
@@ -131,8 +132,8 @@ class ProductDefinition extends EntityDefinition
             new IdField('unit_join_id', 'unitJoinId'),
 
             (new TranslatedField(new StringField('additional_text', 'additionalText')))->setFlags(new Inherited()),
-            (new TranslatedField(new StringField('name', 'name')))->setFlags(new Inherited()),
-            (new TranslatedField(new LongTextField('keywords', 'keywords')))->setFlags(new Inherited()),
+            (new TranslatedField(new StringField('name', 'name')))->setFlags(new Inherited(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
+            (new TranslatedField(new LongTextField('keywords', 'keywords')))->setFlags(new Inherited(), new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
             (new TranslatedField(new LongTextField('description', 'description')))->setFlags(new Inherited()),
             (new TranslatedField(new LongTextWithHtmlField('description_long', 'descriptionLong')))->setFlags(new Inherited()),
             (new TranslatedField(new StringField('meta_title', 'metaTitle')))->setFlags(new Inherited()),
@@ -144,7 +145,7 @@ class ProductDefinition extends EntityDefinition
 
             //inherited associations
             (new ManyToOneAssociationField('tax', 'tax_id', TaxDefinition::class, true, 'id', 'tax_join_id'))->setFlags(new Inherited()),
-            (new ManyToOneAssociationField('manufacturer', 'product_manufacturer_id', ProductManufacturerDefinition::class, true, 'id', 'manufacturer_join_id'))->setFlags(new Inherited()),
+            (new ManyToOneAssociationField('manufacturer', 'product_manufacturer_id', ProductManufacturerDefinition::class, true, 'id', 'manufacturer_join_id'))->setFlags(new Inherited(), new SearchRanking(self::ASSOCIATION_SEARCH_RANKING)),
             (new ManyToOneAssociationField('unit', 'unit_id', UnitDefinition::class, true, 'id', 'unit_join_id'))->setFlags(new Inherited()),
             (new OneToManyAssociationField('media', ProductMediaDefinition::class, 'product_id', false, 'media_join_id'))->setFlags(new CascadeDelete(), new Inherited()),
             (new ManyToManyAssociationField('categories', CategoryDefinition::class, ProductCategoryDefinition::class, false, 'product_id', 'category_id', 'category_join_id'))->setFlags(new CascadeDelete(), new Inherited()),
@@ -153,7 +154,7 @@ class ProductDefinition extends EntityDefinition
             (new ManyToManyAssociationField('seoCategories', CategoryDefinition::class, ProductSeoCategoryDefinition::class, false, 'product_id', 'category_id'))->setFlags(new CascadeDelete()),
             (new ManyToManyAssociationField('tabs', ProductStreamDefinition::class, ProductStreamTabDefinition::class, false, 'product_id', 'product_stream_id'))->setFlags(new CascadeDelete()),
             (new ManyToManyAssociationField('streams', ProductStreamDefinition::class, ProductStreamAssignmentDefinition::class, false, 'product_id', 'product_stream_id'))->setFlags(new CascadeDelete()),
-            (new OneToManyAssociationField('searchKeywords', ProductSearchKeywordDefinition::class, 'product_id', false, 'id'))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('searchKeywords', ProductSearchKeywordDefinition::class, 'product_id', false, 'id'))->setFlags(new CascadeDelete(), new SearchRanking(self::ASSOCIATION_SEARCH_RANKING)),
             (new TranslationsAssociationField('translations', ProductTranslationDefinition::class, 'product_id', false, 'id'))->setFlags(new Inherited(), new CascadeDelete(), new Required()),
         ]);
 

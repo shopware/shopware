@@ -27,6 +27,8 @@ use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Entity\Write\Flag\RestrictDelete;
+use Shopware\Api\Entity\Write\Flag\SearchRanking;
+use Shopware\Api\Entity\Write\Flag\WriteOnly;
 use Shopware\Api\Order\Definition\OrderDefinition;
 use Shopware\Api\Shop\Definition\ShopCurrencyDefinition;
 use Shopware\Api\Shop\Definition\ShopDefinition;
@@ -63,17 +65,17 @@ class CurrencyDefinition extends EntityDefinition
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
             (new FloatField('factor', 'factor'))->setFlags(new Required()),
-            (new StringField('symbol', 'symbol'))->setFlags(new Required()),
-            new TranslatedField(new StringField('short_name', 'shortName')),
-            new TranslatedField(new StringField('name', 'name')),
+            (new StringField('symbol', 'symbol'))->setFlags(new Required(), new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
+            (new TranslatedField(new StringField('short_name', 'shortName')))->setFlags(new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
+            (new TranslatedField(new StringField('name', 'name')))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
             new BoolField('is_default', 'isDefault'),
             new IntField('symbol_position', 'symbolPosition'),
             new IntField('position', 'position'),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
             (new TranslationsAssociationField('translations', CurrencyTranslationDefinition::class, 'currency_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
-            (new OneToManyAssociationField('orders', OrderDefinition::class, 'currency_id', false, 'id'))->setFlags(new RestrictDelete()),
-            (new ManyToManyAssociationField('shops', ShopDefinition::class, ShopCurrencyDefinition::class, false, 'currency_id', 'shop_id'))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('orders', OrderDefinition::class, 'currency_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
+            (new ManyToManyAssociationField('shops', ShopDefinition::class, ShopCurrencyDefinition::class, false, 'currency_id', 'shop_id'))->setFlags(new CascadeDelete(), new WriteOnly()),
         ]);
 
         foreach (self::$extensions as $extension) {

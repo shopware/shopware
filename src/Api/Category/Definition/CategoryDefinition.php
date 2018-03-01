@@ -30,6 +30,8 @@ use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Entity\Write\Flag\RestrictDelete;
+use Shopware\Api\Entity\Write\Flag\SearchRanking;
+use Shopware\Api\Entity\Write\Flag\WriteOnly;
 use Shopware\Api\Media\Definition\MediaDefinition;
 use Shopware\Api\Product\Definition\ProductCategoryDefinition;
 use Shopware\Api\Product\Definition\ProductDefinition;
@@ -78,7 +80,6 @@ class CategoryDefinition extends EntityDefinition
             new FkField('product_stream_id', 'productStreamId', ProductStreamDefinition::class),
             new ReferenceVersionField(ProductStreamDefinition::class),
 
-            new TranslatedField(new StringField('name', 'name')),
             new LongTextField('path', 'path'),
             new IntField('position', 'position'),
             new IntField('level', 'level'),
@@ -94,6 +95,7 @@ class CategoryDefinition extends EntityDefinition
             new LongTextField('facet_ids', 'facetIds'),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
+            (new TranslatedField(new StringField('name', 'name')))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
             new TranslatedField(new LongTextField('path_names', 'pathNames')),
             new TranslatedField(new LongTextField('meta_keywords', 'metaKeywords')),
             new TranslatedField(new StringField('meta_title', 'metaTitle')),
@@ -105,9 +107,9 @@ class CategoryDefinition extends EntityDefinition
             new ManyToOneAssociationField('productStream', 'product_stream_id', ProductStreamDefinition::class, true),
             (new OneToManyAssociationField('children', self::class, 'parent_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField('translations', CategoryTranslationDefinition::class, 'category_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
-            (new OneToManyAssociationField('shops', ShopDefinition::class, 'category_id', false, 'id'))->setFlags(new RestrictDelete()),
-            (new ManyToManyAssociationField('products', ProductDefinition::class, ProductCategoryDefinition::class, false, 'category_id', 'product_id', 'id', 'category_join_id'))->setFlags(new CascadeDelete()),
-            (new ManyToManyAssociationField('seoProducts', ProductDefinition::class, ProductSeoCategoryDefinition::class, false, 'category_id', 'product_id'))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('shops', ShopDefinition::class, 'category_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
+            (new ManyToManyAssociationField('products', ProductDefinition::class, ProductCategoryDefinition::class, false, 'category_id', 'product_id', 'id', 'category_join_id'))->setFlags(new CascadeDelete(), new WriteOnly()),
+            (new ManyToManyAssociationField('seoProducts', ProductDefinition::class, ProductSeoCategoryDefinition::class, false, 'category_id', 'product_id'))->setFlags(new CascadeDelete(), new WriteOnly()),
         ]);
 
         foreach (self::$extensions as $extension) {

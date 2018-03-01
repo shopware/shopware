@@ -18,6 +18,8 @@ use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
+use Shopware\Api\Entity\Write\Flag\SearchRanking;
+use Shopware\Api\Entity\Write\Flag\WriteOnly;
 use Shopware\Api\Listing\Collection\ListingSortingBasicCollection;
 use Shopware\Api\Listing\Collection\ListingSortingDetailCollection;
 use Shopware\Api\Listing\Event\ListingSorting\ListingSortingDeletedEvent;
@@ -59,14 +61,14 @@ class ListingSortingDefinition extends EntityDefinition
             new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new LongTextField('payload', 'payload'))->setFlags(new Required()),
-            new TranslatedField(new StringField('label', 'label')),
+            (new TranslatedField(new StringField('label', 'label')))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
             new BoolField('active', 'active'),
             new BoolField('display_in_categories', 'displayInCategories'),
             new IntField('position', 'position'),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
             (new TranslationsAssociationField('translations', ListingSortingTranslationDefinition::class, 'listing_sorting_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
-            new OneToManyAssociationField('productStreams', ProductStreamDefinition::class, 'listing_sorting_id', false, 'id'),
+            (new OneToManyAssociationField('productStreams', ProductStreamDefinition::class, 'listing_sorting_id', false, 'id'))->setFlags(new WriteOnly()),
         ]);
 
         foreach (self::$extensions as $extension) {

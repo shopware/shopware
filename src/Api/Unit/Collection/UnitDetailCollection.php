@@ -12,28 +12,6 @@ class UnitDetailCollection extends UnitBasicCollection
      */
     protected $elements = [];
 
-    public function getProductIds(): array
-    {
-        $ids = [];
-        foreach ($this->elements as $element) {
-            foreach ($element->getProducts()->getIds() as $id) {
-                $ids[] = $id;
-            }
-        }
-
-        return $ids;
-    }
-
-    public function getProducts(): ProductBasicCollection
-    {
-        $collection = new ProductBasicCollection();
-        foreach ($this->elements as $element) {
-            $collection->fill($element->getProducts()->getElements());
-        }
-
-        return $collection;
-    }
-
     public function getTranslationIds(): array
     {
         $ids = [];

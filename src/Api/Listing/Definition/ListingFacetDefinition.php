@@ -17,6 +17,7 @@ use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
+use Shopware\Api\Entity\Write\Flag\SearchRanking;
 use Shopware\Api\Listing\Collection\ListingFacetBasicCollection;
 use Shopware\Api\Listing\Collection\ListingFacetDetailCollection;
 use Shopware\Api\Listing\Event\ListingFacet\ListingFacetDeletedEvent;
@@ -58,7 +59,7 @@ class ListingFacetDefinition extends EntityDefinition
             new VersionField(),
             (new StringField('unique_key', 'uniqueKey'))->setFlags(new Required()),
             (new LongTextField('payload', 'payload'))->setFlags(new Required()),
-            new TranslatedField(new StringField('name', 'name')),
+            (new TranslatedField(new StringField('name', 'name')))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
             new BoolField('active', 'active'),
             new BoolField('display_in_categories', 'displayInCategories'),
             new BoolField('deletable', 'deletable'),

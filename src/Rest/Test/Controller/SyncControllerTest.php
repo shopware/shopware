@@ -216,9 +216,9 @@ class SyncControllerTest extends ApiTestCase
         $this->assertContains($category, $categories);
         $this->assertCount(1, $categories);
 
-        $client->request('GET', '/api/category/' . $category);
+        $client->request('GET', '/api/category/' . $category . '/products/');
         $responseData = json_decode($client->getResponse()->getContent(), true);
-        $products = array_column($responseData['data']['relationships']['products']['data'], 'id');
+        $products = array_column($responseData['data'], 'id');
 
         $this->assertContains($product, $products);
         $this->assertContains($product2, $products);

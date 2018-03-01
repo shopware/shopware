@@ -26,39 +26,11 @@ class CountryDetailStruct extends CountryBasicStruct
      */
     protected $translations;
 
-    /**
-     * @var CustomerAddressBasicCollection
-     */
-    protected $customerAddresses;
-
-    /**
-     * @var OrderAddressBasicCollection
-     */
-    protected $orderAddresses;
-
-    /**
-     * @var ShopBasicCollection
-     */
-    protected $shops;
-
-    /**
-     * @var TaxAreaRuleBasicCollection
-     */
-    protected $taxAreaRules;
-
     public function __construct()
     {
         $this->states = new CountryStateBasicCollection();
 
         $this->translations = new CountryTranslationBasicCollection();
-
-        $this->customerAddresses = new CustomerAddressBasicCollection();
-
-        $this->orderAddresses = new OrderAddressBasicCollection();
-
-        $this->shops = new ShopBasicCollection();
-
-        $this->taxAreaRules = new TaxAreaRuleBasicCollection();
     }
 
     public function getArea(): ?CountryAreaBasicStruct
@@ -89,45 +61,5 @@ class CountryDetailStruct extends CountryBasicStruct
     public function setTranslations(CountryTranslationBasicCollection $translations): void
     {
         $this->translations = $translations;
-    }
-
-    public function getCustomerAddresses(): CustomerAddressBasicCollection
-    {
-        return $this->customerAddresses;
-    }
-
-    public function setCustomerAddresses(CustomerAddressBasicCollection $customerAddresses): void
-    {
-        $this->customerAddresses = $customerAddresses;
-    }
-
-    public function getOrderAddresses(): OrderAddressBasicCollection
-    {
-        return $this->orderAddresses;
-    }
-
-    public function setOrderAddresses(OrderAddressBasicCollection $orderAddresses): void
-    {
-        $this->orderAddresses = $orderAddresses;
-    }
-
-    public function getShops(): ShopBasicCollection
-    {
-        return $this->shops;
-    }
-
-    public function setShops(ShopBasicCollection $shops): void
-    {
-        $this->shops = $shops;
-    }
-
-    public function getTaxAreaRules(): TaxAreaRuleBasicCollection
-    {
-        return $this->taxAreaRules;
-    }
-
-    public function setTaxAreaRules(TaxAreaRuleBasicCollection $taxAreaRules): void
-    {
-        $this->taxAreaRules = $taxAreaRules;
     }
 }

@@ -105,7 +105,7 @@ class AuditLogSearchTest extends KernelTestCase
             ['id' => Uuid::uuid4()->toString(), 'name' => 'notmatch', 'price' => 10, 'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9', 'manufacturer' => ['name' => 'test']],
         ], $context);
 
-        $result = $this->search->search('test product', 1, 20, $context, $this->userId);
+        $result = $this->search->search('product', 1, 20, $context, $this->userId);
 
         //no audit log exists? product 1 was insert first and should match first
         self::assertEquals(2, $result['total']);
@@ -146,7 +146,7 @@ class AuditLogSearchTest extends KernelTestCase
             ]
         );
 
-        $result = $this->search->search('test product', 1, 20, $context, $this->userId);
+        $result = $this->search->search('product', 1, 20, $context, $this->userId);
 
         self::assertEquals(2, $result['total']);
         self::assertCount(2, $result['data']);

@@ -20,6 +20,8 @@ use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Entity\Write\Flag\RestrictDelete;
+use Shopware\Api\Entity\Write\Flag\SearchRanking;
+use Shopware\Api\Entity\Write\Flag\WriteOnly;
 use Shopware\Api\Media\Definition\MediaDefinition;
 use Shopware\Api\Product\Collection\ProductManufacturerBasicCollection;
 use Shopware\Api\Product\Collection\ProductManufacturerDetailCollection;
@@ -63,16 +65,16 @@ class ProductManufacturerDefinition extends EntityDefinition
             new FkField('media_id', 'mediaId', MediaDefinition::class),
             new ReferenceVersionField(MediaDefinition::class),
 
-            new TranslatedField(new StringField('name', 'name')),
             new StringField('link', 'link'),
             new DateField('updated_at', 'updatedAt'),
             new DateField('created_at', 'createdAt'),
-            new TranslatedField(new LongTextField('description', 'description')),
+            (new TranslatedField(new StringField('name', 'name')))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
+            (new TranslatedField(new LongTextField('description', 'description')))->setFlags(new SearchRanking(self::LOW_SEARCH_RAKING)),
             new TranslatedField(new StringField('meta_title', 'metaTitle')),
             new TranslatedField(new StringField('meta_description', 'metaDescription')),
             new TranslatedField(new StringField('meta_keywords', 'metaKeywords')),
             new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, false),
-            (new OneToManyAssociationField('products', ProductDefinition::class, 'manufacturer_join_id', false, 'id'))->setFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('products', ProductDefinition::class, 'manufacturer_join_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
             (new TranslationsAssociationField('translations', ProductManufacturerTranslationDefinition::class, 'product_manufacturer_id', false, 'id'))->setFlags(new CascadeDelete(), new Required()),
         ]);
 

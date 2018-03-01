@@ -27,6 +27,7 @@ use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
+use Shopware\Api\Entity\Write\Flag\SearchRanking;
 use Shopware\Api\Plugin\Definition\PluginDefinition;
 
 class ConfigFormDefinition extends EntityDefinition
@@ -65,16 +66,16 @@ class ConfigFormDefinition extends EntityDefinition
             new ReferenceVersionField(self::class),
 
             new FkField('plugin_id', 'pluginId', PluginDefinition::class),
-            (new StringField('name', 'name'))->setFlags(new Required()),
+            (new StringField('name', 'name'))->setFlags(new Required(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
             new IntField('position', 'position'),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            new TranslatedField(new StringField('label', 'label')),
             new TranslatedField(new LongTextField('description', 'description')),
+            (new TranslatedField(new StringField('label', 'label')))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
             new ManyToOneAssociationField('parent', 'parent_id', self::class, false),
             new ManyToOneAssociationField('plugin', 'plugin_id', PluginDefinition::class, false),
             (new OneToManyAssociationField('children', self::class, 'parent_id', false, 'id'))->setFlags(new CascadeDelete()),
-            (new OneToManyAssociationField('fields', ConfigFormFieldDefinition::class, 'config_form_id', false, 'id'))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('fields', ConfigFormFieldDefinition::class, 'config_form_id', false, 'id'))->setFlags(new CascadeDelete(), new SearchRanking(self::ASSOCIATION_SEARCH_RANKING)),
             (new TranslationsAssociationField('translations', ConfigFormTranslationDefinition::class, 'config_form_id', false, 'id'))->setFlags(new CascadeDelete()),
         ]);
 

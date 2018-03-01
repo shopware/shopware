@@ -18,18 +18,11 @@ class CountryAreaDetailStruct extends CountryAreaBasicStruct
      */
     protected $translations;
 
-    /**
-     * @var TaxAreaRuleBasicCollection
-     */
-    protected $taxAreaRules;
-
     public function __construct()
     {
         $this->countries = new CountryBasicCollection();
 
         $this->translations = new CountryAreaTranslationBasicCollection();
-
-        $this->taxAreaRules = new TaxAreaRuleBasicCollection();
     }
 
     public function getCountries(): CountryBasicCollection
@@ -50,15 +43,5 @@ class CountryAreaDetailStruct extends CountryAreaBasicStruct
     public function setTranslations(CountryAreaTranslationBasicCollection $translations): void
     {
         $this->translations = $translations;
-    }
-
-    public function getTaxAreaRules(): TaxAreaRuleBasicCollection
-    {
-        return $this->taxAreaRules;
-    }
-
-    public function setTaxAreaRules(TaxAreaRuleBasicCollection $taxAreaRules): void
-    {
-        $this->taxAreaRules = $taxAreaRules;
     }
 }

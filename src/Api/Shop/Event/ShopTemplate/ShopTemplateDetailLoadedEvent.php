@@ -56,15 +56,6 @@ class ShopTemplateDetailLoadedEvent extends NestedEvent
         if ($this->shopTemplates->getParents()->count() > 0) {
             $events[] = new ShopTemplateBasicLoadedEvent($this->shopTemplates->getParents(), $this->context);
         }
-        if ($this->shopTemplates->getShops()->count() > 0) {
-            $events[] = new ShopBasicLoadedEvent($this->shopTemplates->getShops(), $this->context);
-        }
-        if ($this->shopTemplates->getShops()->count() > 0) {
-            $events[] = new ShopBasicLoadedEvent($this->shopTemplates->getShops(), $this->context);
-        }
-        if ($this->shopTemplates->getChildren()->count() > 0) {
-            $events[] = new ShopTemplateBasicLoadedEvent($this->shopTemplates->getChildren(), $this->context);
-        }
         if ($this->shopTemplates->getConfigForms()->count() > 0) {
             $events[] = new ShopTemplateConfigFormBasicLoadedEvent($this->shopTemplates->getConfigForms(), $this->context);
         }

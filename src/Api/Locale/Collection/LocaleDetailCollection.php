@@ -35,50 +35,6 @@ class LocaleDetailCollection extends LocaleBasicCollection
         return $collection;
     }
 
-    public function getShopIds(): array
-    {
-        $ids = [];
-        foreach ($this->elements as $element) {
-            foreach ($element->getShops()->getIds() as $id) {
-                $ids[] = $id;
-            }
-        }
-
-        return $ids;
-    }
-
-    public function getShops(): ShopBasicCollection
-    {
-        $collection = new ShopBasicCollection();
-        foreach ($this->elements as $element) {
-            $collection->fill($element->getShops()->getElements());
-        }
-
-        return $collection;
-    }
-
-    public function getUserIds(): array
-    {
-        $ids = [];
-        foreach ($this->elements as $element) {
-            foreach ($element->getUsers()->getIds() as $id) {
-                $ids[] = $id;
-            }
-        }
-
-        return $ids;
-    }
-
-    public function getUsers(): UserBasicCollection
-    {
-        $collection = new UserBasicCollection();
-        foreach ($this->elements as $element) {
-            $collection->fill($element->getUsers()->getElements());
-        }
-
-        return $collection;
-    }
-
     protected function getExpectedClass(): string
     {
         return LocaleDetailStruct::class;

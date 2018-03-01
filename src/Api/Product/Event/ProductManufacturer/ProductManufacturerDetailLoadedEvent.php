@@ -51,12 +51,6 @@ class ProductManufacturerDetailLoadedEvent extends NestedEvent
         if ($this->productManufacturers->getMedia()->count() > 0) {
             $events[] = new MediaBasicLoadedEvent($this->productManufacturers->getMedia(), $this->context);
         }
-        if ($this->productManufacturers->getProducts()->count() > 0) {
-            $events[] = new ProductBasicLoadedEvent($this->productManufacturers->getProducts(), $this->context);
-        }
-        if ($this->productManufacturers->getTranslations()->count() > 0) {
-            $events[] = new ProductManufacturerTranslationBasicLoadedEvent($this->productManufacturers->getTranslations(), $this->context);
-        }
 
         return new NestedEventCollection($events);
     }

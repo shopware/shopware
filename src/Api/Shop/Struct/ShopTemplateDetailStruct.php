@@ -22,16 +22,6 @@ class ShopTemplateDetailStruct extends ShopTemplateBasicStruct
     protected $parent;
 
     /**
-     * @var ShopBasicCollection
-     */
-    protected $shops;
-
-    /**
-     * @var ShopTemplateBasicCollection
-     */
-    protected $children;
-
-    /**
      * @var ShopTemplateConfigFormBasicCollection
      */
     protected $configForms;
@@ -48,10 +38,6 @@ class ShopTemplateDetailStruct extends ShopTemplateBasicStruct
 
     public function __construct()
     {
-        $this->shops = new ShopBasicCollection();
-
-        $this->children = new ShopTemplateBasicCollection();
-
         $this->configForms = new ShopTemplateConfigFormBasicCollection();
 
         $this->configFormFields = new ShopTemplateConfigFormFieldBasicCollection();
@@ -77,26 +63,6 @@ class ShopTemplateDetailStruct extends ShopTemplateBasicStruct
     public function setParent(?ShopTemplateBasicStruct $parent): void
     {
         $this->parent = $parent;
-    }
-
-    public function getShops(): ShopBasicCollection
-    {
-        return $this->shops;
-    }
-
-    public function setShops(ShopBasicCollection $shops): void
-    {
-        $this->shops = $shops;
-    }
-
-    public function getChildren(): ShopTemplateBasicCollection
-    {
-        return $this->children;
-    }
-
-    public function setChildren(ShopTemplateBasicCollection $children): void
-    {
-        $this->children = $children;
     }
 
     public function getConfigForms(): ShopTemplateConfigFormBasicCollection

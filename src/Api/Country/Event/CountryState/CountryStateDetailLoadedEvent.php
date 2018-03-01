@@ -56,15 +56,6 @@ class CountryStateDetailLoadedEvent extends NestedEvent
         if ($this->countryStates->getTranslations()->count() > 0) {
             $events[] = new CountryStateTranslationBasicLoadedEvent($this->countryStates->getTranslations(), $this->context);
         }
-        if ($this->countryStates->getCustomerAddresses()->count() > 0) {
-            $events[] = new CustomerAddressBasicLoadedEvent($this->countryStates->getCustomerAddresses(), $this->context);
-        }
-        if ($this->countryStates->getOrderAddresses()->count() > 0) {
-            $events[] = new OrderAddressBasicLoadedEvent($this->countryStates->getOrderAddresses(), $this->context);
-        }
-        if ($this->countryStates->getTaxAreaRules()->count() > 0) {
-            $events[] = new TaxAreaRuleBasicLoadedEvent($this->countryStates->getTaxAreaRules(), $this->context);
-        }
 
         return new NestedEventCollection($events);
     }

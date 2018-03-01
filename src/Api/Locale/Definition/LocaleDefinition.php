@@ -16,6 +16,8 @@ use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Entity\Write\Flag\RestrictDelete;
+use Shopware\Api\Entity\Write\Flag\SearchRanking;
+use Shopware\Api\Entity\Write\Flag\WriteOnly;
 use Shopware\Api\Locale\Collection\LocaleBasicCollection;
 use Shopware\Api\Locale\Collection\LocaleDetailCollection;
 use Shopware\Api\Locale\Event\Locale\LocaleDeletedEvent;
@@ -57,14 +59,14 @@ class LocaleDefinition extends EntityDefinition
         self::$fields = new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
-            (new StringField('code', 'code'))->setFlags(new Required()),
-            new TranslatedField(new StringField('name', 'name')),
+            (new StringField('code', 'code'))->setFlags(new Required(), new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
+            (new TranslatedField(new StringField('name', 'name')))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
             new TranslatedField(new StringField('territory', 'territory')),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
             (new TranslationsAssociationField('translations', LocaleTranslationDefinition::class, 'locale_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
-            (new OneToManyAssociationField('shops', ShopDefinition::class, 'locale_id', false, 'id'))->setFlags(new RestrictDelete()),
-            (new OneToManyAssociationField('users', UserDefinition::class, 'locale_id', false, 'id'))->setFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('shops', ShopDefinition::class, 'locale_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
+            (new OneToManyAssociationField('users', UserDefinition::class, 'locale_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
         ]);
 
         foreach (self::$extensions as $extension) {

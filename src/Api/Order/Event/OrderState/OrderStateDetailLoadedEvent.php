@@ -49,15 +49,6 @@ class OrderStateDetailLoadedEvent extends NestedEvent
     public function getEvents(): ?NestedEventCollection
     {
         $events = [];
-        if ($this->orderStates->getMails()->count() > 0) {
-            $events[] = new MailBasicLoadedEvent($this->orderStates->getMails(), $this->context);
-        }
-        if ($this->orderStates->getOrders()->count() > 0) {
-            $events[] = new OrderBasicLoadedEvent($this->orderStates->getOrders(), $this->context);
-        }
-        if ($this->orderStates->getOrderDeliveries()->count() > 0) {
-            $events[] = new OrderDeliveryBasicLoadedEvent($this->orderStates->getOrderDeliveries(), $this->context);
-        }
         if ($this->orderStates->getTranslations()->count() > 0) {
             $events[] = new OrderStateTranslationBasicLoadedEvent($this->orderStates->getTranslations(), $this->context);
         }

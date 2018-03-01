@@ -27,6 +27,7 @@ use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Entity\Write\Flag\RestrictDelete;
+use Shopware\Api\Entity\Write\Flag\SearchRanking;
 use Shopware\Api\Order\Definition\OrderDefinition;
 use Shopware\Api\Payment\Definition\PaymentMethodDefinition;
 use Shopware\Api\Shop\Definition\ShopDefinition;
@@ -78,12 +79,12 @@ class CustomerDefinition extends EntityDefinition
             (new FkField('default_billing_address_id', 'defaultBillingAddressId', CustomerAddressDefinition::class))->setFlags(new Required()),
             (new FkField('default_shipping_address_id', 'defaultShippingAddressId', CustomerAddressDefinition::class))->setFlags(new Required()),
 
-            (new StringField('customer_number', 'number'))->setFlags(new Required()),
+            (new StringField('customer_number', 'number'))->setFlags(new Required(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
             (new StringField('salutation', 'salutation'))->setFlags(new Required()),
-            (new StringField('first_name', 'firstName'))->setFlags(new Required()),
-            (new StringField('last_name', 'lastName'))->setFlags(new Required()),
+            (new StringField('first_name', 'firstName'))->setFlags(new Required(), new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
+            (new StringField('last_name', 'lastName'))->setFlags(new Required(), new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
             (new StringField('password', 'password'))->setFlags(new Required()),
-            (new StringField('email', 'email'))->setFlags(new Required()),
+            (new StringField('email', 'email'))->setFlags(new Required(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
             new StringField('title', 'title'),
             new StringField('encoder', 'encoder'),
             new BoolField('active', 'active'),
@@ -96,7 +97,7 @@ class CustomerDefinition extends EntityDefinition
             new StringField('validation', 'validation'),
             new BoolField('affiliate', 'affiliate'),
             new StringField('referer', 'referer'),
-            new LongTextField('internal_comment', 'internalComment'),
+            (new LongTextField('internal_comment', 'internalComment'))->setFlags(new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
             new IntField('failed_logins', 'failedLogins'),
             new DateField('locked_until', 'lockedUntil'),
             new DateField('birthday', 'birthday'),

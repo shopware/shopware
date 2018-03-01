@@ -13,6 +13,7 @@ use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
+use Shopware\Api\Entity\Write\Flag\SearchRanking;
 use Shopware\Api\Mail\Collection\MailAttachmentBasicCollection;
 use Shopware\Api\Mail\Collection\MailAttachmentDetailCollection;
 use Shopware\Api\Mail\Event\MailAttachment\MailAttachmentDeletedEvent;
@@ -63,7 +64,7 @@ class MailAttachmentDefinition extends EntityDefinition
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
             new ManyToOneAssociationField('mail', 'mail_id', MailDefinition::class, false),
-            new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, false),
+            (new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, false))->setFlags(new SearchRanking(1)),
             new ManyToOneAssociationField('shop', 'shop_id', ShopDefinition::class, false),
         ]);
 

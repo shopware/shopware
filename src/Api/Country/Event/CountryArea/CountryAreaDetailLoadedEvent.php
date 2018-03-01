@@ -54,9 +54,6 @@ class CountryAreaDetailLoadedEvent extends NestedEvent
         if ($this->countryAreas->getTranslations()->count() > 0) {
             $events[] = new CountryAreaTranslationBasicLoadedEvent($this->countryAreas->getTranslations(), $this->context);
         }
-        if ($this->countryAreas->getTaxAreaRules()->count() > 0) {
-            $events[] = new TaxAreaRuleBasicLoadedEvent($this->countryAreas->getTaxAreaRules(), $this->context);
-        }
 
         return new NestedEventCollection($events);
     }

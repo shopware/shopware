@@ -15,6 +15,8 @@ use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Entity\Write\Flag\RestrictDelete;
+use Shopware\Api\Entity\Write\Flag\SearchRanking;
+use Shopware\Api\Entity\Write\Flag\WriteOnly;
 use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Api\Tax\Collection\TaxBasicCollection;
 use Shopware\Api\Tax\Collection\TaxDetailCollection;
@@ -55,11 +57,11 @@ class TaxDefinition extends EntityDefinition
         self::$fields = new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
-            (new FloatField('tax_rate', 'rate'))->setFlags(new Required()),
-            (new StringField('name', 'name'))->setFlags(new Required()),
+            (new FloatField('tax_rate', 'rate'))->setFlags(new Required(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
+            (new StringField('name', 'name'))->setFlags(new Required(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            (new OneToManyAssociationField('products', ProductDefinition::class, 'tax_id', false, 'id'))->setFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('products', ProductDefinition::class, 'tax_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
             (new OneToManyAssociationField('areaRules', TaxAreaRuleDefinition::class, 'tax_id', false, 'id'))->setFlags(new CascadeDelete()),
         ]);
 

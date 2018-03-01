@@ -56,28 +56,6 @@ class CountryAreaDetailCollection extends CountryAreaBasicCollection
         return $collection;
     }
 
-    public function getTaxAreaRuleIds(): array
-    {
-        $ids = [];
-        foreach ($this->elements as $element) {
-            foreach ($element->getTaxAreaRules()->getIds() as $id) {
-                $ids[] = $id;
-            }
-        }
-
-        return $ids;
-    }
-
-    public function getTaxAreaRules(): TaxAreaRuleBasicCollection
-    {
-        $collection = new TaxAreaRuleBasicCollection();
-        foreach ($this->elements as $element) {
-            $collection->fill($element->getTaxAreaRules()->getElements());
-        }
-
-        return $collection;
-    }
-
     protected function getExpectedClass(): string
     {
         return CountryAreaDetailStruct::class;

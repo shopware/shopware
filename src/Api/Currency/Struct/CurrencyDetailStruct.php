@@ -13,23 +13,9 @@ class CurrencyDetailStruct extends CurrencyBasicStruct
      */
     protected $translations;
 
-    /**
-     * @var OrderBasicCollection
-     */
-    protected $orders;
-
-    /**
-     * @var ShopBasicCollection
-     */
-    protected $shops;
-
     public function __construct()
     {
         $this->translations = new CurrencyTranslationBasicCollection();
-
-        $this->orders = new OrderBasicCollection();
-
-        $this->shops = new ShopBasicCollection();
     }
 
     public function getTranslations(): CurrencyTranslationBasicCollection
@@ -40,25 +26,5 @@ class CurrencyDetailStruct extends CurrencyBasicStruct
     public function setTranslations(CurrencyTranslationBasicCollection $translations): void
     {
         $this->translations = $translations;
-    }
-
-    public function getOrders(): OrderBasicCollection
-    {
-        return $this->orders;
-    }
-
-    public function setOrders(OrderBasicCollection $orders): void
-    {
-        $this->orders = $orders;
-    }
-
-    public function getShops(): ShopBasicCollection
-    {
-        return $this->shops;
-    }
-
-    public function setShops(ShopBasicCollection $shops): void
-    {
-        $this->shops = $shops;
     }
 }

@@ -17,6 +17,7 @@ use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
+use Shopware\Api\Entity\Write\Flag\SearchRanking;
 use Shopware\Api\Locale\Definition\LocaleDefinition;
 use Shopware\Api\Media\Definition\MediaDefinition;
 use Shopware\Api\User\Collection\UserBasicCollection;
@@ -60,10 +61,10 @@ class UserDefinition extends EntityDefinition
             new VersionField(),
             (new FkField('locale_id', 'localeId', LocaleDefinition::class))->setFlags(new Required()),
             (new ReferenceVersionField(LocaleDefinition::class))->setFlags(new Required()),
-            (new StringField('username', 'username'))->setFlags(new Required()),
+            (new StringField('username', 'username'))->setFlags(new Required(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
             (new StringField('password', 'password'))->setFlags(new Required()),
-            (new StringField('name', 'name'))->setFlags(new Required()),
-            (new StringField('email', 'email'))->setFlags(new Required()),
+            (new StringField('name', 'name'))->setFlags(new Required(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
+            (new StringField('email', 'email'))->setFlags(new Required(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
             (new IdField('user_role_id', 'roleId'))->setFlags(new Required()),
             new StringField('encoder', 'encoder'),
             new StringField('api_key', 'apiKey'),

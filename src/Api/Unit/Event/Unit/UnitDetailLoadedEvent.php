@@ -47,9 +47,6 @@ class UnitDetailLoadedEvent extends NestedEvent
     public function getEvents(): ?NestedEventCollection
     {
         $events = [];
-        if ($this->units->getProducts()->count() > 0) {
-            $events[] = new ProductBasicLoadedEvent($this->units->getProducts(), $this->context);
-        }
         if ($this->units->getTranslations()->count() > 0) {
             $events[] = new UnitTranslationBasicLoadedEvent($this->units->getTranslations(), $this->context);
         }

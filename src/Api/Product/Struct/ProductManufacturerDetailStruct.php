@@ -14,19 +14,12 @@ class ProductManufacturerDetailStruct extends ProductManufacturerBasicStruct
     protected $media;
 
     /**
-     * @var ProductBasicCollection
-     */
-    protected $products;
-
-    /**
      * @var ProductManufacturerTranslationBasicCollection
      */
     protected $translations;
 
     public function __construct()
     {
-        $this->products = new ProductBasicCollection();
-
         $this->translations = new ProductManufacturerTranslationBasicCollection();
     }
 
@@ -38,16 +31,6 @@ class ProductManufacturerDetailStruct extends ProductManufacturerBasicStruct
     public function setMedia(?MediaBasicStruct $media): void
     {
         $this->media = $media;
-    }
-
-    public function getProducts(): ProductBasicCollection
-    {
-        return $this->products;
-    }
-
-    public function setProducts(ProductBasicCollection $products): void
-    {
-        $this->products = $products;
     }
 
     public function getTranslations(): ProductManufacturerTranslationBasicCollection

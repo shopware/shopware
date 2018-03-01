@@ -51,12 +51,6 @@ class ProductStreamDetailLoadedEvent extends NestedEvent
         if ($this->productStreams->getListingSortings()->count() > 0) {
             $events[] = new ListingSortingBasicLoadedEvent($this->productStreams->getListingSortings(), $this->context);
         }
-        if ($this->productStreams->getCategories()->count() > 0) {
-            $events[] = new CategoryBasicLoadedEvent($this->productStreams->getCategories(), $this->context);
-        }
-        if ($this->productStreams->getAllProductTabs()->count() > 0) {
-            $events[] = new ProductBasicLoadedEvent($this->productStreams->getAllProductTabs(), $this->context);
-        }
         if ($this->productStreams->getAllProducts()->count() > 0) {
             $events[] = new ProductBasicLoadedEvent($this->productStreams->getAllProducts(), $this->context);
         }

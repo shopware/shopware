@@ -12,11 +12,6 @@ class ListingSortingDetailStruct extends ListingSortingBasicStruct
      */
     protected $translations;
 
-    /**
-     * @var ProductStreamBasicCollection
-     */
-    protected $productStreams;
-
     public function __construct()
     {
         $this->translations = new ListingSortingTranslationBasicCollection();
@@ -32,15 +27,5 @@ class ListingSortingDetailStruct extends ListingSortingBasicStruct
     public function setTranslations(ListingSortingTranslationBasicCollection $translations): void
     {
         $this->translations = $translations;
-    }
-
-    public function getProductStreams(): ProductStreamBasicCollection
-    {
-        return $this->productStreams;
-    }
-
-    public function setProductStreams(ProductStreamBasicCollection $productStreams): void
-    {
-        $this->productStreams = $productStreams;
     }
 }

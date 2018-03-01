@@ -51,12 +51,6 @@ class LocaleDetailLoadedEvent extends NestedEvent
         if ($this->locales->getTranslations()->count() > 0) {
             $events[] = new LocaleTranslationBasicLoadedEvent($this->locales->getTranslations(), $this->context);
         }
-        if ($this->locales->getShops()->count() > 0) {
-            $events[] = new ShopBasicLoadedEvent($this->locales->getShops(), $this->context);
-        }
-        if ($this->locales->getUsers()->count() > 0) {
-            $events[] = new UserBasicLoadedEvent($this->locales->getUsers(), $this->context);
-        }
 
         return new NestedEventCollection($events);
     }

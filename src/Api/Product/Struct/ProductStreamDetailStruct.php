@@ -8,21 +8,6 @@ use Shopware\Api\Product\Collection\ProductBasicCollection;
 class ProductStreamDetailStruct extends ProductStreamBasicStruct
 {
     /**
-     * @var CategoryBasicCollection
-     */
-    protected $categories;
-
-    /**
-     * @var string[]
-     */
-    protected $productTabIds = [];
-
-    /**
-     * @var ProductBasicCollection
-     */
-    protected $productTabs;
-
-    /**
      * @var string[]
      */
     protected $productIds = [];
@@ -34,41 +19,7 @@ class ProductStreamDetailStruct extends ProductStreamBasicStruct
 
     public function __construct()
     {
-        $this->categories = new CategoryBasicCollection();
-
-        $this->productTabs = new ProductBasicCollection();
-
         $this->products = new ProductBasicCollection();
-    }
-
-    public function getCategories(): CategoryBasicCollection
-    {
-        return $this->categories;
-    }
-
-    public function setCategories(CategoryBasicCollection $categories): void
-    {
-        $this->categories = $categories;
-    }
-
-    public function getProductTabIds(): array
-    {
-        return $this->productTabIds;
-    }
-
-    public function setProductTabIds(array $productTabIds): void
-    {
-        $this->productTabIds = $productTabIds;
-    }
-
-    public function getProductTabs(): ProductBasicCollection
-    {
-        return $this->productTabs;
-    }
-
-    public function setProductTabs(ProductBasicCollection $productTabs): void
-    {
-        $this->productTabs = $productTabs;
     }
 
     public function getProductIds(): array

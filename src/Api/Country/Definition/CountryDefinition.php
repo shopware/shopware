@@ -29,6 +29,8 @@ use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Entity\Write\Flag\RestrictDelete;
+use Shopware\Api\Entity\Write\Flag\SearchRanking;
+use Shopware\Api\Entity\Write\Flag\WriteOnly;
 use Shopware\Api\Order\Definition\OrderAddressDefinition;
 use Shopware\Api\Shop\Definition\ShopDefinition;
 use Shopware\Api\Tax\Definition\TaxAreaRuleDefinition;
@@ -67,15 +69,15 @@ class CountryDefinition extends EntityDefinition
             new FkField('country_area_id', 'areaId', CountryAreaDefinition::class),
             new ReferenceVersionField(CountryAreaDefinition::class),
 
-            new TranslatedField(new StringField('name', 'name')),
-            new StringField('iso', 'iso'),
+            (new TranslatedField(new StringField('name', 'name')))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
+            (new StringField('iso', 'iso'))->setFlags(new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
             new IntField('position', 'position'),
             new BoolField('shipping_free', 'shippingFree'),
             new BoolField('tax_free', 'taxFree'),
             new BoolField('taxfree_for_vat_id', 'taxfreeForVatId'),
             new BoolField('taxfree_vatid_checked', 'taxfreeVatidChecked'),
             new BoolField('active', 'active'),
-            new StringField('iso3', 'iso3'),
+            (new StringField('iso3', 'iso3'))->setFlags(new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
             new BoolField('display_state_in_registration', 'displayStateInRegistration'),
             new BoolField('force_state_in_registration', 'forceStateInRegistration'),
             new DateField('created_at', 'createdAt'),
@@ -83,10 +85,10 @@ class CountryDefinition extends EntityDefinition
             new ManyToOneAssociationField('area', 'country_area_id', CountryAreaDefinition::class, false),
             (new OneToManyAssociationField('states', CountryStateDefinition::class, 'country_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField('translations', CountryTranslationDefinition::class, 'country_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
-            (new OneToManyAssociationField('customerAddresses', CustomerAddressDefinition::class, 'country_id', false, 'id'))->setFlags(new RestrictDelete()),
-            (new OneToManyAssociationField('orderAddresses', OrderAddressDefinition::class, 'country_id', false, 'id'))->setFlags(new RestrictDelete()),
-            (new OneToManyAssociationField('shops', ShopDefinition::class, 'country_id', false, 'id'))->setFlags(new RestrictDelete()),
-            (new OneToManyAssociationField('taxAreaRules', TaxAreaRuleDefinition::class, 'country_id', false, 'id'))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('customerAddresses', CustomerAddressDefinition::class, 'country_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
+            (new OneToManyAssociationField('orderAddresses', OrderAddressDefinition::class, 'country_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
+            (new OneToManyAssociationField('shops', ShopDefinition::class, 'country_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
+            (new OneToManyAssociationField('taxAreaRules', TaxAreaRuleDefinition::class, 'country_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
         ]);
 
         foreach (self::$extensions as $extension) {

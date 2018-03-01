@@ -23,6 +23,7 @@ use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
+use Shopware\Api\Entity\Write\Flag\SearchRanking;
 use Shopware\Api\Tax\Collection\TaxAreaRuleBasicCollection;
 use Shopware\Api\Tax\Collection\TaxAreaRuleDetailCollection;
 use Shopware\Api\Tax\Event\TaxAreaRule\TaxAreaRuleDeletedEvent;
@@ -79,7 +80,7 @@ class TaxAreaRuleDefinition extends EntityDefinition
             (new ReferenceVersionField(CustomerGroupDefinition::class))->setFlags(new Required()),
 
             (new FloatField('tax_rate', 'taxRate'))->setFlags(new Required()),
-            new TranslatedField(new StringField('name', 'name')),
+            (new TranslatedField(new StringField('name', 'name')))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
             new BoolField('active', 'active'),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),

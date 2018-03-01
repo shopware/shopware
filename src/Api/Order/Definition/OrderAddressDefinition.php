@@ -18,6 +18,7 @@ use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Entity\Write\Flag\RestrictDelete;
+use Shopware\Api\Entity\Write\Flag\SearchRanking;
 use Shopware\Api\Order\Collection\OrderAddressBasicCollection;
 use Shopware\Api\Order\Collection\OrderAddressDetailCollection;
 use Shopware\Api\Order\Event\OrderAddress\OrderAddressDeletedEvent;
@@ -65,22 +66,22 @@ class OrderAddressDefinition extends EntityDefinition
             new ReferenceVersionField(CountryStateDefinition::class),
 
             (new StringField('salutation', 'salutation'))->setFlags(new Required()),
-            (new StringField('first_name', 'firstName'))->setFlags(new Required()),
-            (new StringField('last_name', 'lastName'))->setFlags(new Required()),
-            (new StringField('street', 'street'))->setFlags(new Required()),
-            (new StringField('zipcode', 'zipcode'))->setFlags(new Required()),
-            (new StringField('city', 'city'))->setFlags(new Required()),
-            new StringField('company', 'company'),
+            (new StringField('first_name', 'firstName'))->setFlags(new Required(), new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
+            (new StringField('last_name', 'lastName'))->setFlags(new Required(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
+            (new StringField('street', 'street'))->setFlags(new Required(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
+            (new StringField('zipcode', 'zipcode'))->setFlags(new Required(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
+            (new StringField('city', 'city'))->setFlags(new Required(), new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
+            (new StringField('company', 'company'))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
             new StringField('department', 'department'),
             new StringField('title', 'title'),
             new StringField('vat_id', 'vatId'),
-            new StringField('phone_number', 'phoneNumber'),
-            new StringField('additional_address_line1', 'additionalAddressLine1'),
-            new StringField('additional_address_line2', 'additionalAddressLine2'),
+            (new StringField('phone_number', 'phoneNumber'))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
+            (new StringField('additional_address_line1', 'additionalAddressLine1'))->setFlags(new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
+            (new StringField('additional_address_line2', 'additionalAddressLine2'))->setFlags(new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            new ManyToOneAssociationField('country', 'country_id', CountryDefinition::class, true),
-            new ManyToOneAssociationField('countryState', 'country_state_id', CountryStateDefinition::class, true),
+            (new ManyToOneAssociationField('country', 'country_id', CountryDefinition::class, true))->setFlags(new SearchRanking(self::ASSOCIATION_SEARCH_RANKING)),
+            (new ManyToOneAssociationField('countryState', 'country_state_id', CountryStateDefinition::class, true))->setFlags(new SearchRanking(self::ASSOCIATION_SEARCH_RANKING)),
             (new OneToManyAssociationField('orders', OrderDefinition::class, 'billing_address_id', false, 'id'))->setFlags(new RestrictDelete()),
             (new OneToManyAssociationField('orderDeliveries', OrderDeliveryDefinition::class, 'shipping_address_id', false, 'id'))->setFlags(new RestrictDelete()),
         ]);

@@ -11,28 +11,6 @@ class CustomerGroupDetailCollection extends CustomerGroupBasicCollection
      */
     protected $elements = [];
 
-    public function getCustomerIds(): array
-    {
-        $ids = [];
-        foreach ($this->elements as $element) {
-            foreach ($element->getCustomers()->getIds() as $id) {
-                $ids[] = $id;
-            }
-        }
-
-        return $ids;
-    }
-
-    public function getCustomers(): CustomerBasicCollection
-    {
-        $collection = new CustomerBasicCollection();
-        foreach ($this->elements as $element) {
-            $collection->fill($element->getCustomers()->getElements());
-        }
-
-        return $collection;
-    }
-
     public function getDiscountIds(): array
     {
         $ids = [];

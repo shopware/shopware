@@ -19,6 +19,7 @@ use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
+use Shopware\Api\Entity\Write\Flag\SearchRanking;
 use Shopware\Api\Order\Collection\OrderLineItemBasicCollection;
 use Shopware\Api\Order\Collection\OrderLineItemDetailCollection;
 use Shopware\Api\Order\Event\OrderLineItem\OrderLineItemDeletedEvent;
@@ -66,7 +67,7 @@ class OrderLineItemDefinition extends EntityDefinition
             (new IntField('quantity', 'quantity'))->setFlags(new Required()),
             (new FloatField('unit_price', 'unitPrice'))->setFlags(new Required()),
             (new FloatField('total_price', 'totalPrice'))->setFlags(new Required()),
-            (new LongTextField('payload', 'payload'))->setFlags(new Required()),
+            (new LongTextField('payload', 'payload'))->setFlags(new Required(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
             new StringField('parent_id', 'parentId'),
             new StringField('type', 'type'),
             new DateField('created_at', 'createdAt'),

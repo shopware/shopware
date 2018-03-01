@@ -51,12 +51,6 @@ class CurrencyDetailLoadedEvent extends NestedEvent
         if ($this->currencies->getTranslations()->count() > 0) {
             $events[] = new CurrencyTranslationBasicLoadedEvent($this->currencies->getTranslations(), $this->context);
         }
-        if ($this->currencies->getOrders()->count() > 0) {
-            $events[] = new OrderBasicLoadedEvent($this->currencies->getOrders(), $this->context);
-        }
-        if ($this->currencies->getAllShops()->count() > 0) {
-            $events[] = new ShopBasicLoadedEvent($this->currencies->getAllShops(), $this->context);
-        }
 
         return new NestedEventCollection($events);
     }

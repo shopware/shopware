@@ -20,6 +20,8 @@ use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Entity\Write\Flag\RestrictDelete;
+use Shopware\Api\Entity\Write\Flag\SearchRanking;
+use Shopware\Api\Entity\Write\Flag\WriteOnly;
 use Shopware\Api\Order\Definition\OrderDeliveryDefinition;
 use Shopware\Api\Shipping\Collection\ShippingMethodBasicCollection;
 use Shopware\Api\Shipping\Collection\ShippingMethodDetailCollection;
@@ -64,7 +66,7 @@ class ShippingMethodDefinition extends EntityDefinition
             (new IntField('type', 'type'))->setFlags(new Required()),
             (new BoolField('bind_shippingfree', 'bindShippingfree'))->setFlags(new Required()),
             (new BoolField('bind_laststock', 'bindLaststock'))->setFlags(new Required()),
-            new TranslatedField(new StringField('name', 'name')),
+            (new TranslatedField(new StringField('name', 'name')))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
             new BoolField('active', 'active'),
             new IntField('position', 'position'),
             new IntField('calculation', 'calculation'),
@@ -85,12 +87,12 @@ class ShippingMethodDefinition extends EntityDefinition
             new LongTextField('calculation_sql', 'calculationSql'),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            new TranslatedField(new LongTextField('description', 'description')),
-            new TranslatedField(new StringField('comment', 'comment')),
-            (new OneToManyAssociationField('orderDeliveries', OrderDeliveryDefinition::class, 'shipping_method_id', false, 'id'))->setFlags(new RestrictDelete()),
+            (new TranslatedField(new LongTextField('description', 'description')))->setFlags(new SearchRanking(self::LOW_SEARCH_RAKING)),
+            (new TranslatedField(new StringField('comment', 'comment')))->setFlags(new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
+            (new OneToManyAssociationField('orderDeliveries', OrderDeliveryDefinition::class, 'shipping_method_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
             (new OneToManyAssociationField('prices', ShippingMethodPriceDefinition::class, 'shipping_method_id', true, 'id'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField('translations', ShippingMethodTranslationDefinition::class, 'shipping_method_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
-            (new OneToManyAssociationField('shops', ShopDefinition::class, 'shipping_method_id', false, 'id'))->setFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('shops', ShopDefinition::class, 'shipping_method_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
         ]);
 
         foreach (self::$extensions as $extension) {

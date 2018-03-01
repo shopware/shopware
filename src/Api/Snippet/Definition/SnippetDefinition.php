@@ -15,6 +15,7 @@ use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
+use Shopware\Api\Entity\Write\Flag\SearchRanking;
 use Shopware\Api\Shop\Definition\ShopDefinition;
 use Shopware\Api\Snippet\Collection\SnippetBasicCollection;
 use Shopware\Api\Snippet\Collection\SnippetDetailCollection;
@@ -56,9 +57,9 @@ class SnippetDefinition extends EntityDefinition
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('shop_id', 'shopId', ShopDefinition::class))->setFlags(new Required()),
             (new ReferenceVersionField(ShopDefinition::class))->setFlags(new Required()),
-            (new StringField('namespace', 'namespace'))->setFlags(new Required()),
+            (new StringField('namespace', 'namespace'))->setFlags(new Required(), new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
             (new StringField('locale', 'locale'))->setFlags(new Required()),
-            (new StringField('name', 'name'))->setFlags(new Required()),
+            (new StringField('name', 'name'))->setFlags(new Required(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
             (new LongTextField('value', 'value'))->setFlags(new Required()),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),

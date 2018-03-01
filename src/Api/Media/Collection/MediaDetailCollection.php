@@ -25,50 +25,6 @@ class MediaDetailCollection extends MediaBasicCollection
         );
     }
 
-    public function getCategoryIds(): array
-    {
-        $ids = [];
-        foreach ($this->elements as $element) {
-            foreach ($element->getCategories()->getIds() as $id) {
-                $ids[] = $id;
-            }
-        }
-
-        return $ids;
-    }
-
-    public function getCategories(): CategoryBasicCollection
-    {
-        $collection = new CategoryBasicCollection();
-        foreach ($this->elements as $element) {
-            $collection->fill($element->getCategories()->getElements());
-        }
-
-        return $collection;
-    }
-
-    public function getMailAttachmentIds(): array
-    {
-        $ids = [];
-        foreach ($this->elements as $element) {
-            foreach ($element->getMailAttachments()->getIds() as $id) {
-                $ids[] = $id;
-            }
-        }
-
-        return $ids;
-    }
-
-    public function getMailAttachments(): MailAttachmentBasicCollection
-    {
-        $collection = new MailAttachmentBasicCollection();
-        foreach ($this->elements as $element) {
-            $collection->fill($element->getMailAttachments()->getElements());
-        }
-
-        return $collection;
-    }
-
     public function getTranslationIds(): array
     {
         $ids = [];
@@ -86,50 +42,6 @@ class MediaDetailCollection extends MediaBasicCollection
         $collection = new MediaTranslationBasicCollection();
         foreach ($this->elements as $element) {
             $collection->fill($element->getTranslations()->getElements());
-        }
-
-        return $collection;
-    }
-
-    public function getProductManufacturerIds(): array
-    {
-        $ids = [];
-        foreach ($this->elements as $element) {
-            foreach ($element->getProductManufacturers()->getIds() as $id) {
-                $ids[] = $id;
-            }
-        }
-
-        return $ids;
-    }
-
-    public function getProductManufacturers(): ProductManufacturerBasicCollection
-    {
-        $collection = new ProductManufacturerBasicCollection();
-        foreach ($this->elements as $element) {
-            $collection->fill($element->getProductManufacturers()->getElements());
-        }
-
-        return $collection;
-    }
-
-    public function getProductMediaIds(): array
-    {
-        $ids = [];
-        foreach ($this->elements as $element) {
-            foreach ($element->getProductMedia()->getIds() as $id) {
-                $ids[] = $id;
-            }
-        }
-
-        return $ids;
-    }
-
-    public function getProductMedia(): ProductMediaBasicCollection
-    {
-        $collection = new ProductMediaBasicCollection();
-        foreach ($this->elements as $element) {
-            $collection->fill($element->getProductMedia()->getElements());
         }
 
         return $collection;

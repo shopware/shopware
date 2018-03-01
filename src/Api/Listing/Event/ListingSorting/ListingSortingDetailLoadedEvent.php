@@ -50,9 +50,6 @@ class ListingSortingDetailLoadedEvent extends NestedEvent
         if ($this->listingSortings->getTranslations()->count() > 0) {
             $events[] = new ListingSortingTranslationBasicLoadedEvent($this->listingSortings->getTranslations(), $this->context);
         }
-        if ($this->listingSortings->getProductStreams()->count() > 0) {
-            $events[] = new ProductStreamBasicLoadedEvent($this->listingSortings->getProductStreams(), $this->context);
-        }
 
         return new NestedEventCollection($events);
     }

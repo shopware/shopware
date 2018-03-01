@@ -58,21 +58,6 @@ class MediaDetailLoadedEvent extends NestedEvent
         if ($this->media->getUsers()->count() > 0) {
             $events[] = new UserBasicLoadedEvent($this->media->getUsers(), $this->context);
         }
-        if ($this->media->getCategories()->count() > 0) {
-            $events[] = new CategoryBasicLoadedEvent($this->media->getCategories(), $this->context);
-        }
-        if ($this->media->getMailAttachments()->count() > 0) {
-            $events[] = new MailAttachmentBasicLoadedEvent($this->media->getMailAttachments(), $this->context);
-        }
-        if ($this->media->getTranslations()->count() > 0) {
-            $events[] = new MediaTranslationBasicLoadedEvent($this->media->getTranslations(), $this->context);
-        }
-        if ($this->media->getProductManufacturers()->count() > 0) {
-            $events[] = new ProductManufacturerBasicLoadedEvent($this->media->getProductManufacturers(), $this->context);
-        }
-        if ($this->media->getProductMedia()->count() > 0) {
-            $events[] = new ProductMediaBasicLoadedEvent($this->media->getProductMedia(), $this->context);
-        }
 
         return new NestedEventCollection($events);
     }

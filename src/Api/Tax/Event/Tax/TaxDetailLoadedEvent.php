@@ -47,9 +47,6 @@ class TaxDetailLoadedEvent extends NestedEvent
     public function getEvents(): ?NestedEventCollection
     {
         $events = [];
-        if ($this->taxes->getProducts()->count() > 0) {
-            $events[] = new ProductBasicLoadedEvent($this->taxes->getProducts(), $this->context);
-        }
         if ($this->taxes->getAreaRules()->count() > 0) {
             $events[] = new TaxAreaRuleBasicLoadedEvent($this->taxes->getAreaRules(), $this->context);
         }

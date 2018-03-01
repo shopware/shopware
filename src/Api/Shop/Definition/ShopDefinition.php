@@ -27,6 +27,7 @@ use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Entity\Write\Flag\RestrictDelete;
+use Shopware\Api\Entity\Write\Flag\SearchRanking;
 use Shopware\Api\Entity\Write\Flag\WriteOnly;
 use Shopware\Api\Locale\Definition\LocaleDefinition;
 use Shopware\Api\Mail\Definition\MailAttachmentDefinition;
@@ -106,12 +107,12 @@ class ShopDefinition extends EntityDefinition
             (new FkField('country_id', 'countryId', CountryDefinition::class))->setFlags(new Required()),
             (new ReferenceVersionField(CountryDefinition::class))->setFlags(new Required()),
 
-            (new StringField('name', 'name'))->setFlags(new Required()),
+            (new StringField('name', 'name'))->setFlags(new Required(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
             (new IntField('position', 'position'))->setFlags(new Required()),
-            (new StringField('host', 'host'))->setFlags(new Required()),
-            (new StringField('base_path', 'basePath'))->setFlags(new Required()),
+            (new StringField('host', 'host'))->setFlags(new Required(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
+            (new StringField('base_path', 'basePath'))->setFlags(new Required(), new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
             (new StringField('base_url', 'baseUrl'))->setFlags(new Required()),
-            new StringField('title', 'title'),
+            (new StringField('title', 'title'))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
             new LongTextField('hosts', 'hosts'),
             new BoolField('is_secure', 'isSecure'),
             new BoolField('customer_scope', 'customerScope'),

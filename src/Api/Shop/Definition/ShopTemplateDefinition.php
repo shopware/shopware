@@ -19,6 +19,8 @@ use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Entity\Write\Flag\RestrictDelete;
+use Shopware\Api\Entity\Write\Flag\SearchRanking;
+use Shopware\Api\Entity\Write\Flag\WriteOnly;
 use Shopware\Api\Plugin\Definition\PluginDefinition;
 use Shopware\Api\Shop\Collection\ShopTemplateBasicCollection;
 use Shopware\Api\Shop\Collection\ShopTemplateDetailCollection;
@@ -63,10 +65,10 @@ class ShopTemplateDefinition extends EntityDefinition
             new FkField('parent_id', 'parentId', self::class),
             new ReferenceVersionField(self::class, 'parent_version_id'),
             (new StringField('template', 'template'))->setFlags(new Required()),
-            (new StringField('name', 'name'))->setFlags(new Required()),
+            (new StringField('name', 'name'))->setFlags(new Required(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
             (new BoolField('emotion', 'emotion'))->setFlags(new Required()),
-            new StringField('description', 'description'),
-            new StringField('author', 'author'),
+            (new StringField('description', 'description'))->setFlags(new SearchRanking(self::LOW_SEARCH_RAKING)),
+            (new StringField('author', 'author'))->setFlags(new SearchRanking(self::LOW_SEARCH_RAKING)),
             new StringField('license', 'license'),
             new BoolField('esi', 'esi'),
             new BoolField('style_support', 'styleSupport'),
@@ -75,9 +77,9 @@ class ShopTemplateDefinition extends EntityDefinition
             new DateField('updated_at', 'updatedAt'),
             new ManyToOneAssociationField('plugin', 'plugin_id', PluginDefinition::class, false),
             new ManyToOneAssociationField('parent', 'parent_id', self::class, false),
-            (new OneToManyAssociationField('shops', ShopDefinition::class, 'document_template_id', false, 'id'))->setFlags(new RestrictDelete()),
-            (new OneToManyAssociationField('shops', ShopDefinition::class, 'shop_template_id', false, 'id'))->setFlags(new RestrictDelete()),
-            (new OneToManyAssociationField('children', self::class, 'parent_id', false, 'id'))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('shops', ShopDefinition::class, 'document_template_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
+            (new OneToManyAssociationField('shops', ShopDefinition::class, 'shop_template_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
+            (new OneToManyAssociationField('children', self::class, 'parent_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
             (new OneToManyAssociationField('configForms', ShopTemplateConfigFormDefinition::class, 'shop_template_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new OneToManyAssociationField('configFormFields', ShopTemplateConfigFormFieldDefinition::class, 'shop_template_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new OneToManyAssociationField('configPresets', ShopTemplateConfigPresetDefinition::class, 'shop_template_id', false, 'id'))->setFlags(new CascadeDelete()),

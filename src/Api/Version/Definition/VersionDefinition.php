@@ -12,6 +12,7 @@ use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\EntityExistence;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
+use Shopware\Api\Entity\Write\Flag\SearchRanking;
 use Shopware\Api\Version\Collection\VersionBasicCollection;
 use Shopware\Api\Version\Event\Version\VersionDeletedEvent;
 use Shopware\Api\Version\Event\Version\VersionWrittenEvent;
@@ -53,7 +54,7 @@ class VersionDefinition extends EntityDefinition
 
         self::$fields = new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            (new StringField('name', 'name'))->setFlags(new Required()),
+            (new StringField('name', 'name'))->setFlags(new Required(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
             new OneToManyAssociationField('commits', VersionCommitDefinition::class, 'version_id', true),

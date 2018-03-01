@@ -48,9 +48,6 @@ class CustomerGroupDetailLoadedEvent extends NestedEvent
     public function getEvents(): ?NestedEventCollection
     {
         $events = [];
-        if ($this->customerGroups->getCustomers()->count() > 0) {
-            $events[] = new CustomerBasicLoadedEvent($this->customerGroups->getCustomers(), $this->context);
-        }
         if ($this->customerGroups->getDiscounts()->count() > 0) {
             $events[] = new CustomerGroupDiscountBasicLoadedEvent($this->customerGroups->getDiscounts(), $this->context);
         }

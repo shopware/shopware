@@ -20,6 +20,7 @@ use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
+use Shopware\Api\Entity\Write\Flag\SearchRanking;
 use Shopware\Api\Order\Collection\OrderBasicCollection;
 use Shopware\Api\Order\Collection\OrderDetailCollection;
 use Shopware\Api\Order\Event\Order\OrderDeletedEvent;
@@ -80,7 +81,7 @@ class OrderDefinition extends EntityDefinition
             (new FkField('billing_address_id', 'billingAddressId', OrderAddressDefinition::class))->setFlags(new Required()),
             (new ReferenceVersionField(OrderAddressDefinition::class, 'billing_address_version_id'))->setFlags(new Required()),
 
-            (new DateField('order_date', 'date'))->setFlags(new Required()),
+            (new DateField('order_date', 'date'))->setFlags(new Required(), new SearchRanking(self::LOW_SEARCH_RAKING)),
             (new FloatField('amount_total', 'amountTotal'))->setFlags(new Required()),
             (new FloatField('position_price', 'positionPrice'))->setFlags(new Required()),
             (new FloatField('shipping_total', 'shippingTotal'))->setFlags(new Required()),
@@ -90,14 +91,14 @@ class OrderDefinition extends EntityDefinition
             (new LongTextField('payload', 'payload'))->setFlags(new Required()),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            new ManyToOneAssociationField('customer', 'customer_id', CustomerDefinition::class, true),
+            (new ManyToOneAssociationField('customer', 'customer_id', CustomerDefinition::class, true))->setFlags(new SearchRanking(self::ASSOCIATION_SEARCH_RANKING)),
             new ManyToOneAssociationField('state', 'order_state_id', OrderStateDefinition::class, true),
-            new ManyToOneAssociationField('paymentMethod', 'payment_method_id', PaymentMethodDefinition::class, true),
+            (new ManyToOneAssociationField('paymentMethod', 'payment_method_id', PaymentMethodDefinition::class, true))->setFlags(new SearchRanking(self::ASSOCIATION_SEARCH_RANKING)),
             new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, true),
             new ManyToOneAssociationField('shop', 'shop_id', ShopDefinition::class, true),
-            new ManyToOneAssociationField('billingAddress', 'billing_address_id', OrderAddressDefinition::class, true),
+            (new ManyToOneAssociationField('billingAddress', 'billing_address_id', OrderAddressDefinition::class, true))->setFlags(new SearchRanking(self::ASSOCIATION_SEARCH_RANKING)),
             (new OneToManyAssociationField('deliveries', OrderDeliveryDefinition::class, 'order_id', false, 'id'))->setFlags(new CascadeDelete()),
-            (new OneToManyAssociationField('lineItems', OrderLineItemDefinition::class, 'order_id', false, 'id'))->setFlags(new CascadeDelete()),
+            ((new OneToManyAssociationField('lineItems', OrderLineItemDefinition::class, 'order_id', false, 'id'))->setFlags(new CascadeDelete()))->setFlags(new SearchRanking(self::ASSOCIATION_SEARCH_RANKING)),
         ]);
 
         foreach (self::$extensions as $extension) {

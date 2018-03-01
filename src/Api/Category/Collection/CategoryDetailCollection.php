@@ -66,48 +66,6 @@ class CategoryDetailCollection extends CategoryBasicCollection
         return $collection;
     }
 
-    public function getShopIds(): array
-    {
-        $ids = [];
-        foreach ($this->elements as $element) {
-            foreach ($element->getShops()->getIds() as $id) {
-                $ids[] = $id;
-            }
-        }
-
-        return $ids;
-    }
-
-    public function getShops(): ShopBasicCollection
-    {
-        $collection = new ShopBasicCollection();
-        foreach ($this->elements as $element) {
-            $collection->fill($element->getShops()->getElements());
-        }
-
-        return $collection;
-    }
-
-    public function getAllProducts(): ProductBasicCollection
-    {
-        $collection = new ProductBasicCollection();
-        foreach ($this->elements as $element) {
-            $collection->fill($element->getProducts()->getElements());
-        }
-
-        return $collection;
-    }
-
-    public function getAllSeoProducts(): ProductBasicCollection
-    {
-        $collection = new ProductBasicCollection();
-        foreach ($this->elements as $element) {
-            $collection->fill($element->getSeoProducts()->getElements());
-        }
-
-        return $collection;
-    }
-
     protected function getExpectedClass(): string
     {
         return CategoryDetailStruct::class;

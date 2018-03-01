@@ -19,30 +19,9 @@ class CountryStateDetailStruct extends CountryStateBasicStruct
      */
     protected $translations;
 
-    /**
-     * @var CustomerAddressBasicCollection
-     */
-    protected $customerAddresses;
-
-    /**
-     * @var OrderAddressBasicCollection
-     */
-    protected $orderAddresses;
-
-    /**
-     * @var TaxAreaRuleBasicCollection
-     */
-    protected $taxAreaRules;
-
     public function __construct()
     {
         $this->translations = new CountryStateTranslationBasicCollection();
-
-        $this->customerAddresses = new CustomerAddressBasicCollection();
-
-        $this->orderAddresses = new OrderAddressBasicCollection();
-
-        $this->taxAreaRules = new TaxAreaRuleBasicCollection();
     }
 
     public function getCountry(): CountryBasicStruct
@@ -63,35 +42,5 @@ class CountryStateDetailStruct extends CountryStateBasicStruct
     public function setTranslations(CountryStateTranslationBasicCollection $translations): void
     {
         $this->translations = $translations;
-    }
-
-    public function getCustomerAddresses(): CustomerAddressBasicCollection
-    {
-        return $this->customerAddresses;
-    }
-
-    public function setCustomerAddresses(CustomerAddressBasicCollection $customerAddresses): void
-    {
-        $this->customerAddresses = $customerAddresses;
-    }
-
-    public function getOrderAddresses(): OrderAddressBasicCollection
-    {
-        return $this->orderAddresses;
-    }
-
-    public function setOrderAddresses(OrderAddressBasicCollection $orderAddresses): void
-    {
-        $this->orderAddresses = $orderAddresses;
-    }
-
-    public function getTaxAreaRules(): TaxAreaRuleBasicCollection
-    {
-        return $this->taxAreaRules;
-    }
-
-    public function setTaxAreaRules(TaxAreaRuleBasicCollection $taxAreaRules): void
-    {
-        $this->taxAreaRules = $taxAreaRules;
     }
 }

@@ -13,28 +13,6 @@ class ShippingMethodDetailCollection extends ShippingMethodBasicCollection
      */
     protected $elements = [];
 
-    public function getOrderDeliveryIds(): array
-    {
-        $ids = [];
-        foreach ($this->elements as $element) {
-            foreach ($element->getOrderDeliveries()->getIds() as $id) {
-                $ids[] = $id;
-            }
-        }
-
-        return $ids;
-    }
-
-    public function getOrderDeliveries(): OrderDeliveryBasicCollection
-    {
-        $collection = new OrderDeliveryBasicCollection();
-        foreach ($this->elements as $element) {
-            $collection->fill($element->getOrderDeliveries()->getElements());
-        }
-
-        return $collection;
-    }
-
     public function getTranslationIds(): array
     {
         $ids = [];
@@ -52,28 +30,6 @@ class ShippingMethodDetailCollection extends ShippingMethodBasicCollection
         $collection = new ShippingMethodTranslationBasicCollection();
         foreach ($this->elements as $element) {
             $collection->fill($element->getTranslations()->getElements());
-        }
-
-        return $collection;
-    }
-
-    public function getShopIds(): array
-    {
-        $ids = [];
-        foreach ($this->elements as $element) {
-            foreach ($element->getShops()->getIds() as $id) {
-                $ids[] = $id;
-            }
-        }
-
-        return $ids;
-    }
-
-    public function getShops(): ShopBasicCollection
-    {
-        $collection = new ShopBasicCollection();
-        foreach ($this->elements as $element) {
-            $collection->fill($element->getShops()->getElements());
         }
 
         return $collection;

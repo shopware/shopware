@@ -19,6 +19,7 @@ use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
+use Shopware\Api\Entity\Write\Flag\SearchRanking;
 use Shopware\Api\Shop\Collection\ShopTemplateConfigFormFieldBasicCollection;
 use Shopware\Api\Shop\Collection\ShopTemplateConfigFormFieldDetailCollection;
 use Shopware\Api\Shop\Event\ShopTemplateConfigFormField\ShopTemplateConfigFormFieldDeletedEvent;
@@ -63,11 +64,11 @@ class ShopTemplateConfigFormFieldDefinition extends EntityDefinition
             (new FkField('shop_template_config_form_id', 'shopTemplateConfigFormId', ShopTemplateConfigFormDefinition::class))->setFlags(new Required()),
             (new ReferenceVersionField(ShopTemplateConfigFormDefinition::class))->setFlags(new Required()),
             (new StringField('type', 'type'))->setFlags(new Required()),
-            (new StringField('name', 'name'))->setFlags(new Required()),
+            (new StringField('name', 'name'))->setFlags(new Required(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
             new IntField('position', 'position'),
             new LongTextField('default_value', 'defaultValue'),
             new LongTextField('selection', 'selection'),
-            new StringField('field_label', 'fieldLabel'),
+            (new StringField('field_label', 'fieldLabel'))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
             new StringField('support_text', 'supportText'),
             new BoolField('allow_blank', 'allowBlank'),
             new LongTextField('attributes', 'attributes'),

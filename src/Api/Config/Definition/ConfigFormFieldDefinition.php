@@ -28,6 +28,7 @@ use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
+use Shopware\Api\Entity\Write\Flag\SearchRanking;
 
 class ConfigFormFieldDefinition extends EntityDefinition
 {
@@ -64,7 +65,7 @@ class ConfigFormFieldDefinition extends EntityDefinition
             new FkField('config_form_id', 'configFormId', ConfigFormDefinition::class),
             new ReferenceVersionField(ConfigFormDefinition::class),
 
-            (new StringField('name', 'name'))->setFlags(new Required()),
+            (new StringField('name', 'name'))->setFlags(new Required(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
             (new StringField('type', 'type'))->setFlags(new Required()),
             new LongTextField('value', 'value'),
             new BoolField('required', 'required'),
@@ -73,8 +74,8 @@ class ConfigFormFieldDefinition extends EntityDefinition
             new LongTextField('options', 'options'),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            new TranslatedField(new StringField('label', 'label')),
-            new TranslatedField(new LongTextField('description', 'description')),
+            (new TranslatedField(new StringField('label', 'label')))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
+            (new TranslatedField(new LongTextField('description', 'description')))->setFlags(new SearchRanking(self::LOW_SEARCH_RAKING)),
             new ManyToOneAssociationField('configForm', 'config_form_id', ConfigFormDefinition::class, false),
             (new TranslationsAssociationField('translations', ConfigFormFieldTranslationDefinition::class, 'config_form_field_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new OneToManyAssociationField('values', ConfigFormFieldValueDefinition::class, 'config_form_field_id', false, 'id'))->setFlags(new CascadeDelete()),

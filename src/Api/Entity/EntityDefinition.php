@@ -14,6 +14,11 @@ use Shopware\Context\Struct\ShopContext;
 
 abstract class EntityDefinition
 {
+    public const HIGH_SEARCH_RANKING = 500;
+    public const MIDDLE_SEARCH_RANKING = 250;
+    public const LOW_SEARCH_RAKING = 80;
+    public const ASSOCIATION_SEARCH_RANKING = 0.25;
+
     /**
      * @var FieldCollection
      */

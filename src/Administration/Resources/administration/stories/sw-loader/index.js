@@ -1,12 +1,14 @@
 import { storiesOf } from '@storybook/vue';
-import centered from '@storybook/addon-centered';
 import { withKnobs, boolean } from '@storybook/addon-knobs/vue';
-import vueComponents from './helper/components.collector';
+import vueComponents from '../helper/components.collector';
+import SwagVueInfoPanel from '../addons/info-addon';
+import description from './description.md';
 
-storiesOf('Loading Indicator', module)
-    .addDecorator(centered)
+storiesOf('sw-loader', module)
+    .addDecorator(SwagVueInfoPanel)
     .addDecorator(withKnobs)
     .add('Loader usage', () => ({
+        description,
         components: {
             'sw-loader': vueComponents.get('sw-loader'),
             'sw-card': vueComponents.get('sw-card')

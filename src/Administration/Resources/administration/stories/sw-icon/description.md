@@ -1,0 +1,1 @@
+Place vector icons anywhere using a SVG sprite sheet. The icon will be included using SVG fragments.

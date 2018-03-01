@@ -8,6 +8,14 @@ const componentFactory = factoryContainer.component;
 
 const componentRegistry = componentFactory.getComponentRegistry();
 
+Vue.filter('asset', (value) => {
+    if (!value) {
+        return '';
+    }
+
+    return value;
+});
+
 const vueComponents = new Map();
 componentRegistry.forEach((component) => {
     const componentName = component.name;

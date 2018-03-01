@@ -123,8 +123,8 @@ class Generator extends TestCase
             $paymentMethod,
             $shippingMethod,
             ShippingLocation::createFromAddress($shipping),
-            new ContextRuleBasicCollection(),
-            $customer
+            $customer,
+            []
         );
     }
 

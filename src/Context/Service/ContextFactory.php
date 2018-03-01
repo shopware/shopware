@@ -26,8 +26,6 @@ namespace Shopware\Context\Service;
 
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
-use Shopware\Api\Context\Collection\ContextRuleBasicCollection;
-use Shopware\Api\Context\Repository\ContextRuleRepository;
 use Shopware\Api\Country\Repository\CountryRepository;
 use Shopware\Api\Country\Repository\CountryStateRepository;
 use Shopware\Api\Currency\Repository\CurrencyRepository;
@@ -110,11 +108,6 @@ class ContextFactory implements ContextFactoryInterface
      */
     private $countryStateRepository;
 
-    /**
-     * @var ContextRuleRepository
-     */
-    private $contextRuleRepository;
-
     public function __construct(
         ShopRepository $shopRepository,
         CurrencyRepository $currencyRepository,
@@ -126,8 +119,7 @@ class ContextFactory implements ContextFactoryInterface
         PaymentMethodRepository $paymentMethodRepository,
         ShippingMethodRepository $shippingMethodRepository,
         Connection $connection,
-        CountryStateRepository $countryStateRepository,
-        ContextRuleRepository $contextRuleRepository
+        CountryStateRepository $countryStateRepository
     ) {
         $this->shopRepository = $shopRepository;
         $this->currencyRepository = $currencyRepository;
@@ -140,7 +132,6 @@ class ContextFactory implements ContextFactoryInterface
         $this->shippingMethodRepository = $shippingMethodRepository;
         $this->connection = $connection;
         $this->countryStateRepository = $countryStateRepository;
-        $this->contextRuleRepository = $contextRuleRepository;
     }
 
     public function create(
@@ -201,8 +192,6 @@ class ContextFactory implements ContextFactoryInterface
         //detect active delivery method, at first checkout scope, at least shop default method
         $delivery = $this->getShippingMethod($shop, $shopContext, $checkoutScope);
 
-        $contextRules = $this->contextRuleRepository->search(new Criteria(), $shopContext);
-
         $context = new StorefrontContext(
             $shop,
             $currency,
@@ -212,8 +201,8 @@ class ContextFactory implements ContextFactoryInterface
             $payment,
             $delivery,
             $shippingLocation,
-            new ContextRuleBasicCollection($contextRules->getElements()),
-            $customer
+            $customer,
+            []
         );
 
         return $context;

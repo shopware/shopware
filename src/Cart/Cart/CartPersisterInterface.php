@@ -27,6 +27,7 @@ namespace Shopware\Cart\Cart;
 
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Cart\Struct\Cart;
+use Shopware\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Context\Struct\StorefrontContext;
 
 interface CartPersisterInterface

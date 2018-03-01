@@ -25,19 +25,9 @@
 namespace Shopware\Storefront\Context;
 
 use Psr\Cache\CacheItemPoolInterface;
-use Shopware\Cart\Cart\CartCollector;
-use Shopware\Cart\Cart\CartPersisterInterface;
-use Shopware\Cart\Cart\CartProcessor;
-use Shopware\Cart\Cart\CartValidator;
-use Shopware\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Cart\Cart\Struct\Cart;
-use Shopware\Cart\Delivery\Struct\DeliveryCollection;
-use Shopware\Cart\Exception\CartTokenNotFoundException;
-use Shopware\Cart\LineItem\CalculatedLineItemCollection;
-use Shopware\Cart\Price\Struct\CartPrice;
-use Shopware\Cart\Tax\TaxDetector;
 use Shopware\CartBridge\Service\StoreFrontCartService;
 use Shopware\Context\Service\ContextFactoryInterface;
+use Shopware\Context\Service\ContextRuleLoader;
 use Shopware\Context\Struct\CheckoutScope;
 use Shopware\Context\Struct\CustomerScope;
 use Shopware\Context\Struct\ShopScope;
@@ -85,28 +75,9 @@ class StorefrontContextService implements StorefrontContextServiceInterface
     private $context;
 
     /**
-     * @var CartPersisterInterface
+     * @var ContextRuleLoader
      */
-    private $cartPersister;
-
-    /**
-     * @var TaxDetector
-     */
-    private $taxDetector;
-
-    /**
-     * @var CartCollector
-     */
-    private $cartCollector;
-
-    /**
-     * @var CartValidator
-     */
-    private $cartValidator;
-    /**
-     * @var CartProcessor
-     */
-    private $cartProcessor;
+    private $contextRuleLoader;
 
     public function __construct(
         RequestStack $requestStack,
@@ -114,22 +85,14 @@ class StorefrontContextService implements StorefrontContextServiceInterface
         CacheItemPoolInterface $cache,
         SerializerInterface $serializer,
         TokenStorageInterface $securityTokenStorage,
-        CartPersisterInterface $cartPersister,
-        TaxDetector $taxDetector,
-        CartCollector $cartCollector,
-        CartProcessor $cartProcessor,
-        CartValidator $cartValidator
+        ContextRuleLoader $contextRuleLoader
     ) {
         $this->requestStack = $requestStack;
         $this->factory = $factory;
         $this->cache = $cache;
         $this->serializer = $serializer;
         $this->securityTokenStorage = $securityTokenStorage;
-        $this->cartPersister = $cartPersister;
-        $this->taxDetector = $taxDetector;
-        $this->cartCollector = $cartCollector;
-        $this->cartValidator = $cartValidator;
-        $this->cartProcessor = $cartProcessor;
+        $this->contextRuleLoader = $contextRuleLoader;
     }
 
     public function getStorefrontContext(): StorefrontContext
@@ -174,16 +137,20 @@ class StorefrontContextService implements StorefrontContextServiceInterface
         if ($useCache && $context = $cacheItem->get()) {
             try {
                 $context = $this->serializer->deserialize($context, '', 'json');
+                $this->context = $context;
 
-                $context = $this->findMatchingContextRules($context, $checkoutScope);
+                $rules = $this->contextRuleLoader->loadMatchingRules($context, $checkoutScope->getCartToken());
+                $this->context->setContextRulesIds($rules->getIds());
+                $this->context->lockRules();
 
-                return $this->context = $context;
+                return $this->context;
             } catch (\Exception $e) {
                 //todo@dr log message
             }
         }
 
         $context = $this->factory->create($shopScope, $customerScope, $checkoutScope);
+        $this->context = $context;
 
         $outputKey = $this->getCacheKey(
             ShopScope::createFromContext($context),
@@ -192,7 +159,6 @@ class StorefrontContextService implements StorefrontContextServiceInterface
         );
 
         $data = $this->serializer->serialize($context, 'json');
-
         $outputCacheItem = $this->cache->getItem($outputKey);
 
         $cacheItem->set($data);
@@ -201,54 +167,9 @@ class StorefrontContextService implements StorefrontContextServiceInterface
         $this->cache->save($cacheItem);
         $this->cache->save($outputCacheItem);
 
-        $context = $this->findMatchingContextRules($context, $checkoutScope);
-
-        return $this->context = $context;
-    }
-
-    private function findMatchingContextRules(StorefrontContext $context, CheckoutScope $checkoutScope)
-    {
-        try {
-            $calculated = $this->cartPersister->loadCalculated(
-                (string) $checkoutScope->getCartToken(),
-                StoreFrontCartService::CART_NAME
-            );
-        } catch (CartTokenNotFoundException $e) {
-            $calculated = new CalculatedCart(
-                Cart::createNew(StoreFrontCartService::CART_NAME),
-                new CalculatedLineItemCollection(),
-                CartPrice::createEmpty($this->taxDetector->getTaxState($context)),
-                new DeliveryCollection()
-            );
-        }
-
-        $rules = $context->getContextRules();
-
-        $valid = false;
-
-        //first collect additional data for cart processors outside the loop to prevent duplicate database access
-        $processorData = $this->cartCollector->collect($calculated->getCart(), $context);
-
-        while (!$valid) {
-            //find rules which matching current cart and context state
-            $rules = $rules->filterMatchingRules($calculated, $context);
-
-            //place rules into context for further usages
-            $context->setContextRules($rules);
-
-            //recalculate cart for new context rules
-            $newCart = $this->cartProcessor->process($calculated->getCart(), $context, $processorData);
-
-            //if cart isn't valid, return the context rule finding
-            $valid = $this->cartValidator->isValid($calculated, $context);
-
-            if ($this->cartChanged($calculated, $newCart)) {
-                $valid = false;
-                $calculated = $newCart;
-            }
-        }
-
-        $context->lockRules();
+        $rules = $this->contextRuleLoader->loadMatchingRules($context, $checkoutScope->getCartToken());
+        $this->context->setContextRulesIds($rules->getIds());
+        $this->context->lockRules();
 
         return $context;
     }
@@ -346,6 +267,10 @@ class StorefrontContextService implements StorefrontContextServiceInterface
     private function getSessionValueOrNull(string $key)
     {
         $request = $this->requestStack->getCurrentRequest();
+        if (!$request) {
+            return null;
+        }
+
         if (!$session = $request->getSession()) {
             return null;
         }
@@ -362,8 +287,4 @@ class StorefrontContextService implements StorefrontContextServiceInterface
         return $this->getSessionValueOrNull(StoreFrontCartService::CART_TOKEN_KEY);
     }
 
-    private function cartChanged(CalculatedCart $previous, CalculatedCart $current): bool
-    {
-        return md5(json_encode($previous)) !== md5(json_encode($current));
-    }
 }

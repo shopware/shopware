@@ -10,6 +10,26 @@
 
     <services>
 
+        <service class="Shopware\Context\Service\ContextRuleLoader" id="Shopware\Context\Service\ContextRuleLoader">
+            <argument id="Shopware\CartBridge\Cart\CartPersister" type="service"/>
+            <argument id="Shopware\Cart\Tax\TaxDetector" type="service"/>
+            <argument id="Shopware\Cart\Cart\CartCollector" type="service"/>
+            <argument id="Shopware\Cart\Cart\CartProcessor" type="service"/>
+            <argument id="Shopware\Cart\Cart\CartValidator" type="service"/>
+            <argument id="shopware.cache" type="service"/>
+            <argument id="Shopware\Api\Context\Repository\ContextRuleRepository" type="service"/>
+            <argument id="serializer" type="service"/>
+        </service>
+
+        <service class="Shopware\Storefront\Context\StorefrontContextService" id="Shopware\Storefront\Context\StorefrontContextService" public="true">
+            <argument id="request_stack" type="service"/>
+            <argument id="Shopware\Context\Service\ContextFactory" type="service"/>
+            <argument id="shopware.cache" type="service"/>
+            <argument id="serializer" type="service"/>
+            <argument id="security.token_storage" type="service"/>
+            <argument type="service" id="Shopware\Context\Service\ContextRuleLoader"/>
+        </service>
+
         <service class="Shopware\Storefront\Twig\TemplateDataExtension" id="Shopware\Storefront\Twig\TemplateDataExtension">
             <tag name="twig.extension" />
 
@@ -65,18 +85,7 @@
             <tag name="controller.argument_value_resolver"/>
         </service>
 
-        <service class="Shopware\Storefront\Context\StorefrontContextService" id="Shopware\Storefront\Context\StorefrontContextService" public="true">
-            <argument id="request_stack" type="service"/>
-            <argument id="Shopware\Context\Service\ContextFactory" type="service"/>
-            <argument id="shopware.cache" type="service"/>
-            <argument id="serializer" type="service"/>
-            <argument id="security.token_storage" type="service"/>
-            <argument type="service" id="Shopware\CartBridge\Cart\CartPersister"/>
-            <argument type="service" id="Shopware\Cart\Tax\TaxDetector"/>
-            <argument type="service" id="Shopware\Cart\Cart\CartCollector"/>
-            <argument type="service" id="Shopware\Cart\Cart\CartProcessor"/>
-            <argument type="service" id="Shopware\Cart\Cart\CartValidator"/>
-        </service>
+
 
         <service class="Shopware\Storefront\Context\StorefrontContextSwitcher" id="Shopware\Storefront\Context\StorefrontContextSwitcher">
             <argument id="session" type="service"/>

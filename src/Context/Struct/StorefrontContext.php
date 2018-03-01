@@ -89,9 +89,9 @@ class StorefrontContext extends Struct
     protected $shippingLocation;
 
     /**
-     * @var ContextRuleBasicCollection
+     * @var array
      */
-    protected $contextRules;
+    protected $contextRulesIds;
 
     /**
      * @var bool
@@ -107,8 +107,8 @@ class StorefrontContext extends Struct
         PaymentMethodBasicStruct $paymentMethod,
         ShippingMethodBasicStruct $shippingMethod,
         ShippingLocation $shippingLocation,
-        ContextRuleBasicCollection $contextRules,
-        ?CustomerBasicStruct $customer
+        ?CustomerBasicStruct $customer,
+        array $contextRulesIds = []
     ) {
         $this->currentCustomerGroup = $currentCustomerGroup;
         $this->fallbackCustomerGroup = $fallbackCustomerGroup;
@@ -119,7 +119,7 @@ class StorefrontContext extends Struct
         $this->paymentMethod = $paymentMethod;
         $this->shippingMethod = $shippingMethod;
         $this->shippingLocation = $shippingLocation;
-        $this->contextRules = $contextRules;
+        $this->contextRulesIds = $contextRulesIds;
         $this->rulesLocked = false;
     }
 
@@ -173,7 +173,7 @@ class StorefrontContext extends Struct
         return new ShopContext(
             $this->shop->getId(),
             [Defaults::CATALOGUE],
-            $this->contextRules->getIds(),
+            $this->contextRulesIds,
             $this->currency->getId(),
             $this->shop->getId(),
             $this->shop->getFallbackTranslationId(),
@@ -182,12 +182,12 @@ class StorefrontContext extends Struct
         );
     }
 
-    public function getContextRules(): ContextRuleBasicCollection
+    public function getContextRulesIds(): array
     {
-        return $this->contextRules;
+        return $this->contextRulesIds;
     }
 
-    public function setContextRules(ContextRuleBasicCollection $rules): void
+    public function setContextRulesIds(array $ruleIds): void
     {
         if ($this->rulesLocked) {
             throw new \RuntimeException(
@@ -195,7 +195,7 @@ class StorefrontContext extends Struct
             );
         }
 
-        $this->contextRules = $rules;
+        $this->contextRulesIds = array_values($ruleIds);
     }
 
     public function lockRules()

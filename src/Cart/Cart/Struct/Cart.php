@@ -60,13 +60,9 @@ class Cart extends Struct
         $this->errors = $errors;
     }
 
-    public static function createNew(string $name, ?string $token = null): self
+    public static function createNew(string $name): self
     {
-        if (!$token) {
-            $token = Uuid::uuid4()->toString();
-        }
-
-        return new self($name, $token, new LineItemCollection(), new ErrorCollection());
+        return new self($name, Uuid::uuid4()->toString(), new LineItemCollection(), new ErrorCollection());
     }
 
     public function getName(): string

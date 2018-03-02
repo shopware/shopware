@@ -219,8 +219,13 @@ class Criteria extends Struct
     /**
      * @return ScoreQuery[]
      */
-    public function getQueries()
+    public function getQueries(): array
     {
         return $this->queries;
+    }
+
+    public function addSortings(array $sortings): void
+    {
+        array_map([$this, 'addSorting'], $sortings);
     }
 }

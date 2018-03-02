@@ -17,10 +17,14 @@ use Shopware\Api\Entity\RepositoryInterface;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Parser\QueryStringParser;
 use Shopware\Api\Entity\Search\Query\TermQuery;
+use Shopware\Api\Entity\Search\Sorting\FieldSorting;
+use Shopware\Api\Entity\Search\Term\EntityScoreQueryBuilder;
+use Shopware\Api\Entity\Search\Term\SearchTermInterpreter;
 use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\FieldException\WriteStackException;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Entity\Write\WriteContext;
+use Shopware\Context\Struct\ShopContext;
 use Shopware\Rest\Exception\ResourceNotFoundException;
 use Shopware\Rest\Exception\WriteStackHttpException;
 use Shopware\Rest\Response\ResponseFactory;
@@ -115,7 +119,7 @@ class ApiController extends Controller
 
         $first = array_shift($path);
 
-        /** @var EntityDefinition $definition */
+        /** @var EntityDefinition|string $definition */
         $definition = $first['definition'];
 
         /** @var RepositoryInterface $repository */
@@ -123,7 +127,7 @@ class ApiController extends Controller
 
         if (empty($path)) {
             $data = $repository->search(
-                $this->createListingCriteria($request),
+                $this->createListingCriteria($definition, $request, $context->getShopContext()),
                 $context->getShopContext()
             );
 
@@ -137,7 +141,7 @@ class ApiController extends Controller
             $parent = array_pop($path);
         }
 
-        $criteria = $this->createListingCriteria($request);
+        $criteria = $this->createListingCriteria($definition, $request, $context->getShopContext());
 
         $association = $child['field'];
 
@@ -439,10 +443,6 @@ class ApiController extends Controller
 
         $repository = $this->get($parentDefinition::getRepositoryClass());
 
-        $foreignKey = $definition::getFields()->getByStorageName(
-            $association->getMappingReferenceColumn()
-        );
-
         $payload = [
             'id' => $parent['value'],
             $association->getPropertyName() => [
@@ -577,7 +577,7 @@ class ApiController extends Controller
         return lcfirst(implode('', $parts));
     }
 
-    private function createListingCriteria(Request $request): Criteria
+    private function createListingCriteria(string $definition, Request $request, ShopContext $context): Criteria
     {
         $criteria = new Criteria();
         $criteria->setFetchCount(true);
@@ -595,6 +595,26 @@ class ApiController extends Controller
             $criteria->addFilter(
                 QueryStringParser::fromUrl($request->query->get('query'))
             );
+        }
+        if ($request->query->has('term')) {
+            $pattern = $this->get(SearchTermInterpreter::class)->interpret(
+                (string) $request->query->get('term'),
+                $context
+            );
+
+            /** @var EntityDefinition|string $definition */
+            $queries = $this->get(EntityScoreQueryBuilder::class)->buildScoreQueries(
+                $pattern,
+                $definition,
+                $definition::getEntityName()
+            );
+
+            $criteria->addQueries($queries);
+        }
+
+        if ($request->query->has('sort')) {
+            $sortings = $this->parseSortings($definition, $request->query->get('sort'));
+            $criteria->addSortings($sortings);
         }
 
         $pageQuery = $request->query->get('page', []);
@@ -701,5 +721,30 @@ class ApiController extends Controller
         }
 
         return $response;
+    }
+
+    private function parseSortings(string $definition, string $query): array
+    {
+        $parts = array_filter(explode(',', $query));
+
+        $sortings = [];
+        foreach ($parts as $part) {
+            $first = substr($part, 0, 1);
+
+            $direction = $first === '-' ? FieldSorting::DESCENDING : FieldSorting::ASCENDING;
+
+            $subParts = explode('.', $part);
+
+            /** @var string|EntityDefinition $definition */
+            $root = $definition::getEntityName();
+
+            if ($subParts[0] !== $root) {
+                $part = $definition::getEntityName().'.'.$part;
+            }
+
+            $sortings[] = new FieldSorting($part, $direction);
+        }
+
+        return $sortings;
     }
 }

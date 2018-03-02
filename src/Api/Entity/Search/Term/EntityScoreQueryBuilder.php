@@ -5,7 +5,9 @@ namespace Shopware\Api\Entity\Search\Term;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Field\AssociationInterface;
 use Shopware\Api\Entity\Field\ManyToManyAssociationField;
+use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
+use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Search\Query\MatchQuery;
 use Shopware\Api\Entity\Search\Query\ScoreQuery;
 use Shopware\Api\Entity\Search\Query\TermQuery;
@@ -23,12 +25,7 @@ class EntityScoreQueryBuilder
      */
     public function buildScoreQueries(SearchPattern $term, string $definition, string $root, float $multiplier = 1): array
     {
-        /** @var EntityDefinition $definition */
-        $fields = $definition::getFields()->filterByFlag(SearchRanking::class);
-
-        if ($fields->count() <= 0) {
-            $fields = $definition::getFields()->filterInstance(TranslatedField::class);
-        }
+        $fields = $this->getQueryFields($definition);
 
         $queries = [];
         foreach ($fields as $field) {
@@ -85,5 +82,23 @@ class EntityScoreQueryBuilder
         }
 
         return $queries;
+    }
+
+
+    private function getQueryFields(string $definition): FieldCollection
+    {
+        /** @var EntityDefinition $definition */
+        $fields = $definition::getFields()->filterByFlag(SearchRanking::class);
+
+        if ($fields->count() > 0) {
+            return $fields;
+        }
+
+        $fields = $definition::getFields()->filterInstance(TranslatedField::class);
+        if ($fields->count() > 0) {
+            return $fields;
+        }
+
+        return $definition::getFields()->filterInstance(StringField::class);
     }
 }

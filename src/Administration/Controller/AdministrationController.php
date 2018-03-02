@@ -53,7 +53,7 @@ class AdministrationController extends Controller
      */
     public function searchAction(Request $request, RestContext $restContext): JsonResponse
     {
-        $term = $request->query->getAlpha('term');
+        $term = $request->query->get('term');
         $page = $request->query->getInt('page', 1);
         $limit = $request->query->getInt('limit', 20);
 

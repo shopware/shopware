@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * Shopware 5
  * Copyright (c) shopware AG
@@ -22,40 +23,49 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Context\Rule\Exception;
+namespace Shopware\Cart\Price\Struct;
 
-class UnsupportedOperatorException extends \Exception
+use Shopware\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Framework\Struct\Collection;
+
+class PriceDefinitionCollection extends Collection
 {
     /**
-     * @var string
+     * @var PriceDefinition[]
      */
-    protected $operator;
+    protected $elements = [];
 
-    /**
-     * @var string
-     */
-    protected $class;
-
-    /**
-     * @param string $operator
-     * @param string $class
-     */
-    public function __construct($operator, $class)
+    public function add(PriceDefinition $price): void
     {
-        $this->operator = $operator;
-        $this->class = $class;
-        parent::__construct(
-            sprintf('Unsupported operator %s in %s', $this->operator, $this->class)
-        );
+        parent::doAdd($price);
     }
 
-    public function getOperator(): string
+    public function remove(int $key): void
     {
-        return $this->operator;
+        parent::doRemoveByKey($key);
     }
 
-    public function getClass(): string
+    public function get(int $key): ? PriceDefinition
     {
-        return $this->class;
+        if ($this->has($key)) {
+            return $this->elements[$key];
+        }
+
+        return null;
+    }
+
+    public function getTaxRules(): TaxRuleCollection
+    {
+        $rules = new TaxRuleCollection([]);
+        foreach ($this->elements as $price) {
+            $rules = $rules->merge($price->getTaxRules());
+        }
+
+        return $rules;
+    }
+
+    public function merge(self $definitions): self
+    {
+        return $this->doMerge($definitions);
     }
 }

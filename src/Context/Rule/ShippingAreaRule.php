@@ -25,7 +25,7 @@
 namespace Shopware\Context\Rule;
 
 use Shopware\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Context\Rule\Exception\UnsupportedOperatorException;
+use Shopware\Context\Exception\UnsupportedOperatorException;
 use Shopware\Context\Struct\StorefrontContext;
 
 class ShippingAreaRule extends \Shopware\Context\Rule\Rule

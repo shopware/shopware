@@ -43,7 +43,7 @@ class ShippingAreaRuleTest extends TestCase
      * @param array  $ruleData
      * @param string $currentArea
      *
-     * @throws \Shopware\Context\Rule\Exception\UnsupportedOperatorException
+     * @throws \Shopware\Context\Exception\UnsupportedOperatorException
      */
     public function testEquals(array $ruleData, string $currentArea): void
     {
@@ -82,7 +82,7 @@ class ShippingAreaRuleTest extends TestCase
      * @param array  $ruleData
      * @param string $currentArea
      *
-     * @throws \Shopware\Context\Rule\Exception\UnsupportedOperatorException
+     * @throws \Shopware\Context\Exception\UnsupportedOperatorException
      */
     public function testNotEquals(array $ruleData, string $currentArea): void
     {
@@ -118,7 +118,7 @@ class ShippingAreaRuleTest extends TestCase
     /**
      * @dataProvider unsupportedOperators
      *
-     * @expectedException \Shopware\Context\Rule\Exception\UnsupportedOperatorException
+     * @expectedException \Shopware\Context\Exception\UnsupportedOperatorException
      *
      * @param string $operator
      */

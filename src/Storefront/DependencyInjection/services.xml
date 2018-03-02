@@ -28,6 +28,7 @@
             <argument id="serializer" type="service"/>
             <argument id="security.token_storage" type="service"/>
             <argument type="service" id="Shopware\Context\Service\ContextRuleLoader"/>
+            <argument type="service" id="logger"/>
         </service>
 
         <service class="Shopware\Storefront\Twig\TemplateDataExtension" id="Shopware\Storefront\Twig\TemplateDataExtension">

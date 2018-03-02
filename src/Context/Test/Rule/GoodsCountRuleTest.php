@@ -192,7 +192,7 @@ class GoodsCountRuleTest extends TestCase
     /**
      * @dataProvider unsupportedOperators
      *
-     * @expectedException \Shopware\Context\Rule\Exception\UnsupportedOperatorException
+     * @expectedException \Shopware\Context\Exception\UnsupportedOperatorException
      *
      * @param string $operator
      */

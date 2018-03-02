@@ -29,7 +29,7 @@ use Shopware\Api\Country\Struct\Country;
 use Shopware\Api\Country\Struct\CountryBasicStruct;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Delivery\Struct\ShippingLocation;
-use Shopware\Context\Rule\Exception\UnsupportedOperatorException;
+use Shopware\Context\Exception\UnsupportedOperatorException;
 use Shopware\Context\Rule\ShippingCountryRule;
 use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
@@ -119,7 +119,7 @@ class ShippingCountryRuleTest extends TestCase
     /**
      * @dataProvider unsupportedOperators
      *
-     * @expectedException \Shopware\Context\Rule\Exception\UnsupportedOperatorException
+     * @expectedException \Shopware\Context\Exception\UnsupportedOperatorException
      *
      * @param string $operator
      */

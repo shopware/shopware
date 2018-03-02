@@ -33,6 +33,7 @@ use Shopware\Api\Shipping\Struct\ShippingMethodBasicStruct;
 use Shopware\Api\Shop\Struct\ShopDetailStruct;
 use Shopware\Api\Tax\Collection\TaxBasicCollection;
 use Shopware\Cart\Delivery\Struct\ShippingLocation;
+use Shopware\Context\Exception\ContextRulesLockedException;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\Struct;
 
@@ -96,7 +97,7 @@ class StorefrontContext extends Struct
     /**
      * @var bool
      */
-    protected $rulesLocked;
+    protected $rulesLocked = false;
 
     public function __construct(
         ShopDetailStruct $shop,
@@ -120,7 +121,6 @@ class StorefrontContext extends Struct
         $this->shippingMethod = $shippingMethod;
         $this->shippingLocation = $shippingLocation;
         $this->contextRulesIds = $contextRulesIds;
-        $this->rulesLocked = false;
     }
 
     public function getCurrentCustomerGroup(): CustomerGroupBasicStruct
@@ -190,9 +190,7 @@ class StorefrontContext extends Struct
     public function setContextRulesIds(array $ruleIds): void
     {
         if ($this->rulesLocked) {
-            throw new \RuntimeException(
-                sprintf('Context rules can not be switch any more')
-            );
+            throw new ContextRulesLockedException();
         }
 
         $this->contextRulesIds = array_values($ruleIds);

@@ -25,6 +25,7 @@
 namespace Shopware\Storefront\Context;
 
 use Psr\Cache\CacheItemPoolInterface;
+use Psr\Log\LoggerInterface;
 use Shopware\CartBridge\Service\StoreFrontCartService;
 use Shopware\Context\Service\ContextFactoryInterface;
 use Shopware\Context\Service\ContextRuleLoader;
@@ -79,13 +80,19 @@ class StorefrontContextService implements StorefrontContextServiceInterface
      */
     private $contextRuleLoader;
 
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
     public function __construct(
         RequestStack $requestStack,
         ContextFactoryInterface $factory,
         CacheItemPoolInterface $cache,
         SerializerInterface $serializer,
         TokenStorageInterface $securityTokenStorage,
-        ContextRuleLoader $contextRuleLoader
+        ContextRuleLoader $contextRuleLoader,
+        LoggerInterface $logger
     ) {
         $this->requestStack = $requestStack;
         $this->factory = $factory;
@@ -93,6 +100,7 @@ class StorefrontContextService implements StorefrontContextServiceInterface
         $this->serializer = $serializer;
         $this->securityTokenStorage = $securityTokenStorage;
         $this->contextRuleLoader = $contextRuleLoader;
+        $this->logger = $logger;
     }
 
     public function getStorefrontContext(): StorefrontContext
@@ -145,7 +153,7 @@ class StorefrontContextService implements StorefrontContextServiceInterface
 
                 return $this->context;
             } catch (\Exception $e) {
-                //todo@dr log message
+                $this->logger->error($e->getMessage());
             }
         }
 

@@ -7,6 +7,7 @@ use Shopware\Api\Product\Collection\PriceRuleCollection;
 use Shopware\Api\Tax\Struct\TaxBasicStruct;
 use Shopware\Api\Unit\Struct\UnitBasicStruct;
 use Shopware\Cart\Price\Struct\PriceDefinition;
+use Shopware\Cart\Price\Struct\PriceDefinitionCollection;
 use Shopware\Cart\Tax\Struct\PercentageTaxRule;
 use Shopware\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Context\Struct\ShopContext;
@@ -678,7 +679,7 @@ class ProductBasicStruct extends Entity
         $this->unit = $unit;
     }
 
-    public function getPricesDefinition(ShopContext $context): array
+    public function getPricesDefinition(ShopContext $context): PriceDefinitionCollection
     {
         $taxRules = new TaxRuleCollection([
             new PercentageTaxRule($this->getTax()->getRate(), 100),
@@ -687,14 +688,16 @@ class ProductBasicStruct extends Entity
         $prices = $this->getPrices()->getPriceRulesForContext($context);
 
         if (!$prices) {
-            return [];
+            return new PriceDefinitionCollection();
         }
 
-        return $prices->map(function (PriceRuleStruct $rule) use ($taxRules) {
+        $definitions = $prices->map(function (PriceRuleStruct $rule) use ($taxRules) {
             $quantity = $rule->getQuantityEnd() ?? $rule->getQuantityStart();
 
             return new PriceDefinition($rule->getGross(), $taxRules, $quantity, true);
         });
+
+        return new PriceDefinitionCollection($definitions);
     }
 
     public function getListingPriceDefinition(ShopContext $context): PriceDefinition

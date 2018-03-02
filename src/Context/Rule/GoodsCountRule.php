@@ -26,7 +26,7 @@ namespace Shopware\Context\Rule;
 
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\LineItem\GoodsInterface;
-use Shopware\Context\Rule\Exception\UnsupportedOperatorException;
+use Shopware\Context\Exception\UnsupportedOperatorException;
 use Shopware\Context\Struct\StorefrontContext;
 
 class GoodsCountRule extends Rule

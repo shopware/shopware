@@ -1,20 +1,161 @@
-<aside class="sw--sidebar is--collapsed">
-    <div class="sidebar--logo">
-        <div class="shopware--logo"></div>
-        <div class="logo--text">Admin Prototype<br><span class="text--suffix">Shopware Administration</span></div>
-    </div>
+{% block sw_sidebar %}
+    <aside class="sw-sidebar" :class="{'is--collapsed': isCollapsed}">
 
-    <nav class="main-navigation">
-        <ul class="nav">
-            <sw-sidebar-item v-for="entry in mainMenuEntries" :entry="entry" :key="entry.path"></sw-sidebar-item>
-        </ul>
-    </nav>
+        {% block sw_sidebar_header %}
+            <div class="sw-sidebar__header">
 
-    <nav class="account-navigation">
-        <li>
-            <a href="#" v-on:click.prevent="onLogoutUser">
-                Logout current user
-            </a>
-        </li>
-    </nav>
-</aside>
+                {% block sw_sidebar_header_logo %}
+                    <div class="sw-sidebar__header-logo" role="img"></div>
+                {% endblock %}
+
+                {% block sw_sidebar_header_shop_attributes %}
+                    <div class="sw-sidebar__header-shop-attributes collapse-inline">
+
+                        {% block sw_sidebar_header_shop_name %}
+                            <h1 class="sw-sidebar__header-shop-name">
+                                Demo Shop
+                            </h1>
+                        {% endblock %}
+
+                        {% block sw_sidebar_header_shop_version %}
+                            <div class="sw-sidebar__header-shop-version">
+                                NEXT 1.0.0
+                            </div>
+                        {% endblock %}
+
+                        {% block sw_sidebar_header_shop_status %}
+                            <span class="sw-sidebar__health-status"
+                                  data-tooltip="check"
+                                  title="Shop status: OK">
+                            </span>
+                        {% endblock %}
+
+                    </div>
+               {% endblock %}
+
+            </div>
+        {% endblock %}
+
+        {% block sw_sidebar_body %}
+            <div class="sw-sidebar__body">
+
+                {% block sw_sidebar_navigation_main %}
+                    <nav class="sw-sidebar__navigation">
+                        <ul class="sw-sidebar__navigation-list">
+                            <sw-sidebar-item v-for="entry in mainMenuEntries"
+                                             v-on:menuItemChanged="openFlyout"
+                                             v-on:listItemClicked="openSubMenu"
+                                             :entry="entry"
+                                             :key="entry.path"
+                                             :class="entry.label">
+
+                                <ul v-if="isCollapsed" class="sw-sidebar__sub-navigation-list">
+                                    <sw-sidebar-item v-for="entry in entry.children"
+                                                     :entry="entry"
+                                                     :key="entry.path"
+                                                     :displayIcon="false">
+                                    </sw-sidebar-item>
+                                </ul>
+
+                            </sw-sidebar-item>
+                        </ul>
+                    </nav>
+                {% endblock %}
+
+                {% block sw_sidebar_navigation_sales_channels_headline %}
+                    <div class="sw-sidebar__headline">
+                        <div class="collapse-inline">Verkaufskanäle</div>
+                        <button class="sw-sidebar__headline-action">
+                            <sw-icon name="small-default-plus-circle" small></sw-icon>
+                        </button>
+                    </div>
+                {% endblock %}
+
+                {% block sw_sidebar_navigation_sales_channels %}
+                    <nav class="sw-sidebar__navigation sw-sidebar__navigation--secondary">
+                        <ul class="sw-sidebar__navigation-list">
+                            <li class="sw-sidebar__navigation-list-item">
+                                <a class="sw-sidebar__navigation-link"
+                                   href="#">
+                                    <sw-icon name="default-building-shop" small></sw-icon>
+                                    <span class="collapse-inline">Online Shop</span>
+                                </a>
+                            </li>
+                            <li class="nav--link">
+                                <a class="sw-sidebar__navigation-link" href="#">
+                                    <sw-icon name="default-shopping-basket" small></sw-icon>
+                                    <span class="collapse-inline">POS</span>
+                                </a>
+                            </li>
+                            <li class="nav--link">
+                                <a class="sw-sidebar__navigation-link" href="#">
+                                    <sw-icon name="default-device-micophone" small></sw-icon>
+                                    <span class="collapse-inline">Voice</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block sw_sidebar_footer %}
+            <div class="sw-sidebar__footer">
+
+                {% block sw_sidebar_toggle_sidebar %}
+                    <button class="sw-sidebar__toggle-sidebar"
+                         v-on:click.prevent="onToggleSidebar">
+                        <sw-icon :name="sidebarCollapseIcon" small></sw-icon>
+                        <span class="collapse-inline">Menü minimieren</span>
+                    </button>
+                {% endblock %}
+
+                {% block sw_sidebar_account_menu %}
+                    <div class="sw-sidebar__account-menu"
+                         :class="{'is--active': isAccountMenuActive}"
+                         @click.prevent="onToggleAccountMenu">
+
+                        {% block sw_sidebar_account_menu_avatar %}
+                            <sw-avatar size="40px"></sw-avatar>
+                        {% endblock %}
+
+                        <div class="sw-sidebar__account-menu-user collapse-inline">
+                            <div class="sw-sidebar__account-menu-user-name">admin</div>
+                            <div class="sw-sidebar__account-menu-user-type">Administrator</div>
+                            <sw-icon :name="accountMenuIcon" class="sw-sidebar__account-menu-indicator" small></sw-icon>
+                        </div>
+                    </div>
+                {% endblock %}
+
+                <div class="sw-sidebar__account-menu-items"
+                     :class="{'is--active': isAccountMenuActive}">
+                    <ul class="sw-sidebar__navigation-list">
+                        <li class="sw-sidebar__navigation-list-item">
+                            <a href="#"
+                               class="sw-sidebar__navigation-link"
+                               v-on:click.prevent="onLogoutUser">
+                                <sw-icon name="default-action-log-out" small></sw-icon> Logout
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        {% endblock %}
+
+        {% block sw_sidebar_flyout %}
+            <template v-if="!isCollapsed && flyoutEntries.length">
+                <div class="sw-sidebar__sub-navigation-flyout" :style="flyoutStyle">
+                    <ul v-if="flyoutEntries" class="sw-sidebar__sub-navigation-flyout-list">
+                        <sw-sidebar-item v-for="entry in flyoutEntries"
+                                         :entry="entry"
+                                         :key="entry.path"
+                                         :collapsibleText="false"
+                                         :displayIcon="false">
+                        </sw-sidebar-item>
+                    </ul>
+                </div>
+            </template>
+        {% endblock %}
+
+    </aside>
+{% endblock %}

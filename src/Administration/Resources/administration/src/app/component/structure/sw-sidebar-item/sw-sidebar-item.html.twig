@@ -1,10 +1,11 @@
-<li class="nav--link">
-    <router-link :to="{ name: entry.path }">
-        <sw-icon :name="getIconName(entry.icon)" size="20px" :style="{ 'color': entry.color }" />
-        {{ entry.label }}
+<li class="sw-sidebar__navigation-list-item"
+    @click="$emit('listItemClicked', entry, $event.currentTarget)"
+    @mouseover="$emit('menuItemChanged', entry, $event.currentTarget)">
+    <router-link class="sw-sidebar__navigation-link" :to="{ name: entry.path }">
+        <sw-icon v-if="displayIcon" :name="getIconName(entry.icon)" size="20px" :style="{ 'color': entry.color }" />
+        <span v-if="collapsibleText" class="collapse-inline">{{ entry.label }}</span>
+        <span v-else>{{ entry.label }}</span>
     </router-link>
 
-    <ul class="sw-sidebar--sub-list" v-if="entry.children.length">
-        <sw-sidebar-item v-for="entry in entry.children" :entry="entry" :key="entry.path"></sw-sidebar-item>
-    </ul>
+    <slot v-if="entry.children.length"></slot>
 </li>

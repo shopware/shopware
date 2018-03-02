@@ -13,7 +13,8 @@ export default function initializeView(container) {
     const adapter = VueAdapter(
         container.contextService,
         factoryContainer.component,
-        factoryContainer.state
+        factoryContainer.state,
+        factoryContainer.filter
     );
     const viewFactory = ViewFactory(adapter);
 

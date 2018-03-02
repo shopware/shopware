@@ -30,6 +30,11 @@ export const Mixin = {
     getByName: Shopware.Mixin.getByName
 };
 
+export const Filter = {
+    register: Shopware.Filter.register,
+    getByName: Shopware.Filter.getByName
+};
+
 export const Entity = {
     addDefinition: Shopware.Entity.addDefinition,
     getDefinition: Shopware.Entity.getDefinition,
@@ -45,5 +50,6 @@ export default {
     Application,
     State,
     Mixin,
-    Entity
+    Entity,
+    Filter
 };

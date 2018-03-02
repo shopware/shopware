@@ -13,6 +13,7 @@ const TemplateFactory = require('src/core/factory/template.factory').default;
 const EntityFactory = require('src/core/factory/entity.factory').default;
 const StateFactory = require('src/core/factory/state.factory').default;
 const MixinFactory = require('src/core/factory/mixin.factory').default;
+const FilterFactory = require('src/core/factory/filter.factory').default;
 
 const utils = require('src/core/service/util.service').default;
 const ApplicationBootstrapper = require('src/core/application').default;
@@ -41,6 +42,9 @@ application
     })
     .addFactory('mixin', () => {
         return MixinFactory;
+    })
+    .addFactory('filter', () => {
+        return FilterFactory;
     });
 
 module.exports = {
@@ -104,6 +108,15 @@ module.exports = {
     Mixin: {
         register: MixinFactory.register,
         getByName: MixinFactory.getByName
+    },
+
+    /**
+     * @memberOf module:Shopware
+     * @type {Object}
+     */
+    Filter: {
+        register: FilterFactory.register,
+        getByName: FilterFactory.getByName
     },
 
     /**

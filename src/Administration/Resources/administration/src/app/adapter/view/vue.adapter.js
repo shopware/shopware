@@ -23,9 +23,10 @@ const vueComponents = {};
  * @param context
  * @param componentFactory
  * @param stateFactory
+ * @param filterFactory
  * @returns {VueAdapter}
  */
-export default function VueAdapter(context, componentFactory, stateFactory) {
+export default function VueAdapter(context, componentFactory, stateFactory, filterFactory) {
     return {
         createInstance,
         initComponents,
@@ -168,23 +169,16 @@ export default function VueAdapter(context, componentFactory, stateFactory) {
      *
      * @private
      * @memberOf module:app/adapter/view/vue
+     * @returns {Boolean}
      */
     function initFilters() {
-        Vue.filter('asset', (value) => {
-            if (!value) {
-                return '';
-            }
+        const registry = filterFactory.getRegistry();
 
-            return `${context.assetsPath}${value}`;
+        registry.forEach((factoryMethod, name) => {
+            Vue.filter(name, factoryMethod);
         });
 
-        Vue.filter('currency', (value, format = 'EUR') => {
-            return utils.currency(value, format);
-        });
-
-        Vue.filter('date', (value) => {
-            return utils.date(value);
-        });
+        return true;
     }
 
     /**

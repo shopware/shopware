@@ -112,6 +112,17 @@ declare namespace Shopware {
         ): object|undefined;
     }
 
+    export namespace Filter {
+        export function register(
+            filterName: string,
+            filter: Function
+        ): boolean;
+
+        export function getByName(
+            filterName: string
+        ): object|undefined;
+    }
+
     export namespace Utils {
         export function formDataToObject(
             formData: FormData

@@ -97,7 +97,7 @@ class CategoryDefinition extends EntityDefinition
             new DateField('updated_at', 'updatedAt'),
             (new TranslatedField(new StringField('name', 'name')))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
             new TranslatedField(new LongTextField('path_names', 'pathNames')),
-            new TranslatedField(new LongTextField('meta_keywords', 'metaKeywords')),
+            (new TranslatedField(new LongTextField('meta_keywords', 'metaKeywords')))->setFlags(new SearchRanking(self::LOW_SEARCH_RAKING)),
             new TranslatedField(new StringField('meta_title', 'metaTitle')),
             new TranslatedField(new LongTextField('meta_description', 'metaDescription')),
             new TranslatedField(new StringField('cms_headline', 'cmsHeadline')),

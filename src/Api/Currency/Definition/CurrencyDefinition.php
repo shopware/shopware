@@ -65,7 +65,7 @@ class CurrencyDefinition extends EntityDefinition
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
             (new FloatField('factor', 'factor'))->setFlags(new Required()),
-            (new StringField('symbol', 'symbol'))->setFlags(new Required(), new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
+            (new StringField('symbol', 'symbol'))->setFlags(new Required()),
             (new TranslatedField(new StringField('short_name', 'shortName')))->setFlags(new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
             (new TranslatedField(new StringField('name', 'name')))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
             new BoolField('is_default', 'isDefault'),

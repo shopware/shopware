@@ -8,6 +8,11 @@ use Shopware\Api\Category\Definition\CategoryDefinition;
 use Shopware\Api\Category\Event\Category\CategoryDeletedEvent;
 use Shopware\Api\Category\Repository\CategoryRepository;
 use Shopware\Api\Entity\RepositoryInterface;
+use Shopware\Api\Entity\Search\Criteria;
+use Shopware\Api\Entity\Search\Query\MatchQuery;
+use Shopware\Api\Entity\Search\Query\TermQuery;
+use Shopware\Api\Entity\Search\Term\EntityScoreQueryBuilder;
+use Shopware\Api\Entity\Search\Term\SearchTermInterpreter;
 use Shopware\Api\Entity\Write\EntityWriter;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Entity\Write\Validation\RestrictDeleteViolation;
@@ -251,5 +256,44 @@ class CategoryRepositoryTest extends KernelTestCase
                 $restriction->getRestrictions()[ShopDefinition::class]
             );
         }
+    }
+
+    public function testSearchRanking()
+    {
+        $parent = Uuid::uuid4()->toString();
+        $recordA = Uuid::uuid4()->toString();
+        $recordB = Uuid::uuid4()->toString();
+
+        $categories = [
+            ['id' => $parent, 'name' => 'test'],
+            ['id' => $recordA, 'name' => 'match', 'parentId' => $parent],
+            ['id' => $recordB, 'name' => 'not', 'metaKeywords' => 'match', 'parentId' => $parent],
+        ];
+
+        $this->repository->create($categories, ShopContext::createDefaultContext());
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new TermQuery('category.parentId', $parent));
+
+        $builder = $this->container->get(EntityScoreQueryBuilder::class);
+
+        $pattern = $this->container->get(SearchTermInterpreter::class)->interpret('match', ShopContext::createDefaultContext());
+        $queries = $builder->buildScoreQueries($pattern, CategoryDefinition::class, 'category');
+        $criteria->addQueries($queries);
+
+        $result = $this->repository->searchIds($criteria, ShopContext::createDefaultContext());
+
+        $this->assertCount(2, $result->getIds());
+
+        $this->assertEquals(
+            [$recordA, $recordB],
+            $result->getIds()
+        );
+
+        $this->assertTrue(
+            $result->getDataFieldOfId($recordA, 'score')
+            >
+            $result->getDataFieldOfId($recordB, 'score')
+        );
     }
 }

@@ -65,4 +65,22 @@ class IdSearchResult extends Struct
     {
         return $this->data;
     }
+
+    public function getDataOfId(string $id): array
+    {
+        if (!array_key_exists($id, $this->data)) {
+            return [];
+        }
+        return $this->data[$id];
+    }
+
+    public function getDataFieldOfId(string $id, string $field)
+    {
+        $data = $this->getDataOfId($id);
+
+        if (array_key_exists($field, $data)) {
+            return $data[$field];
+        }
+        return null;
+    }
 }

@@ -70,7 +70,7 @@ class ConfigFormDefinition extends EntityDefinition
             new IntField('position', 'position'),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            new TranslatedField(new LongTextField('description', 'description')),
+            (new TranslatedField(new LongTextField('description', 'description')))->setFlags(new SearchRanking(self::LOW_SEARCH_RAKING)),
             (new TranslatedField(new StringField('label', 'label')))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
             new ManyToOneAssociationField('parent', 'parent_id', self::class, false),
             new ManyToOneAssociationField('plugin', 'plugin_id', PluginDefinition::class, false),

@@ -97,7 +97,7 @@ class CustomerDefinition extends EntityDefinition
             new StringField('validation', 'validation'),
             new BoolField('affiliate', 'affiliate'),
             new StringField('referer', 'referer'),
-            (new LongTextField('internal_comment', 'internalComment'))->setFlags(new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
+            (new LongTextField('internal_comment', 'internalComment'))->setFlags(new SearchRanking(self::LOW_SEARCH_RAKING)),
             new IntField('failed_logins', 'failedLogins'),
             new DateField('locked_until', 'lockedUntil'),
             new DateField('birthday', 'birthday'),

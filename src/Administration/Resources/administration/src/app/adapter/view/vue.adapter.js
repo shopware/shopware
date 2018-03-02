@@ -3,7 +3,6 @@
  */
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-import VueMoment from 'vue-moment';
 import VueX from 'vuex';
 import { sync } from 'vuex-router-sync';
 import storeDefinition from 'src/app/store';
@@ -138,7 +137,6 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
     function initPlugins() {
         Vue.use(VueRouter);
         Vue.use(VueX);
-        Vue.use(VueMoment);
     }
 
     /**

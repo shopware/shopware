@@ -25,8 +25,8 @@ declare(strict_types=1);
 
 namespace Shopware\Cart\Price;
 
-use Shopware\Cart\Price\Struct\DerivedPrice;
-use Shopware\Cart\Price\Struct\PriceCollection;
+use Shopware\Cart\Price\Struct\CalculatedPriceCollection;
+use Shopware\Cart\Price\Struct\DerivedCalculatedPrice;
 use Shopware\Cart\Price\Struct\PriceDefinition;
 use Shopware\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Context\Struct\StorefrontContext;
@@ -61,17 +61,17 @@ class PercentagePriceCalculator
     /**
      * Provide a negative percentage value for discount or a positive percentage value for a surcharge
      *
-     * @param float             $percentage 10.00 for 10%, -10.0 for -10%
-     * @param PriceCollection   $prices
-     * @param StorefrontContext $context
+     * @param float                     $percentage 10.00 for 10%, -10.0 for -10%
+     * @param CalculatedPriceCollection $prices
+     * @param StorefrontContext         $context
      *
-     * @return DerivedPrice
+     * @return DerivedCalculatedPrice
      */
     public function calculate(
         $percentage,
-        PriceCollection $prices,
+        CalculatedPriceCollection $prices,
         StorefrontContext $context
-    ): DerivedPrice {
+    ): DerivedCalculatedPrice {
         $price = $prices->sum();
 
         $discount = $this->rounding->round($price->getTotalPrice() / 100 * $percentage);
@@ -82,7 +82,7 @@ class PercentagePriceCalculator
 
         $calculatedPrice = $this->priceCalculator->calculate($definition, $context);
 
-        return new DerivedPrice(
+        return new DerivedCalculatedPrice(
             $calculatedPrice->getUnitPrice(),
             $calculatedPrice->getTotalPrice(),
             $calculatedPrice->getCalculatedTaxes(),

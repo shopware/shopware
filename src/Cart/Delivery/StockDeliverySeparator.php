@@ -35,7 +35,7 @@ use Shopware\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Cart\LineItem\DeliverableLineItemInterface;
 use Shopware\Cart\Price\PriceCalculator;
-use Shopware\Cart\Price\Struct\Price;
+use Shopware\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Cart\Price\Struct\PriceDefinition;
 use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Cart\Tax\Struct\TaxRuleCollection;
@@ -186,7 +186,7 @@ class StockDeliverySeparator
                 $position->getDeliveryDate(),
                 $shippingMethod,
                 $location,
-                new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
+                new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
             )
         );
     }

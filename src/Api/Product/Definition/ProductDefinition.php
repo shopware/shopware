@@ -122,7 +122,7 @@ class ProductDefinition extends EntityDefinition
             (new DateField('release_date', 'releaseDate'))->setFlags(new Inherited()),
             (new IdField('price_group_id', 'priceGroupId'))->setFlags(new Inherited()),
             (new JsonArrayField('category_tree', 'categoryTree'))->setFlags(new Inherited()),
-            (new PriceRulesField('prices', 'prices'))->setFlags(new Inherited()),
+            (new PriceRulesField('context_prices', 'contextPrices'))->setFlags(new Inherited()),
 
             //Read only join ids for inheritance
             new IdField('media_join_id', 'mediaJoinId'),

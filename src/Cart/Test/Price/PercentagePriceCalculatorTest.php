@@ -28,9 +28,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Cart\Price\PercentagePriceCalculator;
 use Shopware\Cart\Price\PriceCalculator;
 use Shopware\Cart\Price\PriceRounding;
-use Shopware\Cart\Price\Struct\DerivedPrice;
-use Shopware\Cart\Price\Struct\Price;
-use Shopware\Cart\Price\Struct\PriceCollection;
+use Shopware\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Cart\Price\Struct\CalculatedPriceCollection;
+use Shopware\Cart\Price\Struct\DerivedCalculatedPrice;
 use Shopware\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Cart\Tax\PercentageTaxRuleCalculator;
 use Shopware\Cart\Tax\Struct\CalculatedTax;
@@ -47,14 +47,14 @@ class PercentagePriceCalculatorTest extends TestCase
     /**
      * @dataProvider calculatePercentagePriceOfGrossPricesProvider
      *
-     * @param float           $percentage
-     * @param DerivedPrice    $expected
-     * @param PriceCollection $prices
+     * @param float                     $percentage
+     * @param DerivedCalculatedPrice    $expected
+     * @param CalculatedPriceCollection $prices
      */
     public function testCalculatePercentagePriceOfGrossPrices(
         $percentage,
-        DerivedPrice $expected,
-        PriceCollection $prices
+        DerivedCalculatedPrice $expected,
+        CalculatedPriceCollection $prices
     ): void {
         $rounding = new PriceRounding(2);
 
@@ -91,9 +91,9 @@ class PercentagePriceCalculatorTest extends TestCase
     {
         $highTax = new TaxRuleCollection([new TaxRule(19)]);
         //prices of cart line items
-        $prices = new PriceCollection([
-            new Price(30.00, 30.00, new CalculatedTaxCollection([new CalculatedTax(4.79, 19, 30.00)]), $highTax),
-            new Price(30.00, 30.00, new CalculatedTaxCollection([new CalculatedTax(1.96, 7, 30.00)]), $highTax),
+        $prices = new CalculatedPriceCollection([
+            new CalculatedPrice(30.00, 30.00, new CalculatedTaxCollection([new CalculatedTax(4.79, 19, 30.00)]), $highTax),
+            new CalculatedPrice(30.00, 30.00, new CalculatedTaxCollection([new CalculatedTax(1.96, 7, 30.00)]), $highTax),
         ]);
 
         return [
@@ -101,7 +101,7 @@ class PercentagePriceCalculatorTest extends TestCase
                 //10% discount
                 -10,
                 //expected calculated "discount" price
-                new DerivedPrice(
+                new DerivedCalculatedPrice(
                     -6.0,
                     -6.0,
                     new CalculatedTaxCollection([

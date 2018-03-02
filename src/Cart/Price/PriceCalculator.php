@@ -25,8 +25,10 @@ declare(strict_types=1);
 
 namespace Shopware\Cart\Price;
 
-use Shopware\Cart\Price\Struct\Price;
+use Shopware\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Cart\Price\Struct\CalculatedPriceCollection;
 use Shopware\Cart\Price\Struct\PriceDefinition;
+use Shopware\Cart\Price\Struct\PriceDefinitionCollection;
 use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Cart\Tax\TaxCalculator;
@@ -60,10 +62,21 @@ class PriceCalculator
         $this->taxDetector = $taxDetector;
     }
 
+    public function calculateCollection(PriceDefinitionCollection $collection, StorefrontContext $context)
+    {
+        $prices = $collection->map(
+            function (PriceDefinition $definition) use ($context) {
+                return $this->calculate($definition, $context);
+            }
+        );
+
+        return new CalculatedPriceCollection($prices);
+    }
+
     public function calculate(
         PriceDefinition $definition,
         StorefrontContext $context
-    ): Price {
+    ): CalculatedPrice {
         $unitPrice = $this->getUnitPrice($definition, $context);
 
         $price = $this->priceRounding->round(
@@ -87,7 +100,7 @@ class PriceCalculator
                 break;
         }
 
-        return new Price($unitPrice, $price, $calculatedTaxes, $taxRules, $definition->getQuantity());
+        return new CalculatedPrice($unitPrice, $price, $calculatedTaxes, $taxRules, $definition->getQuantity());
     }
 
     private function getUnitPrice(PriceDefinition $definition, StorefrontContext $context): float

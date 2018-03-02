@@ -32,7 +32,7 @@ use Shopware\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Cart\LineItem\DeliverableLineItemInterface;
 use Shopware\Cart\LineItem\GoodsInterface;
 use Shopware\Cart\LineItem\LineItemInterface;
-use Shopware\Cart\Price\Struct\Price;
+use Shopware\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Context\Rule\Rule;
 use Shopware\Context\Rule\Validatable;
 use Shopware\Framework\Struct\Struct;
@@ -45,7 +45,7 @@ class CalculatedProduct extends Struct implements DeliverableLineItemInterface, 
     protected $lineItem;
 
     /**
-     * @var Price
+     * @var CalculatedPrice
      */
     protected $price;
 
@@ -91,7 +91,7 @@ class CalculatedProduct extends Struct implements DeliverableLineItemInterface, 
 
     public function __construct(
         LineItemInterface $lineItem,
-        Price $price,
+        CalculatedPrice $price,
         string $identifier,
         int $quantity,
         DeliveryDate $inStockDeliveryDate,
@@ -116,7 +116,7 @@ class CalculatedProduct extends Struct implements DeliverableLineItemInterface, 
         return $this->identifier;
     }
 
-    public function getPrice(): Price
+    public function getPrice(): CalculatedPrice
     {
         return $this->price;
     }

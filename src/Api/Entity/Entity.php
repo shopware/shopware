@@ -31,5 +31,4 @@ class Entity extends Struct
             );
         }
     }
-
 }

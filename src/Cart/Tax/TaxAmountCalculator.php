@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace Shopware\Cart\Tax;
 
-use Shopware\Cart\Price\Struct\PriceCollection;
+use Shopware\Cart\Price\Struct\CalculatedPriceCollection;
 use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Context\Struct\StorefrontContext;
 
@@ -59,7 +59,7 @@ class TaxAmountCalculator implements TaxAmountCalculatorInterface
         $this->taxDetector = $taxDetector;
     }
 
-    public function calculate(PriceCollection $priceCollection, StorefrontContext $context): CalculatedTaxCollection
+    public function calculate(CalculatedPriceCollection $priceCollection, StorefrontContext $context): CalculatedTaxCollection
     {
         if ($this->taxDetector->isNetDelivery($context)) {
             return new CalculatedTaxCollection([]);

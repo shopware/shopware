@@ -37,8 +37,8 @@ use Shopware\Cart\LineItem\GoodsInterface;
 use Shopware\Cart\LineItem\LineItemCollection;
 use Shopware\Cart\LineItem\LineItemInterface;
 use Shopware\Cart\LineItem\NestedInterface;
+use Shopware\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Cart\Price\Struct\CartPrice;
-use Shopware\Cart\Price\Struct\Price;
 use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Context\Rule\Rule;
@@ -62,7 +62,7 @@ class CalculatedCartTest extends TestCase
         $cart = new CalculatedCart(
             new Cart('test', 'test', new LineItemCollection(), new ErrorCollection()),
             new CalculatedLineItemCollection([
-                new ConfiguredGoods('A', new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()), 1, 'A', 'Label'),
+                new ConfiguredGoods('A', new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()), 1, 'A', 'Label'),
                 new TestLineItem('B'),
             ]),
             new CartPrice(0, 0, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS),
@@ -89,7 +89,7 @@ class CalculatedCartTest extends TestCase
 
     public function testCartWithNestedLineItemHasChildren(): void
     {
-        $price = new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection());
+        $price = new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection());
 
         $lineItem = new NestedLineItem('X', $price, 1, 'nested',
             new CalculatedLineItemCollection([
@@ -123,7 +123,7 @@ class NestedLineItem extends CalculatedLineItem implements NestedInterface
 
     public function __construct(
         string $identifier,
-        Price $price,
+        CalculatedPrice $price,
         int $quantity,
         string $type,
         CalculatedLineItemCollection $children,
@@ -149,7 +149,7 @@ class TestLineItem implements CalculatedLineItemInterface
     private $identifier;
 
     /**
-     * @var Price
+     * @var CalculatedPrice
      */
     private $price;
 
@@ -185,7 +185,7 @@ class TestLineItem implements CalculatedLineItemInterface
 
     public function __construct(
         string $identifier,
-        ?Price $price = null,
+        ?CalculatedPrice $price = null,
         int $quantity = 1,
         string $type = 'test-item',
         string $label = 'Default label',
@@ -203,7 +203,7 @@ class TestLineItem implements CalculatedLineItemInterface
         $this->description = $description;
 
         if (!$this->price) {
-            $this->price = new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection());
+            $this->price = new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection());
         }
     }
 
@@ -212,7 +212,7 @@ class TestLineItem implements CalculatedLineItemInterface
         return $this->identifier;
     }
 
-    public function getPrice(): Price
+    public function getPrice(): CalculatedPrice
     {
         return $this->price;
     }

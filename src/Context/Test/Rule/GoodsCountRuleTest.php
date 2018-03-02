@@ -30,7 +30,7 @@ use Shopware\Cart\LineItem\CalculatedLineItem;
 use Shopware\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Cart\LineItem\GoodsInterface;
 use Shopware\Cart\LineItem\LineItem;
-use Shopware\Cart\Price\Struct\Price;
+use Shopware\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\CartBridge\Voucher\Struct\CalculatedVoucher;
@@ -80,7 +80,7 @@ class GoodsCountRuleTest extends TestCase
                     new CalculatedVoucher(
                         'Code1',
                         new LineItem('1', VoucherProcessor::TYPE_VOUCHER, 1),
-                        new Price(-1, -1, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                        new CalculatedPrice(-1, -1, new CalculatedTaxCollection(), new TaxRuleCollection()),
                         'voucher',
                         new AndRule()
                     ),
@@ -152,7 +152,7 @@ class GoodsCountRuleTest extends TestCase
                     new CalculatedVoucher(
                         'Code1',
                         new LineItem('1', VoucherProcessor::TYPE_VOUCHER, 1),
-                        new Price(-1, -1, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                        new CalculatedPrice(-1, -1, new CalculatedTaxCollection(), new TaxRuleCollection()),
                         'voucher',
                         new AndRule()
                     ),
@@ -227,7 +227,7 @@ class ItemForGoodsRule extends CalculatedLineItem implements GoodsInterface
     {
         parent::__construct(
             $identifier,
-            new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
             1,
             'test',
             'test'

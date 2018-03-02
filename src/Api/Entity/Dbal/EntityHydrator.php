@@ -26,9 +26,9 @@ use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\Extension;
 use Shopware\Api\Entity\Write\Flag\Serialized;
-use Shopware\Api\Product\Collection\PriceRuleCollection;
-use Symfony\Component\Serializer\SerializerInterface;
+use Shopware\Api\Product\Collection\ContextPriceCollection;
 use Shopware\Framework\Struct\ArrayStruct;
+use Symfony\Component\Serializer\SerializerInterface;
 
 class EntityHydrator
 {
@@ -182,7 +182,7 @@ class EntityHydrator
                     }
                 }
 
-                return new PriceRuleCollection($structs);
+                return new ContextPriceCollection($structs);
 
             case $field instanceof JsonObjectField:
                 if ($field->is(Serialized::class)) {

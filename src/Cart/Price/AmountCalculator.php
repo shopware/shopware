@@ -25,8 +25,8 @@ declare(strict_types=1);
 
 namespace Shopware\Cart\Price;
 
+use Shopware\Cart\Price\Struct\CalculatedPriceCollection;
 use Shopware\Cart\Price\Struct\CartPrice;
-use Shopware\Cart\Price\Struct\PriceCollection;
 use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Cart\Tax\TaxAmountCalculatorInterface;
@@ -60,7 +60,7 @@ class AmountCalculator
         $this->taxAmountCalculator = $taxAmountCalculator;
     }
 
-    public function calculateAmount(PriceCollection $prices, PriceCollection $shippingCosts, StorefrontContext $context): CartPrice
+    public function calculateAmount(CalculatedPriceCollection $prices, CalculatedPriceCollection $shippingCosts, StorefrontContext $context): CartPrice
     {
         if ($this->taxDetector->isNetDelivery($context)) {
             return $this->calculateNetDeliveryAmount($prices, $shippingCosts);
@@ -74,14 +74,14 @@ class AmountCalculator
 
     /**
      * Calculates the amount for a new delivery.
-     * `Price::price` and `Price::netPrice` are equals and taxes are empty.
+     * `CalculatedPrice::price` and `CalculatedPrice::netPrice` are equals and taxes are empty.
      *
-     * @param PriceCollection $prices
-     * @param PriceCollection $shippingCosts
+     * @param CalculatedPriceCollection $prices
+     * @param CalculatedPriceCollection $shippingCosts
      *
      * @return CartPrice
      */
-    private function calculateNetDeliveryAmount(PriceCollection $prices, PriceCollection $shippingCosts): CartPrice
+    private function calculateNetDeliveryAmount(CalculatedPriceCollection $prices, CalculatedPriceCollection $shippingCosts): CartPrice
     {
         $positionPrice = $prices->sum();
 
@@ -99,17 +99,17 @@ class AmountCalculator
 
     /**
      * Calculates the amount for a gross delivery.
-     * `Price::netPrice` contains the summed gross prices minus amount of calculated taxes.
-     * `Price::price` contains the summed gross prices
+     * `CalculatedPrice::netPrice` contains the summed gross prices minus amount of calculated taxes.
+     * `CalculatedPrice::price` contains the summed gross prices
      * Calculated taxes are based on the gross prices
      *
-     * @param PriceCollection                            $prices
-     * @param PriceCollection                            $shippingCosts
+     * @param CalculatedPriceCollection                  $prices
+     * @param CalculatedPriceCollection                  $shippingCosts
      * @param \Shopware\Context\Struct\StorefrontContext $context
      *
      * @return CartPrice
      */
-    private function calculateGrossAmount(PriceCollection $prices, PriceCollection $shippingCosts, StorefrontContext $context): CartPrice
+    private function calculateGrossAmount(CalculatedPriceCollection $prices, CalculatedPriceCollection $shippingCosts, StorefrontContext $context): CartPrice
     {
         $allPrices = $prices->merge($shippingCosts);
 
@@ -134,17 +134,17 @@ class AmountCalculator
 
     /**
      * Calculates the amount for a net based delivery, but gross prices has be be payed
-     * `Price::netPrice` contains the summed net prices.
-     * `Price::price` contains the summed net prices plus amount of calculated taxes
+     * `CalculatedPrice::netPrice` contains the summed net prices.
+     * `CalculatedPrice::price` contains the summed net prices plus amount of calculated taxes
      * Calculated taxes are based on the net prices
      *
-     * @param PriceCollection                            $prices
-     * @param PriceCollection                            $shippingCosts
+     * @param CalculatedPriceCollection                  $prices
+     * @param CalculatedPriceCollection                  $shippingCosts
      * @param \Shopware\Context\Struct\StorefrontContext $context
      *
      * @return CartPrice
      */
-    private function calculateNetAmount(PriceCollection $prices, PriceCollection $shippingCosts, StorefrontContext $context): CartPrice
+    private function calculateNetAmount(CalculatedPriceCollection $prices, CalculatedPriceCollection $shippingCosts, StorefrontContext $context): CartPrice
     {
         $all = $prices->merge($shippingCosts);
 

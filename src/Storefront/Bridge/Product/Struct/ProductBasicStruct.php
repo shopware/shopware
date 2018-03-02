@@ -5,8 +5,8 @@ namespace Shopware\Storefront\Bridge\Product\Struct;
 use Shopware\Api\Product\Collection\ProductMediaBasicCollection;
 use Shopware\Api\Product\Struct\ProductBasicStruct as ApiBasicStruct;
 use Shopware\Api\Product\Struct\ProductMediaBasicStruct;
-use Shopware\Cart\Price\Struct\Price;
-use Shopware\Cart\Price\Struct\PriceCollection;
+use Shopware\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Cart\Price\Struct\CalculatedPriceCollection;
 
 class ProductBasicStruct extends ApiBasicStruct
 {
@@ -16,14 +16,19 @@ class ProductBasicStruct extends ApiBasicStruct
     protected $media;
 
     /**
-     * @var Price
+     * @var CalculatedPrice
      */
     protected $calculatedListingPrice;
 
     /**
-     * @var PriceCollection
+     * @var CalculatedPriceCollection
      */
-    private $calculatedPrices;
+    protected $calculatedContextPrices;
+
+    /**
+     * @var CalculatedPrice
+     */
+    protected $calculatedPrice;
 
     public function getCover(): ?ProductMediaBasicStruct
     {
@@ -53,23 +58,33 @@ class ProductBasicStruct extends ApiBasicStruct
         return $this->getStock() >= $this->getMinPurchase();
     }
 
-    public function getCalculatedListingPrice(): Price
+    public function getCalculatedListingPrice(): CalculatedPrice
     {
         return $this->calculatedListingPrice;
     }
 
-    public function setCalculatedListingPrice(Price $calculatedListingPrice): void
+    public function setCalculatedListingPrice(CalculatedPrice $calculatedListingPrice): void
     {
         $this->calculatedListingPrice = $calculatedListingPrice;
     }
 
-    public function setCalculatedPrices(PriceCollection $prices): void
+    public function setCalculatedContextPrices(CalculatedPriceCollection $prices): void
     {
-        $this->calculatedPrices = $prices;
+        $this->calculatedContextPrices = $prices;
     }
 
-    public function getCalculatedPrices(): PriceCollection
+    public function getCalculatedContextPrices(): CalculatedPriceCollection
     {
-        return $this->calculatedPrices;
+        return $this->calculatedContextPrices;
+    }
+
+    public function getCalculatedPrice(): CalculatedPrice
+    {
+        return $this->calculatedPrice;
+    }
+
+    public function setCalculatedPrice(CalculatedPrice $calculatedPrice): void
+    {
+        $this->calculatedPrice = $calculatedPrice;
     }
 }

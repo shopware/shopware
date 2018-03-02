@@ -3,7 +3,7 @@
 namespace Shopware\Cart\LineItem;
 
 use Shopware\Api\Media\Struct\MediaBasicStruct;
-use Shopware\Cart\Price\Struct\Price;
+use Shopware\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Context\Rule\Rule;
 use Shopware\Context\Rule\Validatable;
 use Shopware\Framework\Struct\Struct;
@@ -16,7 +16,7 @@ class CalculatedLineItem extends Struct implements CalculatedLineItemInterface, 
     protected $identifier;
 
     /**
-     * @var Price
+     * @var CalculatedPrice
      */
     protected $price;
 
@@ -57,7 +57,7 @@ class CalculatedLineItem extends Struct implements CalculatedLineItemInterface, 
 
     public function __construct(
         string $identifier,
-        Price $price,
+        CalculatedPrice $price,
         int $quantity,
         string $type,
         string $label,
@@ -82,7 +82,7 @@ class CalculatedLineItem extends Struct implements CalculatedLineItemInterface, 
         return $this->identifier;
     }
 
-    public function getPrice(): Price
+    public function getPrice(): CalculatedPrice
     {
         return $this->price;
     }

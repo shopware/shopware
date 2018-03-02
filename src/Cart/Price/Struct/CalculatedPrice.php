@@ -29,7 +29,7 @@ use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Framework\Struct\Struct;
 
-class Price extends Struct
+class CalculatedPrice extends Struct
 {
     /**
      * @var float

@@ -24,14 +24,14 @@
 
 namespace Shopware\Cart\Tax;
 
-use Shopware\Cart\Price\Struct\Price;
+use Shopware\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Cart\Tax\Struct\PercentageTaxRule;
 use Shopware\Cart\Tax\Struct\TaxRuleCollection;
 
 class PercentageTaxRuleBuilder
 {
-    public function buildRules(Price $price): TaxRuleCollection
+    public function buildRules(CalculatedPrice $price): TaxRuleCollection
     {
         $rules = new TaxRuleCollection([]);
 

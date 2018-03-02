@@ -41,7 +41,7 @@ use Shopware\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Cart\LineItem\LineItem;
 use Shopware\Cart\Price\PriceCalculator;
 use Shopware\Cart\Price\PriceRounding;
-use Shopware\Cart\Price\Struct\Price;
+use Shopware\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Cart\Tax\Struct\TaxRule;
@@ -95,7 +95,7 @@ class StockDeliverySeparatorTest extends TestCase
 
         $item = new CalculatedProduct(
             new LineItem('A', ProductProcessor::TYPE_PRODUCT, 100),
-            new Price(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
             'A',
             1,
             new DeliveryDate(
@@ -127,7 +127,7 @@ class StockDeliverySeparatorTest extends TestCase
                     new DeliveryDate(new \DateTime('2012-01-01'), new \DateTime('2012-01-02')),
                     (new ShippingMethodBasicStruct())->assign(['id' => '8beeb66e-9dda-46b1-8891-a059257a590e']),
                     $location,
-                    new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
+                    new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
                 ),
             ]),
             $deliveries
@@ -140,7 +140,7 @@ class StockDeliverySeparatorTest extends TestCase
 
         $itemA = new CalculatedProduct(
             new LineItem('A', ProductProcessor::TYPE_PRODUCT, 5),
-            new Price(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
             'A',
             5,
             new DeliveryDate(new \DateTime('2012-01-01'), new \DateTime('2012-01-02')),
@@ -151,7 +151,7 @@ class StockDeliverySeparatorTest extends TestCase
 
         $itemB = new CalculatedProduct(
             new LineItem('B', ProductProcessor::TYPE_PRODUCT, 5),
-            new Price(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
             'B',
             5,
             new DeliveryDate(new \DateTime('2012-01-01'), new \DateTime('2012-01-02')),
@@ -178,7 +178,7 @@ class StockDeliverySeparatorTest extends TestCase
                     new DeliveryDate(new \DateTime('2012-01-01'), new \DateTime('2012-01-02')),
                     (new ShippingMethodBasicStruct())->assign(['id' => '8beeb66e-9dda-46b1-8891-a059257a590e']),
                     $location,
-                    new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
+                    new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
                 ),
             ]),
             $deliveries
@@ -191,7 +191,7 @@ class StockDeliverySeparatorTest extends TestCase
 
         $itemA = new CalculatedProduct(
             new LineItem('A', ProductProcessor::TYPE_PRODUCT, 5),
-            new Price(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
             'A',
             5,
             new DeliveryDate(new \DateTime('2012-01-01'), new \DateTime('2012-01-03')),
@@ -200,7 +200,7 @@ class StockDeliverySeparatorTest extends TestCase
         );
         $itemB = new CalculatedProduct(
             new LineItem('B', ProductProcessor::TYPE_PRODUCT, 5),
-            new Price(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
             'B',
             5,
             new DeliveryDate(new \DateTime('2012-01-01'), new \DateTime('2012-01-02')),
@@ -225,7 +225,7 @@ class StockDeliverySeparatorTest extends TestCase
                     new DeliveryDate(new \DateTime('2012-01-04'), new \DateTime('2012-01-05')),
                     (new ShippingMethodBasicStruct())->assign(['id' => '8beeb66e-9dda-46b1-8891-a059257a590e']),
                     $location,
-                    new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
+                    new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
                 ),
             ]),
             $deliveries
@@ -237,7 +237,7 @@ class StockDeliverySeparatorTest extends TestCase
         $location = self::createShippingLocation();
         $product = new CalculatedProduct(
             new LineItem('A', ProductProcessor::TYPE_PRODUCT, 5),
-            new Price(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
             'A',
             5,
             new DeliveryDate(new \DateTime('2012-01-01'), new \DateTime('2012-01-03')),
@@ -248,7 +248,7 @@ class StockDeliverySeparatorTest extends TestCase
         $voucher = new CalculatedVoucher(
             'Code1',
             new LineItem('B', 'discount', 1),
-            new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
             'voucher',
             new AndRule()
         );
@@ -269,7 +269,7 @@ class StockDeliverySeparatorTest extends TestCase
                     $product->getInStockDeliveryDate(),
                     (new ShippingMethodBasicStruct())->assign(['id' => '8beeb66e-9dda-46b1-8891-a059257a590e']),
                     $location,
-                    new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
+                    new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
                 ),
             ]),
             $deliveries
@@ -282,7 +282,7 @@ class StockDeliverySeparatorTest extends TestCase
 
         $product = new CalculatedProduct(
             new LineItem('A', ProductProcessor::TYPE_PRODUCT, 10),
-            new Price(1.19, 11.90, new CalculatedTaxCollection([new CalculatedTax(1.9, 19, 11.90)]), new TaxRuleCollection([new TaxRule(19)]), 10),
+            new CalculatedPrice(1.19, 11.90, new CalculatedTaxCollection([new CalculatedTax(1.9, 19, 11.90)]), new TaxRuleCollection([new TaxRule(19)]), 10),
             'A',
             12,
             new DeliveryDate(new \DateTime('2012-01-01'), new \DateTime('2012-01-03')),
@@ -302,26 +302,26 @@ class StockDeliverySeparatorTest extends TestCase
                 new Delivery(
                     new DeliveryPositionCollection([
                         new DeliveryPosition('A', $product, 5,
-                            new Price(1.19, 5.95, new CalculatedTaxCollection([new CalculatedTax(0.95, 19, 5.95)]), new TaxRuleCollection([new TaxRule(19)]), 5),
+                            new CalculatedPrice(1.19, 5.95, new CalculatedTaxCollection([new CalculatedTax(0.95, 19, 5.95)]), new TaxRuleCollection([new TaxRule(19)]), 5),
                             $product->getInStockDeliveryDate()
                         ),
                     ]),
                     $product->getInStockDeliveryDate(),
                     (new ShippingMethodBasicStruct())->assign(['id' => '8beeb66e-9dda-46b1-8891-a059257a590e']),
                     $location,
-                    new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
+                    new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
                 ),
                 new Delivery(
                     new DeliveryPositionCollection([
                         new DeliveryPosition('A', $product, 7,
-                            new Price(1.19, 8.33, new CalculatedTaxCollection([new CalculatedTax(1.33, 19, 8.33)]), new TaxRuleCollection([new TaxRule(19)]), 7),
+                            new CalculatedPrice(1.19, 8.33, new CalculatedTaxCollection([new CalculatedTax(1.33, 19, 8.33)]), new TaxRuleCollection([new TaxRule(19)]), 7),
                             $product->getOutOfStockDeliveryDate()
                         ),
                     ]),
                     $product->getOutOfStockDeliveryDate(),
                     (new ShippingMethodBasicStruct())->assign(['id' => '8beeb66e-9dda-46b1-8891-a059257a590e']),
                     $location,
-                    new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
+                    new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
                 ),
             ]),
             $deliveries

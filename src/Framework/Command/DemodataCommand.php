@@ -10,10 +10,10 @@ use Shopware\Api\Context\Definition\ContextRuleDefinition;
 use Shopware\Api\Customer\Definition\CustomerDefinition;
 use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\WriteContext;
-use Shopware\Api\Product\Collection\PriceRuleCollection;
+use Shopware\Api\Product\Collection\ContextPriceCollection;
 use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Api\Product\Definition\ProductManufacturerDefinition;
-use Shopware\Api\Product\Struct\PriceRuleStruct;
+use Shopware\Api\Product\Struct\ContextPriceStruct;
 use Shopware\Context\Rule\Container\AndRule;
 use Shopware\Context\Rule\Container\NotRule;
 use Shopware\Context\Rule\CurrencyRule;
@@ -213,7 +213,7 @@ class DemodataCommand extends ContainerAwareCommand
                     ['id' => $categories[random_int(0, $categoryCount)]],
                 ],
                 'stock' => $this->faker->randomNumber(),
-                'prices' => $this->createPrices($contextRules),
+                'contextPrices' => $this->createPrices($contextRules),
             ];
 
             if ($i % $size === 0) {
@@ -278,12 +278,12 @@ class DemodataCommand extends ContainerAwareCommand
 
     private function createPrices(array $contextRules)
     {
-        $prices = new PriceRuleCollection();
+        $prices = new ContextPriceCollection();
 
         foreach ($contextRules as $ruleId) {
             $gross = random_int(500, 1000);
 
-            $prices->add(new PriceRuleStruct(
+            $prices->add(new ContextPriceStruct(
                 Defaults::CURRENCY,
                 1,
                 10,
@@ -294,7 +294,7 @@ class DemodataCommand extends ContainerAwareCommand
 
             $gross = random_int(1, 499);
 
-            $prices->add(new PriceRuleStruct(
+            $prices->add(new ContextPriceStruct(
                 Defaults::CURRENCY,
                 11,
                 null,

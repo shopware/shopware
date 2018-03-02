@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace Shopware\Cart\LineItem;
 
-use Shopware\Cart\Price\Struct\PriceCollection;
+use Shopware\Cart\Price\Struct\CalculatedPriceCollection;
 use Shopware\Framework\Struct\Collection;
 
 class CalculatedLineItemCollection extends Collection
@@ -70,9 +70,9 @@ class CalculatedLineItemCollection extends Collection
         return $this->getKeys();
     }
 
-    public function getPrices(): PriceCollection
+    public function getPrices(): CalculatedPriceCollection
     {
-        return new PriceCollection(
+        return new CalculatedPriceCollection(
             array_map(
                 function (CalculatedLineItemInterface $item) {
                     return $item->getPrice();

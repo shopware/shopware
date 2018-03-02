@@ -28,12 +28,12 @@ namespace Shopware\Cart\Price\Struct;
 use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Cart\Tax\Struct\TaxRuleCollection;
 
-class DerivedPrice extends Price
+class DerivedCalculatedPrice extends CalculatedPrice
 {
     /**
-     * @var PriceCollection
+     * @var CalculatedPriceCollection
      */
-    private $calculationBasePrices;
+    protected $calculationBasePrices;
 
     public function __construct(
         $unitPrice,
@@ -41,22 +41,22 @@ class DerivedPrice extends Price
         CalculatedTaxCollection $calculatedTaxes,
         TaxRuleCollection $taxRules,
         $quantity = 1,
-        PriceCollection $calculationBasePrices
+        CalculatedPriceCollection $calculationBasePrices
     ) {
         parent::__construct($unitPrice, $totalPrice, $calculatedTaxes, $taxRules, $quantity);
 
         $this->setCalculationBasePrices($calculationBasePrices);
     }
 
-    public function getCalculationBasePrices(): PriceCollection
+    public function getCalculationBasePrices(): CalculatedPriceCollection
     {
         return $this->calculationBasePrices;
     }
 
     /**
-     * @param PriceCollection $calculationBasePrices
+     * @param CalculatedPriceCollection $calculationBasePrices
      */
-    public function setCalculationBasePrices(PriceCollection $calculationBasePrices)
+    public function setCalculationBasePrices(CalculatedPriceCollection $calculationBasePrices)
     {
         $this->calculationBasePrices = $calculationBasePrices;
     }

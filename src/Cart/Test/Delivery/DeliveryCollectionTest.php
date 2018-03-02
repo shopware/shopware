@@ -32,7 +32,7 @@ use Shopware\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Cart\Delivery\Struct\DeliveryPositionCollection;
 use Shopware\Cart\Delivery\Struct\ShippingLocation;
-use Shopware\Cart\Price\Struct\Price;
+use Shopware\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Cart\Tax\Struct\TaxRuleCollection;
 
@@ -57,7 +57,7 @@ class DeliveryCollectionTest extends TestCase
                 ),
                 new ShippingMethodBasicStruct(),
                 self::createShippingLocation(),
-                new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
+                new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
             )
         );
         static::assertCount(1, $collection);
@@ -74,7 +74,7 @@ class DeliveryCollectionTest extends TestCase
                 ),
                 new ShippingMethodBasicStruct(),
                 self::createShippingLocation(),
-                new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
+                new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
             ),
             new Delivery(
                 new DeliveryPositionCollection(),
@@ -84,7 +84,7 @@ class DeliveryCollectionTest extends TestCase
                 ),
                 new ShippingMethodBasicStruct(),
                 self::createShippingLocation(),
-                new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
+                new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
             ),
         ]);
         static::assertCount(2, $collection);
@@ -101,7 +101,7 @@ class DeliveryCollectionTest extends TestCase
                 ),
                 new ShippingMethodBasicStruct(),
                 self::createShippingLocation(),
-                new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
+                new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
             ),
             new Delivery(
                 new DeliveryPositionCollection(),
@@ -111,7 +111,7 @@ class DeliveryCollectionTest extends TestCase
                 ),
                 new ShippingMethodBasicStruct(),
                 self::createShippingLocation(),
-                new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
+                new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
             ),
         ]);
         $collection->clear();

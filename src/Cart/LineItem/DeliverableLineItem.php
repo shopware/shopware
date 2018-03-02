@@ -4,7 +4,7 @@ namespace Shopware\Cart\LineItem;
 
 use Shopware\Cart\Delivery\Struct\Delivery;
 use Shopware\Cart\Delivery\Struct\DeliveryDate;
-use Shopware\Cart\Price\Struct\Price;
+use Shopware\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Context\Rule\Rule;
 
 class DeliverableLineItem extends CalculatedLineItem implements DeliverableLineItemInterface
@@ -41,7 +41,7 @@ class DeliverableLineItem extends CalculatedLineItem implements DeliverableLineI
 
     public function __construct(
         string $identifier,
-        Price $price,
+        CalculatedPrice $price,
         int $quantity,
         string $type,
         int $stock,

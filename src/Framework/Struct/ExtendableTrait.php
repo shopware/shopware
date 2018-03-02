@@ -74,6 +74,7 @@ trait ExtendableTrait
         if ($this->hasExtension($name)) {
             return $this->extensions[$name];
         }
+
         return null;
     }
 
@@ -106,7 +107,6 @@ trait ExtendableTrait
         $this->extensions = $extensions;
     }
 
-
     public function removeExtension(string $name)
     {
         if ($this->hasExtension($name)) {
@@ -114,4 +114,3 @@ trait ExtendableTrait
         }
     }
 }
-

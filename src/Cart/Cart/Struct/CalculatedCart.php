@@ -28,8 +28,8 @@ namespace Shopware\Cart\Cart\Struct;
 use Shopware\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Cart\Error\ErrorCollection;
 use Shopware\Cart\LineItem\CalculatedLineItemCollection;
+use Shopware\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Cart\Price\Struct\CartPrice;
-use Shopware\Cart\Price\Struct\Price;
 use Shopware\Framework\Struct\Struct;
 
 class CalculatedCart extends Struct
@@ -106,7 +106,7 @@ class CalculatedCart extends Struct
         return $this->cart->clearErrors();
     }
 
-    public function getShippingCosts(): Price
+    public function getShippingCosts(): CalculatedPrice
     {
         return $this->getDeliveries()->getShippingCosts()->sum();
     }

@@ -34,8 +34,8 @@ use Shopware\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Cart\LineItem\CalculatedLineItem;
 use Shopware\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Cart\LineItem\LineItemCollection;
+use Shopware\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Cart\Price\Struct\CartPrice;
-use Shopware\Cart\Price\Struct\Price;
 use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Cart\Test\Common\Generator;
@@ -156,7 +156,7 @@ class CartPersisterTest extends TestCase
             new CalculatedLineItemCollection([
                 new CalculatedLineItem(
                     'A',
-                    new Price(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                    new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
                     1,
                     'test',
                     'label'

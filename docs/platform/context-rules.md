@@ -1,5 +1,5 @@
 # Context rules
-The context rule system allows oto customized or validated different data sources, depending on the context, customer or application.
+The context rule system allows to customized or validated different data sources, depending on the context, customer or application.
 The corresponding sources are located in `src/Context/Rule`. It is possible to cover complex conditions with simple object orientation sources.
 The rules can access the current storefront context data and the current customer's cart to be validated. 
 An entire simple rule might look like this:
@@ -38,7 +38,7 @@ $nested = new AndRule([
 ]);
 ```
 
-The idea behind these rules is to replace solid assignment, such as "which customer group is allowed to see a product and which not", with this more flexible system.
+The idea behind these rules is to replace static assignment, such as "which customer group is allowed to see a product and which not", with this more flexible system.
 For example, products can be whitelisted or blacklisted with this rules, prices are defined per rule, shipping methods are blocked for specified rules.
 The shop owner can create the rules in the administration itself. The data ends up in the database table context_rule.
 When the storefront is called, all rules are read out and validated with the current context and shopping cart to find out which ones are valid for the current state.

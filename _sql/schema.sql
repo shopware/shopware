@@ -902,7 +902,7 @@ CREATE TABLE `product` (
   `unit_join_id` binary(16) DEFAULT NULL,
   `category_join_id` binary(16) DEFAULT NULL,
   `category_tree` json DEFAULT NULL,
-  `prices` json DEFAULT NULL,
+  `context_prices` json DEFAULT NULL,
   `supplier_number` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `ean` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `stock` int(11) DEFAULT NULL,

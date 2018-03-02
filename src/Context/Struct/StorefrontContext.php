@@ -24,7 +24,6 @@
 
 namespace Shopware\Context\Struct;
 
-use Shopware\Api\Context\Collection\ContextRuleBasicCollection;
 use Shopware\Api\Currency\Struct\CurrencyBasicStruct;
 use Shopware\Api\Customer\Struct\CustomerBasicStruct;
 use Shopware\Api\Customer\Struct\CustomerGroupBasicStruct;

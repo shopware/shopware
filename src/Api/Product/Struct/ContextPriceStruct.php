@@ -4,7 +4,7 @@ namespace Shopware\Api\Product\Struct;
 
 use Shopware\Framework\Struct\Struct;
 
-class PriceRuleStruct extends Struct
+class ContextPriceStruct extends Struct
 {
     /**
      * @var string

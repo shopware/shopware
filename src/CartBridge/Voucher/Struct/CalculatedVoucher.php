@@ -28,7 +28,7 @@ namespace Shopware\CartBridge\Voucher\Struct;
 use Shopware\Api\Media\Struct\MediaBasicStruct;
 use Shopware\Cart\LineItem\CalculatedLineItemInterface;
 use Shopware\Cart\LineItem\LineItemInterface;
-use Shopware\Cart\Price\Struct\Price;
+use Shopware\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Context\Rule\Rule;
 use Shopware\Context\Rule\Validatable;
 use Shopware\Framework\Struct\Struct;
@@ -41,7 +41,7 @@ class CalculatedVoucher extends Struct implements CalculatedLineItemInterface, V
     protected $lineItem;
 
     /**
-     * @var Price
+     * @var CalculatedPrice
      */
     protected $price;
 
@@ -78,7 +78,7 @@ class CalculatedVoucher extends Struct implements CalculatedLineItemInterface, V
     public function __construct(
         string $code,
         LineItemInterface $lineItem,
-        Price $price,
+        CalculatedPrice $price,
         string $label,
         ?Rule $rule = null,
         ?string $description = null,
@@ -99,7 +99,7 @@ class CalculatedVoucher extends Struct implements CalculatedLineItemInterface, V
         return $this->identifier;
     }
 
-    public function getPrice(): Price
+    public function getPrice(): CalculatedPrice
     {
         return $this->price;
     }

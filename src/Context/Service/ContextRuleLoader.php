@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Context\Service;
 
@@ -7,9 +7,10 @@ use Shopware\Api\Context\Collection\ContextRuleBasicCollection;
 use Shopware\Api\Context\Repository\ContextRuleRepository;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Cart\Cart\CartCollector;
-use Shopware\Cart\Cart\CartProcessor;
 use Shopware\Cart\Cart\CartPersisterInterface;
+use Shopware\Cart\Cart\CartProcessor;
 use Shopware\Cart\Cart\CartValidator;
+use Shopware\Cart\Cart\CircularCartCalculation;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Cart\Struct\Cart;
 use Shopware\Cart\Delivery\Struct\DeliveryCollection;
@@ -114,7 +115,13 @@ class ContextRuleLoader
         //first collect additional data for cart processors outside the loop to prevent duplicate database access
         $processorData = $this->cartCollector->collect($calculated->getCart(), $context);
 
+        $iteration = 1;
+
         while (!$valid) {
+            if ($iteration > CircularCartCalculation::MAX_ITERATION) {
+                break;
+            }
+
             //find rules which matching current cart and context state
             $rules = $rules->filterMatchingRules($calculated, $context);
 
@@ -131,6 +138,8 @@ class ContextRuleLoader
                 $valid = false;
                 $calculated = $newCart;
             }
+
+            $iteration++;
         }
 
         return $rules;

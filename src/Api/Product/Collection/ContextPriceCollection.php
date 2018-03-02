@@ -2,28 +2,28 @@
 
 namespace Shopware\Api\Product\Collection;
 
-use Shopware\Api\Product\Struct\PriceRuleStruct;
+use Shopware\Api\Product\Struct\ContextPriceStruct;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Struct\Collection;
 
-class PriceRuleCollection extends Collection
+class ContextPriceCollection extends Collection
 {
     /**
-     * @var PriceRuleStruct[]
+     * @var ContextPriceStruct[]
      */
     protected $elements = [];
 
-    public function add(PriceRuleStruct $priceRule): void
+    public function add(ContextPriceStruct $contextPrice): void
     {
-        $this->elements[] = $priceRule;
+        $this->elements[] = $contextPrice;
     }
 
-    public function get(string $key): ? PriceRuleStruct
+    public function get(string $key): ? ContextPriceStruct
     {
         return $this->elements[$key];
     }
 
-    public function current(): PriceRuleStruct
+    public function current(): ContextPriceStruct
     {
         return parent::current();
     }
@@ -37,7 +37,7 @@ class PriceRuleCollection extends Collection
 
     public function sortByQuantity()
     {
-        $this->sort(function (PriceRuleStruct $a, PriceRuleStruct $b) {
+        $this->sort(function (ContextPriceStruct $a, ContextPriceStruct $b) {
             return $a->getQuantityStart() <=> $b->getQuantityStart();
         });
     }
@@ -59,8 +59,8 @@ class PriceRuleCollection extends Collection
     {
         foreach ($context->getContextRules() as $ruleId) {
             $rules = $this->filter(
-                function (PriceRuleStruct $rule) use ($ruleId) {
-                    return $rule->getRuleId() === $ruleId;
+                function (ContextPriceStruct $price) use ($ruleId) {
+                    return $price->getRuleId() === $ruleId;
                 }
             );
 

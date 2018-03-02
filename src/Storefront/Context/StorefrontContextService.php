@@ -294,5 +294,4 @@ class StorefrontContextService implements StorefrontContextServiceInterface
     {
         return $this->getSessionValueOrNull(StoreFrontCartService::CART_TOKEN_KEY);
     }
-
 }

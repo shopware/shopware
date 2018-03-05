@@ -733,6 +733,10 @@ class ApiController extends Controller
 
             $direction = $first === '-' ? FieldSorting::DESCENDING : FieldSorting::ASCENDING;
 
+            if ($direction === FieldSorting::DESCENDING) {
+                $part = substr($part, 1);
+            }
+
             $subParts = explode('.', $part);
 
             /** @var string|EntityDefinition $definition */

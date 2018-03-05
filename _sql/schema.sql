@@ -183,6 +183,55 @@ CREATE TABLE `config_form_translation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
+DROP TABLE IF EXISTS `configuration_group`;
+CREATE TABLE `configuration_group` (
+  `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
+  `filterable` tinyint(1) NOT NULL DEFAULT '0',
+  `comparable` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`, `version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `configuration_group_translation`;
+CREATE TABLE `configuration_group_translation` (
+  `configuration_group_id` binary(16) NOT NULL,
+  `language_id` binary(16) NOT NULL,
+  `language_version_id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  PRIMARY KEY (`configuration_group_id`, `language_id`, `language_version_id`, `version_id`),
+  CONSTRAINT `configuration_group_translation_ibfk_1` FOREIGN KEY (`language_id`, `language_version_id`) REFERENCES `shop` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `configuration_group_translation_ibfk_2` FOREIGN KEY (`configuration_group_id`, `version_id`) REFERENCES `configuration_group` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+DROP TABLE IF EXISTS `configuration_group_option`;
+CREATE TABLE `configuration_group_option` (
+  `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
+  `configuration_group_id` binary(16) NOT NULL,
+  `configuration_group_version_id` binary(16) NOT NULL,
+  `color` VARCHAR(20) NULL DEFAULT NULL,
+  `media_id` binary(16) NULL DEFAULT NULL,
+  `media_version_id` binary(16) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`, `version_id`),
+  CONSTRAINT `fk_configuration_group_option.configuration_group_id` FOREIGN KEY (`configuration_group_id`, `configuration_group_version_id`) REFERENCES `configuration_group` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+DROP TABLE IF EXISTS `configuration_group_option_translation`;
+CREATE TABLE `configuration_group_option_translation` (
+  `configuration_group_option_id` binary(16) NOT NULL,
+  `language_id` binary(16) NOT NULL,
+  `language_version_id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  PRIMARY KEY (`configuration_group_option_id`, `language_id`, `language_version_id`, `version_id`),
+  CONSTRAINT `configuration_group_option_translation_ibfk_1` FOREIGN KEY (`language_id`, `language_version_id`) REFERENCES `shop` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `configuration_group_option_translation_ibfk_2` FOREIGN KEY (`configuration_group_option_id`, `version_id`) REFERENCES `configuration_group_option` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
 DROP TABLE IF EXISTS `country`;
 CREATE TABLE `country` (
   `id` binary(16) NOT NULL,
@@ -204,7 +253,6 @@ CREATE TABLE `country` (
   PRIMARY KEY (`id`, `version_id`),
   CONSTRAINT `fk_area_country.country_area_id` FOREIGN KEY (`country_area_id`, `country_area_version_id`) REFERENCES `country_area` (`id`, `version_id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 
 DROP TABLE IF EXISTS `country_area`;
 CREATE TABLE `country_area` (

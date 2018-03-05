@@ -18,12 +18,12 @@ class CatalogBasicLoadedEvent extends NestedEvent
     /**
      * @var CatalogBasicCollection
      */
-    protected $Catalogs;
+    protected $catalogs;
 
-    public function __construct(CatalogBasicCollection $Catalogs, ShopContext $context)
+    public function __construct(CatalogBasicCollection $catalogs, ShopContext $context)
     {
         $this->context = $context;
-        $this->Catalogs = $Catalogs;
+        $this->catalogs = $catalogs;
     }
 
     public function getName(): string
@@ -38,6 +38,6 @@ class CatalogBasicLoadedEvent extends NestedEvent
 
     public function getCatalogs(): CatalogBasicCollection
     {
-        return $this->Catalogs;
+        return $this->catalogs;
     }
 }

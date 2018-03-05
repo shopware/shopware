@@ -113,6 +113,11 @@ class CatalogRepository implements RepositoryInterface
         return $entities;
     }
 
+    public function readDetail(array $ids, ShopContext $context): CatalogBasicCollection
+    {
+        return $this->readBasic($ids, $context);
+    }
+
     public function update(array $data, ShopContext $context): GenericWrittenEvent
     {
         $affected = $this->writer->update(CatalogDefinition::class, $data, WriteContext::createFromShopContext($context));
@@ -147,10 +152,5 @@ class CatalogRepository implements RepositoryInterface
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
-    }
-
-    public function readDetail(array $ids, ShopContext $context): CatalogBasicCollection
-    {
-        return $this->readBasic($ids, $context);
     }
 }

@@ -81,7 +81,7 @@ class Util
             case 'IntField':
                 return 'int';
             case 'DateField':
-                return \DateTime::class;
+                return "\\DateTime";
             case 'FloatField':
                 return 'float';
             case 'BoolField':

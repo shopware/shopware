@@ -71,6 +71,20 @@ $writeOnly = [
         'shippingMethods',
         'shops',
         'taxAreaRules',
+    ],
+    'catalog' => [
+        'categories',
+        'categoryTranslations',
+        'media',
+        'mediaAlbum',
+        'mediaAlbumTranslations',
+        'mediaTranslations',
+        'products',
+        'productManufacturers',
+        'productManufacturerTranslations',
+        'productMedia',
+        'productStreams',
+        'productTranslations',
     ]
 ];
 
@@ -125,6 +139,6 @@ $context = new Context(
     $prevent
 );
 
-$generator = new ApiGenerator(__DIR__ . '/../../var/cache');
+$generator = new ApiGenerator(__DIR__ . '/../../output/');
 
 $generator->generate($context);

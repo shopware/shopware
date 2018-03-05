@@ -16,6 +16,9 @@ class TableDefinition
      */
     public $columns;
 
+    /**
+     * @var Association[]
+     */
     public $associations = [];
 
     /**

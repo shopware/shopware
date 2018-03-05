@@ -86,6 +86,12 @@ class StructureCollector
             $definition->columns = $sorted;
         }
 
+        foreach ($definitions as $definition) {
+            foreach ($definition->associations as $association) {
+                $association->writeOnly = $context->writeOnly($association);
+            }
+        }
+
         return $definitions;
     }
 

@@ -12,16 +12,10 @@ class ConfigurationGroupTranslationDetailCollection extends ConfigurationGroupTr
      */
     protected $elements = [];
 
-    protected function getExpectedClass(): string
-    {
-        return ConfigurationGroupTranslationDetailStruct::class;
-    }
-
-
     public function getConfigurationGroups(): ConfigurationGroupBasicCollection
     {
         return new ConfigurationGroupBasicCollection(
-            $this->fmap(function(ConfigurationGroupTranslationDetailStruct $configurationGroupTranslation) {
+            $this->fmap(function (ConfigurationGroupTranslationDetailStruct $configurationGroupTranslation) {
                 return $configurationGroupTranslation->getConfigurationGroup();
             })
         );
@@ -30,9 +24,14 @@ class ConfigurationGroupTranslationDetailCollection extends ConfigurationGroupTr
     public function getLanguages(): ShopBasicCollection
     {
         return new ShopBasicCollection(
-            $this->fmap(function(ConfigurationGroupTranslationDetailStruct $configurationGroupTranslation) {
+            $this->fmap(function (ConfigurationGroupTranslationDetailStruct $configurationGroupTranslation) {
                 return $configurationGroupTranslation->getLanguage();
             })
         );
+    }
+
+    protected function getExpectedClass(): string
+    {
+        return ConfigurationGroupTranslationDetailStruct::class;
     }
 }

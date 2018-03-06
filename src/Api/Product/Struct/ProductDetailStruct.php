@@ -3,9 +3,12 @@
 namespace Shopware\Api\Product\Struct;
 
 use Shopware\Api\Category\Collection\CategoryBasicCollection;
+use Shopware\Api\Configuration\Collection\ConfigurationGroupOptionBasicCollection;
 use Shopware\Api\Product\Collection\ProductBasicCollection;
+use Shopware\Api\Product\Collection\ProductConfiguratorBasicCollection;
 use Shopware\Api\Product\Collection\ProductMediaBasicCollection;
 use Shopware\Api\Product\Collection\ProductSearchKeywordBasicCollection;
+use Shopware\Api\Product\Collection\ProductServiceBasicCollection;
 use Shopware\Api\Product\Collection\ProductStreamBasicCollection;
 use Shopware\Api\Product\Collection\ProductTranslationBasicCollection;
 
@@ -56,23 +59,40 @@ class ProductDetailStruct extends ProductBasicStruct
      */
     protected $streams;
 
+    /**
+     * @var ConfigurationGroupOptionBasicCollection
+     */
+    protected $datasheets;
+
+    /**
+     * @var ConfigurationGroupOptionBasicCollection
+     */
+    protected $variations;
+
+    /**
+     * @var ProductConfiguratorBasicCollection
+     */
+    protected $configurators;
+
+    /**
+     * @var ProductServiceBasicCollection
+     */
+    protected $services;
+
     public function __construct()
     {
         $this->children = new ProductBasicCollection();
-
         $this->media = new ProductMediaBasicCollection();
-
         $this->searchKeywords = new ProductSearchKeywordBasicCollection();
-
         $this->translations = new ProductTranslationBasicCollection();
-
         $this->categories = new CategoryBasicCollection();
-
         $this->seoCategories = new CategoryBasicCollection();
-
         $this->tabs = new ProductStreamBasicCollection();
-
         $this->streams = new ProductStreamBasicCollection();
+        $this->configurators = new ProductConfiguratorBasicCollection();
+        $this->services = new ProductServiceBasicCollection();
+        $this->datasheets = new ConfigurationGroupOptionBasicCollection();
+        $this->variations = new ConfigurationGroupOptionBasicCollection();
     }
 
     public function getParent(): ?ProductBasicStruct
@@ -163,5 +183,45 @@ class ProductDetailStruct extends ProductBasicStruct
     public function setStreams(ProductStreamBasicCollection $streams): void
     {
         $this->streams = $streams;
+    }
+
+    public function getConfigurators(): ProductConfiguratorBasicCollection
+    {
+        return $this->configurators;
+    }
+
+    public function setConfigurators(ProductConfiguratorBasicCollection $configurators): void
+    {
+        $this->configurators = $configurators;
+    }
+
+    public function getServices(): ProductServiceBasicCollection
+    {
+        return $this->services;
+    }
+
+    public function setServices(ProductServiceBasicCollection $services): void
+    {
+        $this->services = $services;
+    }
+
+    public function getDatasheets(): ConfigurationGroupOptionBasicCollection
+    {
+        return $this->datasheets;
+    }
+
+    public function setDatasheets(ConfigurationGroupOptionBasicCollection $datasheets): void
+    {
+        $this->datasheets = $datasheets;
+    }
+
+    public function getVariations(): ConfigurationGroupOptionBasicCollection
+    {
+        return $this->variations;
+    }
+
+    public function setVariations(ConfigurationGroupOptionBasicCollection $variations): void
+    {
+        $this->variations = $variations;
     }
 }

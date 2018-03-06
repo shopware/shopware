@@ -231,6 +231,60 @@ CREATE TABLE `configuration_group_option_translation` (
   CONSTRAINT `configuration_group_option_translation_ibfk_2` FOREIGN KEY (`configuration_group_option_id`, `version_id`) REFERENCES `configuration_group_option` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+DROP TABLE IF EXISTS `product_datasheet`;
+CREATE TABLE `product_datasheet` (
+  `product_id` binary(16) NOT NULL,
+  `product_version_id` binary(16) NOT NULL,
+  `configuration_option_id` binary(16) NOT NULL,
+  `configuration_option_version_id` binary(16) NOT NULL,
+  PRIMARY KEY (`product_id`, `product_version_id`, `configuration_option_id`, `configuration_option_version_id`),
+  CONSTRAINT `fk_product_datasheet.product_id` FOREIGN KEY (`product_id`, `product_version_id`) REFERENCES `product` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_product_datasheet.configuration_option_id` FOREIGN KEY (`configuration_option_id`, `configuration_option_version_id`) REFERENCES `configuration_group_option` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+DROP TABLE IF EXISTS `product_variation`;
+CREATE TABLE `product_variation` (
+  `product_id` binary(16) NOT NULL,
+  `product_version_id` binary(16) NOT NULL,
+  `configuration_option_id` binary(16) NOT NULL,
+  `configuration_option_version_id` binary(16) NOT NULL,
+  PRIMARY KEY (`product_id`, `product_version_id`, `configuration_option_id`, `configuration_option_version_id`),
+  CONSTRAINT `fk_product_variation.product_id` FOREIGN KEY (`product_id`, `product_version_id`) REFERENCES `product` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_product_variation.configuration_option_id` FOREIGN KEY (`configuration_option_id`, `configuration_option_version_id`) REFERENCES `configuration_group_option` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+DROP TABLE IF EXISTS `product_configurator`;
+CREATE TABLE `product_configurator` (
+  `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
+  `product_id` binary(16) NOT NULL,
+  `product_version_id` binary(16) NOT NULL,
+  `configuration_option_id` binary(16) NOT NULL,
+  `configuration_option_version_id` binary(16) NOT NULL,
+  `price` json NULL,
+  `prices` json NULL DEFAULT NULL,
+  PRIMARY KEY (`id`, `version_id`),
+  CONSTRAINT `fk_product_configurator.product_id` FOREIGN KEY (`product_id`, `product_version_id`) REFERENCES `product` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_product_configurator.configuration_option_id` FOREIGN KEY (`configuration_option_id`, `configuration_option_version_id`) REFERENCES `configuration_group_option` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+DROP TABLE IF EXISTS `product_service`;
+CREATE TABLE `product_service` (
+  `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
+  `product_id` binary(16) NOT NULL,
+  `product_version_id` binary(16) NOT NULL,
+  `configuration_option_id` binary(16) NOT NULL,
+  `configuration_option_version_id` binary(16) NOT NULL,
+  `tax_id` binary(16) NOT NULL,
+  `tax_version_id` binary(16) NOT NULL,
+  `price` json NULL,
+  `prices` json NULL DEFAULT NULL,
+  PRIMARY KEY (`id`, `version_id`),
+  CONSTRAINT `fk_product_service.product_id` FOREIGN KEY (`product_id`, `product_version_id`) REFERENCES `product` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_product_service.configuration_option_id` FOREIGN KEY (`configuration_option_id`, `configuration_option_version_id`) REFERENCES `configuration_group_option` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_product_service.tax_id` FOREIGN KEY (`tax_id`, `tax_version_id`) REFERENCES `tax` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE
+);
 
 DROP TABLE IF EXISTS `country`;
 CREATE TABLE `country` (

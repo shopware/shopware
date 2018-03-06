@@ -33,6 +33,9 @@ $inBasic = [
     'customer' => ['group', 'defaultShippingAddress', 'defaultBillingAddress', 'lastPaymentMethod', 'defaultPaymentMethod', 'shop'],
     'customer_address' => ['country', 'countryState'],
     'product_stream' => ['listingSorting'],
+    'product_configurator' => ['configurationOption', 'tax'],
+    'product_service' => ['configurationOption', 'tax'],
+    'configuration_group_option' => ['configurationGroup']
 ];
 
 $associations = [
@@ -50,6 +53,12 @@ $associations = [
 
     new ManyToManyAssociation('product', 'product_stream', 'stream', 'product_stream_assignment'),
     new ManyToManyAssociation('product_stream', 'product', 'product', 'product_stream_assignment'),
+
+    new ManyToManyAssociation('product', 'configuration_group_option', 'datasheet', 'product_datasheet'),
+    new ManyToManyAssociation('configuration_group_option', 'product', 'productDatasheet', 'product_datasheet'),
+
+    new ManyToManyAssociation('product', 'configuration_group_option', 'variation', 'product_variation'),
+    new ManyToManyAssociation('configuration_group_option', 'product', 'productVariation', 'product_variation'),
 ];
 
 $writeOnly = [
@@ -64,7 +73,6 @@ $writeOnly = [
         'configFormFieldValue',
         'productSearchKeyword'
     ],
-
     'customer_group' => [
         'productListingPrices',
         'productPrices',
@@ -85,7 +93,10 @@ $writeOnly = [
         'productMedia',
         'productStreams',
         'productTranslations',
-    ]
+    ],
+    'product_configurator' => ['product'],
+    'product_service' => ['product'],
+    'configuration_group_option' => ['productConfigurators', 'productDatasheets', 'productDatasheet', 'productServices', 'productVariations']
 ];
 
 $inject = [
@@ -139,6 +150,6 @@ $context = new Context(
     $prevent
 );
 
-$generator = new ApiGenerator(__DIR__ . '/../../output/');
+$generator = new ApiGenerator(__DIR__ . '/../../var/cache');
 
 $generator->generate($context);

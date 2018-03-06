@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Api\Configuration\Event\ConfigurationGroupOptionTranslation;
 
-use Shopware\Api\Entity\Write\WrittenEvent;
 use Shopware\Api\Configuration\Definition\ConfigurationGroupOptionTranslationDefinition;
+use Shopware\Api\Entity\Write\WrittenEvent;
 
 class ConfigurationGroupOptionTranslationWrittenEvent extends WrittenEvent
 {

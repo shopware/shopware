@@ -1,13 +1,13 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Api\Configuration\Event\ConfigurationGroupOption;
 
-use Shopware\Context\Struct\ShopContext;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
 use Shopware\Api\Configuration\Collection\ConfigurationGroupOptionDetailCollection;
 use Shopware\Api\Configuration\Event\ConfigurationGroup\ConfigurationGroupBasicLoadedEvent;
 use Shopware\Api\Configuration\Event\ConfigurationGroupOptionTranslation\ConfigurationGroupOptionTranslationBasicLoadedEvent;
+use Shopware\Context\Struct\ShopContext;
+use Shopware\Framework\Event\NestedEvent;
+use Shopware\Framework\Event\NestedEventCollection;
 
 class ConfigurationGroupOptionDetailLoadedEvent extends NestedEvent
 {
@@ -47,13 +47,13 @@ class ConfigurationGroupOptionDetailLoadedEvent extends NestedEvent
     public function getEvents(): ?NestedEventCollection
     {
         $events = [];
-        if ($this->configurationGroupOptions->getConfigurationGroups()->count() > 0) {
-            $events[] = new ConfigurationGroupBasicLoadedEvent($this->configurationGroupOptions->getConfigurationGroups(), $this->context);
+        if ($this->configurationGroupOptions->getGroups()->count() > 0) {
+            $events[] = new ConfigurationGroupBasicLoadedEvent($this->configurationGroupOptions->getGroups(), $this->context);
         }
         if ($this->configurationGroupOptions->getTranslations()->count() > 0) {
             $events[] = new ConfigurationGroupOptionTranslationBasicLoadedEvent($this->configurationGroupOptions->getTranslations(), $this->context);
         }
+
         return new NestedEventCollection($events);
-    }            
-            
+    }
 }

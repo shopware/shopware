@@ -1,28 +1,28 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Api\Configuration\Repository;
 
+use Shopware\Api\Configuration\Collection\ConfigurationGroupBasicCollection;
+use Shopware\Api\Configuration\Collection\ConfigurationGroupDetailCollection;
+use Shopware\Api\Configuration\Definition\ConfigurationGroupDefinition;
+use Shopware\Api\Configuration\Event\ConfigurationGroup\ConfigurationGroupAggregationResultLoadedEvent;
+use Shopware\Api\Configuration\Event\ConfigurationGroup\ConfigurationGroupBasicLoadedEvent;
+use Shopware\Api\Configuration\Event\ConfigurationGroup\ConfigurationGroupDetailLoadedEvent;
+use Shopware\Api\Configuration\Event\ConfigurationGroup\ConfigurationGroupIdSearchResultLoadedEvent;
+use Shopware\Api\Configuration\Event\ConfigurationGroup\ConfigurationGroupSearchResultLoadedEvent;
+use Shopware\Api\Configuration\Struct\ConfigurationGroupSearchResult;
+use Shopware\Api\Entity\Read\EntityReaderInterface;
+use Shopware\Api\Entity\RepositoryInterface;
 use Shopware\Api\Entity\Search\AggregationResult;
-use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntityAggregatorInterface;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
-use Shopware\Api\Entity\Read\EntityReaderInterface;
-use Shopware\Api\Entity\RepositoryInterface;
+use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Write\EntityWriterInterface;
-use Shopware\Api\Entity\Write\WriteContext;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
+use Shopware\Api\Entity\Write\WriteContext;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\Api\Configuration\Event\ConfigurationGroup\ConfigurationGroupSearchResultLoadedEvent;
-use Shopware\Api\Configuration\Event\ConfigurationGroup\ConfigurationGroupBasicLoadedEvent;
-use Shopware\Api\Configuration\Event\ConfigurationGroup\ConfigurationGroupAggregationResultLoadedEvent;
-use Shopware\Api\Configuration\Event\ConfigurationGroup\ConfigurationGroupIdSearchResultLoadedEvent;
-use Shopware\Api\Configuration\Struct\ConfigurationGroupSearchResult;
-use Shopware\Api\Configuration\Definition\ConfigurationGroupDefinition;
-use Shopware\Api\Configuration\Collection\ConfigurationGroupBasicCollection;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Shopware\Api\Configuration\Collection\ConfigurationGroupDetailCollection;
-use Shopware\Api\Configuration\Event\ConfigurationGroup\ConfigurationGroupDetailLoadedEvent;
 
 class ConfigurationGroupRepository implements RepositoryInterface
 {
@@ -117,15 +117,13 @@ class ConfigurationGroupRepository implements RepositoryInterface
 
     public function readDetail(array $ids, ShopContext $context): ConfigurationGroupDetailCollection
     {
-
         /** @var ConfigurationGroupDetailCollection $entities */
         $entities = $this->reader->readDetail(ConfigurationGroupDefinition::class, $ids, $context);
 
         $event = new ConfigurationGroupDetailLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
-        return $entities;                
-                
+        return $entities;
     }
 
     public function update(array $data, ShopContext $context): GenericWrittenEvent

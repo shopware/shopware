@@ -2,9 +2,8 @@
 
 namespace Shopware\Api\Configuration\Collection;
 
-use Shopware\Api\Entity\EntityCollection;
 use Shopware\Api\Configuration\Struct\ConfigurationGroupBasicStruct;
-
+use Shopware\Api\Entity\EntityCollection;
 
 class ConfigurationGroupBasicCollection extends EntityCollection
 {
@@ -21,21 +20,6 @@ class ConfigurationGroupBasicCollection extends EntityCollection
     public function current(): ConfigurationGroupBasicStruct
     {
         return parent::current();
-    }
-
-
-    public function getVersionIds(): array
-    {
-        return $this->fmap(function(ConfigurationGroupBasicStruct $configurationGroup) {
-            return $configurationGroup->getVersionId();
-        });
-    }
-
-    public function filterByVersionId(string $id): ConfigurationGroupBasicCollection
-    {
-        return $this->filter(function(ConfigurationGroupBasicStruct $configurationGroup) use ($id) {
-            return $configurationGroup->getVersionId() === $id;
-        });
     }
 
     protected function getExpectedClass(): string

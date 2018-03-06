@@ -1,12 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Api\Configuration\Event\ConfigurationGroupOptionTranslation;
 
+use Shopware\Api\Configuration\Collection\ConfigurationGroupOptionTranslationBasicCollection;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\Api\Configuration\Collection\ConfigurationGroupOptionTranslationBasicCollection;
-
 
 class ConfigurationGroupOptionTranslationBasicLoadedEvent extends NestedEvent
 {
@@ -42,5 +40,4 @@ class ConfigurationGroupOptionTranslationBasicLoadedEvent extends NestedEvent
     {
         return $this->configurationGroupOptionTranslations;
     }
-
 }

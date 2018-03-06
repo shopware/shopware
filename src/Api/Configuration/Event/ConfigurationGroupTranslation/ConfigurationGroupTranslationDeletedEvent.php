@@ -1,10 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Api\Configuration\Event\ConfigurationGroupTranslation;
 
+use Shopware\Api\Configuration\Definition\ConfigurationGroupTranslationDefinition;
 use Shopware\Api\Entity\Write\DeletedEvent;
 use Shopware\Api\Entity\Write\WrittenEvent;
-use Shopware\Api\Configuration\Definition\ConfigurationGroupTranslationDefinition;
 
 class ConfigurationGroupTranslationDeletedEvent extends WrittenEvent implements DeletedEvent
 {

@@ -1,10 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Api\Configuration\Event\ConfigurationGroupOptionTranslation;
 
+use Shopware\Api\Configuration\Struct\ConfigurationGroupOptionTranslationSearchResult;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Event\NestedEvent;
-use Shopware\Api\Configuration\Struct\ConfigurationGroupOptionTranslationSearchResult;
 
 class ConfigurationGroupOptionTranslationSearchResultLoadedEvent extends NestedEvent
 {

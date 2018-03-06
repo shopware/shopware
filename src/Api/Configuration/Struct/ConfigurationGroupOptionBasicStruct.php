@@ -4,25 +4,12 @@ namespace Shopware\Api\Configuration\Struct;
 
 use Shopware\Api\Entity\Entity;
 
-
-
 class ConfigurationGroupOptionBasicStruct extends Entity
 {
-
     /**
      * @var string
      */
-    protected $versionId;
-
-    /**
-     * @var string
-     */
-    protected $configurationGroupId;
-
-    /**
-     * @var string
-     */
-    protected $configurationGroupVersionId;
+    protected $groupId;
 
     /**
      * @var string
@@ -40,43 +27,19 @@ class ConfigurationGroupOptionBasicStruct extends Entity
     protected $mediaId;
 
     /**
-     * @var string|null
+     * @var ConfigurationGroupBasicStruct
      */
-    protected $mediaVersionId;
+    protected $group;
 
-
-    public function getVersionId(): string
+    public function getGroupId(): string
     {
-        return $this->versionId;
+        return $this->groupId;
     }
 
-    public function setVersionId(string $versionId): void
+    public function setGroupId(string $groupId): void
     {
-        $this->versionId = $versionId;
+        $this->groupId = $groupId;
     }
-
-
-    public function getConfigurationGroupId(): string
-    {
-        return $this->configurationGroupId;
-    }
-
-    public function setConfigurationGroupId(string $configurationGroupId): void
-    {
-        $this->configurationGroupId = $configurationGroupId;
-    }
-
-
-    public function getConfigurationGroupVersionId(): string
-    {
-        return $this->configurationGroupVersionId;
-    }
-
-    public function setConfigurationGroupVersionId(string $configurationGroupVersionId): void
-    {
-        $this->configurationGroupVersionId = $configurationGroupVersionId;
-    }
-
 
     public function getName(): string
     {
@@ -88,7 +51,6 @@ class ConfigurationGroupOptionBasicStruct extends Entity
         $this->name = $name;
     }
 
-
     public function getColor(): ?string
     {
         return $this->color;
@@ -98,7 +60,6 @@ class ConfigurationGroupOptionBasicStruct extends Entity
     {
         $this->color = $color;
     }
-
 
     public function getMediaId(): ?string
     {
@@ -110,15 +71,13 @@ class ConfigurationGroupOptionBasicStruct extends Entity
         $this->mediaId = $mediaId;
     }
 
-
-    public function getMediaVersionId(): ?string
+    public function getGroup(): ConfigurationGroupBasicStruct
     {
-        return $this->mediaVersionId;
+        return $this->group;
     }
 
-    public function setMediaVersionId(?string $mediaVersionId): void
+    public function setGroup(ConfigurationGroupBasicStruct $group): void
     {
-        $this->mediaVersionId = $mediaVersionId;
+        $this->group = $group;
     }
-
 }

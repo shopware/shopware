@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Api\Configuration\Event\ConfigurationGroupOption;
 
-use Shopware\Api\Entity\Write\WrittenEvent;
 use Shopware\Api\Configuration\Definition\ConfigurationGroupOptionDefinition;
+use Shopware\Api\Entity\Write\WrittenEvent;
 
 class ConfigurationGroupOptionWrittenEvent extends WrittenEvent
 {

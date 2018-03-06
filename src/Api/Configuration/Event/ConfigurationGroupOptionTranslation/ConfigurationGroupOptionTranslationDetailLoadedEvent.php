@@ -1,13 +1,13 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Api\Configuration\Event\ConfigurationGroupOptionTranslation;
 
-use Shopware\Context\Struct\ShopContext;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
 use Shopware\Api\Configuration\Collection\ConfigurationGroupOptionTranslationDetailCollection;
 use Shopware\Api\Configuration\Event\ConfigurationGroupOption\ConfigurationGroupOptionBasicLoadedEvent;
 use Shopware\Api\Shop\Event\Shop\ShopBasicLoadedEvent;
+use Shopware\Context\Struct\ShopContext;
+use Shopware\Framework\Event\NestedEvent;
+use Shopware\Framework\Event\NestedEventCollection;
 
 class ConfigurationGroupOptionTranslationDetailLoadedEvent extends NestedEvent
 {
@@ -53,7 +53,7 @@ class ConfigurationGroupOptionTranslationDetailLoadedEvent extends NestedEvent
         if ($this->configurationGroupOptionTranslations->getLanguages()->count() > 0) {
             $events[] = new ShopBasicLoadedEvent($this->configurationGroupOptionTranslations->getLanguages(), $this->context);
         }
+
         return new NestedEventCollection($events);
-    }            
-            
+    }
 }

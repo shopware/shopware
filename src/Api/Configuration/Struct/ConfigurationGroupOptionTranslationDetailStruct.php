@@ -2,12 +2,10 @@
 
 namespace Shopware\Api\Configuration\Struct;
 
-use Shopware\Api\Configuration\Struct\ConfigurationGroupOptionBasicStruct;
 use Shopware\Api\Shop\Struct\ShopBasicStruct;
 
 class ConfigurationGroupOptionTranslationDetailStruct extends ConfigurationGroupOptionTranslationBasicStruct
 {
-
     /**
      * @var ConfigurationGroupOptionBasicStruct
      */
@@ -17,8 +15,6 @@ class ConfigurationGroupOptionTranslationDetailStruct extends ConfigurationGroup
      * @var ShopBasicStruct
      */
     protected $language;
-
-
 
     public function getConfigurationGroupOption(): ConfigurationGroupOptionBasicStruct
     {
@@ -30,7 +26,6 @@ class ConfigurationGroupOptionTranslationDetailStruct extends ConfigurationGroup
         $this->configurationGroupOption = $configurationGroupOption;
     }
 
-
     public function getLanguage(): ShopBasicStruct
     {
         return $this->language;
@@ -40,5 +35,4 @@ class ConfigurationGroupOptionTranslationDetailStruct extends ConfigurationGroup
     {
         $this->language = $language;
     }
-
 }

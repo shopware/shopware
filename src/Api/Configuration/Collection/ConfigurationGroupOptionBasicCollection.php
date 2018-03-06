@@ -2,9 +2,8 @@
 
 namespace Shopware\Api\Configuration\Collection;
 
-use Shopware\Api\Entity\EntityCollection;
 use Shopware\Api\Configuration\Struct\ConfigurationGroupOptionBasicStruct;
-
+use Shopware\Api\Entity\EntityCollection;
 
 class ConfigurationGroupOptionBasicCollection extends EntityCollection
 {
@@ -23,75 +22,41 @@ class ConfigurationGroupOptionBasicCollection extends EntityCollection
         return parent::current();
     }
 
-
-    public function getVersionIds(): array
-    {
-        return $this->fmap(function(ConfigurationGroupOptionBasicStruct $configurationGroupOption) {
-            return $configurationGroupOption->getVersionId();
-        });
-    }
-
-    public function filterByVersionId(string $id): ConfigurationGroupOptionBasicCollection
-    {
-        return $this->filter(function(ConfigurationGroupOptionBasicStruct $configurationGroupOption) use ($id) {
-            return $configurationGroupOption->getVersionId() === $id;
-        });
-    }
-
     public function getConfigurationGroupIds(): array
     {
-        return $this->fmap(function(ConfigurationGroupOptionBasicStruct $configurationGroupOption) {
-            return $configurationGroupOption->getConfigurationGroupId();
+        return $this->fmap(function (ConfigurationGroupOptionBasicStruct $configurationGroupOption) {
+            return $configurationGroupOption->getGroupId();
         });
     }
 
-    public function filterByConfigurationGroupId(string $id): ConfigurationGroupOptionBasicCollection
+    public function filterByGroupId(string $id): self
     {
-        return $this->filter(function(ConfigurationGroupOptionBasicStruct $configurationGroupOption) use ($id) {
-            return $configurationGroupOption->getConfigurationGroupId() === $id;
-        });
-    }
-
-    public function getConfigurationGroupVersionIds(): array
-    {
-        return $this->fmap(function(ConfigurationGroupOptionBasicStruct $configurationGroupOption) {
-            return $configurationGroupOption->getConfigurationGroupVersionId();
-        });
-    }
-
-    public function filterByConfigurationGroupVersionId(string $id): ConfigurationGroupOptionBasicCollection
-    {
-        return $this->filter(function(ConfigurationGroupOptionBasicStruct $configurationGroupOption) use ($id) {
-            return $configurationGroupOption->getConfigurationGroupVersionId() === $id;
+        return $this->filter(function (ConfigurationGroupOptionBasicStruct $configurationGroupOption) use ($id) {
+            return $configurationGroupOption->getGroupId() === $id;
         });
     }
 
     public function getMediaIds(): array
     {
-        return $this->fmap(function(ConfigurationGroupOptionBasicStruct $configurationGroupOption) {
+        return $this->fmap(function (ConfigurationGroupOptionBasicStruct $configurationGroupOption) {
             return $configurationGroupOption->getMediaId();
         });
     }
 
-    public function filterByMediaId(string $id): ConfigurationGroupOptionBasicCollection
+    public function filterByMediaId(string $id): self
     {
-        return $this->filter(function(ConfigurationGroupOptionBasicStruct $configurationGroupOption) use ($id) {
+        return $this->filter(function (ConfigurationGroupOptionBasicStruct $configurationGroupOption) use ($id) {
             return $configurationGroupOption->getMediaId() === $id;
         });
     }
 
-    public function getMediaVersionIds(): array
+    public function getGroups(): ConfigurationGroupBasicCollection
     {
-        return $this->fmap(function(ConfigurationGroupOptionBasicStruct $configurationGroupOption) {
-            return $configurationGroupOption->getMediaVersionId();
-        });
-    }
-
-    public function filterByMediaVersionId(string $id): ConfigurationGroupOptionBasicCollection
-    {
-        return $this->filter(function(ConfigurationGroupOptionBasicStruct $configurationGroupOption) use ($id) {
-            return $configurationGroupOption->getMediaVersionId() === $id;
-        });
+        return new ConfigurationGroupBasicCollection(
+            $this->fmap(function (ConfigurationGroupOptionBasicStruct $configurationGroupOption) {
+                return $configurationGroupOption->getGroup();
+            })
+        );
     }
 
     protected function getExpectedClass(): string

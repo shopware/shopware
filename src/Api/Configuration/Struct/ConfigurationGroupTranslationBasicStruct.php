@@ -4,11 +4,8 @@ namespace Shopware\Api\Configuration\Struct;
 
 use Shopware\Api\Entity\Entity;
 
-
-
 class ConfigurationGroupTranslationBasicStruct extends Entity
 {
-
     /**
      * @var string
      */
@@ -22,18 +19,7 @@ class ConfigurationGroupTranslationBasicStruct extends Entity
     /**
      * @var string
      */
-    protected $languageVersionId;
-
-    /**
-     * @var string
-     */
-    protected $versionId;
-
-    /**
-     * @var string
-     */
     protected $name;
-
 
     public function getConfigurationGroupId(): string
     {
@@ -45,7 +31,6 @@ class ConfigurationGroupTranslationBasicStruct extends Entity
         $this->configurationGroupId = $configurationGroupId;
     }
 
-
     public function getLanguageId(): string
     {
         return $this->languageId;
@@ -56,29 +41,6 @@ class ConfigurationGroupTranslationBasicStruct extends Entity
         $this->languageId = $languageId;
     }
 
-
-    public function getLanguageVersionId(): string
-    {
-        return $this->languageVersionId;
-    }
-
-    public function setLanguageVersionId(string $languageVersionId): void
-    {
-        $this->languageVersionId = $languageVersionId;
-    }
-
-
-    public function getVersionId(): string
-    {
-        return $this->versionId;
-    }
-
-    public function setVersionId(string $versionId): void
-    {
-        $this->versionId = $versionId;
-    }
-
-
     public function getName(): string
     {
         return $this->name;
@@ -88,5 +50,4 @@ class ConfigurationGroupTranslationBasicStruct extends Entity
     {
         $this->name = $name;
     }
-
 }

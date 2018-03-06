@@ -1,12 +1,12 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Api\Configuration\Event\ConfigurationGroupOption;
 
+use Shopware\Api\Configuration\Collection\ConfigurationGroupOptionBasicCollection;
+use Shopware\Api\Configuration\Event\ConfigurationGroup\ConfigurationGroupBasicLoadedEvent;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\Api\Configuration\Collection\ConfigurationGroupOptionBasicCollection;
-
 
 class ConfigurationGroupOptionBasicLoadedEvent extends NestedEvent
 {
@@ -43,4 +43,13 @@ class ConfigurationGroupOptionBasicLoadedEvent extends NestedEvent
         return $this->configurationGroupOptions;
     }
 
+    public function getEvents(): ?NestedEventCollection
+    {
+        $events = [];
+        if ($this->configurationGroupOptions->getGroups()->count() > 0) {
+            $events[] = new ConfigurationGroupBasicLoadedEvent($this->configurationGroupOptions->getGroups(), $this->context);
+        }
+
+        return new NestedEventCollection($events);
+    }
 }

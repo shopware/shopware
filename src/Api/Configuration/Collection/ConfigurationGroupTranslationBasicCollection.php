@@ -2,9 +2,8 @@
 
 namespace Shopware\Api\Configuration\Collection;
 
-use Shopware\Api\Entity\EntityCollection;
 use Shopware\Api\Configuration\Struct\ConfigurationGroupTranslationBasicStruct;
-
+use Shopware\Api\Entity\EntityCollection;
 
 class ConfigurationGroupTranslationBasicCollection extends EntityCollection
 {
@@ -23,60 +22,31 @@ class ConfigurationGroupTranslationBasicCollection extends EntityCollection
         return parent::current();
     }
 
-
     public function getConfigurationGroupIds(): array
     {
-        return $this->fmap(function(ConfigurationGroupTranslationBasicStruct $configurationGroupTranslation) {
+        return $this->fmap(function (ConfigurationGroupTranslationBasicStruct $configurationGroupTranslation) {
             return $configurationGroupTranslation->getConfigurationGroupId();
         });
     }
 
-    public function filterByConfigurationGroupId(string $id): ConfigurationGroupTranslationBasicCollection
+    public function filterByConfigurationGroupId(string $id): self
     {
-        return $this->filter(function(ConfigurationGroupTranslationBasicStruct $configurationGroupTranslation) use ($id) {
+        return $this->filter(function (ConfigurationGroupTranslationBasicStruct $configurationGroupTranslation) use ($id) {
             return $configurationGroupTranslation->getConfigurationGroupId() === $id;
         });
     }
 
     public function getLanguageIds(): array
     {
-        return $this->fmap(function(ConfigurationGroupTranslationBasicStruct $configurationGroupTranslation) {
+        return $this->fmap(function (ConfigurationGroupTranslationBasicStruct $configurationGroupTranslation) {
             return $configurationGroupTranslation->getLanguageId();
         });
     }
 
-    public function filterByLanguageId(string $id): ConfigurationGroupTranslationBasicCollection
+    public function filterByLanguageId(string $id): self
     {
-        return $this->filter(function(ConfigurationGroupTranslationBasicStruct $configurationGroupTranslation) use ($id) {
+        return $this->filter(function (ConfigurationGroupTranslationBasicStruct $configurationGroupTranslation) use ($id) {
             return $configurationGroupTranslation->getLanguageId() === $id;
-        });
-    }
-
-    public function getLanguageVersionIds(): array
-    {
-        return $this->fmap(function(ConfigurationGroupTranslationBasicStruct $configurationGroupTranslation) {
-            return $configurationGroupTranslation->getLanguageVersionId();
-        });
-    }
-
-    public function filterByLanguageVersionId(string $id): ConfigurationGroupTranslationBasicCollection
-    {
-        return $this->filter(function(ConfigurationGroupTranslationBasicStruct $configurationGroupTranslation) use ($id) {
-            return $configurationGroupTranslation->getLanguageVersionId() === $id;
-        });
-    }
-
-    public function getVersionIds(): array
-    {
-        return $this->fmap(function(ConfigurationGroupTranslationBasicStruct $configurationGroupTranslation) {
-            return $configurationGroupTranslation->getVersionId();
-        });
-    }
-
-    public function filterByVersionId(string $id): ConfigurationGroupTranslationBasicCollection
-    {
-        return $this->filter(function(ConfigurationGroupTranslationBasicStruct $configurationGroupTranslation) use ($id) {
-            return $configurationGroupTranslation->getVersionId() === $id;
         });
     }
 

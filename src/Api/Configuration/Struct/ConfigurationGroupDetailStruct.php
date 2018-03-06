@@ -7,12 +7,10 @@ use Shopware\Api\Configuration\Collection\ConfigurationGroupTranslationBasicColl
 
 class ConfigurationGroupDetailStruct extends ConfigurationGroupBasicStruct
 {
-
     /**
      * @var ConfigurationGroupOptionBasicCollection
      */
     protected $options;
-
 
     /**
      * @var ConfigurationGroupTranslationBasicCollection
@@ -21,14 +19,10 @@ class ConfigurationGroupDetailStruct extends ConfigurationGroupBasicStruct
 
     public function __construct()
     {
-
         $this->options = new ConfigurationGroupOptionBasicCollection();
 
-
         $this->translations = new ConfigurationGroupTranslationBasicCollection();
-
     }
-
 
     public function getOptions(): ConfigurationGroupOptionBasicCollection
     {
@@ -40,7 +34,6 @@ class ConfigurationGroupDetailStruct extends ConfigurationGroupBasicStruct
         $this->options = $options;
     }
 
-
     public function getTranslations(): ConfigurationGroupTranslationBasicCollection
     {
         return $this->translations;
@@ -50,5 +43,4 @@ class ConfigurationGroupDetailStruct extends ConfigurationGroupBasicStruct
     {
         $this->translations = $translations;
     }
-
 }

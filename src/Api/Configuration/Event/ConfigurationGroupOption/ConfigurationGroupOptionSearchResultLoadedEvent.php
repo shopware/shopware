@@ -1,10 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Api\Configuration\Event\ConfigurationGroupOption;
 
+use Shopware\Api\Configuration\Struct\ConfigurationGroupOptionSearchResult;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Event\NestedEvent;
-use Shopware\Api\Configuration\Struct\ConfigurationGroupOptionSearchResult;
 
 class ConfigurationGroupOptionSearchResultLoadedEvent extends NestedEvent
 {

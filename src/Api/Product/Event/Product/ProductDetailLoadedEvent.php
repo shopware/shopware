@@ -3,10 +3,13 @@
 namespace Shopware\Api\Product\Event\Product;
 
 use Shopware\Api\Category\Event\Category\CategoryBasicLoadedEvent;
+use Shopware\Api\Configuration\Event\ConfigurationGroupOption\ConfigurationGroupOptionBasicLoadedEvent;
 use Shopware\Api\Product\Collection\ProductDetailCollection;
+use Shopware\Api\Product\Event\ProductConfigurator\ProductConfiguratorBasicLoadedEvent;
 use Shopware\Api\Product\Event\ProductManufacturer\ProductManufacturerBasicLoadedEvent;
 use Shopware\Api\Product\Event\ProductMedia\ProductMediaBasicLoadedEvent;
 use Shopware\Api\Product\Event\ProductSearchKeyword\ProductSearchKeywordBasicLoadedEvent;
+use Shopware\Api\Product\Event\ProductService\ProductServiceBasicLoadedEvent;
 use Shopware\Api\Product\Event\ProductStream\ProductStreamBasicLoadedEvent;
 use Shopware\Api\Product\Event\ProductTranslation\ProductTranslationBasicLoadedEvent;
 use Shopware\Api\Tax\Event\Tax\TaxBasicLoadedEvent;
@@ -89,7 +92,18 @@ class ProductDetailLoadedEvent extends NestedEvent
         if ($this->products->getAllStreams()->count() > 0) {
             $events[] = new ProductStreamBasicLoadedEvent($this->products->getAllStreams(), $this->context);
         }
-
+        if ($this->products->getConfigurators()->count() > 0) {
+            $events[] = new ProductConfiguratorBasicLoadedEvent($this->products->getConfigurators(), $this->context);
+        }
+        if ($this->products->getServices()->count() > 0) {
+            $events[] = new ProductServiceBasicLoadedEvent($this->products->getServices(), $this->context);
+        }
+        if ($this->products->getAllDatasheets()->count() > 0) {
+            $events[] = new ConfigurationGroupOptionBasicLoadedEvent($this->products->getAllDatasheets(), $this->context);
+        }
+        if ($this->products->getAllVariations()->count() > 0) {
+            $events[] = new ConfigurationGroupOptionBasicLoadedEvent($this->products->getAllVariations(), $this->context);
+        }
         return new NestedEventCollection($events);
     }
 }

@@ -4,16 +4,8 @@ namespace Shopware\Api\Configuration\Struct;
 
 use Shopware\Api\Entity\Entity;
 
-
-
 class ConfigurationGroupBasicStruct extends Entity
 {
-
-    /**
-     * @var string
-     */
-    protected $versionId;
-
     /**
      * @var string
      */
@@ -29,18 +21,6 @@ class ConfigurationGroupBasicStruct extends Entity
      */
     protected $comparable;
 
-
-    public function getVersionId(): string
-    {
-        return $this->versionId;
-    }
-
-    public function setVersionId(string $versionId): void
-    {
-        $this->versionId = $versionId;
-    }
-
-
     public function getName(): string
     {
         return $this->name;
@@ -50,7 +30,6 @@ class ConfigurationGroupBasicStruct extends Entity
     {
         $this->name = $name;
     }
-
 
     public function getFilterable(): bool
     {
@@ -62,7 +41,6 @@ class ConfigurationGroupBasicStruct extends Entity
         $this->filterable = $filterable;
     }
 
-
     public function getComparable(): bool
     {
         return $this->comparable;
@@ -72,5 +50,4 @@ class ConfigurationGroupBasicStruct extends Entity
     {
         $this->comparable = $comparable;
     }
-
 }

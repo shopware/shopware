@@ -4,28 +4,12 @@ namespace Shopware\Api\Configuration\Collection;
 
 use Shopware\Api\Configuration\Struct\ConfigurationGroupOptionDetailStruct;
 
-
 class ConfigurationGroupOptionDetailCollection extends ConfigurationGroupOptionBasicCollection
 {
     /**
      * @var ConfigurationGroupOptionDetailStruct[]
      */
     protected $elements = [];
-
-    protected function getExpectedClass(): string
-    {
-        return ConfigurationGroupOptionDetailStruct::class;
-    }
-
-
-    public function getConfigurationGroups(): ConfigurationGroupBasicCollection
-    {
-        return new ConfigurationGroupBasicCollection(
-            $this->fmap(function(ConfigurationGroupOptionDetailStruct $configurationGroupOption) {
-                return $configurationGroupOption->getConfigurationGroup();
-            })
-        );
-    }
 
     public function getTranslationIds(): array
     {
@@ -45,6 +29,12 @@ class ConfigurationGroupOptionDetailCollection extends ConfigurationGroupOptionB
         foreach ($this->elements as $element) {
             $collection->fill($element->getTranslations()->getElements());
         }
+
         return $collection;
+    }
+
+    protected function getExpectedClass(): string
+    {
+        return ConfigurationGroupOptionDetailStruct::class;
     }
 }

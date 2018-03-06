@@ -47,8 +47,8 @@ class ProductServiceBasicLoadedEvent extends NestedEvent
     public function getEvents(): ?NestedEventCollection
     {
         $events = [];
-        if ($this->productServices->getConfigurationOptions()->count() > 0) {
-            $events[] = new ConfigurationGroupOptionBasicLoadedEvent($this->productServices->getConfigurationOptions(), $this->context);
+        if ($this->productServices->getOptions()->count() > 0) {
+            $events[] = new ConfigurationGroupOptionBasicLoadedEvent($this->productServices->getOptions(), $this->context);
         }
         if ($this->productServices->getTaxes()->count() > 0) {
             $events[] = new TaxBasicLoadedEvent($this->productServices->getTaxes(), $this->context);

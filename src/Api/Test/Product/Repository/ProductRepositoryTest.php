@@ -5,6 +5,7 @@ namespace Shopware\Api\Test\Product\Repository;
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
 use Shopware\Api\Category\Repository\CategoryRepository;
+use Shopware\Api\Configuration\Struct\ConfigurationGroupOptionBasicStruct;
 use Shopware\Api\Entity\RepositoryInterface;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\IdSearchResult;
@@ -1068,6 +1069,235 @@ class ProductRepositoryTest extends KernelTestCase
         $this->assertInstanceOf(ProductBasicStruct::class, $product);
         $this->assertEquals($manufacturerId, $product->getManufacturerId());
     }
+
+    public function testCreateAndAssignProductDatasheet()
+    {
+        $id = Uuid::uuid4()->toString();
+        $redId = Uuid::uuid4()->toString();
+        $blueId = Uuid::uuid4()->toString();
+        $colorId = Uuid::uuid4()->toString();
+
+        $data = [
+            'id' => $id,
+            'name' => 'test',
+            'tax' => ['name' => 'test', 'rate' => 15],
+            'price' => 10,
+            'manufacturer' => ['name' => 'test'],
+            'datasheet' => [
+                [
+                    'id' => $redId,
+                    'name' => 'red',
+                    'group' => ['id' => $colorId, 'name' => $colorId]
+                ],
+                [
+                    'id' => $blueId,
+                    'name' => 'blue',
+                    'groupId' => $colorId
+                ]
+            ]
+        ];
+
+        $this->repository->create([$data], ShopContext::createDefaultContext());
+
+        $product = $this->repository->readDetail([$id], ShopContext::createDefaultContext())
+            ->get($id);
+
+        /** @var ProductDetailStruct $product */
+        $sheet = $product->getDatasheet();
+
+        $this->assertCount(2, $sheet);
+
+        $this->assertTrue($sheet->has($redId));
+        $this->assertTrue($sheet->has($blueId));
+
+        $blue = $sheet->get($blueId);
+        $red = $sheet->get($redId);
+
+        $this->assertEquals('red', $red->getName());
+        $this->assertEquals('blue', $blue->getName());
+
+        $this->assertEquals($colorId, $red->getGroupId());
+        $this->assertEquals($colorId, $blue->getGroupId());
+    }
+
+    public function testCreateAndAssignProductVariation()
+    {
+        $id = Uuid::uuid4()->toString();
+        $redId = Uuid::uuid4()->toString();
+        $blueId = Uuid::uuid4()->toString();
+        $colorId = Uuid::uuid4()->toString();
+
+        $data = [
+            'id' => $id,
+            'name' => 'test',
+            'tax' => ['name' => 'test', 'rate' => 15],
+            'price' => 10,
+            'manufacturer' => ['name' => 'test'],
+            'variations' => [
+                [
+                    'id' => $redId,
+                    'name' => 'red',
+                    'group' => ['id' => $colorId, 'name' => $colorId]
+                ],
+                [
+                    'id' => $blueId,
+                    'name' => 'blue',
+                    'groupId' => $colorId
+                ]
+            ]
+        ];
+
+        $this->repository->create([$data], ShopContext::createDefaultContext());
+
+        $product = $this->repository->readDetail([$id], ShopContext::createDefaultContext())
+            ->get($id);
+
+        /** @var ProductDetailStruct $product */
+        $sheet = $product->getVariations();
+
+        $this->assertCount(2, $sheet);
+
+        $this->assertTrue($sheet->has($redId));
+        $this->assertTrue($sheet->has($blueId));
+
+        $blue = $sheet->get($blueId);
+        $red = $sheet->get($redId);
+
+        $this->assertEquals('red', $red->getName());
+        $this->assertEquals('blue', $blue->getName());
+
+        $this->assertEquals($colorId, $red->getGroupId());
+        $this->assertEquals($colorId, $blue->getGroupId());
+    }
+
+    public function testCreateAndAssignProductConfigurator()
+    {
+        $id = Uuid::uuid4()->toString();
+        $redId = Uuid::uuid4()->toString();
+        $blueId = Uuid::uuid4()->toString();
+        $colorId = Uuid::uuid4()->toString();
+
+        $data = [
+            'id' => $id,
+            'name' => 'test',
+            'tax' => ['name' => 'test', 'rate' => 15],
+            'price' => 10,
+            'manufacturer' => ['name' => 'test'],
+            'configurators' => [
+                [
+                    'id' => $redId,
+                    'price' => ['gross' => 50, 'net' => 25],
+                    'option' => [
+                        'id' => $redId,
+                        'name' => 'red',
+                        'group' => ['id' => $colorId, 'name' => $colorId]
+                    ]
+                ],
+                [
+                    'id' => $blueId,
+                    'price' => ['gross' => 100, 'net' => 90],
+                    'option' => [
+                        'id' => $blueId,
+                        'name' => 'blue',
+                        'groupId' => $colorId
+                    ]
+                ]
+            ]
+        ];
+
+        $this->repository->create([$data], ShopContext::createDefaultContext());
+
+        $product = $this->repository->readDetail([$id], ShopContext::createDefaultContext())
+            ->get($id);
+
+        /** @var ProductDetailStruct $product */
+        $configurators = $product->getConfigurators();
+
+        $this->assertCount(2, $configurators);
+
+        $this->assertTrue($configurators->has($redId));
+        $this->assertTrue($configurators->has($blueId));
+
+        $blue = $configurators->get($blueId);
+        $red = $configurators->get($redId);
+
+        $this->assertEquals(['gross' => 50, 'net' => 25], $red->getPrice());
+        $this->assertEquals(['gross' => 100, 'net' => 90], $blue->getPrice());
+
+        $this->assertEquals('red', $red->getOption()->getName());
+        $this->assertEquals('blue', $blue->getOption()->getName());
+
+        $this->assertEquals($colorId, $red->getOption()->getGroupId());
+        $this->assertEquals($colorId, $blue->getOption()->getGroupId());
+    }
+
+
+    public function testCreateAndAssignProductService()
+    {
+        $id = Uuid::uuid4()->toString();
+        $redId = Uuid::uuid4()->toString();
+        $blueId = Uuid::uuid4()->toString();
+        $colorId = Uuid::uuid4()->toString();
+
+        $data = [
+            'id' => $id,
+            'name' => 'test',
+            'tax' => ['name' => 'test', 'rate' => 15],
+            'price' => 10,
+            'manufacturer' => ['name' => 'test'],
+            'services' => [
+                [
+                    'id' => $redId,
+                    'price' => ['gross' => 50, 'net' => 25],
+                    'tax' => ['name' => 'high', 'rate' => 100],
+                    'option' => [
+                        'id' => $redId,
+                        'name' => 'red',
+                        'group' => ['id' => $colorId, 'name' => $colorId]
+                    ]
+                ],
+                [
+                    'id' => $blueId,
+                    'price' => ['gross' => 100, 'net' => 90],
+                    'tax' => ['name' => 'low', 'rate' => 1],
+                    'option' => [
+                        'id' => $blueId,
+                        'name' => 'blue',
+                        'groupId' => $colorId
+                    ]
+                ]
+            ]
+        ];
+
+        $this->repository->create([$data], ShopContext::createDefaultContext());
+
+        $product = $this->repository->readDetail([$id], ShopContext::createDefaultContext())
+            ->get($id);
+
+        /** @var ProductDetailStruct $product */
+        $services = $product->getServices();
+
+        $this->assertCount(2, $services);
+
+        $this->assertTrue($services->has($redId));
+        $this->assertTrue($services->has($blueId));
+
+        $blue = $services->get($blueId);
+        $red = $services->get($redId);
+
+        $this->assertEquals(['gross' => 50, 'net' => 25], $red->getPrice());
+        $this->assertEquals(['gross' => 100, 'net' => 90], $blue->getPrice());
+
+        $this->assertEquals(100, $red->getTax()->getRate());
+        $this->assertEquals(1, $blue->getTax()->getRate());
+
+        $this->assertEquals('red', $red->getOption()->getName());
+        $this->assertEquals('blue', $blue->getOption()->getName());
+
+        $this->assertEquals($colorId, $red->getOption()->getGroupId());
+        $this->assertEquals($colorId, $blue->getOption()->getGroupId());
+    }
+
 }
 
 class CallableClass

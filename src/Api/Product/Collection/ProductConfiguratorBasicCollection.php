@@ -37,53 +37,25 @@ class ProductConfiguratorBasicCollection extends EntityCollection
         });
     }
 
-    public function getConfigurationOptionIds(): array
+    public function getOptionIds(): array
     {
         return $this->fmap(function (ProductConfiguratorBasicStruct $productConfigurator) {
-            return $productConfigurator->getConfigurationOptionId();
+            return $productConfigurator->getOptionId();
         });
     }
 
-    public function filterByConfigurationOptionId(string $id): self
+    public function filterByOptionId(string $id): self
     {
         return $this->filter(function (ProductConfiguratorBasicStruct $productConfigurator) use ($id) {
-            return $productConfigurator->getConfigurationOptionId() === $id;
+            return $productConfigurator->getOptionId() === $id;
         });
     }
 
-    public function getProductVersionIds(): array
-    {
-        return $this->fmap(function (ProductConfiguratorBasicStruct $productConfigurator) {
-            return $productConfigurator->getProductVersionId();
-        });
-    }
-
-    public function filterByProductVersionId(string $id): self
-    {
-        return $this->filter(function (ProductConfiguratorBasicStruct $productConfigurator) use ($id) {
-            return $productConfigurator->getProductVersionId() === $id;
-        });
-    }
-
-    public function getConfigurationOptionVersionIds(): array
-    {
-        return $this->fmap(function (ProductConfiguratorBasicStruct $productConfigurator) {
-            return $productConfigurator->getConfigurationOptionVersionId();
-        });
-    }
-
-    public function filterByConfigurationOptionVersionId(string $id): self
-    {
-        return $this->filter(function (ProductConfiguratorBasicStruct $productConfigurator) use ($id) {
-            return $productConfigurator->getConfigurationOptionVersionId() === $id;
-        });
-    }
-
-    public function getConfigurationOptions(): ConfigurationGroupOptionBasicCollection
+    public function getOptions(): ConfigurationGroupOptionBasicCollection
     {
         return new ConfigurationGroupOptionBasicCollection(
             $this->fmap(function (ProductConfiguratorBasicStruct $productConfigurator) {
-                return $productConfigurator->getConfigurationOption();
+                return $productConfigurator->getOption();
             })
         );
     }

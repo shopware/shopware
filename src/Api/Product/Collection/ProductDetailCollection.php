@@ -198,7 +198,7 @@ class ProductDetailCollection extends ProductBasicCollection
     {
         $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getDatasheets()->getIds() as $id) {
+            foreach ($element->getDatasheet()->getIds() as $id) {
                 $ids[] = $id;
             }
         }
@@ -210,7 +210,7 @@ class ProductDetailCollection extends ProductBasicCollection
     {
         $collection = new ConfigurationGroupOptionBasicCollection();
         foreach ($this->elements as $element) {
-            $collection->fill($element->getDatasheets()->getElements());
+            $collection->fill($element->getDatasheet()->getElements());
         }
 
         return $collection;

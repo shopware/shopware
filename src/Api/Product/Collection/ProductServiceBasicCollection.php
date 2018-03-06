@@ -24,20 +24,6 @@ class ProductServiceBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getVersionIds(): array
-    {
-        return $this->fmap(function (ProductServiceBasicStruct $productService) {
-            return $productService->getVersionId();
-        });
-    }
-
-    public function filterByVersionId(string $id): self
-    {
-        return $this->filter(function (ProductServiceBasicStruct $productService) use ($id) {
-            return $productService->getVersionId() === $id;
-        });
-    }
-
     public function getProductIds(): array
     {
         return $this->fmap(function (ProductServiceBasicStruct $productService) {
@@ -52,17 +38,17 @@ class ProductServiceBasicCollection extends EntityCollection
         });
     }
 
-    public function getConfigurationOptionIds(): array
+    public function getOptionIds(): array
     {
         return $this->fmap(function (ProductServiceBasicStruct $productService) {
-            return $productService->getConfigurationOptionId();
+            return $productService->getOptionId();
         });
     }
 
-    public function filterByConfigurationOptionId(string $id): self
+    public function filterByOptionId(string $id): self
     {
         return $this->filter(function (ProductServiceBasicStruct $productService) use ($id) {
-            return $productService->getConfigurationOptionId() === $id;
+            return $productService->getOptionId() === $id;
         });
     }
 
@@ -80,53 +66,11 @@ class ProductServiceBasicCollection extends EntityCollection
         });
     }
 
-    public function getProductVersionIds(): array
-    {
-        return $this->fmap(function (ProductServiceBasicStruct $productService) {
-            return $productService->getProductVersionId();
-        });
-    }
-
-    public function filterByProductVersionId(string $id): self
-    {
-        return $this->filter(function (ProductServiceBasicStruct $productService) use ($id) {
-            return $productService->getProductVersionId() === $id;
-        });
-    }
-
-    public function getConfigurationOptionVersionIds(): array
-    {
-        return $this->fmap(function (ProductServiceBasicStruct $productService) {
-            return $productService->getConfigurationOptionVersionId();
-        });
-    }
-
-    public function filterByConfigurationOptionVersionId(string $id): self
-    {
-        return $this->filter(function (ProductServiceBasicStruct $productService) use ($id) {
-            return $productService->getConfigurationOptionVersionId() === $id;
-        });
-    }
-
-    public function getTaxVersionIds(): array
-    {
-        return $this->fmap(function (ProductServiceBasicStruct $productService) {
-            return $productService->getTaxVersionId();
-        });
-    }
-
-    public function filterByTaxVersionId(string $id): self
-    {
-        return $this->filter(function (ProductServiceBasicStruct $productService) use ($id) {
-            return $productService->getTaxVersionId() === $id;
-        });
-    }
-
-    public function getConfigurationOptions(): ConfigurationGroupOptionBasicCollection
+    public function getOptions(): ConfigurationGroupOptionBasicCollection
     {
         return new ConfigurationGroupOptionBasicCollection(
             $this->fmap(function (ProductServiceBasicStruct $productService) {
-                return $productService->getConfigurationOption();
+                return $productService->getOption();
             })
         );
     }

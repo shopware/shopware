@@ -5,45 +5,46 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-         <service class="Shopware\Api\Configuration\Definition\ConfigurationGroupDefinition" id="shopware.configuration.configuration_group_definition" >
-            <tag name="shopware.entity.definition" entity="configuration_group" />
+        <service class="Shopware\Api\Configuration\Definition\ConfigurationGroupDefinition" id="Shopware\Api\Configuration\Definition\ConfigurationGroupDefinition">
+            <tag name="shopware.entity.definition" entity="configuration_group"/>
         </service>
+
         <service class="Shopware\Api\Configuration\Repository\ConfigurationGroupRepository" id="Shopware\Api\Configuration\Repository\ConfigurationGroupRepository" public="true">
-          <argument id="shopware.api.entity_reader" type="service"/>
-          <argument id="shopware.api.entity_writer" type="service"/>
-          <argument id="shopware.api.entity_searcher" type="service"/>
-          <argument id="shopware.api.entity_aggregator" type="service"/>
-          <argument id="event_dispatcher" type="service"/>
+            <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+            <argument id="Shopware\Api\Entity\Write\EntityWriter" type="service"/>
+            <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
+            <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
+            <argument id="event_dispatcher" type="service"/>
         </service>
-         <service class="Shopware\Api\Configuration\Definition\ConfigurationGroupOptionDefinition" id="shopware.configuration.configuration_group_option_definition" >
-            <tag name="shopware.entity.definition" entity="configuration_group_option" />
+        <service class="Shopware\Api\Configuration\Definition\ConfigurationGroupOptionDefinition" id="Shopware\Api\Configuration\Definition\ConfigurationGroupOptionDefinition">
+            <tag name="shopware.entity.definition" entity="configuration_group_option"/>
         </service>
         <service class="Shopware\Api\Configuration\Repository\ConfigurationGroupOptionRepository" id="Shopware\Api\Configuration\Repository\ConfigurationGroupOptionRepository" public="true">
-          <argument id="shopware.api.entity_reader" type="service"/>
-          <argument id="shopware.api.entity_writer" type="service"/>
-          <argument id="shopware.api.entity_searcher" type="service"/>
-          <argument id="shopware.api.entity_aggregator" type="service"/>
-          <argument id="event_dispatcher" type="service"/>
+            <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+            <argument id="Shopware\Api\Entity\Write\EntityWriter" type="service"/>
+            <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
+            <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
+            <argument id="event_dispatcher" type="service"/>
         </service>
-         <service class="Shopware\Api\Configuration\Definition\ConfigurationGroupOptionTranslationDefinition" id="shopware.configuration.configuration_group_option_translation_definition" >
-            <tag name="shopware.entity.definition" entity="configuration_group_option_translation" />
+        <service class="Shopware\Api\Configuration\Definition\ConfigurationGroupOptionTranslationDefinition" id="Shopware\Api\Configuration\Definition\ConfigurationGroupOptionTranslationDefinition">
+            <tag name="shopware.entity.definition" entity="configuration_group_option_translation"/>
         </service>
         <service class="Shopware\Api\Configuration\Repository\ConfigurationGroupOptionTranslationRepository" id="Shopware\Api\Configuration\Repository\ConfigurationGroupOptionTranslationRepository" public="true">
-          <argument id="shopware.api.entity_reader" type="service"/>
-          <argument id="shopware.api.entity_writer" type="service"/>
-          <argument id="shopware.api.entity_searcher" type="service"/>
-          <argument id="shopware.api.entity_aggregator" type="service"/>
-          <argument id="event_dispatcher" type="service"/>
+            <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+            <argument id="Shopware\Api\Entity\Write\EntityWriter" type="service"/>
+            <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
+            <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
+            <argument id="event_dispatcher" type="service"/>
         </service>
-         <service class="Shopware\Api\Configuration\Definition\ConfigurationGroupTranslationDefinition" id="shopware.configuration.configuration_group_translation_definition" >
-            <tag name="shopware.entity.definition" entity="configuration_group_translation" />
+        <service class="Shopware\Api\Configuration\Definition\ConfigurationGroupTranslationDefinition" id="Shopware\Api\Configuration\Definition\ConfigurationGroupTranslationDefinition">
+            <tag name="shopware.entity.definition" entity="configuration_group_translation"/>
         </service>
         <service class="Shopware\Api\Configuration\Repository\ConfigurationGroupTranslationRepository" id="Shopware\Api\Configuration\Repository\ConfigurationGroupTranslationRepository" public="true">
-          <argument id="shopware.api.entity_reader" type="service"/>
-          <argument id="shopware.api.entity_writer" type="service"/>
-          <argument id="shopware.api.entity_searcher" type="service"/>
-          <argument id="shopware.api.entity_aggregator" type="service"/>
-          <argument id="event_dispatcher" type="service"/>
+            <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+            <argument id="Shopware\Api\Entity\Write\EntityWriter" type="service"/>
+            <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
+            <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
+            <argument id="event_dispatcher" type="service"/>
         </service>
     </services>
 </container>                

@@ -62,7 +62,7 @@ class ProductDetailStruct extends ProductBasicStruct
     /**
      * @var ConfigurationGroupOptionBasicCollection
      */
-    protected $datasheets;
+    protected $datasheet;
 
     /**
      * @var ConfigurationGroupOptionBasicCollection
@@ -91,7 +91,7 @@ class ProductDetailStruct extends ProductBasicStruct
         $this->streams = new ProductStreamBasicCollection();
         $this->configurators = new ProductConfiguratorBasicCollection();
         $this->services = new ProductServiceBasicCollection();
-        $this->datasheets = new ConfigurationGroupOptionBasicCollection();
+        $this->datasheet = new ConfigurationGroupOptionBasicCollection();
         $this->variations = new ConfigurationGroupOptionBasicCollection();
     }
 
@@ -205,14 +205,14 @@ class ProductDetailStruct extends ProductBasicStruct
         $this->services = $services;
     }
 
-    public function getDatasheets(): ConfigurationGroupOptionBasicCollection
+    public function getDatasheet(): ConfigurationGroupOptionBasicCollection
     {
-        return $this->datasheets;
+        return $this->datasheet;
     }
 
-    public function setDatasheets(ConfigurationGroupOptionBasicCollection $datasheets): void
+    public function setDatasheet(ConfigurationGroupOptionBasicCollection $datasheet): void
     {
-        $this->datasheets = $datasheets;
+        $this->datasheet = $datasheet;
     }
 
     public function getVariations(): ConfigurationGroupOptionBasicCollection

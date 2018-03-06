@@ -10,27 +10,12 @@ class ProductConfiguratorBasicStruct extends Entity
     /**
      * @var string
      */
-    protected $versionId;
-
-    /**
-     * @var string
-     */
     protected $productId;
 
     /**
      * @var string
      */
-    protected $configurationOptionId;
-
-    /**
-     * @var string
-     */
-    protected $productVersionId;
-
-    /**
-     * @var string
-     */
-    protected $configurationOptionVersionId;
+    protected $optionId;
 
     /**
      * @var array|null
@@ -45,17 +30,7 @@ class ProductConfiguratorBasicStruct extends Entity
     /**
      * @var ConfigurationGroupOptionBasicStruct
      */
-    protected $configurationOption;
-
-    public function getVersionId(): string
-    {
-        return $this->versionId;
-    }
-
-    public function setVersionId(string $versionId): void
-    {
-        $this->versionId = $versionId;
-    }
+    protected $option;
 
     public function getProductId(): string
     {
@@ -67,34 +42,14 @@ class ProductConfiguratorBasicStruct extends Entity
         $this->productId = $productId;
     }
 
-    public function getConfigurationOptionId(): string
+    public function getOptionId(): string
     {
-        return $this->configurationOptionId;
+        return $this->optionId;
     }
 
-    public function setConfigurationOptionId(string $configurationOptionId): void
+    public function setOptionId(string $optionId): void
     {
-        $this->configurationOptionId = $configurationOptionId;
-    }
-
-    public function getProductVersionId(): string
-    {
-        return $this->productVersionId;
-    }
-
-    public function setProductVersionId(string $productVersionId): void
-    {
-        $this->productVersionId = $productVersionId;
-    }
-
-    public function getConfigurationOptionVersionId(): string
-    {
-        return $this->configurationOptionVersionId;
-    }
-
-    public function setConfigurationOptionVersionId(string $configurationOptionVersionId): void
-    {
-        $this->configurationOptionVersionId = $configurationOptionVersionId;
+        $this->optionId = $optionId;
     }
 
     public function getPrice(): ?array
@@ -117,13 +72,13 @@ class ProductConfiguratorBasicStruct extends Entity
         $this->prices = $prices;
     }
 
-    public function getConfigurationOption(): ConfigurationGroupOptionBasicStruct
+    public function getOption(): ConfigurationGroupOptionBasicStruct
     {
-        return $this->configurationOption;
+        return $this->option;
     }
 
-    public function setConfigurationOption(ConfigurationGroupOptionBasicStruct $configurationOption): void
+    public function setOption(ConfigurationGroupOptionBasicStruct $option): void
     {
-        $this->configurationOption = $configurationOption;
+        $this->option = $option;
     }
 }

@@ -46,8 +46,8 @@ class ProductConfiguratorBasicLoadedEvent extends NestedEvent
     public function getEvents(): ?NestedEventCollection
     {
         $events = [];
-        if ($this->productConfigurators->getConfigurationOptions()->count() > 0) {
-            $events[] = new ConfigurationGroupOptionBasicLoadedEvent($this->productConfigurators->getConfigurationOptions(), $this->context);
+        if ($this->productConfigurators->getOptions()->count() > 0) {
+            $events[] = new ConfigurationGroupOptionBasicLoadedEvent($this->productConfigurators->getOptions(), $this->context);
         }
 
         return new NestedEventCollection($events);

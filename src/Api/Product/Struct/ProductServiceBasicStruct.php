@@ -11,37 +11,17 @@ class ProductServiceBasicStruct extends Entity
     /**
      * @var string
      */
-    protected $versionId;
-
-    /**
-     * @var string
-     */
     protected $productId;
 
     /**
      * @var string
      */
-    protected $configurationOptionId;
+    protected $optionId;
 
     /**
      * @var string
      */
     protected $taxId;
-
-    /**
-     * @var string
-     */
-    protected $productVersionId;
-
-    /**
-     * @var string
-     */
-    protected $configurationOptionVersionId;
-
-    /**
-     * @var string
-     */
-    protected $taxVersionId;
 
     /**
      * @var array|null
@@ -56,22 +36,12 @@ class ProductServiceBasicStruct extends Entity
     /**
      * @var ConfigurationGroupOptionBasicStruct
      */
-    protected $configurationOption;
+    protected $option;
 
     /**
      * @var TaxBasicStruct
      */
     protected $tax;
-
-    public function getVersionId(): string
-    {
-        return $this->versionId;
-    }
-
-    public function setVersionId(string $versionId): void
-    {
-        $this->versionId = $versionId;
-    }
 
     public function getProductId(): string
     {
@@ -83,14 +53,14 @@ class ProductServiceBasicStruct extends Entity
         $this->productId = $productId;
     }
 
-    public function getConfigurationOptionId(): string
+    public function getOptionId(): string
     {
-        return $this->configurationOptionId;
+        return $this->optionId;
     }
 
-    public function setConfigurationOptionId(string $configurationOptionId): void
+    public function setOptionId(string $optionId): void
     {
-        $this->configurationOptionId = $configurationOptionId;
+        $this->optionId = $optionId;
     }
 
     public function getTaxId(): string
@@ -101,36 +71,6 @@ class ProductServiceBasicStruct extends Entity
     public function setTaxId(string $taxId): void
     {
         $this->taxId = $taxId;
-    }
-
-    public function getProductVersionId(): string
-    {
-        return $this->productVersionId;
-    }
-
-    public function setProductVersionId(string $productVersionId): void
-    {
-        $this->productVersionId = $productVersionId;
-    }
-
-    public function getConfigurationOptionVersionId(): string
-    {
-        return $this->configurationOptionVersionId;
-    }
-
-    public function setConfigurationOptionVersionId(string $configurationOptionVersionId): void
-    {
-        $this->configurationOptionVersionId = $configurationOptionVersionId;
-    }
-
-    public function getTaxVersionId(): string
-    {
-        return $this->taxVersionId;
-    }
-
-    public function setTaxVersionId(string $taxVersionId): void
-    {
-        $this->taxVersionId = $taxVersionId;
     }
 
     public function getPrice(): ?array
@@ -153,14 +93,14 @@ class ProductServiceBasicStruct extends Entity
         $this->prices = $prices;
     }
 
-    public function getConfigurationOption(): ConfigurationGroupOptionBasicStruct
+    public function getOption(): ConfigurationGroupOptionBasicStruct
     {
-        return $this->configurationOption;
+        return $this->option;
     }
 
-    public function setConfigurationOption(ConfigurationGroupOptionBasicStruct $configurationOption): void
+    public function setOption(ConfigurationGroupOptionBasicStruct $option): void
     {
-        $this->configurationOption = $configurationOption;
+        $this->option = $option;
     }
 
     public function getTax(): TaxBasicStruct

@@ -56,14 +56,14 @@ class ProductServiceDefinition extends EntityDefinition
             new VersionField(),
             (new FkField('product_id', 'productId', ProductDefinition::class))->setFlags(new Required()),
             new ReferenceVersionField(ProductDefinition::class),
-            (new FkField('configuration_option_id', 'configurationOptionId', ConfigurationGroupOptionDefinition::class))->setFlags(new Required()),
+            (new FkField('configuration_group_option_id', 'optionId', ConfigurationGroupOptionDefinition::class))->setFlags(new Required()),
             new ReferenceVersionField(ConfigurationGroupOptionDefinition::class),
             (new FkField('tax_id', 'taxId', TaxDefinition::class))->setFlags(new Required()),
             new ReferenceVersionField(TaxDefinition::class),
             new ArrayField('price', 'price'),
             new PriceRulesField('prices', 'prices'),
             (new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, false))->setFlags(new WriteOnly()),
-            new ManyToOneAssociationField('option', 'configuration_option_id', ConfigurationGroupOptionDefinition::class, true),
+            new ManyToOneAssociationField('option', 'configuration_group_option_id', ConfigurationGroupOptionDefinition::class, true),
             new ManyToOneAssociationField('tax', 'tax_id', TaxDefinition::class, true),
         ]);
 

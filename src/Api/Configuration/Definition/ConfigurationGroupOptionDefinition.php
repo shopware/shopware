@@ -63,8 +63,8 @@ class ConfigurationGroupOptionDefinition extends EntityDefinition
         self::$fields = new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
-            (new FkField('configuration_group_id', 'configurationGroupId', ConfigurationGroupDefinition::class))->setFlags(new Required()),
-            new ReferenceVersionField(self::class),
+            (new FkField('configuration_group_id', 'groupId', ConfigurationGroupDefinition::class))->setFlags(new Required()),
+            new ReferenceVersionField(ConfigurationGroupDefinition::class),
             (new TranslatedField(new StringField('name', 'name')))->setFlags(new Required()),
             new StringField('color', 'color'),
             new IdField('media_id', 'mediaId'),

@@ -4,7 +4,6 @@ namespace Shopware\Api\Product\Definition;
 
 use Shopware\Api\Configuration\Definition\ConfigurationGroupOptionDefinition;
 use Shopware\Api\Entity\Field\FkField;
-use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\ReferenceVersionField;
 use Shopware\Api\Entity\FieldCollection;

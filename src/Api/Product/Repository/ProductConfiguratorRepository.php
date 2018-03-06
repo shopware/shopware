@@ -1,27 +1,26 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Api\Product\Repository;
 
+use Shopware\Api\Entity\Read\EntityReaderInterface;
+use Shopware\Api\Entity\RepositoryInterface;
 use Shopware\Api\Entity\Search\AggregationResult;
-use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntityAggregatorInterface;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
-use Shopware\Api\Entity\Read\EntityReaderInterface;
-use Shopware\Api\Entity\RepositoryInterface;
+use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Write\EntityWriterInterface;
-use Shopware\Api\Entity\Write\WriteContext;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
-use Shopware\Context\Struct\ShopContext;
-use Shopware\Api\Product\Event\ProductConfigurator\ProductConfiguratorSearchResultLoadedEvent;
-use Shopware\Api\Product\Event\ProductConfigurator\ProductConfiguratorBasicLoadedEvent;
-use Shopware\Api\Product\Event\ProductConfigurator\ProductConfiguratorAggregationResultLoadedEvent;
-use Shopware\Api\Product\Event\ProductConfigurator\ProductConfiguratorIdSearchResultLoadedEvent;
-use Shopware\Api\Product\Struct\ProductConfiguratorSearchResult;
-use Shopware\Api\Product\Definition\ProductConfiguratorDefinition;
+use Shopware\Api\Entity\Write\WriteContext;
 use Shopware\Api\Product\Collection\ProductConfiguratorBasicCollection;
+use Shopware\Api\Product\Definition\ProductConfiguratorDefinition;
+use Shopware\Api\Product\Event\ProductConfigurator\ProductConfiguratorAggregationResultLoadedEvent;
+use Shopware\Api\Product\Event\ProductConfigurator\ProductConfiguratorBasicLoadedEvent;
+use Shopware\Api\Product\Event\ProductConfigurator\ProductConfiguratorIdSearchResultLoadedEvent;
+use Shopware\Api\Product\Event\ProductConfigurator\ProductConfiguratorSearchResultLoadedEvent;
+use Shopware\Api\Product\Struct\ProductConfiguratorSearchResult;
+use Shopware\Context\Struct\ShopContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-
 
 class ProductConfiguratorRepository implements RepositoryInterface
 {
@@ -116,7 +115,7 @@ class ProductConfiguratorRepository implements RepositoryInterface
 
     public function readDetail(array $ids, ShopContext $context): ProductConfiguratorBasicCollection
     {
-     return $this->readBasic($ids, $context);
+        return $this->readBasic($ids, $context);
     }
 
     public function update(array $data, ShopContext $context): GenericWrittenEvent

@@ -104,6 +104,7 @@ class ProductDetailLoadedEvent extends NestedEvent
         if ($this->products->getAllVariations()->count() > 0) {
             $events[] = new ConfigurationGroupOptionBasicLoadedEvent($this->products->getAllVariations(), $this->context);
         }
+
         return new NestedEventCollection($events);
     }
 }

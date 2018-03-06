@@ -2,14 +2,12 @@
 
 namespace Shopware\Api\Product\Struct;
 
-use Shopware\Api\Entity\Entity;
-
 use Shopware\Api\Configuration\Struct\ConfigurationGroupOptionBasicStruct;
+use Shopware\Api\Entity\Entity;
 use Shopware\Api\Tax\Struct\TaxBasicStruct;
 
 class ProductServiceBasicStruct extends Entity
 {
-
     /**
      * @var string
      */
@@ -65,7 +63,6 @@ class ProductServiceBasicStruct extends Entity
      */
     protected $tax;
 
-
     public function getVersionId(): string
     {
         return $this->versionId;
@@ -75,7 +72,6 @@ class ProductServiceBasicStruct extends Entity
     {
         $this->versionId = $versionId;
     }
-
 
     public function getProductId(): string
     {
@@ -87,7 +83,6 @@ class ProductServiceBasicStruct extends Entity
         $this->productId = $productId;
     }
 
-
     public function getConfigurationOptionId(): string
     {
         return $this->configurationOptionId;
@@ -97,7 +92,6 @@ class ProductServiceBasicStruct extends Entity
     {
         $this->configurationOptionId = $configurationOptionId;
     }
-
 
     public function getTaxId(): string
     {
@@ -109,7 +103,6 @@ class ProductServiceBasicStruct extends Entity
         $this->taxId = $taxId;
     }
 
-
     public function getProductVersionId(): string
     {
         return $this->productVersionId;
@@ -119,7 +112,6 @@ class ProductServiceBasicStruct extends Entity
     {
         $this->productVersionId = $productVersionId;
     }
-
 
     public function getConfigurationOptionVersionId(): string
     {
@@ -131,7 +123,6 @@ class ProductServiceBasicStruct extends Entity
         $this->configurationOptionVersionId = $configurationOptionVersionId;
     }
 
-
     public function getTaxVersionId(): string
     {
         return $this->taxVersionId;
@@ -141,7 +132,6 @@ class ProductServiceBasicStruct extends Entity
     {
         $this->taxVersionId = $taxVersionId;
     }
-
 
     public function getPrice(): ?array
     {
@@ -153,7 +143,6 @@ class ProductServiceBasicStruct extends Entity
         $this->price = $price;
     }
 
-
     public function getPrices(): ?array
     {
         return $this->prices;
@@ -163,7 +152,6 @@ class ProductServiceBasicStruct extends Entity
     {
         $this->prices = $prices;
     }
-
 
     public function getConfigurationOption(): ConfigurationGroupOptionBasicStruct
     {
@@ -175,7 +163,6 @@ class ProductServiceBasicStruct extends Entity
         $this->configurationOption = $configurationOption;
     }
 
-
     public function getTax(): TaxBasicStruct
     {
         return $this->tax;
@@ -185,5 +172,4 @@ class ProductServiceBasicStruct extends Entity
     {
         $this->tax = $tax;
     }
-
 }

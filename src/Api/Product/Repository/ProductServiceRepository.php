@@ -1,27 +1,26 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Api\Product\Repository;
 
+use Shopware\Api\Entity\Read\EntityReaderInterface;
+use Shopware\Api\Entity\RepositoryInterface;
 use Shopware\Api\Entity\Search\AggregationResult;
-use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntityAggregatorInterface;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
-use Shopware\Api\Entity\Read\EntityReaderInterface;
-use Shopware\Api\Entity\RepositoryInterface;
+use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Write\EntityWriterInterface;
-use Shopware\Api\Entity\Write\WriteContext;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
-use Shopware\Context\Struct\ShopContext;
-use Shopware\Api\Product\Event\ProductService\ProductServiceSearchResultLoadedEvent;
-use Shopware\Api\Product\Event\ProductService\ProductServiceBasicLoadedEvent;
-use Shopware\Api\Product\Event\ProductService\ProductServiceAggregationResultLoadedEvent;
-use Shopware\Api\Product\Event\ProductService\ProductServiceIdSearchResultLoadedEvent;
-use Shopware\Api\Product\Struct\ProductServiceSearchResult;
-use Shopware\Api\Product\Definition\ProductServiceDefinition;
+use Shopware\Api\Entity\Write\WriteContext;
 use Shopware\Api\Product\Collection\ProductServiceBasicCollection;
+use Shopware\Api\Product\Definition\ProductServiceDefinition;
+use Shopware\Api\Product\Event\ProductService\ProductServiceAggregationResultLoadedEvent;
+use Shopware\Api\Product\Event\ProductService\ProductServiceBasicLoadedEvent;
+use Shopware\Api\Product\Event\ProductService\ProductServiceIdSearchResultLoadedEvent;
+use Shopware\Api\Product\Event\ProductService\ProductServiceSearchResultLoadedEvent;
+use Shopware\Api\Product\Struct\ProductServiceSearchResult;
+use Shopware\Context\Struct\ShopContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-
 
 class ProductServiceRepository implements RepositoryInterface
 {
@@ -116,7 +115,7 @@ class ProductServiceRepository implements RepositoryInterface
 
     public function readDetail(array $ids, ShopContext $context): ProductServiceBasicCollection
     {
-     return $this->readBasic($ids, $context);
+        return $this->readBasic($ids, $context);
     }
 
     public function update(array $data, ShopContext $context): GenericWrittenEvent

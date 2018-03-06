@@ -2,13 +2,11 @@
 
 namespace Shopware\Api\Product\Struct;
 
-use Shopware\Api\Entity\Entity;
-
 use Shopware\Api\Configuration\Struct\ConfigurationGroupOptionBasicStruct;
+use Shopware\Api\Entity\Entity;
 
 class ProductConfiguratorBasicStruct extends Entity
 {
-
     /**
      * @var string
      */
@@ -49,7 +47,6 @@ class ProductConfiguratorBasicStruct extends Entity
      */
     protected $configurationOption;
 
-
     public function getVersionId(): string
     {
         return $this->versionId;
@@ -59,7 +56,6 @@ class ProductConfiguratorBasicStruct extends Entity
     {
         $this->versionId = $versionId;
     }
-
 
     public function getProductId(): string
     {
@@ -71,7 +67,6 @@ class ProductConfiguratorBasicStruct extends Entity
         $this->productId = $productId;
     }
 
-
     public function getConfigurationOptionId(): string
     {
         return $this->configurationOptionId;
@@ -81,7 +76,6 @@ class ProductConfiguratorBasicStruct extends Entity
     {
         $this->configurationOptionId = $configurationOptionId;
     }
-
 
     public function getProductVersionId(): string
     {
@@ -93,7 +87,6 @@ class ProductConfiguratorBasicStruct extends Entity
         $this->productVersionId = $productVersionId;
     }
 
-
     public function getConfigurationOptionVersionId(): string
     {
         return $this->configurationOptionVersionId;
@@ -103,7 +96,6 @@ class ProductConfiguratorBasicStruct extends Entity
     {
         $this->configurationOptionVersionId = $configurationOptionVersionId;
     }
-
 
     public function getPrice(): ?array
     {
@@ -115,7 +107,6 @@ class ProductConfiguratorBasicStruct extends Entity
         $this->price = $price;
     }
 
-
     public function getPrices(): ?array
     {
         return $this->prices;
@@ -126,7 +117,6 @@ class ProductConfiguratorBasicStruct extends Entity
         $this->prices = $prices;
     }
 
-
     public function getConfigurationOption(): ConfigurationGroupOptionBasicStruct
     {
         return $this->configurationOption;
@@ -136,5 +126,4 @@ class ProductConfiguratorBasicStruct extends Entity
     {
         $this->configurationOption = $configurationOption;
     }
-
 }

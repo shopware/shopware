@@ -150,7 +150,6 @@ class ProductDetailCollection extends ProductBasicCollection
         return $collection;
     }
 
-
     public function getConfiguratorIds(): array
     {
         $ids = [];
@@ -169,6 +168,7 @@ class ProductDetailCollection extends ProductBasicCollection
         foreach ($this->elements as $element) {
             $collection->fill($element->getConfigurators()->getElements());
         }
+
         return $collection;
     }
 
@@ -190,6 +190,7 @@ class ProductDetailCollection extends ProductBasicCollection
         foreach ($this->elements as $element) {
             $collection->fill($element->getServices()->getElements());
         }
+
         return $collection;
     }
 
@@ -201,6 +202,7 @@ class ProductDetailCollection extends ProductBasicCollection
                 $ids[] = $id;
             }
         }
+
         return $ids;
     }
 
@@ -210,6 +212,7 @@ class ProductDetailCollection extends ProductBasicCollection
         foreach ($this->elements as $element) {
             $collection->fill($element->getDatasheets()->getElements());
         }
+
         return $collection;
     }
 
@@ -221,6 +224,7 @@ class ProductDetailCollection extends ProductBasicCollection
                 $ids[] = $id;
             }
         }
+
         return $ids;
     }
 
@@ -230,6 +234,7 @@ class ProductDetailCollection extends ProductBasicCollection
         foreach ($this->elements as $element) {
             $collection->fill($element->getVariations()->getElements());
         }
+
         return $collection;
     }
 

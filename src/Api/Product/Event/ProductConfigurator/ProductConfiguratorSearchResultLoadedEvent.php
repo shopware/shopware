@@ -1,10 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Api\Product\Event\ProductConfigurator;
 
+use Shopware\Api\Product\Struct\ProductConfiguratorSearchResult;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Event\NestedEvent;
-use Shopware\Api\Product\Struct\ProductConfiguratorSearchResult;
 
 class ProductConfiguratorSearchResultLoadedEvent extends NestedEvent
 {

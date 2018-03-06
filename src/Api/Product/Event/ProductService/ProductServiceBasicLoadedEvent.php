@@ -1,13 +1,13 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Api\Product\Event\ProductService;
 
+use Shopware\Api\Configuration\Event\ConfigurationGroupOption\ConfigurationGroupOptionBasicLoadedEvent;
+use Shopware\Api\Product\Collection\ProductServiceBasicCollection;
+use Shopware\Api\Tax\Event\Tax\TaxBasicLoadedEvent;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\Api\Product\Collection\ProductServiceBasicCollection;
-use Shopware\Api\Configuration\Event\ConfigurationGroupOption\ConfigurationGroupOptionBasicLoadedEvent;
-use Shopware\Api\Tax\Event\Tax\TaxBasicLoadedEvent;
 
 class ProductServiceBasicLoadedEvent extends NestedEvent
 {
@@ -53,7 +53,7 @@ class ProductServiceBasicLoadedEvent extends NestedEvent
         if ($this->productServices->getTaxes()->count() > 0) {
             $events[] = new TaxBasicLoadedEvent($this->productServices->getTaxes(), $this->context);
         }
+
         return new NestedEventCollection($events);
-    }            
-            
+    }
 }

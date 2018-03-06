@@ -2,9 +2,9 @@
 
 namespace Shopware\Api\Product\Collection;
 
+use Shopware\Api\Configuration\Collection\ConfigurationGroupOptionBasicCollection;
 use Shopware\Api\Entity\EntityCollection;
 use Shopware\Api\Product\Struct\ProductConfiguratorBasicStruct;
-use Shopware\Api\Configuration\Collection\ConfigurationGroupOptionBasicCollection;
 
 class ProductConfiguratorBasicCollection extends EntityCollection
 {
@@ -23,59 +23,58 @@ class ProductConfiguratorBasicCollection extends EntityCollection
         return parent::current();
     }
 
-
     public function getProductIds(): array
     {
-        return $this->fmap(function(ProductConfiguratorBasicStruct $productConfigurator) {
+        return $this->fmap(function (ProductConfiguratorBasicStruct $productConfigurator) {
             return $productConfigurator->getProductId();
         });
     }
 
-    public function filterByProductId(string $id): ProductConfiguratorBasicCollection
+    public function filterByProductId(string $id): self
     {
-        return $this->filter(function(ProductConfiguratorBasicStruct $productConfigurator) use ($id) {
+        return $this->filter(function (ProductConfiguratorBasicStruct $productConfigurator) use ($id) {
             return $productConfigurator->getProductId() === $id;
         });
     }
 
     public function getConfigurationOptionIds(): array
     {
-        return $this->fmap(function(ProductConfiguratorBasicStruct $productConfigurator) {
+        return $this->fmap(function (ProductConfiguratorBasicStruct $productConfigurator) {
             return $productConfigurator->getConfigurationOptionId();
         });
     }
 
-    public function filterByConfigurationOptionId(string $id): ProductConfiguratorBasicCollection
+    public function filterByConfigurationOptionId(string $id): self
     {
-        return $this->filter(function(ProductConfiguratorBasicStruct $productConfigurator) use ($id) {
+        return $this->filter(function (ProductConfiguratorBasicStruct $productConfigurator) use ($id) {
             return $productConfigurator->getConfigurationOptionId() === $id;
         });
     }
 
     public function getProductVersionIds(): array
     {
-        return $this->fmap(function(ProductConfiguratorBasicStruct $productConfigurator) {
+        return $this->fmap(function (ProductConfiguratorBasicStruct $productConfigurator) {
             return $productConfigurator->getProductVersionId();
         });
     }
 
-    public function filterByProductVersionId(string $id): ProductConfiguratorBasicCollection
+    public function filterByProductVersionId(string $id): self
     {
-        return $this->filter(function(ProductConfiguratorBasicStruct $productConfigurator) use ($id) {
+        return $this->filter(function (ProductConfiguratorBasicStruct $productConfigurator) use ($id) {
             return $productConfigurator->getProductVersionId() === $id;
         });
     }
 
     public function getConfigurationOptionVersionIds(): array
     {
-        return $this->fmap(function(ProductConfiguratorBasicStruct $productConfigurator) {
+        return $this->fmap(function (ProductConfiguratorBasicStruct $productConfigurator) {
             return $productConfigurator->getConfigurationOptionVersionId();
         });
     }
 
-    public function filterByConfigurationOptionVersionId(string $id): ProductConfiguratorBasicCollection
+    public function filterByConfigurationOptionVersionId(string $id): self
     {
-        return $this->filter(function(ProductConfiguratorBasicStruct $productConfigurator) use ($id) {
+        return $this->filter(function (ProductConfiguratorBasicStruct $productConfigurator) use ($id) {
             return $productConfigurator->getConfigurationOptionVersionId() === $id;
         });
     }
@@ -83,7 +82,7 @@ class ProductConfiguratorBasicCollection extends EntityCollection
     public function getConfigurationOptions(): ConfigurationGroupOptionBasicCollection
     {
         return new ConfigurationGroupOptionBasicCollection(
-            $this->fmap(function(ProductConfiguratorBasicStruct $productConfigurator) {
+            $this->fmap(function (ProductConfiguratorBasicStruct $productConfigurator) {
                 return $productConfigurator->getConfigurationOption();
             })
         );

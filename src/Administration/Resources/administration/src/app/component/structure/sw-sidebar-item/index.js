@@ -18,12 +18,21 @@ Component.register('sw-sidebar-item', {
             type: Boolean,
             default: true,
             required: false
+        },
+        sidebarExpanded: {
+            type: Boolean,
+            default: true,
+            required: false
         }
     },
 
     methods: {
         getIconName(name) {
             return `${name}`;
+        },
+
+        getItemName(menuItemName) {
+            return menuItemName.replace(/\./g, '-');
         }
     }
 });

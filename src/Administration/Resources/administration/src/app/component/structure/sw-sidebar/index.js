@@ -32,10 +32,6 @@ Component.register('sw-sidebar', {
     },
 
     methods: {
-        getMenuItemName(menuItemName) {
-            return menuItemName.replace('.', '-');
-        },
-
         openSubMenu() {
             this.subMenuOpen = !this.subMenuOpen;
         },
@@ -66,6 +62,22 @@ Component.register('sw-sidebar', {
 
         onToggleUserActions() {
             this.isUserActionsActive = !this.isUserActionsActive;
+        },
+
+        openUserActions() {
+            if (this.isExpanded) {
+                return;
+            }
+
+            this.isUserActionsActive = true;
+        },
+
+        closeUserActions() {
+            if (this.isExpanded) {
+                return;
+            }
+
+            this.isUserActionsActive = false;
         },
 
         onLogoutUser() {

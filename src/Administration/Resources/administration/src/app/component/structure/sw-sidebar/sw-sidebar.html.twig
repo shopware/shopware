@@ -1,7 +1,7 @@
 {% block sw_sidebar %}
     <aside class="sw-sidebar"
            :class="isExpanded ? 'is--expanded' : 'is--collapsed'"
-           :aria-expanded="isExpanded">
+           :aria-expanded="isExpanded ? 'true' : 'false'">
 
         {% block sw_sidebar_header %}
             <div class="sw-sidebar__header">
@@ -11,7 +11,7 @@
                 {% endblock %}
 
                 {% block sw_sidebar_header_shop_attributes %}
-                    <div class="sw-sidebar__header-shop-attributes collapse-inline">
+                    <div class="sw-sidebar__header-shop-attributes collapsible-text">
 
                         {% block sw_sidebar_header_shop_name %}
                             <h1 class="sw-sidebar__header-shop-name">
@@ -21,7 +21,7 @@
 
                         {% block sw_sidebar_header_shop_version %}
                             <div class="sw-sidebar__header-shop-version">
-                                NEXT 1.0.0
+                                Shopware Administration
                             </div>
                         {% endblock %}
 
@@ -51,6 +51,7 @@
                                     <sw-sidebar-item v-for="entry in mainMenuEntries"
                                                      v-on:menuItemChanged="openFlyout"
                                                      v-on:listItemClicked="openSubMenu"
+                                                     :sidebarExpanded="isExpanded"
                                                      :entry="entry"
                                                      :key="entry.path"
                                                      :class="entry.label">
@@ -66,9 +67,9 @@
                 {# Demo content #}
                 {% block sw_sidebar_navigation_sales_channels_headline %}
                     <div class="sw-sidebar__headline">
-                        <div class="collapse-inline">Verkaufskanäle</div>
+                        <div class="collapsible-text">Verkaufskanäle</div>
                         <button class="sw-sidebar__headline-action">
-                            <sw-icon name="small-default-plus-circle" small></sw-icon>
+                            <sw-icon class="sw-sidebar__headline-icon" name="small-default-plus-circle" small></sw-icon>
                         </button>
                     </div>
                 {% endblock %}
@@ -80,20 +81,20 @@
                             <li class="sw-sidebar__navigation-list-item">
                                 <a class="sw-sidebar__navigation-link"
                                    href="#">
-                                    <sw-icon name="default-building-shop" small></sw-icon>
-                                    <span class="collapse-inline">Online Shop</span>
+                                    <sw-icon class="sw-sidebar__navigation-link-icon" name="default-building-shop" small></sw-icon>
+                                    <span class="collapsible-text">Online Shop</span>
                                 </a>
                             </li>
                             <li class="sw-sidebar__navigation-list-item">
                                 <a class="sw-sidebar__navigation-link" href="#">
-                                    <sw-icon name="default-shopping-basket" small></sw-icon>
-                                    <span class="collapse-inline">POS</span>
+                                    <sw-icon class="sw-sidebar__navigation-link-icon" name="default-shopping-basket" small></sw-icon>
+                                    <span class="collapsible-text">POS</span>
                                 </a>
                             </li>
                             <li class="sw-sidebar__navigation-list-item">
                                 <a class="sw-sidebar__navigation-link" href="#">
-                                    <sw-icon name="default-device-micophone" small></sw-icon>
-                                    <span class="collapse-inline">Voice</span>
+                                    <sw-icon class="sw-sidebar__navigation-link-icon" name="default-device-micophone" small></sw-icon>
+                                    <span class="collapsible-text">Voice</span>
                                 </a>
                             </li>
                         </ul>
@@ -114,7 +115,7 @@
                         {% endblock %}
 
                         {% block sw_sidebar_toggle_sidebar_text %}
-                            <span class="collapse-inline">Menü minimieren</span>
+                            <span class="collapsible-text">Menü minimieren</span>
                         {% endblock %}
 
                     </button>
@@ -123,14 +124,15 @@
                 {% block sw_sidebar_user_actions_toggle %}
                     <div class="sw-sidebar__user-actions-toggle"
                          :class="{'is--active': isUserActionsActive}"
-                         @click="onToggleUserActions">
+                         @click="onToggleUserActions"
+                         @mouseenter="openUserActions">
 
                         {% block sw_sidebar_user_actions_avatar %}
-                            <sw-avatar></sw-avatar>
+                            <sw-avatar class="sw-sidebar__avatar"></sw-avatar>
                         {% endblock %}
 
                         {% block sw_sidebar_user_actions_attributes %}
-                            <div class="sw-sidebar__user-attributes collapse-inline">
+                            <div class="sw-sidebar__user-attributes collapsible-text">
                                 <div class="sw-sidebar__user-name">admin</div>
                                 <div class="sw-sidebar__user-type">Administrator</div>
 
@@ -145,17 +147,26 @@
 
                 {% block sw_sidebar_user_actions %}
                     <div class="sw-sidebar__user-actions"
-                         :class="{'is--active': isUserActionsActive}">
+                         :class="{'is--active': isUserActionsActive}"
+                         @mouseleave="closeUserActions">
+
+                        {% block sw_sidebar_user_actions_label %}
+                            <div v-if="!isExpanded" class="sw-sidebar__user-actions-label">
+                                admin
+                            </div>
+                        {% endblock %}
 
                         {% block sw_sidebar_user_actions_list %}
                             <ul class="sw-sidebar__navigation-list">
 
                                 {% block sw_sidebar_user_actions_items %}
                                     <li class="sw-sidebar__navigation-list-item">
-                                        <a href="#"
-                                           class="sw-sidebar__navigation-link"
-                                           @click.prevent="onLogoutUser">
-                                            <sw-icon name="default-action-log-out" small></sw-icon> Logout
+                                        <a href="#" class="sw-sidebar__navigation-link" @click.prevent="onLogoutUser">
+                                            <sw-icon class="sw-sidebar__navigation-link-icon"
+                                                     name="default-action-log-out"
+                                                     small>
+                                            </sw-icon>
+                                            Logout
                                         </a>
                                     </li>
                                 {% endblock %}

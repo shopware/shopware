@@ -1,17 +1,38 @@
-<li class="sw-sidebar__navigation-list-item" :class="entry.route"
-    @click="$emit('listItemClicked', entry, $event.currentTarget)"
-    @mouseover="$emit('menuItemChanged', entry, $event.currentTarget)">
-    <router-link class="sw-sidebar__navigation-link" :to="{ name: entry.path }">
-        <sw-icon v-if="displayIcon" :name="getIconName(entry.icon)" size="20px" :style="{ 'color': entry.color }" />
-        <span v-if="collapsibleText" class="collapse-inline">{{ entry.label }}</span>
-        <span v-else>{{ entry.label }}</span>
-    </router-link>
+{% block sw_sidebar_item %}
+    <li class="sw-sidebar__navigation-list-item"
+        :class="getItemName(entry.path)"
+        @click="$emit('listItemClicked', entry, $event.currentTarget)"
+        @mouseover="$emit('menuItemChanged', entry, $event.currentTarget)">
 
-    <ul class="sw-sidebar__sub-navigation-list">
-        <sw-sidebar-item v-for="entry in entry.children"
-                         :entry="entry"
-                         :key="entry.path"
-                         :displayIcon="false">
-        </sw-sidebar-item>
-    </ul>
-</li>
+        {% block sw_sidebar_item_link %}
+            <router-link class="sw-sidebar__navigation-link" :to="{ name: entry.path }">
+
+                {% block sw_sidebar_item_icon %}
+                    <sw-icon v-if="displayIcon"
+                             size="20px"
+                             class="sw-sidebar__navigation-link-icon"
+                             :name="getIconName(entry.icon)"
+                             :style="{ 'color': entry.color }">
+                    </sw-icon>
+                {% endblock %}
+
+                {% block sw_sidebar_item_text %}
+                    <span :class="collapsibleText ? 'collapsible-text' : ''">
+                        {{ entry.label }}
+                    </span>
+                {% endblock %}
+
+            </router-link>
+        {% endblock %}
+
+        {% block sw_sidebar_sub_items_list %}
+            <ul v-if="sidebarExpanded" class="sw-sidebar__sub-navigation-list">
+                <sw-sidebar-item v-for="entry in entry.children"
+                                 :entry="entry"
+                                 :key="entry.path"
+                                 :displayIcon="false">
+                </sw-sidebar-item>
+            </ul>
+        {% endblock %}
+    </li>
+{% endblock %}

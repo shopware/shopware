@@ -1,4 +1,4 @@
-<li class="sw-sidebar__navigation-list-item"
+<li class="sw-sidebar__navigation-list-item" :class="entry.route"
     @click="$emit('listItemClicked', entry, $event.currentTarget)"
     @mouseover="$emit('menuItemChanged', entry, $event.currentTarget)">
     <router-link class="sw-sidebar__navigation-link" :to="{ name: entry.path }">
@@ -7,5 +7,11 @@
         <span v-else>{{ entry.label }}</span>
     </router-link>
 
-    <slot v-if="entry.children.length"></slot>
+    <ul class="sw-sidebar__sub-navigation-list">
+        <sw-sidebar-item v-for="entry in entry.children"
+                         :entry="entry"
+                         :key="entry.path"
+                         :displayIcon="false">
+        </sw-sidebar-item>
+    </ul>
 </li>

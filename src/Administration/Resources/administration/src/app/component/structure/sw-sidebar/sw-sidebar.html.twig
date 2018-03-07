@@ -1,5 +1,7 @@
 {% block sw_sidebar %}
-    <aside class="sw-sidebar" :class="{'is--collapsed': isCollapsed}">
+    <aside class="sw-sidebar"
+           :class="isExpanded ? 'is--expanded' : 'is--collapsed'"
+           :aria-expanded="isExpanded">
 
         {% block sw_sidebar_header %}
             <div class="sw-sidebar__header">
@@ -13,7 +15,7 @@
 
                         {% block sw_sidebar_header_shop_name %}
                             <h1 class="sw-sidebar__header-shop-name">
-                                Demo Shop
+                                Admin Prototype
                             </h1>
                         {% endblock %}
 
@@ -24,7 +26,7 @@
                         {% endblock %}
 
                         {% block sw_sidebar_header_shop_status %}
-                            <span class="sw-sidebar__health-status"
+                            <span class="sw-sidebar__shop-status"
                                   data-tooltip="check"
                                   title="Shop status: OK">
                             </span>
@@ -41,27 +43,27 @@
 
                 {% block sw_sidebar_navigation_main %}
                     <nav class="sw-sidebar__navigation">
-                        <ul class="sw-sidebar__navigation-list">
-                            <sw-sidebar-item v-for="entry in mainMenuEntries"
-                                             v-on:menuItemChanged="openFlyout"
-                                             v-on:listItemClicked="openSubMenu"
-                                             :entry="entry"
-                                             :key="entry.path"
-                                             :class="entry.label">
 
-                                <ul v-if="isCollapsed" class="sw-sidebar__sub-navigation-list">
-                                    <sw-sidebar-item v-for="entry in entry.children"
+                        {% block sw_sidebar_navigation_main_list %}
+                            <ul class="sw-sidebar__navigation-list">
+
+                                {% block sw_sidebar_navigation_main_items %}
+                                    <sw-sidebar-item v-for="entry in mainMenuEntries"
+                                                     v-on:menuItemChanged="openFlyout"
+                                                     v-on:listItemClicked="openSubMenu"
                                                      :entry="entry"
                                                      :key="entry.path"
-                                                     :displayIcon="false">
+                                                     :class="entry.label">
                                     </sw-sidebar-item>
-                                </ul>
+                                {% endblock %}
 
-                            </sw-sidebar-item>
-                        </ul>
+                            </ul>
+                        {% endblock %}
+
                     </nav>
                 {% endblock %}
 
+                {# Demo content #}
                 {% block sw_sidebar_navigation_sales_channels_headline %}
                     <div class="sw-sidebar__headline">
                         <div class="collapse-inline">Verkaufskanäle</div>
@@ -71,6 +73,7 @@
                     </div>
                 {% endblock %}
 
+                {# Demo content #}
                 {% block sw_sidebar_navigation_sales_channels %}
                     <nav class="sw-sidebar__navigation sw-sidebar__navigation--secondary">
                         <ul class="sw-sidebar__navigation-list">
@@ -81,13 +84,13 @@
                                     <span class="collapse-inline">Online Shop</span>
                                 </a>
                             </li>
-                            <li class="nav--link">
+                            <li class="sw-sidebar__navigation-list-item">
                                 <a class="sw-sidebar__navigation-link" href="#">
                                     <sw-icon name="default-shopping-basket" small></sw-icon>
                                     <span class="collapse-inline">POS</span>
                                 </a>
                             </li>
-                            <li class="nav--link">
+                            <li class="sw-sidebar__navigation-list-item">
                                 <a class="sw-sidebar__navigation-link" href="#">
                                     <sw-icon name="default-device-micophone" small></sw-icon>
                                     <span class="collapse-inline">Voice</span>
@@ -103,56 +106,88 @@
             <div class="sw-sidebar__footer">
 
                 {% block sw_sidebar_toggle_sidebar %}
-                    <button class="sw-sidebar__toggle-sidebar"
-                         v-on:click.prevent="onToggleSidebar">
-                        <sw-icon :name="sidebarCollapseIcon" small></sw-icon>
-                        <span class="collapse-inline">Menü minimieren</span>
+                    <button class="sw-sidebar__toggle"
+                         @click="onToggleSidebar">
+
+                        {% block sw_sidebar_toggle_sidebar_icon %}
+                            <sw-icon :name="sidebarCollapseIcon" small></sw-icon>
+                        {% endblock %}
+
+                        {% block sw_sidebar_toggle_sidebar_text %}
+                            <span class="collapse-inline">Menü minimieren</span>
+                        {% endblock %}
+
                     </button>
                 {% endblock %}
 
-                {% block sw_sidebar_account_menu %}
-                    <div class="sw-sidebar__account-menu"
-                         :class="{'is--active': isAccountMenuActive}"
-                         @click.prevent="onToggleAccountMenu">
+                {% block sw_sidebar_user_actions_toggle %}
+                    <div class="sw-sidebar__user-actions-toggle"
+                         :class="{'is--active': isUserActionsActive}"
+                         @click="onToggleUserActions">
 
-                        {% block sw_sidebar_account_menu_avatar %}
-                            <sw-avatar size="40px"></sw-avatar>
+                        {% block sw_sidebar_user_actions_avatar %}
+                            <sw-avatar></sw-avatar>
                         {% endblock %}
 
-                        <div class="sw-sidebar__account-menu-user collapse-inline">
-                            <div class="sw-sidebar__account-menu-user-name">admin</div>
-                            <div class="sw-sidebar__account-menu-user-type">Administrator</div>
-                            <sw-icon :name="accountMenuIcon" class="sw-sidebar__account-menu-indicator" small></sw-icon>
-                        </div>
+                        {% block sw_sidebar_user_actions_attributes %}
+                            <div class="sw-sidebar__user-attributes collapse-inline">
+                                <div class="sw-sidebar__user-name">admin</div>
+                                <div class="sw-sidebar__user-type">Administrator</div>
+
+                                {% block sw_sidebar_user_actions_toggle_icon %}
+                                    <sw-icon :name="userActionsToggleIcon" class="sw-sidebar__user-actions-indicator" small></sw-icon>
+                                {% endblock %}
+
+                            </div>
+                        {% endblock %}
                     </div>
                 {% endblock %}
 
-                <div class="sw-sidebar__account-menu-items"
-                     :class="{'is--active': isAccountMenuActive}">
-                    <ul class="sw-sidebar__navigation-list">
-                        <li class="sw-sidebar__navigation-list-item">
-                            <a href="#"
-                               class="sw-sidebar__navigation-link"
-                               v-on:click.prevent="onLogoutUser">
-                                <sw-icon name="default-action-log-out" small></sw-icon> Logout
-                            </a>
-                        </li>
-                    </ul>
-                </div>
+                {% block sw_sidebar_user_actions %}
+                    <div class="sw-sidebar__user-actions"
+                         :class="{'is--active': isUserActionsActive}">
+
+                        {% block sw_sidebar_user_actions_list %}
+                            <ul class="sw-sidebar__navigation-list">
+
+                                {% block sw_sidebar_user_actions_items %}
+                                    <li class="sw-sidebar__navigation-list-item">
+                                        <a href="#"
+                                           class="sw-sidebar__navigation-link"
+                                           @click.prevent="onLogoutUser">
+                                            <sw-icon name="default-action-log-out" small></sw-icon> Logout
+                                        </a>
+                                    </li>
+                                {% endblock %}
+
+                            </ul>
+                        {% endblock %}
+
+                    </div>
+                {% endblock %}
             </div>
         {% endblock %}
 
         {% block sw_sidebar_flyout %}
-            <template v-if="!isCollapsed && flyoutEntries.length">
-                <div class="sw-sidebar__sub-navigation-flyout" :style="flyoutStyle">
-                    <ul v-if="flyoutEntries" class="sw-sidebar__sub-navigation-flyout-list">
-                        <sw-sidebar-item v-for="entry in flyoutEntries"
-                                         :entry="entry"
-                                         :key="entry.path"
-                                         :collapsibleText="false"
-                                         :displayIcon="false">
-                        </sw-sidebar-item>
-                    </ul>
+            <template v-if="!isExpanded && flyoutEntries.length">
+                <div class="sw-sidebar__flyout" :style="flyoutStyle" @mouseleave="closeFlyout">
+
+                    {% block sw_sidebar_flyout_label %}
+                        <div class="sw-sidebar__flyout-label">
+                            {{ flyoutLabel }}
+                        </div>
+                    {% endblock %}
+
+                    {% block sw_sidebar_flyout_list %}
+                        <ul v-if="flyoutEntries" class="sw-sidebar__flyout-list">
+                            <sw-sidebar-item v-for="entry in flyoutEntries"
+                                             :entry="entry"
+                                             :key="entry.path"
+                                             :collapsibleText="false"
+                                             :displayIcon="false">
+                            </sw-sidebar-item>
+                        </ul>
+                    {% endblock %}
                 </div>
             </template>
         {% endblock %}

@@ -9,7 +9,7 @@ Component.register('sw-avatar', {
         image: {
             type: String,
             required: false,
-            default: 'https://www.menkind.co.uk/media/catalog/product/cache/image/1000x/beff4985b56e3afdbeabfc89641a4582/s/t/star-wars-stormtrooper-robot-62272-_5_.jpg'
+            default: ''
         },
         size: {
             type: String,

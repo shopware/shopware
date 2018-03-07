@@ -3,15 +3,16 @@ import './sw-sidebar.less';
 import template from './sw-sidebar.html.twig';
 
 Component.register('sw-sidebar', {
-    inject: ['menuService', 'loginService'],
     template,
+    inject: ['menuService', 'loginService'],
 
     data() {
         return {
-            isCollapsed: false,
-            isAccountMenuActive: false,
+            isExpanded: true,
+            isUserActionsActive: false,
             flyoutEntries: [],
             flyoutStyle: {},
+            flyoutLabel: '',
             subMenuOpen: false
         };
     },
@@ -22,27 +23,20 @@ Component.register('sw-sidebar', {
         },
 
         sidebarCollapseIcon() {
-            return this.isCollapsed ? 'default-arrow-circle-left' : 'default-arrow-circle-right';
+            return this.isExpanded ? 'default-arrow-circle-left' : 'default-arrow-circle-right';
         },
 
-        accountMenuIcon() {
-            return this.isAccountMenuActive ? 'small-arrow-medium-up' : 'small-arrow-medium-down';
+        userActionsToggleIcon() {
+            return this.isUserActionsActive ? 'small-arrow-medium-up' : 'small-arrow-medium-down';
         }
     },
 
     methods: {
-        getShopData() {
-            this.shopService.getList().then((response) => {
-                return response.data;
-            });
-        },
-
         getMenuItemName(menuItemName) {
             return menuItemName.replace('.', '-');
         },
 
-        openSubMenu(entry, currentTarget) {
-            console.log(currentTarget);
+        openSubMenu() {
             this.subMenuOpen = !this.subMenuOpen;
         },
 
@@ -52,6 +46,7 @@ Component.register('sw-sidebar', {
             }
 
             this.flyoutEntries = entry.children;
+            this.flyoutLabel = entry.label;
 
             this.flyoutStyle = {
                 top: `${currentTarget.offsetTop}px`,
@@ -61,12 +56,16 @@ Component.register('sw-sidebar', {
             return true;
         },
 
-        onToggleSidebar() {
-            this.isCollapsed = !this.isCollapsed;
+        closeFlyout() {
+            this.flyoutEntries = [];
         },
 
-        onToggleAccountMenu() {
-            this.isAccountMenuActive = !this.isAccountMenuActive;
+        onToggleSidebar() {
+            this.isExpanded = !this.isExpanded;
+        },
+
+        onToggleUserActions() {
+            this.isUserActionsActive = !this.isUserActionsActive;
         },
 
         onLogoutUser() {

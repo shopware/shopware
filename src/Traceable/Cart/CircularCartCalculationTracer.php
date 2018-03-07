@@ -30,14 +30,14 @@ class CircularCartCalculationTracer extends CircularCartCalculation
     public function calculate(Cart $cart, StorefrontContext $context): CalculatedCart
     {
         $time = microtime(true);
-        $cart = $this->calculator->calculate($cart, $context);
+        $calculatedCart = $this->calculator->calculate($cart, $context);
 
         $required = microtime(true) - $time;
         $this->actions->calculationTime = $required;
-        $this->actions->calculatedCart = $cart;
+        $this->actions->calculatedCart = $calculatedCart;
         $this->actions->cart = $cart;
         $this->actions->context = $context;
 
-        return $cart;
+        return $calculatedCart;
     }
 }

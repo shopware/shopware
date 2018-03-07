@@ -2,6 +2,7 @@
 
 docker exec -u __USERKEY__ __APP_ID__ /usr/local/bin/wait-for-it.sh --timeout=60 mysql:3306
 docker exec -u __USERKEY__ __APP_ID__ ./psh.phar bamboo:init
+docker exec -u __USERKEY__ __APP_ID__ php bin/console framework:demodata --products=50000 --categories=10 --manufacturers=50 --customers=20000
 docker exec -u __USERKEY__ __APP_ID__ ./psh.phar administration:init
 docker exec -u __USERKEY__ __APP_ID__ ./psh.phar administration:build
 

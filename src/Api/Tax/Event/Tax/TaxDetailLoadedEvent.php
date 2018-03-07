@@ -2,7 +2,6 @@
 
 namespace Shopware\Api\Tax\Event\Tax;
 
-use Shopware\Api\Product\Event\Product\ProductBasicLoadedEvent;
 use Shopware\Api\Tax\Collection\TaxDetailCollection;
 use Shopware\Api\Tax\Event\TaxAreaRule\TaxAreaRuleBasicLoadedEvent;
 use Shopware\Context\Struct\ShopContext;

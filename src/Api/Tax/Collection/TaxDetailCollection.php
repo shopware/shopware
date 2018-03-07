@@ -2,7 +2,6 @@
 
 namespace Shopware\Api\Tax\Collection;
 
-use Shopware\Api\Product\Collection\ProductBasicCollection;
 use Shopware\Api\Tax\Struct\TaxDetailStruct;
 
 class TaxDetailCollection extends TaxBasicCollection

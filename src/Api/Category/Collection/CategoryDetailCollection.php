@@ -3,8 +3,6 @@
 namespace Shopware\Api\Category\Collection;
 
 use Shopware\Api\Category\Struct\CategoryDetailStruct;
-use Shopware\Api\Product\Collection\ProductBasicCollection;
-use Shopware\Api\Shop\Collection\ShopBasicCollection;
 
 class CategoryDetailCollection extends CategoryBasicCollection
 {

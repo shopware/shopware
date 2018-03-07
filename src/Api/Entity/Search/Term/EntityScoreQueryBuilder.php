@@ -84,7 +84,6 @@ class EntityScoreQueryBuilder
         return $queries;
     }
 
-
     private function getQueryFields(string $definition): FieldCollection
     {
         /** @var EntityDefinition $definition */

@@ -4,8 +4,6 @@ namespace Shopware\Api\Product\Event\ProductManufacturer;
 
 use Shopware\Api\Media\Event\Media\MediaBasicLoadedEvent;
 use Shopware\Api\Product\Collection\ProductManufacturerDetailCollection;
-use Shopware\Api\Product\Event\Product\ProductBasicLoadedEvent;
-use Shopware\Api\Product\Event\ProductManufacturerTranslation\ProductManufacturerTranslationBasicLoadedEvent;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;

@@ -3,8 +3,6 @@
 namespace Shopware\Api\Shop\Struct;
 
 use Shopware\Api\Plugin\Struct\PluginBasicStruct;
-use Shopware\Api\Shop\Collection\ShopBasicCollection;
-use Shopware\Api\Shop\Collection\ShopTemplateBasicCollection;
 use Shopware\Api\Shop\Collection\ShopTemplateConfigFormBasicCollection;
 use Shopware\Api\Shop\Collection\ShopTemplateConfigFormFieldBasicCollection;
 use Shopware\Api\Shop\Collection\ShopTemplateConfigPresetBasicCollection;

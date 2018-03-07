@@ -744,7 +744,7 @@ class ApiController extends Controller
             $root = $definition::getEntityName();
 
             if ($subParts[0] !== $root) {
-                $part = $definition::getEntityName().'.'.$part;
+                $part = $definition::getEntityName() . '.' . $part;
             }
 
             $sortings[] = new FieldSorting($part, $direction);

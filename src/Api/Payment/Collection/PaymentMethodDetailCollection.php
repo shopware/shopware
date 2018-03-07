@@ -2,11 +2,8 @@
 
 namespace Shopware\Api\Payment\Collection;
 
-use Shopware\Api\Customer\Collection\CustomerBasicCollection;
-use Shopware\Api\Order\Collection\OrderBasicCollection;
 use Shopware\Api\Payment\Struct\PaymentMethodDetailStruct;
 use Shopware\Api\Plugin\Collection\PluginBasicCollection;
-use Shopware\Api\Shop\Collection\ShopBasicCollection;
 
 class PaymentMethodDetailCollection extends PaymentMethodBasicCollection
 {

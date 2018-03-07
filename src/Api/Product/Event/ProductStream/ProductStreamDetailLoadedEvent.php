@@ -2,7 +2,6 @@
 
 namespace Shopware\Api\Product\Event\ProductStream;
 
-use Shopware\Api\Category\Event\Category\CategoryBasicLoadedEvent;
 use Shopware\Api\Listing\Event\ListingSorting\ListingSortingBasicLoadedEvent;
 use Shopware\Api\Product\Collection\ProductStreamDetailCollection;
 use Shopware\Api\Product\Event\Product\ProductBasicLoadedEvent;

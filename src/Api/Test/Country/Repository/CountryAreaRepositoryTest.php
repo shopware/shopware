@@ -1,8 +1,7 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Api\Test\Country\Repository;
 
-use Shopware\Context\Struct\ShopContext;
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
 use Shopware\Api\Country\Definition\CountryAreaDefinition;
@@ -11,6 +10,7 @@ use Shopware\Api\Entity\RepositoryInterface;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Api\Entity\Search\Term\SearchTermInterpreter;
+use Shopware\Context\Struct\ShopContext;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -47,7 +47,7 @@ class CountryAreaRepositoryTest extends KernelTestCase
 
         $records = [
             ['id' => $recordA, 'name' => 'match'],
-            ['id' => $recordB, 'name' => 'match not exact']
+            ['id' => $recordB, 'name' => 'match not exact'],
         ];
 
         $this->repository->create($records, ShopContext::createDefaultContext());

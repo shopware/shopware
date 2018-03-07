@@ -2,12 +2,9 @@
 
 namespace Shopware\Api\Payment\Event\PaymentMethod;
 
-use Shopware\Api\Customer\Event\Customer\CustomerBasicLoadedEvent;
-use Shopware\Api\Order\Event\Order\OrderBasicLoadedEvent;
 use Shopware\Api\Payment\Collection\PaymentMethodDetailCollection;
 use Shopware\Api\Payment\Event\PaymentMethodTranslation\PaymentMethodTranslationBasicLoadedEvent;
 use Shopware\Api\Plugin\Event\Plugin\PluginBasicLoadedEvent;
-use Shopware\Api\Shop\Event\Shop\ShopBasicLoadedEvent;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
@@ -56,7 +53,6 @@ class PaymentMethodDetailLoadedEvent extends NestedEvent
         if ($this->paymentMethods->getTranslations()->count() > 0) {
             $events[] = new PaymentMethodTranslationBasicLoadedEvent($this->paymentMethods->getTranslations(), $this->context);
         }
-
 
         return new NestedEventCollection($events);
     }

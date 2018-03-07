@@ -3,9 +3,6 @@
 namespace Shopware\Api\Country\Collection;
 
 use Shopware\Api\Country\Struct\CountryStateDetailStruct;
-use Shopware\Api\Customer\Collection\CustomerAddressBasicCollection;
-use Shopware\Api\Order\Collection\OrderAddressBasicCollection;
-use Shopware\Api\Tax\Collection\TaxAreaRuleBasicCollection;
 
 class CountryStateDetailCollection extends CountryStateBasicCollection
 {

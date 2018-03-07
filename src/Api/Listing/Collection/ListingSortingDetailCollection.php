@@ -3,7 +3,6 @@
 namespace Shopware\Api\Listing\Collection;
 
 use Shopware\Api\Listing\Struct\ListingSortingDetailStruct;
-use Shopware\Api\Product\Collection\ProductStreamBasicCollection;
 
 class ListingSortingDetailCollection extends ListingSortingBasicCollection
 {

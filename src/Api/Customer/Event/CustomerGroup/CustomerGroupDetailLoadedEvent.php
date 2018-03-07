@@ -3,7 +3,6 @@
 namespace Shopware\Api\Customer\Event\CustomerGroup;
 
 use Shopware\Api\Customer\Collection\CustomerGroupDetailCollection;
-use Shopware\Api\Customer\Event\Customer\CustomerBasicLoadedEvent;
 use Shopware\Api\Customer\Event\CustomerGroupDiscount\CustomerGroupDiscountBasicLoadedEvent;
 use Shopware\Api\Customer\Event\CustomerGroupTranslation\CustomerGroupTranslationBasicLoadedEvent;
 use Shopware\Context\Struct\ShopContext;

@@ -2,9 +2,7 @@
 
 namespace Shopware\Api\Shipping\Collection;
 
-use Shopware\Api\Order\Collection\OrderDeliveryBasicCollection;
 use Shopware\Api\Shipping\Struct\ShippingMethodDetailStruct;
-use Shopware\Api\Shop\Collection\ShopBasicCollection;
 
 class ShippingMethodDetailCollection extends ShippingMethodBasicCollection
 {

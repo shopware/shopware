@@ -1,20 +1,19 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Api\Test\Customer\Repository;
 
-use Shopware\Api\Customer\Repository\CustomerAddressRepository;
-use Shopware\Context\Struct\ShopContext;
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
 use Shopware\Api\Customer\Definition\CustomerDefinition;
 use Shopware\Api\Customer\Repository\CustomerRepository;
 use Shopware\Api\Entity\RepositoryInterface;
 use Shopware\Api\Entity\Search\Criteria;
+use Shopware\Api\Entity\Search\Term\EntityScoreQueryBuilder;
+use Shopware\Api\Entity\Search\Term\SearchTermInterpreter;
+use Shopware\Context\Struct\ShopContext;
 use Shopware\Defaults;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Shopware\Api\Entity\Search\Term\EntityScoreQueryBuilder;
-use Shopware\Api\Entity\Search\Term\SearchTermInterpreter;
 
 class CustomerRepositoryTest extends KernelTestCase
 {
@@ -62,7 +61,7 @@ class CustomerRepositoryTest extends KernelTestCase
             'city' => 'not',
             'zipcode' => 'not',
             'salutation' => 'not',
-            'country' => ['name' => 'not']
+            'country' => ['name' => 'not'],
         ];
 
         $records = [
@@ -76,7 +75,7 @@ class CustomerRepositoryTest extends KernelTestCase
                 'lastName' => 'not',
                 'firstName' => 'match',
                 'salutation' => 'not',
-                'number' => 'not'
+                'number' => 'not',
             ],
             [
                 'id' => $recordB,
@@ -88,7 +87,7 @@ class CustomerRepositoryTest extends KernelTestCase
                 'lastName' => 'match',
                 'firstName' => 'not',
                 'salutation' => 'not',
-                'number' => 'not'
+                'number' => 'not',
             ],
             [
                 'id' => $recordC,
@@ -100,7 +99,7 @@ class CustomerRepositoryTest extends KernelTestCase
                 'lastName' => 'not',
                 'firstName' => 'not',
                 'salutation' => 'not',
-                'number' => 'match'
+                'number' => 'match',
             ],
             [
                 'id' => $recordD,
@@ -112,8 +111,8 @@ class CustomerRepositoryTest extends KernelTestCase
                 'lastName' => 'not',
                 'firstName' => 'not',
                 'salutation' => 'not',
-                'number' => 'not'
-            ]
+                'number' => 'not',
+            ],
         ];
 
         $this->repository->create($records, ShopContext::createDefaultContext());

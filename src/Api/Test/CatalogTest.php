@@ -235,15 +235,15 @@ class CatalogTest extends KernelTestCase
                     'id' => $id->toString(),
                     'catalogId' => $catalogId,
                     'name' => 'catalog test category',
-                    'parentId' => $parentId->toString()
+                    'parentId' => $parentId->toString(),
                 ],
                 [
                     'id' => $id2->toString(),
                     'catalogId' => $catalogId,
                     'name' => 'catalog second category',
-                    'parentId' => $parentId->toString()
+                    'parentId' => $parentId->toString(),
                 ],
-            ]
+            ],
         ];
 
         $this->categoryRepository->create([$category], $context);
@@ -317,7 +317,7 @@ class CatalogTest extends KernelTestCase
                     'manufacturer' => ['id' => $manufacturerId->toString(), 'name' => 'catalog manufacturer'],
                     'tax' => ['id' => $taxId->toString(), 'name' => '10%', 'rate' => 10],
                 ],
-            ]
+            ],
         ];
 
         $this->categoryRepository->create([$category], $context);
@@ -326,7 +326,7 @@ class CatalogTest extends KernelTestCase
         $createdCategory = $this->connection->fetchAssoc('SELECT id, catalog_id FROM category WHERE id = :id', ['id' => $categoryId->getBytes()]);
         $this->assertEquals($categoryId->getBytes(), $createdCategory['id']);
         $this->assertEquals(Uuid::fromString($catalogId)->getBytes(), $createdCategory['catalog_id']);
-        
+
         // verify product mapping has been created correctly
         $products = $this->connection->fetchAll('SELECT product_id, category_id FROM product_category WHERE category_id = :id', ['id' => $categoryId->getBytes()]);
         $this->assertContains($categoryId->getBytes(), array_column($products, 'category_id'));
@@ -382,7 +382,7 @@ class CatalogTest extends KernelTestCase
                     'manufacturer' => ['id' => $manufacturerId->toString(), 'name' => 'catalog manufacturer'],
                     'tax' => ['id' => $taxId->toString(), 'name' => '10%', 'rate' => 10],
                 ],
-            ]
+            ],
         ];
 
         $this->categoryRepository->create([$category], $context);

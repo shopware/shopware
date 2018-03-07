@@ -3,8 +3,6 @@
 namespace Shopware\Api\Currency\Struct;
 
 use Shopware\Api\Currency\Collection\CurrencyTranslationBasicCollection;
-use Shopware\Api\Order\Collection\OrderBasicCollection;
-use Shopware\Api\Shop\Collection\ShopBasicCollection;
 
 class CurrencyDetailStruct extends CurrencyBasicStruct
 {

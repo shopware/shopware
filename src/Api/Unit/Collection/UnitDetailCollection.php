@@ -2,7 +2,6 @@
 
 namespace Shopware\Api\Unit\Collection;
 
-use Shopware\Api\Product\Collection\ProductBasicCollection;
 use Shopware\Api\Unit\Struct\UnitDetailStruct;
 
 class UnitDetailCollection extends UnitBasicCollection

@@ -2,12 +2,9 @@
 
 namespace Shopware\Api\Shipping\Event\ShippingMethod;
 
-use Shopware\Api\Customer\Event\CustomerGroup\CustomerGroupBasicLoadedEvent;
-use Shopware\Api\Order\Event\OrderDelivery\OrderDeliveryBasicLoadedEvent;
 use Shopware\Api\Shipping\Collection\ShippingMethodDetailCollection;
 use Shopware\Api\Shipping\Event\ShippingMethodPrice\ShippingMethodPriceBasicLoadedEvent;
 use Shopware\Api\Shipping\Event\ShippingMethodTranslation\ShippingMethodTranslationBasicLoadedEvent;
-use Shopware\Api\Shop\Event\Shop\ShopBasicLoadedEvent;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;

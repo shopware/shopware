@@ -2,7 +2,6 @@
 
 namespace Shopware\Api\Order\Collection;
 
-use Shopware\Api\Mail\Collection\MailBasicCollection;
 use Shopware\Api\Order\Struct\OrderStateDetailStruct;
 
 class OrderStateDetailCollection extends OrderStateBasicCollection

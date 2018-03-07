@@ -1,20 +1,19 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Api\Test\Country\Repository;
 
-use Shopware\Api\Country\Repository\CountryRepository;
-use Shopware\Context\Struct\ShopContext;
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
 use Shopware\Api\Country\Definition\CountryStateDefinition;
+use Shopware\Api\Country\Repository\CountryRepository;
 use Shopware\Api\Country\Repository\CountryStateRepository;
 use Shopware\Api\Entity\RepositoryInterface;
 use Shopware\Api\Entity\Search\Criteria;
+use Shopware\Api\Entity\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Api\Entity\Search\Term\SearchTermInterpreter;
-use Shopware\Defaults;
+use Shopware\Context\Struct\ShopContext;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Shopware\Api\Entity\Search\Term\EntityScoreQueryBuilder;
 
 class CountryStateRepositoryTest extends KernelTestCase
 {
@@ -53,7 +52,7 @@ class CountryStateRepositoryTest extends KernelTestCase
         $country = Uuid::uuid4()->toString();
 
         $this->container->get(CountryRepository::class)->create([
-            ['id' => $country, 'name' => 'test']
+            ['id' => $country, 'name' => 'test'],
         ], ShopContext::createDefaultContext());
 
         $recordA = Uuid::uuid4()->toString();
@@ -61,7 +60,7 @@ class CountryStateRepositoryTest extends KernelTestCase
 
         $records = [
             ['id' => $recordA, 'name' => 'match', 'shortCode' => 'test',    'countryId' => $country],
-            ['id' => $recordB, 'name' => 'not',   'shortCode' => 'match 1', 'countryId' => $country]
+            ['id' => $recordB, 'name' => 'not',   'shortCode' => 'match 1', 'countryId' => $country],
         ];
 
         $this->repository->create($records, ShopContext::createDefaultContext());

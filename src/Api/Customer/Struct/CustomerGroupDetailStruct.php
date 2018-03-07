@@ -2,7 +2,6 @@
 
 namespace Shopware\Api\Customer\Struct;
 
-use Shopware\Api\Customer\Collection\CustomerBasicCollection;
 use Shopware\Api\Customer\Collection\CustomerGroupDiscountBasicCollection;
 use Shopware\Api\Customer\Collection\CustomerGroupTranslationBasicCollection;
 

@@ -139,7 +139,7 @@ class ContextRuleLoader
                 $calculated = $newCart;
             }
 
-            $iteration++;
+            ++$iteration;
         }
 
         return $rules;

@@ -71,6 +71,7 @@ class IdSearchResult extends Struct
         if (!array_key_exists($id, $this->data)) {
             return [];
         }
+
         return $this->data[$id];
     }
 
@@ -81,6 +82,7 @@ class IdSearchResult extends Struct
         if (array_key_exists($field, $data)) {
             return $data[$field];
         }
+
         return null;
     }
 }

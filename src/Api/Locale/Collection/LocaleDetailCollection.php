@@ -3,8 +3,6 @@
 namespace Shopware\Api\Locale\Collection;
 
 use Shopware\Api\Locale\Struct\LocaleDetailStruct;
-use Shopware\Api\Shop\Collection\ShopBasicCollection;
-use Shopware\Api\User\Collection\UserBasicCollection;
 
 class LocaleDetailCollection extends LocaleBasicCollection
 {

@@ -2,7 +2,6 @@
 
 namespace Shopware\Api\Product\Collection;
 
-use Shopware\Api\Category\Collection\CategoryBasicCollection;
 use Shopware\Api\Product\Struct\ProductStreamDetailStruct;
 
 class ProductStreamDetailCollection extends ProductStreamBasicCollection

@@ -4,8 +4,6 @@ namespace Shopware\Api\Currency\Event\Currency;
 
 use Shopware\Api\Currency\Collection\CurrencyDetailCollection;
 use Shopware\Api\Currency\Event\CurrencyTranslation\CurrencyTranslationBasicLoadedEvent;
-use Shopware\Api\Order\Event\Order\OrderBasicLoadedEvent;
-use Shopware\Api\Shop\Event\Shop\ShopBasicLoadedEvent;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;

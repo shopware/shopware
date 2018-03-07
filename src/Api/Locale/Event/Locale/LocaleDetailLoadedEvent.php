@@ -4,8 +4,6 @@ namespace Shopware\Api\Locale\Event\Locale;
 
 use Shopware\Api\Locale\Collection\LocaleDetailCollection;
 use Shopware\Api\Locale\Event\LocaleTranslation\LocaleTranslationBasicLoadedEvent;
-use Shopware\Api\Shop\Event\Shop\ShopBasicLoadedEvent;
-use Shopware\Api\User\Event\User\UserBasicLoadedEvent;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;

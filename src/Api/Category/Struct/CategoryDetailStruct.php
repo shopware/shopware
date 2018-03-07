@@ -4,8 +4,6 @@ namespace Shopware\Api\Category\Struct;
 
 use Shopware\Api\Category\Collection\CategoryBasicCollection;
 use Shopware\Api\Category\Collection\CategoryTranslationBasicCollection;
-use Shopware\Api\Product\Collection\ProductBasicCollection;
-use Shopware\Api\Shop\Collection\ShopBasicCollection;
 
 class CategoryDetailStruct extends CategoryBasicStruct
 {

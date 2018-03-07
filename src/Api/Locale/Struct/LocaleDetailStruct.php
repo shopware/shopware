@@ -3,8 +3,6 @@
 namespace Shopware\Api\Locale\Struct;
 
 use Shopware\Api\Locale\Collection\LocaleTranslationBasicCollection;
-use Shopware\Api\Shop\Collection\ShopBasicCollection;
-use Shopware\Api\User\Collection\UserBasicCollection;
 
 class LocaleDetailStruct extends LocaleBasicStruct
 {

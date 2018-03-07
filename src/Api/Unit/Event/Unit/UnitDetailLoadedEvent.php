@@ -2,7 +2,6 @@
 
 namespace Shopware\Api\Unit\Event\Unit;
 
-use Shopware\Api\Product\Event\Product\ProductBasicLoadedEvent;
 use Shopware\Api\Unit\Collection\UnitDetailCollection;
 use Shopware\Api\Unit\Event\UnitTranslation\UnitTranslationBasicLoadedEvent;
 use Shopware\Context\Struct\ShopContext;

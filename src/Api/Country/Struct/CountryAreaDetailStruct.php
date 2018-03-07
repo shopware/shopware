@@ -4,7 +4,6 @@ namespace Shopware\Api\Country\Struct;
 
 use Shopware\Api\Country\Collection\CountryAreaTranslationBasicCollection;
 use Shopware\Api\Country\Collection\CountryBasicCollection;
-use Shopware\Api\Tax\Collection\TaxAreaRuleBasicCollection;
 
 class CountryAreaDetailStruct extends CountryAreaBasicStruct
 {

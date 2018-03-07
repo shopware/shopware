@@ -4,7 +4,6 @@ namespace Shopware\Api\Listing\Event\ListingSorting;
 
 use Shopware\Api\Listing\Collection\ListingSortingDetailCollection;
 use Shopware\Api\Listing\Event\ListingSortingTranslation\ListingSortingTranslationBasicLoadedEvent;
-use Shopware\Api\Product\Event\ProductStream\ProductStreamBasicLoadedEvent;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;

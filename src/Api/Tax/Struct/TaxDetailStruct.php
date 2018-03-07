@@ -2,7 +2,6 @@
 
 namespace Shopware\Api\Tax\Struct;
 
-use Shopware\Api\Product\Collection\ProductBasicCollection;
 use Shopware\Api\Tax\Collection\TaxAreaRuleBasicCollection;
 
 class TaxDetailStruct extends TaxBasicStruct

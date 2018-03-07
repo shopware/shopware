@@ -2,11 +2,7 @@
 
 namespace Shopware\Api\Media\Collection;
 
-use Shopware\Api\Category\Collection\CategoryBasicCollection;
-use Shopware\Api\Mail\Collection\MailAttachmentBasicCollection;
 use Shopware\Api\Media\Struct\MediaDetailStruct;
-use Shopware\Api\Product\Collection\ProductManufacturerBasicCollection;
-use Shopware\Api\Product\Collection\ProductMediaBasicCollection;
 use Shopware\Api\User\Collection\UserBasicCollection;
 
 class MediaDetailCollection extends MediaBasicCollection

@@ -2,7 +2,6 @@
 
 namespace Shopware\Api\Unit\Struct;
 
-use Shopware\Api\Product\Collection\ProductBasicCollection;
 use Shopware\Api\Unit\Collection\UnitTranslationBasicCollection;
 
 class UnitDetailStruct extends UnitBasicStruct

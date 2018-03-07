@@ -1,8 +1,7 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Api\Test\Country\Repository;
 
-use Shopware\Context\Struct\ShopContext;
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
 use Shopware\Api\Country\Definition\CountryDefinition;
@@ -11,6 +10,7 @@ use Shopware\Api\Entity\RepositoryInterface;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Api\Entity\Search\Term\SearchTermInterpreter;
+use Shopware\Context\Struct\ShopContext;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -47,13 +47,13 @@ class CountryRepositoryTest extends KernelTestCase
 
         $records = [
             ['id' => $recordA, 'name' => 'match'],
-            ['id' => $recordB, 'name' => 'not', 'iso' => 'match']
+            ['id' => $recordB, 'name' => 'not', 'iso' => 'match'],
         ];
 
         $this->repository->create($records, ShopContext::createDefaultContext());
 
         $criteria = new Criteria();
-        
+
         $builder = $this->container->get(EntityScoreQueryBuilder::class);
         $pattern = $this->container->get(SearchTermInterpreter::class)->interpret('match', ShopContext::createDefaultContext());
         $queries = $builder->buildScoreQueries($pattern, CountryDefinition::class, CountryDefinition::getEntityName());

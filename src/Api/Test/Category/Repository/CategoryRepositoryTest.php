@@ -9,7 +9,6 @@ use Shopware\Api\Category\Event\Category\CategoryDeletedEvent;
 use Shopware\Api\Category\Repository\CategoryRepository;
 use Shopware\Api\Entity\RepositoryInterface;
 use Shopware\Api\Entity\Search\Criteria;
-use Shopware\Api\Entity\Search\Query\MatchQuery;
 use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\Entity\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Api\Entity\Search\Term\SearchTermInterpreter;

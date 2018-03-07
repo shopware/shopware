@@ -2,10 +2,7 @@
 
 namespace Shopware\Api\Order\Event\OrderState;
 
-use Shopware\Api\Mail\Event\Mail\MailBasicLoadedEvent;
 use Shopware\Api\Order\Collection\OrderStateDetailCollection;
-use Shopware\Api\Order\Event\Order\OrderBasicLoadedEvent;
-use Shopware\Api\Order\Event\OrderDelivery\OrderDeliveryBasicLoadedEvent;
 use Shopware\Api\Order\Event\OrderStateTranslation\OrderStateTranslationBasicLoadedEvent;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Event\NestedEvent;

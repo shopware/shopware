@@ -2,7 +2,10 @@
 
 namespace Shopware\Api\Product\Collection;
 
+use Shopware\Api\Configuration\Collection\ConfigurationGroupBasicCollection;
+use Shopware\Api\Configuration\Collection\ConfigurationGroupDetailCollection;
 use Shopware\Api\Configuration\Collection\ConfigurationGroupOptionBasicCollection;
+use Shopware\Api\Configuration\Struct\ConfigurationGroupDetailStruct;
 use Shopware\Api\Entity\EntityCollection;
 use Shopware\Api\Product\Struct\ProductConfiguratorBasicStruct;
 
@@ -58,6 +61,27 @@ class ProductConfiguratorBasicCollection extends EntityCollection
                 return $productConfigurator->getOption();
             })
         );
+    }
+
+    public function getGroupedOptions(): ConfigurationGroupDetailCollection
+    {
+        $groups = new ConfigurationGroupDetailCollection();
+        foreach ($this->elements as $element) {
+
+            if ($groups->has($element->getOption()->getGroupId())) {
+                $group = $groups->get($element->getOption()->getGroupId());
+            } else {
+                $group = ConfigurationGroupDetailStruct::createFrom(
+                    $element->getOption()->getGroup()
+                );
+
+                $groups->add($group);
+            }
+
+            $group->getOptions()->add($element->getOption());
+        }
+
+        return $groups;
     }
 
     protected function getExpectedClass(): string

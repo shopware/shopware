@@ -10,5 +10,10 @@
             <tag name="kernel.event_subscriber" />
             <argument type="service" id="Shopware\Api\Seo\Repository\SeoUrlRepository"/>
         </service>
+
+        <service class="Shopware\Product\Service\VariantGenerator" id="Shopware\Product\Service\VariantGenerator">
+            <argument id="Shopware\Api\Product\Repository\ProductRepository" type="service"/>
+            <argument id="Shopware\Api\Product\Repository\ProductConfiguratorRepository" type="service"/>
+        </service>
     </services>
 </container>

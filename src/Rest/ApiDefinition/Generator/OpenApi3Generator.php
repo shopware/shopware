@@ -18,8 +18,10 @@ use Shopware\Api\Entity\Field\LongTextWithHtmlField;
 use Shopware\Api\Entity\Field\ManyToManyAssociationField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\OneToManyAssociationField;
+use Shopware\Api\Entity\Field\ReferenceVersionField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
+use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Rest\ApiDefinition\ApiDefinitionGeneratorInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -87,6 +89,10 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 
         foreach ($elements as $definition) {
             if (preg_match('/_translation$/', $definition::getEntityName())) {
+                continue;
+            }
+
+            if (preg_match('/^version/', $definition::getEntityName())) {
                 continue;
             }
 
@@ -244,6 +250,16 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
             $property['format'] = 'float';
         }
 
+        switch (true) {
+            case $field instanceof VersionField:
+            case $field instanceof ReferenceVersionField:
+            case $field instanceof FkField:
+            case $field instanceof IdField:
+                $property['type'] = 'string';
+                $property['format'] = 'uuid';
+                break;
+        }
+
         switch ($property['type']) {
             case 'int':
                 $property['format'] = 'int64';
@@ -279,7 +295,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 continue;
             }
 
-            if ($field->is(Required::class)) {
+            if ($field->is(Required::class) && !$field instanceof VersionField && !$field instanceof ReferenceVersionField) {
                 $requiredAttributes[] = $field->getPropertyName();
             }
 
@@ -294,6 +310,22 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
             }
 
             $attributes[$field->getPropertyName()] = $this->getPropertyByField($field);
+        }
+
+        if ($definition::getTranslationDefinitionClass()) {
+            foreach ($definition::getTranslationDefinitionClass()::getFields() as $field) {
+                if ($field->getPropertyName() === 'translations' || $field->getPropertyName() === 'id') {
+                    continue;
+                }
+
+                if ($detailSchema === false && $field instanceof AssociationInterface && $field->loadInBasic() === false) {
+                    continue;
+                }
+
+                if ($field->is(Required::class) && !$field instanceof VersionField && !$field instanceof ReferenceVersionField && !$field instanceof FkField) {
+                    $requiredAttributes[] = $field->getPropertyName();
+                }
+            }
         }
 
         $schema = [
@@ -481,6 +513,9 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         $humanReadableName = $this->convertToHumanReadable($definition::getEntityName());
 
         $schemaName = $definition::getEntityName() . '_detail';
+        if ($definition::getDetailStructClass() === $definition::getBasicStructClass()) {
+            $schemaName = $definition::getEntityName() . '_basic';
+        }
         $path = $this->getResourceUri($definition) . '/{id}';
 
         $responseDataParameter = [

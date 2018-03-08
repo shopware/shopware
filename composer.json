@@ -57,7 +57,8 @@
   "require-dev": {
     "symfony/phpunit-bridge": "~3.4",
     "fzaninotto/faker": "^1.7",
-    "phpunit/phpunit": "~6.5"
+    "phpunit/phpunit": "~6.5",
+    "mbezhanov/faker-provider-collection": "^1.0"
   },
   "scripts": {
     "symfony-scripts": [

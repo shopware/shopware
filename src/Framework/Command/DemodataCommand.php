@@ -2,6 +2,7 @@
 
 namespace Shopware\Framework\Command;
 
+use Bezhanov\Faker\Provider\Commerce;
 use Faker\Factory;
 use Faker\Generator;
 use Ramsey\Uuid\Uuid;
@@ -44,6 +45,11 @@ class DemodataCommand extends ContainerAwareCommand
      */
     private $writer;
 
+    /**
+     * @var array
+     */
+    private $categories = [];
+
     public function __construct(?string $name = null, EntityWriterInterface $writer)
     {
         parent::__construct($name);
@@ -62,12 +68,16 @@ class DemodataCommand extends ContainerAwareCommand
     {
         $this->io = new SymfonyStyle($input, $output);
         $this->faker = Factory::create('de_DE');
+        $this->faker->addProvider(new Commerce($this->faker));
 
         $this->io->title('Demodata Generator');
 
         $contextRuleIds = $this->createContextRules();
         $this->createCustomer($input->getOption('customers'));
+        $this->createDefaultCustomer();
+
         $categories = $this->createCategory($input->getOption('categories'));
+
         $manufacturer = $this->createManufacturer($input->getOption('manufacturers'));
         $this->createProduct(
             $categories,
@@ -98,7 +108,7 @@ class DemodataCommand extends ContainerAwareCommand
         for ($i = 0; $i < $count; ++$i) {
             $payload[] = [
                 'id' => $this->faker->uuid,
-                'name' => $this->faker->words(rand(1, 3), true),
+                'name' => $this->randomDepartment(),
                 'parentId' => 'a1abd0ee-0aa6-4fcd-aef7-25b8b84e5943',
             ];
         }
@@ -107,7 +117,7 @@ class DemodataCommand extends ContainerAwareCommand
             for ($x = 0; $x < 40; ++$x) {
                 $payload[] = [
                     'id' => $this->faker->uuid,
-                    'name' => $this->faker->words(rand(1, 3), true),
+                    'name' => $this->randomDepartment(),
                     'parentId' => $category['id'],
                 ];
             }
@@ -185,6 +195,41 @@ class DemodataCommand extends ContainerAwareCommand
         $this->io->comment('Writing to database...');
     }
 
+    private function createDefaultCustomer()
+    {
+        $id = $this->faker->uuid;
+        $addressId = $this->faker->uuid;
+
+        $customer = [
+            'id' => $id,
+            'number' => '1337',
+            'salutation' => 'Herr',
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'email' => 'test@example.com',
+            'password' => password_hash('shopware', PASSWORD_BCRYPT, ['cost' => 13]),
+            'defaultPaymentMethodId' => 'e84976ac-e9ab-4928-a3dc-c387b66dbaa6',
+            'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+            'defaultBillingAddressId' => $addressId,
+            'defaultShippingAddressId' => $addressId,
+            'addresses' => [
+                [
+                    'id' => $addressId,
+                    'customerId' => $id,
+                    'countryId' => 'ffe61e1c-9915-4f95-9701-4a310ab5482d',
+                    'salutation' => 'Herr',
+                    'firstName' => 'Max',
+                    'lastName' => 'Mustermann',
+                    'street' => 'Ebbinghoff 10',
+                    'zipcode' => '48624',
+                    'city' => 'Schöppingen',
+                ],
+            ],
+        ];
+
+        $this->writer->upsert(CustomerDefinition::class, [$customer], $this->getContext());
+    }
+
     private function createProduct(array $categories, array $manufacturer, array $contextRules, $count = 500)
     {
         $categoryCount = count($categories) - 1;
@@ -203,7 +248,7 @@ class DemodataCommand extends ContainerAwareCommand
             $payload[] = [
                 'id' => $this->faker->uuid,
                 'price' => mt_rand(1, 1000),
-                'name' => $this->faker->name,
+                'name' => $this->faker->productName,
                 'description' => $this->faker->text(),
                 'descriptionLong' => $this->faker->randomHtml(2, 3),
                 'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
@@ -305,5 +350,36 @@ class DemodataCommand extends ContainerAwareCommand
         }
 
         return $prices->toArray();
+    }
+
+    private function randomDepartment(int $max = 3, bool $fixedAmount = false, bool $unique = true)
+    {
+        $categoryName = '';
+        do {
+            $categories = [];
+
+            if (!$fixedAmount) {
+                $max = mt_rand(1, $max);
+            }
+
+            while(count($categories) < $max) {
+                $category = $this->faker->category();
+                if (!in_array($category, $categories)) {
+                    $categories[] = $category;
+                }
+            }
+
+            if (count($categories) >= 2) {
+                $commaSeparatedCategories = implode(', ', array_slice($categories, 0, -1));
+                $categories = [
+                    $commaSeparatedCategories,
+                    end($categories),
+                ];
+            }
+            $categoryName = implode(' & ', $categories);
+        } while (in_array($categoryName, $this->categories) && $unique);
+        $categories[] = $categoryName;
+
+        return $categoryName;
     }
 }

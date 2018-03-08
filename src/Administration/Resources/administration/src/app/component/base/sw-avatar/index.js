@@ -1,6 +1,6 @@
 import { Component } from 'src/core/shopware';
-import './sw-avatar.less';
 import template from './sw-avatar.html.twig';
+import './sw-avatar.less';
 
 Component.register('sw-avatar', {
     template,

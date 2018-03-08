@@ -1,9 +1,10 @@
 import { Component } from 'src/core/shopware';
-import './sw-sidebar.less';
 import template from './sw-sidebar.html.twig';
+import './sw-sidebar.less';
 
 Component.register('sw-sidebar', {
     template,
+
     inject: ['menuService', 'loginService'],
 
     data() {

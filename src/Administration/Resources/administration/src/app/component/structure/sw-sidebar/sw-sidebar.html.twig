@@ -64,42 +64,6 @@
                     </nav>
                 {% endblock %}
 
-                {# Demo content #}
-                {% block sw_sidebar_navigation_sales_channels_headline %}
-                    <div class="sw-sidebar__headline">
-                        <div class="collapsible-text">Verkaufskanäle</div>
-                        <button class="sw-sidebar__headline-action">
-                            <sw-icon class="sw-sidebar__headline-icon" name="small-default-plus-circle" small></sw-icon>
-                        </button>
-                    </div>
-                {% endblock %}
-
-                {# Demo content #}
-                {% block sw_sidebar_navigation_sales_channels %}
-                    <nav class="sw-sidebar__navigation sw-sidebar__navigation--secondary">
-                        <ul class="sw-sidebar__navigation-list">
-                            <li class="sw-sidebar__navigation-list-item">
-                                <a class="sw-sidebar__navigation-link"
-                                   href="#">
-                                    <sw-icon class="sw-sidebar__navigation-link-icon" name="default-building-shop" small></sw-icon>
-                                    <span class="collapsible-text">Online Shop</span>
-                                </a>
-                            </li>
-                            <li class="sw-sidebar__navigation-list-item">
-                                <a class="sw-sidebar__navigation-link" href="#">
-                                    <sw-icon class="sw-sidebar__navigation-link-icon" name="default-shopping-basket" small></sw-icon>
-                                    <span class="collapsible-text">POS</span>
-                                </a>
-                            </li>
-                            <li class="sw-sidebar__navigation-list-item">
-                                <a class="sw-sidebar__navigation-link" href="#">
-                                    <sw-icon class="sw-sidebar__navigation-link-icon" name="default-device-micophone" small></sw-icon>
-                                    <span class="collapsible-text">Voice</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </nav>
-                {% endblock %}
             </div>
         {% endblock %}
 
@@ -107,8 +71,7 @@
             <div class="sw-sidebar__footer">
 
                 {% block sw_sidebar_toggle_sidebar %}
-                    <button class="sw-sidebar__toggle"
-                         @click="onToggleSidebar">
+                    <button class="sw-sidebar__toggle" @click="onToggleSidebar">
 
                         {% block sw_sidebar_toggle_sidebar_icon %}
                             <sw-icon :name="sidebarCollapseIcon" small></sw-icon>

@@ -10,4 +10,4 @@ docker exec -u __USERKEY__ __APP_ID__ mysqldump -h __DB_HOST__ -u __DB_USER__ -p
 
 docker exec -u __USERKEY__ __APP_ID__ cp dev-ops/bamboo.shopware.com/templates/install.php web/install.php
 
-docker exec -u __USERKEY__ __APP_ID__ zip -qr build/artifacts/package.zip * -x "var/cache/*" -x "src/Administration/Resources/administration/node_modules/*"
+docker exec -u __USERKEY__ __APP_ID__ zip -qr build/artifacts/package.zip * -x "var/cache/*" -x "var/log/*" -x "src/Administration/Resources/administration/node_modules/*"

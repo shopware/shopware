@@ -45,6 +45,13 @@ class ProductServiceBasicCollection extends EntityCollection
         });
     }
 
+    public function filterByGroupId(string $groupId): self
+    {
+        return $this->filter(function (ProductServiceBasicStruct $service) use ($groupId) {
+            return $service->getOption()->getGroupId() === $groupId;
+        });
+    }
+
     public function filterByOptionId(string $id): self
     {
         return $this->filter(function (ProductServiceBasicStruct $productService) use ($id) {

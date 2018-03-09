@@ -182,9 +182,6 @@ class EntityHydrator
                 return new PriceStruct($value['net'], $value['gross']);
 
             case $field instanceof ContextPricesJsonField:
-                if ($value === null) {
-                    return null;
-                }
                 $value = json_decode((string) $value, true);
 
                 $structs = [];

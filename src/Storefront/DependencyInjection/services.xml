@@ -123,6 +123,7 @@
             <argument type="service" id="Shopware\Api\Product\Repository\ProductRepository"/>
             <argument type="service" id="Shopware\Cart\Price\PriceCalculator"/>
             <argument type="service" id="Shopware\Api\Product\Repository\ProductMediaRepository"/>
+            <argument type="service" id="Shopware\Api\Product\Repository\ProductServiceRepository"/>
         </service>
 
         <service class="Shopware\Storefront\Controller\Widgets\IndexController" public="true" id="Shopware\Storefront\Controller\Widgets\IndexController">

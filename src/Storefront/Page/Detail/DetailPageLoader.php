@@ -20,7 +20,7 @@ class DetailPageLoader
 
     public function load(string $productId, StorefrontContext $context): ProductBasicStruct
     {
-        $collection = $this->productRepository->read([$productId], $context);
+        $collection = $this->productRepository->readDetail([$productId], $context);
 
         if (!$collection->has($productId)) {
             throw new \RuntimeException('Product was not found.');

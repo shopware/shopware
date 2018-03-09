@@ -354,7 +354,7 @@ class DemodataCommand extends ContainerAwareCommand
                 $max = mt_rand(1, $max);
             }
 
-            while(count($categories) < $max) {
+            while (count($categories) < $max) {
                 $category = $this->faker->category();
                 if (!in_array($category, $categories)) {
                     $categories[] = $category;

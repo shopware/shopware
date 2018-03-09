@@ -1290,7 +1290,7 @@ class ProductRepositoryTest extends KernelTestCase
 
         $data = [
             'id' => $id,
-            'name' => 'test',
+            'name' => 'Test product service: ' . (new \DateTime())->format(\DateTime::ATOM),
             'tax' => ['name' => 'test', 'rate' => 15],
             'price' => ['gross' => 10, 'net' => 9],
             'manufacturer' => ['name' => 'test'],

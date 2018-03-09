@@ -8,11 +8,13 @@ use Shopware\Api\Entity\Search\Sorting\FieldSorting;
 use Shopware\Api\Product\Collection\ProductBasicCollection;
 use Shopware\Api\Product\Repository\ProductMediaRepository;
 use Shopware\Api\Product\Repository\ProductRepository;
+use Shopware\Api\Product\Repository\ProductServiceRepository;
 use Shopware\Api\Product\Struct\ProductMediaSearchResult;
 use Shopware\Api\Product\Struct\ProductSearchResult;
 use Shopware\Cart\Price\PriceCalculator;
 use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Storefront\Bridge\Product\Struct\ProductBasicStruct;
+use Shopware\Storefront\Bridge\Product\Struct\ProductDetailStruct;
 
 class StorefrontProductRepository
 {
@@ -31,14 +33,21 @@ class StorefrontProductRepository
      */
     private $productMediaRepository;
 
+    /**
+     * @var ProductServiceRepository
+     */
+    private $serviceRepository;
+
     public function __construct(
         ProductRepository $repository,
         PriceCalculator $priceCalculator,
-        ProductMediaRepository $productMediaRepository
+        ProductMediaRepository $productMediaRepository,
+        ProductServiceRepository $serviceRepository
     ) {
         $this->repository = $repository;
         $this->priceCalculator = $priceCalculator;
         $this->productMediaRepository = $productMediaRepository;
+        $this->serviceRepository = $serviceRepository;
     }
 
     public function read(array $ids, StorefrontContext $context): ProductBasicCollection
@@ -46,6 +55,17 @@ class StorefrontProductRepository
         $basics = $this->repository->readBasic($ids, $context->getShopContext());
 
         return $this->loadListProducts($basics, $context);
+    }
+
+    public function readDetail(array $ids, StorefrontContext $context): ProductBasicCollection
+    {
+        $basics = $this->repository->readBasic($ids, $context->getShopContext());
+
+        $products = $this->loadListProducts($basics, $context);
+
+        $collection = $this->loadDetailProducts($ids, $context, $products);
+
+        return $collection;
     }
 
     public function search(Criteria $criteria, StorefrontContext $context): ProductSearchResult
@@ -100,5 +120,25 @@ class StorefrontProductRepository
         }
 
         return $listingProducts;
+    }
+
+    private function loadDetailProducts(array $ids, StorefrontContext $context, ProductBasicCollection $products): ProductBasicCollection
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new TermsQuery('product_service.productId', $ids));
+
+        $services = $this->serviceRepository->search($criteria, $context->getShopContext());
+
+        $collection = new ProductBasicCollection();
+        foreach ($products as $product) {
+            $detail = ProductDetailStruct::createFrom($product);
+
+            $productServices = $services->filterByProductId($product->getId());
+
+            $detail->setServices($productServices);
+            $collection->add($detail);
+        }
+
+        return $collection;
     }
 }

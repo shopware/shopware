@@ -72,14 +72,7 @@ class CalculatedLineItemCollection extends Collection
 
     public function getPrices(): CalculatedPriceCollection
     {
-        return new CalculatedPriceCollection(
-            array_map(
-                function (CalculatedLineItemInterface $item) {
-                    return $item->getPrice();
-                },
-                $this->elements
-            )
-        );
+        return $this->collectPricesOfLineItems($this);
     }
 
     public function filterGoods(): self
@@ -123,5 +116,27 @@ class CalculatedLineItemCollection extends Collection
     protected function getKey(CalculatedLineItemInterface $element): string
     {
         return $element->getIdentifier();
+    }
+
+    private function collectPricesOfLineItems(CalculatedLineItemCollection $lineItems): CalculatedPriceCollection
+    {
+        $prices = new CalculatedPriceCollection();
+        foreach ($lineItems as $element) {
+            $prices->add($element->getPrice());
+
+            if (!$element instanceof NestedInterface) {
+                continue;
+            }
+            if (!$element->pricesExclusive()) {
+                continue;
+            }
+            if ($element->getChildren()->count() <= 0) {
+                continue;
+            }
+            $nested = $this->collectPricesOfLineItems($element->getChildren());
+            $prices = $prices->merge($nested);
+        }
+
+        return $prices;
     }
 }

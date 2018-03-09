@@ -47,6 +47,7 @@
         <service class="Shopware\CartBridge\Product\ProductCartCollector" id="Shopware\CartBridge\Product\ProductCartCollector">
             <argument id="Shopware\CartBridge\Product\ProductGateway" type="service"/>
             <tag name="cart.collector" priority="1000" />
+            <argument type="service" id="Shopware\Api\Product\Repository\ProductServiceRepository"/>
         </service>
 
         <service id="Shopware\CartBridge\Voucher\VoucherCartCollector" class="Shopware\CartBridge\Voucher\VoucherCartCollector" >

@@ -5,4 +5,6 @@ namespace Shopware\Cart\LineItem;
 interface NestedInterface
 {
     public function getChildren(): CalculatedLineItemCollection;
+
+    public function pricesExclusive(): bool;
 }

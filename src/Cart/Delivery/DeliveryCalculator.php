@@ -108,9 +108,14 @@ class DeliveryCalculator
                 break;
 
             case self::CALCULATION_BY_CUSTOM:
-            default:
-
                 return;
+            default:
+                $price = $delivery->getPositions()->getLineItems()->getPrices()->sum()->getTotalPrice() / 100;
+                $costs = $this->calculateShippingCosts(
+                    $price,
+                    $delivery->getPositions()->getLineItems(),
+                    $context
+                );
         }
 
         $delivery->setShippingCosts($costs);

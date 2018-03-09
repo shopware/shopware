@@ -26,7 +26,9 @@ declare(strict_types=1);
 namespace Shopware\CartBridge\Product;
 
 use Shopware\Api\Product\Struct\ProductBasicStruct;
+use Shopware\Api\Product\Struct\ProductServiceBasicStruct;
 use Shopware\Cart\Delivery\Struct\DeliveryDate;
+use Shopware\Cart\LineItem\CalculatedLineItem;
 use Shopware\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Cart\LineItem\LineItemCollection;
 use Shopware\Cart\LineItem\LineItemInterface;
@@ -60,6 +62,10 @@ class ProductCalculator
             $payload = $lineItem->getPayload();
             $identifier = $payload['id'];
 
+            $serviceIds = [];
+            if (array_key_exists('services', $payload)) {
+                $serviceIds = $payload['services'];
+            }
             if (!$dataCollection->has($identifier)) {
                 continue;
             }
@@ -87,13 +93,38 @@ class ProductCalculator
             $calculatedProduct = new CalculatedProduct(
                 $lineItem,
                 $price,
-                $identifier,
+                $lineItem->getIdentifier(),
                 $lineItem->getQuantity(),
                 $this->getInstockDeliveryDate(),
                 $this->getOutOfStockDeliveryDate(),
                 $product,
                 null
             );
+
+            foreach ($serviceIds as $serviceId) {
+                if (!$dataCollection->has($serviceId)) {
+                    continue;
+                }
+
+                /** @var ProductServiceBasicStruct $service */
+                $service = $dataCollection->get($serviceId);
+                if (!$service) {
+                    continue;
+                }
+
+                $priceDefinition = $service->getPriceDefinition($lineItem->getQuantity(), $context->getShopContext());
+                $price = $this->priceCalculator->calculate($priceDefinition, $context);
+
+                $calculatedProduct->addChild(
+                    new CalculatedLineItem(
+                        $service->getId(),
+                        $price,
+                        $price->getQuantity(),
+                        'service',
+                        $service->getOption()->getName()
+                    )
+                );
+            }
 
             $products->add($calculatedProduct);
         }

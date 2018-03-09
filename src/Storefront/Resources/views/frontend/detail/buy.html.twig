@@ -1,5 +1,8 @@
 {% block frontend_detail_buy %}
+    {# @var product \Shopware\Storefront\Bridge\Product\Struct\ProductDetailStruct #}
+
     {% set url = url('cart_add_product', {'target': 'checkout_cart' }) %}
+
     <form name="sAddToBasket"
           method="post"
           action="{{ url }}"
@@ -68,6 +71,30 @@
                     {% endblock %}
                 {% endif %}
             {% endif %}
+        {% endblock %}
+
+        {% block frontend_detail_buy_services %}
+            {% set lastId = null %}
+            {# @var service \Shopware\Api\Product\Struct\ProductServiceBasicStruct #}
+            {% for service in product.services %}
+                {% if lastId != service.option.groupId %}
+                    {% set lastId = service.option.groupId %}
+
+                    <select name="service[{{ service.option.groupId }}]">
+
+                        {% set services = product.services.filterByGroupId(lastId) %}
+
+                        <option value="" selected="selected">{{ service.option.group.name }}</option>
+
+                        {% for groupService in services %}
+                            <option value="{{ groupService.id }}">
+                                {{ groupService.option.name }}
+                                (+{{ groupService.price.gross|localizedcurrency(context.currency.shortName) }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                {% endif %}
+            {% endfor %}
         {% endblock %}
     </form>
 {% endblock %}

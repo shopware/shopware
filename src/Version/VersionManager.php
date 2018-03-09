@@ -137,7 +137,7 @@ class VersionManager
         if ($name) {
             $versionData['name'] = $name;
         } else {
-            /** @var EntityDefinition|string $definition */
+            /* @var EntityDefinition|string $definition */
             $versionData['name'] = $definition::getEntityName() . (new \DateTime())->format(\DateTime::ATOM);
         }
 

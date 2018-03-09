@@ -3,8 +3,13 @@
 namespace Shopware\Api\Product\Struct;
 
 use Shopware\Api\Configuration\Struct\ConfigurationGroupOptionBasicStruct;
+use Shopware\Api\Context\Collection\ContextPriceCollection;
 use Shopware\Api\Entity\Entity;
 use Shopware\Api\Tax\Struct\TaxBasicStruct;
+use Shopware\Cart\Price\Struct\PriceDefinition;
+use Shopware\Cart\Tax\Struct\PercentageTaxRule;
+use Shopware\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Context\Struct\ShopContext;
 
 class ProductServiceBasicStruct extends Entity
 {
@@ -29,9 +34,9 @@ class ProductServiceBasicStruct extends Entity
     protected $price;
 
     /**
-     * @var array|null
+     * @var ContextPriceCollection
      */
-    protected $prices;
+    protected $contextPrices;
 
     /**
      * @var ConfigurationGroupOptionBasicStruct
@@ -42,6 +47,11 @@ class ProductServiceBasicStruct extends Entity
      * @var TaxBasicStruct
      */
     protected $tax;
+
+    public function __construct()
+    {
+        $this->contextPrices = new ContextPriceCollection();
+    }
 
     public function getProductId(): string
     {
@@ -83,14 +93,14 @@ class ProductServiceBasicStruct extends Entity
         $this->price = $price;
     }
 
-    public function getPrices(): ?array
+    public function getContextPrices(): ContextPriceCollection
     {
-        return $this->prices;
+        return $this->contextPrices;
     }
 
-    public function setPrices(?array $prices): void
+    public function setContextPrices(ContextPriceCollection $contextPrices): void
     {
-        $this->prices = $prices;
+        $this->contextPrices = $contextPrices;
     }
 
     public function getOption(): ConfigurationGroupOptionBasicStruct
@@ -111,5 +121,31 @@ class ProductServiceBasicStruct extends Entity
     public function setTax(TaxBasicStruct $tax): void
     {
         $this->tax = $tax;
+    }
+
+    public function getPriceDefinition(int $quantity, ShopContext $context): PriceDefinition
+    {
+        $taxRules = $this->getTaxRuleCollection();
+
+        $prices = $this->getContextPrices()->getPriceRulesForContext($context);
+
+        if ($prices && $prices->count() > 0) {
+            $price = $this->contextPrices->first();
+
+            return new PriceDefinition($price->getPrice()->getGross(), $taxRules, $quantity, true);
+        }
+
+        if (!$this->getPrice()) {
+            return new PriceDefinition(0, $taxRules, $quantity, true);
+        }
+
+        return new PriceDefinition($this->getPrice()->getGross(), $taxRules, $quantity, true);
+    }
+
+    public function getTaxRuleCollection()
+    {
+        return new TaxRuleCollection([
+            new PercentageTaxRule($this->getTax()->getRate(), 100),
+        ]);
     }
 }

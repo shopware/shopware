@@ -100,8 +100,7 @@
 
             {% block frontend_checkout_cart_footer_field_labels_shipping_value %}
             <div class="entry--value block">
-                {#{$cart.shippingCosts|currency}{s name="Star" namespace="frontend/listing/box_article"}{/s}#}
-                {{ cart.totalShippingCosts.unitPrice|localizedcurrency(context.currency.shortName) }}{% trans from 'frontend/listing/box_article' %}Star{% endtrans %}
+                {{ cart.shippingCosts.totalPrice|localizedcurrency(context.currency.shortName) }}{% trans from 'frontend/listing/box_article' %}Star{% endtrans %}
             </div>
             {% endblock %}
         </li>

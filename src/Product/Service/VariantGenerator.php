@@ -49,7 +49,9 @@ class VariantGenerator
             throw new NoConfiguratorFoundException($productId);
         }
         $combinations = $this->buildCombinations($configurator);
-        $combinations = array_slice($combinations, $offset, $limit);
+        if ($offset !== null && $limit !== null) {
+            $combinations = array_slice($combinations, $offset, $limit);
+        }
 
         $variants = [];
         foreach ($combinations as $combination) {

@@ -47,6 +47,7 @@ class CartController extends StorefrontController
         $identifier = $request->request->get('identifier');
         $quantity = $request->request->getInt('quantity');
         $target = $request->request->get('target');
+        $services = $request->request->get('service');
 
         if (!($identifier && $quantity)) {
             return new JsonResponse([
@@ -54,10 +55,22 @@ class CartController extends StorefrontController
                 'message' => 'Invalid identifier or quantity',
             ]);
         }
+
+        if (!empty($services)) {
+            $services = array_values($services);
+        }
+
+        $key = $identifier . '-' . implode('-', $services);
+
         /** @var StoreFrontCartService $cartService */
         $cartService = $this->get(StoreFrontCartService::class);
         $cartService->add(
-            new LineItem($identifier, ProductProcessor::TYPE_PRODUCT, $quantity, ['id' => $identifier])
+            new LineItem(
+                $key,
+                ProductProcessor::TYPE_PRODUCT,
+                $quantity,
+                ['id' => $identifier, 'services' => $services]
+            )
         );
 
         return $this->conditionalResponse($request, $target);

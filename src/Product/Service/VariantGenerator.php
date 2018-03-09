@@ -123,13 +123,11 @@ class VariantGenerator
             return null;
         }
 
-        $price = ['gross' => $product->getPrice(), 'net' => $product->getPrice()];
-
+        $price = clone $product->getPrice();
         foreach ($surcharges as $surcharge) {
-            $price['gross'] += $surcharge['gross'];
-            $price['net'] += $surcharge['net'];
+            $price->add($surcharge);
         }
 
-        return $price;
+        return ['gross' => $price->getGross(), 'net' => $price->getNet()];
     }
 }

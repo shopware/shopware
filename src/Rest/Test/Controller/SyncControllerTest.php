@@ -28,9 +28,9 @@ class SyncControllerTest extends ApiTestCase
                 'payload' => [
                     'id' => $id1->toString(),
                     'manufacturer' => ['name' => 'test'],
-                    'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
+                    'tax' => ['name' => 'test', 'rate' => 15],
                     'name' => 'CREATE-1',
-                    'price' => 10,
+                    'price' => ['gross' => 50, 'net' => 25],
                 ],
             ],
             [
@@ -40,8 +40,8 @@ class SyncControllerTest extends ApiTestCase
                     'id' => $id2->toString(),
                     'manufacturer' => ['name' => 'test'],
                     'name' => 'CREATE-2',
-                    'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
-                    'price' => 10,
+                    'tax' => ['name' => 'test', 'rate' => 15],
+                    'price' => ['gross' => 50, 'net' => 25],
                 ],
             ],
         ];
@@ -76,10 +76,10 @@ class SyncControllerTest extends ApiTestCase
                 'payload' => [
                     'id' => $id,
                     'active' => true,
-                    'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
+                    'tax' => ['name' => 'test', 'rate' => 15],
                     'name' => 'CREATE-1',
                     'manufacturer' => ['name' => 'test'],
-                    'price' => 10,
+                    'price' => ['gross' => 50, 'net' => 25],
                 ],
             ],
             [
@@ -88,9 +88,9 @@ class SyncControllerTest extends ApiTestCase
                 'payload' => [
                     'id' => $id,
                     'manufacturer' => ['name' => 'test'],
-                    'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
+                    'tax' => ['name' => 'test', 'rate' => 15],
                     'active' => false,
-                    'price' => 10,
+                    'price' => ['gross' => 50, 'net' => 25],
                 ],
             ],
         ];
@@ -129,9 +129,9 @@ class SyncControllerTest extends ApiTestCase
                 'entity' => ProductDefinition::getEntityName(),
                 'payload' => [
                     'id' => $productId,
-                    'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
+                    'tax' => ['name' => 'test', 'rate' => 15],
                     'name' => 'PROD-1',
-                    'price' => 10,
+                    'price' => ['gross' => 50, 'net' => 25],
                     'manufacturer' => ['name' => 'test'],
                     'categories' => [
                         ['id' => $categoryId],
@@ -177,8 +177,8 @@ class SyncControllerTest extends ApiTestCase
                     'id' => $product,
                     'name' => 'PROD-1',
                     'manufacturer' => ['name' => 'test'],
-                    'price' => 10,
-                    'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
+                    'price' => ['gross' => 50, 'net' => 25],
+                    'tax' => ['name' => 'test', 'rate' => 15],
                     'categories' => [
                         ['id' => $category, 'name' => 'NESTED-CAT-1'],
                     ],
@@ -190,8 +190,8 @@ class SyncControllerTest extends ApiTestCase
                 'payload' => [
                     'id' => $product2,
                     'name' => 'PROD-2',
-                    'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
-                    'price' => 10,
+                    'tax' => ['name' => 'test', 'rate' => 15],
+                    'price' => ['gross' => 50, 'net' => 25],
                     'manufacturer' => ['name' => 'test'],
                     'categories' => [
                         ['id' => $category],
@@ -236,8 +236,8 @@ class SyncControllerTest extends ApiTestCase
                 'payload' => [
                     'id' => $product->toString(),
                     'name' => 'PROD-1',
-                    'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
-                    'price' => 10,
+                    'tax' => ['name' => 'test', 'rate' => 15],
+                    'price' => ['gross' => 50, 'net' => 25],
                     'manufacturer' => ['name' => 'test'],
                 ],
             ],
@@ -246,9 +246,9 @@ class SyncControllerTest extends ApiTestCase
                 'entity' => ProductDefinition::getEntityName(),
                 'payload' => [
                     'id' => $product2->toString(),
-                    'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
+                    'tax' => ['name' => 'test', 'rate' => 15],
                     'name' => 'PROD-2',
-                    'price' => 10,
+                    'price' => ['gross' => 50, 'net' => 25],
                     'manufacturer' => ['name' => 'test'],
                 ],
             ],

@@ -11,10 +11,8 @@ use Shopware\Api\Context\Definition\ContextRuleDefinition;
 use Shopware\Api\Customer\Definition\CustomerDefinition;
 use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\WriteContext;
-use Shopware\Api\Product\Collection\ContextPriceCollection;
 use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Api\Product\Definition\ProductManufacturerDefinition;
-use Shopware\Api\Product\Struct\ContextPriceStruct;
 use Shopware\Context\Rule\Container\AndRule;
 use Shopware\Context\Rule\Container\NotRule;
 use Shopware\Context\Rule\CurrencyRule;
@@ -241,9 +239,11 @@ class DemodataCommand extends ContainerAwareCommand
         $this->io->progressStart($count);
 
         for ($i = 0; $i < $count; ++$i) {
+            $price = mt_rand(1, 1000);
+
             $payload[] = [
                 'id' => $this->faker->uuid,
-                'price' => mt_rand(1, 1000),
+                'price' => ['gross' => $price, 'net' => $price / 1.19],
                 'name' => $this->faker->productName,
                 'description' => $this->faker->text(),
                 'descriptionLong' => $this->faker->randomHtml(2, 3),
@@ -319,33 +319,30 @@ class DemodataCommand extends ContainerAwareCommand
 
     private function createPrices(array $contextRules)
     {
-        $prices = new ContextPriceCollection();
-
+        $prices = [];
         foreach ($contextRules as $ruleId) {
             $gross = random_int(500, 1000);
 
-            $prices->add(new ContextPriceStruct(
-                Defaults::CURRENCY,
-                1,
-                10,
-                $ruleId,
-                $gross,
-                $gross / 1.19
-            ));
+            $prices[] = [
+                'currencyId' => Defaults::CURRENCY,
+                'contextRuleId' => $ruleId,
+                'quantityStart' => 1,
+                'quantityEnd' => 10,
+                'price' => ['gross' => $gross, 'net' => $gross / 1.19]
+            ];
 
             $gross = random_int(1, 499);
 
-            $prices->add(new ContextPriceStruct(
-                Defaults::CURRENCY,
-                11,
-                null,
-                $ruleId,
-                $gross,
-                $gross / 1.19
-            ));
+            $prices[] = [
+                'currencyId' => Defaults::CURRENCY,
+                'contextRuleId' => $ruleId,
+                'quantityStart' => 1,
+                'price' => ['gross' => $gross, 'net' => $gross / 1.19]
+            ];
+
         }
 
-        return $prices->toArray();
+        return $prices;
     }
 
     private function randomDepartment(int $max = 3, bool $fixedAmount = false, bool $unique = true)

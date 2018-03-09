@@ -78,10 +78,6 @@ class EntityDefinitionQueryHelper
         if ($fields->has($fieldName)) {
             $field = $fields->get($fieldName);
 
-            if ($field instanceof SqlParseAware) {
-                return $field->parse($root, $context);
-            }
-
             if ($field instanceof TranslatedField) {
                 [$chain, $inheritedChain] = self::buildTranslationChain($root, $definition, $context);
 
@@ -89,19 +85,32 @@ class EntityDefinitionQueryHelper
             }
 
             if ($field instanceof StorageAware) {
-                $select = implode('.', [
-                    self::escape($root),
-                    self::escape($field->getStorageName()),
-                ]);
+
+                if ($field instanceof SqlParseAware) {
+                    $select = $field->parse($root, $context);
+                } else {
+                    $select = implode('.', [
+                        self::escape($root),
+                        self::escape($field->getStorageName()),
+                    ]);
+                }
+
 
                 if (!$field->is(Inherited::class)) {
                     return $select;
                 }
 
-                $parentSelect = implode('.', [
-                    self::escape($root . '.' . $definition::getParentPropertyName()),
-                    self::escape($field->getStorageName()),
-                ]);
+                if ($field instanceof SqlParseAware) {
+                    $parentSelect = $field->parse(
+                        $root . '.' . $definition::getParentPropertyName(),
+                        $context
+                    );
+                } else {
+                    $parentSelect = implode('.', [
+                        self::escape($root . '.' . $definition::getParentPropertyName()),
+                        self::escape($field->getStorageName()),
+                    ]);
+                }
 
                 return sprintf('IFNULL(%s, %s)', $select, $parentSelect);
             }

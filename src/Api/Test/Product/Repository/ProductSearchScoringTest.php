@@ -50,8 +50,8 @@ class ProductSearchScoringTest extends KernelTestCase
 
         $context = ShopContext::createDefaultContext();
         $this->repository->create([
-            ['id' => Uuid::uuid4()->toString(), 'name' => 'product 1 test', 'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9', 'manufacturer' => ['name' => 'test'], 'price' => 10],
-            ['id' => Uuid::uuid4()->toString(), 'name' => 'product 2 test', 'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9', 'manufacturer' => ['name' => 'test'], 'price' => 10],
+            ['id' => Uuid::uuid4()->toString(), 'name' => 'product 1 test', 'tax' => ['name' => 'test', 'rate' => 5], 'manufacturer' => ['name' => 'test'], 'price' => ['gross' => 10, 'net' => 9]],
+            ['id' => Uuid::uuid4()->toString(), 'name' => 'product 2 test', 'tax' => ['name' => 'test', 'rate' => 5], 'manufacturer' => ['name' => 'test'], 'price' => ['gross' => 10, 'net' => 9]],
         ], $context);
 
         $result = $this->repository->search($criteria, $context);

@@ -9,7 +9,8 @@ use Shopware\Api\Entity\Field\ArrayField;
 use Shopware\Api\Entity\Field\FkField;
 use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
-use Shopware\Api\Entity\Field\PriceRulesField;
+use Shopware\Api\Entity\Field\PriceField;
+use Shopware\Api\Entity\Field\ContextPricesJsonField;
 use Shopware\Api\Entity\Field\ReferenceVersionField;
 use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
@@ -57,8 +58,8 @@ class ProductConfiguratorDefinition extends EntityDefinition
             new ReferenceVersionField(ProductDefinition::class),
             (new FkField('configuration_group_option_id', 'optionId', ConfigurationGroupOptionDefinition::class))->setFlags(new Required()),
             new ReferenceVersionField(ConfigurationGroupOptionDefinition::class),
-            new ArrayField('price', 'price'),
-            new PriceRulesField('prices', 'prices'),
+            new PriceField('price', 'price'),
+            new ContextPricesJsonField('prices', 'prices'),
             (new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, false))->setFlags(new WriteOnly()),
             new ManyToOneAssociationField('option', 'configuration_group_option_id', ConfigurationGroupOptionDefinition::class, true),
         ]);

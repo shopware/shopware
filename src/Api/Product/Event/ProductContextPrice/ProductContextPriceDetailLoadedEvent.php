@@ -1,0 +1,63 @@
+<?php
+
+namespace Shopware\Api\Product\Event\ProductContextPrice;
+
+use Shopware\Context\Struct\ShopContext;
+use Shopware\Framework\Event\NestedEvent;
+use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\Api\Product\Collection\ProductContextPriceDetailCollection;
+use Shopware\Api\Product\Event\Product\ProductBasicLoadedEvent;
+use Shopware\Api\Currency\Event\Currency\CurrencyBasicLoadedEvent;
+use Shopware\Api\Context\Event\ContextRule\ContextRuleBasicLoadedEvent;
+
+class ProductContextPriceDetailLoadedEvent extends NestedEvent
+{
+    public const NAME = 'product_context_price.detail.loaded';
+
+    /**
+     * @var ShopContext
+     */
+    protected $context;
+
+    /**
+     * @var ProductContextPriceDetailCollection
+     */
+    protected $productContextPrices;
+
+    public function __construct(ProductContextPriceDetailCollection $productContextPrices, ShopContext $context)
+    {
+        $this->context = $context;
+        $this->productContextPrices = $productContextPrices;
+    }
+
+    public function getName(): string
+    {
+        return self::NAME;
+    }
+
+    public function getContext(): ShopContext
+    {
+        return $this->context;
+    }
+
+    public function getProductContextPrices(): ProductContextPriceDetailCollection
+    {
+        return $this->productContextPrices;
+    }
+
+    public function getEvents(): ?NestedEventCollection
+    {
+        $events = [];
+        if ($this->productContextPrices->getProducts()->count() > 0) {
+            $events[] = new ProductBasicLoadedEvent($this->productContextPrices->getProducts(), $this->context);
+        }
+        if ($this->productContextPrices->getCurrencies()->count() > 0) {
+            $events[] = new CurrencyBasicLoadedEvent($this->productContextPrices->getCurrencies(), $this->context);
+        }
+        if ($this->productContextPrices->getContextRules()->count() > 0) {
+            $events[] = new ContextRuleBasicLoadedEvent($this->productContextPrices->getContextRules(), $this->context);
+        }
+        return new NestedEventCollection($events);
+    }            
+            
+}

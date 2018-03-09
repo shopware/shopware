@@ -9,7 +9,7 @@ use Shopware\Api\Entity\Write\FieldAware\SqlParseAware;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Defaults;
 
-class PriceRulesField extends JsonObjectField implements SqlParseAware
+class ContextPricesJsonField extends JsonObjectField implements SqlParseAware
 {
     public function __invoke(EntityExistence $existence, KeyValuePair $data): \Generator
     {
@@ -43,64 +43,50 @@ class PriceRulesField extends JsonObjectField implements SqlParseAware
             $key = Uuid::fromString($key)->getHex();
 
             $field = sprintf('`%s`.`%s`', $root, $this->getStorageName());
-            $path = sprintf('$.merged.r%s.last.c%s.gross', $key, $currencyId);
+            $path = sprintf('$.optimized.r%s.c%s.gross', $key, $currencyId);
             $select[] = sprintf('JSON_UNQUOTE(JSON_EXTRACT(%s, "%s"))', $field, $path);
 
             if ($context->getCurrencyId() !== Defaults::CURRENCY) {
-                $path = sprintf('$.merged.r%s.last.c%s.gross', $key, $defaultCurrencyId);
+                $path = sprintf('$.optimized.r%s.c%s.gross', $key, $defaultCurrencyId);
                 $select[] = sprintf('JSON_UNQUOTE(JSON_EXTRACT(%s, "%s")) * %s', $field, $path, $context->getCurrencyFactor());
             }
         }
 
-        //fallback field
-        $select[] = sprintf('`%s`.`%s`', $root, 'price');
+        $select[] = sprintf('`%s`.`%s`->"$.price.gross"', $root, $this->getStorageName());
 
         return sprintf('(CAST(COALESCE(%s) AS DECIMAL))', implode(',', $select));
     }
 
-    public static function format(string $ruleId, string $currencyId, int $quantityStart, ?int $quantityEnd, float $gross, float $net)
+    public static function format(string $ruleId, string $currencyId, float $gross, float $net)
     {
-        $quantityKey = $quantityStart . '-' . $quantityEnd;
-        if ($quantityEnd === null) {
-            $quantityKey = 'last';
-        } elseif ($quantityStart === 1) {
-            $quantityKey = 'first';
-        }
-
         $ruleId = Uuid::fromString($ruleId)->getHex();
         $currencyId = Uuid::fromString($currencyId)->getHex();
 
         return [
             'r' . $ruleId => [
-                $quantityKey => [
-                    'quantityStart' => $quantityStart,
-                    'quantityEnd' => $quantityEnd,
-                    'c' . $currencyId => ['gross' => $gross, 'net' => $net],
-                ],
+                'c' . $currencyId => ['gross' => $gross, 'net' => $net],
             ],
         ];
     }
 
-    private function convertToStorage($data)
+    public function convertToStorage($data): array
     {
         $queryOptimized = [];
         foreach ($data as $row) {
             $queryOptimized = array_merge_recursive(
                 $queryOptimized,
                 self::format(
-                    $row['ruleId'],
+                    $row['contextRuleId'],
                     $row['currencyId'],
-                    $row['quantityStart'],
-                    $row['quantityEnd'],
-                    $row['gross'],
-                    $row['net']
+                    $row['price']['gross'],
+                    $row['price']['net']
                 )
             );
         }
 
         return [
             'raw' => $data,
-            'merged' => $queryOptimized,
+            'optimized' => $queryOptimized,
         ];
     }
 }

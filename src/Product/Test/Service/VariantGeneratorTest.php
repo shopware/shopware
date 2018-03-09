@@ -9,6 +9,8 @@ use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Api\Product\Repository\ProductRepository;
+use Shopware\Api\Product\Struct\PriceStruct;
+use Shopware\Api\Product\Struct\ProductDetailStruct;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Product\Service\VariantGenerator;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -55,18 +57,21 @@ class VariantGeneratorTest extends KernelTestCase
     public function testGenerateOneDimension()
     {
         $id = Uuid::uuid4()->toString();
+        $redId = Uuid::uuid4()->toString();
+        $blueId = Uuid::uuid4()->toString();
         $colorId = Uuid::uuid4()->toString();
 
         $data = [
             'id' => $id,
             'name' => 'test',
-            'price' => 10,
+            'price' => ['gross' => 10, 'net' => 10],
             'tax' => ['name' => 'test', 'rate' => 19],
             'manufacturer' => ['name' => 'test'],
             'configurators' => [
                 [
                     'price' => ['gross' => 50, 'net' => 25],
                     'option' => [
+                        'id' => $redId,
                         'name' => 'red',
                         'group' => ['id' => $colorId, 'name' => 'color']
                     ]
@@ -74,6 +79,7 @@ class VariantGeneratorTest extends KernelTestCase
                 [
                     'price' => ['gross' => 100, 'net' => 90],
                     'option' => [
+                        'id' => $blueId,
                         'name' => 'blue',
                         'groupId' => $colorId
                     ]
@@ -89,7 +95,7 @@ class VariantGeneratorTest extends KernelTestCase
 
         $this->assertCount(2, $productWritten->getIds());
 
-        $variants = $this->repository->readBasic($productWritten->getIds(), ShopContext::createDefaultContext());
+        $variants = $this->repository->readDetail($productWritten->getIds(), ShopContext::createDefaultContext());
         $this->assertCount(2, $variants);
 
         $parent = $this->repository->readBasic([$id], ShopContext::createDefaultContext())
@@ -97,9 +103,24 @@ class VariantGeneratorTest extends KernelTestCase
 
         foreach ($variants as $variant) {
             $this->assertEquals($id, $variant->getParentId());
-            $this->assertEquals($parent->getPrice(), $variant->getPrice());
             $this->assertEquals($parent->getName(), $variant->getName());
         }
+
+        /** @var ProductDetailStruct $red */
+        $red = $variants->filter(function(ProductDetailStruct $detail) use ($redId) {
+            return in_array($redId, $detail->getVariations()->getIds(), true);
+        })->first();
+
+        /** @var ProductDetailStruct $blue */
+        $blue = $variants->filter(function(ProductDetailStruct $detail) use ($blueId) {
+            return in_array($blueId, $detail->getVariations()->getIds(), true);
+        })->first();
+
+        $this->assertInstanceOf(ProductDetailStruct::class, $red);
+        $this->assertInstanceOf(ProductDetailStruct::class, $blue);
+
+        $this->assertEquals(new PriceStruct(35, 60), $red->getPrice());
+        $this->assertEquals(new PriceStruct(100, 110), $blue->getPrice());
     }
 
     public function testMultiDimension()
@@ -111,33 +132,29 @@ class VariantGeneratorTest extends KernelTestCase
         $data = [
             'id' => $id,
             'name' => 'test',
-            'price' => 10,
+            'price' => ['gross' => 50, 'net' => 25],
             'tax' => ['name' => 'test', 'rate' => 19],
             'manufacturer' => ['name' => 'test'],
             'configurators' => [
                 [
-                    'price' => ['gross' => 50, 'net' => 25],
                     'option' => [
                         'name' => 'red',
                         'group' => ['id' => $colorId, 'name' => 'color']
                     ]
                 ],
                 [
-                    'price' => ['gross' => 100, 'net' => 90],
                     'option' => [
                         'name' => 'blue',
                         'groupId' => $colorId
                     ]
                 ],
                 [
-                    'price' => ['gross' => 50, 'net' => 25],
                     'option' => [
                         'name' => 'big',
                         'group' => ['id' => $sizeId, 'name' => 'size']
                     ]
                 ],
                 [
-                    'price' => ['gross' => 100, 'net' => 90],
                     'option' => [
                         'name' => 'small',
                         'groupId' => $sizeId
@@ -177,33 +194,29 @@ class VariantGeneratorTest extends KernelTestCase
         $data = [
             'id' => $id,
             'name' => 'test',
-            'price' => 10,
+            'price' => ['gross' => 50, 'net' => 25],
             'tax' => ['name' => 'test', 'rate' => 19],
             'manufacturer' => ['name' => 'test'],
             'configurators' => [
                 [
-                    'price' => ['gross' => 50, 'net' => 25],
                     'option' => [
                         'name' => 'red',
                         'group' => ['id' => $colorId, 'name' => 'color']
                     ]
                 ],
                 [
-                    'price' => ['gross' => 100, 'net' => 90],
                     'option' => [
                         'name' => 'blue',
                         'groupId' => $colorId
                     ]
                 ],
                 [
-                    'price' => ['gross' => 50, 'net' => 25],
                     'option' => [
                         'name' => 'big',
                         'group' => ['id' => $sizeId, 'name' => 'size']
                     ]
                 ],
                 [
-                    'price' => ['gross' => 100, 'net' => 90],
                     'option' => [
                         'name' => 'small',
                         'groupId' => $sizeId
@@ -246,7 +259,7 @@ class VariantGeneratorTest extends KernelTestCase
         $data = [
             'id' => $id,
             'name' => 'test',
-            'price' => 10,
+            'price' => ['gross' => 50, 'net' => 25],
             'tax' => ['name' => 'test', 'rate' => 19],
             'manufacturer' => ['name' => 'test'],
             'configurators' => $this->generateConfiguratorData([

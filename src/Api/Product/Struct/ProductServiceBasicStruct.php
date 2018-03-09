@@ -24,7 +24,7 @@ class ProductServiceBasicStruct extends Entity
     protected $taxId;
 
     /**
-     * @var array|null
+     * @var PriceStruct|null
      */
     protected $price;
 
@@ -73,12 +73,12 @@ class ProductServiceBasicStruct extends Entity
         $this->taxId = $taxId;
     }
 
-    public function getPrice(): ?array
+    public function getPrice(): ?PriceStruct
     {
         return $this->price;
     }
 
-    public function setPrice(?array $price): void
+    public function setPrice(?PriceStruct $price): void
     {
         $this->price = $price;
     }

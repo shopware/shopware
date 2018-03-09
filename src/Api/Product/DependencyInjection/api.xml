@@ -15,7 +15,18 @@
           <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>
-         <service class="Shopware\Api\Product\Definition\ProductCategoryDefinition" id="Shopware\Api\Product\Definition\ProductCategoryDefinition" >
+        <service class="Shopware\Api\Product\Definition\ProductContextPriceDefinition" id="shopware.product.product_context_price_definition" >
+            <tag name="shopware.entity.definition" entity="product_context_price" />
+        </service>
+        <service class="Shopware\Api\Product\Repository\ProductContextPriceRepository" id="Shopware\Api\Product\Repository\ProductContextPriceRepository" public="true">
+            <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+            <argument id="Shopware\Version\VersionManager" type="service"/>
+            <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
+            <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
+            <argument id="event_dispatcher" type="service"/>
+        </service>
+
+        <service class="Shopware\Api\Product\Definition\ProductCategoryDefinition" id="Shopware\Api\Product\Definition\ProductCategoryDefinition" >
             <tag name="shopware.entity.definition" entity="product_category" />
         </service>
          <service class="Shopware\Api\Product\Definition\ProductManufacturerDefinition" id="Shopware\Api\Product\Definition\ProductManufacturerDefinition" >
@@ -93,7 +104,7 @@
         </service>
         <service class="Shopware\Api\Product\Repository\ProductConfiguratorRepository" id="Shopware\Api\Product\Repository\ProductConfiguratorRepository" public="true">
             <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
-            <argument id="Shopware\Api\Entity\Write\EntityWriter" type="service"/>
+            <argument id="Shopware\Version\VersionManager" type="service"/>
             <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
             <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
             <argument id="event_dispatcher" type="service"/>

@@ -20,6 +20,7 @@ use Shopware\Api\Product\Event\ProductConfigurator\ProductConfiguratorIdSearchRe
 use Shopware\Api\Product\Event\ProductConfigurator\ProductConfiguratorSearchResultLoadedEvent;
 use Shopware\Api\Product\Struct\ProductConfiguratorSearchResult;
 use Shopware\Context\Struct\ShopContext;
+use Shopware\Version\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductConfiguratorRepository implements RepositoryInterface
@@ -28,11 +29,6 @@ class ProductConfiguratorRepository implements RepositoryInterface
      * @var EntityReaderInterface
      */
     private $reader;
-
-    /**
-     * @var EntityWriterInterface
-     */
-    private $writer;
 
     /**
      * @var EntitySearcherInterface
@@ -49,18 +45,23 @@ class ProductConfiguratorRepository implements RepositoryInterface
      */
     private $eventDispatcher;
 
+    /**
+     * @var VersionManager
+     */
+    private $versionManager;
+
     public function __construct(
         EntityReaderInterface $reader,
-        EntityWriterInterface $writer,
+        VersionManager $versionManager,
         EntitySearcherInterface $searcher,
         EntityAggregatorInterface $aggregator,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->reader = $reader;
-        $this->writer = $writer;
         $this->searcher = $searcher;
         $this->aggregator = $aggregator;
         $this->eventDispatcher = $eventDispatcher;
+        $this->versionManager = $versionManager;
     }
 
     public function search(Criteria $criteria, ShopContext $context): ProductConfiguratorSearchResult
@@ -120,7 +121,7 @@ class ProductConfiguratorRepository implements RepositoryInterface
 
     public function update(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->update(ProductConfiguratorDefinition::class, $data, WriteContext::createFromShopContext($context));
+        $affected = $this->versionManager->update(ProductConfiguratorDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
@@ -129,7 +130,7 @@ class ProductConfiguratorRepository implements RepositoryInterface
 
     public function upsert(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->upsert(ProductConfiguratorDefinition::class, $data, WriteContext::createFromShopContext($context));
+        $affected = $this->versionManager->upsert(ProductConfiguratorDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
@@ -138,7 +139,7 @@ class ProductConfiguratorRepository implements RepositoryInterface
 
     public function create(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->insert(ProductConfiguratorDefinition::class, $data, WriteContext::createFromShopContext($context));
+        $affected = $this->versionManager->insert(ProductConfiguratorDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
@@ -147,7 +148,7 @@ class ProductConfiguratorRepository implements RepositoryInterface
 
     public function delete(array $ids, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->delete(ProductConfiguratorDefinition::class, $ids, WriteContext::createFromShopContext($context));
+        $affected = $this->versionManager->delete(ProductConfiguratorDefinition::class, $ids, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithDeletedEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 

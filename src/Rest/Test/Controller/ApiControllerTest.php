@@ -13,7 +13,13 @@ class ApiControllerTest extends ApiTestCase
     {
         $id = Uuid::uuid4()->toString();
 
-        $data = ['id' => $id, 'name' => $id, 'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9', 'manufacturer' => ['name' => 'test'], 'price' => 10];
+        $data = [
+            'id' => $id,
+            'name' => $id,
+            'tax' => ['name' => 'test', 'rate' => 10],
+            'manufacturer' => ['name' => 'test'],
+            'price' => ['gross' => 50, 'net' => 25]
+        ];
 
         $client = $this->getClient();
         $client->request('POST', '/api/product', [], [], [], json_encode($data));
@@ -76,7 +82,13 @@ class ApiControllerTest extends ApiTestCase
         $id = Uuid::uuid4()->toString();
         $manufacturer = Uuid::uuid4()->toString();
 
-        $data = ['id' => $id, 'name' => $id, 'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9', 'manufacturer' => ['name' => 'test'], 'price' => 10];
+        $data = [
+            'id' => $id,
+            'name' => $id,
+            'tax' => ['name' => 'test', 'rate' => 10],
+            'manufacturer' => ['name' => 'test'],
+            'price' => ['gross' => 50, 'net' => 25],
+        ];
 
         $client = $this->getClient();
         $client->request('POST', '/api/product', [], [], [], json_encode($data));
@@ -112,7 +124,13 @@ class ApiControllerTest extends ApiTestCase
     {
         $id = Uuid::uuid4()->toString();
 
-        $data = ['id' => $id, 'name' => $id, 'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9', 'manufacturer' => ['name' => 'test'], 'price' => 10];
+        $data = [
+            'id' => $id,
+            'name' => $id,
+            'tax' => ['name' => 'test', 'rate' => 10],
+            'manufacturer' => ['name' => 'test'],
+            'price' => ['gross' => 50, 'net' => 25],
+        ];
 
         $client = $this->getClient();
         $client->request('POST', '/api/product', [], [], [], json_encode($data));
@@ -145,7 +163,13 @@ class ApiControllerTest extends ApiTestCase
     {
         $id = Uuid::uuid4();
 
-        $data = ['id' => $id->toString(), 'name' => $id->toString(), 'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9', 'manufacturer' => ['name' => 'test'], 'price' => 10];
+        $data = [
+            'id' => $id->toString(),
+            'name' => $id->toString(),
+            'tax' => ['name' => 'test', 'rate' => 10],
+            'manufacturer' => ['name' => 'test'],
+            'price' => ['gross' => 50, 'net' => 25],
+        ];
 
         $client = $this->getClient();
         $client->request('POST', '/api/product', [], [], [], json_encode($data));
@@ -248,8 +272,8 @@ class ApiControllerTest extends ApiTestCase
         $data = [
             'id' => $id->toString(),
             'name' => 'Test',
-            'price' => 10,
-            'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
+            'price' => ['gross' => 50, 'net' => 25],
+            'tax' => ['name' => 'test', 'rate' => 10],
             'manufacturer' => ['name' => 'test'],
             'categories' => [
                 ['id' => $category->toString(), 'name' => 'Test'],

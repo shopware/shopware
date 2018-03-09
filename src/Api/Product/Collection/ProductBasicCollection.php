@@ -121,6 +121,34 @@ class ProductBasicCollection extends EntityCollection
         );
     }
 
+    public function getContextPriceIds(): array
+    {
+        $ids = [];
+        foreach ($this->elements as $element) {
+            foreach ($element->getContextPrices()->getIds() as $id) {
+                $ids[] = $id;
+            }
+        }
+
+        return $ids;
+    }
+
+    public function getContextPrices(): ProductContextPriceBasicCollection
+    {
+        $collection = new ProductContextPriceBasicCollection();
+        foreach ($this->elements as $element) {
+            $collection->fill($element->getContextPrices()->getElements());
+        }
+        return $collection;
+    }
+
+    public function getPrices(): PriceCollection
+    {
+        return new PriceCollection($this->fmap(function(ProductBasicStruct $product) {
+            return $product->getPrice();
+        }));
+    }
+
     protected function getExpectedClass(): string
     {
         return ProductBasicStruct::class;

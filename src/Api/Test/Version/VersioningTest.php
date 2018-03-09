@@ -10,6 +10,7 @@ use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Api\Product\Definition\ProductTranslationDefinition;
 use Shopware\Api\Product\Repository\ProductRepository;
+use Shopware\Api\Product\Struct\PriceStruct;
 use Shopware\Api\Tax\Definition\TaxAreaRuleDefinition;
 use Shopware\Api\Tax\Definition\TaxAreaRuleTranslationDefinition;
 use Shopware\Api\Tax\Definition\TaxDefinition;
@@ -505,13 +506,13 @@ class VersioningTest extends KernelTestCase
             [
                 'id' => $productId->toString(),
                 'name' => 'parent',
-                'price' => 10,
+                'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['rate' => 18, 'name' => 'test'],
             ],
             [
                 'id' => $variantId->toString(),
-                'price' => 15,
+                'price' => ['gross' => 15, 'net' => 14],
                 'parentId' => $productId->toString(),
             ],
         ];
@@ -522,7 +523,7 @@ class VersioningTest extends KernelTestCase
         $versionContext = $liveContext->createWithVersionId($variantVersionId);
 
         $this->productRepository->update([
-            ['id' => $variantId->toString(), 'price' => 20],
+            ['id' => $variantId->toString(), 'price' => ['gross' => 20, 'net' => 19]],
         ], $versionContext);
 
         $variant = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id AND version_id = :version', [
@@ -530,20 +531,20 @@ class VersioningTest extends KernelTestCase
             'version' => Uuid::fromString($variantVersionId)->getBytes(),
         ]);
 
-        $this->assertEquals(20, $variant['price']);
+        $this->assertEquals(['gross' => 20, 'net' => 19], json_decode($variant['price'], true));
 
         $variants = $this->productRepository->readBasic([$variantId->toString()], $versionContext);
         $this->assertCount(1, $variants);
         $this->assertTrue($variants->has($variantId->toString()));
 
         $variant = $variants->get($variantId->toString());
-        $this->assertEquals(20, $variant->getPrice());
+        $this->assertEquals(new PriceStruct(19, 20), $variant->getPrice());
         $this->assertEquals('parent', $variant->getName());
 
         $this->productRepository->createVersion($productId->toString(), $liveContext, 'test parent', $variantVersionId);
 
         $this->productRepository->update([
-            ['id' => $productId->toString(), 'name' => 'parent version', 'price' => 25],
+            ['id' => $productId->toString(), 'name' => 'parent version', 'price' => ['gross' => 25, 'net' => 24]],
         ], $versionContext);
 
         $changes = $this->getVersionData(ProductDefinition::getEntityName(), $productId->toString(), $variantVersionId);
@@ -567,7 +568,7 @@ class VersioningTest extends KernelTestCase
         $this->assertTrue($variants->has($productId->toString()));
 
         $variant = $variants->get($productId->toString());
-        $this->assertEquals(25, $variant->getPrice());
+        $this->assertEquals(25, $variant->getPrice()->getGross());
         $this->assertEquals('parent version', $variant->getName());
 
         $variants = $this->productRepository->readBasic([$variantId->toString()], $versionContext);
@@ -575,7 +576,7 @@ class VersioningTest extends KernelTestCase
         $this->assertTrue($variants->has($variantId->toString()));
 
         $variant = $variants->get($variantId->toString());
-        $this->assertEquals(20, $variant->getPrice());
+        $this->assertEquals(20, $variant->getPrice()->getGross());
         $this->assertEquals('parent version', $variant->getName());
     }
 
@@ -591,7 +592,7 @@ class VersioningTest extends KernelTestCase
             [
                 'id' => $id->toString(),
                 'name' => 'Test',
-                'price' => 15,
+                'price' => ['gross' => 10, 'net' => 9],
                 'taxId' => $id->toString(),
                 'manufacturer' => ['name' => 'test'],
             ],
@@ -633,7 +634,7 @@ class VersioningTest extends KernelTestCase
             [
                 'id' => $product1->toString(),
                 'name' => 'product test',
-                'price' => 10,
+                'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'rate' => 19],
                 'categories' => [
@@ -642,7 +643,7 @@ class VersioningTest extends KernelTestCase
             ], [
                 'id' => $product2->toString(),
                 'name' => 'product test',
-                'price' => 10,
+                'price' => ['gross' => 10, 'net' => 9],
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'rate' => 19],
                 'categories' => [
@@ -655,14 +656,16 @@ class VersioningTest extends KernelTestCase
         $this->productRepository->create($products, $liveContext);
 
         $this->productRepository->createVersion($product1->toString(), $liveContext, 'Campaign', $versionId);
+
+
         $versionContext = $liveContext->createWithVersionId($versionId);
-        $update = ['id' => $product1->toString(), 'price' => 100];
+        $update = ['id' => $product1->toString(), 'price' => ['gross' => 100, 'net' => 9]];
         $this->productRepository->update([$update], $versionContext);
 
         $versionId = $this->productRepository->createVersion($product2->toString(), $liveContext, 'Campaign', $versionId);
 
         $versionContext = $liveContext->createWithVersionId($versionId);
-        $update = ['id' => $product2->toString(), 'price' => 200];
+        $update = ['id' => $product2->toString(), 'price' => ['gross' => 200, 'net' => 9]];
         $this->productRepository->update([$update], $versionContext);
 
         $changes = $this->getVersionData(ProductDefinition::getEntityName(), $product1->toString(), $versionId);
@@ -729,13 +732,13 @@ class VersioningTest extends KernelTestCase
             'SELECT * FROM product WHERE id = :id AND version_id = :version',
             ['id' => $product1->getBytes(), 'version' => Uuid::fromString(Defaults::LIVE_VERSION)->getBytes()]
         );
-        $this->assertEquals(100, $product['price']);
+        $this->assertEquals(['gross' => 100, 'net' => 9], json_decode($product['price'], true));
 
         $product = $this->connection->fetchAssoc(
             'SELECT * FROM product WHERE id = :id AND version_id = :version',
             ['id' => $product2->getBytes(), 'version' => Uuid::fromString(Defaults::LIVE_VERSION)->getBytes()]
         );
-        $this->assertEquals(200, $product['price']);
+        $this->assertEquals(['gross' => 200, 'net' => 9], json_decode($product['price'], true));
 
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('product.categories.id', $category));

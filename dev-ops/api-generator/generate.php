@@ -25,7 +25,6 @@ $inBasic = [
     'order_delivery' => ['orderState', 'shippingAddress', 'shippingMethod'],
     'order_delivery_position' => ['orderLineItem'],
     'product_media' => ['media'],
-    'product_price' => ['customerGroup'],
     'shipping_method' => ['price'],
     'media' => ['album'],
     'product_listing_price' => ['customerGroup'],
@@ -35,7 +34,8 @@ $inBasic = [
     'product_stream' => ['listingSorting'],
     'product_configurator' => ['configurationOption', 'tax'],
     'product_service' => ['configurationOption', 'tax'],
-    'configuration_group_option' => ['configurationGroup']
+    'configuration_group_option' => ['configurationGroup'],
+    'product_price' => ['currency', 'contextRule'],
 ];
 
 $associations = [
@@ -94,6 +94,7 @@ $writeOnly = [
         'productStreams',
         'productTranslations',
     ],
+    'product_price' => ['product'],
     'product_configurator' => ['product'],
     'product_service' => ['product'],
     'configuration_group_option' => ['productConfigurators', 'productDatasheets', 'productDatasheet', 'productServices', 'productVariations']
@@ -150,6 +151,6 @@ $context = new Context(
     $prevent
 );
 
-$generator = new ApiGenerator(__DIR__ . '/../../var/cache');
+$generator = new ApiGenerator(__DIR__ . '/../../var/cache/api');
 
 $generator->generate($context);

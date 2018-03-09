@@ -168,8 +168,8 @@ class WriterTest extends KernelTestCase
             [
                 'id' => $productId->toString(),
                 'name' => 'test 1',
-                'price' => 10,
-                'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
+                'price' => ['gross' => 10, 'net' => 9],
+                'tax' => ['name' => 'test', 'rate' => 5],
                 'manufacturer' => ['name' => 'test'],
                 'categories' => [
                     ['id' => $categoryId->toString(), 'name' => 'test'],
@@ -218,7 +218,7 @@ class WriterTest extends KernelTestCase
                 'id' => $productId->toString(),
                 'name' => 'test 1',
                 'price' => 10,
-                'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
+                'tax' => ['name' => 'test', 'rate' => 5],
                 'manufacturer' => ['name' => 'test'],
                 'categories' => [
                     ['id' => $categoryId->toString(), 'name' => 'test'],
@@ -228,7 +228,7 @@ class WriterTest extends KernelTestCase
                 'id' => $productId2->toString(),
                 'name' => 'test 1',
                 'price' => 10,
-                'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
+                'tax' => ['name' => 'test', 'rate' => 5],
                 'manufacturer' => ['name' => 'test'],
                 'categories' => [
                     ['id' => $categoryId->toString()],
@@ -237,7 +237,7 @@ class WriterTest extends KernelTestCase
             [
                 'name' => 'test 1',
                 'price' => 10,
-                'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
+                'tax' => ['name' => 'test', 'rate' => 5],
                 'manufacturer' => ['name' => 'test'],
                 'categories' => [
                     ['name' => 'test'],
@@ -275,7 +275,7 @@ class WriterTest extends KernelTestCase
                     'name' => 'test',
                     'price' => 10,
                     'the_unknown_field' => 'do nothing?',
-                    'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
+                    'tax' => ['name' => 'test', 'rate' => 5],
                     'manufacturer' => ['id' => Uuid::uuid4()->toString(), 'link' => 'https://shopware.com', 'name' => 'shopware AG'],
                     'mode' => 0,
                     'lastStock' => true,
@@ -305,7 +305,7 @@ class WriterTest extends KernelTestCase
             [
                 [
                     'the_unknown_field' => 'do nothing?',
-                    'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
+                    'tax' => ['name' => 'test', 'rate' => 5],
                     'name' => 'foo',
                     'price' => 10,
                     'manufacturer' => ['id' => Uuid::uuid4()->toString(), 'link' => 'https://shopware.com', 'name' => 'shopware AG'],
@@ -329,7 +329,7 @@ class WriterTest extends KernelTestCase
                     'name' => 'ConfiguratorTest',
                     'description' => 'A test article',
                     'descriptionLong' => '<p>I\'m a <b>test article</b></p>',
-                    'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
+                    'tax' => ['name' => 'test', 'rate' => 5],
                     'manufacturer' => ['id' => Uuid::uuid4()->toString(), 'link' => 'https://shopware.com', 'name' => 'shopware AG'],
                     'updatedAt' => new \DateTime(),
                     'mode' => 0,
@@ -370,7 +370,7 @@ class WriterTest extends KernelTestCase
                     'id' => $this->id,
                     'name' => '_THE_TITLE_',
                     'the_unknown_field' => 'do nothing?',
-                    'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
+                    'tax' => ['name' => 'test', 'rate' => 5],
                     'description' => '<p>no html</p>',
                     'descriptionLong' => '<p>html</p>',
                     'availableFrom' => new \DateTime('2011-01-01T15:03:01.012345Z'),
@@ -553,7 +553,7 @@ class WriterTest extends KernelTestCase
                     'id' => $this->id,
                     'name' => 'Test product',
                     'price' => 10,
-                    'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
+                    'tax' => ['name' => 'test', 'rate' => 5],
                     'manufacturer' => [
                         'id' => Uuid::uuid4()->toString(),
                         'name' => 'shopware AG',

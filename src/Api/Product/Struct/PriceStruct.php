@@ -1,0 +1,50 @@
+<?php
+
+namespace Shopware\Api\Product\Struct;
+
+use Shopware\Framework\Struct\Struct;
+
+class PriceStruct extends Struct
+{
+    /**
+     * @var float
+     */
+    protected $net;
+
+    /**
+     * @var float
+     */
+    protected $gross;
+
+    public function __construct(float $net, float $gross)
+    {
+        $this->net = $net;
+        $this->gross = $gross;
+    }
+
+    public function getNet(): float
+    {
+        return $this->net;
+    }
+
+    public function setNet(float $net): void
+    {
+        $this->net = $net;
+    }
+
+    public function getGross(): float
+    {
+        return $this->gross;
+    }
+
+    public function setGross(float $gross): void
+    {
+        $this->gross = $gross;
+    }
+
+    public function add(PriceStruct $price)
+    {
+        $this->gross += $price->getGross();
+        $this->net += $price->getNet();
+    }
+}

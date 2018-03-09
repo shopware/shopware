@@ -673,7 +673,6 @@ CREATE TABLE `mail_attachment` (
   CONSTRAINT `fk_mail_attachment.shop_id` FOREIGN KEY (`shop_id`, `shop_version_id`) REFERENCES `shop` (`id`, `version_id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-
 DROP TABLE IF EXISTS `mail_translation`;
 CREATE TABLE `mail_translation` (
   `mail_id` binary(16) NOT NULL,
@@ -1009,7 +1008,6 @@ CREATE TABLE `product` (
   `catalog_id` binary(16) NOT NULL,
   `version_id` binary(16) NOT NULL,
   `active` tinyint(1) unsigned NOT NULL DEFAULT '1',
-  `price` decimal(10,3) DEFAULT NULL,
   `parent_id` binary(16) DEFAULT NULL,
   `parent_version_id` binary(16) DEFAULT NULL,
   `tax_id` binary(16) DEFAULT NULL,
@@ -1024,8 +1022,10 @@ CREATE TABLE `product` (
   `tax_join_id` binary(16) DEFAULT NULL,
   `unit_join_id` binary(16) DEFAULT NULL,
   `category_join_id` binary(16) DEFAULT NULL,
+  `context_price_join_id` binary(16) DEFAULT NULL,
   `category_tree` LONGTEXT DEFAULT NULL,
-  `context_prices` LONGTEXT DEFAULT NULL,
+  `price` LONGTEXT DEFAULT NULL,
+  `listing_prices` LONGTEXT DEFAULT NULL,
   `supplier_number` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `ean` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `stock` int(11) DEFAULT NULL,
@@ -1052,7 +1052,8 @@ CREATE TABLE `product` (
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   CHECK (JSON_VALID(`category_tree`)),
-  CHECK (JSON_VALID(`context_prices`)),
+  CHECK (JSON_VALID(`listing_prices`)),
+  CHECK (JSON_VALID(`price`)),
   PRIMARY KEY (`id`, `version_id`),
   KEY (`catalog_id`),
   CONSTRAINT `fk_product.product_manufacturer_id` FOREIGN KEY (`product_manufacturer_id`, `product_manufacturer_version_id`) REFERENCES `product_manufacturer` (`id`, `version_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
@@ -1062,6 +1063,25 @@ CREATE TABLE `product` (
   CONSTRAINT `fk_product.catalog_id` FOREIGN KEY (`catalog_id`) REFERENCES `catalog` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+DROP TABLE IF EXISTS `product_context_price`;
+CREATE TABLE `product_context_price` (
+  `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
+  `context_rule_id` binary(16) NOT NULL,
+  `product_id` binary(16) NOT NULL,
+  `product_version_id` binary(16) NOT NULL,
+  `currency_id` binary(16) NOT NULL,
+  `currency_version_id` binary(16) NOT NULL,
+  `price` json NOT NULL,
+  `quantity_start` INT(11) NOT NULL,
+  `quantity_end` INT(11) NULL DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NULL DEFAULT NULL,
+  PRIMARY KEY (`id`, `version_id`),
+  CONSTRAINT `fk_product_context_price.product_id` FOREIGN KEY (`product_id`, `product_version_id`) REFERENCES `product` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_product_context_price.currency_id` FOREIGN KEY (`currency_id`, `currency_version_id`) REFERENCES `currency` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_product_context_price.context_rule_id` FOREIGN KEY (`context_rule_id`) REFERENCES `context_rule` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `product_category`;
 CREATE TABLE `product_category` (
@@ -1658,7 +1678,8 @@ CREATE TABLE `context_rule` (
   `name` varchar(500) NOT NULL,
   `payload` longtext NOT NULL,
   `created_at` datetime NOT NULL,
-  `updated_at` datetime NULL DEFAULT NULL
+  `updated_at` datetime NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `version`;

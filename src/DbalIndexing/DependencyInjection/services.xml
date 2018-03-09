@@ -58,6 +58,13 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Category\Extension\CategoryPathBuilder"/>
             <argument type="service" id="Shopware\Api\Shop\Repository\ShopRepository"/>
+            <argument type="service" id="Shopware\DbalIndexing\Product\CategoryAssignmentUpdater"/>
+            <argument type="service" id="Shopware\DbalIndexing\Product\InheritanceJoinIdUpdater"/>
+            <argument type="service" id="Shopware\DbalIndexing\Product\ListingPriceUpdater"/>
+        </service>
+
+        <service class="Shopware\DbalIndexing\Product\ListingPriceUpdater" id="Shopware\DbalIndexing\Product\ListingPriceUpdater">
+            <argument id="Doctrine\DBAL\Connection" type="service"/>
         </service>
 
         <service class="Shopware\DbalIndexing\Command\RefreshIndexCommand" id="Shopware\DbalIndexing\Command\RefreshIndexCommand">
@@ -76,5 +83,15 @@
             <argument id="Shopware\Api\Entity\Search\Term\StopWordFilter" type="service"/>
             <tag name="shopware.search_analyzer" />
         </service>
+
+        <service class="Shopware\DbalIndexing\Product\CategoryAssignmentUpdater" id="Shopware\DbalIndexing\Product\CategoryAssignmentUpdater">
+            <argument id="Doctrine\DBAL\Connection" type="service"/>
+        </service>
+
+        <service class="Shopware\DbalIndexing\Product\InheritanceJoinIdUpdater" id="Shopware\DbalIndexing\Product\InheritanceJoinIdUpdater">
+            <argument id="Doctrine\DBAL\Connection" type="service"/>
+        </service>
+
+
     </services>
 </container>

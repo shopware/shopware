@@ -3,6 +3,7 @@
 namespace Shopware\Api\Entity\Dbal;
 
 use Ramsey\Uuid\Uuid;
+use Shopware\Api\Context\Collection\ContextPriceCollection;
 use Shopware\Api\Entity\Entity;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Field\AssociationInterface;
@@ -19,14 +20,15 @@ use Shopware\Api\Entity\Field\LongTextField;
 use Shopware\Api\Entity\Field\LongTextWithHtmlField;
 use Shopware\Api\Entity\Field\ManyToManyAssociationField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
-use Shopware\Api\Entity\Field\PriceRulesField;
+use Shopware\Api\Entity\Field\PriceField;
+use Shopware\Api\Entity\Field\ContextPricesJsonField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\Extension;
 use Shopware\Api\Entity\Write\Flag\Serialized;
-use Shopware\Api\Product\Collection\ContextPriceCollection;
+use Shopware\Api\Product\Struct\PriceStruct;
 use Shopware\Framework\Struct\ArrayStruct;
 use Symfony\Component\Serializer\SerializerInterface;
 
@@ -170,9 +172,19 @@ class EntityHydrator
                 return $value === null ? null : (string) $value;
             case $field instanceof DateField:
                 return $value === null ? null : new \DateTime($value);
-            case $field instanceof JsonArrayField:
-                return json_decode((string) $value, true);
-            case $field instanceof PriceRulesField:
+
+            case $field instanceof PriceField:
+                if ($value === null) {
+                    return null;
+                }
+                $value = json_decode((string) $value, true);
+
+                return new PriceStruct($value['net'], $value['gross']);
+
+            case $field instanceof ContextPricesJsonField:
+                if ($value === null) {
+                    return null;
+                }
                 $value = json_decode((string) $value, true);
 
                 $structs = [];
@@ -183,6 +195,14 @@ class EntityHydrator
                 }
 
                 return new ContextPriceCollection($structs);
+
+
+            case $field instanceof JsonArrayField:
+                if ($value === null) {
+                    return null;
+                }
+                return json_decode((string) $value, true);
+
 
             case $field instanceof JsonObjectField:
                 if ($field->is(Serialized::class)) {

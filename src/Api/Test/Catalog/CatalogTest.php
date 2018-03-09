@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api\Test;
+namespace Shopware\Api\Test\Catalog;
 
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;

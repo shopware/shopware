@@ -54,6 +54,12 @@ class ConnectionFactory extends \Doctrine\Bundle\DoctrineBundle\ConnectionFactor
     ): Connection {
         $params['pdo'] = $this->connection;
 
+        $version = $this->connection->query('SELECT VERSION()')->fetchColumn();
+
+        if (stripos($version, 'mariadb') !== false) {
+            JsonObjectAccessor::$engine = JsonObjectAccessor::ENGINE_MARIADB;
+        }
+
         return parent::createConnection(
             $params,
             $config,

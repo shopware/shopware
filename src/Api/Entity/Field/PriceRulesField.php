@@ -8,6 +8,7 @@ use Shopware\Api\Entity\Write\EntityExistence;
 use Shopware\Api\Entity\Write\FieldAware\SqlParseAware;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Defaults;
+use Shopware\Framework\Doctrine\JsonObjectAccessor;
 
 class PriceRulesField extends JsonObjectField implements SqlParseAware
 {
@@ -42,9 +43,13 @@ class PriceRulesField extends JsonObjectField implements SqlParseAware
         foreach ($keys as $key) {
             $key = Uuid::fromString($key)->getHex();
 
-            $select[] = sprintf('`%s`.`%s`->"$.merged.r%s.last.c%s.gross"', $root, $this->getStorageName(), $key, $currencyId);
+            $field = sprintf('`%s`.`%s`', $root, $this->getStorageName());
+            $path = sprintf('$.merged.r%s.last.c%s.gross', $key, $currencyId);
+            $select[] = JsonObjectAccessor::parse($field, $path);
+
             if ($context->getCurrencyId() !== Defaults::CURRENCY) {
-                $select[] = sprintf('(`%s`.`%s`->"$.merged.r%s.last.c%s.gross") * %s', $root, $this->getStorageName(), $key, $defaultCurrencyId, $context->getCurrencyFactor());
+                $path = sprintf('$.merged.r%s.last.c%s.gross', $key, $defaultCurrencyId);
+                $select[] = sprintf('%s * %s', JsonObjectAccessor::parse($field, $path), $context->getCurrencyFactor());
             }
         }
 

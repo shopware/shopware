@@ -17,6 +17,20 @@ if (!version_compare($mysqlVersion, '5.7', '>=')) {
     exit(1);
 }
 
+if (stripos($mysqlVersion, 'mariadb') !== false) {
+    try {
+        $testValue = $db->query('SELECT JSON_VALUE("{\"bar\": \"foo\"}", "$.bar")')->fetchColumn();
+
+        if ($testValue !== 'foo') {
+            print 'Your MariaDB version not support JSON functions. Please upgrade to at least MariaDB 10.2.';
+            exit(1);
+        }
+    } catch (\Exception $ex) {
+        print 'Your MariaDB version not support JSON functions. Please upgrade to at least MariaDB 10.2.';
+        exit(1);
+    }
+}
+
 $mysqlGroupConcat = $db->query('SHOW VARIABLES LIKE "group_concat_max_len"')->fetchColumn(1);
 if ($mysqlGroupConcat < 320000) {
     print 'MySQL parameter "group_concat_max_len" must be at least 320000.'.PHP_EOL;

@@ -34,7 +34,7 @@ const:
   SW_HOST: "127.0.0.1:8088"
   SW_BASE_PATH: ""
   PHP_VERSION: "7.2"
-  MYSQL_VERSION: "5.7"
+  MYSQL_VERSION: "10.2"
   APP_DEBUG: "1"
   APP_ENV: "dev"
   CONTAINER_SUFFIX: "-dev"

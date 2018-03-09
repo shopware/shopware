@@ -5,6 +5,8 @@ bin/console translation:import --with-plugins
 
 bin/console framework:demodata --products=200 --categories=5 --manufacturers=25
 
+bin/console dbal:refresh:index -vvv
+
 bin/console plugin:update
 
 bin/console assetic:dump

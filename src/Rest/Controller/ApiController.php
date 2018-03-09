@@ -581,7 +581,7 @@ class ApiController extends Controller
     private function createListingCriteria(string $definition, Request $request, ShopContext $context): Criteria
     {
         $criteria = new Criteria();
-        $criteria->setFetchCount(true);
+        $criteria->setFetchCount(Criteria::FETCH_COUNT_TOTAL);
         $criteria->setLimit(10);
 
         if ($request->query->has('offset')) {

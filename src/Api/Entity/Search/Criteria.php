@@ -11,6 +11,10 @@ use Shopware\Framework\Struct\Struct;
 
 class Criteria extends Struct
 {
+    public const FETCH_COUNT_NONE = 0;
+    public const FETCH_COUNT_TOTAL = 1;
+    public const FETCH_COUNT_NEXT_PAGES = 2;
+
     /**
      * @var FieldSorting[]
      */
@@ -47,9 +51,9 @@ class Criteria extends Struct
     protected $limit;
 
     /**
-     * @var bool
+     * @var int
      */
-    protected $fetchCount = false;
+    protected $fetchCount = self::FETCH_COUNT_NONE;
 
     /**
      * @return FieldSorting[]
@@ -206,12 +210,12 @@ class Criteria extends Struct
         $this->limit = $limit;
     }
 
-    public function fetchCount(): bool
+    public function fetchCount(): int
     {
         return $this->fetchCount;
     }
 
-    public function setFetchCount(bool $fetchCount): void
+    public function setFetchCount(int $fetchCount): void
     {
         $this->fetchCount = $fetchCount;
     }

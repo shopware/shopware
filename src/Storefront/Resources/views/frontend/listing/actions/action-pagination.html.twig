@@ -53,7 +53,7 @@
 
     {# Pagination - Number of pages #}
     {% block frontend_listing_actions_count %}
-        {% if listing.pageCount > 1 %}
+        {% if listing.pageCount > 1 and listing.criteria.fetchCount != 2 %}
             <span class="paging--display">
                 {% trans from 'frontend/listing/listing_actions' %}ListingTextFrom{% endtrans %} <strong>{{ listing.pageCount }}</strong>
             </span>

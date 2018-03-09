@@ -61,8 +61,6 @@ class EntitySearcher implements EntitySearcherInterface
 
         $this->addSortings($definition, $criteria, $query, $context);
 
-        $this->addFetchCount($criteria, $query);
-
         $this->addGroupBy($definition, $criteria, $query, $context);
 
         //add pagination
@@ -73,11 +71,16 @@ class EntitySearcher implements EntitySearcherInterface
             $query->setMaxResults($criteria->getLimit());
         }
 
+        $this->addFetchCount($criteria, $query);
+
         //execute and fetch ids
         $data = $query->execute()->fetchAll(\PDO::FETCH_GROUP | \PDO::FETCH_UNIQUE);
 
-        if ($criteria->fetchCount()) {
+        if ($criteria->fetchCount() === Criteria::FETCH_COUNT_TOTAL) {
             $total = (int) $this->connection->fetchColumn('SELECT FOUND_ROWS()');
+        } else if ($criteria->fetchCount() === Criteria::FETCH_COUNT_NEXT_PAGES) {
+            $total = count($data) - $criteria->getLimit();
+            $data = array_slice($data, 0, $criteria->getLimit());
         } else {
             $total = count($data);
         }
@@ -161,7 +164,11 @@ class EntitySearcher implements EntitySearcherInterface
     private function addFetchCount(Criteria $criteria, QueryBuilder $query): void
     {
         //requires total count for query? add save SQL_CALC_FOUND_ROWS
-        if (!$criteria->fetchCount()) {
+        if ($criteria->fetchCount() === Criteria::FETCH_COUNT_NONE) {
+            return;
+        }
+        if ($criteria->fetchCount() === Criteria::FETCH_COUNT_NEXT_PAGES) {
+            $query->setMaxResults($criteria->getLimit() * 6 + 1);
             return;
         }
 

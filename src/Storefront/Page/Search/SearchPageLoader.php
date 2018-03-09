@@ -75,7 +75,7 @@ class SearchPageLoader
         $criteria = new Criteria();
         $criteria->setOffset(($page - 1) * $limit);
         $criteria->setLimit($limit);
-        $criteria->setFetchCount(true);
+        $criteria->setFetchCount(Criteria::FETCH_COUNT_TOTAL);
         $criteria->addFilter(new TermQuery('product.active', 1));
 
         $pattern = $this->termInterpreter->interpret($searchTerm, $context->getShopContext());

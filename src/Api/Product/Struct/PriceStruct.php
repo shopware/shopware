@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Api\Product\Struct;
 
@@ -42,7 +42,7 @@ class PriceStruct extends Struct
         $this->gross = $gross;
     }
 
-    public function add(PriceStruct $price)
+    public function add(self $price)
     {
         $this->gross += $price->getGross();
         $this->net += $price->getNet();

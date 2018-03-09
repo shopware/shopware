@@ -61,6 +61,7 @@ class ProductBasicLoadedEvent extends NestedEvent
         if ($this->products->getContextPrices()->count() > 0) {
             $events[] = new ProductContextPriceBasicLoadedEvent($this->products->getContextPrices(), $this->context);
         }
+
         return new NestedEventCollection($events);
     }
 }

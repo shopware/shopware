@@ -20,7 +20,6 @@ class ProductActionController extends Controller
      * @Method({"POST"})
      *
      * @param int $offset
-     * @return void
      */
     public function generateVariants(string $id, int $offset, ShopContext $context): void
     {

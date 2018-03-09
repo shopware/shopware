@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\DbalIndexing\Product;
 
@@ -53,14 +53,14 @@ class ListingPriceUpdater
             'product.id as variant_id',
             'price.context_rule_id',
             'price.price',
-            'price.currency_id'
+            'price.currency_id',
         ]);
 
         $query->from('product', 'product');
         $query->innerJoin('product', 'product_context_price', 'price', 'price.product_id = product.id');
         $query->where('product.id IN (:ids) OR product.parent_id IN (:ids)');
 
-        $ids = array_map(function($id) {
+        $ids = array_map(function ($id) {
             return Uuid::fromString($id)->getBytes();
         }, $ids);
 
@@ -71,6 +71,7 @@ class ListingPriceUpdater
 
     /**
      * @param $productPrices
+     *
      * @return array
      */
     private function convertPrices($productPrices): array
@@ -86,7 +87,7 @@ class ListingPriceUpdater
                     'contextRuleId' => Uuid::fromBytes($price['context_rule_id'])->toString(),
                     'currencyId' => Uuid::fromBytes($price['currency_id'])->toString(),
                     'price' => $value,
-                    '_class' => ContextPriceStruct::class
+                    '_class' => ContextPriceStruct::class,
                 ];
             },
             $productPrices

@@ -2,9 +2,9 @@
 
 namespace Shopware\Api\Product\Collection;
 
-use Shopware\Api\Product\Struct\ProductContextPriceDetailStruct;
-use Shopware\Api\Currency\Collection\CurrencyBasicCollection;
 use Shopware\Api\Context\Collection\ContextRuleBasicCollection;
+use Shopware\Api\Currency\Collection\CurrencyBasicCollection;
+use Shopware\Api\Product\Struct\ProductContextPriceDetailStruct;
 
 class ProductContextPriceDetailCollection extends ProductContextPriceBasicCollection
 {
@@ -13,15 +13,10 @@ class ProductContextPriceDetailCollection extends ProductContextPriceBasicCollec
      */
     protected $elements = [];
 
-    protected function getExpectedClass(): string
-    {
-        return ProductContextPriceDetailStruct::class;
-    }
-
     public function getProducts(): ProductBasicCollection
     {
         return new ProductBasicCollection(
-            $this->fmap(function(ProductContextPriceDetailStruct $productContextPrice) {
+            $this->fmap(function (ProductContextPriceDetailStruct $productContextPrice) {
                 return $productContextPrice->getProduct();
             })
         );
@@ -30,7 +25,7 @@ class ProductContextPriceDetailCollection extends ProductContextPriceBasicCollec
     public function getCurrencies(): CurrencyBasicCollection
     {
         return new CurrencyBasicCollection(
-            $this->fmap(function(ProductContextPriceDetailStruct $productContextPrice) {
+            $this->fmap(function (ProductContextPriceDetailStruct $productContextPrice) {
                 return $productContextPrice->getCurrency();
             })
         );
@@ -39,9 +34,14 @@ class ProductContextPriceDetailCollection extends ProductContextPriceBasicCollec
     public function getContextRules(): ContextRuleBasicCollection
     {
         return new ContextRuleBasicCollection(
-            $this->fmap(function(ProductContextPriceDetailStruct $productContextPrice) {
+            $this->fmap(function (ProductContextPriceDetailStruct $productContextPrice) {
                 return $productContextPrice->getContextRule();
             })
         );
+    }
+
+    protected function getExpectedClass(): string
+    {
+        return ProductContextPriceDetailStruct::class;
     }
 }

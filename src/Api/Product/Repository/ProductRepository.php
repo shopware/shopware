@@ -52,12 +52,12 @@ class ProductRepository implements RepositoryInterface
     private $versionManager;
 
     public function __construct(
-        EntityReaderInterface $reader,
-        VersionManager $versionManager,
-        EntitySearcherInterface $searcher,
-        EntityAggregatorInterface $aggregator,
-        EventDispatcherInterface $eventDispatcher
-    ) {
+       EntityReaderInterface $reader,
+       VersionManager $versionManager,
+       EntitySearcherInterface $searcher,
+       EntityAggregatorInterface $aggregator,
+       EventDispatcherInterface $eventDispatcher
+   ) {
         $this->reader = $reader;
         $this->searcher = $searcher;
         $this->aggregator = $aggregator;
@@ -167,7 +167,7 @@ class ProductRepository implements RepositoryInterface
         return $this->versionManager->createVersion(ProductDefinition::class, $id, WriteContext::createFromShopContext($context), $name, $versionId);
     }
 
-    public function merge(string $versionId, ShopContext $context)
+    public function merge(string $versionId, ShopContext $context): void
     {
         $this->versionManager->merge($versionId, WriteContext::createFromShopContext($context));
     }

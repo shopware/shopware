@@ -1,14 +1,14 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Api\Product\Event\ProductContextPrice;
 
+use Shopware\Api\Context\Event\ContextRule\ContextRuleBasicLoadedEvent;
+use Shopware\Api\Currency\Event\Currency\CurrencyBasicLoadedEvent;
+use Shopware\Api\Product\Collection\ProductContextPriceDetailCollection;
+use Shopware\Api\Product\Event\Product\ProductBasicLoadedEvent;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\Api\Product\Collection\ProductContextPriceDetailCollection;
-use Shopware\Api\Product\Event\Product\ProductBasicLoadedEvent;
-use Shopware\Api\Currency\Event\Currency\CurrencyBasicLoadedEvent;
-use Shopware\Api\Context\Event\ContextRule\ContextRuleBasicLoadedEvent;
 
 class ProductContextPriceDetailLoadedEvent extends NestedEvent
 {
@@ -57,7 +57,7 @@ class ProductContextPriceDetailLoadedEvent extends NestedEvent
         if ($this->productContextPrices->getContextRules()->count() > 0) {
             $events[] = new ContextRuleBasicLoadedEvent($this->productContextPrices->getContextRules(), $this->context);
         }
+
         return new NestedEventCollection($events);
-    }            
-            
+    }
 }

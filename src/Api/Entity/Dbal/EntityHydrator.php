@@ -8,6 +8,7 @@ use Shopware\Api\Entity\Entity;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Field\AssociationInterface;
 use Shopware\Api\Entity\Field\BoolField;
+use Shopware\Api\Entity\Field\ContextPricesJsonField;
 use Shopware\Api\Entity\Field\DateField;
 use Shopware\Api\Entity\Field\Field;
 use Shopware\Api\Entity\Field\FkField;
@@ -21,7 +22,6 @@ use Shopware\Api\Entity\Field\LongTextWithHtmlField;
 use Shopware\Api\Entity\Field\ManyToManyAssociationField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\PriceField;
-use Shopware\Api\Entity\Field\ContextPricesJsonField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\Field\VersionField;
@@ -196,13 +196,12 @@ class EntityHydrator
 
                 return new ContextPriceCollection($structs);
 
-
             case $field instanceof JsonArrayField:
                 if ($value === null) {
                     return null;
                 }
-                return json_decode((string) $value, true);
 
+                return json_decode((string) $value, true);
 
             case $field instanceof JsonObjectField:
                 if ($field->is(Serialized::class)) {

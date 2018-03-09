@@ -99,7 +99,7 @@ class AuditLogSearchTest extends KernelTestCase
         $productId2 = Uuid::uuid4()->toString();
 
         $this->productRepository->upsert([
-            ['id' => $p1, 'name' => 'test product 1', 'price' => ['gross' => 10, 'net' => 9], 'tax' => ['name' => 'test', 'rate' => 5] , 'manufacturer' => ['name' => 'test']],
+            ['id' => $p1, 'name' => 'test product 1', 'price' => ['gross' => 10, 'net' => 9], 'tax' => ['name' => 'test', 'rate' => 5], 'manufacturer' => ['name' => 'test']],
             ['id' => $productId2, 'name' => 'test product 2', 'price' => ['gross' => 10, 'net' => 9], 'tax' => ['name' => 'test', 'rate' => 5], 'manufacturer' => ['name' => 'test']],
             ['id' => Uuid::uuid4()->toString(), 'name' => 'notmatch', 'price' => ['gross' => 10, 'net' => 9], 'tax' => ['name' => 'test', 'rate' => 5], 'manufacturer' => ['name' => 'test']],
             ['id' => Uuid::uuid4()->toString(), 'name' => 'notmatch', 'price' => ['gross' => 10, 'net' => 9], 'tax' => ['name' => 'test', 'rate' => 5], 'manufacturer' => ['name' => 'test']],

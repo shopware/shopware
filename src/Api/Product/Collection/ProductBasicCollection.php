@@ -139,12 +139,13 @@ class ProductBasicCollection extends EntityCollection
         foreach ($this->elements as $element) {
             $collection->fill($element->getContextPrices()->getElements());
         }
+
         return $collection;
     }
 
     public function getPrices(): PriceCollection
     {
-        return new PriceCollection($this->fmap(function(ProductBasicStruct $product) {
+        return new PriceCollection($this->fmap(function (ProductBasicStruct $product) {
             return $product->getPrice();
         }));
     }

@@ -9,17 +9,19 @@ use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntityAggregatorInterface;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
 use Shopware\Api\Entity\Search\IdSearchResult;
-use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Entity\Write\WriteContext;
 use Shopware\Api\Version\Collection\VersionCommitBasicCollection;
+use Shopware\Api\Version\Collection\VersionCommitDetailCollection;
 use Shopware\Api\Version\Definition\VersionCommitDefinition;
-use Shopware\Api\Version\Event\VersionCommitData\VersionCommitDataAggregationResultLoadedEvent;
-use Shopware\Api\Version\Event\VersionCommitData\VersionCommitDataBasicLoadedEvent;
-use Shopware\Api\Version\Event\VersionCommitData\VersionCommitDataIdSearchResultLoadedEvent;
-use Shopware\Api\Version\Event\VersionCommitData\VersionCommitDataSearchResultLoadedEvent;
+use Shopware\Api\Version\Event\VersionCommit\VersionCommitAggregationResultLoadedEvent;
+use Shopware\Api\Version\Event\VersionCommit\VersionCommitBasicLoadedEvent;
+use Shopware\Api\Version\Event\VersionCommit\VersionCommitDetailLoadedEvent;
+use Shopware\Api\Version\Event\VersionCommit\VersionCommitIdSearchResultLoadedEvent;
+use Shopware\Api\Version\Event\VersionCommit\VersionCommitSearchResultLoadedEvent;
 use Shopware\Api\Version\Struct\VersionCommitSearchResult;
 use Shopware\Context\Struct\ShopContext;
+use Shopware\Version\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class VersionCommitRepository implements RepositoryInterface
@@ -28,11 +30,6 @@ class VersionCommitRepository implements RepositoryInterface
      * @var EntityReaderInterface
      */
     private $reader;
-
-    /**
-     * @var EntityWriterInterface
-     */
-    private $writer;
 
     /**
      * @var EntitySearcherInterface
@@ -49,18 +46,23 @@ class VersionCommitRepository implements RepositoryInterface
      */
     private $eventDispatcher;
 
+    /**
+     * @var VersionManager
+     */
+    private $versionManager;
+
     public function __construct(
-        EntityReaderInterface $reader,
-        EntityWriterInterface $writer,
-        EntitySearcherInterface $searcher,
-        EntityAggregatorInterface $aggregator,
-        EventDispatcherInterface $eventDispatcher
-    ) {
+       EntityReaderInterface $reader,
+       VersionManager $versionManager,
+       EntitySearcherInterface $searcher,
+       EntityAggregatorInterface $aggregator,
+       EventDispatcherInterface $eventDispatcher
+   ) {
         $this->reader = $reader;
-        $this->writer = $writer;
         $this->searcher = $searcher;
         $this->aggregator = $aggregator;
         $this->eventDispatcher = $eventDispatcher;
+        $this->versionManager = $versionManager;
     }
 
     public function search(Criteria $criteria, ShopContext $context): VersionCommitSearchResult
@@ -76,7 +78,7 @@ class VersionCommitRepository implements RepositoryInterface
 
         $result = VersionCommitSearchResult::createFromResults($ids, $entities, $aggregations);
 
-        $event = new VersionCommitDataSearchResultLoadedEvent($result);
+        $event = new VersionCommitSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $result;
@@ -86,7 +88,7 @@ class VersionCommitRepository implements RepositoryInterface
     {
         $result = $this->aggregator->aggregate(VersionCommitDefinition::class, $criteria, $context);
 
-        $event = new VersionCommitDataAggregationResultLoadedEvent($result);
+        $event = new VersionCommitAggregationResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $result;
@@ -96,7 +98,7 @@ class VersionCommitRepository implements RepositoryInterface
     {
         $result = $this->searcher->search(VersionCommitDefinition::class, $criteria, $context);
 
-        $event = new VersionCommitDataIdSearchResultLoadedEvent($result);
+        $event = new VersionCommitIdSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $result;
@@ -107,20 +109,26 @@ class VersionCommitRepository implements RepositoryInterface
         /** @var VersionCommitBasicCollection $entities */
         $entities = $this->reader->readBasic(VersionCommitDefinition::class, $ids, $context);
 
-        $event = new VersionCommitDataBasicLoadedEvent($entities, $context);
+        $event = new VersionCommitBasicLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $entities;
     }
 
-    public function readDetail(array $ids, ShopContext $context): VersionCommitBasicCollection
+    public function readDetail(array $ids, ShopContext $context): VersionCommitDetailCollection
     {
-        return $this->readBasic($ids, $context);
+        /** @var VersionCommitDetailCollection $entities */
+        $entities = $this->reader->readDetail(VersionCommitDefinition::class, $ids, $context);
+
+        $event = new VersionCommitDetailLoadedEvent($entities, $context);
+        $this->eventDispatcher->dispatch($event->getName(), $event);
+
+        return $entities;
     }
 
     public function update(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->update(VersionCommitDefinition::class, $data, WriteContext::createFromShopContext($context));
+        $affected = $this->versionManager->update(VersionCommitDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
@@ -129,7 +137,7 @@ class VersionCommitRepository implements RepositoryInterface
 
     public function upsert(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->upsert(VersionCommitDefinition::class, $data, WriteContext::createFromShopContext($context));
+        $affected = $this->versionManager->upsert(VersionCommitDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
@@ -138,7 +146,7 @@ class VersionCommitRepository implements RepositoryInterface
 
     public function create(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->insert(VersionCommitDefinition::class, $data, WriteContext::createFromShopContext($context));
+        $affected = $this->versionManager->insert(VersionCommitDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
@@ -147,10 +155,20 @@ class VersionCommitRepository implements RepositoryInterface
 
     public function delete(array $ids, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->delete(VersionCommitDefinition::class, $ids, WriteContext::createFromShopContext($context));
+        $affected = $this->versionManager->delete(VersionCommitDefinition::class, $ids, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithDeletedEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
+    }
+
+    public function createVersion(string $id, ShopContext $context, ?string $name = null, ?string $versionId = null): string
+    {
+        return $this->versionManager->createVersion(VersionCommitDefinition::class, $id, WriteContext::createFromShopContext($context), $name, $versionId);
+    }
+
+    public function merge(string $versionId, ShopContext $context): void
+    {
+        $this->versionManager->merge($versionId, WriteContext::createFromShopContext($context));
     }
 }

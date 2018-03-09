@@ -9,13 +9,14 @@ use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntityAggregatorInterface;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
 use Shopware\Api\Entity\Search\IdSearchResult;
-use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Entity\Write\WriteContext;
 use Shopware\Api\Product\Collection\ProductConfiguratorBasicCollection;
+use Shopware\Api\Product\Collection\ProductConfiguratorDetailCollection;
 use Shopware\Api\Product\Definition\ProductConfiguratorDefinition;
 use Shopware\Api\Product\Event\ProductConfigurator\ProductConfiguratorAggregationResultLoadedEvent;
 use Shopware\Api\Product\Event\ProductConfigurator\ProductConfiguratorBasicLoadedEvent;
+use Shopware\Api\Product\Event\ProductConfigurator\ProductConfiguratorDetailLoadedEvent;
 use Shopware\Api\Product\Event\ProductConfigurator\ProductConfiguratorIdSearchResultLoadedEvent;
 use Shopware\Api\Product\Event\ProductConfigurator\ProductConfiguratorSearchResultLoadedEvent;
 use Shopware\Api\Product\Struct\ProductConfiguratorSearchResult;
@@ -51,12 +52,12 @@ class ProductConfiguratorRepository implements RepositoryInterface
     private $versionManager;
 
     public function __construct(
-        EntityReaderInterface $reader,
-        VersionManager $versionManager,
-        EntitySearcherInterface $searcher,
-        EntityAggregatorInterface $aggregator,
-        EventDispatcherInterface $eventDispatcher
-    ) {
+       EntityReaderInterface $reader,
+       VersionManager $versionManager,
+       EntitySearcherInterface $searcher,
+       EntityAggregatorInterface $aggregator,
+       EventDispatcherInterface $eventDispatcher
+   ) {
         $this->reader = $reader;
         $this->searcher = $searcher;
         $this->aggregator = $aggregator;
@@ -114,9 +115,15 @@ class ProductConfiguratorRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $ids, ShopContext $context): ProductConfiguratorBasicCollection
+    public function readDetail(array $ids, ShopContext $context): ProductConfiguratorDetailCollection
     {
-        return $this->readBasic($ids, $context);
+        /** @var ProductConfiguratorDetailCollection $entities */
+        $entities = $this->reader->readDetail(ProductConfiguratorDefinition::class, $ids, $context);
+
+        $event = new ProductConfiguratorDetailLoadedEvent($entities, $context);
+        $this->eventDispatcher->dispatch($event->getName(), $event);
+
+        return $entities;
     }
 
     public function update(array $data, ShopContext $context): GenericWrittenEvent
@@ -153,5 +160,15 @@ class ProductConfiguratorRepository implements RepositoryInterface
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
+    }
+
+    public function createVersion(string $id, ShopContext $context, ?string $name = null, ?string $versionId = null): string
+    {
+        return $this->versionManager->createVersion(ProductConfiguratorDefinition::class, $id, WriteContext::createFromShopContext($context), $name, $versionId);
+    }
+
+    public function merge(string $versionId, ShopContext $context): void
+    {
+        $this->versionManager->merge($versionId, WriteContext::createFromShopContext($context));
     }
 }

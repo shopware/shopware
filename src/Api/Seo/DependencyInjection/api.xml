@@ -5,12 +5,12 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-         <service class="Shopware\Api\Seo\Definition\SeoUrlDefinition" id="Shopware\Api\Seo\Definition\SeoUrlDefinition" >
+         <service class="Shopware\Api\Seo\Definition\SeoUrlDefinition" id="shopware.seo.seo_url_definition" >
             <tag name="shopware.entity.definition" entity="seo_url" />
         </service>
         <service class="Shopware\Api\Seo\Repository\SeoUrlRepository" id="Shopware\Api\Seo\Repository\SeoUrlRepository" public="true">
           <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
-          <argument id="Shopware\Api\Entity\Write\EntityWriter" type="service"/>
+          <argument id="Shopware\Version\VersionManager" type="service"/>
           <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
           <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>

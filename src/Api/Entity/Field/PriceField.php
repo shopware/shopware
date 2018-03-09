@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Api\Entity\Field;
 
@@ -9,11 +9,6 @@ use Shopware\Context\Struct\ShopContext;
 
 class PriceField extends JsonObjectField implements SqlParseAware
 {
-    public function parse(string $root, ShopContext $context): string
-    {
-        return sprintf('(CAST(`%s`.`%s`->"$.gross" AS DECIMAL))', $root, $this->storageName);
-    }
-
     public function __invoke(EntityExistence $existence, KeyValuePair $data): \Generator
     {
         $key = $data->getKey();
@@ -30,5 +25,10 @@ class PriceField extends JsonObjectField implements SqlParseAware
         }
 
         yield $this->storageName => $value;
+    }
+
+    public function parse(string $root, ShopContext $context): string
+    {
+        return sprintf('(CAST(`%s`.`%s`->"$.gross" AS DECIMAL))', $root, $this->storageName);
     }
 }

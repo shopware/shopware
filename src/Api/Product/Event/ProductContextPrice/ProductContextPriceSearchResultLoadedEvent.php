@@ -1,10 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Api\Product\Event\ProductContextPrice;
 
+use Shopware\Api\Product\Struct\ProductContextPriceSearchResult;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Event\NestedEvent;
-use Shopware\Api\Product\Struct\ProductContextPriceSearchResult;
 
 class ProductContextPriceSearchResultLoadedEvent extends NestedEvent
 {

@@ -2,8 +2,8 @@
 
 namespace Shopware\Api\Context\Collection;
 
-use Shopware\Api\Entity\EntityCollection;
 use Shopware\Api\Context\Struct\ContextPriceStruct;
+use Shopware\Api\Entity\EntityCollection;
 use Shopware\Context\Struct\ShopContext;
 
 class ContextPriceCollection extends EntityCollection
@@ -25,28 +25,28 @@ class ContextPriceCollection extends EntityCollection
 
     public function getCurrencyIds(): array
     {
-        return $this->fmap(function(ContextPriceStruct $price) {
+        return $this->fmap(function (ContextPriceStruct $price) {
             return $price->getCurrencyId();
         });
     }
 
     public function filterByCurrencyId(string $id): self
     {
-        return $this->filter(function(ContextPriceStruct $price) use ($id) {
+        return $this->filter(function (ContextPriceStruct $price) use ($id) {
             return $price->getCurrencyId() === $id;
         });
     }
 
     public function getContextRuleIds(): array
     {
-        return $this->fmap(function(ContextPriceStruct $price) {
+        return $this->fmap(function (ContextPriceStruct $price) {
             return $price->getContextRuleId();
         });
     }
 
     public function filterByContextRuleId(string $id): self
     {
-        return $this->filter(function(ContextPriceStruct $contextPrice) use ($id) {
+        return $this->filter(function (ContextPriceStruct $contextPrice) use ($id) {
             return $contextPrice->getContextRuleId() === $id;
         });
     }

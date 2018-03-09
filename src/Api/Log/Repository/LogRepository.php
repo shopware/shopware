@@ -9,7 +9,6 @@ use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntityAggregatorInterface;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
 use Shopware\Api\Entity\Search\IdSearchResult;
-use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Entity\Write\WriteContext;
 use Shopware\Api\Log\Collection\LogBasicCollection;
@@ -20,6 +19,7 @@ use Shopware\Api\Log\Event\Log\LogIdSearchResultLoadedEvent;
 use Shopware\Api\Log\Event\Log\LogSearchResultLoadedEvent;
 use Shopware\Api\Log\Struct\LogSearchResult;
 use Shopware\Context\Struct\ShopContext;
+use Shopware\Version\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class LogRepository implements RepositoryInterface
@@ -28,11 +28,6 @@ class LogRepository implements RepositoryInterface
      * @var EntityReaderInterface
      */
     private $reader;
-
-    /**
-     * @var EntityWriterInterface
-     */
-    private $writer;
 
     /**
      * @var EntitySearcherInterface
@@ -49,18 +44,23 @@ class LogRepository implements RepositoryInterface
      */
     private $eventDispatcher;
 
+    /**
+     * @var VersionManager
+     */
+    private $versionManager;
+
     public function __construct(
-        EntityReaderInterface $reader,
-        EntityWriterInterface $writer,
-        EntitySearcherInterface $searcher,
-        EntityAggregatorInterface $aggregator,
-        EventDispatcherInterface $eventDispatcher
-    ) {
+       EntityReaderInterface $reader,
+       VersionManager $versionManager,
+       EntitySearcherInterface $searcher,
+       EntityAggregatorInterface $aggregator,
+       EventDispatcherInterface $eventDispatcher
+   ) {
         $this->reader = $reader;
-        $this->writer = $writer;
         $this->searcher = $searcher;
         $this->aggregator = $aggregator;
         $this->eventDispatcher = $eventDispatcher;
+        $this->versionManager = $versionManager;
     }
 
     public function search(Criteria $criteria, ShopContext $context): LogSearchResult
@@ -120,7 +120,7 @@ class LogRepository implements RepositoryInterface
 
     public function update(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->update(LogDefinition::class, $data, WriteContext::createFromShopContext($context));
+        $affected = $this->versionManager->update(LogDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
@@ -129,7 +129,7 @@ class LogRepository implements RepositoryInterface
 
     public function upsert(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->upsert(LogDefinition::class, $data, WriteContext::createFromShopContext($context));
+        $affected = $this->versionManager->upsert(LogDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
@@ -138,7 +138,7 @@ class LogRepository implements RepositoryInterface
 
     public function create(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->insert(LogDefinition::class, $data, WriteContext::createFromShopContext($context));
+        $affected = $this->versionManager->insert(LogDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
@@ -147,10 +147,20 @@ class LogRepository implements RepositoryInterface
 
     public function delete(array $ids, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->delete(LogDefinition::class, $ids, WriteContext::createFromShopContext($context));
+        $affected = $this->versionManager->delete(LogDefinition::class, $ids, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithDeletedEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
+    }
+
+    public function createVersion(string $id, ShopContext $context, ?string $name = null, ?string $versionId = null): string
+    {
+        return $this->versionManager->createVersion(LogDefinition::class, $id, WriteContext::createFromShopContext($context), $name, $versionId);
+    }
+
+    public function merge(string $versionId, ShopContext $context): void
+    {
+        $this->versionManager->merge($versionId, WriteContext::createFromShopContext($context));
     }
 }

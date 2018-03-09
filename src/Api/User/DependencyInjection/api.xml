@@ -5,12 +5,12 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-         <service class="Shopware\Api\User\Definition\UserDefinition" id="Shopware\Api\User\Definition\UserDefinition" >
+         <service class="Shopware\Api\User\Definition\UserDefinition" id="shopware.user.user_definition" >
             <tag name="shopware.entity.definition" entity="user" />
         </service>
         <service class="Shopware\Api\User\Repository\UserRepository" id="Shopware\Api\User\Repository\UserRepository" public="true">
           <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
-          <argument id="Shopware\Api\Entity\Write\EntityWriter" type="service"/>
+          <argument id="Shopware\Version\VersionManager" type="service"/>
           <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
           <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>

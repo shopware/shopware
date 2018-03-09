@@ -18,7 +18,7 @@ class ApiControllerTest extends ApiTestCase
             'name' => $id,
             'tax' => ['name' => 'test', 'rate' => 10],
             'manufacturer' => ['name' => 'test'],
-            'price' => ['gross' => 50, 'net' => 25]
+            'price' => ['gross' => 50, 'net' => 25],
         ];
 
         $client = $this->getClient();

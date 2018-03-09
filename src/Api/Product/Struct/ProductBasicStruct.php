@@ -709,7 +709,7 @@ class ProductBasicStruct extends Entity
             return new PriceDefinition($this->getPrice()->getGross(), $taxRules, 1, true);
         }
 
-        $prices = $prices->filter(function(ProductContextPriceBasicStruct $price) {
+        $prices = $prices->filter(function (ProductContextPriceBasicStruct $price) {
             return $price->getQuantityEnd() === null;
         });
 

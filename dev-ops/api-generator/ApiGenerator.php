@@ -161,10 +161,10 @@ class ApiGenerator
                     ['#bundleLc#', '#table#', '#bundleUc#', '#classUc#'],
                     [lcfirst($definition->bundle), $definition->tableName, ucfirst($definition->bundle), ucfirst($definition->domainName)],
                     '        <service class="Shopware\Api\#bundleUc#\Repository\#classUc#Repository" id="Shopware\Api\#bundleUc#\Repository\#classUc#Repository" public="true">
-          <argument id="shopware.api.entity_reader" type="service"/>
-          <argument id="shopware.api.entity_writer" type="service"/>
-          <argument id="shopware.api.entity_searcher" type="service"/>
-          <argument id="shopware.api.entity_aggregator" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Version\VersionManager" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>'
                 );

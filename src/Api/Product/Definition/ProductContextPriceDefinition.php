@@ -1,30 +1,29 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Api\Product\Definition;
 
+use Shopware\Api\Context\Definition\ContextRuleDefinition;
+use Shopware\Api\Currency\Definition\CurrencyDefinition;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\EntityExtensionInterface;
+use Shopware\Api\Entity\Field\DateField;
+use Shopware\Api\Entity\Field\FkField;
+use Shopware\Api\Entity\Field\IdField;
+use Shopware\Api\Entity\Field\IntField;
+use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\PriceField;
 use Shopware\Api\Entity\Field\ReferenceVersionField;
 use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
-use Shopware\Api\Product\Repository\ProductContextPriceRepository;
-use Shopware\Api\Product\Collection\ProductContextPriceBasicCollection;
-use Shopware\Api\Product\Struct\ProductContextPriceBasicStruct;
-use Shopware\Api\Product\Event\ProductContextPrice\ProductContextPriceWrittenEvent;
-use Shopware\Api\Product\Event\ProductContextPrice\ProductContextPriceDeletedEvent;
-use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
-use Shopware\Api\Entity\Field\FkField;
-use Shopware\Api\Currency\Definition\CurrencyDefinition;
-use Shopware\Api\Context\Definition\ContextRuleDefinition;
-use Shopware\Api\Entity\Field\IntField;
-use Shopware\Api\Entity\Field\DateField;
-use Shopware\Api\Entity\Field\ManyToOneAssociationField;
+use Shopware\Api\Product\Collection\ProductContextPriceBasicCollection;
 use Shopware\Api\Product\Collection\ProductContextPriceDetailCollection;
-use Shopware\Api\Product\Struct\ProductContextPriceDetailStruct;            
-            
+use Shopware\Api\Product\Event\ProductContextPrice\ProductContextPriceDeletedEvent;
+use Shopware\Api\Product\Event\ProductContextPrice\ProductContextPriceWrittenEvent;
+use Shopware\Api\Product\Repository\ProductContextPriceRepository;
+use Shopware\Api\Product\Struct\ProductContextPriceBasicStruct;
+use Shopware\Api\Product\Struct\ProductContextPriceDetailStruct;
 
 class ProductContextPriceDefinition extends EntityDefinition
 {
@@ -69,7 +68,7 @@ class ProductContextPriceDefinition extends EntityDefinition
             new DateField('updated_at', 'updatedAt'),
             new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, false, 'context_price_join_id'),
             new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, false),
-            new ManyToOneAssociationField('contextRule', 'context_rule_id', ContextRuleDefinition::class, false)
+            new ManyToOneAssociationField('contextRule', 'context_rule_id', ContextRuleDefinition::class, false),
         ]);
 
         foreach (self::$extensions as $extension) {
@@ -109,15 +108,13 @@ class ProductContextPriceDefinition extends EntityDefinition
         return null;
     }
 
-
     public static function getDetailStructClass(): string
     {
         return ProductContextPriceDetailStruct::class;
     }
-    
+
     public static function getDetailCollectionClass(): string
     {
         return ProductContextPriceDetailCollection::class;
     }
-
 }

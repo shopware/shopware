@@ -3,9 +3,11 @@
 namespace Shopware\Api\Context\Repository;
 
 use Shopware\Api\Context\Collection\ContextRuleBasicCollection;
+use Shopware\Api\Context\Collection\ContextRuleDetailCollection;
 use Shopware\Api\Context\Definition\ContextRuleDefinition;
 use Shopware\Api\Context\Event\ContextRule\ContextRuleAggregationResultLoadedEvent;
 use Shopware\Api\Context\Event\ContextRule\ContextRuleBasicLoadedEvent;
+use Shopware\Api\Context\Event\ContextRule\ContextRuleDetailLoadedEvent;
 use Shopware\Api\Context\Event\ContextRule\ContextRuleIdSearchResultLoadedEvent;
 use Shopware\Api\Context\Event\ContextRule\ContextRuleSearchResultLoadedEvent;
 use Shopware\Api\Context\Struct\ContextRuleSearchResult;
@@ -16,10 +18,10 @@ use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntityAggregatorInterface;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
 use Shopware\Api\Entity\Search\IdSearchResult;
-use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Entity\Write\WriteContext;
 use Shopware\Context\Struct\ShopContext;
+use Shopware\Version\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ContextRuleRepository implements RepositoryInterface
@@ -28,11 +30,6 @@ class ContextRuleRepository implements RepositoryInterface
      * @var EntityReaderInterface
      */
     private $reader;
-
-    /**
-     * @var EntityWriterInterface
-     */
-    private $writer;
 
     /**
      * @var EntitySearcherInterface
@@ -49,18 +46,23 @@ class ContextRuleRepository implements RepositoryInterface
      */
     private $eventDispatcher;
 
+    /**
+     * @var VersionManager
+     */
+    private $versionManager;
+
     public function __construct(
-        EntityReaderInterface $reader,
-        EntityWriterInterface $writer,
-        EntitySearcherInterface $searcher,
-        EntityAggregatorInterface $aggregator,
-        EventDispatcherInterface $eventDispatcher
-    ) {
+       EntityReaderInterface $reader,
+       VersionManager $versionManager,
+       EntitySearcherInterface $searcher,
+       EntityAggregatorInterface $aggregator,
+       EventDispatcherInterface $eventDispatcher
+   ) {
         $this->reader = $reader;
-        $this->writer = $writer;
         $this->searcher = $searcher;
         $this->aggregator = $aggregator;
         $this->eventDispatcher = $eventDispatcher;
+        $this->versionManager = $versionManager;
     }
 
     public function search(Criteria $criteria, ShopContext $context): ContextRuleSearchResult
@@ -113,14 +115,20 @@ class ContextRuleRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $ids, ShopContext $context): ContextRuleBasicCollection
+    public function readDetail(array $ids, ShopContext $context): ContextRuleDetailCollection
     {
-        return $this->readBasic($ids, $context);
+        /** @var ContextRuleDetailCollection $entities */
+        $entities = $this->reader->readDetail(ContextRuleDefinition::class, $ids, $context);
+
+        $event = new ContextRuleDetailLoadedEvent($entities, $context);
+        $this->eventDispatcher->dispatch($event->getName(), $event);
+
+        return $entities;
     }
 
     public function update(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->update(ContextRuleDefinition::class, $data, WriteContext::createFromShopContext($context));
+        $affected = $this->versionManager->update(ContextRuleDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
@@ -129,7 +137,7 @@ class ContextRuleRepository implements RepositoryInterface
 
     public function upsert(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->upsert(ContextRuleDefinition::class, $data, WriteContext::createFromShopContext($context));
+        $affected = $this->versionManager->upsert(ContextRuleDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
@@ -138,7 +146,7 @@ class ContextRuleRepository implements RepositoryInterface
 
     public function create(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->insert(ContextRuleDefinition::class, $data, WriteContext::createFromShopContext($context));
+        $affected = $this->versionManager->insert(ContextRuleDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
@@ -147,10 +155,20 @@ class ContextRuleRepository implements RepositoryInterface
 
     public function delete(array $ids, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->delete(ContextRuleDefinition::class, $ids, WriteContext::createFromShopContext($context));
+        $affected = $this->versionManager->delete(ContextRuleDefinition::class, $ids, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithDeletedEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
+    }
+
+    public function createVersion(string $id, ShopContext $context, ?string $name = null, ?string $versionId = null): string
+    {
+        return $this->versionManager->createVersion(ContextRuleDefinition::class, $id, WriteContext::createFromShopContext($context), $name, $versionId);
+    }
+
+    public function merge(string $versionId, ShopContext $context): void
+    {
+        $this->versionManager->merge($versionId, WriteContext::createFromShopContext($context));
     }
 }

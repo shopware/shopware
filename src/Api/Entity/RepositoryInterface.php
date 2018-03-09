@@ -57,4 +57,8 @@ interface RepositoryInterface
     public function create(array $data, ShopContext $context): GenericWrittenEvent;
 
     public function delete(array $data, ShopContext $context): GenericWrittenEvent;
+
+    public function createVersion(string $id, ShopContext $context, ?string $name = null, ?string $versionId = null): string;
+
+    public function merge(string $versionId, ShopContext $context): void;
 }

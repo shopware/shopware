@@ -32,11 +32,6 @@ class TaxRepository implements RepositoryInterface
     private $reader;
 
     /**
-     * @var VersionManager
-     */
-    private $versionManager;
-
-    /**
      * @var EntitySearcherInterface
      */
     private $searcher;
@@ -51,13 +46,18 @@ class TaxRepository implements RepositoryInterface
      */
     private $eventDispatcher;
 
+    /**
+     * @var VersionManager
+     */
+    private $versionManager;
+
     public function __construct(
-        EntityReaderInterface $reader,
-        VersionManager $versionManager,
-        EntitySearcherInterface $searcher,
-        EntityAggregatorInterface $aggregator,
-        EventDispatcherInterface $eventDispatcher
-    ) {
+       EntityReaderInterface $reader,
+       VersionManager $versionManager,
+       EntitySearcherInterface $searcher,
+       EntityAggregatorInterface $aggregator,
+       EventDispatcherInterface $eventDispatcher
+   ) {
         $this->reader = $reader;
         $this->searcher = $searcher;
         $this->aggregator = $aggregator;
@@ -162,12 +162,12 @@ class TaxRepository implements RepositoryInterface
         return $event;
     }
 
-    public function createVersion(string $id, ShopContext $context, ?string $name = null): string
+    public function createVersion(string $id, ShopContext $context, ?string $name = null, ?string $versionId = null): string
     {
-        return $this->versionManager->createVersion(TaxDefinition::class, $id, WriteContext::createFromShopContext($context), $name);
+        return $this->versionManager->createVersion(TaxDefinition::class, $id, WriteContext::createFromShopContext($context), $name, $versionId);
     }
 
-    public function merge(string $versionId, ShopContext $context)
+    public function merge(string $versionId, ShopContext $context): void
     {
         $this->versionManager->merge($versionId, WriteContext::createFromShopContext($context));
     }

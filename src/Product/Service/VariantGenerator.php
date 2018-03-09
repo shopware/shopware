@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Product\Service;
 
@@ -53,12 +53,12 @@ class VariantGenerator
 
         $variants = [];
         foreach ($combinations as $combination) {
-            $mapping = array_map(function($optionId) {
+            $mapping = array_map(function ($optionId) {
                 return ['id' => $optionId];
             }, $combination);
 
             $options = $configurator->filter(
-                function(ProductConfiguratorBasicStruct $config) use ($combination) {
+                function (ProductConfiguratorBasicStruct $config) use ($combination) {
                     return in_array($config->getOptionId(), $combination, true);
                 }
             );
@@ -66,7 +66,7 @@ class VariantGenerator
             $variant = [
                 'parentId' => $productId,
                 'variations' => $mapping,
-                'price' => $this->buildPrice($product, $options)
+                'price' => $this->buildPrice($product, $options),
             ];
 
             $variants[] = array_filter($variant);
@@ -94,7 +94,7 @@ class VariantGenerator
         return $this->combine($groupedOptions);
     }
 
-    private function combine($data, $group = array(), $val = null, $i = 0): array
+    private function combine($data, $group = [], $val = null, $i = 0): array
     {
         $all = [];
         if (isset($val)) {
@@ -110,12 +110,13 @@ class VariantGenerator
                 }
             }
         }
+
         return $all;
     }
 
     private function buildPrice(ProductBasicStruct $product, ProductConfiguratorBasicCollection $options): ?array
     {
-        $surcharges = $options->fmap(function(ProductConfiguratorBasicStruct $configurator) {
+        $surcharges = $options->fmap(function (ProductConfiguratorBasicStruct $configurator) {
             return $configurator->getPrice();
         });
 

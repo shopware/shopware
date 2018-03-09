@@ -73,18 +73,18 @@ class VariantGeneratorTest extends KernelTestCase
                     'option' => [
                         'id' => $redId,
                         'name' => 'red',
-                        'group' => ['id' => $colorId, 'name' => 'color']
-                    ]
+                        'group' => ['id' => $colorId, 'name' => 'color'],
+                    ],
                 ],
                 [
                     'price' => ['gross' => 100, 'net' => 90],
                     'option' => [
                         'id' => $blueId,
                         'name' => 'blue',
-                        'groupId' => $colorId
-                    ]
-                ]
-            ]
+                        'groupId' => $colorId,
+                    ],
+                ],
+            ],
         ];
 
         $this->repository->create([$data], ShopContext::createDefaultContext());
@@ -107,12 +107,12 @@ class VariantGeneratorTest extends KernelTestCase
         }
 
         /** @var ProductDetailStruct $red */
-        $red = $variants->filter(function(ProductDetailStruct $detail) use ($redId) {
+        $red = $variants->filter(function (ProductDetailStruct $detail) use ($redId) {
             return in_array($redId, $detail->getVariations()->getIds(), true);
         })->first();
 
         /** @var ProductDetailStruct $blue */
-        $blue = $variants->filter(function(ProductDetailStruct $detail) use ($blueId) {
+        $blue = $variants->filter(function (ProductDetailStruct $detail) use ($blueId) {
             return in_array($blueId, $detail->getVariations()->getIds(), true);
         })->first();
 
@@ -139,28 +139,28 @@ class VariantGeneratorTest extends KernelTestCase
                 [
                     'option' => [
                         'name' => 'red',
-                        'group' => ['id' => $colorId, 'name' => 'color']
-                    ]
+                        'group' => ['id' => $colorId, 'name' => 'color'],
+                    ],
                 ],
                 [
                     'option' => [
                         'name' => 'blue',
-                        'groupId' => $colorId
-                    ]
+                        'groupId' => $colorId,
+                    ],
                 ],
                 [
                     'option' => [
                         'name' => 'big',
-                        'group' => ['id' => $sizeId, 'name' => 'size']
-                    ]
+                        'group' => ['id' => $sizeId, 'name' => 'size'],
+                    ],
                 ],
                 [
                     'option' => [
                         'name' => 'small',
-                        'groupId' => $sizeId
-                    ]
-                ]
-            ]
+                        'groupId' => $sizeId,
+                    ],
+                ],
+            ],
         ];
 
         $this->repository->create([$data], ShopContext::createDefaultContext());
@@ -184,7 +184,6 @@ class VariantGeneratorTest extends KernelTestCase
         }
     }
 
-
     public function testPagination()
     {
         $id = Uuid::uuid4()->toString();
@@ -201,28 +200,28 @@ class VariantGeneratorTest extends KernelTestCase
                 [
                     'option' => [
                         'name' => 'red',
-                        'group' => ['id' => $colorId, 'name' => 'color']
-                    ]
+                        'group' => ['id' => $colorId, 'name' => 'color'],
+                    ],
                 ],
                 [
                     'option' => [
                         'name' => 'blue',
-                        'groupId' => $colorId
-                    ]
+                        'groupId' => $colorId,
+                    ],
                 ],
                 [
                     'option' => [
                         'name' => 'big',
-                        'group' => ['id' => $sizeId, 'name' => 'size']
-                    ]
+                        'group' => ['id' => $sizeId, 'name' => 'size'],
+                    ],
                 ],
                 [
                     'option' => [
                         'name' => 'small',
-                        'groupId' => $sizeId
-                    ]
-                ]
-            ]
+                        'groupId' => $sizeId,
+                    ],
+                ],
+            ],
         ];
 
         $this->repository->create([$data], ShopContext::createDefaultContext());
@@ -265,8 +264,8 @@ class VariantGeneratorTest extends KernelTestCase
             'configurators' => $this->generateConfiguratorData([
                 'size' => ['xl', 'xxl', 'l', 's', 'm', 'ms'],
                 'color' => ['red', 'green', 'blue', 'black', 'white'],
-                'material' => ['wood', 'cotton', 'silk']
-            ])
+                'material' => ['wood', 'cotton', 'silk'],
+            ]),
         ];
 
         $this->repository->create([$data], ShopContext::createDefaultContext());
@@ -283,6 +282,7 @@ class VariantGeneratorTest extends KernelTestCase
      *      'size' => [xl, l, s],
      *      'color' => [red, green, blue]
      *  ]
+     *
      * @param $options
      *
      * @return array
@@ -297,8 +297,8 @@ class VariantGeneratorTest extends KernelTestCase
                 $data[] = [
                     'option' => [
                         'name' => $optionName,
-                        'group' => ['id' => $groupId, 'name' => $groupName]
-                    ]
+                        'group' => ['id' => $groupId, 'name' => $groupName],
+                    ],
                 ];
             }
         }

@@ -5,8 +5,6 @@ namespace Shopware\Api\Test\Product\Repository;
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
 use Shopware\Api\Category\Repository\CategoryRepository;
-use Shopware\Api\Configuration\Struct\ConfigurationGroupOptionBasicStruct;
-use Shopware\Api\Context\Collection\ContextPriceCollection;
 use Shopware\Api\Context\Repository\ContextRuleRepository;
 use Shopware\Api\Context\Struct\ContextPriceStruct;
 use Shopware\Api\Entity\RepositoryInterface;
@@ -146,7 +144,7 @@ class ProductRepositoryTest extends KernelTestCase
         $this->repository->create($data, $this->context);
         $ids = array_column($data, 'id');
         $products = $this->repository->readBasic($ids, $this->context);
-        
+
         $product = $products->get($ids[0]);
 
         /* @var ProductBasicStruct $product */
@@ -303,7 +301,7 @@ class ProductRepositoryTest extends KernelTestCase
 
         $this->container->get(ContextRuleRepository::class)->create([
             ['id' => $ruleA, 'name' => 'test', 'payload' => new AndRule()],
-            ['id' => $ruleB, 'name' => 'test', 'payload' => new AndRule()]
+            ['id' => $ruleB, 'name' => 'test', 'payload' => new AndRule()],
         ], ShopContext::createDefaultContext());
 
         $id = Uuid::uuid4();
@@ -319,15 +317,15 @@ class ProductRepositoryTest extends KernelTestCase
                     'currencyId' => Defaults::CURRENCY,
                     'quantityStart' => 1,
                     'contextRuleId' => $ruleA,
-                    'price' => ['gross' => 15, 'net' => 10]
+                    'price' => ['gross' => 15, 'net' => 10],
                 ],
                 [
                     'id' => $ruleB,
                     'currencyId' => Defaults::CURRENCY,
                     'quantityStart' => 1,
                     'contextRuleId' => $ruleB,
-                    'price' => ['gross' => 10, 'net' => 8]
-                ]
+                    'price' => ['gross' => 10, 'net' => 8],
+                ],
             ],
         ];
 
@@ -364,7 +362,7 @@ class ProductRepositoryTest extends KernelTestCase
         $ruleA = Uuid::uuid4()->toString();
 
         $this->container->get(ContextRuleRepository::class)->create([
-            ['id' => $ruleA, 'name' => 'test', 'payload' => new AndRule()]
+            ['id' => $ruleA, 'name' => 'test', 'payload' => new AndRule()],
         ], ShopContext::createDefaultContext());
 
         $data = [
@@ -379,8 +377,8 @@ class ProductRepositoryTest extends KernelTestCase
                         'currencyId' => Defaults::CURRENCY,
                         'quantityStart' => 1,
                         'contextRuleId' => $ruleA,
-                        'price' => ['gross' => 15, 'net' => 14]
-                    ]
+                        'price' => ['gross' => 15, 'net' => 14],
+                    ],
                 ],
             ],
             [
@@ -394,8 +392,8 @@ class ProductRepositoryTest extends KernelTestCase
                         'currencyId' => Defaults::CURRENCY,
                         'quantityStart' => 1,
                         'contextRuleId' => $ruleA,
-                        'price' => ['gross' => 5, 'net' => 4]
-                    ]
+                        'price' => ['gross' => 5, 'net' => 4],
+                    ],
                 ],
             ],
             [
@@ -409,9 +407,9 @@ class ProductRepositoryTest extends KernelTestCase
                         'currencyId' => Defaults::CURRENCY,
                         'quantityStart' => 1,
                         'contextRuleId' => $ruleA,
-                        'price' => ['gross' => 10, 'net' => 9]
-                    ]
-                ]
+                        'price' => ['gross' => 10, 'net' => 9],
+                    ],
+                ],
             ],
         ];
 
@@ -869,7 +867,7 @@ class ProductRepositoryTest extends KernelTestCase
                 'name' => $parentName,
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'rate' => 15],
-                'price' => $parentPrice
+                'price' => $parentPrice,
             ],
 
             //price should be inherited
@@ -914,7 +912,7 @@ class ProductRepositoryTest extends KernelTestCase
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'rate' => 15],
                 'name' => $parentName,
-                'price' => $parentPrice
+                'price' => $parentPrice,
             ],
 
             //price should be inherited
@@ -1139,14 +1137,14 @@ class ProductRepositoryTest extends KernelTestCase
                 [
                     'id' => $redId,
                     'name' => 'red',
-                    'group' => ['id' => $colorId, 'name' => $colorId]
+                    'group' => ['id' => $colorId, 'name' => $colorId],
                 ],
                 [
                     'id' => $blueId,
                     'name' => 'blue',
-                    'groupId' => $colorId
-                ]
-            ]
+                    'groupId' => $colorId,
+                ],
+            ],
         ];
 
         $this->repository->create([$data], ShopContext::createDefaultContext());
@@ -1189,14 +1187,14 @@ class ProductRepositoryTest extends KernelTestCase
                 [
                     'id' => $redId,
                     'name' => 'red',
-                    'group' => ['id' => $colorId, 'name' => $colorId]
+                    'group' => ['id' => $colorId, 'name' => $colorId],
                 ],
                 [
                     'id' => $blueId,
                     'name' => 'blue',
-                    'groupId' => $colorId
-                ]
-            ]
+                    'groupId' => $colorId,
+                ],
+            ],
         ];
 
         $this->repository->create([$data], ShopContext::createDefaultContext());
@@ -1242,8 +1240,8 @@ class ProductRepositoryTest extends KernelTestCase
                     'option' => [
                         'id' => $redId,
                         'name' => 'red',
-                        'group' => ['id' => $colorId, 'name' => $colorId]
-                    ]
+                        'group' => ['id' => $colorId, 'name' => $colorId],
+                    ],
                 ],
                 [
                     'id' => $blueId,
@@ -1251,10 +1249,10 @@ class ProductRepositoryTest extends KernelTestCase
                     'option' => [
                         'id' => $blueId,
                         'name' => 'blue',
-                        'groupId' => $colorId
-                    ]
-                ]
-            ]
+                        'groupId' => $colorId,
+                    ],
+                ],
+            ],
         ];
 
         $this->repository->create([$data], ShopContext::createDefaultContext());
@@ -1283,7 +1281,6 @@ class ProductRepositoryTest extends KernelTestCase
         $this->assertEquals($colorId, $blue->getOption()->getGroupId());
     }
 
-
     public function testCreateAndAssignProductService()
     {
         $id = Uuid::uuid4()->toString();
@@ -1305,8 +1302,8 @@ class ProductRepositoryTest extends KernelTestCase
                     'option' => [
                         'id' => $redId,
                         'name' => 'red',
-                        'group' => ['id' => $colorId, 'name' => $colorId]
-                    ]
+                        'group' => ['id' => $colorId, 'name' => $colorId],
+                    ],
                 ],
                 [
                     'id' => $blueId,
@@ -1315,10 +1312,10 @@ class ProductRepositoryTest extends KernelTestCase
                     'option' => [
                         'id' => $blueId,
                         'name' => 'blue',
-                        'groupId' => $colorId
-                    ]
-                ]
-            ]
+                        'groupId' => $colorId,
+                    ],
+                ],
+            ],
         ];
 
         $this->repository->create([$data], ShopContext::createDefaultContext());
@@ -1350,7 +1347,6 @@ class ProductRepositoryTest extends KernelTestCase
         $this->assertEquals($colorId, $blue->getOption()->getGroupId());
     }
 
-
     public function testListingPriceWithoutVariants()
     {
         $ruleA = Uuid::uuid4()->toString();
@@ -1358,7 +1354,7 @@ class ProductRepositoryTest extends KernelTestCase
 
         $this->container->get(ContextRuleRepository::class)->create([
             ['id' => $ruleA, 'name' => 'test', 'payload' => new AndRule()],
-            ['id' => $ruleB, 'name' => 'test', 'payload' => new AndRule()]
+            ['id' => $ruleB, 'name' => 'test', 'payload' => new AndRule()],
         ], ShopContext::createDefaultContext());
 
         $id = Uuid::uuid4()->toString();
@@ -1376,22 +1372,22 @@ class ProductRepositoryTest extends KernelTestCase
                     'quantityStart' => 1,
                     'quantityEnd' => 20,
                     'contextRuleId' => $ruleA,
-                    'price' => ['gross' => 100, 'net' => 100]
+                    'price' => ['gross' => 100, 'net' => 100],
                 ],
                 [
                     'id' => $ruleA,
                     'currencyId' => Defaults::CURRENCY,
                     'quantityStart' => 21,
                     'contextRuleId' => $ruleA,
-                    'price' => ['gross' => 10, 'net' => 50]
+                    'price' => ['gross' => 10, 'net' => 50],
                 ],
                 [
                     'id' => $ruleB,
                     'currencyId' => Defaults::CURRENCY,
                     'quantityStart' => 1,
                     'contextRuleId' => $ruleB,
-                    'price' => ['gross' => 50, 'net' => 50]
-                ]
+                    'price' => ['gross' => 50, 'net' => 50],
+                ],
             ],
         ];
 
@@ -1408,14 +1404,14 @@ class ProductRepositoryTest extends KernelTestCase
         $this->assertCount(1, $price);
         $price = $price->first();
 
-        /** @var ContextPriceStruct $price */
+        /* @var ContextPriceStruct $price */
         $this->assertEquals(10, $price->getPrice()->getGross());
 
         $price = $product->getListingPrices()->filterByContextRuleId($ruleB);
         $this->assertCount(1, $price);
         $price = $price->first();
 
-        /** @var ContextPriceStruct $price */
+        /* @var ContextPriceStruct $price */
         $this->assertEquals(50, $price->getPrice()->getGross());
     }
 }

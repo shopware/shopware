@@ -1,28 +1,28 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Api\Product\Repository;
 
+use Shopware\Api\Entity\Read\EntityReaderInterface;
+use Shopware\Api\Entity\RepositoryInterface;
 use Shopware\Api\Entity\Search\AggregationResult;
-use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntityAggregatorInterface;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
-use Shopware\Api\Entity\Read\EntityReaderInterface;
-use Shopware\Api\Entity\RepositoryInterface;
-use Shopware\Api\Entity\Write\WriteContext;
+use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
-use Shopware\Context\Struct\ShopContext;
-use Shopware\Api\Product\Event\ProductContextPrice\ProductContextPriceSearchResultLoadedEvent;
-use Shopware\Api\Product\Event\ProductContextPrice\ProductContextPriceBasicLoadedEvent;
-use Shopware\Api\Product\Event\ProductContextPrice\ProductContextPriceAggregationResultLoadedEvent;
-use Shopware\Api\Product\Event\ProductContextPrice\ProductContextPriceIdSearchResultLoadedEvent;
-use Shopware\Api\Product\Struct\ProductContextPriceSearchResult;
-use Shopware\Api\Product\Definition\ProductContextPriceDefinition;
+use Shopware\Api\Entity\Write\WriteContext;
 use Shopware\Api\Product\Collection\ProductContextPriceBasicCollection;
+use Shopware\Api\Product\Collection\ProductContextPriceDetailCollection;
+use Shopware\Api\Product\Definition\ProductContextPriceDefinition;
+use Shopware\Api\Product\Event\ProductContextPrice\ProductContextPriceAggregationResultLoadedEvent;
+use Shopware\Api\Product\Event\ProductContextPrice\ProductContextPriceBasicLoadedEvent;
+use Shopware\Api\Product\Event\ProductContextPrice\ProductContextPriceDetailLoadedEvent;
+use Shopware\Api\Product\Event\ProductContextPrice\ProductContextPriceIdSearchResultLoadedEvent;
+use Shopware\Api\Product\Event\ProductContextPrice\ProductContextPriceSearchResultLoadedEvent;
+use Shopware\Api\Product\Struct\ProductContextPriceSearchResult;
+use Shopware\Context\Struct\ShopContext;
 use Shopware\Version\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Shopware\Api\Product\Collection\ProductContextPriceDetailCollection;
-use Shopware\Api\Product\Event\ProductContextPrice\ProductContextPriceDetailLoadedEvent;
 
 class ProductContextPriceRepository implements RepositoryInterface
 {
@@ -52,12 +52,12 @@ class ProductContextPriceRepository implements RepositoryInterface
     private $versionManager;
 
     public function __construct(
-        EntityReaderInterface $reader,
-        VersionManager $versionManager,
-        EntitySearcherInterface $searcher,
-        EntityAggregatorInterface $aggregator,
-        EventDispatcherInterface $eventDispatcher
-    ) {
+       EntityReaderInterface $reader,
+       VersionManager $versionManager,
+       EntitySearcherInterface $searcher,
+       EntityAggregatorInterface $aggregator,
+       EventDispatcherInterface $eventDispatcher
+   ) {
         $this->reader = $reader;
         $this->searcher = $searcher;
         $this->aggregator = $aggregator;
@@ -117,15 +117,13 @@ class ProductContextPriceRepository implements RepositoryInterface
 
     public function readDetail(array $ids, ShopContext $context): ProductContextPriceDetailCollection
     {
-
         /** @var ProductContextPriceDetailCollection $entities */
         $entities = $this->reader->readDetail(ProductContextPriceDefinition::class, $ids, $context);
 
         $event = new ProductContextPriceDetailLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
-        return $entities;                
-                
+        return $entities;
     }
 
     public function update(array $data, ShopContext $context): GenericWrittenEvent
@@ -169,7 +167,7 @@ class ProductContextPriceRepository implements RepositoryInterface
         return $this->versionManager->createVersion(ProductContextPriceDefinition::class, $id, WriteContext::createFromShopContext($context), $name, $versionId);
     }
 
-    public function merge(string $versionId, ShopContext $context)
+    public function merge(string $versionId, ShopContext $context): void
     {
         $this->versionManager->merge($versionId, WriteContext::createFromShopContext($context));
     }

@@ -328,7 +328,7 @@ class DemodataCommand extends ContainerAwareCommand
                 'contextRuleId' => $ruleId,
                 'quantityStart' => 1,
                 'quantityEnd' => 10,
-                'price' => ['gross' => $gross, 'net' => $gross / 1.19]
+                'price' => ['gross' => $gross, 'net' => $gross / 1.19],
             ];
 
             $gross = random_int(1, 499);
@@ -337,9 +337,8 @@ class DemodataCommand extends ContainerAwareCommand
                 'currencyId' => Defaults::CURRENCY,
                 'contextRuleId' => $ruleId,
                 'quantityStart' => 1,
-                'price' => ['gross' => $gross, 'net' => $gross / 1.19]
+                'price' => ['gross' => $gross, 'net' => $gross / 1.19],
             ];
-
         }
 
         return $prices;

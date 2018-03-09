@@ -2,7 +2,6 @@
 
 namespace Shopware\Api\Product\Collection;
 
-use Shopware\Api\Configuration\Collection\ConfigurationGroupBasicCollection;
 use Shopware\Api\Configuration\Collection\ConfigurationGroupDetailCollection;
 use Shopware\Api\Configuration\Collection\ConfigurationGroupOptionBasicCollection;
 use Shopware\Api\Configuration\Struct\ConfigurationGroupDetailStruct;
@@ -67,7 +66,6 @@ class ProductConfiguratorBasicCollection extends EntityCollection
     {
         $groups = new ConfigurationGroupDetailCollection();
         foreach ($this->elements as $element) {
-
             if ($groups->has($element->getOption()->getGroupId())) {
                 $group = $groups->get($element->getOption()->getGroupId());
             } else {

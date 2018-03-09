@@ -657,7 +657,6 @@ class VersioningTest extends KernelTestCase
 
         $this->productRepository->createVersion($product1->toString(), $liveContext, 'Campaign', $versionId);
 
-
         $versionContext = $liveContext->createWithVersionId($versionId);
         $update = ['id' => $product1->toString(), 'price' => ['gross' => 100, 'net' => 9]];
         $this->productRepository->update([$update], $versionContext);

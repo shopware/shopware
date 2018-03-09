@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\DbalIndexing\Product;
 
@@ -30,6 +30,7 @@ class InheritanceJoinIdUpdater
 
         if (empty($ids)) {
             $this->updateAllJoinIds($version);
+
             return;
         }
 
@@ -84,6 +85,7 @@ class InheritanceJoinIdUpdater
 
     /**
      * @param $version
+     *
      * @throws \Doctrine\DBAL\DBALException
      */
     private function updateAllJoinIds($version): void
@@ -154,6 +156,7 @@ class InheritanceJoinIdUpdater
     /**
      * @param array $ids
      * @param $version
+     *
      * @throws \Doctrine\DBAL\DBALException
      */
     private function updatePartialJoinIds(array $ids, $version): void

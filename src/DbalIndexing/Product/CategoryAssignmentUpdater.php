@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\DbalIndexing\Product;
 
@@ -80,5 +80,4 @@ class CategoryAssignmentUpdater
 
         return $query->execute()->fetchAll(\PDO::FETCH_GROUP | \PDO::FETCH_UNIQUE);
     }
-
 }

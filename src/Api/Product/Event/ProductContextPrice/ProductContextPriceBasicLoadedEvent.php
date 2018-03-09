@@ -1,12 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Api\Product\Event\ProductContextPrice;
 
+use Shopware\Api\Product\Collection\ProductContextPriceBasicCollection;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\Api\Product\Collection\ProductContextPriceBasicCollection;
-
 
 class ProductContextPriceBasicLoadedEvent extends NestedEvent
 {
@@ -42,5 +40,4 @@ class ProductContextPriceBasicLoadedEvent extends NestedEvent
     {
         return $this->productContextPrices;
     }
-
 }

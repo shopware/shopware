@@ -3,7 +3,6 @@
 namespace Shopware\Api\Product\Collection;
 
 use Shopware\Api\Product\Struct\ProductContextPriceBasicStruct;
-use Shopware\Api\Context\Collection\ContextPriceCollection;
 
 class ProductContextPriceBasicCollection extends \Shopware\Api\Context\Collection\ContextPriceCollection
 {
@@ -14,14 +13,14 @@ class ProductContextPriceBasicCollection extends \Shopware\Api\Context\Collectio
 
     public function getProductIds(): array
     {
-        return $this->fmap(function(ProductContextPriceBasicStruct $price) {
+        return $this->fmap(function (ProductContextPriceBasicStruct $price) {
             return $price->getProductId();
         });
     }
 
-    public function filterByProductId(string $id): ProductContextPriceBasicCollection
+    public function filterByProductId(string $id): self
     {
-        return $this->filter(function(ProductContextPriceBasicStruct $price) use ($id) {
+        return $this->filter(function (ProductContextPriceBasicStruct $price) use ($id) {
             return $price->getProductId() === $id;
         });
     }

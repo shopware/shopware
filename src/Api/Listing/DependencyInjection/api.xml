@@ -5,42 +5,42 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-         <service class="Shopware\Api\Listing\Definition\ListingFacetDefinition" id="Shopware\Api\Listing\Definition\ListingFacetDefinition" >
+         <service class="Shopware\Api\Listing\Definition\ListingFacetDefinition" id="shopware.listing.listing_facet_definition" >
             <tag name="shopware.entity.definition" entity="listing_facet" />
         </service>
         <service class="Shopware\Api\Listing\Repository\ListingFacetRepository" id="Shopware\Api\Listing\Repository\ListingFacetRepository" public="true">
           <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
-          <argument id="Shopware\Api\Entity\Write\EntityWriter" type="service"/>
+          <argument id="Shopware\Version\VersionManager" type="service"/>
           <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
           <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>
-         <service class="Shopware\Api\Listing\Definition\ListingFacetTranslationDefinition" id="Shopware\Api\Listing\Definition\ListingFacetTranslationDefinition" >
+         <service class="Shopware\Api\Listing\Definition\ListingFacetTranslationDefinition" id="shopware.listing.listing_facet_translation_definition" >
             <tag name="shopware.entity.definition" entity="listing_facet_translation" />
         </service>
         <service class="Shopware\Api\Listing\Repository\ListingFacetTranslationRepository" id="Shopware\Api\Listing\Repository\ListingFacetTranslationRepository" public="true">
           <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
-          <argument id="Shopware\Api\Entity\Write\EntityWriter" type="service"/>
+          <argument id="Shopware\Version\VersionManager" type="service"/>
           <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
           <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>
-         <service class="Shopware\Api\Listing\Definition\ListingSortingDefinition" id="Shopware\Api\Listing\Definition\ListingSortingDefinition" >
+         <service class="Shopware\Api\Listing\Definition\ListingSortingDefinition" id="shopware.listing.listing_sorting_definition" >
             <tag name="shopware.entity.definition" entity="listing_sorting" />
         </service>
         <service class="Shopware\Api\Listing\Repository\ListingSortingRepository" id="Shopware\Api\Listing\Repository\ListingSortingRepository" public="true">
           <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
-          <argument id="Shopware\Api\Entity\Write\EntityWriter" type="service"/>
+          <argument id="Shopware\Version\VersionManager" type="service"/>
           <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
           <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>
-         <service class="Shopware\Api\Listing\Definition\ListingSortingTranslationDefinition" id="Shopware\Api\Listing\Definition\ListingSortingTranslationDefinition" >
+         <service class="Shopware\Api\Listing\Definition\ListingSortingTranslationDefinition" id="shopware.listing.listing_sorting_translation_definition" >
             <tag name="shopware.entity.definition" entity="listing_sorting_translation" />
         </service>
         <service class="Shopware\Api\Listing\Repository\ListingSortingTranslationRepository" id="Shopware\Api\Listing\Repository\ListingSortingTranslationRepository" public="true">
           <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
-          <argument id="Shopware\Api\Entity\Write\EntityWriter" type="service"/>
+          <argument id="Shopware\Version\VersionManager" type="service"/>
           <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
           <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>

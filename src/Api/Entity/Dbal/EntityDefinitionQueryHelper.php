@@ -85,7 +85,6 @@ class EntityDefinitionQueryHelper
             }
 
             if ($field instanceof StorageAware) {
-
                 if ($field instanceof SqlParseAware) {
                     $select = $field->parse($root, $context);
                 } else {
@@ -94,7 +93,6 @@ class EntityDefinitionQueryHelper
                         self::escape($field->getStorageName()),
                     ]);
                 }
-
 
                 if (!$field->is(Inherited::class)) {
                     return $select;

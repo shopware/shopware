@@ -9,7 +9,6 @@ use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntityAggregatorInterface;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
 use Shopware\Api\Entity\Search\IdSearchResult;
-use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Entity\Write\WriteContext;
 use Shopware\Api\Order\Collection\OrderDeliveryPositionBasicCollection;
@@ -22,6 +21,7 @@ use Shopware\Api\Order\Event\OrderDeliveryPosition\OrderDeliveryPositionIdSearch
 use Shopware\Api\Order\Event\OrderDeliveryPosition\OrderDeliveryPositionSearchResultLoadedEvent;
 use Shopware\Api\Order\Struct\OrderDeliveryPositionSearchResult;
 use Shopware\Context\Struct\ShopContext;
+use Shopware\Version\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class OrderDeliveryPositionRepository implements RepositoryInterface
@@ -30,11 +30,6 @@ class OrderDeliveryPositionRepository implements RepositoryInterface
      * @var EntityReaderInterface
      */
     private $reader;
-
-    /**
-     * @var EntityWriterInterface
-     */
-    private $writer;
 
     /**
      * @var EntitySearcherInterface
@@ -51,18 +46,23 @@ class OrderDeliveryPositionRepository implements RepositoryInterface
      */
     private $eventDispatcher;
 
+    /**
+     * @var VersionManager
+     */
+    private $versionManager;
+
     public function __construct(
-        EntityReaderInterface $reader,
-        EntityWriterInterface $writer,
-        EntitySearcherInterface $searcher,
-        EntityAggregatorInterface $aggregator,
-        EventDispatcherInterface $eventDispatcher
-    ) {
+       EntityReaderInterface $reader,
+       VersionManager $versionManager,
+       EntitySearcherInterface $searcher,
+       EntityAggregatorInterface $aggregator,
+       EventDispatcherInterface $eventDispatcher
+   ) {
         $this->reader = $reader;
-        $this->writer = $writer;
         $this->searcher = $searcher;
         $this->aggregator = $aggregator;
         $this->eventDispatcher = $eventDispatcher;
+        $this->versionManager = $versionManager;
     }
 
     public function search(Criteria $criteria, ShopContext $context): OrderDeliveryPositionSearchResult
@@ -128,7 +128,7 @@ class OrderDeliveryPositionRepository implements RepositoryInterface
 
     public function update(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->update(OrderDeliveryPositionDefinition::class, $data, WriteContext::createFromShopContext($context));
+        $affected = $this->versionManager->update(OrderDeliveryPositionDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
@@ -137,7 +137,7 @@ class OrderDeliveryPositionRepository implements RepositoryInterface
 
     public function upsert(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->upsert(OrderDeliveryPositionDefinition::class, $data, WriteContext::createFromShopContext($context));
+        $affected = $this->versionManager->upsert(OrderDeliveryPositionDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
@@ -146,7 +146,7 @@ class OrderDeliveryPositionRepository implements RepositoryInterface
 
     public function create(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->insert(OrderDeliveryPositionDefinition::class, $data, WriteContext::createFromShopContext($context));
+        $affected = $this->versionManager->insert(OrderDeliveryPositionDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
@@ -155,10 +155,20 @@ class OrderDeliveryPositionRepository implements RepositoryInterface
 
     public function delete(array $ids, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->delete(OrderDeliveryPositionDefinition::class, $ids, WriteContext::createFromShopContext($context));
+        $affected = $this->versionManager->delete(OrderDeliveryPositionDefinition::class, $ids, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithDeletedEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
+    }
+
+    public function createVersion(string $id, ShopContext $context, ?string $name = null, ?string $versionId = null): string
+    {
+        return $this->versionManager->createVersion(OrderDeliveryPositionDefinition::class, $id, WriteContext::createFromShopContext($context), $name, $versionId);
+    }
+
+    public function merge(string $versionId, ShopContext $context): void
+    {
+        $this->versionManager->merge($versionId, WriteContext::createFromShopContext($context));
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Shopware\Rest\Controller;
 
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Shopware\Api\Entity\DefinitionRegistry;
 use Shopware\Api\Entity\Entity;
 use Shopware\Api\Entity\EntityDefinition;
@@ -35,6 +36,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\UnsupportedMediaTypeHttpException;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 use Symfony\Component\Serializer\Exception\UnexpectedValueException;
 use Symfony\Component\Serializer\Serializer;
@@ -121,6 +123,10 @@ class ApiController extends Controller
 
         /** @var EntityDefinition|string $definition */
         $definition = $first['definition'];
+
+        if(!$definition) {
+            throw new BadRequestHttpException('Unsupported API request');
+        }
 
         /** @var RepositoryInterface $repository */
         $repository = $this->get($definition::getRepositoryClass());

@@ -26,12 +26,14 @@ namespace Shopware\Framework\Routing;
 
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerInterface;
+use Ramsey\Uuid\Uuid;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Defaults;
 use Shopware\Kernel;
 use Shopware\Rest\Routing\RouteCollector;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Routing\Generator\UrlGenerator;
 use Symfony\Component\Routing\Matcher\RequestMatcherInterface;
 use Symfony\Component\Routing\Matcher\UrlMatcher;
@@ -285,7 +287,12 @@ class Router implements RouterInterface, RequestMatcherInterface
         }
 
         if ($request->attributes->get(self::IS_API_REQUEST_ATTRIBUTE)) {
-            return $this->match($pathInfo);
+            try {
+                $match = $this->match($pathInfo);
+            } catch (ResourceNotFoundException $e) {
+                return $this->matchDynamicApi($pathInfo);
+            }
+            return $match;
         }
 
         $shopContext = new ShopContext(
@@ -379,10 +386,6 @@ class Router implements RouterInterface, RequestMatcherInterface
             );
         }
 
-        $routeCollection->addCollection(
-            $this->apiCollector->collect()
-        );
-
         return $routeCollection;
     }
 
@@ -410,5 +413,19 @@ class Router implements RouterInterface, RequestMatcherInterface
         }
 
         return self::REQUEST_TYPE_STOREFRONT;
+    }
+
+    private function matchDynamicApi(string $path)
+    {
+        $apiUrlCollection = $this->apiCollector->collect();
+
+        if(Uuid::isValid(basename($path))) {
+            $apiUrlCollection->remove('api_controller.list');
+        } else {
+            $apiUrlCollection->remove('api_controller.detail');
+        }
+
+        $matcher = new UrlMatcher($apiUrlCollection, $this->getContext());
+        return $matcher->match($path);
     }
 }

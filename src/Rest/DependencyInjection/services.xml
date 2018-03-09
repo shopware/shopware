@@ -58,7 +58,6 @@
         </service>
 
         <service class="Shopware\Rest\Routing\RouteCollector" id="Shopware\Rest\Routing\RouteCollector">
-            <argument id="Shopware\Api\Entity\DefinitionRegistry" type="service"/>
         </service>
 
         <!-- Serializer -->

@@ -2,6 +2,7 @@
 
 namespace Shopware\Rest\Routing;
 
+use Ramsey\Uuid\Uuid;
 use Shopware\Api\Entity\DefinitionRegistry;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Field\AssociationInterface;
@@ -22,151 +23,45 @@ class RouteCollector
 
     public const DELETE_ACTION = 'Shopware\Rest\Controller\ApiController::deleteAction';
 
-    /**
-     * @var DefinitionRegistry
-     */
-    private $registry;
-
-    public function __construct(DefinitionRegistry $registry)
-    {
-        $this->registry = $registry;
-    }
-
     public function collect(): RouteCollection
     {
-        $collection = new RouteCollection();
-
-        foreach ($this->registry->getElements() as $definition) {
-            /* @var EntityDefinition $definition */
-            try {
-                $definition::getRepositoryClass();
-            } catch (\Exception $e) {
-                //mapping tables has no repository, skip them
-                continue;
-            }
-
-            $collection->addCollection(
-                $this->getDefinitionRoutes($definition)
-            );
-        }
-
-        return $collection;
+        return $this->createRouteClasses();
     }
 
-    private function formatEntityName(string $entity): string
-    {
-        return str_replace('_', '-', $entity);
-    }
-
-    private function camelCaseToSnakeCase(string $value): string
-    {
-        return strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $value));
-    }
-
-    /**
-     * @param string|EntityDefinition $definition
-     *
-     * @return RouteCollection
-     */
-    private function getDefinitionRoutes(string $definition): RouteCollection
-    {
-        $naming = 'api.' . $definition::getEntityName();
-
-        $path = '/api/' . $this->formatEntityName($definition::getEntityName());
-
-        $idPrefix = $this->snakeCaseToCamelCase($definition::getEntityName());
-        $idPrefix = $idPrefix[0];
-
-        $collection = $this->createRouteClasses($path, $naming, $idPrefix);
-
-        $path .= '/{' . $idPrefix . 'Id' . '}';
-
-        /** @var FieldCollection $associations */
-        $associations = $definition::getFields()->filterInstance(AssociationInterface::class);
-
-        /** @var AssociationInterface $association */
-        foreach ($associations as $association) {
-            $collection->addCollection(
-                $this->buildAssociationRoutes($idPrefix, $definition, $naming, $path, $association)
-            );
-        }
-
-        return $collection;
-    }
-
-    private function buildAssociationRoutes(string $idPrefix, string $definition, string $naming, string $path, AssociationInterface $association): RouteCollection
-    {
-        /** @var EntityDefinition|string $reference */
-        $reference = $association->getReferenceClass();
-        if ($reference === $definition) {
-            return new RouteCollection();
-        }
-
-        /** @var Field|AssociationInterface $association */
-        $name = $this->camelCaseToSnakeCase($association->getPropertyName());
-
-        $naming .= '.' . $name;
-        $path .= '/' . $this->formatEntityName($name);
-
-        $idPrefix .= $association->getPropertyName()[0];
-
-        $collection = $this->createRouteClasses($path, $naming, $idPrefix);
-
-        $path .= '/{' . $idPrefix . 'Id' . '}';
-
-        /** @var FieldCollection $associations */
-        $associations = $reference::getFields()->filterInstance(AssociationInterface::class);
-        $associations = $associations->getBasicProperties();
-
-        /** @var AssociationInterface $nested */
-        foreach ($associations as $nested) {
-            $collection->addCollection(
-                $this->buildAssociationRoutes($idPrefix, $reference, $naming, $path, $nested)
-            );
-        }
-
-        return $collection;
-    }
-
-    private function createRouteClasses(string $path, string $naming, string $idPrefix): RouteCollection
+    private function createRouteClasses(): RouteCollection
     {
         $collection = new RouteCollection();
 
-        $route = new Route($path);
+        $route = new Route('/api/{path}');
         $route->setMethods(['GET']);
         $route->setDefault('_controller', self::LIST_ACTION);
-        $collection->add($naming . '.list', $route);
+        $route->addRequirements(['path' => '.*']);
+        $collection->add('api_controller.list', $route);
 
-        $route = new Route($path);
-        $route->setMethods(['POST']);
-        $route->setDefault('_controller', self::CREATE_ACTION);
-        $collection->add($naming . '.create', $route);
-
-        $path .= '/{' . $idPrefix . 'Id' . '}';
-
-        $route = new Route($path);
-        $route->setMethods(['PATCH']);
-        $route->setDefault('_controller', self::UPDATE_ACTION);
-        $collection->add($naming . '.update', $route);
-
-        $route = new Route($path);
+        $route = new Route('/api/{path}');
         $route->setMethods(['GET']);
         $route->setDefault('_controller', self::DETAIL_ACTION);
-        $collection->add($naming . '.detail', $route);
+        $route->addRequirements(['path' => '.*']);
+        $collection->add('api_controller.detail', $route);
 
-        $route = new Route($path);
+        $route = new Route('/api/{path}');
+        $route->setMethods(['POST']);
+        $route->setDefault('_controller', self::CREATE_ACTION);
+        $route->addRequirements(['path' => '.*']);
+        $collection->add('api_controller.create', $route);
+
+        $route = new Route('/api/{path}');
+        $route->setMethods(['PATCH']);
+        $route->setDefault('_controller', self::UPDATE_ACTION);
+        $route->addRequirements(['path' => '.*']);
+        $collection->add('api_controller.update', $route);
+
+        $route = new Route('/api/{path}');
         $route->setMethods(['DELETE']);
         $route->setDefault('_controller', self::DELETE_ACTION);
-        $collection->add($naming . '.delete', $route);
+        $route->addRequirements(['path' => '.*']);
+        $collection->add('api_controller.delete', $route);
 
         return $collection;
-    }
-
-    private function snakeCaseToCamelCase(string $string): string
-    {
-        $explode = explode('_', $string);
-        $explode = array_map('ucfirst', $explode);
-
-        return lcfirst(implode($explode));
     }
 }

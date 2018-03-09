@@ -44,11 +44,17 @@ class CategoryAssignmentUpdater
 
             $categoryIds = array_keys(array_flip(array_filter($categoryIds)));
 
+            if (empty($categoryIds)) {
+                $categoryIds = null;
+            } else {
+                $categoryIds = json_encode($categoryIds);
+            }
+
             $this->connection->executeUpdate(
                 'UPDATE product SET category_tree = :tree WHERE id = :id AND version_id = :version',
                 [
                     'id' => $productId,
-                    'tree' => json_encode($categoryIds),
+                    'tree' => $categoryIds,
                     'version' => Uuid::fromString($context->getVersionId())->getBytes(),
                 ]
             );
@@ -64,7 +70,7 @@ class CategoryAssignmentUpdater
             "GROUP_CONCAT(HEX(category.id) SEPARATOR '||') as ids",
         ]);
         $query->from('product');
-        $query->leftJoin('product', 'product_category', 'mapping', 'mapping.product_id = product.category_join_id AND product.version_id = mapping.product_version_id');
+        $query->leftJoin('product', 'product_category', 'mapping', 'mapping.product_id = product.id AND product.version_id = mapping.product_version_id');
         $query->leftJoin('mapping', 'category', 'category', 'category.id = mapping.category_id AND category.version_id = :live');
         $query->addGroupBy('product.id');
 

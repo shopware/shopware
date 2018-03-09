@@ -107,6 +107,7 @@ class StockDeliverySeparatorTest extends TestCase
                 new \DateTime('2012-01-05')
             ),
             self::createProduct(),
+            null,
             new AndRule()
         );
 
@@ -146,6 +147,7 @@ class StockDeliverySeparatorTest extends TestCase
             new DeliveryDate(new \DateTime('2012-01-01'), new \DateTime('2012-01-02')),
             new DeliveryDate(new \DateTime('2012-01-04'), new \DateTime('2012-01-05')),
             self::createProduct(),
+            null,
             new AndRule()
         );
 
@@ -157,6 +159,7 @@ class StockDeliverySeparatorTest extends TestCase
             new DeliveryDate(new \DateTime('2012-01-01'), new \DateTime('2012-01-02')),
             new DeliveryDate(new \DateTime('2012-01-04'), new \DateTime('2012-01-05')),
             self::createProduct(),
+            null,
             new AndRule()
         );
 

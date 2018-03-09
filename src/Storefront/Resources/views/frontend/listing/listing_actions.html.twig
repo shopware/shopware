@@ -1,6 +1,8 @@
 {# Listing actions #}
 {% block frontend_listing_actions_top %}
     {% set listingMode = '{{ shopware.config.listingMode }}' %}
+    {% set listingMode = 'full_page_reload' %}
+
     {% set class = 'listing--actions is--rounded' %}
 
     {% if navigation.activeCategory.hide_sortings or sortings|length == 0 %}

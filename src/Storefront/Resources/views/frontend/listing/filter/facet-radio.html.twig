@@ -1,6 +1,8 @@
 {% block frontend_listing_filter_facet_radio %}
     {% set filterType = 'radio' %}
     {% set listingMode = shopware.config.listingMode %}
+    {% set listingMode = 'full_page_reload' %}
+
     {% if listingMode == 'filter_ajax_reload' %}
         {% set filterType = 'value-list-single' %}
     {% endif %}

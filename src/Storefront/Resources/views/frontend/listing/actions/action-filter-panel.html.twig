@@ -2,6 +2,7 @@
 
 {% block frontend_listing_actions_filter %}
     {% set listingMode = shopware.config.listingMode %}
+    {% set listingMode = 'full_page_reload' %}
 
     <div class="action--filter-options off-canvas{% if facets|length <= 0 %} is--hidden{% endif %}{% if listingMode != 'full_page_reload' %} is--ajax-reload{% endif %}">
 

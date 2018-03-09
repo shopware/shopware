@@ -18,6 +18,7 @@
         {# Per page field #}
         {% block frontend_listing_actions_items_per_page_field %}
             {% set listingMode = shopware.config.listingMode %}
+            {% set listingMode = 'full_page_reload' %}
 
             <div class="per-page--select select-field">
                 <select id="{{ shortParameters.sPerPage }}"

@@ -32,6 +32,12 @@ class ListingPageLoader
         $listingPageStruct = new ListingPageStruct();
         $listingPageStruct->setProducts($products);
         $listingPageStruct->setCriteria($criteria);
+        $listingPageStruct->setCurrentPage($request->query->getInt('p', 1));
+
+        $pageCount = (int) round($products->getTotal() / $criteria->getLimit());
+        $pageCount = max(1, $pageCount);
+
+        $listingPageStruct->setPageCount($pageCount);
         $listingPageStruct->setShowListing(true);
 
         return $listingPageStruct;
@@ -43,8 +49,8 @@ class ListingPageLoader
         StorefrontContext $context
     ): Criteria {
         $limit = $request->query->getInt('limit', 20);
-        $page = $request->query->getInt('page', 1);
-
+        $page = $request->query->getInt('p', 1);
+    
         $criteria = new Criteria();
         $criteria->setOffset(($page - 1) * $limit);
         $criteria->setLimit($limit);

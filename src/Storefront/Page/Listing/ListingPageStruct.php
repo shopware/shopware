@@ -23,6 +23,16 @@ class ListingPageStruct extends Struct
      */
     protected $showListing = true;
 
+    /**
+     * @var int
+     */
+    protected $currentPage;
+
+    /**
+     * @var int
+     */
+    protected $pageCount;
+
     public function getProducts(): ProductBasicCollection
     {
         return $this->products;
@@ -51,5 +61,25 @@ class ListingPageStruct extends Struct
     public function setShowListing(bool $showListing): void
     {
         $this->showListing = $showListing;
+    }
+
+    public function setCurrentPage(int $page)
+    {
+        $this->currentPage = $page;
+    }
+
+    public function getCurrentPage(): int
+    {
+        return $this->currentPage;
+    }
+
+    public function setPageCount(int $count)
+    {
+        $this->pageCount = $count;
+    }
+
+    public function getPageCount(): int
+    {
+        return $this->pageCount;
     }
 }

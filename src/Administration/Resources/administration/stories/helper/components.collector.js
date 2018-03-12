@@ -16,6 +16,15 @@ Vue.filter('asset', (value) => {
     return value;
 });
 
+// Overrides icon path
+Shopware.Component.override('sw-icon', {
+    computed: {
+        iconSetPath() {
+            return `img/sw-icons.svg#${this.iconNamePrefix + this.name}`;
+        }
+    }
+});
+
 const vueComponents = new Map();
 componentRegistry.forEach((component) => {
     const componentName = component.name;

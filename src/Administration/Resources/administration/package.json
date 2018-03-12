@@ -24,8 +24,8 @@
     "security-check": "./node_modules/.bin/nsp check",
     "check-dependencies": "./node_modules/.bin/ncu",
     "generate-api-docs": "./node_modules/.bin/jsdoc src -r -c jsdoc.config.js",
-    "storybook-watch": "start-storybook -p 9001 -s ./ -c .storybook",
-    "storybook-generate": "build-storybook -s ./ -c .storybook -o ../../../../build/artifacts/storybook"
+    "storybook-watch": "start-storybook -p 9001 -s ./static -c .storybook",
+    "storybook-generate": "build-storybook -s ./static -c .storybook -o ../../../../build/artifacts/storybook"
   },
   "dependencies": {
     "axios": "^0.18.0",

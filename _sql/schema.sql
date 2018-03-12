@@ -1160,16 +1160,17 @@ CREATE TABLE `seo_url` (
   `name` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
   `foreign_key` binary(16) NOT NULL,
   `foreign_key_version_id` binary(16) NOT NULL,
-  `path_info` text COLLATE utf8mb4_unicode_ci NOT NULL,
-  `seo_path_info` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `path_info` varchar(750) COLLATE 'utf8mb4_unicode_ci' NOT NULL,
+  `seo_path_info` varchar(750) COLLATE 'utf8mb4_unicode_ci' NOT NULL,
   `is_canonical` tinyint(1) NOT NULL DEFAULT '0',
   `is_modified` tinyint(1) NOT NULL DEFAULT '0',
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`, `version_id`),
+  INDEX `canonical_urls` (`version_id`, `name`, `foreign_key`, `is_canonical`),
+  INDEX `seo_routing` (`version_id`, `shop_id`, `seo_path_info`),
   CONSTRAINT `fk_seo_url.shop_id` FOREIGN KEY (`shop_id`, `shop_version_id`) REFERENCES `shop` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 
 DROP TABLE IF EXISTS `session`;
 CREATE TABLE `session` (

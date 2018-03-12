@@ -347,13 +347,11 @@ class DemodataCommand extends ContainerAwareCommand
 
     private function randomDepartment(int $max = 3, bool $fixedAmount = false, bool $unique = true)
     {
-        $categoryName = '';
+        if (!$fixedAmount) {
+            $max = mt_rand(1, $max);
+        }
         do {
             $categories = [];
-
-            if (!$fixedAmount) {
-                $max = mt_rand(1, $max);
-            }
 
             while (count($categories) < $max) {
                 $category = $this->faker->category();
@@ -369,9 +367,10 @@ class DemodataCommand extends ContainerAwareCommand
                     end($categories),
                 ];
             }
+            $max++;
             $categoryName = implode(' & ', $categories);
         } while (in_array($categoryName, $this->categories) && $unique);
-        $categories[] = $categoryName;
+        $this->categories[] = $categoryName;
 
         return $categoryName;
     }

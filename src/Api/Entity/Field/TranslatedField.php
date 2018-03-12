@@ -27,7 +27,8 @@ namespace Shopware\Api\Entity\Field;
 use Shopware\Api\Entity\Write\DataStack\KeyValuePair;
 use Shopware\Api\Entity\Write\EntityExistence;
 use Shopware\Api\Entity\Write\FieldAware\StorageAware;
-use Shopware\Api\Shop\Definition\ShopDefinition;
+use Shopware\Api\Language\Definition\LanguageDefinition;
+
 
 class TranslatedField extends Field
 {
@@ -59,7 +60,7 @@ class TranslatedField extends Field
     public function __construct(StorageAware $field)
     {
         $this->storageName = $field->getStorageName();
-        $this->foreignClassName = ShopDefinition::class;
+        $this->foreignClassName = LanguageDefinition::class;
         $this->foreignFieldName = 'id';
 
         /* @var Field $field */

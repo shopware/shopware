@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Category\Struct;
 
-use Shopware\Api\Shop\Struct\ShopBasicStruct;
+use Shopware\Api\Language\Struct\LanguageBasicStruct;
 
 class CategoryTranslationDetailStruct extends CategoryTranslationBasicStruct
 {
@@ -12,7 +12,7 @@ class CategoryTranslationDetailStruct extends CategoryTranslationBasicStruct
     protected $category;
 
     /**
-     * @var ShopBasicStruct
+     * @var LanguageBasicStruct
      */
     protected $language;
 
@@ -26,12 +26,12 @@ class CategoryTranslationDetailStruct extends CategoryTranslationBasicStruct
         $this->category = $category;
     }
 
-    public function getLanguage(): ShopBasicStruct
+    public function getLanguage(): LanguageBasicStruct
     {
         return $this->language;
     }
 
-    public function setLanguage(ShopBasicStruct $language): void
+    public function setLanguage(LanguageBasicStruct $language): void
     {
         $this->language = $language;
     }

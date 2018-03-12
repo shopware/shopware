@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Currency\Struct;
 
-use Shopware\Api\Shop\Struct\ShopBasicStruct;
+use Shopware\Api\Language\Struct\LanguageBasicStruct;
 
 class CurrencyTranslationDetailStruct extends CurrencyTranslationBasicStruct
 {
@@ -12,7 +12,7 @@ class CurrencyTranslationDetailStruct extends CurrencyTranslationBasicStruct
     protected $currency;
 
     /**
-     * @var ShopBasicStruct
+     * @var LanguageBasicStruct
      */
     protected $language;
 
@@ -26,12 +26,12 @@ class CurrencyTranslationDetailStruct extends CurrencyTranslationBasicStruct
         $this->currency = $currency;
     }
 
-    public function getLanguage(): ShopBasicStruct
+    public function getLanguage(): LanguageBasicStruct
     {
         return $this->language;
     }
 
-    public function setLanguage(ShopBasicStruct $language): void
+    public function setLanguage(LanguageBasicStruct $language): void
     {
         $this->language = $language;
     }

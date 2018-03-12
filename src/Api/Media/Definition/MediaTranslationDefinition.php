@@ -8,7 +8,7 @@ use Shopware\Api\Entity\Field\CatalogField;
 use Shopware\Api\Entity\Field\FkField;
 use Shopware\Api\Entity\Field\LongTextField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
-use Shopware\Api\Entity\Field\ReferenceVersionField;
+
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
@@ -21,7 +21,7 @@ use Shopware\Api\Media\Event\MediaTranslation\MediaTranslationWrittenEvent;
 use Shopware\Api\Media\Repository\MediaTranslationRepository;
 use Shopware\Api\Media\Struct\MediaTranslationBasicStruct;
 use Shopware\Api\Media\Struct\MediaTranslationDetailStruct;
-use Shopware\Api\Shop\Definition\ShopDefinition;
+use Shopware\Api\Language\Definition\LanguageDefinition;
 
 class MediaTranslationDefinition extends EntityDefinition
 {
@@ -55,12 +55,11 @@ class MediaTranslationDefinition extends EntityDefinition
             (new FkField('media_id', 'mediaId', MediaDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
             new CatalogField(),
-            (new FkField('language_id', 'languageId', ShopDefinition::class))->setFlags(new PrimaryKey(), new Required()),
-            (new ReferenceVersionField(ShopDefinition::class, 'language_version_id'))->setFlags(new PrimaryKey(), new Required()),
+            (new FkField('language_id', 'languageId', LanguageDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new StringField('name', 'name'))->setFlags(new Required()),
             new LongTextField('description', 'description'),
             new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, false),
-            new ManyToOneAssociationField('language', 'language_id', ShopDefinition::class, false),
+            new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, false),
         ]);
 
         foreach (self::$extensions as $extension) {

@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Payment\Struct;
 
-use Shopware\Api\Shop\Struct\ShopBasicStruct;
+use Shopware\Api\Language\Struct\LanguageBasicStruct;
 
 class PaymentMethodTranslationDetailStruct extends PaymentMethodTranslationBasicStruct
 {
@@ -12,7 +12,7 @@ class PaymentMethodTranslationDetailStruct extends PaymentMethodTranslationBasic
     protected $paymentMethod;
 
     /**
-     * @var ShopBasicStruct
+     * @var LanguageBasicStruct
      */
     protected $language;
 
@@ -26,12 +26,12 @@ class PaymentMethodTranslationDetailStruct extends PaymentMethodTranslationBasic
         $this->paymentMethod = $paymentMethod;
     }
 
-    public function getLanguage(): ShopBasicStruct
+    public function getLanguage(): LanguageBasicStruct
     {
         return $this->language;
     }
 
-    public function setLanguage(ShopBasicStruct $language): void
+    public function setLanguage(LanguageBasicStruct $language): void
     {
         $this->language = $language;
     }

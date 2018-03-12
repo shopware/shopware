@@ -4,7 +4,10 @@ namespace Shopware\DbalIndexing\Search;
 
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
+use Shopware\Api\Catalog\Repository\CatalogRepository;
+use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
+use Shopware\Api\Language\Repository\LanguageRepository;
 use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Api\Product\Repository\ProductRepository;
 use Shopware\Api\Product\Struct\ProductSearchResult;
@@ -46,29 +49,36 @@ class SearchIndexer implements IndexerInterface
     private $analyzerRegistry;
 
     /**
-     * @var ContextVariationService
-     */
-    private $contextVariationService;
-
-    /**
      * @var IndexTableOperator
      */
     private $indexTableOperator;
+
+    /**
+     * @var LanguageRepository
+     */
+    private $languageRepository;
+
+    /**
+     * @var CatalogRepository
+     */
+    private $catalogRepository;
 
     public function __construct(
         Connection $connection,
         ProductRepository $productRepository,
         EventDispatcherInterface $eventDispatcher,
-        ContextVariationService $contextVariationService,
         SearchAnalyzerRegistry $analyzerRegistry,
-        IndexTableOperator $indexTableOperator
+        IndexTableOperator $indexTableOperator,
+        LanguageRepository $languageRepository,
+        CatalogRepository $catalogRepository
     ) {
         $this->connection = $connection;
         $this->productRepository = $productRepository;
         $this->eventDispatcher = $eventDispatcher;
         $this->analyzerRegistry = $analyzerRegistry;
-        $this->contextVariationService = $contextVariationService;
         $this->indexTableOperator = $indexTableOperator;
+        $this->languageRepository = $languageRepository;
+        $this->catalogRepository = $catalogRepository;
     }
 
     public function index(\DateTime $timestamp): void
@@ -79,18 +89,28 @@ class SearchIndexer implements IndexerInterface
         $table = $this->indexTableOperator->getIndexName(self::TABLE, $timestamp);
         $documentTable = $this->indexTableOperator->getIndexName(self::DOCUMENT_TABLE, $timestamp);
 
-        $this->connection->executeUpdate('ALTER TABLE `' . $table . '` ADD PRIMARY KEY `shop_keyword` (`keyword`, `shop_id`, `version_id`, `shop_version_id`);');
-        $this->connection->executeUpdate('ALTER TABLE `' . $table . '` ADD INDEX `keyword` (`keyword`, `shop_id`);');
-        $this->connection->executeUpdate('ALTER TABLE `' . $table . '` ADD FOREIGN KEY (`shop_id`, `shop_version_id`) REFERENCES `shop` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE');
+        $this->connection->executeUpdate('ALTER TABLE `' . $table . '` ADD PRIMARY KEY `language_keyword` (`keyword`, `language_id`, `version_id`);');
+        $this->connection->executeUpdate('ALTER TABLE `' . $table . '` ADD INDEX `keyword` (`keyword`, `language_id`);');
+        $this->connection->executeUpdate('ALTER TABLE `' . $table . '` ADD FOREIGN KEY (`language_id`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE');
 
         $this->connection->executeUpdate('ALTER TABLE `' . $documentTable . '` ADD PRIMARY KEY `product_shop_keyword` (`id`, `version_id`);');
-        $this->connection->executeUpdate('ALTER TABLE `' . $documentTable . '` ADD UNIQUE KEY (`keyword`, `shop_id`, `product_id`, `version_id`, `shop_version_id`);');
+        $this->connection->executeUpdate('ALTER TABLE `' . $documentTable . '` ADD UNIQUE KEY (`keyword`, `language_id`, `product_id`, `version_id`);');
         $this->connection->executeUpdate('ALTER TABLE `' . $documentTable . '` ADD FOREIGN KEY (`product_id`, `product_version_id`) REFERENCES `product` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE');
-        $this->connection->executeUpdate('ALTER TABLE `' . $documentTable . '` ADD FOREIGN KEY (`shop_id`, `shop_version_id`) REFERENCES `shop` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE');
+        $this->connection->executeUpdate('ALTER TABLE `' . $documentTable . '` ADD FOREIGN KEY (`language_id`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE');
 
-        $contexts = $this->contextVariationService->createContexts();
+        $languages = $this->languageRepository->search(new Criteria(), ShopContext::createDefaultContext());
+        $catalogIds = $this->catalogRepository->searchIds(new Criteria(), ShopContext::createDefaultContext());
 
-        foreach ($contexts as $context) {
+        foreach ($languages as $language) {
+            $context = new ShopContext(
+                Defaults::SHOP,
+                $catalogIds->getIds(),
+                [],
+                Defaults::CURRENCY,
+                $language->getId(),
+                $language->getParentId(),
+                Defaults::LIVE_VERSION
+            );
             $this->indexContext($context, $timestamp);
         }
 
@@ -160,26 +180,23 @@ class SearchIndexer implements IndexerInterface
         string $table,
         string $documentTable
     ) {
-        $shopId = Uuid::fromString($context->getApplicationId())->getBytes();
+        $languageId = Uuid::fromString($context->getLanguageId())->getBytes();
         $productId = Uuid::fromString($productId)->getBytes();
         $versionId = Uuid::fromString($context->getVersionId())->getBytes();
-        $liveVersionId = Uuid::fromString(Defaults::LIVE_VERSION)->getBytes();
 
         foreach ($keywords as $keyword => $ranking) {
             $queue->addInsert($table, [
-                'shop_id' => $shopId,
+                'language_id' => $languageId,
                 'version_id' => $versionId,
-                'keyword' => $keyword,
-                'shop_version_id' => $liveVersionId,
+                'keyword' => $keyword
             ]);
 
             $queue->addInsert($documentTable, [
                 'id' => Uuid::uuid4()->getBytes(),
                 'version_id' => $versionId,
                 'product_version_id' => $versionId,
-                'shop_version_id' => $liveVersionId,
                 'product_id' => $productId,
-                'shop_id' => $shopId,
+                'language_id' => $languageId,
                 'keyword' => $keyword,
                 'ranking' => $ranking,
             ]);

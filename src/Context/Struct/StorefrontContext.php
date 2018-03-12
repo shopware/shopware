@@ -174,8 +174,8 @@ class StorefrontContext extends Struct
             $this->shop->getCatalogIds(),
             $this->contextRulesIds,
             $this->currency->getId(),
-            $this->shop->getId(),
-            $this->shop->getFallbackTranslationId(),
+            Defaults::LANGUAGE,
+            null,
             Defaults::LIVE_VERSION,
             $this->currency->getFactor()
         );

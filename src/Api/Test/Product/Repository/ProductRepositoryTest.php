@@ -423,7 +423,7 @@ class ProductRepositoryTest extends KernelTestCase
             [Defaults::CATALOG],
             [$ruleA],
             Defaults::CURRENCY,
-            Defaults::SHOP
+            Defaults::LANGUAGE
         );
 
         $products = $this->repository->searchIds($criteria, $context);

@@ -134,14 +134,13 @@ class VersioningTest extends KernelTestCase
         unset($payload['createdAt']);
         $this->assertEquals($taxAreaChange, $payload);
 
-        $changes = $this->getTranslationVersionData(TaxAreaRuleTranslationDefinition::getEntityName(), Defaults::SHOP, 'taxAreaRuleId', $ruleId, Defaults::LIVE_VERSION);
+        $changes = $this->getTranslationVersionData(TaxAreaRuleTranslationDefinition::getEntityName(), Defaults::LANGUAGE, 'taxAreaRuleId', $ruleId, Defaults::LIVE_VERSION);
         $this->assertCount(1, $changes);
         $taxAreaTranslationChange = [
             'taxAreaRuleId' => $ruleId,
             'name' => 'required',
-            'languageId' => Defaults::SHOP,
+            'languageId' => Defaults::LANGUAGE,
             'versionId' => Defaults::LIVE_VERSION,
-            'languageVersionId' => Defaults::LIVE_VERSION,
         ];
         $payload = json_decode($changes[0]['payload'], true);
         unset($payload['createdAt']);
@@ -550,7 +549,7 @@ class VersioningTest extends KernelTestCase
         $changes = $this->getVersionData(ProductDefinition::getEntityName(), $productId->toString(), $variantVersionId);
         $this->assertCount(2, $changes);
 
-        $changes = $this->getTranslationVersionData(ProductTranslationDefinition::getEntityName(), Defaults::SHOP, 'productId', $productId->toString(), $variantVersionId);
+        $changes = $this->getTranslationVersionData(ProductTranslationDefinition::getEntityName(), Defaults::LANGUAGE, 'productId', $productId->toString(), $variantVersionId);
         $this->assertCount(2, $changes);
 
         $product = $this->connection->fetchAssoc(
@@ -558,7 +557,7 @@ class VersioningTest extends KernelTestCase
             [
                 'id' => $productId->getBytes(),
                 'version' => Uuid::fromString($variantVersionId)->getBytes(),
-                'language' => Uuid::fromString($versionContext->getApplicationId())->getBytes(),
+                'language' => Uuid::fromString($versionContext->getLanguageId())->getBytes(),
             ]
         );
         $this->assertEquals('parent version', $product['name']);

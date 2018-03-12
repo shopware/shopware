@@ -202,18 +202,13 @@ class Router implements RouterInterface, RequestMatcherInterface
 
         $pathInfo = '/' . trim($pathInfo, '/');
 
-        $fallbackTranslationId = null;
-        if ($shop['fallback_translation_id']) {
-            $fallbackTranslationId = $shop['fallback_translation_id'];
-        }
-
         $shopContext = new ShopContext(
             $shop['id'],
             json_decode($shop['shop_catalog_ids'], true),
             [],
             $shop['currency_id'],
-            $shop['locale_id'],
-            $fallbackTranslationId,
+            Defaults::LANGUAGE,
+            null,
             Defaults::LIVE_VERSION,
             (float) $shop['currency_factor']
         );
@@ -298,8 +293,8 @@ class Router implements RouterInterface, RequestMatcherInterface
             json_decode($shop['shop_catalog_ids'], true),
             [],
             $shop['currency_id'],
-            $shop['locale_id'],
-            $shop['fallback_translation_id'] ?? null,
+            Defaults::LANGUAGE,
+            null,
             Defaults::LIVE_VERSION,
             (float) $shop['currency_factor']
         );

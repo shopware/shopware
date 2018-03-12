@@ -9,7 +9,7 @@ use Shopware\Api\Entity\Field\FkField;
 use Shopware\Api\Entity\Field\LongTextField;
 use Shopware\Api\Entity\Field\LongTextWithHtmlField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
-use Shopware\Api\Entity\Field\ReferenceVersionField;
+
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
@@ -22,7 +22,7 @@ use Shopware\Api\Product\Event\ProductTranslation\ProductTranslationWrittenEvent
 use Shopware\Api\Product\Repository\ProductTranslationRepository;
 use Shopware\Api\Product\Struct\ProductTranslationBasicStruct;
 use Shopware\Api\Product\Struct\ProductTranslationDetailStruct;
-use Shopware\Api\Shop\Definition\ShopDefinition;
+use Shopware\Api\Language\Definition\LanguageDefinition;
 
 class ProductTranslationDefinition extends EntityDefinition
 {
@@ -57,9 +57,7 @@ class ProductTranslationDefinition extends EntityDefinition
             new VersionField(),
             new CatalogField(),
 
-            (new FkField('language_id', 'languageId', ShopDefinition::class))->setFlags(new PrimaryKey(), new Required()),
-            (new ReferenceVersionField(ShopDefinition::class, 'language_version_id'))->setFlags(new PrimaryKey(), new Required()),
-
+            (new FkField('language_id', 'languageId', LanguageDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             new StringField('additional_text', 'additionalText'),
             new StringField('name', 'name'),
             new LongTextField('keywords', 'keywords'),
@@ -68,7 +66,7 @@ class ProductTranslationDefinition extends EntityDefinition
             new StringField('meta_title', 'metaTitle'),
             new StringField('pack_unit', 'packUnit'),
             new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, false),
-            new ManyToOneAssociationField('language', 'language_id', ShopDefinition::class, false),
+            new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, false),
         ]);
 
         foreach (self::$extensions as $extension) {

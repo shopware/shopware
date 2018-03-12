@@ -100,8 +100,8 @@ class KeywordSearchTermInterpreter
         }
 
         $query->andWhere('(' . implode(' OR ', $wheres) . ')');
-        $query->andWhere('shop_id = :shop');
-        $query->setParameter('shop', Uuid::fromString($context->getApplicationId())->getBytes());
+        $query->andWhere('language_id = :language');
+        $query->setParameter('language', Uuid::fromString($context->getLanguageId())->getBytes());
 
         return $query->execute()->fetchAll(\PDO::FETCH_COLUMN);
     }

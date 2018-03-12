@@ -122,9 +122,8 @@ class KeywordSearchTermInterpreterTest extends KernelTestCase
         foreach ($keywords as $keyword) {
             $this->connection->insert('search_keyword', [
                 'keyword' => $keyword,
-                'shop_id' => Uuid::fromString(Defaults::SHOP)->getBytes(),
+                'language_id' => Uuid::fromString(Defaults::LANGUAGE)->getBytes(),
                 'version_id' => Uuid::fromString(Defaults::LIVE_VERSION)->getBytes(),
-                'shop_version_id' => Uuid::fromString(Defaults::LIVE_VERSION)->getBytes(),
             ]);
         }
     }

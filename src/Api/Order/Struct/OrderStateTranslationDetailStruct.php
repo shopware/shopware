@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Order\Struct;
 
-use Shopware\Api\Shop\Struct\ShopBasicStruct;
+use Shopware\Api\Language\Struct\LanguageBasicStruct;
 
 class OrderStateTranslationDetailStruct extends OrderStateTranslationBasicStruct
 {
@@ -12,7 +12,7 @@ class OrderStateTranslationDetailStruct extends OrderStateTranslationBasicStruct
     protected $orderState;
 
     /**
-     * @var ShopBasicStruct
+     * @var LanguageBasicStruct
      */
     protected $language;
 
@@ -26,12 +26,12 @@ class OrderStateTranslationDetailStruct extends OrderStateTranslationBasicStruct
         $this->orderState = $orderState;
     }
 
-    public function getLanguage(): ShopBasicStruct
+    public function getLanguage(): LanguageBasicStruct
     {
         return $this->language;
     }
 
-    public function setLanguage(ShopBasicStruct $language): void
+    public function setLanguage(LanguageBasicStruct $language): void
     {
         $this->language = $language;
     }

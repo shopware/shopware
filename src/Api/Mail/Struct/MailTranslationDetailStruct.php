@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Mail\Struct;
 
-use Shopware\Api\Shop\Struct\ShopBasicStruct;
+use Shopware\Api\Language\Struct\LanguageBasicStruct;
 
 class MailTranslationDetailStruct extends MailTranslationBasicStruct
 {
@@ -12,7 +12,7 @@ class MailTranslationDetailStruct extends MailTranslationBasicStruct
     protected $mail;
 
     /**
-     * @var ShopBasicStruct
+     * @var LanguageBasicStruct
      */
     protected $language;
 
@@ -26,12 +26,12 @@ class MailTranslationDetailStruct extends MailTranslationBasicStruct
         $this->mail = $mail;
     }
 
-    public function getLanguage(): ShopBasicStruct
+    public function getLanguage(): LanguageBasicStruct
     {
         return $this->language;
     }
 
-    public function setLanguage(ShopBasicStruct $language): void
+    public function setLanguage(LanguageBasicStruct $language): void
     {
         $this->language = $language;
     }

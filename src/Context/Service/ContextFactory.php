@@ -273,18 +273,13 @@ class ContextFactory implements ContextFactoryInterface
 
         $data = $query->execute()->fetch(\PDO::FETCH_ASSOC);
 
-        $fallbackTranslationId = null;
-        if ($data['shop_fallback_translation_id']) {
-            $fallbackTranslationId = Uuid::fromBytes($data['shop_fallback_translation_id'])->toString();
-        }
-
         return new ShopContext(
             Uuid::fromBytes($data['shop_id'])->toString(),
             json_decode($data['shop_catalog_ids'], true),
             [],
             Uuid::fromBytes($data['shop_currency_id'])->toString(),
-            Uuid::fromBytes($data['shop_locale_id'])->toString(),
-            $fallbackTranslationId,
+            Defaults::LANGUAGE,
+            null,
             Defaults::LIVE_VERSION,
             (float) $data['shop_currency_factor']
         );

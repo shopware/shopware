@@ -544,7 +544,7 @@ class EntityDefinitionQueryHelper
         /** @var EntityDefinition $definition */
         $table = $definition::getEntityName() . '_translation';
 
-        $languageId = Uuid::fromString($context->getApplicationId())->getBytes();
+        $languageId = Uuid::fromString($context->getLanguageId())->getBytes();
         $query->setParameter('languageId', $languageId);
 
         $versionJoin = '';

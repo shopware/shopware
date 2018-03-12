@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Tax\Struct;
 
-use Shopware\Api\Shop\Struct\ShopBasicStruct;
+use Shopware\Api\Language\Struct\LanguageBasicStruct;
 
 class TaxAreaRuleTranslationDetailStruct extends TaxAreaRuleTranslationBasicStruct
 {
@@ -12,7 +12,7 @@ class TaxAreaRuleTranslationDetailStruct extends TaxAreaRuleTranslationBasicStru
     protected $taxAreaRule;
 
     /**
-     * @var ShopBasicStruct
+     * @var LanguageBasicStruct
      */
     protected $language;
 
@@ -26,12 +26,12 @@ class TaxAreaRuleTranslationDetailStruct extends TaxAreaRuleTranslationBasicStru
         $this->taxAreaRule = $taxAreaRule;
     }
 
-    public function getLanguage(): ShopBasicStruct
+    public function getLanguage(): LanguageBasicStruct
     {
         return $this->language;
     }
 
-    public function setLanguage(ShopBasicStruct $language): void
+    public function setLanguage(LanguageBasicStruct $language): void
     {
         $this->language = $language;
     }

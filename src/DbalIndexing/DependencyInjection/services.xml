@@ -5,10 +5,6 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service class="Shopware\DbalIndexing\Common\ContextVariationService" id="Shopware\DbalIndexing\Common\ContextVariationService">
-            <argument id="Shopware\Api\Shop\Repository\ShopRepository" type="service"/>
-        </service>
-
         <service class="Shopware\DbalIndexing\Common\IndexTableOperator" id="Shopware\DbalIndexing\Common\IndexTableOperator">
             <argument id="Doctrine\DBAL\Connection" type="service"/>
         </service>
@@ -18,9 +14,10 @@
             <argument id="Doctrine\DBAL\Connection" type="service"/>
             <argument type="service" id="Shopware\Api\Product\Repository\ProductRepository"/>
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\DbalIndexing\Common\ContextVariationService"/>
             <argument type="service" id="Shopware\DbalIndexing\Search\SearchAnalyzerRegistry"/>
             <argument type="service" id="Shopware\DbalIndexing\Common\IndexTableOperator"/>
+            <argument type="service" id="Shopware\Api\Language\Repository\LanguageRepository"/>
+            <argument type="service" id="Shopware\Api\Catalog\Repository\CatalogRepository"/>
         </service>
 
         <service class="Shopware\DbalIndexing\Search\SearchAnalyzerRegistry" id="Shopware\DbalIndexing\Search\SearchAnalyzerRegistry">

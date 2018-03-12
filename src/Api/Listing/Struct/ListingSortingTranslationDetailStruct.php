@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Listing\Struct;
 
-use Shopware\Api\Shop\Struct\ShopBasicStruct;
+use Shopware\Api\Language\Struct\LanguageBasicStruct;
 
 class ListingSortingTranslationDetailStruct extends ListingSortingTranslationBasicStruct
 {
@@ -12,7 +12,7 @@ class ListingSortingTranslationDetailStruct extends ListingSortingTranslationBas
     protected $listingSorting;
 
     /**
-     * @var ShopBasicStruct
+     * @var LanguageBasicStruct
      */
     protected $language;
 
@@ -26,12 +26,12 @@ class ListingSortingTranslationDetailStruct extends ListingSortingTranslationBas
         $this->listingSorting = $listingSorting;
     }
 
-    public function getLanguage(): ShopBasicStruct
+    public function getLanguage(): LanguageBasicStruct
     {
         return $this->language;
     }
 
-    public function setLanguage(ShopBasicStruct $language): void
+    public function setLanguage(LanguageBasicStruct $language): void
     {
         $this->language = $language;
     }

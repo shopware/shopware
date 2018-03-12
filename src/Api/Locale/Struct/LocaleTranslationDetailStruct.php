@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Locale\Struct;
 
-use Shopware\Api\Shop\Struct\ShopBasicStruct;
+use Shopware\Api\Language\Struct\LanguageBasicStruct;
 
 class LocaleTranslationDetailStruct extends LocaleTranslationBasicStruct
 {
@@ -12,7 +12,7 @@ class LocaleTranslationDetailStruct extends LocaleTranslationBasicStruct
     protected $locale;
 
     /**
-     * @var ShopBasicStruct
+     * @var LanguageBasicStruct
      */
     protected $language;
 
@@ -26,12 +26,12 @@ class LocaleTranslationDetailStruct extends LocaleTranslationBasicStruct
         $this->locale = $locale;
     }
 
-    public function getLanguage(): ShopBasicStruct
+    public function getLanguage(): LanguageBasicStruct
     {
         return $this->language;
     }
 
-    public function setLanguage(ShopBasicStruct $language): void
+    public function setLanguage(LanguageBasicStruct $language): void
     {
         $this->language = $language;
     }

@@ -81,7 +81,7 @@ class ShopContext extends Struct
 
     public static function createDefaultContext(): self
     {
-        return new self(Defaults::SHOP, [Defaults::CATALOG], [], Defaults::CURRENCY, Defaults::SHOP);
+        return new self(Defaults::SHOP, [Defaults::CATALOG], [], Defaults::CURRENCY, Defaults::LANGUAGE);
     }
 
     public static function createFromShop(ShopBasicStruct $shop): self
@@ -91,8 +91,8 @@ class ShopContext extends Struct
             $shop->getCatalogIds(),
             [],
             $shop->getCurrency()->getId(),
-            $shop->getLocaleId(),
-            $shop->getFallbackTranslationId(),
+            Defaults::LANGUAGE,
+            null,
             Defaults::LIVE_VERSION,
             $shop->getCurrency()->getFactor()
         );

@@ -79,7 +79,6 @@ CREATE TABLE `category_translation` (
   `catalog_id` binary(16) NOT NULL,
   `version_id` binary(16) NOT NULL,
   `language_id` binary(16) NOT NULL,
-  `language_version_id` binary(16) NOT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `path_names` longtext COLLATE utf8mb4_unicode_ci,
   `meta_keywords` mediumtext COLLATE utf8mb4_unicode_ci,
@@ -87,9 +86,9 @@ CREATE TABLE `category_translation` (
   `meta_description` mediumtext COLLATE utf8mb4_unicode_ci,
   `cms_headline` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `cms_description` mediumtext COLLATE utf8mb4_unicode_ci,
-  PRIMARY KEY (`category_id`, `version_id`, `language_id`, `language_version_id`),
+  PRIMARY KEY (`category_id`, `version_id`, `language_id`),
   KEY `catalog_id` (`catalog_id`),
-  CONSTRAINT `category_translation_ibfk_1` FOREIGN KEY (`language_id`, `language_version_id`) REFERENCES `shop` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `category_translation_ibfk_1` FOREIGN KEY (`language_id`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `category_translation_ibfk_2` FOREIGN KEY (`category_id`, `version_id`) REFERENCES `category` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `category_translation_ibfk_3` FOREIGN KEY (`catalog_id`) REFERENCES `catalog` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -324,11 +323,10 @@ DROP TABLE IF EXISTS `country_area_translation`;
 CREATE TABLE `country_area_translation` (
   `country_area_id` binary(16) NOT NULL,
   `language_id` binary(16) NOT NULL,
-  `language_version_id` binary(16) NOT NULL,
   `version_id` binary(16) NOT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  PRIMARY KEY (`country_area_id`, `language_id`, `language_version_id`, `version_id`),
-  CONSTRAINT `country_area_translation_ibfk_1` FOREIGN KEY (`language_id`, `language_version_id`) REFERENCES `shop` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  PRIMARY KEY (`country_area_id`, `language_id`, `version_id`),
+  CONSTRAINT `country_area_translation_ibfk_1` FOREIGN KEY (`language_id`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `country_area_translation_ibfk_2` FOREIGN KEY (`country_area_id`, `version_id`) REFERENCES `country_area` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -353,11 +351,10 @@ DROP TABLE IF EXISTS `country_state_translation`;
 CREATE TABLE `country_state_translation` (
   `country_state_id` binary(16) NOT NULL,
   `language_id` binary(16) NOT NULL,
-  `language_version_id` binary(16) NOT NULL,
   `version_id` binary(16) NOT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  PRIMARY KEY (`country_state_id`,`language_id`, `language_version_id`, `version_id`),
-  CONSTRAINT `country_state_translation_ibfk_1` FOREIGN KEY (`language_id`, `language_version_id`) REFERENCES `shop` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  PRIMARY KEY (`country_state_id`,`language_id`, `version_id`),
+  CONSTRAINT `country_state_translation_ibfk_1` FOREIGN KEY (`language_id`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `country_state_translation_ibfk_2` FOREIGN KEY (`country_state_id`, `version_id`) REFERENCES `country_state` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -366,11 +363,10 @@ DROP TABLE IF EXISTS `country_translation`;
 CREATE TABLE `country_translation` (
   `country_id` binary(16) NOT NULL,
   `language_id` binary(16) NOT NULL,
-  `language_version_id` binary(16) NOT NULL,
   `version_id` binary(16) NOT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  PRIMARY KEY (`country_id`, `language_id`, `language_version_id`, `version_id`),
-  CONSTRAINT `country_translation_ibfk_1` FOREIGN KEY (`language_id`, `language_version_id`) REFERENCES `shop` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  PRIMARY KEY (`country_id`, `language_id`, `version_id`),
+  CONSTRAINT `country_translation_ibfk_1` FOREIGN KEY (`language_id`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `country_translation_ibfk_2` FOREIGN KEY (`country_id`, `version_id`) REFERENCES `country` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -394,12 +390,11 @@ DROP TABLE IF EXISTS `currency_translation`;
 CREATE TABLE `currency_translation` (
   `currency_id` binary(16) NOT NULL,
   `language_id` binary(16) NOT NULL,
-  `language_version_id` binary(16) NOT NULL,
   `version_id` binary(16) NOT NULL,
   `short_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  PRIMARY KEY (`currency_id`, `language_id`, `language_version_id`, `version_id`),
-  CONSTRAINT `currency_translation_ibfk_1` FOREIGN KEY (`language_id`, `language_version_id`) REFERENCES `shop` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  PRIMARY KEY (`currency_id`, `language_id`, `version_id`),
+  CONSTRAINT `currency_translation_ibfk_1` FOREIGN KEY (`language_id`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `currency_translation_ibfk_2` FOREIGN KEY (`currency_id`, `version_id`) REFERENCES `currency` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -524,11 +519,10 @@ DROP TABLE IF EXISTS `customer_group_translation`;
 CREATE TABLE `customer_group_translation` (
   `customer_group_id` binary(16) NOT NULL,
   `language_id` binary(16) NOT NULL,
-  `language_version_id` binary(16) NOT NULL,
   `version_id` binary(16) NOT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  PRIMARY KEY (`customer_group_id`, `language_id`, `language_version_id`, `version_id`),
-  CONSTRAINT `customer_group_translation_ibfk_1` FOREIGN KEY (`language_id`, `language_version_id`) REFERENCES `shop` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  PRIMARY KEY (`customer_group_id`, `language_id`, `version_id`),
+  CONSTRAINT `customer_group_translation_ibfk_1` FOREIGN KEY (`language_id`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `customer_group_translation_ibfk_2` FOREIGN KEY (`customer_group_id`, `version_id`) REFERENCES `customer_group` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -555,11 +549,10 @@ DROP TABLE IF EXISTS `listing_facet_translation`;
 CREATE TABLE `listing_facet_translation` (
   `listing_facet_id` binary(16) NOT NULL,
   `language_id` binary(16) NOT NULL,
-  `language_version_id` binary(16) NOT NULL,
   `version_id` binary(16) NOT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  PRIMARY KEY (`listing_facet_id`, `language_id`, `language_version_id`, `version_id`),
-  CONSTRAINT `listing_facet_translation_ibfk_1` FOREIGN KEY (`language_id`, `language_version_id`) REFERENCES `shop` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  PRIMARY KEY (`listing_facet_id`, `language_id`, `version_id`),
+  CONSTRAINT `listing_facet_translation_ibfk_1` FOREIGN KEY (`language_id`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `listing_facet_translation_ibfk_2` FOREIGN KEY (`listing_facet_id`, `version_id`) REFERENCES `listing_facet` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -583,11 +576,10 @@ DROP TABLE IF EXISTS `listing_sorting_translation`;
 CREATE TABLE `listing_sorting_translation` (
   `listing_sorting_id` binary(16) NOT NULL,
   `language_id` binary(16) NOT NULL,
-  `language_version_id` binary(16) NOT NULL,
   `version_id` binary(16) NOT NULL,
   `label` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  PRIMARY KEY (`listing_sorting_id`, `language_version_id`, `language_id`, `version_id`),
-  CONSTRAINT `listing_sorting_translation_ibfk_1` FOREIGN KEY (`language_id`, `language_version_id`) REFERENCES `shop` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  PRIMARY KEY (`listing_sorting_id`, `language_id`, `version_id`),
+  CONSTRAINT `listing_sorting_translation_ibfk_1` FOREIGN KEY (`language_id`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `listing_sorting_translation_ibfk_2` FOREIGN KEY (`listing_sorting_id`, `version_id`) REFERENCES `listing_sorting` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -609,11 +601,10 @@ CREATE TABLE `locale_translation` (
   `locale_id` binary(16) NOT NULL,
   `version_id` binary(16) NOT NULL,
   `language_id` binary(16) NOT NULL,
-  `language_version_id` binary(16) NOT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `territory` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  PRIMARY KEY (`locale_id`, `language_id`, `language_version_id`, `version_id`),
-  CONSTRAINT `locale_translation_ibfk_1` FOREIGN KEY (`language_id`, `language_version_id`) REFERENCES `shop` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  PRIMARY KEY (`locale_id`, `language_id`, `version_id`),
+  CONSTRAINT `locale_translation_ibfk_1` FOREIGN KEY (`language_id`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `locale_translation_ibfk_2` FOREIGN KEY (`locale_id`, `version_id`) REFERENCES `locale` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -678,15 +669,14 @@ DROP TABLE IF EXISTS `mail_translation`;
 CREATE TABLE `mail_translation` (
   `mail_id` binary(16) NOT NULL,
   `language_id` binary(16) NOT NULL,
-  `language_version_id` binary(16) NOT NULL,
   `version_id` binary(16) NOT NULL,
   `from_mail` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `from_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `subject` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `content` mediumtext COLLATE utf8mb4_unicode_ci NOT NULL,
   `content_html` mediumtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  PRIMARY KEY (`mail_id`, `language_id`, `language_version_id`, `version_id`),
-  CONSTRAINT `mail_translation_ibfk_1` FOREIGN KEY (`language_id`, `language_version_id`) REFERENCES `shop` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  PRIMARY KEY (`mail_id`, `language_id`, `version_id`),
+  CONSTRAINT `mail_translation_ibfk_1` FOREIGN KEY (`language_id`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `mail_translation_ibfk_2` FOREIGN KEY (`mail_id`, `version_id`) REFERENCES `mail` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -742,13 +732,12 @@ DROP TABLE IF EXISTS `media_album_translation`;
 CREATE TABLE `media_album_translation` (
   `media_album_id` binary(16) NOT NULL,
   `language_id` binary(16) NOT NULL,
-  `language_version_id` binary(16) NOT NULL,
   `catalog_id` binary(16) NOT NULL,
   `version_id` binary(16) NOT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  PRIMARY KEY (`media_album_id`, `language_id`, `language_version_id`, `version_id`),
+  PRIMARY KEY (`media_album_id`, `language_id`, `version_id`),
   KEY `catalog_id` (`catalog_id`),
-  CONSTRAINT `media_album_translation_ibfk_1` FOREIGN KEY (`language_id`, `language_version_id`) REFERENCES `shop` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `media_album_translation_ibfk_1` FOREIGN KEY (`language_id`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `media_album_translation_ibfk_2` FOREIGN KEY (`media_album_id`, `version_id`) REFERENCES `media_album` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `media_album_translation_ibfk_3` FOREIGN KEY (`catalog_id`) REFERENCES `catalog` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -757,15 +746,14 @@ CREATE TABLE `media_album_translation` (
 DROP TABLE IF EXISTS `media_translation`;
 CREATE TABLE `media_translation` (
   `language_id` binary(16) NOT NULL,
-  `language_version_id` binary(16) NOT NULL,
   `media_id` binary(16) NOT NULL,
   `catalog_id` binary(16) NOT NULL,
   `version_id` binary(16) NOT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `description` text COLLATE utf8mb4_unicode_ci,
-  PRIMARY KEY (`media_id`, `language_id`, `language_version_id`, `version_id`),
+  PRIMARY KEY (`media_id`, `language_id`, `version_id`),
   KEY `catalog_id` (`catalog_id`),
-  CONSTRAINT `media_translation_ibfk_1` FOREIGN KEY (`language_id`, `language_version_id`) REFERENCES `shop` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `media_translation_ibfk_1` FOREIGN KEY (`language_id`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `media_translation_ibfk_2` FOREIGN KEY (`media_id`, `version_id`) REFERENCES `media` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `media_translation_ibfk_3` FOREIGN KEY (`catalog_id`) REFERENCES `catalog` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -918,11 +906,10 @@ DROP TABLE IF EXISTS `order_state_translation`;
 CREATE TABLE `order_state_translation` (
   `order_state_id` binary(16) NOT NULL,
   `language_id` binary(16) NOT NULL,
-  `language_version_id` binary(16) NOT NULL,
   `version_id` binary(16) NOT NULL,
   `description` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  PRIMARY KEY (`order_state_id`, `language_id`, `language_version_id`, `version_id`),
-  CONSTRAINT `order_state_translation_ibfk_1` FOREIGN KEY (`language_id`, `language_version_id`) REFERENCES `shop` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  PRIMARY KEY (`order_state_id`, `language_id`, `version_id`),
+  CONSTRAINT `order_state_translation_ibfk_1` FOREIGN KEY (`language_id`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `order_state_translation_ibfk_2` FOREIGN KEY (`order_state_id`, `version_id`) REFERENCES `order_state` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -961,12 +948,11 @@ DROP TABLE IF EXISTS `payment_method_translation`;
 CREATE TABLE `payment_method_translation` (
   `payment_method_id` binary(16) NOT NULL,
   `language_id` binary(16) NOT NULL,
-  `language_version_id` binary(16) NOT NULL,
   `version_id` binary(16) NOT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `additional_description` mediumtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  PRIMARY KEY (`payment_method_id`, `language_id`, `language_version_id`, `version_id`),
-  CONSTRAINT `payment_method_translation_ibfk_1` FOREIGN KEY (`language_id`, `language_version_id`) REFERENCES `shop` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  PRIMARY KEY (`payment_method_id`, `language_id`, `version_id`),
+  CONSTRAINT `payment_method_translation_ibfk_1` FOREIGN KEY (`language_id`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `payment_method_translation_ibfk_2` FOREIGN KEY (`payment_method_id`, `version_id`) REFERENCES `payment_method` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -1100,25 +1086,23 @@ CREATE TABLE `product_category` (
 CREATE TABLE `search_keyword` (
   `keyword` varchar(500) NOT NULL,
   `version_id` binary(16) NOT NULL,
-  `shop_id` binary(16) NOT NULL,
-  `shop_version_id` binary(16) NOT NULL,
-  PRIMARY KEY `keyword_shop_uuid` (`keyword`, `shop_id`, `version_id`, `shop_version_id`),
-  CONSTRAINT `fk_search_keyword.shop_id` FOREIGN KEY (`shop_id`, `shop_version_id`) REFERENCES `shop` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE
+  `language_id` binary(16) NOT NULL,
+  PRIMARY KEY `language_keyword` (`keyword`, `language_id`, `version_id`),
+  CONSTRAINT `fk_search_keyword.language_id` FOREIGN KEY (`language_id`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE `product_search_keyword` (
   `id` binary(16) NOT NULL,
   `version_id` binary(16) NOT NULL,
   `keyword` varchar(500) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `shop_id` binary(16) NOT NULL,
-  `shop_version_id` binary(16) NOT NULL,
+  `language_id` binary(16) NOT NULL,
   `product_id` binary(16) NOT NULL,
   `product_version_id` binary(16) NOT NULL,
   `ranking` float NOT NULL,
   PRIMARY KEY (`id`, `version_id`),
-  UNIQUE KEY (`keyword`, `shop_id`, `product_id`, `version_id`, `shop_version_id`),
+  UNIQUE KEY (`keyword`, `language_id`, `product_id`, `version_id`),
   CONSTRAINT `product_id` FOREIGN KEY (`product_id`, `product_version_id`) REFERENCES `product` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `shop_id` FOREIGN KEY (`shop_id`, `shop_version_id`) REFERENCES `shop` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `language_id` FOREIGN KEY (`language_id`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `product_manufacturer`;
@@ -1143,16 +1127,15 @@ CREATE TABLE `product_manufacturer_translation` (
   `product_manufacturer_id` binary(16) NOT NULL,
   `catalog_id` binary(16) NOT NULL,
   `language_id` binary(16) NOT NULL,
-  `language_version_id` binary(16) NOT NULL,
   `version_id` binary(16) NOT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `description` longtext COLLATE utf8mb4_unicode_ci,
   `meta_title` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `meta_description` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `meta_keywords` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  PRIMARY KEY (`product_manufacturer_id`,`language_id`, `language_version_id`, `version_id`),
+  PRIMARY KEY (`product_manufacturer_id`,`language_id`, `version_id`),
   KEY `catalog_id` (`catalog_id`),
-  CONSTRAINT `product_manufacturer_translation_ibfk_1` FOREIGN KEY (`language_id`, `language_version_id`) REFERENCES `shop` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `product_manufacturer_translation_ibfk_1` FOREIGN KEY (`language_id`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `product_manufacturer_translation_ibfk_2` FOREIGN KEY (`product_manufacturer_id`, `version_id`) REFERENCES `product_manufacturer` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `product_manufacturer_translation_ibfk_3` FOREIGN KEY (`catalog_id`) REFERENCES `catalog` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -1247,7 +1230,6 @@ CREATE TABLE `product_translation` (
   `product_id` binary(16) NOT NULL,
   `catalog_id` binary(16) NOT NULL,
   `language_id` binary(16) NOT NULL,
-  `language_version_id` binary(16) NOT NULL,
   `version_id` binary(16) NOT NULL,
   `additional_text` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NULL,
@@ -1256,9 +1238,9 @@ CREATE TABLE `product_translation` (
   `description_long` mediumtext COLLATE utf8mb4_unicode_ci,
   `meta_title` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `pack_unit` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  PRIMARY KEY (`product_id`, `language_id`, `language_version_id`, `version_id`),
+  PRIMARY KEY (`product_id`, `language_id`, `version_id`),
   KEY `catalog_id` (`catalog_id`),
-  CONSTRAINT `fk_product_trans.language_id` FOREIGN KEY (`language_id`, `language_version_id`) REFERENCES `shop` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_product_trans.language_id` FOREIGN KEY (`language_id`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_product_trans.product_id` FOREIGN KEY (`product_id`, `version_id`) REFERENCES `product` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_product_trans.catalog_id` FOREIGN KEY (`catalog_id`) REFERENCES `catalog` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -1273,6 +1255,19 @@ CREATE TABLE `schema_version` (
   `error_msg` longtext COLLATE utf8mb4_unicode_ci
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+DROP TABLE IF EXISTS `language`;
+CREATE TABLE `language` (
+  `id` binary(16) NOT NULL,
+  `name` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `parent_id` binary(16) NULL DEFAULT NULL,
+  `locale_id` binary(16) NOT NULL,
+  `locale_version_id` binary(16) NOT NULL,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  CONSTRAINT `fk_language.parent_id` FOREIGN KEY (`parent_id`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_language.locale_id` FOREIGN KEY (`locale_id`, `locale_version_id`) REFERENCES `locale` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `seo_url`;
 CREATE TABLE `seo_url` (
@@ -1362,18 +1357,16 @@ CREATE TABLE `shipping_method_price` (
   CONSTRAINT `fk_shipping_method_price.shipping_method_id` FOREIGN KEY (`shipping_method_id`, `shipping_method_version_id`) REFERENCES `shipping_method` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-
 DROP TABLE IF EXISTS `shipping_method_translation`;
 CREATE TABLE `shipping_method_translation` (
   `shipping_method_id` binary(16) NOT NULL,
   `language_id` binary(16) NOT NULL,
-  `language_version_id` binary(16) NOT NULL,
   `version_id` binary(16) NOT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `description` mediumtext COLLATE utf8mb4_unicode_ci,
   `comment` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  PRIMARY KEY (`shipping_method_id`, `language_id`, `language_version_id`, `version_id`),
-  CONSTRAINT `shipping_method_translation_ibfk_1` FOREIGN KEY (`language_id`, `language_version_id`) REFERENCES `shop` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  PRIMARY KEY (`shipping_method_id`, `language_id`, `version_id`),
+  CONSTRAINT `shipping_method_translation_ibfk_1` FOREIGN KEY (`language_id`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `shipping_method_translation_ibfk_2` FOREIGN KEY (`shipping_method_id`, `version_id`) REFERENCES `shipping_method` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -1613,11 +1606,10 @@ DROP TABLE IF EXISTS `tax_area_rule_translation`;
 CREATE TABLE `tax_area_rule_translation` (
   `tax_area_rule_id` binary(16) NOT NULL,
   `language_id` binary(16) NOT NULL,
-  `language_version_id` binary(16) NOT NULL,
   `version_id` binary(16) NOT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`tax_area_rule_id`,`language_id`, `version_id`),
-  CONSTRAINT `tax_area_rule_translation_ibfk_1` FOREIGN KEY (`language_id`, `language_version_id`) REFERENCES `shop` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `tax_area_rule_translation_ibfk_1` FOREIGN KEY (`language_id`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `tax_area_rule_translation_ibfk_2` FOREIGN KEY (`tax_area_rule_id`, `version_id`) REFERENCES `tax_area_rule` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -1636,12 +1628,11 @@ DROP TABLE IF EXISTS `unit_translation`;
 CREATE TABLE `unit_translation` (
   `unit_id` binary(16) NOT NULL,
   `language_id` binary(16) NOT NULL,
-  `language_version_id` binary(16) NOT NULL,
   `version_id` binary(16) NOT NULL,
   `short_code` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`unit_id`,`language_id`, `version_id`),
-  CONSTRAINT `unit_translation_ibfk_1` FOREIGN KEY (`language_id`, `language_version_id`) REFERENCES `shop` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `unit_translation_ibfk_1` FOREIGN KEY (`language_id`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `unit_translation_ibfk_2` FOREIGN KEY (`unit_id`, `version_id`) REFERENCES `unit` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

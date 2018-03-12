@@ -9,11 +9,14 @@ use Shopware\Api\Entity\Write\EntityWriter;
 use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\FieldException\WriteStackException;
 use Shopware\Api\Entity\Write\WriteContext;
+use Shopware\Api\Language\Repository\LanguageRepository;
+use Shopware\Api\Locale\Repository\LocaleRepository;
 use Shopware\Api\Product\Definition\ProductCategoryDefinition;
 use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Defaults;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class WriterTest extends KernelTestCase
 {
@@ -25,6 +28,11 @@ class WriterTest extends KernelTestCase
     private $connection;
     private $idBytes;
 
+    /**
+     * @var ContainerInterface
+     */
+    private $container;
+
     public function setUp()
     {
         self::bootKernel();
@@ -33,12 +41,13 @@ class WriterTest extends KernelTestCase
 
         $container = self::$kernel->getContainer();
         $this->connection = $container->get(Connection::class);
-        $this->connection->beginTransaction();
+//        $this->connection->beginTransaction();
+        $this->container = $container;
     }
 
     public function tearDown(): void
     {
-        $this->connection->rollBack();
+//        $this->connection->rollBack();
         parent::tearDown();
     }
 
@@ -429,13 +438,22 @@ class WriterTest extends KernelTestCase
     {
         $this->insertEmptyProduct();
 
+        $localeId = Uuid::uuid4()->toString();
+        $this->container->get(LocaleRepository::class)->upsert([
+            ['id' => $localeId, 'name' => 'test', 'territory' => 'tmp', 'code' => Uuid::uuid4()->toString()]
+        ], ShopContext::createDefaultContext());
+
+        $this->container->get(LanguageRepository::class)->upsert([
+            ['id' => '2d905256-e751-4967-8dd5-a32a81b94f1f', 'name' => 'language 2', 'localeId' => $localeId, 'localeVersionId' => Defaults::LIVE_VERSION],
+        ], ShopContext::createDefaultContext());
+
         $this->getWriter()->update(
             ProductDefinition::class,
             [
                 [
                     'id' => $this->id,
                     'name' => [
-                        'FFA32A50-E2D0-4CF3-8389-A53F8D6CD594' => '1ABC',
+                        Defaults::LANGUAGE => '1ABC',
                         '2d905256-e751-4967-8dd5-a32a81b94f1f' => '2ABC',
                     ],
                     'description' => 'foo', // implicit FFA32A50-E2D0-4CF3-8389-A53F8D6CD594
@@ -499,7 +517,7 @@ class WriterTest extends KernelTestCase
         }, $productTranslations);
 
         foreach ($productTranslations as $translation) {
-            if ($translation['language_id'] === 'ffa32a50-e2d0-4cf3-8389-a53f8d6cd594') {
+            if ($translation['language_id'] === Defaults::LANGUAGE) {
                 self::assertSame('1ABC', $translation['name']);
                 self::assertSame('foo', $translation['description']);
                 self::assertNull($translation['description_long']);

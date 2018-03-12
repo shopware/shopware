@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Country\Struct;
 
-use Shopware\Api\Shop\Struct\ShopBasicStruct;
+use Shopware\Api\Language\Struct\LanguageBasicStruct;
 
 class CountryAreaTranslationDetailStruct extends CountryAreaTranslationBasicStruct
 {
@@ -12,7 +12,7 @@ class CountryAreaTranslationDetailStruct extends CountryAreaTranslationBasicStru
     protected $countryArea;
 
     /**
-     * @var ShopBasicStruct
+     * @var LanguageBasicStruct
      */
     protected $language;
 
@@ -26,12 +26,12 @@ class CountryAreaTranslationDetailStruct extends CountryAreaTranslationBasicStru
         $this->countryArea = $countryArea;
     }
 
-    public function getLanguage(): ShopBasicStruct
+    public function getLanguage(): LanguageBasicStruct
     {
         return $this->language;
     }
 
-    public function setLanguage(ShopBasicStruct $language): void
+    public function setLanguage(LanguageBasicStruct $language): void
     {
         $this->language = $language;
     }

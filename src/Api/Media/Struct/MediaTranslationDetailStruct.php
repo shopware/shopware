@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Media\Struct;
 
-use Shopware\Api\Shop\Struct\ShopBasicStruct;
+use Shopware\Api\Language\Struct\LanguageBasicStruct;
 
 class MediaTranslationDetailStruct extends MediaTranslationBasicStruct
 {
@@ -12,7 +12,7 @@ class MediaTranslationDetailStruct extends MediaTranslationBasicStruct
     protected $media;
 
     /**
-     * @var ShopBasicStruct
+     * @var LanguageBasicStruct
      */
     protected $language;
 
@@ -26,12 +26,12 @@ class MediaTranslationDetailStruct extends MediaTranslationBasicStruct
         $this->media = $media;
     }
 
-    public function getLanguage(): ShopBasicStruct
+    public function getLanguage(): LanguageBasicStruct
     {
         return $this->language;
     }
 
-    public function setLanguage(ShopBasicStruct $language): void
+    public function setLanguage(LanguageBasicStruct $language): void
     {
         $this->language = $language;
     }

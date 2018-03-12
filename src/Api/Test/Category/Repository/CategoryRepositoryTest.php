@@ -228,7 +228,7 @@ class CategoryRepositoryTest extends KernelTestCase
                 'currencyId' => '4c8eba11-bd35-46d7-86af-bed481a6e665',
                 'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
                 'paymentMethodId' => 'e84976ac-e9ab-4928-a3dc-c387b66dbaa6',
-                'shippingMethodId' => '8beeb66e-9dda-46b1-8891-a059257a590e',
+                'shippingMethodId' => '417beeb2-dddf-45d1-b901-88fd211343c3',
                 'countryId' => 'bd5e2dcf-547e-4df6-bb1f-f58a554bc69e',
                 'name' => 'test',
                 'host' => 'test',

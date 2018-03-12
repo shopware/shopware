@@ -75,6 +75,77 @@ Component.register('sw-product-detail', {
 
         onSave() {
             this.saveProduct();
+        },
+
+        /**
+         * Todo: Remove test notifications
+         */
+        addNotificationInfo() {
+            this.$store.commit('notification/createNotification', {
+                title: 'Info',
+                variant: 'info',
+                text: 'Lorem ipsum dolor sit amet.'
+            });
+        },
+
+        addNotificationError() {
+            this.$store.commit('notification/createNotification', {
+                title: 'Error',
+                variant: 'error',
+                text: 'Lorem ipsum dolor sit amet.'
+            });
+        },
+
+        addNotificationSuccess() {
+            this.$store.commit('notification/createNotification', {
+                title: 'Success',
+                variant: 'success',
+                text: 'Lorem ipsum dolor sit amet.'
+            });
+        },
+
+        addNotificationWarning() {
+            this.$store.commit('notification/createNotification', {
+                title: 'Warning',
+                variant: 'warning',
+                text: 'Lorem ipsum dolor sit amet.'
+            });
+        },
+
+        addSystemNotificationError() {
+            this.$store.commit('notification/createNotification', {
+                title: 'Shopware Error',
+                variant: 'error',
+                system: true,
+                text: 'Lorem ipsum dolor sit amet.'
+            });
+        },
+
+        addSystemNotificationSuccess() {
+            this.$store.commit('notification/createNotification', {
+                title: 'Shopware Success',
+                variant: 'success',
+                system: true,
+                text: 'Lorem ipsum dolor sit amet.'
+            });
+        },
+
+        addSystemNotificationInfo() {
+            this.$store.commit('notification/createNotification', {
+                title: 'Shopware Info',
+                variant: 'info',
+                system: true,
+                text: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut.'
+            });
+        },
+
+        addSystemNotificationWarning() {
+            this.$store.commit('notification/createNotification', {
+                title: 'Shopware Warning',
+                variant: 'warning',
+                system: true,
+                text: 'Lorem ipsum dolor sit amet.'
+            });
         }
     },
 

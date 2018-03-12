@@ -47,6 +47,21 @@
 
         <sw-product-basic-form :product="product" :manufacturers="manufacturers" :taxRates="taxRates" :serviceProvider="categoryService"></sw-product-basic-form>
 
+        <!-- TODO: Remove test notifications -->
+        <sw-card title="Notifications Test">
+            <h2>Notifications</h2>
+            <sw-button @click="addNotificationInfo">Info</sw-button>
+            <sw-button @click="addNotificationWarning">Warning</sw-button>
+            <sw-button @click="addNotificationSuccess">Success</sw-button>
+            <sw-button @click="addNotificationError">Error</sw-button>
+            <p>&nbsp;</p>
+            <h2>System notifications</h2>
+            <sw-button @click="addSystemNotificationInfo">Info</sw-button>
+            <sw-button @click="addSystemNotificationWarning">Warning</sw-button>
+            <sw-button @click="addSystemNotificationSuccess">Success</sw-button>
+            <sw-button @click="addSystemNotificationError">Error</sw-button>
+        </sw-card>
+
         {% block core_product_detail_workspace_additional %}{% endblock %}
     </div>
 

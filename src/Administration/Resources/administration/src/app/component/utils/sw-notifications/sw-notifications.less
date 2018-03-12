@@ -1,0 +1,26 @@
+.sw-notifications {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 400px;
+    z-index: 1000;
+    overflow: hidden;
+    max-height: calc(100% - 20px);
+
+    .sw-alert {
+        width: 100%;
+    }
+
+    .slide-fade-enter-active {
+        transition: all .3s ease;
+    }
+
+    .slide-fade-leave-active {
+        transition: all .3s ease;
+    }
+
+    .slide-fade-enter, .slide-fade-leave-to {
+        transform: translateX(50px);
+        opacity: 0;
+    }
+}

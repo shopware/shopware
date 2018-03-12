@@ -1,0 +1,12 @@
+<div class="sw-notifications">
+    <transition-group name="slide-fade">
+        <template v-for="(notification, index) in notifications">
+            <sw-alert :title="notification.title"
+                      :variant="notification.variant"
+                      :system="notification.system"
+                      v-bind:key="index">
+                {{ notification.text }}
+            </sw-alert>
+        </template>
+    </transition-group>
+</div>

@@ -67,6 +67,7 @@ class CustomerRepositoryTest extends KernelTestCase
         $records = [
             [
                 'id' => $recordA,
+                'shopId' => Defaults::SHOP,
                 'defaultShippingAddress' => $address,
                 'defaultPaymentMethodId' => 'e84976ac-e9ab-4928-a3dc-c387b66dbaa6',
                 'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
@@ -79,6 +80,7 @@ class CustomerRepositoryTest extends KernelTestCase
             ],
             [
                 'id' => $recordB,
+                'shopId' => Defaults::SHOP,
                 'defaultShippingAddress' => $address,
                 'defaultPaymentMethodId' => 'e84976ac-e9ab-4928-a3dc-c387b66dbaa6',
                 'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
@@ -91,6 +93,7 @@ class CustomerRepositoryTest extends KernelTestCase
             ],
             [
                 'id' => $recordC,
+                'shopId' => Defaults::SHOP,
                 'defaultShippingAddress' => $address,
                 'defaultPaymentMethodId' => 'e84976ac-e9ab-4928-a3dc-c387b66dbaa6',
                 'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
@@ -103,6 +106,7 @@ class CustomerRepositoryTest extends KernelTestCase
             ],
             [
                 'id' => $recordD,
+                'shopId' => Defaults::SHOP,
                 'defaultShippingAddress' => $address,
                 'defaultPaymentMethodId' => 'e84976ac-e9ab-4928-a3dc-c387b66dbaa6',
                 'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,

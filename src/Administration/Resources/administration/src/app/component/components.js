@@ -14,6 +14,7 @@ import './form/sw-multi-select';
 
 import './utils/sw-loader';
 import './utils/sw-notifications';
+import './utils/sw-color-swatch';
 
 import './structure/sw-admin';
 import './structure/sw-desktop';

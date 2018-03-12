@@ -1,0 +1,33 @@
+@import "~less/variables";
+
+@sw-product-sidebar-color-background:        @color-white;
+@sw-product-sidebar-icon-color:              @color-gutenberg;
+@sw-product-sidebar-active-icon-color:       @color-shopware-blue;
+@sw-product-sidebar-active-color-background: @color-cadet-blue;
+@sw-product-sidebar-color-border:            @color-steam-cloud;
+
+.sw-product-sidebar {
+    width: 64px;
+    height: 100%;
+    background-color: @sw-product-sidebar-color-background;
+    border-left: 1px solid @sw-product-sidebar-color-border;
+}
+
+.sw-product-sidebar__button {
+    width: 64px;
+    height: 64px;
+    font-size: 22px;
+    line-height: 12px;
+    text-align: center;
+    border: 0 solid @sw-product-sidebar-color-border;
+    border-bottom-width: 1px;
+    color: @sw-product-sidebar-icon-color;
+    background: none;
+    cursor: pointer;
+    outline: none;
+
+    &:hover, &.is-active {
+        background: @sw-product-sidebar-active-color-background;
+        color: @sw-product-sidebar-active-icon-color;
+    }
+}

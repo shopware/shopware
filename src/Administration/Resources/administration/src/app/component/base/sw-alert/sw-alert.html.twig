@@ -2,7 +2,7 @@
     <div class="sw-alert" :class="alertClasses" role="alert">
         {% block sw_alert_inner %}
             {% block sw_alert_icon %}
-                <sw-icon class="sw-alert__icon" :name="alertIcon" decorative></sw-icon>
+                <sw-icon class="sw-alert__icon" :name="alertIcon" decorative v-if="showIcon"></sw-icon>
             {% endblock %}
 
             {% block sw_alert_title %}

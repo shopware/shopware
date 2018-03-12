@@ -19,6 +19,14 @@ Module.register('sw-product', {
             path: 'index'
         },
 
+        indexPaginated: {
+            components: {
+                default: 'sw-product-list',
+                sidebar: 'sw-product-sidebar'
+            },
+            path: 'index/:offset/:limit/:sortBy/:sortDirection/:term?'
+        },
+
         create: {
             component: 'sw-product-detail',
             path: 'product/create',

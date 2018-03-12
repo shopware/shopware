@@ -8,9 +8,23 @@ Component.register('sw-grid-column', {
             type: String,
             required: true
         },
+        align: {
+            type: String,
+            default: 'left'
+        },
         flex: {
             required: false,
             default: 1
+        },
+        sortable: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
+        dataIndex: {
+            type: String,
+            required: false,
+            default: ''
         }
     },
 
@@ -25,7 +39,10 @@ Component.register('sw-grid-column', {
             if (hasColumn === -1) {
                 this.$parent.columns.push({
                     label: this.label,
-                    flex: this.flex
+                    flex: this.flex,
+                    sortable: this.sortable,
+                    dataIndex: this.dataIndex,
+                    align: this.align
                 });
             }
         }

@@ -5,7 +5,8 @@ import template from './sw-grid.html.twig';
 Component.register('sw-grid', {
     data() {
         return {
-            columns: []
+            columns: [],
+            selected: false
         };
     },
 
@@ -36,6 +37,12 @@ Component.register('sw-grid', {
             default: false
         },
 
+        variant: {
+            type: String,
+            required: false,
+            default: 'normal'
+        },
+
         header: {
             type: Boolean,
             required: false,
@@ -46,10 +53,37 @@ Component.register('sw-grid', {
             type: Boolean,
             required: false,
             default: false
+        },
+
+        sortBy: {
+            type: String,
+            required: false
+        },
+
+        sortDirection: {
+            type: String,
+            required: false,
+            default: 'ASC'
         }
     },
 
     computed: {
+        sort() {
+            return this.sortBy;
+        },
+        sortDir() {
+            return this.sortDirection;
+        },
+        sizeClass() {
+            return `sw-grid__${this.variant}`;
+        },
+        gridClasses() {
+            return {
+                'sw-grid': true,
+                'sw-grid--sidebar': this.sidebar,
+                [this.sizeClass]: true
+            };
+        },
         columnFlex() {
             let flex = (this.selectable === true) ? '50px ' : '';
 
@@ -86,6 +120,7 @@ Component.register('sw-grid', {
             this.items.forEach((item) => {
                 this.$set(item, 'selected', selected);
             });
+            this.selected = selected;
         },
 
         getSelection() {

@@ -32,8 +32,10 @@ class ApiService {
         const headers = this.getBasicHeaders(additionalHeaders);
         const params = Object.assign({ offset, limit }, additionalParams);
 
+        console.log(params);
+
         return this.httpClient
-            .get(this.getApiBasePath(), {
+            .post(`search/${this.getApiBasePath()}`, {
                 params,
                 headers
             })

@@ -32,13 +32,19 @@ State.register('product', {
          * @param commit
          * @param offset
          * @param limit
+         * @param sortBy
+         * @param sortDirection
          * @returns {Promise<T>}
          */
-        getProductList({ commit }, offset, limit) {
+        getProductList({ commit }, { limit, offset, sortBy, sortDirection, term, criterias }) {
             const providerContainer = Shopware.Application.getContainer('service');
             const productService = providerContainer.productService;
 
-            return productService.getList(offset, limit).then((response) => {
+            const sorting = (sortDirection.toLowerCase() === 'asc' ? '' : '-') + sortBy;
+
+            console.log(criterias);
+
+            return productService.getList(offset, limit, { sort: sorting, term }).then((response) => {
                 const products = response.data;
                 const total = response.meta.total;
 

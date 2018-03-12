@@ -20,6 +20,11 @@ Component.register('sw-alert', {
             type: String,
             required: false
         },
+        showIcon: {
+            type: Boolean,
+            required: false,
+            default: true
+        },
         system: {
             type: Boolean,
             required: false,
@@ -41,7 +46,8 @@ Component.register('sw-alert', {
                 `sw-alert--${this.variant}`,
                 {
                     'sw-alert--system': this.system,
-                    'sw-alert--closable': this.closable
+                    'sw-alert--no-icon': !this.showIcon
+                    'sw-alert--closable': this.closable,
                 }
             ];
         },

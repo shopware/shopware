@@ -8,12 +8,12 @@ use Shopware\Api\Entity\Field\CatalogField;
 use Shopware\Api\Entity\Field\FkField;
 use Shopware\Api\Entity\Field\LongTextField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
-
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
+use Shopware\Api\Language\Definition\LanguageDefinition;
 use Shopware\Api\Product\Collection\ProductManufacturerTranslationBasicCollection;
 use Shopware\Api\Product\Collection\ProductManufacturerTranslationDetailCollection;
 use Shopware\Api\Product\Event\ProductManufacturerTranslation\ProductManufacturerTranslationDeletedEvent;
@@ -21,7 +21,6 @@ use Shopware\Api\Product\Event\ProductManufacturerTranslation\ProductManufacture
 use Shopware\Api\Product\Repository\ProductManufacturerTranslationRepository;
 use Shopware\Api\Product\Struct\ProductManufacturerTranslationBasicStruct;
 use Shopware\Api\Product\Struct\ProductManufacturerTranslationDetailStruct;
-use Shopware\Api\Language\Definition\LanguageDefinition;
 
 class ProductManufacturerTranslationDefinition extends EntityDefinition
 {

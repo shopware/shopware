@@ -1,12 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Api\Language\Event\Language;
 
+use Shopware\Api\Language\Collection\LanguageBasicCollection;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Event\NestedEvent;
-
-use Shopware\Api\Language\Collection\LanguageBasicCollection;
-
 
 class LanguageBasicLoadedEvent extends NestedEvent
 {
@@ -42,5 +40,4 @@ class LanguageBasicLoadedEvent extends NestedEvent
     {
         return $this->languages;
     }
-
 }

@@ -6,12 +6,12 @@ use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\Field\FkField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
-
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
+use Shopware\Api\Language\Definition\LanguageDefinition;
 use Shopware\Api\Locale\Collection\LocaleTranslationBasicCollection;
 use Shopware\Api\Locale\Collection\LocaleTranslationDetailCollection;
 use Shopware\Api\Locale\Event\LocaleTranslation\LocaleTranslationDeletedEvent;
@@ -19,7 +19,6 @@ use Shopware\Api\Locale\Event\LocaleTranslation\LocaleTranslationWrittenEvent;
 use Shopware\Api\Locale\Repository\LocaleTranslationRepository;
 use Shopware\Api\Locale\Struct\LocaleTranslationBasicStruct;
 use Shopware\Api\Locale\Struct\LocaleTranslationDetailStruct;
-use Shopware\Api\Language\Definition\LanguageDefinition;
 
 class LocaleTranslationDefinition extends EntityDefinition
 {

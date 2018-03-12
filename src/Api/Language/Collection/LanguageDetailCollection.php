@@ -5,7 +5,6 @@ namespace Shopware\Api\Language\Collection;
 use Shopware\Api\Language\Struct\LanguageDetailStruct;
 use Shopware\Api\Locale\Collection\LocaleBasicCollection;
 
-
 class LanguageDetailCollection extends LanguageBasicCollection
 {
     /**
@@ -13,15 +12,10 @@ class LanguageDetailCollection extends LanguageBasicCollection
      */
     protected $elements = [];
 
-    protected function getExpectedClass(): string
-    {
-        return LanguageDetailStruct::class;
-    }
-
     public function getParents(): LanguageBasicCollection
     {
         return new LanguageBasicCollection(
-            $this->fmap(function(LanguageDetailStruct $language) {
+            $this->fmap(function (LanguageDetailStruct $language) {
                 return $language->getParent();
             })
         );
@@ -30,7 +24,7 @@ class LanguageDetailCollection extends LanguageBasicCollection
     public function getLocales(): LocaleBasicCollection
     {
         return new LocaleBasicCollection(
-            $this->fmap(function(LanguageDetailStruct $language) {
+            $this->fmap(function (LanguageDetailStruct $language) {
                 return $language->getLocale();
             })
         );
@@ -54,6 +48,12 @@ class LanguageDetailCollection extends LanguageBasicCollection
         foreach ($this->elements as $element) {
             $collection->fill($element->getChildren()->getElements());
         }
+
         return $collection;
+    }
+
+    protected function getExpectedClass(): string
+    {
+        return LanguageDetailStruct::class;
     }
 }

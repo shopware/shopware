@@ -7,12 +7,12 @@ use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\Field\FkField;
 use Shopware\Api\Entity\Field\LongTextField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
-
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
+use Shopware\Api\Language\Definition\LanguageDefinition;
 use Shopware\Api\Shipping\Collection\ShippingMethodTranslationBasicCollection;
 use Shopware\Api\Shipping\Collection\ShippingMethodTranslationDetailCollection;
 use Shopware\Api\Shipping\Event\ShippingMethodTranslation\ShippingMethodTranslationDeletedEvent;
@@ -20,7 +20,6 @@ use Shopware\Api\Shipping\Event\ShippingMethodTranslation\ShippingMethodTranslat
 use Shopware\Api\Shipping\Repository\ShippingMethodTranslationRepository;
 use Shopware\Api\Shipping\Struct\ShippingMethodTranslationBasicStruct;
 use Shopware\Api\Shipping\Struct\ShippingMethodTranslationDetailStruct;
-use Shopware\Api\Language\Definition\LanguageDefinition;
 
 class ShippingMethodTranslationDefinition extends EntityDefinition
 {

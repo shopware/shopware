@@ -20,7 +20,6 @@ use Shopware\Context\Rule\OrderAmountRule;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Defaults;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
-
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;

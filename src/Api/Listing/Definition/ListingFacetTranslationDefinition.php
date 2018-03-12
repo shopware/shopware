@@ -6,12 +6,12 @@ use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\Field\FkField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
-
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
+use Shopware\Api\Language\Definition\LanguageDefinition;
 use Shopware\Api\Listing\Collection\ListingFacetTranslationBasicCollection;
 use Shopware\Api\Listing\Collection\ListingFacetTranslationDetailCollection;
 use Shopware\Api\Listing\Event\ListingFacetTranslation\ListingFacetTranslationDeletedEvent;
@@ -19,7 +19,6 @@ use Shopware\Api\Listing\Event\ListingFacetTranslation\ListingFacetTranslationWr
 use Shopware\Api\Listing\Repository\ListingFacetTranslationRepository;
 use Shopware\Api\Listing\Struct\ListingFacetTranslationBasicStruct;
 use Shopware\Api\Listing\Struct\ListingFacetTranslationDetailStruct;
-use Shopware\Api\Language\Definition\LanguageDefinition;
 
 class ListingFacetTranslationDefinition extends EntityDefinition
 {

@@ -4,11 +4,8 @@ namespace Shopware\Api\Language\Struct;
 
 use Shopware\Api\Entity\Entity;
 
-
-
 class LanguageBasicStruct extends Entity
 {
-
     /**
      * @var string|null
      */
@@ -49,7 +46,6 @@ class LanguageBasicStruct extends Entity
         $this->parentId = $parentId;
     }
 
-
     public function getLocaleId(): string
     {
         return $this->localeId;
@@ -59,7 +55,6 @@ class LanguageBasicStruct extends Entity
     {
         $this->localeId = $localeId;
     }
-
 
     public function getName(): string
     {
@@ -71,7 +66,6 @@ class LanguageBasicStruct extends Entity
         $this->name = $name;
     }
 
-
     public function getLocaleVersionId(): string
     {
         return $this->localeVersionId;
@@ -81,7 +75,6 @@ class LanguageBasicStruct extends Entity
     {
         $this->localeVersionId = $localeVersionId;
     }
-
 
     public function getCreatedAt(): ?\DateTime
     {
@@ -93,7 +86,6 @@ class LanguageBasicStruct extends Entity
         $this->createdAt = $createdAt;
     }
 
-
     public function getUpdatedAt(): ?\DateTime
     {
         return $this->updatedAt;
@@ -103,5 +95,4 @@ class LanguageBasicStruct extends Entity
     {
         $this->updatedAt = $updatedAt;
     }
-
 }

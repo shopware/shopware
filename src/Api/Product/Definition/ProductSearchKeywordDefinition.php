@@ -23,7 +23,6 @@ use Shopware\Api\Product\Repository\ProductSearchKeywordRepository;
 use Shopware\Api\Product\Struct\ProductSearchKeywordBasicStruct;
 use Shopware\Api\Product\Struct\ProductSearchKeywordDetailStruct;
 
-
 class ProductSearchKeywordDefinition extends EntityDefinition
 {
     /**

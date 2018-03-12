@@ -440,7 +440,7 @@ class WriterTest extends KernelTestCase
 
         $localeId = Uuid::uuid4()->toString();
         $this->container->get(LocaleRepository::class)->upsert([
-            ['id' => $localeId, 'name' => 'test', 'territory' => 'tmp', 'code' => Uuid::uuid4()->toString()]
+            ['id' => $localeId, 'name' => 'test', 'territory' => 'tmp', 'code' => Uuid::uuid4()->toString()],
         ], ShopContext::createDefaultContext());
 
         $this->container->get(LanguageRepository::class)->upsert([

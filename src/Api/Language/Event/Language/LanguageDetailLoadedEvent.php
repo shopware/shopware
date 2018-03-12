@@ -1,14 +1,12 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Api\Language\Event\Language;
 
+use Shopware\Api\Language\Collection\LanguageDetailCollection;
+use Shopware\Api\Locale\Event\Locale\LocaleBasicLoadedEvent;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\Api\Language\Collection\LanguageDetailCollection;
-
-use Shopware\Api\Locale\Event\Locale\LocaleBasicLoadedEvent;
-
 
 class LanguageDetailLoadedEvent extends NestedEvent
 {
@@ -57,7 +55,7 @@ class LanguageDetailLoadedEvent extends NestedEvent
         if ($this->languages->getChildren()->count() > 0) {
             $events[] = new LanguageBasicLoadedEvent($this->languages->getChildren(), $this->context);
         }
+
         return new NestedEventCollection($events);
-    }            
-            
+    }
 }

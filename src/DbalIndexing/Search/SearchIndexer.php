@@ -12,7 +12,6 @@ use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Api\Product\Repository\ProductRepository;
 use Shopware\Api\Product\Struct\ProductSearchResult;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\DbalIndexing\Common\ContextVariationService;
 use Shopware\DbalIndexing\Common\IndexTableOperator;
 use Shopware\DbalIndexing\Common\RepositoryIterator;
 use Shopware\DbalIndexing\Event\ProgressAdvancedEvent;
@@ -188,7 +187,7 @@ class SearchIndexer implements IndexerInterface
             $queue->addInsert($table, [
                 'language_id' => $languageId,
                 'version_id' => $versionId,
-                'keyword' => $keyword
+                'keyword' => $keyword,
             ]);
 
             $queue->addInsert($documentTable, [

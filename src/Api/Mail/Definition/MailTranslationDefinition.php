@@ -7,12 +7,12 @@ use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\Field\FkField;
 use Shopware\Api\Entity\Field\LongTextField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
-
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
+use Shopware\Api\Language\Definition\LanguageDefinition;
 use Shopware\Api\Mail\Collection\MailTranslationBasicCollection;
 use Shopware\Api\Mail\Collection\MailTranslationDetailCollection;
 use Shopware\Api\Mail\Event\MailTranslation\MailTranslationDeletedEvent;
@@ -20,7 +20,6 @@ use Shopware\Api\Mail\Event\MailTranslation\MailTranslationWrittenEvent;
 use Shopware\Api\Mail\Repository\MailTranslationRepository;
 use Shopware\Api\Mail\Struct\MailTranslationBasicStruct;
 use Shopware\Api\Mail\Struct\MailTranslationDetailStruct;
-use Shopware\Api\Language\Definition\LanguageDefinition;
 
 class MailTranslationDefinition extends EntityDefinition
 {

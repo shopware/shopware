@@ -29,7 +29,6 @@ use Shopware\Api\Entity\Write\EntityExistence;
 use Shopware\Api\Entity\Write\FieldAware\StorageAware;
 use Shopware\Api\Language\Definition\LanguageDefinition;
 
-
 class TranslatedField extends Field
 {
     /**

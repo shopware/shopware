@@ -78,7 +78,7 @@ class EntitySearcher implements EntitySearcherInterface
 
         if ($criteria->fetchCount() === Criteria::FETCH_COUNT_TOTAL) {
             $total = (int) $this->connection->fetchColumn('SELECT FOUND_ROWS()');
-        } else if ($criteria->fetchCount() === Criteria::FETCH_COUNT_NEXT_PAGES) {
+        } elseif ($criteria->fetchCount() === Criteria::FETCH_COUNT_NEXT_PAGES) {
             $total = count($data) - $criteria->getLimit();
             $data = array_slice($data, 0, $criteria->getLimit());
         } else {
@@ -169,6 +169,7 @@ class EntitySearcher implements EntitySearcherInterface
         }
         if ($criteria->fetchCount() === Criteria::FETCH_COUNT_NEXT_PAGES) {
             $query->setMaxResults($criteria->getLimit() * 6 + 1);
+
             return;
         }
 

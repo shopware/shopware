@@ -7,12 +7,12 @@ use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\Field\CatalogField;
 use Shopware\Api\Entity\Field\FkField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
-
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
+use Shopware\Api\Language\Definition\LanguageDefinition;
 use Shopware\Api\Media\Collection\MediaAlbumTranslationBasicCollection;
 use Shopware\Api\Media\Collection\MediaAlbumTranslationDetailCollection;
 use Shopware\Api\Media\Event\MediaAlbumTranslation\MediaAlbumTranslationDeletedEvent;
@@ -20,7 +20,6 @@ use Shopware\Api\Media\Event\MediaAlbumTranslation\MediaAlbumTranslationWrittenE
 use Shopware\Api\Media\Repository\MediaAlbumTranslationRepository;
 use Shopware\Api\Media\Struct\MediaAlbumTranslationBasicStruct;
 use Shopware\Api\Media\Struct\MediaAlbumTranslationDetailStruct;
-use Shopware\Api\Language\Definition\LanguageDefinition;
 
 class MediaAlbumTranslationDefinition extends EntityDefinition
 {

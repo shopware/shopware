@@ -1,10 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Api\Language\Event\Language;
 
+use Shopware\Api\Language\Struct\LanguageSearchResult;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Event\NestedEvent;
-use Shopware\Api\Language\Struct\LanguageSearchResult;
 
 class LanguageSearchResultLoadedEvent extends NestedEvent
 {

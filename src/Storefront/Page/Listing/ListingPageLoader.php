@@ -48,7 +48,7 @@ class ListingPageLoader
     ): Criteria {
         $limit = $request->query->getInt('limit', 20);
         $page = $request->query->getInt('p', 1);
-    
+
         $criteria = new Criteria();
         $criteria->setOffset(($page - 1) * $limit);
         $criteria->setLimit($limit);
@@ -63,11 +63,12 @@ class ListingPageLoader
      * @param $products
      * @param $criteria
      * @param $currentPage
+     *
      * @return int|mixed
      */
     private function getPageCount(ProductSearchResult $products, Criteria  $criteria, int $currentPage)
     {
-        $pageCount = (int)round($products->getTotal() / $criteria->getLimit());
+        $pageCount = (int) round($products->getTotal() / $criteria->getLimit());
         $pageCount = max(1, $pageCount);
         if ($pageCount > 1 && $criteria->fetchCount() === Criteria::FETCH_COUNT_NEXT_PAGES) {
             $pageCount += $currentPage;

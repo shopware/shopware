@@ -2,11 +2,8 @@
 
 namespace Shopware\Api\Language\Struct;
 
-use Shopware\Api\Locale\Struct\LocaleBasicStruct;
-
-
 use Shopware\Api\Language\Collection\LanguageBasicCollection;
-
+use Shopware\Api\Locale\Struct\LocaleBasicStruct;
 
 class LanguageDetailStruct extends LanguageBasicStruct
 {
@@ -39,7 +36,6 @@ class LanguageDetailStruct extends LanguageBasicStruct
     {
         $this->parent = $parent;
     }
-
 
     public function getLocale(): LocaleBasicStruct
     {

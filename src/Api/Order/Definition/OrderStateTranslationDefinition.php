@@ -6,12 +6,12 @@ use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\Field\FkField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
-
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
+use Shopware\Api\Language\Definition\LanguageDefinition;
 use Shopware\Api\Order\Collection\OrderStateTranslationBasicCollection;
 use Shopware\Api\Order\Collection\OrderStateTranslationDetailCollection;
 use Shopware\Api\Order\Event\OrderStateTranslation\OrderStateTranslationDeletedEvent;
@@ -19,7 +19,6 @@ use Shopware\Api\Order\Event\OrderStateTranslation\OrderStateTranslationWrittenE
 use Shopware\Api\Order\Repository\OrderStateTranslationRepository;
 use Shopware\Api\Order\Struct\OrderStateTranslationBasicStruct;
 use Shopware\Api\Order\Struct\OrderStateTranslationDetailStruct;
-use Shopware\Api\Language\Definition\LanguageDefinition;
 
 class OrderStateTranslationDefinition extends EntityDefinition
 {

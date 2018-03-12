@@ -1,28 +1,28 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Api\Language\Repository;
 
+use Shopware\Api\Entity\Read\EntityReaderInterface;
+use Shopware\Api\Entity\RepositoryInterface;
 use Shopware\Api\Entity\Search\AggregationResult;
-use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntityAggregatorInterface;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
-use Shopware\Api\Entity\Read\EntityReaderInterface;
-use Shopware\Api\Entity\RepositoryInterface;
-use Shopware\Api\Entity\Write\WriteContext;
+use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
-use Shopware\Context\Struct\ShopContext;
-use Shopware\Api\Language\Event\Language\LanguageSearchResultLoadedEvent;
-use Shopware\Api\Language\Event\Language\LanguageBasicLoadedEvent;
-use Shopware\Api\Language\Event\Language\LanguageAggregationResultLoadedEvent;
-use Shopware\Api\Language\Event\Language\LanguageIdSearchResultLoadedEvent;
-use Shopware\Api\Language\Struct\LanguageSearchResult;
-use Shopware\Api\Language\Definition\LanguageDefinition;
+use Shopware\Api\Entity\Write\WriteContext;
 use Shopware\Api\Language\Collection\LanguageBasicCollection;
+use Shopware\Api\Language\Collection\LanguageDetailCollection;
+use Shopware\Api\Language\Definition\LanguageDefinition;
+use Shopware\Api\Language\Event\Language\LanguageAggregationResultLoadedEvent;
+use Shopware\Api\Language\Event\Language\LanguageBasicLoadedEvent;
+use Shopware\Api\Language\Event\Language\LanguageDetailLoadedEvent;
+use Shopware\Api\Language\Event\Language\LanguageIdSearchResultLoadedEvent;
+use Shopware\Api\Language\Event\Language\LanguageSearchResultLoadedEvent;
+use Shopware\Api\Language\Struct\LanguageSearchResult;
+use Shopware\Context\Struct\ShopContext;
 use Shopware\Version\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Shopware\Api\Language\Collection\LanguageDetailCollection;
-use Shopware\Api\Language\Event\Language\LanguageDetailLoadedEvent;
 
 class LanguageRepository implements RepositoryInterface
 {
@@ -117,15 +117,13 @@ class LanguageRepository implements RepositoryInterface
 
     public function readDetail(array $ids, ShopContext $context): LanguageDetailCollection
     {
-
         /** @var LanguageDetailCollection $entities */
         $entities = $this->reader->readDetail(LanguageDefinition::class, $ids, $context);
 
         $event = new LanguageDetailLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
-        return $entities;                
-                
+        return $entities;
     }
 
     public function update(array $data, ShopContext $context): GenericWrittenEvent

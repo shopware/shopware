@@ -2,6 +2,9 @@
 
 namespace Shopware\Api\Entity\Write\Flag;
 
+/**
+ * Defines the weight for a search query on the entity for this field
+ */
 class SearchRanking extends Flag
 {
     /**

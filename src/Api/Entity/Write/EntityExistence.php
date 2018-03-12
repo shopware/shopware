@@ -4,6 +4,10 @@ namespace Shopware\Api\Entity\Write;
 
 use Shopware\Api\Entity\EntityDefinition;
 
+/**
+ * Defines the current state of an entity in relation to the parent-child inheritance and
+ * existence in the storage or command queue.
+ */
 class EntityExistence
 {
     /**

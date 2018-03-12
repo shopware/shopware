@@ -26,6 +26,13 @@ use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Struct\ArrayStruct;
 use Shopware\Framework\Struct\Struct;
 
+/**
+ * Reads entities in specify data form (basic, detail, dynamic).
+ *
+ * Basic => contains all scalar fields of the definition and associations which marked as "loadInBasic=true"
+ * Detail => contains all fields, excluded fields which marked with writeOnly
+ * Dynamic => allows to specify which fields should be loaded
+ */
 class EntityReader implements EntityReaderInterface
 {
     public const MANY_TO_MANY_EXTENSION_STORAGE = 'many_to_many_storage';

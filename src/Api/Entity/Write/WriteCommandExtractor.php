@@ -48,6 +48,11 @@ use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\ReadOnly;
 use Shopware\Api\Entity\Write\Flag\Required;
 
+/**
+ * Builds the command queue for write operations.
+ *
+ * Contains recursive calls from extract->map->SubResourceField->extract->map->....
+ */
 class WriteCommandExtractor
 {
     /**

@@ -12,6 +12,11 @@ use Shopware\Api\Entity\Search\Parser\SqlQueryParser;
 use Shopware\Api\Entity\Search\Query\ScoreQuery;
 use Shopware\Context\Struct\ShopContext;
 
+/**
+ * Used for all search operations in the system.
+ * The dbal entity searcher only joins and select fields which defined in sorting, filter or query classes.
+ * Fields which are not necessary to determines which ids are affected are not fetched.
+ */
 class EntitySearcher implements EntitySearcherInterface
 {
     /**

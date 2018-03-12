@@ -139,7 +139,6 @@ class ShopDefinition extends EntityDefinition
             (new OneToManyAssociationField('customers', CustomerDefinition::class, 'shop_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
             (new OneToManyAssociationField('mailAttachments', MailAttachmentDefinition::class, 'shop_id', false, 'id'))->setFlags(new WriteOnly()),
             (new OneToManyAssociationField('orders', OrderDefinition::class, 'shop_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
-            (new OneToManyAssociationField('productSearchKeywords', ProductSearchKeywordDefinition::class, 'shop_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
             (new OneToManyAssociationField('seoUrls', SeoUrlDefinition::class, 'shop_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
             (new OneToManyAssociationField('templateConfigFormFieldValues', ShopTemplateConfigFormFieldValueDefinition::class, 'shop_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
             (new OneToManyAssociationField('snippets', SnippetDefinition::class, 'shop_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),

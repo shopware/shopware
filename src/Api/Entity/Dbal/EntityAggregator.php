@@ -20,6 +20,9 @@ use Shopware\Api\Entity\Search\EntityAggregatorInterface;
 use Shopware\Api\Entity\Search\Parser\SqlQueryParser;
 use Shopware\Context\Struct\ShopContext;
 
+/**
+ * Allows to execute aggregated queries for all entities in the system
+ */
 class EntityAggregator implements EntityAggregatorInterface
 {
     /**

@@ -15,6 +15,10 @@ use Shopware\Api\Entity\Write\Flag\RestrictDelete;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Defaults;
 
+/**
+ * Determines all associated data for a definition.
+ * Used to determines which associated will be deleted to or which associated data would restrict a delete operation.
+ */
 class EntityForeignKeyResolver
 {
     /**

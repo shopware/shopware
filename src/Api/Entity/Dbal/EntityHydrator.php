@@ -32,6 +32,9 @@ use Shopware\Api\Product\Struct\PriceStruct;
 use Shopware\Framework\Struct\ArrayStruct;
 use Symfony\Component\Serializer\SerializerInterface;
 
+/**
+ * Allows to hydrate database values into struct objects.
+ */
 class EntityHydrator
 {
     /**

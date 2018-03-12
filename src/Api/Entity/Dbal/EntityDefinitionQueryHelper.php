@@ -19,6 +19,10 @@ use Shopware\Api\Entity\Write\Flag\Inherited;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Defaults;
 
+/**
+ * This class acts only as helper/common class for all dbal operations for entity definitions.
+ * It knows how an association should be joined, how a parent-child inheritance should act, how translation chains work, ...
+ */
 class EntityDefinitionQueryHelper
 {
     public const REQUIRES_GROUP_BY = 'has_to_many_join';

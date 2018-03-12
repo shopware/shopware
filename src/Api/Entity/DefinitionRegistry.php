@@ -2,6 +2,9 @@
 
 namespace Shopware\Api\Entity;
 
+/**
+ * Contains all registered entity definitions.
+ */
 class DefinitionRegistry
 {
     /**

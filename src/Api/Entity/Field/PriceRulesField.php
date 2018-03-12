@@ -8,7 +8,6 @@ use Shopware\Api\Entity\Write\EntityExistence;
 use Shopware\Api\Entity\Write\FieldAware\SqlParseAware;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Defaults;
-use Shopware\Framework\Doctrine\JsonObjectAccessor;
 
 class PriceRulesField extends JsonObjectField implements SqlParseAware
 {
@@ -45,11 +44,11 @@ class PriceRulesField extends JsonObjectField implements SqlParseAware
 
             $field = sprintf('`%s`.`%s`', $root, $this->getStorageName());
             $path = sprintf('$.merged.r%s.last.c%s.gross', $key, $currencyId);
-            $select[] = JsonObjectAccessor::parse($field, $path);
+            $select[] = sprintf('JSON_UNQUOTE(JSON_EXTRACT(%s, "%s"))', $field, $path);
 
             if ($context->getCurrencyId() !== Defaults::CURRENCY) {
                 $path = sprintf('$.merged.r%s.last.c%s.gross', $key, $defaultCurrencyId);
-                $select[] = sprintf('%s * %s', JsonObjectAccessor::parse($field, $path), $context->getCurrencyFactor());
+                $select[] = sprintf('JSON_UNQUOTE(JSON_EXTRACT(%s, "%s")) * %s', $field, $path, $context->getCurrencyFactor());
             }
         }
 

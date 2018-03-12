@@ -127,7 +127,7 @@ class CalculatedLineItemCollection extends Collection
             if (!$element instanceof NestedInterface) {
                 continue;
             }
-            if (!$element->pricesExclusive()) {
+            if (!$element->considerChildrenPrices()) {
                 continue;
             }
             if ($element->getChildren()->count() <= 0) {

@@ -19,7 +19,7 @@ class ConfigurationGroupOptionBasicStruct extends Entity
     /**
      * @var string|null
      */
-    protected $color;
+    protected $colorHexCode;
 
     /**
      * @var string|null
@@ -51,14 +51,14 @@ class ConfigurationGroupOptionBasicStruct extends Entity
         $this->name = $name;
     }
 
-    public function getColor(): ?string
+    public function getColorHexCode(): ?string
     {
-        return $this->color;
+        return $this->colorHexCode;
     }
 
-    public function setColor(?string $color): void
+    public function setColorHexCode(?string $colorHexCode): void
     {
-        $this->color = $color;
+        $this->colorHexCode = $colorHexCode;
     }
 
     public function getMediaId(): ?string

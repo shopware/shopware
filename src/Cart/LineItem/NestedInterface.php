@@ -6,5 +6,5 @@ interface NestedInterface
 {
     public function getChildren(): CalculatedLineItemCollection;
 
-    public function pricesExclusive(): bool;
+    public function considerChildrenPrices(): bool;
 }

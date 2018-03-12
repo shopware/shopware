@@ -10,6 +10,7 @@ use Shopware\Product\Service\VariantGenerator;
 use Shopware\Rest\RestContext;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 
 class ProductActionController extends Controller
 {
@@ -24,21 +25,22 @@ class ProductActionController extends Controller
     }
 
     /**
-     * @Route("/api/product/{productId}/actions/generate-variants/{offset}/{limit}", name="api.product.actions.generate-variants")
+     * @Route("/api/product/{productId}/actions/generate-variants", name="api.product.actions.generate-variants")
      * @Method({"POST"})
      *
      * @param string      $productId
      * @param ShopContext $context
-     * @param int|null    $offset
-     * @param int|null    $limit
      *
      * @throws \Shopware\Product\Exception\NoConfiguratorFoundException
      * @throws \Shopware\Product\Exception\ProductNotFoundException
      *
      * @return JsonResponse
      */
-    public function generateVariants(string $productId, RestContext $context, ?int $offset = null, ?int $limit = null): JsonResponse
+    public function generateVariants(Request $request, string $productId, RestContext $context): JsonResponse
     {
+        $offset = $request->query->get('offset', null);
+        $limit = $request->query->get('limit', null);
+        
         $events = $this->generator->generate($productId, $context->getShopContext(), $offset, $limit);
 
         $event = $events->getEventByDefinition(ProductDefinition::class);

@@ -145,7 +145,7 @@ class CalculatedProduct extends Struct implements DeliverableLineItemInterface, 
         return $this->price;
     }
 
-    public function pricesExclusive(): bool
+    public function considerChildrenPrices(): bool
     {
         return true;
     }

@@ -135,7 +135,7 @@ class NestedLineItem extends CalculatedLineItem implements NestedInterface
         $this->children = $children;
     }
 
-    public function pricesExclusive(): bool
+    public function considerChildrenPrices(): bool
     {
         return false;
     }

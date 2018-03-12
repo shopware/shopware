@@ -215,7 +215,8 @@ CREATE TABLE `configuration_group_option` (
   `media_id` binary(16) NULL DEFAULT NULL,
   `media_version_id` binary(16) NULL DEFAULT NULL,
   PRIMARY KEY (`id`, `version_id`),
-  CONSTRAINT `fk_configuration_group_option.configuration_group_id` FOREIGN KEY (`configuration_group_id`, `configuration_group_version_id`) REFERENCES `configuration_group` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `fk_configuration_group_option.configuration_group_id` FOREIGN KEY (`configuration_group_id`, `configuration_group_version_id`) REFERENCES `configuration_group` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_configuration_group_option.media_id` FOREIGN KEY (`media_id`, `media_version_id`) REFERENCES `media` (`id`, `version_id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -261,8 +262,8 @@ CREATE TABLE `product_configurator` (
   `product_version_id` binary(16) NOT NULL,
   `configuration_group_option_id` binary(16) NOT NULL,
   `configuration_group_option_version_id` binary(16) NOT NULL,
-  `price` json NULL,
-  `prices` json NULL DEFAULT NULL,
+  `price` LONGTEXT NULL,
+  `prices` LONGTEXT NULL DEFAULT NULL,
   PRIMARY KEY (`id`, `version_id`),
   CONSTRAINT `fk_product_configurator.product_id` FOREIGN KEY (`product_id`, `product_version_id`) REFERENCES `product` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_product_configurator.configuration_group_option_id` FOREIGN KEY (`configuration_group_option_id`, `configuration_group_option_version_id`) REFERENCES `configuration_group_option` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE
@@ -278,8 +279,8 @@ CREATE TABLE `product_service` (
   `configuration_group_option_version_id` binary(16) NOT NULL,
   `tax_id` binary(16) NOT NULL,
   `tax_version_id` binary(16) NOT NULL,
-  `price` json NULL,
-  `prices` json NULL DEFAULT NULL,
+  `price` LONGTEXT NULL,
+  `prices` LONGTEXT NULL DEFAULT NULL,
   PRIMARY KEY (`id`, `version_id`),
   CONSTRAINT `fk_product_service.product_id` FOREIGN KEY (`product_id`, `product_version_id`) REFERENCES `product` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_product_service.configuration_group_option_id` FOREIGN KEY (`configuration_group_option_id`, `configuration_group_option_version_id`) REFERENCES `configuration_group_option` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -1072,7 +1073,7 @@ CREATE TABLE `product_context_price` (
   `product_version_id` binary(16) NOT NULL,
   `currency_id` binary(16) NOT NULL,
   `currency_version_id` binary(16) NOT NULL,
-  `price` json NOT NULL,
+  `price` LONGTEXT NOT NULL,
   `quantity_start` INT(11) NOT NULL,
   `quantity_end` INT(11) NULL DEFAULT NULL,
   `created_at` datetime NOT NULL,

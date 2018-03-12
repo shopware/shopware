@@ -29,6 +29,6 @@ class PriceField extends JsonObjectField implements SqlParseAware
 
     public function parse(string $root, ShopContext $context): string
     {
-        return sprintf('(CAST(`%s`.`%s`->"$.gross" AS DECIMAL))', $root, $this->storageName);
+        return sprintf('(CAST(JSON_UNQUOTE(JSON_EXTRACT(`%s`.`%s`, "$.gross")) AS DECIMAL))', $root, $this->storageName);
     }
 }

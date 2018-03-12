@@ -26,6 +26,7 @@ use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Entity\Write\Flag\WriteOnly;
+use Shopware\Api\Media\Definition\MediaDefinition;
 use Shopware\Api\Product\Definition\ProductConfiguratorDefinition;
 use Shopware\Api\Product\Definition\ProductDatasheetDefinition;
 use Shopware\Api\Product\Definition\ProductDefinition;
@@ -66,9 +67,9 @@ class ConfigurationGroupOptionDefinition extends EntityDefinition
             (new FkField('configuration_group_id', 'groupId', ConfigurationGroupDefinition::class))->setFlags(new Required()),
             new ReferenceVersionField(ConfigurationGroupDefinition::class),
             (new TranslatedField(new StringField('name', 'name')))->setFlags(new Required()),
-            new StringField('color', 'color'),
-            new IdField('media_id', 'mediaId'),
-            new IdField('media_version_id', 'mediaVersionId'),
+            new StringField('colorHexCode', 'colorHexCode'),
+            new FkField('media_id', 'mediaId', MediaDefinition::class),
+            new ReferenceVersionField(MediaDefinition::class),
             new ManyToOneAssociationField('group', 'configuration_group_id', ConfigurationGroupDefinition::class, true),
             (new TranslationsAssociationField('translations', ConfigurationGroupOptionTranslationDefinition::class, 'configuration_group_option_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
             (new OneToManyAssociationField('productConfigurators', ProductConfiguratorDefinition::class, 'configuration_option_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),

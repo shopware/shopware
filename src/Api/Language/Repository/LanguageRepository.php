@@ -167,7 +167,7 @@ class LanguageRepository implements RepositoryInterface
         return $this->versionManager->createVersion(LanguageDefinition::class, $id, WriteContext::createFromShopContext($context), $name, $versionId);
     }
 
-    public function merge(string $versionId, ShopContext $context)
+    public function merge(string $versionId, ShopContext $context): void
     {
         $this->versionManager->merge($versionId, WriteContext::createFromShopContext($context));
     }

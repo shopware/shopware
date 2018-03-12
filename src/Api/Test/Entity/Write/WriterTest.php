@@ -41,13 +41,13 @@ class WriterTest extends KernelTestCase
 
         $container = self::$kernel->getContainer();
         $this->connection = $container->get(Connection::class);
-//        $this->connection->beginTransaction();
+        $this->connection->beginTransaction();
         $this->container = $container;
     }
 
     public function tearDown(): void
     {
-//        $this->connection->rollBack();
+        $this->connection->rollBack();
         parent::tearDown();
     }
 

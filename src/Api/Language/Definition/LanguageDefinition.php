@@ -10,11 +10,14 @@ use Shopware\Api\Currency\Definition\CurrencyTranslationDefinition;
 use Shopware\Api\Customer\Definition\CustomerGroupTranslationDefinition;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\EntityExtensionInterface;
+use Shopware\Api\Entity\Field\ChildrenAssociationField;
 use Shopware\Api\Entity\Field\DateField;
 use Shopware\Api\Entity\Field\FkField;
 use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\OneToManyAssociationField;
+use Shopware\Api\Entity\Field\ParentField;
+use Shopware\Api\Entity\Field\ReferenceVersionField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslationsAssociationField;
 use Shopware\Api\Entity\FieldCollection;
@@ -74,15 +77,15 @@ class LanguageDefinition extends EntityDefinition
 
         self::$fields = new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            new FkField('parent_id', 'parentId', LanguageDefinition::class),
+            new ParentField(self::class),
             (new FkField('locale_id', 'localeId', LocaleDefinition::class))->setFlags(new Required()),
+            new ReferenceVersionField(LocaleDefinition::class),
             (new StringField('name', 'name'))->setFlags(new Required()),
-            (new IdField('locale_version_id', 'localeVersionId'))->setFlags(new Required()),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
             new ManyToOneAssociationField('parent', 'parent_id', LanguageDefinition::class, false),
             new ManyToOneAssociationField('locale', 'locale_id', LocaleDefinition::class, false),
-            (new OneToManyAssociationField('children', LanguageDefinition::class, 'parent_id', false, 'id'))->setFlags(new CascadeDelete()),
+            new ChildrenAssociationField(self::class),
             (new TranslationsAssociationField('categoryTranslations', CategoryTranslationDefinition::class, 'language_id', false, 'id'))->setFlags(new WriteOnly(), new CascadeDelete()),
             (new TranslationsAssociationField('countryAreaTranslations', CountryAreaTranslationDefinition::class, 'language_id', false, 'id'))->setFlags(new WriteOnly(), new CascadeDelete()),
             (new TranslationsAssociationField('countryStateTranslations', CountryStateTranslationDefinition::class, 'language_id', false, 'id'))->setFlags(new WriteOnly(), new CascadeDelete()),

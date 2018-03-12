@@ -45,6 +45,108 @@
             </li>
         </ul>
 
+        <sw-card title="Test Form">
+            <sw-field type="text"
+                      label="Text Input"
+                      name="text"
+                      :validation="['required']"
+                      placeholder="This is a classic text field"
+                      helpText="This is a classic text field"
+                      suffix="EUR"
+                      v-model="formTest.text">
+            </sw-field>
+            <sw-field type="email"
+                      label="E-Mail Input"
+                      name="email"
+                      :validation="['required', 'email']"
+                      placeholder="This is a html email field"
+                      helpText="This is a html email field"
+                      suffix="@"
+                      v-model="formTest.email">
+            </sw-field>
+            <sw-field type="text"
+                      label="Manufacturer ID"
+                      name="manufacturerId"
+                      placeholder="The id of the product manufacturer"
+                      suffix="Manufacturer"
+                      :error="productErrors.manufacturerId"
+                      v-model="product.manufacturerId">
+            </sw-field>
+            <sw-field type="text"
+                      label="Manufacturer ID 2"
+                      name="manufacturerId2"
+                      placeholder="The second field also for manufacturer ID"
+                      suffix="Manufacturer"
+                      :error="productErrors.manufacturerId"
+                      v-model="product.manufacturerId">
+            </sw-field>
+            <sw-field type="number"
+                      label="Number Input"
+                      name="numberfield"
+                      placeholder="This is a classic number field"
+                      suffix="kg"
+                      step="10"
+                      min="0"
+                      max="100"
+                      :error="{ detail: 'This cannot be lower than 40' }"
+                      v-model="formTest.number">
+            </sw-field>
+            <sw-field type="textarea"
+                      label="Textarea Input"
+                      name="textarea"
+                      placeholder="This is a classic textarea field"
+                      helpText="This is a classic textarea field"
+                      v-model="formTest.textArea">
+            </sw-field>
+            <sw-field type="checkbox"
+                      label="Checkbox Input"
+                      name="checkbox"
+                      helpText="This is a checkbox field"
+                      :validation="['required']"
+                      v-model="formTest.checkbox">
+            </sw-field>
+            <sw-field type="checkbox"
+                      label="Checkbox Input 2"
+                      name="checkbox2"
+                      helpText="This is a checkbox field"
+                      v-model="formTest.checkbox2">
+            </sw-field>
+            <sw-field type="switch"
+                      label="Switch Input"
+                      name="switch"
+                      helpText="This is a switch field"
+                      :validation="['required']"
+                      v-model="formTest.switchField">
+            </sw-field>
+            <sw-field type="radio"
+                      label="Radio Input"
+                      name="radio"
+                      helpText="This is a radio field"
+                      :options="customerGroupOptions"
+                      :validation="['required']"
+                      v-model="formTest.radio">
+            </sw-field>
+            <sw-field type="select"
+                      label="Select Input"
+                      name="select"
+                      suffix="checkmark"
+                      placeholder="This is a select field"
+                      helpText="This is a select field"
+                      :options="[{ value: 1, label: 'Option 1' }, { value: 2, label: 'Option 2' }]"
+                      v-model="formTest.select">
+                <template slot="suffix">
+                    <sw-icon name="small-default-checkmark-line-medium"></sw-icon>
+                </template>
+            </sw-field>
+            <sw-field type="datetime"
+                      label="Date Input"
+                      name="date"
+                      placeholder="This is a date field"
+                      helpText="This is a date field"
+                      v-model="formTest.date">
+            </sw-field>
+        </sw-card>
+
         <sw-product-basic-form :product="product" :manufacturers="manufacturers" :taxRates="taxRates" :serviceProvider="categoryService"></sw-product-basic-form>
 
         {% block core_product_detail_workspace_additional %}{% endblock %}

@@ -55,7 +55,7 @@ module.exports = {
         'no-param-reassign': 0,
 
         // Match the max line length with the phpstorm default settings
-        'max-len': [ 'warn', 125 ],
+        'max-len': [ 'warn', 125, { 'ignoreRegExpLiterals': true } ],
 
         'arrow-body-style': [ 'off' ],
 
@@ -63,6 +63,10 @@ module.exports = {
         'linebreak-style': 0,
 
         'object-shorthand': 0,
+
+        'no-control-regex:': 0,
+
+        'no-useless-escape': 0,
 
         'no-prototype-builtins': 0,
 

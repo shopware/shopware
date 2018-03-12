@@ -5,11 +5,11 @@
     <div class="split--container">
         <div class="container--item">
             <sw-field label="Tax rate" id="tax" type="select" name="name" placeholder="Tax rate" v-model="product.taxId">
-                <option v-for="tax in taxRates" :value="tax.id">{{ tax.name }}</option>
+                <option slot="options" v-for="tax in taxRates" :value="tax.id">{{ tax.name }}</option>
             </sw-field>
         </div>
         <div class="container--item">
-            <sw-field label="Preis" id="price" type="number" name="price" suffix="EUR" placeholder="Product price..." v-model="product.price"></sw-field>
+            <sw-field label="Preis" id="price" type="number" name="price" suffix="EUR" placeholder="Product price..." v-model="product.price.gross"></sw-field>
         </div>
     </div>
 
@@ -21,7 +21,7 @@
         </div>
         <div class="container--item">
             <sw-field label="Hersteller" id="manufacturer" type="select" name="manufacturer" placeholder="Your product manufacturer" v-model="product.manufacturerId">
-                <option v-for="manufacturer in manufacturers" :value="manufacturer.id">{{ manufacturer.name }}</option>
+                <option slot="options" v-for="manufacturer in manufacturers" :value="manufacturer.id">{{ manufacturer.name }}</option>
             </sw-field>
         </div>
     </div>

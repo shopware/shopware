@@ -6,6 +6,7 @@ import MenuService from 'src/app/service/menu.service';
 import LoginService from 'src/core/service/login.service';
 import apiServices from 'src/core/service/api';
 import JsonApiParser from 'src/core/service/jsonapi-parser.service';
+import ValidationService from 'src/core/service/validation.service';
 
 /** Import global styles */
 import 'src/app/assets/less/all.less';
@@ -30,6 +31,9 @@ application
     })
     .addServiceProvider('jsonApiParserService', () => {
         return JsonApiParser;
+    })
+    .addServiceProvider('validationService', () => {
+        return ValidationService;
     });
 
 // Add api service providers

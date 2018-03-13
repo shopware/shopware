@@ -5,41 +5,6 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service class="Shopware\Rest\Context\ApiStorefrontContextPersister" id="Shopware\Rest\Context\ApiStorefrontContextPersister">
-            <argument id="Doctrine\DBAL\Connection" type="service"/>
-        </service>
-
-        <service class="Shopware\Rest\Context\ApiStorefrontContextService" id="Shopware\Rest\Context\ApiStorefrontContextService">
-            <argument id="Shopware\Context\Service\ContextFactory" type="service"/>
-            <argument id="Shopware\Context\Service\ContextRuleLoader" type="service"/>
-            <argument type="service" id="Shopware\Api\Shop\Repository\ShopRepository"/>
-            <argument type="service" id="Shopware\Rest\Context\ApiStorefrontContextPersister"/>
-        </service>
-
-        <service class="Shopware\Rest\Context\ApiStorefrontContextValueResolver" id="Shopware\Rest\Context\ApiStorefrontContextValueResolver">
-            <argument id="Shopware\Rest\Context\ApiStorefrontContextService" type="service"/>
-            <tag name="controller.argument_value_resolver"/>
-        </service>
-
-        <service class="Shopware\Rest\Controller\Storefront\ProductController" id="Shopware\Rest\Controller\Storefront\ProductController">
-            <call method="setContainer">
-                <argument id="service_container" type="service"/>
-            </call>
-            <argument id="Shopware\Storefront\Bridge\Product\Repository\StorefrontProductRepository" type="service"/>
-            <argument type="service" id="Shopware\Rest\Response\ResponseFactory"/>
-        </service>
-
-        <service class="Shopware\Rest\Controller\Storefront\CheckoutController" id="Shopware\Rest\Controller\Storefront\CheckoutController">
-            <argument id="Shopware\Cart\Cart\CircularCartCalculation" type="service"/>
-            <argument id="Shopware\CartBridge\Cart\CartPersister" type="service"/>
-            <argument id="Shopware\CartBridge\Order\OrderPersister" type="service"/>
-            <argument type="service" id="Shopware\Api\Order\Repository\OrderRepository"/>
-            <argument type="service" id="serializer"/>
-            <argument type="service" id="Shopware\Rest\Context\ApiStorefrontContextPersister"/>
-            <call method="setContainer">
-                <argument id="service_container" type="service"/>
-            </call>
-        </service>
 
         <service class="Shopware\Rest\EventListener\CorsListener" id="Shopware\Rest\EventListener\CorsListener">
             <tag name="kernel.event_subscriber" />

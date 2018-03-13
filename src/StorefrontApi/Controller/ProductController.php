@@ -1,15 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Rest\Controller\Storefront;
+namespace Shopware\StorefrontApi\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Product\Exception\ProductNotFoundException;
-use Shopware\Rest\Context\ApiStorefrontContext;
+use Shopware\StorefrontApi\Context\StorefrontApiContext;
 use Shopware\Rest\Context\RestContext;
 use Shopware\Rest\Response\ResponseFactory;
-use Shopware\Storefront\Bridge\Product\Repository\StorefrontProductRepository;
+use Shopware\StorefrontApi\Product\StorefrontProductRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,7 +17,7 @@ use Symfony\Component\HttpFoundation\Response;
 class ProductController extends Controller
 {
     /**
-     * @var StorefrontProductRepository
+     * @var \Shopware\StorefrontApi\Product\StorefrontProductRepository
      */
     private $repository;
 
@@ -36,11 +36,11 @@ class ProductController extends Controller
      * @Route("/storefront-api/product", name="storefront.api.product.list")
      *
      * @param Request                                     $request
-     * @param \Shopware\Rest\Context\ApiStorefrontContext $context
+     * @param \Shopware\StorefrontApi\Context\StorefrontApiContext $context
      *
      * @return Response
      */
-    public function listAction(Request $request, ApiStorefrontContext $context): Response
+    public function listAction(Request $request, StorefrontApiContext $context): Response
     {
         $criteria = new Criteria();
         if ($request->query->has('offset')) {
@@ -63,13 +63,13 @@ class ProductController extends Controller
      * @Route("/storefront-api/product/{productId}", name="storefront.api.product.detail")
      *
      * @param string               $productId
-     * @param ApiStorefrontContext $context
+     * @param StorefrontApiContext $context
      *
      * @throws ProductNotFoundException
      *
      * @return Response
      */
-    public function detailAction(string $productId, ApiStorefrontContext $context, Request $request): Response
+    public function detailAction(string $productId, StorefrontApiContext $context, Request $request): Response
     {
         $products = $this->repository->readDetail([$productId], $context);
         if (!$products->has($productId)) {

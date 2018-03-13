@@ -33,8 +33,10 @@ use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Cart\Struct\Cart;
 use Shopware\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Cart\Error\ErrorCollection;
+use Shopware\Cart\LineItem\CalculatedLineItem;
 use Shopware\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Cart\LineItem\LineItemCollection;
+use Shopware\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Cart\Price\Struct\CartPrice;
 use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Cart\Tax\Struct\TaxRuleCollection;
@@ -72,7 +74,15 @@ class OrderPersisterTest extends TestCase
 
         $cart = new CalculatedCart(
             new Cart('A', 'a-b-c', new LineItemCollection(), new ErrorCollection()),
-            new CalculatedLineItemCollection(),
+            new CalculatedLineItemCollection([
+                new CalculatedLineItem(
+                    'test',
+                    new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                    1,
+                    'test',
+                    'test'
+                )
+            ]),
             new CartPrice(1, 1, 1, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_FREE),
             new DeliveryCollection()
         );

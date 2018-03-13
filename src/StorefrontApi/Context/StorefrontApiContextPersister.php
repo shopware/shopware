@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Rest\Context;
+namespace Shopware\StorefrontApi\Context;
 
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
 
-class ApiStorefrontContextPersister
+class StorefrontApiContextPersister
 {
     /**
      * @var Connection

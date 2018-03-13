@@ -8,7 +8,7 @@ use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\Entity\Search\Query\TermsQuery;
 use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Config\ConfigServiceInterface;
-use Shopware\Storefront\Bridge\Product\Repository\StorefrontProductRepository;
+use Shopware\StorefrontApi\Product\StorefrontProductRepository;
 use Symfony\Component\HttpFoundation\Request;
 
 class SearchPageLoader

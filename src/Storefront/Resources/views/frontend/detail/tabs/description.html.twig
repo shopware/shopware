@@ -24,7 +24,7 @@
 
     {# Product description #}
     {% block frontend_detail_description_text %}
-        {# @var product \Shopware\Storefront\Bridge\Product\Struct\ProductBasicStruct #}
+        {# @var product \Shopware\StorefrontApi\Product\ProductBasicStruct #}
         <div class="product--description" itemprop="description">
             {{ product.descriptionLong | raw }}
         </div>

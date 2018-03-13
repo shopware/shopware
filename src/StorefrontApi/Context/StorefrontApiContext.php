@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Rest\Context;
+namespace Shopware\StorefrontApi\Context;
 
 use Shopware\Api\Currency\Struct\CurrencyBasicStruct;
 use Shopware\Api\Customer\Struct\CustomerBasicStruct;
@@ -12,7 +12,7 @@ use Shopware\Api\Tax\Collection\TaxBasicCollection;
 use Shopware\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Context\Struct\StorefrontContext;
 
-class ApiStorefrontContext extends StorefrontContext
+class StorefrontApiContext extends StorefrontContext
 {
     /**
      * @var string|null
@@ -22,10 +22,10 @@ class ApiStorefrontContext extends StorefrontContext
     /**
      * @var string
      */
-    protected $contextHash;
+    protected $contextToken;
 
     public function __construct(
-        string $contextHash,
+        string $contextToken,
         ShopDetailStruct $shop,
         CurrencyBasicStruct $currency,
         CustomerGroupBasicStruct $currentCustomerGroup,
@@ -51,7 +51,7 @@ class ApiStorefrontContext extends StorefrontContext
             $contextRulesIds
         );
         $this->cartToken = $cartToken;
-        $this->contextHash = $contextHash;
+        $this->contextToken = $contextToken;
     }
 
     public function getCartToken(): ?string
@@ -59,8 +59,8 @@ class ApiStorefrontContext extends StorefrontContext
         return $this->cartToken;
     }
 
-    public function getContextHash(): string
+    public function getContextToken(): string
     {
-        return $this->contextHash;
+        return $this->contextToken;
     }
 }

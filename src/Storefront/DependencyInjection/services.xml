@@ -9,7 +9,6 @@
     </parameters>
 
     <services>
-
         <service class="Shopware\Context\Service\ContextRuleLoader" id="Shopware\Context\Service\ContextRuleLoader">
             <argument id="Shopware\CartBridge\Cart\CartPersister" type="service"/>
             <argument id="Shopware\Cart\Tax\TaxDetector" type="service"/>
@@ -103,16 +102,16 @@
         </service>
 
         <service class="Shopware\Storefront\Page\Detail\DetailPageLoader" id="Shopware\Storefront\Page\Detail\DetailPageLoader">
-            <argument id="Shopware\Storefront\Bridge\Product\Repository\StorefrontProductRepository" type="service"/>
+            <argument id="Shopware\StorefrontApi\Product\StorefrontProductRepository" type="service"/>
         </service>
 
         <service class="Shopware\Storefront\Page\Listing\ListingPageLoader" id="Shopware\Storefront\Page\Listing\ListingPageLoader">
-            <argument id="Shopware\Storefront\Bridge\Product\Repository\StorefrontProductRepository" type="service"/>
+            <argument id="Shopware\StorefrontApi\Product\StorefrontProductRepository" type="service"/>
         </service>
 
         <service class="Shopware\Storefront\Page\Search\SearchPageLoader" id="Shopware\Storefront\Page\Search\SearchPageLoader">
             <argument type="service" id="Shopware\Framework\Config\ConfigService" />
-            <argument id="Shopware\Storefront\Bridge\Product\Repository\StorefrontProductRepository" type="service"/>
+            <argument id="Shopware\StorefrontApi\Product\StorefrontProductRepository" type="service"/>
             <argument type="service" id="Shopware\Storefront\Page\Search\KeywordSearchTermInterpreter"/>
         </service>
 
@@ -122,13 +121,6 @@
 
         <service class="Shopware\Storefront\Controller\AccountController" public="true" id="Shopware\Storefront\Controller\AccountController">
             <argument type="service" id="security.authentication_utils" />
-        </service>
-
-        <service class="Shopware\Storefront\Bridge\Product\Repository\StorefrontProductRepository" id="Shopware\Storefront\Bridge\Product\Repository\StorefrontProductRepository">
-            <argument type="service" id="Shopware\Api\Product\Repository\ProductRepository"/>
-            <argument type="service" id="Shopware\Cart\Price\PriceCalculator"/>
-            <argument type="service" id="Shopware\Api\Product\Repository\ProductMediaRepository"/>
-            <argument type="service" id="Shopware\Api\Product\Repository\ProductServiceRepository"/>
         </service>
 
         <service class="Shopware\Storefront\Controller\Widgets\IndexController" public="true" id="Shopware\Storefront\Controller\Widgets\IndexController">

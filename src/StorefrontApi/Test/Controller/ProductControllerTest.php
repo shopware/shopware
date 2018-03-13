@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Rest\Test\Controller\Storefront;
+namespace Shopware\StorefrontApi\Test\Controller;
 
 use Ramsey\Uuid\Uuid;
 use Shopware\Api\Product\Repository\ProductRepository;

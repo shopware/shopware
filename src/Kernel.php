@@ -64,6 +64,7 @@ class Kernel extends HttpKernel
             new \Shopware\Translation\Translation(),
             new \Shopware\Filesystem\Filesystem(),
             new \Shopware\DbalIndexing\DbalIndexing(),
+            new \Shopware\StorefrontApi\StorefrontApi(),
             new \Shopware\Payment\Payment(),
 
             // customization

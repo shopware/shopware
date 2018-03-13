@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Bridge\Product\Struct;
+namespace Shopware\StorefrontApi\Product;
 
 use Shopware\Api\Product\Collection\ProductMediaBasicCollection;
 use Shopware\Api\Product\Struct\ProductBasicStruct as ApiBasicStruct;

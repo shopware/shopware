@@ -6,13 +6,13 @@ use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\Product\Struct\ProductSearchResult;
 use Shopware\Context\Struct\StorefrontContext;
-use Shopware\Storefront\Bridge\Product\Repository\StorefrontProductRepository;
+use Shopware\StorefrontApi\Product\StorefrontProductRepository;
 use Symfony\Component\HttpFoundation\Request;
 
 class ListingPageLoader
 {
     /**
-     * @var StorefrontProductRepository
+     * @var \Shopware\StorefrontApi\Product\StorefrontProductRepository
      */
     private $productRepository;
 

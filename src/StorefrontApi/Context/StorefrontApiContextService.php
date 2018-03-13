@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Rest\Context;
+namespace Shopware\StorefrontApi\Context;
 
 use Ramsey\Uuid\Uuid;
 use Shopware\Api\Shop\Repository\ShopRepository;
@@ -12,8 +12,10 @@ use Shopware\Context\Struct\CustomerScope;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Context\Struct\ShopScope;
 use Shopware\Context\Struct\StorefrontContext;
+use Shopware\StorefrontApi\Context\StorefrontApiContext;
+use Shopware\StorefrontApi\Context\StorefrontApiContextPersister;
 
-class ApiStorefrontContextService
+class StorefrontApiContextService
 {
     /**
      * @var ContextFactory
@@ -31,7 +33,7 @@ class ApiStorefrontContextService
     private $applicationRepository;
 
     /**
-     * @var ApiStorefrontContextPersister
+     * @var StorefrontApiContextPersister
      */
     private $contextParameterPersister;
 
@@ -39,7 +41,7 @@ class ApiStorefrontContextService
         ContextFactory $factory,
         ContextRuleLoader $contextRuleLoader,
         ShopRepository $applicationRepository,
-        ApiStorefrontContextPersister $contextParameterPersister
+        StorefrontApiContextPersister $contextParameterPersister
     ) {
         $this->factory = $factory;
         $this->contextRuleLoader = $contextRuleLoader;
@@ -82,7 +84,7 @@ class ApiStorefrontContextService
 
         $rules = $this->contextRuleLoader->loadMatchingRules($context, $checkoutScope->getCartToken());
 
-        $context = new ApiStorefrontContext(
+        $context = new StorefrontApiContext(
             $contextToken,
             $context->getShop(),
             $context->getCurrency(),

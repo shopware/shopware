@@ -36,6 +36,9 @@ use Shopware\Cart\LineItem\NestedInterface;
 use Shopware\Cart\Order\OrderPersisterInterface;
 use Shopware\Cart\Tax\TaxDetector;
 use Shopware\Cart\Transaction\Struct\Transaction;
+use Shopware\CartBridge\Exception\DeliveryWithoutAddressException;
+use Shopware\CartBridge\Exception\EmptyCartException;
+use Shopware\CartBridge\Exception\NotLoggedInCustomerException;
 use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Defaults;
 
@@ -67,6 +70,23 @@ class OrderPersister implements OrderPersisterInterface
     private function convert(CalculatedCart $calculatedCart, StorefrontContext $context): array
     {
         $addressId = Uuid::uuid4()->toString();
+        if (!$context->getCustomer()) {
+            throw new NotLoggedInCustomerException();
+        }
+        if ($calculatedCart->getCalculatedLineItems()->count() <= 0) {
+            throw new EmptyCartException();
+        }
+
+        if (!$context->getCustomer()->getActiveBillingAddress()) {
+            throw new CustomerHasNoActiveBillingAddressException($context->getCustomer()->getId());
+        }
+
+        /** @var Delivery $delivery */
+        foreach ($calculatedCart->getDeliveries() as $delivery) {
+            if (!$delivery->getLocation()->getAddress()) {
+                throw new DeliveryWithoutAddressException();
+            }
+        }
 
         $data = [
             'id' => Uuid::uuid4()->toString(),

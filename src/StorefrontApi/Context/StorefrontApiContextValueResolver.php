@@ -1,28 +1,30 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Rest\Context;
+namespace Shopware\StorefrontApi\Context;
 
+use Shopware\StorefrontApi\Context\StorefrontApiContext;
+use Shopware\StorefrontApi\Context\StorefrontApiContextService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ArgumentValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 
-class ApiStorefrontContextValueResolver implements ArgumentValueResolverInterface
+class StorefrontApiContextValueResolver implements ArgumentValueResolverInterface
 {
     public const CONTEXT_TOKEN_KEY = 'x-context-token';
 
     /**
-     * @var ApiStorefrontContextService
+     * @var StorefrontApiContextService
      */
     private $contextLoader;
 
-    public function __construct(ApiStorefrontContextService $contextLoader)
+    public function __construct(StorefrontApiContextService $contextLoader)
     {
         $this->contextLoader = $contextLoader;
     }
 
     public function supports(Request $request, ArgumentMetadata $argument): bool
     {
-        return $argument->getType() === ApiStorefrontContext::class;
+        return $argument->getType() === StorefrontApiContext::class;
     }
 
     public function resolve(Request $request, ArgumentMetadata $argument): iterable

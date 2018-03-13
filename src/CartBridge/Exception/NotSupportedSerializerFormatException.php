@@ -26,6 +26,8 @@ namespace Shopware\CartBridge\Exception;
 
 class NotSupportedSerializerFormatException extends \Exception
 {
+    public const CODE = 4006;
+
     /**
      * @var mixed
      */
@@ -39,7 +41,8 @@ class NotSupportedSerializerFormatException extends \Exception
     public function __construct($data, string $format)
     {
         parent::__construct(
-            sprintf('Not supported serializer format %s', $format)
+            sprintf('Not supported serializer format %s', $format),
+            self::CODE
         );
         $this->data = $data;
         $this->format = $format;

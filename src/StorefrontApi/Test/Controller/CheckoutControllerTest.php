@@ -1,13 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Rest\Test\Controller\Storefront;
+namespace Shopware\StorefrontApi\Test\Controller;
 
+use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
+use Shopware\Api\Customer\Repository\CustomerRepository;
 use Shopware\Api\Product\Repository\ProductRepository;
 use Shopware\CartBridge\Product\ProductProcessor;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Defaults;
-use Shopware\Rest\Context\ApiStorefrontContextValueResolver;
+use Shopware\StorefrontApi\Context\StorefrontApiContextValueResolver;
 use Shopware\Rest\Test\ApiTestCase;
 use Symfony\Bundle\FrameworkBundle\Client;
 
@@ -19,6 +21,11 @@ class CheckoutControllerTest extends ApiTestCase
     private $repository;
 
     /**
+     * @var CustomerRepository
+     */
+    private $customerRepository;
+
+    /**
      * @var string
      */
     private $taxId;
@@ -28,11 +35,18 @@ class CheckoutControllerTest extends ApiTestCase
      */
     private $manufacturerId;
 
+    /**
+     * @var Connection
+     */
+    private $connection;
+
     protected function setUp()
     {
         self::bootKernel();
         parent::setUp();
         $this->repository = self::$kernel->getContainer()->get(ProductRepository::class);
+        $this->customerRepository = self::$kernel->getContainer()->get(CustomerRepository::class);
+        $this->connection = self::$kernel->getContainer()->get(Connection::class);
         $this->taxId = Uuid::uuid4()->toString();
         $this->manufacturerId = Uuid::uuid4()->toString();
     }
@@ -288,6 +302,80 @@ class CheckoutControllerTest extends ApiTestCase
         $this->assertEquals($productId, $product['identifier']);
     }
 
+    public function testOrderProcess()
+    {
+        $productId = Uuid::uuid4()->toString();
+        $this->repository->create([
+            [
+                'id' => $productId,
+                'name' => 'Test',
+                'catalogId' => Defaults::CATALOG,
+                'price' => ['gross' => 10, 'net' => 9],
+                'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
+                'tax' => ['id' => $this->taxId, 'rate' => 17, 'name' => 'with id'],
+            ],
+        ], ShopContext::createDefaultContext());
+
+        $addressId = Uuid::uuid4()->toString();
+
+        $mail = Uuid::uuid4()->toString();
+        $password = 'shopware';
+
+        $this->connection->executeUpdate('DELETE FROM customer WHERE email = :mail', [
+            'mail' => $mail
+        ]);
+
+        $this->customerRepository->create([
+            [
+                'shopId' => Defaults::SHOP,
+                'defaultShippingAddress' => [
+                    'id' => $addressId,
+                    'firstName' => 'not',
+                    'lastName' => 'not',
+                    'street' => 'test',
+                    'city' => 'not',
+                    'zipcode' => 'not',
+                    'salutation' => 'not',
+                    'country' => ['name' => 'not'],
+                ],
+                'defaultBillingAddressId' => $addressId,
+                'defaultPaymentMethod' => [
+                    'name' => 'test',
+                    'additionalDescription' => 'test',
+                    'technicalName' => Uuid::uuid4()->toString(),
+                ],
+                'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+                'email' => $mail,
+                'password' => password_hash($password, PASSWORD_BCRYPT, ['cost' => 13]),
+                'lastName' => 'not',
+                'firstName' => 'match',
+                'salutation' => 'not',
+                'number' => 'not',
+            ]
+        ], ShopContext::createDefaultContext());
+
+        $client = $this->createCart();
+
+        $this->addProduct($client, $productId);
+        $this->assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+
+        $this->login($client, $mail, $password);
+        $this->assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+
+        $this->order($client);
+        $this->assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+
+        $order = json_decode($client->getResponse()->getContent(), true);
+        $this->assertArrayHasKey('data', $order);
+
+        $order = $order['data'];
+        $this->assertNotEmpty($order);
+
+        $this->assertCount(1, $order['deliveries']);
+        $this->assertEquals($mail, $order['customer']['email']);
+        $this->assertCount(1, $order['lineItems']);
+    }
+
     public function createCart(): Client
     {
         $client = $this->getCartClient();
@@ -296,7 +384,7 @@ class CheckoutControllerTest extends ApiTestCase
         $content = json_decode($client->getResponse()->getContent(), true);
 
         return $this->getCartClient(
-            $content[ApiStorefrontContextValueResolver::CONTEXT_TOKEN_KEY]
+            $content[StorefrontApiContextValueResolver::CONTEXT_TOKEN_KEY]
         );
     }
 
@@ -351,5 +439,18 @@ class CheckoutControllerTest extends ApiTestCase
     private function removeLineItem(Client $client, string $productId): void
     {
         $client->request('DELETE', '/storefront-api/checkout/' . $productId);
+    }
+
+    private function order(Client $client)
+    {
+        $client->request('POST', '/storefront-api/checkout/order/');
+    }
+
+    private function login(Client $client, string $email, string $password)
+    {
+        $client->request('POST', '/storefront-api/customer/login', [], [], [], json_encode([
+            'username' => $email,
+            'password' => $password
+        ]));
     }
 }

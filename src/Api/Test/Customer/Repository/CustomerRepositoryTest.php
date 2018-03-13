@@ -60,6 +60,7 @@ class CustomerRepositoryTest extends KernelTestCase
             'firstName' => 'not',
             'lastName' => 'not',
             'city' => 'not',
+            'street' => 'not',
             'zipcode' => 'not',
             'salutation' => 'not',
             'country' => ['name' => 'not'],

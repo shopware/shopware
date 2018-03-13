@@ -480,6 +480,10 @@ class EntityReader implements EntityReaderInterface
                 continue;
             }
 
+            if ($field->is(Deferred::class)) {
+                continue;
+            }
+
             if ($field instanceof ManyToManyAssociationField || $field instanceof OneToManyAssociationField) {
                 return true;
             }

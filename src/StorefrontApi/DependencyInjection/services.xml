@@ -1,0 +1,71 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service class="Shopware\StorefrontApi\Product\StorefrontProductRepository" id="Shopware\StorefrontApi\Product\StorefrontProductRepository">
+            <argument type="service" id="Shopware\Api\Product\Repository\ProductRepository"/>
+            <argument type="service" id="Shopware\Cart\Price\PriceCalculator"/>
+            <argument type="service" id="Shopware\Api\Product\Repository\ProductMediaRepository"/>
+            <argument type="service" id="Shopware\Api\Product\Repository\ProductServiceRepository"/>
+        </service>
+
+        <service class="Shopware\StorefrontApi\Context\StorefrontApiContextPersister" id="Shopware\StorefrontApi\Context\StorefrontApiContextPersister">
+            <argument id="Doctrine\DBAL\Connection" type="service"/>
+        </service>
+
+        <service class="Shopware\StorefrontApi\Context\StorefrontApiContextService" id="Shopware\StorefrontApi\Context\StorefrontApiContextService">
+            <argument id="Shopware\Context\Service\ContextFactory" type="service"/>
+            <argument id="Shopware\Context\Service\ContextRuleLoader" type="service"/>
+            <argument type="service" id="Shopware\Api\Shop\Repository\ShopRepository"/>
+            <argument type="service" id="Shopware\StorefrontApi\Context\StorefrontApiContextPersister"/>
+        </service>
+
+        <service class="Shopware\StorefrontApi\Context\StorefrontApiContextValueResolver" id="Shopware\StorefrontApi\Context\StorefrontApiContextValueResolver">
+            <tag name="controller.argument_value_resolver"/>
+            <argument type="service" id="Shopware\StorefrontApi\Context\StorefrontApiContextService"/>
+        </service>
+
+        <service class="Shopware\StorefrontApi\Controller\ProductController" id="Shopware\StorefrontApi\Controller\ProductController">
+            <call method="setContainer">
+                <argument id="service_container" type="service"/>
+            </call>
+            <argument id="Shopware\StorefrontApi\Product\StorefrontProductRepository" type="service"/>
+            <argument type="service" id="Shopware\Rest\Response\ResponseFactory"/>
+        </service>
+
+        <service class="Shopware\StorefrontApi\Controller\CheckoutController" id="Shopware\StorefrontApi\Controller\CheckoutController">
+            <argument id="Shopware\Cart\Cart\CircularCartCalculation" type="service"/>
+            <argument id="Shopware\CartBridge\Cart\CartPersister" type="service"/>
+            <argument id="Shopware\CartBridge\Order\OrderPersister" type="service"/>
+            <argument type="service" id="Shopware\Api\Order\Repository\OrderRepository"/>
+            <argument type="service" id="serializer"/>
+            <argument type="service" id="Shopware\StorefrontApi\Context\StorefrontApiContextPersister"/>
+            <call method="setContainer">
+                <argument id="service_container" type="service"/>
+            </call>
+        </service>
+
+        <service class="Shopware\StorefrontApi\Controller\CustomerController" id="Shopware\StorefrontApi\Controller\CustomerController">
+            <argument id="serializer" type="service"/>
+            <argument id="security.authentication.manager" type="service"/>
+            <argument id="security.token_storage" type="service"/>
+            <argument type="service" id="Shopware\StorefrontApi\Context\StorefrontApiContextPersister"/>
+            <call method="setContainer">
+                <argument id="service_container" type="service"/>
+            </call>
+        </service>
+
+        <service class="Shopware\StorefrontApi\Controller\ContextController" id="Shopware\StorefrontApi\Controller\ContextController">
+            <argument id="Shopware\Api\Payment\Repository\PaymentMethodRepository" type="service"/>
+            <argument id="Shopware\Api\Shipping\Repository\ShippingMethodRepository" type="service"/>
+            <argument id="Shopware\Api\Customer\Repository\CustomerAddressRepository" type="service"/>
+            <argument id="Shopware\StorefrontApi\Context\StorefrontApiContextPersister" type="service"/>
+            <call method="setContainer">
+                <argument id="service_container" type="service"/>
+            </call>
+        </service>
+    </services>
+</container>

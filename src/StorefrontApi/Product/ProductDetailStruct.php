@@ -1,8 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Bridge\Product\Struct;
+namespace Shopware\StorefrontApi\Product;
 
 use Shopware\Api\Product\Collection\ProductServiceBasicCollection;
+use Shopware\StorefrontApi\Product\ProductBasicStruct;
 
 class ProductDetailStruct extends ProductBasicStruct
 {

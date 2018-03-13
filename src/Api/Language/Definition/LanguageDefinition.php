@@ -15,7 +15,6 @@ use Shopware\Api\Entity\Field\DateField;
 use Shopware\Api\Entity\Field\FkField;
 use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
-use Shopware\Api\Entity\Field\OneToManyAssociationField;
 use Shopware\Api\Entity\Field\ParentField;
 use Shopware\Api\Entity\Field\ReferenceVersionField;
 use Shopware\Api\Entity\Field\StringField;

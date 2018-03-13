@@ -49,15 +49,13 @@
             <argument id="serializer" type="service"/>
             <argument id="Shopware\Rest\Response\ResponseFactory" type="service"/>
             <argument id="Shopware\Api\Entity\Write\EntityWriter" type="service"/>
+            <argument type="service" id="Shopware\Api\Entity\Search\SearchCriteriaBuilder"/>
         </service>
 
         <service class="Shopware\Rest\Controller\SyncController" public="true" id="Shopware\Rest\Controller\SyncController" >
             <argument type="service" id="Shopware\Api\Entity\DefinitionRegistry"/>
             <argument type="service" id="service_container"/>
             <argument type="service" id="serializer"/>
-        </service>
-
-        <service class="Shopware\Rest\Routing\RouteCollector" id="Shopware\Rest\Routing\RouteCollector">
         </service>
 
         <!-- Serializer -->

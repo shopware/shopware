@@ -40,7 +40,7 @@ class ProductActionController extends Controller
     {
         $offset = $request->query->get('offset', null);
         $limit = $request->query->get('limit', null);
-        
+
         $events = $this->generator->generate($productId, $context->getShopContext(), $offset, $limit);
 
         $event = $events->getEventByDefinition(ProductDefinition::class);

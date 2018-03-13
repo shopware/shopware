@@ -17,6 +17,7 @@ interface EntityExtensionInterface
 
     /**
      * Defines which entity definition should be extended by this class
+     *
      * @return string
      */
     public function getDefinitionClass(): string;

@@ -26,12 +26,12 @@ class RangeQuery extends Query
      * @example
      *
      * new RangeQuery('price', [
-     *      '>=' => 5.99,
-     *      '<=' => 21.99
+     *      'gte' => 5.99,
+     *      'lte' => 21.99
      * ])
      *
      * new RangeQuery('price', [
-     *      '>' => 5.99
+     *      'gt' => 5.99
      * ])
      *
      * @param string $field

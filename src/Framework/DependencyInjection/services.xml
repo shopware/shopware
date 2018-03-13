@@ -41,7 +41,6 @@
             <argument type="service" id="Shopware\Framework\Routing\UrlResolver" />
             <argument type="service" id="Shopware\Framework\Routing\ShopFinder" />
             <argument id="shopware.cache" type="service"/>
-            <argument type="service" id="Shopware\Rest\Routing\RouteCollector"/>
             <argument type="service" id="security.token_storage"/>
         </service>
 

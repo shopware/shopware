@@ -2,7 +2,6 @@
 
 namespace Shopware\Rest\Controller;
 
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Shopware\Api\Entity\DefinitionRegistry;
 use Shopware\Api\Entity\Entity;
 use Shopware\Api\Entity\EntityDefinition;
@@ -18,6 +17,7 @@ use Shopware\Api\Entity\RepositoryInterface;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Parser\QueryStringParser;
 use Shopware\Api\Entity\Search\Query\TermQuery;
+use Shopware\Api\Entity\Search\SearchCriteriaBuilder;
 use Shopware\Api\Entity\Search\Sorting\FieldSorting;
 use Shopware\Api\Entity\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Api\Entity\Search\Term\SearchTermInterpreter;
@@ -68,13 +68,23 @@ class ApiController extends Controller
      * @var EntityWriterInterface
      */
     private $entityWriter;
+    /**
+     * @var SearchCriteriaBuilder
+     */
+    private $searchCriteriaBuilder;
 
-    public function __construct(DefinitionRegistry $definitionRegistry, Serializer $serializer, ResponseFactory $responseFactory, EntityWriterInterface $entityWriter)
-    {
+    public function __construct(
+        DefinitionRegistry $definitionRegistry,
+        Serializer $serializer,
+        ResponseFactory $responseFactory,
+        EntityWriterInterface $entityWriter,
+        SearchCriteriaBuilder $searchCriteriaBuilder
+    ) {
         $this->definitionRegistry = $definitionRegistry;
         $this->serializer = $serializer;
         $this->responseFactory = $responseFactory;
         $this->entityWriter = $entityWriter;
+        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
     }
 
     public function detailAction(Request $request, RestContext $context): Response
@@ -124,7 +134,7 @@ class ApiController extends Controller
         /** @var EntityDefinition|string $definition */
         $definition = $first['definition'];
 
-        if(!$definition) {
+        if (!$definition) {
             throw new BadRequestHttpException('Unsupported API request');
         }
 
@@ -311,6 +321,32 @@ class ApiController extends Controller
         }
 
         throw new \RuntimeException(sprintf('Unsupported association for field %s', $association->getPropertyName()));
+    }
+
+    public function searchAction(Request $request, RestContext $context, string $path): Response
+    {
+        $path = $this->buildEntityPath($path);
+        $first = array_shift($path);
+
+        /** @var EntityDefinition|string $definition */
+        $definition = $first['definition'];
+
+        /** @var RepositoryInterface $repository */
+        $repository = $this->get($definition::getRepositoryClass());
+
+        if (empty($path)) {
+            $data = $repository->search(
+                $this->searchCriteriaBuilder->handleRequest(
+                    $request,
+                    $definition,
+                    $context->getShopContext()
+                ),
+                $context->getShopContext()
+            );
+
+            return $this->responseFactory->createListingResponse($data, (string) $definition, $context);
+        }
+        throw new \RuntimeException('Only entities are supported');
     }
 
     private function write(Request $request, RestContext $context, string $type): Response

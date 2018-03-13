@@ -20,6 +20,11 @@
 
         <service class="Shopware\Api\Entity\Search\Term\EntityScoreQueryBuilder" id="Shopware\Api\Entity\Search\Term\EntityScoreQueryBuilder"/>
 
+        <service class="Shopware\Api\Entity\Search\SearchCriteriaBuilder" id="Shopware\Api\Entity\Search\SearchCriteriaBuilder">
+            <argument id="Shopware\Api\Entity\Search\Term\SearchTermInterpreter" type="service"/>
+            <argument id="Shopware\Api\Entity\Search\Term\EntityScoreQueryBuilder" type="service"/>
+        </service>
+
         <service class="Shopware\Api\Entity\ExtensionRegistry" id="Shopware\Api\Entity\ExtensionRegistry" public="true">
             <argument type="tagged" tag="shopware.entity.extension" />
         </service>

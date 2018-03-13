@@ -17,9 +17,9 @@ use Shopware\Api\Entity\Search\EntityAggregatorInterface;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
 use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
-use Shopware\Version\VersionManager;
 use Shopware\Api\Entity\Write\WriteContext;
 use Shopware\Context\Struct\ShopContext;
+use Shopware\Version\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class CatalogRepository implements RepositoryInterface

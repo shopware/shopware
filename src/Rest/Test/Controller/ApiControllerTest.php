@@ -4,6 +4,7 @@ namespace Shopware\Rest\Test\Controller;
 
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
+use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Rest\Test\ApiTestCase;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -351,5 +352,77 @@ class ApiControllerTest extends ApiTestCase
         $response = $client->getResponse();
         self::assertSame(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
         self::assertNull($response->headers->get('Location'));
+    }
+
+    public function testSearch(): void
+    {
+        $id = Uuid::uuid4()->toString();
+
+        $data = [
+            'id' => $id,
+            'name' => 'Cotton Shirt',
+            'tax' => ['name' => 'test', 'rate' => 10],
+            'manufacturer' => ['name' => 'Shopware AG'],
+            'price' => ['gross' => 50, 'net' => 25],
+        ];
+
+        $client = $this->getClient();
+        $client->request('POST', '/api/product', [], [], [], json_encode($data));
+        $response = $client->getResponse();
+        self::assertSame(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        self::assertNotEmpty($response->headers->get('Location'));
+        self::assertEquals('http://localhost/api/product/' . $id, $response->headers->get('Location'));
+
+        $data = [
+            'offset' => 0,
+            'size' => 5,
+            'fetch-count' => Criteria::FETCH_COUNT_TOTAL,
+            'sort' => [
+                [
+                    'field' => 'product.stock',
+                    'order' => 'desc',
+                ],
+                [
+                    'field' => 'product.name',
+                    'order' => 'desc',
+                ],
+            ],
+            'filter' => [
+                [
+                    'type' => 'nested',
+                    'queries' => [
+                        [
+                            'type' => 'range',
+                            'field' => 'product.price',
+                            'parameters' => [
+                                'gt' => 49,
+                                'lte' => 50,
+                            ],
+                        ],
+                        [
+                            'type' => 'term',
+                            'field' => 'product.manufacturer.name',
+                            'value' => 'Shopware AG',
+                        ],
+                    ],
+                ],
+            ],
+            'query' => [
+                [
+                    'type' => 'score',
+                    'query' => [
+                        'type' => 'match',
+                        'field' => 'product.name',
+                        'value' => 'Cotton',
+                    ],
+                ],
+            ],
+        ];
+
+        $client->request('POST', '/api/search/product', [], [], [], json_encode($data));
+        $response = $client->getResponse();
+        $content = json_decode($response->getContent(), true);
+        self::assertEquals(1, $content['meta']['total']);
+        self::assertEquals($id, $content['data'][0]['id']);
     }
 }

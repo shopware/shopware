@@ -26,7 +26,7 @@ class QueryStringParser
         );
     }
 
-    private static function fromArray(array $query): Query
+    public static function fromArray(array $query): Query
     {
         switch ($query['type']) {
             case 'term':

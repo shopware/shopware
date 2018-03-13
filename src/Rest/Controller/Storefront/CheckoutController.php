@@ -14,6 +14,7 @@ use Shopware\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Cart\Exception\LineItemNotFoundException;
 use Shopware\Cart\LineItem\LineItem;
 use Shopware\Cart\Order\OrderPersisterInterface;
+use Shopware\CartBridge\Product\ProductProcessor;
 use Shopware\CartBridge\Service\StoreFrontCartService;
 use Shopware\Rest\Context\ApiStorefrontContext;
 use Shopware\Rest\Context\ApiStorefrontContextPersister;
@@ -119,6 +120,32 @@ class CheckoutController extends Controller
     }
 
     /**
+     * @Route("/storefront-api/checkout/add-product/{identifier}", name="storefront.api.checkout.add.product")
+     * @Method({"PUT"})
+     *
+     * @param Request                                     $request
+     * @param \Shopware\Rest\Context\ApiStorefrontContext $context
+     *
+     * @return JsonResponse
+     */
+    public function addProductAction(string $identifier, Request $request, ApiStorefrontContext $context)
+    {
+        $post = $this->getPost($request);
+
+        $quantity = isset($post['quantity']) ? (int) $post['quantity'] : 1;
+
+        $payload = isset($post['payload']) ? $post['payload'] : [];
+
+        $payload = array_replace_recursive(['id' => $identifier], $payload);
+
+        $calculated = $this->addLineItem($context, $identifier, ProductProcessor::TYPE_PRODUCT, $quantity, $payload);
+
+        return new JsonResponse(
+            $this->serialize($calculated)
+        );
+    }
+
+    /**
      * @Route("/storefront-api/checkout", name="storefront.api.checkout.add")
      * @Method({"PUT"})
      *
@@ -129,8 +156,6 @@ class CheckoutController extends Controller
      */
     public function addAction(Request $request, ApiStorefrontContext $context)
     {
-        $cart = $this->loadCart($context->getCartToken());
-
         $post = $this->getPost($request);
 
         if (!isset($post['identifier'])) {
@@ -146,18 +171,12 @@ class CheckoutController extends Controller
             throw new InvalidParameterException('Parameter type missing');
         }
 
-        $lineItem = new LineItem(
-            $post['identifier'],
-            $post['type'],
-            (int) $post['quantity'],
-            $post['payload']
-        );
+        $identifier = $post['identifier'];
+        $quantity = (int) $post['quantity'];
+        $type = $post['type'];
+        $payload = $post['payload'];
 
-        $cart->getLineItems()->add($lineItem);
-
-        $calculated = $this->calculation->calculate($cart, $context);
-
-        $this->save($calculated, $context);
+        $calculated = $this->addLineItem($context, $identifier, $type, $quantity, $payload);
 
         return new JsonResponse(
             $this->serialize($calculated)
@@ -291,6 +310,25 @@ class CheckoutController extends Controller
 
     private function getPost(Request $request): array
     {
+        if (empty($request->getContent())) {
+            return [];
+        }
+
         return $this->serializer->decode($request->getContent(), 'json');
+    }
+
+    private function addLineItem(ApiStorefrontContext $context, string $identifier, string $type, int $quantity, array $payload): CalculatedCart
+    {
+        $cart = $this->loadCart($context->getCartToken());
+
+        $lineItem = new LineItem($identifier, $type, $quantity, $payload);
+
+        $cart->getLineItems()->add($lineItem);
+
+        $calculated = $this->calculation->calculate($cart, $context);
+
+        $this->save($calculated, $context);
+
+        return $calculated;
     }
 }

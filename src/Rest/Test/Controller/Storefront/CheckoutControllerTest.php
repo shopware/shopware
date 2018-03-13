@@ -254,6 +254,40 @@ class CheckoutControllerTest extends ApiTestCase
         }
     }
 
+    public function testUseAddProductRoute()
+    {
+        $productId = Uuid::uuid4()->toString();
+        $this->repository->create([
+            [
+                'id' => $productId,
+                'name' => 'Test',
+                'catalogId' => Defaults::CATALOG,
+                'price' => ['gross' => 10, 'net' => 9],
+                'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
+                'tax' => ['id' => $this->taxId, 'rate' => 17, 'name' => 'with id'],
+            ],
+        ], ShopContext::createDefaultContext());
+
+        $client = $this->createCart();
+
+        $client->request('PUT', '/storefront-api/checkout/add-product/' . $productId);
+
+        $this->assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+
+        $content = json_decode($client->getResponse()->getContent(), true);
+
+        $this->assertNotEmpty($content);
+        $this->assertArrayHasKey('data', $content);
+        $cart = $content['data'];
+
+        $this->assertArrayHasKey('price', $cart);
+        $this->assertEquals(10, $cart['price']['totalPrice']);
+        $this->assertCount(1, $cart['calculatedLineItems']);
+
+        $product = array_shift($cart['calculatedLineItems']);
+        $this->assertEquals($productId, $product['identifier']);
+    }
+
     public function createCart(): Client
     {
         $client = $this->getCartClient();

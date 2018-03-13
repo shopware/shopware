@@ -9,32 +9,62 @@ Component.register('sw-notifications', {
         position: {
             type: String,
             required: false,
-            default: 'topRight'
+            default: 'topRight',
+            validator(value) {
+                if (!value.length) {
+                    return true;
+                }
+                return ['topRight', 'bottomLeft', 'bottomRight'].indexOf(value) !== -1;
+            }
+        },
+        notificationsGap: {
+            type: String,
+            default: '20px'
         }
     },
 
-    data() {
-        return {
-            notifications: this.$store.state.notification.notifications
-        };
+    methods: {
+        onRemove(event) {
+            this.$store.commit('notification/removeNotification', event);
+        }
     },
 
     computed: {
-        notificationStyle() {
-            let notificationStyle;
+        notifications() {
+            return this.$store.state.notification.notifications;
+        },
+
+        notificationsStyle() {
+            let notificationsStyle;
+            const notificationsGap = this.notificationsGap;
 
             switch (this.position) {
             case 'bottomLeft':
-                notificationStyle = '';
+                notificationsStyle = {
+                    top: 'auto',
+                    right: 'auto',
+                    bottom: notificationsGap,
+                    left: notificationsGap
+                };
                 break;
             case 'bottomRight':
-                notificationStyle = '';
+                notificationsStyle = {
+                    top: 'auto',
+                    right: notificationsGap,
+                    bottom: notificationsGap,
+                    left: 'auto'
+                };
                 break;
             default:
-                notificationStyle = '';
+                notificationsStyle = {
+                    top: notificationsGap,
+                    right: notificationsGap,
+                    bottom: 'auto',
+                    left: 'auto'
+                };
             }
 
-            return notificationStyle;
+            return notificationsStyle;
         }
     }
 });

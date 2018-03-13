@@ -1,7 +1,7 @@
 <div class="sw-login">
     <sw-card class="sw-login__container" title="">
         <transition name="bounce">
-            <sw-alert warning v-if="errorTitle.length && errorMessage.length" :title="errorTitle">
+            <sw-alert variant="warning" v-if="errorTitle.length && errorMessage.length" :title="errorTitle">
                 {{ errorMessage }}
             </sw-alert>
         </transition>

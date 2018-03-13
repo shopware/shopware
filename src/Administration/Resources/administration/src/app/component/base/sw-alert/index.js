@@ -23,10 +23,15 @@ Component.register('sw-alert', {
             required: false,
             default: false
         },
-        dismissible: {
+        removable: {
             type: Boolean,
             required: false,
             default: true
+        },
+        notificationIndex: {
+            type: Number,
+            required: false,
+            default: 0
         }
     },
     computed: {

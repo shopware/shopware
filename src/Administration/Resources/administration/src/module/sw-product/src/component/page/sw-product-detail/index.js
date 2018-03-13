@@ -81,7 +81,7 @@ Component.register('sw-product-detail', {
          * Todo: Remove test notifications
          */
         addNotificationInfo() {
-            this.$store.commit('notification/createNotification', {
+            this.$store.dispatch('notification/createNotification', {
                 title: 'Info',
                 variant: 'info',
                 text: 'Lorem ipsum dolor sit amet.'
@@ -89,7 +89,7 @@ Component.register('sw-product-detail', {
         },
 
         addNotificationError() {
-            this.$store.commit('notification/createNotification', {
+            this.$store.dispatch('notification/createNotification', {
                 title: 'Error',
                 variant: 'error',
                 text: 'Lorem ipsum dolor sit amet.'
@@ -97,7 +97,7 @@ Component.register('sw-product-detail', {
         },
 
         addNotificationSuccess() {
-            this.$store.commit('notification/createNotification', {
+            this.$store.dispatch('notification/createNotification', {
                 title: 'Success',
                 variant: 'success',
                 text: 'Lorem ipsum dolor sit amet.'
@@ -105,7 +105,7 @@ Component.register('sw-product-detail', {
         },
 
         addNotificationWarning() {
-            this.$store.commit('notification/createNotification', {
+            this.$store.dispatch('notification/createNotification', {
                 title: 'Warning',
                 variant: 'warning',
                 text: 'Lorem ipsum dolor sit amet.'
@@ -113,7 +113,7 @@ Component.register('sw-product-detail', {
         },
 
         addSystemNotificationError() {
-            this.$store.commit('notification/createNotification', {
+            this.$store.dispatch('notification/createNotification', {
                 title: 'Shopware Error',
                 variant: 'error',
                 system: true,
@@ -122,7 +122,7 @@ Component.register('sw-product-detail', {
         },
 
         addSystemNotificationSuccess() {
-            this.$store.commit('notification/createNotification', {
+            this.$store.dispatch('notification/createNotification', {
                 title: 'Shopware Success',
                 variant: 'success',
                 system: true,
@@ -131,7 +131,7 @@ Component.register('sw-product-detail', {
         },
 
         addSystemNotificationInfo() {
-            this.$store.commit('notification/createNotification', {
+            this.$store.dispatch('notification/createNotification', {
                 title: 'Shopware Info',
                 variant: 'info',
                 system: true,
@@ -140,11 +140,11 @@ Component.register('sw-product-detail', {
         },
 
         addSystemNotificationWarning() {
-            this.$store.commit('notification/createNotification', {
+            this.$store.dispatch('notification/createNotification', {
                 title: 'Shopware Warning',
                 variant: 'warning',
-                system: true,
-                text: 'Lorem ipsum dolor sit amet.'
+                text: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut.',
+                system: true
             });
         }
     },

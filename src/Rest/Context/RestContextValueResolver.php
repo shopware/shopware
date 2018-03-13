@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Rest;
+namespace Shopware\Rest\Context;
 
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;

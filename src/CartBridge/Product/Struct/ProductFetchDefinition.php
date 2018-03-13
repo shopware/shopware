@@ -32,21 +32,21 @@ class ProductFetchDefinition extends Struct
     /**
      * @var string[]
      */
-    protected $numbers;
+    protected $ids;
 
     /**
-     * @param string[] $numbers
+     * @param string[] $ids
      */
-    public function __construct(array $numbers)
+    public function __construct(array $ids)
     {
-        $this->numbers = $numbers;
+        $this->ids = $ids;
     }
 
     /**
      * @return string[]
      */
-    public function getNumbers(): array
+    public function getIds(): array
     {
-        return $this->numbers;
+        return $this->ids;
     }
 }

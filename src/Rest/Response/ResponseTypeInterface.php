@@ -4,7 +4,7 @@ namespace Shopware\Rest\Response;
 
 use Shopware\Api\Entity\Entity;
 use Shopware\Api\Entity\Search\SearchResultInterface;
-use Shopware\Rest\RestContext;
+use Shopware\Rest\Context\RestContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 

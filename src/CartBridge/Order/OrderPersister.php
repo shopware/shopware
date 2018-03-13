@@ -69,6 +69,7 @@ class OrderPersister implements OrderPersisterInterface
         $addressId = Uuid::uuid4()->toString();
 
         $data = [
+            'id' => Uuid::uuid4()->toString(),
             'date' => (new \DateTime())->format('Y-m-d H:i:s'),
             'amountTotal' => $calculatedCart->getPrice()->getTotalPrice(),
             'amountNet' => $calculatedCart->getPrice()->getNetPrice(),

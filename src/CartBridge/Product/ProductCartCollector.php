@@ -104,15 +104,15 @@ class ProductCartCollector implements CartCollectorInterface
 
     private function fetchProducts(StorefrontContext $context, StructCollection $definitions): ProductBasicCollection
     {
-        $numbers = [];
+        $ids = [];
         /** @var ProductFetchDefinition[] $definitions */
         foreach ($definitions as $definition) {
-            $numbers = array_merge($numbers, $definition->getNumbers());
+            $ids = array_merge($ids, $definition->getIds());
         }
 
-        $numbers = array_keys(array_flip($numbers));
+        $ids = array_keys(array_flip($ids));
 
-        return $this->productGateway->get($numbers, $context);
+        return $this->productGateway->get($ids, $context);
     }
 
     private function fetchServices(StorefrontContext $context, StructCollection $definitions): ProductServiceBasicCollection

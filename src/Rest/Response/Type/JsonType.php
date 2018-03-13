@@ -5,8 +5,8 @@ namespace Shopware\Rest\Response\Type;
 use Shopware\Api\Entity\Entity;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Search\SearchResultInterface;
+use Shopware\Rest\Context\RestContext;
 use Shopware\Rest\Response\ResponseTypeInterface;
-use Shopware\Rest\RestContext;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -81,9 +81,9 @@ class JsonType implements ResponseTypeInterface
     }
 
     /**
-     * @param string|EntityDefinition $definition
-     * @param string                  $id
-     * @param RestContext             $context
+     * @param string|EntityDefinition            $definition
+     * @param string                             $id
+     * @param \Shopware\Rest\Context\RestContext $context
      *
      * @return Response
      */
@@ -96,7 +96,7 @@ class JsonType implements ResponseTypeInterface
         return new Response(null, Response::HTTP_NO_CONTENT, $headers);
     }
 
-    private function format($decoded)
+    public static function format($decoded)
     {
         if (!\is_array($decoded) || empty($decoded)) {
             return $decoded;
@@ -105,7 +105,7 @@ class JsonType implements ResponseTypeInterface
         if (array_key_exists('_class', $decoded) && preg_match('/(Collection|SearchResult)$/', $decoded['_class'])) {
             $elements = [];
             foreach ($decoded['elements'] as $element) {
-                $elements[] = $this->format($element);
+                $elements[] = self::format($element);
             }
 
             return $elements;
@@ -114,14 +114,14 @@ class JsonType implements ResponseTypeInterface
         unset($decoded['_class']);
 
         foreach ($decoded as $key => $value) {
-            $decoded[$key] = $this->format($value);
+            $decoded[$key] = self::format($value);
         }
 
         return $decoded;
     }
 
     /**
-     * @param RestContext $context
+     * @param \Shopware\Rest\Context\RestContext $context
      *
      * @return string
      */

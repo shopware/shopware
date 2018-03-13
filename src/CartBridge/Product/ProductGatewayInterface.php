@@ -30,5 +30,5 @@ use Shopware\Context\Struct\StorefrontContext;
 
 interface ProductGatewayInterface
 {
-    public function get(array $numbers, StorefrontContext $context): ProductBasicCollection;
+    public function get(array $ids, StorefrontContext $context): ProductBasicCollection;
 }

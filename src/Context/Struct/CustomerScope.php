@@ -48,12 +48,12 @@ class CustomerScope extends Struct
      */
     protected $customerGroupId;
 
-    public function __construct(?string $customerId, ?string $customerGroupKey = null, ?string $billingId = null, ?string $shippingId = null)
+    public function __construct(?string $customerId, ?string $customerGroupId = null, ?string $billingId = null, ?string $shippingId = null)
     {
         $this->customerId = $customerId;
         $this->billingAddressId = $billingId;
         $this->shippingAddressId = $shippingId;
-        $this->customerGroupId = $customerGroupKey;
+        $this->customerGroupId = $customerGroupId;
     }
 
     public function getCustomerId(): ?string

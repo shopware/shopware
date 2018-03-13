@@ -217,7 +217,6 @@ CREATE TABLE `configuration_group_option` (
   CONSTRAINT `fk_configuration_group_option.media_id` FOREIGN KEY (`media_id`, `media_version_id`) REFERENCES `media` (`id`, `version_id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-
 DROP TABLE IF EXISTS `configuration_group_option_translation`;
 CREATE TABLE `configuration_group_option_translation` (
   `configuration_group_option_id` binary(16) NOT NULL,
@@ -1770,6 +1769,13 @@ CREATE TABLE `catalog` (
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `storefront_api_context`;
+CREATE TABLE `storefront_api_context` (
+  `token` binary(16) NOT NULL,
+  `payload` LONGTEXT NOT NULL,
+  PRIMARY KEY (`token`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 SET FOREIGN_KEY_CHECKS=1;

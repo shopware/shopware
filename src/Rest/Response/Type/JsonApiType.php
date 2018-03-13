@@ -6,10 +6,10 @@ use Shopware\Api\Entity\Entity;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Search\SearchResultInterface;
 use Shopware\Api\Entity\Write\FieldException\InvalidFieldException;
+use Shopware\Rest\Context\RestContext;
 use Shopware\Rest\Exception\WriteStackHttpException;
 use Shopware\Rest\Response\JsonApiResponse;
 use Shopware\Rest\Response\ResponseTypeInterface;
-use Shopware\Rest\RestContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -33,10 +33,10 @@ class JsonApiType implements ResponseTypeInterface
     }
 
     /**
-     * @param Entity                  $entity
-     * @param string|EntityDefinition $definition
-     * @param RestContext             $context
-     * @param bool                    $setLocationHeader
+     * @param Entity                             $entity
+     * @param string|EntityDefinition            $definition
+     * @param \Shopware\Rest\Context\RestContext $context
+     * @param bool                               $setLocationHeader
      *
      * @return Response
      */
@@ -111,9 +111,9 @@ class JsonApiType implements ResponseTypeInterface
     }
 
     /**
-     * @param string|EntityDefinition $definition
-     * @param string                  $id
-     * @param RestContext             $context
+     * @param string|EntityDefinition            $definition
+     * @param string                             $id
+     * @param \Shopware\Rest\Context\RestContext $context
      *
      * @return Response
      */

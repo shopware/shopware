@@ -8,7 +8,7 @@ use Shopware\Api\Entity\DefinitionRegistry;
 use Shopware\Api\Entity\RepositoryInterface;
 use Shopware\Api\Entity\Write\FieldException\WriteStackException;
 use Shopware\Api\Entity\Write\WrittenEvent;
-use Shopware\Rest\RestContext;
+use Shopware\Rest\Context\RestContext;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -45,8 +45,8 @@ class SyncController extends Controller
      * @Route("", name="sync.api")
      * @Method({"POST"})
      *
-     * @param Request     $request
-     * @param RestContext $restContext
+     * @param Request                            $request
+     * @param \Shopware\Rest\Context\RestContext $restContext
      *
      * @return Response
      */

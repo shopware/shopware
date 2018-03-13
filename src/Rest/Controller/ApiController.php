@@ -23,7 +23,6 @@ use Shopware\Api\Entity\Write\WriteContext;
 use Shopware\Rest\Exception\ResourceNotFoundException;
 use Shopware\Rest\Exception\WriteStackHttpException;
 use Shopware\Rest\Response\ResponseFactory;
-use Shopware\Rest\RestContext;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

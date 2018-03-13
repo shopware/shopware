@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Rest;
+namespace Shopware\Rest\Context;
 
 use Shopware\Context\Struct\ShopContext;
 use Symfony\Component\HttpFoundation\Request;

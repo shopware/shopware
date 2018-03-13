@@ -62,7 +62,7 @@ class Cart extends Struct
 
     public static function createNew(string $name, ?string $token = null): self
     {
-        if ($token === null) {
+        if (!$token) {
             $token = Uuid::uuid4()->toString();
         }
 

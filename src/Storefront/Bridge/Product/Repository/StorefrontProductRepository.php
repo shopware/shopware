@@ -6,6 +6,7 @@ use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\TermsQuery;
 use Shopware\Api\Entity\Search\Sorting\FieldSorting;
 use Shopware\Api\Product\Collection\ProductBasicCollection;
+use Shopware\Api\Product\Collection\ProductMediaBasicCollection;
 use Shopware\Api\Product\Repository\ProductMediaRepository;
 use Shopware\Api\Product\Repository\ProductRepository;
 use Shopware\Api\Product\Repository\ProductServiceRepository;
@@ -71,6 +72,7 @@ class StorefrontProductRepository
     public function search(Criteria $criteria, StorefrontContext $context): ProductSearchResult
     {
         $basics = $this->repository->search($criteria, $context->getShopContext());
+
         $listProducts = $this->loadListProducts($basics, $context);
 
         $basics->clear();
@@ -116,7 +118,8 @@ class StorefrontProductRepository
             $price = $this->priceCalculator->calculate($priceDefinition, $context);
             $product->setCalculatedPrice($price);
 
-            $product->setMedia($media->filterByProductId($product->getId()));
+            $productMedia = $media->filterByProductId($product->getId())->getElements();
+            $product->setMedia(new ProductMediaBasicCollection($productMedia));
         }
 
         return $listingProducts;

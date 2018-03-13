@@ -4,7 +4,7 @@ namespace Shopware\Administration\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Administration\Search\AdministrationSearch;
-use Shopware\Rest\RestContext;
+use Shopware\Rest\Context\RestContext;
 use Shopware\Storefront\Twig\TemplateFinder;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;

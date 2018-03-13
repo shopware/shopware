@@ -7,7 +7,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Product\Service\VariantGenerator;
-use Shopware\Rest\RestContext;
+use Shopware\Rest\Context\RestContext;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;

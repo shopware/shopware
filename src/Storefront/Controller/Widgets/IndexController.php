@@ -27,6 +27,7 @@ namespace Shopware\Storefront\Controller\Widgets;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Api\Currency\Collection\CurrencyBasicCollection;
+use Shopware\Api\Currency\Repository\CurrencyRepository;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\Shop\Repository\ShopRepository;
@@ -34,7 +35,7 @@ use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Storefront\Controller\StorefrontController;
 
 /**
- * @Route(service="shopware.storefront.controller.widgets.index_controller", path="/")
+ * @Route(service="Shopware\Storefront\Controller\Widgets\IndexController", path="/")
  */
 class IndexController extends StorefrontController
 {
@@ -43,9 +44,15 @@ class IndexController extends StorefrontController
      */
     private $shopRepository;
 
-    public function __construct(ShopRepository $shopRepository)
+    /**
+     * @var CurrencyRepository
+     */
+    private $currencyRepository;
+
+    public function __construct(ShopRepository $shopRepository, CurrencyRepository $currencyRepository)
     {
         $this->shopRepository = $shopRepository;
+        $this->currencyRepository = $currencyRepository;
     }
 
     /**
@@ -62,7 +69,7 @@ class IndexController extends StorefrontController
             'shop' => $context->getShop(),
             'currency' => $context->getCurrency(),
             'shops' => $this->loadShops($context),
-            'currencies' => $this->getCurrencies()
+            'currencies' => $this->getCurrencies($context)
         ]);
     }
 
@@ -77,8 +84,11 @@ class IndexController extends StorefrontController
         return $shops->sortByPosition();
     }
 
-    private function getCurrencies(): CurrencyBasicCollection
+    private function getCurrencies(StorefrontContext $context): CurrencyBasicCollection
     {
-        return new CurrencyBasicCollection();
+        $criteria = new Criteria();
+        $criteria->addFilter(new TermQuery('currency.shops.id', $context->getShop()->getId()));
+
+        return $this->currencyRepository->search($criteria, $context->getShopContext());
     }
 }

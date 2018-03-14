@@ -127,6 +127,8 @@
 
             $.publish('plugin/swAddArticle/onBeforeAddArticle', [ me, ajaxData ]);
 
+            console.log("ASDSAD");
+
             $.ajax({
                 'type': 'POST',
                 'data': ajaxData,

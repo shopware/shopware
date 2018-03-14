@@ -129,6 +129,7 @@
 
         <service class="Shopware\Storefront\Controller\Widgets\IndexController" public="true" id="Shopware\Storefront\Controller\Widgets\IndexController">
             <argument type="service" id="Shopware\Api\Shop\Repository\ShopRepository" />
+            <argument type="service" id="Shopware\Api\Currency\Repository\CurrencyRepository"/>
         </service>
 
         <service class="Shopware\Storefront\Controller\Widgets\CheckoutController" public="true" id="Shopware\Storefront\Controller\Widgets\CheckoutController">

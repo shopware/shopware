@@ -44,12 +44,12 @@ class CatalogTest extends KernelTestCase
         $this->catalogRepository = $kernel->getContainer()->get(CatalogRepository::class);
         $this->productRepository = $kernel->getContainer()->get(ProductRepository::class);
         $this->connection = $kernel->getContainer()->get(Connection::class);
-//        $this->connection->beginTransaction();
+        $this->connection->beginTransaction();
     }
 
     public function tearDown()
     {
-//        $this->connection->rollBack();
+        $this->connection->rollBack();
     }
 
     public function testCreateWithoutCatalogProvided(): void

@@ -6,12 +6,14 @@ use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Field\AssociationInterface;
+use Shopware\Api\Entity\Field\CanonicalUrlAssociationField;
 use Shopware\Api\Entity\Field\Field;
 use Shopware\Api\Entity\Field\ManyToManyAssociationField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\OneToManyAssociationField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\FieldCollection;
+use Shopware\Api\Entity\Write\FieldAware\DbalJoinAware;
 use Shopware\Api\Entity\Write\FieldAware\SqlParseAware;
 use Shopware\Api\Entity\Write\FieldAware\StorageAware;
 use Shopware\Api\Entity\Write\Flag\CascadeDelete;
@@ -262,7 +264,10 @@ class EntityDefinitionQueryHelper
 
         $versionAware = ($definition::isVersionAware() && $reference::isVersionAware());
 
-        if ($versionAware && $context->getVersionId() !== Defaults::LIVE_VERSION) {
+        if ($field instanceof DbalJoinAware) {
+            $field->join($query, $root, $context);
+
+        } else if ($versionAware && $context->getVersionId() !== Defaults::LIVE_VERSION) {
             $subRoot = $field->getReferenceClass()::getEntityName();
             $versionQuery = new QueryBuilder($query->getConnection());
             $versionQuery->select(self::escape($subRoot) . '.*');

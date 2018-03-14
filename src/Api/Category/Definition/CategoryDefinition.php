@@ -12,6 +12,7 @@ use Shopware\Api\Category\Struct\CategoryDetailStruct;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\Field\BoolField;
+use Shopware\Api\Entity\Field\CanonicalUrlAssociationField;
 use Shopware\Api\Entity\Field\CatalogField;
 use Shopware\Api\Entity\Field\ChildrenAssociationField;
 use Shopware\Api\Entity\Field\DateField;
@@ -41,6 +42,7 @@ use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Api\Product\Definition\ProductSeoCategoryDefinition;
 use Shopware\Api\Product\Definition\ProductStreamDefinition;
 use Shopware\Api\Shop\Definition\ShopDefinition;
+use Shopware\DbalIndexing\SeoUrl\ListingPageSeoUrlIndexer;
 
 class CategoryDefinition extends EntityDefinition
 {
@@ -115,6 +117,7 @@ class CategoryDefinition extends EntityDefinition
             (new OneToManyAssociationField('shops', ShopDefinition::class, 'category_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
             (new ManyToManyAssociationField('products', ProductDefinition::class, ProductCategoryDefinition::class, false, 'category_id', 'product_id', 'id', 'category_join_id'))->setFlags(new CascadeDelete(), new WriteOnly()),
             (new ManyToManyAssociationField('seoProducts', ProductDefinition::class, ProductSeoCategoryDefinition::class, false, 'category_id', 'product_id'))->setFlags(new CascadeDelete(), new WriteOnly()),
+            new CanonicalUrlAssociationField('canonicalUrl', 'id', true, ListingPageSeoUrlIndexer::ROUTE_NAME)
         ]);
 
         foreach (self::$extensions as $extension) {

@@ -5,6 +5,7 @@ namespace Shopware\Api\Product\Event\Product;
 use Shopware\Api\Product\Collection\ProductBasicCollection;
 use Shopware\Api\Product\Event\ProductContextPrice\ProductContextPriceBasicLoadedEvent;
 use Shopware\Api\Product\Event\ProductManufacturer\ProductManufacturerBasicLoadedEvent;
+use Shopware\Api\Seo\Event\SeoUrl\SeoUrlBasicLoadedEvent;
 use Shopware\Api\Tax\Event\Tax\TaxBasicLoadedEvent;
 use Shopware\Api\Unit\Event\Unit\UnitBasicLoadedEvent;
 use Shopware\Context\Struct\ShopContext;
@@ -49,17 +50,29 @@ class ProductBasicLoadedEvent extends NestedEvent
     public function getEvents(): ?NestedEventCollection
     {
         $events = [];
-        if ($this->products->getTaxes()->count() > 0) {
-            $events[] = new TaxBasicLoadedEvent($this->products->getTaxes(), $this->context);
+        $taxes = $this->products->getTaxes();
+        if ($taxes->count() > 0) {
+            $events[] = new TaxBasicLoadedEvent($taxes, $this->context);
         }
-        if ($this->products->getManufacturers()->count() > 0) {
-            $events[] = new ProductManufacturerBasicLoadedEvent($this->products->getManufacturers(), $this->context);
+
+        $manufactures = $this->products->getManufacturers();
+        if ($manufactures->count() > 0) {
+            $events[] = new ProductManufacturerBasicLoadedEvent($manufactures, $this->context);
         }
-        if ($this->products->getUnits()->count() > 0) {
-            $events[] = new UnitBasicLoadedEvent($this->products->getUnits(), $this->context);
+
+        $units = $this->products->getUnits();
+        if ($units->count() > 0) {
+            $events[] = new UnitBasicLoadedEvent($units, $this->context);
         }
-        if ($this->products->getContextPrices()->count() > 0) {
-            $events[] = new ProductContextPriceBasicLoadedEvent($this->products->getContextPrices(), $this->context);
+
+        $prices = $this->products->getContextPrices();
+        if ($prices->count() > 0) {
+            $events[] = new ProductContextPriceBasicLoadedEvent($prices, $this->context);
+        }
+
+        $urls = $this->products->getCanonicalUrls();
+        if ($urls->count() > 0) {
+            $events[] = new SeoUrlBasicLoadedEvent($urls, $this->context);
         }
 
         return new NestedEventCollection($events);

@@ -1283,8 +1283,8 @@ CREATE TABLE `seo_url` (
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`, `version_id`),
-  INDEX `canonical_urls` (`version_id`, `name`, `foreign_key`, `is_canonical`),
   INDEX `seo_routing` (`version_id`, `shop_id`, `seo_path_info`),
+  INDEX `entity_canonical_url` (`shop_id`, `foreign_key`, `name`, `is_canonical`),
   CONSTRAINT `fk_seo_url.shop_id` FOREIGN KEY (`shop_id`, `shop_version_id`) REFERENCES `shop` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

@@ -4,6 +4,7 @@ namespace Shopware\Api\Product\Collection;
 
 use Shopware\Api\Entity\EntityCollection;
 use Shopware\Api\Product\Struct\ProductBasicStruct;
+use Shopware\Api\Seo\Collection\SeoUrlBasicCollection;
 use Shopware\Api\Tax\Collection\TaxBasicCollection;
 use Shopware\Api\Unit\Collection\UnitBasicCollection;
 
@@ -148,6 +149,15 @@ class ProductBasicCollection extends EntityCollection
         return new PriceCollection($this->fmap(function (ProductBasicStruct $product) {
             return $product->getPrice();
         }));
+    }
+
+    public function getCanonicalUrls(): SeoUrlBasicCollection
+    {
+        return new SeoUrlBasicCollection(
+            $this->fmap(function(ProductBasicStruct $product) {
+                return $product->getExtension('canonicalUrl');
+            })
+        );
     }
 
     protected function getExpectedClass(): string

@@ -12,12 +12,6 @@
             <tag name="kernel.event_subscriber" />
         </service>
 
-        <service class="Shopware\Category\Extension\CanonicalUrlExtension" id="Shopware\Category\Extension\CanonicalUrlExtension">
-            <argument id="Shopware\Api\Seo\Repository\SeoUrlRepository" type="service"/>
-            <tag name="kernel.event_subscriber"/>
-            <tag name="shopware.entity.extension"/>
-        </service>
-
         <service class="Shopware\Category\Command\BuildCategoryPathCommand" id="Shopware\Category\Command\BuildCategoryPathCommand">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Category\Extension\CategoryPathBuilder"/>

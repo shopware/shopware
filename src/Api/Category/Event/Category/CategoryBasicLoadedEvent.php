@@ -5,6 +5,7 @@ namespace Shopware\Api\Category\Event\Category;
 use Shopware\Api\Category\Collection\CategoryBasicCollection;
 use Shopware\Api\Media\Event\Media\MediaBasicLoadedEvent;
 use Shopware\Api\Product\Event\ProductStream\ProductStreamBasicLoadedEvent;
+use Shopware\Api\Seo\Event\SeoUrl\SeoUrlBasicLoadedEvent;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
@@ -47,6 +48,11 @@ class CategoryBasicLoadedEvent extends NestedEvent
     public function getEvents(): ?NestedEventCollection
     {
         $events = [];
+
+        $urls = $this->categories->getCanonicalUrls();
+        if ($urls->count() > 0) {
+            $events[] = new SeoUrlBasicLoadedEvent($urls, $this->context);
+        }
 
         return new NestedEventCollection($events);
     }

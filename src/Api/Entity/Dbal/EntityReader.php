@@ -3,6 +3,7 @@
 namespace Shopware\Api\Entity\Dbal;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Api\Category\Definition\CategoryDefinition;
 use Shopware\Api\Entity\Entity;
 use Shopware\Api\Entity\EntityCollection;
 use Shopware\Api\Entity\EntityDefinition;
@@ -123,7 +124,6 @@ class EntityReader implements EntityReaderInterface
         if (empty($ids)) {
             return $collection;
         }
-
         /** @var EntityDefinition|string $definition */
         $rows = $this->fetch($ids, $definition, $context, $fields, $raw);
         foreach ($rows as $row) {
@@ -348,7 +348,6 @@ class EntityReader implements EntityReaderInterface
         $criteria = new Criteria();
         $criteria->addFilter(new TermsQuery($reference::getEntityName() . '.' . $field->getPropertyName(), $ids));
 
-        $time = microtime(true);
         $associationIds = $this->searcher->search($reference, $criteria, $context);
 
         $data = $this->readBasic($reference, $associationIds->getIds(), $context);
@@ -379,7 +378,6 @@ class EntityReader implements EntityReaderInterface
                 $association->getPropertyName() => $structData,
             ]);
         }
-        error_log("read basic one to many : " . (microtime(true)-$time)  . "\n", 3,  '/var/log/test.log');
     }
 
     private function loadManyToMany(ManyToManyAssociationField $association, ShopContext $context, EntityCollection $collection): void

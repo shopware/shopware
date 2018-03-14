@@ -3,11 +3,13 @@
 namespace Shopware\Api\Entity\Dbal;
 
 use Ramsey\Uuid\Uuid;
+use Shopware\Api\Category\Definition\CategoryDefinition;
 use Shopware\Api\Context\Collection\ContextPriceCollection;
 use Shopware\Api\Entity\Entity;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Field\AssociationInterface;
 use Shopware\Api\Entity\Field\BoolField;
+use Shopware\Api\Entity\Field\CanonicalUrlAssociationField;
 use Shopware\Api\Entity\Field\ContextPricesJsonField;
 use Shopware\Api\Entity\Field\DateField;
 use Shopware\Api\Entity\Field\Field;
@@ -70,9 +72,9 @@ class EntityHydrator
                 unset($row[$originalKey]);
                 continue;
             }
-
+            
             if ($field instanceof ManyToOneAssociationField) {
-                if ($this->isManyToOneLoaded($field, $row, $root)) {
+                if ($value !== null) {
                     $toOneAssociations[$field->getPropertyName()] = $field;
                 }
                 continue;
@@ -114,8 +116,9 @@ class EntityHydrator
             /** @var Field $field */
             if ($field->is(Extension::class)) {
                 $entity->addExtension($property, $hydrated);
+            } else {
+                $data[$property] = $hydrated;
             }
-            $data[$property] = $hydrated;
         }
 
         return $entity->assign($data);
@@ -236,12 +239,5 @@ class EntityHydrator
             default:
                 return $value === null ? null : (string) $value;
         }
-    }
-
-    private function isManyToOneLoaded(ManyToOneAssociationField $field, array $row, string $root): bool
-    {
-        $name = implode('.', [$root, $field->getPropertyName(), $field->getReferenceField()]);
-
-        return isset($row[$name]);
     }
 }

@@ -3,8 +3,8 @@
 namespace Shopware\Storefront\Page\Detail;
 
 use Shopware\Context\Struct\StorefrontContext;
-use Shopware\StorefrontApi\Product\StorefrontProductRepository;
 use Shopware\StorefrontApi\Product\ProductBasicStruct;
+use Shopware\StorefrontApi\Product\StorefrontProductRepository;
 
 class DetailPageLoader
 {

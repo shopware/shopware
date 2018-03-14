@@ -6,9 +6,9 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Product\Exception\ProductNotFoundException;
-use Shopware\StorefrontApi\Context\StorefrontApiContext;
 use Shopware\Rest\Context\RestContext;
 use Shopware\Rest\Response\ResponseFactory;
+use Shopware\StorefrontApi\Context\StorefrontApiContext;
 use Shopware\StorefrontApi\Product\StorefrontProductRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
@@ -35,7 +35,7 @@ class ProductController extends Controller
     /**
      * @Route("/storefront-api/product", name="storefront.api.product.list")
      *
-     * @param Request                                     $request
+     * @param Request                                              $request
      * @param \Shopware\StorefrontApi\Context\StorefrontApiContext $context
      *
      * @return Response

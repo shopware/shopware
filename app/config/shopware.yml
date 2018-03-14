@@ -72,13 +72,13 @@ security:
         api:
             id: Shopware\Rest\Firewall\AuthProvider
         customer:
-            id: Shopware\Storefront\Firewall\CustomerProvider
+            id: Shopware\StorefrontApi\Firewall\CustomerProvider
 
     encoders:
         Symfony\Component\Security\Core\User\User:
             algorithm: bcrypt
             cost: 13
-        Shopware\Storefront\Firewall\CustomerUser:
+        Shopware\StorefrontApi\Firewall\CustomerUser:
             algorithm: bcrypt
             cost: 13
 

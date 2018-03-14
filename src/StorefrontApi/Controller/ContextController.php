@@ -7,12 +7,12 @@ use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\Payment\Repository\PaymentMethodRepository;
 use Shopware\Api\Shipping\Repository\ShippingMethodRepository;
-use Shopware\StorefrontApi\Exception\AddressNotFoundHttpException;
 use Shopware\CartBridge\Exception\NotLoggedInCustomerException;
-use Shopware\StorefrontApi\Exception\PaymentMethodNotFoundHttpException;
-use Shopware\StorefrontApi\Exception\ShippingMethodNotFoundHttpException;
 use Shopware\StorefrontApi\Context\StorefrontApiContext;
 use Shopware\StorefrontApi\Context\StorefrontApiContextPersister;
+use Shopware\StorefrontApi\Exception\AddressNotFoundHttpException;
+use Shopware\StorefrontApi\Exception\PaymentMethodNotFoundHttpException;
+use Shopware\StorefrontApi\Exception\ShippingMethodNotFoundHttpException;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
 class ContextController extends Controller
@@ -49,7 +49,6 @@ class ContextController extends Controller
         $this->contextPersister = $contextPersister;
     }
 
-
     public function switchPaymentMethodAction(string $paymentMethodId, StorefrontApiContext $context)
     {
         $criteria = new Criteria();
@@ -61,7 +60,7 @@ class ContextController extends Controller
         }
 
         $this->contextPersister->save($context->getContextToken(), [
-            'paymentMethodId' => $paymentMethodId
+            'paymentMethodId' => $paymentMethodId,
         ]);
     }
 
@@ -76,7 +75,7 @@ class ContextController extends Controller
         }
 
         $this->contextPersister->save($context->getContextToken(), [
-            'shippingMethodId' => $shippingMethodId
+            'shippingMethodId' => $shippingMethodId,
         ]);
     }
 
@@ -98,7 +97,7 @@ class ContextController extends Controller
         }
 
         $this->contextPersister->save($context->getContextToken(), [
-            'billingAddressId' => $addressId
+            'billingAddressId' => $addressId,
         ]);
     }
 
@@ -120,7 +119,7 @@ class ContextController extends Controller
         }
 
         $this->contextPersister->save($context->getContextToken(), [
-            'shippingAddressId' => $addressId
+            'shippingAddressId' => $addressId,
         ]);
     }
 }

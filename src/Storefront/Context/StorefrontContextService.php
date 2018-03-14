@@ -33,7 +33,7 @@ use Shopware\Context\Struct\CheckoutScope;
 use Shopware\Context\Struct\CustomerScope;
 use Shopware\Context\Struct\ShopScope;
 use Shopware\Context\Struct\StorefrontContext;
-use Shopware\Storefront\Firewall\CustomerUser;
+use Shopware\StorefrontApi\Firewall\CustomerUser;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Serializer\SerializerInterface;

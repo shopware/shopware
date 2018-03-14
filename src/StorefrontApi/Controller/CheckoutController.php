@@ -16,10 +16,10 @@ use Shopware\Cart\LineItem\LineItem;
 use Shopware\Cart\Order\OrderPersisterInterface;
 use Shopware\CartBridge\Product\ProductProcessor;
 use Shopware\CartBridge\Service\StoreFrontCartService;
+use Shopware\Rest\Response\Type\JsonType;
 use Shopware\StorefrontApi\Context\StorefrontApiContext;
 use Shopware\StorefrontApi\Context\StorefrontApiContextPersister;
 use Shopware\StorefrontApi\Context\StorefrontApiContextValueResolver;
-use Shopware\Rest\Response\Type\JsonType;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -123,7 +123,7 @@ class CheckoutController extends Controller
      * @Route("/storefront-api/checkout/add-product/{identifier}", name="storefront.api.checkout.add.product")
      * @Method({"PUT"})
      *
-     * @param Request                                     $request
+     * @param Request                                              $request
      * @param \Shopware\StorefrontApi\Context\StorefrontApiContext $context
      *
      * @return JsonResponse
@@ -149,7 +149,7 @@ class CheckoutController extends Controller
      * @Route("/storefront-api/checkout", name="storefront.api.checkout.add")
      * @Method({"PUT"})
      *
-     * @param Request                                     $request
+     * @param Request                                              $request
      * @param \Shopware\StorefrontApi\Context\StorefrontApiContext $context
      *
      * @return JsonResponse
@@ -187,7 +187,7 @@ class CheckoutController extends Controller
      * @Route("/storefront-api/checkout/{identifier}", name="storefront.api.checkout.delete")
      * @Method({"DELETE"})
      *
-     * @param string                                      $identifier
+     * @param string                                               $identifier
      * @param \Shopware\StorefrontApi\Context\StorefrontApiContext $context
      *
      * @throws LineItemNotFoundException
@@ -217,8 +217,8 @@ class CheckoutController extends Controller
      * @Route("/storefront-api/checkout/{identifier}/{quantity}", name="storefront.api.checkout.set-quantity")
      * @Method({"PUT"})
      *
-     * @param string                                      $identifier
-     * @param int                                         $quantity
+     * @param string                                               $identifier
+     * @param int                                                  $quantity
      * @param \Shopware\StorefrontApi\Context\StorefrontApiContext $context
      *
      * @throws LineItemNotFoundException

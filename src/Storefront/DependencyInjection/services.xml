@@ -112,12 +112,9 @@
         <service class="Shopware\Storefront\Page\Search\SearchPageLoader" id="Shopware\Storefront\Page\Search\SearchPageLoader">
             <argument type="service" id="Shopware\Framework\Config\ConfigService" />
             <argument id="Shopware\StorefrontApi\Product\StorefrontProductRepository" type="service"/>
-            <argument type="service" id="Shopware\Storefront\Page\Search\KeywordSearchTermInterpreter"/>
+            <argument type="service" id="Shopware\StorefrontApi\Search\KeywordSearchTermInterpreter"/>
         </service>
 
-        <service class="Shopware\Storefront\Firewall\CustomerProvider" id="Shopware\Storefront\Firewall\CustomerProvider">
-            <argument type="service" id="Shopware\Api\Customer\Repository\CustomerRepository"/>
-        </service>
 
         <service class="Shopware\Storefront\Controller\AccountController" public="true" id="Shopware\Storefront\Controller\AccountController">
             <argument type="service" id="security.authentication_utils" />
@@ -153,12 +150,5 @@
             <argument id="Shopware\Framework\Config\ConfigService" type="service"/>
             <argument id="Shopware\Storefront\Page\Search\SearchPageLoader" type="service"/>
         </service>
-
-        <service class="Shopware\Storefront\Page\Search\KeywordSearchTermInterpreter" id="Shopware\Storefront\Page\Search\KeywordSearchTermInterpreter">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="Shopware\Api\Entity\Search\Term\Tokenizer"/>
-            <argument type="service" id="logger"/>
-        </service>
-
     </services>
 </container>

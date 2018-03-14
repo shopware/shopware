@@ -8,7 +8,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\StorefrontApi\Context\StorefrontApiContext;
 use Shopware\StorefrontApi\Context\StorefrontApiContextPersister;
 use Shopware\StorefrontApi\Context\StorefrontApiContextValueResolver;
-use Shopware\Storefront\Firewall\CustomerUser;
+use Shopware\StorefrontApi\Firewall\CustomerUser;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -71,7 +71,7 @@ class CustomerController extends Controller
 
         $this->tokenStorage->setToken($authenticatedToken);
 
-        /** @var CustomerUser $user */
+        /** @var \Shopware\StorefrontApi\Firewall\CustomerUser $user */
         $user = $authenticatedToken->getUser();
 
         $this->contextPersister->save(

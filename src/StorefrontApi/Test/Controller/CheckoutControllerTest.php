@@ -9,8 +9,8 @@ use Shopware\Api\Product\Repository\ProductRepository;
 use Shopware\CartBridge\Product\ProductProcessor;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Defaults;
-use Shopware\StorefrontApi\Context\StorefrontApiContextValueResolver;
 use Shopware\Rest\Test\ApiTestCase;
+use Shopware\StorefrontApi\Context\StorefrontApiContextValueResolver;
 use Symfony\Bundle\FrameworkBundle\Client;
 
 class CheckoutControllerTest extends ApiTestCase
@@ -322,7 +322,7 @@ class CheckoutControllerTest extends ApiTestCase
         $password = 'shopware';
 
         $this->connection->executeUpdate('DELETE FROM customer WHERE email = :mail', [
-            'mail' => $mail
+            'mail' => $mail,
         ]);
 
         $this->customerRepository->create([
@@ -351,7 +351,7 @@ class CheckoutControllerTest extends ApiTestCase
                 'firstName' => 'match',
                 'salutation' => 'not',
                 'number' => 'not',
-            ]
+            ],
         ], ShopContext::createDefaultContext());
 
         $client = $this->createCart();
@@ -450,7 +450,7 @@ class CheckoutControllerTest extends ApiTestCase
     {
         $client->request('POST', '/storefront-api/customer/login', [], [], [], json_encode([
             'username' => $email,
-            'password' => $password
+            'password' => $password,
         ]));
     }
 }

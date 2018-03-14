@@ -3,7 +3,6 @@
 namespace Shopware\StorefrontApi\Product;
 
 use Shopware\Api\Product\Collection\ProductServiceBasicCollection;
-use Shopware\StorefrontApi\Product\ProductBasicStruct;
 
 class ProductDetailStruct extends ProductBasicStruct
 {

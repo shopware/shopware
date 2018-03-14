@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Firewall;
+namespace Shopware\StorefrontApi\Firewall;
 
 use Symfony\Component\Security\Core\User\EquatableInterface;
 use Symfony\Component\Security\Core\User\UserInterface;

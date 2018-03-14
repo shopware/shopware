@@ -81,7 +81,7 @@ class OrderPersisterTest extends TestCase
                     1,
                     'test',
                     'test'
-                )
+                ),
             ]),
             new CartPrice(1, 1, 1, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_FREE),
             new DeliveryCollection()

@@ -14,8 +14,6 @@ use Shopware\Api\Product\Struct\ProductMediaSearchResult;
 use Shopware\Api\Product\Struct\ProductSearchResult;
 use Shopware\Cart\Price\PriceCalculator;
 use Shopware\Context\Struct\StorefrontContext;
-use Shopware\StorefrontApi\Product\ProductBasicStruct;
-use Shopware\StorefrontApi\Product\ProductDetailStruct;
 
 class StorefrontProductRepository
 {

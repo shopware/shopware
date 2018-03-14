@@ -12,8 +12,6 @@ use Shopware\Context\Struct\CustomerScope;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Context\Struct\ShopScope;
 use Shopware\Context\Struct\StorefrontContext;
-use Shopware\StorefrontApi\Context\StorefrontApiContext;
-use Shopware\StorefrontApi\Context\StorefrontApiContextPersister;
 
 class StorefrontApiContextService
 {

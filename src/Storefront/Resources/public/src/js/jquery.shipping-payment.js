@@ -4,12 +4,7 @@
     $.plugin('swShippingPayment', {
 
         defaults: {
-
-            formSelector: '#shippingPaymentForm',
-
             radioSelector: 'input.auto_submit[type=radio]',
-
-            submitSelector: 'input[type=submit]'
         },
 
         /**
@@ -29,35 +24,20 @@
             var me = this;
 
             me.$el.on('change', me.opts.radioSelector, $.proxy(me.onInputChanged, me));
-
             $.publish('plugin/swShippingPayment/onRegisterEvents', [ me ]);
         },
 
         /**
          * Called on change event of the radio fields.
          */
-        onInputChanged: function () {
+        onInputChanged: function (event) {
             var me = this,
-                form = me.$el.find(me.opts.formSelector),
-                url = form.attr('action'),
-                data = form.serialize() + '&isXHR=1';
+                id = event.target.value;
 
             $.publish('plugin/swShippingPayment/onInputChangedBefore', [ me ]);
-
-            $.loadingIndicator.open();
-            $.ajax({
-                type: 'POST',
-                url: url,
-                data: data,
-                success: function(res) {
-                    me.$el.empty().html(res);
-                    me.$el.find('input[type="submit"][form], button[form]').swFormPolyfill();
-                    $.loadingIndicator.close();
-                    window.picturefill();
-
-                    $.publish('plugin/swShippingPayment/onInputChanged', [ me ]);
-                }
-            });
+            $('.custom_template').hide();
+            $('#custom_template_' + id).show();
+            $.publish('plugin/swShippingPayment/onInputChanged', [ me ]);
         },
 
         /**
@@ -66,9 +46,7 @@
          */
         destroy: function() {
             var me = this;
-
             me.$el.off('change', me.opts.radioSelector);
-
             me._destroy();
         }
     });

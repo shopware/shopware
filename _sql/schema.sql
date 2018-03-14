@@ -954,6 +954,20 @@ CREATE TABLE `payment_method_translation` (
   CONSTRAINT `payment_method_translation_ibfk_2` FOREIGN KEY (`payment_method_id`, `version_id`) REFERENCES `payment_method` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+DROP TABLE IF EXISTS `payment_token`;
+CREATE TABLE `payment_token` (
+  `id` binary(16) NOT NULL,
+  `token` varchar(255) NOT NULL,
+  `payment_method_id` binary(16) NOT NULL,
+  `transaction_id` binary(16) NOT NULL,
+  `expires` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `token` (`token`),
+  KEY `fk_payment_token.payment_method_id` (`payment_method_id`),
+  KEY `fk_payment_token.transaction_id` (`transaction_id`),
+  CONSTRAINT `fk_payment_token.payment_method_id` FOREIGN KEY (`payment_method_id`) REFERENCES `payment_method` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_payment_token.transaction_id` FOREIGN KEY (`transaction_id`) REFERENCES `order_transaction` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `plugin`;
 CREATE TABLE `plugin` (
@@ -1611,6 +1625,46 @@ CREATE TABLE `tax_area_rule_translation` (
   CONSTRAINT `tax_area_rule_translation_ibfk_2` FOREIGN KEY (`tax_area_rule_id`, `version_id`) REFERENCES `tax_area_rule` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE `order_transaction_state` (
+  `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
+  `position` int(11) NOT NULL,
+  `has_mail` tinyint NOT NULL,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`, `version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `order_transaction_state_translation` (
+  `order_transaction_state_id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
+  `language_id` binary(16) NOT NULL,
+  `language_version_id` binary(16) NOT NULL,
+  `description` varchar(255) NOT NULL,
+  PRIMARY KEY (`order_transaction_state_id`, `language_id`),
+  CONSTRAINT `order_transaction_state_translation_ibfk_1` FOREIGN KEY (`language_id`, `language_version_id`) REFERENCES `shop` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `order_transaction_state_translation_ibfk_2` FOREIGN KEY (`order_transaction_state_id`, `version_id`) REFERENCES `order_transaction_state` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `order_transaction`;
+CREATE TABLE `order_transaction` (
+  `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
+  `order_id` binary(16) NOT NULL,
+  `order_version_id` binary(16) NOT NULL,
+  `payment_method_id` binary(16) NOT NULL,
+  `payment_method_version_id` binary(16) NOT NULL,
+  `order_transaction_state_id` binary(16) NOT NULL,
+  `order_transaction_state_version_id` binary(16) NOT NULL,
+  `amount` longtext NOT NULL,
+  `payload` longtext NOT NULL,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`, `version_id`),
+  CONSTRAINT `fk_order_transaction.order_id` FOREIGN KEY (`order_id`, `order_version_id`) REFERENCES `order` (`id`, `version_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_order_transaction.payment_method_id` FOREIGN KEY (`payment_method_id`, `payment_method_version_id`) REFERENCES `payment_method` (`id`, `version_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_order_transaction.order_transaction_state_id` FOREIGN KEY (`order_transaction_state_id`, `order_transaction_state_version_id`) REFERENCES `order_transaction_state` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `unit`;
 CREATE TABLE `unit` (

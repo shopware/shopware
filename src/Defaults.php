@@ -19,4 +19,10 @@ final class Defaults
     public const CATALOG = 'ffffffff-ffff-ffff-ffff-ffffffffffff';
 
     public const CURRENCY = '4c8eba11-bd35-46d7-86af-bed481a6e665';
+
+    public const ORDER_TRANSACTION_COMPLETED = '60025b03-8493-40ba-8d1a-bf7e58aa2b9f';
+
+    public const ORDER_TRANSACTION_FAILED = 'b64bfc7f-3791-4482-9365-a6994a3b56e6';
+
+    public const ORDER_TRANSACTION_OPEN = '099e79db-fa9f-43e4-876b-172ff58359f2';
 }

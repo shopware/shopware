@@ -231,6 +231,16 @@ INSERT INTO `order_state` (`id`, `version_id`, `position`, `has_mail`, `created_
 INSERT INTO `order_state_translation` (`description`, `version_id`, `order_state_id`, `language_id`) VALUES
   ('Offen',	UNHEX('1194A493806742C9B85E61F1F2CF9BE8'), unhex('ffffffffffffffffffffffffffffffff'),	UNHEX('ffffffffffffffffffffffffffffffff'));
 
+INSERT INTO `order_transaction_state` (`id`, `version_id`, `position`, `has_mail`, `created_at`, `updated_at`) VALUES
+  (UNHEX('099E79DBFA9F43E4876B172FF58359F2'),	unhex('ffffffffffffffffffffffffffffffff'),	3,	0,	'2018-03-08 10:45:04',	NULL),
+  (UNHEX('60025B03849340BA8D1ABF7E58AA2B9F'),	unhex('ffffffffffffffffffffffffffffffff'),	1,	0,	'2018-03-08 10:45:04',	NULL),
+  (UNHEX('B64BFC7F379144829365A6994A3B56E6'),	unhex('ffffffffffffffffffffffffffffffff'),	2,	0,	'2018-03-08 10:45:04',	NULL);
+
+INSERT INTO `order_transaction_state_translation` (`order_transaction_state_id`, `version_id`, `language_id`, `language_version_id`, `description`) VALUES
+  (UNHEX('099E79DBFA9F43E4876B172FF58359F2'),	unhex('ffffffffffffffffffffffffffffffff'),	UNHEX('FFA32A50E2D04CF38389A53F8D6CD594'),	UNHEX('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'),	'Open'),
+  (UNHEX('60025B03849340BA8D1ABF7E58AA2B9F'),	unhex('ffffffffffffffffffffffffffffffff'),	UNHEX('FFA32A50E2D04CF38389A53F8D6CD594'),	UNHEX('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'),	'Fully paid'),
+  (UNHEX('B64BFC7F379144829365A6994A3B56E6'),	unhex('ffffffffffffffffffffffffffffffff'),	UNHEX('FFA32A50E2D04CF38389A53F8D6CD594'),	UNHEX('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'),	'Failed');
+
 INSERT INTO `currency` (`id`, `version_id`, `is_default`, `factor`, `symbol`, `symbol_position`, `position`, `created_at`, `updated_at`) VALUES
   (unhex('4c8eba11bd3546d786afbed481a6e665'),	unhex('ffffffffffffffffffffffffffffffff'), 1,	1,	'€',	0,	0,	'2017-12-14 15:25:57',	NULL),
   (unhex('2824ea63db6741109e2378ddcc9cec84'),	unhex('ffffffffffffffffffffffffffffffff'), 0,	1.3625,	'$',	0,	0,	'2017-12-14 15:25:57',	NULL);
@@ -781,9 +791,9 @@ INSERT INTO `category_translation` (`category_id`, `catalog_id`, `version_id`, `
 INSERT INTO `payment_method` (`id`, `version_id`,`technical_name`, `template`, `class`, `table`, `hide`, `percentage_surcharge`, `absolute_surcharge`, `surcharge_string`, `position`, `active`, `allow_esd`, `used_iframe`, `hide_prospect`, `action`, `plugin_id`, `source`, `mobile_inactive`, `risk_rules`, `created_at`, `updated_at`) VALUES
   (unhex('e84976ace9ab4928a3dcc387b66dbaa6'),	unhex('ffffffffffffffffffffffffffffffff'), 'debit',	'debit.tpl',	'debit.php',	'',	0,	-10,	NULL,	'',	4,	0,	0,	'',	0,	'',	NULL,	NULL,	0,	NULL,	'2017-12-14 15:45:46',	NULL),
   (unhex('77573b9cf7914cb5a9519945bff1d95b'),	unhex('ffffffffffffffffffffffffffffffff'), 'cash',	'cash.tpl',	'cash.php',	'',	0,	NULL,	NULL,	'',	2,	1,	0,	'',	0,	NULL,	NULL,	NULL,	0,	NULL,	'2017-12-14 15:45:46',	NULL),
-  (unhex('19d144ffe15f4772860d59fca7f207c1'),	unhex('ffffffffffffffffffffffffffffffff'), 'invoice',	'invoice.tpl',	'invoice.php',	'',	0,	NULL,	5,	'',	3,	1,	1,	'',	0,	'',	NULL,	NULL,	0,	NULL,	'2017-12-14 15:45:46',	NULL),
-  (unhex('47160b00cd064b0188176451f9f3c247'),	unhex('ffffffffffffffffffffffffffffffff'), 'prepayment',	'prepayment.tpl',	'prepayment.php',	'',	0,	NULL,	NULL,	'',	1,	1,	0,	'',	0,	NULL,	NULL,	NULL,	0,	NULL,	'2017-12-14 15:45:46',	NULL),
-  (unhex('a6ddadce4cb441f3976a32505049f037'),	unhex('ffffffffffffffffffffffffffffffff'), 'sepa',	'sepa.tpl',	'sepa',	'',	0,	NULL,	NULL,	'',	5,	1,	1,	'',	0,	'',	NULL,	NULL,	0,	NULL,	'2017-12-14 15:45:46',	NULL);
+  (unhex('19d144ffe15f4772860d59fca7f207c1'),	unhex('ffffffffffffffffffffffffffffffff'), 'invoice',	'invoice.tpl',	'Shopware\\Payment\\PaymentHandler\\InvoicePayment',	'',	0,	NULL,	5,	'',	3,	1,	1,	'',	0,	'',	NULL,	NULL,	0,	NULL,	'2017-12-14 15:45:46',	NULL),
+  (unhex('47160b00cd064b0188176451f9f3c247'),	unhex('ffffffffffffffffffffffffffffffff'), 'prepayment',	'prepayment.tpl',	'Shopware\\Payment\\PaymentHandler\\PrePayment',	'',	0,	NULL,	NULL,	'',	1,	1,	0,	'',	0,	NULL,	NULL,	NULL,	0,	NULL,	'2017-12-14 15:45:46',	NULL),
+  (unhex('a6ddadce4cb441f3976a32505049f037'),	unhex('ffffffffffffffffffffffffffffffff'), 'sepa',	'sepa.tpl',	'Shopware\\Payment\\PaymentHandler\\SEPAPayment',	'',	0,	NULL,	NULL,	'',	5,	1,	1,	'',	0,	'',	NULL,	NULL,	0,	NULL,	'2017-12-14 15:45:46',	NULL);
 
 INSERT INTO `payment_method_translation` (`payment_method_id`, `version_id`, `language_id`, `name`, `additional_description`) VALUES
   (unhex('e84976ace9ab4928a3dcc387b66dbaa6'),	unhex('ffffffffffffffffffffffffffffffff'), unhex('ffffffffffffffffffffffffffffffff'),	'Debit',	'Additional text'),

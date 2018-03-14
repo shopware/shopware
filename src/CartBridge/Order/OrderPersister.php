@@ -26,6 +26,7 @@ namespace Shopware\CartBridge\Order;
 
 use Ramsey\Uuid\Uuid;
 use Shopware\Api\Customer\Struct\CustomerAddressBasicStruct;
+use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Order\Repository\OrderRepository;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Delivery\Struct\Delivery;
@@ -34,6 +35,7 @@ use Shopware\Cart\LineItem\CalculatedLineItemInterface;
 use Shopware\Cart\LineItem\NestedInterface;
 use Shopware\Cart\Order\OrderPersisterInterface;
 use Shopware\Cart\Tax\TaxDetector;
+use Shopware\Cart\Transaction\Struct\Transaction;
 use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Defaults;
 
@@ -55,11 +57,11 @@ class OrderPersister implements OrderPersisterInterface
         $this->taxDetector = $taxDetector;
     }
 
-    public function persist(CalculatedCart $calculatedCart, StorefrontContext $context): void
+    public function persist(CalculatedCart $calculatedCart, StorefrontContext $context): GenericWrittenEvent
     {
         $order = $this->convert($calculatedCart, $context);
 
-        $this->repository->create([$order], $context->getShopContext());
+        return $this->repository->create([$order], $context->getShopContext());
     }
 
     private function convert(CalculatedCart $calculatedCart, StorefrontContext $context): array
@@ -116,6 +118,10 @@ class OrderPersister implements OrderPersisterInterface
             foreach ($children as $child) {
                 $lineItems[] = $child;
             }
+        }
+
+        foreach ($calculatedCart->getTransactions() as $transaction) {
+            $data['transactions'][] = $this->convertTransaction($transaction);
         }
 
         $data['lineItems'] = $lineItems;
@@ -208,5 +214,15 @@ class OrderPersister implements OrderPersisterInterface
         }
 
         return $deliveryData;
+    }
+
+    private function convertTransaction(Transaction $transaction): array
+    {
+        return [
+            'paymentMethodId' => $transaction->getPaymentMethodId(),
+            'amount' => $transaction->getAmount(),
+            'payload' => json_encode($transaction->getExtensions()),
+            'orderTransactionStateId' => Defaults::ORDER_TRANSACTION_OPEN,
+        ];
     }
 }

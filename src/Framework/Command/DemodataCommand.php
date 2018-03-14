@@ -367,7 +367,7 @@ class DemodataCommand extends ContainerAwareCommand
                     end($categories),
                 ];
             }
-            $max++;
+            ++$max;
             $categoryName = implode(' & ', $categories);
         } while (in_array($categoryName, $this->categories) && $unique);
         $this->categories[] = $categoryName;

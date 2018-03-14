@@ -56,11 +56,11 @@ class OrderDeliveryDetailLoadedEvent extends NestedEvent
         if ($this->orderDeliveries->getShippingAddress()->count() > 0) {
             $events[] = new OrderAddressBasicLoadedEvent($this->orderDeliveries->getShippingAddress(), $this->context);
         }
-        if ($this->orderDeliveries->getOrderStates()->count() > 0) {
-            $events[] = new OrderStateBasicLoadedEvent($this->orderDeliveries->getOrderStates(), $this->context);
-        }
         if ($this->orderDeliveries->getShippingMethods()->count() > 0) {
             $events[] = new ShippingMethodBasicLoadedEvent($this->orderDeliveries->getShippingMethods(), $this->context);
+        }
+        if ($this->orderDeliveries->getOrderStates()->count() > 0) {
+            $events[] = new OrderStateBasicLoadedEvent($this->orderDeliveries->getOrderStates(), $this->context);
         }
         if ($this->orderDeliveries->getPositions()->count() > 0) {
             $events[] = new OrderDeliveryPositionBasicLoadedEvent($this->orderDeliveries->getPositions(), $this->context);

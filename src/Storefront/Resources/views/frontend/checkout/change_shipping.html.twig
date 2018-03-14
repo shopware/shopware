@@ -1,0 +1,50 @@
+<div class="dispatch--method-list panel has--border is--rounded block">
+
+    {% block frontend_checkout_shipping_headline %}
+        <h3 class="dispatch--method-headline panel--title is--underline">
+            {% trans from 'frontend/checkout/shipping_payment' %}ChangeShippingTitle{% endtrans %}
+        </h3>
+    {% endblock %}
+
+    {% block frontend_checkout_shipping_content %}
+        <div class="panel--body is--wide block-group">
+            {% for method in shippingMethods %}
+                {% block frontend_checkout_dispatch_container %}
+                    <div class="dispatch--method{if $method@last} method_last{else} method{/if} block">
+
+                        {# Radio Button #}
+                        {% block frontend_checkout_dispatch_shipping_input_radio %}
+                            <div class="method--input">
+                                <input type="radio" id="confirm_dispatch{{ method.id }}"
+                                       class="radio auto_submit" value="{{ method.id }}"
+                                       name="shippingMethodId"
+                                       {% if method.id == currentShippingMethodId %} checked="checked"{% endif %} />
+                            </div>
+                        {% endblock %}
+
+                        {# Method name #}
+                        {% block frontend_checkout_dispatch_shipping_input_label %}
+                            <div class="method--label is--first">
+                                <label class="method--name is--strong" for="confirm_dispatch{$method.id}">{{ method.name }}</label>
+                            </div>
+                        {% endblock %}
+
+                        {# Method description #}
+                        {% block frontend_checkout_shipping_fieldset_description %}
+                            {% if method.description %}
+                                <div class="method--description">
+                                    {{ method.description }}
+                                </div>
+                            {% endif %}
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            {% endfor %}
+
+            {# Actions #}
+            {% block frontend_checkout_shipping_action_buttons %}
+                <input type="hidden" class="agb-checkbox" name="sAGB" value="{% if sAGBChecked %}1{% else %}0{% endif %}" />
+            {% endblock %}
+        </div>
+    {% endblock %}
+</div>

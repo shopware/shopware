@@ -1,0 +1,61 @@
+{% sw_extends "frontend/index/index.html.twig" %}
+
+{# Shop header #}
+{% block frontend_index_navigation %}
+    {% if theme.checkoutHeader %}
+        {{ parent() }}
+    {% else %}
+        {% sw_include 'frontend/checkout/header.html.twig' %}
+    {% endif %}
+{% endblock %}
+
+{# Back to the shop button #}
+{% block frontend_index_logo_trusted_shops %}
+    {{ parent() }}
+    {% if theme.checkoutHeader %}
+        {# todo escape missing for trans #}
+        <a href="{{ path('homepage') }}"
+           class="btn is--small btn--back-top-shop is--icon-left"
+           title="{% trans from 'frontend/checkout/finish' %}FinishButtonBackToShop{% endtrans %}">
+            <i class="icon--arrow-left"></i>
+            {% trans from 'frontend/checkout/finish' %}FinishButtonBackToShop{% endtrans %}
+        </a>
+    {% endif %}
+{% endblock %}
+
+{# Hide sidebar left #}
+{% block frontend_index_content_left %}
+    {% if not theme.checkoutHeader %}
+        {{ parent() }}
+    {% endif %}
+{% endblock %}
+
+{# Hide breadcrumb #}
+{% block frontend_index_breadcrumb %} {% endblock %}
+
+{# Step box #}
+{% block frontend_index_navigation_categories_top %}
+    {% if not theme.checkoutHeader %}
+        {{ parent() }}
+    {% endif %}
+
+    {% sw_include 'frontend/register/steps.html.twig' with { 'sStepActive': 'paymentShipping'} %}
+{% endblock %}
+
+{# Footer #}
+{% block frontend_index_footer %}
+    {% if not theme.checkoutFooter %}
+        {{ parent() }}
+    {% else %}
+        {% block frontend_index_checkout_shipping_payment_footer %}
+            {% sw_include 'frontend/index/footer_minimal.html.twig' %}
+        {% endblock %}
+    {% endif %}
+{% endblock %}
+
+{# Main content #}
+{% block frontend_index_content %}
+    <div class="content content--confirm product--table" data-ajax-shipping-payment="true">
+        {% sw_include 'frontend/checkout/shipping_payment_core.html.twig' %}
+    </div>
+{% endblock %}

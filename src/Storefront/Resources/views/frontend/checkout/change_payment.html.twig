@@ -1,0 +1,61 @@
+<div class="payment--method-list panel has--border is--rounded block">
+    {% block frontend_checkout_payment_headline %}
+        <h3 class="payment--method-headline panel--title is--underline">
+            {% trans from 'frontend/checkout/shipping_payment' %}ChangePaymentTitle{% endtrans %}
+        </h3>
+    {% endblock %}
+
+    {% block frontend_checkout_payment_content %}
+        <div class="panel--body is--wide block-group">
+            {# @var payment \Shopware\Api\Payment\Collection\PaymentMethodBasicCollection #}
+            {% for paymentMethod in paymentMethods %}
+                {#{{ dump(paymentMethod) }}#}
+                    <div class="payment--method block{% if loop.last %} method_last {% else %} method{% endif %}">
+
+                        {#Radio Button#}
+                        {% block frontend_checkout_payment_fieldset_input_radio %}
+                            <div class="method--input">
+                                <input type="radio" name="paymentMethodId" class="radio auto_submit"
+                                       value="{{ paymentMethod.id }}" id="payment_{{ paymentMethod.id }}"
+                                       {% if paymentMethod.id == context.paymentMethod.id %} checked="checked"{% endif %} />
+                            </div>
+                        {% endblock %}
+
+                         {#Method Name#}
+                        {% block frontend_checkout_payment_fieldset_input_label %}
+                            <div class="method--label is--first">
+                                <label class="method--name is--strong" for="payment{{ paymentMethod.id }}">
+                                    {{ paymentMethod.name }}
+                                </label>
+                            </div>
+                        {% endblock %}
+
+                         {#Method Description#}
+                        {% block frontend_checkout_payment_fieldset_description %}
+                            <div class="method--description is--last">
+                                {{ paymentMethod.additionalDescription }}
+                            </div>
+                        {% endblock %}
+
+                         {#Method Logo#}
+                        {% block frontend_checkout_payment_fieldset_template %}
+                            <div class="payment--method-logo payment_logo_{{ paymentMethod.name }}"></div>
+                        {% endblock %}
+
+                        {% block frontend_checkout_payment_fieldset_custom_template %}
+                            <div id="custom_template_{{ paymentMethod.id }}"
+                                 class="custom_template"
+                                 style="{% if paymentMethod.id != context.paymentMethod.id %}display: none{% endif %}">
+
+                                {% if paymentMethod.template is not empty %}
+                                    {# TODO fix sw_include and use it instead! #}
+                                    {% include paymentMethod.template ignore missing %}
+                                {% endif %}
+                            </div>
+                        {% endblock %}
+
+                    </div>
+            {% endfor %}
+        </div>
+    {% endblock %}
+</div>

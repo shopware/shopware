@@ -1,0 +1,69 @@
+{# Error messages #}
+{% block frontend_account_payment_error_messages %}
+    {% sw_include 'frontend/register/error_message.html.twig' with {
+        error_messages: sErrorMessages
+    } %}
+{% endblock %}
+
+
+{% block frontend_checkout_shipping_payment_core %}
+    <div class="confirm--outer-container">
+        <form id="shippingPaymentForm" name="shippingPaymentForm" method="post"
+              {#action="{url controller='checkout' action='saveShippingPayment' sTarget='checkout' sTargetAction='confirm'}" #}
+              action="{{ path('checkout_save_shipping_payment') }}"
+              class="payment">
+
+            {# Action top #}
+            {% block frontend_checkout_shipping_payment_core_buttons_top %}
+                <div class="confirm--actions table--actions block">
+                    <button type="submit" class="btn is--primary is--icon-right is--large right main--actions">
+                        {% trans from 'frontend/checkout/shipping_payment' %}NextButton{% endtrans %}
+                        <i class="icon--arrow-right"></i>
+                    </button>
+                </div>
+            {% endblock %}
+            {% block frontend_checkout_shipping_payment_core_content %}
+                {# Payment and shipping information #}
+                <div class="shipping-payment--information">
+                    {# Payment method #}
+                    <div class="confirm--inner-container block">
+                        {% block frontend_checkout_shipping_payment_core_payment_fields %}
+                            {% sw_include 'frontend/checkout/change_payment.html.twig' %}
+                        {% endblock %}
+                    </div>
+
+                    {% if delivery %}
+                        <div class="confirm--inner-container block">
+                            {% block frontend_checkout_shipping_payment_core_shipping_fields %}
+                                {% sw_include 'frontend/checkout/change_shipping.html.twig' %}
+                            {% endblock %}
+                        </div>
+                    {% endif %}
+                </div>
+            {% endblock %}
+        </form>
+
+        {# Cart values #}
+        <div class="confirm--inner-container block">
+            {% block frontend_checkout_shipping_payment_core_footer %}
+                {% sw_include 'frontend/checkout/cart_footer.html.twig' %}
+            {% endblock %}
+        </div>
+
+        {# Action button #}
+        {% block frontend_checkout_shipping_payment_core_buttons_buttom %}
+            <div class="confirm--actions table--actions block actions--bottom">
+                <button type="submit" form="shippingPaymentForm" class="btn is--primary is--icon-right is--large right main--actions">
+                    {% trans from 'frontend/checkout/shipping_payment' %}NextButton{% endtrans %}
+                    <i class="icon--arrow-right"></i>
+                </button>
+            </div>
+        {% endblock %}
+
+        {# Benefit and services footer #}
+        {% block frontend_checkout_footer %}
+            {% sw_include 'frontend/checkout/table_footer.html.twig' %}
+        {% endblock %}
+    </div>
+{% endblock %}
+

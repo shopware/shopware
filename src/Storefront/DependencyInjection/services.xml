@@ -98,6 +98,10 @@
             <argument type="service" id="Shopware\Api\Category\Repository\CategoryRepository"/>
         </service>
 
+        <service id="Shopware\Storefront\Page\Checkout\PaymentMethodLoader">
+            <argument id="Shopware\Api\Payment\Repository\PaymentMethodRepository" type="service"/>
+        </service>
+
         <service class="Shopware\Storefront\Page\Detail\DetailPageLoader" id="Shopware\Storefront\Page\Detail\DetailPageLoader">
             <argument id="Shopware\Storefront\Bridge\Product\Repository\StorefrontProductRepository" type="service"/>
         </service>
@@ -144,8 +148,11 @@
             <argument type="service" id="Shopware\Storefront\Page\Detail\DetailPageLoader" />
         </service>
 
-        <service class="Shopware\Storefront\Controller\CheckoutController" public="true" id="Shopware\Storefront\Controller\CheckoutController">
-            <argument type="service" id="Shopware\CartBridge\Service\StoreFrontCartService" />
+        <service id="Shopware\Storefront\Controller\CheckoutController">
+            <argument type="service" id="Shopware\CartBridge\Service\StoreFrontCartService"/>
+            <argument type="service" id="Shopware\Api\Order\Repository\OrderRepository"/>
+            <argument type="service" id="Shopware\Storefront\Page\Checkout\PaymentMethodLoader"/>
+            <argument type="service" id="Shopware\Payment\PaymentProcessor"/>
         </service>
 
         <service class="Shopware\Storefront\Controller\SearchController" public="true" id="Shopware\Storefront\Controller\SearchController">

@@ -75,6 +75,39 @@
           <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>
+
+        <service class="Shopware\Api\Order\Definition\OrderTransactionDefinition" id="shopware.order.order_transaction_definition" >
+            <tag name="shopware.entity.definition" entity="order_transaction" />
+        </service>
+
+        <service class="Shopware\Api\Order\Repository\OrderTransactionRepository" id="Shopware\Api\Order\Repository\OrderTransactionRepository" public="true">
+            <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+            <argument id="Shopware\Version\VersionManager" type="service"/>
+            <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
+            <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
+            <argument id="event_dispatcher" type="service"/>
+        </service>
+
+        <service class="Shopware\Api\Order\Definition\OrderTransactionStateDefinition" id="shopware.order.order_transaction_state_definition" >
+            <tag name="shopware.entity.definition" entity="order_transaction_state" />
+        </service>
+        <service class="Shopware\Api\Order\Repository\OrderTransactionStateRepository" id="Shopware\Api\Order\Repository\OrderTransactionStateRepository" public="true">
+            <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+            <argument id="Shopware\Api\Entity\Write\EntityWriter" type="service"/>
+            <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
+            <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
+            <argument id="event_dispatcher" type="service"/>
+        </service>
+        <service class="Shopware\Api\Order\Definition\OrderTransactionStateTranslationDefinition" id="shopware.order.order_transaction_state_translation_definition" >
+            <tag name="shopware.entity.definition" entity="order_transaction_state_translation" />
+        </service>
+        <service class="Shopware\Api\Order\Repository\OrderTransactionStateTranslationRepository" id="Shopware\Api\Order\Repository\OrderTransactionStateTranslationRepository" public="true">
+            <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+            <argument id="Shopware\Api\Entity\Write\EntityWriter" type="service"/>
+            <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
+            <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
+            <argument id="event_dispatcher" type="service"/>
+        </service>
     </services>
 </container>                
                 

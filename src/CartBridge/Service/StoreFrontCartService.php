@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace Shopware\CartBridge\Service;
 
+use Shopware\Api\Order\Definition\OrderDefinition;
 use Shopware\Cart\Cart\CartPersisterInterface;
 use Shopware\Cart\Cart\CircularCartCalculation;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
@@ -157,14 +158,19 @@ class StoreFrontCartService
         $this->calculate($cart);
     }
 
-    public function order(): void
+    public function order(): string
     {
-        $this->orderPersister->persist(
+        $events = $this->orderPersister->persist(
             $this->getCalculatedCart(),
             $this->contextService->getStorefrontContext()
         );
 
         $this->createNewCart();
+
+        $event = $events->getEventByDefinition(OrderDefinition::class);
+        $ids = $event->getIds();
+
+        return array_shift($ids);
     }
 
     public function getCart(): Cart

@@ -99,9 +99,13 @@
             <tag name="cart.processor" priority="-100" />
         </service>
 
-        <service class="Shopware\Cart\Delivery\DeliveryCalculatorProcessor" id="Shopware\Cart\Delivery\DeliveryCalculator_processor">
+        <service class="Shopware\Cart\Delivery\DeliveryCalculatorProcessor" id="Shopware\Cart\Delivery\DeliveryCalculatorProcessor">
             <argument id="Shopware\Cart\Delivery\DeliveryCalculator" type="service"/>
             <tag name="cart.processor" priority="-200" />
+        </service>
+
+        <service class="Shopware\Cart\Transaction\TransactionSeparatorProcessor" id="Shopware\Cart\Transaction\TransactionSeparatorProcessor">
+            <tag name="cart.processor" priority="-1000" />
         </service>
     </services>
 </container>

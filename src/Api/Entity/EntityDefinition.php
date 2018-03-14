@@ -9,6 +9,7 @@ use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\OneToManyAssociationField;
 use Shopware\Api\Entity\Write\EntityExistence;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
+use Shopware\Api\Entity\Write\Flag\ReadOnly;
 use Shopware\Api\Entity\Write\WrittenEvent;
 use Shopware\Context\Struct\ShopContext;
 
@@ -58,11 +59,15 @@ abstract class EntityDefinition
 
     public static function getWriteOrder(): array
     {
-        $manyToOne = static::filterAssociationReferences(ManyToOneAssociationField::class, static::getFields());
+        $associations = static::getFields()->filter(function (Field $field) {
+            return $field instanceof AssociationInterface && !$field->is(ReadOnly::class);
+        });
 
-        $oneToMany = static::filterAssociationReferences(OneToManyAssociationField::class, static::getFields());
+        $manyToOne = static::filterAssociationReferences(ManyToOneAssociationField::class, $associations);
 
-        $manyToMany = static::filterAssociationReferences(ManyToManyAssociationField::class, static::getFields());
+        $oneToMany = static::filterAssociationReferences(OneToManyAssociationField::class, $associations);
+
+        $manyToMany = static::filterAssociationReferences(ManyToManyAssociationField::class, $associations);
 
         $self = array_filter([static::class, static::getTranslationDefinitionClass()]);
 

@@ -24,10 +24,11 @@
 
 namespace Shopware\Cart\Order;
 
+use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Context\Struct\StorefrontContext;
 
 interface OrderPersisterInterface
 {
-    public function persist(CalculatedCart $calculatedCart, StorefrontContext $context): void;
+    public function persist(CalculatedCart $calculatedCart, StorefrontContext $context): GenericWrittenEvent;
 }

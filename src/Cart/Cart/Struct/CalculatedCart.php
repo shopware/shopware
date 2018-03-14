@@ -30,6 +30,8 @@ use Shopware\Cart\Error\ErrorCollection;
 use Shopware\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Cart\Price\Struct\CartPrice;
+use Shopware\Cart\Transaction\Struct\Transaction;
+use Shopware\Cart\Transaction\Struct\TransactionCollection;
 use Shopware\Framework\Struct\Struct;
 
 class CalculatedCart extends Struct
@@ -53,17 +55,23 @@ class CalculatedCart extends Struct
      * @var \Shopware\Cart\Delivery\Struct\DeliveryCollection
      */
     protected $deliveries;
+    /**
+     * @var TransactionCollection
+     */
+    protected $transactions;
 
     public function __construct(
         Cart $cart,
         CalculatedLineItemCollection $calculatedLineItems,
         CartPrice $price,
-        DeliveryCollection $deliveries
+        DeliveryCollection $deliveries,
+        TransactionCollection $transactions = null
     ) {
         $this->cart = $cart;
         $this->calculatedLineItems = $calculatedLineItems;
         $this->price = $price;
         $this->deliveries = $deliveries;
+        $this->transactions = $transactions ?? new TransactionCollection();
     }
 
     public function getName(): string
@@ -117,5 +125,15 @@ class CalculatedCart extends Struct
         $data['shippingCosts'] = $this->getShippingCosts();
 
         return $data;
+    }
+
+    public function getTransactions(): TransactionCollection
+    {
+        return $this->transactions;
+    }
+
+    public function addTransaction(Transaction $transaction): void
+    {
+        $this->transactions->add($transaction);
     }
 }

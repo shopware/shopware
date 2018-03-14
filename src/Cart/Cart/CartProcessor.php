@@ -31,6 +31,7 @@ use Shopware\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Cart\LineItem\CalculatedLineItemInterface;
 use Shopware\Cart\Price\AmountCalculator;
+use Shopware\Cart\Transaction\Struct\TransactionCollection;
 use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
@@ -62,6 +63,7 @@ class CartProcessor
             $lineItems,
             new DeliveryCollection(),
             $cart,
+            new TransactionCollection(),
             $context
         );
 
@@ -72,6 +74,7 @@ class CartProcessor
                 $calculatedCart->getCalculatedLineItems(),
                 $calculatedCart->getDeliveries(),
                 $cart,
+                $calculatedCart->getTransactions(),
                 $context
             );
         }
@@ -83,6 +86,7 @@ class CartProcessor
         CalculatedLineItemCollection $lineItems,
         DeliveryCollection $deliveries,
         Cart $container,
+        TransactionCollection $transactions,
         StorefrontContext $context
     ): CalculatedCart {
         $price = $this->calculator->calculateAmount(
@@ -91,6 +95,6 @@ class CartProcessor
             $context
         );
 
-        return new CalculatedCart($container, $lineItems, $price, $deliveries);
+        return new CalculatedCart($container, $lineItems, $price, $deliveries, $transactions);
     }
 }

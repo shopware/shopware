@@ -45,6 +45,22 @@ use Symfony\Component\Serializer\SerializerInterface;
  */
 class StorefrontContextService implements StorefrontContextServiceInterface
 {
+    const SESSION_COUNTRY_ID = 'country_id';
+
+    const SESSION_STATE_ID = 'state_id';
+
+    const SESSION_BILLING_ADDRESS_ID = 'checkout_billing_address_id';
+
+    const SESSION_SHIPPING_ADDRESS_ID = 'checkout_shipping_address_id';
+
+    const SESSION_PAYMENT_METHOD_ID = 'payment_method_id';
+
+    const SESSION_SHIPPING_METHOD_ID = 'shipping_method_id';
+
+    const ATTRIBUTES_SHOP_ID = '_shop_id';
+
+    const ATTRIBUTES_CURRENCY_ID = '_currency_id';
+
     /**
      * @var ContextFactoryInterface
      */
@@ -196,17 +212,17 @@ class StorefrontContextService implements StorefrontContextServiceInterface
 
     private function getStorefrontShopId(): string
     {
-        return $this->requestStack->getMasterRequest()->attributes->get('_shop_id');
+        return $this->requestStack->getMasterRequest()->attributes->get(self::ATTRIBUTES_SHOP_ID);
     }
 
     private function getStorefrontCurrencyId(): string
     {
-        return $this->requestStack->getMasterRequest()->attributes->get('_currency_id');
+        return $this->requestStack->getMasterRequest()->attributes->get(self::ATTRIBUTES_CURRENCY_ID);
     }
 
     private function getStorefrontCountryId(): ?string
     {
-        if ($countryId = $this->getSessionValueOrNull('country_id')) {
+        if ($countryId = $this->getSessionValueOrNull(self::SESSION_COUNTRY_ID)) {
             return (string) $countryId;
         }
 
@@ -218,7 +234,7 @@ class StorefrontContextService implements StorefrontContextServiceInterface
      */
     private function getStorefrontStateId(): ?string
     {
-        if ($stateId = $this->getSessionValueOrNull('state_id')) {
+        if ($stateId = $this->getSessionValueOrNull(self::SESSION_STATE_ID)) {
             return (string) $stateId;
         }
 
@@ -238,7 +254,7 @@ class StorefrontContextService implements StorefrontContextServiceInterface
 
     private function getStorefrontBillingAddressId(): ?string
     {
-        if ($addressId = $this->getSessionValueOrNull('checkout_billing_address_id')) {
+        if ($addressId = $this->getSessionValueOrNull(self::SESSION_BILLING_ADDRESS_ID)) {
             return (string) $addressId;
         }
 
@@ -247,7 +263,7 @@ class StorefrontContextService implements StorefrontContextServiceInterface
 
     private function getStorefrontShippingAddressId(): ?string
     {
-        if ($addressId = $this->getSessionValueOrNull('checkout_shipping_address_id')) {
+        if ($addressId = $this->getSessionValueOrNull(self::SESSION_SHIPPING_ADDRESS_ID)) {
             return (string) $addressId;
         }
 
@@ -256,7 +272,7 @@ class StorefrontContextService implements StorefrontContextServiceInterface
 
     private function getStorefrontPaymentMethodId(): ?string
     {
-        if ($paymentId = $this->getSessionValueOrNull('payment_method_id')) {
+        if ($paymentId = $this->getSessionValueOrNull(self::SESSION_PAYMENT_METHOD_ID)) {
             return (string) $paymentId;
         }
 
@@ -265,7 +281,7 @@ class StorefrontContextService implements StorefrontContextServiceInterface
 
     private function getStorefrontShippingMethodId(): ?string
     {
-        if ($dispatchId = $this->getSessionValueOrNull('shipping_method_id')) {
+        if ($dispatchId = $this->getSessionValueOrNull(self::SESSION_SHIPPING_METHOD_ID)) {
             return (string) $dispatchId;
         }
 

@@ -49,6 +49,8 @@ class PaymentSurchargeProcessor implements CartProcessorInterface
             return;
         }
 
+        // todo@dr implement validation for payment method (use validator)
+
         switch (true) {
             case $payment->getAbsoluteSurcharge() !== null:
                 $surcharge = $this->absolutePriceCalculator->calculate(

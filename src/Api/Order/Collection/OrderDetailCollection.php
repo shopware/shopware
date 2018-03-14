@@ -55,6 +55,28 @@ class OrderDetailCollection extends OrderBasicCollection
         return $collection;
     }
 
+    public function getTransactionIds(): array
+    {
+        $ids = [];
+        foreach ($this->elements as $element) {
+            foreach ($element->getTransactions()->getIds() as $id) {
+                $ids[] = $id;
+            }
+        }
+
+        return $ids;
+    }
+
+    public function getTransactions(): OrderTransactionBasicCollection
+    {
+        $collection = new OrderTransactionBasicCollection();
+        foreach ($this->elements as $element) {
+            $collection->fill($element->getTransactions()->getElements());
+        }
+
+        return $collection;
+    }
+
     protected function getExpectedClass(): string
     {
         return OrderDetailStruct::class;

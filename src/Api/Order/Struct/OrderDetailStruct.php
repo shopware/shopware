@@ -4,6 +4,7 @@ namespace Shopware\Api\Order\Struct;
 
 use Shopware\Api\Order\Collection\OrderDeliveryBasicCollection;
 use Shopware\Api\Order\Collection\OrderLineItemBasicCollection;
+use Shopware\Api\Order\Collection\OrderTransactionBasicCollection;
 
 class OrderDetailStruct extends OrderBasicStruct
 {
@@ -17,11 +18,18 @@ class OrderDetailStruct extends OrderBasicStruct
      */
     protected $lineItems;
 
+    /**
+     * @var OrderTransactionBasicCollection
+     */
+    protected $transactions;
+
     public function __construct()
     {
         $this->deliveries = new OrderDeliveryBasicCollection();
 
         $this->lineItems = new OrderLineItemBasicCollection();
+
+        $this->transactions = new OrderTransactionBasicCollection();
     }
 
     public function getDeliveries(): OrderDeliveryBasicCollection
@@ -42,5 +50,15 @@ class OrderDetailStruct extends OrderBasicStruct
     public function setLineItems(OrderLineItemBasicCollection $lineItems): void
     {
         $this->lineItems = $lineItems;
+    }
+
+    public function getTransactions(): OrderTransactionBasicCollection
+    {
+        return $this->transactions;
+    }
+
+    public function setTransactions(OrderTransactionBasicCollection $transactions): void
+    {
+        $this->transactions = $transactions;
     }
 }

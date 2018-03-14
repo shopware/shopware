@@ -64,6 +64,11 @@ class TemplateFinder
         // todo: remove hard api dependency
         $this->loader->addPath($kernel->getRootDir() . '/../src/Rest/Resources/views', 'Rest');
 
+        // todo remove hard payment dependency
+        $paymentBundle = $kernel->getBundle('Payment');
+        $this->loader->addPath($paymentBundle->getPath(), '/Resources/views/', $paymentBundle->getName());
+        $this->directories[] = '@' . $paymentBundle->getName();
+
         array_map([$this, 'addTheme'], $kernel->getThemes());
     }
 

@@ -18,6 +18,7 @@ use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
+use Shopware\Api\Entity\Write\Flag\ReadOnly;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Entity\Write\Flag\SearchRanking;
 use Shopware\Api\Order\Collection\OrderLineItemBasicCollection;
@@ -73,7 +74,7 @@ class OrderLineItemDefinition extends EntityDefinition
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
             new ManyToOneAssociationField('order', 'order_id', OrderDefinition::class, false),
-            (new OneToManyAssociationField('orderDeliveryPositions', OrderDeliveryPositionDefinition::class, 'order_line_item_id', false, 'id'))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('orderDeliveryPositions', OrderDeliveryPositionDefinition::class, 'order_line_item_id', false, 'id'))->setFlags(new CascadeDelete(), new ReadOnly()),
         ]);
 
         foreach (self::$extensions as $extension) {

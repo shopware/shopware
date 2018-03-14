@@ -106,8 +106,6 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
         }
 
         if (!$reflectionClass->getConstructor()) {
-            $instance = $reflectionClass->newInstance();
-
             /* @var Struct $instance */
             $instance->assign($arguments);
 
@@ -115,6 +113,13 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
         }
 
         $constructorParams = $reflectionClass->getConstructor()->getParameters();
+        if (count($constructorParams) <= 0) {
+            /* @var Struct $instance */
+            $instance->assign($arguments);
+
+            return $instance;
+        }
+
         $params = [];
 
         foreach ($constructorParams as $constructorParam) {

@@ -21,6 +21,7 @@ use Shopware\Cart\Tax\TaxDetector;
 use Shopware\CartBridge\Service\StoreFrontCartService;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Context\Struct\StorefrontContext;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
 class ContextRuleLoader
@@ -70,6 +71,11 @@ class ContextRuleLoader
      */
     private $rules;
 
+    /**
+     * @var ContainerInterface
+     */
+    private $container;
+
     public function __construct(
         CartPersisterInterface $cartPersister,
         TaxDetector $taxDetector,
@@ -78,7 +84,8 @@ class ContextRuleLoader
         CartValidator $cartValidator,
         CacheItemPoolInterface $cache,
         ContextRuleRepository $repository,
-        SerializerInterface $serializer
+        SerializerInterface $serializer,
+        ContainerInterface $container
     ) {
         $this->cartPersister = $cartPersister;
         $this->taxDetector = $taxDetector;
@@ -88,6 +95,7 @@ class ContextRuleLoader
         $this->cache = $cache;
         $this->repository = $repository;
         $this->serializer = $serializer;
+        $this->container = $container;
     }
 
     public function loadMatchingRules(StorefrontContext $context, ?string $cartToken)
@@ -101,7 +109,7 @@ class ContextRuleLoader
             );
         } catch (CartTokenNotFoundException $e) {
             $calculated = new CalculatedCart(
-                Cart::createNew(StoreFrontCartService::CART_NAME),
+                Cart::createNew(StoreFrontCartService::CART_NAME, $cartToken),
                 new CalculatedLineItemCollection(),
                 CartPrice::createEmpty($this->taxDetector->getTaxState($context)),
                 new DeliveryCollection()
@@ -141,6 +149,8 @@ class ContextRuleLoader
 
             ++$iteration;
         }
+
+        $this->container->get(StoreFrontCartService::class)->setCalculated($calculated, $context);
 
         return $rules;
     }

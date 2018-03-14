@@ -22,6 +22,16 @@ class CategoryDetailStruct extends CategoryBasicStruct
      */
     protected $translations;
 
+    /**
+     * @var MediaBasicStruct|null
+     */
+    protected $media;
+
+    /**
+     * @var ProductStreamBasicStruct|null
+     */
+    protected $productStream;
+
     public function __construct()
     {
         $this->children = new CategoryBasicCollection();
@@ -56,5 +66,25 @@ class CategoryDetailStruct extends CategoryBasicStruct
     public function setTranslations(CategoryTranslationBasicCollection $translations): void
     {
         $this->translations = $translations;
+    }
+
+    public function getMedia(): ?MediaBasicStruct
+    {
+        return $this->media;
+    }
+
+    public function setMedia(?MediaBasicStruct $media): void
+    {
+        $this->media = $media;
+    }
+
+    public function getProductStream(): ?ProductStreamBasicStruct
+    {
+        return $this->productStream;
+    }
+
+    public function setProductStream(?ProductStreamBasicStruct $productStream): void
+    {
+        $this->productStream = $productStream;
     }
 }

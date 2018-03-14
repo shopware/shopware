@@ -3,6 +3,8 @@
 namespace Shopware\Api\Category\Collection;
 
 use Shopware\Api\Category\Struct\CategoryDetailStruct;
+use Shopware\Api\Media\Collection\MediaBasicCollection;
+use Shopware\Api\Product\Collection\ProductStreamBasicCollection;
 
 class CategoryDetailCollection extends CategoryBasicCollection
 {
@@ -62,6 +64,25 @@ class CategoryDetailCollection extends CategoryBasicCollection
         }
 
         return $collection;
+    }
+
+
+    public function getMedia(): MediaBasicCollection
+    {
+        return new MediaBasicCollection(
+            $this->fmap(function (CategoryDetailStruct $category) {
+                return $category->getMedia();
+            })
+        );
+    }
+
+    public function getProductStreams(): ProductStreamBasicCollection
+    {
+        return new ProductStreamBasicCollection(
+            $this->fmap(function (CategoryDetailStruct $category) {
+                return $category->getProductStream();
+            })
+        );
     }
 
     protected function getExpectedClass(): string

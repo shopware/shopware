@@ -170,8 +170,11 @@ class EntityReader implements EntityReaderInterface
         bool $raw = false
     ): void {
         /** @var EntityDefinition $definition */
-        $filtered = $fields->filter(function (Field $field) {
-            return !$field->is(Deferred::class);
+        $filtered = $fields->fmap(function (Field $field) {
+            if ($field->is(Deferred::class)) {
+                return null;
+            }
+            return $field;
         });
 
         $parent = null;
@@ -248,8 +251,14 @@ class EntityReader implements EntityReaderInterface
             }
         }
 
-        $translatedFields = $fields->filterInstance(TranslatedField::class);
-        if ($translatedFields->count() <= 0) {
+        $translatedFields = $fields->fmap(function(Field $field) {
+            if ($field instanceof TranslatedField) {
+                return $field;
+            }
+            return null;
+        });
+
+        if (count($translatedFields) <= 0) {
             return;
         }
 
@@ -339,18 +348,27 @@ class EntityReader implements EntityReaderInterface
         $criteria = new Criteria();
         $criteria->addFilter(new TermsQuery($reference::getEntityName() . '.' . $field->getPropertyName(), $ids));
 
+        $time = microtime(true);
         $associationIds = $this->searcher->search($reference, $criteria, $context);
 
         $data = $this->readBasic($reference, $associationIds->getIds(), $context);
 
+        $flat = json_decode(json_encode($data->getElements()), true);
+
+        $mapping = array_column($flat, $field->getPropertyName(), 'id');
+
+        $hasInheritance = $definition::getParentPropertyName() && $association->is(Inherited::class);
+
         /** @var Struct|Entity $struct */
         foreach ($collection as $struct) {
-            //filter by property allows to avoid building the getter function name
-            $structData = $data->filterByProperty($field->getPropertyName(), $struct->getId());
 
-            if ($structData->count() <= 0 && $definition::getParentPropertyName() && $association->is(Inherited::class)) {
-                $structData = $data->filterByProperty($field->getPropertyName(), $struct->get($parentId->getPropertyName()));
+            $mappingIds = array_intersect($mapping, [$struct->getId()]);
+
+            if (count($mappingIds) <= 0 && $hasInheritance) {
+                $mappingIds = array_intersect($mapping, [$struct->get($parentId->getPropertyName())]);
             }
+
+            $structData = $data->getList(array_keys($mappingIds));
 
             if ($association->is(Extension::class)) {
                 $struct->addExtension($association->getPropertyName(), $structData);
@@ -361,6 +379,7 @@ class EntityReader implements EntityReaderInterface
                 $association->getPropertyName() => $structData,
             ]);
         }
+        error_log("read basic one to many : " . (microtime(true)-$time)  . "\n", 3,  '/var/log/test.log');
     }
 
     private function loadManyToMany(ManyToManyAssociationField $association, ShopContext $context, EntityCollection $collection): void

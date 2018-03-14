@@ -40,6 +40,7 @@ use Shopware\Api\Payment\Struct\PaymentMethodBasicStruct;
 use Shopware\Api\Shipping\Repository\ShippingMethodRepository;
 use Shopware\Api\Shipping\Struct\ShippingMethodBasicStruct;
 use Shopware\Api\Shop\Repository\ShopRepository;
+use Shopware\Api\Shop\Struct\ShopBasicStruct;
 use Shopware\Api\Shop\Struct\ShopDetailStruct;
 use Shopware\Api\Tax\Collection\TaxBasicCollection;
 use Shopware\Api\Tax\Repository\TaxRepository;
@@ -141,8 +142,8 @@ class ContextFactory implements ContextFactoryInterface
     ): StorefrontContext {
         $shopContext = $this->getShopContext($shopScope->getShopId());
 
-        /** @var ShopDetailStruct $shop */
-        $shop = $this->shopRepository->readDetail([$shopScope->getShopId()], $shopContext)
+        /** @var ShopBasicStruct $shop */
+        $shop = $this->shopRepository->readBasic([$shopScope->getShopId()], $shopContext)
             ->get($shopScope->getShopId());
 
         if (!$shop) {
@@ -154,12 +155,12 @@ class ContextFactory implements ContextFactoryInterface
 
         //fallback customer group is hard coded to 'EK'
         $customerGroups = $this->customerGroupRepository->readBasic(
-            [Defaults::FALLBACK_CUSTOMER_GROUP],
+            [Defaults::FALLBACK_CUSTOMER_GROUP, $shop->getCustomerGroupId()],
             $shopContext
         );
 
         $fallbackGroup = $customerGroups->get(Defaults::FALLBACK_CUSTOMER_GROUP);
-        $customerGroup = $shop->getCustomerGroup();
+        $customerGroup = $customerGroups->get($shop->getCustomerGroupId());
 
         $customer = null;
 
@@ -208,7 +209,7 @@ class ContextFactory implements ContextFactoryInterface
         return $context;
     }
 
-    private function getCurrency(ShopDetailStruct $shop, ?string $currencyId, ShopContext $context): CurrencyBasicStruct
+    private function getCurrency(ShopBasicStruct $shop, ?string $currencyId, ShopContext $context): CurrencyBasicStruct
     {
         if ($currencyId === null) {
             return $shop->getCurrency();
@@ -223,7 +224,7 @@ class ContextFactory implements ContextFactoryInterface
         return $currency->get($currencyId);
     }
 
-    private function getPaymentMethod(?CustomerBasicStruct $customer, ShopDetailStruct $shop, ShopContext $context, CheckoutScope $checkoutScope): PaymentMethodBasicStruct
+    private function getPaymentMethod(?CustomerBasicStruct $customer, ShopBasicStruct $shop, ShopContext $context, CheckoutScope $checkoutScope): PaymentMethodBasicStruct
     {
         //payment switched in checkout?
         if ($checkoutScope->getPaymentMethodId() !== null) {
@@ -241,18 +242,16 @@ class ContextFactory implements ContextFactoryInterface
             return $customer->getDefaultPaymentMethod();
         }
 
-        //at least use default payment method which defined for current shop
-        return $shop->getPaymentMethod();
+        return $this->paymentMethodRepository->readBasic([$shop->getPaymentMethodId()], $context)
+            ->get($shop->getPaymentMethodId());
     }
 
-    private function getShippingMethod(ShopDetailStruct $shop, ShopContext $context, CheckoutScope $checkoutScope): ShippingMethodBasicStruct
+    private function getShippingMethod(ShopBasicStruct $shop, ShopContext $context, CheckoutScope $checkoutScope): ShippingMethodBasicStruct
     {
-        if ($checkoutScope->getShippingMethodId() !== null) {
-            return $this->shippingMethodRepository->readBasic([$checkoutScope->getShippingMethodId()], $context)
-                ->get($checkoutScope->getShippingMethodId());
-        }
+        $id = $checkoutScope->getShippingMethodId() ?? $shop->getShippingMethodId();
 
-        return $shop->getShippingMethod();
+        return $this->shippingMethodRepository->readBasic([$id], $context)
+            ->get($id);
     }
 
     private function getShopContext(string $shopId): ShopContext
@@ -317,10 +316,11 @@ class ContextFactory implements ContextFactoryInterface
     }
 
     private function loadShippingLocation(
-        ShopDetailStruct $shop,
+        ShopBasicStruct $shop,
         ShopContext $shopContext,
         CheckoutScope $checkoutScope
     ): ShippingLocation {
+
         //allows to preview cart calculation for a specify state for not logged in customers
         if ($checkoutScope->getStateId() !== null) {
             $state = $this->countryStateRepository->readBasic([$checkoutScope->getStateId()], $shopContext)
@@ -332,14 +332,11 @@ class ContextFactory implements ContextFactoryInterface
             return new ShippingLocation($country, $state, null);
         }
 
-        //allows to preview cart calculation for a specify country for not logged in customers
-        if ($checkoutScope->getCountryId() !== null) {
-            $country = $this->countryRepository->readBasic([$checkoutScope->getCountryId()], $shopContext)
-                ->get($checkoutScope->getCountryId());
+        $countryId = $checkoutScope->getCountryId() ?? $shop->getCountryId();
 
-            return ShippingLocation::createFromCountry($country);
-        }
+        $country = $this->countryRepository->readBasic([$countryId], $shopContext)
+            ->get($countryId);
 
-        return ShippingLocation::createFromCountry($shop->getCountry());
+        return ShippingLocation::createFromCountry($country);
     }
 }

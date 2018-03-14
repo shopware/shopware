@@ -19,6 +19,7 @@
             <argument id="shopware.cache" type="service"/>
             <argument id="Shopware\Api\Context\Repository\ContextRuleRepository" type="service"/>
             <argument id="serializer" type="service"/>
+            <argument type="service" id="service_container"/>
         </service>
 
         <service class="Shopware\Storefront\Context\StorefrontContextService" id="Shopware\Storefront\Context\StorefrontContextService" public="true">

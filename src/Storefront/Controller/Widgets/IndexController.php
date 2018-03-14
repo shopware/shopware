@@ -26,6 +26,7 @@ namespace Shopware\Storefront\Controller\Widgets;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Shopware\Api\Currency\Collection\CurrencyBasicCollection;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\Shop\Repository\ShopRepository;
@@ -61,7 +62,7 @@ class IndexController extends StorefrontController
             'shop' => $context->getShop(),
             'currency' => $context->getCurrency(),
             'shops' => $this->loadShops($context),
-            'currencies' => $context->getShop()->getCurrencies(),
+            'currencies' => $this->getCurrencies()
         ]);
     }
 
@@ -74,5 +75,10 @@ class IndexController extends StorefrontController
         $shops->add($context->getShop());
 
         return $shops->sortByPosition();
+    }
+
+    private function getCurrencies(): CurrencyBasicCollection
+    {
+        return new CurrencyBasicCollection();
     }
 }

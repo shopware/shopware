@@ -165,7 +165,7 @@ class ShopSubscriber implements EventSubscriberInterface
 
             case DetailPageSeoUrlIndexer::ROUTE_NAME:
             default:
-                return $context->getShop()->getCategory()->getId();
+                return $context->getShop()->getCategoryId();
         }
     }
 }

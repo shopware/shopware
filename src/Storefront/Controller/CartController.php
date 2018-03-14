@@ -47,7 +47,7 @@ class CartController extends StorefrontController
         $identifier = $request->request->get('identifier');
         $quantity = $request->request->getInt('quantity');
         $target = $request->request->get('target');
-        $services = $request->request->get('service');
+        $services = $request->request->get('service', []);
 
         if (!($identifier && $quantity)) {
             return new JsonResponse([

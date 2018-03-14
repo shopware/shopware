@@ -22,6 +22,7 @@ use Shopware\Api\Entity\Field\LongTextWithHtmlField;
 use Shopware\Api\Entity\Field\ManyToManyAssociationField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\PriceField;
+use Shopware\Api\Entity\Field\ReferenceVersionField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\Field\VersionField;
@@ -42,6 +43,8 @@ class EntityHydrator
      */
     private $serializer;
 
+    private $fieldCache = [];
+
     public function __construct(SerializerInterface $serializer)
     {
         $this->serializer = $serializer;
@@ -50,7 +53,7 @@ class EntityHydrator
     public function hydrate(Entity $entity, string $definition, array $row, string $root): Entity
     {
         /** @var EntityDefinition $definition */
-        $fields = $definition::getFields()->getDetailProperties();
+        $fields = $definition::getFields();
 
         $data = [];
         $toOneAssociations = [];
@@ -118,7 +121,7 @@ class EntityHydrator
         return $entity->assign($data);
     }
 
-    private function getField(FieldCollection $fields, string $fieldName, string $root): ?Field
+    private function findField(FieldCollection $fields, string $fieldName, string $root): ?Field
     {
         if (strpos($fieldName, $root . '.') !== 0) {
             return null;
@@ -144,6 +147,20 @@ class EntityHydrator
         return $fields->get($key);
     }
 
+    private function getField(FieldCollection $fields, string $fieldName, string $root): ?Field
+    {
+        $key = $root . '-' . $fieldName;
+        if (array_key_exists($key, $this->fieldCache)) {
+            return $this->fieldCache[$key];
+        }
+
+        $field = $this->findField($fields, $fieldName, $root);
+
+        $this->fieldCache[$key] = $field;
+
+        return $field;
+    }
+
     private function stripAssociationKey(string $key): ?string
     {
         if (strpos($key, '.') === false) {
@@ -157,9 +174,13 @@ class EntityHydrator
     private function castValue(Field $field, $value)
     {
         switch (true) {
+            case $field instanceof VersionField:
+            case $field instanceof ReferenceVersionField:
+                //version fields are not stored in the struct data
+                return null;
+
             case $field instanceof FkField:
             case $field instanceof IdField:
-            case $field instanceof VersionField:
                 if ($value === null) {
                     return null;
                 }
@@ -201,8 +222,7 @@ class EntityHydrator
                     return null;
                 }
 
-                return json_decode((string) $value, true);
-
+                return json_decode($value, true);
             case $field instanceof JsonObjectField:
                 if ($field->is(Serialized::class)) {
                     return $this->serializer->deserialize($value, '', 'json');

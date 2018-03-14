@@ -36,9 +36,9 @@ class ListingController extends StorefrontController
      */
     private $listingPageLoader;
 
-    public function __construct(ListingPageLoader $lisingPageLoader)
+    public function __construct(ListingPageLoader $listingPageLoader)
     {
-        $this->listingPageLoader = $lisingPageLoader;
+        $this->listingPageLoader = $listingPageLoader;
     }
 
     /**

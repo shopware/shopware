@@ -60,6 +60,7 @@ class CanonicalUrlExtension implements EntityExtensionInterface, EventSubscriber
         $criteria->addFilter(new TermQuery('seo_url.isCanonical', 1));
 
         $urls = $this->seoUrlRepository->search($criteria, $event->getContext());
+
         foreach ($urls as $url) {
             $category = $event->getCategories()->get($url->getForeignKey());
             $category->addExtension('canonicalUrl', $url);

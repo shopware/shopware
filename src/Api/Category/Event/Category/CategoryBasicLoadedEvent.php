@@ -47,12 +47,6 @@ class CategoryBasicLoadedEvent extends NestedEvent
     public function getEvents(): ?NestedEventCollection
     {
         $events = [];
-        if ($this->categories->getMedia()->count() > 0) {
-            $events[] = new MediaBasicLoadedEvent($this->categories->getMedia(), $this->context);
-        }
-        if ($this->categories->getProductStreams()->count() > 0) {
-            $events[] = new ProductStreamBasicLoadedEvent($this->categories->getProductStreams(), $this->context);
-        }
 
         return new NestedEventCollection($events);
     }

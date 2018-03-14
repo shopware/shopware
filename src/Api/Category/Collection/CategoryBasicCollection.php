@@ -94,24 +94,6 @@ class CategoryBasicCollection extends EntityCollection
         });
     }
 
-    public function getMedia(): MediaBasicCollection
-    {
-        return new MediaBasicCollection(
-            $this->fmap(function (CategoryBasicStruct $category) {
-                return $category->getMedia();
-            })
-        );
-    }
-
-    public function getProductStreams(): ProductStreamBasicCollection
-    {
-        return new ProductStreamBasicCollection(
-            $this->fmap(function (CategoryBasicStruct $category) {
-                return $category->getProductStream();
-            })
-        );
-    }
-
     public function sortByPosition(): self
     {
         $this->sort(function (CategoryBasicStruct $a, CategoryBasicStruct $b) {

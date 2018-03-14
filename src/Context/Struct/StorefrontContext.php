@@ -29,7 +29,7 @@ use Shopware\Api\Customer\Struct\CustomerBasicStruct;
 use Shopware\Api\Customer\Struct\CustomerGroupBasicStruct;
 use Shopware\Api\Payment\Struct\PaymentMethodBasicStruct;
 use Shopware\Api\Shipping\Struct\ShippingMethodBasicStruct;
-use Shopware\Api\Shop\Struct\ShopDetailStruct;
+use Shopware\Api\Shop\Struct\ShopBasicStruct;
 use Shopware\Api\Tax\Collection\TaxBasicCollection;
 use Shopware\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Context\Exception\ContextRulesLockedException;
@@ -59,7 +59,7 @@ class StorefrontContext extends Struct
     protected $currency;
 
     /**
-     * @var ShopDetailStruct
+     * @var ShopBasicStruct
      */
     protected $shop;
 
@@ -99,7 +99,7 @@ class StorefrontContext extends Struct
     protected $rulesLocked = false;
 
     public function __construct(
-        ShopDetailStruct $shop,
+        ShopBasicStruct $shop,
         CurrencyBasicStruct $currency,
         CustomerGroupBasicStruct $currentCustomerGroup,
         CustomerGroupBasicStruct $fallbackCustomerGroup,
@@ -137,7 +137,7 @@ class StorefrontContext extends Struct
         return $this->currency;
     }
 
-    public function getShop(): ShopDetailStruct
+    public function getShop(): ShopBasicStruct
     {
         return $this->shop;
     }

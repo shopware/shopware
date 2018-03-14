@@ -49,7 +49,7 @@ class NavigationService
         $activeCategory = $this->repository->readBasic([$categoryId], $context->getShopContext())
             ->get($categoryId);
 
-        $systemCategory = $context->getShop()->getCategory();
+        $systemCategoryId = $context->getShop()->getCategoryId();
 
         if (!$activeCategory) {
             return null;
@@ -65,7 +65,7 @@ class NavigationService
         $categories = $this->repository->search($criteria, $context->getShopContext());
 
         $tree = TreeBuilder::buildTree(
-            $systemCategory->getId(),
+            $systemCategoryId,
             $categories->sortByPosition()->sortByName()
         );
 

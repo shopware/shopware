@@ -133,15 +133,6 @@ class CategoryBasicStruct extends Entity
      */
     protected $cmsDescription;
 
-    /**
-     * @var MediaBasicStruct|null
-     */
-    protected $media;
-
-    /**
-     * @var ProductStreamBasicStruct|null
-     */
-    protected $productStream;
 
     public function getParentId(): ?string
     {
@@ -391,26 +382,6 @@ class CategoryBasicStruct extends Entity
     public function setCmsDescription(?string $cmsDescription): void
     {
         $this->cmsDescription = $cmsDescription;
-    }
-
-    public function getMedia(): ?MediaBasicStruct
-    {
-        return $this->media;
-    }
-
-    public function setMedia(?MediaBasicStruct $media): void
-    {
-        $this->media = $media;
-    }
-
-    public function getProductStream(): ?ProductStreamBasicStruct
-    {
-        return $this->productStream;
-    }
-
-    public function setProductStream(?ProductStreamBasicStruct $productStream): void
-    {
-        $this->productStream = $productStream;
     }
 
     public function getPathArray(): array

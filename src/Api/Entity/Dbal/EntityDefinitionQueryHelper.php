@@ -156,7 +156,7 @@ class EntityDefinitionQueryHelper
             $query->setParameter('version', Uuid::fromString($context->getVersionId())->getBytes());
         }
 
-        if ($definition::isCatalogAware()) {
+        if ($definition::isCatalogAware() && !empty($context->getCatalogIds())) {
             $catalogIds = array_map(function (string $catalogId) {
                 return Uuid::fromString($catalogId)->getBytes();
             }, $context->getCatalogIds());
@@ -481,14 +481,14 @@ class EntityDefinitionQueryHelper
         self::joinTranslationTable($alias, $definition, $query, $context);
     }
 
-    public static function addTranslationSelect(string $root, string $definition, QueryBuilder $query, ShopContext $context, FieldCollection $fields, bool $raw = false): void
+    public static function addTranslationSelect(string $root, string $definition, QueryBuilder $query, ShopContext $context, array $fields, bool $raw = false): void
     {
         self::joinTranslation($root, $definition, $query, $context, $raw);
 
         [$chain, $inheritedChain] = self::buildTranslationChain($root, $definition, $context, $raw);
 
         /** @var TranslatedField $field */
-        foreach ($fields->getElements() as $property => $field) {
+        foreach ($fields as $property => $field) {
             $query->addSelect(
                 self::getTranslationFieldAccessor($root, $field, $chain, $inheritedChain)
                 . ' as ' .

@@ -70,15 +70,15 @@
                         {% endblock %}
 
                         {% block frontend_listing_box_article_buy %}
-                            {% if shopware.config.displayListingBuyButton %}
+                            {#{% if shopware.config.displayListingBuyButton %}#}
                                 <div class="product--btn-container">
-                                    {% if product.allowBuyInListing %}
+                                    {#{% if product.allowBuyInListing %}#}
                                         {% sw_include "@Storefront/frontend/listing/product-box/button-buy.html.twig" %}
-                                    {% else %}
-                                        {% sw_include "@Storefront/frontend/listing/product-box/button-detail.html.twig" %}
-                                    {% endif %}
+                                    {#{% else %}#}
+                                        {#{% sw_include "@Storefront/frontend/listing/product-box/button-detail.html.twig" %}#}
+                                    {#{% endif %}#}
                                 </div>
-                            {% endif %}
+                            {#{% endif %}#}
                         {% endblock %}
 
                         {# Product actions - Compare product, more information #}

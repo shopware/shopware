@@ -1,5 +1,5 @@
 {% block frontend_listing_product_box_button_buy %}
-    {#{% set url = {url controller=checkout action=addProduct sTargetAction=ajaxAddArticle} %}#}
+    {% set url = url('cart_add_product') %}
 
     {% block frontend_listing_product_box_button_buy_form %}
         <form name="sAddToBasket"
@@ -7,14 +7,15 @@
               action="{{ url }}"
               class="buybox--form"
               data-add-article="true"
-              data-eventName="submit"
-              {% if theme.offcanvasCart %}
-                 data-showModal="false"
-                 {#data-addArticleUrl="{url controller=checkout action=addProduct sTargetAction=ajaxCart}"#}
-              {% endif %}>
+              {#data-eventName="submit"#}
+              data-addArticleUrl="{{ url }}"
+              data-showModal="false"
+              {#{% if theme.offcanvasCart %}#}
+              {#{% endif %}#}
+        >
 
             {% block frontend_listing_product_box_button_buy_order_number %}
-                <input type="hidden" name="number" value="{{ product.ordernumber }}"/>
+                <input type="hidden" name="identifier" value="{{ product.id }}"/>
                 <input type="hidden" name="quantity" value="1"/>
             {% endblock %}
 

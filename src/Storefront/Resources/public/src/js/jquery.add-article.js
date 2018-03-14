@@ -119,20 +119,23 @@
 
             ajaxData += '&isXHR=1';
 
-            if (opts.showModal) {
+            // if (opts.showModal) {
                 $.loadingIndicator.open({
                     'openOverlay': true
                 });
-            }
+            // }
 
             $.publish('plugin/swAddArticle/onBeforeAddArticle', [ me, ajaxData ]);
 
             $.ajax({
+                'type': 'POST',
                 'data': ajaxData,
-                'dataType': 'jsonp',
+                // 'dataType': 'jsonp',
                 'url': opts.addArticleUrl,
                 'success': function (result) {
                     $.publish('plugin/swAddArticle/onAddArticle', [ me, result ]);
+
+                    $.loadingIndicator.close();
 
                     if (!opts.showModal) {
                         return;

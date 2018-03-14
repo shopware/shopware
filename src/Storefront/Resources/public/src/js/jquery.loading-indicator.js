@@ -47,7 +47,7 @@
             delay: 0,
 
             /** @string - Animation speed of the appearing of the components  */
-            animationSpeed: 500,
+            animationSpeed: 250,
 
             /** @boolean - `true` to allow the user to close the overlay with a click */
             closeOnClick: true,

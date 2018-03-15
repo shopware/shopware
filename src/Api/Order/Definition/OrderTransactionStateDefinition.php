@@ -15,6 +15,7 @@ use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
+use Shopware\Api\Entity\Write\Flag\RestrictDelete;
 use Shopware\Api\Order\Collection\OrderTransactionStateBasicCollection;
 use Shopware\Api\Order\Event\OrderTransactionState\OrderTransactionStateDeletedEvent;
 use Shopware\Api\Order\Event\OrderTransactionState\OrderTransactionStateWrittenEvent;
@@ -56,7 +57,7 @@ class OrderTransactionStateDefinition extends EntityDefinition
             (new TranslatedField(new StringField('description', 'description')))->setFlags(new Required()),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            (new TranslationsAssociationField('translations', OrderTransactionStateTranslationDefinition::class, 'order_transaction_state_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
+            (new TranslationsAssociationField('translations', OrderTransactionStateTranslationDefinition::class, 'order_transaction_state_id', false, 'id'))->setFlags(new Required(), new RestrictDelete()),
         ]);
 
         foreach (self::$extensions as $extension) {

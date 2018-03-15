@@ -26,6 +26,7 @@ use Shopware\Api\Entity\Write\Flag\RestrictDelete;
 use Shopware\Api\Entity\Write\Flag\SearchRanking;
 use Shopware\Api\Entity\Write\Flag\WriteOnly;
 use Shopware\Api\Order\Definition\OrderDefinition;
+use Shopware\Api\Order\Definition\OrderTransactionDefinition;
 use Shopware\Api\Payment\Collection\PaymentMethodBasicCollection;
 use Shopware\Api\Payment\Collection\PaymentMethodDetailCollection;
 use Shopware\Api\Payment\Event\PaymentMethod\PaymentMethodDeletedEvent;
@@ -94,6 +95,7 @@ class PaymentMethodDefinition extends EntityDefinition
             (new OneToManyAssociationField('customers', CustomerDefinition::class, 'last_payment_method_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
             (new OneToManyAssociationField('orders', OrderDefinition::class, 'payment_method_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
             (new OneToManyAssociationField('shops', ShopDefinition::class, 'payment_method_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
+            (new OneToManyAssociationField('transactions', OrderTransactionDefinition::class, 'payment_method_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
             (new TranslationsAssociationField('translations', PaymentMethodTranslationDefinition::class, 'payment_method_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
         ]);
 

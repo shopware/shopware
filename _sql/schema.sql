@@ -1661,9 +1661,9 @@ CREATE TABLE `order_transaction` (
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`, `version_id`),
-  CONSTRAINT `fk_order_transaction.order_id` FOREIGN KEY (`order_id`, `order_version_id`) REFERENCES `order` (`id`, `version_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_order_transaction.order_id` FOREIGN KEY (`order_id`, `order_version_id`) REFERENCES `order` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_order_transaction.payment_method_id` FOREIGN KEY (`payment_method_id`, `payment_method_version_id`) REFERENCES `payment_method` (`id`, `version_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `fk_order_transaction.order_transaction_state_id` FOREIGN KEY (`order_transaction_state_id`, `order_transaction_state_version_id`) REFERENCES `order_transaction_state` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `fk_order_transaction.order_transaction_state_id` FOREIGN KEY (`order_transaction_state_id`, `order_transaction_state_version_id`) REFERENCES `order_transaction_state` (`id`, `version_id`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `unit`;

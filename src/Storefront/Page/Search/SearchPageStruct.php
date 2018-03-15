@@ -28,6 +28,16 @@ class SearchPageStruct extends Struct
      */
     protected $productBoxLayout;
 
+    /**
+     * @var int
+     */
+    protected $currentPage;
+
+    /**
+     * @var int
+     */
+    protected $pageCount;
+
     public function getProducts(): ProductSearchResult
     {
         return $this->products;
@@ -72,5 +82,25 @@ class SearchPageStruct extends Struct
     public function setProductBoxLayout($productBoxLayout): void
     {
         $this->productBoxLayout = $productBoxLayout;
+    }
+
+    public function getPageCount(): int
+    {
+        return $this->pageCount;
+    }
+
+    public function setPageCount(int $pageCount): void
+    {
+        $this->pageCount = $pageCount;
+    }
+
+    public function getCurrentPage(): int
+    {
+        return $this->currentPage;
+    }
+
+    public function setCurrentPage(int $currentPage): void
+    {
+        $this->currentPage = $currentPage;
     }
 }

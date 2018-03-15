@@ -6,7 +6,9 @@ use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\ScoreQuery;
 use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\Entity\Search\Query\TermsQuery;
+use Shopware\Api\Product\Struct\ProductSearchResult;
 use Shopware\Context\Struct\StorefrontContext;
+use Shopware\Defaults;
 use Shopware\Framework\Config\ConfigServiceInterface;
 use Shopware\StorefrontApi\Product\StorefrontProductRepository;
 use Shopware\StorefrontApi\Search\KeywordSearchTermInterpreter;
@@ -62,6 +64,12 @@ class SearchPageLoader
         $listingPageStruct->setShowListing(true);
         $listingPageStruct->setProductBoxLayout($layout);
 
+        $currentPage = $request->query->getInt('p', 1);
+        $listingPageStruct->setCurrentPage($currentPage);
+        $listingPageStruct->setPageCount(
+            $this->getPageCount($products, $criteria, $currentPage)
+        );
+
         return $listingPageStruct;
     }
 
@@ -71,7 +79,7 @@ class SearchPageLoader
         StorefrontContext $context
     ): Criteria {
         $limit = $request->query->getInt('limit', 20);
-        $page = $request->query->getInt('page', 1);
+        $page = $request->query->getInt('p', 1);
 
         $criteria = new Criteria();
         $criteria->setOffset(($page - 1) * $limit);
@@ -100,10 +108,25 @@ class SearchPageLoader
         ));
 
         $criteria->addFilter(new TermQuery(
-            'product.searchKeywords.shopId',
-            $context->getShop()->getId()
+            'product.searchKeywords.languageId',
+            Defaults::LANGUAGE
         ));
+
+        $criteria->setFetchCount(Criteria::FETCH_COUNT_NEXT_PAGES);
 
         return $criteria;
     }
+
+
+    private function getPageCount(ProductSearchResult $products, Criteria $criteria, int $currentPage)
+    {
+        $pageCount = (int) round($products->getTotal() / $criteria->getLimit());
+        $pageCount = max(1, $pageCount);
+        if ($pageCount > 1 && $criteria->fetchCount() === Criteria::FETCH_COUNT_NEXT_PAGES) {
+            $pageCount += $currentPage;
+        }
+
+        return $pageCount;
+    }
+
 }

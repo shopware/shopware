@@ -45,8 +45,8 @@ class ProductActionController extends Controller
 
         $event = $events->getEventByDefinition(ProductDefinition::class);
 
-        return new JsonResponse([
-            'ids' => $event->getIds(),
-        ]);
+        return new JsonResponse(
+            ['data' => $event->getIds()]
+        );
     }
 }

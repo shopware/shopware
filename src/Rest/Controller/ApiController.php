@@ -14,18 +14,12 @@ use Shopware\Api\Entity\Field\ReferenceVersionField;
 use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\RepositoryInterface;
-use Shopware\Api\Entity\Search\Criteria;
-use Shopware\Api\Entity\Search\Parser\QueryStringParser;
 use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\Entity\Search\SearchCriteriaBuilder;
-use Shopware\Api\Entity\Search\Sorting\FieldSorting;
-use Shopware\Api\Entity\Search\Term\EntityScoreQueryBuilder;
-use Shopware\Api\Entity\Search\Term\SearchTermInterpreter;
 use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\FieldException\WriteStackException;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Entity\Write\WriteContext;
-use Shopware\Context\Struct\ShopContext;
 use Shopware\Rest\Exception\ResourceNotFoundException;
 use Shopware\Rest\Exception\WriteStackHttpException;
 use Shopware\Rest\Response\ResponseFactory;
@@ -142,7 +136,7 @@ class ApiController extends Controller
 
         if (empty($path)) {
             $data = $repository->search(
-                $this->createListingCriteria($definition, $request, $context->getShopContext()),
+                $this->searchCriteriaBuilder->handleRequest($request, $definition, $context->getShopContext()),
                 $context->getShopContext()
             );
 
@@ -156,7 +150,7 @@ class ApiController extends Controller
             $parent = array_pop($path);
         }
 
-        $criteria = $this->createListingCriteria($definition, $request, $context->getShopContext());
+        $criteria = $this->searchCriteriaBuilder->handleRequest($request, $definition, $context->getShopContext());
 
         $association = $child['field'];
 
@@ -619,59 +613,6 @@ class ApiController extends Controller
         return lcfirst(implode('', $parts));
     }
 
-    private function createListingCriteria(string $definition, Request $request, ShopContext $context): Criteria
-    {
-        $criteria = new Criteria();
-        $criteria->setFetchCount(Criteria::FETCH_COUNT_TOTAL);
-        $criteria->setLimit(10);
-
-        if ($request->query->has('offset')) {
-            $criteria->setOffset((int) $request->query->get('offset'));
-        }
-
-        if ($request->query->has('limit')) {
-            $criteria->setLimit((int) $request->query->get('limit'));
-        }
-
-        if ($request->query->has('query')) {
-            $criteria->addFilter(
-                QueryStringParser::fromUrl($request->query->get('query'))
-            );
-        }
-        if ($request->query->has('term')) {
-            $pattern = $this->get(SearchTermInterpreter::class)->interpret(
-                (string) $request->query->get('term'),
-                $context
-            );
-
-            /** @var EntityDefinition|string $definition */
-            $queries = $this->get(EntityScoreQueryBuilder::class)->buildScoreQueries(
-                $pattern,
-                $definition,
-                $definition::getEntityName()
-            );
-
-            $criteria->addQueries($queries);
-        }
-
-        if ($request->query->has('sort')) {
-            $sortings = $this->parseSortings($definition, $request->query->get('sort'));
-            $criteria->addSortings($sortings);
-        }
-
-        $pageQuery = $request->query->get('page', []);
-
-        if (array_key_exists('offset', $pageQuery)) {
-            $criteria->setOffset((int) $pageQuery['offset']);
-        }
-
-        if (array_key_exists('limit', $pageQuery)) {
-            $criteria->setLimit((int) $pageQuery['limit']);
-        }
-
-        return $criteria;
-    }
-
     /**
      * Return a nested array structure of based on the content-type
      *
@@ -763,34 +704,5 @@ class ApiController extends Controller
         }
 
         return $response;
-    }
-
-    private function parseSortings(string $definition, string $query): array
-    {
-        $parts = array_filter(explode(',', $query));
-
-        $sortings = [];
-        foreach ($parts as $part) {
-            $first = substr($part, 0, 1);
-
-            $direction = $first === '-' ? FieldSorting::DESCENDING : FieldSorting::ASCENDING;
-
-            if ($direction === FieldSorting::DESCENDING) {
-                $part = substr($part, 1);
-            }
-
-            $subParts = explode('.', $part);
-
-            /** @var string|EntityDefinition $definition */
-            $root = $definition::getEntityName();
-
-            if ($subParts[0] !== $root) {
-                $part = $definition::getEntityName() . '.' . $part;
-            }
-
-            $sortings[] = new FieldSorting($part, $direction);
-        }
-
-        return $sortings;
     }
 }

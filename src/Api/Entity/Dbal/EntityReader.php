@@ -3,7 +3,6 @@
 namespace Shopware\Api\Entity\Dbal;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Api\Category\Definition\CategoryDefinition;
 use Shopware\Api\Entity\Entity;
 use Shopware\Api\Entity\EntityCollection;
 use Shopware\Api\Entity\EntityDefinition;
@@ -174,6 +173,7 @@ class EntityReader implements EntityReaderInterface
             if ($field->is(Deferred::class)) {
                 return null;
             }
+
             return $field;
         });
 
@@ -251,10 +251,11 @@ class EntityReader implements EntityReaderInterface
             }
         }
 
-        $translatedFields = $fields->fmap(function(Field $field) {
+        $translatedFields = $fields->fmap(function (Field $field) {
             if ($field instanceof TranslatedField) {
                 return $field;
             }
+
             return null;
         });
 
@@ -360,7 +361,6 @@ class EntityReader implements EntityReaderInterface
 
         /** @var Struct|Entity $struct */
         foreach ($collection as $struct) {
-
             $mappingIds = array_intersect($mapping, [$struct->getId()]);
 
             if (count($mappingIds) <= 0 && $hasInheritance) {

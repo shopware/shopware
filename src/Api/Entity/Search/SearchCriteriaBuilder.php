@@ -4,7 +4,9 @@ namespace Shopware\Api\Entity\Search;
 
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Search\Parser\QueryStringParser;
+use Shopware\Api\Entity\Search\Query\NestedQuery;
 use Shopware\Api\Entity\Search\Query\ScoreQuery;
+use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\Entity\Search\Sorting\FieldSorting;
 use Shopware\Api\Entity\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Api\Entity\Search\Term\SearchTermInterpreter;
@@ -41,6 +43,10 @@ class SearchCriteriaBuilder
                 }
 
                 return $this->fromArray($payload, $definition, $context);
+            case 'GET':
+                $payload = $request->query->all();
+
+                return $this->fromArray($payload, $definition, $context);
         }
 
         return new Criteria();
@@ -58,15 +64,18 @@ class SearchCriteriaBuilder
         if (isset($payload['offset'])) {
             $criteria->setOffset((int) $payload['offset']);
         }
-        if (isset($payload['size'])) {
-            $criteria->setLimit((int) $payload['size']);
+        if (isset($payload['limit'])) {
+            $criteria->setLimit((int) $payload['limit']);
         }
 
         if (isset($payload['filter']) && is_array($payload['filter'])) {
             foreach ($payload['filter'] as $query) {
-                $criteria->addFilter(
-                    QueryStringParser::fromArray($query)
-                );
+                if (is_array($query)) {
+                    $filter = QueryStringParser::fromArray($query);
+                } else {
+                    $filter = $this->parseSimpleFilter($payload['filter']);
+                }
+                $criteria->addFilter($filter);
             }
         }
 
@@ -96,8 +105,12 @@ class SearchCriteriaBuilder
             $criteria->addQueries($queries);
         }
 
-        if (isset($payload['sort']) && is_array($payload['sort'])) {
-            $criteria->addSortings($this->parseSorting($payload['sort']));
+        if (isset($payload['sort'])) {
+            if (is_array($payload['sort'])) {
+                $criteria->addSortings($this->parseSorting($payload['sort']));
+            } else {
+                $criteria->addSortings($this->parseSimpleSorting($definition, $payload['sort']));
+            }
         }
 
         return $criteria;
@@ -116,5 +129,44 @@ class SearchCriteriaBuilder
         }
 
         return $sortings;
+    }
+
+    private function parseSimpleSorting(string $definition, string $query): array
+    {
+        $parts = array_filter(explode(',', $query));
+
+        $sortings = [];
+        foreach ($parts as $part) {
+            $first = substr($part, 0, 1);
+
+            $direction = $first === '-' ? FieldSorting::DESCENDING : FieldSorting::ASCENDING;
+
+            if ($direction === FieldSorting::DESCENDING) {
+                $part = substr($part, 1);
+            }
+
+            $subParts = explode('.', $part);
+
+            /** @var string|EntityDefinition $definition */
+            $root = $definition::getEntityName();
+
+            if ($subParts[0] !== $root) {
+                $part = $definition::getEntityName() . '.' . $part;
+            }
+
+            $sortings[] = new FieldSorting($part, $direction);
+        }
+
+        return $sortings;
+    }
+
+    private function parseSimpleFilter(array $filters): NestedQuery
+    {
+        $queries = [];
+        foreach ($filters as $field => $value) {
+            $queries[] = new TermQuery($field, $value);
+        }
+
+        return new NestedQuery($queries);
     }
 }

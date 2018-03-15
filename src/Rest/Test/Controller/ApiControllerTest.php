@@ -425,4 +425,38 @@ class ApiControllerTest extends ApiTestCase
         self::assertEquals(1, $content['meta']['total']);
         self::assertEquals($id, $content['data'][0]['id']);
     }
+
+    public function testSimpleFilter()
+    {
+        $id = Uuid::uuid4()->toString();
+
+        $data = [
+            'id' => $id,
+            'name' => 'Wool Shirt',
+            'tax' => ['name' => 'test', 'rate' => 10],
+            'manufacturer' => ['name' => 'Shopware AG'],
+            'price' => ['gross' => 8300, 'net' => 8300],
+        ];
+
+        $client = $this->getClient();
+        $client->request('POST', '/api/product', [], [], [], json_encode($data));
+        $response = $client->getResponse();
+        self::assertSame(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        self::assertNotEmpty($response->headers->get('Location'));
+        self::assertEquals('http://localhost/api/product/' . $id, $response->headers->get('Location'));
+
+        $data = [
+            'filter' => [
+                'product.id' => $id,
+                'product.price' => 8300,
+                'product.name' => 'Wool Shirt',
+            ],
+        ];
+
+        $client->request('GET', '/api/product', $data);
+        $response = $client->getResponse();
+        $content = json_decode($response->getContent(), true);
+        self::assertEquals(1, $content['meta']['total']);
+        self::assertEquals($id, $content['data'][0]['id']);
+    }
 }

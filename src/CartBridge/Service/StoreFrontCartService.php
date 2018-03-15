@@ -221,7 +221,7 @@ class StoreFrontCartService
             $this->persister->delete($token);
         }
 
-        $this->cart = Cart::createNew(self::CART_NAME,  $this->getCartToken());
+        $this->cart = Cart::createNew(self::CART_NAME, $this->getCartToken());
         $this->calculated = null;
         $this->session->set(self::CART_TOKEN_KEY, $this->cart->getToken());
 

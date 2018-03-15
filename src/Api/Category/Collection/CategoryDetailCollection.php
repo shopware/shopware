@@ -66,7 +66,6 @@ class CategoryDetailCollection extends CategoryBasicCollection
         return $collection;
     }
 
-
     public function getMedia(): MediaBasicCollection
     {
         return new MediaBasicCollection(

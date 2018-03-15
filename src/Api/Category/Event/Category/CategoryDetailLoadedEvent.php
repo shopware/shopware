@@ -63,6 +63,7 @@ class CategoryDetailLoadedEvent extends NestedEvent
         if ($this->categories->getTranslations()->count() > 0) {
             $events[] = new CategoryTranslationBasicLoadedEvent($this->categories->getTranslations(), $this->context);
         }
+
         return new NestedEventCollection($events);
     }
 }

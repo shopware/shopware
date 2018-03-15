@@ -65,6 +65,7 @@ class Cart extends Struct
         if ($token === null) {
             $token = Uuid::uuid4()->toString();
         }
+
         return new self($name, $token, new LineItemCollection(), new ErrorCollection());
     }
 

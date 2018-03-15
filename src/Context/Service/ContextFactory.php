@@ -41,7 +41,6 @@ use Shopware\Api\Shipping\Repository\ShippingMethodRepository;
 use Shopware\Api\Shipping\Struct\ShippingMethodBasicStruct;
 use Shopware\Api\Shop\Repository\ShopRepository;
 use Shopware\Api\Shop\Struct\ShopBasicStruct;
-use Shopware\Api\Shop\Struct\ShopDetailStruct;
 use Shopware\Api\Tax\Collection\TaxBasicCollection;
 use Shopware\Api\Tax\Repository\TaxRepository;
 use Shopware\Cart\Delivery\Struct\ShippingLocation;
@@ -320,7 +319,6 @@ class ContextFactory implements ContextFactoryInterface
         ShopContext $shopContext,
         CheckoutScope $checkoutScope
     ): ShippingLocation {
-
         //allows to preview cart calculation for a specify state for not logged in customers
         if ($checkoutScope->getStateId() !== null) {
             $state = $this->countryStateRepository->readBasic([$checkoutScope->getStateId()], $shopContext)

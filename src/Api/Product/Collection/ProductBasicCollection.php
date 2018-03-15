@@ -154,7 +154,7 @@ class ProductBasicCollection extends EntityCollection
     public function getCanonicalUrls(): SeoUrlBasicCollection
     {
         return new SeoUrlBasicCollection(
-            $this->fmap(function(ProductBasicStruct $product) {
+            $this->fmap(function (ProductBasicStruct $product) {
                 return $product->getExtension('canonicalUrl');
             })
         );

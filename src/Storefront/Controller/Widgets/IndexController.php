@@ -69,7 +69,7 @@ class IndexController extends StorefrontController
             'shop' => $context->getShop(),
             'currency' => $context->getCurrency(),
             'shops' => $this->loadShops($context),
-            'currencies' => $this->getCurrencies($context)
+            'currencies' => $this->getCurrencies($context),
         ]);
     }
 

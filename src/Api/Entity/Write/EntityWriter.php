@@ -90,7 +90,7 @@ class EntityWriter implements EntityWriterInterface
         $this->validateWriteInput($rawData);
 
         $commandQueue = $this->buildCommandQueue($definition, $rawData, $writeContext);
-        
+
         $writeIdentifiers = $this->getWriteIdentifiers($commandQueue);
 
         $this->gateway->execute($commandQueue->getCommandsInOrder());

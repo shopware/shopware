@@ -3,8 +3,6 @@
 namespace Shopware\Api\Category\Struct;
 
 use Shopware\Api\Entity\Entity;
-use Shopware\Api\Media\Struct\MediaBasicStruct;
-use Shopware\Api\Product\Struct\ProductStreamBasicStruct;
 
 class CategoryBasicStruct extends Entity
 {
@@ -132,7 +130,6 @@ class CategoryBasicStruct extends Entity
      * @var string|null
      */
     protected $cmsDescription;
-
 
     public function getParentId(): ?string
     {

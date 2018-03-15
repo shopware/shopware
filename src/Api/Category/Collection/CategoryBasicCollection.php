@@ -4,8 +4,6 @@ namespace Shopware\Api\Category\Collection;
 
 use Shopware\Api\Category\Struct\CategoryBasicStruct;
 use Shopware\Api\Entity\EntityCollection;
-use Shopware\Api\Media\Collection\MediaBasicCollection;
-use Shopware\Api\Product\Collection\ProductStreamBasicCollection;
 use Shopware\Api\Seo\Collection\SeoUrlBasicCollection;
 
 class CategoryBasicCollection extends EntityCollection
@@ -116,7 +114,7 @@ class CategoryBasicCollection extends EntityCollection
     public function getCanonicalUrls(): SeoUrlBasicCollection
     {
         return new SeoUrlBasicCollection(
-            $this->fmap(function(CategoryBasicStruct $category) {
+            $this->fmap(function (CategoryBasicStruct $category) {
                 return $category->getExtension('canonicalUrl');
             })
         );

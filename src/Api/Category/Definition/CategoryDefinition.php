@@ -117,7 +117,7 @@ class CategoryDefinition extends EntityDefinition
             (new OneToManyAssociationField('shops', ShopDefinition::class, 'category_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
             (new ManyToManyAssociationField('products', ProductDefinition::class, ProductCategoryDefinition::class, false, 'category_id', 'product_id', 'id', 'category_join_id'))->setFlags(new CascadeDelete(), new WriteOnly()),
             (new ManyToManyAssociationField('seoProducts', ProductDefinition::class, ProductSeoCategoryDefinition::class, false, 'category_id', 'product_id'))->setFlags(new CascadeDelete(), new WriteOnly()),
-            new CanonicalUrlAssociationField('canonicalUrl', 'id', true, ListingPageSeoUrlIndexer::ROUTE_NAME)
+            new CanonicalUrlAssociationField('canonicalUrl', 'id', true, ListingPageSeoUrlIndexer::ROUTE_NAME),
         ]);
 
         foreach (self::$extensions as $extension) {

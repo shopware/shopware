@@ -123,13 +123,12 @@ class EntityReader implements EntityReaderInterface
         if (empty($ids)) {
             return $collection;
         }
+
         /** @var EntityDefinition|string $definition */
         $rows = $this->fetch($ids, $definition, $context, $fields, $raw);
-        foreach ($rows as $row) {
-            $collection->add(
-                $this->hydrator->hydrate(clone $entity, $definition, $row, $definition::getEntityName())
-            );
-        }
+
+        $entities = $this->hydrator->hydrate($entity, $definition, $rows, $definition::getEntityName());
+        $collection->fill($entities);
 
         /** @var EntityDefinition $reference */
         $associations = $fields->filterInstance(ManyToOneAssociationField::class);

@@ -45,15 +45,41 @@ class EntityHydrator
 
     private $fieldCache = [];
 
+    private $objects = [];
+
     public function __construct(SerializerInterface $serializer)
     {
         $this->serializer = $serializer;
     }
 
-    public function hydrate(Entity $entity, string $definition, array $row, string $root): Entity
+    public function hydrate(Entity $entity, string $definition, array $rows, string $root): array
+    {
+        /** @var EntityDefinition|string $definition */
+        $collection = [];
+        $this->objects = [];
+
+        foreach ($rows as $row) {
+            $collection[] = $this->hydrateEntity(clone $entity, $definition, $row, $root);
+        }
+
+        return $collection;
+    }
+
+    private function hydrateEntity(Entity $entity, string $definition, array $row, string $root): Entity
     {
         /** @var EntityDefinition $definition */
         $fields = $definition::getFields();
+
+        $idProperty = $root . '.id';
+
+        $objectCacheKey = null;
+
+        if (array_key_exists($idProperty, $row)) {
+            $objectCacheKey = $definition::getEntityName() . '::' . Uuid::fromBytes($row[$idProperty])->toString();
+            if (array_key_exists($objectCacheKey, $this->objects)) {
+                return $this->objects[$objectCacheKey];
+            }
+        }
 
         $data = [];
         $toOneAssociations = [];
@@ -104,7 +130,7 @@ class EntityHydrator
             /** @var EntityDefinition $reference */
             $structClass = $reference::getBasicStructClass();
 
-            $hydrated = $this->hydrate(
+            $hydrated = $this->hydrateEntity(
                 new $structClass(),
                 $field->getReferenceClass(),
                 $row,
@@ -119,7 +145,13 @@ class EntityHydrator
             }
         }
 
-        return $entity->assign($data);
+        $entity->assign($data);
+
+        if ($objectCacheKey) {
+            $this->objects[$objectCacheKey] = $entity;
+        }
+
+        return $entity;
     }
 
     private function findField(FieldCollection $fields, string $fieldName, string $root): ?Field

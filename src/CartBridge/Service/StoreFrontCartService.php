@@ -92,11 +92,10 @@ class StoreFrontCartService
         $this->orderPersister = $orderPersister;
     }
 
-    public function setCalculated(CalculatedCart $calculatedCart, StorefrontContext $context): void
+    public function setCalculated(CalculatedCart $calculatedCart): void
     {
         $this->cart = $calculatedCart->getCart();
         $this->calculated = $calculatedCart;
-        $this->save($calculatedCart, $context);
     }
 
     public function createNew(): CalculatedCart

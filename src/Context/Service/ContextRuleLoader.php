@@ -150,7 +150,7 @@ class ContextRuleLoader
             ++$iteration;
         }
 
-        $this->container->get(StoreFrontCartService::class)->setCalculated($calculated, $context);
+        $this->container->get(StoreFrontCartService::class)->setCalculated($calculated);
 
         return $rules;
     }

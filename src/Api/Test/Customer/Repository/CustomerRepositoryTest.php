@@ -38,6 +38,7 @@ class CustomerRepositoryTest extends KernelTestCase
         $this->container = self::$kernel->getContainer();
         $this->repository = $this->container->get(CustomerRepository::class);
         $this->connection = $this->container->get(Connection::class);
+        $this->connection->executeUpdate('DELETE FROM `order`');
         $this->connection->executeUpdate('DELETE FROM customer');
         $this->connection->beginTransaction();
     }

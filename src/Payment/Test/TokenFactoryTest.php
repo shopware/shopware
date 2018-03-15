@@ -8,6 +8,9 @@ use Ramsey\Uuid\Uuid;
 use Shopware\Api\Customer\Repository\CustomerRepository;
 use Shopware\Api\Order\Repository\OrderRepository;
 use Shopware\Api\Order\Repository\OrderTransactionRepository;
+use Shopware\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Defaults;
 use Shopware\Payment\Token\PaymentTransactionTokenFactory;
@@ -76,7 +79,12 @@ class TokenFactoryTest extends KernelTestCase
     public function testGenerateToken()
     {
         $transactionId = $this->prepare();
-        $tokenIdentifier = $this->tokenFactory->generateToken(self::PAYMENT_METHOD_INVOICE, $transactionId);
+
+        $transactions = $this->orderTransactionRepository->readBasic([$transactionId], ShopContext::createDefaultContext());
+
+        $tokenIdentifier = $this->tokenFactory->generateToken(
+            $transactions->get($transactionId)
+        );
 
         $token = $this->connection->fetchAssoc('SELECT * FROM payment_token WHERE token = ?;', [$tokenIdentifier]);
 
@@ -92,13 +100,18 @@ class TokenFactoryTest extends KernelTestCase
     public function testValidateToken()
     {
         $transactionId = $this->prepare();
-        $tokenIdentifier = $this->tokenFactory->generateToken(self::PAYMENT_METHOD_INVOICE, $transactionId);
+
+        $transactions = $this->orderTransactionRepository->readBasic([$transactionId], ShopContext::createDefaultContext());
+
+        $tokenIdentifier = $this->tokenFactory->generateToken(
+            $transactions->get($transactionId)
+        );
 
         $token = $this->tokenFactory->validateToken($tokenIdentifier);
 
-        self::assertEquals($transactionId, Uuid::fromBytes($token['transaction_id']));
-        self::assertEquals($tokenIdentifier, $token['token']);
-        self::assertGreaterThan(new \DateTime(), new \DateTime($token['expires']));
+        self::assertEquals($transactionId, $token->getTransactionId());
+        self::assertEquals($tokenIdentifier, $token->getToken());
+        self::assertGreaterThan(new \DateTime(), $token->getExpires());
     }
 
     /**
@@ -108,7 +121,12 @@ class TokenFactoryTest extends KernelTestCase
     public function testInvalidateToken()
     {
         $transactionId = $this->prepare();
-        $tokenIdentifier = $this->tokenFactory->generateToken(self::PAYMENT_METHOD_INVOICE, $transactionId);
+
+        $transactions = $this->orderTransactionRepository->readBasic([$transactionId], ShopContext::createDefaultContext());
+
+        $tokenIdentifier = $this->tokenFactory->generateToken(
+            $transactions->get($transactionId)
+        );
 
         $success = $this->tokenFactory->invalidateToken($tokenIdentifier);
 
@@ -134,7 +152,7 @@ class TokenFactoryTest extends KernelTestCase
             'orderId' => $orderId,
             'paymentMethodId' => self::PAYMENT_METHOD_INVOICE,
             'orderTransactionStateId' => Defaults::ORDER_TRANSACTION_OPEN,
-            'amount' => 100,
+            'amount' => new CalculatedPrice(100, 100, new CalculatedTaxCollection(), new TaxRuleCollection(), 1),
             'payload' => '{}',
         ];
 

@@ -153,6 +153,8 @@
             <argument type="service" id="Shopware\Api\Order\Repository\OrderRepository"/>
             <argument type="service" id="Shopware\Storefront\Page\Checkout\PaymentMethodLoader"/>
             <argument type="service" id="Shopware\Payment\PaymentProcessor"/>
+            <argument type="service" id="Shopware\Payment\Token\PaymentTransactionTokenFactory"/>
+            <argument type="service" id="Shopware\Api\Payment\Repository\PaymentMethodRepository"/>
         </service>
 
         <service class="Shopware\Storefront\Controller\SearchController" public="true" id="Shopware\Storefront\Controller\SearchController">

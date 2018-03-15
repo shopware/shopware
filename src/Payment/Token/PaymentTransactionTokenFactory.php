@@ -5,11 +5,13 @@ namespace Shopware\Payment\Token;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Ramsey\Uuid\Uuid;
+use Shopware\Api\Order\Struct\OrderTransactionBasicStruct;
 use Shopware\Framework\Util\Random;
 use Shopware\Payment\Exception\InvalidTokenException;
 use Shopware\Payment\Exception\TokenExpiredException;
+use Shopware\Payment\Struct\PaymentTransaction;
 
-class TokenFactory implements TokenFactoryInterface
+class PaymentTransactionTokenFactory implements PaymentTransactionTokenFactoryInterface
 {
     /**
      * @var Connection
@@ -21,25 +23,19 @@ class TokenFactory implements TokenFactoryInterface
         $this->connection = $connection;
     }
 
-    public function generateToken(
-        string $paymentMethodId,
-        string $transactionId,
-        \DateTime $expires = null,
-        int $length = 60): string
+    public function generateToken(OrderTransactionBasicStruct $transaction): string
     {
-        if (!$expires) {
-            $expires = (new \DateTime())->modify('+30 minutes');
-        }
+        $expires = (new \DateTime())->modify('+30 minutes');
 
-        $token = Random::getAlphanumericString($length);
+        $token = Random::getAlphanumericString(60);
 
         $this->connection->insert(
             'payment_token',
             [
                 'id' => Uuid::uuid4()->getBytes(),
                 'token' => $token,
-                'payment_method_id' => Uuid::fromString($paymentMethodId)->getBytes(),
-                'transaction_id' => Uuid::fromString($transactionId)->getBytes(),
+                'payment_method_id' => Uuid::fromString($transaction->getPaymentMethodId())->getBytes(),
+                'transaction_id' => Uuid::fromString($transaction->getId())->getBytes(),
                 'expires' => $expires->format('Y-m-d H:i:s'),
             ]
         );
@@ -51,15 +47,15 @@ class TokenFactory implements TokenFactoryInterface
      * @throws InvalidTokenException
      * @throws TokenExpiredException
      */
-    public function validateToken(string $tokenIdentifier): TokenStruct
+    public function validateToken(string $token): TokenStruct
     {
-        $row = $this->connection->fetchAssoc('SELECT * FROM payment_token WHERE token = ?', [$tokenIdentifier]);
+        $row = $this->connection->fetchAssoc('SELECT * FROM payment_token WHERE token = ?', [$token]);
 
         if (!$row) {
-            throw new InvalidTokenException($tokenIdentifier);
+            throw new InvalidTokenException($token);
         }
 
-        $token = new TokenStruct(
+        $tokenStruct = new TokenStruct(
             $row['id'],
             $row['token'],
             Uuid::fromBytes($row['payment_method_id'])->toString(),
@@ -67,11 +63,11 @@ class TokenFactory implements TokenFactoryInterface
             new \DateTime($row['expires'])
         );
 
-        if ($token->isExpired()) {
-            throw new TokenExpiredException($token->getToken());
+        if ($tokenStruct->isExpired()) {
+            throw new TokenExpiredException($tokenStruct->getToken());
         }
 
-        return $token;
+        return $tokenStruct;
     }
 
     /**

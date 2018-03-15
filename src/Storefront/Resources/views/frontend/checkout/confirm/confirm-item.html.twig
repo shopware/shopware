@@ -9,6 +9,6 @@
             </div>
         {% endblock %}
 
-        {{ lineItem.price.calculatedTaxes.amount|localizedcurrency(context.currency.shortName) }}
+        {{ calculatedLineItem.price.calculatedTaxes.amount|localizedcurrency(context.currency.shortName) }}
     </div>
 {% endblock %}

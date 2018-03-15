@@ -9,7 +9,7 @@ use Shopware\Payment\Struct\PaymentTransaction;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
-class PrePayment implements PaymentHandlerInterface
+class CashPayment implements PaymentHandlerInterface
 {
     /**
      * @var OrderTransactionRepository

@@ -10,7 +10,7 @@ use Shopware\Api\Order\Repository\OrderRepository;
 use Shopware\Api\Order\Repository\OrderTransactionRepository;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Defaults;
-use Shopware\Payment\Token\TokenFactory;
+use Shopware\Payment\Token\PaymentTransactionTokenFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class TokenFactoryTest extends KernelTestCase
@@ -21,7 +21,7 @@ class TokenFactoryTest extends KernelTestCase
 
     const COUNTRY_STATE_NRW = '9F834BAD88204D9896F31993624AC74C';
     /**
-     * @var TokenFactory
+     * @var PaymentTransactionTokenFactory
      */
     protected $tokenFactory;
 
@@ -60,7 +60,7 @@ class TokenFactoryTest extends KernelTestCase
         self::bootKernel();
         $this->container = self::$kernel->getContainer();
 
-        $this->tokenFactory = $this->container->get(TokenFactory::class);
+        $this->tokenFactory = $this->container->get(PaymentTransactionTokenFactory::class);
         $this->shopContext = ShopContext::createDefaultContext();
         $this->connection = $this->container->get(Connection::class);
 

@@ -28,8 +28,14 @@ class PaymentTransaction extends Struct
      */
     protected $returnUrl;
 
+    /**
+     * @var string
+     */
+    protected $paymentMethodId;
+
     public function __construct(
         string $transactionId,
+        string $paymentMethodId,
         OrderDetailStruct $order,
         CalculatedPrice $amount,
         string $returnUrl
@@ -38,6 +44,7 @@ class PaymentTransaction extends Struct
         $this->order = $order;
         $this->amount = $amount;
         $this->returnUrl = $returnUrl;
+        $this->paymentMethodId = $paymentMethodId;
     }
 
     /**
@@ -70,5 +77,10 @@ class PaymentTransaction extends Struct
     public function getReturnUrl(): string
     {
         return $this->returnUrl;
+    }
+
+    public function getPaymentMethodId(): string
+    {
+        return $this->paymentMethodId;
     }
 }

@@ -1,8 +1,6 @@
-<?php
-
+<?php declare(strict_types=1);
 
 namespace Shopware\Payment\Token;
-
 
 use Shopware\Framework\Struct\Struct;
 
@@ -40,7 +38,6 @@ class TokenStruct extends Struct
         string $transactionId,
         \DateTime $expires
     ) {
-
         $this->id = $id;
         $this->token = $token;
         $this->paymentMethodId = $paymentMethodId;
@@ -92,5 +89,4 @@ class TokenStruct extends Struct
     {
         return $this->expires < new \DateTime();
     }
-
 }

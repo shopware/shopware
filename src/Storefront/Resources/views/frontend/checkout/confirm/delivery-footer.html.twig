@@ -48,7 +48,7 @@
             <b>{% trans from 'frontend/checkout/cart_footer' %}CartFooterLabelShipping{% endtrans %}</b>
         </div>
         <div class="shipping-costs--content" style="width: 30%; float: left;">
-            {{ delivery.delivery.shippingCosts.totalPrice|localizedcurrency(context.currency.shortName) }}
+            {{ delivery.shippingCosts.totalPrice|localizedcurrency(context.currency.shortName) }}
         </div>
         <br style="clear: both;" />
     </div>

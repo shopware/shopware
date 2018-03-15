@@ -9,12 +9,16 @@ use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\Order\Repository\OrderRepository;
 use Shopware\Api\Order\Struct\OrderBasicStruct;
+use Shopware\Api\Payment\Repository\PaymentMethodRepository;
 use Shopware\CartBridge\Service\StoreFrontCartService;
+use Shopware\Context\Struct\ShopContext;
 use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Payment\Exception\InvalidOrderException;
 use Shopware\Payment\Exception\InvalidTransactionException;
 use Shopware\Payment\Exception\UnknownPaymentMethodException;
+use Shopware\Payment\PaymentHandler\PaymentHandlerInterface;
 use Shopware\Payment\PaymentProcessor;
+use Shopware\Payment\Token\PaymentTransactionTokenFactory;
 use Shopware\Storefront\Context\StorefrontContextService;
 use Shopware\Storefront\Page\Checkout\PaymentMethodLoader;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -43,16 +47,30 @@ class CheckoutController extends StorefrontController
      */
     private $paymentProcessor;
 
+    /**
+     * @var PaymentMethodRepository
+     */
+    private $paymentMethodRepository;
+
+    /**
+     * @var PaymentTransactionTokenFactory
+     */
+    private $tokenFactory;
+
     public function __construct(
         StoreFrontCartService $cartService,
         OrderRepository $orderRepository,
         PaymentMethodLoader $paymentMethodLoader,
-        PaymentProcessor $paymentProcessor
+        PaymentProcessor $paymentProcessor,
+        PaymentTransactionTokenFactory $tokenFactory,
+        PaymentMethodRepository $paymentMethodRepository
     ) {
         $this->cartService = $cartService;
         $this->orderRepository = $orderRepository;
         $this->paymentMethodLoader = $paymentMethodLoader;
         $this->paymentProcessor = $paymentProcessor;
+        $this->paymentMethodRepository = $paymentMethodRepository;
+        $this->tokenFactory = $tokenFactory;
     }
 
     /**
@@ -93,7 +111,7 @@ class CheckoutController extends StorefrontController
     {
         $paymentMethodId = (string) $request->request->get('paymentMethodId', '');
         if (!Uuid::isValid($paymentMethodId)) {
-            throw new UnknownPaymentMethodException(sprintf('Unknown payment method with with id %s'), $paymentMethodId);
+            throw new UnknownPaymentMethodException(sprintf('Unknown payment method with with id %s', $paymentMethodId));
         }
 
         $request->getSession()->set(StorefrontContextService::SESSION_PAYMENT_METHOD_ID, $paymentMethodId);
@@ -126,9 +144,14 @@ class CheckoutController extends StorefrontController
     /**
      * @Route("/checkout/pay", name="checkout_pay", options={"seo"="false"})
      *
-     * @throws UnknownPaymentMethodException
+     * @param Request $request
+     * @param StorefrontContext $context
+     *
+     * @return RedirectResponse
+     *
      * @throws InvalidOrderException
      * @throws InvalidTransactionException
+     * @throws UnknownPaymentMethodException
      */
     public function payAction(Request $request, StorefrontContext $context): RedirectResponse
     {
@@ -137,24 +160,51 @@ class CheckoutController extends StorefrontController
             return $this->redirectToRoute('account_login');
         }
 
-        if ($request->get('transaction') && Uuid::isValid($request->get('transaction'))) {
-            $orderId = $this->paymentProcessor->getOrderByTransactionId(
-                $request->get('transaction'),
-                $context->getCustomer()->getId(),
-                $shopContext
-            )->getId();
-        } else {
-            if ($this->cartService->getCalculatedCart()->getCalculatedLineItems()->count() === 0) {
-                return $this->redirectToRoute('checkout_cart');
-            }
-            $orderId = $this->cartService->order();
+        $transaction = $request->get('transaction');
+
+        //check if customer is inside transaction loop
+        if ($transaction && Uuid::isValid($transaction)) {
+            $orderId = $this->getOrderIdByTransactionId($transaction, $context);
+
+            return $this->processPayment($orderId, $shopContext);
         }
 
-        if ($redirect = $this->paymentProcessor->process($orderId, $shopContext)) {
-            return $redirect;
+        //customer is not inside transaction loop and tries to finish the order
+        if ($this->cartService->getCalculatedCart()->getCalculatedLineItems()->count() === 0) {
+            return $this->redirectToRoute('checkout_cart');
         }
 
-        return $this->redirectToRoute('checkout_finish', ['order' => $orderId]);
+        //save order and start transaction loop
+        $orderId = $this->cartService->order();
+
+        return $this->processPayment($orderId, $shopContext);
+    }
+
+
+    /**
+     * @Route("/checkout/finalize-transaction", name="checkout_finalize_transaction", options={"seo"="false"})
+     *
+     * @param Request $request
+     * @param StorefrontContext $context
+     *
+     * @return RedirectResponse
+     *
+     * @throws UnknownPaymentMethodException
+     * @throws \Doctrine\DBAL\Exception\InvalidArgumentException
+     * @throws \Shopware\Payment\Exception\InvalidTokenException
+     * @throws \Shopware\Payment\Exception\TokenExpiredException
+     */
+    public function finalizeTransactionAction(Request $request, StorefrontContext $context): RedirectResponse
+    {
+        $paymentToken = $this->tokenFactory->validateToken($request->get('token'));
+
+        $this->tokenFactory->invalidateToken($paymentToken->getToken());
+
+        $paymentHandler = $this->getPaymentHandlerById($paymentToken->getPaymentMethodId(), $context->getShopContext());
+
+        $paymentHandler->finalize($paymentToken->getTransactionId(), $request, $context->getShopContext());
+
+        return $this->redirectToRoute('checkout_pay', ['transaction' => $paymentToken->getTransactionId()]);
     }
 
     /**
@@ -176,9 +226,6 @@ class CheckoutController extends StorefrontController
         ]);
     }
 
-    /**
-     * @throws \Exception
-     */
     private function getOrder(string $orderId, StorefrontContext $context): OrderBasicStruct
     {
         $criteria = new Criteria();
@@ -192,5 +239,48 @@ class CheckoutController extends StorefrontController
         }
 
         return $searchResult->first();
+    }
+
+    private function getOrderIdByTransactionId(string $transactionId, StorefrontContext $context): string
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new TermQuery('order.customer.id', $context->getCustomer()->getId()));
+        $criteria->addFilter(new TermQuery('order.transactions.id', $transactionId));
+
+        $searchResult = $this->orderRepository->searchIds($criteria, $context->getShopContext());
+
+        if ($searchResult->getTotal() !== 1) {
+            throw new InvalidTransactionException($transactionId);
+        }
+
+        $ids = $searchResult->getIds();
+        return array_shift($ids);
+    }
+
+    private function processPayment(string $orderId, ShopContext $shopContext): RedirectResponse
+    {
+        $redirect = $this->paymentProcessor->process($orderId, $shopContext);
+
+        if ($redirect) {
+            return $redirect;
+        }
+
+        return $this->redirectToRoute('checkout_finish', ['order' => $orderId]);
+    }
+
+    private function getPaymentHandlerById(string $paymentMethodId, ShopContext $context): PaymentHandlerInterface
+    {
+        $paymentMethods = $this->paymentMethodRepository->readBasic([$paymentMethodId], $context);
+
+        $paymentMethod = $paymentMethods->get($paymentMethodId);
+        if (!$paymentMethod) {
+            throw new UnknownPaymentMethodException($paymentMethodId);
+        }
+
+        try {
+            return $this->container->get($paymentMethod->getClass());
+        } catch (NotFoundExceptionInterface $e) {
+            throw new UnknownPaymentMethodException($paymentMethod->getClass());
+        }
     }
 }

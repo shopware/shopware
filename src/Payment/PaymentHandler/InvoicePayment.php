@@ -3,10 +3,11 @@
 namespace Shopware\Payment\PaymentHandler;
 
 use Shopware\Api\Order\Repository\OrderTransactionRepository;
-use Shopware\Api\Order\Struct\OrderDetailStruct;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Defaults;
+use Shopware\Payment\Struct\PaymentTransaction;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class InvoicePayment implements PaymentHandlerInterface
 {
@@ -20,23 +21,18 @@ class InvoicePayment implements PaymentHandlerInterface
         $this->transactionRepository = $transactionRepository;
     }
 
-    public function payAction(
-        string $transactionId,
-        OrderDetailStruct $order,
-        float $amount,
-        string $finalizeUrl,
-        ShopContext $context): ?string
+    public function pay(PaymentTransaction $transaction, ShopContext $context): ?RedirectResponse
     {
-        $transaction = [
-            'id' => $transactionId,
+        $data = [
+            'id' => $transaction->getTransactionId(),
             'orderTransactionStateId' => Defaults::ORDER_TRANSACTION_COMPLETED,
         ];
-        $this->transactionRepository->update([$transaction], $context);
+        $this->transactionRepository->update([$data], $context);
 
         return null;
     }
 
-    public function finalizePaymentAction(string $transactionId, Request $request, ShopContext $context): void
+    public function finalize(string $transactionId, Request $request, ShopContext $context): void
     {
     }
 }

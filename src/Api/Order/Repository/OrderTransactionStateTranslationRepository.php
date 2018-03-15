@@ -9,7 +9,6 @@ use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntityAggregatorInterface;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
 use Shopware\Api\Entity\Search\IdSearchResult;
-use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Entity\Write\WriteContext;
 use Shopware\Api\Order\Collection\OrderTransactionStateTranslationBasicCollection;
@@ -20,6 +19,7 @@ use Shopware\Api\Order\Event\OrderTransactionStateTranslation\OrderTransactionSt
 use Shopware\Api\Order\Event\OrderTransactionStateTranslation\OrderTransactionStateTranslationSearchResultLoadedEvent;
 use Shopware\Api\Order\Struct\OrderTransactionStateTranslationSearchResult;
 use Shopware\Context\Struct\ShopContext;
+use Shopware\Version\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class OrderTransactionStateTranslationRepository implements RepositoryInterface
@@ -28,11 +28,6 @@ class OrderTransactionStateTranslationRepository implements RepositoryInterface
      * @var EntityReaderInterface
      */
     private $reader;
-
-    /**
-     * @var EntityWriterInterface
-     */
-    private $writer;
 
     /**
      * @var EntitySearcherInterface
@@ -49,19 +44,25 @@ class OrderTransactionStateTranslationRepository implements RepositoryInterface
      */
     private $eventDispatcher;
 
+    /**
+     * @var VersionManager
+     */
+    private $versionManager;
+
     public function __construct(
         EntityReaderInterface $reader,
-        EntityWriterInterface $writer,
+        VersionManager $versionManager,
         EntitySearcherInterface $searcher,
         EntityAggregatorInterface $aggregator,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->reader = $reader;
-        $this->writer = $writer;
         $this->searcher = $searcher;
         $this->aggregator = $aggregator;
         $this->eventDispatcher = $eventDispatcher;
+        $this->versionManager = $versionManager;
     }
+
 
     public function search(Criteria $criteria, ShopContext $context): OrderTransactionStateTranslationSearchResult
     {
@@ -120,7 +121,7 @@ class OrderTransactionStateTranslationRepository implements RepositoryInterface
 
     public function update(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->update(OrderTransactionStateTranslationDefinition::class, $data, WriteContext::createFromShopContext($context));
+        $affected = $this->versionManager->update(OrderTransactionStateTranslationDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
@@ -129,7 +130,7 @@ class OrderTransactionStateTranslationRepository implements RepositoryInterface
 
     public function upsert(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->upsert(OrderTransactionStateTranslationDefinition::class, $data, WriteContext::createFromShopContext($context));
+        $affected = $this->versionManager->upsert(OrderTransactionStateTranslationDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
@@ -138,7 +139,7 @@ class OrderTransactionStateTranslationRepository implements RepositoryInterface
 
     public function create(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->insert(OrderTransactionStateTranslationDefinition::class, $data, WriteContext::createFromShopContext($context));
+        $affected = $this->versionManager->insert(OrderTransactionStateTranslationDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
@@ -147,10 +148,20 @@ class OrderTransactionStateTranslationRepository implements RepositoryInterface
 
     public function delete(array $ids, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->writer->delete(OrderTransactionStateTranslationDefinition::class, $ids, WriteContext::createFromShopContext($context));
+        $affected = $this->versionManager->delete(OrderTransactionStateTranslationDefinition::class, $ids, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithDeletedEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
+    }
+
+    public function createVersion(string $id, ShopContext $context, ?string $name = null, ?string $versionId = null): string
+    {
+        return $this->versionManager->createVersion(OrderTransactionStateTranslationDefinition::class, $id, WriteContext::createFromShopContext($context), $name, $versionId);
+    }
+
+    public function merge(string $versionId, ShopContext $context): void
+    {
+        $this->versionManager->merge($versionId, WriteContext::createFromShopContext($context));
     }
 }

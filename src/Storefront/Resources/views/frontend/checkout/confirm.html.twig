@@ -512,7 +512,9 @@
                     {% block frontend_checkout_confirm_delivery_title %}
                         <h2>Lieferung {{ loop.index }}</h2>
 
-                        Wird geliefert zwischen dem <i>{{ delivery.delivery.deliveryDate.earliest.date|date('d.m.Y') }}</i> und dem <i>{{ delivery.delivery.deliveryDate.latest.date|date('d.m.Y') }}</i>
+                        {% set deliveryDate = delivery.deliveryDate %}
+
+                        Wird geliefert zwischen dem <i>{{ deliveryDate.earliest.date|date('d.m.Y') }}</i> und dem <i>{{ deliveryDate.latest.date|date('d.m.Y') }}</i>
                     {% endblock %}
 
                     {% block frontend_checkout_confirm_delivery_table %}

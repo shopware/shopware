@@ -26,7 +26,7 @@ namespace Shopware\Framework\Routing;
 
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerInterface;
-use Ramsey\Uuid\Uuid;
+use Shopware\Framework\Struct\Uuid;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Defaults;
 use Shopware\Kernel;
@@ -422,7 +422,14 @@ class Router implements RouterInterface, RequestMatcherInterface
     {
         $apiRoutes = $this->createApiRouteCollection();
 
-        if (Uuid::isValid(basename($path))) {
+        try {
+            $id = Uuid::fromHexToString(basename($path));
+            $valid = Uuid::isValid($id);
+        } catch (\Exception $e) {
+            $valid = false;
+        }
+
+        if ($valid) {
             $apiRoutes->remove('api_controller.list');
         } else {
             $apiRoutes->remove('api_controller.detail');

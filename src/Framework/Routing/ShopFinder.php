@@ -27,7 +27,7 @@ namespace Shopware\Framework\Routing;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Ramsey\Uuid\Exception\InvalidUuidStringException;
-use Ramsey\Uuid\Uuid;
+use Shopware\Framework\Struct\Uuid;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RequestContext;
 
@@ -142,7 +142,7 @@ class ShopFinder
         }
 
         try {
-            $id = Uuid::fromString($request->cookies->get('shop'))->getBytes();
+            $id = Uuid::fromStringToBytes($request->cookies->get('shop'));
         } catch (InvalidUuidStringException $e) {
             return null;
         }
@@ -179,7 +179,7 @@ class ShopFinder
         }
 
         try {
-            $id = Uuid::fromString($request->get('__shop'))->getBytes();
+            $id = Uuid::fromStringToBytes($request->get('__shop'));
         } catch (InvalidUuidStringException $e) {
             return null;
         }
@@ -198,25 +198,25 @@ class ShopFinder
 
     private function convertShop(array $shop): array
     {
-        $shop['id'] = Uuid::fromBytes($shop['id'])->toString();
+        $shop['id'] = Uuid::fromBytesToHex($shop['id']);
 
         if (isset($shop['parent_id'])) {
-            $shop['parent_id'] = Uuid::fromBytes($shop['parent_id'])->toString();
+            $shop['parent_id'] = Uuid::fromBytesToHex($shop['parent_id']);
         }
         if (isset($shop['category_id'])) {
-            $shop['category_id'] = Uuid::fromBytes($shop['category_id'])->toString();
+            $shop['category_id'] = Uuid::fromBytesToHex($shop['category_id']);
         }
         if (isset($shop['locale_id'])) {
-            $shop['locale_id'] = Uuid::fromBytes($shop['locale_id'])->toString();
+            $shop['locale_id'] = Uuid::fromBytesToHex($shop['locale_id']);
         }
         if (isset($shop['currency_id'])) {
-            $shop['currency_id'] = Uuid::fromBytes($shop['currency_id'])->toString();
+            $shop['currency_id'] = Uuid::fromBytesToHex($shop['currency_id']);
         }
         if (isset($shop['customer_group_id'])) {
-            $shop['customer_group_id'] = Uuid::fromBytes($shop['customer_group_id'])->toString();
+            $shop['customer_group_id'] = Uuid::fromBytesToHex($shop['customer_group_id']);
         }
         if (isset($shop['fallback_translation_id'])) {
-            $shop['fallback_translation_id'] = Uuid::fromBytes($shop['fallback_translation_id'])->toString();
+            $shop['fallback_translation_id'] = Uuid::fromBytesToHex($shop['fallback_translation_id']);
         }
 
         return $shop;

@@ -5,7 +5,7 @@ namespace Shopware\Translation;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use Psr\Log\LoggerInterface;
-use Ramsey\Uuid\Uuid;
+use Shopware\Framework\Struct\Uuid;
 use Shopware\Defaults;
 use Shopware\Translation\Event\ImportAdvanceEvent;
 use Shopware\Translation\Event\ImportFinishEvent;
@@ -79,8 +79,8 @@ class ImportService implements ImportServiceInterface
         $today = date('Y-m-d H:i:s');
 
         $this->connection->transactional(function () use ($content, $namespace, $today) {
-            $shopId = Uuid::fromString('FFA32A50-E2D0-4CF3-8389-A53F8D6CD594')->getBytes();
-            $shopVersionId = Uuid::fromString(Defaults::LIVE_VERSION)->getBytes();
+            $shopId = Uuid::fromStringToBytes('FFA32A50-E2D0-4CF3-8389-A53F8D6CD594');
+            $shopVersionId = Uuid::fromStringToBytes(Defaults::LIVE_VERSION);
 
             foreach ($content as $locale => $translations) {
                 foreach ($translations as $name => $value) {

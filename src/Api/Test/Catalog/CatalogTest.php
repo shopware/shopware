@@ -3,7 +3,7 @@
 namespace Shopware\Api\Test\Catalog;
 
 use Doctrine\DBAL\Connection;
-use Ramsey\Uuid\Uuid;
+use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Catalog\Repository\CatalogRepository;
 use Shopware\Api\Category\Repository\CategoryRepository;
 use Shopware\Api\Category\Struct\CategoryBasicStruct;
@@ -56,13 +56,13 @@ class CatalogTest extends KernelTestCase
     {
         $id = Uuid::uuid4();
         $context = ShopContext::createDefaultContext();
-        $category = ['id' => $id->toString(), 'name' => 'catalog test category'];
+        $category = ['id' => $id->getHex(), 'name' => 'catalog test category'];
 
         $this->categoryRepository->create([$category], $context);
 
         $catalogId = $this->connection->fetchColumn('SELECT catalog_id FROM category WHERE id = :id', ['id' => $id->getBytes()]);
 
-        $this->assertEquals(Defaults::CATALOG, Uuid::fromBytes($catalogId)->toString());
+        $this->assertEquals(Defaults::CATALOG, Uuid::fromBytesToHex($catalogId));
     }
 
     public function testWithCatalogProvided(): void
@@ -71,7 +71,7 @@ class CatalogTest extends KernelTestCase
         $context = ShopContext::createDefaultContext();
         $catalogId = $this->createCatalog($context);
         $category = [
-            'id' => $id->toString(),
+            'id' => $id->getHex(),
             'catalogId' => $catalogId,
             'name' => 'catalog test category',
         ];
@@ -80,7 +80,7 @@ class CatalogTest extends KernelTestCase
 
         $createdCatalogId = $this->connection->fetchColumn('SELECT catalog_id FROM category WHERE id = :id', ['id' => $id->getBytes()]);
 
-        $this->assertEquals($catalogId, Uuid::fromBytes($createdCatalogId)->toString());
+        $this->assertEquals($catalogId, Uuid::fromBytesToHex($createdCatalogId));
     }
 
     public function testReadWithEmptyCatalogContext(): void
@@ -98,7 +98,7 @@ class CatalogTest extends KernelTestCase
 
         $catalogId = $this->createCatalog($context);
         $category = [
-            'id' => $id->toString(),
+            'id' => $id->getHex(),
             'catalogId' => $catalogId,
             'name' => 'catalog test category',
         ];
@@ -107,10 +107,10 @@ class CatalogTest extends KernelTestCase
 
         // verify category has been created correctly
         $createdCategory = $this->connection->fetchAssoc('SELECT id, catalog_id FROM category WHERE id = :id', ['id' => $id->getBytes()]);
-        $this->assertEquals($id->toString(), Uuid::fromBytes($createdCategory['id'])->toString());
-        $this->assertEquals($catalogId, Uuid::fromBytes($createdCategory['catalog_id'])->toString());
+        $this->assertEquals($id->getHex(), Uuid::fromBytesToHex($createdCategory['id']));
+        $this->assertEquals($catalogId, Uuid::fromBytesToHex($createdCategory['catalog_id']));
 
-        $categories = $this->categoryRepository->readBasic([$id->toString()], $context);
+        $categories = $this->categoryRepository->readBasic([$id->getHex()], $context);
         $this->assertEquals(0, $categories->count(), 'Category could be fetched but should not.');
     }
 
@@ -120,7 +120,7 @@ class CatalogTest extends KernelTestCase
         $context = ShopContext::createDefaultContext();
         $catalogId = $this->createCatalog($context);
         $category = [
-            'id' => $id->toString(),
+            'id' => $id->getHex(),
             'catalogId' => $catalogId,
             'name' => 'catalog test category',
         ];
@@ -129,10 +129,10 @@ class CatalogTest extends KernelTestCase
 
         // verify category has been created correctly
         $createdCategory = $this->connection->fetchAssoc('SELECT id, catalog_id FROM category WHERE id = :id', ['id' => $id->getBytes()]);
-        $this->assertEquals($id->toString(), Uuid::fromBytes($createdCategory['id'])->toString());
-        $this->assertEquals($catalogId, Uuid::fromBytes($createdCategory['catalog_id'])->toString());
+        $this->assertEquals($id->getHex(), Uuid::fromBytesToHex($createdCategory['id']));
+        $this->assertEquals($catalogId, Uuid::fromBytesToHex($createdCategory['catalog_id']));
 
-        $categories = $this->categoryRepository->readBasic([$id->toString()], $context);
+        $categories = $this->categoryRepository->readBasic([$id->getHex()], $context);
         $this->assertEquals(0, $categories->count(), 'Category could be fetched but should not.');
     }
 
@@ -151,7 +151,7 @@ class CatalogTest extends KernelTestCase
         );
 
         $category = [
-            'id' => $id->toString(),
+            'id' => $id->getHex(),
             'catalogId' => $catalogId,
             'name' => 'catalog test category',
         ];
@@ -160,10 +160,10 @@ class CatalogTest extends KernelTestCase
 
         // verify category has been created correctly
         $createdCategory = $this->connection->fetchAssoc('SELECT id, catalog_id FROM category WHERE id = :id', ['id' => $id->getBytes()]);
-        $this->assertEquals($id->toString(), Uuid::fromBytes($createdCategory['id'])->toString());
-        $this->assertEquals($catalogId, Uuid::fromBytes($createdCategory['catalog_id'])->toString());
+        $this->assertEquals($id->getHex(), Uuid::fromBytesToHex($createdCategory['id']));
+        $this->assertEquals($catalogId, Uuid::fromBytesToHex($createdCategory['catalog_id']));
 
-        $categories = $this->categoryRepository->readBasic([$id->toString()], $context);
+        $categories = $this->categoryRepository->readBasic([$id->getHex()], $context);
         $this->assertEquals(1, $categories->count(), 'Category was not fetched but should be.');
     }
 
@@ -178,9 +178,9 @@ class CatalogTest extends KernelTestCase
         $catalogId2 = $this->createCatalog($context);
 
         $categories = [
-            ['id' => $id1->toString(), 'catalogId' => $catalogId1, 'name' => 'test category catalog1'],
-            ['id' => $id2->toString(), 'catalogId' => $catalogId2, 'name' => 'test category catalog2'],
-            ['id' => $id3->toString(), 'name' => 'test category default catalog'],
+            ['id' => $id1->getHex(), 'catalogId' => $catalogId1, 'name' => 'test category catalog1'],
+            ['id' => $id2->getHex(), 'catalogId' => $catalogId2, 'name' => 'test category catalog2'],
+            ['id' => $id3->getHex(), 'name' => 'test category default catalog'],
         ];
 
         $this->categoryRepository->create($categories, $context);
@@ -227,21 +227,21 @@ class CatalogTest extends KernelTestCase
         );
 
         $category = [
-            'id' => $parentId->toString(),
+            'id' => $parentId->getHex(),
             'catalogId' => $catalogId,
             'name' => 'parent category',
             'children' => [
                 [
-                    'id' => $id->toString(),
+                    'id' => $id->getHex(),
                     'catalogId' => $catalogId,
                     'name' => 'catalog test category',
-                    'parentId' => $parentId->toString(),
+                    'parentId' => $parentId->getHex(),
                 ],
                 [
-                    'id' => $id2->toString(),
+                    'id' => $id2->getHex(),
                     'catalogId' => $catalogId,
                     'name' => 'catalog second category',
-                    'parentId' => $parentId->toString(),
+                    'parentId' => $parentId->getHex(),
                 ],
             ],
         ];
@@ -261,17 +261,17 @@ class CatalogTest extends KernelTestCase
         $this->assertContains($ids[0], $foundIds);
         $this->assertContains($ids[1], $foundIds);
         $this->assertContains($ids[2], $foundIds);
-        $this->assertEquals(Uuid::fromString($catalogId)->getBytes(), array_unique(array_column($createdCategory, 'catalog_id'))[0]);
+        $this->assertEquals(Uuid::fromStringToBytes($catalogId), array_unique(array_column($createdCategory, 'catalog_id'))[0]);
 
-        $categories = $this->categoryRepository->readDetail([$parentId->toString()], $context);
+        $categories = $this->categoryRepository->readDetail([$parentId->getHex()], $context);
 
         $this->assertEquals(1, $categories->count(), 'Category was not fetched but should be.');
         $this->assertEquals(2, $categories->first()->getChildren()->count());
 
         $this->assertEquals(
             [
-                $id->toString() => $id->toString(),
-                $id2->toString() => $id2->toString(),
+                $id->getHex() => $id->getHex(),
+                $id2->getHex() => $id2->getHex(),
             ],
             $categories->first()->getChildren()->map(function (CategoryBasicStruct $category) {
                 return $category->getId();
@@ -297,25 +297,25 @@ class CatalogTest extends KernelTestCase
         );
 
         $category = [
-            'id' => $categoryId->toString(),
+            'id' => $categoryId->getHex(),
             'catalogId' => $catalogId,
             'name' => 'manytomany category',
             'products' => [
                 [
-                    'id' => $productId1->toString(),
+                    'id' => $productId1->getHex(),
                     'catalogId' => $catalogId,
                     'name' => 'product catalog 1',
                     'price' => ['gross' => 10, 'net' => 10],
-                    'manufacturer' => ['id' => $manufacturerId->toString(), 'name' => 'catalog manufacturer'],
-                    'tax' => ['id' => $taxId->toString(), 'name' => '10%', 'rate' => 10],
+                    'manufacturer' => ['id' => $manufacturerId->getHex(), 'name' => 'catalog manufacturer'],
+                    'tax' => ['id' => $taxId->getHex(), 'name' => '10%', 'rate' => 10],
                 ],
                 [
-                    'id' => $productId2->toString(),
+                    'id' => $productId2->getHex(),
                     'catalogId' => $catalogId,
                     'name' => 'product catalog 2',
                     'price' => ['gross' => 20, 'net' => 20],
-                    'manufacturer' => ['id' => $manufacturerId->toString(), 'name' => 'catalog manufacturer'],
-                    'tax' => ['id' => $taxId->toString(), 'name' => '10%', 'rate' => 10],
+                    'manufacturer' => ['id' => $manufacturerId->getHex(), 'name' => 'catalog manufacturer'],
+                    'tax' => ['id' => $taxId->getHex(), 'name' => '10%', 'rate' => 10],
                 ],
             ],
         ];
@@ -325,7 +325,7 @@ class CatalogTest extends KernelTestCase
         // verify category has been created correctly
         $createdCategory = $this->connection->fetchAssoc('SELECT id, catalog_id FROM category WHERE id = :id', ['id' => $categoryId->getBytes()]);
         $this->assertEquals($categoryId->getBytes(), $createdCategory['id']);
-        $this->assertEquals(Uuid::fromString($catalogId)->getBytes(), $createdCategory['catalog_id']);
+        $this->assertEquals(Uuid::fromStringToBytes($catalogId), $createdCategory['catalog_id']);
 
         // verify product mapping has been created correctly
         $products = $this->connection->fetchAll('SELECT product_id, category_id FROM product_category WHERE category_id = :id', ['id' => $categoryId->getBytes()]);
@@ -334,12 +334,12 @@ class CatalogTest extends KernelTestCase
         $this->assertContains($productId2->getBytes(), array_column($products, 'product_id'));
 
         // should work with context used to create the entities
-        $products = $this->productRepository->readBasic([$productId1->toString(), $productId2->toString()], $context);
+        $products = $this->productRepository->readBasic([$productId1->getHex(), $productId2->getHex()], $context);
         $this->assertEquals(2, $products->count(), 'Products were not fetched correctly');
 
         // should not work as catalog differs from the default
         $context = ShopContext::createDefaultContext();
-        $products = $this->productRepository->readBasic([$productId1->toString(), $productId2->toString()], $context);
+        $products = $this->productRepository->readBasic([$productId1->getHex(), $productId2->getHex()], $context);
         $this->assertEquals(0, $products->count(), 'Products should not be fetched');
     }
 
@@ -362,25 +362,25 @@ class CatalogTest extends KernelTestCase
         );
 
         $category = [
-            'id' => $categoryId->toString(),
+            'id' => $categoryId->getHex(),
             'catalogId' => $catalogId,
             'name' => 'manytomany category',
             'products' => [
                 [
-                    'id' => $productId1->toString(),
+                    'id' => $productId1->getHex(),
                     'catalogId' => $catalogId,
                     'name' => 'product catalog 1',
                     'price' => ['gross' => 10, 'net' => 10],
-                    'manufacturer' => ['id' => $manufacturerId->toString(), 'name' => 'catalog manufacturer'],
-                    'tax' => ['id' => $taxId->toString(), 'name' => '10%', 'rate' => 10],
+                    'manufacturer' => ['id' => $manufacturerId->getHex(), 'name' => 'catalog manufacturer'],
+                    'tax' => ['id' => $taxId->getHex(), 'name' => '10%', 'rate' => 10],
                 ],
                 [
-                    'id' => $productId2->toString(),
+                    'id' => $productId2->getHex(),
                     'catalogId' => $catalogId,
                     'name' => 'product catalog 2',
                     'price' => ['gross' => 10, 'net' => 10],
-                    'manufacturer' => ['id' => $manufacturerId->toString(), 'name' => 'catalog manufacturer'],
-                    'tax' => ['id' => $taxId->toString(), 'name' => '10%', 'rate' => 10],
+                    'manufacturer' => ['id' => $manufacturerId->getHex(), 'name' => 'catalog manufacturer'],
+                    'tax' => ['id' => $taxId->getHex(), 'name' => '10%', 'rate' => 10],
                 ],
             ],
         ];
@@ -390,7 +390,7 @@ class CatalogTest extends KernelTestCase
         // verify category has been created correctly
         $createdCategory = $this->connection->fetchAssoc('SELECT id, catalog_id FROM category WHERE id = :id', ['id' => $categoryId->getBytes()]);
         $this->assertEquals($categoryId->getBytes(), $createdCategory['id']);
-        $this->assertEquals(Uuid::fromString($catalogId)->getBytes(), $createdCategory['catalog_id']);
+        $this->assertEquals(Uuid::fromStringToBytes($catalogId), $createdCategory['catalog_id']);
 
         // verify product mapping has been created correctly
         $products = $this->connection->fetchAll('SELECT product_id, category_id FROM product_category WHERE category_id = :id', ['id' => $categoryId->getBytes()]);
@@ -400,7 +400,7 @@ class CatalogTest extends KernelTestCase
 
         // should work with context used to create the entities
         $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('product.categories.id', $categoryId->toString()));
+        $criteria->addFilter(new TermQuery('product.categories.id', $categoryId->getHex()));
 
         $products = $this->productRepository->search($criteria, $context);
         $this->assertEquals(2, $products->count(), 'Products were not fetched correctly');
@@ -414,9 +414,9 @@ class CatalogTest extends KernelTestCase
     private function createCatalog(ShopContext $context): string
     {
         $catalogId = Uuid::uuid4();
-        $catalog = ['id' => $catalogId->toString(), 'name' => 'unit test catalog'];
+        $catalog = ['id' => $catalogId->getHex(), 'name' => 'unit test catalog'];
         $this->catalogRepository->create([$catalog], $context);
 
-        return $catalogId->toString();
+        return $catalogId->getHex();
     }
 }

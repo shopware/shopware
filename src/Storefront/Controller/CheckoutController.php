@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Ramsey\Uuid\Uuid;
+use Shopware\Framework\Struct\Uuid;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Api\Entity\Search\Criteria;

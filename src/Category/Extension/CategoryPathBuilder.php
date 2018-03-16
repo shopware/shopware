@@ -3,7 +3,7 @@
 namespace Shopware\Category\Extension;
 
 use Doctrine\DBAL\Connection;
-use Ramsey\Uuid\Uuid;
+use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Category\Collection\CategoryBasicCollection;
 use Shopware\Api\Category\Event\Category\CategoryWrittenEvent;
 use Shopware\Api\Category\Repository\CategoryRepository;
@@ -64,7 +64,7 @@ class CategoryPathBuilder implements EventSubscriberInterface
 
     public function update(string $parentId, ShopContext $context): void
     {
-        $version = Uuid::fromString($context->getVersionId())->getBytes();
+        $version = Uuid::fromStringToBytes($context->getVersionId());
 
         $this->connection->executeUpdate(
             'UPDATE category SET path = NULL WHERE version_id = :version',
@@ -109,7 +109,7 @@ class CategoryPathBuilder implements EventSubscriberInterface
         $pathUpdate = $this->connection->prepare('UPDATE category SET path = :path, level = :level WHERE id = :id AND version_id = :version');
         $nameUpdate = $this->connection->prepare('UPDATE category_translation SET path_names = :names WHERE category_id = :id AND version_id = :version');
 
-        $version = Uuid::fromString($context->getVersionId())->getBytes();
+        $version = Uuid::fromStringToBytes($context->getVersionId());
 
         /** @var CategoryBasicStruct $category */
         foreach ($categories as $category) {
@@ -129,7 +129,7 @@ class CategoryPathBuilder implements EventSubscriberInterface
             );
             $names = implode('|', array_filter($names));
 
-            $id = Uuid::fromString($category->getId())->getBytes();
+            $id = Uuid::fromStringToBytes($category->getId());
 
             $pathUpdate->execute([
                 'path' => '|' . $idPath . '|',
@@ -174,7 +174,7 @@ class CategoryPathBuilder implements EventSubscriberInterface
         $query->andWhere('category.id IN (:ids)');
         $query->andWhere('category.version_id = :version');
 
-        $query->setParameter('version', Uuid::fromString($context->getVersionId())->getBytes());
+        $query->setParameter('version', Uuid::fromStringToBytes($context->getVersionId()));
         $query->setParameter('ids', $ids, Connection::PARAM_STR_ARRAY);
 
         $parents = $query->execute()->fetchAll(\PDO::FETCH_COLUMN);
@@ -182,7 +182,7 @@ class CategoryPathBuilder implements EventSubscriberInterface
         $parents = array_filter($parents);
 
         return array_map(function (string $id) {
-            return Uuid::fromBytes($id)->toString();
+            return Uuid::fromBytesToHex($id);
         }, $parents);
     }
 }

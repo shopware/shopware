@@ -3,7 +3,7 @@
 namespace Shopware\Api\Entity\Dbal;
 
 use Doctrine\DBAL\Connection;
-use Ramsey\Uuid\Uuid;
+use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Field\AssociationInterface;
 use Shopware\Api\Entity\Field\Field;
@@ -153,12 +153,12 @@ class EntityDefinitionQueryHelper
             self::joinVersion($query, $definition, $definition::getEntityName(), $context);
         } elseif ($definition::isVersionAware()) {
             $query->andWhere(self::escape($table) . '.`version_id` = :version');
-            $query->setParameter('version', Uuid::fromString($context->getVersionId())->getBytes());
+            $query->setParameter('version', Uuid::fromStringToBytes($context->getVersionId()));
         }
 
         if ($definition::isCatalogAware()) {
             $catalogIds = array_map(function (string $catalogId) {
-                return Uuid::fromString($catalogId)->getBytes();
+                return Uuid::fromStringToBytes($catalogId);
             }, $context->getCatalogIds());
 
             $query->andWhere(self::escape($table) . '.`catalog_id` IN (:catalogIds)');
@@ -502,7 +502,7 @@ class EntityDefinitionQueryHelper
     public static function uuidStringsToBytes(array $ids)
     {
         return array_map(function (string $id) {
-            return Uuid::fromString($id)->getBytes();
+            return Uuid::fromStringToBytes($id);
         }, $ids);
     }
 
@@ -521,8 +521,8 @@ class EntityDefinitionQueryHelper
         $versionQuery->leftJoin('live', self::escape($table), 'draft', 'draft.id = live.id AND draft.version_id = :version');
         $versionQuery->andWhere('live.version_id = :liveVersion');
 
-        $query->setParameter('liveVersion', Uuid::fromString(Defaults::LIVE_VERSION)->getBytes());
-        $query->setParameter('version', Uuid::fromString($context->getVersionId())->getBytes());
+        $query->setParameter('liveVersion', Uuid::fromStringToBytes(Defaults::LIVE_VERSION));
+        $query->setParameter('version', Uuid::fromStringToBytes($context->getVersionId()));
 
         $versionRoot = $root . '_version';
 
@@ -550,7 +550,7 @@ class EntityDefinitionQueryHelper
         /** @var EntityDefinition $definition */
         $table = $definition::getEntityName() . '_translation';
 
-        $languageId = Uuid::fromString($context->getLanguageId())->getBytes();
+        $languageId = Uuid::fromStringToBytes($context->getLanguageId());
         $query->setParameter('languageId', $languageId);
 
         $versionJoin = '';
@@ -593,7 +593,7 @@ class EntityDefinitionQueryHelper
                 '#alias#.#entity#_id = #root#.id AND #alias#.language_id = :fallbackLanguageId' . $versionJoin
             )
         );
-        $languageId = Uuid::fromString($context->getFallbackLanguageId())->getBytes();
+        $languageId = Uuid::fromStringToBytes($context->getFallbackLanguageId());
         $query->setParameter('fallbackLanguageId', $languageId);
     }
 

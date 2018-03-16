@@ -3,7 +3,7 @@
 namespace Shopware\DbalIndexing\Product;
 
 use Doctrine\DBAL\Connection;
-use Ramsey\Uuid\Uuid;
+use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Product\Definition\ProductCategoryDefinition;
 use Shopware\Api\Product\Definition\ProductDefinition;
@@ -26,7 +26,7 @@ class InheritanceJoinIdUpdater
 
     public function update(array $ids, ShopContext $context)
     {
-        $version = Uuid::fromString($context->getVersionId())->getBytes();
+        $version = Uuid::fromStringToBytes($context->getVersionId());
 
         if (empty($ids)) {
             $this->updateAllJoinIds($version);
@@ -65,10 +65,10 @@ class InheritanceJoinIdUpdater
 
     private function mediaWritten(array $mediaIds, ShopContext $context)
     {
-        $version = Uuid::fromString($context->getVersionId())->getBytes();
+        $version = Uuid::fromStringToBytes($context->getVersionId());
 
         $bytes = array_map(function ($id) {
-            return Uuid::fromString($id)->getBytes();
+            return Uuid::fromStringToBytes($id);
         }, $mediaIds);
 
         $this->connection->executeUpdate('
@@ -162,7 +162,7 @@ class InheritanceJoinIdUpdater
     private function updatePartialJoinIds(array $ids, $version): void
     {
         $bytes = array_map(function ($id) {
-            return Uuid::fromString($id)->getBytes();
+            return Uuid::fromStringToBytes($id);
         }, $ids);
 
         $this->connection->executeUpdate(

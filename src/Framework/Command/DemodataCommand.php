@@ -5,7 +5,7 @@ namespace Shopware\Framework\Command;
 use Bezhanov\Faker\Provider\Commerce;
 use Faker\Factory;
 use Faker\Generator;
-use Ramsey\Uuid\Uuid;
+use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Category\Definition\CategoryDefinition;
 use Shopware\Api\Context\Definition\ContextRuleDefinition;
 use Shopware\Api\Customer\Definition\CustomerDefinition;
@@ -298,14 +298,14 @@ class DemodataCommand extends ContainerAwareCommand
     {
         $payload = [
             [
-                'id' => Uuid::uuid4()->toString(),
+                'id' => Uuid::uuid4()->getHex(),
                 'name' => 'High cart value',
                 'payload' => new AndRule([
                     new OrderAmountRule(5000, OrderAmountRule::OPERATOR_GTE),
                 ]),
             ],
             [
-                'id' => Uuid::uuid4()->toString(),
+                'id' => Uuid::uuid4()->getHex(),
                 'name' => 'Other currency',
                 'payload' => new NotRule([
                     new CurrencyRule([Defaults::CURRENCY]),

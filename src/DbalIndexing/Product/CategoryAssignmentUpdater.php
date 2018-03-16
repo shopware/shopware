@@ -3,7 +3,7 @@
 namespace Shopware\DbalIndexing\Product;
 
 use Doctrine\DBAL\Connection;
-use Ramsey\Uuid\Uuid;
+use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Entity\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Defaults;
@@ -30,12 +30,7 @@ class CategoryAssignmentUpdater
 
         foreach ($categories as $productId => $mapping) {
             $categoryIds = array_filter(explode('||', (string) $mapping['ids']));
-            $categoryIds = array_map(
-                function (string $bytes) {
-                    return Uuid::fromString($bytes)->toString();
-                },
-                $categoryIds
-            );
+            $categoryIds = array_map('strtolower', $categoryIds);
 
             $categoryIds = array_merge(
                 explode('|', (string) $mapping['paths']),
@@ -55,7 +50,7 @@ class CategoryAssignmentUpdater
                 [
                     'id' => $productId,
                     'tree' => $categoryIds,
-                    'version' => Uuid::fromString($context->getVersionId())->getBytes(),
+                    'version' => Uuid::fromStringToBytes($context->getVersionId())
                 ]
             );
         }
@@ -77,8 +72,8 @@ class CategoryAssignmentUpdater
         $query->andWhere('product.id IN (:ids)');
         $query->andWhere('product.version_id = :version');
 
-        $query->setParameter('version', Uuid::fromString($context->getVersionId())->getBytes());
-        $query->setParameter('live', Uuid::fromString(Defaults::LIVE_VERSION)->getBytes());
+        $query->setParameter('version', Uuid::fromStringToBytes($context->getVersionId()));
+        $query->setParameter('live', Uuid::fromStringToBytes(Defaults::LIVE_VERSION));
 
         $bytes = EntityDefinitionQueryHelper::uuidStringsToBytes($ids);
 

@@ -24,7 +24,7 @@
 
 namespace Shopware\Api\Entity\Field;
 
-use Ramsey\Uuid\Uuid;
+use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Entity\Write\DataStack\KeyValuePair;
 use Shopware\Api\Entity\Write\EntityExistence;
 use Shopware\Api\Entity\Write\FieldException\InvalidFieldException;
@@ -71,7 +71,7 @@ class ParentField extends FkField
             return;
         }
 
-        yield $this->storageName => Uuid::fromString($value)->getBytes();
+        yield $this->storageName => Uuid::fromStringToBytes($value);
     }
 
     public function getStorageName(): string

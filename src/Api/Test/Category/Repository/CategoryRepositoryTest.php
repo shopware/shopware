@@ -3,7 +3,7 @@
 namespace Shopware\Api\Test\Category\Repository;
 
 use Doctrine\DBAL\Connection;
-use Ramsey\Uuid\Uuid;
+use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Category\Definition\CategoryDefinition;
 use Shopware\Api\Category\Event\Category\CategoryDeletedEvent;
 use Shopware\Api\Category\Repository\CategoryRepository;
@@ -63,8 +63,8 @@ class CategoryRepositoryTest extends KernelTestCase
         $childId = Uuid::uuid4();
 
         $this->repository->create([
-            ['id' => $parentId->toString(), 'name' => 'parent-1'],
-            ['id' => $childId->toString(), 'name' => 'child', 'parentId' => $parentId->toString()],
+            ['id' => $parentId->getHex(), 'name' => 'parent-1'],
+            ['id' => $childId->getHex(), 'name' => 'child', 'parentId' => $parentId->getHex()],
         ], ShopContext::createDefaultContext());
 
         $exists = $this->connection->fetchAll(
@@ -85,7 +85,7 @@ class CategoryRepositoryTest extends KernelTestCase
         $this->assertEquals($parentId->getBytes(), $child['parent_id']);
 
         $result = $this->repository->delete(
-            [['id' => $parentId->toString()]],
+            [['id' => $parentId->getHex()]],
             ShopContext::createDefaultContext()
         );
 
@@ -96,7 +96,7 @@ class CategoryRepositoryTest extends KernelTestCase
         $this->assertInstanceOf(CategoryDeletedEvent::class, $event);
 
         $this->assertEquals(
-            [$parentId->toString(), $childId->toString()],
+            [$parentId->getHex(), $childId->getHex()],
             $event->getIds()
         );
 
@@ -115,8 +115,8 @@ class CategoryRepositoryTest extends KernelTestCase
         $childId = Uuid::uuid4();
 
         $this->repository->create([
-            ['id' => $parentId->toString(), 'name' => 'parent-1'],
-            ['id' => $childId->toString(), 'name' => 'child', 'parentId' => $parentId->toString()],
+            ['id' => $parentId->getHex(), 'name' => 'parent-1'],
+            ['id' => $childId->getHex(), 'name' => 'child', 'parentId' => $parentId->getHex()],
         ], ShopContext::createDefaultContext());
 
         $exists = $this->connection->fetchAll(
@@ -135,7 +135,7 @@ class CategoryRepositoryTest extends KernelTestCase
         $this->assertEquals($parentId->getBytes(), $child['parent_id']);
 
         $result = $this->repository->delete(
-            [['id' => $childId->toString()]],
+            [['id' => $childId->getHex()]],
             ShopContext::createDefaultContext()
         );
 
@@ -143,7 +143,7 @@ class CategoryRepositoryTest extends KernelTestCase
         $event = $result->getEventByDefinition(CategoryDefinition::class);
 
         $this->assertInstanceOf(CategoryDeletedEvent::class, $event);
-        $this->assertEquals([$childId->toString()], $event->getIds());
+        $this->assertEquals([$childId->getHex()], $event->getIds());
 
         $exists = $this->connection->fetchAll(
             'SELECT * FROM category WHERE id IN (:ids)',
@@ -166,8 +166,8 @@ class CategoryRepositoryTest extends KernelTestCase
         $childId = Uuid::uuid4();
 
         $this->repository->create([
-            ['id' => $parentId->toString(), 'name' => 'parent-1'],
-            ['id' => $childId->toString(), 'name' => 'child', 'parentId' => $parentId->toString()],
+            ['id' => $parentId->getHex(), 'name' => 'parent-1'],
+            ['id' => $childId->getHex(), 'name' => 'child', 'parentId' => $parentId->getHex()],
         ], ShopContext::createDefaultContext());
 
         $exists = $this->connection->fetchAll(
@@ -188,7 +188,7 @@ class CategoryRepositoryTest extends KernelTestCase
         $this->assertEquals($parentId->getBytes(), $child['parent_id']);
 
         $result = $this->repository->delete([
-            ['id' => $parentId->toString()],
+            ['id' => $parentId->getHex()],
         ], ShopContext::createDefaultContext());
 
         $this->assertInstanceOf(GenericWrittenEvent::class, $result);
@@ -196,8 +196,8 @@ class CategoryRepositoryTest extends KernelTestCase
         $event = $result->getEventByDefinition(CategoryDefinition::class);
         $this->assertInstanceOf(CategoryDeletedEvent::class, $event);
 
-        $this->assertContains($parentId->toString(), $event->getIds());
-        $this->assertContains($childId->toString(), $event->getIds(), 'Category children id did not detected by delete');
+        $this->assertContains($parentId->getHex(), $event->getIds());
+        $this->assertContains($childId->getHex(), $event->getIds(), 'Category children id did not detected by delete');
     }
 
     public function testICanNotDeleteShopCategory()
@@ -206,24 +206,24 @@ class CategoryRepositoryTest extends KernelTestCase
         $shopId = Uuid::uuid4();
 
         $this->repository->create(
-            [['id' => $categoryId->toString(), 'name' => 'System']],
+            [['id' => $categoryId->getHex(), 'name' => 'System']],
             ShopContext::createDefaultContext()
         );
 
         $this->container->get(EntityWriter::class)->insert(
             ShopTemplateDefinition::class,
-            [['id' => $shopId->toString(), 'catalogId' => Defaults::CATALOG, 'template' => 'Test', 'name' => 'test']],
+            [['id' => $shopId->getHex(), 'catalogId' => Defaults::CATALOG, 'template' => 'Test', 'name' => 'test']],
             TestWriteContext::create()
         );
 
         $shopRepo = $this->container->get(ShopRepository::class);
         $shopRepo->create([
             [
-                'id' => $shopId->toString(),
+                'id' => $shopId->getHex(),
                 'catalogIds' => [Defaults::CATALOG],
-                'categoryId' => $categoryId->toString(),
-                'templateId' => $shopId->toString(),
-                'documentTemplateId' => $shopId->toString(),
+                'categoryId' => $categoryId->getHex(),
+                'templateId' => $shopId->getHex(),
+                'documentTemplateId' => $shopId->getHex(),
                 'localeId' => '7b52d9dd-2b06-40ec-90be-9f57edf29be7',
                 'currencyId' => '4c8eba11-bd35-46d7-86af-bed481a6e665',
                 'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
@@ -240,7 +240,7 @@ class CategoryRepositoryTest extends KernelTestCase
 
         try {
             $this->repository->delete(
-                [['id' => $categoryId->toString()]],
+                [['id' => $categoryId->getHex()]],
                 ShopContext::createDefaultContext()
             );
         } catch (RestrictDeleteViolationException $e) {
@@ -248,11 +248,11 @@ class CategoryRepositoryTest extends KernelTestCase
             /** @var RestrictDeleteViolation $restriction */
             $restriction = array_shift($restrictions);
 
-            $this->assertEquals($categoryId->toString(), $restriction->getId());
+            $this->assertEquals($categoryId->getHex(), $restriction->getId());
 
             $this->assertArrayHasKey(ShopDefinition::class, $restriction->getRestrictions());
             $this->assertEquals(
-                [$shopId->toString()],
+                [$shopId->getHex()],
                 $restriction->getRestrictions()[ShopDefinition::class]
             );
         }
@@ -260,9 +260,9 @@ class CategoryRepositoryTest extends KernelTestCase
 
     public function testSearchRanking()
     {
-        $parent = Uuid::uuid4()->toString();
-        $recordA = Uuid::uuid4()->toString();
-        $recordB = Uuid::uuid4()->toString();
+        $parent = Uuid::uuid4()->getHex();
+        $recordA = Uuid::uuid4()->getHex();
+        $recordB = Uuid::uuid4()->getHex();
 
         $categories = [
             ['id' => $parent, 'name' => 'test'],

@@ -26,7 +26,7 @@ declare(strict_types=1);
 namespace Shopware\Framework\Config;
 
 use Doctrine\DBAL\Connection;
-use Ramsey\Uuid\Uuid;
+use Shopware\Framework\Struct\Uuid;
 use Symfony\Component\HttpKernel\CacheWarmer\CacheWarmerInterface;
 
 class CacheWarmer implements CacheWarmerInterface
@@ -61,7 +61,7 @@ class CacheWarmer implements CacheWarmerInterface
 
         foreach ($shops as $shop) {
             $this->configService->getByShop(
-                Uuid::fromBytes($shop['id'])->toString(),
+                Uuid::fromBytesToHex($shop['id']),
                 null
             );
         }

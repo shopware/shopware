@@ -24,7 +24,7 @@
 
 namespace Shopware\CartBridge\Order;
 
-use Ramsey\Uuid\Uuid;
+use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Customer\Struct\CustomerAddressBasicStruct;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Order\Repository\OrderRepository;
@@ -69,7 +69,7 @@ class OrderPersister implements OrderPersisterInterface
 
     private function convert(CalculatedCart $calculatedCart, StorefrontContext $context): array
     {
-        $addressId = Uuid::uuid4()->toString();
+        $addressId = Uuid::uuid4()->getHex();
         if (!$context->getCustomer()) {
             throw new NotLoggedInCustomerException();
         }
@@ -89,7 +89,7 @@ class OrderPersister implements OrderPersisterInterface
         }
 
         $data = [
-            'id' => Uuid::uuid4()->toString(),
+            'id' => Uuid::uuid4()->getHex(),
             'date' => (new \DateTime())->format('Y-m-d H:i:s'),
             'amountTotal' => $calculatedCart->getPrice()->getTotalPrice(),
             'amountNet' => $calculatedCart->getPrice()->getNetPrice(),
@@ -118,7 +118,7 @@ class OrderPersister implements OrderPersisterInterface
         $lineItems = [];
         foreach ($calculatedCart->getCalculatedLineItems() as $lineItem) {
             $row = $this->convertLineItem($lineItem);
-            $row['id'] = Uuid::uuid4()->toString();
+            $row['id'] = Uuid::uuid4()->getHex();
             $lineItems[$lineItem->getIdentifier()] = $row;
         }
 
@@ -156,7 +156,7 @@ class OrderPersister implements OrderPersisterInterface
         foreach ($lineItem->getChildren() as $child) {
             $row = $this->convertLineItem($child);
             $row['parentId'] = $parentId;
-            $row['id'] = Uuid::uuid4()->toString();
+            $row['id'] = Uuid::uuid4()->getHex();
             $data[] = $row;
 
             if (!$child instanceof NestedInterface) {

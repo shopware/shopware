@@ -4,7 +4,7 @@ namespace Shopware\Product\Test\Service;
 
 use Doctrine\DBAL\Connection;
 use Psr\Container\ContainerInterface;
-use Ramsey\Uuid\Uuid;
+use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\Product\Definition\ProductDefinition;
@@ -56,10 +56,10 @@ class VariantGeneratorTest extends KernelTestCase
 
     public function testGenerateOneDimension()
     {
-        $id = Uuid::uuid4()->toString();
-        $redId = Uuid::uuid4()->toString();
-        $blueId = Uuid::uuid4()->toString();
-        $colorId = Uuid::uuid4()->toString();
+        $id = Uuid::uuid4()->getHex();
+        $redId = Uuid::uuid4()->getHex();
+        $blueId = Uuid::uuid4()->getHex();
+        $colorId = Uuid::uuid4()->getHex();
 
         $data = [
             'id' => $id,
@@ -125,9 +125,9 @@ class VariantGeneratorTest extends KernelTestCase
 
     public function testMultiDimension()
     {
-        $id = Uuid::uuid4()->toString();
-        $colorId = Uuid::uuid4()->toString();
-        $sizeId = Uuid::uuid4()->toString();
+        $id = Uuid::uuid4()->getHex();
+        $colorId = Uuid::uuid4()->getHex();
+        $sizeId = Uuid::uuid4()->getHex();
 
         $data = [
             'id' => $id,
@@ -186,9 +186,9 @@ class VariantGeneratorTest extends KernelTestCase
 
     public function testPagination()
     {
-        $id = Uuid::uuid4()->toString();
-        $colorId = Uuid::uuid4()->toString();
-        $sizeId = Uuid::uuid4()->toString();
+        $id = Uuid::uuid4()->getHex();
+        $colorId = Uuid::uuid4()->getHex();
+        $sizeId = Uuid::uuid4()->getHex();
 
         $data = [
             'id' => $id,
@@ -253,7 +253,7 @@ class VariantGeneratorTest extends KernelTestCase
 
     public function testGenerateHighDimension()
     {
-        $id = Uuid::uuid4()->toString();
+        $id = Uuid::uuid4()->getHex();
 
         $data = [
             'id' => $id,
@@ -291,7 +291,7 @@ class VariantGeneratorTest extends KernelTestCase
     {
         $data = [];
         foreach ($groups as $groupName => $options) {
-            $groupId = Uuid::uuid4()->toString();
+            $groupId = Uuid::uuid4()->getHex();
 
             foreach ($options as $optionName) {
                 $data[] = [

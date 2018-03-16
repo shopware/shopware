@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace Shopware\Cart\Cart\Struct;
 
-use Ramsey\Uuid\Uuid;
+use Shopware\Framework\Struct\Uuid;
 use Shopware\Cart\Error\ErrorCollection;
 use Shopware\Cart\LineItem\LineItemCollection;
 use Shopware\Framework\Struct\Struct;
@@ -62,8 +62,8 @@ class Cart extends Struct
 
     public static function createNew(string $name, ?string $token = null): self
     {
-        if (!$token) {
-            $token = Uuid::uuid4()->toString();
+        if ($token === null) {
+            $token = Uuid::uuid4()->getHex();
         }
 
         return new self($name, $token, new LineItemCollection(), new ErrorCollection());

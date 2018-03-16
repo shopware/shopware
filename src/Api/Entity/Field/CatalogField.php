@@ -24,7 +24,7 @@
 
 namespace Shopware\Api\Entity\Field;
 
-use Ramsey\Uuid\Uuid;
+use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Catalog\Definition\CatalogDefinition;
 use Shopware\Api\Entity\Write\DataStack\KeyValuePair;
 use Shopware\Api\Entity\Write\EntityExistence;
@@ -56,6 +56,6 @@ class CatalogField extends FkField
         //write catalog id of current object to write context
         $this->writeContext->set($this->definition, 'catalogId', $value);
 
-        yield $this->storageName => Uuid::fromString($value)->getBytes();
+        yield $this->storageName => Uuid::fromStringToBytes($value);
     }
 }

@@ -25,7 +25,7 @@
 namespace Shopware\Context\Service;
 
 use Doctrine\DBAL\Connection;
-use Ramsey\Uuid\Uuid;
+use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Country\Repository\CountryRepository;
 use Shopware\Api\Country\Repository\CountryStateRepository;
 use Shopware\Api\Currency\Repository\CurrencyRepository;
@@ -267,15 +267,15 @@ class ContextFactory implements ContextFactoryInterface
         $query->from('shop', 'shop');
         $query->innerJoin('shop', 'currency', 'currency', 'shop.currency_id = currency.id');
         $query->where('shop.id = :id');
-        $query->setParameter('id', Uuid::fromString($shopId)->getBytes());
+        $query->setParameter('id', Uuid::fromStringToBytes($shopId));
 
         $data = $query->execute()->fetch(\PDO::FETCH_ASSOC);
 
         return new ShopContext(
-            Uuid::fromBytes($data['shop_id'])->toString(),
+            Uuid::fromBytesToHex($data['shop_id']),
             json_decode($data['shop_catalog_ids'], true),
             [],
-            Uuid::fromBytes($data['shop_currency_id'])->toString(),
+            Uuid::fromBytesToHex($data['shop_currency_id']),
             Defaults::LANGUAGE,
             null,
             Defaults::LIVE_VERSION,

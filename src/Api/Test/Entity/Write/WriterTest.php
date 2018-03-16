@@ -3,7 +3,7 @@
 namespace Shopware\Api\Test\Entity\Write;
 
 use Doctrine\DBAL\Connection;
-use Ramsey\Uuid\Uuid;
+use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Country\Definition\CountryAreaDefinition;
 use Shopware\Api\Entity\Write\EntityWriter;
 use Shopware\Api\Entity\Write\EntityWriterInterface;
@@ -36,8 +36,8 @@ class WriterTest extends KernelTestCase
     public function setUp()
     {
         self::bootKernel();
-        $this->id = Uuid::uuid4()->toString();
-        $this->idBytes = Uuid::fromString($this->id)->getBytes();
+        $this->id = Uuid::uuid4()->getHex();
+        $this->idBytes = Uuid::fromStringToBytes($this->id);
 
         $container = self::$kernel->getContainer();
         $this->connection = $container->get(Connection::class);
@@ -60,7 +60,7 @@ class WriterTest extends KernelTestCase
         $this->getWriter()->insert(
             CountryAreaDefinition::class,
             [
-                ['id' => $id->toString(), 'name' => 'test-country'],
+                ['id' => $id->getHex(), 'name' => 'test-country'],
             ],
             $context
         );
@@ -71,7 +71,7 @@ class WriterTest extends KernelTestCase
         $this->getWriter()->delete(
             CountryAreaDefinition::class,
             [
-                ['id' => $id->toString()],
+                ['id' => $id->getHex()],
             ],
             $context
         );
@@ -90,8 +90,8 @@ class WriterTest extends KernelTestCase
         $this->getWriter()->insert(
             CountryAreaDefinition::class,
             [
-                ['id' => $id->toString(), 'name' => 'test-country1'],
-                ['id' => $id2->toString(), 'name' => 'test-country2'],
+                ['id' => $id->getHex(), 'name' => 'test-country1'],
+                ['id' => $id2->getHex(), 'name' => 'test-country2'],
             ],
             $context
         );
@@ -107,8 +107,8 @@ class WriterTest extends KernelTestCase
         $this->getWriter()->delete(
             CountryAreaDefinition::class,
             [
-                ['id' => $id->toString()],
-                ['id' => $id2->toString()],
+                ['id' => $id->getHex()],
+                ['id' => $id2->getHex()],
             ],
             $context
         );
@@ -132,8 +132,8 @@ class WriterTest extends KernelTestCase
         $this->getWriter()->insert(
             CountryAreaDefinition::class,
             [
-                ['id' => $id->toString(), 'name' => 'test-country1'],
-                ['id' => $id2->toString(), 'name' => 'test-country2'],
+                ['id' => $id->getHex(), 'name' => 'test-country1'],
+                ['id' => $id2->getHex(), 'name' => 'test-country2'],
             ],
             $context
         );
@@ -149,11 +149,11 @@ class WriterTest extends KernelTestCase
         $this->getWriter()->delete(
             CountryAreaDefinition::class,
             [
-                ['id' => $id->toString()],
-                ['id' => $id2->toString()],
-                ['id' => Uuid::uuid4()->toString()],
-                ['id' => Uuid::uuid4()->toString()],
-                ['id' => Uuid::uuid4()->toString()],
+                ['id' => $id->getHex()],
+                ['id' => $id2->getHex()],
+                ['id' => Uuid::uuid4()->getHex()],
+                ['id' => Uuid::uuid4()->getHex()],
+                ['id' => Uuid::uuid4()->getHex()],
             ],
             $context
         );
@@ -175,13 +175,13 @@ class WriterTest extends KernelTestCase
         $context = $this->createWriteContext();
         $this->getWriter()->insert(ProductDefinition::class, [
             [
-                'id' => $productId->toString(),
+                'id' => $productId->getHex(),
                 'name' => 'test 1',
                 'price' => ['gross' => 10, 'net' => 9],
                 'tax' => ['name' => 'test', 'rate' => 5],
                 'manufacturer' => ['name' => 'test'],
                 'categories' => [
-                    ['id' => $categoryId->toString(), 'name' => 'test'],
+                    ['id' => $categoryId->getHex(), 'name' => 'test'],
                 ],
             ],
         ], $context);
@@ -193,7 +193,7 @@ class WriterTest extends KernelTestCase
         $this->assertCount(1, $exists);
 
         $this->getWriter()->delete(ProductCategoryDefinition::class, [
-            ['productId' => $productId->toString(), 'categoryId' => $categoryId->toString()],
+            ['productId' => $productId->getHex(), 'categoryId' => $categoryId->getHex()],
         ], $context);
 
         $exists = $this->connection->fetchAll(
@@ -211,7 +211,7 @@ class WriterTest extends KernelTestCase
         $productId = Uuid::uuid4();
 
         $this->getWriter()->delete(ProductCategoryDefinition::class, [
-            ['productId' => $productId->toString()],
+            ['productId' => $productId->getHex()],
         ], $this->createWriteContext());
     }
 
@@ -224,23 +224,23 @@ class WriterTest extends KernelTestCase
         $context = $this->createWriteContext();
         $this->getWriter()->insert(ProductDefinition::class, [
             [
-                'id' => $productId->toString(),
+                'id' => $productId->getHex(),
                 'name' => 'test 1',
                 'price' => 10,
                 'tax' => ['name' => 'test', 'rate' => 5],
                 'manufacturer' => ['name' => 'test'],
                 'categories' => [
-                    ['id' => $categoryId->toString(), 'name' => 'test'],
+                    ['id' => $categoryId->getHex(), 'name' => 'test'],
                 ],
             ],
             [
-                'id' => $productId2->toString(),
+                'id' => $productId2->getHex(),
                 'name' => 'test 1',
                 'price' => 10,
                 'tax' => ['name' => 'test', 'rate' => 5],
                 'manufacturer' => ['name' => 'test'],
                 'categories' => [
-                    ['id' => $categoryId->toString()],
+                    ['id' => $categoryId->getHex()],
                 ],
             ],
             [
@@ -262,8 +262,8 @@ class WriterTest extends KernelTestCase
         $this->assertCount(2, $exists);
 
         $this->getWriter()->delete(ProductCategoryDefinition::class, [
-            ['productId' => $productId->toString(), 'categoryId' => $categoryId->toString()],
-            ['productId' => $productId2->toString(), 'categoryId' => $categoryId->toString()],
+            ['productId' => $productId->getHex(), 'categoryId' => $categoryId->getHex()],
+            ['productId' => $productId2->getHex(), 'categoryId' => $categoryId->getHex()],
         ], $context);
 
         $exists = $this->connection->fetchAll(
@@ -285,7 +285,7 @@ class WriterTest extends KernelTestCase
                     'price' => 10,
                     'the_unknown_field' => 'do nothing?',
                     'tax' => ['name' => 'test', 'rate' => 5],
-                    'manufacturer' => ['id' => Uuid::uuid4()->toString(), 'link' => 'https://shopware.com', 'name' => 'shopware AG'],
+                    'manufacturer' => ['id' => Uuid::uuid4()->getHex(), 'link' => 'https://shopware.com', 'name' => 'shopware AG'],
                     'mode' => 0,
                     'lastStock' => true,
                     'crossbundlelook' => 1,
@@ -317,7 +317,7 @@ class WriterTest extends KernelTestCase
                     'tax' => ['name' => 'test', 'rate' => 5],
                     'name' => 'foo',
                     'price' => 10,
-                    'manufacturer' => ['id' => Uuid::uuid4()->toString(), 'link' => 'https://shopware.com', 'name' => 'shopware AG'],
+                    'manufacturer' => ['id' => Uuid::uuid4()->getHex(), 'link' => 'https://shopware.com', 'name' => 'shopware AG'],
                 ],
             ],
             $this->createWriteContext()
@@ -339,7 +339,7 @@ class WriterTest extends KernelTestCase
                     'description' => 'A test article',
                     'descriptionLong' => '<p>I\'m a <b>test article</b></p>',
                     'tax' => ['name' => 'test', 'rate' => 5],
-                    'manufacturer' => ['id' => Uuid::uuid4()->toString(), 'link' => 'https://shopware.com', 'name' => 'shopware AG'],
+                    'manufacturer' => ['id' => Uuid::uuid4()->getHex(), 'link' => 'https://shopware.com', 'name' => 'shopware AG'],
                     'updatedAt' => new \DateTime(),
                     'mode' => 0,
                     'lastStock' => true,
@@ -370,7 +370,7 @@ class WriterTest extends KernelTestCase
     {
         $this->insertEmptyProduct();
 
-        $productManufacturerId = Uuid::uuid4()->toString();
+        $productManufacturerId = Uuid::uuid4()->getHex();
 
         $this->getWriter()->update(
             ProductDefinition::class,
@@ -396,8 +396,8 @@ class WriterTest extends KernelTestCase
         );
 
         $product = $this->connection->fetchAssoc('SELECT * FROM product WHERE id=:id', ['id' => $this->idBytes]);
-        $productManufacturer = $this->connection->fetchAssoc('SELECT * FROM product_manufacturer WHERE id=:id', ['id' => Uuid::fromString($productManufacturerId)->getBytes()]);
-        $productManufacturerTranslation = $this->connection->fetchAssoc('SELECT * FROM product_manufacturer_translation WHERE product_manufacturer_id=:id', ['id' => Uuid::fromString($productManufacturerId)->getBytes()]);
+        $productManufacturer = $this->connection->fetchAssoc('SELECT * FROM product_manufacturer WHERE id=:id', ['id' => Uuid::fromStringToBytes($productManufacturerId)]);
+        $productManufacturerTranslation = $this->connection->fetchAssoc('SELECT * FROM product_manufacturer_translation WHERE product_manufacturer_id=:id', ['id' => Uuid::fromStringToBytes($productManufacturerId)]);
         $productTranslation = $this->connection->fetchAssoc('SELECT * FROM product_translation WHERE product_id=:id', ['id' => $this->idBytes]);
 
         self::assertSame('_THE_TITLE_', $productTranslation['name'], print_r($productTranslation, true));
@@ -438,9 +438,9 @@ class WriterTest extends KernelTestCase
     {
         $this->insertEmptyProduct();
 
-        $localeId = Uuid::uuid4()->toString();
+        $localeId = Uuid::uuid4()->getHex();
         $this->container->get(LocaleRepository::class)->upsert([
-            ['id' => $localeId, 'name' => 'test', 'territory' => 'tmp', 'code' => Uuid::uuid4()->toString()],
+            ['id' => $localeId, 'name' => 'test', 'territory' => 'tmp', 'code' => Uuid::uuid4()->getHex()],
         ], ShopContext::createDefaultContext());
 
         $this->container->get(LanguageRepository::class)->upsert([
@@ -511,7 +511,7 @@ class WriterTest extends KernelTestCase
         self::assertCount(2, $productTranslations, print_r($productTranslations, true));
 
         $productTranslations = array_map(function ($a) {
-            $a['language_id'] = Uuid::fromBytes($a['language_id'])->toString();
+            $a['language_id'] = Uuid::fromBytesToHex($a['language_id']);
 
             return $a;
         }, $productTranslations);
@@ -573,7 +573,7 @@ class WriterTest extends KernelTestCase
                     'price' => 10,
                     'tax' => ['name' => 'test', 'rate' => 5],
                     'manufacturer' => [
-                        'id' => Uuid::uuid4()->toString(),
+                        'id' => Uuid::uuid4()->getHex(),
                         'name' => 'shopware AG',
                         'link' => 'https://shopware.com',
                     ],

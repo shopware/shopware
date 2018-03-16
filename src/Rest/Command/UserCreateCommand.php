@@ -2,7 +2,7 @@
 
 namespace Shopware\Rest\Command;
 
-use Ramsey\Uuid\Uuid;
+use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\User\Repository\UserRepository;
@@ -95,7 +95,7 @@ class UserCreateCommand extends Command
 
         $this->userRepository->create([
             [
-                'id' => Uuid::uuid4()->toString(),
+                'id' => Uuid::uuid4()->getHex(),
                 'name' => $username,
                 'email' => 'admin@example.com',
                 'username' => $username,

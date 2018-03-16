@@ -26,7 +26,7 @@ declare(strict_types=1);
 namespace Shopware\CartBridge\Cart;
 
 use Doctrine\DBAL\Connection;
-use Ramsey\Uuid\Uuid;
+use Shopware\Framework\Struct\Uuid;
 use Shopware\Cart\Cart\CartPersisterInterface;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Cart\Struct\Cart;
@@ -95,23 +95,23 @@ class CartPersister implements CartPersisterInterface
             ['token' => $context->getToken(), 'name' => $cart->getName()]
         );
 
-        $liveVersion = Uuid::fromString(Defaults::LIVE_VERSION)->getBytes();
+        $liveVersion = Uuid::fromStringToBytes(Defaults::LIVE_VERSION);
 
-        $customerId = $context->getCustomer() ? Uuid::fromString($context->getCustomer()->getId())->getBytes() : null;
+        $customerId = $context->getCustomer() ? Uuid::fromStringToBytes($context->getCustomer()->getId()) : null;
 
         $data = [
             'version_id' => $liveVersion,
             'token' => $context->getToken(),
             'name' => $cart->getName(),
-            'currency_id' => Uuid::fromString($context->getCurrency()->getId())->getBytes(),
+            'currency_id' => Uuid::fromStringToBytes($context->getCurrency()->getId()),
             'currency_version_id' => $liveVersion,
-            'shipping_method_id' => Uuid::fromString($context->getShippingMethod()->getId())->getBytes(),
+            'shipping_method_id' => Uuid::fromStringToBytes($context->getShippingMethod()->getId()),
             'shipping_method_version_id' => $liveVersion,
-            'payment_method_id' => Uuid::fromString($context->getPaymentMethod()->getId())->getBytes(),
+            'payment_method_id' => Uuid::fromStringToBytes($context->getPaymentMethod()->getId()),
             'payment_method_version_id' => $liveVersion,
-            'country_id' => Uuid::fromString($context->getShippingLocation()->getCountry()->getId())->getBytes(),
+            'country_id' => Uuid::fromStringToBytes($context->getShippingLocation()->getCountry()->getId()),
             'country_version_id' => $liveVersion,
-            'shop_id' => Uuid::fromString($context->getShop()->getId())->getBytes(),
+            'shop_id' => Uuid::fromStringToBytes($context->getShop()->getId()),
             'shop_version_id' => $liveVersion,
             'customer_id' => $customerId,
             'customer_version_id' => $context->getCustomer() ? $liveVersion : null,

@@ -24,7 +24,7 @@
 
 namespace Shopware\Api\Entity\Write;
 
-use Ramsey\Uuid\Uuid;
+use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Entity\Dbal\EntityForeignKeyResolver;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Field\Field;
@@ -212,7 +212,7 @@ class EntityWriter implements EntityWriterInterface
 
         foreach ($resolved as $mapped) {
             $mapped = array_map(function ($id) {
-                return Uuid::fromString($id)->getBytes();
+                return Uuid::fromStringToBytes($id);
             }, $mapped);
 
             $commandQueue->add($definition, new DeleteCommand($definition, $mapped));
@@ -299,12 +299,12 @@ class EntityWriter implements EntityWriterInterface
             /** @var StorageAware|Field $field */
             $field = $fields->first();
 
-            return Uuid::fromBytes($primaryKey[$field->getStorageName()])->toString();
+            return Uuid::fromBytesToHex($primaryKey[$field->getStorageName()]);
         }
 
         /** @var StorageAware|Field $field */
         foreach ($fields as $field) {
-            $data[$field->getPropertyName()] = Uuid::fromBytes($primaryKey[$field->getStorageName()])->toString();
+            $data[$field->getPropertyName()] = Uuid::fromBytesToHex($primaryKey[$field->getStorageName()]);
         }
 
         return $data;
@@ -322,7 +322,7 @@ class EntityWriter implements EntityWriterInterface
             $field = $fields->getByStorageName($key);
 
             if (($field instanceof IdField || $field instanceof FkField) && !empty($value)) {
-                $value = Uuid::fromBytes($value)->toString();
+                $value = Uuid::fromBytesToHex($value);
             }
             $convertedPayload[$field->getPropertyName()] = $value;
         }
@@ -343,7 +343,7 @@ class EntityWriter implements EntityWriterInterface
 
             $key = $command->getPrimaryKey()[$primaryKey->getStorageName()];
 
-            $convertedPayload[$primaryKey->getPropertyName()] = Uuid::fromBytes($key)->toString();
+            $convertedPayload[$primaryKey->getPropertyName()] = Uuid::fromBytesToHex($key);
         }
 
         return $convertedPayload;

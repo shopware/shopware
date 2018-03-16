@@ -3,7 +3,7 @@
 namespace Shopware\Api\Test\Product\Repository;
 
 use Doctrine\DBAL\Connection;
-use Ramsey\Uuid\Uuid;
+use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Entity\Entity;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Term\EntityScoreQueryBuilder;
@@ -50,8 +50,8 @@ class ProductSearchScoringTest extends KernelTestCase
 
         $context = ShopContext::createDefaultContext();
         $this->repository->create([
-            ['id' => Uuid::uuid4()->toString(), 'name' => 'product 1 test', 'tax' => ['name' => 'test', 'rate' => 5], 'manufacturer' => ['name' => 'test'], 'price' => ['gross' => 10, 'net' => 9]],
-            ['id' => Uuid::uuid4()->toString(), 'name' => 'product 2 test', 'tax' => ['name' => 'test', 'rate' => 5], 'manufacturer' => ['name' => 'test'], 'price' => ['gross' => 10, 'net' => 9]],
+            ['id' => Uuid::uuid4()->getHex(), 'name' => 'product 1 test', 'tax' => ['name' => 'test', 'rate' => 5], 'manufacturer' => ['name' => 'test'], 'price' => ['gross' => 10, 'net' => 9]],
+            ['id' => Uuid::uuid4()->getHex(), 'name' => 'product 2 test', 'tax' => ['name' => 'test', 'rate' => 5], 'manufacturer' => ['name' => 'test'], 'price' => ['gross' => 10, 'net' => 9]],
         ], $context);
 
         $result = $this->repository->search($criteria, $context);

@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Entity\Field;
 
-use Ramsey\Uuid\Uuid;
+use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Entity\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Api\Entity\Dbal\QueryBuilder;
 use Shopware\Api\Entity\Write\FieldAware\DbalJoinAware;
@@ -55,6 +55,6 @@ class CanonicalUrlAssociationField extends ManyToOneAssociationField implements 
             )
         );
         $query->setParameter($key, $this->routeName);
-        $query->setParameter('shopId', Uuid::fromString($context->getApplicationId())->getBytes());
+        $query->setParameter('shopId', Uuid::fromStringToBytes($context->getApplicationId()));
     }
 }

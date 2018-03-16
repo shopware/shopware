@@ -3,7 +3,7 @@
 namespace Shopware\Api\Entity\Dbal;
 
 use Doctrine\DBAL\Connection;
-use Ramsey\Uuid\Uuid;
+use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
@@ -92,7 +92,7 @@ class EntitySearcher implements EntitySearcherInterface
 
         $converted = [];
         foreach ($data as $key => $values) {
-            $key = Uuid::fromBytes($key)->toString();
+            $key = Uuid::fromBytesToHex($key);
             $values['primary_key'] = $key;
             $converted[$key] = $values;
         }

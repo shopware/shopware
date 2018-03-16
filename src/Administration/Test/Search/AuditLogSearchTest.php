@@ -4,7 +4,7 @@ namespace Shopware\Administration\Test\Search;
 
 use Doctrine\DBAL\Connection;
 use Psr\Container\ContainerInterface;
-use Ramsey\Uuid\Uuid;
+use Shopware\Framework\Struct\Uuid;
 use Shopware\Administration\Search\AdministrationSearch;
 use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Api\Product\Repository\ProductRepository;
@@ -68,7 +68,7 @@ class AuditLogSearchTest extends KernelTestCase
             DELETE FROM `product`;
         ');
 
-        $this->userId = Uuid::uuid4()->toString();
+        $this->userId = Uuid::uuid4()->getHex();
 
         $repo = $this->container->get(UserRepository::class);
         $repo->upsert([
@@ -95,14 +95,14 @@ class AuditLogSearchTest extends KernelTestCase
     {
         $context = ShopContext::createDefaultContext();
 
-        $p1 = Uuid::uuid4()->toString();
-        $productId2 = Uuid::uuid4()->toString();
+        $p1 = Uuid::uuid4()->getHex();
+        $productId2 = Uuid::uuid4()->getHex();
 
         $this->productRepository->upsert([
             ['id' => $p1, 'name' => 'test product 1', 'price' => ['gross' => 10, 'net' => 9], 'tax' => ['name' => 'test', 'rate' => 5], 'manufacturer' => ['name' => 'test']],
             ['id' => $productId2, 'name' => 'test product 2', 'price' => ['gross' => 10, 'net' => 9], 'tax' => ['name' => 'test', 'rate' => 5], 'manufacturer' => ['name' => 'test']],
-            ['id' => Uuid::uuid4()->toString(), 'name' => 'notmatch', 'price' => ['gross' => 10, 'net' => 9], 'tax' => ['name' => 'test', 'rate' => 5], 'manufacturer' => ['name' => 'test']],
-            ['id' => Uuid::uuid4()->toString(), 'name' => 'notmatch', 'price' => ['gross' => 10, 'net' => 9], 'tax' => ['name' => 'test', 'rate' => 5], 'manufacturer' => ['name' => 'test']],
+            ['id' => Uuid::uuid4()->getHex(), 'name' => 'notmatch', 'price' => ['gross' => 10, 'net' => 9], 'tax' => ['name' => 'test', 'rate' => 5], 'manufacturer' => ['name' => 'test']],
+            ['id' => Uuid::uuid4()->getHex(), 'name' => 'notmatch', 'price' => ['gross' => 10, 'net' => 9], 'tax' => ['name' => 'test', 'rate' => 5], 'manufacturer' => ['name' => 'test']],
         ], $context);
 
         $result = $this->search->search('product', 1, 20, $context, $this->userId);
@@ -142,7 +142,7 @@ class AuditLogSearchTest extends KernelTestCase
             [
                 'id' => $productId2,
                 'entity' => ProductDefinition::getEntityName(),
-                'user' => Uuid::fromString($this->userId)->getBytes(),
+                'user' => Uuid::fromStringToBytes($this->userId),
             ]
         );
 
@@ -183,7 +183,7 @@ class AuditLogSearchTest extends KernelTestCase
             [
                 'entity' => $entity,
                 'id' => $id,
-                'version' => Uuid::fromString($versionId)->getBytes(),
+                'version' => Uuid::fromStringToBytes($versionId),
             ]
         );
     }

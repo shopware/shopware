@@ -24,17 +24,17 @@
 
 namespace Shopware\Api\Entity\Write\IdGenerator;
 
-use Ramsey\Uuid\Uuid;
+use Shopware\Framework\Struct\Uuid;
 
 class RamseyGenerator implements Generator
 {
     public function create(): string
     {
-        return  Uuid::uuid4()->toString();
+        return  Uuid::uuid4()->getHex();
     }
 
     public function toStorageValue(string $value): string
     {
-        return Uuid::fromString($value)->getBytes();
+        return Uuid::fromStringToBytes($value);
     }
 }

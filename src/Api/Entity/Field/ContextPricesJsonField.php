@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Entity\Field;
 
-use Ramsey\Uuid\Uuid;
+use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Entity\Write\DataStack\KeyValuePair;
 use Shopware\Api\Entity\Write\EntityExistence;
 use Shopware\Api\Entity\Write\FieldAware\SqlParseAware;
@@ -35,13 +35,11 @@ class ContextPricesJsonField extends JsonObjectField implements SqlParseAware
     {
         $keys = $context->getContextRules();
 
-        $defaultCurrencyId = Uuid::fromString(Defaults::CURRENCY)->getHex();
-        $currencyId = Uuid::fromString($context->getCurrencyId())->getHex();
+        $defaultCurrencyId = Defaults::CURRENCY;
+        $currencyId = $context->getCurrencyId();
 
         $select = [];
         foreach ($keys as $key) {
-            $key = Uuid::fromString($key)->getHex();
-
             $field = sprintf('`%s`.`%s`', $root, $this->getStorageName());
             $path = sprintf('$.optimized.r%s.c%s.gross', $key, $currencyId);
             $select[] = sprintf('JSON_UNQUOTE(JSON_EXTRACT(%s, "%s"))', $field, $path);
@@ -59,9 +57,6 @@ class ContextPricesJsonField extends JsonObjectField implements SqlParseAware
 
     public static function format(string $ruleId, string $currencyId, float $gross, float $net)
     {
-        $ruleId = Uuid::fromString($ruleId)->getHex();
-        $currencyId = Uuid::fromString($currencyId)->getHex();
-
         return [
             'r' . $ruleId => [
                 'c' . $currencyId => ['gross' => $gross, 'net' => $net],

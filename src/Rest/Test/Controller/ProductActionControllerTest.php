@@ -2,7 +2,7 @@
 
 namespace Shopware\Rest\Test\Controller;
 
-use Ramsey\Uuid\Uuid;
+use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Product\Repository\ProductRepository;
 use Shopware\Api\Product\Struct\PriceStruct;
 use Shopware\Api\Product\Struct\ProductDetailStruct;
@@ -26,10 +26,10 @@ class ProductActionControllerTest extends ApiTestCase
 
     public function testGenerateVariant(): void
     {
-        $id = Uuid::uuid4()->toString();
-        $redId = Uuid::uuid4()->toString();
-        $blueId = Uuid::uuid4()->toString();
-        $colorId = Uuid::uuid4()->toString();
+        $id = Uuid::uuid4()->getHex();
+        $redId = Uuid::uuid4()->getHex();
+        $blueId = Uuid::uuid4()->getHex();
+        $colorId = Uuid::uuid4()->getHex();
 
         $data = [
             'id' => $id,

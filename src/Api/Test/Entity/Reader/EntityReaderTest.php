@@ -3,7 +3,7 @@
 namespace Shopware\Api\Test\Entity\Reader;
 
 use Doctrine\DBAL\Connection;
-use Ramsey\Uuid\Uuid;
+use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Category\Repository\CategoryRepository;
 use Shopware\Api\Product\Repository\ProductRepository;
 use Shopware\Context\Struct\ShopContext;
@@ -35,14 +35,14 @@ class EntityReaderTest extends KernelTestCase
 
     public function testMaxGroupConcat()
     {
-        $parentId = Uuid::uuid4()->toString();
+        $parentId = Uuid::uuid4()->getHex();
         $categories = [
             ['id' => $parentId, 'name' => 'master'],
         ];
 
         for ($i = 0; $i < 400; ++$i) {
             $categories[] = [
-                'id' => Uuid::uuid4()->toString(),
+                'id' => Uuid::uuid4()->getHex(),
                 'name' => 'test' . $i,
                 'parentId' => $parentId,
             ];
@@ -55,7 +55,7 @@ class EntityReaderTest extends KernelTestCase
             return ['id' => $category['id']];
         }, $categories);
 
-        $id = Uuid::uuid4()->toString();
+        $id = Uuid::uuid4()->getHex();
         $product = [
             'id' => $id,
             'name' => 'Test product',

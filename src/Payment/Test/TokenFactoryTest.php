@@ -4,7 +4,7 @@ namespace Shopware\Payment\Test;
 
 use Doctrine\DBAL\Connection;
 use Psr\Container\ContainerInterface;
-use Ramsey\Uuid\Uuid;
+use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Customer\Repository\CustomerRepository;
 use Shopware\Api\Order\Repository\OrderRepository;
 use Shopware\Api\Order\Repository\OrderTransactionRepository;
@@ -88,7 +88,7 @@ class TokenFactoryTest extends KernelTestCase
 
         $token = $this->connection->fetchAssoc('SELECT * FROM payment_token WHERE token = ?;', [$tokenIdentifier]);
 
-        self::assertEquals($transactionId, Uuid::fromBytes($token['transaction_id']));
+        self::assertEquals($transactionId, Uuid::fromBytesToHex($token['transaction_id']));
         self::assertEquals($tokenIdentifier, $token['token']);
         self::assertGreaterThan(new \DateTime(), new \DateTime($token['expires']));
     }
@@ -146,7 +146,7 @@ class TokenFactoryTest extends KernelTestCase
         OrderTransactionRepository $orderTransactionRepository,
         ShopContext $shopContext
     ): string {
-        $id = Uuid::uuid4()->toString();
+        $id = Uuid::uuid4()->getHex();
         $transaction = [
             'id' => $id,
             'orderId' => $orderId,
@@ -166,7 +166,7 @@ class TokenFactoryTest extends KernelTestCase
         OrderRepository $orderRepository,
         ShopContext $shopContext
     ) {
-        $orderId = Uuid::uuid4()->toString();
+        $orderId = Uuid::uuid4()->getHex();
 
         $order = [
             'id' => $orderId,
@@ -206,8 +206,8 @@ class TokenFactoryTest extends KernelTestCase
 
     private function createCustomer(CustomerRepository $repository, ShopContext $context): string
     {
-        $customerId = Uuid::uuid4()->toString();
-        $addressId = Uuid::uuid4()->toString();
+        $customerId = Uuid::uuid4()->getHex();
+        $addressId = Uuid::uuid4()->getHex();
 
         $customer = [
             'id' => $customerId,

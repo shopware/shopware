@@ -3,7 +3,7 @@
 namespace Shopware\DbalIndexing\Product;
 
 use Doctrine\DBAL\Connection;
-use Ramsey\Uuid\Uuid;
+use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Context\Struct\ContextPriceStruct;
 use Shopware\Api\Entity\Field\ContextPricesJsonField;
 use Shopware\Api\Product\Struct\PriceStruct;
@@ -39,7 +39,7 @@ class ListingPriceUpdater
 
             $this->connection->executeUpdate(
                 'UPDATE product SET listing_prices = :price WHERE id = :id',
-                ['price' => json_encode($listingPrices), 'id' => Uuid::fromString($id)->getBytes()]
+                ['price' => json_encode($listingPrices), 'id' => Uuid::fromStringToBytes($id)]
             );
         }
     }
@@ -61,7 +61,7 @@ class ListingPriceUpdater
         $query->where('product.id IN (:ids) OR product.parent_id IN (:ids)');
 
         $ids = array_map(function ($id) {
-            return Uuid::fromString($id)->getBytes();
+            return Uuid::fromStringToBytes($id);
         }, $ids);
 
         $query->setParameter('ids', $ids, Connection::PARAM_STR_ARRAY);
@@ -82,10 +82,10 @@ class ListingPriceUpdater
                 $value['_class'] = PriceStruct::class;
 
                 return [
-                    'id' => Uuid::fromBytes($price['price_id'])->toString(),
-                    'variantId' => Uuid::fromBytes($price['variant_id'])->toString(),
-                    'contextRuleId' => Uuid::fromBytes($price['context_rule_id'])->toString(),
-                    'currencyId' => Uuid::fromBytes($price['currency_id'])->toString(),
+                    'id' => Uuid::fromBytesToHex($price['price_id']),
+                    'variantId' => Uuid::fromBytesToHex($price['variant_id']),
+                    'contextRuleId' => Uuid::fromBytesToHex($price['context_rule_id']),
+                    'currencyId' => Uuid::fromBytesToHex($price['currency_id']),
                     'price' => $value,
                     '_class' => ContextPriceStruct::class,
                 ];

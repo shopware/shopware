@@ -3,7 +3,7 @@
 namespace Shopware\Api\Test\Country\Repository;
 
 use Doctrine\DBAL\Connection;
-use Ramsey\Uuid\Uuid;
+use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Country\Definition\CountryStateDefinition;
 use Shopware\Api\Country\Repository\CountryRepository;
 use Shopware\Api\Country\Repository\CountryStateRepository;
@@ -49,14 +49,14 @@ class CountryStateRepositoryTest extends KernelTestCase
 
     public function testSearchRanking()
     {
-        $country = Uuid::uuid4()->toString();
+        $country = Uuid::uuid4()->getHex();
 
         $this->container->get(CountryRepository::class)->create([
             ['id' => $country, 'name' => 'test'],
         ], ShopContext::createDefaultContext());
 
-        $recordA = Uuid::uuid4()->toString();
-        $recordB = Uuid::uuid4()->toString();
+        $recordA = Uuid::uuid4()->getHex();
+        $recordB = Uuid::uuid4()->getHex();
 
         $records = [
             ['id' => $recordA, 'name' => 'match', 'shortCode' => 'test',    'countryId' => $country],

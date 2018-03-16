@@ -2,7 +2,6 @@
 
 namespace Shopware\Api\Entity\Dbal;
 
-use Ramsey\Uuid\Uuid;
 use Shopware\Api\Context\Collection\ContextPriceCollection;
 use Shopware\Api\Entity\Entity;
 use Shopware\Api\Entity\EntityDefinition;
@@ -31,6 +30,7 @@ use Shopware\Api\Entity\Write\Flag\Extension;
 use Shopware\Api\Entity\Write\Flag\Serialized;
 use Shopware\Api\Product\Struct\PriceStruct;
 use Shopware\Framework\Struct\ArrayStruct;
+use Shopware\Framework\Struct\Uuid;
 use Symfony\Component\Serializer\SerializerInterface;
 
 /**
@@ -75,7 +75,7 @@ class EntityHydrator
         $objectCacheKey = null;
 
         if (array_key_exists($idProperty, $row)) {
-            $objectCacheKey = $definition::getEntityName() . '::' . Uuid::fromBytes($row[$idProperty])->toString();
+            $objectCacheKey = $definition::getEntityName() . '::' . bin2hex($row[$idProperty]);
             if (array_key_exists($objectCacheKey, $this->objects)) {
                 return $this->objects[$objectCacheKey];
             }
@@ -105,12 +105,12 @@ class EntityHydrator
             }
 
             if ($field instanceof ManyToManyAssociationField) {
+
                 $property = implode('.', [$root, $field->getPropertyName()]);
 
-                $ids = array_filter(explode('||', (string) $row[$property]));
-                $ids = array_map(function (string $bytes) {
-                    return Uuid::fromString($bytes)->toString();
-                }, $ids);
+                $ids = explode('||', (string) $row[$property]);
+                $ids = array_filter($ids);
+                $ids = array_map('strtolower', $ids);
 
                 $extension = $entity->getExtension(EntityReader::MANY_TO_MANY_EXTENSION_STORAGE);
                 if (!$extension) {
@@ -218,7 +218,7 @@ class EntityHydrator
                     return null;
                 }
 
-                return Uuid::fromBytes($value)->toString();
+                return Uuid::fromBytesToHex($value);
             case $field instanceof FloatField:
                 return $value === null ? null : (float) $value;
             case $field instanceof IntField:

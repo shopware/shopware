@@ -4,7 +4,7 @@ namespace Shopware\DbalIndexing\SeoUrl;
 
 use Cocur\Slugify\SlugifyInterface;
 use Doctrine\DBAL\Connection;
-use Ramsey\Uuid\Uuid;
+use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Product\Repository\ProductRepository;
@@ -77,7 +77,7 @@ class DetailPageSeoUrlIndexer implements IndexerInterface
     {
         $shops = $this->shopRepository->search(new Criteria(), ShopContext::createDefaultContext());
 
-        $liveVersionId = Uuid::fromString(Defaults::LIVE_VERSION);
+        $liveVersionId = Uuid::fromStringToBytes(Defaults::LIVE_VERSION);
 
         foreach ($shops as $shop) {
             $context = ShopContext::createFromShop($shop);
@@ -117,12 +117,12 @@ class DetailPageSeoUrlIndexer implements IndexerInterface
 
                     $data = [
                         'id' => $existing['id'],
-                        'version_id' => $liveVersionId->getBytes(),
-                        'shop_id' => Uuid::fromString($shop->getId())->getBytes(),
-                        'shop_version_id' => $liveVersionId->getBytes(),
+                        'version_id' => $liveVersionId,
+                        'shop_id' => Uuid::fromStringToBytes($shop->getId()),
+                        'shop_version_id' => $liveVersionId,
                         'name' => self::ROUTE_NAME,
-                        'foreign_key' => Uuid::fromString($product->getId())->getBytes(),
-                        'foreign_key_version_id' => $liveVersionId->getBytes(),
+                        'foreign_key' => Uuid::fromStringToBytes($product->getId()),
+                        'foreign_key_version_id' => $liveVersionId,
                         'path_info' => $pathInfo,
                         'seo_path_info' => $seoUrl,
                         'is_canonical' => 1,
@@ -156,7 +156,7 @@ class DetailPageSeoUrlIndexer implements IndexerInterface
     private function fetchCanonicals(array $productIds, string $shopId)
     {
         $productIds = array_map(function ($id) {
-            return Uuid::fromString($id)->getBytes();
+            return Uuid::fromStringToBytes($id);
         }, $productIds);
 
         $query = $this->connection->createQueryBuilder();
@@ -175,7 +175,7 @@ class DetailPageSeoUrlIndexer implements IndexerInterface
 
         $query->setParameter('ids', $productIds, Connection::PARAM_STR_ARRAY);
         $query->setParameter(':name', self::ROUTE_NAME);
-        $query->setParameter(':shop', Uuid::fromString($shopId)->getBytes());
+        $query->setParameter(':shop', Uuid::fromStringToBytes($shopId));
 
         return $query->execute()->fetchAll(\PDO::FETCH_GROUP | \PDO::FETCH_UNIQUE);
     }

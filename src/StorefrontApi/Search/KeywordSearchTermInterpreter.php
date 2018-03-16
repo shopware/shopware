@@ -4,11 +4,11 @@ namespace Shopware\StorefrontApi\Search;
 
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
-use Ramsey\Uuid\Uuid;
 use Shopware\Api\Entity\Search\Term\SearchPattern;
 use Shopware\Api\Entity\Search\Term\SearchTerm;
 use Shopware\Api\Entity\Search\Term\TokenizerInterface;
 use Shopware\Context\Struct\ShopContext;
+use Shopware\Framework\Struct\Uuid;
 
 class KeywordSearchTermInterpreter
 {
@@ -101,7 +101,7 @@ class KeywordSearchTermInterpreter
 
         $query->andWhere('(' . implode(' OR ', $wheres) . ')');
         $query->andWhere('language_id = :language');
-        $query->setParameter('language', Uuid::fromString($context->getLanguageId())->getBytes());
+        $query->setParameter('language', Uuid::fromStringToBytes($context->getLanguageId()));
 
         return $query->execute()->fetchAll(\PDO::FETCH_COLUMN);
     }

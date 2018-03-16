@@ -3,7 +3,7 @@
 namespace Shopware\Rest\Test\Controller;
 
 use Doctrine\DBAL\Connection;
-use Ramsey\Uuid\Uuid;
+use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Category\Definition\CategoryDefinition;
 use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Rest\Controller\SyncController;
@@ -26,7 +26,7 @@ class SyncControllerTest extends ApiTestCase
                 'action' => SyncController::ACTION_UPSERT,
                 'entity' => ProductDefinition::getEntityName(),
                 'payload' => [
-                    'id' => $id1->toString(),
+                    'id' => $id1->getHex(),
                     'manufacturer' => ['name' => 'test'],
                     'tax' => ['name' => 'test', 'rate' => 15],
                     'name' => 'CREATE-1',
@@ -37,7 +37,7 @@ class SyncControllerTest extends ApiTestCase
                 'action' => SyncController::ACTION_UPSERT,
                 'entity' => ProductDefinition::getEntityName(),
                 'payload' => [
-                    'id' => $id2->toString(),
+                    'id' => $id2->getHex(),
                     'manufacturer' => ['name' => 'test'],
                     'name' => 'CREATE-2',
                     'tax' => ['name' => 'test', 'rate' => 15],
@@ -52,22 +52,22 @@ class SyncControllerTest extends ApiTestCase
 
         self::assertSame(200, $response->getStatusCode(), $response->getContent());
 
-        $client->request('GET', '/api/product/' . $id1->toString());
+        $client->request('GET', '/api/product/' . $id1->getHex());
         $this->assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
 
-        $client->request('GET', '/api/product/' . $id2->toString());
+        $client->request('GET', '/api/product/' . $id2->getHex());
         $this->assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
 
-        $client->request('DELETE', '/api/product/' . $id1->toString());
+        $client->request('DELETE', '/api/product/' . $id1->getHex());
         $this->assertSame(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode());
 
-        $client->request('DELETE', '/api/product/' . $id2->toString());
+        $client->request('DELETE', '/api/product/' . $id2->getHex());
         $this->assertSame(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode());
     }
 
     public function testInsertAndUpdateSameEntity(): void
     {
-        $id = Uuid::uuid4()->toString();
+        $id = Uuid::uuid4()->getHex();
 
         $data = [
             [
@@ -111,8 +111,8 @@ class SyncControllerTest extends ApiTestCase
 
     public function testInsertAndLinkEntities(): void
     {
-        $categoryId = Uuid::uuid4()->toString();
-        $productId = Uuid::uuid4()->toString();
+        $categoryId = Uuid::uuid4()->getHex();
+        $productId = Uuid::uuid4()->getHex();
 
         $data = [
             [
@@ -166,9 +166,10 @@ class SyncControllerTest extends ApiTestCase
 
     public function testNestedInsertAndLinkAfter(): void
     {
-        $product = Uuid::uuid4()->toString();
-        $product2 = Uuid::uuid4()->toString();
-        $category = Uuid::uuid4()->toString();
+        $product = Uuid::uuid4()->getHex();
+        $product2 = Uuid::uuid4()->getHex();
+        $category = Uuid::uuid4()->getHex();
+
         $data = [
             [
                 'action' => SyncController::ACTION_UPSERT,
@@ -205,7 +206,6 @@ class SyncControllerTest extends ApiTestCase
 
         $client->request('GET', '/api/product/' . $product);
         $responseData = json_decode($client->getResponse()->getContent(), true);
-
         $categories = array_column($responseData['data']['relationships']['categories']['data'], 'id');
         $this->assertContains($category, $categories);
         $this->assertCount(1, $categories);
@@ -234,7 +234,7 @@ class SyncControllerTest extends ApiTestCase
                 'action' => SyncController::ACTION_UPSERT,
                 'entity' => ProductDefinition::getEntityName(),
                 'payload' => [
-                    'id' => $product->toString(),
+                    'id' => $product->getHex(),
                     'name' => 'PROD-1',
                     'tax' => ['name' => 'test', 'rate' => 15],
                     'price' => ['gross' => 50, 'net' => 25],
@@ -245,7 +245,7 @@ class SyncControllerTest extends ApiTestCase
                 'action' => SyncController::ACTION_UPSERT,
                 'entity' => ProductDefinition::getEntityName(),
                 'payload' => [
-                    'id' => $product2->toString(),
+                    'id' => $product2->getHex(),
                     'tax' => ['name' => 'test', 'rate' => 15],
                     'name' => 'PROD-2',
                     'price' => ['gross' => 50, 'net' => 25],
@@ -270,12 +270,12 @@ class SyncControllerTest extends ApiTestCase
             [
                 'action' => SyncController::ACTION_DELETE,
                 'entity' => ProductDefinition::getEntityName(),
-                'payload' => ['id' => $product->toString()],
+                'payload' => ['id' => $product->getHex()],
             ],
             [
                 'action' => SyncController::ACTION_DELETE,
                 'entity' => ProductDefinition::getEntityName(),
-                'payload' => ['id' => $product2->toString()],
+                'payload' => ['id' => $product2->getHex()],
             ],
         ];
 

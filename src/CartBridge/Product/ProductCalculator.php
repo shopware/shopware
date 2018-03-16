@@ -63,7 +63,7 @@ class ProductCalculator
             $identifier = $payload['id'];
 
             $serviceIds = [];
-            if (array_key_exists('services', $payload)) {
+            if (array_key_exists('services', $payload) && !empty($payload['services'])) {
                 $serviceIds = $payload['services'];
             }
             if (!$dataCollection->has($identifier)) {

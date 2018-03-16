@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Shopware\Cart\Exception\LineItemNotFoundException;
 use Shopware\Cart\LineItem\LineItem;
 use Shopware\CartBridge\Product\ProductProcessor;
 use Shopware\CartBridge\Service\StoreFrontCartService;
@@ -47,7 +48,7 @@ class CartController extends StorefrontController
         $identifier = $request->request->get('identifier');
         $quantity = $request->request->getInt('quantity');
         $target = $request->request->get('target');
-        $services = $request->request->get('service', []);
+        $services = $request->request->get('service');
 
         if (!($identifier && $quantity)) {
             return new JsonResponse([
@@ -56,11 +57,11 @@ class CartController extends StorefrontController
             ]);
         }
 
+        $key = $identifier;
         if (!empty($services)) {
             $services = array_values($services);
+            $key = $identifier . '-' . implode('-', $services);
         }
-
-        $key = $identifier . '-' . implode('-', $services);
 
         /** @var StoreFrontCartService $cartService */
         $cartService = $this->get(StoreFrontCartService::class);
@@ -116,7 +117,14 @@ class CartController extends StorefrontController
         }
 
         $cartService = $this->get(StoreFrontCartService::class);
-        $cartService->changeQuantity($identifier, $quantity);
+        try {
+            $cartService->changeQuantity($identifier, $quantity);
+        } catch (LineItemNotFoundException $e) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'LineItem not found',
+            ]);
+        }
 
         return $this->conditionalResponse($request, $target);
     }

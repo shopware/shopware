@@ -6,7 +6,8 @@ Component.register('sw-product-detail', {
     inject: ['categoryService', 'productManufacturerService', 'taxService', 'customerGroupService'],
 
     mixins: [
-        Mixin.getByName('product')
+        Mixin.getByName('product'),
+        Mixin.getByName('notification')
     ],
 
     data() {
@@ -75,76 +76,10 @@ Component.register('sw-product-detail', {
 
         onSave() {
             this.saveProduct();
-        },
 
-        /**
-         * Todo: Remove test notifications
-         */
-        addNotificationInfo() {
-            this.$store.dispatch('notification/createNotification', {
-                title: 'Info',
-                variant: 'info',
-                text: 'Lorem ipsum dolor sit amet.'
-            });
-        },
-
-        addNotificationError() {
-            this.$store.dispatch('notification/createNotification', {
-                title: 'Error',
-                variant: 'error',
-                text: 'Lorem ipsum dolor sit amet.'
-            });
-        },
-
-        addNotificationSuccess() {
-            this.$store.dispatch('notification/createNotification', {
-                title: 'Success',
-                variant: 'success',
-                text: 'Lorem ipsum dolor sit amet.'
-            });
-        },
-
-        addNotificationWarning() {
-            this.$store.dispatch('notification/createNotification', {
-                title: 'Warning',
-                variant: 'warning',
-                text: 'Lorem ipsum dolor sit amet.'
-            });
-        },
-
-        addSystemNotificationError() {
-            this.$store.dispatch('notification/createNotification', {
-                title: 'Shopware Error',
-                variant: 'error',
-                system: true,
-                text: 'Lorem ipsum dolor sit amet.'
-            });
-        },
-
-        addSystemNotificationSuccess() {
-            this.$store.dispatch('notification/createNotification', {
-                title: 'Shopware Success',
-                variant: 'success',
-                system: true,
-                text: 'Lorem ipsum dolor sit amet.'
-            });
-        },
-
-        addSystemNotificationInfo() {
-            this.$store.dispatch('notification/createNotification', {
-                title: 'Shopware Info',
-                variant: 'info',
-                system: true,
-                text: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut.'
-            });
-        },
-
-        addSystemNotificationWarning() {
-            this.$store.dispatch('notification/createNotification', {
-                title: 'Shopware Warning',
-                variant: 'warning',
-                text: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut.',
-                system: true
+            this.createNotificationSuccess({
+                title: 'Produktdetails',
+                message: 'Das Produkt wurde erfolgreich gespeichert.'
             });
         }
     },

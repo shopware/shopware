@@ -1,44 +1,50 @@
 @import "~less/variables";
 
-@sw-alert-color-border:     @color-steam-cloud;
-@sw-alert-color-fallback:   @color-steam-cloud;
-@sw-alert-color-text:       @color-gutenberg;
-@sw-alert-color-background: @color-white;
-@sw-alert-color-warning:    @color-pumpkin-spice;
-@sw-alert-color-error:      @color-crimson;
-@sw-alert-color-success:    @color-emerald;
-@sw-alert-color-info:       @color-shopware-blue;
+@sw-alert-color-border:            @color-steam-cloud;
+@sw-alert-color-fallback:          @color-steam-cloud;
+@sw-alert-color-text:              @color-gutenberg;
+@sw-alert-color-background:        @color-white;
+@sw-alert-color-warning:           @color-pumpkin-spice;
+@sw-alert-color-error:             @color-crimson;
+@sw-alert-color-success:           @color-emerald;
+@sw-alert-color-info:              @color-shopware-blue;
+@sw-alert-box-shadow:              1px 2px 5px rgba(0, 0, 0, 0.1);
+@sw-alert-size-close:              40px;
+@sw-alert-system-color-text:       @color-white;
+@sw-alert-system-color-border:     @color-kashmir;
+@sw-alert-system-color-background: @color-deep-cove;
 
 .sw-alert {
-    padding: 15px 30px 15px 55px;
     border: 1px solid @sw-alert-color-border;
     border-left: 4px solid @sw-alert-color-fallback;
     border-radius: @border-radius-default;
     color: @sw-alert-color-text;
     background-color: @sw-alert-color-background;
-    position: relative;
-    max-width: 450px;
-    margin: 0 auto 20px;
-    box-shadow: 1px 2px 5px rgba(0, 0, 0, 0.1);
+    box-shadow: @sw-alert-box-shadow;
+    padding: 15px 15px 15px 55px;
     text-align: left;
+    position: relative;
+    margin: 0 auto 20px;
 
     .sw-alert__icon {
         color: @sw-alert-color-fallback;
         position: absolute;
         display: block;
         left: 15px;
-        top: 15px;
+        top: 12px;
     }
 
-    .sw-alert__remove {
+    .sw-alert__close {
+        width: @sw-alert-size-close;
+        height: @sw-alert-size-close;
+        line-height: @sw-alert-size-close;
         position: absolute;
         display: block;
-        top: 15px;
-        right: 15px;
+        top: 0;
+        right: 0;
         padding: 0;
         margin: 0;
-        width: 16px;
-        height: 16px;
+        text-align: center;
         background: none;
         border: 0 none;
         outline: none;
@@ -47,7 +53,7 @@
 
     .sw-alert__title {
         font-size: @font-size-default;
-        margin: 2px 0 8px 0;
+        margin-bottom: 8px;
         display: block;
         font-weight: bold;
     }
@@ -56,11 +62,15 @@
         font-size: @font-size-small;
     }
 
+    &.sw-alert--closable {
+        padding-right: @sw-alert-size-close;
+    }
+
     &.sw-alert--warning {
         border-left-color: @sw-alert-color-warning;
 
         .sw-alert__icon,
-        .sw-alert__remove {
+        .sw-alert__close {
             color: @sw-alert-color-warning;
         }
     }
@@ -69,7 +79,7 @@
         border-left-color: @sw-alert-color-error;
 
         .sw-alert__icon,
-        .sw-alert__remove {
+        .sw-alert__close {
             color: @sw-alert-color-error;
         }
     }
@@ -78,7 +88,7 @@
         border-left-color: @sw-alert-color-success;
 
         .sw-alert__icon,
-        .sw-alert__remove {
+        .sw-alert__close {
             color: @sw-alert-color-success;
         }
     }
@@ -87,15 +97,15 @@
         border-left-color: @sw-alert-color-info;
 
         .sw-alert__icon,
-        .sw-alert__remove {
+        .sw-alert__close {
             color: @sw-alert-color-info;
         }
     }
 
     &.sw-alert--system {
-        color: @color-white;
-        background: @color-deep-cove;
-        border: 1px solid @color-kashmir;
+        color: @sw-alert-system-color-text;
+        background: @sw-alert-system-color-background;
+        border: 1px solid @sw-alert-system-color-border;
         box-shadow: none;
     }
 }

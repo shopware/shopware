@@ -15,37 +15,33 @@ State.register('notification', {
     },
 
     actions: {
-        createNotification({ commit }, notification) {
-            const defaultConfig = {
+        createNotification({ commit }, item) {
+            const defaults = {
                 system: false,
                 variant: 'info',
                 uuid: utils.createId(),
-                autoDismiss: true,
+                autoClose: true,
                 duration: 5000
             };
 
-            if (!notification.text) {
-                utils.warn(
-                    'StateNotification',
-                    'A text must be specified',
-                    notification
-                );
-                return Promise.reject(notification);
+            if (!item.message) {
+                utils.warn('StateNotification', 'A message must be specified', item);
+                return Promise.reject(item);
             }
 
-            const notificationObject = Object.assign({}, defaultConfig, notification);
+            const notification = Object.assign({}, defaults, item);
 
-            commit('createNotification', notificationObject);
+            commit('createNotification', notification);
 
-            if (!notificationObject.autoDismiss) {
-                return Promise.resolve(notificationObject);
+            if (!notification.autoClose) {
+                return Promise.resolve(notification);
             }
 
             return new Promise((resolve) => {
                 setTimeout(() => {
-                    commit('removeNotification', 0);
-                    resolve(notificationObject);
-                }, notificationObject.duration);
+                    commit('removeNotification', notification.uuid);
+                    resolve(notification);
+                }, notification.duration);
             });
         }
     },
@@ -55,10 +51,15 @@ State.register('notification', {
             state.notifications = [...state.notifications, notification];
         },
 
-        removeNotification(state, index) {
-            if (index > -1) {
-                state.notifications.splice(index, 1);
+        removeNotification(state, uuid) {
+            if (!utils.isString(uuid)) {
+                state.notifications.splice(uuid, 1);
+                return;
             }
+
+            state.notifications = state.notifications.filter((item) => {
+                return item.uuid !== uuid;
+            });
         }
     }
 

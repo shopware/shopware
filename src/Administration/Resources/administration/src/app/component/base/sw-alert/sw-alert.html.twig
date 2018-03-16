@@ -15,8 +15,12 @@
                 </div>
             {% endblock %}
 
-            {% block sw_alert_dismiss %}
-                <button v-if="removable" class="sw-alert__remove" @click.prevent="$emit('swAlertRemove', notificationIndex)">
+            {% block sw_alert_close %}
+                <button v-if="closable"
+                        class="sw-alert__close"
+                        @click.prevent="$emit('swAlertClose', notificationIndex)"
+                        aria-label="Schließen"
+                        title="Schließen">
                     <sw-icon name="small-default-x-line-medium" small></sw-icon>
                 </button>
             {% endblock %}

@@ -1,14 +1,15 @@
-<transition name="slide-fade">
+<transition name="sw-notifications-slide-fade">
     <div v-if="notifications.length" class="sw-notifications" :style="notificationsStyle">
-        <transition-group name="slide-fade">
+        <transition-group name="sw-notifications-slide-fade">
             <sw-alert v-for="(notification, index) in notifications"
                       :key="notification.uuid"
                       :title="notification.title"
                       :variant="notification.variant"
                       :system="notification.system"
-                      :notificationIndex="index"
-                      @swAlertRemove="onRemove">
-                {{ notification.text }}
+                      :notificationIndex="notification.uuid"
+                      :closable="true"
+                      @swAlertClose="onClose">
+                {{ notification.message }}
             </sw-alert>
         </transition-group>
     </div>

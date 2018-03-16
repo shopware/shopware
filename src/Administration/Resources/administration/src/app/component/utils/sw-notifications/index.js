@@ -14,24 +14,36 @@ Component.register('sw-notifications', {
                 if (!value.length) {
                     return true;
                 }
-                return ['topRight', 'bottomLeft', 'bottomRight'].indexOf(value) !== -1;
+                return ['topRight', 'bottomRight'].includes(value);
             }
         },
         notificationsGap: {
             type: String,
             default: '20px'
+        },
+        limit: {
+            type: Number,
+            default: 5
         }
     },
 
     methods: {
-        onRemove(event) {
+        onClose(event) {
             this.$store.commit('notification/removeNotification', event);
         }
     },
 
     computed: {
-        notifications() {
-            return this.$store.state.notification.notifications;
+        notifications: {
+            get() {
+                const notifications = this.$store.state.notification.notifications;
+
+                if (notifications.length > this.limit) {
+                    this.$store.commit('notification/removeNotification', 0);
+                }
+
+                return notifications;
+            }
         },
 
         notificationsStyle() {
@@ -39,14 +51,6 @@ Component.register('sw-notifications', {
             const notificationsGap = this.notificationsGap;
 
             switch (this.position) {
-            case 'bottomLeft':
-                notificationsStyle = {
-                    top: 'auto',
-                    right: 'auto',
-                    bottom: notificationsGap,
-                    left: notificationsGap
-                };
-                break;
             case 'bottomRight':
                 notificationsStyle = {
                     top: 'auto',

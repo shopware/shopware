@@ -23,21 +23,24 @@ Component.register('sw-alert', {
             required: false,
             default: false
         },
-        removable: {
+        closable: {
             type: Boolean,
             required: false,
-            default: true
+            default: false
         },
         notificationIndex: {
-            type: Number,
-            required: false,
-            default: 0
+            type: String,
+            required: false
         }
     },
     computed: {
         alertClasses() {
             return [
-                `sw-alert--${this.variant}`, { 'sw-alert--system': this.system }
+                `sw-alert--${this.variant}`,
+                {
+                    'sw-alert--system': this.system,
+                    'sw-alert--closable': this.closable
+                }
             ];
         },
 

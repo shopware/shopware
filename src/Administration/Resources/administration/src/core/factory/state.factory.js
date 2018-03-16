@@ -17,7 +17,7 @@ export default {
 const stateRegistry = new Map();
 
 /**
- * Register a new state module
+ * Registers a new state module.
  *
  * @param {String} name
  * @param {Object} [module={}]

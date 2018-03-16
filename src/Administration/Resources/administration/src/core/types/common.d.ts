@@ -123,6 +123,17 @@ declare namespace Shopware {
         ): object|undefined;
     }
 
+    export namespace Directive {
+        export function register(
+            directiveName: string,
+            directve: object
+        ): boolean;
+
+        export function getByName(
+            directiveName: string
+        ): object|undefined;
+    }
+
     export namespace Utils {
         export function warn(
             name?: string = 'Core',

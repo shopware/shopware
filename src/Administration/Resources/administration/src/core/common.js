@@ -14,6 +14,7 @@ const EntityFactory = require('src/core/factory/entity.factory').default;
 const StateFactory = require('src/core/factory/state.factory').default;
 const MixinFactory = require('src/core/factory/mixin.factory').default;
 const FilterFactory = require('src/core/factory/filter.factory').default;
+const DirectiveFactory = require('src/core/factory/directive.factory').default;
 
 const utils = require('src/core/service/util.service').default;
 const ApplicationBootstrapper = require('src/core/application').default;
@@ -45,6 +46,9 @@ application
     })
     .addFactory('filter', () => {
         return FilterFactory;
+    })
+    .addFactory('directive', () => {
+        return DirectiveFactory;
     });
 
 module.exports = {
@@ -117,6 +121,15 @@ module.exports = {
     Filter: {
         register: FilterFactory.register,
         getByName: FilterFactory.getByName
+    },
+
+    /**
+     * @memberOf module:Shopware
+     * @type {Object}
+     */
+    Directive: {
+        register: DirectiveFactory.registerDirective,
+        getByName: DirectiveFactory.getDirectiveByName
     },
 
     /**

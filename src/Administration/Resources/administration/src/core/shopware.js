@@ -35,6 +35,11 @@ export const Filter = {
     getByName: Shopware.Filter.getByName
 };
 
+export const Directive = {
+    register: Shopware.Directive.register,
+    getByName: Shopware.Directive.getByName
+};
+
 export const Entity = {
     addDefinition: Shopware.Entity.addDefinition,
     getDefinition: Shopware.Entity.getDefinition,

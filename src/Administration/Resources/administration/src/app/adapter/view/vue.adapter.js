@@ -23,9 +23,10 @@ const vueComponents = {};
  * @param componentFactory
  * @param stateFactory
  * @param filterFactory
+ * @param directiveFactory
  * @returns {VueAdapter}
  */
-export default function VueAdapter(context, componentFactory, stateFactory, filterFactory) {
+export default function VueAdapter(context, componentFactory, stateFactory, filterFactory, directiveFactory) {
     return {
         createInstance,
         initComponents,
@@ -48,6 +49,7 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
      */
     function createInstance(renderElement, router, providers) {
         initPlugins();
+        initDirectives();
         initFilters();
         initInheritance();
 
@@ -160,6 +162,23 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
         });
 
         return store;
+    }
+
+    /**
+     * Initializes all custom directives.
+     *
+     * @private
+     * @memberOf module:app/adapter/view/vue
+     * @returns {Boolean}
+     */
+    function initDirectives() {
+        const registry = directiveFactory.getDirectiveRegistry();
+
+        registry.forEach((directive, name) => {
+            Vue.directive(name, directive);
+        });
+
+        return true;
     }
 
     /**

@@ -17,6 +17,13 @@ State.register('notification', {
     },
 
     actions: {
+        /**
+         * @memberOf module:app/state/notification
+         * @type action
+         * @param commit
+         * @param item
+         * @returns {Promise<T>}
+         */
         createNotification({ commit }, item) {
             const defaults = {
                 system: false,
@@ -49,11 +56,25 @@ State.register('notification', {
     },
 
     mutations: {
+        /**
+         * @type mutation
+         * @memberOf module:app/state/notification
+         * @param {Object} state
+         * @param {Object} notification
+         * @returns {void}
+         */
         createNotification(state, notification) {
-            state.notifications = [...state.notifications, notification];
+            state.notifications.push(notification);
         },
 
-        removeNotification(state, uuid) {
+        /**
+         * @type mutation
+         * @memberOf module:app/state/notification
+         * @param {Object} state
+         * @param {Number|String} [uuid=0]
+         * @returns {void}
+         */
+        removeNotification(state, uuid = 0) {
             if (!types.isString(uuid)) {
                 state.notifications.splice(uuid, 1);
                 return;

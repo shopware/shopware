@@ -39,7 +39,7 @@ Component.register('sw-notifications', {
                 const notifications = this.$store.state.notification.notifications;
 
                 if (notifications.length > this.limit) {
-                    this.$store.commit('notification/removeNotification', 0);
+                    this.$store.commit('notification/removeNotification');
                 }
 
                 return notifications;
@@ -47,28 +47,27 @@ Component.register('sw-notifications', {
         },
 
         notificationsStyle() {
-            let notificationsStyle;
-            const notificationsGap = this.notificationsGap;
+            let notificationsGap = this.notificationsGap;
 
-            switch (this.position) {
-            case 'bottomRight':
-                notificationsStyle = {
+            if (`${parseInt(notificationsGap, 10)}` === notificationsGap) {
+                notificationsGap = `${notificationsGap}px`;
+            }
+
+            if (this.position === 'bottomRight') {
+                return {
                     top: 'auto',
                     right: notificationsGap,
                     bottom: notificationsGap,
                     left: 'auto'
                 };
-                break;
-            default:
-                notificationsStyle = {
-                    top: notificationsGap,
-                    right: notificationsGap,
-                    bottom: 'auto',
-                    left: 'auto'
-                };
             }
 
-            return notificationsStyle;
+            return {
+                top: notificationsGap,
+                right: notificationsGap,
+                bottom: 'auto',
+                left: 'auto'
+            };
         }
     }
 });

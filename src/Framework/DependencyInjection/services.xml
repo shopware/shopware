@@ -130,6 +130,8 @@
             <tag name="console.command" command="framework:demodata" />
             <argument>framework:demodata</argument>
             <argument type="service" id="Shopware\Api\Entity\Write\EntityWriter"/>
+            <argument type="service" id="Shopware\Product\Service\VariantGenerator"/>
+            <argument type="service" id="Shopware\Api\Product\Repository\ProductRepository"/>
         </service>
 
         <!-- Serializer -->

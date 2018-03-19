@@ -12,6 +12,11 @@ class StopWordFilter implements SearchFilterInterface
      */
     private $filter;
 
+    /**
+     * @var array
+     */
+    private $words;
+
     public function __construct()
     {
         $this->filter = new StopWords();
@@ -19,17 +24,41 @@ class StopWordFilter implements SearchFilterInterface
 
     public function filter(array $tokens, ShopContext $context): array
     {
-        $words = $this->filter->getStopWordsFromLanguage('en');
-        $fallback = $this->filter->getStopWordsFromLanguage();
-        $words = array_merge($fallback, $words);
+        $words = $this->loadWords();
 
-        $tokens = array_diff($tokens, $words);
-        $tokens = array_values($tokens);
+        $tokens = $this->filterWords($tokens, $words);
 
-        $tokens = array_filter($tokens, function ($token) {
-            return strlen($token) > 3;
-        });
+        $tokens = $this->filterLength($tokens);
 
         return $tokens;
+    }
+
+    private function loadWords(): array
+    {
+        if ($this->words) {
+            return $this->words;
+        }
+        $words = $this->filter->getStopWordsFromLanguage('en');
+        $words = array_flip($words);
+
+        $fallback = $this->filter->getStopWordsFromLanguage();
+        $fallback = array_flip($fallback);
+
+        return $this->words = array_merge($fallback, $words);
+    }
+
+    private function filterWords(array $tokens, array $words): array
+    {
+        $tokens = array_flip($tokens);
+        $tokens = array_diff_key($tokens, $words);
+
+        return array_keys($tokens);
+    }
+
+    private function filterLength(array $tokens): array
+    {
+        return array_filter($tokens, function ($token) {
+            return strlen($token) > 3;
+        });
     }
 }

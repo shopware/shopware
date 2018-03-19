@@ -1,4 +1,6 @@
 import { State } from 'src/core/shopware';
+import { warn } from 'src/core/service/utils/debug.utils';
+import types from 'src/core/service/utils/types.utils';
 import utils from 'src/core/service/util.service';
 
 /**
@@ -25,7 +27,7 @@ State.register('notification', {
             };
 
             if (!item.message) {
-                utils.warn('StateNotification', 'A message must be specified', item);
+                warn('StateNotification', 'A message must be specified', item);
                 return Promise.reject(item);
             }
 
@@ -52,7 +54,7 @@ State.register('notification', {
         },
 
         removeNotification(state, uuid) {
-            if (!utils.isString(uuid)) {
+            if (!types.isString(uuid)) {
                 state.notifications.splice(uuid, 1);
                 return;
             }

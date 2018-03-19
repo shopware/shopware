@@ -22,6 +22,8 @@ use Shopware\Payment\Token\PaymentTransactionTokenFactory;
 use Shopware\Storefront\Page\Checkout\PaymentMethodLoader;
 use Shopware\StorefrontApi\Context\StorefrontContextPersister;
 use Shopware\StorefrontApi\Context\StorefrontContextService;
+use Shopware\Storefront\Page\Checkout\PaymentMethodLoader;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -234,6 +236,28 @@ class CheckoutController extends StorefrontController
             'cart' => $calculatedCart,
             'customer' => $context->getCustomer(),
         ]);
+    }
+
+    /**
+     * @Route("/checkout/cartAmount", name="checkout_cart_amount", options={"seo"="false"})
+     * @Method({"POST"})
+     *
+     * @throws \Exception
+     */
+    public function cartAmountAction(Request $request, StorefrontContext $context): Response
+    {
+        $calculatedCart = $this->cartService->getCalculatedCart();
+
+        $amount = $this->renderStorefront(
+            '@Storefront/frontend/checkout/ajax_amount.html.twig',
+            ['amount' => $calculatedCart->getPrice()->getTotalPrice()]
+        )->getContent();
+
+        return new JsonResponse([
+            'amount' => $amount,
+            'quantity' => $calculatedCart->getCalculatedLineItems()->count(),
+        ]);
+
     }
 
     private function getOrder(string $orderId, StorefrontContext $context): OrderBasicStruct

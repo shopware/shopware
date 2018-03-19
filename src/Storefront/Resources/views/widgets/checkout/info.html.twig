@@ -43,7 +43,7 @@
             <i class="icon--basket"></i>
 
             <span class="cart--amount">
-                {{ cartAmount|number_format(2) }} {% trans from "frontend/listing/box_article" %}Star{% endtrans %}
+                {% sw_include('@Storefront/frontend/checkout/ajax_amount.html.twig') with {'amount': cartAmount} %}
             </span>
         </a>
         <div class="ajax-loader">&nbsp;</div>

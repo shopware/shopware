@@ -191,22 +191,21 @@
 
             $.ajax({
                 'url': ajaxCartRefresh,
-                'dataType': 'jsonp',
+                'method': 'POST',
                 'success': function (response) {
-                    var cart = JSON.parse(response);
 
-                    if (!cart.amount || !cart.quantity) {
+                    if (!response.amount || !response.quantity) {
                         return;
                     }
 
-                    $cartAmount.html(cart.amount);
-                    $cartQuantity.html(cart.quantity).removeClass('is--hidden');
+                    $cartAmount.html(response.amount);
+                    $cartQuantity.html(response.quantity).removeClass('is--hidden');
 
-                    if (cart.quantity == 0) {
+                    if (response.quantity === 0) {
                         $cartQuantity.addClass('is--hidden');
                     }
 
-                    $.publish('plugin/swResponsive/onCartRefreshSuccess', [ cart ]);
+                    $.publish('plugin/swResponsive/onCartRefreshSuccess', [ response ]);
                 }
             });
         }

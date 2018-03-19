@@ -27,7 +27,7 @@ State.register('notification', {
         createNotification({ commit }, item) {
             const defaults = {
                 system: false,
-                variant: 'info',
+                variant: 'info', // success, info, warning, error
                 uuid: utils.createId(),
                 autoClose: true,
                 duration: 5000
@@ -40,7 +40,7 @@ State.register('notification', {
 
             const notification = Object.assign({}, defaults, item);
 
-            commit('createNotification', notification);
+            commit('addNotification', notification);
 
             if (!notification.autoClose) {
                 return Promise.resolve(notification);
@@ -63,7 +63,7 @@ State.register('notification', {
          * @param {Object} notification
          * @returns {void}
          */
-        createNotification(state, notification) {
+        addNotification(state, notification) {
             state.notifications.push(notification);
         },
 

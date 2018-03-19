@@ -1,4 +1,4 @@
-<div :class="['sw-field', `sw-field--${type}`, hasErrorCls ? 'has--error' : '', suffix.length ? 'has--suffix': '', disabled ? 'is--disabled' : '']">
+<div :class="['sw-field', `sw-field--${type}`, hasErrorCls() ? 'has--error' : '', suffix.length ? 'has--suffix': '', disabled ? 'is--disabled' : '']">
 
     <!-- Label -->
     <label v-if="label" :for="name">
@@ -127,7 +127,7 @@
         <slot name="help-text">{{ helpText }}</slot>
     </div>
 
-    <div class="sw-field__error" v-if="hasError">
-        <slot name="error">{{ error.detail }}</slot>
+    <div class="sw-field__error" v-if="hasError()">
+        <slot name="error">{{ getError().detail }}</slot>
     </div>
 </div>

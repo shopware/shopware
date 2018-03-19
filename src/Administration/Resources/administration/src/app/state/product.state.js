@@ -140,12 +140,28 @@ State.register('product', {
 
                     commit('initProduct', newProduct);
                     return newProduct;
+                }).catch((exception) => {
+                    if (exception.response.data && exception.response.data.errors) {
+                        exception.response.data.errors.forEach((error) => {
+                            commit('addProductError', error);
+                        });
+                    }
+
+                    return Promise.reject(exception);
                 });
             }
 
             return productService.updateById(product.id, changeset).then((response) => {
                 commit('initProduct', response.data);
                 return response.data;
+            }).catch((exception) => {
+                if (exception.response.data && exception.response.data.errors) {
+                    exception.response.data.errors.forEach((error) => {
+                        commit('addProductError', error);
+                    });
+                }
+
+                return Promise.reject(exception);
             });
         }
     },
@@ -184,6 +200,13 @@ State.register('product', {
             }
 
             Object.assign(state.draft[product.id], product);
+        },
+
+        addProductError(state, error) {
+            this.commit('error/addError', {
+                module: 'product',
+                error
+            });
         }
     }
 });

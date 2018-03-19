@@ -9,6 +9,11 @@ Component.register('sw-field', {
         Mixin.getByName('validation')
     ],
 
+    /**
+     * All additional passed attributes are bound explicit to the correct child element.
+     */
+    inheritAttrs: false,
+
     props: {
         type: {
             type: String,
@@ -49,8 +54,8 @@ Component.register('sw-field', {
             required: false,
             default: false
         },
-        error: {
-            type: Object,
+        errorMessage: {
+            type: String,
             required: false,
             default: null
         },
@@ -66,18 +71,9 @@ Component.register('sw-field', {
     data() {
         return {
             currentValue: null,
-            valueType: 'string'
+            valueType: 'string',
+            boundExpressionPath: []
         };
-    },
-
-    computed: {
-        hasError() {
-            return this.error !== null && typeof this.error !== 'undefined' && Object.keys(this.error).length > 0;
-        },
-
-        hasErrorCls() {
-            return !this.isValid || this.hasError;
-        }
     },
 
     watch: {
@@ -89,6 +85,10 @@ Component.register('sw-field', {
     mounted() {
         this.valueType = typeof this.value;
         this.currentValue = this.value;
+
+        if (this.$vnode.data && this.$vnode.data.model) {
+            this.boundExpressionPath = this.$vnode.data.model.expression.split('.');
+        }
     },
 
     methods: {
@@ -96,6 +96,10 @@ Component.register('sw-field', {
             this.currentValue = this.getValueFromEvent(event);
 
             this.$emit('input', this.currentValue);
+
+            if (this.hasError()) {
+                this.$store.commit('error/deleteError', this.getError());
+            }
         },
 
         onChange(event) {
@@ -105,6 +109,10 @@ Component.register('sw-field', {
 
             if (['checkbox', 'radio', 'switch'].includes(this.type)) {
                 this.$emit('input', this.currentValue);
+            }
+
+            if (this.hasError()) {
+                this.$store.commit('error/deleteError', this.getError());
             }
         },
 
@@ -132,6 +140,28 @@ Component.register('sw-field', {
             }
 
             return value;
+        },
+
+        getError() {
+            if (this.errorMessage !== null && this.errorMessage.length > 0) {
+                return { detail: this.errorMessage };
+            }
+
+            if (this.boundExpressionPath.length <= 0) {
+                return null;
+            }
+
+            return this.boundExpressionPath.reduce((obj, key) => {
+                return (obj !== null && obj[key]) ? obj[key] : null;
+            }, this.$store.state.error);
+        },
+
+        hasError() {
+            return (this.errorMessage !== null && this.errorMessage.length > 0) || this.getError() !== null;
+        },
+
+        hasErrorCls() {
+            return !this.isValid || this.hasError();
         }
     }
 });

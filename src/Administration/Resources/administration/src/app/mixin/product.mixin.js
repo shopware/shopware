@@ -99,59 +99,13 @@ Mixin.register('product', {
                 if (this.$route.name === 'sw.product.create') {
                     this.$router.push({ name: 'sw.product.detail', params: { id: product.id } });
                 }
-            }).catch((exception) => {
+            }).catch(() => {
                 this.isLoading = false;
-
-                if (exception.response.data && exception.response.data.errors) {
-                    this.handleProductErrors(exception.response.data.errors);
-                }
-
-                return exception;
             });
         },
 
         commitProduct: utils.throttle(function throttledCommitProduct() {
             return this.$store.commit('product/setProduct', this.product);
-        }, 500),
-
-        handleProductErrors(errors) {
-            errors.forEach((error, index) => {
-                if (error.source && error.source.pointer) {
-                    error.propertyDepth = error.source.pointer.split('/');
-
-                    error.propertyPath = `product${error.propertyDepth.join('.')}`;
-
-                    error.unwatch = this.$watch(error.propertyPath, () => {
-                        this.resetError(error);
-                    });
-
-                    error.propertyDepth.reduce((obj, key, i) => {
-                        if (!key.length || key.length <= 0) {
-                            return obj;
-                        }
-
-                        obj[key] = (i === error.propertyDepth.length - 1) ? error : {};
-
-                        return obj[key];
-                    }, this.productErrors);
-                } else {
-                    this.productErrors[index] = error;
-                }
-            });
-        },
-
-        resetError(error) {
-            if (error.unwatch && typeof error.unwatch === 'function') {
-                error.unwatch();
-            }
-
-            error.propertyDepth.reduce((obj, key, index) => {
-                if (index === error.propertyDepth.length - 1) {
-                    delete obj[key];
-                }
-
-                return obj;
-            }, this.productErrors);
-        }
+        }, 500)
     }
 });

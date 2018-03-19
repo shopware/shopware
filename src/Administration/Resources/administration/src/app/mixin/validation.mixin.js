@@ -1,4 +1,5 @@
 import { Mixin } from 'src/core/shopware';
+import { types } from 'src/core/service/util.service';
 
 Mixin.register('validation', {
     inject: ['validationService'],
@@ -25,7 +26,7 @@ Mixin.register('validation', {
                 valid = this.validateRule(value, this.validation);
             }
 
-            if (Shopware.Utils.isArray(this.validation)) {
+            if (types.isArray(this.validation)) {
                 valid = this.validation.every((validationRule) => {
                     return this.validateRule(value, validationRule);
                 });

@@ -24,7 +24,7 @@ Component.register('sw-product-detail', {
                 select: 2,
                 date: '2018-02-13T22:30',
                 number: 10,
-                email: '',
+                email: 'psc@shopware.com',
                 radio: null,
                 switchField: true
             }
@@ -89,11 +89,6 @@ Component.register('sw-product-detail', {
 
         onSave() {
             this.saveProduct();
-
-            this.createNotificationSuccess({
-                title: 'Produktdetails',
-                message: 'Das Produkt wurde erfolgreich gespeichert.'
-            });
         }
     },
 

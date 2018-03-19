@@ -60,8 +60,7 @@
                       name="email"
                       :validation="['required', 'email']"
                       placeholder="This is a html email field"
-                      helpText="This is a html email field"
-                      suffix="@"
+                      suffix="E-Mail"
                       v-model="formTest.email">
             </sw-field>
             <sw-field type="text"
@@ -69,15 +68,6 @@
                       name="manufacturerId"
                       placeholder="The id of the product manufacturer"
                       suffix="Manufacturer"
-                      :error="productErrors.manufacturerId"
-                      v-model="product.manufacturerId">
-            </sw-field>
-            <sw-field type="text"
-                      label="Manufacturer ID 2"
-                      name="manufacturerId2"
-                      placeholder="The second field also for manufacturer ID"
-                      suffix="Manufacturer"
-                      :error="productErrors.manufacturerId"
                       v-model="product.manufacturerId">
             </sw-field>
             <sw-field type="number"
@@ -88,7 +78,6 @@
                       step="10"
                       min="0"
                       max="100"
-                      :error="{ detail: 'This cannot be lower than 40' }"
                       v-model="formTest.number">
             </sw-field>
             <sw-field type="textarea"

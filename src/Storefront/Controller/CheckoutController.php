@@ -212,7 +212,6 @@ class CheckoutController extends StorefrontController
         $this->tokenFactory->invalidateToken($paymentToken->getToken());
 
         $paymentHandler = $this->getPaymentHandlerById($paymentToken->getPaymentMethodId(), $context->getShopContext());
-
         $paymentHandler->finalize($paymentToken->getTransactionId(), $request, $context->getShopContext());
 
         return $this->redirectToRoute('checkout_pay', ['transaction' => $paymentToken->getTransactionId()]);

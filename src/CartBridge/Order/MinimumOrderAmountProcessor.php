@@ -55,7 +55,13 @@ class MinimumOrderAmountProcessor implements CartProcessorInterface
         );
 
         $calculatedCart->getCalculatedLineItems()->add(
-            new CalculatedLineItem('minimum-order-value', $surcharge, 1, 'minimum-order-value')
+            new CalculatedLineItem(
+                'minimum-order-value',
+                $surcharge,
+                1,
+                'minimum-order-value',
+                'Extra charge for small quantities'
+            )
         );
     }
 }

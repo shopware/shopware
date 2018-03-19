@@ -793,7 +793,7 @@ INSERT INTO `payment_method` (`id`, `version_id`,`technical_name`, `template`, `
   (unhex('77573b9cf7914cb5a9519945bff1d95b'),	unhex('ffffffffffffffffffffffffffffffff'), 'cash',	'cash.tpl',	'Shopware\\Payment\\PaymentHandler\\CashPayment',	'',	0,	NULL,	NULL,	'',	2,	1,	0,	'',	0,	NULL,	NULL,	NULL,	0,	NULL,	'2017-12-14 15:45:46',	NULL),
   (unhex('19d144ffe15f4772860d59fca7f207c1'),	unhex('ffffffffffffffffffffffffffffffff'), 'invoice',	'invoice.tpl',	'Shopware\\Payment\\PaymentHandler\\InvoicePayment',	'',	0,	NULL,	5,	'',	3,	1,	1,	'',	0,	'',	NULL,	NULL,	0,	NULL,	'2017-12-14 15:45:46',	NULL),
   (unhex('47160b00cd064b0188176451f9f3c247'),	unhex('ffffffffffffffffffffffffffffffff'), 'prepayment',	'prepayment.tpl',	'Shopware\\Payment\\PaymentHandler\\PrePayment',	'',	0,	NULL,	NULL,	'',	1,	1,	0,	'',	0,	NULL,	NULL,	NULL,	0,	NULL,	'2017-12-14 15:45:46',	NULL),
-  (unhex('a6ddadce4cb441f3976a32505049f037'),	unhex('ffffffffffffffffffffffffffffffff'), 'sepa',	'sepa.tpl',	'Shopware\\Payment\\PaymentHandler\\SEPAPayment',	'',	0,	NULL,	NULL,	'',	5,	1,	1,	'',	0,	'',	NULL,	NULL,	0,	NULL,	'2017-12-14 15:45:46',	NULL);
+  (unhex('a6ddadce4cb441f3976a32505049f037'),	unhex('ffffffffffffffffffffffffffffffff'), 'sepa',	'@Payment/frontend/sepa.html.twig',	'Shopware\\Payment\\PaymentHandler\\SEPAPayment',	'',	0,	NULL,	NULL,	'',	5,	1,	1,	'',	0,	'',	NULL,	NULL,	0,	NULL,	'2017-12-14 15:45:46',	NULL);
 
 INSERT INTO `payment_method_translation` (`payment_method_id`, `version_id`, `language_id`, `name`, `additional_description`) VALUES
   (unhex('e84976ace9ab4928a3dcc387b66dbaa6'),	unhex('ffffffffffffffffffffffffffffffff'), unhex('ffffffffffffffffffffffffffffffff'),	'Debit',	'Additional text'),

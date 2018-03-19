@@ -3,6 +3,8 @@ import template from './sw-alert.html.twig';
 import './sw-alert.less';
 
 Component.register('sw-alert', {
+    template,
+
     props: {
         variant: {
             type: String,
@@ -66,7 +68,5 @@ Component.register('sw-alert', {
 
             return alertIcon;
         }
-    },
-
-    template
+    }
 });

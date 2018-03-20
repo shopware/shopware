@@ -116,6 +116,12 @@ Component.register('sw-field', {
             }
         },
 
+        /**
+         * Get the correct value from a input event based on the input type.
+         *
+         * @param event
+         * @returns {*}
+         */
         getValueFromEvent(event) {
             let value = event.target.value;
 
@@ -126,6 +132,12 @@ Component.register('sw-field', {
             return this.convertValueType(value);
         },
 
+        /**
+         * Convert the value to the correct type based on the bound property.
+         *
+         * @param value
+         * @returns {*}
+         */
         convertValueType(value) {
             if (this.valueType === 'number') {
                 return parseFloat(value);
@@ -142,6 +154,13 @@ Component.register('sw-field', {
             return value;
         },
 
+        /**
+         * Get the current error of the field.
+         * Will look for errors for the bound value in the global error state.
+         * You can also pass an error message directly via property.
+         *
+         * @returns {*}
+         */
         getError() {
             if (this.errorMessage !== null && this.errorMessage.length > 0) {
                 return { detail: this.errorMessage };

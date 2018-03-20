@@ -28,6 +28,7 @@ State.register('product', {
         /**
          * Get a list of products by offset and limit.
          *
+         * @memberOf module:app/state/product
          * @param commit
          * @param offset
          * @param limit
@@ -56,6 +57,7 @@ State.register('product', {
          * Get a product by id.
          * If the product does not exist in the state object, it will be loaded via the API.
          *
+         * @memberOf module:app/state/product
          * @param commit
          * @param state
          * @param id
@@ -87,6 +89,7 @@ State.register('product', {
          * The object can be used in the data binding for creating a new product.
          * It will be marked with a `ìsNew` property.
          *
+         * @memberOf module:app/state/product
          * @param commit
          * @param state
          * @param productId
@@ -115,6 +118,7 @@ State.register('product', {
         /**
          * Saves the given product to the server by sending a changeset.
          *
+         * @memberOf module:app/state/product
          * @param commit
          * @param state
          * @param product
@@ -170,6 +174,7 @@ State.register('product', {
         /**
          * Initializes a new product in the state.
          *
+         * @memberOf module:app/state/product
          * @param state
          * @param product
          */
@@ -190,6 +195,7 @@ State.register('product', {
         /**
          * Updates a product in the state.
          *
+         * @memberOf module:app/state/product
          * @param state
          * @param product
          */
@@ -202,6 +208,13 @@ State.register('product', {
             Object.assign(state.draft[product.id], product);
         },
 
+        /**
+         * Commits a product error to the global error state.
+         *
+         * @memberOf module:app/state/product
+         * @param state
+         * @param error
+         */
         addProductError(state, error) {
             this.commit('error/addError', {
                 module: 'product',

@@ -1,30 +1,65 @@
-<sw-card title="Produkt Informationen" description="Allgemeine Informationen zum Produkt. Lorem ipsum dolor sit amet, consectetur adipisicing elit. A dolor praesentium repellat sequi tempora. Facilis minima, quibusdam. Assumenda atque commodi dicta, eum excepturi nostrum optio quis quos reiciendis vel voluptatem.">
+<sw-card title="Produkt Informationen">
 
-    <sw-field label="Titel" id="title" type="text" name="name" placeholder="Your product title..." v-model="product.name"></sw-field>
+    <sw-field type="text"
+              label="Titel"
+              name="title"
+              placeholder="Your product title..."
+              v-model="product.name">
+    </sw-field>
 
     <div class="split--container">
         <div class="container--item">
-            <sw-field label="Tax rate" id="tax" type="select" name="name" placeholder="Tax rate" v-model="product.taxId">
+            <sw-field type="select"
+                      label="Tax rate"
+                      name="tax"
+                      placeholder="Tax rate"
+                      v-model="product.taxId">
                 <option slot="options" v-for="tax in taxRates" :value="tax.id">{{ tax.name }}</option>
             </sw-field>
         </div>
         <div class="container--item">
-            <sw-field label="Preis" id="price" type="number" name="price" suffix="EUR" placeholder="Product price..." v-model="product.price.gross"></sw-field>
+            <sw-field type="number"
+                      label="Preis"
+                      name="price"
+                      suffix="EUR"
+                      placeholder="Product price..."
+                      v-model="product.price.gross">
+            </sw-field>
         </div>
     </div>
 
-    <sw-field label="Artikel-Beschreibung" id="descriptionLong" type="textarea" name="descriptionLong" placeholder="Your product description..." v-model="product.descriptionLong"></sw-field>
+    <sw-field type="textarea"
+              label="Artikel-Beschreibung"
+              name="descriptionLong"
+              placeholder="Your product description..."
+              v-model="product.descriptionLong">
+    </sw-field>
 
     <div class="split--container">
         <div class="container--item">
-            <sw-field label="Artikelnummer" id="id" type="text" name="id" placeholder="Your product Id" :value="product.id"></sw-field>
+            <sw-field type="text"
+                      label="Artikelnummer"
+                      name="id"
+                      placeholder="Your product Id"
+                      :value="product.id">
+            </sw-field>
         </div>
         <div class="container--item">
-            <sw-field label="Hersteller" id="manufacturer" type="select" name="manufacturer" placeholder="Your product manufacturer" v-model="product.manufacturerId">
+            <sw-field type="select"
+                      label="Hersteller"
+                      name="manufacturer"
+                      placeholder="Your product manufacturer"
+                      v-model="product.manufacturerId">
                 <option slot="options" v-for="manufacturer in manufacturers" :value="manufacturer.id">{{ manufacturer.name }}</option>
             </sw-field>
         </div>
     </div>
 
-    <sw-multi-select label="Kategorie" id="category" placeholder="Your product categories..." :serviceProvider="serviceProvider" :values="productCategoryIds" v-model="product.categories"></sw-multi-select>
+    <sw-multi-select label="Kategorie"
+                     id="category"
+                     placeholder="Your product categories..."
+                     :serviceProvider="serviceProvider"
+                     :values="productCategoryIds"
+                     v-model="product.categories">
+    </sw-multi-select>
 </sw-card>

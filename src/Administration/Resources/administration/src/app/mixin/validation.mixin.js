@@ -1,6 +1,9 @@
 import { Mixin } from 'src/core/shopware';
 import { types } from 'src/core/service/util.service';
 
+/**
+ * @module app/mixin/validation
+ */
 Mixin.register('validation', {
     inject: ['validationService'],
 

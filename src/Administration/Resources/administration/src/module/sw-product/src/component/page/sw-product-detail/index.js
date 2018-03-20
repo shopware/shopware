@@ -14,20 +14,7 @@ Component.register('sw-product-detail', {
         return {
             taxRates: [],
             manufacturers: [],
-            customerGroups: [],
-            formTest: {
-                text: 'This is my text',
-                text2: 'This is my second text',
-                textArea: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam.',
-                checkbox: false,
-                checkbox2: true,
-                select: 2,
-                date: '2018-02-13T22:30',
-                number: 10,
-                email: 'psc@shopware.com',
-                radio: null,
-                switchField: true
-            }
+            customerGroups: []
         };
     },
 

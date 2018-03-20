@@ -8,7 +8,6 @@ import './grid/sw-grid';
 import './grid/sw-grid-column';
 import './grid/sw-pagination';
 
-import './form/sw-form';
 import './form/sw-field';
 import './form/sw-form-grid';
 import './form/sw-multi-select';

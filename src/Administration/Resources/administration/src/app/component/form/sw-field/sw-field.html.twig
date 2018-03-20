@@ -1,133 +1,195 @@
-<div :class="['sw-field', `sw-field--${type}`, hasErrorCls() ? 'has--error' : '', suffix.length ? 'has--suffix': '', disabled ? 'is--disabled' : '']">
+{% block sw_field %}
+    <div :class="['sw-field', `sw-field--${type}`, hasErrorCls() ? 'has--error' : '', suffix.length ? 'has--suffix': '', disabled ? 'is--disabled' : '']">
 
-    <!-- Label -->
-    <label v-if="label" :for="name">
-        <slot name="label">{{ label }}</slot>
-    </label>
+        <!-- Label -->
+        {% block sw_field_label %}
+            <label v-if="label" :for="name">
+                <slot name="label">{{ label }}</slot>
+            </label>
+        {% endblock %}
 
-    <div class="sw-field__input">
-        <!-- Textarea -->
-        <textarea v-if="type === 'textarea'"
-                  :name="name"
-                  :id="name"
-                  :placeholder="placeholder"
-                  v-html="currentValue"
-                  :disabled="disabled ? 'disabled' : false"
-                  @input="onInput"
-                  @change="onChange"
-                  v-bind="$attrs">
-        </textarea>
+        {% block sw_field_input %}
+            <div class="sw-field__input">
 
-        <!-- Select -->
-        <div v-else-if="type === 'select' || type === 'combo'" class="sw-field__select" >
-            <select :name="name"
-                    :id="name"
-                    :value="currentValue"
-                    :disabled="disabled ? 'disabled' : false"
-                    @input="onInput"
-                    @change="onChange"
-                    v-bind="$attrs">
+                <!-- Textarea -->
+                {% block sw_field_input_textarea %}
+                    <textarea v-if="type === 'textarea'"
+                              :name="name"
+                              :id="name"
+                              :placeholder="placeholder"
+                              v-html="currentValue"
+                              :disabled="disabled ? 'disabled' : false"
+                              @input="onInput"
+                              @change="onChange"
+                              v-bind="$attrs">
+                    </textarea>
+                {% endblock %}
 
-                <slot name="options">
-                    <template v-if="options.length">
-                        <option v-for="option in options" :value="option.value">{{ option.label }}</option>
-                    </template>
-                </slot>
-            </select>
-            <sw-icon name="small-arrow-medium-down" small decorative/>
-        </div>
+                <!-- Select -->
+                {% block sw_field_input_select %}
+                    <div v-else-if="type === 'select' || type === 'combo'" class="sw-field__select" >
 
-        <!-- Radio -->
-        <div v-else-if="type === 'radio'" class="sw-field__radio-group">
-            <slot name="radio-options">
-                <template v-if="options.length">
-                    <div class="sw-field__radio-option" v-for="(option, index) in options">
-                        <div class="sw-field__radio-input">
-                            <input type="radio"
+                        {% block sw_field_input_select_field %}
+                            <select :name="name"
+                                    :id="name"
+                                    :value="currentValue"
+                                    :disabled="disabled ? 'disabled' : false"
+                                    @input="onInput"
+                                    @change="onChange"
+                                    v-bind="$attrs">
+
+                                {% block sw_field_input_select_field_options %}
+                                    <slot name="options">
+                                        {% block sw_field_slot_options %}
+                                            <template v-if="options.length">
+                                                <option v-for="option in options" :value="option.value">{{ option.label }}</option>
+                                            </template>
+                                        {% endblock %}
+                                    </slot>
+                                {% endblock %}
+                            </select>
+                        {% endblock %}
+
+                        <sw-icon name="small-arrow-medium-down" small decorative/>
+                    </div>
+                {% endblock %}
+
+                <!-- Radio -->
+                {% block sw_field_input_radio %}
+                    <div v-else-if="type === 'radio'" class="sw-field__radio-group">
+
+                        {% block sw_field_input_radio_options %}
+                            <slot name="radio-options">
+                                {% block sw_field_slot_radio_options %}
+                                    <template v-if="options.length">
+                                        <div class="sw-field__radio-option" v-for="(option, index) in options">
+                                            <div class="sw-field__radio-input">
+                                                <input type="radio"
+                                                       :name="name"
+                                                       :id="`${name}-${index}`"
+                                                       :value="option.value"
+                                                       :disabled="disabled ? 'disabled' : false"
+                                                       :checked="currentValue === option.value ? 'checked' : false"
+                                                       @input="onInput"
+                                                       @change="onChange"
+                                                       v-bind="$attrs">
+
+                                                <div class="sw-field__radio-state"></div>
+                                            </div>
+
+                                            <label :for="`${name}-${index}`">{{ option.label }}</label>
+                                        </div>
+                                    </template>
+                                {% endblock %}
+                            </slot>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+
+                <!-- Checkbox -->
+                {% block sw_field_input_checkbox %}
+                    <div v-else-if="type === 'checkbox'" class="sw-field__checkbox">
+
+                        {% block sw_field_input_checkbox_input %}
+                            <input type="checkbox"
                                    :name="name"
-                                   :id="`${name}-${index}`"
-                                   :value="option.value"
+                                   :id="name"
                                    :disabled="disabled ? 'disabled' : false"
-                                   :checked="currentValue === option.value ? 'checked' : false"
+                                   :checked="currentValue ? 'checked' : false"
                                    @input="onInput"
                                    @change="onChange"
                                    v-bind="$attrs">
+                        {% endblock %}
 
-                            <div class="sw-field__radio-state"></div>
-                        </div>
-
-                        <label :for="`${name}-${index}`">{{ option.label }}</label>
+                        {% block sw_field_input_checkbox_state %}
+                            <div class="sw-field__checkbox-state">
+                                <sw-icon name="small-default-checkmark-line-small" size="16"></sw-icon>
+                            </div>
+                        {% endblock %}
                     </div>
-                </template>
-            </slot>
-        </div>
+                {% endblock %}
 
-        <!-- Checkbox -->
-        <div v-else-if="type === 'checkbox'" class="sw-field__checkbox">
-            <input type="checkbox"
-                   :name="name"
-                   :id="name"
-                   :disabled="disabled ? 'disabled' : false"
-                   :checked="currentValue ? 'checked' : false"
-                   @input="onInput"
-                   @change="onChange"
-                   v-bind="$attrs">
+                <!-- Switch -->
+                {% block sw_field_input_switch %}
+                    <div v-else-if="type === 'switch'" class="sw-field__switch">
 
-            <div class="sw-field__checkbox-state">
-                <sw-icon name="small-default-checkmark-line-small" size="16"></sw-icon>
+                        {% block sw_field_input_switch_input %}
+                            <input type="checkbox"
+                                   :name="name"
+                                   :id="name"
+                                   :disabled="disabled ? 'disabled' : false"
+                                   :checked="currentValue ? 'checked' : false"
+                                   @input="onInput"
+                                   @change="onChange"
+                                   v-bind="$attrs">
+                        {% endblock %}
+
+                        {% block sw_field_input_switch_state %}
+                            <div class="sw-field__switch-state">
+                                <div class="sw-field__switch-state-knob"></div>
+                            </div>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+
+                <!-- Date -->
+                {% block sw_field_input_datetime %}
+                    <input v-else-if="type === 'datetime' || type === 'datetime-local'"
+                           type="datetime-local"
+                           :name="name"
+                           :id="name"
+                           :value="currentValue"
+                           :disabled="disabled ? 'disabled' : false"
+                           @input="onInput"
+                           @change="onChange"
+                           v-bind="$attrs">
+                {% endblock %}
+
+                <!-- Default Input -->
+                {% block sw_field_input_default %}
+                    <input v-else
+                           :type="type"
+                           :name="name"
+                           :id="name"
+                           :placeholder="placeholder"
+                           :value="currentValue"
+                           :disabled="disabled ? 'disabled' : false"
+                           @input="onInput"
+                           @change="onChange"
+                           v-bind="$attrs">
+                {% endblock %}
+
+                <!-- Suffix -->
+                {% block sw_field_input_suffix %}
+                    <span v-if="suffix" class="sw-field__suffix">
+                        <slot name="suffix">
+                            {% block sw_field_slot_suffix %}
+                                {{ suffix }}
+                            {% endblock %}
+                        </slot>
+                    </span>
+                {% endblock %}
             </div>
-        </div>
+        {% endblock %}
 
-        <!-- Switch -->
-        <div v-else-if="type === 'switch'" class="sw-field__switch">
-            <input type="checkbox"
-                   :name="name"
-                   :id="name"
-                   :disabled="disabled ? 'disabled' : false"
-                   :checked="currentValue ? 'checked' : false"
-                   @input="onInput"
-                   @change="onChange"
-                   v-bind="$attrs">
-
-            <div class="sw-field__switch-state">
-                <div class="sw-field__switch-state-knob"></div>
+        {% block sw_field_help_text %}
+            <div class="sw-field__help" v-if="helpText" :for="name">
+                <slot name="help-text">
+                    {% block sw_field_slot_help_text %}
+                        {{ helpText }}
+                    {% endblock %}
+                </slot>
             </div>
-        </div>
+        {% endblock %}
 
-        <!-- Date -->
-        <input v-else-if="type === 'datetime' || type === 'datetime-local'"
-               type="datetime-local"
-               :name="name"
-               :id="name"
-               :value="currentValue"
-               :disabled="disabled ? 'disabled' : false"
-               @input="onInput"
-               @change="onChange"
-               v-bind="$attrs">
-
-        <!-- Default Input -->
-        <input v-else
-               :type="type"
-               :name="name"
-               :id="name"
-               :placeholder="placeholder"
-               :value="currentValue"
-               :disabled="disabled ? 'disabled' : false"
-               @input="onInput"
-               @change="onChange"
-               v-bind="$attrs">
-
-        <!-- Suffix -->
-        <span v-if="suffix" class="sw-field__suffix">
-            <slot name="suffix">{{ suffix }}</slot>
-        </span>
+        {% block sw_field_error %}
+            <div class="sw-field__error" v-if="hasError()">
+                <slot name="error">
+                    {% block sw_field_slot_error %}
+                        {{ getError().detail }}
+                    {% endblock %}
+                </slot>
+            </div>
+        {% endblock %}
     </div>
-
-    <div class="sw-field__help" v-if="helpText" :for="name">
-        <slot name="help-text">{{ helpText }}</slot>
-    </div>
-
-    <div class="sw-field__error" v-if="hasError()">
-        <slot name="error">{{ getError().detail }}</slot>
-    </div>
-</div>
+{% endblock %}

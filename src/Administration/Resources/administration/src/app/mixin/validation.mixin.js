@@ -23,15 +23,22 @@ Mixin.register('validation', {
 
     methods: {
         validate(value) {
+            let validation = this.validation;
             let valid = true;
 
-            if (typeof this.validation === 'string') {
-                valid = this.validateRule(value, this.validation);
+            if (types.isString(validation)) {
+                const validationList = validation.split(',');
+
+                if (validationList.length > 1) {
+                    validation = validationList;
+                } else {
+                    valid = this.validateRule(value, this.validation);
+                }
             }
 
-            if (types.isArray(this.validation)) {
-                valid = this.validation.every((validationRule) => {
-                    return this.validateRule(value, validationRule);
+            if (types.isArray(validation)) {
+                valid = validation.every((validationRule) => {
+                    return this.validateRule(value, validationRule.trim());
                 });
             }
 

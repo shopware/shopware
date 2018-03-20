@@ -1,0 +1,410 @@
+{% sw_extends '@Storefront/frontend/account/index.html.twig' %}
+{% trans_default_domain 'frontend/account/profile' %}
+
+{# Breadcrumb #}
+{#{block name='frontend_index_start' append}#}
+    {#{$sBreadcrumb[] = ['name'=>"{s name="ProfileHeadline"}{/s}", 'link'=>{url}]}#}
+{#{% endblock %}#}
+
+{# @var customerPage \Shopware\Storefront\Page\Account\CustomerPageStruct #}
+{% set customer = customerPage.customer %}
+
+
+{# Main content #}
+{% block frontend_index_content %}
+    <div class="account--profile">
+
+        {% block frontend_account_profile_profile_form %}
+            <form name="profileForm" action="{{ path('account_save_profile') }}" method="post">
+
+                {% block frontend_account_profile_profile_panel %}
+                    <div class="panel has--border is--rounded">
+
+                        {% block frontend_account_profile_profile_title %}
+                            <div class="panel--title is--underline">
+                                {% trans %}ProfileHeadline{% endtrans %}
+                            </div>
+                        {% endblock %}
+
+                        {% block frontend_account_profile_profile_body %}
+                            <div class="panel--body is--wide">
+
+                                {% block frontend_account_profile_profile_success %}
+                                    {# TODO #}
+                                    {#{if $section == 'profile' && $succeWss}#}
+                                        {#{include file="frontend/_includes/messages.tpl" type="success" content="{s name="ProfileSaveSuccessMessage"}{/s}"}#}
+                                    {#{/if}#}
+                                {% endblock %}
+
+                                {# Error messages #}
+                                {% block frontend_account_profile_profile_errors %}
+                                    {# TODO #}
+                                    {#{if $section == 'profile' && $errorMessages}#}
+                                        {#{include file="frontend/register/error_message.tpl" error_messages=["{s name="ErrorFillIn" namespace="frontend/account/internalMessages"}{/s}"]}#}
+                                    {#{/if}#}
+                                {% endblock %}
+
+                                {# Salutation #}
+                                {% block frontend_account_profile_profile_input_salutation %}
+                                    {# TODO salutations #}
+                                    {#{getSalutations variable="salutations"}#}
+                                    {% set salutations = {'Herr': 'Herr', 'Frau': 'Frau'} %}
+
+                                    <div class="profile--salutation field--select select-field">
+                                        <select name="profile[salutation]"
+                                                required="required"
+                                                aria-required="true"
+                                                class="is--required{% if errorFlags.salutations %} has--error{% endif %}">
+
+                                            <option value="" disabled="disabled"{% if formData.profile.salutation == '' %} selected="selected"{% endif %}>
+                                                {% trans from 'frontend/register/personal_fieldset' %}RegisterPlaceholderSalutation{% endtrans %}
+                                                {% trans from 'frontend/register/index' %}RequiredField{% endtrans %}
+                                            </option>
+
+                                            {% for key, label in salutations %}
+                                                <option value="{{ key }}"{% if formData.profile.salutation|default(customer.salutation) == key %} selected="selected"{% endif %}>{{ label }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                {% endblock %}
+
+                                {# Title #}
+                                {% block frontend_account_profile_profile_input_title %}
+                                    {% if shopware.config.displayprofiletitle %}
+                                        <div class="profile--title">
+                                            <input autocomplete="section-personal title"
+                                                   name="profile[title]"
+                                                   type="text"
+                                                   placeholder="{% trans from 'frontend/account/personal_fieldset' %}RegisterPlaceholderTitle{% endtrans %}"
+                                                   value="{{ formData.profile.title|default(customer.title)|escape }}"
+                                                   class="profile--field{% if errorFlags.title %} has--error{% endif %}" />
+                                        </div>
+                                    {% endif %}
+                                {% endblock %}
+
+                                {# Firstname #}
+                                {% block frontend_account_profile_profile_input_firstname %}
+                                    <div class="profile--firstname">
+                                        <input autocomplete="section-personal given-name"
+                                               name="profile[firstname]"
+                                               type="text"
+                                               required="required"
+                                               aria-required="true"
+                                               placeholder="{% trans from 'frontend/register/personal_fieldset' %}RegisterPlaceholderFirstname{% endtrans %}{% trans from 'frontend/register/index' %}RequiredField{% endtrans %}"
+                                               value="{{ formData.profile.firstname|default(customer.firstName)|escape }}" class="profile--field is--required{% if errorFlags.firstname %} has--error{% endif %}"
+                                        />
+                                    </div>
+                                {% endblock %}
+
+                                {# Lastname #}
+                                {% block frontend_account_profile_profile_input_lastname %}
+                                    <div class="profile--lastname">
+                                        <input autocomplete="section-personal family-name"
+                                               name="profile[lastname]"
+                                               type="text"
+                                               required="required"
+                                               aria-required="true"
+                                               placeholder="{% trans from 'frontend/register/personal_fieldset' %}RegisterPlaceholderLastname{% endtrans %}{% trans from 'frontend/register/index' %}RequiredField{% endtrans %}"
+                                               value="{{ formData.profile.lastname|default(customer.lastName)|escape }}"
+                                               class="profile--field is--required{% if errorFlags.lastname %} has--error{% endif %}"
+                                        />
+                                    </div>
+                                {% endblock %}
+
+                                {# Birthday #}
+                                {% block frontend_account_profile_profile_input_birthday %}
+                                    {% if shopware.config.showBirthdayField %}
+                                        <div class="profile--birthdate">
+                                            {% block frontend_account_profile_profile_input_birthday_label %}
+                                                <strong class="birthday--label">{% trans from 'frontend/register/personal_fieldset' %}RegisterPlaceholderBirthday{% endtrans %}{% if shopware.config.requireBirthdayField %}{% trans from 'frontend/register/index' %}RequiredField{% endtrans %}{% endif %}</strong>
+                                            {% endblock %}
+
+                                            {% block frontend_account_profile_profile_input_birthday_day %}
+                                                <div class="profile--birthday field--select select-field">
+                                                    <select name="profile[birthday][day]"
+                                                            {% if shopware.config.requireBirthdayField %}required="required" aria-required="true"{% endif %}
+                                                            class="{% if shopware.config.requireBirthdayField %}is--required{% endif %}{% if errorFlags.birthday and shopware.config.requireBirthdayField %} has--error{% endif %}">
+
+                                                        <option {% if shopware.config.requireBirthdayField and formData.profile.birthday.day%} disabled="disabled"{% endif %} value="">
+                                                            {% trans from 'frontend/register/personal_fieldset' %}RegisterBirthdaySelectDay{% endtrans %}
+                                                        </option>
+
+                                                        {% for day in 1..31 %}
+                                                            <option value="{{ day }}" {% if day == formData.profile.birthday.day|default(customer.birthday|date('j')) %} selected{% endif %}>{{ day }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            {% endblock %}
+
+                                            {% block frontend_account_profile_profile_input_birthday_month %}
+                                                <div class="profile--birthmonth field--select select-field">
+                                                    <select name="profile[birthday][month]"
+                                                            {% if shopware.config.requireBirthdayField %} required="required" aria-required="true"{% endif %}
+                                                            class="{% if shopware.config.requireBirthdayField %}is--required{% endif %}{% if errorFlags.birthday and shopware.config.requireBirthdayField %} has--error{% endif %}">
+
+                                                        <option{% if shopware.config.requireBirthdayField and formData.profile.birthday.month %} disabled="disabled"{% endif %} value="">
+                                                            {% trans from 'frontend/register/personal_fieldset' %}RegisterBirthdaySelectMonth{% endtrans %}
+                                                        </option>
+
+                                                        {% for month in 1..12 %}
+                                                            <option value="{{ month }}" {% if month == formData.profile.birthday.month|default(customer.birthday|date('n')) %}selected{% endif %}>{{ month }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            {% endblock %}
+
+                                            {% block frontend_account_profile_profile_input_birthday_year %}
+                                                <div class="profile--birthyear field--select select-field">
+                                                    <select name="profile[birthday][year]"
+                                                            {% if shopware.config.requireBirthdayField %} required="required" aria-required="true"{% endif %}
+                                                            class="{% if shopware.config.requireBirthdayField %}is--required{% endif %}{% if errorFlags.birthday and shopware.config.requireBirthdayField %} has--error{% endif %}">
+
+                                                        <option{% if shopware.config.requireBirthdayField and formData.profile.birthday.year %} disabled="disabled"{% endif %} value="">
+                                                            {% trans from 'frontend/register/personal_fieldset' %}RegisterBirthdaySelectYear{% endtrans %}
+                                                        </option>
+
+                                                        {% for year in 'now'|date('Y')..'now - 120 years'|date('Y') %}
+                                                            <option value="{{ year }}" {% if year == formData.profile.birthday.year|default(customer.birthday|date('Y')) %}selected{% endif %}>{{ year }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            {% endblock %}
+                                        </div>
+                                    {% endif %}
+                                {% endblock %}
+
+                                {% block frontend_account_profile_profile_required_info %}
+                                    <div class="required-info required_fields">
+                                        {% trans from 'frontend/register/personal_fieldset' %}RegisterPersonalRequiredText{% endtrans %}
+                                    </div>
+                                {% endblock %}
+
+                            </div>
+                        {% endblock %}
+
+                        {% block frontend_account_profile_profile_actions %}
+                            <div class="panel--actions is--wide">
+                                {% block frontend_account_profile_profile_actions_submit %}
+                                    <button class="btn is--block is--primary" type="submit" data-preloader-button="true">
+                                        {% trans %}ProfileSaveButton{% endtrans %}
+                                    </button>
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </form>
+        {% endblock %}
+
+        <div class="profile--email-password-container" data-panel-auto-resizer="true">
+            <div class="profile-email--container">
+                {% block frontend_account_profile_email_form %}
+                    <form name="emailForm" action="{{ path('account_save_email') }}" method="post">
+
+                        {% block frontend_account_profile_email_panel %}
+                            <div class="panel has--border is--rounded">
+
+                                {% block frontend_account_profile_email_title %}
+                                    <div class="panel--title is--underline">
+                                        {% trans %}EmailHeadline{% endtrans %}
+                                    </div>
+                                {% endblock %}
+
+                                {% block frontend_account_profile_email_body %}
+                                    <div class="panel--body is--wide">
+
+                                        {% block frontend_account_profile_email_success %}
+                                            {% if section == 'email' and success %}
+                                                {# TODO #}
+                                                {#{include file="frontend/_includes/messages.tpl" type="success" content="{s name="EmailSaveSuccessMessage"}{/s}"}#}
+                                            {% endif %}
+                                        {% endblock %}
+
+                                        {# Error messages #}
+                                        {% block frontend_account_profile_email_errors %}
+                                            {% if section == 'email' %}
+                                                {# TODO #}
+                                                {#{include file="frontend/register/error_message.tpl" error_messages=$errorMessages}#}
+                                            {% endif %}
+                                        {% endblock %}
+
+                                        {% block frontend_account_profile_email_current %}
+                                            <div>
+                                                <strong>{% trans %}EmailCurrentEmailLabel{% endtrans %}</strong>
+                                                <div class="profile--field">
+                                                    {{ context.customer.email }}
+                                                </div>
+                                            </div>
+                                        {% endblock %}
+
+                                        {# Email #}
+                                        {% block frontend_account_profile_email_input_email %}
+                                            <div class="profile--email">
+                                                <input autocomplete="section-personal email"
+                                                       required="required"
+                                                       aria-required="true"
+                                                       name="email[email]"
+                                                       type="email"
+                                                       value="{{ formData.email.email }}"
+                                                       placeholder="{% trans from 'frontend/account/index' %}AccountLabelNewMail{% endtrans %}
+                                                                    {% trans from 'frontend/listing/box_article' %}Star{% endtrans %}"
+                                                       class="profile--field is--required{% if errorFlags.email %} has--error{% endif %}" />
+                                            </div>
+                                        {% endblock %}
+
+                                        {# Email confirmation #}
+                                        {% block frontend_account_profile_email_input_email_confirmation %}
+                                            <div class="profile--email-confirmation">
+                                                <input name="email[emailConfirmation]"
+                                                       type="email"
+                                                       required="required"
+                                                       aria-required="true"
+                                                       value="{{ formData.email.emailConfirmation }}"
+                                                       placeholder="{% trans from 'frontend/account/index' %}AccountLabelMail{% endtrans %}
+                                                                    {% trans from 'frontend/listing/box_article' %}Star{% endtrans %}"
+                                                       class="profile--field is--required{% if errorFlags.emailConfirmation %} has--error{% endif %}"
+                                                />
+                                            </div>
+                                        {% endblock %}
+                                        {# Password confirmation #}
+                                        {% block frontend_account_profile_email_input_current_password %}
+                                            {% if shopware.config.accountPasswordCheck %}
+                                                <div class="profile--current-password">
+                                                    <input name="email[currentPassword]"
+                                                           type="password"
+                                                           autocomplete="current-password"
+                                                           required="required"
+                                                           aria-required="true"
+                                                           placeholder="{% trans from 'frontend/account/index' %}AccountLabelCurrentPassword2{% endtrans %}
+                                                                        {% trans from 'frontend/listing/box_article' %}Star{% endtrans %}"
+                                                           class="profile--field is--required{% if section == 'email' and errorFlags.currentPassword %} has--error{% endif %}"
+                                                    />
+                                                </div>
+                                            {% endif %}
+                                        {% endblock %}
+
+                                        {% block frontend_account_profile_email_required_info %}
+                                            <div class="required-info required_fields">
+                                                {% trans from 'frontend/register/personal_fieldset' %}RegisterPersonalRequiredText{% endtrans %}
+                                            </div>
+                                        {% endblock %}
+                                    </div>
+                                {% endblock %}
+
+                                {# Submit button #}
+                                {% block frontend_account_profile_email_actions %}
+                                    <div class="panel--actions is--wide">
+                                        {% block frontend_account_profile_email_actions_submit %}
+                                            <button class="btn is--block is--primary" type="submit" data-preloader-button="true">
+                                                {% trans %}EmailSaveButton{% endtrans %}
+                                            </button>
+                                        {% endblock %}
+                                    </div>
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+                    </form>
+                {% endblock %}
+            </div>
+
+            <div class="profile-password--container">
+                {% block frontend_account_profile_password_form %}
+                    <form name="passwordForm" action="{{ path('account_save_password') }}" method="post">
+
+                        {% block frontend_account_profile_password_panel %}
+                            <div class="panel has--border is--rounded">
+
+                                {% block frontend_account_profile_password_title %}
+                                    <div class="panel--title is--underline">
+                                        {% trans %}PasswordHeadline{% endtrans %}
+                                    </div>
+                                {% endblock %}
+
+                                {% block frontend_account_profile_password_body %}
+                                    <div class="panel--body is--wide">
+
+                                        {# Success message #}
+                                        {% block frontend_account_profile_password_success %}
+                                            {% if section == 'password' and success %}
+                                                {# TODO #}
+                                                {#{include file="frontend/_includes/messages.tpl" type="success" content="{s name="PasswordSaveSuccessMessage"}{/s}"}#}
+                                            {% endif %}
+                                        {% endblock %}
+
+                                        {# Error messages #}
+                                        {% block frontend_account_profile_password_errors %}
+                                            {% if section == 'password' %}
+                                                {# TODO #}
+                                                {#{include file="frontend/register/error_message.tpl" error_messages=$errorMessages}#}
+                                            {% endif %}
+                                        {% endblock %}
+
+                                        {# Password #}
+                                        {% block frontend_account_profile_password_input_password %}
+                                            <div class="profile--password">
+                                                <input name="password[password]"
+                                                       type="password"
+                                                       autocomplete="new-password"
+                                                       required="required"
+                                                       aria-required="true"
+                                                       placeholder="{% trans from 'frontend/account/index' %}AccountLabelNewPassword2{% endtrans %}{% trans from 'frontend/listing/box_article' %}Star{% endtrans %}"
+                                                       class="profile--field is--required{% if errorFlags.password %} has--error{% endif %}"
+                                                />
+                                            </div>
+                                        {% endblock %}
+
+                                        {# Password confirmation #}
+                                        {% block frontend_account_profile_password_input_password_confirmation %}
+                                            <div class="profile--password-confirmation">
+                                                <input name="password[passwordConfirmation]"
+                                                       type="password"
+                                                       autocomplete="new-password"
+                                                       required="required"
+                                                       aria-required="true"
+                                                       placeholder="{% trans from 'frontend/account/index' %}AccountLabelNewPassword2{% endtrans %}{% trans from 'frontend/listing/box_article' %}Star{% endtrans %}"
+                                                       class="profile--field is--required {% if errorFlags.passwordConfirmation %}has--error{% endif %}"
+                                                />
+                                            </div>
+                                        {% endblock %}
+
+                                        {% block frontend_account_profile_password_input_current_password %}
+                                            {% if shopware.config.accountPasswordCheck %}
+                                                <div class="profile--current-password">
+                                                    <input name="password[currentPassword]"
+                                                           type="password"
+                                                           autocomplete="current-password"
+                                                           required="required"
+                                                           aria-required="true"
+                                                           placeholder="{% trans from 'frontend/account/index' %}AccountLabelNewPassword2{% endtrans %}
+                                                                        {% trans from 'frontend/listing/box_article' %}Star{% endtrans %}"
+                                                           class="profile--field is--required{% if section == 'password' and errorFlags.currentPassword %} has--error{% endif %}"
+                                                    />
+                                                </div>
+                                            {% endif %}
+                                        {% endblock %}
+
+                                        {% block frontend_account_profile_password_required_info %}
+                                            <div class="required-info required_fields">
+                                                {% trans from 'frontend/register/personal_fieldset' %}RegisterPersonalRequiredText{% endtrans %}
+                                            </div>
+                                        {% endblock %}
+                                    </div>
+                                {% endblock %}
+
+                                {% block frontend_account_profile_password_actions %}
+                                    <div class="panel--actions is--wide">
+                                        {% block frontend_account_profile_password_actions_submit %}
+                                            <button class="btn is--block is--primary" type="submit" data-preloader-button="true">
+                                                {% trans %}PasswordSaveButton{% endtrans %}
+                                            </button>
+                                        {% endblock %}
+                                    </div>
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+                    </form>
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

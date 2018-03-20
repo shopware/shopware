@@ -1,4 +1,4 @@
-{% sw_extends "frontend/checkout/cart/cart-item.html.twig" %}
+{% sw_extends 'frontend/checkout/cart/cart-item.html.twig' %}
 
 {# @var calculatedLineItem \Shopware\Cart\LineItem\CalculatedLineItem #}
 {% block frontend_checkout_cart_item_quantity_selection %}
@@ -9,7 +9,7 @@
     <div class="panel--td column--tax-price block is--align-right">
         {% block frontend_checkout_cart_item_tax_label %}
             <div class="column--label tax-price--label">
-                {% trans from "frontend/checkout/confirm_header" %}CheckoutColumnExcludeTax{% endtrans %}
+                {% trans from 'frontend/checkout/confirm_header' %}CheckoutColumnExcludeTax{% endtrans %}
                 {/if}
             </div>
         {% endblock %}

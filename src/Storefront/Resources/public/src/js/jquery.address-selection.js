@@ -53,15 +53,6 @@
             sizing: 'content',
 
             /**
-             * Extra parameters to trigger specific actions afterwards
-             *
-             * Comma separated list of session keys to be filled with address id
-             *
-             * @string sessionKey
-             */
-            sessionKey: '',
-
-            /**
              * Set the address as default billing address
              *
              * @boolean setDefaultBillingAddress
@@ -99,16 +90,9 @@
         open: function (options) {
             var me = this,
                 sizing,
-                extraData,
                 maxHeight = 0;
 
             me.opts = $.extend({}, me.defaults, options);
-
-            extraData = {
-                sessionKey: me.opts.sessionKey,
-                setDefaultBillingAddress: me.opts.setDefaultBillingAddress,
-                setDefaultShippingAddress: me.opts.setDefaultShippingAddress
-            };
 
             sizing = me.opts.sizing;
 
@@ -130,8 +114,9 @@
             $.ajax({
                 'url': window.controller['ajax_address_selection'],
                 'data': {
-                    id: me.opts.id,
-                    extraData: extraData
+                    addressId: me.opts.id,
+                    setDefaultBillingAddress: me.opts.setDefaultBillingAddress,
+                    setDefaultShippingAddress: me.opts.setDefaultShippingAddress
                 },
                 'success': function(data) {
                     $.loadingIndicator.close(function() {
@@ -231,8 +216,6 @@
      * Shopware Address Selector Plugin.
      *
      * The plugin handles the address selection. You need to set some extra data to make something happen.
-     *
-     * Usually you specify a list of sessionKey's or set the selected address as default billing or shipping address.
      *
      * Example usage:
      * ```

@@ -77,6 +77,15 @@
             <argument type="service" id="Shopware\Api\Category\Repository\CategoryRepository"/>
         </service>
 
+        <service class="Shopware\Storefront\Page\Account\CustomerAddressPageLoader" id="Shopware\Storefront\Page\Account\CustomerAddressPageLoader">
+            <argument id="Shopware\Api\Customer\Repository\CustomerAddressRepository" type="service"/>
+        </service>
+
+        <service class="Shopware\Storefront\Page\Account\OrderPageLoader" id="Shopware\Storefront\Page\Account\OrderPageLoader">
+            <argument id="Shopware\Api\Order\Repository\OrderRepository" type="service"/>
+        </service>
+
+
         <service id="Shopware\Storefront\Page\Checkout\PaymentMethodLoader">
             <argument id="Shopware\Api\Payment\Repository\PaymentMethodRepository" type="service"/>
         </service>
@@ -96,10 +105,23 @@
             <argument type="service" id="event_dispatcher" />
         </service>
 
+        <service class="Shopware\Storefront\Page\Account\AccountService" id="Shopware\Storefront\Page\Account\AccountService">
+            <argument id="Shopware\Api\Country\Repository\CountryRepository" type="service"/>
+            <argument id="Shopware\Api\Country\Repository\CountryStateRepository" type="service"/>
+            <argument id="Shopware\Api\Customer\Repository\CustomerAddressRepository" type="service"/>
+            <argument id="Shopware\Api\Customer\Repository\CustomerRepository" type="service"/>
+        </service>
+
         <service class="Shopware\Storefront\Controller\AccountController" public="true" id="Shopware\Storefront\Controller\AccountController">
             <argument type="service" id="security.authentication_utils" />
             <argument type="service" id="security.token_storage"/>
             <argument type="service" id="Shopware\StorefrontApi\Context\StorefrontContextPersister"/>
+            <argument type="service" id="Shopware\Storefront\Page\Account\AccountService"/>
+            <argument type="service" id="Shopware\Storefront\Page\Account\CustomerAddressPageLoader"/>
+            <argument type="service" id="Shopware\Storefront\Page\Account\CustomerPageLoader"/>
+            <argument type="service" id="Shopware\StorefrontApi\Context\StorefrontContextService"/>
+            <argument type="service" id="Shopware\Storefront\Page\Checkout\PaymentMethodLoader"/>
+            <argument type="service" id="Shopware\Storefront\Page\Account\OrderPageLoader"/>
         </service>
 
         <service class="Shopware\Storefront\Controller\Widgets\IndexController" public="true" id="Shopware\Storefront\Controller\Widgets\IndexController">
@@ -117,6 +139,12 @@
 
         <service class="Shopware\Storefront\Controller\DetailController" public="true" id="Shopware\Storefront\Controller\DetailController">
             <argument type="service" id="Shopware\Storefront\Page\Detail\DetailPageLoader" />
+        </service>
+
+        <service class="Shopware\Storefront\Page\Account\CustomerPageLoader" id="Shopware\Storefront\Page\Account\CustomerPageLoader"/>
+
+        <service class="Shopware\Storefront\Controller\CartController" id="Shopware\Storefront\Controller\CartController">
+            <argument id="Shopware\CartBridge\Service\StoreFrontCartService" type="service"/>
         </service>
 
         <service id="Shopware\Storefront\Controller\CheckoutController">

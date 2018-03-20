@@ -7,9 +7,7 @@
 
     {% block frontend_checkout_payment_content %}
         <div class="panel--body is--wide block-group">
-            {# @var payment \Shopware\Api\Payment\Collection\PaymentMethodBasicCollection #}
             {% for paymentMethod in paymentMethods %}
-                {#{{ dump(paymentMethod) }}#}
                     <div class="payment--method block{% if loop.last %} method_last {% else %} method{% endif %}">
 
                         {#Radio Button#}

@@ -8,18 +8,6 @@
     {% endif %}
 {% endblock %}
 
-{% block frontend_detail_actions_notepad %}
-    <form action="{url controller='note' action='add' ordernumber=$sArticle.ordernumber}" method="post" class="action--form">
-        <button type="submit"
-           class="action--link link--notepad"
-           title="{"{s name='DetailLinkNotepad'}{/s}"|escape}"
-           data-ajaxUrl="{url controller='note' action='ajaxAdd' ordernumber=$sArticle.ordernumber}"
-           data-text="{s name="DetailNotepadMarked"}{/s}">
-            <i class="icon--heart"></i> <span class="action--text">{% trans from 'frontend/detail/actions' %}DetailLinkNotepadShort{% endtrans %}</span>
-        </button>
-    </form>
-{% endblock %}
-
 {% block frontend_detail_actions_review %}
     {% if shopware.config.VoteDisable == false %}
         <a href="#content--product-reviews" data-show-tab="true" class="action--link link--publish-comment" rel="nofollow" title="{"{s name='DetailLinkReview'}{/s}"|escape}">

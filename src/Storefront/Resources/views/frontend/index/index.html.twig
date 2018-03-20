@@ -55,7 +55,7 @@
                             {% endblock %}
 
                             {% block frontend_index_container_ajax_cart %}
-                                <div class="container--ajax-cart" data-collapse-cart="true"{% if theme.offcanvasCart %} data-displayMode="offcanvas"{% endif %}></div>
+                                <div class="container--ajax-cart" data-collapse-cart="true"{% if shopware.theme.offcanvasCart %} data-displayMode="offcanvas"{% endif %}></div>
                             {% endblock %}
                         </div>
                     {% endblock %}
@@ -170,16 +170,17 @@
             var controller = controller || {
                 'vat_check_enabled': '{{ shopware.config.vatcheckendabled }}',
                 'vat_check_required': '{{ shopware.config.vatcheckrequired }}',
-                'ajax_cart': '{url controller="checkout" action="ajaxCart"}',
+                'ajax_cart': '{{ path('cart_ajax_cart') }}',
+                'ajax_remove_item': '{{ path('cart_ajax_remove_line_item') }}',
                 'ajax_search': '{{ path('search_ajax') }}',
                 'register': '{url controller="register"}',
                 'checkout': '{url controller="checkout"}',
                 'ajax_validate': '{url controller="register"}',
                 'ajax_add_article': '{url controller="checkout" action="addArticle"}',
                 'ajax_listing': '{url module="widgets" controller="Listing" action="ajaxListing"}',
-                'ajax_cart_refresh': '{{ path('checkout_cart_amount') }}',
-                'ajax_address_selection': '{url controller="address" action="ajaxSelection" fullPath}',
-                'ajax_address_editor': '{url controller="address" action="ajaxEditor" fullPath}'
+                'ajax_cart_refresh': '{{ path('cart_ajax_amount') }}',
+                'ajax_address_selection': '{{ path('address_ajax_selection') }}',
+                'ajax_address_editor': '{{ path('address_ajax_editor') }}'
             };
 
             var snippets = snippets || {

@@ -1,0 +1,122 @@
+{% trans_default_domain 'frontend/checkout/ajax_cart' %}
+
+{% block frontend_checkout_ajax_cart %}
+
+    {# @var cart \Shopware\Cart\Cart\Struct\CalculatedCart#}
+
+    <div class="ajax--cart">
+        {% block frontend_checkout_ajax_cart_buttons_offcanvas %}
+            <div class="buttons--off-canvas">
+                {% block frontend_checkout_ajax_cart_buttons_offcanvas_inner %}
+                    <a href="#close-categories-menu" class="close--off-canvas">
+                        <i class="icon--arrow-left"></i>
+                        {% trans %}AjaxCartContinueShopping{% endtrans %}
+                    </a>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block frontend_checkout_ajax_cart_alert_box %}
+            {% if shopware.theme.offcanvasCart %}
+                {% if basketInfoMessage %}
+                    <div class="alert is--info is--rounded is--hidden">
+                        <div class="alert--icon">
+                            <div class="icon--element icon--info"></div>
+                        </div>
+                        <div class="alert--content">{{ basketInfoMessage }}</div>
+                    </div>
+                {% else %}
+                    <div class="alert is--success is--rounded is--hidden">
+                        <div class="alert--icon">
+                            <div class="icon--element icon--check"></div>
+                        </div>
+                        <div class="alert--content">
+                            {% trans %}AjaxCartSuccessText{% endtrans %}
+                        </div>
+                    </div>
+                {% endif %}
+            {% endif %}
+        {% endblock %}
+
+        {% block frontend_checkout_ajax_cart_item_container %}
+            <div class="item--container">
+                {% block frontend_checkout_ajax_cart_item_container_inner %}
+                    {% if cart.calculatedLineItems.count > 0 %}
+                        {% for lineItem in cart.calculatedLineItems %}
+                            {% block frontend_checkout_ajax_cart_row %}
+                                {% sw_include '@Shopware/frontend/checkout/cart/ajax_cart-item.html.twig' with {
+                                    'calculatedLineItem': lineItem,
+                                    'depth': 0
+                                } %}
+                            {% endblock %}
+                        {% endfor %}
+                    {% else %}
+                        {% block frontend_checkout_ajax_cart_empty %}
+                            <div class="cart--item is--empty">
+                                {% block frontend_checkout_ajax_cart_empty_inner %}
+                                    <span class="cart--empty-text">
+                                        {% trans %}AjaxCartInfoEmpty{% endtrans %}
+                                    </span>
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+                    {% endif %}
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block frontend_checkout_ajax_cart_prices_container %}
+            {% if cart.calculatedLineItems.count > 0 %}
+                <div class="prices--container">
+                    {% block frontend_checkout_ajax_cart_prices_container_inner %}
+                        <div class="prices--articles">
+                            <span class="prices--articles-text">
+                                {% trans %}AjaxCartTotalAmount{% endtrans %}
+                            </span>
+                            <span class="prices--articles-amount">
+                                {{ cart.price.totalPrice|localizedcurrency(context.currency.shortName) }}
+                            </span>
+                        </div>
+                    {% endblock %}
+                </div>
+            {% endif %}
+        {% endblock %}
+
+        {# Basket link #}
+        {% block frontend_checkout_ajax_cart_button_container %}
+            <div class="button--container">
+                {% block frontend_checkout_ajax_cart_button_container_inner %}
+                        {% block frontend_checkout_ajax_cart_open_checkout %}
+                            {% if context.customer %}
+                                {% set url = path('checkout_confirm') %}
+                                {% if shopware.config.always_select_payment %}
+                                    {% set url = path('checkout_shipping_payment') %}
+                                {% endif %}
+
+                                <a href="{{ url }}"
+                                   class="btn is--primary button--checkout is--icon-right"
+                                   title="{% trans %}AjaxCartLinkConfirm{% endtrans %}">
+                                    <i class="icon--arrow-right"></i>
+                                    {% trans %}AjaxCartLinkConfirm{% endtrans %}
+                                </a>
+                            {% else %}
+                                <span class="btn is--disabled is--primary button--checkout is--icon-right"
+                                      title="{% trans %}AjaxCartLinkConfirm{% endtrans %}">
+                                    <i class="icon--arrow-right"></i>
+                                    {% trans %}AjaxCartLinkConfirm{% endtrans %}
+                                </span>
+                            {% endif %}
+                        {% endblock %}
+                        {% block frontend_checkout_ajax_cart_open_basket %}
+                            <a href="{{ path('checkout_cart') }}"
+                               class="btn button--open-basket is--icon-right"
+                               title="{% trans %}AjaxCartLinkBasket{% endtrans %}">
+                                <i class="icon--arrow-right"></i>
+                                {% trans %}AjaxCartLinkBasket{% endtrans %}
+                            </a>
+                        {% endblock %}
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

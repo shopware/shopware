@@ -1,8 +1,8 @@
-{% sw_extends "frontend/index/index.html.twig" %}
+{% sw_extends 'frontend/index/index.html.twig' %}
 
 {# Title #}
 {% block frontend_index_header_title %}
-    {% trans from "frontend/register/index" %}RegisterTitle{% endtrans %} | {{ shopware.config.shopname }}
+    {% trans from 'frontend/register/index' %}RegisterTitle{% endtrans %} | {{ shopware.config.shopname }}
 {% endblock %}
 
 {# Back to the shop button #}
@@ -12,9 +12,9 @@
     {% if shopware.theme.checkoutHeader and sTarget == "account" %}
         <a href="{{ url('homepage') }}"
            class="btn is--small btn--back-top-shop is--icon-left"
-           title="{% trans from "frontend/checkout/finish" %}FinishButtonBackToShop{% endtrans %}">
+           title="{% trans from 'frontend/checkout/finish' %}FinishButtonBackToShop{% endtrans %}">
             <i class="icon--arrow-left"></i>
-            {% trans from "frontend/checkout/finish" %}FinishButtonBackToShop{% endtrans %}
+            {% trans from 'frontend/checkout/finish' %}FinishButtonBackToShop{% endtrans %}
         </a>
     {% endif %}
 {% endblock %}
@@ -61,7 +61,7 @@
 {% endblock %}
 
 {% block frontend_index_content_left %}
-    {#{% sw_include "frontend/index/sidebar.html.twig" %}#}
+    {#{% sw_include 'frontend/index/sidebar.html.twig' %}#}
 {% endblock %}
 
 {% block frontend_index_footer %}
@@ -69,7 +69,7 @@
         {{ parent() }}
     {% else %}
         {% block frontend_index_register_footer %}
-            {#{% sw_include "frontend/index/footer_minimal.tpl" %}#}
+            {#{% sw_include 'frontend/index/footer_minimal.tpl' %}#}
         {% endblock %}
     {% endif %}
 {% endblock %}
@@ -86,16 +86,16 @@
                 {% if register.personal.sValidation %}
                     {# Include information related to registration for other customergroups then guest, this block get overridden by b2b essentials plugin #}
                     <div class="panel register--supplier">
-                        <h2 class="panel--title is--underline">{{ shopware.config.shopname }} {% trans from "frontend/register/index" %}RegisterHeadlineSupplier{% endtrans %}</h2>
+                        <h2 class="panel--title is--underline">{{ shopware.config.shopname }} {% trans from 'frontend/register/index' %}RegisterHeadlineSupplier{% endtrans %}</h2>
 
                         <div class="panel--body is--wide">
-                            <p class="is--bold">{% trans from "frontend/register/index" %}RegisterInfoSupplier3{% endtrans %}</p>
+                            <p class="is--bold">{% trans from 'frontend/register/index' %}RegisterInfoSupplier3{% endtrans %}</p>
 
-                            <h3 class="is--bold">{% trans from "frontend/register/index" %}RegisterInfoSupplier4{% endtrans %}</h3>
-                            <p>{% trans from "frontend/register/index" %}RegisterInfoSupplier5{% endtrans %}</p>
+                            <h3 class="is--bold">{% trans from 'frontend/register/index' %}RegisterInfoSupplier4{% endtrans %}</h3>
+                            <p>{% trans from 'frontend/register/index' %}RegisterInfoSupplier5{% endtrans %}</p>
 
-                            <h3 class="is--bold">{% trans from "frontend/register/index" %}RegisterInfoSupplier6{% endtrans %}</h3>
-                            <p>{% trans from "frontend/register/index" %}RegisterInfoSupplier7{% endtrans %}</p>
+                            <h3 class="is--bold">{% trans from 'frontend/register/index' %}RegisterInfoSupplier6{% endtrans %}</h3>
+                            <p>{% trans from 'frontend/register/index' %}RegisterInfoSupplier7{% endtrans %}</p>
                         </div>
                     </div>
                 {% endif %}
@@ -129,7 +129,7 @@
                             {% block frontend_register_index_input_privacy %}
                                 <div class="register--privacy">
                                     <input name="register[personal][dpacheckbox]" type="checkbox" id="dpacheckbox"{if $form_data.dpacheckbox} checked="checked"{/if} required="required" aria-required="true" value="1" class="chkbox is--required" />
-                                    <label for="dpacheckbox" class="chklabel{if isset($errors.personal.dpacheckbox)} has--error{/if}">{% trans from "frontend/register/index" %}RegisterLabelDataCheckbox{% endtrans %}</label>
+                                    <label for="dpacheckbox" class="chklabel{if isset($errors.personal.dpacheckbox)} has--error{/if}">{% trans from 'frontend/register/index' %}RegisterLabelDataCheckbox{% endtrans %}</label>
                                 </div>
                             {% endblock %}
                         {#{/if}#}
@@ -138,7 +138,7 @@
                     {% block frontend_register_index_form_required %}
                         {# Required fields hint #}
                         <div class="register--required-info required_fields">
-                            {% trans from "frontend/register/personal_fieldset" %}RegisterPersonalRequiredText{% endtrans %}
+                            {% trans from 'frontend/register/personal_fieldset' %}RegisterPersonalRequiredText{% endtrans %}
                         </div>
                     {% endblock %}
 
@@ -152,7 +152,7 @@
                     {% block frontend_register_index_form_submit %}
                         {# Submit button #}
                         <div class="register--action">
-                            <button type="submit" class="register--submit btn is--primary is--large is--icon-right" name="Submit">{% trans from "frontend/register/index" %}RegisterIndexNewActionSubmit{% endtrans %} <i class="icon--arrow-right"></i></button>
+                            <button type="submit" class="register--submit btn is--primary is--large is--icon-right" name="Submit">{% trans from 'frontend/register/index' %}RegisterIndexNewActionSubmit{% endtrans %} <i class="icon--arrow-right"></i></button>
                         </div>
                     {% endblock %}
                 </form>
@@ -161,35 +161,35 @@
     {% endblock %}
 
     {% block frontend_register_index_login %}
-        {% sw_include "frontend/register/login.html.twig" %}
+        {% sw_include 'frontend/register/login.html.twig' %}
     {% endblock %}
 
     {% block frontend_register_index_advantages %}
         <div class="register--advantages block">
-            <h2 class="panel--title">{% trans from "frontend/register/index" %}RegisterInfoAdvantagesTitle{% endtrans %}</h2>
+            <h2 class="panel--title">{% trans from 'frontend/register/index' %}RegisterInfoAdvantagesTitle{% endtrans %}</h2>
             {% block frontend_index_content_advantages_list %}
                 <ul class="list--unordered is--checked register--advantages-list">
                     {% block frontend_index_content_advantages_entry1 %}
                         <li class="register--advantages-entry">
-                            {% trans from "frontend/register/index" %}RegisterInfoAdvantagesEntry1{% endtrans %}
+                            {% trans from 'frontend/register/index' %}RegisterInfoAdvantagesEntry1{% endtrans %}
                         </li>
                     {% endblock %}
 
                     {% block frontend_index_content_advantages_entry2 %}
                         <li class="register--advantages-entry">
-                            {% trans from "frontend/register/index" %}RegisterInfoAdvantagesEntry2{% endtrans %}
+                            {% trans from 'frontend/register/index' %}RegisterInfoAdvantagesEntry2{% endtrans %}
                         </li>
                     {% endblock %}
 
                     {% block frontend_index_content_advantages_entry3 %}
                         <li class="register--advantages-entry">
-                            {% trans from "frontend/register/index" %}RegisterInfoAdvantagesEntry3{% endtrans %}
+                            {% trans from 'frontend/register/index' %}RegisterInfoAdvantagesEntry3{% endtrans %}
                         </li>
                     {% endblock %}
 
                     {% block frontend_index_content_advantages_entry4 %}
                         <li class="register--advantages-entry">
-                            {% trans from "frontend/register/index" %}RegisterInfoAdvantagesEntry4{% endtrans %}
+                            {% trans from 'frontend/register/index' %}RegisterInfoAdvantagesEntry4{% endtrans %}
                         </li>
                     {% endblock %}
                 </ul>

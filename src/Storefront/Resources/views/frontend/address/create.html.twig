@@ -1,0 +1,32 @@
+{% sw_extends 'frontend/address/index.html.twig' %}
+{% trans_default_domain 'frontend/address/index' %}
+
+{# Breadcrumb #}
+{% block frontend_index_start %}
+    {{ parent() }}
+    {#{$sBreadcrumb[] = ["name"=>"{s name="AddressesTitleCreate"}Create new address{/s}", "link"=>{url}]}#}
+{% endblock %}
+
+{# Main content #}
+{% block frontend_index_content %}
+    <div class="account--address account--address-form account--content" data-register="true">
+
+        {# Address headline #}
+        {% block frontend_address_form_headline %}
+            <div class="account--welcome">
+                <h1 class="panel--title">
+                    {% trans %}AddressesTitleCreate{% endtrans %}
+                </h1>
+            </div>
+        {% endblock %}
+
+        {% block frontend_address_form_content %}
+            <div class="panel has--border is--rounded">
+                <form name="frmAddresses" method="post" action="{{ path('address_save')  }}">
+                    {% sw_include '@Storefront/frontend/address/form.html.twig' %}
+                </form>
+            </div>
+        {% endblock %}
+
+    </div>
+{% endblock %}

@@ -3,13 +3,17 @@
 
     {% set url = url('cart_add_product', {'target': 'checkout_cart' }) %}
 
-    <form name="sAddToBasket"
+    <form name="addToCart"
           method="post"
           action="{{ url }}"
           class="buybox--form"
-          {#data-add-article="true"#}
-          {#data-eventName="submit"{% if theme.offcanvasCart %}{% set url = url('homepage', {'target': 'ajaxCart' }) %}data-showModal="false" data-addArticleUrl="{{ url }}"{% endif %}#}
-    >
+          data-add-article="true"
+          data-eventName="submit"
+          {% if shopware.theme.offcanvasCart %}
+            {% set url = path('cart_ajax_add_line_item') %}
+            data-showModal="false"
+            data-addArticleUrl="{{ url }}"
+          {% endif %}>
 
         <input type="hidden" name="identifier" value="{{ product.id }}"/>
 

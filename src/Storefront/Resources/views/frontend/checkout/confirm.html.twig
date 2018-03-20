@@ -1,15 +1,15 @@
-{% sw_extends "frontend/index/index.html.twig" %}
+{% sw_extends 'frontend/index/index.html.twig' %}
 
 {# Back to the shop button #}
 {% block frontend_index_logo_trusted_shops %}
     {{ parent() }}
     <a href="{{ path('cart_index') }}"
        class="btn is--small btn--back-top-shop is--icon-left"
-       title="{% trans from "frontend/checkout/finish" %}FinishButtonBackToShop{% endtrans %}"
+       title="{% trans from 'frontend/checkout/finish' %}FinishButtonBackToShop{% endtrans %}"
        xmlns="http://www.w3.org/1999/html">
 
         <i class="icon--arrow-left"></i>
-        {% trans from "frontend/checkout/finish" %}FinishButtonBackToShop{% endtrans %}
+        {% trans from 'frontend/checkout/finish' %}FinishButtonBackToShop{% endtrans %}
     </a>
 {% endblock %}
 
@@ -51,6 +51,11 @@
 {% block frontend_index_content %}
     <div class="content confirm--content">
 
+        {#{* Error messages *}#}
+        {#{block name='frontend_checkout_confirm_error_messages'}#}
+        {#{include file="frontend/checkout/error_messages.tpl"}#}
+        {#{/block}#}
+
         <h1 style="text-align: center;">Bestellung bestätigen</h1>
 
         {% block frontend_checkout_confirm_form %}
@@ -71,11 +76,15 @@
                             {# Right of revocation notice #}
                             {% block frontend_checkout_confirm_tos_revocation_notice %}
                                 {% if shopware.config.revocationNotice %}
-                                    <div class="body--revocation" data-modalbox="true" data-targetSelector="a" data-mode="ajax" data-height="500" data-width="750">
+                                    <div class="body--revocation" data-modalbox="true" data-targetSelector="a"
+                                         data-mode="ajax" data-height="500" data-width="750">
                                         {% trans from 'frontend/checkout/confirm' %}ConfirmTextRightOfRevocationNew{% endtrans %}
                                     </div>
                                 {% endif %}
                             {% endblock %}
+
+                            {# Hidden field for the user comment #}
+                            {#<textarea class="is--hidden user-comment--hidden" rows="1" cols="1" name="sComment">{$sComment|escape}</textarea>#}
 
                             <ul class="list--checkbox list--unstyled">
 
@@ -87,7 +96,9 @@
                                         {% block frontend_checkout_confirm_agb_checkbox %}
                                             <span class="block column--checkbox">
                                                 {% if not shopware.config.IgnoreAGB %}
-                                                    <input type="checkbox" required="required" aria-required="true" id="sAGB" name="sAGB"{% if AGBChecked %} checked="checked"{% endif %} />
+                                                    <input type="checkbox" required="required" aria-required="true"
+                                                           id="sAGB"
+                                                           name="sAGB"{% if AGBChecked %} checked="checked"{% endif %} />
                                                 {% endif %}
                                             </span>
                                         {% endblock %}
@@ -95,7 +106,8 @@
                                         {# AGB label #}
                                         {% block frontend_checkout_confirm_agb_label %}
                                             <span class="block column--label">
-                                                <label for="sAGB" data-modalbox="true" data-targetSelector="a" data-mode="ajax" data-height="500" data-width="750">
+                                                <label for="sAGB" data-modalbox="true" data-targetSelector="a"
+                                                       data-mode="ajax" data-height="500" data-width="750">
                                                     {% trans from 'frontend/checkout/confirm' %}ConfirmTerms{% endtrans %}
                                                 </label>
                                             </span>
@@ -110,359 +122,267 @@
                 {% endblock %}
 
                 {% block frontend_checkout_confirm_information_wrapper %}
-                <div class="panel--group block-group information--panel-wrapper" data-panel-auto-resizer="true">
+                    <div class="panel--group block-group information--panel-wrapper" data-panel-auto-resizer="true">
 
-                    {#{% block frontend_checkout_confirm_information_addresses %}#}
+                        {% block frontend_checkout_confirm_information_addresses %}
+                            {% if context.customer.activeBillingAddress.id == context.customer.activeShippingAddress.id %}
 
-                    {#{if $activeBillingAddressId == $activeShippingAddressId}#}
+                                {# Equal Billing & Shipping #}
+                                {% block frontend_checkout_confirm_information_addresses_equal %}
+                                    <div class="information--panel-item information--panel-address">
+                                        {% block frontend_checkout_confirm_information_addresses_equal_panel %}
+                                            <div class="panel has--border is--rounded block information--panel">
 
-                    {#{* Equal Billing & Shipping *}#}
-                    {#{block name='frontend_checkout_confirm_information_addresses_equal'}#}
-                    {#<div class="information--panel-item information--panel-address">#}
+                                                {% block frontend_checkout_confirm_information_addresses_equal_panel_title %}
+                                                    <div class="panel--title is--underline">
+                                                        {% trans from 'frontend/checkout/confirm' %}ConfirmAddressEqualTitle{% endtrans %}
+                                                    </div>
+                                                {% endblock %}
+                                                {% block frontend_checkout_confirm_information_addresses_equal_panel_body %}
+                                                    <div class="panel--body is--wide">
+                                                        {% block frontend_checkout_confirm_information_addresses_equal_panel_billing %}
+                                                            <div class="billing--panel">
+                                                                {{ include('@Storefront/frontend/_includes/address.html.twig', {
+                                                                    'address': context.customer.activeBillingAddress
+                                                                }) }}
+                                                            </div>
+                                                        {% endblock %}
 
-                        {#{block name='frontend_checkout_confirm_information_addresses_equal_panel'}#}
-                        {#<div class="panel has--border is--rounded block information--panel">#}
+                                                        {% block frontend_checkout_confirm_information_addresses_equal_panel_shipping %}
+                                                            <div class="shipping--panel">
+                                                                {% block frontend_checkout_confirm_information_addresses_equal_panel_shipping_select_address %}
+                                                                    <a href="{{ path('address_index') }}"
+                                                                       class="btn choose-different-address"
+                                                                       data-address-selection="true"
+                                                                       data-setDefaultShippingAddress="true"
+                                                                       data-id="{{ context.customer.activeShippingAddress.id }}"
+                                                                       title="{% trans from 'frontend/checkout/confirm' %}ConfirmAddressChooseDifferentShippingAddress{% endtrans %}">
+                                                                        {% trans from 'frontend/checkout/confirm' %}ConfirmAddressChooseDifferentShippingAddress{% endtrans %}
+                                                                    </a>
+                                                                {% endblock %}
+                                                            </div>
+                                                        {% endblock %}
 
-                            {#{block name='frontend_checkout_confirm_information_addresses_equal_panel_title'}#}
-                            {#<div class="panel--title is--underline">#}
-                                {#{s name='ConfirmAddressEqualTitle'}{/s}#}
-                            {#</div>#}
-                            {#{/block}#}
+                                                    </div>
 
-                            {#{block name='frontend_checkout_confirm_information_addresses_equal_panel_body'}#}
-                            {#<div class="panel--body is--wide">#}
+                                                    {% block frontend_checkout_confirm_information_addresses_equal_panel_actions %}
+                                                        <div class="panel--actions is--wide">
+                                                            {% block frontend_checkout_confirm_information_addresses_equal_panel_actions_change %}
+                                                                <div class="address--actions-change">
+                                                                    {% block frontend_checkout_confirm_information_addresses_equal_panel_shipping_change_address %}
+                                                                        {# todo redirectTo #}
+                                                                        <a href="{{ path('address_edit', {'addressId': context.customer.activeBillingAddress.id}) }}"
+                                                                           data-address-editor="true"
+                                                                           data-id="{{ context.customer.activeBillingAddress.id }}"
+                                                                           data-setDefaultShippingAddress="true"
+                                                                           data-setDefaultBillingAddress="true"
+                                                                           data-title="{% trans from 'frontend/checkout/confirm' %}ConfirmAddressSelectButton{% endtrans %}"
+                                                                           title="{% trans from 'frontend/checkout/confirm' %}ConfirmAddressSelectButton{% endtrans %}"
+                                                                           class="btn">
+                                                                            {% trans from 'frontend/checkout/confirm' %}ConfirmAddressSelectButton{% endtrans %}
+                                                                        </a>
+                                                                    {% endblock %}
 
-                                {#{block name='frontend_checkout_confirm_information_addresses_equal_panel_billing'}#}
-                                {#<div class="billing--panel">#}
-                                    {#{if $sUserData.billingaddress.company}#}
-                                    {#<span class="address--company is--bold">{$sUserData.billingaddress.company|escapeHtml}</span>{if $sUserData.billingaddress.department|escapeHtml}<br /><span class="address--department is--bold">{$sUserData.billingaddress.department|escapeHtml}</span>{/if}#}
-                                    {#<br />#}
-                                    {#{/if}#}
+                                                                    {% block frontend_checkout_confirm_information_addresses_equal_panel_shipping_add_address %}
+                                                                        <a href="{{ path('address_index') }}"
+                                                                           class="btn choose-different-address"
+                                                                           data-address-selection="true"
+                                                                           data-setDefaultShippingAddress="true"
+                                                                           data-id="{{ context.customer.activeShippingAddress.id }}"
+                                                                           title="{% trans from 'frontend/checkout/confirm' %}ConfirmAddressChooseDifferentShippingAddress{% endtrans %}">
+                                                                            {% trans from 'frontend/checkout/confirm' %}ConfirmAddressChooseDifferentShippingAddress{% endtrans %}
+                                                                        </a>
+                                                                    {% endblock %}
+                                                                </div>
+                                                            {% endblock %}
+                                                            {% block frontend_checkout_confirm_information_addresses_equal_panel_actions_select_address %}
+                                                                <a href="{{ path('address_index') }}"
+                                                                   title="{% trans from 'frontend/checkout/confirm' %}ConfirmAddressSelectLink{% endtrans %}"
+                                                                   data-address-selection="true"
+                                                                   data-setDefaultShippingAddress="true"
+                                                                   data-setDefaultBillingAddress="true"
+                                                                   data-id="{{ context.customer.activeBillingAddress.id }}">
+                                                                    {% trans from 'frontend/checkout/confirm' %}ConfirmAddressSelectLink{% endtrans %}
+                                                                </a>
+                                                            {% endblock %}
+                                                        </div>
+                                                    {% endblock %}
+                                                {% endblock %}
+                                            </div>
+                                        {% endblock %}
+                                    </div>
+                                {% endblock %}
+                            {% else %}
+                                {# Separate Billing & Shipping #}
+                                {% block frontend_checkout_confirm_information_addresses_billing %}
+                                    <div class="information--panel-item information--panel-item-billing">
+                                        {# Billing address #}
+                                        {% block frontend_checkout_confirm_information_addresses_billing_panel %}
+                                            <div class="panel has--border block information--panel billing--panel">
 
-                                    {#<span class="address--salutation">{$sUserData.billingaddress.salutation|salutation}</span>#}
-                                    {#{if {config name="displayprofiletitle"}}#}
-                                    {#<span class="address--title">{$sUserData.billingaddress.title|escapeHtml}</span><br/>#}
-                                    {#{/if}#}
-                                    {#<span class="address--firstname">{$sUserData.billingaddress.firstname|escapeHtml}</span> <span class="address--lastname">{$sUserData.billingaddress.lastname|escapeHtml}</span><br/>#}
-                                    {#<span class="address--street">{$sUserData.billingaddress.street|escapeHtml}</span><br />#}
-                                    {#{if $sUserData.billingaddress.additional_address_line1}<span class="address--additional-one">{$sUserData.billingaddress.additional_address_line1|escapeHtml}</span><br />{/if}#}
-                                    {#{if $sUserData.billingaddress.additional_address_line2}<span class="address--additional-two">{$sUserData.billingaddress.additional_address_line2|escapeHtml}</span><br />{/if}#}
-                                    {#{if {config name=showZipBeforeCity}}#}
-                                    {#<span class="address--zipcode">{$sUserData.billingaddress.zipcode|escapeHtml}</span> <span class="address--city">{$sUserData.billingaddress.city|escapeHtml}</span>#}
-                                    {#{else}#}
-                                    {#<span class="address--city">{$sUserData.billingaddress.city|escapeHtml}</span> <span class="address--zipcode">{$sUserData.billingaddress.zipcode|escapeHtml}</span>#}
-                                    {#{/if}<br />#}
-                                    {#{if $sUserData.additional.state.name}<span class="address--statename">{$sUserData.additional.state.name|escapeHtml}</span><br />{/if}#}
-                                    {#<span class="address--countryname">{$sUserData.additional.country.countryname|escapeHtml}</span>#}
+                                                {# Headline #}
+                                                {% block frontend_checkout_confirm_information_addresses_billing_panel_title %}
+                                                    <div class="panel--title is--underline">
+                                                        {% trans from 'frontend/checkout/confirm' %}ConfirmHeaderBilling{% endtrans %}
+                                                    </div>
+                                                {% endblock %}
 
-                                    {#{block name="frontend_checkout_confirm_information_addresses_equal_panel_billing_invalid_data"}#}
-                                    {#{if $invalidBillingAddress}#}
-                                    {#{include file='frontend/_includes/messages.tpl' type="warning" content="{s name='ConfirmAddressInvalidAddress'}{/s}"}#}
-                                    {#{else}#}
-                                    {#{block name="frontend_checkout_confirm_information_addresses_equal_panel_billing_set_as_default"}#}
-                                    {#{if $activeBillingAddressId != $sUserData.additional.user.default_billing_address_id || $activeShippingAddressId != $sUserData.additional.user.default_shipping_address_id}#}
-                                    {#<div class="set-default">#}
-                                        {#<input type="checkbox" name="setAsDefaultAddress" id="set_as_default" value="1" /> <label for="set_as_default">{s name="ConfirmUseForFutureOrders"}{/s}</label>#}
-                                    {#</div>#}
-                                    {#{/if}#}
-                                    {#{/block}#}
-                                    {#{/if}#}
-                                    {#{/block}#}
-                                {#</div>#}
-                                {#{/block}#}
+                                                {# Content #}
+                                                {% block frontend_checkout_confirm_information_addresses_billing_panel_body %}
+                                                    <div class="panel--body is--wide">
+                                                        {{ include('@Storefront/frontend/_includes/address.html.twig', {
+                                                            'address': context.customer.activeBillingAddress
+                                                        }) }}
+                                                    </div>
+                                                {% endblock %}
 
-                                {#{block name='frontend_checkout_confirm_information_addresses_equal_panel_shipping'}#}
-                                {#<div class="shipping--panel">#}
-                                    {#{block name='frontend_checkout_confirm_information_addresses_equal_panel_shipping_select_address'}#}
-                                    {#<a href="{url controller=address}"#}
-                                       {#class="btn choose-different-address"#}
-                                       {#data-address-selection="true"#}
-                                       {#data-sessionKey="checkoutShippingAddressId"#}
-                                       {#data-id="{$activeShippingAddressId}"#}
-                                       {#title="{s name="ConfirmAddressChooseDifferentShippingAddress"}{/s}">#}
-                                    {#{s name="ConfirmAddressChooseDifferentShippingAddress"}{/s}#}
-                                    {#</a>#}
-                                    {#{/block}#}
-                                {#</div>#}
-                                {#{/block}#}
-                            {#</div>#}
-
-                            {#{block name='frontend_checkout_confirm_information_addresses_equal_panel_actions'}#}
-                            {#<div class="panel--actions is--wide">#}
-                                {#{block name="frontend_checkout_confirm_information_addresses_equal_panel_actions_change"}#}
-                                {#<div class="address--actions-change">#}
-                                    {#{block name='frontend_checkout_confirm_information_addresses_equal_panel_shipping_change_address'}#}
-                                    {#<a href="{url controller=address action=edit id=$activeBillingAddressId sTarget=checkout sTargetAction=confirm}"#}
-                                       {#data-address-editor="true"#}
-                                       {#data-id="{$activeBillingAddressId}"#}
-                                       {#data-sessionKey="checkoutBillingAddressId,checkoutShippingAddressId"#}
-                                       {#data-title="{s name="ConfirmAddressSelectButton"}Change address{/s}"#}
-                                    {#title="{s name="ConfirmAddressSelectButton"}Change address{/s}"#}
-                                    {#class="btn">#}
-                                    {#{s name="ConfirmAddressSelectButton"}Change address{/s}#}
-                                    {#</a>#}
-                                    {#{/block}#}
-
-                                    {#{block name='frontend_checkout_confirm_information_addresses_equal_panel_shipping_add_address'}#}
-                                    {#<a href="{url controller=address}"#}
-                                       {#class="btn choose-different-address"#}
-                                       {#data-address-selection="true"#}
-                                       {#data-sessionKey="checkoutShippingAddressId"#}
-                                       {#data-id="{$activeShippingAddressId}"#}
-                                       {#title="{s name="ConfirmAddressChooseDifferentShippingAddress"}{/s}">#}
-                                    {#{s name="ConfirmAddressChooseDifferentShippingAddress"}{/s}#}
-                                    {#</a>#}
-                                    {#{/block}#}
-                                {#</div>#}
-                                {#{/block}#}
-                                {#{block name="frontend_checkout_confirm_information_addresses_equal_panel_actions_select_address"}#}
-                                {#<a href="{url controller=address}"#}
-                                   {#title="{s name="ConfirmAddressSelectLink"}{/s}"#}
-                                {#data-address-selection="true"#}
-                                {#data-sessionKey="checkoutBillingAddressId,checkoutShippingAddressId"#}
-                                {#data-id="{$activeBillingAddressId}">#}
-                                {#{s name="ConfirmAddressSelectLink"}{/s}#}
-                                {#</a>#}
-                                {#{/block}#}
-                            {#</div>#}
-                            {#{/block}#}
-                            {#{/block}#}
-                        {#</div>#}
-                        {#{/block}#}
-                    {#</div>#}
-                    {#{/block}#}
-
-                    {#{else}#}
-
-                    {#{* Separate Billing & Shipping *}#}
-                    {#{block name='frontend_checkout_confirm_information_addresses_billing'}#}
-                    {#<div class="information--panel-item information--panel-item-billing">#}
-                        {#{* Billing address *}#}
-                        {#{block name='frontend_checkout_confirm_information_addresses_billing_panel'}#}
-                        {#<div class="panel has--border block information--panel billing--panel">#}
-
-                            {#{* Headline *}#}
-                            {#{block name='frontend_checkout_confirm_information_addresses_billing_panel_title'}#}
-                            {#<div class="panel--title is--underline">#}
-                                {#{s name="ConfirmHeaderBilling" namespace="frontend/checkout/confirm"}{/s}#}
-                            {#</div>#}
-                            {#{/block}#}
-
-                            {#{* Content *}#}
-                            {#{block name='frontend_checkout_confirm_information_addresses_billing_panel_body'}#}
-                            {#<div class="panel--body is--wide">#}
-                                {#{if $sUserData.billingaddress.company}#}
-                                {#<span class="address--company is--bold">{$sUserData.billingaddress.company|escapeHtml}</span>{if $sUserData.billingaddress.department}<br /><span class="address--department is--bold">{$sUserData.billingaddress.department|escapeHtml}</span>{/if}#}
-                                {#<br />#}
-                                {#{/if}#}
-                                {#<span class="address--salutation">{$sUserData.billingaddress.salutation|salutation}</span>#}
-                                {#{if {config name="displayprofiletitle"}}#}
-                                {#<span class="address--title">{$sUserData.billingaddress.title|escapeHtml}</span><br/>#}
-                                {#{/if}#}
-                                {#<span class="address--firstname">{$sUserData.billingaddress.firstname|escapeHtml}</span> <span class="address--lastname">{$sUserData.billingaddress.lastname|escapeHtml}</span><br />#}
-                                {#<span class="address--street">{$sUserData.billingaddress.street|escapeHtml}</span><br />#}
-                                {#{if $sUserData.billingaddress.additional_address_line1}<span class="address--additional-one">{$sUserData.billingaddress.additional_address_line1|escapeHtml}</span><br />{/if}#}
-                                {#{if $sUserData.billingaddress.additional_address_line2}<span class="address--additional-two">{$sUserData.billingaddress.additional_address_line2|escapeHtml}</span><br />{/if}#}
-                                {#{if {config name=showZipBeforeCity}}#}
-                                {#<span class="address--zipcode">{$sUserData.billingaddress.zipcode|escapeHtml}</span> <span class="address--city">{$sUserData.billingaddress.city|escapeHtml}</span>#}
-                                {#{else}#}
-                                {#<span class="address--city">{$sUserData.billingaddress.city|escapeHtml}</span> <span class="address--zipcode">{$sUserData.billingaddress.zipcode|escapeHtml}</span>#}
-                                {#{/if}<br />#}
-                                {#{if $sUserData.additional.state.name}<span class="address--statename">{$sUserData.additional.state.name|escapeHtml}</span><br />{/if}#}
-                                {#<span class="address--countryname">{$sUserData.additional.country.countryname|escapeHtml}</span>#}
-
-                                {#{block name="frontend_checkout_confirm_information_addresses_billing_panel_body_invalid_data"}#}
-                                {#{if $invalidBillingAddress}#}
-                                {#{include file='frontend/_includes/messages.tpl' type="warning" content="{s name='ConfirmAddressInvalidBillingAddress'}{/s}"}#}
-                                {#{else}#}
-                                {#{block name="frontend_checkout_confirm_information_addresses_billing_panel_body_set_as_default"}#}
-                                {#{if $activeBillingAddressId != $sUserData.additional.user.default_billing_address_id}#}
-                                {#<div class="set-default">#}
-                                    {#<input type="checkbox" name="setAsDefaultBillingAddress" id="set_as_default_billing" value="1" /> <label for="set_as_default_billing">{s name="ConfirmUseForFutureOrders"}{/s}</label>#}
-                                {#</div>#}
-                                {#{/if}#}
-                                {#{/block}#}
-                                {#{/if}#}
-                                {#{/block}#}
-                            {#</div>#}
-                            {#{/block}#}
-
-                            {#{* Action buttons *}#}
-                            {#{block name="frontend_checkout_confirm_information_addresses_billing_panel_actions"}#}
-                            {#<div class="panel--actions is--wide">#}
-                                {#{block name="frontend_checkout_confirm_information_addresses_billing_panel_actions_change"}#}
-                                {#<div class="address--actions-change">#}
-                                    {#{block name="frontend_checkout_confirm_information_addresses_billing_panel_actions_change_address"}#}
-                                    {#<a href="{url controller=address action=edit id=$activeBillingAddressId sTarget=checkout sTargetAction=confirm}"#}
-                                       {#data-address-editor="true"#}
-                                       {#data-sessionKey="checkoutBillingAddressId"#}
-                                       {#data-id="{$activeBillingAddressId}"#}
-                                       {#data-title="{s name="ConfirmAddressSelectButton"}Change address{/s}"#}
-                                    {#title="{s name="ConfirmAddressSelectButton"}Change address{/s}"#}
-                                    {#class="btn">#}
-                                    {#{s name="ConfirmAddressSelectButton"}Change address{/s}#}
-                                    {#</a>#}
-                                    {#{/block}#}
-                                {#</div>#}
-                                {#{/block}#}
-                                {#{block name="frontend_checkout_confirm_information_addresses_billing_panel_actions_select_address"}#}
-                                {#<a href="{url controller=address}"#}
-                                   {#data-address-selection="true"#}
-                                   {#data-sessionKey="checkoutBillingAddressId"#}
-                                   {#data-id="{$activeBillingAddressId}"#}
-                                   {#title="{s name="ConfirmAddressSelectLink"}{/s}">#}
-                                {#{s name="ConfirmAddressSelectLink"}{/s}#}
-                                {#</a>#}
-                                {#{/block}#}
-                            {#</div>#}
-                            {#{/block}#}
-                        {#</div>#}
-                        {#{/block}#}
-                    {#</div>#}
-                    {#{/block}#}
-
-                    {#{block name='frontend_checkout_confirm_information_addresses_shipping'}#}
-                    {#<div class="information--panel-item information--panel-item-shipping">#}
-                        {#{block name='frontend_checkout_confirm_information_addresses_shipping_panel'}#}
-                        {#<div class="panel has--border block information--panel shipping--panel">#}
-
-                            {#{* Headline *}#}
-                            {#{block name='frontend_checkout_confirm_information_addresses_shipping_panel_title'}#}
-                            {#<div class="panel--title is--underline">#}
-                                {#{s name="ConfirmHeaderShipping" namespace="frontend/checkout/confirm"}{/s}#}
-                            {#</div>#}
-                            {#{/block}#}
-
-                            {#{* Content *}#}
-                            {#{block name='frontend_checkout_confirm_information_addresses_shipping_panel_body'}#}
-                            {#<div class="panel--body is--wide">#}
-                                {#{if $sUserData.shippingaddress.company}#}
-                                {#<span class="address--company is--bold">{$sUserData.shippingaddress.company|escapeHtml}</span>{if $sUserData.shippingaddress.department}<br /><span class="address--department is--bold">{$sUserData.shippingaddress.department|escapeHtml}</span>{/if}#}
-                                {#<br />#}
-                                {#{/if}#}
-
-                                {#<span class="address--salutation">{$sUserData.shippingaddress.salutation|salutation}</span>#}
-                                {#{if {config name="displayprofiletitle"}}#}
-                                {#<span class="address--title">{$sUserData.shippingaddress.title|escapeHtml}</span><br/>#}
-                                {#{/if}#}
-                                {#<span class="address--firstname">{$sUserData.shippingaddress.firstname|escapeHtml}</span> <span class="address--lastname">{$sUserData.shippingaddress.lastname|escapeHtml}</span><br/>#}
-                                {#<span class="address--street">{$sUserData.shippingaddress.street|escapeHtml}</span><br />#}
-                                {#{if $sUserData.shippingaddress.additional_address_line1}<span class="address--additional-one">{$sUserData.shippingaddress.additional_address_line1|escapeHtml}</span><br />{/if}#}
-                                {#{if $sUserData.shippingaddress.additional_address_line2}<span class="address--additional-one">{$sUserData.shippingaddress.additional_address_line2|escapeHtml}</span><br />{/if}#}
-                                {#{if {config name=showZipBeforeCity}}#}
-                                {#<span class="address--zipcode">{$sUserData.shippingaddress.zipcode|escapeHtml}</span> <span class="address--city">{$sUserData.shippingaddress.city|escapeHtml}</span>#}
-                                {#{else}#}
-                                {#<span class="address--city">{$sUserData.shippingaddress.city|escapeHtml}</span> <span class="address--zipcode">{$sUserData.shippingaddress.zipcode|escapeHtml}</span>#}
-                                {#{/if}<br />#}
-                                {#{if $sUserData.additional.stateShipping.name}<span class="address--statename">{$sUserData.additional.stateShipping.name|escapeHtml}</span><br />{/if}#}
-                                {#<span class="address--countryname">{$sUserData.additional.countryShipping.countryname|escapeHtml}</span>#}
-
-                                {#{block name="frontend_checkout_confirm_information_addresses_shipping_panel_body_invalid_data"}#}
-                                {#{if $invalidShippingAddress}#}
-                                {#{include file='frontend/_includes/messages.tpl' type="warning" content="{s name='ConfirmAddressInvalidShippingAddress'}{/s}"}#}
-                                {#{else}#}
-                                {#{block name="frontend_checkout_confirm_information_addresses_shipping_panel_body_set_as_default"}#}
-                                {#{if $activeShippingAddressId != $sUserData.additional.user.default_shipping_address_id}#}
-                                {#<div class="set-default">#}
-                                    {#<input type="checkbox" name="setAsDefaultShippingAddress" id="set_as_default_shipping" value="1" /> <label for="set_as_default_shipping">{s name="ConfirmUseForFutureOrders"}{/s}</label>#}
-                                {#</div>#}
-                                {#{/if}#}
-                                {#{/block}#}
-                                {#{/if}#}
-                                {#{/block}#}
-                            {#</div>#}
-                            {#{/block}#}
-
-                            {#{* Action buttons *}#}
-                            {#{block name="frontend_checkout_confirm_information_addresses_shipping_panel_actions"}#}
-                            {#<div class="panel--actions is--wide">#}
-                                {#{block name="frontend_checkout_confirm_information_addresses_shipping_panel_actions_change"}#}
-                                {#<div class="address--actions-change">#}
-                                    {#{block name="frontend_checkout_confirm_information_addresses_shipping_panel_actions_change_address"}#}
-                                    {#<a href="{url controller=address action=edit id=$activeShippingAddressId sTarget=checkout sTargetAction=confirm}"#}
-                                       {#title="{s name="ConfirmAddressSelectButton"}Change address{/s}"#}
-                                    {#data-title="{s name="ConfirmAddressSelectButton"}Change address{/s}"#}
-                                    {#data-address-editor="true"#}
-                                    {#data-id="{$activeShippingAddressId}"#}
-                                    {#data-sessionKey="checkoutShippingAddressId"#}
-                                    {#class="btn">#}
-                                    {#{s name="ConfirmAddressSelectButton"}Change address{/s}#}
-                                    {#</a>#}
-                                    {#{/block}#}
-                                {#</div>#}
-                                {#{/block}#}
-                                {#{block name="frontend_checkout_confirm_information_addresses_shipping_panel_actions_select_address"}#}
-                                {#<a href="{url controller=address}"#}
-                                   {#data-address-selection="true"#}
-                                   {#data-sessionKey="checkoutShippingAddressId"#}
-                                   {#data-id="{$activeShippingAddressId}"#}
-                                   {#title="{s name="ConfirmAddressSelectLink"}{/s}">#}
-                                {#{s name="ConfirmAddressSelectLink"}{/s}#}
-                                {#</a>#}
-                                {#{/block}#}
-                            {#</div>#}
-                            {#{/block}#}
-                        {#</div>#}
-                        {#{/block}#}
-                    {#</div>#}
-                    {#{/block}#}
-                    {#{/if}#}
-                    {#{/block}#}
-
-                    {# Payment method #}
-                    {% block frontend_checkout_confirm_information_payment %}
-                    <div class="information--panel-item">
-                        {% block frontend_checkout_confirm_payment_method_panel %}
-                        <div class="panel has--border block information--panel payment--panel">
-
-                            {% block frontend_checkout_confirm_left_payment_method_headline %}
-                                <div class="panel--title is--underline payment--title">
-                                    {% trans from 'frontend/checkout/confirm' %}ConfirmHeaderPaymentShipping{% endtrans %}
-                                </div>
-                            {% endblock %}
-
-                            {% block frontend_checkout_confirm_left_payment_content %}
-
-                            <div class="panel--body is--wide payment--content">
-                                {% block frontend_checkout_confirm_left_payment_method %}
-                                    <p class="payment--method-info">
-                                        <strong class="payment--title">
-                                            {% trans from 'frontend/checkout/confirm' %}ConfirmInfoPaymentMethod{% endtrans %}
-                                        </strong>
-                                        <span class="payment--description">{{ context.paymentMethod.name }}</span>
-                                    </p>
-
-                                    {#{if !$sUserData.additional.payment.esdactive && {config name="showEsd"}}#}
-                                    {#<p class="payment--confirm-esd">{s name="ConfirmInfoInstantDownload" namespace="frontend/checkout/confirm"}{/s}</p>#}
-                                    {#{/if}#}
+                                                {# Action buttons #}
+                                                {% block frontend_checkout_confirm_information_addresses_billing_panel_actions %}
+                                                    <div class="panel--actions is--wide">
+                                                        {% block frontend_checkout_confirm_information_addresses_billing_panel_actions_change %}
+                                                            <div class="address--actions-change">
+                                                                {% block frontend_checkout_confirm_information_addresses_billing_panel_actions_change_address %}
+                                                                    {# TODO redirect to #}
+                                                                    <a href="{{ path('address_edit', {'addressId': context.customer.activeBillingAddress.id}) }}"
+                                                                       data-address-editor="true"
+                                                                       data-setDefaultBillingAddress="true"
+                                                                       data-id="{{ context.customer.activeBillingAddress.id }}"
+                                                                       data-title="{% trans from 'frontend/checkout/confirm' %}ConfirmAddressSelectButton{% endtrans %}"
+                                                                       title="{% trans from 'frontend/checkout/confirm' %}ConfirmAddressSelectButton{% endtrans %}"
+                                                                       class="btn">
+                                                                        {% trans from 'frontend/checkout/confirm' %}ConfirmAddressSelectButton{% endtrans %}
+                                                                    </a>
+                                                                {% endblock %}
+                                                            </div>
+                                                        {% endblock %}
+                                                        {% block frontend_checkout_confirm_information_addresses_billing_panel_actions_select_address %}
+                                                            <a href="{{ path('address_index') }}"
+                                                               data-address-selection="true"
+                                                               data-setDefaultBillingAddress="true"
+                                                               data-id="{{ context.customer.activeBillingAddress.id }}"
+                                                               title="{% trans from 'frontend/checkout/confirm' %}ConfirmAddressSelectLink{% endtrans %}">
+                                                                {% trans from 'frontend/checkout/confirm' %}ConfirmAddressSelectLink{% endtrans %}
+                                                            </a>
+                                                        {% endblock %}
+                                                    </div>
+                                                {% endblock %}
+                                            </div>
+                                        {% endblock %}
+                                    </div>
                                 {% endblock %}
 
-                                {% block frontend_checkout_confirm_left_shipping_method %}
-                                    <p class="shipping--method-info">
-                                        <strong class="shipping--title">{% trans from 'frontend/checkout/confirm' %}ConfirmHeadDispatch{% endtrans %}</strong>
-                                        {#<span class="shipping--description" title="{$sDispatch.name}">{$sDispatch.name|truncate:25:"...":true}</span>#}
-                                        <span class="shipping--description" title="{{ context.shippingMethod.name }}">{{ context.shippingMethod.name }}</span>
-                                    </p>
+                                {% block frontend_checkout_confirm_information_addresses_shipping %}
+                                    <div class="information--panel-item information--panel-item-shipping">
+                                        {% block frontend_checkout_confirm_information_addresses_shipping_panel %}
+                                            <div class="panel has--border block information--panel shipping--panel">
+
+                                                {# Headline #}
+                                                {% block frontend_checkout_confirm_information_addresses_shipping_panel_title %}
+                                                    <div class="panel--title is--underline">
+                                                        {% trans from 'frontend/checkout/confirm' %}ConfirmHeaderShipping{% endtrans %}
+                                                    </div>
+                                                {% endblock %}
+
+                                                {# Content #}
+                                                {% block frontend_checkout_confirm_information_addresses_shipping_panel_body %}
+                                                    <div class="panel--body is--wide">
+                                                        {{ include('@Storefront/frontend/_includes/address.html.twig', {
+                                                            'address': context.customer.activeShippingAddress
+                                                        }) }}
+                                                    </div>
+                                                {% endblock %}
+
+                                                {# Action buttons #}
+                                                {% block frontend_checkout_confirm_information_addresses_shipping_panel_actions %}
+                                                    <div class="panel--actions is--wide">
+                                                        {% block frontend_checkout_confirm_information_addresses_shipping_panel_actions_change %}
+                                                            <div class="address--actions-change">
+                                                                {% block frontend_checkout_confirm_information_addresses_shipping_panel_actions_change_address %}
+                                                                    {# TODO redirectTo #}
+                                                                    <a href="{{ path('address_edit', {'addressId': context.customer.activeShippingAddress.id }) }}"
+                                                                       title="{% trans from 'frontend/checkout/confirm' %}ConfirmAddressSelectButton{% endtrans %}"
+                                                                       data-title="{% trans from 'frontend/checkout/confirm' %}ConfirmAddressSelectButton{% endtrans %}"
+                                                                       data-address-editor="true"
+                                                                       data-id="{{ context.customer.activeShippingAddress.id }}"
+                                                                       data-setDefaultShippingAddress="true"
+                                                                       class="btn">
+                                                                        {% trans from 'frontend/checkout/confirm' %}ConfirmAddressSelectButton{% endtrans %}
+                                                                    </a>
+                                                                {% endblock %}
+                                                            </div>
+                                                        {% endblock %}
+                                                        {% block frontend_checkout_confirm_information_addresses_shipping_panel_actions_select_address %}
+                                                            <a href="{{ path('address_index') }}"
+                                                               data-address-selection="true"
+                                                               data-setDefaultShippingAddress="true"
+                                                               data-id="{{ context.customer.activeShippingAddress.id }}"
+                                                               title="{% trans from 'frontend/checkout/confirm' %}ConfirmAddressSelectLink{% endtrans %}">
+                                                                {% trans from 'frontend/checkout/confirm' %}ConfirmAddressSelectLink{% endtrans %}
+                                                            </a>
+                                                        {% endblock %}
+                                                    </div>
+                                                {% endblock %}
+                                            </div>
+                                        {% endblock %}
+                                    </div>
+                                {% endblock %}
+                            {% endif %}
+                        {% endblock %}
+
+                        {# Payment method #}
+                        {% block frontend_checkout_confirm_information_payment %}
+                            <div class="information--panel-item">
+                                {% block frontend_checkout_confirm_payment_method_panel %}
+                                    <div class="panel has--border block information--panel payment--panel">
+
+                                        {% block frontend_checkout_confirm_left_payment_method_headline %}
+                                            <div class="panel--title is--underline payment--title">
+                                                {% trans from 'frontend/checkout/confirm' %}ConfirmHeaderPaymentShipping{% endtrans %}
+                                            </div>
+                                        {% endblock %}
+
+                                        {% block frontend_checkout_confirm_left_payment_content %}
+                                            <div class="panel--body is--wide payment--content">
+                                                {% block frontend_checkout_confirm_left_payment_method %}
+                                                    <p class="payment--method-info">
+                                                        <strong class="payment--title">
+                                                            {% trans from 'frontend/checkout/confirm' %}ConfirmInfoPaymentMethod{% endtrans %}
+                                                        </strong>
+                                                        <span class="payment--description">{{ context.paymentMethod.name }}</span>
+                                                    </p>
+
+                                                    {#{if !$sUserData.additional.payment.esdactive && {config name="showEsd"}}#}
+                                                    {#<p class="payment--confirm-esd">{s name="ConfirmInfoInstantDownload" namespace="frontend/checkout/confirm"}{/s}</p>#}
+                                                    {#{/if}#}
+                                                {% endblock %}
+
+                                                {% block frontend_checkout_confirm_left_shipping_method %}
+                                                    <p class="shipping--method-info">
+                                                        <strong class="shipping--title">{% trans from 'frontend/checkout/confirm' %}ConfirmHeadDispatch{% endtrans %}</strong>
+                                                        {#<span class="shipping--description" title="{$sDispatch.name}">{$sDispatch.name|truncate:25:"...":true}</span>#}
+                                                        <span class="shipping--description"
+                                                              title="{{ context.shippingMethod.name }}">{{ context.shippingMethod.name }}</span>
+                                                    </p>
+                                                {% endblock %}
+                                            </div>
+                                        {% endblock %}
+
+                                        {% block frontend_checkout_confirm_left_payment_method_actions %}
+                                            <div class="panel--actions is--wide">
+                                                {# Action buttons #}
+                                                {# todo redirectTo #}
+                                                <a href="{{ path('checkout_shipping_payment') }}"
+                                                   class="btn is--small btn--change-payment">
+                                                    {% trans from 'frontend/checkout/confirm' %}ConfirmLinkChangePayment{% endtrans %}
+                                                </a>
+                                            </div>
+                                        {% endblock %}
+                                    </div>
                                 {% endblock %}
                             </div>
-                            {% endblock %}
-
-                            {% block frontend_checkout_confirm_left_payment_method_actions %}
-                            <div class="panel--actions is--wide">
-                                {# Action buttons #}
-                                {#<a href="{url controller=checkout action=shippingPayment sTarget=checkout}" class="btn is--small btn--change-payment">#}
-                                <a href="{{ path('checkout_shipping_payment') }}" class="btn is--small btn--change-payment">
-                                    {% trans from 'frontend/checkout/confirm' %}ConfirmLinkChangePayment{% endtrans %}
-                                </a>
-                            </div>
-                            {% endblock %}
-                        </div>
                         {% endblock %}
                     </div>
-                    {% endblock %}
-                </div>
                 {% endblock %}
-
             </form>
         {% endblock %}
 
@@ -476,7 +396,7 @@
 
                             {# Product table header #}
                             {% block frontend_checkout_confirm_product_table_head %}
-                                {% sw_include "frontend/checkout/confirm/confirm-header.html.twig" %}
+                                {% sw_include 'frontend/checkout/confirm/confirm-header.html.twig' %}
                             {% endblock %}
 
                             {% block frontend_checkout_confirm_product_table_item_before %}{% endblock %}
@@ -486,7 +406,7 @@
                                 {% block frontend_checkout_confirm_product_table_item %}
                                     {% for caculatedLineItem in cart.calculatedLineItems %}
                                         {% sw_include "frontend/checkout/confirm/confirm-item.html.twig"
-                                        with {
+                                            with {
                                             'calculatedLineItem': caculatedLineItem,
                                             'depth': 0
                                         } %}
@@ -498,7 +418,7 @@
 
                             {# Table footer #}
                             {% block frontend_checkout_confirm_product_table_footer %}
-                                {% sw_include "frontend/checkout/confirm/confirm-footer.html.twig" %}
+                                {% sw_include 'frontend/checkout/confirm/confirm-footer.html.twig' %}
                             {% endblock %}
 
                         </div>
@@ -514,7 +434,8 @@
 
                         {% set deliveryDate = delivery.deliveryDate %}
 
-                        Wird geliefert zwischen dem <i>{{ deliveryDate.earliest.date|date('d.m.Y') }}</i> und dem <i>{{ deliveryDate.latest.date|date('d.m.Y') }}</i>
+                        Wird geliefert zwischen dem <i>{{ deliveryDate.earliest.date|date('d.m.Y') }}</i> und dem
+                        <i>{{ deliveryDate.latest.date|date('d.m.Y') }}</i>
                     {% endblock %}
 
                     {% block frontend_checkout_confirm_delivery_table %}
@@ -524,7 +445,7 @@
 
                                 {# Product table header #}
                                 {% block frontend_checkout_confirm_confirm_head %}
-                                    {% sw_include "frontend/checkout/confirm/confirm-header.html.twig" %}
+                                    {% sw_include 'frontend/checkout/confirm/confirm-header.html.twig' %}
                                 {% endblock %}
 
                                 {% block frontend_checkout_confirm_item_before %}{% endblock %}
@@ -534,10 +455,10 @@
                                     {% for position in delivery.positions %}
                                         {% block frontend_checkout_confirm_item %}
                                             {% sw_include "frontend/checkout/confirm/delivery-item.html.twig"
-                                            with {
-                                            'isLast': loop.last,
-                                            'calculatedLineItem': position.calculatedLineItem,
-                                            'deliveryPosition': position
+                                                with {
+                                                'isLast': loop.last,
+                                                'calculatedLineItem': position.calculatedLineItem,
+                                                'deliveryPosition': position
                                             } %}
                                         {% endblock %}
                                     {% endfor %}
@@ -585,26 +506,26 @@
                                 {% block frontend_checkout_confirm_submit %}
                                     {# Submit order button #}
                                     {% if sPayment.embediframe or sPayment.action %}
-                                        <button type="submit" class="btn is--primary is--large right is--icon-right" form="confirm--form" data-preloader-button="true">
+                                        <button type="submit" class="btn is--primary is--large right is--icon-right"
+                                                form="confirm--form" data-preloader-button="true">
                                             {#{s name='ConfirmDoPayment'}{/s}<i class="icon--arrow-right"></i>#}
-                                            {% trans from 'frontend/checkout/confirm' %}ConfirmDoPayment{% endtrans %}<i class="icon--arrow-right"></i>
+                                            {% trans from 'frontend/checkout/confirm' %}ConfirmDoPayment{% endtrans %}<i
+                                                    class="icon--arrow-right"></i>
                                         </button>
                                     {% else %}
-                                        <button type="submit" class="btn is--primary is--large right is--icon-right" form="confirm--form" data-preloader-button="true">
+                                        <button type="submit" class="btn is--primary is--large right is--icon-right"
+                                                form="confirm--form" data-preloader-button="true">
                                             {#{s name='ConfirmActionSubmit'}{/s}<i class="icon--arrow-right"></i>#}
-                                            {% trans from 'frontend/checkout/confirm' %}ConfirmActionSubmit{% endtrans %}<i class="icon--arrow-right"></i>
+                                            {% trans from 'frontend/checkout/confirm' %}ConfirmActionSubmit{% endtrans %}
+                                            <i class="icon--arrow-right"></i>
                                         </button>
                                     {% endif %}
                                 {% endblock %}
-
                             {% endif %}
-
                         </div>
                     </div>
                 {% endblock %}
-
             </div>
         {% endblock %}
-
     </div>
 {% endblock %}

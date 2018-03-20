@@ -209,7 +209,8 @@ class DemodataCommand extends ContainerAwareCommand
     private function createDefaultCustomer()
     {
         $id = Uuid::uuid4()->getHex();
-        $addressId = Uuid::uuid4()->getHex();
+        $shippingAddressId = Uuid::uuid4()->getHex();
+        $billingAddressId = Uuid::uuid4()->getHex();
 
         $customer = [
             'id' => $id,
@@ -219,22 +220,33 @@ class DemodataCommand extends ContainerAwareCommand
             'lastName' => 'Mustermann',
             'email' => 'test@example.com',
             'password' => password_hash('shopware', PASSWORD_BCRYPT, ['cost' => 13]),
-            'defaultPaymentMethodId' => '47160b00-cd06-4b01-8817-6451f9f3c247',
+            'defaultPaymentMethodId' => '47160b00cd064b0188176451f9f3c247',
             'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
             'shopId' => Defaults::SHOP,
-            'defaultBillingAddressId' => $addressId,
-            'defaultShippingAddressId' => $addressId,
+            'defaultBillingAddressId' => $billingAddressId,
+            'defaultShippingAddressId' => $shippingAddressId,
             'addresses' => [
                 [
-                    'id' => $addressId,
+                    'id' => $shippingAddressId,
                     'customerId' => $id,
-                    'countryId' => 'ffe61e1c-9915-4f95-9701-4a310ab5482d',
+                    'countryId' => 'ffe61e1c99154f9597014a310ab5482d',
                     'salutation' => 'Herr',
                     'firstName' => 'Max',
                     'lastName' => 'Mustermann',
                     'street' => 'Ebbinghoff 10',
                     'zipcode' => '48624',
                     'city' => 'Schöppingen',
+                ],
+                [
+                    'id' => $billingAddressId,
+                    'customerId' => $id,
+                    'countryId' => 'ffe61e1c99154f9597014a310ab5482d',
+                    'salutation' => 'Herr',
+                    'firstName' => 'Max',
+                    'lastName' => 'Mustermann',
+                    'street' => 'Bahnhofstraße 27',
+                    'zipcode' => '10332',
+                    'city' => 'Berlin',
                 ],
             ],
         ];

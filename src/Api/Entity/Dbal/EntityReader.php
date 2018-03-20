@@ -120,6 +120,8 @@ class EntityReader implements EntityReaderInterface
 
     private function read(array $ids, string $definition, ShopContext $context, Entity $entity, EntityCollection $collection, FieldCollection $fields, bool $raw = false): EntityCollection
     {
+        $ids = array_filter($ids);
+
         if (empty($ids)) {
             return $collection;
         }

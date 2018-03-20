@@ -22,8 +22,6 @@ use Shopware\Payment\Token\PaymentTransactionTokenFactory;
 use Shopware\Storefront\Page\Checkout\PaymentMethodLoader;
 use Shopware\StorefrontApi\Context\StorefrontContextPersister;
 use Shopware\StorefrontApi\Context\StorefrontContextService;
-use Shopware\Storefront\Page\Checkout\PaymentMethodLoader;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -140,11 +138,8 @@ class CheckoutController extends StorefrontController
      *
      * @return RedirectResponse|Response
      */
-    public function confirmAction(StorefrontContext $context): Response
+    public function confirmAction(Request $request, StorefrontContext $context): Response
     {
-        if (!$context->getCustomer()) {
-            return $this->redirectToRoute('account_login');
-        }
         if ($this->cartService->getCalculatedCart($context)->getCalculatedLineItems()->count() === 0) {
             return $this->redirectToRoute('checkout_cart');
         }
@@ -169,13 +164,9 @@ class CheckoutController extends StorefrontController
     public function payAction(Request $request, StorefrontContext $context): RedirectResponse
     {
         $shopContext = $context->getShopContext();
-        if (!$context->getCustomer()) {
-            return $this->redirectToRoute('account_login');
-        }
-
         $transaction = $request->get('transaction');
 
-        //check if customer is inside transaction loop
+        // check if customer is inside transaction loop
         if ($transaction && Uuid::isValid($transaction)) {
             $orderId = $this->getOrderIdByTransactionId($transaction, $context);
 
@@ -183,12 +174,12 @@ class CheckoutController extends StorefrontController
         }
 
         $cart = $this->cartService->getCalculatedCart($context);
-        //customer is not inside transaction loop and tries to finish the order
+        // customer is not inside transaction loop and tries to finish the order
         if ($cart->getCalculatedLineItems()->count() === 0) {
             return $this->redirectToRoute('checkout_cart');
         }
 
-        //save order and start transaction loop
+        // save order and start transaction loop
         $orderId = $this->cartService->order($context);
 
         return $this->processPayment($orderId, $shopContext);
@@ -239,27 +230,8 @@ class CheckoutController extends StorefrontController
     }
 
     /**
-     * @Route("/checkout/cartAmount", name="checkout_cart_amount", options={"seo"="false"})
-     * @Method({"POST"})
-     *
      * @throws \Exception
      */
-    public function cartAmountAction(Request $request, StorefrontContext $context): Response
-    {
-        $calculatedCart = $this->cartService->getCalculatedCart();
-
-        $amount = $this->renderStorefront(
-            '@Storefront/frontend/checkout/ajax_amount.html.twig',
-            ['amount' => $calculatedCart->getPrice()->getTotalPrice()]
-        )->getContent();
-
-        return new JsonResponse([
-            'amount' => $amount,
-            'quantity' => $calculatedCart->getCalculatedLineItems()->count(),
-        ]);
-
-    }
-
     private function getOrder(string $orderId, StorefrontContext $context): OrderBasicStruct
     {
         $criteria = new Criteria();
@@ -275,6 +247,9 @@ class CheckoutController extends StorefrontController
         return $searchResult->first();
     }
 
+    /**
+     * @throws InvalidTransactionException
+     */
     private function getOrderIdByTransactionId(string $transactionId, StorefrontContext $context): string
     {
         $criteria = new Criteria();
@@ -292,6 +267,10 @@ class CheckoutController extends StorefrontController
         return array_shift($ids);
     }
 
+    /**
+     * @throws InvalidOrderException
+     * @throws UnknownPaymentMethodException
+     */
     private function processPayment(string $orderId, ShopContext $shopContext): RedirectResponse
     {
         $redirect = $this->paymentProcessor->process($orderId, $shopContext);
@@ -303,6 +282,11 @@ class CheckoutController extends StorefrontController
         return $this->redirectToRoute('checkout_finish', ['order' => $orderId]);
     }
 
+    /**
+     * @throws UnknownPaymentMethodException
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
+     */
     private function getPaymentHandlerById(string $paymentMethodId, ShopContext $context): PaymentHandlerInterface
     {
         $paymentMethods = $this->paymentMethodRepository->readBasic([$paymentMethodId], $context);

@@ -1,0 +1,131 @@
+{% sw_extends '@Storefront/frontend/account/index.html.twig' %}
+{% trans_default_domain 'frontend/account/orders' %}
+
+{# Breadcrumb #}
+{% block frontend_index_start %}
+    {#{$sBreadcrumb[] = ['name'=>"{s name='MyOrdersTitle'}{/s}", 'link'=>{url}]}#}
+    {#parent()#}
+{% endblock %}
+
+{# @var orderPage \Shopware\Storefront\Page\Account\OrderPageStruct #}
+
+{# Main content #}
+{% block frontend_index_content %}
+    <div class="content account--content">
+
+        {# Welcome text #}
+        {% block frontend_account_orders_welcome %}
+            <div class="account--welcome panel">
+                {% block frontend_account_orders_welcome_headline %}
+                    <h1 class="panel--title">
+                        {% trans %}OrdersHeader{% endtrans %}
+                    </h1>
+                {% endblock %}
+
+                {% block frontend_account_orders_welcome_content %}
+                    <div class="panel--body is--wide">
+                        <p>
+                            {% trans %}OrdersWelcomeText{% endtrans %}
+                        </p>
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% if orderPage.orders is empty %}
+            {% block frontend_account_orders_info_empty %}
+                <div class="account--no-orders-info">
+                    {% sw_include 'frontend/_includes/messages.html.twig' with {
+                        'type': 'warning',
+                        'content': 'OrdersInfoEmpty'|trans
+                    } %}
+                </div>
+            {% endblock %}
+        {% else %}
+            {# Orders overview #}
+            {% block frontend_account_orders_overview %}
+                <div class="account--orders-overview panel is--rounded">
+
+                    {% block frontend_account_orders_table %}
+                        <div class="panel--table">
+                            {% block frontend_account_orders_table_head %}
+                                <div class="orders--table-header panel--tr">
+
+                                    {% block frontend_account_orders_table_head_date %}
+                                        <div class="panel--th column--date">
+                                            {% trans %}OrderColumnDate{% endtrans %}
+                                        </div>
+                                    {% endblock %}
+
+                                    {% block frontend_account_orders_table_head_id %}
+                                        <div class="panel--th column--id">
+                                            {% trans %}OrderColumnId{% endtrans %}
+                                        </div>
+                                    {% endblock %}
+
+                                    {% block frontend_account_orders_table_head_amount %}
+                                        <div class="panel--th column--amount">
+                                            {% trans %}OrderColumnAmount{% endtrans %}
+                                        </div>
+                                    {% endblock %}
+
+                                    {#{% block frontend_account_orders_table_head_dispatch %}#}
+                                        {#<div class="panel--th column--dispatch">#}
+                                            {#{% trans %}OrderColumnDispatch{% endtrans %}#}
+                                        {#</div>#}
+                                    {#{% endblock %}#}
+
+                                    {% block frontend_account_orders_table_head_status %}
+                                        <div class="panel--th column--status">
+                                            {% trans %}OrderColumnStatus{% endtrans %}
+                                        </div>
+                                    {% endblock %}
+
+                                    {% block frontend_account_orders_table_head_actions %}
+                                        <div class="panel--th column--actions is--align-center">
+                                            {% trans %}OrderColumnActions{% endtrans %}
+                                        </div>
+                                    {% endblock %}
+                                </div>
+                            {% endblock %}
+
+                            {% block frontend_account_order_item_overview %}
+                                {% for order in orderPage.orders %}
+                                    {% sw_include '@Storefront/frontend/account/order_item.html.twig' %}
+                                {% endfor %}
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+
+                    {% block frontend_account_orders_actions_paging %}
+                        <div class="account--paging panel--paging">
+                            {% if orderPage.currentPage > 1 %}
+                                <a href="{{ path('account_orders', {'page': orderPage.currentPage - 1}) }}" class="btn paging--link paging--prev">
+                                    <i class="icon--arrow-left"></i>
+                                </a>
+                            {% endif %}
+
+                            <a class="paging--link is--active">
+                                {{ orderPage.currentPage }}
+                            </a>
+
+                            {% if orderPage.pageCount - orderPage.currentPage > 0 %}
+                                <a href="{{ path('account_orders', {'page': orderPage.currentPage + 1}) }}" class="btn paging--link paging--prev">
+                                    <i class="icon--arrow-right"></i>
+                                </a>
+                            {% endif %}
+
+                            {% block frontend_account_orders_actions_paging_count %}
+                                <div class="paging--display">
+                                    {% trans from 'frontend/listing/listing_actions' %}ListingTextSite{% endtrans %}
+                                    <span class="is--bold">{{ orderPage.currentPage }}</span>
+                                </div>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+
+                </div>
+            {% endblock %}
+        {% endif %}
+    </div>
+{% endblock %}

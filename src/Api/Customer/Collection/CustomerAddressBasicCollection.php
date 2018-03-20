@@ -5,6 +5,7 @@ namespace Shopware\Api\Customer\Collection;
 use Shopware\Api\Country\Collection\CountryBasicCollection;
 use Shopware\Api\Country\Collection\CountryStateBasicCollection;
 use Shopware\Api\Customer\Struct\CustomerAddressBasicStruct;
+use Shopware\Api\Customer\Struct\CustomerBasicStruct;
 use Shopware\Api\Entity\EntityCollection;
 
 class CustomerAddressBasicCollection extends EntityCollection
@@ -96,6 +97,23 @@ class CustomerAddressBasicCollection extends EntityCollection
                 return $customerAddress->getCountryState();
             })
         );
+    }
+
+    public function sortByDefaultAddress(CustomerBasicStruct $customer): CustomerAddressBasicCollection
+    {
+        $this->sort(function (CustomerAddressBasicStruct $a, CustomerAddressBasicStruct $b) use ($customer) {
+            if ($a->getId() === $customer->getDefaultBillingAddressId() || $a->getId() === $customer->getDefaultShippingAddressId()) {
+                return -1;
+            }
+
+            if ($b->getId() === $customer->getDefaultBillingAddressId() || $b->getId() === $customer->getDefaultShippingAddressId()) {
+                return 1;
+            }
+
+            return 0;
+        });
+
+        return $this;
     }
 
     protected function getExpectedClass(): string

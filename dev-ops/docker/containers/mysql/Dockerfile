@@ -1,4 +1,4 @@
-FROM mariadb:5.7
+FROM mariadb:10.2
 
 # copy mysql config
 ADD dev.cnf /etc/mysql/conf.d/dev.cnf

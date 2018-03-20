@@ -33,6 +33,16 @@ class CartController extends StorefrontController
     public const USER_LOGGED_IN = true;
 
     /**
+     * @var StoreFrontCartService
+     */
+    private $cartService;
+
+    public function __construct(StoreFrontCartService $cartService)
+    {
+        $this->cartService = $cartService;
+    }
+
+    /**
      * @Route("/cart", name="cart_index", options={"seo"="false"})
      */
     public function indexAction()
@@ -49,7 +59,7 @@ class CartController extends StorefrontController
         $identifier = $request->request->get('identifier');
         $quantity = $request->request->getInt('quantity');
         $target = $request->request->get('target');
-        $services = $request->request->get('service');
+        $services = $request->request->get('service', []);
 
         if (!($identifier && $quantity)) {
             return new JsonResponse([
@@ -58,23 +68,7 @@ class CartController extends StorefrontController
             ]);
         }
 
-        $key = $identifier;
-        if (!empty($services)) {
-            $services = array_values($services);
-            $key = $identifier . '-' . implode('-', $services);
-        }
-
-        /** @var StoreFrontCartService $cartService */
-        $cartService = $this->get(StoreFrontCartService::class);
-        $cartService->add(
-            new LineItem(
-                $key,
-                ProductProcessor::TYPE_PRODUCT,
-                $quantity,
-                ['id' => $identifier, 'services' => $services]
-            ),
-            $context
-        );
+        $this->addProductToCart($context, $identifier, $quantity, $services);
 
         return $this->conditionalResponse($request, $target);
     }
@@ -95,8 +89,7 @@ class CartController extends StorefrontController
             ]);
         }
 
-        $cartService = $this->get(StoreFrontCartService::class);
-        $cartService->remove($identifier, $context);
+        $this->cartService->remove($identifier, $context);
 
         return $this->conditionalResponse($request, $target);
     }
@@ -118,9 +111,8 @@ class CartController extends StorefrontController
             ]);
         }
 
-        $cartService = $this->get(StoreFrontCartService::class);
         try {
-            $cartService->changeQuantity($identifier, $quantity, $context);
+            $this->cartService->changeQuantity($identifier, $quantity, $context);
         } catch (LineItemNotFoundException $e) {
             return new JsonResponse([
                 'success' => false,
@@ -147,13 +139,101 @@ class CartController extends StorefrontController
             ]);
         }
 
-        $cartService = $this->get(StoreFrontCartService::class);
-        $cartService->add(
+        $this->cartService->add(
             new LineItem($identifier, VoucherProcessor::TYPE_VOUCHER, 1, ['code' => $identifier]),
             $context
         );
 
         return $this->conditionalResponse($request, $target);
+    }
+
+    /**
+     * @Route("/cart/ajaxAmount", name="cart_ajax_amount", options={"seo"="false"})
+     * @Method({"POST"})
+     *
+     * @throws \Exception
+     */
+    public function ajaxCartAmountAction(Request $request, StorefrontContext $context): Response
+    {
+        $calculatedCart = $this->cartService->getCalculatedCart($context);
+
+        $amount = $this->renderStorefront(
+            '@Storefront/frontend/checkout/ajax_amount.html.twig',
+            ['amount' => $calculatedCart->getPrice()->getTotalPrice()]
+        )->getContent();
+
+        return new JsonResponse([
+            'amount' => $amount,
+            'quantity' => $calculatedCart->getCalculatedLineItems()->count(),
+        ]);
+    }
+
+    /**
+     * @Route("/cart/ajaxCart", name="cart_ajax_cart", options={"seo"="false"})
+     * @Method({"POST"})
+     *
+     * @throws \Exception
+     */
+    public function ajaxCartAction(Request $request, StorefrontContext $context): Response
+    {
+        $calculatedCart = $this->cartService->getCalculatedCart($context);
+
+        return $this->renderStorefront(
+            '@Storefront/frontend/checkout/ajax_cart.html.twig',
+            ['cart' => $calculatedCart]
+        );
+    }
+
+    /**
+     * @Route("/cart/ajaxRemoveLineItem", name="cart_ajax_remove_line_item", options={"seo"="false"})
+     * @Method({"POST"})
+     *
+     * @throws \Exception
+     */
+    public function ajaxRemoveLineItemAction(Request $request, StorefrontContext $context): Response
+    {
+        $identifier = $request->request->get('identifier');
+
+        if (!$identifier) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'Invalid identifier',
+            ]);
+        }
+
+        $this->cartService->remove($identifier, $context);
+
+        return $this->renderStorefront(
+            '@Storefront/frontend/checkout/ajax_cart.html.twig',
+            ['cart' => $this->cartService->getCalculatedCart($context)]
+        );
+    }
+
+    /**
+     * @Route("/cart/ajaxAddLineItem", name="cart_ajax_add_line_item", options={"seo"="false"})
+     * @Method({"POST"})
+     *
+     * @throws \Exception
+     */
+    public function ajaxAddLineItemAction(Request $request, StorefrontContext $context): Response
+    {
+        $identifier = $request->request->get('identifier');
+        $quantity = $request->request->getInt('quantity');
+        $services = $request->request->get('service', []);
+
+        if (!($identifier && $quantity)) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'Invalid identifier or quantity',
+            ]);
+        }
+
+        $this->addProductToCart($context, $identifier, $quantity, $services);
+
+        return $this->renderStorefront(
+            '@Storefront/frontend/checkout/ajax_cart.html.twig',
+            ['cart' => $this->cartService->getCalculatedCart($context)]
+        );
     }
 
     /**
@@ -175,5 +255,24 @@ class CartController extends StorefrontController
         }
 
         return $this->redirectToRoute(self::ROUTE_CHECKOUT_CART);
+    }
+
+    private function addProductToCart(StorefrontContext $context, string $identifier, int $quantity, array $services = []): void
+    {
+        $key = $identifier;
+        if (!empty($services)) {
+            $services = array_values($services);
+            $key = $identifier . '-' . implode('-', $services);
+        }
+
+        $this->cartService->add(
+            new LineItem(
+                $key,
+                ProductProcessor::TYPE_PRODUCT,
+                $quantity,
+                ['id' => $identifier, 'services' => $services]
+            ),
+            $context
+        );
     }
 }

@@ -1,0 +1,136 @@
+{% block frontend_account_order_item_overview_row %}
+    <div class="order--item panel--tr">
+
+        {# Order date #}
+        {% block frontend_account_order_item_date %}
+            <div class="order--date panel--td column--date">
+
+                {% block frontend_account_order_item_date_label %}
+                    <div class="column--label">
+                        {% trans from 'frontend/account/orders' %}OrderColumnDate{% endtrans %}
+                    </div>
+                {% endblock %}
+
+                {% block frontend_account_order_item_date_value %}
+                    <div class="column--value">
+                        {{ order.date|date }}
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {# Order id #}
+        {% block frontend_account_order_item_number %}
+            <div class="order--number panel--td column--id is--bold">
+
+                {% block frontend_account_order_item_number_label %}
+                    <div class="column--label">
+                        {% trans from 'frontend/account/orders' %}OrderColumnId{% endtrans %}
+                    </div>
+                {% endblock %}
+
+                {% block frontend_account_order_item_number_value %}
+                    <div class="column--value">
+                        {{ order.id }}
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {# Todo remove? #}
+        {# Dispatch type #}
+        {#{% block frontend_account_order_item_dispatch %}#}
+            {#<div class="order--dispatch panel--td column--dispatch">#}
+
+                {#{% block frontend_account_order_item_dispatch_label %}#}
+                    {#<div class="column--label">#}
+                        {#{% trans from 'frontend/account/orders' %}OrderColumnDispatch{% endtrans %}#}
+                    {#</div>#}
+                {#{% endblock %}#}
+
+                {#{% block frontend_account_order_item_dispatch_value %}#}
+                    {#<div class="column--value">#}
+                        {#{if $offerPosition.dispatch.name}#}
+                            {#{$offerPosition.dispatch.name}#}
+                        {#{else}#}
+                            {#{s name="OrderInfoNoDispatch"}{/s}#}
+                        {#{/if}#}
+                    {#</div>#}
+                {#{% endblock %}#}
+            {#</div>#}
+        {#{% endblock %}#}
+
+        {# Order amount #}
+        {% block frontend_account_order_item_amount %}
+            <div class="order--amount panel--td column--amount">
+                {% block frontend_account_order_item_amount_label %}
+                    <div class="column--label">
+                        {% trans from 'frontend/account/orders' %}OrderColumnAmount{% endtrans %}
+                    </div>
+                {% endblock %}
+
+                {% block frontend_account_order_item_amount_value %}
+                    <div class="column--value">
+                        {{ order.amountTotal|localizedcurrency(context.currency.shortName) }}
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {# Order status #}
+        {% block frontend_account_order_item_status %}
+            <div class="order--status panel--td column--status">
+
+                {% block frontend_account_order_item_status_label %}
+                    <div class="column--label">
+                        {% trans from 'frontend/account/orders' %}OrderColumnStatus{% endtrans %}
+                    </div>
+                {% endblock %}
+
+                {% block frontend_account_order_item_status_value %}
+                    <div class="column--value">
+                        <span class="order--status-icon status--{$offerPosition.status}">&nbsp;</span>
+                        {% if order.state.id == '1194a493806742c9b85e61f1f2cf9be8' %}
+                            {% trans from 'frontend/account/order_item' %}OrderItemInfoNotProcessed{% endtrans %}
+                        {#{elseif $offerPosition.status==1}#}
+                            {#{s name="OrderItemInfoInProgress"}{/s}#}
+                        {#{elseif $offerPosition.status==2}#}
+                            {#{s name="OrderItemInfoCompleted"}{/s}#}
+                        {#{elseif $offerPosition.status==3}#}
+                            {#{s name="OrderItemInfoPartiallyCompleted"}{/s}#}
+                        {#{elseif $offerPosition.status==4}#}
+                            {#{s name="OrderItemInfoCanceled"}{/s}#}
+                        {#{elseif $offerPosition.status==5}#}
+                            {#{s name="OrderItemInfoReadyForShipping"}{/s}#}
+                        {#{elseif $offerPosition.status==6}#}
+                            {#{s name="OrderItemInfoPartiallyShipped"}{/s}#}
+                        {#{elseif $offerPosition.status==7}#}
+                            {#{s name="OrderItemInfoShipped"}{/s}#}
+                        {#{elseif $offerPosition.status==8}#}
+                            {#{s name="OrderItemInfoClarificationNeeded"}{/s}#}
+                        {% endif %}
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+
+
+        {# Order actions #}
+        {% block frontend_account_order_item_actions %}
+            <div class="order--actions panel--td column--actions">
+                <a href="{{ path('checkout_finish', {'order': order.id}) }}"
+                   target="_blank"
+                   title="{% trans from 'frontend/account/order_item' %}OrderActionSlide{% endtrans %} {{ order.id }}"
+                   class="btn is--small">
+                    {% trans from 'frontend/account/order_item' %}OrderActionSlide{% endtrans %}
+                </a>
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}
+
+{# Order details #}
+{% block frontend_account_order_item_detail %}
+    {#{include file="frontend/account/order_item_details.tpl"}#}
+{% endblock %}

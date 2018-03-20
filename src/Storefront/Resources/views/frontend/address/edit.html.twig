@@ -1,0 +1,32 @@
+{% sw_extends 'frontend/address/index.html.twig' %}
+
+{# Breadcrumb #}
+{% block frontend_index_start %}
+    {{ parent() }}
+    {#{$sBreadcrumb[] = ["name"=>"{s name="AddressesTitleEdit"}Change address{/s}", "link"=>{url id=$formData.id}]}#}
+{% endblock %}
+
+{# Main content #}
+{% block frontend_index_content %}
+    <div class="account--address account--address-form account--content" data-register="true">
+
+        {# Address headline #}
+        {% block frontend_address_form_headline %}
+            <div class="account--welcome">
+                <h1 class="panel--title">
+                    {% trans from 'frontend/address/index' %}AddressesTitleEdit{% endtrans %}
+                </h1>
+            </div>
+        {% endblock %}
+
+        {% block frontend_address_form_content %}
+            <div class="panel has--border is--rounded">
+                <form name="frmAddresses" method="post" action="{{ path('address_save') }}">
+                    <input type="hidden" name="address[addressId]" value="{{ formData.id }}">
+                    {% sw_include '@Storefront/frontend/address/form.html.twig' %}
+                </form>
+            </div>
+        {% endblock %}
+
+    </div>
+{% endblock %}

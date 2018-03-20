@@ -17,18 +17,5 @@
                 </form>
             {% endif %}
         {% endblock %}
-
-        {# Note button #}
-        {% block frontend_listing_box_article_actions_save %}
-            <form action="{url controller='note' action='add' ordernumber=$sArticle.ordernumber _seo=false}" method="post">
-                <button type="submit"
-                   title="{"{s name='DetailLinkNotepad' namespace='frontend/detail/actions'}{/s}"}"
-                   class="product--action action--note"
-                   data-ajaxUrl="{url controller='note' action='ajaxAdd' ordernumber=$sArticle.ordernumber _seo=false}"
-                   data-text="{s name="DetailNotepadMarked"}{/s}">
-                    <i class="icon--heart"></i> <span class="action--text">{% trans from 'frontend/detail/actions' %}DetailLinkNotepadShort{% endtrans %}</span>
-                </button>
-            </form>
-        {% endblock %}
     </div>
 {% endblock %}

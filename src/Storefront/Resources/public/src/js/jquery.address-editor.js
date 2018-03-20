@@ -55,15 +55,6 @@
             sizing: 'content',
 
             /**
-             * Extra parameters to trigger specific actions afterwards
-             *
-             * Comma separated list of session keys to be filled with address id
-             *
-             * @string sessionKey
-             */
-            sessionKey: '',
-
-            /**
              * Set the address as default billing address
              *
              * @boolean setDefaultBillingAddress
@@ -131,12 +122,7 @@
                 sizing = me.opts.sizing,
                 maxHeight = 0,
                 requestData = {
-                    id: addressId || null,
-                    extraData: {
-                        sessionKey: me.opts.sessionKey,
-                        setDefaultBillingAddress: me.opts.setDefaultBillingAddress,
-                        setDefaultShippingAddress: me.opts.setDefaultShippingAddress
-                    }
+                    addressId: addressId || null
                 };
 
             if (window.StateManager._getCurrentDevice() === 'mobile') {
@@ -165,7 +151,9 @@
                             maxHeight: maxHeight,
                             sizing: sizing,
                             additionalClass: 'address-manager--modal address-manager--editor',
-                            addressId: addressId
+                            addressId: addressId,
+                            setDefaultBillingAddress: me.opts.setDefaultBillingAddress,
+                            setDefaultShippingAddress: me.opts.setDefaultShippingAddress
                         });
 
                         $.unsubscribe(me.getEventName('plugin/swModal/onOpen'));
@@ -235,7 +223,9 @@
                 .on('submit', function(event) {
                     var $target = $(event.target),
                         actionData = {
-                            id: $modal.options.addressId || null
+                            id: $modal.options.addressId || null,
+                            setDefaultBillingAddress: $modal.options.setDefaultBillingAddress || null,
+                            setDefaultShippingAddress: $modal.options.setDefaultShippingAddress || null
                         };
 
                     me._resetErrorMessage($modal);
@@ -246,6 +236,10 @@
                     $.each($target.serializeArray(), function() {
                         actionData[this.name] = this.value;
                     });
+
+                    if (actionData['saveAction'] === 'create') {
+                        delete actionData['address[addressId]'];
+                    }
 
                     $.publish('plugin/swAddressEditor/onBeforeSave', [ me, actionData ]);
 

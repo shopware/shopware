@@ -29,6 +29,8 @@ use Shopware\Storefront\Navigation\NavigationService;
 use Shopware\Storefront\Twig\TemplateFinder;
 use Shopware\StorefrontApi\Context\ContextSubscriber;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 abstract class StorefrontController extends Controller
@@ -62,6 +64,35 @@ abstract class StorefrontController extends Controller
         }
 
         return $this->get(TemplateFinder::class)->find($view, true);
+    }
+
+    protected function redirectToRouteAndReturn(string $route, Request $request, array $parameters = [], $status = 302): RedirectResponse
+    {
+        $default = [
+            'redirectTo' => urlencode($request->getRequestUri()),
+        ];
+        $parameters = array_merge($default, $parameters);
+
+        return $this->redirectToRoute($route, $parameters, $status);
+    }
+
+    protected function handleRedirectTo(string $url): RedirectResponse
+    {
+        $parsedUrl = parse_url(urldecode($url));
+        if (array_key_exists('host', $parsedUrl)) {
+            throw new \RuntimeException('Absolute URLs are prohibited for the redirectTo parameter.');
+        }
+
+        $redirectUrl = $parsedUrl['path'];
+        if (array_key_exists('query', $parsedUrl)) {
+            $redirectUrl .= '?' . $parsedUrl['query'];
+        }
+
+        if (array_key_exists('fragment', $parsedUrl)) {
+            $redirectUrl .= '#' . $parsedUrl['query'];
+        }
+
+        return $this->redirect($redirectUrl);
     }
 
     /**

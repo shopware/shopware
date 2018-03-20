@@ -1,4 +1,5 @@
 {% trans_default_domain "frontend/account/login" %}
+
 <div class="register--login content block">
 
     {# Error messages #}
@@ -27,17 +28,8 @@
             <h2 class="panel--title is--underline">{% trans %}LoginHeaderExistingCustomer{% endtrans %}</h2>
             <div class="panel--body is--wide">
                 {% block frontend_register_login_form %}
-                    {% if register.personal.sValidation %}
-                        {% set postUrl = url('account_login_check', {'sTarget': sTarget, 'sTargetAction': sTargetAction, 'sValidation': register.personal.sValidation}) %}
-                    {% else %}
-                        {% set postUrl = url('account_login_check', {'sTarget': sTarget, 'sTargetAction': sTargetAction}) %}
-                    {% endif %}
 
-                    <form name="sLogin" method="post" action="{{ path('account_login_check') }}">
-                        {% if sTarget %}
-                            <input name="sTarget" type="hidden" value="{{ sTarget }}" />
-                        {% endif %}
-
+                    <form name="login" method="post" action="{{ path('account_login_check') }}">
                         {% block frontend_register_login_description %}
                             <div class="register--login-description">{% trans %}LoginHeaderFields{% endtrans %}</div>
                         {% endblock %}

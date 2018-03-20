@@ -25,7 +25,7 @@
     {% block frontend_detail_index_navigation %}
         {% if shopware.config.disableArticleNavigation == false %}
             <nav class="product--navigation">
-                {% sw_include "@Shopware/frontend/detail/navigation.html.twig" %}
+                {% sw_include '@Shopware/frontend/detail/navigation.html.twig' %}
             </nav>
         {% endif %}
     {% endblock %}
@@ -33,5 +33,5 @@
 
 {# Main content #}
 {% block frontend_index_content %}
-    {% sw_include "@Shopware/frontend/detail/content.html.twig" %}
+    {% sw_include '@Shopware/frontend/detail/content.html.twig' %}
 {% endblock %}

@@ -1,9 +1,10 @@
-{% sw_extends "@Storefront/frontend/index/index.html.twig" %}
+{% sw_extends '@Storefront/frontend/index/index.html.twig' %}
+{% trans_default_domain 'frontend/account/index' %}
 
 {# Breadcrumb #}
 {% block frontend_index_start %}
     {{ parent() }}
-    {#{assign var='sBreadcrumb' value=[['name'=>"{% trans from "frontend/account/index" %}AccountTitle{% endtrans %}", 'link' =>{url controller='account' action='index'}]]}#}
+    {#{assign var='sBreadcrumb' value=[['name'=>"{% trans %}AccountTitle{% endtrans %}", 'link' =>{url controller='account' action='index'}]]}#}
 {% endblock %}
 
 {% block frontend_index_left_categories_my_account %}{% endblock %}
@@ -11,7 +12,7 @@
 {# Account Sidebar #}
 {% block frontend_index_content_left %}
     {% block frontend_account_sidebar %}
-        {% sw_include "@Storefront/frontend/account/sidebar.html.twig" %}
+        {% sw_include '@Storefront/frontend/account/sidebar.html.twig' %}
     {% endblock %}
 {% endblock %}
 
@@ -39,7 +40,7 @@
 
             <div class="account--welcome panel">
                 {% block frontend_account_index_welcome_headline %}
-                    <h1 class="panel--title">{% trans from "frontend/account/index" %}AccountHeaderWelcome{% endtrans %},
+                    <h1 class="panel--title">{% trans %}AccountHeaderWelcome{% endtrans %},
                         {% if shopware.config.displayprofiletitle %}{{ context.customer.title }}{% endif %}
                         {{ context.customer.firstName }} {{ context.customer.lastName }}
                     </h1>
@@ -47,7 +48,7 @@
 
                 {% block frontend_account_index_welcome_content %}
                     <div class="panel--body is--wide">
-                        <p>{% trans from "frontend/account/index" %}AccountHeaderInfo{% endtrans %}</p>
+                        <p>{% trans %}AccountHeaderInfo{% endtrans %}</p>
                     </div>
                 {% endblock %}
             </div>
@@ -59,7 +60,7 @@
                 <div class="account--info account--box panel has--border is--rounded">
 
                     {% block frontend_account_index_info_headline %}
-                        <h2 class="panel--title is--underline">{% trans from "frontend/account/index" %}AccountHeaderBasic{% endtrans %}</h2>
+                        <h2 class="panel--title is--underline">{% trans %}AccountHeaderBasic{% endtrans %}</h2>
                     {% endblock %}
 
                     {% block frontend_account_index_info_content %}
@@ -78,8 +79,8 @@
 
                     {% block frontend_account_index_info_actions %}
                         <div class="panel--actions is--wide">
-                            <a href="{url controller=account action=profile}" title="{% trans from "frontend/account/index" %}AccountLinkChangeProfile{% endtrans %}" class="btn is--small">
-                                {% trans from "frontend/account/index" %}AccountLinkChangeProfile{% endtrans %}
+                            <a href="{{ path('account_profile') }}" title="{% trans %}AccountLinkChangeProfile{% endtrans %}" class="btn is--small">
+                                {% trans %}AccountLinkChangeProfile{% endtrans %}
                             </a>
                         </div>
                     {% endblock %}
@@ -91,7 +92,7 @@
                 <div class="account--payment account--box panel has--border is--rounded">
 
                     {% block frontend_account_index_payment_method_headline %}
-                        <h2 class="panel--title is--underline">{% trans from "frontend/account/index" %}AccountHeaderPayment{% endtrans %}</h2>
+                        <h2 class="panel--title is--underline">{% trans %}AccountHeaderPayment{% endtrans %}</h2>
                     {% endblock %}
 
                     {% block frontend_account_index_payment_method_content %}
@@ -100,7 +101,7 @@
                                 <strong>{{ context.paymentMethod.name }}</strong><br/>
 
                                 {% if not context.paymentMethod.allowEsd and shopware.config.showesd %}
-                                    {% trans from "frontend/account/index" %}AccountInfoInstantDownloads{% endtrans %}
+                                    {% trans %}AccountInfoInstantDownloads{% endtrans %}
                                 {% endif %}
                             </p>
                         </div>
@@ -108,10 +109,10 @@
 
                     {% block frontend_account_index_payment_method_actions %}
                         <div class="panel--actions is--wide">
-                            <a href="{url controller='account' action='payment'}"
-                               title="{% trans from "frontend/account/index" %}AccountLinkChangePayment{% endtrans %}"
+                            <a href="{{ path('account_payment') }}"
+                               title="{% trans %}AccountLinkChangePayment{% endtrans %}"
                                class="btn is--small">
-                                {% trans from "frontend/account/index" %}AccountLinkChangePayment{% endtrans %}
+                                {% trans %}AccountLinkChangePayment{% endtrans %}
                             </a>
                         </div>
                     {% endblock %}
@@ -126,7 +127,7 @@
                     <div class="account--billing account--box panel has--border is--rounded">
 
                         {% block frontend_account_index_primary_billing_headline %}
-                            <h2 class="panel--title is--underline">{% trans from "frontend/account/index" %}AccountHeaderPrimaryBilling{% endtrans %}</h2>
+                            <h2 class="panel--title is--underline">{% trans %}AccountHeaderPrimaryBilling{% endtrans %}</h2>
                         {% endblock %}
 
                         {% block frontend_account_index_primary_billing_content %}
@@ -139,18 +140,19 @@
 
                         {% block frontend_account_index_primary_billing_actions %}
                             <div class="panel--actions is--wide">
-                                <a href="{url controller=address action=edit id=$sUserData.additional.user.default_billing_address_id sTarget=account}"
-                                   title="{% trans from "frontend/account/index" %}AccountLinkChangeBilling{% endtrans %}"
+                                {# TODO sTarget missing #}
+                                <a href="{{ path('address_edit', {'addressId': context.customer.defaultBillingAddressId}) }}"
+                                   title="{% trans %}AccountLinkChangeBilling{% endtrans %}"
                                    class="btn">
-                                    {% trans from "frontend/account/index" %}AccountLinkChangeBilling{% endtrans %}
+                                    {% trans %}AccountLinkChangeBilling{% endtrans %}
                                 </a>
                                 <br/>
-                                <a href="{url controller=address}"
+                                <a href="{{ path('address_index') }}"
                                    data-address-selection="true"
                                    data-setDefaultBillingAddress="1"
                                    data-id="{{ context.customer.defaultBillingAddressId }}"
-                                   title="{% trans from "frontend/account/index" %}AccountLinkChangeBilling{% endtrans %}">
-                                    {% trans from "frontend/account/index" %}AccountLinkSelectBilling{% endtrans %}
+                                   title="{% trans %}AccountLinkChangeBilling{% endtrans %}">
+                                    {% trans %}AccountLinkSelectBilling{% endtrans %}
                                 </a>
                             </div>
                         {% endblock %}
@@ -162,7 +164,7 @@
                     <div class="account--shipping account--box panel has--border is--rounded">
 
                         {% block frontend_account_index_primary_shipping_headline %}
-                            <h2 class="panel--title is--underline">{% trans from "frontend/account/index" %}AccountHeaderPrimaryShipping{% endtrans %}</h2>
+                            <h2 class="panel--title is--underline">{% trans %}AccountHeaderPrimaryShipping{% endtrans %}</h2>
                         {% endblock %}
 
                         {% block frontend_account_index_primary_shipping_content %}
@@ -170,7 +172,7 @@
                                 {% if context.customer.defaultBillingAddressId == context.customer.defaultShippingAddressId %}
                                     {% block frontend_account_index_primary_shipping_content_equality_notice %}
                                         <div class="shipping--equal-info">
-                                            {% trans from "frontend/account/index" %}AccountAddressEqualsBilling{% endtrans %}
+                                            {% trans %}AccountAddressEqualsBilling{% endtrans %}
                                         </div>
                                     {% endblock %}
                                 {% else %}
@@ -187,31 +189,32 @@
                             {% if context.customer.defaultBillingAddressId == context.customer.defaultShippingAddressId %}
                                 {% block frontend_account_index_primary_shipping_choose_seperate_address %}
                                         <div class="panel--actions is--wide">
-                                            <a href="{url controller=address}"
+                                            <a href="{{ path('address_index') }}"
                                                class="btn choose-different-address"
                                                data-address-selection="true"
                                                data-setDefaultShippingAddress="1"
                                                data-id="{{ context.customer.defaultShippingAddressId }}"
-                                               title="{% trans from "frontend/checkout/confirm" %}ConfirmAddressChooseDifferentShippingAddress{% endtrans %}">
-                                                {% trans from "frontend/checkout/confirm" %}ConfirmAddressChooseDifferentShippingAddress{% endtrans %}
+                                               title="{% trans from 'frontend/checkout/confirm' %}ConfirmAddressChooseDifferentShippingAddress{% endtrans %}">
+                                                {% trans from 'frontend/checkout/confirm' %}ConfirmAddressChooseDifferentShippingAddress{% endtrans %}
                                             </a>
                                         </div>
                                 {% endblock %}
                             {% else %}
                                 {% block frontend_account_index_primary_shipping_add_select_address %}
                                     <div class="panel--actions is--wide">
-                                        <a href="{url controller=address action=edit id=$sUserData.additional.user.default_shipping_address_id sTarget=account}"
-                                           title="{% trans from "frontend/account/index" %}AccountLinkChangeShipping{% endtrans %}"
+                                        {# todo implement sTarget #}
+                                        <a href="{{ path('address_edit', {'addressId': context.customer.defaultShippingAddressId}) }}"
+                                           title="{% trans %}AccountLinkChangeShipping{% endtrans %}"
                                            class="btn">
-                                            {% trans from "frontend/account/index" %}AccountLinkChangeShipping{% endtrans %}
+                                            {% trans %}AccountLinkChangeShipping{% endtrans %}
                                         </a>
                                         <br/>
-                                        <a href="{url controller=address}"
+                                        <a href="{{ path('address_index') }}"
                                            data-address-selection="true"
                                            data-setDefaultShippingAddress="1"
-                                           data-id="{$sUserData.additional.user.default_shipping_address_id}"
-                                           title="{% trans from "frontend/account/index" %}AccountLinkSelectShipping{% endtrans %}">
-                                            {% trans from "frontend/account/index" %}AccountLinkSelectShipping{% endtrans %}
+                                           data-id="{{ context.customer.defaultShippingAddressId }}"
+                                           title="{% trans %}AccountLinkSelectShipping{% endtrans %}">
+                                            {% trans %}AccountLinkSelectShipping{% endtrans %}
                                         </a>
                                     </div>
                                 {% endblock %}
@@ -227,7 +230,7 @@
             <div class="account--newsletter account--box panel has--border is--rounded newsletter">
 
                 {% block frontend_account_index_newsletter_settings_headline %}
-                <h2 class="panel--title is--underline">{% trans from "frontend/account/index" %}AccountHeaderNewsletter{% endtrans %}</h2>
+                <h2 class="panel--title is--underline">{% trans %}AccountHeaderNewsletter{% endtrans %}</h2>
                 {% endblock %}
 
                 {% block frontend_account_index_newsletter_settings_content %}
@@ -236,7 +239,7 @@
                             <fieldset>
                                 <input type="checkbox" name="newsletter" value="1" id="newsletter" data-auto-submit="true" {% if context.customer.newsletter %}checked="checked"{% endif %} />
                                 <label for="newsletter">
-                                    {% trans from "frontend/account/index" %}AccountLabelWantNewsletter{% endtrans %}
+                                    {% trans %}AccountLabelWantNewsletter{% endtrans %}
                                 </label>
                             </fieldset>
                         </form>

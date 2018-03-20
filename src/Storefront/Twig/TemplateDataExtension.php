@@ -117,6 +117,8 @@ class TemplateDataExtension extends \Twig_Extension implements \Twig_Extension_G
                 'tabletLandscapeLogo' => 'bundles/storefront/src/img/logos/logo--tablet.png',
                 'tabletLogo' => 'bundles/storefront/src/img/logos/logo--tablet.png',
                 'mobileLogo' => 'bundles/storefront/src/img/logos/logo--mobile.png',
+//                TODO remove
+                'offcanvasCart' => true,
             ]
         );
 
@@ -132,12 +134,13 @@ class TemplateDataExtension extends \Twig_Extension implements \Twig_Extension_G
             return $controllerInfo;
         }
 
-        list($controllerName, $action) = explode(':', $controller);
+        $matches = [];
+        preg_match('/Controller\\\\(\w+)Controller::?(\w+)Action$/', $controller, $matches);
 
-        $controllerNameParts = explode('\\', $controllerName);
-        $controllerName = array_pop($controllerNameParts);
-        $controllerName = substr($controllerName, 0, -10);
-        $controllerInfo->setName($controllerName);
+        if ($matches) {
+            $controllerInfo->setName($matches[1]);
+            $controllerInfo->setAction($matches[2]);
+        }
 
         return $controllerInfo;
     }

@@ -83,7 +83,7 @@
                             {% block frontend_listing_list_inline %}
                                 {# @var product \Shopware\Storefront\Bridge\Product\Struct\ListingProductStruct #}
                                 {% for product in listing.products %}
-                                    {% sw_include "@Storefront/frontend/listing/box_product.html.twig" %}
+                                    {% sw_include '@Storefront/frontend/listing/box_product.html.twig' %}
                                 {% endfor %}
                             {% endblock %}
                         </div>
@@ -94,7 +94,7 @@
             {# Paging #}
             {% block frontend_listing_bottom_paging %}
                 <div class="listing--bottom-paging">
-                    {% sw_include "@Storefront/frontend/listing/actions/action-pagination.html.twig" %}
+                    {% sw_include '@Storefront/frontend/listing/actions/action-pagination.html.twig' %}
                 </div>
             {% endblock %}
         </div>

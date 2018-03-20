@@ -24,12 +24,12 @@
 
 namespace Shopware\Administration\Command;
 
+use Exception;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\HttpKernel\KernelInterface;
-use \Exception;
 
 class AdministrationDumpPluginsCommand extends ContainerAwareCommand
 {
@@ -85,7 +85,9 @@ class AdministrationDumpPluginsCommand extends ContainerAwareCommand
 
     /**
      * return a path relative to the projectdir
+     *
      * @param string $absolute
+     *
      * @return string
      */
     private function getPathRelativeToProjectDir(string $absolute): string

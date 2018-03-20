@@ -1,13 +1,11 @@
 {% block frontend_listing_product_box_button_buy %}
-    {% set url = url('cart_add_product') %}
-
     {% block frontend_listing_product_box_button_buy_form %}
-        <form name="sAddToBasket"
+        <form name="addToCart"
               method="post"
-              action="{{ url }}"
+              action="{{ path('cart_add_product') }}"
               class="buybox--form"
               data-add-article="true"
-              data-addArticleUrl="{{ url }}"
+              data-addArticleUrl="{{ path('cart_ajax_add_line_item') }}"
               data-showModal="false">
 
             {% block frontend_listing_product_box_button_buy_order_number %}
@@ -18,7 +16,7 @@
             {% block frontend_listing_product_box_button_buy_button %}
                 <button class="buybox--button % block btn is--primary is--icon-right is--center is--large">
                     {% block frontend_listing_product_box_button_buy_button_text %}
-                    {% trans from 'frontend/listing/box_article' %}ListingBuyActionAdd{% endtrans %}<i class="icon--basket"></i> <i class="icon--arrow-right"></i>
+                        {% trans from 'frontend/listing/box_article' %}ListingBuyActionAdd{% endtrans %}<i class="icon--basket"></i> <i class="icon--arrow-right"></i>
                     {% endblock %}
                 </button>
             {% endblock %}

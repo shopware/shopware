@@ -13,6 +13,13 @@
             'ajaxCartURL': window.controller['ajax_cart'],
 
             /**
+             * URL that will be called when the plugin removes an item form the cart.
+             *
+             * @type {String}
+             */
+            'ajaxRemoveLineItemURL': window.controller['ajax_remove_item'],
+
+            /**
              * Selector for the trigger element.
              * The trigger is the element that attaches to the click/tap/hover events.
              *
@@ -305,24 +312,22 @@
             event.preventDefault();
 
             var me = this,
+                opts = me.opts,
                 $currentTarget = $(event.currentTarget),
                 $parent = $currentTarget.parent(),
-                $form = $currentTarget.closest('form'),
-                url;
-
-            // @deprecated: Don't use anchors for action links. Use forms with method="post" instead.
-            if ($currentTarget.attr('href')) {
-                url = $currentTarget.attr('href');
-            } else {
-                url = $form.attr('action');
-            }
+                identifier;
 
             $.publish('plugin/swCollapseCart/onRemoveArticle', [ me, event ]);
             $parent.html(me._$loadingIcon.clone());
 
+            identifier = $currentTarget.data('identifier');
+
             $.ajax({
-                'url': url,
-                'dataType': 'jsonp',
+                'url': opts.ajaxRemoveLineItemURL,
+                'method': 'POST',
+                'data': {
+                    'identifier': identifier
+                },
                 'success': function(result) {
                     me.$el.html(result);
 
@@ -444,14 +449,10 @@
 
             $.ajax({
                 'url': opts.ajaxCartURL,
-                'dataType': 'jsonp',
+                'method': 'POST',
                 'success': function (result) {
                     $el.html(result);
                     picturefill();
-
-                    if (typeof callback === 'function') {
-                        callback();
-                    }
 
                     $.publish('plugin/swCollapseCart/onLoadCartFinished', [ me, result ]);
                 },

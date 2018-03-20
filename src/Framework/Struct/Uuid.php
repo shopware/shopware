@@ -6,8 +6,14 @@ use Ramsey\Uuid\UuidInterface;
 
 class Uuid
 {
+    /**
+     * Regular expression pattern for matching a valid UUID of any variant.
+     */
+    const VALID_PATTERN = '^[0-9A-Fa-f]{8}-?[0-9A-Fa-f]{4}-?[0-9A-Fa-f]{4}-?[0-9A-Fa-f]{4}-?[0-9A-Fa-f]{12}$';
+
     public static function uuid4(): UuidInterface
     {
+        // TODO@all create our own Uuid object and do not expose the ramsey object
         return \Ramsey\Uuid\Uuid::uuid4();
     }
 
@@ -18,22 +24,22 @@ class Uuid
 
     public static function fromBytesToString(string $bytes): string
     {
-        return \Ramsey\Uuid\Uuid::fromBytes($bytes)->toString();
+        return strtolower(bin2hex($bytes));
     }
 
     public static function fromStringToBytes(string $uuid): string
     {
-        return \Ramsey\Uuid\Uuid::fromString($uuid)->getBytes();
+        return hex2bin(self::optimize($uuid));
     }
 
     public static function fromStringToHex(string $uuid): string
     {
-        return \Ramsey\Uuid\Uuid::fromString($uuid)->getHex();
+        return self::optimize($uuid);
     }
 
     public static function fromHexToBytes(string $hex): string
     {
-        return \Ramsey\Uuid\Uuid::fromString($hex)->getBytes();
+        return hex2bin(strtolower($hex));
     }
 
     public static function fromHexToString(string $hex): string
@@ -43,8 +49,15 @@ class Uuid
 
     public static function isValid($id): bool
     {
-        $id = \Ramsey\Uuid\Uuid::fromString($id)->toString();
+        if (!preg_match('/' . self::VALID_PATTERN . '/', $id)) {
+            return false;
+        }
 
-        return \Ramsey\Uuid\Uuid::isValid($id);
+        return true;
+    }
+
+    public static function optimize(string $id): string
+    {
+        return str_replace('-', '', strtolower($id));
     }
 }

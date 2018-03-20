@@ -1,6 +1,7 @@
 {% set TYPE_PRODUCT = 'product' %}
 {% set TYPE_VOUCHER = 'voucher' %}
 {% set TYPE_DISCOUNT = 'discount' %}
+{% trans_default_domain 'frontend/checkout/cart_item' %}
 
 {% block frontend_checkout_cart_item %}
     <div class="table--tr block-group row--product{% if isLast %} is--last-row{% endif %}">
@@ -73,7 +74,7 @@
                         {% block frontend_checkout_cart_item_details_sku %}
                             {% if calculatedLineItem.identifier %}
                                 <p class="content--sku content">
-                                    {% trans from 'frontend/checkout/cart_item' %}CartItemInfoId{% endtrans %}
+                                    {% trans %}CartItemInfoId{% endtrans %}
                                     {{ calculatedLineItem.identifier }}
                                 </p>
                             {% endif %}
@@ -115,28 +116,29 @@
                     {% if depth > 0 %}
                         {{ calculatedLineItem.quantity }}
                     {% elseif not calculatedLineItem.lastStock or (calculatedLineItem.lastStock and calculatedLineItem.stock > 0) %}
-                        {% set action = path('cart_set_line_item_quantity') %}
-                        <form name="cart_product_change_quantity" class="select-field" method="post" action="{{ action }}">
-                            <select name="quantity" data-auto-submit="true">
-                                {% set minPurchase = calculatedLineItem.variant.minPurchase ?? 1 %}
-                                {# TODO CONFIG AUSLESEN #}
-                                {% set maxPurchase = calculatedLineItem.variant.maxPurchase ?? 25 %}
-                                {% set purchaseSteps = calculatedLineItem.variant.purchaseSteps ?? 1 %}
-                                {% for quantity in range(minPurchase, maxPurchase, purchaseSteps) %}
-                                    <option value="{{ quantity }}" {% if quantity==calculatedLineItem.quantity %}selected="selected"{% endif %}>
-                                        {{ quantity }}
-                                    </option>
-                                    {/section}
-                                {% endfor %}
-                            </select>
-                            <input type="hidden" name="identifier" value="{{ calculatedLineItem.identifier }}" />
+                        {% if calculatedLineItem.lineItem %}
+                            <form name="cart_product_change_quantity" class="select-field" method="post" action="{{ path('cart_set_line_item_quantity') }}">
+                                <select name="quantity" data-auto-submit="true">
+                                    {% set minPurchase = calculatedLineItem.variant.minPurchase ?? 1 %}
+                                    {# TODO CONFIG AUSLESEN #}
+                                    {% set maxPurchase = calculatedLineItem.variant.maxPurchase ?? 25 %}
+                                    {% set purchaseSteps = calculatedLineItem.variant.purchaseSteps ?? 1 %}
+                                    {% for quantity in range(minPurchase, maxPurchase, purchaseSteps) %}
+                                        <option value="{{ quantity }}" {% if quantity==calculatedLineItem.quantity %}selected="selected"{% endif %}>
+                                            {{ quantity }}
+                                        </option>
+                                        {/section}
+                                    {% endfor %}
+                                </select>
+                                <input type="hidden" name="identifier" value="{{ calculatedLineItem.identifier }}" />
 
-                            {% block frontend_checkout_cart_item_quantity_target %}
-                                <input type="hidden" name="target" value="checkout_cart" />
-                            {% endblock %}
-                        </form>
+                                {% block frontend_checkout_cart_item_quantity_target %}
+                                    <input type="hidden" name="target" value="checkout_cart" />
+                                {% endblock %}
+                            </form>
+                        {% endif %}
                     {% else %}
-                        {% trans from 'frontend/checkout/cart_item' %}CartColumnQuantityEmpty{% endtrans %}
+                        {% trans %}CartColumnQuantityEmpty{% endtrans %}
                     {% endif %}
 
                 {% endblock %}
@@ -179,17 +181,18 @@
 
         {# Remove product from basket #}
         {% block frontend_checkout_cart_item_delete_article %}
-            {% if depth == 0 %}
-                <div class="panel--td column--actions">
-                    {% set action = path('cart_delete_line_item') %}
-                    <form action="{{ action }}" method="post">
-                        <button type="submit" class="btn is--small column--actions-link"
-                                title="{% trans from 'frontend/checkout/cart_item' %}CartItemLinkDelete{% endtrans %}">
-                            <i class="icon--cross"></i>
-                        </button>
-                        <input type="hidden" name="identifier" value="{{ calculatedLineItem.identifier }}" />
-                        <input type="hidden" name="target" value="{{ 'cart_index' }}" />
-                    </form>
+            {% if depth == 0 and calculatedLineItem.lineItem %}
+                <div class="panel--td column--actions right">
+                    {% block frontnend_checkout_cart_item_delete_form %}
+                        <form action="{{ path('cart_delete_line_item') }}" method="post">
+                            <button type="submit" class="btn is--small column--actions-link"
+                                    title="{% trans %}CartItemLinkDelete{% endtrans %}">
+                                <i class="icon--cross"></i>
+                            </button>
+                            <input type="hidden" name="identifier" value="{{ calculatedLineItem.identifier }}" />
+                            {#<input type="hidden" name="target" value="{{ 'cart_index' }}" />#}
+                        </form>
+                    {% endblock %}
                 </div>
             {% endif %}
         {% endblock %}

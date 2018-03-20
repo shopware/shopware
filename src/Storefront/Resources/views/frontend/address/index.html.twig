@@ -1,0 +1,138 @@
+{% sw_extends 'frontend/account/index.html.twig' %}
+{% trans_default_domain 'frontend/address/index' %}
+
+{# Breadcrumb #}
+{% block frontend_index_start %}
+    {{ parent() }}
+    {#{$sBreadcrumb[] = ["name"=>"{s name="AddressesTitle"}My addresses{/s}", "link"=>{url action="index"}]}#}
+{% endblock %}
+
+{# @var customerAdressPage \Shopware\Storefront\Page\Account\CustomerAddressPageStruct #}
+{% set addresses =  customerAdressPage.addresses %}
+
+{# Main content #}
+{% block frontend_index_content %}
+    <div class="account--address account--content">
+
+        {# Addresses headline #}
+        {% block frontend_address_headline %}
+            <div class="account--welcome">
+                <h1 class="panel--title">{% trans %}AddressesTitle{% endtrans %}</h1>
+            </div>
+        {% endblock %}
+
+        {# Success messages #}
+        {% block frontend_address_success_messages %}
+            {% if success %}
+                {# TODO  #}
+                {#{include file="frontend/address/success_messages.tpl" type=$success}#}
+            {% endif %}
+        {% endblock %}
+
+        {# Error messages #}
+        {% block frontend_address_error_messages %}
+            {% if error %}
+                {# TODO #}
+                {#{include file="frontend/address/error_messages.tpl" type=$error}#}
+            {% endif %}
+        {% endblock %}
+
+        {% block frontend_address_content %}
+            <div class="address--content block-group" data-panel-auto-resizer="true">
+                {% for address in addresses %}
+                    {% block frontend_address_item_content %}
+                        <div class="address--item-content address--box">
+                            <div class="panel has--border is--rounded block">
+                                <div class="panel--body is--wide">
+                                    {% block frontend_address_item_content_body %}
+                                        <div class="address--item-body">
+                                            {% block frontend_address_item_content_title %}
+                                                {% if context.customer.defaultShippingAddressId == address.id or context.customer.defaultBillingAddressId == address.id %}
+                                                    <div class="panel--title is--underline">
+                                                        {% if context.customer.defaultShippingAddressId == address.id %}
+                                                            <div>{% trans %}AddressesTitleDefaultShippingAddress{% endtrans %}</div>
+                                                        {% endif %}
+                                                        {% if context.customer.defaultBillingAddressId == address.id %}
+                                                            <div>{% trans %}AddressesTitleDefaultBillingAddress{% endtrans %}</div>
+                                                        {% endif %}
+                                                    </div>
+                                                {% endif %}
+                                            {% endblock %}
+                                            {% block frontend_address_item_content_inner %}
+                                                {{ include('@Storefront/frontend/_includes/address.html.twig', {
+                                                    'address': address
+                                                }) }}
+                                            {% endblock %}
+                                        </div>
+                                    {% endblock %}
+                                </div>
+
+                                {% block frontend_address_item_content_actions %}
+                                    <div class="address--item-actions panel--actions is--wide">
+                                        {% block frontend_address_item_content_set_default %}
+                                            <div class="address--actions-set-defaults">
+
+                                                {% block frontend_address_item_content_set_default_shipping %}
+                                                    {% if context.customer.defaultShippingAddressId != address.id %}
+                                                        <form action="{{ path('address_set_default_shipping') }}" method="post">
+                                                            <input type="hidden" name="addressId"
+                                                                   value="{{ address.id }}"/>
+                                                            <button type="submit" class="btn is--link is--small">
+                                                                {% trans %}AddressesSetAsDefaultShippingAction{% endtrans %}
+                                                            </button>
+                                                        </form>
+                                                    {% endif %}
+                                                {% endblock %}
+
+                                                {% block frontend_address_item_content_set_default_billing %}
+                                                    {% if context.customer.defaultBillingAddressId != address.id %}
+                                                        <form action="{{ path('address_set_default_billing') }}" method="post">
+                                                            <input type="hidden" name="addressId"
+                                                                   value="{{ address.id }}"/>
+                                                            <button type="submit" class="btn is--link is--small">
+                                                                {% trans %}AddressesSetAsDefaultBillingAction{% endtrans %}
+                                                            </button>
+                                                        </form>
+                                                    {% endif %}
+                                                {% endblock %}
+
+                                            </div>
+                                        {% endblock %}
+
+                                        {% block frontend_address_item_content_actions_change %}
+                                            <a href="{{ path('address_edit', {addressId: address.id}) }}"
+                                               title="{% trans %}AddressesContentItemActionEdit{% endtrans %}"
+                                               class="btn is--small">
+                                                {% trans %}AddressesContentItemActionEdit{% endtrans %}
+                                            </a>
+                                        {% endblock %}
+
+                                        {% block frontend_address_item_content_actions_delete %}
+                                            {% if context.customer.defaultShippingAddressId != address.id and context.customer.defaultBillingAddressId != address.id %}
+                                                <a href="{{ path('address_delete_confirm', {'addressId': address.id}) }}"
+                                                   title="{% trans %}AddressesContentItemActionDelete{% endtrans %}"
+                                                   class="btn is--small">
+                                                    {% trans %}AddressesContentItemActionDelete{% endtrans %}
+                                                </a>
+                                            {% endif %}
+                                        {% endblock %}
+                                    </div>
+                                {% endblock %}
+                            </div>
+                        </div>
+                    {% endblock %}
+                {% endfor %}
+
+                {% block frontend_address_item_content_create %}
+                    <div class="address--item-content address--item-create block">
+                        <a href="{{ path('address_create') }}"
+                           title="{% trans %}AddressesContentItemActionCreate{% endtrans %}"
+                           class="btn is--block is--primary">
+                            {% trans %}AddressesContentItemActionCreate{% endtrans %}
+                        </a>
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

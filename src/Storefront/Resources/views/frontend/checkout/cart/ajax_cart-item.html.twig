@@ -1,0 +1,32 @@
+{% sw_extends '@Shopware/frontend/checkout/cart/cart-item.html.twig' %}
+
+{% block frontend_checkout_cart_item_details_title %}
+    {% set detailUrl = path('detail_page', { 'id': calculatedLineItem.identifier }) %}
+    {% if calculatedLineItem.extensions.canonicalUrl %}
+        {% set detailUrl = calculatedLineItem.extensions.canonicalUrl.url %}
+    {% endif %}
+
+    <a class="item--link"
+       href="{{ detailUrl }}"
+       title="{{ calculatedLineItem.label|truncate(160) }}">
+        <span class="item--quantity">{{ calculatedLineItem.quantity }}x</span>
+        {{ parent() }}
+    </a>
+{% endblock %}
+
+{% block frontend_checkout_cart_item_details_sku %}{% endblock %}
+{% block frontend_checkout_cart_item_quantity %}{% endblock %}
+{% block frontend_checkout_cart_item_price %}{% endblock %}
+
+{% block frontnend_checkout_cart_item_delete_form %}
+    <div class="action--container">
+        {% set deleteUrl = path('cart_delete_line_item') %}
+
+        <a href="{{ deleteUrl }}"
+           class="btn is--small action--remove"
+           data-identifier="{{ calculatedLineItem.identifier }}"
+           title="{% trans from 'frontend/checkout/ajax_cart' %}AjaxCartRemoveArticle{% endtrans %}">
+            <i class="icon--cross"></i>
+        </a>
+    </div>
+{% endblock %}

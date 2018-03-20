@@ -135,6 +135,7 @@ class ContextFactory implements ContextFactoryInterface
     }
 
     public function create(
+        string $token,
         ShopScope $shopScope,
         CustomerScope $customerScope,
         CheckoutScope $checkoutScope
@@ -192,7 +193,8 @@ class ContextFactory implements ContextFactoryInterface
         //detect active delivery method, at first checkout scope, at least shop default method
         $delivery = $this->getShippingMethod($shop, $shopContext, $checkoutScope);
 
-        $context = new StorefrontContext(
+        return new StorefrontContext(
+            $token,
             $shop,
             $currency,
             $customerGroup,
@@ -204,8 +206,6 @@ class ContextFactory implements ContextFactoryInterface
             $customer,
             []
         );
-
-        return $context;
     }
 
     private function getCurrency(ShopBasicStruct $shop, ?string $currencyId, ShopContext $context): CurrencyBasicStruct

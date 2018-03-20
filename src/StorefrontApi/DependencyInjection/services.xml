@@ -12,20 +12,23 @@
             <argument type="service" id="Shopware\Api\Product\Repository\ProductServiceRepository"/>
         </service>
 
-        <service class="Shopware\StorefrontApi\Context\StorefrontApiContextPersister" id="Shopware\StorefrontApi\Context\StorefrontApiContextPersister">
+        <service class="Shopware\StorefrontApi\Context\StorefrontContextPersister" id="Shopware\StorefrontApi\Context\StorefrontContextPersister">
             <argument id="Doctrine\DBAL\Connection" type="service"/>
         </service>
 
-        <service class="Shopware\StorefrontApi\Context\StorefrontApiContextService" id="Shopware\StorefrontApi\Context\StorefrontApiContextService">
-            <argument id="Shopware\Context\Service\ContextFactory" type="service"/>
-            <argument id="Shopware\Context\Service\ContextRuleLoader" type="service"/>
-            <argument type="service" id="Shopware\Api\Shop\Repository\ShopRepository"/>
-            <argument type="service" id="Shopware\StorefrontApi\Context\StorefrontApiContextPersister"/>
+        <service class="Shopware\StorefrontApi\Context\StorefrontContextService" id="Shopware\StorefrontApi\Context\StorefrontContextService">
+            <argument type="service" id="Shopware\Context\Service\ContextFactory"/>
+            <argument type="service" id="cache.serializer"/>
+            <argument type="service" id="serializer"/>
+            <argument type="service" id="Shopware\Context\Service\ContextRuleLoader"/>
+            <argument type="service" id="logger"/>
+            <argument type="service" id="Shopware\StorefrontApi\Context\StorefrontContextPersister"/>
         </service>
 
-        <service class="Shopware\StorefrontApi\Context\StorefrontApiContextValueResolver" id="Shopware\StorefrontApi\Context\StorefrontApiContextValueResolver">
+        <service class="Shopware\StorefrontApi\Context\StorefrontContextValueResolver" id="Shopware\StorefrontApi\Context\StorefrontContextValueResolver">
             <tag name="controller.argument_value_resolver"/>
-            <argument type="service" id="Shopware\StorefrontApi\Context\StorefrontApiContextService"/>
+            <argument type="service" id="Shopware\StorefrontApi\Context\StorefrontContextService"/>
+            <argument type="service" id="request_stack"/>
         </service>
 
         <service class="Shopware\StorefrontApi\Controller\ProductController" id="Shopware\StorefrontApi\Controller\ProductController">
@@ -42,7 +45,7 @@
             <argument id="Shopware\CartBridge\Order\OrderPersister" type="service"/>
             <argument type="service" id="Shopware\Api\Order\Repository\OrderRepository"/>
             <argument type="service" id="serializer"/>
-            <argument type="service" id="Shopware\StorefrontApi\Context\StorefrontApiContextPersister"/>
+            <argument type="service" id="Shopware\StorefrontApi\Context\StorefrontContextPersister"/>
             <call method="setContainer">
                 <argument id="service_container" type="service"/>
             </call>
@@ -52,7 +55,7 @@
             <argument id="serializer" type="service"/>
             <argument id="security.authentication.manager" type="service"/>
             <argument id="security.token_storage" type="service"/>
-            <argument type="service" id="Shopware\StorefrontApi\Context\StorefrontApiContextPersister"/>
+            <argument type="service" id="Shopware\StorefrontApi\Context\StorefrontContextPersister"/>
             <call method="setContainer">
                 <argument id="service_container" type="service"/>
             </call>
@@ -62,7 +65,7 @@
             <argument id="Shopware\Api\Payment\Repository\PaymentMethodRepository" type="service"/>
             <argument id="Shopware\Api\Shipping\Repository\ShippingMethodRepository" type="service"/>
             <argument id="Shopware\Api\Customer\Repository\CustomerAddressRepository" type="service"/>
-            <argument id="Shopware\StorefrontApi\Context\StorefrontApiContextPersister" type="service"/>
+            <argument id="Shopware\StorefrontApi\Context\StorefrontContextPersister" type="service"/>
             <call method="setContainer">
                 <argument id="service_container" type="service"/>
             </call>
@@ -76,6 +79,11 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Api\Entity\Search\Term\Tokenizer"/>
             <argument type="service" id="logger"/>
+        </service>
+
+        <service class="Shopware\StorefrontApi\Context\ContextSubscriber" id="Shopware\StorefrontApi\Context\ContextSubscriber">
+            <tag name="kernel.event_subscriber"/>
+            <argument type="service" id="Shopware\StorefrontApi\Context\StorefrontContextService"/>
         </service>
     </services>
 </container>

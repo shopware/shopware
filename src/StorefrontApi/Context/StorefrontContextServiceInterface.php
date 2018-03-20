@@ -22,7 +22,7 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Storefront\Context;
+namespace Shopware\StorefrontApi\Context;
 
 use Shopware\Context\Struct\StorefrontContext;
 
@@ -33,7 +33,7 @@ use Shopware\Context\Struct\StorefrontContext;
  */
 interface StorefrontContextServiceInterface
 {
-    public function getStorefrontContext(): StorefrontContext;
+    public function getStorefrontContext(string $applicationId, string $token): StorefrontContext;
 
-    public function refresh(): void;
+    public function refresh(string $applicationId, string $token): void;
 }

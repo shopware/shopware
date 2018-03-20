@@ -3,7 +3,11 @@
 namespace Shopware\Storefront\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Shopware\Context\Struct\StorefrontContext;
+use Shopware\StorefrontApi\Context\StorefrontContextPersister;
+use Shopware\StorefrontApi\Context\StorefrontContextService;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 /**
@@ -16,9 +20,24 @@ class AccountController extends StorefrontController
      */
     private $authUtils;
 
-    public function __construct(AuthenticationUtils $authUtils)
-    {
+    /**
+     * @var TokenStorageInterface
+     */
+    private $tokenStorage;
+
+    /**
+     * @var StorefrontContextPersister
+     */
+    private $contextPersister;
+
+    public function __construct(
+        AuthenticationUtils $authUtils,
+        TokenStorageInterface $tokenStorage,
+        StorefrontContextPersister $contextPersister
+    ){
         $this->authUtils = $authUtils;
+        $this->tokenStorage = $tokenStorage;
+        $this->contextPersister = $contextPersister;
     }
 
     /**
@@ -56,8 +75,13 @@ class AccountController extends StorefrontController
     /**
      * @Route("/account/logout", name="account_logout")
      */
-    public function logoutAction()
+    public function logoutAction(StorefrontContext $context)
     {
+        $this->contextPersister->save(
+            $context->getToken(),
+            [StorefrontContextService::CUSTOMER_ID => null]
+        );
+
         return new Response('<html><body>Admin page!</body></html>');
     }
 }

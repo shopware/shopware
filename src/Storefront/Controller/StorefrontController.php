@@ -24,7 +24,10 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Storefront\Context\StorefrontContextService;
+use Shopware\Framework\Routing\Router;
+use Shopware\Storefront\Session\ShopSubscriber;
+use Shopware\StorefrontApi\Context\ContextSubscriber;
+use Shopware\StorefrontApi\Context\StorefrontContextService;
 use Shopware\Storefront\Navigation\Navigation;
 use Shopware\Storefront\Navigation\NavigationService;
 use Shopware\Storefront\Twig\TemplateFinder;
@@ -66,8 +69,11 @@ abstract class StorefrontController extends Controller
      */
     private function getNavigation(): ?Navigation
     {
-        $context = $this->get(StorefrontContextService::class)->getStorefrontContext();
-        $navigationId = $this->get('request_stack')->getCurrentRequest()->attributes->get('active_category_id');
+        $request = $this->get('request_stack')->getCurrentRequest();
+
+        $context = $request->attributes->get(ContextSubscriber::SHOP_CONTEXT_PROPERTY);
+
+        $navigationId = $request->attributes->get('active_category_id');
 
         return $this->get(NavigationService::class)->load($navigationId, $context);
     }

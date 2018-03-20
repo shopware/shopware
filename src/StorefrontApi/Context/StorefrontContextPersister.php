@@ -5,7 +5,7 @@ namespace Shopware\StorefrontApi\Context;
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
 
-class StorefrontApiContextPersister
+class StorefrontContextPersister
 {
     /**
      * @var Connection
@@ -17,17 +17,17 @@ class StorefrontApiContextPersister
         $this->connection = $connection;
     }
 
-    public function save(string $token, array $parameter): void
+    public function save(string $token, array $parameters): void
     {
         $existing = $this->load($token);
 
-        $parameter = array_replace_recursive($existing, $parameter);
+        $parameters = array_replace_recursive($existing, $parameters);
 
         $this->connection->executeUpdate(
             'REPLACE INTO storefront_api_context (`token`, `payload`) VALUES (:token, :payload)',
             [
                 'token' => Uuid::fromString($token)->getBytes(),
-                'payload' => json_encode($parameter),
+                'payload' => json_encode($parameters),
             ]
         );
     }

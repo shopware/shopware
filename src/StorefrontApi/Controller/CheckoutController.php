@@ -5,6 +5,7 @@ namespace Shopware\StorefrontApi\Controller;
 use Ramsey\Uuid\Uuid;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Shopware\Api\Order\Definition\OrderDefinition;
 use Shopware\Api\Order\Repository\OrderRepository;
 use Shopware\Cart\Cart\CartPersisterInterface;
 use Shopware\Cart\Cart\CircularCartCalculation;
@@ -16,10 +17,10 @@ use Shopware\Cart\LineItem\LineItem;
 use Shopware\Cart\Order\OrderPersisterInterface;
 use Shopware\CartBridge\Product\ProductProcessor;
 use Shopware\CartBridge\Service\StoreFrontCartService;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Rest\Response\Type\JsonType;
-use Shopware\StorefrontApi\Context\StorefrontApiContext;
-use Shopware\StorefrontApi\Context\StorefrontApiContextPersister;
-use Shopware\StorefrontApi\Context\StorefrontApiContextValueResolver;
+use Shopware\StorefrontApi\Context\StorefrontContextPersister;
+use Shopware\StorefrontApi\Context\StorefrontContextValueResolver;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -57,7 +58,7 @@ class CheckoutController extends Controller
     private $serializer;
 
     /**
-     * @var \Shopware\StorefrontApi\Context\StorefrontApiContextPersister
+     * @var StorefrontContextPersister
      */
     private $contextPersister;
 
@@ -67,7 +68,7 @@ class CheckoutController extends Controller
         OrderPersisterInterface $orderPersister,
         OrderRepository $orderRepository,
         Serializer $serializer,
-        StorefrontApiContextPersister $contextPersister
+        StorefrontContextPersister $contextPersister
     ) {
         $this->calculation = $calculation;
         $this->persister = $persister;
@@ -81,13 +82,13 @@ class CheckoutController extends Controller
      * @Route("/storefront-api/checkout", name="storefront.api.checkout.get")
      * @Method({"GET"})
      *
-     * @param \Shopware\StorefrontApi\Context\StorefrontApiContext $context
+     * @param \Shopware\StorefrontApi\Context\StorefrontContext $context
      *
      * @return JsonResponse
      */
-    public function getAction(StorefrontApiContext $context)
+    public function getAction(StorefrontContext $context)
     {
-        $cart = $this->loadCart($context->getCartToken());
+        $cart = $this->loadCart($context->getToken());
 
         $calculated = $this->calculation->calculate($cart, $context);
 
@@ -100,22 +101,16 @@ class CheckoutController extends Controller
      * @Route("/storefront-api/checkout", name="storefront.api.checkout.create")
      * @Method({"POST"})
      *
-     * @param StorefrontApiContext $context
+     * @param StorefrontContext $context
      *
      * @return JsonResponse
      */
-    public function createAction(StorefrontApiContext $context)
+    public function createAction(StorefrontContext $context)
     {
-        $cart = Cart::createNew(self::CART_NAME);
-
-        $calculated = $this->calculation->calculate($cart, $context);
-
-        $this->persister->save($calculated, $context);
-
-        $this->save($calculated, $context);
+        $this->persister->delete($context->getToken(), self::CART_NAME);
 
         return new JsonResponse([
-            StorefrontApiContextValueResolver::CONTEXT_TOKEN_KEY => $context->getContextToken(),
+            StorefrontContextValueResolver::CONTEXT_TOKEN_KEY => $context->getToken(),
         ]);
     }
 
@@ -124,11 +119,11 @@ class CheckoutController extends Controller
      * @Method({"PUT"})
      *
      * @param Request                                              $request
-     * @param \Shopware\StorefrontApi\Context\StorefrontApiContext $context
+     * @param \Shopware\StorefrontApi\Context\StorefrontContext $context
      *
      * @return JsonResponse
      */
-    public function addProductAction(string $identifier, Request $request, StorefrontApiContext $context)
+    public function addProductAction(string $identifier, Request $request, StorefrontContext $context)
     {
         $post = $this->getPost($request);
 
@@ -150,11 +145,11 @@ class CheckoutController extends Controller
      * @Method({"PUT"})
      *
      * @param Request                                              $request
-     * @param \Shopware\StorefrontApi\Context\StorefrontApiContext $context
+     * @param \Shopware\StorefrontApi\Context\StorefrontContext $context
      *
      * @return JsonResponse
      */
-    public function addAction(Request $request, StorefrontApiContext $context)
+    public function addAction(Request $request, StorefrontContext $context)
     {
         $post = $this->getPost($request);
 
@@ -188,15 +183,15 @@ class CheckoutController extends Controller
      * @Method({"DELETE"})
      *
      * @param string                                               $identifier
-     * @param \Shopware\StorefrontApi\Context\StorefrontApiContext $context
+     * @param \Shopware\StorefrontApi\Context\StorefrontContext $context
      *
      * @throws LineItemNotFoundException
      *
      * @return JsonResponse
      */
-    public function removeAction(string $identifier, StorefrontApiContext $context)
+    public function removeAction(string $identifier, StorefrontContext $context)
     {
-        $cart = $this->loadCart($context->getCartToken());
+        $cart = $this->loadCart($context->getToken());
 
         if (!$lineItem = $cart->getLineItems()->get($identifier)) {
             throw new LineItemNotFoundException($identifier);
@@ -219,15 +214,15 @@ class CheckoutController extends Controller
      *
      * @param string                                               $identifier
      * @param int                                                  $quantity
-     * @param \Shopware\StorefrontApi\Context\StorefrontApiContext $context
+     * @param \Shopware\StorefrontApi\Context\StorefrontContext $context
      *
      * @throws LineItemNotFoundException
      *
      * @return JsonResponse
      */
-    public function setQuantityAction(string $identifier, int $quantity, StorefrontApiContext $context)
+    public function setQuantityAction(string $identifier, int $quantity, StorefrontContext $context)
     {
-        $cart = $this->loadCart($context->getCartToken());
+        $cart = $this->loadCart($context->getToken());
 
         if (!$lineItem = $cart->getLineItems()->get($identifier)) {
             throw new LineItemNotFoundException($identifier);
@@ -248,21 +243,27 @@ class CheckoutController extends Controller
      * @Route("/storefront-api/checkout/order", name="storefront.api.checkout.order")
      * @Method({"POST"})
      *
-     * @param \Shopware\StorefrontApi\Context\StorefrontApiContext $context
+     * @param \Shopware\StorefrontApi\Context\StorefrontContext $context
      *
      * @return Response
      */
-    public function orderAction(StorefrontApiContext $context)
+    public function orderAction(StorefrontContext $context)
     {
-        $cart = $this->loadCart($context->getCartToken());
+        $cart = $this->loadCart($context->getToken());
 
         $calculated = $this->calculation->calculate($cart, $context);
 
-        $orderId = $this->orderPersister->persist($calculated, $context);
+        $events = $this->orderPersister->persist($calculated, $context);
+
+        $orders = $events->getEventByDefinition(OrderDefinition::class);
+
+        $ids = $orders->getIds();
+
+        $orderId = array_shift($ids);
 
         $order = $this->orderRepository->readDetail([$orderId], $context->getShopContext());
 
-        $this->contextPersister->save($context->getContextToken(), ['cartToken' => null]);
+        $this->contextPersister->save($context->getToken(), ['cartToken' => null]);
 
         return new JsonResponse(
             $this->serialize($order->get($orderId))
@@ -279,7 +280,7 @@ class CheckoutController extends Controller
         if (!$token) {
             $token = Uuid::uuid4()->toString();
         }
-
+        
         try {
             $cart = $this->persister->load($token, self::CART_NAME);
         } catch (CartTokenNotFoundException $e) {
@@ -298,12 +299,12 @@ class CheckoutController extends Controller
         ];
     }
 
-    private function save(CalculatedCart $calculated, StorefrontApiContext $context): void
+    private function save(CalculatedCart $calculated, StorefrontContext $context): void
     {
         $this->persister->save($calculated, $context);
 
         $this->contextPersister->save(
-            $context->getContextToken(),
+            $context->getToken(),
             ['cartToken' => $calculated->getToken()]
         );
     }
@@ -317,9 +318,9 @@ class CheckoutController extends Controller
         return $this->serializer->decode($request->getContent(), 'json');
     }
 
-    private function addLineItem(StorefrontApiContext $context, string $identifier, string $type, int $quantity, array $payload): CalculatedCart
+    private function addLineItem(StorefrontContext $context, string $identifier, string $type, int $quantity, array $payload): CalculatedCart
     {
-        $cart = $this->loadCart($context->getCartToken());
+        $cart = $this->loadCart($context->getToken());
 
         $lineItem = new LineItem($identifier, $type, $quantity, $payload);
 

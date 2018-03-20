@@ -10,7 +10,7 @@ use Shopware\CartBridge\Product\ProductProcessor;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Defaults;
 use Shopware\Rest\Test\ApiTestCase;
-use Shopware\StorefrontApi\Context\StorefrontApiContextValueResolver;
+use Shopware\StorefrontApi\Context\StorefrontContextValueResolver;
 use Symfony\Bundle\FrameworkBundle\Client;
 
 class CheckoutControllerTest extends ApiTestCase
@@ -384,7 +384,7 @@ class CheckoutControllerTest extends ApiTestCase
         $content = json_decode($client->getResponse()->getContent(), true);
 
         return $this->getCartClient(
-            $content[StorefrontApiContextValueResolver::CONTEXT_TOKEN_KEY]
+            $content[StorefrontContextValueResolver::CONTEXT_TOKEN_KEY]
         );
     }
 
@@ -413,6 +413,7 @@ class CheckoutControllerTest extends ApiTestCase
             $headers
         );
     }
+
 
     private function addProduct(Client $client, string $id, int $quantity = 1)
     {

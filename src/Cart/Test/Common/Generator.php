@@ -114,6 +114,7 @@ class Generator extends TestCase
         $customer = (new CustomerBasicStruct())->assign(['id' => Uuid::uuid4()->toString()]);
 
         return new StorefrontContext(
+            Uuid::uuid4()->toString(),
             $shop,
             $currency,
             $currentCustomerGroup,

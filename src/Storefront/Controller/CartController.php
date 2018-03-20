@@ -8,6 +8,7 @@ use Shopware\Cart\LineItem\LineItem;
 use Shopware\CartBridge\Product\ProductProcessor;
 use Shopware\CartBridge\Service\StoreFrontCartService;
 use Shopware\CartBridge\Voucher\VoucherProcessor;
+use Shopware\Context\Struct\StorefrontContext;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -43,7 +44,7 @@ class CartController extends StorefrontController
      * @Route("/cart/addProduct", name="cart_add_product", options={"seo"="false"})
      * @Method({"POST"})
      */
-    public function addProductAction(Request $request)
+    public function addProductAction(Request $request, StorefrontContext $context)
     {
         $identifier = $request->request->get('identifier');
         $quantity = $request->request->getInt('quantity');
@@ -71,7 +72,8 @@ class CartController extends StorefrontController
                 ProductProcessor::TYPE_PRODUCT,
                 $quantity,
                 ['id' => $identifier, 'services' => $services]
-            )
+            ),
+            $context
         );
 
         return $this->conditionalResponse($request, $target);
@@ -81,7 +83,7 @@ class CartController extends StorefrontController
      * @Route("/cart/removeLineItem", name="cart_delete_line_item", options={"seo"="false"})
      * @Method({"POST"})
      */
-    public function removeLineItemAction(Request $request)
+    public function removeLineItemAction(Request $request, StorefrontContext $context)
     {
         $identifier = $request->request->get('identifier');
         $target = $request->request->get('target');
@@ -94,7 +96,7 @@ class CartController extends StorefrontController
         }
 
         $cartService = $this->get(StoreFrontCartService::class);
-        $cartService->remove($identifier);
+        $cartService->remove($identifier, $context);
 
         return $this->conditionalResponse($request, $target);
     }
@@ -103,7 +105,7 @@ class CartController extends StorefrontController
      * @Route("/cart/setLineItemQuantity", name="cart_set_line_item_quantity", options={"seo"="false"})
      * @Method({"POST"})
      */
-    public function setLineItemQuantityAction(Request $request)
+    public function setLineItemQuantityAction(Request $request, StorefrontContext $context)
     {
         $identifier = $request->request->get('identifier');
         $quantity = $request->request->getInt('quantity');
@@ -118,7 +120,7 @@ class CartController extends StorefrontController
 
         $cartService = $this->get(StoreFrontCartService::class);
         try {
-            $cartService->changeQuantity($identifier, $quantity);
+            $cartService->changeQuantity($identifier, $quantity, $context);
         } catch (LineItemNotFoundException $e) {
             return new JsonResponse([
                 'success' => false,
@@ -133,7 +135,7 @@ class CartController extends StorefrontController
      * @Route("/cart/addVoucher", name="cart_add_voucher", options={"seo"="false"})
      * @Method({"POST"})
      */
-    public function addVoucherAction(Request $request)
+    public function addVoucherAction(Request $request, StorefrontContext $context)
     {
         $identifier = $request->request->get('identifier', false);
         $target = $request->request->get('target');
@@ -147,7 +149,8 @@ class CartController extends StorefrontController
 
         $cartService = $this->get(StoreFrontCartService::class);
         $cartService->add(
-            new LineItem($identifier, VoucherProcessor::TYPE_VOUCHER, 1, ['code' => $identifier])
+            new LineItem($identifier, VoucherProcessor::TYPE_VOUCHER, 1, ['code' => $identifier]),
+            $context
         );
 
         return $this->conditionalResponse($request, $target);

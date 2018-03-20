@@ -9,6 +9,7 @@ use Shopware\Api\User\Definition\UserDefinition;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Storefront\Session\ShopSubscriber;
+use Shopware\StorefrontApi\Context\ContextSubscriber;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ArgumentValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
@@ -46,7 +47,7 @@ class RestContextValueResolver implements ArgumentValueResolverInterface
     public function resolve(Request $request, ArgumentMetadata $argument): iterable
     {
         /** @var StorefrontContext $storefrontContext */
-        $storefrontContext = $request->attributes->get(ShopSubscriber::SHOP_CONTEXT_PROPERTY);
+        $storefrontContext = $request->attributes->get(ContextSubscriber::SHOP_CONTEXT_PROPERTY);
 
         yield new RestContext(
             $request,

@@ -85,21 +85,23 @@ class CartPersister implements CartPersisterInterface
     {
         //prevent empty carts
         if ($cart->getCalculatedLineItems()->count() <= 0) {
-            $this->delete($cart->getToken(), $cart->getName());
+            $this->delete($context->getToken(), $cart->getName());
 
             return;
         }
 
         $this->connection->executeUpdate(
             'DELETE FROM cart WHERE `token` = :token AND `name` = :name',
-            ['token' => $cart->getToken(), 'name' => $cart->getName()]
+            ['token' => $context->getToken(), 'name' => $cart->getName()]
         );
 
         $liveVersion = Uuid::fromString(Defaults::LIVE_VERSION)->getBytes();
 
+        $customerId = $context->getCustomer() ? Uuid::fromString($context->getCustomer()->getId())->getBytes() : null;
+
         $data = [
             'version_id' => $liveVersion,
-            'token' => $cart->getToken(),
+            'token' => $context->getToken(),
             'name' => $cart->getName(),
             'currency_id' => Uuid::fromString($context->getCurrency()->getId())->getBytes(),
             'currency_version_id' => $liveVersion,
@@ -111,7 +113,7 @@ class CartPersister implements CartPersisterInterface
             'country_version_id' => $liveVersion,
             'shop_id' => Uuid::fromString($context->getShop()->getId())->getBytes(),
             'shop_version_id' => $liveVersion,
-            'customer_id' => $context->getCustomer() ? Uuid::fromString($context->getCustomer()->getId())->getBytes() : null,
+            'customer_id' => $customerId,
             'customer_version_id' => $context->getCustomer() ? $liveVersion : null,
             'price' => $cart->getPrice()->getTotalPrice(),
             'line_item_count' => $cart->getCalculatedLineItems()->count(),

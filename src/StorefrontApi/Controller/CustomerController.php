@@ -5,9 +5,10 @@ namespace Shopware\StorefrontApi\Controller;
 use Lexik\Bundle\JWTAuthenticationBundle\Security\Authentication\Token\JWTUserToken;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\StorefrontApi\Context\StorefrontApiContext;
-use Shopware\StorefrontApi\Context\StorefrontApiContextPersister;
-use Shopware\StorefrontApi\Context\StorefrontApiContextValueResolver;
+use Shopware\StorefrontApi\Context\StorefrontContextPersister;
+use Shopware\StorefrontApi\Context\StorefrontContextValueResolver;
 use Shopware\StorefrontApi\Firewall\CustomerUser;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -35,7 +36,7 @@ class CustomerController extends Controller
     private $tokenStorage;
 
     /**
-     * @var \Shopware\StorefrontApi\Context\StorefrontApiContextPersister
+     * @var StorefrontContextPersister
      */
     private $contextPersister;
 
@@ -43,7 +44,7 @@ class CustomerController extends Controller
         Serializer $serializer,
         AuthenticationManagerInterface $authenticationManager,
         TokenStorageInterface $tokenStorage,
-        StorefrontApiContextPersister $contextPersister
+        StorefrontContextPersister $contextPersister
     ) {
         $this->serializer = $serializer;
         $this->authenticationManager = $authenticationManager;
@@ -58,7 +59,7 @@ class CustomerController extends Controller
      * @param \Shopware\StorefrontApi\Context\StorefrontApiContext $context
      * @return JsonResponse
      */
-    public function loginAction(Request $request, StorefrontApiContext $context)
+    public function loginAction(Request $request, StorefrontContext $context)
     {
         $post = $this->getPost($request);
 
@@ -75,7 +76,7 @@ class CustomerController extends Controller
         $user = $authenticatedToken->getUser();
 
         $this->contextPersister->save(
-            $context->getContextToken(),
+            $context->getToken(),
             [
                 'customerId' => $user->getId(),
                 'billingAddressId' => null,
@@ -84,7 +85,7 @@ class CustomerController extends Controller
         );
 
         return new JsonResponse([
-            StorefrontApiContextValueResolver::CONTEXT_TOKEN_KEY => $context->getContextToken(),
+            StorefrontContextValueResolver::CONTEXT_TOKEN_KEY => $context->getToken(),
         ]);
     }
 
@@ -95,10 +96,10 @@ class CustomerController extends Controller
      * @param \Shopware\StorefrontApi\Context\StorefrontApiContext $context
      * @return void
      */
-    public function logoutAction(StorefrontApiContext $context)
+    public function logoutAction(StorefrontContext $context)
     {
         $this->contextPersister->save(
-            $context->getContextToken(),
+            $context->getToken(),
             [
                 'customerId' => null,
                 'billingAddressId' => null,

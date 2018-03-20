@@ -19,7 +19,8 @@ use Shopware\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Payment\PaymentHandler\PaymentHandlerInterface;
 use Shopware\Payment\PaymentProcessor;
 use Shopware\Payment\Token\PaymentTransactionTokenFactory;
-use Shopware\Storefront\Context\StorefrontContextService;
+use Shopware\StorefrontApi\Context\StorefrontContextPersister;
+use Shopware\StorefrontApi\Context\StorefrontContextService;
 use Shopware\Storefront\Page\Checkout\PaymentMethodLoader;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -57,13 +58,19 @@ class CheckoutController extends StorefrontController
      */
     private $tokenFactory;
 
+    /**
+     * @var StorefrontContextPersister
+     */
+    private $contextPersister;
+
     public function __construct(
         StoreFrontCartService $cartService,
         OrderRepository $orderRepository,
         PaymentMethodLoader $paymentMethodLoader,
         PaymentProcessor $paymentProcessor,
         PaymentTransactionTokenFactory $tokenFactory,
-        PaymentMethodRepository $paymentMethodRepository
+        PaymentMethodRepository $paymentMethodRepository,
+        StorefrontContextPersister $contextPersister
     ) {
         $this->cartService = $cartService;
         $this->orderRepository = $orderRepository;
@@ -71,6 +78,7 @@ class CheckoutController extends StorefrontController
         $this->paymentProcessor = $paymentProcessor;
         $this->paymentMethodRepository = $paymentMethodRepository;
         $this->tokenFactory = $tokenFactory;
+        $this->contextPersister = $contextPersister;
     }
 
     /**
@@ -84,10 +92,10 @@ class CheckoutController extends StorefrontController
     /**
      * @Route("/checkout/cart", name="checkout_cart", options={"seo"="false"})
      */
-    public function cartAction(): Response
+    public function cartAction(StorefrontContext $context): Response
     {
         return $this->renderStorefront('@Storefront/frontend/checkout/cart.html.twig', [
-            'cart' => $this->cartService->getCalculatedCart(),
+            'cart' => $this->cartService->getCalculatedCart($context),
         ]);
     }
 
@@ -114,7 +122,9 @@ class CheckoutController extends StorefrontController
             throw new UnknownPaymentMethodException(sprintf('Unknown payment method with with id %s', $paymentMethodId));
         }
 
-        $request->getSession()->set(StorefrontContextService::SESSION_PAYMENT_METHOD_ID, $paymentMethodId);
+        $this->contextPersister->save($context->getToken(), [
+            StorefrontContextService::PAYMENT_METHOD_ID => $paymentMethodId
+        ]);
 
         // todo validate, process and store custom template data
         return $this->redirectToRoute('checkout_confirm');
@@ -132,12 +142,12 @@ class CheckoutController extends StorefrontController
         if (!$context->getCustomer()) {
             return $this->redirectToRoute('account_login');
         }
-        if ($this->cartService->getCalculatedCart()->getCalculatedLineItems()->count() === 0) {
+        if ($this->cartService->getCalculatedCart($context)->getCalculatedLineItems()->count() === 0) {
             return $this->redirectToRoute('checkout_cart');
         }
 
         return $this->renderStorefront('@Storefront/frontend/checkout/confirm.html.twig', [
-            'cart' => $this->cartService->getCalculatedCart(),
+            'cart' => $this->cartService->getCalculatedCart($context),
         ]);
     }
 
@@ -169,13 +179,14 @@ class CheckoutController extends StorefrontController
             return $this->processPayment($orderId, $shopContext);
         }
 
+        $cart = $this->cartService->getCalculatedCart($context);
         //customer is not inside transaction loop and tries to finish the order
-        if ($this->cartService->getCalculatedCart()->getCalculatedLineItems()->count() === 0) {
+        if ($cart->getCalculatedLineItems()->count() === 0) {
             return $this->redirectToRoute('checkout_cart');
         }
 
         //save order and start transaction loop
-        $orderId = $this->cartService->order();
+        $orderId = $this->cartService->order($context);
 
         return $this->processPayment($orderId, $shopContext);
     }

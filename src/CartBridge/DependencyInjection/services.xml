@@ -64,8 +64,6 @@
         <service class="Shopware\CartBridge\Service\StoreFrontCartService" id="Shopware\CartBridge\Service\StoreFrontCartService">
             <argument type="service" id="Shopware\Cart\Cart\CircularCartCalculation" />
             <argument type="service" id="Shopware\CartBridge\Cart\CartPersister" />
-            <argument type="service" id="Shopware\Storefront\Context\StorefrontContextService" />
-            <argument type="service" id="session" />
             <argument type="service" id="Shopware\CartBridge\Order\OrderPersister" />
         </service>
 

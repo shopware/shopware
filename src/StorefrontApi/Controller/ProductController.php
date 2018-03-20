@@ -5,10 +5,10 @@ namespace Shopware\StorefrontApi\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Product\Definition\ProductDefinition;
+use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Product\Exception\ProductNotFoundException;
 use Shopware\Rest\Context\RestContext;
 use Shopware\Rest\Response\ResponseFactory;
-use Shopware\StorefrontApi\Context\StorefrontApiContext;
 use Shopware\StorefrontApi\Product\StorefrontProductRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
@@ -40,7 +40,7 @@ class ProductController extends Controller
      *
      * @return Response
      */
-    public function listAction(Request $request, StorefrontApiContext $context): Response
+    public function listAction(Request $request, StorefrontContext $context): Response
     {
         $criteria = new Criteria();
         if ($request->query->has('offset')) {
@@ -69,7 +69,7 @@ class ProductController extends Controller
      *
      * @return Response
      */
-    public function detailAction(string $productId, StorefrontApiContext $context, Request $request): Response
+    public function detailAction(string $productId, StorefrontContext $context, Request $request): Response
     {
         $products = $this->repository->readDetail([$productId], $context);
         if (!$products->has($productId)) {

@@ -32,6 +32,7 @@ use Shopware\Context\Struct\StorefrontContext;
 interface ContextFactoryInterface
 {
     public function create(
+        string $token,
         ShopScope $shopScope,
         CustomerScope $customerScope,
         CheckoutScope $checkoutScope

@@ -30,6 +30,9 @@ use Ramsey\Uuid\Uuid;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Defaults;
 use Shopware\Kernel;
+use Shopware\Storefront\Context\SessionStorefrontContextService;
+use Shopware\StorefrontApi\Context\StorefrontContextService;
+use Shopware\StorefrontApi\Context\StorefrontContextValueResolver;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
@@ -47,6 +50,7 @@ class Router implements RouterInterface, RequestMatcherInterface
     public const IS_API_REQUEST_ATTRIBUTE = 'is_api';
     public const REQUEST_TYPE_ATTRIBUTE = '_request_type';
     public const REQUEST_TYPE_STOREFRONT = 'storefront';
+    public const REQUEST_TYPE_STOREFRONT_API = 'storefront-api';
     public const REQUEST_TYPE_API = 'api';
     public const REQUEST_TYPE_ADMINISTRATION = 'administration';
 
@@ -268,6 +272,8 @@ class Router implements RouterInterface, RequestMatcherInterface
         $request->attributes->set('_locale_id', $shop['locale_id']);
         $request->setLocale($shop['locale_code']);
 
+        $request->attributes->set(StorefrontContextValueResolver::APPLICATION_ID, $shop['id']);
+
         $stripBaseUrl = $this->rewriteBaseUrl($shop['base_url'], $shop['base_path']);
 
         // strip base url from path info
@@ -404,6 +410,9 @@ class Router implements RouterInterface, RequestMatcherInterface
         }
         if ($isApi) {
             return self::REQUEST_TYPE_API;
+        }
+        if (stripos($request->getPathInfo(), '/storefront-api/') === 0) {
+            return self::REQUEST_TYPE_STOREFRONT_API;
         }
 
         return self::REQUEST_TYPE_STOREFRONT;

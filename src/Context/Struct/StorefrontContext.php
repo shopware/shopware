@@ -98,7 +98,13 @@ class StorefrontContext extends Struct
      */
     protected $rulesLocked = false;
 
+    /**
+     * @var string
+     */
+    protected $token;
+
     public function __construct(
+        string $token,
         ShopBasicStruct $shop,
         CurrencyBasicStruct $currency,
         CustomerGroupBasicStruct $currentCustomerGroup,
@@ -120,6 +126,7 @@ class StorefrontContext extends Struct
         $this->shippingMethod = $shippingMethod;
         $this->shippingLocation = $shippingLocation;
         $this->contextRulesIds = $contextRulesIds;
+        $this->token = $token;
     }
 
     public function getCurrentCustomerGroup(): CustomerGroupBasicStruct
@@ -198,5 +205,10 @@ class StorefrontContext extends Struct
     public function lockRules()
     {
         $this->rulesLocked = true;
+    }
+
+    public function getToken(): string
+    {
+        return $this->token;
     }
 }

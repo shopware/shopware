@@ -23,31 +23,43 @@ Mixin.register('productList', {
 
     methods: {
         getProductList() {
+            const generateCriteriaFromFilters = (filters, operator = 'AND') => {
+                const terms = [];
+                this.filters.forEach((filter) => {
+                    if (!filter.active) {
+                        return;
+                    }
+                    const criteria = filter.criteria;
+                    const term = CriteriaFactory[criteria.type](criteria.field, criteria.options);
+                    terms.push(term);
+                });
+
+                if (!terms.length) {
+                    return null;
+                }
+
+                return CriteriaFactory.nested(
+                    operator,
+                    ...terms
+                );
+            };
+
             this.isLoading = true;
 
-            const terms = [];
-            this.filters.forEach((filter) => {
-                if (!filter.active) {
-                    return;
-                }
-                const criteria = filter.criteria;
-                const term = CriteriaFactory[criteria.type](criteria.field, criteria.options);
-                terms.push(term);
-            });
-
-            const criterias = CriteriaFactory.nested(
-                'AND',
-                ...terms
-            );
-
-            return this.$store.dispatch('product/getProductList', {
+            const criterias = generateCriteriaFromFilters(this.filters);
+            const config = {
                 offset: this.offset,
                 limit: this.limit,
                 sortBy: this.sortBy,
                 sortDirection: this.sortDirection,
-                term: this.term,
-                criterias: criterias.getQueryString()
-            }).then((response) => {
+                term: this.term
+            };
+
+            if (criterias && criterias.length) {
+                config.criterias = [criterias.getQuery()];
+            }
+
+            return this.$store.dispatch('product/getProductList', config).then((response) => {
                 this.total = response.total;
                 this.products = response.products;
                 this.isLoading = false;

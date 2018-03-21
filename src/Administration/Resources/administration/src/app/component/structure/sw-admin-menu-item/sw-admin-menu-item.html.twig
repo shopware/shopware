@@ -1,22 +1,22 @@
-{% block sw_sidebar_item %}
-    <li class="sw-sidebar__navigation-list-item"
+{% block sw_admin_menu_item %}
+    <li class="sw-admin-menu__navigation-list-item"
         :class="getItemName(entry.path)"
         @click="$emit('listItemClicked', entry, $event.currentTarget)"
         @mouseover="$emit('menuItemChanged', entry, $event.currentTarget)">
 
-        {% block sw_sidebar_item_link %}
-            <router-link class="sw-sidebar__navigation-link" :to="{ name: entry.path }">
+        {% block sw_admin_menu_item_link %}
+            <router-link class="sw-admin-menu__navigation-link" :to="{ name: entry.path }">
 
-                {% block sw_sidebar_item_icon %}
+                {% block sw_admin_menu_item_icon %}
                     <sw-icon v-if="displayIcon"
                              size="20px"
-                             class="sw-sidebar__navigation-link-icon"
+                             class="sw-admin-menu__navigation-link-icon"
                              :name="getIconName(entry.icon)"
                              :style="{ 'color': entry.color }">
                     </sw-icon>
                 {% endblock %}
 
-                {% block sw_sidebar_item_text %}
+                {% block sw_admin_menu_item_text %}
                     <span :class="collapsibleText ? 'collapsible-text' : ''">
                         {{ entry.label }}
                     </span>
@@ -26,12 +26,12 @@
         {% endblock %}
 
         {% block sw_sidebar_sub_items_list %}
-            <ul v-if="sidebarExpanded" class="sw-sidebar__sub-navigation-list">
-                <sw-sidebar-item v-for="entry in entry.children"
+            <ul v-if="sidebarExpanded" class="sw-admin-menu__sub-navigation-list">
+                <sw-admin-menu-item v-for="entry in entry.children"
                                  :entry="entry"
                                  :key="entry.path"
                                  :displayIcon="false">
-                </sw-sidebar-item>
+                </sw-admin-menu-item>
             </ul>
         {% endblock %}
     </li>

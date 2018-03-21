@@ -21,7 +21,7 @@ Component.register('sw-product-list', {
                 label: 'Preis über 50€',
                 criteria: {
                     type: 'range',
-                    field: 'product.price.gross',
+                    field: 'product.price',
                     options: {
                         '>': 50
                     }
@@ -31,7 +31,7 @@ Component.register('sw-product-list', {
                 label: 'Lagerbestand unter 10',
                 criteria: {
                     type: 'range',
-                    field: 'product.instock',
+                    field: 'product.stock',
                     options: {
                         '<': 10
                     }
@@ -134,6 +134,13 @@ Component.register('sw-product-list', {
         onSwitchFilter(filter, filterIndex) {
             this.filters[filterIndex].active = !this.filters[filterIndex].active;
 
+            this.getProductList({
+                limit: this.limit,
+                offset: this.offset
+            });
+        },
+
+        onRefresh() {
             this.getProductList({
                 limit: this.limit,
                 offset: this.offset

@@ -1,0 +1,22 @@
+@import "~less/variables";
+
+@sw-sidebar-color-border:            @color-steam-cloud;
+@sw-sidebar-color-headline:          @color-black;
+
+.sw-sidebar__item-content {
+    position: absolute;
+    z-index: 0;
+    right: 64px;
+    width: 255px;
+    top: 0; bottom: 0;
+    border-left: 1px solid @sw-sidebar-color-border;
+    overflow: hidden;
+    background: #fff;
+    padding: 25px;
+}
+
+.sw-sidebar__item-headline {
+    font-size: 18px;
+    line-height: 23px;
+    color: @sw-sidebar-color-headline;
+}

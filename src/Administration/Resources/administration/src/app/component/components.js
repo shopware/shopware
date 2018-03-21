@@ -3,6 +3,8 @@ import './base/sw-button';
 import './base/sw-icon';
 import './base/sw-alert';
 import './base/sw-avatar';
+import './base/sw-sidebar';
+import './base/sw-sidebar-item';
 
 import './grid/sw-grid';
 import './grid/sw-grid-column';
@@ -19,8 +21,8 @@ import './utils/sw-color-swatch';
 import './structure/sw-admin';
 import './structure/sw-desktop';
 
-import './structure/sw-sidebar-item';
-import './structure/sw-sidebar';
+import './structure/sw-admin-menu-item';
+import './structure/sw-admin-menu';
 
 import './structure/sw-search-bar';
 import './structure/sw-workspace';

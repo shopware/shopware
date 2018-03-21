@@ -25,12 +25,6 @@
                     {% block core_product_list_grid_slots %}
                         <template slot="columns" slot-scope="{ item }">
                             {% block core_product_list_grid_columns %}
-                                {% block core_product_list_grid_columns_id %}
-                                    <sw-grid-column flex="175px" label="Artikelnummer" align="right">
-                                        <em>(leer)</em>
-                                    </sw-grid-column>
-                                {% endblock %}
-
                                 {% block core_product_list_grid_columns_name %}
                                     <sw-grid-column flex="1" label="Name" sortable dataIndex="name">{{ item.name }}</sw-grid-column>
                                 {% endblock %}
@@ -66,23 +60,25 @@
                         </template>
 
                         {% block core_product_list_grid_sidebar %}
-                            <sw-product-sidebar slot="sidebar">
-                                <sw-product-sidebar-panel icon="default-action-search" title="Search">
+                            <sw-sidebar slot="sidebar">
+                                <sw-sidebar-item icon="default-action-search" title="Search">
                                     <sw-field type="text" placeholder="Enter search term..." :value="term" @change="onSearch"></sw-field>
 
                                     <sw-alert variant="warning" :showIcon="false">
                                         This is a <strong>demo</strong>. The search will be placed in the header later on.
                                     </sw-alert>
-                                </sw-product-sidebar-panel>
+                                </sw-sidebar-item>
 
-                                <sw-product-sidebar-panel icon="default-action-filter" title="Filter">
+                                <sw-sidebar-item icon="default-action-filter" title="Filter">
                                     <sw-field type="switch" v-for="(filter, index) in filters" :label="filter.label" :value="filter.active" :key="index" @change="onSwitchFilter(filter.criteria, index)"></sw-field>
 
                                     <sw-alert variant="warning" :showIcon="false">
                                         <strong>Demo</strong> filters which will be replaced with more meaningful filters in the future.
                                     </sw-alert>
-                                </sw-product-sidebar-panel>
-                            </sw-product-sidebar>
+                                </sw-sidebar-item>
+
+                                <sw-sidebar-item icon="default-arrow-360-left" @click="onRefresh"></sw-sidebar-item>
+                            </sw-sidebar>
                         {% endblock %}
                     {% endblock %}
                 </sw-grid>

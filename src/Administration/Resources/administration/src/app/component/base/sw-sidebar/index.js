@@ -1,8 +1,10 @@
 import { Component } from 'src/core/shopware';
-import template from './sw-product-sidebar.html.twig';
-import './sw-product-sidebar.less';
+import template from './sw-sidebar.html.twig';
+import './sw-sidebar.less';
 
-Component.register('sw-product-sidebar', {
+Component.register('sw-sidebar', {
+    template,
+
     data() {
         return {
             items: {},
@@ -21,6 +23,5 @@ Component.register('sw-product-sidebar', {
 
             this.currentlyExpanded = this.items[activePanelId];
         }
-    },
-    template
+    }
 });

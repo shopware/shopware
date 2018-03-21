@@ -24,7 +24,7 @@ Module.register('sw-product', {
                 default: 'sw-product-list',
                 sidebar: 'sw-product-sidebar'
             },
-            path: 'index/:offset/:limit/:sortBy/:sortDirection/:term?'
+            path: 'index/:offset/:limit/:sortBy/:sortDirection/:term?/:filters?'
         },
 
         create: {

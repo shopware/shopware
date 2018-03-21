@@ -11,13 +11,19 @@ Component.register('sw-color-swatch', {
         color: {
             type: String,
             required: false
+        },
+        rounded: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
     computed: {
         variantClass() {
             return {
-                [`sw-color-swatch__${this.variant}`]: true
+                [`sw-color-swatch__${this.variant}`]: true,
+                'sw-color-swatch__rounded': this.rounded
             };
         }
     },

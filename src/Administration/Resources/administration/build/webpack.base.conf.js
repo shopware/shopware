@@ -12,10 +12,6 @@ module.exports = {
         commons: resolve('src') + '/core/common.js',
         app: resolve('src') + '/app/main.js'
     },
-    mode: process.env.NODE_ENV,
-    performance: {
-        hints: false
-    },
     output: {
         path: config.build.assetsRoot,
         filename: '[name].js',

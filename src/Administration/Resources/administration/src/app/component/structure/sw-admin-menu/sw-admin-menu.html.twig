@@ -1,0 +1,167 @@
+{% block sw_admin_menu %}
+    <aside class="sw-admin-menu"
+           :class="isExpanded ? 'is--expanded' : 'is--collapsed'"
+           :aria-expanded="isExpanded ? 'true' : 'false'">
+
+        {% block sw_admin_menu_header %}
+            <div class="sw-admin-menu__header">
+
+                {% block sw_admin_menu_header_logo %}
+                    <div class="sw-admin-menu__header-logo" role="img"></div>
+                {% endblock %}
+
+                {% block sw_admin_menu_header_shop_attributes %}
+                    <div class="sw-admin-menu__header-shop-attributes collapsible-text">
+
+                        {% block sw_admin_menu_header_shop_name %}
+                            <h1 class="sw-admin-menu__header-shop-name">
+                                Admin Prototype
+                            </h1>
+                        {% endblock %}
+
+                        {% block sw_admin_menu_header_shop_version %}
+                            <div class="sw-admin-menu__header-shop-version">
+                                Shopware Administration
+                            </div>
+                        {% endblock %}
+
+                        {% block sw_admin_menu_header_shop_status %}
+                            <sw-color-swatch variant="success" data-tooltip="check" title="Shop status: OK" :rounded="true" class="sw-admin-menu__shop-status"></sw-color-swatch>
+                        {% endblock %}
+
+                    </div>
+               {% endblock %}
+
+            </div>
+        {% endblock %}
+
+        {% block sw_admin_menu_body %}
+            <div class="sw-admin-menu__body">
+
+                {% block sw_admin_menu_navigation_main %}
+                    <nav class="sw-admin-menu__navigation">
+
+                        {% block sw_admin_menu_navigation_main_list %}
+                            <ul class="sw-admin-menu__navigation-list">
+
+                                {% block sw_admin_menu_navigation_main_items %}
+                                    <sw-admin-menu-item v-for="entry in mainMenuEntries"
+                                                     v-on:menuItemChanged="openFlyout"
+                                                     v-on:listItemClicked="openSubMenu"
+                                                     :sidebarExpanded="isExpanded"
+                                                     :entry="entry"
+                                                     :key="entry.path"
+                                                     :class="entry.label">
+                                    </sw-admin-menu-item>
+                                {% endblock %}
+
+                            </ul>
+                        {% endblock %}
+
+                    </nav>
+                {% endblock %}
+
+            </div>
+        {% endblock %}
+
+        {% block sw_admin_menu_footer %}
+            <div class="sw-admin-menu__footer">
+
+                {% block sw_admin_menu_toggle_sidebar %}
+                    <button class="sw-admin-menu__toggle" @click="onToggleSidebar">
+
+                        {% block sw_admin_menu_toggle_sidebar_icon %}
+                            <sw-icon :name="sidebarCollapseIcon" small></sw-icon>
+                        {% endblock %}
+
+                        {% block sw_admin_menu_toggle_sidebar_text %}
+                            <span class="collapsible-text">Menü minimieren</span>
+                        {% endblock %}
+
+                    </button>
+                {% endblock %}
+
+                {% block sw_admin_menu_user_actions_toggle %}
+                    <div class="sw-admin-menu__user-actions-toggle"
+                         :class="{'is--active': isUserActionsActive}"
+                         @click="onToggleUserActions"
+                         @mouseenter="openUserActions">
+
+                        {% block sw_admin_menu_user_actions_avatar %}
+                            <sw-avatar class="sw-admin-menu__avatar"></sw-avatar>
+                        {% endblock %}
+
+                        {% block sw_admin_menu_user_actions_attributes %}
+                            <div class="sw-admin-menu__user-attributes collapsible-text">
+                                <div class="sw-admin-menu__user-name">admin</div>
+                                <div class="sw-admin-menu__user-type">Administrator</div>
+
+                                {% block sw_admin_menu_user_actions_toggle_icon %}
+                                    <sw-icon :name="userActionsToggleIcon" class="sw-admin-menu__user-actions-indicator" small></sw-icon>
+                                {% endblock %}
+
+                            </div>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+
+                {% block sw_admin_menu_user_actions %}
+                    <div class="sw-admin-menu__user-actions"
+                         :class="{'is--active': isUserActionsActive}"
+                         @mouseleave="closeUserActions">
+
+                        {% block sw_admin_menu_user_actions_label %}
+                            <div v-if="!isExpanded" class="sw-admin-menu__user-actions-label">
+                                admin
+                            </div>
+                        {% endblock %}
+
+                        {% block sw_admin_menu_user_actions_list %}
+                            <ul class="sw-admin-menu__navigation-list">
+
+                                {% block sw_admin_menu_user_actions_items %}
+                                    <li class="sw-admin-menu__navigation-list-item">
+                                        <a href="#" class="sw-admin-menu__navigation-link" @click.prevent="onLogoutUser">
+                                            <sw-icon class="sw-admin-menu__navigation-link-icon"
+                                                     name="default-action-log-out"
+                                                     small>
+                                            </sw-icon>
+                                            Logout
+                                        </a>
+                                    </li>
+                                {% endblock %}
+
+                            </ul>
+                        {% endblock %}
+
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block sw_admin_menu_flyout %}
+            <template v-if="!isExpanded && flyoutEntries.length">
+                <div class="sw-admin-menu__flyout" :style="flyoutStyle" @mouseleave="closeFlyout">
+
+                    {% block sw_admin_menu_flyout_label %}
+                        <div class="sw-admin-menu__flyout-label">
+                            {{ flyoutLabel }}
+                        </div>
+                    {% endblock %}
+
+                    {% block sw_admin_menu_flyout_list %}
+                        <ul v-if="flyoutEntries" class="sw-admin-menu__flyout-list">
+                            <sw-admin-menu-item v-for="entry in flyoutEntries"
+                                             :entry="entry"
+                                             :key="entry.path"
+                                             :collapsibleText="false"
+                                             :displayIcon="false">
+                            </sw-admin-menu-item>
+                        </ul>
+                    {% endblock %}
+                </div>
+            </template>
+        {% endblock %}
+
+    </aside>
+{% endblock %}

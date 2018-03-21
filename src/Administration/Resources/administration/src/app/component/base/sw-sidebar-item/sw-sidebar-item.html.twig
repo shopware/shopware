@@ -1,0 +1,10 @@
+<div class="sw-sidebar__item">
+    <button class="sw-sidebar__button" :class="{ 'is-active': isExpanded }" @click="toggleContentPanel">
+        <sw-icon :name="icon" :title="title"></sw-icon>
+    </button>
+
+    <div class="sw-sidebar__item-content" v-if="isExpanded">
+        <h1 class="sw-sidebar__item-headline">{{ title }}</h1>
+        <slot></slot>
+    </div>
+</div>

@@ -56,6 +56,9 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
         const store = initState(router);
         const components = getComponents();
 
+        // Enable performance measurements in development mode
+        Vue.config.performance = process.env.NODE_ENV !== 'production';
+
         return new Vue({
             el: renderElement,
             router,

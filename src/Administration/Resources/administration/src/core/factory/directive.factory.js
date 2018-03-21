@@ -1,7 +1,7 @@
 /**
  * @module core/factory/directive
  */
-import utils from 'src/core/service/util.service';
+import { warn } from 'src/core/service/utils/debug.utils';
 
 export default {
     registerDirective,
@@ -25,20 +25,12 @@ const directiveRegistry = new Map();
  */
 function registerDirective(name, directive = {}) {
     if (!name || !name.length) {
-        utils.warn(
-            'DirectiveFactory',
-            'A directive always needs a name.',
-            directive
-        );
+        warn('DirectiveFactory', 'A directive always needs a name.', directive);
         return false;
     }
 
     if (directiveRegistry.has(name)) {
-        utils.warn(
-            'DirectiveFactory',
-            `A directive with the name ${name} already exists.`,
-            directive
-        );
+        warn('DirectiveFactory', `A directive with the name ${name} already exists.`, directive);
         return false;
     }
 

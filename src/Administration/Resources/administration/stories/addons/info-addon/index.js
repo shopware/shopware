@@ -2,6 +2,7 @@ import InfoViewComponent from './components/InfoView';
 import parseTemplateWithPrism from './utils/parseTemplateWithPrism';
 import getPropsList from './utils/getPropsList';
 import parseStory from './utils/parseStory';
+import validationService from '../../../src/core/service/validation.service';
 
 /**
  * Info panel decorator which wraps around the storybook output. It provides additional information
@@ -17,6 +18,9 @@ const SwagVueInfoAddon = (storyFn) => {
     const component = parseStory(story);
 
     return {
+        provide: {
+            validationService: validationService
+        },
         render: (h) => {
             return h(InfoViewComponent, {
                 props: {

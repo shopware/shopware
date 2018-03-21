@@ -10,8 +10,7 @@ Mixin.register('product', {
             productId: null,
             isLoading: false,
             isLoaded: false,
-            product: Entity.getRawEntityObject('product', true),
-            productErrors: {}
+            product: Entity.getRawEntityObject('product', true)
         };
     },
 

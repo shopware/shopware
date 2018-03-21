@@ -38,7 +38,7 @@ class SearchCriteriaBuilder
         switch ($request->getMethod()) {
             case 'POST':
                 $payload = json_decode($request->getContent(), true);
-                if (!$payload) {
+                if (!is_array($payload)) {
                     throw new BadRequestHttpException('Malformed JSON');
                 }
 
@@ -76,6 +76,17 @@ class SearchCriteriaBuilder
                     $filter = $this->parseSimpleFilter($payload['filter']);
                 }
                 $criteria->addFilter($filter);
+            }
+        }
+
+        if (isset($payload['post-filter']) && is_array($payload['post-filter'])) {
+            foreach ($payload['post-filter'] as $query) {
+                if (is_array($query)) {
+                    $filter = QueryStringParser::fromArray($query);
+                } else {
+                    $filter = $this->parseSimpleFilter($payload['post-filter']);
+                }
+                $criteria->addPostFilter($filter);
             }
         }
 
@@ -120,7 +131,9 @@ class SearchCriteriaBuilder
     {
         $sortings = [];
         foreach ($sorting as $sort) {
-            if (strcasecmp($sort['order'], 'desc') === 0) {
+            $order = $sort['order'] ?? 'asc';
+
+            if (strcasecmp($order, 'desc') === 0) {
                 $order = FieldSorting::DESCENDING;
             } else {
                 $order = FieldSorting::ASCENDING;

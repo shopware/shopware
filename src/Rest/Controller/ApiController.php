@@ -20,6 +20,7 @@ use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\FieldException\WriteStackException;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Entity\Write\WriteContext;
+use Shopware\Rest\Context\RestContext;
 use Shopware\Rest\Exception\ResourceNotFoundException;
 use Shopware\Rest\Exception\WriteStackHttpException;
 use Shopware\Rest\Response\ResponseFactory;

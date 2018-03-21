@@ -205,7 +205,11 @@ class ShopSubscriber implements EventSubscriberInterface
         if (!$session) {
             return;
         }
-        $token  = $this->getContextToken($session);
+        $token = $this->getContextToken($session);
+
+        error_log(print_r("-------------_", true) . "\n", 3, '/var/log/test.log');
+        error_log(print_r($request->getRequestUri(), true) . "\n", 3, '/var/log/test.log'); 
+        error_log(print_r($token, true) . "\n", 3, '/var/log/test.log');
 
         $request->attributes->set(
             StorefrontContextValueResolver::CONTEXT_TOKEN_KEY,

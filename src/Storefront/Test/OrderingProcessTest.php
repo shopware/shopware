@@ -76,6 +76,10 @@ class OrderingProcessTest extends WebTestCase
 
     public function testOrderingProcess()
     {
+        $email = Uuid::uuid4()->toString() . '@shopware.com';
+        $customerId = $this->createCustomer($email, 'test1234');
+        $this->loginUser($email, 'test1234');
+
         $product1 = $this->createProduct('Shopware stickers', 10, 11.9, 19);
         $product2 = $this->createProduct('Shopware t-shirt', 20, 23.8, 19);
         $product3 = $this->createProduct('Shopware cup', 5, 5.95, 19);
@@ -87,10 +91,6 @@ class OrderingProcessTest extends WebTestCase
         $this->changeProductQuantity($product3, 3);
 
         $this->removeProductFromCart($product2);
-
-        $email = Uuid::uuid4()->toString() . '@shopware.com';
-        $customerId = $this->createCustomer($email, 'test1234');
-        $this->loginUser($email, 'test1234');
 
         $this->changePaymentMethod(Defaults::PAYMENT_METHOD_PAID_IN_ADVANCE);
 
@@ -161,7 +161,7 @@ class OrderingProcessTest extends WebTestCase
         self::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
 
         self::assertNotEmpty($response->headers->get('Location'));
-        self::assertEquals('http://localhost/api/product/' . $id, $response->headers->get('Location'));
+        self::assertStringEndsWith('api/product/' . $id, $response->headers->get('Location'));
 
         return $id;
     }
@@ -258,7 +258,7 @@ class OrderingProcessTest extends WebTestCase
         /** @var Response $response */
         $response = $client->getResponse();
 
-        self::assertEquals('http://localhost/account', $response->headers->get('Location'));
+        $this->assertStringEndsWith('/account', $response->headers->get('Location'));
     }
 
     private function changePaymentMethod(string $paymentMethodId)
@@ -269,6 +269,10 @@ class OrderingProcessTest extends WebTestCase
 
         $client = self::$webClient;
         $client->request('POST', '/checkout/saveShippingPayment', $data);
+
+        /** @var Response $response */
+        $response = $client->getResponse();
+        $this->assertStringEndsWith('/checkout/confirm', $response->headers->get('Location'));
     }
 
     private function payOrder(): string

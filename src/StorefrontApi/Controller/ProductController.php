@@ -2,8 +2,9 @@
 
 namespace Shopware\StorefrontApi\Controller;
 
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Api\Entity\Search\Criteria;
+use Shopware\Api\Entity\Search\SearchCriteriaBuilder;
 use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Product\Exception\ProductNotFoundException;
@@ -26,29 +27,32 @@ class ProductController extends Controller
      */
     private $responseFactory;
 
-    public function __construct(StorefrontProductRepository $repository, ResponseFactory $responseFactory)
-    {
+    /**
+     * @var SearchCriteriaBuilder
+     */
+    private $criteriaBuilder;
+
+    public function __construct(
+        StorefrontProductRepository $repository,
+        ResponseFactory $responseFactory,
+        SearchCriteriaBuilder $criteriaBuilder
+    ) {
         $this->repository = $repository;
         $this->responseFactory = $responseFactory;
+        $this->criteriaBuilder = $criteriaBuilder;
     }
 
     /**
      * @Route("/storefront-api/product", name="storefront.api.product.list")
      *
-     * @param Request                                              $request
-     * @param \Shopware\StorefrontApi\Context\StorefrontApiContext $context
+     * @param Request $request
+     * @param StorefrontContext $context
      *
      * @return Response
      */
     public function listAction(Request $request, StorefrontContext $context): Response
     {
-        $criteria = new Criteria();
-        if ($request->query->has('offset')) {
-            $criteria->setOffset($request->query->getInt('offset'));
-        }
-        if ($request->query->has('limit')) {
-            $criteria->setLimit($request->query->getInt('limit'));
-        }
+        $criteria = $this->criteriaBuilder->handleRequest($request, ProductDefinition::class, $context->getShopContext());
 
         $result = $this->repository->search($criteria, $context);
 
@@ -61,13 +65,15 @@ class ProductController extends Controller
 
     /**
      * @Route("/storefront-api/product/{productId}", name="storefront.api.product.detail")
+     * @Method({"GET"})
      *
-     * @param string               $productId
-     * @param StorefrontApiContext $context
+     * @param string $productId
+     * @param StorefrontContext $context
+     *
+     * @param Request $request
+     * @return Response
      *
      * @throws ProductNotFoundException
-     *
-     * @return Response
      */
     public function detailAction(string $productId, StorefrontContext $context, Request $request): Response
     {

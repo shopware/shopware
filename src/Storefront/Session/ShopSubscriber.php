@@ -32,6 +32,7 @@ use Shopware\DbalIndexing\SeoUrl\DetailPageSeoUrlIndexer;
 use Shopware\DbalIndexing\SeoUrl\ListingPageSeoUrlIndexer;
 use Shopware\Framework\Routing\Router;
 use Shopware\StorefrontApi\Context\ContextSubscriber;
+use Shopware\StorefrontApi\Context\ContextTokenResolverInterface;
 use Shopware\StorefrontApi\Context\StorefrontContextPersister;
 use Shopware\StorefrontApi\Context\StorefrontContextService;
 use Shopware\StorefrontApi\Context\StorefrontContextServiceInterface;
@@ -60,23 +61,23 @@ class ShopSubscriber implements EventSubscriberInterface
     private $contextPersister;
 
     /**
-     * @var TokenStorageInterface
-     */
-    private $tokenStorage;
-
-    /**
      * @var RequestStack
      */
     private $requestStack;
 
+    /**
+     * @var ContextTokenResolverInterface
+     */
+    private $tokenResolver;
+
     public function __construct(
         StorefrontContextPersister $contextPersister,
-        TokenStorageInterface $tokenStorage,
-        RequestStack $requestStack
+        RequestStack $requestStack,
+        ContextTokenResolverInterface $tokenResolver
     ) {
         $this->contextPersister = $contextPersister;
-        $this->tokenStorage = $tokenStorage;
         $this->requestStack = $requestStack;
+        $this->tokenResolver = $tokenResolver;
     }
 
     public static function getSubscribedEvents(): array
@@ -84,7 +85,6 @@ class ShopSubscriber implements EventSubscriberInterface
         return [
             KernelEvents::REQUEST => [
                 ['startSession', 20],
-                ['setContextToken', 15],
                 ['setSeoRedirect', 10],
                 ['setActiveCategory', 0],
             ],
@@ -100,7 +100,7 @@ class ShopSubscriber implements EventSubscriberInterface
         ];
     }
 
-    public function logout(AuthenticationFailureEvent $event)
+    public function logout()
     {
         $request = $this->requestStack->getCurrentRequest();
         if (!$request || !$request->getSession()) {
@@ -112,7 +112,7 @@ class ShopSubscriber implements EventSubscriberInterface
         }
 
         $this->contextPersister->save(
-            $this->getContextToken($request->getSession()),
+            $this->tokenResolver->resolve($request),
             [StorefrontContextService::CUSTOMER_ID => null]
         );
     }
@@ -134,9 +134,8 @@ class ShopSubscriber implements EventSubscriberInterface
             return;
         }
 
-
         $this->contextPersister->save(
-            $this->getContextToken($request->getSession()),
+            $this->tokenResolver->resolve($request),
             [StorefrontContextService::CUSTOMER_ID => $token->getUser()->getId()]
         );
     }
@@ -193,30 +192,6 @@ class ShopSubscriber implements EventSubscriberInterface
         $request->getSession()->set('sessionId', $request->getSession()->getId());
     }
 
-    public function setContextToken(GetResponseEvent $event)
-    {
-        $request = $event->getRequest();
-
-        if (!$this->isStorefrontRequest($request)) {
-            return;
-        }
-
-        $session = $event->getRequest()->getSession();
-        if (!$session) {
-            return;
-        }
-        $token = $this->getContextToken($session);
-
-        error_log(print_r("-------------_", true) . "\n", 3, '/var/log/test.log');
-        error_log(print_r($request->getRequestUri(), true) . "\n", 3, '/var/log/test.log'); 
-        error_log(print_r($token, true) . "\n", 3, '/var/log/test.log');
-
-        $request->attributes->set(
-            StorefrontContextValueResolver::CONTEXT_TOKEN_KEY,
-            $token
-        );
-    }
-
     public function setActiveCategory(GetResponseEvent $event)
     {
         $request = $event->getRequest();
@@ -258,16 +233,6 @@ class ShopSubscriber implements EventSubscriberInterface
                 return $context->getShop()->getCategoryId();
         }
     }
-
-    private function getContextToken(SessionInterface $session): string
-    {
-        if (!$session->has(StorefrontContextValueResolver::CONTEXT_TOKEN_KEY)) {
-            $session->set(StorefrontContextValueResolver::CONTEXT_TOKEN_KEY, Uuid::uuid4()->toString());
-        }
-
-        return $session->get(StorefrontContextValueResolver::CONTEXT_TOKEN_KEY);
-    }
-
 
     private function isStorefrontRequest(Request $request): bool
     {

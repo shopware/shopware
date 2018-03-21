@@ -44,11 +44,6 @@ class ProductController extends Controller
 
     /**
      * @Route("/storefront-api/product", name="storefront.api.product.list")
-     *
-     * @param Request $request
-     * @param StorefrontContext $context
-     *
-     * @return Response
      */
     public function listAction(Request $request, StorefrontContext $context): Response
     {
@@ -66,14 +61,6 @@ class ProductController extends Controller
     /**
      * @Route("/storefront-api/product/{productId}", name="storefront.api.product.detail")
      * @Method({"GET"})
-     *
-     * @param string $productId
-     * @param StorefrontContext $context
-     *
-     * @param Request $request
-     * @return Response
-     *
-     * @throws ProductNotFoundException
      */
     public function detailAction(string $productId, StorefrontContext $context, Request $request): Response
     {

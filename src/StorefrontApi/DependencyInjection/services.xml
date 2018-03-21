@@ -31,6 +31,8 @@
             <argument type="service" id="request_stack"/>
         </service>
 
+        <service class="Shopware\StorefrontApi\Context\ContextTokenResolver" id="Shopware\StorefrontApi\Context\ContextTokenResolver"/>
+
         <service class="Shopware\StorefrontApi\Controller\ProductController" id="Shopware\StorefrontApi\Controller\ProductController">
             <call method="setContainer">
                 <argument id="service_container" type="service"/>
@@ -85,6 +87,7 @@
         <service class="Shopware\StorefrontApi\Context\ContextSubscriber" id="Shopware\StorefrontApi\Context\ContextSubscriber">
             <tag name="kernel.event_subscriber"/>
             <argument type="service" id="Shopware\StorefrontApi\Context\StorefrontContextService"/>
+            <argument type="service" id="Shopware\StorefrontApi\Context\ContextTokenResolver"/>
         </service>
     </services>
 </container>

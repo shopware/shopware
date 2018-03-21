@@ -17,9 +17,15 @@ class ContextSubscriber implements EventSubscriberInterface
      */
     private $contextService;
 
-    public function __construct(StorefrontContextService $contextService)
+    /**
+     * @var ContextTokenResolverInterface
+     */
+    private $tokenResolver;
+
+    public function __construct(StorefrontContextService $contextService, ContextTokenResolverInterface $tokenResolver)
     {
         $this->contextService = $contextService;
+        $this->tokenResolver = $tokenResolver;
     }
 
     public static function getSubscribedEvents()
@@ -56,16 +62,9 @@ class ContextSubscriber implements EventSubscriberInterface
     {
         $request = $event->getRequest();
 
-        $token = $this->getToken($request);
-
-        $request->attributes->set(StorefrontContextValueResolver::CONTEXT_TOKEN_KEY, $token);
-    }
-
-    private function getToken(Request $request)
-    {
-        if ($request->headers->has(StorefrontContextValueResolver::CONTEXT_TOKEN_KEY)) {
-            return $request->headers->get(StorefrontContextValueResolver::CONTEXT_TOKEN_KEY);
-        }
-        return Uuid::uuid4()->toString();
+        $request->attributes->set(
+            StorefrontContextValueResolver::CONTEXT_TOKEN_KEY,
+            $this->tokenResolver->resolve($request)
+        );
     }
 }

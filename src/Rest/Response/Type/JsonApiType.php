@@ -32,20 +32,13 @@ class JsonApiType implements ResponseTypeInterface
         return $contentType === 'application/vnd.api+json';
     }
 
-    /**
-     * @param Entity                             $entity
-     * @param string|EntityDefinition            $definition
-     * @param \Shopware\Rest\Context\RestContext $context
-     * @param bool                               $setLocationHeader
-     *
-     * @return Response
-     */
     public function createDetailResponse(Entity $entity, string $definition, RestContext $context, bool $setLocationHeader = false): Response
     {
         $headers = [];
         $baseUrl = $this->getBaseUrl($context);
 
         if ($setLocationHeader) {
+            /** @var string|EntityDefinition $definition */
             $headers['Location'] = $baseUrl . '/api/' . $this->camelCaseToSnailCase($definition::getEntityName()) . '/' . $entity->getId();
         }
 
@@ -110,15 +103,9 @@ class JsonApiType implements ResponseTypeInterface
         return new JsonApiResponse($errorData, $statusCode);
     }
 
-    /**
-     * @param string|EntityDefinition            $definition
-     * @param string                             $id
-     * @param \Shopware\Rest\Context\RestContext $context
-     *
-     * @return Response
-     */
     public function createRedirectResponse(string $definition, string $id, RestContext $context): Response
     {
+        /** @var string|EntityDefinition $definition */
         $headers = [
             'Location' => $this->getBaseUrl($context) . '/api/' . $this->camelCaseToSnailCase($definition::getEntityName()) . '/' . $id,
         ];

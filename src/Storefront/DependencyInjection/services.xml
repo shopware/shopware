@@ -69,10 +69,9 @@
         <service class="Shopware\Storefront\Session\ShopSubscriber" id="Shopware\Storefront\Session\ShopSubscriber">
             <tag name="kernel.event_subscriber" />
             <argument type="service" id="Shopware\StorefrontApi\Context\StorefrontContextPersister"/>
-            <argument type="service" id="security.token_storage"/>
             <argument type="service" id="request_stack"/>
+            <argument type="service" id="Shopware\StorefrontApi\Context\ContextTokenResolver"/>
         </service>
-
 
         <service class="Shopware\Storefront\Navigation\NavigationService" id="Shopware\Storefront\Navigation\NavigationService" public="true">
             <argument type="service" id="Shopware\Api\Category\Repository\CategoryRepository"/>
@@ -134,5 +133,13 @@
             <argument id="Shopware\Framework\Config\ConfigService" type="service"/>
             <argument id="Shopware\Storefront\Page\Search\SearchPageLoader" type="service"/>
         </service>
+
+        <service class="Shopware\Storefront\Session\SessionContextTokenResolver"
+                 id="Shopware\Storefront\Session\SessionContextTokenResolver"
+                 decorates="Shopware\StorefrontApi\Context\ContextTokenResolver">
+
+            <argument id="Shopware\Storefront\Session\SessionContextTokenResolver.inner" type="service" />
+        </service>
+
     </services>
 </container>

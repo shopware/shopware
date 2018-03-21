@@ -127,21 +127,21 @@ class StorefrontContextService implements StorefrontContextServiceInterface
 
         $shopScope = new ShopScope(
             $applicationId,
-            $this->getParameter($parameters, self::CURRENCY_ID)
+            $parameters[self::CURRENCY_ID] ?? null
         );
 
         $customerScope = new CustomerScope(
-            $this->getParameter($parameters, self::CUSTOMER_ID),
-            $this->getParameter($parameters, self::CUSTOMER_GROUP_ID),
-            $this->getParameter($parameters, self::BILLING_ADDRESS_ID),
-            $this->getParameter($parameters, self::SHIPPING_ADDRESS_ID)
+            $parameters[self::CUSTOMER_ID] ?? null,
+            $parameters[self::CUSTOMER_GROUP_ID] ?? null,
+            $parameters[self::BILLING_ADDRESS_ID] ?? null,
+            $parameters[self::SHIPPING_ADDRESS_ID] ?? null
         );
 
         $checkoutScope = new CheckoutScope(
-            $this->getParameter($parameters, self::PAYMENT_METHOD_ID),
-            $this->getParameter($parameters, self::SHIPPING_METHOD_ID),
-            $this->getParameter($parameters, self::COUNTRY_ID),
-            $this->getParameter($parameters, self::STATE_ID),
+            $parameters[self::PAYMENT_METHOD_ID] ?? null,
+            $parameters[self::SHIPPING_METHOD_ID] ?? null,
+            $parameters[self::COUNTRY_ID] ?? null,
+            $parameters[self::STATE_ID] ?? null,
             $token
         );
 
@@ -215,15 +215,6 @@ class StorefrontContextService implements StorefrontContextServiceInterface
                 $checkoutScope->getStateId()
             ])
         );
-    }
-
-    private function getParameter(array $parameters, string $key): ?string
-    {
-        if (isset($parameters[$key])) {
-            return $parameters[$key];
-        }
-
-        return null;
     }
 
     private function writeCache(StorefrontContext $context, CacheItemInterface $cacheItem): void

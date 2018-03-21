@@ -81,12 +81,8 @@ class CheckoutController extends Controller
     /**
      * @Route("/storefront-api/checkout", name="storefront.api.checkout.get")
      * @Method({"GET"})
-     *
-     * @param \Shopware\StorefrontApi\Context\StorefrontContext $context
-     *
-     * @return JsonResponse
      */
-    public function getAction(StorefrontContext $context)
+    public function getAction(StorefrontContext $context): JsonResponse
     {
         $cart = $this->loadCart($context->getToken());
 
@@ -100,12 +96,8 @@ class CheckoutController extends Controller
     /**
      * @Route("/storefront-api/checkout", name="storefront.api.checkout.create")
      * @Method({"POST"})
-     *
-     * @param StorefrontContext $context
-     *
-     * @return JsonResponse
      */
-    public function createAction(StorefrontContext $context)
+    public function createAction(StorefrontContext $context): JsonResponse
     {
         $this->persister->delete($context->getToken(), self::CART_NAME);
 
@@ -117,13 +109,8 @@ class CheckoutController extends Controller
     /**
      * @Route("/storefront-api/checkout/add-product/{identifier}", name="storefront.api.checkout.add.product")
      * @Method({"PUT"})
-     *
-     * @param Request                                              $request
-     * @param \Shopware\StorefrontApi\Context\StorefrontContext $context
-     *
-     * @return JsonResponse
      */
-    public function addProductAction(string $identifier, Request $request, StorefrontContext $context)
+    public function addProductAction(string $identifier, Request $request, StorefrontContext $context): JsonResponse
     {
         $post = $this->getPost($request);
 
@@ -143,13 +130,8 @@ class CheckoutController extends Controller
     /**
      * @Route("/storefront-api/checkout", name="storefront.api.checkout.add")
      * @Method({"PUT"})
-     *
-     * @param Request                                              $request
-     * @param \Shopware\StorefrontApi\Context\StorefrontContext $context
-     *
-     * @return JsonResponse
      */
-    public function addAction(Request $request, StorefrontContext $context)
+    public function addAction(Request $request, StorefrontContext $context): JsonResponse
     {
         $post = $this->getPost($request);
 
@@ -181,15 +163,8 @@ class CheckoutController extends Controller
     /**
      * @Route("/storefront-api/checkout/{identifier}", name="storefront.api.checkout.delete")
      * @Method({"DELETE"})
-     *
-     * @param string                                               $identifier
-     * @param \Shopware\StorefrontApi\Context\StorefrontContext $context
-     *
-     * @throws LineItemNotFoundException
-     *
-     * @return JsonResponse
      */
-    public function removeAction(string $identifier, StorefrontContext $context)
+    public function removeAction(string $identifier, StorefrontContext $context): JsonResponse
     {
         $cart = $this->loadCart($context->getToken());
 
@@ -209,24 +184,24 @@ class CheckoutController extends Controller
     }
 
     /**
-     * @Route("/storefront-api/checkout/{identifier}/{quantity}", name="storefront.api.checkout.set-quantity")
+     * @Route("/storefront-api/checkout/{identifier}", name="storefront.api.checkout.set-quantity")
      * @Method({"PUT"})
-     *
-     * @param string                                               $identifier
-     * @param int                                                  $quantity
-     * @param \Shopware\StorefrontApi\Context\StorefrontContext $context
-     *
-     * @throws LineItemNotFoundException
-     *
-     * @return JsonResponse
      */
-    public function setQuantityAction(string $identifier, int $quantity, StorefrontContext $context)
+    public function setQuantityAction(string $identifier, Request $request, StorefrontContext $context): JsonResponse
     {
         $cart = $this->loadCart($context->getToken());
+
+        $post = $this->getPost($request);
+
+        if (!isset($post['quantity'])) {
+            throw new \InvalidArgumentException('Parameter quantity missing');
+        }
 
         if (!$lineItem = $cart->getLineItems()->get($identifier)) {
             throw new LineItemNotFoundException($identifier);
         }
+
+        $quantity = (int) $post['quantity'];
 
         $lineItem->setQuantity($quantity);
 
@@ -242,12 +217,8 @@ class CheckoutController extends Controller
     /**
      * @Route("/storefront-api/checkout/order", name="storefront.api.checkout.order")
      * @Method({"POST"})
-     *
-     * @param \Shopware\StorefrontApi\Context\StorefrontContext $context
-     *
-     * @return Response
      */
-    public function orderAction(StorefrontContext $context)
+    public function orderAction(StorefrontContext $context): JsonResponse
     {
         $cart = $this->loadCart($context->getToken());
 
@@ -270,11 +241,6 @@ class CheckoutController extends Controller
         );
     }
 
-    /**
-     * @param string $token
-     *
-     * @return Cart
-     */
     private function loadCart(?string $token): Cart
     {
         if (!$token) {

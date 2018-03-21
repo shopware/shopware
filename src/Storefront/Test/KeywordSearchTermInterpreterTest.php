@@ -13,12 +13,12 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 class KeywordSearchTermInterpreterTest extends KernelTestCase
 {
     /**
-     * @var \Doctrine\DBAL\Connection
+     * @var Connection
      */
     private $connection;
 
     /**
-     * @var \Shopware\StorefrontApi\Search\KeywordSearchTermInterpreter
+     * @var KeywordSearchTermInterpreter
      */
     private $interpreter;
 

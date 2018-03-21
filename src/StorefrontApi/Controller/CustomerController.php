@@ -2,7 +2,6 @@
 
 namespace Shopware\StorefrontApi\Controller;
 
-use Lexik\Bundle\JWTAuthenticationBundle\Security\Authentication\Token\JWTUserToken;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Context\Struct\StorefrontContext;
@@ -55,11 +54,8 @@ class CustomerController extends Controller
     /**
      * @Route("/storefront-api/customer/login", name="storefront.api.customer.login")
      * @Method({"POST"})
-     *
-     * @param \Shopware\StorefrontApi\Context\StorefrontApiContext $context
-     * @return JsonResponse
      */
-    public function loginAction(Request $request, StorefrontContext $context)
+    public function loginAction(Request $request, StorefrontContext $context): JsonResponse
     {
         $post = $this->getPost($request);
 
@@ -72,7 +68,7 @@ class CustomerController extends Controller
 
         $this->tokenStorage->setToken($authenticatedToken);
 
-        /** @var \Shopware\StorefrontApi\Firewall\CustomerUser $user */
+        /** @var CustomerUser $user */
         $user = $authenticatedToken->getUser();
 
         $this->contextPersister->save(
@@ -85,18 +81,15 @@ class CustomerController extends Controller
         );
 
         return new JsonResponse([
-            StorefrontContextValueResolver::CONTEXT_TOKEN_KEY => $context->getToken(),
+            StorefrontContextValueResolver::CONTEXT_TOKEN_KEY => $context->getToken()
         ]);
     }
 
     /**
      * @Route("/storefront-api/customer/logout", name="storefront.api.customer.logout")
      * @Method({"POST"})
-     *
-     * @param \Shopware\StorefrontApi\Context\StorefrontApiContext $context
-     * @return void
      */
-    public function logoutAction(StorefrontContext $context)
+    public function logoutAction(StorefrontContext $context): void
     {
         $this->contextPersister->save(
             $context->getToken(),

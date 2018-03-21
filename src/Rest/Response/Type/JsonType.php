@@ -29,18 +29,11 @@ class JsonType implements ResponseTypeInterface
         return $contentType === 'application/json';
     }
 
-    /**
-     * @param Entity                  $entity
-     * @param string|EntityDefinition $definition
-     * @param RestContext             $context
-     * @param bool                    $setLocationHeader
-     *
-     * @return Response
-     */
     public function createDetailResponse(Entity $entity, string $definition, RestContext $context, bool $setLocationHeader = false): Response
     {
         $headers = [];
         if ($setLocationHeader) {
+            /** @var string|EntityDefinition $definition */
             $headers['Location'] = $this->getBaseUrl($context) . '/api/' . $this->camelCaseToSnailCase($definition::getEntityName()) . '/' . $entity->getId();
         }
 
@@ -80,15 +73,9 @@ class JsonType implements ResponseTypeInterface
         return new JsonResponse($response);
     }
 
-    /**
-     * @param string|EntityDefinition            $definition
-     * @param string                             $id
-     * @param \Shopware\Rest\Context\RestContext $context
-     *
-     * @return Response
-     */
     public function createRedirectResponse(string $definition, string $id, RestContext $context): Response
     {
+        /** @var string|EntityDefinition $definition */
         $headers = [
             'Location' => $this->getBaseUrl($context) . '/api/' . $this->camelCaseToSnailCase($definition::getEntityName()) . '/' . $id,
         ];
@@ -120,11 +107,6 @@ class JsonType implements ResponseTypeInterface
         return $decoded;
     }
 
-    /**
-     * @param \Shopware\Rest\Context\RestContext $context
-     *
-     * @return string
-     */
     private function getBaseUrl(RestContext $context): string
     {
         return $context->getRequest()->getSchemeAndHttpHost() . $context->getRequest()->getBasePath();

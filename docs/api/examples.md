@@ -20,7 +20,7 @@
 ## Simple mode
 
 ### Filtering in simple mode
-The rest api allows a simple filtering which uses an AND condition and supports only equal queries:
+The rest api allows a simple filtering which uses an AND condition and supports equals queries:
  
 ```
 /api/product?filter[product.price]=13&filter[product.manfuacturer.name]=shopware
@@ -32,18 +32,18 @@ Displays only products which has a `price` of `13` and where the `manufacturer n
 ```
 /api/product?sort=-product.name,product.price
 ```
-Sorts the list by product name and following by the product price.
+Sorts the list by product name, followed by the product price.
 The `-` sign defines the `DESCENDING` direction for the `product.name` field.  
 
 ### Search in simple mode
 ```
 /api/product/term=shopware
 ```
-Builds a search query for the product entity. The api uses different fields (which marked in the entity definition with \Shopware\Api\Entity\Write\Flag\SearchRanking flag) for the query execution.
+Builds a search query for the product entity. The api uses different fields (which are marked in the entity definition with the \Shopware\Api\Entity\Write\Flag\SearchRanking flag) for the query execution.
 
 ## Advanced mode
 To send complex conditional queries to the api, it is required to use the `/api/search/{entity}` endpoint.
-This endpoint allows to receive entity list even by sending a post request. All previous mentioned filter and pagination parameter has to be provided by post data.
+This endpoint allows to receive a entity list even by sending a post request. All previous mentioned filter and pagination parameter have to be provided by post data.
 
 ```json
 {
@@ -118,7 +118,7 @@ Defines an inexact match of the expression. Sql example `WHERE product.name LIKE
 ```
 
 ### Terms Query
-Defines an multi value term query. Sql example `WHERE product.name IN (awesome, shopware)`
+Defines a multi value term query. Sql example `WHERE product.name IN (awesome, shopware)`
 ```json
 {
     "type": "terms",
@@ -178,7 +178,7 @@ A nested query allows to group multiple queries in a clip and control the AND be
 ```
 
 ### Not Query
-The not query allows to negate all a collection of queries. Sql example `WHERE !(product.name = awesome AND product.price = 100)` 
+The not query allows to negate a collection of queries. Sql example `WHERE !(product.name = awesome AND product.price = 100)` 
 ```json
 {
     "type": "not",
@@ -199,7 +199,7 @@ The not query allows to negate all a collection of queries. Sql example `WHERE !
 ```
 
 ### ScoreQuery
-A score query can only be used in `advanced mode` and only in the `query` context. This query allows to build a query which used for ranking calculation in the query.
+A score query can only be used in `advanced mode` and only in the `query` context. This query allows to build a query which is used for ranking calculation in the query.
 ```json
 {
     "offset": 0,

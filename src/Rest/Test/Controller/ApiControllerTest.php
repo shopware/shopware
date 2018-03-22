@@ -404,6 +404,11 @@ class ApiControllerTest extends ApiTestCase
                             'field' => 'product.manufacturer.name',
                             'value' => 'Shopware AG',
                         ],
+                        [
+                            'type' => 'terms',
+                            'field' => 'product.id',
+                            'value' => $id
+                        ]
                     ],
                 ],
             ],
@@ -429,7 +434,7 @@ class ApiControllerTest extends ApiTestCase
 
     public function testSimpleFilter()
     {
-        $id = Uuid::uuid4()->toString();
+        $id = Uuid::uuid4()->getHex();
 
         $data = [
             'id' => $id,

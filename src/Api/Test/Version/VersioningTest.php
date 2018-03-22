@@ -3,7 +3,7 @@
 namespace Shopware\Api\Test\Version;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Framework\Struct\Uuid;
+use Ramsey\Uuid\Uuid;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\RangeQuery;
 use Shopware\Api\Entity\Search\Query\TermQuery;
@@ -622,7 +622,7 @@ class VersioningTest extends KernelTestCase
 
         $parentCategory = $this->connection->fetchColumn(
             'SELECT id FROM category WHERE parent_id = :main',
-            ['main' => Uuid::fromStringToBytes(Defaults::ROOT_CATEGORY)]
+            ['main' => Uuid::fromString(Defaults::ROOT_CATEGORY)->getBytes()]
         );
         $parentCategory = Uuid::fromBytes($parentCategory);
 

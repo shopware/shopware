@@ -40,4 +40,11 @@ class Uuid
     {
         return \Ramsey\Uuid\Uuid::fromString($hex)->toString();
     }
+
+    public static function isValid($id): bool
+    {
+        $id = \Ramsey\Uuid\Uuid::fromString($id)->toString();
+
+        return \Ramsey\Uuid\Uuid::isValid($id);
+    }
 }

@@ -118,6 +118,7 @@ class CheckoutController extends StorefrontController
     public function saveShippingPaymentAction(Request $request, StorefrontContext $context): Response
     {
         $paymentMethodId = (string) $request->request->get('paymentMethodId', '');
+
         if (!Uuid::isValid($paymentMethodId)) {
             throw new UnknownPaymentMethodException(sprintf('Unknown payment method with with id %s', $paymentMethodId));
         }

@@ -95,15 +95,13 @@ class OrderingProcessTest extends WebTestCase
         $this->changePaymentMethod(Defaults::PAYMENT_METHOD_PAID_IN_ADVANCE);
 
         $orderId = $this->payOrder();
-
-        self::assertTrue(Uuid::isValid($orderId));
+        self::assertTrue(\Shopware\Framework\Struct\Uuid::isValid($orderId));
 
         $order = self::$container->get(OrderRepository::class)->readBasic([$orderId], self::$context)->get($orderId);
 
         self::assertEquals(Defaults::PAYMENT_METHOD_PAID_IN_ADVANCE, $order->getPaymentMethodId());
         self::assertEquals(25, $order->getAmountTotal());
         self::assertEquals($customerId, $order->getCustomer()->getId());
-
     }
 
     private static function authorizeClient(Client $client): Client
@@ -143,7 +141,7 @@ class OrderingProcessTest extends WebTestCase
         float $netPrice,
         float $taxRate
     ): string {
-        $id = Uuid::uuid4()->toString();
+        $id = Uuid::uuid4()->getHex();
 
         $data = [
             'id' => $id,
@@ -212,8 +210,8 @@ class OrderingProcessTest extends WebTestCase
 
     private function createCustomer($email, $password): string
     {
-        $customerId = Uuid::uuid4()->toString();
-        $addressId = Uuid::uuid4()->toString();
+        $customerId = Uuid::uuid4()->getHex();
+        $addressId = Uuid::uuid4()->getHex();
 
         $customer = [
             'id' => $customerId,

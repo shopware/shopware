@@ -3,11 +3,12 @@
 namespace Shopware\Api\Listing\Struct;
 
 use Shopware\Api\Entity\Entity;
+use Shopware\Api\Entity\Search\Sorting\FieldSorting;
 
 class ListingSortingBasicStruct extends Entity
 {
     /**
-     * @var string
+     * @var FieldSorting[]
      */
     protected $payload;
 
@@ -20,6 +21,11 @@ class ListingSortingBasicStruct extends Entity
      * @var bool
      */
     protected $active;
+
+    /**
+     * @var string
+     */
+    protected $uniqueKey;
 
     /**
      * @var bool
@@ -41,12 +47,12 @@ class ListingSortingBasicStruct extends Entity
      */
     protected $updatedAt;
 
-    public function getPayload(): string
+    public function getPayload(): array
     {
         return $this->payload;
     }
 
-    public function setPayload(string $payload): void
+    public function setPayload(array $payload): void
     {
         $this->payload = $payload;
     }
@@ -109,5 +115,15 @@ class ListingSortingBasicStruct extends Entity
     public function setUpdatedAt(?\DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
+    }
+
+    public function getUniqueKey(): string
+    {
+        return $this->uniqueKey;
+    }
+
+    public function setUniqueKey(string $uniqueKey): void
+    {
+        $this->uniqueKey = $uniqueKey;
     }
 }

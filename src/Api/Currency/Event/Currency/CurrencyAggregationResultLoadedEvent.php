@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Currency\Event\Currency;
 
-use Shopware\Api\Entity\Search\AggregationResult;
+use Shopware\Api\Entity\Search\AggregatorResult;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Event\NestedEvent;
 
@@ -11,11 +11,11 @@ class CurrencyAggregationResultLoadedEvent extends NestedEvent
     public const NAME = 'currency.aggregation.result.loaded';
 
     /**
-     * @var AggregationResult
+     * @var AggregatorResult
      */
     protected $result;
 
-    public function __construct(AggregationResult $result)
+    public function __construct(AggregatorResult $result)
     {
         $this->result = $result;
     }
@@ -30,7 +30,7 @@ class CurrencyAggregationResultLoadedEvent extends NestedEvent
         return $this->result->getContext();
     }
 
-    public function getResult(): AggregationResult
+    public function getResult(): AggregatorResult
     {
         return $this->result;
     }

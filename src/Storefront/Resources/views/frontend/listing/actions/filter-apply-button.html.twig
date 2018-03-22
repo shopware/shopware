@@ -1,8 +1,6 @@
 {% block frontend_listing_actions_filter_submit_button %}
-    <div class="filter--actions{if $clsSuffix} {$clsSuffix}{/if}">
-        <button type="submit"
-                class="btn is--primary filter--btn-apply is--large is--icon-right"
-                disabled="disabled">
+    <div class="filter--actions{% if clsSuffix %} {{ clsSuffix }}{% endif %}">
+        <button type="submit" class="btn is--primary filter--btn-apply is--large is--icon-right" disabled="disabled">
             <span class="filter--count"></span>
             {% trans from 'frontend/listing/listing_actions' %}ListingFilterApplyButton{% endtrans %}
             <i class="icon--cycle"></i>

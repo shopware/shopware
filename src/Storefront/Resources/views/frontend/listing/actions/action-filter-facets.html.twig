@@ -2,7 +2,11 @@
     The file is called recursive for deeper structured facet groups.
 #}
 {% for facet in facets %}
-    {% if facet.template != null %}
-        {#{% sw_include file=$facet->getTemplate() facet=$facet}#}
+    {# @var facet \Shopware\Storefront\Page\Listing\AggregationView\AggregationViewInterface #}
+    {% if facet.type == 'slider' %}
+        {% sw_include '@Storefront/frontend/listing/filter/facet-range.html.twig' with {'facet': facet} %}
+    {% elseif facet.type == 'list' %}
+        {% sw_include '@Storefront/frontend/listing/filter/facet-value-list.html.twig' with {'facet': facet} %}
+
     {% endif %}
 {% endfor %}

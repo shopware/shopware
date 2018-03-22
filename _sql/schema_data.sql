@@ -813,4 +813,14 @@ VALUES
   (unhex('4926035368e34d9fa695e017d7a231b9'), unhex('ffffffffffffffffffffffffffffffff'), '19', '19%', '2017-12-14 15:51:51', NULL),
   (unhex('a297709e9e914995af8263ee214583e6'), unhex('ffffffffffffffffffffffffffffffff'), '7', '7%', '2017-12-14 15:51:51', NULL);
 
+INSERT INTO `listing_sorting` (`id`, `version_id`, `active`, `unique_key`, `display_in_categories`, `position`, `payload`, `created_at`, `updated_at`) VALUES
+  (UNHEX('361D52E6A9894467B4FEAF5E5A799383'),	UNHEX('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'),	1,	'cheapest-price',	1,	1,	'[{\"_class\":\"Shopware\\\\Api\\\\Entity\\\\Search\\\\Sorting\\\\FieldSorting\",\"field\":\"product.listingPrices\",\"direction\":\"ASC\",\"extensions\":[]}]',	'2018-03-22 15:10:21',	NULL),
+  (UNHEX('4F0B50F58286488FB8D88B43934534E2'),	UNHEX('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'),	1,	'highest-price',	1,	1,	'[{\"_class\":\"Shopware\\\\Api\\\\Entity\\\\Search\\\\Sorting\\\\FieldSorting\",\"field\":\"product.listingPrices\",\"direction\":\"DESC\",\"extensions\":[]}]',	'2018-03-22 15:10:21',	NULL),
+  (UNHEX('5727B79736A44CB1B1CC904820570DB9'),	UNHEX('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'),	1,	'product-name',	1,	1,	'[{\"_class\":\"Shopware\\\\Api\\\\Entity\\\\Search\\\\Sorting\\\\FieldSorting\",\"field\":\"product.name\",\"direction\":\"ASC\",\"extensions\":[]}]',	'2018-03-22 15:10:21',	NULL);
+
+INSERT INTO `listing_sorting_translation` (`listing_sorting_id`, `language_id`, `version_id`, `label`) VALUES
+  (UNHEX('361D52E6A9894467B4FEAF5E5A799383'),	UNHEX('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'),	UNHEX('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'),	'Cheapest price'),
+  (UNHEX('4F0B50F58286488FB8D88B43934534E2'),	UNHEX('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'),	UNHEX('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'),	'Highest price'),
+  (UNHEX('5727B79736A44CB1B1CC904820570DB9'),	UNHEX('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'),	UNHEX('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'),	'Product name');
+
 SET FOREIGN_KEY_CHECKS=1;

@@ -43,11 +43,11 @@
         {% set listingCssClass = "listing--wrapper" %}
 
         {% for device in showListingDevices %}
-            {% set listingCssClass = "{{ listingCssClass }} visible--{{ emotionViewports[device] }}" %}
+            {% set listingCssClass = listingCssClass ~ " visible--" ~ emotionViewports[device] %}
         {% endfor %}
 
         {% if theme.sidebarFilter %}
-            {% set listingCssClass = "{{ listingCssClass }} has--sidebar-filter" %}
+            {% set listingCssClass = listingCssClass ~ " has--sidebar-filter" %}
         {% endif %}
 
         <div class="{{ listingCssClass }}">

@@ -18,7 +18,7 @@ class EntitySearchResult
     protected $entities;
 
     /**
-     * @var AggregationResult
+     * @var AggregatorResult
      */
     protected $aggregations;
 
@@ -35,7 +35,7 @@ class EntitySearchResult
     public function __construct(
         int $total,
         EntityCollection $entities,
-        AggregationResult $aggregations,
+        AggregatorResult $aggregations,
         Criteria $criteria,
         ShopContext $context
     ) {

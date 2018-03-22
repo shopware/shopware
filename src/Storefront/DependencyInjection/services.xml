@@ -87,6 +87,8 @@
 
         <service class="Shopware\Storefront\Page\Listing\ListingPageLoader" id="Shopware\Storefront\Page\Listing\ListingPageLoader">
             <argument id="Shopware\StorefrontApi\Product\StorefrontProductRepository" type="service"/>
+            <argument id="Shopware\Storefront\Page\Listing\ListingHandler\ListingHandlerRegistry" type="service"/>
+            <argument type="service" id="logger"/>
         </service>
 
         <service class="Shopware\Storefront\Page\Search\SearchPageLoader" id="Shopware\Storefront\Page\Search\SearchPageLoader">
@@ -139,6 +141,28 @@
                  decorates="Shopware\StorefrontApi\Context\ContextTokenResolver">
 
             <argument id="Shopware\Storefront\Session\SessionContextTokenResolver.inner" type="service" />
+        </service>
+
+        <service class="Shopware\Storefront\Page\Listing\ListingHandler\ListingHandlerRegistry" id="Shopware\Storefront\Page\Listing\ListingHandler\ListingHandlerRegistry">
+            <argument type="tagged" tag="storefront.listing.handler" />
+        </service>
+
+        <service class="Shopware\Storefront\Page\Listing\ListingHandler\PriceListingHandler" id="Shopware\Storefront\Page\Listing\ListingHandler\PriceListingHandler">
+            <tag name="storefront.listing.handler" />
+        </service>
+
+        <service class="Shopware\Storefront\Page\Listing\ListingHandler\ManufacturerListingHandler" id="shopware.storefront.page.listing.listing_handler.manufacturer_listing_handler">
+            <tag name="storefront.listing.handler" />
+            <argument type="service" id="Shopware\Api\Product\Repository\ProductManufacturerRepository"/>
+        </service>
+
+        <service class="Shopware\Storefront\Page\Listing\ListingHandler\SortingListingHandler" id="Shopware\Storefront\Page\Listing\ListingHandler\SortingListingHandler">
+            <argument id="Shopware\Api\Listing\Repository\ListingSortingRepository" type="service"/>
+            <tag name="storefront.listing.handler"/>
+        </service>
+
+        <service class="Shopware\Storefront\Page\Listing\ListingHandler\DatasheetListingHandler" id="Shopware\Storefront\Page\Listing\ListingHandler\DatasheetListingHandler">
+            <tag name="storefront.listing.handler"/>
         </service>
 
     </services>

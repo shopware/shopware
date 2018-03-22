@@ -276,6 +276,10 @@ class DemodataCommand extends ContainerAwareCommand
             }
         }
 
+        if (!empty($payload)) {
+            $this->writer->upsert(ProductDefinition::class, $payload, $this->getContext());
+        }
+
         $this->io->progressFinish();
     }
 

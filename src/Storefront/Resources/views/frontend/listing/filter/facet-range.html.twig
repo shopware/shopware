@@ -1,8 +1,9 @@
 {% block frontend_listing_filter_facet_range %}
-    <div class="filter-panel filter--range facet--{{ facet.facetName }}"
+    {# @var facet \Shopware\Storefront\Page\Listing\Aggregation\SliderAggregation #}
+    <div class="filter-panel filter--range facet--{{ facet.aggregationName }}"
          data-filter-type="range"
-         data-facet-name="{{ facet.facetName }}"
-         data-field-name="{{ facet.facetName }}">
+         data-facet-name="{{ facet.aggregationName }}"
+         data-field-name="{{ facet.aggregationName }}">
 
         {% block frontend_listing_filter_facet_range_flyout %}
             <div class="filter-panel--flyout">
@@ -62,7 +63,7 @@
 
                                         {% block frontend_listing_filter_facet_range_info_min %}
                                             <span class="range-info--min">
-                                                {% trans from 'frontend/listing/listing_actions' %}ListingFilterRangeFrom"{% endtrans %}
+                                                {% trans from 'frontend/listing/listing_actions' %}ListingFilterRangeFrom{% endtrans %}
                                             </span>
                                         {% endblock %}
 
@@ -76,7 +77,7 @@
 
                                         {% block frontend_listing_filter_facet_range_info_max %}
                                             <span class="range-info--max">
-                                                {% trans from 'frontend/listing/listing_actions' %}ListingFilterRangeTo"{% endtrans %}
+                                                {% trans from 'frontend/listing/listing_actions' %}ListingFilterRangeTo{% endtrans %}
                                             </span>
                                         {% endblock %}
 

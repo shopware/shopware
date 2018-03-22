@@ -703,15 +703,21 @@ class ProductBasicStruct extends Entity
     {
         $taxRules = $this->getTaxRuleCollection();
 
-        $prices = $this->getContextPrices()->getPriceRulesForContext($context);
+        if ($this->getListingPrices()) {
+            $prices = $this->getListingPrices();
+        } else {
+            $prices = $this->getContextPrices()->filter(
+                function (ProductContextPriceBasicStruct $price) {
+                    return $price->getQuantityEnd() === null;
+                }
+            );
+        }
+
+        $prices = $prices->getPriceRulesForContext($context);
 
         if (!$prices) {
             return new PriceDefinition($this->getPrice()->getGross(), $taxRules, 1, true);
         }
-
-        $prices = $prices->filter(function (ProductContextPriceBasicStruct $price) {
-            return $price->getQuantityEnd() === null;
-        });
 
         if ($prices->count() <= 0) {
             return new PriceDefinition($this->getPrice()->getGross(), $taxRules, 1, true);

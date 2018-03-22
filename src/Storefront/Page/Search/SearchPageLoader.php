@@ -58,11 +58,17 @@ class SearchPageLoader
 
         $layout = $config['searchProductBoxLayout'] ?? 'basic';
 
-        $listingPageStruct = new SearchPageStruct();
-        $listingPageStruct->setProducts($products);
-        $listingPageStruct->setCriteria($criteria);
-        $listingPageStruct->setShowListing(true);
-        $listingPageStruct->setProductBoxLayout($layout);
+        $currentPage = $request->query->getInt('p', 1);
+
+        $listingPageStruct = new SearchPageStruct(
+            $products,
+            $criteria,
+            $currentPage,
+            $this->getPageCount($products, $criteria, $currentPage),
+            true,
+            $request->query->get('o'),
+            $layout
+        );
 
         $currentPage = $request->query->getInt('p', 1);
         $listingPageStruct->setCurrentPage($currentPage);
@@ -73,18 +79,15 @@ class SearchPageLoader
         return $listingPageStruct;
     }
 
-    private function createCriteria(
-        string $searchTerm,
-        Request $request,
-        StorefrontContext $context
-    ): Criteria {
+    private function createCriteria(string $searchTerm, Request $request, StorefrontContext $context): Criteria
+    {
         $limit = $request->query->getInt('limit', 20);
         $page = $request->query->getInt('p', 1);
 
         $criteria = new Criteria();
         $criteria->setOffset(($page - 1) * $limit);
         $criteria->setLimit($limit);
-        $criteria->setFetchCount(Criteria::FETCH_COUNT_TOTAL);
+        $criteria->setFetchCount(Criteria::FETCH_COUNT_NEXT_PAGES);
         $criteria->addFilter(new TermQuery('product.active', 1));
 
         $pattern = $this->termInterpreter->interpret($searchTerm, $context->getShopContext());

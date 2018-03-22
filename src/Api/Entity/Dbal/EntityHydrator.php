@@ -254,7 +254,17 @@ class EntityHydrator
                     return null;
                 }
 
-                return json_decode($value, true);
+                if (!$field->is(Serialized::class)) {
+                    return json_decode($value, true);
+                }
+
+                $structs = [];
+                $array = json_decode($value, true);;
+                foreach ($array as $item) {
+                    $structs[] = $this->serializer->deserialize(json_encode($item), '', 'json');
+                }
+                return $structs;
+                
             case $field instanceof JsonObjectField:
                 if ($field->is(Serialized::class)) {
                     return $this->serializer->deserialize($value, '', 'json');

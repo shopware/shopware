@@ -3,9 +3,12 @@
 namespace Shopware\Api\Entity\Dbal;
 
 use Doctrine\DBAL\Connection;
+use Ramsey\Uuid\Uuid;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Read\EntityReaderInterface;
 use Shopware\Api\Entity\Search\Aggregation\Aggregation;
+use Shopware\Api\Entity\Search\Aggregation\AggregationResult;
+use Shopware\Api\Entity\Search\Aggregation\AggregationResultCollection;
 use Shopware\Api\Entity\Search\Aggregation\AvgAggregation;
 use Shopware\Api\Entity\Search\Aggregation\CardinalityAggregation;
 use Shopware\Api\Entity\Search\Aggregation\EntityAggregation;
@@ -14,10 +17,11 @@ use Shopware\Api\Entity\Search\Aggregation\MinAggregation;
 use Shopware\Api\Entity\Search\Aggregation\StatsAggregation;
 use Shopware\Api\Entity\Search\Aggregation\SumAggregation;
 use Shopware\Api\Entity\Search\Aggregation\ValueCountAggregation;
-use Shopware\Api\Entity\Search\AggregationResult;
+use Shopware\Api\Entity\Search\AggregatorResult;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntityAggregatorInterface;
 use Shopware\Api\Entity\Search\Parser\SqlQueryParser;
+use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Context\Struct\ShopContext;
 
 /**
@@ -41,26 +45,28 @@ class EntityAggregator implements EntityAggregatorInterface
         $this->reader = $reader;
     }
 
-    public function aggregate(string $definition, Criteria $criteria, ShopContext $context): AggregationResult
+    public function aggregate(string $definition, Criteria $criteria, ShopContext $context): AggregatorResult
     {
-        $aggregations = [];
+        $aggregations = new AggregationResultCollection();
         foreach ($criteria->getAggregations() as $aggregation) {
             $query = $this->createAggregationQuery($aggregation, $definition, $criteria, $context);
 
-            $aggregations[$aggregation->getName()] = $this->fetchAggregation($definition, $query, $aggregation, $context);
+            $value = $this->fetchAggregation($definition, $query, $aggregation, $context);
+
+            $aggregations->add(
+                new AggregationResult($aggregation, $value)
+            );
         }
 
-        return new AggregationResult($aggregations, $context, $criteria);
+        return new AggregatorResult($aggregations, $context, $criteria);
     }
 
     private function createAggregationQuery(Aggregation $aggregation, string $definition, Criteria $criteria, ShopContext $context): QueryBuilder
     {
         /** @var EntityDefinition $definition */
         $table = $definition::getEntityName();
-        $query = new QueryBuilder($this->connection);
-
-        //build from path with escaped alias, e.g. FROM product as `product`
-        $query->from($table, EntityDefinitionQueryHelper::escape($table));
+        
+        $query = EntityDefinitionQueryHelper::getBaseQuery($this->connection, ProductDefinition::class, $context);
 
         $fields = array_merge(
             $criteria->getFilterFields(),
@@ -70,6 +76,14 @@ class EntityAggregator implements EntityAggregatorInterface
         //join association and translated fields
         foreach ($fields as $fieldName) {
             EntityDefinitionQueryHelper::joinField($fieldName, $definition, $table, $query, $context);
+        }
+
+        $parent = null;
+
+        if ($definition::getParentPropertyName()) {
+            /** @var EntityDefinition|string $definition */
+            $parent = $definition::getFields()->get($definition::getParentPropertyName());
+            EntityDefinitionQueryHelper::joinManyToOne($definition, $table, $parent, $query, $context);
         }
 
         $parsed = SqlQueryParser::parse($criteria->getFilters(), $definition, $context);
@@ -85,7 +99,7 @@ class EntityAggregator implements EntityAggregatorInterface
 
     private function fetchAggregation(string $definition, QueryBuilder $query, Aggregation $aggregation, ShopContext $context)
     {
-        /** @var EntityDefinition $definition */
+        /** @var EntityDefinition|string $definition */
         $field = EntityDefinitionQueryHelper::getFieldAccessor(
             $aggregation->getField(),
             $definition,
@@ -98,6 +112,11 @@ class EntityAggregator implements EntityAggregatorInterface
             $query->groupBy($field);
 
             $ids = $query->execute()->fetchAll(\PDO::FETCH_COLUMN);
+            $ids = array_filter($ids);
+
+            $ids = array_map(function($bytes) {
+                return Uuid::fromBytes($bytes)->toString();
+            }, $ids);
 
             return $this->reader->readBasic($aggregation->getDefinition(), $ids, $context);
         }
@@ -114,9 +133,9 @@ class EntityAggregator implements EntityAggregatorInterface
 
         if ($aggregation instanceof StatsAggregation) {
             $query->select([
-                'COUNT(' . $field . ')' . ' as `count`',
-                'AVG(' . $field . ')' . ' as `avg`',
-                'SUM(' . $field . ')' . ' as `sum`',
+//                'COUNT(' . $field . ')' . ' as `count`',
+//                'AVG(' . $field . ')' . ' as `avg`',
+//                'SUM(' . $field . ')' . ' as `sum`',
                 'MIN(' . $field . ')' . ' as `min`',
                 'MAX(' . $field . ')' . ' as `max`',
             ]);

@@ -559,13 +559,15 @@ CREATE TABLE `listing_sorting` (
   `id` binary(16) NOT NULL,
   `version_id` binary(16) NOT NULL,
   `active` tinyint(1) unsigned NOT NULL DEFAULT '1',
+  `unique_key` varchar(30) NOT NULL,
   `display_in_categories` tinyint(1) unsigned NOT NULL DEFAULT '1',
   `position` int(11) NOT NULL DEFAULT '1',
   `payload` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`, `version_id`),
-  KEY `sorting` (`display_in_categories`,`position`)
+  KEY `sorting` (`display_in_categories`,`position`),
+  UNIQUE KEY `uniqueKey` (`unique_key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -1096,6 +1098,7 @@ CREATE TABLE `product_category` (
 
 CREATE TABLE `search_keyword` (
   `keyword` varchar(500) NOT NULL,
+  `reversed` varchar(500) NOT NULL,
   `version_id` binary(16) NOT NULL,
   `language_id` binary(16) NOT NULL,
   PRIMARY KEY `language_keyword` (`keyword`, `language_id`, `version_id`),
@@ -1776,6 +1779,18 @@ CREATE TABLE `storefront_api_context` (
   `token` binary(16) NOT NULL,
   `payload` LONGTEXT NOT NULL,
   PRIMARY KEY (`token`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `product_category_tree`;
+CREATE TABLE `product_category_tree` (
+  `product_id` binary(16) NOT NULL,
+  `product_version_id` binary(16) NOT NULL,
+  `category_id` binary(16) NOT NULL,
+  `category_version_id` binary(16) NOT NULL,
+  KEY `product_id` (`product_id`,`product_version_id`),
+  KEY `category_id` (`category_id`,`category_version_id`),
+  CONSTRAINT `product_category_tree_ibfk_1` FOREIGN KEY (`product_id`, `product_version_id`) REFERENCES `product` (`id`, `version_id`),
+  CONSTRAINT `product_category_tree_ibfk_2` FOREIGN KEY (`category_id`, `category_version_id`) REFERENCES `category` (`id`, `version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 SET FOREIGN_KEY_CHECKS=1;

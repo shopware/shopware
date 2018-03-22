@@ -13,7 +13,7 @@ use Shopware\Api\Customer\Event\Customer\CustomerSearchResultLoadedEvent;
 use Shopware\Api\Customer\Struct\CustomerSearchResult;
 use Shopware\Api\Entity\Read\EntityReaderInterface;
 use Shopware\Api\Entity\RepositoryInterface;
-use Shopware\Api\Entity\Search\AggregationResult;
+use Shopware\Api\Entity\Search\AggregatorResult;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntityAggregatorInterface;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
@@ -84,7 +84,7 @@ class CustomerRepository implements RepositoryInterface
         return $result;
     }
 
-    public function aggregate(Criteria $criteria, ShopContext $context): AggregationResult
+    public function aggregate(Criteria $criteria, ShopContext $context): AggregatorResult
     {
         $result = $this->aggregator->aggregate(CustomerDefinition::class, $criteria, $context);
 

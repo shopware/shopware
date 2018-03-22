@@ -58,7 +58,8 @@ class ListingPriceUpdater
 
         $query->from('product', 'product');
         $query->innerJoin('product', 'product_context_price', 'price', 'price.product_id = product.id');
-        $query->where('product.id IN (:ids) OR product.parent_id IN (:ids)');
+        $query->andWhere('product.id IN (:ids) OR product.parent_id IN (:ids)');
+        $query->andWhere('price.quantity_end IS NULL');
 
         $ids = array_map(function ($id) {
             return Uuid::fromStringToBytes($id);

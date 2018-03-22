@@ -39,7 +39,7 @@ class KeywordSearchTermInterpreter
         $tokens = $this->tokenizer->tokenize($word);
 
         $slops = $this->slop($tokens);
-
+    
         $matches = $this->fetchKeywords($context, $slops);
 
         $scoring = $this->score($tokens, $matches, $context);
@@ -60,17 +60,35 @@ class KeywordSearchTermInterpreter
 
     private function slop(array $tokens): array
     {
-        $slops = [];
+        $slops = [
+            'normal' => [],
+            'reversed' => []
+        ];
         foreach ($tokens as $index => $token) {
             $slopSize = strlen($token) > 4 ? 2 : 1;
             $length = strlen($token);
 
-            for ($i = 0; $i <= $length - 1; ++$i) {
+            for ($i = 1; $i <= $length - 1; ++$i) {
                 for ($i2 = 1; $i2 <= $slopSize; ++$i2) {
                     $placeholder = '';
                     for ($i3 = 1; $i3 <= $slopSize + 1; ++$i3) {
-                        $slops[] =
-                            '%' .
+                        $slops['normal'][] =
+                            substr($token, 0, $i) .
+                            $placeholder .
+                            substr($token, $i + $i2)
+                            . '%'
+                        ;
+                        $placeholder .= '_';
+                    }
+                }
+            }
+
+            $token = strrev($token);
+            for ($i = 1; $i <= $length - 1; ++$i) {
+                for ($i2 = 1; $i2 <= $slopSize; ++$i2) {
+                    $placeholder = '';
+                    for ($i3 = 1; $i3 <= $slopSize + 1; ++$i3) {
+                        $slops['reversed'][] =
                             substr($token, 0, $i) .
                             $placeholder .
                             substr($token, $i + $i2)
@@ -93,9 +111,14 @@ class KeywordSearchTermInterpreter
 
         $counter = 0;
         $wheres = [];
-        foreach ($slops as $slop) {
+        foreach ($slops['normal'] as $slop) {
             ++$counter;
             $wheres[] = 'keyword LIKE :reg' . $counter;
+            $query->setParameter('reg' . $counter, $slop);
+        }
+        foreach ($slops['reversed'] as $slop) {
+            ++$counter;
+            $wheres[] = 'reversed LIKE :reg' . $counter;
             $query->setParameter('reg' . $counter, $slop);
         }
 

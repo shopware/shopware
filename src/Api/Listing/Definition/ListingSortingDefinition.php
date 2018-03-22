@@ -8,6 +8,8 @@ use Shopware\Api\Entity\Field\BoolField;
 use Shopware\Api\Entity\Field\DateField;
 use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\IntField;
+use Shopware\Api\Entity\Field\JsonArrayField;
+use Shopware\Api\Entity\Field\JsonObjectField;
 use Shopware\Api\Entity\Field\LongTextField;
 use Shopware\Api\Entity\Field\OneToManyAssociationField;
 use Shopware\Api\Entity\Field\StringField;
@@ -19,6 +21,7 @@ use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Entity\Write\Flag\SearchRanking;
+use Shopware\Api\Entity\Write\Flag\Serialized;
 use Shopware\Api\Entity\Write\Flag\WriteOnly;
 use Shopware\Api\Listing\Collection\ListingSortingBasicCollection;
 use Shopware\Api\Listing\Collection\ListingSortingDetailCollection;
@@ -60,8 +63,9 @@ class ListingSortingDefinition extends EntityDefinition
         self::$fields = new FieldCollection([
             new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            (new LongTextField('payload', 'payload'))->setFlags(new Required()),
+            (new JsonArrayField('payload', 'payload'))->setFlags(new Required(), new Serialized()),
             (new TranslatedField(new StringField('label', 'label')))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
+            (new StringField('unique_key', 'uniqueKey'))->setFlags(new Required()),
             new BoolField('active', 'active'),
             new BoolField('display_in_categories', 'displayInCategories'),
             new IntField('position', 'position'),

@@ -6,5 +6,5 @@ use Shopware\Context\Struct\ShopContext;
 
 interface EntityAggregatorInterface
 {
-    public function aggregate(string $definition, Criteria $criteria, ShopContext $context): AggregationResult;
+    public function aggregate(string $definition, Criteria $criteria, ShopContext $context): AggregatorResult;
 }

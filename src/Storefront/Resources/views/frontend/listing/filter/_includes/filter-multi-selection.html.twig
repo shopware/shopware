@@ -27,7 +27,7 @@
                     {% set indicator = inputType %}
 
                     {% set isMediaFacet = false %}
-                    {% if facet is instanceof('Shopware\\Bundle\\SearchBundle\\FacetResult\\MediaListFacetResult') %}
+                    {% if facet.type == 'media' %}
                         {% set isMediaFacet = true %}
 
                         {% set indicator = 'media' %}
@@ -38,8 +38,9 @@
                         {% block frontend_listing_filter_facet_multi_selection_list %}
                             <ul class="filter-panel--option-list">
 
-                                {% for option in facet.values %}
-
+                                {# @var facet \Shopware\Storefront\Page\Listing\AggregationView\ListAggregation #}
+                                {% for option in facet.items %}
+                                    {# @var option \Shopware\Storefront\Page\Listing\AggregationView\ListItem #}
                                     {% block frontend_listing_filter_facet_multi_selection_option %}
                                         <li class="filter-panel--option">
 
@@ -48,15 +49,15 @@
 
                                                     {% block frontend_listing_filter_facet_multi_selection_input %}
                                                         <span class="filter-panel--input">
-                                                            {% set name = "__" ~  facet.fieldName ~ "__" ~ option.id %}
+                                                            {% set name = "__" ~  facet.fieldName ~ "__" ~ option.value %}
                                                             {% if filterType == 'radio' %}
                                                                 {% set name = facet.fieldName %}
                                                             {% endif %}
 
                                                             <input type="{{ inputType }}"
-                                                                   id="'__' ~ {{ facet.fieldName }} ~ '__' ~ {{ option.id }}"
+                                                                   id="'__' ~ {{ facet.fieldName }} ~ '__' ~ {{ option.value }}"
                                                                    name="{{ name }}"
-                                                                   value="{{ option.id }}"
+                                                                   value="{{ option.value }}"
                                                                    {% if option.isActive %}checked="checked" {% endif %}/>
 
                                                             <span class="input--state">&nbsp;</span>
@@ -65,9 +66,9 @@
 
                                                     {% block frontend_listing_filter_facet_multi_selection_label %}
                                                         <label class="filter-panel--label"
-                                                               for="'__' ~ {{ facet.fieldName }} ~ '__' ~ {{ option.id }}">
+                                                               for="'__' ~ {{ facet.fieldName }} ~ '__' ~ {{ option.value }}">
 
-                                                            {% if facet is instanceof('Shopware\\Bundle\\SearchBundle\\FacetResult\\MediaListFacetResult') %}
+                                                            {% if facet.type == 'media' %}
                                                                 {% set mediaFile = asset('bundles/storefront/src/img/no-picture.jpg') %}
                                                                 {% if option.media is defined %}
                                                                     {% set mediaFile = option.media.file %}

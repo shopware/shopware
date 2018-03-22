@@ -49,7 +49,8 @@ class ContextPricesJsonField extends JsonObjectField implements SqlParseAware
             }
         }
 
-        $select[] = sprintf('`%s`.`%s`->"$.price.gross"', $root, $this->getStorageName());
+        $field = sprintf('`%s`.`%s`', $root, 'price');
+        $select[] = sprintf('JSON_UNQUOTE(JSON_EXTRACT(%s, "%s"))', $field, '$.gross');
 
         return sprintf('(CAST(COALESCE(%s) AS DECIMAL))', implode(',', $select));
     }

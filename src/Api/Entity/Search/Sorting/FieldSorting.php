@@ -3,8 +3,9 @@
 namespace Shopware\Api\Entity\Search\Sorting;
 
 use Shopware\Api\Entity\Search\CriteriaPartInterface;
+use Shopware\Framework\Struct\Struct;
 
-class FieldSorting implements CriteriaPartInterface
+class FieldSorting extends Struct implements CriteriaPartInterface
 {
     public const ASCENDING = 'ASC';
     public const DESCENDING = 'DESC';

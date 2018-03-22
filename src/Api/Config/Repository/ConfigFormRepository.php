@@ -13,7 +13,7 @@ use Shopware\Api\Config\Event\ConfigForm\ConfigFormSearchResultLoadedEvent;
 use Shopware\Api\Config\Struct\ConfigFormSearchResult;
 use Shopware\Api\Entity\Read\EntityReaderInterface;
 use Shopware\Api\Entity\RepositoryInterface;
-use Shopware\Api\Entity\Search\AggregationResult;
+use Shopware\Api\Entity\Search\AggregatorResult;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntityAggregatorInterface;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
@@ -84,7 +84,7 @@ class ConfigFormRepository implements RepositoryInterface
         return $result;
     }
 
-    public function aggregate(Criteria $criteria, ShopContext $context): AggregationResult
+    public function aggregate(Criteria $criteria, ShopContext $context): AggregatorResult
     {
         $result = $this->aggregator->aggregate(ConfigFormDefinition::class, $criteria, $context);
 

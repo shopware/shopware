@@ -2,11 +2,12 @@
 
 namespace Shopware\Api\Entity\Search;
 
+use Shopware\Api\Entity\Search\Aggregation\AggregationResultCollection;
 use Shopware\Context\Struct\ShopContext;
 
 interface SearchResultInterface
 {
-    public function getAggregations(): array;
+    public function getAggregations(): AggregationResultCollection;
 
     public function getTotal(): int;
 
@@ -14,7 +15,7 @@ interface SearchResultInterface
 
     public function getContext(): ShopContext;
 
-    public function getAggregationResult(): ?AggregationResult;
+    public function getAggregationResult(): ?AggregatorResult;
 
     public function getIdResult(): IdSearchResult;
 }

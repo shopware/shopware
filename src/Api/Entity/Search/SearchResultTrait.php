@@ -4,13 +4,14 @@ namespace Shopware\Api\Entity\Search;
 
 use Shopware\Api\Entity\Entity;
 use Shopware\Api\Entity\EntityCollection;
+use Shopware\Api\Entity\Search\Aggregation\AggregationResultCollection;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Struct\ArrayStruct;
 
 trait SearchResultTrait
 {
     /**
-     * @var AggregationResult|null
+     * @var AggregatorResult|null
      */
     protected $aggregationResult;
 
@@ -19,9 +20,9 @@ trait SearchResultTrait
      */
     protected $idResult;
 
-    public function getAggregations(): array
+    public function getAggregations(): AggregationResultCollection
     {
-        return $this->aggregationResult ? $this->aggregationResult->getAggregations() : [];
+        return $this->aggregationResult ? $this->aggregationResult->getAggregations() : new AggregationResultCollection();
     }
 
     public function getTotal(): int
@@ -39,7 +40,7 @@ trait SearchResultTrait
         return $this->idResult->getContext();
     }
 
-    public function getAggregationResult(): ?AggregationResult
+    public function getAggregationResult(): ?AggregatorResult
     {
         return $this->aggregationResult;
     }
@@ -52,7 +53,7 @@ trait SearchResultTrait
     public static function createFromResults(
         IdSearchResult $ids,
         EntityCollection $entities,
-        ?AggregationResult $aggregations
+        ?AggregatorResult $aggregations
     ) {
         $self = new static($entities->getElements());
 
@@ -88,7 +89,7 @@ trait SearchResultTrait
         $this->uuidResult = $uuidResult;
     }
 
-    public function setAggregationResult(?AggregationResult $aggregationResult): void
+    public function setAggregationResult(?AggregatorResult $aggregationResult): void
     {
         $this->aggregationResult = $aggregationResult;
     }

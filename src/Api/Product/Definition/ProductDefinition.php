@@ -158,6 +158,7 @@ class ProductDefinition extends EntityDefinition
             (new OneToManyAssociationField('media', ProductMediaDefinition::class, 'product_id', false, 'media_join_id'))->setFlags(new CascadeDelete(), new Inherited()),
             (new OneToManyAssociationField('contextPrices', ProductContextPriceDefinition::class, 'product_id', true, 'context_price_join_id'))->setFlags(new CascadeDelete(), new Inherited()),
             (new ManyToManyAssociationField('categories', CategoryDefinition::class, ProductCategoryDefinition::class, false, 'product_id', 'category_id', 'category_join_id'))->setFlags(new CascadeDelete(), new Inherited()),
+            (new ManyToManyAssociationField('categoriesRo', CategoryDefinition::class, ProductCategoryTreeDefinition::class, false, 'product_id', 'category_id', 'category_join_id'))->setFlags(new CascadeDelete(), new Inherited()),
 
             //not inherited associations
             (new ManyToManyAssociationField('seoCategories', CategoryDefinition::class, ProductSeoCategoryDefinition::class, false, 'product_id', 'category_id'))->setFlags(new CascadeDelete()),

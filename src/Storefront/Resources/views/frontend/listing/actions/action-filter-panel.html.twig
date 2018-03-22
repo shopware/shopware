@@ -4,6 +4,12 @@
     {% set listingMode = shopware.config.listingMode %}
     {% set listingMode = 'full_page_reload' %}
 
+    {# @var listing \Shopware\Storefront\Page\Listing\ListingPageStruct #}
+    {% set facets = listing.aggregations %}
+
+    {# @var criteria \Shopware\Api\Entity\Search\Criteria #}
+    {% set criteria = listing.criteria %}
+
     <div class="action--filter-options off-canvas{% if facets|length <= 0 %} is--hidden{% endif %}{% if listingMode != 'full_page_reload' %} is--ajax-reload{% endif %}">
 
         {% block frontend_listing_actions_filter_close_button %}
@@ -20,7 +26,7 @@
                         data-filter-form="true"
                         data-is-in-sidebar="{% if theme.sidebarFilter %}true{% else %}false{% endif %}"
                         data-listing-url="{{ countCtrlUrl }}"
-                        data-is-filtered="{{ criteria.getUserConditions|length }}"
+                        data-is-filtered="{{ criteria.postFilters|length }}"
                         data-load-facets="{% if listingMode == 'filter_ajax_reload' %}true{% else %}false{% endif %}"
                         data-instant-filter-result="{% if listingMode != 'full_page_reload' %}true{% else %}false{% endif %}"
                         class="{%  if listingMode != 'full_page_reload' %} is--instant-filter{% endif %}">
@@ -31,36 +37,36 @@
                         {% endif %}
 
                         {% block frontend_listing_actions_filter_form_page %}
-                            <input type="hidden" name="{shortParameters['sPage']}" value="1"/>
+                            <input type="hidden" name="p" value="1"/>
                         {% endblock %}
 
                         {% block frontend_listing_actions_filter_form_search %}
                             {% if term %}
-                                <input type="hidden" name="{$shortParameters['sSearch']}" value="{{ term }}"/>
+                                <input type="hidden" name="search" value="{{ term }}"/>
                             {% endif %}
                         {% endblock %}
 
                         {% block frontend_listing_actions_filter_form_sort %}
-                            {% if sSort %}
-                                <input type="hidden" name="{$shortParameters['sSort']}" value="{{ sSort }}"/>
+                            {% if listing.currentSorting %}
+                                <input type="hidden" name="o" value="{{ listing.currentSorting }}"/>
                             {% endif %}
                         {% endblock %}
 
                         {% block frontend_listing_actions_filter_form_perpage %}
                             {% if criteria and criteria.limit %}
-                                <input type="hidden" name="{$shortParameters['sPerPage']}" value="{{ criteria.limit }}"/>
+                                <input type="hidden" name="limit" value="{{ criteria.limit }}"/>
                             {% endif %}
                         {% endblock %}
 
                         {% block frontend_listing_actions_filter_form_category %}
                             {% if not sCategoryContent and sCategoryCurrent != sCategoryStart and controllerName != 'search' %}
-                                <input type="hidden" name="{$shortParameters['sCategory']}" value="{$sCategoryCurrent}" />
+                                <input type="hidden" name="c" value="" />
                             {% endif %}
                         {% endblock %}
 
                         {% block frontend_listing_actions_filter_form_facets %}
                             <div class="filter--facet-container">
-                                {#{% sw_include '@Storefront/frontend/listing/actions/action-filter-facets.html.twig' with facets %}#}
+                                {% sw_include '@Storefront/frontend/listing/actions/action-filter-facets.html.twig' with {'facets': facets} %}
                             </div>
                         {% endblock %}
 

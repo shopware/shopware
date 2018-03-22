@@ -2,7 +2,6 @@
 
 namespace Shopware\StorefrontApi\Controller;
 
-use Ramsey\Uuid\Uuid;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Api\Order\Definition\OrderDefinition;
@@ -18,13 +17,13 @@ use Shopware\Cart\Order\OrderPersisterInterface;
 use Shopware\CartBridge\Product\ProductProcessor;
 use Shopware\CartBridge\Service\StoreFrontCartService;
 use Shopware\Context\Struct\StorefrontContext;
+use Shopware\Framework\Struct\Uuid;
 use Shopware\Rest\Response\Type\JsonType;
 use Shopware\StorefrontApi\Context\StorefrontContextPersister;
 use Shopware\StorefrontApi\Context\StorefrontContextValueResolver;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Exception\InvalidParameterException;
 use Symfony\Component\Serializer\Serializer;
 
@@ -244,7 +243,7 @@ class CheckoutController extends Controller
     private function loadCart(?string $token): Cart
     {
         if (!$token) {
-            $token = Uuid::uuid4()->toString();
+            $token = Uuid::uuid4()->getHex();
         }
         
         try {

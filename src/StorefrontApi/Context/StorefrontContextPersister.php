@@ -3,7 +3,7 @@
 namespace Shopware\StorefrontApi\Context;
 
 use Doctrine\DBAL\Connection;
-use Ramsey\Uuid\Uuid;
+use Shopware\Framework\Struct\Uuid;
 
 class StorefrontContextPersister
 {
@@ -26,7 +26,7 @@ class StorefrontContextPersister
         $this->connection->executeUpdate(
             'REPLACE INTO storefront_api_context (`token`, `payload`) VALUES (:token, :payload)',
             [
-                'token' => Uuid::fromString($token)->getBytes(),
+                'token' => Uuid::fromHexToBytes($token),
                 'payload' => json_encode($parameters),
             ]
         );
@@ -40,7 +40,7 @@ class StorefrontContextPersister
 
         $parameter = $this->connection->fetchColumn(
             'SELECT `payload` FROM storefront_api_context WHERE token = :token',
-            ['token' => Uuid::fromString($token)->getBytes()]
+            ['token' => Uuid::fromHexToBytes($token)]
         );
 
         if (!$parameter) {

@@ -2,8 +2,8 @@
 
 namespace Shopware\Storefront\Session;
 
-use Ramsey\Uuid\Uuid;
 use Shopware\Framework\Routing\Router;
+use Shopware\Framework\Struct\Uuid;
 use Shopware\StorefrontApi\Context\ContextTokenResolverInterface;
 use Shopware\StorefrontApi\Context\StorefrontContextValueResolver;
 use Symfony\Component\HttpFoundation\Request;
@@ -49,7 +49,7 @@ class SessionContextTokenResolver implements ContextTokenResolverInterface
     private function getContextToken(SessionInterface $session): string
     {
         if (!$session->has(StorefrontContextValueResolver::CONTEXT_TOKEN_KEY)) {
-            $session->set(StorefrontContextValueResolver::CONTEXT_TOKEN_KEY, Uuid::uuid4()->toString());
+            $session->set(StorefrontContextValueResolver::CONTEXT_TOKEN_KEY, Uuid::uuid4()->getHex());
         }
 
         return $session->get(StorefrontContextValueResolver::CONTEXT_TOKEN_KEY);

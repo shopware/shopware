@@ -25,7 +25,6 @@ declare(strict_types=1);
 
 namespace Shopware\Storefront\Session;
 
-use Ramsey\Uuid\Uuid;
 use Shopware\Api\Seo\Struct\SeoUrlBasicStruct;
 use Shopware\Context\Struct\StorefrontContext;
 use Shopware\DbalIndexing\SeoUrl\DetailPageSeoUrlIndexer;
@@ -35,23 +34,17 @@ use Shopware\StorefrontApi\Context\ContextSubscriber;
 use Shopware\StorefrontApi\Context\ContextTokenResolverInterface;
 use Shopware\StorefrontApi\Context\StorefrontContextPersister;
 use Shopware\StorefrontApi\Context\StorefrontContextService;
-use Shopware\StorefrontApi\Context\StorefrontContextServiceInterface;
-use Shopware\StorefrontApi\Context\StorefrontContextValueResolver;
 use Shopware\StorefrontApi\Firewall\CustomerUser;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\AuthenticationEvents;
 use Symfony\Component\Security\Core\Event\AuthenticationEvent;
-use Symfony\Component\Security\Core\Event\AuthenticationFailureEvent;
-use Symfony\Component\Security\Core\User\UserInterface;
 
 class ShopSubscriber implements EventSubscriberInterface
 {

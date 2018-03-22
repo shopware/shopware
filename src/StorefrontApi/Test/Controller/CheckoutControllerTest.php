@@ -47,13 +47,13 @@ class CheckoutControllerTest extends ApiTestCase
         $this->repository = self::$kernel->getContainer()->get(ProductRepository::class);
         $this->customerRepository = self::$kernel->getContainer()->get(CustomerRepository::class);
         $this->connection = self::$kernel->getContainer()->get(Connection::class);
-        $this->taxId = Uuid::uuid4()->toString();
-        $this->manufacturerId = Uuid::uuid4()->toString();
+        $this->taxId = Uuid::uuid4()->getHex();
+        $this->manufacturerId = Uuid::uuid4()->getHex();
     }
 
     public function testAddProduct()
     {
-        $productId = Uuid::uuid4()->toString();
+        $productId = Uuid::uuid4()->getHex();
         $this->repository->create([
             [
                 'id' => $productId,
@@ -86,8 +86,8 @@ class CheckoutControllerTest extends ApiTestCase
 
     public function testAddMultipleProducts()
     {
-        $productId1 = Uuid::uuid4()->toString();
-        $productId2 = Uuid::uuid4()->toString();
+        $productId1 = Uuid::uuid4()->getHex();
+        $productId2 = Uuid::uuid4()->getHex();
 
         $this->repository->create([
             [
@@ -124,8 +124,8 @@ class CheckoutControllerTest extends ApiTestCase
 
     public function testChangeQuantity()
     {
-        $productId1 = Uuid::uuid4()->toString();
-        $productId2 = Uuid::uuid4()->toString();
+        $productId1 = Uuid::uuid4()->getHex();
+        $productId2 = Uuid::uuid4()->getHex();
 
         $this->repository->create([
             [
@@ -170,8 +170,8 @@ class CheckoutControllerTest extends ApiTestCase
 
     public function testRemoveLineItem()
     {
-        $productId1 = Uuid::uuid4()->toString();
-        $productId2 = Uuid::uuid4()->toString();
+        $productId1 = Uuid::uuid4()->getHex();
+        $productId2 = Uuid::uuid4()->getHex();
 
         $this->repository->create([
             [
@@ -213,8 +213,8 @@ class CheckoutControllerTest extends ApiTestCase
 
     public function testMergeSameProduct()
     {
-        $productId1 = Uuid::uuid4()->toString();
-        $productId2 = Uuid::uuid4()->toString();
+        $productId1 = Uuid::uuid4()->getHex();
+        $productId2 = Uuid::uuid4()->getHex();
 
         $this->repository->create([
             [
@@ -270,7 +270,7 @@ class CheckoutControllerTest extends ApiTestCase
 
     public function testUseAddProductRoute()
     {
-        $productId = Uuid::uuid4()->toString();
+        $productId = Uuid::uuid4()->getHex();
         $this->repository->create([
             [
                 'id' => $productId,
@@ -304,7 +304,7 @@ class CheckoutControllerTest extends ApiTestCase
 
     public function testOrderProcess()
     {
-        $productId = Uuid::uuid4()->toString();
+        $productId = Uuid::uuid4()->getHex();
         $this->repository->create([
             [
                 'id' => $productId,
@@ -316,9 +316,9 @@ class CheckoutControllerTest extends ApiTestCase
             ],
         ], ShopContext::createDefaultContext());
 
-        $addressId = Uuid::uuid4()->toString();
+        $addressId = Uuid::uuid4()->getHex();
 
-        $mail = Uuid::uuid4()->toString();
+        $mail = Uuid::uuid4()->getHex();
         $password = 'shopware';
 
         $this->connection->executeUpdate('DELETE FROM customer WHERE email = :mail', [
@@ -342,7 +342,7 @@ class CheckoutControllerTest extends ApiTestCase
                 'defaultPaymentMethod' => [
                     'name' => 'test',
                     'additionalDescription' => 'test',
-                    'technicalName' => Uuid::uuid4()->toString(),
+                    'technicalName' => Uuid::uuid4()->getHex(),
                 ],
                 'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => $mail,

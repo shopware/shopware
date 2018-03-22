@@ -245,7 +245,7 @@ class CheckoutController extends Controller
         if (!$token) {
             $token = Uuid::uuid4()->getHex();
         }
-        
+
         try {
             $cart = $this->persister->load($token, self::CART_NAME);
         } catch (CartTokenNotFoundException $e) {

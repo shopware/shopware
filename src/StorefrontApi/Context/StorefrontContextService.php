@@ -212,7 +212,7 @@ class StorefrontContextService implements StorefrontContextServiceInterface
                 $checkoutScope->getShippingMethodId(),
                 $checkoutScope->getPaymentMethodId(),
                 $checkoutScope->getCountryId(),
-                $checkoutScope->getStateId()
+                $checkoutScope->getStateId(),
             ])
         );
     }
@@ -235,4 +235,3 @@ class StorefrontContextService implements StorefrontContextServiceInterface
         $this->cache->save($outputCacheItem);
     }
 }
-

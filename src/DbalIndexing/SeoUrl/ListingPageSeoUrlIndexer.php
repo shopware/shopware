@@ -4,7 +4,6 @@ namespace Shopware\DbalIndexing\SeoUrl;
 
 use Cocur\Slugify\SlugifyInterface;
 use Doctrine\DBAL\Connection;
-use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Category\Repository\CategoryRepository;
 use Shopware\Api\Category\Struct\CategorySearchResult;
 use Shopware\Api\Entity\Search\Criteria;
@@ -19,6 +18,7 @@ use Shopware\DbalIndexing\Event\ProgressStartedEvent;
 use Shopware\DbalIndexing\Indexer\IndexerInterface;
 use Shopware\Defaults;
 use Shopware\Framework\Doctrine\MultiInsertQueryQueue;
+use Shopware\Framework\Struct\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Routing\RouterInterface;
 

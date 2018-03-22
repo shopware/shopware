@@ -26,13 +26,13 @@ declare(strict_types=1);
 namespace Shopware\CartBridge\Cart;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Framework\Struct\Uuid;
 use Shopware\Cart\Cart\CartPersisterInterface;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Cart\Struct\Cart;
 use Shopware\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Defaults;
+use Shopware\Framework\Struct\Uuid;
 use Symfony\Component\Serializer\SerializerInterface;
 
 class CartPersister implements CartPersisterInterface

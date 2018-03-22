@@ -24,7 +24,6 @@
 
 namespace Shopware\Api\Entity\Write;
 
-use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Entity\Dbal\EntityForeignKeyResolver;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Field\Field;
@@ -45,6 +44,7 @@ use Shopware\Api\Entity\Write\FieldException\FieldExceptionStack;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Validation\RestrictDeleteViolation;
 use Shopware\Api\Entity\Write\Validation\RestrictDeleteViolationException;
+use Shopware\Framework\Struct\Uuid;
 
 /**
  * Handles all write operations in the system.

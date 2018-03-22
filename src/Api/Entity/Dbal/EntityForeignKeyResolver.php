@@ -3,7 +3,6 @@
 namespace Shopware\Api\Entity\Dbal;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Field\AssociationInterface;
 use Shopware\Api\Entity\Field\ManyToManyAssociationField;
@@ -14,6 +13,7 @@ use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\RestrictDelete;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Defaults;
+use Shopware\Framework\Struct\Uuid;
 
 /**
  * Determines all associated data for a definition.

@@ -3,7 +3,6 @@
 namespace Shopware\Api\Test\Category\Repository;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Category\Definition\CategoryDefinition;
 use Shopware\Api\Category\Event\Category\CategoryDeletedEvent;
 use Shopware\Api\Category\Repository\CategoryRepository;
@@ -22,6 +21,7 @@ use Shopware\Api\Shop\Repository\ShopRepository;
 use Shopware\Api\Test\TestWriteContext;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Defaults;
+use Shopware\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 

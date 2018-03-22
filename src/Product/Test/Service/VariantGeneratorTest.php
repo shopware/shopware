@@ -4,7 +4,6 @@ namespace Shopware\Product\Test\Service;
 
 use Doctrine\DBAL\Connection;
 use Psr\Container\ContainerInterface;
-use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\Product\Definition\ProductDefinition;
@@ -12,6 +11,7 @@ use Shopware\Api\Product\Repository\ProductRepository;
 use Shopware\Api\Product\Struct\PriceStruct;
 use Shopware\Api\Product\Struct\ProductDetailStruct;
 use Shopware\Context\Struct\ShopContext;
+use Shopware\Framework\Struct\Uuid;
 use Shopware\Product\Service\VariantGenerator;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 

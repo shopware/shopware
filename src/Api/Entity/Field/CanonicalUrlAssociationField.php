@@ -2,7 +2,6 @@
 
 namespace Shopware\Api\Entity\Field;
 
-use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Entity\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Api\Entity\Dbal\QueryBuilder;
 use Shopware\Api\Entity\Write\FieldAware\DbalJoinAware;
@@ -10,6 +9,7 @@ use Shopware\Api\Entity\Write\Flag\Extension;
 use Shopware\Api\Entity\Write\Flag\ReadOnly;
 use Shopware\Api\Seo\Definition\SeoUrlDefinition;
 use Shopware\Context\Struct\ShopContext;
+use Shopware\Framework\Struct\Uuid;
 
 class CanonicalUrlAssociationField extends ManyToOneAssociationField implements DbalJoinAware
 {

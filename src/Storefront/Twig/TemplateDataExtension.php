@@ -26,7 +26,6 @@ namespace Shopware\Storefront\Twig;
 
 use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Config\ConfigServiceInterface;
-use Shopware\Storefront\Session\ShopSubscriber;
 use Shopware\Storefront\Theme\ThemeConfigReader;
 use Shopware\StorefrontApi\Context\ContextSubscriber;
 use Symfony\Component\HttpFoundation\Request;

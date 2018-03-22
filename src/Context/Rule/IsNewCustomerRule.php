@@ -40,6 +40,7 @@ class IsNewCustomerRule extends Rule
         if (!$customer->getFirstLogin()) {
             return new Match(false, ['Never logged in']);
         }
+
         return new Match(
             $customer->getFirstLogin()->format('Y-m-d') === (new \DateTime())->format('Y-m-d'),
             ['Customer is not new']

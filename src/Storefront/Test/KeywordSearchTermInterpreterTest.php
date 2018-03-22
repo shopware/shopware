@@ -3,10 +3,10 @@
 namespace Shopware\Storefront\Test;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Entity\Search\Term\SearchTerm;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Defaults;
+use Shopware\Framework\Struct\Uuid;
 use Shopware\StorefrontApi\Search\KeywordSearchTermInterpreter;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 

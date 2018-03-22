@@ -38,7 +38,7 @@ class JsonApiType implements ResponseTypeInterface
         $baseUrl = $this->getBaseUrl($context);
 
         if ($setLocationHeader) {
-            /** @var string|EntityDefinition $definition */
+            /* @var string|EntityDefinition $definition */
             $headers['Location'] = $baseUrl . '/api/' . $this->camelCaseToSnailCase($definition::getEntityName()) . '/' . $entity->getId();
         }
 

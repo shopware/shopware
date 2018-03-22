@@ -8,7 +8,6 @@ use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\User\Definition\UserDefinition;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Context\Struct\StorefrontContext;
-use Shopware\Storefront\Session\ShopSubscriber;
 use Shopware\StorefrontApi\Context\ContextSubscriber;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ArgumentValueResolverInterface;

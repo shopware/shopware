@@ -3,7 +3,6 @@
 namespace Shopware\Api\Entity\Dbal;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Field\AssociationInterface;
 use Shopware\Api\Entity\Field\Field;
@@ -18,6 +17,7 @@ use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\Inherited;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Defaults;
+use Shopware\Framework\Struct\Uuid;
 
 /**
  * This class acts only as helper/common class for all dbal operations for entity definitions.

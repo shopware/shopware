@@ -3,8 +3,8 @@
 namespace Shopware\Rest\Test\Controller;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Entity\Search\Criteria;
+use Shopware\Framework\Struct\Uuid;
 use Shopware\Rest\Test\ApiTestCase;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -407,8 +407,8 @@ class ApiControllerTest extends ApiTestCase
                         [
                             'type' => 'terms',
                             'field' => 'product.id',
-                            'value' => $id
-                        ]
+                            'value' => $id,
+                        ],
                     ],
                 ],
             ],

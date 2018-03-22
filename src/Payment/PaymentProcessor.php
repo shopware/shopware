@@ -56,12 +56,13 @@ class PaymentProcessor
     }
 
     /**
-     * @param string $orderId
+     * @param string      $orderId
      * @param ShopContext $shopContext
-     * @return null|RedirectResponse
      *
      * @throws InvalidOrderException
      * @throws UnknownPaymentMethodException
+     *
+     * @return null|RedirectResponse
      */
     public function process(string $orderId, ShopContext $shopContext): ?RedirectResponse
     {

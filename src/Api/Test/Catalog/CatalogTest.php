@@ -3,7 +3,6 @@
 namespace Shopware\Api\Test\Catalog;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Catalog\Repository\CatalogRepository;
 use Shopware\Api\Category\Repository\CategoryRepository;
 use Shopware\Api\Category\Struct\CategoryBasicStruct;
@@ -12,6 +11,7 @@ use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\Product\Repository\ProductRepository;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Defaults;
+use Shopware\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class CatalogTest extends KernelTestCase

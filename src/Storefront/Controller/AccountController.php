@@ -34,7 +34,7 @@ class AccountController extends StorefrontController
         AuthenticationUtils $authUtils,
         TokenStorageInterface $tokenStorage,
         StorefrontContextPersister $contextPersister
-    ){
+    ) {
         $this->authUtils = $authUtils;
         $this->tokenStorage = $tokenStorage;
         $this->contextPersister = $contextPersister;

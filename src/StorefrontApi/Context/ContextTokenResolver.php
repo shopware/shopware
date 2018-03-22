@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\StorefrontApi\Context;
 
@@ -12,6 +12,7 @@ class ContextTokenResolver implements ContextTokenResolverInterface
         if ($request->headers->has(StorefrontContextValueResolver::CONTEXT_TOKEN_KEY)) {
             return $request->headers->get(StorefrontContextValueResolver::CONTEXT_TOKEN_KEY);
         }
+
         return Uuid::uuid4()->getHex();
     }
 }

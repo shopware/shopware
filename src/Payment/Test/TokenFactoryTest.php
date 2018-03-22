@@ -4,7 +4,6 @@ namespace Shopware\Payment\Test;
 
 use Doctrine\DBAL\Connection;
 use Psr\Container\ContainerInterface;
-use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Customer\Repository\CustomerRepository;
 use Shopware\Api\Order\Repository\OrderRepository;
 use Shopware\Api\Order\Repository\OrderTransactionRepository;
@@ -13,6 +12,7 @@ use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Defaults;
+use Shopware\Framework\Struct\Uuid;
 use Shopware\Payment\Token\PaymentTransactionTokenFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 

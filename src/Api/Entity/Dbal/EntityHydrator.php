@@ -105,7 +105,6 @@ class EntityHydrator
             }
 
             if ($field instanceof ManyToManyAssociationField) {
-
                 $property = implode('.', [$root, $field->getPropertyName()]);
 
                 $ids = explode('||', (string) $row[$property]);

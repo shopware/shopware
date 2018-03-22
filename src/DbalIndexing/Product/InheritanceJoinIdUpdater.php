@@ -3,7 +3,6 @@
 namespace Shopware\DbalIndexing\Product;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Product\Definition\ProductCategoryDefinition;
 use Shopware\Api\Product\Definition\ProductDefinition;
@@ -11,6 +10,7 @@ use Shopware\Api\Product\Definition\ProductMediaDefinition;
 use Shopware\Api\Product\Event\Product\ProductWrittenEvent;
 use Shopware\Api\Product\Event\ProductMedia\ProductMediaWrittenEvent;
 use Shopware\Context\Struct\ShopContext;
+use Shopware\Framework\Struct\Uuid;
 
 class InheritanceJoinIdUpdater
 {

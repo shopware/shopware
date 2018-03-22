@@ -4,12 +4,11 @@ namespace Shopware\Payment\Token;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
-use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Order\Struct\OrderTransactionBasicStruct;
+use Shopware\Framework\Struct\Uuid;
 use Shopware\Framework\Util\Random;
 use Shopware\Payment\Exception\InvalidTokenException;
 use Shopware\Payment\Exception\TokenExpiredException;
-use Shopware\Payment\Struct\PaymentTransaction;
 
 class PaymentTransactionTokenFactory implements PaymentTransactionTokenFactoryInterface
 {

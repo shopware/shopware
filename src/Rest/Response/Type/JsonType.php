@@ -33,7 +33,7 @@ class JsonType implements ResponseTypeInterface
     {
         $headers = [];
         if ($setLocationHeader) {
-            /** @var string|EntityDefinition $definition */
+            /* @var string|EntityDefinition $definition */
             $headers['Location'] = $this->getBaseUrl($context) . '/api/' . $this->camelCaseToSnailCase($definition::getEntityName()) . '/' . $entity->getId();
         }
 

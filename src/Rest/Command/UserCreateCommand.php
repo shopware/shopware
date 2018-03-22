@@ -2,11 +2,11 @@
 
 namespace Shopware\Rest\Command;
 
-use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\User\Repository\UserRepository;
 use Shopware\Context\Struct\ShopContext;
+use Shopware\Framework\Struct\Uuid;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;

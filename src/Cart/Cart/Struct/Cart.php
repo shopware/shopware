@@ -25,10 +25,10 @@ declare(strict_types=1);
 
 namespace Shopware\Cart\Cart\Struct;
 
-use Shopware\Framework\Struct\Uuid;
 use Shopware\Cart\Error\ErrorCollection;
 use Shopware\Cart\LineItem\LineItemCollection;
 use Shopware\Framework\Struct\Struct;
+use Shopware\Framework\Struct\Uuid;
 
 class Cart extends Struct
 {

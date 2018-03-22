@@ -47,7 +47,7 @@ class StorefrontContextValueResolver implements ArgumentValueResolverInterface
         $applicationId = $master->attributes->get(self::APPLICATION_ID);
 
         $context = $this->contextService->getStorefrontContext($applicationId, $token);
-        
+
         yield $context;
     }
 }

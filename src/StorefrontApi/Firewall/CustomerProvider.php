@@ -7,7 +7,6 @@ use Shopware\Api\Customer\Struct\CustomerBasicStruct;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Context\Struct\ShopContext;
-use Shopware\StorefrontApi\Firewall\CustomerUser;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;

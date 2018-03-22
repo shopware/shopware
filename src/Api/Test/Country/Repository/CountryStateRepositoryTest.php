@@ -3,7 +3,6 @@
 namespace Shopware\Api\Test\Country\Repository;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Country\Definition\CountryStateDefinition;
 use Shopware\Api\Country\Repository\CountryRepository;
 use Shopware\Api\Country\Repository\CountryStateRepository;
@@ -12,6 +11,7 @@ use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Api\Entity\Search\Term\SearchTermInterpreter;
 use Shopware\Context\Struct\ShopContext;
+use Shopware\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 

@@ -3,10 +3,10 @@
 namespace Shopware\Api\Test\Entity\Reader;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Category\Repository\CategoryRepository;
 use Shopware\Api\Product\Repository\ProductRepository;
 use Shopware\Context\Struct\ShopContext;
+use Shopware\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 

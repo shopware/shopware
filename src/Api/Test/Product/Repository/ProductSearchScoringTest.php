@@ -3,7 +3,6 @@
 namespace Shopware\Api\Test\Product\Repository;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Entity\Entity;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Term\EntityScoreQueryBuilder;
@@ -13,6 +12,7 @@ use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Api\Product\Repository\ProductRepository;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Struct\ArrayStruct;
+use Shopware\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class ProductSearchScoringTest extends KernelTestCase

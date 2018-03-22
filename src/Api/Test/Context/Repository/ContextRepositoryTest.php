@@ -3,12 +3,12 @@
 namespace Shopware\Api\Test\Context\Repository;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Context\Repository\ContextRuleRepository;
 use Shopware\Api\Entity\RepositoryInterface;
 use Shopware\Context\Rule\Container\AndRule;
 use Shopware\Context\Rule\Container\OrRule;
 use Shopware\Context\Struct\ShopContext;
+use Shopware\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 

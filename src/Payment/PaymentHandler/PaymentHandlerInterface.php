@@ -14,7 +14,7 @@ interface PaymentHandlerInterface
      * Allows to process the order and store additional information.
      *
      * @param PaymentTransaction $transaction
-     * @param ShopContext $context
+     * @param ShopContext        $context
      *
      * @return null|RedirectResponse if a RedirectResponse is provided, a redirect to the url will be performed
      */
@@ -27,8 +27,8 @@ interface PaymentHandlerInterface
      * The finalize function will be called when the user is redirected
      * back to shop from the payment gateway.
      *
-     * @param string $transactionId
-     * @param Request $request
+     * @param string      $transactionId
+     * @param Request     $request
      * @param ShopContext $context
      */
     public function finalize(

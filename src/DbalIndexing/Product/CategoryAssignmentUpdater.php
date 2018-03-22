@@ -3,10 +3,10 @@
 namespace Shopware\DbalIndexing\Product;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Entity\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Defaults;
+use Shopware\Framework\Struct\Uuid;
 
 class CategoryAssignmentUpdater
 {
@@ -50,7 +50,7 @@ class CategoryAssignmentUpdater
                 [
                     'id' => $productId,
                     'tree' => $categoryIds,
-                    'version' => Uuid::fromStringToBytes($context->getVersionId())
+                    'version' => Uuid::fromStringToBytes($context->getVersionId()),
                 ]
             );
         }

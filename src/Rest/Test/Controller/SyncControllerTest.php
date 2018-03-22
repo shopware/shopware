@@ -3,9 +3,9 @@
 namespace Shopware\Rest\Test\Controller;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Category\Definition\CategoryDefinition;
 use Shopware\Api\Product\Definition\ProductDefinition;
+use Shopware\Framework\Struct\Uuid;
 use Shopware\Rest\Controller\SyncController;
 use Shopware\Rest\Test\ApiTestCase;
 use Symfony\Component\HttpFoundation\Response;

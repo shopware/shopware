@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Framework\Struct\Uuid;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Api\Entity\Search\Criteria;
@@ -13,15 +12,16 @@ use Shopware\Api\Payment\Repository\PaymentMethodRepository;
 use Shopware\CartBridge\Service\StoreFrontCartService;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Context\Struct\StorefrontContext;
+use Shopware\Framework\Struct\Uuid;
 use Shopware\Payment\Exception\InvalidOrderException;
 use Shopware\Payment\Exception\InvalidTransactionException;
 use Shopware\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Payment\PaymentHandler\PaymentHandlerInterface;
 use Shopware\Payment\PaymentProcessor;
 use Shopware\Payment\Token\PaymentTransactionTokenFactory;
+use Shopware\Storefront\Page\Checkout\PaymentMethodLoader;
 use Shopware\StorefrontApi\Context\StorefrontContextPersister;
 use Shopware\StorefrontApi\Context\StorefrontContextService;
-use Shopware\Storefront\Page\Checkout\PaymentMethodLoader;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -124,7 +124,7 @@ class CheckoutController extends StorefrontController
         }
 
         $this->contextPersister->save($context->getToken(), [
-            StorefrontContextService::PAYMENT_METHOD_ID => $paymentMethodId
+            StorefrontContextService::PAYMENT_METHOD_ID => $paymentMethodId,
         ]);
 
         // todo validate, process and store custom template data
@@ -155,14 +155,14 @@ class CheckoutController extends StorefrontController
     /**
      * @Route("/checkout/pay", name="checkout_pay", options={"seo"="false"})
      *
-     * @param Request $request
+     * @param Request           $request
      * @param StorefrontContext $context
-     *
-     * @return RedirectResponse
      *
      * @throws InvalidOrderException
      * @throws InvalidTransactionException
      * @throws UnknownPaymentMethodException
+     *
+     * @return RedirectResponse
      */
     public function payAction(Request $request, StorefrontContext $context): RedirectResponse
     {
@@ -192,19 +192,18 @@ class CheckoutController extends StorefrontController
         return $this->processPayment($orderId, $shopContext);
     }
 
-
     /**
      * @Route("/checkout/finalize-transaction", name="checkout_finalize_transaction", options={"seo"="false"})
      *
-     * @param Request $request
+     * @param Request           $request
      * @param StorefrontContext $context
-     *
-     * @return RedirectResponse
      *
      * @throws UnknownPaymentMethodException
      * @throws \Doctrine\DBAL\Exception\InvalidArgumentException
      * @throws \Shopware\Payment\Exception\InvalidTokenException
      * @throws \Shopware\Payment\Exception\TokenExpiredException
+     *
+     * @return RedirectResponse
      */
     public function finalizeTransactionAction(Request $request, StorefrontContext $context): RedirectResponse
     {
@@ -266,6 +265,7 @@ class CheckoutController extends StorefrontController
         }
 
         $ids = $searchResult->getIds();
+
         return array_shift($ids);
     }
 

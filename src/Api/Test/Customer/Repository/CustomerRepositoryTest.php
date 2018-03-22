@@ -3,7 +3,6 @@
 namespace Shopware\Api\Test\Customer\Repository;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Customer\Definition\CustomerDefinition;
 use Shopware\Api\Customer\Repository\CustomerRepository;
 use Shopware\Api\Entity\RepositoryInterface;
@@ -12,6 +11,7 @@ use Shopware\Api\Entity\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Api\Entity\Search\Term\SearchTermInterpreter;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Defaults;
+use Shopware\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 

@@ -63,7 +63,6 @@ class OrderTransactionStateTranslationRepository implements RepositoryInterface
         $this->versionManager = $versionManager;
     }
 
-
     public function search(Criteria $criteria, ShopContext $context): OrderTransactionStateTranslationSearchResult
     {
         $ids = $this->searchIds($criteria, $context);

@@ -5,7 +5,6 @@ namespace Shopware\StorefrontApi\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Context\Struct\StorefrontContext;
-use Shopware\StorefrontApi\Context\StorefrontApiContext;
 use Shopware\StorefrontApi\Context\StorefrontContextPersister;
 use Shopware\StorefrontApi\Context\StorefrontContextValueResolver;
 use Shopware\StorefrontApi\Firewall\CustomerUser;
@@ -13,9 +12,9 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Authentication\AuthenticationManagerInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Serializer\Serializer;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class CustomerController extends Controller
 {
@@ -76,12 +75,12 @@ class CustomerController extends Controller
             [
                 'customerId' => $user->getId(),
                 'billingAddressId' => null,
-                'shippingAddressId' => null
+                'shippingAddressId' => null,
             ]
         );
 
         return new JsonResponse([
-            StorefrontContextValueResolver::CONTEXT_TOKEN_KEY => $context->getToken()
+            StorefrontContextValueResolver::CONTEXT_TOKEN_KEY => $context->getToken(),
         ]);
     }
 
@@ -96,10 +95,9 @@ class CustomerController extends Controller
             [
                 'customerId' => null,
                 'billingAddressId' => null,
-                'shippingAddressId' => null
+                'shippingAddressId' => null,
             ]
         );
-
     }
 
     private function getPost(Request $request): array

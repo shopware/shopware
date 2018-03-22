@@ -2,11 +2,11 @@
 
 namespace Shopware\Rest\Test\Controller;
 
-use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Product\Repository\ProductRepository;
 use Shopware\Api\Product\Struct\PriceStruct;
 use Shopware\Api\Product\Struct\ProductDetailStruct;
 use Shopware\Context\Struct\ShopContext;
+use Shopware\Framework\Struct\Uuid;
 use Shopware\Rest\Test\ApiTestCase;
 use Symfony\Component\BrowserKit\Client;
 
@@ -90,7 +90,7 @@ class ProductActionControllerTest extends ApiTestCase
 
         /** @var Client $client */
         $client = $this->getClient();
-        $client->request('POST', '/api/product/'. $id . '/actions/generate-variants');
+        $client->request('POST', '/api/product/' . $id . '/actions/generate-variants');
         $this->assertSame(200, $client->getResponse()->getStatusCode());
 
         $ids = $client->getResponse()->getContent();

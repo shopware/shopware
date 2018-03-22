@@ -117,7 +117,6 @@ class SearchPageLoader
         return $criteria;
     }
 
-
     private function getPageCount(ProductSearchResult $products, Criteria $criteria, int $currentPage)
     {
         $pageCount = (int) round($products->getTotal() / $criteria->getLimit());
@@ -128,5 +127,4 @@ class SearchPageLoader
 
         return $pageCount;
     }
-
 }

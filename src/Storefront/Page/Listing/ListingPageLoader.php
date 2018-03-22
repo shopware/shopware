@@ -3,9 +3,7 @@
 namespace Shopware\Storefront\Page\Listing;
 
 use Shopware\Api\Entity\Search\Criteria;
-use Shopware\Api\Entity\Search\Query\NotQuery;
 use Shopware\Api\Entity\Search\Query\TermQuery;
-use Shopware\Api\Entity\Search\Sorting\FieldSorting;
 use Shopware\Api\Product\Struct\ProductSearchResult;
 use Shopware\Context\Struct\StorefrontContext;
 use Shopware\StorefrontApi\Product\StorefrontProductRepository;

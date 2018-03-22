@@ -25,7 +25,6 @@
 namespace Shopware\Context\Service;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Country\Repository\CountryRepository;
 use Shopware\Api\Country\Repository\CountryStateRepository;
 use Shopware\Api\Currency\Repository\CurrencyRepository;
@@ -50,6 +49,7 @@ use Shopware\Context\Struct\ShopContext;
 use Shopware\Context\Struct\ShopScope;
 use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Defaults;
+use Shopware\Framework\Struct\Uuid;
 
 class ContextFactory implements ContextFactoryInterface
 {

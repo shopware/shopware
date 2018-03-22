@@ -5,28 +5,26 @@ namespace Shopware\Framework\Command;
 use Bezhanov\Faker\Provider\Commerce;
 use Faker\Factory;
 use Faker\Generator;
-use Shopware\Api\Configuration\Definition\ConfigurationGroupDefinition;
-use Shopware\Api\Configuration\Repository\ConfigurationGroupRepository;
-use Shopware\Api\Product\Repository\ProductRepository;
-use Shopware\Context\Rule\CustomerGroupRule;
-use Shopware\Context\Rule\DateRangeRule;
-use Shopware\Context\Rule\GoodsPriceRule;
-use Shopware\Context\Rule\IsNewCustomerRule;
-use Shopware\Context\Rule\ShopRule;
-use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Category\Definition\CategoryDefinition;
+use Shopware\Api\Configuration\Definition\ConfigurationGroupDefinition;
 use Shopware\Api\Context\Definition\ContextRuleDefinition;
 use Shopware\Api\Customer\Definition\CustomerDefinition;
 use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\WriteContext;
 use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Api\Product\Definition\ProductManufacturerDefinition;
+use Shopware\Api\Product\Repository\ProductRepository;
 use Shopware\Context\Rule\Container\AndRule;
 use Shopware\Context\Rule\Container\NotRule;
 use Shopware\Context\Rule\CurrencyRule;
-use Shopware\Context\Rule\OrderAmountRule;
+use Shopware\Context\Rule\CustomerGroupRule;
+use Shopware\Context\Rule\DateRangeRule;
+use Shopware\Context\Rule\GoodsPriceRule;
+use Shopware\Context\Rule\IsNewCustomerRule;
+use Shopware\Context\Rule\ShopRule;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Defaults;
+use Shopware\Framework\Struct\Uuid;
 use Shopware\Product\Service\VariantGenerator;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
@@ -266,7 +264,6 @@ class DemodataCommand extends ContainerAwareCommand
         $configurator = $this->createConfigurators();
 
         for ($i = 0; $i < $count; ++$i) {
-
             if ($i % 10 === 0) {
                 $this->createConfiguratorProduct($categories, $manufacturer, $contextRules, $configurator);
             } else {
@@ -316,11 +313,11 @@ class DemodataCommand extends ContainerAwareCommand
             new GoodsPriceRule(5000, GoodsPriceRule::OPERATOR_GTE),
             new ShopRule([Defaults::SHOP], ShopRule::OPERATOR_NEQ),
             new NotRule([new CustomerGroupRule([Defaults::FALLBACK_CUSTOMER_GROUP])]),
-            new NotRule([new CurrencyRule([Defaults::CURRENCY])])
+            new NotRule([new CurrencyRule([Defaults::CURRENCY])]),
         ];
 
         $payload = [];
-        for ($i = 0; $i < 50; $i++) {
+        for ($i = 0; $i < 50; ++$i) {
             $rules = \array_slice($pool, random_int(0, count($pool) - 2), random_int(1, 2));
 
             $payload[] = [
@@ -402,6 +399,7 @@ class DemodataCommand extends ContainerAwareCommand
      * @param array $categories
      * @param array $manufacturer
      * @param array $contextRules
+     *
      * @return array
      */
     private function createSimpleProduct(array $categories, array $manufacturer, array $contextRules): array
@@ -446,17 +444,17 @@ class DemodataCommand extends ContainerAwareCommand
             $offset = random_int(0, count($ids) / 3);
 
             $optionIds = array_merge(
-                $ids, 
+                $ids,
                 array_slice($ids, $offset, $count)
             );
         }
 
-        $options = array_map(function($id) {
+        $options = array_map(function ($id) {
             $price = random_int(2, 10);
 
             return [
                 'optionId' => $id,
-                'price' => ['gross' => $price, 'net' => $price / 1.19]
+                'price' => ['gross' => $price, 'net' => $price / 1.19],
             ];
         }, $optionIds);
 
@@ -483,7 +481,7 @@ class DemodataCommand extends ContainerAwareCommand
                     ['id' => Uuid::uuid4()->getHex(), 'name' => 'brown'],
                     ['id' => Uuid::uuid4()->getHex(), 'name' => 'orange'],
                     ['id' => Uuid::uuid4()->getHex(), 'name' => 'violet'],
-                ]
+                ],
             ],
             [
                 'id' => Uuid::uuid4()->getHex(),
@@ -498,8 +496,8 @@ class DemodataCommand extends ContainerAwareCommand
                     ['id' => Uuid::uuid4()->getHex(), 'name' => '44'],
                     ['id' => Uuid::uuid4()->getHex(), 'name' => '46'],
                     ['id' => Uuid::uuid4()->getHex(), 'name' => '48'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $this->writer->insert(ConfigurationGroupDefinition::class, $data, $this->getContext());

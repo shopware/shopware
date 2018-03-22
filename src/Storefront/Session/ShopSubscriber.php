@@ -85,11 +85,11 @@ class ShopSubscriber implements EventSubscriberInterface
                 ['setShopCookie', 10],
             ],
             AuthenticationEvents::AUTHENTICATION_SUCCESS => [
-                ['login', 0]
+                ['login', 0],
             ],
             AuthenticationEvents::AUTHENTICATION_FAILURE => [
-                ['logout', 0]
-            ]
+                ['logout', 0],
+            ],
         ];
     }
 

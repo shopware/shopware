@@ -24,7 +24,6 @@
 
 namespace Shopware\CartBridge\Order;
 
-use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Customer\Struct\CustomerAddressBasicStruct;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Order\Repository\OrderRepository;
@@ -41,6 +40,7 @@ use Shopware\CartBridge\Exception\EmptyCartException;
 use Shopware\CartBridge\Exception\NotLoggedInCustomerException;
 use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Defaults;
+use Shopware\Framework\Struct\Uuid;
 
 class OrderPersister implements OrderPersisterInterface
 {

@@ -24,13 +24,13 @@
 
 namespace Shopware\Api\Entity\Field;
 
-use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Write\DataStack\KeyValuePair;
 use Shopware\Api\Entity\Write\EntityExistence;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Version\Definition\VersionDefinition;
 use Shopware\Defaults;
+use Shopware\Framework\Struct\Uuid;
 
 class ReferenceVersionField extends FkField
 {

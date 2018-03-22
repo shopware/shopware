@@ -24,12 +24,12 @@
 
 namespace Shopware\Api\Entity\Field;
 
-use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Catalog\Definition\CatalogDefinition;
 use Shopware\Api\Entity\Write\DataStack\KeyValuePair;
 use Shopware\Api\Entity\Write\EntityExistence;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Defaults;
+use Shopware\Framework\Struct\Uuid;
 
 class CatalogField extends FkField
 {

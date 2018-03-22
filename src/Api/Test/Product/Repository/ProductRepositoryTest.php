@@ -3,7 +3,6 @@
 namespace Shopware\Api\Test\Product\Repository;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Category\Repository\CategoryRepository;
 use Shopware\Api\Context\Repository\ContextRuleRepository;
 use Shopware\Api\Context\Struct\ContextPriceStruct;
@@ -30,6 +29,7 @@ use Shopware\Api\Tax\Struct\TaxBasicStruct;
 use Shopware\Context\Rule\Container\AndRule;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Defaults;
+use Shopware\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;

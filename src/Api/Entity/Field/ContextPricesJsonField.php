@@ -2,7 +2,6 @@
 
 namespace Shopware\Api\Entity\Field;
 
-use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Entity\Write\DataStack\KeyValuePair;
 use Shopware\Api\Entity\Write\EntityExistence;
 use Shopware\Api\Entity\Write\FieldAware\SqlParseAware;

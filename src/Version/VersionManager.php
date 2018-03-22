@@ -2,7 +2,6 @@
 
 namespace Shopware\Version;
 
-use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Entity\DefinitionRegistry;
 use Shopware\Api\Entity\Entity;
 use Shopware\Api\Entity\EntityDefinition;
@@ -32,6 +31,7 @@ use Shopware\Context\Struct\ShopContext;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\Collection;
 use Shopware\Framework\Struct\Struct;
+use Shopware\Framework\Struct\Uuid;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 

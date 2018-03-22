@@ -26,12 +26,10 @@ namespace Shopware\Framework\Routing;
 
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerInterface;
-use Shopware\Framework\Struct\Uuid;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Defaults;
+use Shopware\Framework\Struct\Uuid;
 use Shopware\Kernel;
-use Shopware\Storefront\Context\SessionStorefrontContextService;
-use Shopware\StorefrontApi\Context\StorefrontContextService;
 use Shopware\StorefrontApi\Context\StorefrontContextValueResolver;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;

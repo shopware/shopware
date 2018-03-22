@@ -3,7 +3,6 @@
 namespace Shopware\Api\Test\Entity\Write;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Country\Definition\CountryAreaDefinition;
 use Shopware\Api\Entity\Write\EntityWriter;
 use Shopware\Api\Entity\Write\EntityWriterInterface;
@@ -15,6 +14,7 @@ use Shopware\Api\Product\Definition\ProductCategoryDefinition;
 use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Defaults;
+use Shopware\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 

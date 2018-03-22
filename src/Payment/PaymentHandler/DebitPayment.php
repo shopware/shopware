@@ -6,8 +6,8 @@ use Shopware\Api\Order\Repository\OrderTransactionRepository;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Defaults;
 use Shopware\Payment\Struct\PaymentTransaction;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
 
 class DebitPayment implements PaymentHandlerInterface
 {

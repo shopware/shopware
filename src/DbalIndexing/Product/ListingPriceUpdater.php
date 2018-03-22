@@ -3,10 +3,10 @@
 namespace Shopware\DbalIndexing\Product;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Context\Struct\ContextPriceStruct;
 use Shopware\Api\Entity\Field\ContextPricesJsonField;
 use Shopware\Api\Product\Struct\PriceStruct;
+use Shopware\Framework\Struct\Uuid;
 
 class ListingPriceUpdater
 {

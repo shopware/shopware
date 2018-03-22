@@ -1,8 +1,6 @@
-<?php
-
+<?php declare(strict_types=1);
 
 namespace Shopware\Storefront\Test;
-
 
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
@@ -20,7 +18,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 class OrderingProcessTest extends WebTestCase
 {
-
     /**
      * @var Container
      */
@@ -168,7 +165,7 @@ class OrderingProcessTest extends WebTestCase
     {
         $data = [
             'identifier' => $id,
-            'quantity' => $quantity
+            'quantity' => $quantity,
         ];
 
         $client = self::$webClient;
@@ -241,6 +238,7 @@ class OrderingProcessTest extends WebTestCase
             ],
         ];
         self::$container->get(EntityWriter::class)->upsert(CustomerDefinition::class, [$customer], $this->getContext());
+
         return $customerId;
     }
 
@@ -284,6 +282,7 @@ class OrderingProcessTest extends WebTestCase
 
         /** @var Response $response */
         $response = $client->getResponse();
+
         return $this->getOrderIdByResponse($response);
     }
 
@@ -301,5 +300,4 @@ class OrderingProcessTest extends WebTestCase
     {
         return WriteContext::createFromShopContext(self::$context);
     }
-
 }

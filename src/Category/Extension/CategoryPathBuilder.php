@@ -3,7 +3,6 @@
 namespace Shopware\Category\Extension;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Category\Collection\CategoryBasicCollection;
 use Shopware\Api\Category\Event\Category\CategoryWrittenEvent;
 use Shopware\Api\Category\Repository\CategoryRepository;
@@ -15,6 +14,7 @@ use Shopware\DbalIndexing\Event\ProgressAdvancedEvent;
 use Shopware\DbalIndexing\Event\ProgressFinishedEvent;
 use Shopware\DbalIndexing\Event\ProgressStartedEvent;
 use Shopware\Defaults;
+use Shopware\Framework\Struct\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 

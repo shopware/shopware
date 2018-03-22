@@ -24,13 +24,10 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Framework\Routing\Router;
-use Shopware\Storefront\Session\ShopSubscriber;
-use Shopware\StorefrontApi\Context\ContextSubscriber;
-use Shopware\StorefrontApi\Context\StorefrontContextService;
 use Shopware\Storefront\Navigation\Navigation;
 use Shopware\Storefront\Navigation\NavigationService;
 use Shopware\Storefront\Twig\TemplateFinder;
+use Shopware\StorefrontApi\Context\ContextSubscriber;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Response;
 

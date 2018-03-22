@@ -25,7 +25,6 @@
 namespace Shopware\Cart\Test\Common;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Framework\Struct\Uuid;
 use Shopware\Api\Country\Struct\CountryAreaBasicStruct;
 use Shopware\Api\Country\Struct\CountryBasicStruct;
 use Shopware\Api\Country\Struct\CountryStateBasicStruct;
@@ -42,6 +41,7 @@ use Shopware\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Cart\Tax\TaxDetector;
 use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Defaults;
+use Shopware\Framework\Struct\Uuid;
 
 class Generator extends TestCase
 {

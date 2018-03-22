@@ -414,7 +414,6 @@ class CheckoutControllerTest extends ApiTestCase
         );
     }
 
-
     private function addProduct(Client $client, string $id, int $quantity = 1)
     {
         $client->request(

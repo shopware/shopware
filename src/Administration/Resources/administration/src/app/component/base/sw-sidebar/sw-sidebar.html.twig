@@ -1,3 +1,5 @@
+{% block sw_sidebar %}
 <div class="sw-sidebar">
-    <slot></slot>
+    <slot>{% block sw_sidebar_slot_default %}{% endblock %}</slot>
 </div>
+{% endblock %}

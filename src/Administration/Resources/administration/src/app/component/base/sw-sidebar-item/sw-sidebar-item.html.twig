@@ -1,10 +1,16 @@
-<div class="sw-sidebar__item">
-    <button class="sw-sidebar__button" :class="{ 'is-active': isExpanded }" @click="toggleContentPanel">
-        <sw-icon :name="icon" :title="title"></sw-icon>
-    </button>
+{% block sw_sidebar_item %}
+    <div class="sw-sidebar__item">
+        {% block sw_sidebar_item_button %}
+            <button class="sw-sidebar__button" :class="{ 'is-active': isExpanded, 'is-disabled': disabled }" @click="toggleContentPanel">
+                {% block sw_sidebar_item_icon %}<sw-icon :name="icon" :title="title"></sw-icon>{% endblock %}
+            </button>
+        {% endblock %}
 
-    <div class="sw-sidebar__item-content" v-if="isExpanded">
-        <h1 class="sw-sidebar__item-headline">{{ title }}</h1>
-        <slot></slot>
+        {% block sw_sidebar_item_content %}
+            <div class="sw-sidebar__item-content" v-if="isExpanded">
+                {% block sw_sidebar_item_title %}<h1 class="sw-sidebar__item-headline">{{ title }}</h1>{% endblock %}
+                <slot>{% block sw_sidebar_item_default_slot %}{% endblock %}</slot>
+            </div>
+        {% endblock %}
     </div>
-</div>
+{% endblock %}

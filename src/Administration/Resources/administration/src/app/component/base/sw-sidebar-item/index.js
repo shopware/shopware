@@ -14,6 +14,11 @@ Component.register('sw-sidebar-item', {
         icon: {
             type: String,
             required: true
+        },
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
     data() {
@@ -35,6 +40,9 @@ Component.register('sw-sidebar-item', {
 
     methods: {
         toggleContentPanel() {
+            if (this.disabled) {
+                return;
+            }
             this.$emit('click', this);
 
             // The panel is just a button which can be clicked by the user

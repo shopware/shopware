@@ -141,10 +141,10 @@ class CheckoutController extends Controller
             throw new InvalidParameterException('Parameter type missing');
         }
         if (!isset($post['quantity'])) {
-            throw new InvalidParameterException('Parameter type missing');
+            throw new InvalidParameterException('Parameter quantity missing');
         }
         if (!isset($post['payload'])) {
-            throw new InvalidParameterException('Parameter type missing');
+            throw new InvalidParameterException('Parameter payload missing');
         }
 
         $identifier = $post['identifier'];

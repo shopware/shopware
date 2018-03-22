@@ -8,6 +8,6 @@ class DeliveryWithoutAddressException extends \Exception
 
     public function __construct()
     {
-        parent::__construct('Delivery %s contains no shipping address', self::CODE);
+        parent::__construct('Delivery contains no shipping address', self::CODE);
     }
 }

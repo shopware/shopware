@@ -28,15 +28,9 @@
             <tag name="shopware.traceable" />
         </service>
 
-        <service class="Shopware\StorefrontApi\Context\StorefrontContextValueResolver" id="Shopware\StorefrontApi\Context\StorefrontContextValueResolver">
-            <tag name="controller.argument_value_resolver"/>
-            <argument type="service" id="Shopware\StorefrontApi\Context\StorefrontContextService"/>
-            <argument type="service" id="request_stack"/>
-        </service>
-
         <service class="Shopware\StorefrontApi\Context\ContextTokenResolver" id="Shopware\StorefrontApi\Context\ContextTokenResolver"/>
 
-        <service class="Shopware\StorefrontApi\Controller\ProductController" id="Shopware\StorefrontApi\Controller\ProductController">
+        <service class="Shopware\StorefrontApi\Controller\ProductController" id="Shopware\StorefrontApi\Controller\ProductController" public="true">
             <call method="setContainer">
                 <argument id="service_container" type="service"/>
             </call>
@@ -45,7 +39,7 @@
             <argument type="service" id="Shopware\Api\Entity\Search\SearchCriteriaBuilder"/>
         </service>
 
-        <service class="Shopware\StorefrontApi\Controller\CheckoutController" id="Shopware\StorefrontApi\Controller\CheckoutController">
+        <service class="Shopware\StorefrontApi\Controller\CheckoutController" id="Shopware\StorefrontApi\Controller\CheckoutController" public="true">
             <argument id="Shopware\Cart\Cart\CircularCartCalculation" type="service"/>
             <argument id="Shopware\CartBridge\Cart\CartPersister" type="service"/>
             <argument id="Shopware\CartBridge\Order\OrderPersister" type="service"/>
@@ -57,17 +51,16 @@
             </call>
         </service>
 
-        <service class="Shopware\StorefrontApi\Controller\CustomerController" id="Shopware\StorefrontApi\Controller\CustomerController">
+        <service class="Shopware\StorefrontApi\Controller\CustomerController" id="Shopware\StorefrontApi\Controller\CustomerController" public="true">
             <argument id="serializer" type="service"/>
-            <argument id="security.authentication.manager" type="service"/>
-            <argument id="security.token_storage" type="service"/>
             <argument type="service" id="Shopware\StorefrontApi\Context\StorefrontContextPersister"/>
             <call method="setContainer">
                 <argument id="service_container" type="service"/>
             </call>
+            <argument type="service" id="Shopware\StorefrontApi\Firewall\CustomerProvider"/>
         </service>
 
-        <service class="Shopware\StorefrontApi\Controller\ContextController" id="Shopware\StorefrontApi\Controller\ContextController">
+        <service class="Shopware\StorefrontApi\Controller\ContextController" id="Shopware\StorefrontApi\Controller\ContextController" public="true">
             <argument id="Shopware\Api\Payment\Repository\PaymentMethodRepository" type="service"/>
             <argument id="Shopware\Api\Shipping\Repository\ShippingMethodRepository" type="service"/>
             <argument id="Shopware\Api\Customer\Repository\CustomerAddressRepository" type="service"/>
@@ -92,5 +85,13 @@
             <argument type="service" id="Shopware\StorefrontApi\Context\StorefrontContextService"/>
             <argument type="service" id="Shopware\StorefrontApi\Context\ContextTokenResolver"/>
         </service>
+
+        <service class="Shopware\StorefrontApi\Firewall\ContextUserProvider" id="Shopware\StorefrontApi\Firewall\ContextUserProvider">
+            <argument id="Shopware\StorefrontApi\Context\StorefrontContextService" type="service"/>
+            <argument id="Doctrine\DBAL\Connection" type="service"/>
+        </service>
+
+        <service class="Shopware\StorefrontApi\Firewall\ApplicationAuthenticator" id="Shopware\StorefrontApi\Firewall\ApplicationAuthenticator" />
+
     </services>
 </container>

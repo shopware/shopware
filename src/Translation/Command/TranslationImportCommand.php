@@ -7,6 +7,7 @@ use Shopware\Translation\Event\ImportAdvanceEvent;
 use Shopware\Translation\Event\ImportFinishEvent;
 use Shopware\Translation\Event\ImportStartEvent;
 use Shopware\Translation\ImportService;
+use Shopware\Translation\Translation;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -82,8 +83,12 @@ class TranslationImportCommand extends ContainerAwareCommand implements EventSub
     {
         $this->io = new SymfonyStyle($input, $output);
 
+        $kernel = $this->getContainer()->get('kernel');
+        $translationBundlePath = $kernel->getBundle('Translation')->getPath();
+
         $folders = [
-            $this->getContainer()->getParameter('kernel.root_dir') . '/../src/Translation/Resources/translations',
+            $translationBundlePath . '/Resources/translations',
+            $kernel->getProjectDir() . '/translations'
         ];
 
         if ($input->getOption('with-plugins')) {

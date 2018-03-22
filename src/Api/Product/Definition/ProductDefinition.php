@@ -7,7 +7,6 @@ use Shopware\Api\Configuration\Definition\ConfigurationGroupOptionDefinition;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\Field\BoolField;
-use Shopware\Api\Entity\Field\CanonicalUrlAssociationField;
 use Shopware\Api\Entity\Field\CatalogField;
 use Shopware\Api\Entity\Field\ContextPricesJsonField;
 use Shopware\Api\Entity\Field\DateField;
@@ -44,7 +43,6 @@ use Shopware\Api\Product\Struct\ProductBasicStruct;
 use Shopware\Api\Product\Struct\ProductDetailStruct;
 use Shopware\Api\Tax\Definition\TaxDefinition;
 use Shopware\Api\Unit\Definition\UnitDefinition;
-use Shopware\DbalIndexing\SeoUrl\DetailPageSeoUrlIndexer;
 
 class ProductDefinition extends EntityDefinition
 {
@@ -183,7 +181,6 @@ class ProductDefinition extends EntityDefinition
 
             (new OneToManyAssociationField('configurators', ProductConfiguratorDefinition::class, 'product_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new ManyToManyAssociationField('variations', ConfigurationGroupOptionDefinition::class, ProductVariationDefinition::class, false, 'product_id', 'configuration_group_option_id'))->setFlags(new CascadeDelete()),
-            new CanonicalUrlAssociationField('canonicalUrl', 'id', true, DetailPageSeoUrlIndexer::ROUTE_NAME),
         ]);
 
         foreach (self::$extensions as $extension) {

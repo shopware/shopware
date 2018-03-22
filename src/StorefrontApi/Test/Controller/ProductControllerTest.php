@@ -5,6 +5,7 @@ namespace Shopware\StorefrontApi\Test\Controller;
 use Ramsey\Uuid\Uuid;
 use Shopware\Api\Product\Repository\ProductRepository;
 use Shopware\Context\Struct\ShopContext;
+use Shopware\Defaults;
 use Shopware\Rest\Test\ApiTestCase;
 
 class ProductControllerTest extends ApiTestCase
@@ -41,10 +42,11 @@ class ProductControllerTest extends ApiTestCase
             [
                 'CONTENT_TYPE' => 'application/json',
                 'HTTP_ACCEPT' => ['application/json'],
+                'HTTP_X_APPLICATION_ID' => Defaults::SHOP
             ]
         );
 
-        $client->request('GET', '/storefront-api/product/');
+        $client->request('GET', '/storefront-api/product');
 
         self::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 

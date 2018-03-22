@@ -11,6 +11,7 @@ use Shopware\Context\Struct\ShopContext;
 use Shopware\Defaults;
 use Shopware\Rest\Test\ApiTestCase;
 use Shopware\StorefrontApi\Context\StorefrontContextValueResolver;
+use Shopware\StorefrontApi\Firewall\ApplicationAuthenticator;
 use Symfony\Bundle\FrameworkBundle\Client;
 
 class CheckoutControllerTest extends ApiTestCase
@@ -384,7 +385,7 @@ class CheckoutControllerTest extends ApiTestCase
         $content = json_decode($client->getResponse()->getContent(), true);
 
         return $this->getCartClient(
-            $content[StorefrontContextValueResolver::CONTEXT_TOKEN_KEY]
+            $content[ApplicationAuthenticator::CONTEXT_TOKEN_KEY]
         );
     }
 
@@ -402,6 +403,7 @@ class CheckoutControllerTest extends ApiTestCase
         $headers = [
             'CONTENT_TYPE' => 'application/json',
             'HTTP_ACCEPT' => ['application/json'],
+            'HTTP_X_APPLICATION_ID' => Defaults::SHOP
         ];
 
         if ($token !== null) {
@@ -443,7 +445,7 @@ class CheckoutControllerTest extends ApiTestCase
 
     private function order(Client $client)
     {
-        $client->request('POST', '/storefront-api/checkout/order/');
+        $client->request('POST', '/storefront-api/checkout/order');
     }
 
     private function login(Client $client, string $email, string $password)

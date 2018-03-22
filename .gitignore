@@ -33,18 +33,18 @@ Thumbs.db
 /var/jwt/public.pem
 /var/jwt/private.pem
 
-/web/*
-!/web/index.php
-!/web/.htaccess
-/web/css/*
-!/web/css/
-!/web/css/.gitkeep
-/web/js/*
-!/web/js/
-!/web/js/.gitkeep
-/web/media/*
-!/web/media/
-!/web/media/.gitkeep
+/public/*
+!/public/index.php
+!/public/.htaccess
+/public/css/*
+!/public/css/
+!/public/css/.gitkeep
+/public/js/*
+!/public/js/
+!/public/js/.gitkeep
+/public/media/*
+!/public/media/
+!/public/media/.gitkeep
 
 
 /files/documents/*
@@ -81,3 +81,18 @@ app/config/parameters.yml
 # tests / ci
 /build/
 !build/artifacts/.gitkeep
+###> symfony/phpunit-bridge ###
+.phpunit
+/phpunit.xml
+###< symfony/phpunit-bridge ###
+
+###> phpunit/phpunit ###
+/phpunit.xml
+###< phpunit/phpunit ###
+
+###> symfony/framework-bundle ###
+.env
+/public/bundles/
+/var/
+/vendor/
+###< symfony/framework-bundle ###

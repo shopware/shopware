@@ -24,7 +24,7 @@
 
 namespace Shopware\Administration\Command;
 
-use Exception;
+use Shopware\Kernel;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -34,7 +34,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
 class AdministrationDumpPluginsCommand extends ContainerAwareCommand
 {
     /**
-     * @var KernelInterface
+     * @var Kernel
      */
     private $kernel;
 
@@ -59,17 +59,17 @@ class AdministrationDumpPluginsCommand extends ContainerAwareCommand
         $this->searchPluginDirectories();
 
         $style = new SymfonyStyle($input, $output);
-        $style->success('Successfully dumped administration modules confiugration');
+        $style->success('Successfully dumped administration modules configuration');
     }
 
     protected function searchPluginDirectories()
     {
         $plugins = [];
 
-        foreach (\AppKernel::getPlugins()->getActivePlugins() as $pluginName => $plugin) {
+        foreach ($this->kernel::getPlugins()->getActivePlugins() as $pluginName => $plugin) {
             try {
                 $indexFile = $this->kernel->locateResource('@' . $pluginName . '/Resources/views/administration/src/index.js');
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 continue;
             }
 

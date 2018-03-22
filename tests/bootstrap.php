@@ -4,13 +4,11 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use Symfony\Component\Dotenv\Dotenv;
 
-$envFile = __DIR__ . '/../.env';
-
-if (file_exists($envFile)) {
-    $dotEnv = new Dotenv();
-    $values = $dotEnv->parse(file_get_contents($envFile));
-    unset($values['APP_ENV']);
-    $dotEnv->populate($values);
+if (!isset($_SERVER['APP_ENV'])) {
+    if (!class_exists(Dotenv::class)) {
+        throw new \RuntimeException('APP_ENV environment variable is not defined. You need to define environment variables for configuration or add "symfony/dotenv" as a Composer dependency to load variables from a .env file.');
+    }
+    (new Dotenv())->load(__DIR__.'/../.env');
 }
 
 /*

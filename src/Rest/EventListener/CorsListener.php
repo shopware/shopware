@@ -2,7 +2,6 @@
 
 namespace Shopware\Rest\EventListener;
 
-use Shopware\Framework\Routing\Router;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
@@ -25,13 +24,7 @@ class CorsListener implements EventSubscriberInterface
             return;
         }
 
-        $request = $event->getRequest();
-
-        if ($event->getRequest()->attributes->get(Router::IS_API_REQUEST_ATTRIBUTE) === false) {
-            return;
-        }
-
-        $method = $request->getRealMethod();
+        $method = $event->getRequest()->getRealMethod();
 
         if ($method === 'OPTIONS') {
             $response = new Response();
@@ -42,10 +35,6 @@ class CorsListener implements EventSubscriberInterface
     public function onKernelResponse(FilterResponseEvent $event): void
     {
         if (!$event->isMasterRequest()) {
-            return;
-        }
-
-        if ($event->getRequest()->attributes->get(Router::IS_API_REQUEST_ATTRIBUTE) === false) {
             return;
         }
 

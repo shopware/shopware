@@ -2,7 +2,6 @@
 
 namespace Shopware\Traceable;
 
-use Shopware\Storefront\Theme\Theme;
 use Shopware\Traceable\DependencyInjection\CartTracerCompilerPass;
 use Shopware\Traceable\DependencyInjection\TracerCompilerPass;
 use Symfony\Component\Config\FileLocator;
@@ -10,8 +9,9 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\HttpKernel\Bundle\Bundle;
 
-class Traceable extends Theme
+class Traceable extends Bundle
 {
     protected $name = 'Traceable';
 

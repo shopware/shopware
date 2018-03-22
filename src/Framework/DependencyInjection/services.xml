@@ -15,34 +15,19 @@
 
     <services>
         <!-- database / doctrine -->
-        <service id="Doctrine\DBAL\Connection" alias="doctrine.dbal.default_connection" />
+        <service id="Doctrine\DBAL\Connection" alias="doctrine.dbal.default_connection" public="true" />
 
         <service id="PDO" class="PDO" public="true" >
-            <factory class="AppKernel" method="getConnection" />
+            <factory class="Shopware\Kernel" method="getConnection" />
         </service>
 
         <!-- plugins -->
-        <service class="Shopware\Framework\Plugin\PluginCollection" id="Shopware\Framework\Plugin\PluginCollection">
+        <service class="Shopware\Framework\Plugin\PluginCollection" id="Shopware\Framework\Plugin\PluginCollection" public="true">
             <factory service="kernel" method="getPlugins" />
         </service>
 
         <!-- Cache -->
         <service id="shopware.cache" alias="cache.app" />
-
-        <!-- Routing -->
-        <service id="router" alias="Shopware\Framework\Routing\Router" />
-
-        <service class="Shopware\Framework\Routing\Router" id="Shopware\Framework\Routing\Router">
-            <argument type="service" id="service_container" />
-            <argument>%router.resource%</argument>
-            <argument type="service" id="kernel" />
-            <argument type="service" id="router.request_context" on-invalid="ignore" />
-            <argument type="service" id="logger" on-invalid="ignore" />
-            <argument type="service" id="Shopware\Framework\Routing\UrlResolver" />
-            <argument type="service" id="Shopware\Framework\Routing\ShopFinder" />
-            <argument id="shopware.cache" type="service"/>
-            <argument type="service" id="security.token_storage"/>
-        </service>
 
         <!-- Config -->
         <service class="Shopware\Framework\Config\CacheWarmer" id="Shopware\Framework\Config\CacheWarmer">
@@ -64,17 +49,10 @@
         <service id="shopware.config" alias="Shopware\Framework\Config\Config" />
         <service synthetic="true" id="Shopware\Framework\Config\Config" class="Shopware\Framework\Config\Config" />
 
-        <service class="Shopware\Framework\Routing\ShopFinder" id="Shopware\Framework\Routing\ShopFinder">
-            <argument id="Doctrine\DBAL\Connection" type="service"/>
-        </service>
-
         <service class="Cocur\Slugify\Slugify" public="false" id="slugify">
             <argument>%shopware.slug.config%</argument>
         </service>
 
-        <service class="Shopware\Framework\Routing\UrlResolver" id="Shopware\Framework\Routing\UrlResolver">
-            <argument type="service" id="Shopware\Api\Seo\Repository\SeoUrlRepository"/>
-        </service>
 
         <!-- Pluginsystem -->
         <service class="Shopware\Framework\Plugin\PluginManager" id="Shopware\Framework\Plugin\PluginManager">
@@ -143,6 +121,54 @@
 
         <service class="Shopware\Framework\Serializer\StructDecoder" id="Shopware\Framework\Serializer\StructDecoder">
             <tag name="serializer.encoder"/>
+        </service>
+
+        <!-- Routing -->
+        <service id="router" alias="Shopware\Framework\Routing\Router" public="true" />
+        <service id="Shopware\Framework\Routing\Router" class="Shopware\Framework\Routing\Router">
+            <argument type="service" id="service_container" />
+            <argument>%router.resource%</argument>
+            <argument type="collection">
+                <argument key="cache_dir">%kernel.cache_dir%</argument>
+                <argument key="debug">%kernel.debug%</argument>
+                <argument key="generator_class">Symfony\Component\Routing\Generator\UrlGenerator</argument>
+                <argument key="generator_base_class">Symfony\Component\Routing\Generator\UrlGenerator</argument>
+                <argument key="generator_dumper_class">Symfony\Component\Routing\Generator\Dumper\PhpGeneratorDumper</argument>
+                <argument key="generator_cache_class">%router.cache_class_prefix%UrlGenerator</argument>
+                <argument key="matcher_class">Symfony\Bundle\FrameworkBundle\Routing\RedirectableUrlMatcher</argument>
+                <argument key="matcher_base_class">Symfony\Bundle\FrameworkBundle\Routing\RedirectableUrlMatcher</argument>
+                <argument key="matcher_dumper_class">Symfony\Component\Routing\Matcher\Dumper\PhpMatcherDumper</argument>
+                <argument key="matcher_cache_class">%router.cache_class_prefix%UrlMatcher</argument>
+                <argument key="resource_type">service</argument>
+            </argument>
+            <argument type="service" id="router.request_context" on-invalid="ignore" />
+            <call method="setConfigCacheFactory">
+                <argument type="service" id="config_cache_factory" />
+            </call>
+        </service>
+
+        <!-- Twig -->
+        <service class="Shopware\Framework\Twig\TemplateFinder" public="true" id="Shopware\Framework\Twig\TemplateFinder">
+            <argument id="kernel" type="service"/>
+            <argument id="twig.loader" type="service"/>
+        </service>
+
+        <service class="Shopware\Framework\Twig\InheritanceExtension" public="false" id="Shopware\Framework\Twig\InheritanceExtension">
+            <tag name="twig.extension" />
+
+            <argument type="service" id="Shopware\Framework\Twig\TemplateFinder" />
+        </service>
+
+        <service class="Twig_Extensions_Extension_Intl" id="twig.extension.intl">
+            <tag name="twig.extension" />
+        </service>
+
+        <service class="Twig_Extensions_Extension_Text" id="twig.extension.text">
+            <tag name="twig.extension" />
+        </service>
+
+        <service class="Shopware\Framework\Twig\InstanceOfExtension" id="Shopware\Framework\Twig\InstanceOfExtension">
+            <tag name="twig.extension"/>
         </service>
 
     </services>

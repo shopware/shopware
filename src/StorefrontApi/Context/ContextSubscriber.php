@@ -2,13 +2,14 @@
 
 namespace Shopware\StorefrontApi\Context;
 
+use Shopware\StorefrontApi\Firewall\ApplicationAuthenticator;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 class ContextSubscriber implements EventSubscriberInterface
 {
-    const SHOP_CONTEXT_PROPERTY = 'shop_context';
+    public const SHOP_CONTEXT_PROPERTY = 'shop_context';
 
     /**
      * @var StorefrontContextService
@@ -30,7 +31,7 @@ class ContextSubscriber implements EventSubscriberInterface
     {
         return [
             KernelEvents::REQUEST => [
-                ['setContextToken', 15],
+                ['setContextToken', 10],
                 ['loadContext', 5],
             ],
         ];
@@ -44,8 +45,8 @@ class ContextSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $token = $request->attributes->get(StorefrontContextValueResolver::CONTEXT_TOKEN_KEY);
-        $applicationId = $request->attributes->get(StorefrontContextValueResolver::APPLICATION_ID);
+        $token = $request->attributes->get(ApplicationAuthenticator::CONTEXT_TOKEN_KEY);
+        $applicationId = $request->attributes->get(ApplicationAuthenticator::APPLICATION_ID);
 
         if (!$token || !$applicationId) {
             return;
@@ -60,9 +61,8 @@ class ContextSubscriber implements EventSubscriberInterface
     {
         $request = $event->getRequest();
 
-        $request->attributes->set(
-            StorefrontContextValueResolver::CONTEXT_TOKEN_KEY,
-            $this->tokenResolver->resolve($request)
-        );
+        $token = $this->tokenResolver->resolve($request);
+
+        $request->attributes->set(ApplicationAuthenticator::CONTEXT_TOKEN_KEY, $token);
     }
 }

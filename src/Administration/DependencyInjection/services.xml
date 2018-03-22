@@ -12,7 +12,8 @@
         </service>
 
         <service class="Shopware\Administration\Search\AdministrationSearch"
-                 id="Shopware\Administration\Search\AdministrationSearch">
+                 id="Shopware\Administration\Search\AdministrationSearch"
+                 public="true">
             <argument id="service_container" type="service"/>
             <argument id="Shopware\Api\Entity\Search\Term\SearchTermInterpreter" type="service"/>
             <argument id="Shopware\Api\Entity\Search\Term\EntityScoreQueryBuilder" type="service"/>
@@ -23,7 +24,7 @@
                  id="Shopware\Administration\Controller\AdministrationController"
                  public="true">
             <argument id="Shopware\Administration\Search\AdministrationSearch" type="service"/>
-            <argument id="Shopware\Storefront\Twig\TemplateFinder" type="service"/>
+            <argument type="service" id="Shopware\Framework\Twig\TemplateFinder"/>
         </service>
     </services>
 </container>

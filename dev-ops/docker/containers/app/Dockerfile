@@ -8,7 +8,11 @@ RUN sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable 
 RUN mkdir -p /usr/share/man/man1
 RUN curl -sL https://deb.nodesource.com/setup_9.x | bash
 
-RUN apt-install mysql-client nodejs google-chrome-stable
+RUN apt-install mysql-client nodejs google-chrome-stable libicu-dev
+
+# intl support
+RUN docker-php-ext-configure intl \
+    && docker-php-ext-install intl
 
 COPY php-config.ini /usr/local/etc/php/conf.d/
 COPY timezone-berlin.ini /usr/local/etc/php/conf.d/

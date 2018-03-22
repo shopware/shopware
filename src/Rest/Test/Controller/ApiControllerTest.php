@@ -430,6 +430,9 @@ class ApiControllerTest extends ApiTestCase
 
         self::assertEquals(1, $content['meta']['total']);
         self::assertEquals($id, $content['data'][0]['id']);
+
+        $client->request('DELETE', '/api/product/' . $id);
+        $this->assertEquals(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode());
     }
 
     public function testSimpleFilter()

@@ -119,7 +119,6 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
 
             return $instance;
         }
-
         $params = [];
 
         foreach ($constructorParams as $constructorParam) {

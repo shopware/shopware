@@ -2,15 +2,12 @@
 
 namespace Shopware\Payment;
 
-use Psr\Container\ContainerInterface;
-use Psr\Container\NotFoundExceptionInterface;
 use Shopware\Api\Order\Collection\OrderTransactionBasicCollection;
 use Shopware\Api\Order\Repository\OrderRepository;
 use Shopware\Api\Order\Struct\OrderDetailStruct;
 use Shopware\Api\Payment\Repository\PaymentMethodRepository;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Defaults;
-use Shopware\Framework\Routing\Router;
 use Shopware\Payment\Exception\InvalidOrderException;
 use Shopware\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Payment\PaymentHandler\PaymentHandlerInterface;
@@ -18,6 +15,7 @@ use Shopware\Payment\Struct\PaymentTransaction;
 use Shopware\Payment\Token\PaymentTransactionTokenFactory;
 use Shopware\Payment\Token\PaymentTransactionTokenFactoryInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\Routing\RouterInterface;
 
 class PaymentProcessor
 {
@@ -37,27 +35,27 @@ class PaymentProcessor
     private $paymentMethodRepository;
 
     /**
-     * @var Router
+     * @var RouterInterface
      */
     private $router;
 
     /**
-     * @var ContainerInterface
+     * @var PaymentHandlerRegistry
      */
-    private $container;
+    private $paymentHandlerRegistry;
 
     public function __construct(
         PaymentTransactionTokenFactoryInterface $tokenFactory,
         OrderRepository $orderRepository,
         PaymentMethodRepository $paymentMethodRepository,
-        Router $router,
-        ContainerInterface $container
+        RouterInterface $router,
+        PaymentHandlerRegistry $paymentHandlerRegistry
     ) {
         $this->tokenFactory = $tokenFactory;
         $this->orderRepository = $orderRepository;
         $this->paymentMethodRepository = $paymentMethodRepository;
         $this->router = $router;
-        $this->container = $container;
+        $this->paymentHandlerRegistry = $paymentHandlerRegistry;
     }
 
     /**
@@ -114,11 +112,7 @@ class PaymentProcessor
             throw new UnknownPaymentMethodException($paymentMethodId);
         }
 
-        try {
-            return $this->container->get($paymentMethod->getClass());
-        } catch (NotFoundExceptionInterface $e) {
-            throw new UnknownPaymentMethodException($paymentMethod->getClass());
-        }
+        return $this->paymentHandlerRegistry->get($paymentMethod->getClass());
     }
 
     private function assembleReturnUrl(string $token): string
@@ -126,7 +120,7 @@ class PaymentProcessor
         return $this->router->generate(
             'checkout_finalize_transaction',
             ['_sw_payment_token' => $token],
-            Router::ABSOLUTE_URL
+            RouterInterface::ABSOLUTE_URL
         );
     }
 }

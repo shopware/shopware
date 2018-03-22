@@ -16,6 +16,7 @@ use Shopware\StorefrontApi\Context\StorefrontContextValueResolver;
 use Shopware\StorefrontApi\Exception\AddressNotFoundHttpException;
 use Shopware\StorefrontApi\Exception\PaymentMethodNotFoundHttpException;
 use Shopware\StorefrontApi\Exception\ShippingMethodNotFoundHttpException;
+use Shopware\StorefrontApi\Firewall\ApplicationAuthenticator;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -87,7 +88,7 @@ class ContextController extends Controller
         $this->contextPersister->save($context->getToken(), $update);
 
         return new JsonResponse([
-            StorefrontContextValueResolver::CONTEXT_TOKEN_KEY => $context->getToken(),
+            ApplicationAuthenticator::CONTEXT_TOKEN_KEY => $context->getToken(),
         ]);
     }
 

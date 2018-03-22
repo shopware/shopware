@@ -14,11 +14,11 @@
 
         <service class="Shopware\Api\Entity\Search\Term\StopWordFilter" id="Shopware\Api\Entity\Search\Term\StopWordFilter"/>
 
-        <service class="Shopware\Api\Entity\Search\Term\SearchTermInterpreter" id="Shopware\Api\Entity\Search\Term\SearchTermInterpreter">
+        <service class="Shopware\Api\Entity\Search\Term\SearchTermInterpreter" id="Shopware\Api\Entity\Search\Term\SearchTermInterpreter" public="true">
             <argument id="Shopware\Api\Entity\Search\Term\Tokenizer" type="service"/>
         </service>
 
-        <service class="Shopware\Api\Entity\Search\Term\EntityScoreQueryBuilder" id="Shopware\Api\Entity\Search\Term\EntityScoreQueryBuilder"/>
+        <service class="Shopware\Api\Entity\Search\Term\EntityScoreQueryBuilder" id="Shopware\Api\Entity\Search\Term\EntityScoreQueryBuilder" public="true"/>
 
         <service class="Shopware\Api\Entity\Search\SearchCriteriaBuilder" id="Shopware\Api\Entity\Search\SearchCriteriaBuilder">
             <argument id="Shopware\Api\Entity\Search\Term\SearchTermInterpreter" type="service"/>
@@ -49,7 +49,7 @@
             <argument id="Doctrine\DBAL\Connection" type="service"/>
         </service>
 
-        <service class="Shopware\Api\Entity\Write\EntityWriter" id="Shopware\Api\Entity\Write\EntityWriter">
+        <service class="Shopware\Api\Entity\Write\EntityWriter" id="Shopware\Api\Entity\Write\EntityWriter" public="true">
             <argument type="service" id="Shopware\Api\Entity\Write\WriteCommandExtractor"/>
             <argument type="service" id="Shopware\Api\Entity\Write\FieldAware\DefaultExtender"/>
             <argument type="service" id="Shopware\Api\Entity\Dbal\EntityForeignKeyResolver"/>

@@ -35,6 +35,7 @@ use Shopware\Cart\LineItem\NestedInterface;
 use Shopware\Cart\Order\OrderPersisterInterface;
 use Shopware\Cart\Tax\TaxDetector;
 use Shopware\Cart\Transaction\Struct\Transaction;
+use Shopware\CartBridge\Exception\CustomerHasNoActiveBillingAddressException;
 use Shopware\CartBridge\Exception\DeliveryWithoutAddressException;
 use Shopware\CartBridge\Exception\EmptyCartException;
 use Shopware\CartBridge\Exception\NotLoggedInCustomerException;

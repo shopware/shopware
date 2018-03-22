@@ -70,11 +70,6 @@ class ProductBasicLoadedEvent extends NestedEvent
             $events[] = new ProductContextPriceBasicLoadedEvent($prices, $this->context);
         }
 
-        $urls = $this->products->getCanonicalUrls();
-        if ($urls->count() > 0) {
-            $events[] = new SeoUrlBasicLoadedEvent($urls, $this->context);
-        }
-
         return new NestedEventCollection($events);
     }
 }

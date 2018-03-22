@@ -10,6 +10,7 @@ use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Product\Exception\ProductNotFoundException;
 use Shopware\Rest\Context\RestContext;
 use Shopware\Rest\Response\ResponseFactory;
+use Shopware\StorefrontApi\Firewall\ContextUser;
 use Shopware\StorefrontApi\Product\StorefrontProductRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
@@ -45,16 +46,19 @@ class ProductController extends Controller
     /**
      * @Route("/storefront-api/product", name="storefront.api.product.list")
      */
-    public function listAction(Request $request, StorefrontContext $context): Response
+    public function listAction(Request $request): Response
     {
-        $criteria = $this->criteriaBuilder->handleRequest($request, ProductDefinition::class, $context->getShopContext());
+        /** @var ContextUser $user */
+        $user = $this->getUser();
 
-        $result = $this->repository->search($criteria, $context);
+        $criteria = $this->criteriaBuilder->handleRequest($request, ProductDefinition::class, $user->getContext()->getShopContext());
+
+        $result = $this->repository->search($criteria, $user->getContext());
 
         return $this->responseFactory->createListingResponse(
             $result,
             ProductDefinition::class,
-            new RestContext($request, $context->getShopContext(), null)
+            new RestContext($request, $user->getContext()->getShopContext(), null)
         );
     }
 
@@ -62,9 +66,12 @@ class ProductController extends Controller
      * @Route("/storefront-api/product/{productId}", name="storefront.api.product.detail")
      * @Method({"GET"})
      */
-    public function detailAction(string $productId, StorefrontContext $context, Request $request): Response
+    public function detailAction(string $productId, Request $request): Response
     {
-        $products = $this->repository->readDetail([$productId], $context);
+        /** @var ContextUser $user */
+        $user = $this->getUser();
+
+        $products = $this->repository->readDetail([$productId], $user->getContext());
         if (!$products->has($productId)) {
             throw new ProductNotFoundException($productId);
         }
@@ -72,7 +79,7 @@ class ProductController extends Controller
         return $this->responseFactory->createDetailResponse(
             $products->get($productId),
             ProductDefinition::class,
-            new RestContext($request, $context->getShopContext(), null)
+            new RestContext($request, $user->getContext()->getShopContext(), null)
         );
     }
 }

@@ -22,9 +22,15 @@ class JsonApiType implements ResponseTypeInterface
      */
     private $serializer;
 
-    public function __construct(Serializer $serializer)
+    /**
+     * @var bool
+     */
+    private $debug;
+
+    public function __construct(Serializer $serializer, bool $debug)
     {
         $this->serializer = $serializer;
+        $this->debug = $debug;
     }
 
     public function supportsContentType(string $contentType): bool
@@ -191,16 +197,19 @@ class JsonApiType implements ResponseTypeInterface
             $statusCode = $exception->getStatusCode();
         }
 
-        // single exception (default)
-        return [
-            [
-                'code' => (string) $exception->getCode(),
-                'status' => (string) $statusCode,
-                'title' => Response::$statusTexts[$statusCode] ?? 'unknown status',
-                'detail' => $exception->getMessage(),
-                'trace' => $exception->getTraceAsString(),
-            ],
+        $error = [
+            'code' => (string) $exception->getCode(),
+            'status' => (string) $statusCode,
+            'title' => Response::$statusTexts[$statusCode] ?? 'unknown status',
+            'detail' => $exception->getMessage(),
         ];
+
+        if ($this->debug) {
+            $error['trace'] = $exception->getTraceAsString();
+        }
+
+        // single exception (default)
+        return [$error];
     }
 
     private function handleWriteStackException(WriteStackHttpException $exception): array
@@ -210,27 +219,37 @@ class JsonApiType implements ResponseTypeInterface
         foreach ($exception->getExceptionStack()->getExceptions() as $innerException) {
             if ($innerException instanceof InvalidFieldException) {
                 foreach ($innerException->getViolations() as $violation) {
-                    $errors[] = [
+                    $error = [
                         'code' => (string) $exception->getCode(),
                         'status' => (string) $exception->getStatusCode(),
                         'title' => $innerException->getConcern(),
                         'detail' => $violation->getMessage(),
                         'source' => ['pointer' => $innerException->getPath()],
-                        'trace' => $innerException->getTraceAsString(),
                     ];
+
+                    if ($this->debug) {
+                        $error['trace'] = $innerException->getTraceAsString();
+                    }
+
+                    $errors[] = $error;
                 }
 
                 continue;
             }
 
-            $errors[] = [
+            $error = [
                 'code' => (string) $exception->getCode(),
                 'status' => (string) $exception->getStatusCode(),
                 'title' => $innerException->getConcern(),
                 'detail' => $innerException->getMessage(),
                 'source' => ['pointer' => $innerException->getPath()],
-                'trace' => $innerException->getTraceAsString(),
             ];
+
+            if ($this->debug) {
+                $error['trace'] = $innerException->getTraceAsString();
+            }
+
+            $errors[]= $error;
         }
 
         return $errors;

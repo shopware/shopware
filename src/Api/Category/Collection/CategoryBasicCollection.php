@@ -111,15 +111,6 @@ class CategoryBasicCollection extends EntityCollection
         return $this;
     }
 
-    public function getCanonicalUrls(): SeoUrlBasicCollection
-    {
-        return new SeoUrlBasicCollection(
-            $this->fmap(function (CategoryBasicStruct $category) {
-                return $category->getExtension('canonicalUrl');
-            })
-        );
-    }
-
     protected function getExpectedClass(): string
     {
         return CategoryBasicStruct::class;

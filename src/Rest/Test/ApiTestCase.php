@@ -85,6 +85,8 @@ class ApiTestCase extends WebTestCase
 
         $data = json_decode($client->getResponse()->getContent(), true);
 
+        self::assertArrayHasKey('token', $data, 'No token returned from API: ' . print_r($data, true));
+
         $client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['token']));
 
         return $client;

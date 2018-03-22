@@ -2,17 +2,27 @@
 
 namespace Shopware;
 
+use Shopware\Framework\DependencyInjection\TestingCompilerPass;
 use Shopware\Framework\Doctrine\DatabaseConnector;
 use Shopware\Framework\Framework;
 use Shopware\Framework\Plugin\Plugin;
 use Shopware\Framework\Plugin\PluginCollection;
-use Shopware\Storefront\Theme\Theme;
+use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\Loader\LoaderInterface;
+use Symfony\Component\DependencyInjection\Compiler\PassConfig;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpKernel\Kernel as HttpKernel;
+use Symfony\Component\Routing\Route;
+use Symfony\Component\Routing\RouteCollectionBuilder;
+use Shopware\Rest\Controller\ApiController;
 
 class Kernel extends HttpKernel
 {
+    use MicroKernelTrait;
+
+    const CONFIG_EXTS = '.{php,xml,yaml,yml}';
+
     /**
      * @var \PDO
      */
@@ -24,14 +34,9 @@ class Kernel extends HttpKernel
     private static $plugins;
 
     /**
-     * @var array
-     */
-    private $themes = [];
-
-    /**
      * {@inheritdoc}
      */
-    public function __construct($environment, $debug)
+    public function __construct(string $environment, bool $debug)
     {
         parent::__construct($environment, $debug);
 
@@ -40,53 +45,17 @@ class Kernel extends HttpKernel
 
     public function registerBundles()
     {
-        $bundles = [
-            // symfony
-            new \Symfony\Bundle\FrameworkBundle\FrameworkBundle(),
-            new \Symfony\Bundle\SecurityBundle\SecurityBundle(),
-            new \Symfony\Bundle\TwigBundle\TwigBundle(),
-            new \Symfony\Bundle\MonologBundle\MonologBundle(),
-            new \Symfony\Bundle\SwiftmailerBundle\SwiftmailerBundle(),
-            new \Doctrine\Bundle\DoctrineBundle\DoctrineBundle(),
-            new \Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle(),
-            new \Symfony\Bundle\AsseticBundle\AsseticBundle(),
-            new \Lexik\Bundle\JWTAuthenticationBundle\LexikJWTAuthenticationBundle(),
+        $contents = require $this->getProjectDir() . '/config/bundles.php';
 
-            // shopware
-            new \Shopware\Framework\Framework(),
-            new \Shopware\Version\Version(),
-            new \Shopware\Rest\Rest(),
-            new \Shopware\Api\Api(),
-            new \Shopware\Cart\Cart(),
-            new \Shopware\CartBridge\CartBridge(),
-            new \Shopware\Context\Context(),
-            new \Shopware\Administration\Administration(),
-            new \Shopware\Translation\Translation(),
-            new \Shopware\Filesystem\Filesystem(),
-            new \Shopware\DbalIndexing\DbalIndexing(),
-            new \Shopware\StorefrontApi\StorefrontApi(),
-            new \Shopware\Payment\Payment(),
-
-            // customization
-            new \Shopware\Category\Category(),
-            new \Shopware\Media\Media(),
-            new \Shopware\Product\Product(),
-            new \Shopware\Seo\Seo(),
-        ];
-
-        // debug
-        if (in_array($this->getEnvironment(), ['dev', 'test'], true)) {
-            $bundles[] = new \Symfony\Bundle\DebugBundle\DebugBundle();
-            $bundles[] = new \Symfony\Bundle\WebProfilerBundle\WebProfilerBundle();
-            $bundles[] = new \Sensio\Bundle\DistributionBundle\SensioDistributionBundle();
-            $bundles[] = new \Shopware\Traceable\Traceable();
+        foreach (self::$plugins->getActivePlugins() as $plugin) {
+            $contents[get_class($plugin)] = ['all' => true];
         }
 
-        // themes and plugins
-        $bundles = array_merge($bundles, $this->themes);
-        $bundles = array_merge($bundles, self::$plugins->getActivePlugins());
-
-        return $bundles;
+        foreach ($contents as $class => $envs) {
+            if (isset($envs['all']) || isset($envs[$this->environment])) {
+                yield new $class();
+            }
+        }
     }
 
     public function boot($withPlugins = true)
@@ -121,24 +90,9 @@ class Kernel extends HttpKernel
         return self::$plugins;
     }
 
-    /**
-     * @return Theme[]
-     */
-    public function getThemes(): array
-    {
-        return array_filter($this->bundles, function ($bundle) {
-            return $bundle instanceof Theme;
-        });
-    }
-
     public static function getConnection(): ?\PDO
     {
         return self::$connection;
-    }
-
-    public function getRootDir()
-    {
-        return __DIR__;
     }
 
     public function getCacheDir()
@@ -161,9 +115,71 @@ class Kernel extends HttpKernel
         return $this->getProjectDir() . '/custom/plugins';
     }
 
-    public function registerContainerConfiguration(LoaderInterface $loader): void
+    protected function configureContainer(ContainerBuilder $container, LoaderInterface $loader)
     {
-        $loader->load($this->getRootDir() . '/config/config_' . $this->getEnvironment() . '.yml');
+        $container->setParameter('container.dumper.inline_class_loader', true);
+
+        $confDir = $this->getProjectDir() . '/config';
+
+        $loader->load($confDir . '/{packages}/*' . self::CONFIG_EXTS, 'glob');
+        $loader->load($confDir . '/{packages}/' . $this->environment . '/**/*' . self::CONFIG_EXTS, 'glob');
+        $loader->load($confDir . '/{services}' . self::CONFIG_EXTS, 'glob');
+        $loader->load($confDir . '/{services}_' . $this->environment . self::CONFIG_EXTS, 'glob');
+    }
+
+    protected function configureRoutes(RouteCollectionBuilder $routes)
+    {
+        $confDir = $this->getProjectDir() . '/config';
+
+        $routes->import($confDir . '/{routes}/*' . self::CONFIG_EXTS, '/', 'glob');
+        $routes->import($confDir . '/{routes}/' . $this->environment . '/**/*' . self::CONFIG_EXTS, '/', 'glob');
+        $routes->import($confDir . '/{routes}' . self::CONFIG_EXTS, '/', 'glob');
+
+        $this->addApiRoutes($routes);
+    }
+
+    private function addApiRoutes(RouteCollectionBuilder $routes): void
+    {
+        $class = ApiController::class;
+        $uuidRegex = '.*\/[0-9a-f]{32}\/?$';
+
+        // detail routes
+        $route = new Route('/api/{path}');
+        $route->setMethods(['GET']);
+        $route->setDefault('_controller', $class . '::detailAction');
+        $route->addRequirements(['path' => $uuidRegex]);
+        $routes->addRoute($route, 'api_controller.detail');
+
+        $route = new Route('/api/{path}');
+        $route->setMethods(['PATCH']);
+        $route->setDefault('_controller', $class . '::updateAction');
+        $route->addRequirements(['path' => $uuidRegex]);
+        $routes->addRoute($route, 'api_controller.update');
+
+        $route = new Route('/api/{path}');
+        $route->setMethods(['DELETE']);
+        $route->setDefault('_controller', $class . '::deleteAction');
+        $route->addRequirements(['path' => $uuidRegex]);
+        $routes->addRoute($route, 'api_controller.delete');
+
+        // list routes
+        $route = new Route('/api/{path}');
+        $route->setMethods(['GET']);
+        $route->setDefault('_controller', $class . ':listAction');
+        $route->addRequirements(['path' => '.*']);
+        $routes->addRoute($route, 'api_controller.list');
+
+        $route = new Route('/api/search/{path}');
+        $route->setMethods(['POST']);
+        $route->setDefault('_controller', $class . '::searchAction');
+        $route->addRequirements(['path' => '.*']);
+        $routes->addRoute($route, 'api_controller.search');
+
+        $route = new Route('/api/{path}');
+        $route->setMethods(['POST']);
+        $route->setDefault('_controller', $class . '::createAction');
+        $route->addRequirements(['path' => '.*']);
+        $routes->addRoute($route, 'api_controller.create');
     }
 
     /**
@@ -203,11 +219,13 @@ class Kernel extends HttpKernel
             . 'ProjectContainer';
     }
 
-    protected function initializeThemes(): array
+    protected function build(ContainerBuilder $container)
     {
-        return $this->themes = [
-            new \Shopware\Storefront\Storefront(),
-        ];
+        parent::build($container);
+
+        if ($this->getEnvironment() === 'test') {
+            $container->addCompilerPass(new TestingCompilerPass(), PassConfig::TYPE_OPTIMIZE);
+        }
     }
 
     protected function initializePlugins(): void
@@ -256,6 +274,5 @@ class Kernel extends HttpKernel
         self::$connection = DatabaseConnector::createPdoConnection();
 
         $this->initializePlugins();
-        $this->initializeThemes();
     }
 }

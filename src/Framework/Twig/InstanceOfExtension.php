@@ -1,0 +1,22 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Framework\Twig;
+
+class InstanceOfExtension extends \Twig_Extension
+{
+    public function getTests()
+    {
+        return [
+            'instanceof' => new \Twig_SimpleTest('instanceof', [
+                $this, 'isInstanceOf',
+            ]),
+        ];
+    }
+
+    public function isInstanceOf($var, $class)
+    {
+        $reflectionClass = new \ReflectionClass($class);
+
+        return $reflectionClass->isInstance($var);
+    }
+}

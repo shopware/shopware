@@ -29,6 +29,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\UnsupportedMediaTypeHttpException;
 use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 use Symfony\Component\Serializer\Exception\UnexpectedValueException;
@@ -128,7 +129,7 @@ class ApiController extends Controller
         $definition = $first['definition'];
 
         if (!$definition) {
-            throw new BadRequestHttpException('Unsupported API request');
+            throw new NotFoundHttpException('The requested entity does not exist.');
         }
 
         /** @var RepositoryInterface $repository */

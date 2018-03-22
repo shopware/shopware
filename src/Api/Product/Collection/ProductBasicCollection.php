@@ -151,15 +151,6 @@ class ProductBasicCollection extends EntityCollection
         }));
     }
 
-    public function getCanonicalUrls(): SeoUrlBasicCollection
-    {
-        return new SeoUrlBasicCollection(
-            $this->fmap(function (ProductBasicStruct $product) {
-                return $product->getExtension('canonicalUrl');
-            })
-        );
-    }
-
     public function filterByVariationIds(array $optionIds): self
     {
         return $this->filter(function(ProductBasicStruct $product) use ($optionIds) {

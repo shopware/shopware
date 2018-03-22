@@ -75,11 +75,13 @@
 
         <service class="Shopware\Rest\Response\Type\JsonApiType" id="Shopware\Rest\Response\Type\JsonApiType">
             <argument type="service" id="serializer" />
+            <argument>%kernel.debug%</argument>
             <tag name="shopware.rest.response_type" />
         </service>
 
         <service class="Shopware\Rest\Response\Type\JsonType" id="Shopware\Rest\Response\Type\JsonType">
             <argument type="service" id="serializer" />
+            <argument>%kernel.debug%</argument>
             <tag name="shopware.rest.response_type" />
         </service>
 

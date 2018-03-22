@@ -72,9 +72,9 @@ class ContextRuleLoader
     private $rules;
 
     /**
-     * @var ContainerInterface
+     * @var StoreFrontCartService
      */
-    private $container;
+    private $storeFrontCartService;
 
     public function __construct(
         CartPersisterInterface $cartPersister,
@@ -85,7 +85,7 @@ class ContextRuleLoader
         CacheItemPoolInterface $cache,
         ContextRuleRepository $repository,
         SerializerInterface $serializer,
-        ContainerInterface $container
+        StoreFrontCartService $storeFrontCartService
     ) {
         $this->cartPersister = $cartPersister;
         $this->taxDetector = $taxDetector;
@@ -95,7 +95,7 @@ class ContextRuleLoader
         $this->cache = $cache;
         $this->repository = $repository;
         $this->serializer = $serializer;
-        $this->container = $container;
+        $this->storeFrontCartService = $storeFrontCartService;
     }
 
     public function loadMatchingRules(StorefrontContext $context, ?string $cartToken)
@@ -152,7 +152,7 @@ class ContextRuleLoader
             ++$iteration;
         }
 
-        $this->container->get(StoreFrontCartService::class)->setCalculated($calculated);
+        $this->storeFrontCartService->setCalculated($calculated);
 
         return $rules;
     }

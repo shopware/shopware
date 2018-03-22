@@ -7,13 +7,18 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Context\Struct\StorefrontContext;
 use Shopware\StorefrontApi\Context\StorefrontContextPersister;
 use Shopware\StorefrontApi\Context\StorefrontContextValueResolver;
+use Shopware\StorefrontApi\Firewall\ApplicationAuthenticator;
+use Shopware\StorefrontApi\Firewall\ContextUser;
+use Shopware\StorefrontApi\Firewall\CustomerProvider;
 use Shopware\StorefrontApi\Firewall\CustomerUser;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Security\Core\Authentication\AuthenticationManagerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
+use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Serializer\Serializer;
 
 class CustomerController extends Controller
@@ -24,54 +29,47 @@ class CustomerController extends Controller
     private $serializer;
 
     /**
-     * @var AuthenticationManagerInterface
-     */
-    private $authenticationManager;
-
-    /**
-     * @var TokenStorageInterface
-     */
-    private $tokenStorage;
-
-    /**
      * @var StorefrontContextPersister
      */
     private $contextPersister;
 
+    /**
+     * @var CustomerProvider
+     */
+    private $customerProvider;
+
     public function __construct(
         Serializer $serializer,
-        AuthenticationManagerInterface $authenticationManager,
-        TokenStorageInterface $tokenStorage,
-        StorefrontContextPersister $contextPersister
+        StorefrontContextPersister $contextPersister,
+        CustomerProvider $customerProvider
     ) {
         $this->serializer = $serializer;
-        $this->authenticationManager = $authenticationManager;
-        $this->tokenStorage = $tokenStorage;
         $this->contextPersister = $contextPersister;
+        $this->customerProvider = $customerProvider;
     }
 
     /**
      * @Route("/storefront-api/customer/login", name="storefront.api.customer.login")
      * @Method({"POST"})
      */
-    public function loginAction(Request $request, StorefrontContext $context): JsonResponse
+    public function loginAction(Request $request): JsonResponse
     {
         $post = $this->getPost($request);
+
+        if (empty($post['username']) || empty($post['password'])) {
+            throw new BadCredentialsException();
+        }
 
         $username = $post['username'];
         $password = $post['password'];
 
-        $unauthenticatedToken = new UsernamePasswordToken($username, $password, 'storefront');
+        $user = $this->customerProvider->loadUserByUsername($username);
 
-        $authenticatedToken = $this->authenticationManager->authenticate($unauthenticatedToken);
-
-        $this->tokenStorage->setToken($authenticatedToken);
-
-        /** @var CustomerUser $user */
-        $user = $authenticatedToken->getUser();
+        /** @var ContextUser $context */
+        $context = $this->getUser();
 
         $this->contextPersister->save(
-            $context->getToken(),
+            $context->getContextToken(),
             [
                 'customerId' => $user->getId(),
                 'billingAddressId' => null,
@@ -80,7 +78,7 @@ class CustomerController extends Controller
         );
 
         return new JsonResponse([
-            StorefrontContextValueResolver::CONTEXT_TOKEN_KEY => $context->getToken(),
+            ApplicationAuthenticator::CONTEXT_TOKEN_KEY => $context->getContextToken(),
         ]);
     }
 
@@ -88,10 +86,13 @@ class CustomerController extends Controller
      * @Route("/storefront-api/customer/logout", name="storefront.api.customer.logout")
      * @Method({"POST"})
      */
-    public function logoutAction(StorefrontContext $context): void
+    public function logoutAction(): void
     {
+        /** @var ContextUser $user */
+        $user = $this->getUser();
+
         $this->contextPersister->save(
-            $context->getToken(),
+            $user->getContextToken(),
             [
                 'customerId' => null,
                 'billingAddressId' => null,

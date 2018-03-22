@@ -19,9 +19,15 @@ class JsonType implements ResponseTypeInterface
      */
     private $serializer;
 
-    public function __construct(Serializer $serializer)
+    /**
+     * @var bool
+     */
+    private $debug;
+
+    public function __construct(Serializer $serializer, bool $debug)
     {
         $this->serializer = $serializer;
+        $this->debug = $debug;
     }
 
     public function supportsContentType(string $contentType): bool
@@ -60,17 +66,17 @@ class JsonType implements ResponseTypeInterface
 
     public function createErrorResponse(Request $request, \Throwable $exception, int $statusCode = 400): Response
     {
-        $response = [
-            'error' => [
-                [
-                    'status' => (string) $statusCode,
-                    'title' => Response::$statusTexts[$statusCode],
-                    'detail' => $exception->getMessage(),
-                ],
-            ],
+        $error = [
+            'status' => (string) $statusCode,
+            'title' => Response::$statusTexts[$statusCode] ?? 'unknown status',
+            'detail' => $exception->getMessage(),
         ];
 
-        return new JsonResponse($response);
+        if ($this->debug) {
+            $error['trace'] = $exception->getTraceAsString();
+        }
+
+        return new JsonResponse(['errors' => [$error]]);
     }
 
     public function createRedirectResponse(string $definition, string $id, RestContext $context): Response

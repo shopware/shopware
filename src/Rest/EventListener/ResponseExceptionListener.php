@@ -3,7 +3,6 @@
 namespace Shopware\Rest\EventListener;
 
 use Psr\Log\LoggerInterface;
-use Shopware\Framework\Routing\Router;
 use Shopware\Framework\ShopwareException;
 use Shopware\Rest\Response\ResponseFactory;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
@@ -34,10 +33,6 @@ class ResponseExceptionListener extends ExceptionListener
 
     public function onKernelException(GetResponseForExceptionEvent $event)
     {
-        if ($event->getRequest()->attributes->get(Router::IS_API_REQUEST_ATTRIBUTE) === false) {
-            return $event;
-        }
-
         /** @var HttpException|ShopwareException $exception */
         $exception = $event->getException();
 

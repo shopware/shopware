@@ -35,7 +35,6 @@ use Shopware\Api\Mail\Definition\MailAttachmentDefinition;
 use Shopware\Api\Order\Definition\OrderDefinition;
 use Shopware\Api\Payment\Definition\PaymentMethodDefinition;
 use Shopware\Api\Product\Definition\ProductSeoCategoryDefinition;
-use Shopware\Api\Seo\Definition\SeoUrlDefinition;
 use Shopware\Api\Shipping\Definition\ShippingMethodDefinition;
 use Shopware\Api\Shop\Collection\ShopBasicCollection;
 use Shopware\Api\Shop\Collection\ShopDetailCollection;
@@ -138,7 +137,6 @@ class ShopDefinition extends EntityDefinition
             (new OneToManyAssociationField('customers', CustomerDefinition::class, 'shop_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
             (new OneToManyAssociationField('mailAttachments', MailAttachmentDefinition::class, 'shop_id', false, 'id'))->setFlags(new WriteOnly()),
             (new OneToManyAssociationField('orders', OrderDefinition::class, 'shop_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
-            (new OneToManyAssociationField('seoUrls', SeoUrlDefinition::class, 'shop_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
             (new OneToManyAssociationField('templateConfigFormFieldValues', ShopTemplateConfigFormFieldValueDefinition::class, 'shop_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
             (new OneToManyAssociationField('snippets', SnippetDefinition::class, 'shop_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
             (new ManyToManyAssociationField('productSeoCategories', CategoryDefinition::class, ProductSeoCategoryDefinition::class, false, 'shop_id', 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),

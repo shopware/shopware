@@ -81,15 +81,12 @@ Component.register('sw-product-list', {
             });
         },
 
-        handlePagination(offset, limit) {
-            this.offset = offset;
-            this.limit = limit;
-
+        handlePagination() {
             this.updateRoute();
 
             this.getProductList({
-                limit,
-                offset
+                limit: this.limit,
+                offset: this.offset
             });
         },
 
@@ -134,6 +131,8 @@ Component.register('sw-product-list', {
         onSwitchFilter(filter, filterIndex) {
             this.filters[filterIndex].active = !this.filters[filterIndex].active;
 
+            // Switch back to the first page when a filter was enabled / disabled
+            this.offset = 0;
             this.getProductList({
                 limit: this.limit,
                 offset: this.offset

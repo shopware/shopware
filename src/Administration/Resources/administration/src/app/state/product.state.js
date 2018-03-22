@@ -35,10 +35,10 @@ State.register('product', {
          * @param {Number} limit
          * @param {String} sortBy
          * @param {String} sortDirection
-         * @param {Array|null} filter
+         * @param {Array|null} criterias
          * @returns {Promise<T>}
          */
-        getProductList({ commit }, { limit, offset, sortBy, sortDirection, term, filter }) {
+        getProductList({ commit }, { limit, offset, sortBy, sortDirection, term, criterias }) {
             const providerContainer = Shopware.Application.getContainer('service');
             const productService = providerContainer.productService;
 
@@ -49,8 +49,8 @@ State.register('product', {
                 term
             };
 
-            if (filter) {
-                additionalParams.filter = filter;
+            if (criterias) {
+                additionalParams.filter = criterias;
             }
 
             return productService.getList(offset, limit, additionalParams).then((response) => {

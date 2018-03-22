@@ -15,6 +15,7 @@ function loadStories() {
     require('../stories/sw-grid/index');
     require('../stories/sw-icon/index');
     require('../stories/sw-loader/index');
+    require('../stories/sw-pagination/index');
     require('../stories/sw-sidebar/index');
 }
 

@@ -10,70 +10,46 @@
     padding: 15px 20px;
     background: @sw-pagination-color-background;
     text-align: center;
+    color: @sw-pagination-controls-color-text;
+    position: relative;
 
-    .page-selection, .page-total, .per-page {
+    .sw-pagination__per-page {
         display: inline-block;
         font-size: 14px;
         line-height: 16px;
         color: @color-kashmir;
     }
 
-    .number {
-        font-weight: bold;
-    }
-
-    button {
+    .sw-pagination__list {
         display: inline-block;
-        height: 32px;
-        width: 32px;
-        font-size: 16px;
-        line-height: 12px;
-        text-align: center;
-        color: @sw-pagination-controls-color-text;
-        border: 1px solid @sw-pagination-controls-color-border;
-        border-radius: @sw-pagination-border-radius;
-        background-color: @sw-pagination-color-background;
-        vertical-align: middle;
-        cursor: pointer;
-        -webkit-appearance: none;
+    }
+
+    .sw-pagination__list-item {
+        display: inline-block;
+        list-style: none;
+        margin: 0;
+    }
+    .sw-pagination__list-button,
+    .sw-pagination__page-button,
+    .sw-pagination__list-separator {
+        border: 0 none;
+        padding: 8px 12px;
+        background: #fff;
         outline: none;
+    }
 
-        &:hover {
-            color: @sw-pagination-controls-color-hover;
-            border-color: @sw-pagination-controls-color-hover;
-        }
+    .sw-pagination__list-button {
+        border-radius: 3px;
 
-        &[disabled="disabled"] {
-            background: darken(@sw-pagination-color-background, 5%);
-            border-color: darken(@sw-pagination-controls-color-border, 10%);
-            color: lighten(@sw-pagination-controls-color-text, 20%);
-            cursor: default;
+        &.is-active {
+            background: @sw-pagination-controls-color-hover;
+            color: #fff;
         }
     }
 
-    .btn--refresh {
-        margin: 0 0 0 20px;
-    }
-
-    .page-selection {
-        margin: 0 20px;
-
-        input {
-            margin: 0 5px;
-            display: inline-block;
-            height: 32px;
-            width: 40px;
-            font-weight: bold;
-            border: 1px solid @sw-pagination-controls-color-border;
-            border-radius: @sw-pagination-border-radius;
-            background-color: @sw-pagination-color-background;
-            text-align: center;
-            -webkit-appearance: none;
-            outline: none;
-        }
-    }
-
-    .per-page {
+    .sw-pagination__per-page {
+        position: absolute;
+        right: 0;
         margin: 0 20px;
 
         select {
@@ -81,7 +57,7 @@
             height: 32px;
             width: 60px;
             padding: 0 0 0 5px;
-            font-weight: bold;
+            margin: 0 0 0 10px;
             border: 1px solid @sw-pagination-controls-color-border;
             border-radius: @sw-pagination-border-radius;
             background-color: @sw-pagination-color-background;

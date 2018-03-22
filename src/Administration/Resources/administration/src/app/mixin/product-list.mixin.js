@@ -55,7 +55,7 @@ Mixin.register('productList', {
                 term: this.term
             };
 
-            if (criterias && criterias.length) {
+            if (criterias) {
                 config.criterias = [criterias.getQuery()];
             }
 

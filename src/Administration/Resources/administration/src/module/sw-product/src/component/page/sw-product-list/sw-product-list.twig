@@ -3,7 +3,7 @@
 
         <header class="toolbar--middle-section" slot="header">
             {% block core_product_list_headline %}
-                <h1 class="workspace--headline">Produktübersicht</h1>
+                <h1 class="workspace--headline">Produktübersicht ({{ total }} Produkte)</h1>
             {% endblock %}
 
             <div class="toolbar--primary-actions">
@@ -55,29 +55,40 @@
 
                         <template slot="pagination">
                             {% block core_product_list_grid_pagination %}
-                                <sw-pagination :page="page" :max-page="maxPage" :limit="limit" :total="total" v-on:page-change="pageChange"></sw-pagination>
+                                <sw-pagination :offset="offset"
+                                               :limit="limit"
+                                               :total="total"
+                                               :total-visible="5"
+                                               @page-change="pageChange">
+                                </sw-pagination>
                             {% endblock %}
                         </template>
 
                         {% block core_product_list_grid_sidebar %}
                             <sw-sidebar slot="sidebar">
-                                <sw-sidebar-item icon="default-action-search" title="Search">
-                                    <sw-field type="text" placeholder="Enter search term..." :value="term" @change="onSearch"></sw-field>
+                                {% block core_product_list_grid_sidebar_search %}
+                                    <sw-sidebar-item icon="default-action-search" title="Search">
+                                        <sw-field type="text" placeholder="Enter search term..." :value="term" @change="onSearch"></sw-field>
 
-                                    <sw-alert variant="warning" :showIcon="false">
-                                        This is a <strong>demo</strong>. The search will be placed in the header later on.
-                                    </sw-alert>
-                                </sw-sidebar-item>
+                                        <sw-alert variant="warning" :showIcon="false">
+                                            This is a <strong>demo</strong>. The search will be placed in the header later on.
+                                        </sw-alert>
+                                    </sw-sidebar-item>
+                                {% endblock %}
 
-                                <sw-sidebar-item icon="default-action-filter" title="Filter">
-                                    <sw-field type="switch" v-for="(filter, index) in filters" :label="filter.label" :value="filter.active" :key="index" @change="onSwitchFilter(filter.criteria, index)"></sw-field>
+                                {% block core_product_list_grid_sidebar_filter %}
+                                    <sw-sidebar-item icon="default-action-filter" title="Filter">
+                                        <sw-field type="switch" v-for="(filter, index) in filters" :label="filter.label" :value="filter.active" :key="index" @change="onSwitchFilter(filter.criteria, index)"></sw-field>
 
-                                    <sw-alert variant="warning" :showIcon="false">
-                                        <strong>Demo</strong> filters which will be replaced with more meaningful filters in the future.
-                                    </sw-alert>
-                                </sw-sidebar-item>
+                                        <sw-alert variant="warning" :showIcon="false">
+                                            <strong>Demo</strong> filters which will be replaced with more meaningful filters in the future.
+                                        </sw-alert>
+                                    </sw-sidebar-item>
+                                {% endblock %}
 
-                                <sw-sidebar-item icon="default-arrow-360-left" @click="onRefresh"></sw-sidebar-item>
+                                {% block core_product_list_grid_sidebar_refresh %}
+                                    <sw-sidebar-item icon="default-arrow-360-left" @click="onRefresh"></sw-sidebar-item>
+                                {% endblock %}
                             </sw-sidebar>
                         {% endblock %}
                     {% endblock %}

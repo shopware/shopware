@@ -1,41 +1,49 @@
+{% block sw_pagination %}
 <div class="sw-pagination">
+    {% block sw_pagination_page_prev %}
+        <button :disabled="page === 1" @click="prevPage" class="sw-pagination__page-button">
+            <sw-icon name="small-arrow-medium-left" small />
+        </button>
+    {% endblock %}
 
-    <button class="btn--first-page" :disabled="page === 1" @click="firstPage">
-        <sw-icon name="default-arrow-simple-left" small />
-    </button>
+    {% block sw_pagination_page_list %}
+        <ul class="sw-pagination__list">
+            {% block sw_pagination_page_list_item %}
+            <li v-for="(pageNum, index) in displayedPages" :key="index" class="sw-pagination__list-item">
+                {% block sw_pagination_page_list_item_button %}
+                    <button v-if="typeof(pageNum) === 'number'"
+                            class="sw-pagination__list-button"
+                            :class="{ 'is-active': page === pageNum }"
+                            @click="changePage(pageNum)">
+                        {{ pageNum }}
+                    </button>
+                {% endblock %}
 
-    <button class="btn--prev-page" :disabled="page === 1" @click="prevPage">
-        <sw-icon name="small-arrow-medium-left" small />
-    </button>
+                {% block sw_pagination_page_list_item_separator %}
+                    <span class="sw-pagination__list-separator" v-else>
+                        {{ pageNum }}
+                    </span>
+                {% endblock %}
+            </li>
+            {% endblock %}
+        </ul>
+    {% endblock %}
 
-    <div class="page-selection">
-        Page
-        <input type="number" class="page-selection--field" name="current-page-number" min="1" :max="maxPage" v-model="currentPage" @change="pageChange">
-        of <span class="number">{{ maxPage }}</span>
-    </div>
+    {% block sw_pagination_page_next %}
+        <button :disabled="page === maxPage" @click="nextPage" class="sw-pagination__page-button">
+            <sw-icon name="small-arrow-medium-right" small />
+        </button>
+    {% endblock %}
 
-    <button class="btn--next-page" :disabled="page === maxPage" @click="nextPage">
-        <sw-icon name="small-arrow-medium-right" small />
-    </button>
-
-    <button class="btn--last-page" :disabled="page === maxPage" @click="lastPage">
-        <sw-icon name="default-arrow-simple-right" small />
-    </button>
-
-    <button class="btn--refresh" @click="refresh">
-        <sw-icon name="default-arrow-360-left" small />
-    </button>
-
-    <div class="per-page">
-        Items per page:
-        <select class="per-page--select" :value="perPage" v-model="perPage" @change="pageChange">
-            <option v-for="step in steps" :value="step">
-                {{ step }}
-            </option>
-        </select>
-    </div>
-
-    <div class="page-total">
-        Items total: <span class="number">{{ total }}</span>
-    </div>
+    {% block sw_pagination_per_page_selection %}
+        <div class="sw-pagination__per-page">
+            Items per page:
+            <select class="per-page--select" :value="perPage" v-model="perPage" @change="pageChange">
+                <option v-for="step in steps" :value="step">
+                    {{ step }}
+                </option>
+            </select>
+        </div>
+    {% endblock %}
 </div>
+{% endblock %}

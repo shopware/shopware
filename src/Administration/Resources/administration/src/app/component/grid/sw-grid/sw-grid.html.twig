@@ -5,7 +5,7 @@
             <slot name="header" v-if="header">
                 <div class="sw-grid__header" :style="columnFlex">
                     <div class="sw-grid__cell" v-if="selectable">
-                        <sw-field type="checkbox"></sw-field>
+                        <sw-field type="checkbox" @change="selectAll"></sw-field>
                     </div>
                     <div :class="[{ 'sw-grid__cell': true, 'is--sortable': column.sortable, 'is--sorted': sort === column.dataIndex}, 'sw-grid__cell-' + column.align]"
                          v-for="column in columns"
@@ -28,20 +28,20 @@
                         <div class="sw-grid__item" :style="columnFlex" :class="{ 'is--selected': item.selected }">
 
                             <div class="sw-grid__cell" v-if="selectable">
-                                <sw-field type="checkbox"></sw-field>
+                                <sw-field type="checkbox" v-model="item.selected"></sw-field>
                             </div>
 
                             <slot name="columns" :item="item"></slot>
 
                             <slot name="actions" v-if="actions.length > 0">
                                 <div class="sw-grid__cell">
-                                    <button class="sw-grid__action-button" v-on:click="$emit('edit', item)" v-if="actions.indexOf('edit') !== -1">
+                                    <button class="sw-grid__action-button" @click="$emit('edit', item)" v-if="actions.indexOf('edit') !== -1">
                                         <sw-icon name="small-pencil-paper" title="Edit" small />
                                     </button>
-                                    <button class="sw-grid__action-button" v-on:click="$emit('delete', item)" v-if="actions.indexOf('delete') !== -1">
+                                    <button class="sw-grid__action-button" @click="$emit('delete', item)" v-if="actions.indexOf('delete') !== -1">
                                         <sw-icon name="small-default-x-line-medium" title="Delete" small />
                                     </button>
-                                    <button class="sw-grid__action-button" v-on:click="$emit('duplicate', item)" v-if="actions.indexOf('duplicate') !== -1">
+                                    <button class="sw-grid__action-button" @click="$emit('duplicate', item)" v-if="actions.indexOf('duplicate') !== -1">
                                         <sw-icon name="small-copy" title="Copy" small />
                                     </button>
                                 </div>

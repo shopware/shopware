@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Session;
 
+use Ramsey\Uuid\Uuid;
 use Shopware\Framework\Routing\Router;
 use Shopware\StorefrontApi\Context\ContextTokenResolverInterface;
 use Shopware\StorefrontApi\Context\StorefrontContextValueResolver;
@@ -31,7 +32,11 @@ class SessionContextTokenResolver implements ContextTokenResolverInterface
             return $this->decorated->resolve($request);
         }
 
-        $request->attributes->set(StorefrontContextValueResolver::CONTEXT_TOKEN_KEY, $this->getContextToken($session));
+        $token = $this->getContextToken($session);
+
+        $request->attributes->set(StorefrontContextValueResolver::CONTEXT_TOKEN_KEY, $token);
+
+        return $token;
     }
 
     private function isStorefrontRequest(Request $request): bool

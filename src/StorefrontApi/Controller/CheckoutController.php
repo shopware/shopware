@@ -108,7 +108,7 @@ class CheckoutController extends Controller
 
     /**
      * @Route("/storefront-api/checkout/add-product/{identifier}", name="storefront.api.checkout.add.product")
-     * @Method({"PUT"})
+     * @Method({"POST"})
      */
     public function addProductAction(string $identifier, Request $request, StorefrontContext $context): JsonResponse
     {
@@ -128,8 +128,8 @@ class CheckoutController extends Controller
     }
 
     /**
-     * @Route("/storefront-api/checkout", name="storefront.api.checkout.add")
-     * @Method({"PUT"})
+     * @Route("/storefront-api/checkout/add", name="storefront.api.checkout.add")
+     * @Method({"POST"})
      */
     public function addAction(Request $request, StorefrontContext $context): JsonResponse
     {
@@ -184,7 +184,7 @@ class CheckoutController extends Controller
     }
 
     /**
-     * @Route("/storefront-api/checkout/{identifier}", name="storefront.api.checkout.set-quantity")
+     * @Route("/storefront-api/checkout/set-quantity/{identifier}", name="storefront.api.checkout.set-quantity")
      * @Method({"PUT"})
      */
     public function setQuantityAction(string $identifier, Request $request, StorefrontContext $context): JsonResponse
@@ -268,11 +268,6 @@ class CheckoutController extends Controller
     private function save(CalculatedCart $calculated, StorefrontContext $context): void
     {
         $this->persister->save($calculated, $context);
-
-        $this->contextPersister->save(
-            $context->getToken(),
-            ['cartToken' => $calculated->getToken()]
-        );
     }
 
     private function getPost(Request $request): array

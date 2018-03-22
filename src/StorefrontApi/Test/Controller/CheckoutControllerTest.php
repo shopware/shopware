@@ -284,7 +284,7 @@ class CheckoutControllerTest extends ApiTestCase
 
         $client = $this->createCart();
 
-        $client->request('PUT', '/storefront-api/checkout/add-product/' . $productId);
+        $client->request('POST', '/storefront-api/checkout/add-product/' . $productId);
 
         $this->assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
@@ -418,8 +418,8 @@ class CheckoutControllerTest extends ApiTestCase
     private function addProduct(Client $client, string $id, int $quantity = 1)
     {
         $client->request(
-            'PUT',
-            '/storefront-api/checkout',
+            'POST',
+            '/storefront-api/checkout/add',
             [],
             [],
             [],
@@ -434,7 +434,7 @@ class CheckoutControllerTest extends ApiTestCase
 
     private function changeQuantity(Client $client, string $productId, int $quantity): void
     {
-        $client->request('PUT', '/storefront-api/checkout/' . $productId . '/' . $quantity);
+        $client->request('PUT', '/storefront-api/checkout/set-quantity/' . $productId, [], [], [], json_encode(['quantity' => $quantity]));
     }
 
     private function removeLineItem(Client $client, string $productId): void

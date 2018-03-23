@@ -69,8 +69,17 @@ function getRawEntityObject(entityName, includeObjectAssociations = false) {
     Object.keys(definition.properties).forEach((propertyName) => {
         const property = definition.properties[propertyName];
 
-        if (property.type === 'array') {
+        if (property.type === 'array' || property.type === 'json_array') {
             entity[propertyName] = [];
+        } else if (property.type === 'json_object') {
+            /**
+             * Set up a trap for json objects, because wo don't know its properties.
+             */
+            entity[propertyName] = new Proxy({}, {
+                get(target, key) {
+                    return target[key] || null;
+                }
+            });
         } else if (property.type === 'object') {
             if (property.entity && includeObjectAssociations) {
                 entity[propertyName] = getRawEntityObject(property.entity);

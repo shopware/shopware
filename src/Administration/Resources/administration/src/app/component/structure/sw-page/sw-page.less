@@ -1,0 +1,60 @@
+@import "~less/variables";
+
+.sw-page {
+    display: grid;
+    grid-template-rows: 70px auto;
+
+    .sw-page__smart-bar {
+        height: 70px;
+        padding: 0 40px;
+        position: relative;
+        background: @color-white;
+        border-bottom: 2px solid #d8dde6;
+
+        .smart-bar__back-btn {
+            width: 54px;
+            height: 24px;
+            line-height: 24px;
+            display: grid;
+            grid-template-columns: 30px 24px;
+            position: absolute;
+            top: 22px;
+            left: 20px;
+
+            .sw-icon.icons--small-arrow-large-left {
+                line-height: 24px;
+                margin: auto;
+            }
+        }
+
+        .smart-bar__content {
+            max-width: 800px;
+            height: 100%;
+            line-height: 64px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 50% 50%;
+        }
+
+        .smart-bar__header h2 {
+            font-size: 18px;
+            line-height: 70px;
+            color: @color-kashmir;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 0;
+        }
+
+        .smart-bar__actions {
+            text-align: right;
+            white-space: nowrap;
+        }
+    }
+
+    .sw-page__content {
+        height: 100%;
+        position: relative;
+    }
+}

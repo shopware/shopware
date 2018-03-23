@@ -1,19 +1,16 @@
 .sw-desktop {
     display: grid;
     grid-template-columns: auto 1fr;
-    position: absolute;
+    position: relative;
     height: 100%;
     width: 100%;
+    overflow: hidden;
 
-    .desktop {
+    .sw-desktop__content {
         width: 100%;
         height: 100%;
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        grid-column: 2;
-        overflow: hidden;
+        display: grid;
+        grid-template-rows: auto 1fr;
+        position: relative;
     }
 }

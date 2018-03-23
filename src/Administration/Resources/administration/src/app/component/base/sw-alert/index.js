@@ -10,10 +10,7 @@ Component.register('sw-alert', {
             type: String,
             default: '',
             validator(value) {
-                if (!value.length) {
-                    return true;
-                }
-                return ['info', 'warning', 'error', 'success'].indexOf(value) !== -1;
+                return ['info', 'warning', 'error', 'success'].includes(value);
             }
         },
         title: {
@@ -53,26 +50,14 @@ Component.register('sw-alert', {
         },
 
         alertIcon() {
-            let alertIcon;
+            const iconConfig = {
+                info: 'default-badge-info',
+                warning: 'default-badge-warning',
+                error: 'default-badge-error',
+                success: 'default-basic-checkmark-circle'
+            };
 
-            switch (this.variant) {
-            case 'info':
-                alertIcon = 'default-badge-info';
-                break;
-            case 'warning':
-                alertIcon = 'default-badge-warning';
-                break;
-            case 'error':
-                alertIcon = 'default-badge-error';
-                break;
-            case 'success':
-                alertIcon = 'default-basic-checkmark-circle';
-                break;
-            default:
-                alertIcon = 'default-bell-bell';
-            }
-
-            return alertIcon;
+            return iconConfig[this.variant] || 'default-bell-bell';
         }
     }
 });

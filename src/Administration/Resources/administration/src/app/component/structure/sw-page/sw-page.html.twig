@@ -1,0 +1,53 @@
+{% block sw_page %}
+    <div class="sw-page">
+
+        {% block sw_page_smart_bar %}
+            <div class="sw-page__smart-bar" :style="{ 'border-bottom-color': pageColor }">
+
+                {% block sw_page_smart_bar_back_btn %}
+                    <slot name="smart-bar-back">
+                        {% block sw_page_slot_smart_bar_back %}
+                            <router-link :to="{ name: parentRoute }" v-if="parentRoute" :style="{ 'color': pageColor }" class="smart-bar__back-btn">
+                                <sw-icon name="small-arrow-large-left" size="16" />
+                                <sw-icon :name="module.icon" v-if="module && module.icon" />
+                            </router-link>
+                        {% endblock %}
+                    </slot>
+                {% endblock %}
+
+                {% block sw_page_smart_bar_content %}
+                    <div class="smart-bar__content">
+
+                        {% block sw_page_smart_bar_content_header %}
+                            <div class="smart-bar__header">
+                                <slot name="smart-bar-header">
+                                    {% block sw_page_slot_smart_bar_header %}
+                                        <h2 v-if="module && module.name">
+                                            {{ module.name }}
+                                        </h2>
+                                    {% endblock %}
+                                </slot>
+                            </div>
+                        {% endblock %}
+
+                        {% block sw_page_smart_bar_content_actions %}
+                            <div class="smart-bar__actions">
+                                <slot name="smart-bar-actions">
+                                    {% block sw_page_slot_smart_bar_actions %}{% endblock %}
+                                </slot>
+                            </div>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block sw_page_content %}
+            <div class="sw-page__content">
+                <slot name="content">
+                    {% block sw_page_slot_content %}{% endblock %}
+                </slot>
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

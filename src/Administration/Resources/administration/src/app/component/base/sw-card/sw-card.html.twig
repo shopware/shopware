@@ -1,7 +1,17 @@
-<div class="sw-card" :class="{ 'sw-card--tabs': hasTabsSlot }">
-    <div class="sw-card__title">
-        {{ title }}
+{% block sw_card %}
+    <div class="sw-card" :class="{ 'sw-card--tabs': hasTabsSlot }">
+        {% block sw_card_title %}
+            <div class="sw-card__title" v-if="title">{{ title }}</div>
+        {% endblock %}
+
+        <slot name="tabs"></slot>
+
+        {% block sw_card_content %}
+        <div class="sw-card__content">
+            <slot>
+                {% block sw_card_slot_default %}{% endblock %}
+            </slot>
+        </div>
+        {% endblock %}
     </div>
-    <slot name="tabs"></slot>
-    <slot></slot>
-</div>
+{% endblock %}

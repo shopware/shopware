@@ -1,6 +1,6 @@
 import { Component } from 'src/core/shopware';
-import './sw-card.less';
 import template from './sw-card.html.twig';
+import './sw-card.less';
 
 Component.register('sw-card', {
     template,
@@ -8,8 +8,9 @@ Component.register('sw-card', {
     props: {
         title: {
             type: String,
-            required: true
+            required: false
         }
+    }
     },
 
     computed: {

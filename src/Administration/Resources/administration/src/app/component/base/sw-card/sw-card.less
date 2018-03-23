@@ -8,28 +8,36 @@
 @sw-card-tabs-item-color-background:        @color-light-gray;
 @sw-card-tabs-item-color-background-active: @color-white;
 
+
 .sw-card {
-    margin-bottom: 28px;
+    max-width: 800px;
+    margin: 0 auto 40px auto;
     position: relative;
-    background: @sw-card-color-background;
-    border-radius: @sw-card-border-radius;
-    border: 1px solid @sw-card-color-border;
-    padding: 30px;
-    font-size: 13px;
-    line-height: 18px;
 
     &.sw-card--tabs {
         padding: 0;
     }
 
     .sw-card__title {
-        left: -245px;
-        top: 0;
-        text-align: right;
-        position: absolute;
-        font-size: 20px;
-        line-height: 25px;
+        margin-bottom: 12px;
+        font-size: 18px;
+        line-height: 24px;
         color: @sw-card-color-title-text;
+
+        @media screen and (min-width: 1580px) {
+            width: 200px;
+            position: absolute;
+            left: -240px;
+            top: 0;
+            text-align: right;
+        }
+    }
+
+    .sw-card__content {
+        padding: 30px;
+        background: @sw-card-color-background;
+        border-radius: @sw-card-border-radius;
+        border: 1px solid @sw-card-color-border;
     }
 
     .sw-tabs {

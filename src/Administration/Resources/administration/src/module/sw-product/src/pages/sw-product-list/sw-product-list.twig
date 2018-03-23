@@ -1,0 +1,35 @@
+<sw-page>
+    <template slot="smart-bar-header">
+        <h2>Produktübersicht</h2>
+    </template>
+
+    <template slot="smart-bar-actions">
+        <router-link :to="{ name: 'sw.product.create' }">
+            <sw-button :isPrimary="true">Neues Produkt anlegen</sw-button>
+        </router-link>
+    </template>
+
+    <template slot="content">
+        <div class="sw-product--list">
+            <sw-grid :items="products" :pagination="true" v-on:edit="onEdit">
+                <template slot="columns" slot-scope="{ item }">
+                    <sw-grid-column flex="50px" label="#"></sw-grid-column>
+                    <sw-grid-column flex="1" label="Name">{{ item.name }}</sw-grid-column>
+                    <sw-grid-column flex="1" label="Manufacturer">{{ item.manufacturer.name }}</sw-grid-column>
+                    <sw-grid-column flex="100px" label="Active">
+                        <sw-icon name="small-default-checkmark-line-medium" small v-if="item.active" />
+                        <sw-icon name="small-default-x-line-medium" small v-else />
+                    </sw-grid-column>
+                    <sw-grid-column flex="100px" label="Price">{{ item.price.gross | currency }}</sw-grid-column>
+                    <sw-grid-column flex="200px" label="Stock">{{ item.stock }} in stock</sw-grid-column>
+                </template>
+
+                <template slot="pagination">
+                    <sw-pagination :page="page" :max-page="maxPage" :limit="limit" :total="total" v-on:page-change="pageChange"></sw-pagination>
+                </template>
+            </sw-grid>
+
+            <sw-loader v-if="isLoading"></sw-loader>
+        </div>
+    </template>
+</sw-page>

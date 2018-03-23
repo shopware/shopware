@@ -1,0 +1,26 @@
+<div class="sw-product-price-form">
+
+    <sw-container grid="1fr 1fr" gap="30px">
+        {% block sw_product_price_form_tax_field %}
+            <sw-field type="select"
+                      label="Steuersatz"
+                      name="tax"
+                      placeholder="Tax rate"
+                      v-model="product.taxId">
+                {% block sw_product_price_form_tax_field_options %}
+                    <option slot="options" v-for="tax in taxRates" :value="tax.id">{{ tax.name }}</option>
+                {% endblock %}
+            </sw-field>
+        {% endblock %}
+
+        {% block sw_product_price_form_price_field %}
+            <sw-field type="number"
+                      label="Preis"
+                      name="price"
+                      suffix="EUR"
+                      placeholder="Product price..."
+                      v-model="product.price.gross">
+            </sw-field>
+        {% endblock %}
+    </sw-container>
+</div>

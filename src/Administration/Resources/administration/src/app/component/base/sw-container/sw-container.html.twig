@@ -1,0 +1,7 @@
+{% block sw_container %}
+    <div class="sw-container" :style="gridStyles">
+        <slot>
+            {% block sw_container_slot_default %}{% endblock %}
+        </slot>
+    </div>
+{% endblock %}

@@ -34,6 +34,12 @@
                     </sw-card>
                 {% endblock %}
 
+                {% block sw_product_detail_content_basic_price_card %}
+                    <sw-card title="Preise">
+                        <sw-product-price-form :product="product" :taxRates="taxRates"></sw-product-price-form>
+                    </sw-card>
+                {% endblock %}
+
                 {% block sw_product_detail_content_loader %}
                     <sw-loader v-if="isLoading"></sw-loader>
                 {% endblock %}

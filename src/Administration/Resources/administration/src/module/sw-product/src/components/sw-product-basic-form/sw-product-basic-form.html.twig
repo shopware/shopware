@@ -10,34 +10,6 @@
             </sw-field>
         {% endblock %}
 
-        <div class="split--container">
-            <div class="container--item">
-
-                {% block sw_product_basic_form_tax_field %}
-                    <sw-field type="select"
-                              label="Tax rate"
-                              name="tax"
-                              placeholder="Tax rate"
-                              v-model="product.taxId">
-                        <option slot="options" v-for="tax in taxRates" :value="tax.id">{{ tax.name }}</option>
-                    </sw-field>
-                {% endblock %}
-            </div>
-
-            <div class="container--item">
-
-                {% block sw_product_basic_form_price_field %}
-                    <sw-field type="number"
-                              label="Preis"
-                              name="price"
-                              suffix="EUR"
-                              placeholder="Product price..."
-                              v-model="product.price.gross">
-                    </sw-field>
-                {% endblock %}
-            </div>
-        </div>
-
         {% block sw_product_basic_form_description_field %}
             <sw-field type="textarea"
                       label="Artikel-Beschreibung"
@@ -47,33 +19,28 @@
             </sw-field>
         {% endblock %}
 
-        <div class="split--container">
-            <div class="container--item">
+        <sw-container grid="1fr 1fr" gap="30px">
+            {% block sw_product_basic_form_id_field %}
+                <sw-field type="text"
+                          label="Artikelnummer"
+                          name="id"
+                          placeholder="Your product Id"
+                          :value="product.id">
+                </sw-field>
+            {% endblock %}
 
-                {% block sw_product_basic_form_id_field %}
-                    <sw-field type="text"
-                              label="Artikelnummer"
-                              name="id"
-                              placeholder="Your product Id"
-                              :value="product.id">
-                    </sw-field>
-                {% endblock %}
-            </div>
-            <div class="container--item">
-
-                {% block sw_product_basic_form_manufacturer_field %}
-                    <sw-field type="select"
-                              label="Hersteller"
-                              name="manufacturer"
-                              placeholder="Your product manufacturer"
-                              v-model="product.manufacturerId">
-                        {% block sw_product_basic_form_manufacturer_field_options %}
-                            <option slot="options" v-for="manufacturer in manufacturers" :value="manufacturer.id">{{ manufacturer.name }}</option>
-                        {% endblock %}
-                    </sw-field>
-                {% endblock %}
-            </div>
-        </div>
+            {% block sw_product_basic_form_manufacturer_field %}
+                <sw-field type="select"
+                          label="Hersteller"
+                          name="manufacturer"
+                          placeholder="Your product manufacturer"
+                          v-model="product.manufacturerId">
+                    {% block sw_product_basic_form_manufacturer_field_options %}
+                        <option slot="options" v-for="manufacturer in manufacturers" :value="manufacturer.id">{{ manufacturer.name }}</option>
+                    {% endblock %}
+                </sw-field>
+            {% endblock %}
+        </sw-container>
 
         {% block sw_product_basic_form_category_field %}
             <sw-multi-select label="Kategorie"

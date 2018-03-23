@@ -1,0 +1,6 @@
+<li class="sw-context-menu__item" v-on="$listeners" :class="{ 'is-disabled': disabled }">
+    <sw-icon :name="icon" small v-if="icon"></sw-icon>
+    <span class="sw-context-menu__item-text">
+        <slot></slot>
+    </span>
+</li>

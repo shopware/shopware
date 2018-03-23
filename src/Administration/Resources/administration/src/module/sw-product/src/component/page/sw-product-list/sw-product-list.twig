@@ -20,13 +20,14 @@
                          :sortBy="sortBy"
                          :sortDirection="sortDirection"
                          :sidebar="true"
+                         :actions="[]"
                          @edit="onEdit"
                          @sort-column="onSortColumn">
                     {% block core_product_list_grid_slots %}
                         <template slot="columns" slot-scope="{ item }">
                             {% block core_product_list_grid_columns %}
                                 {% block core_product_list_grid_columns_name %}
-                                    <sw-grid-column flex="1" label="Name" sortable dataIndex="name">{{ item.name }}</sw-grid-column>
+                                    <sw-grid-column flex="1" label="Name" sortable dataIndex="name" @click="onEdit(item)">{{ item.name }}</sw-grid-column>
                                 {% endblock %}
 
                                 {% block core_product_list_grid_columns_manufacturer %}
@@ -48,6 +49,24 @@
                                     <sw-grid-column flex="135px" label="Lager" sortable dataIndex="stock" align="right">
                                         {{ item.stock }}
                                         <sw-color-swatch :variant="item.stock | stockColorVariant"></sw-color-swatch>
+                                    </sw-grid-column>
+
+                                    <sw-grid-column flex="135px" label="Aktionen" align="center">
+                                        <sw-context-menu-button>
+                                            <sw-context-menu-item icon="small-pencil-paper">
+                                                <router-link :to="{
+                                                    name: 'sw.product.detail',
+                                                    params: { id: item.id } }">
+                                                    Artikel editieren
+                                                </router-link>
+                                            </sw-context-menu-item>
+                                            <sw-context-menu-item icon="small-default-x-line-medium" :disabled="true">
+                                                Artikel löschen
+                                            </sw-context-menu-item>
+                                            <sw-context-menu-item icon="small-copy" :disabled="true">
+                                                Artikel duplizieren
+                                            </sw-context-menu-item>
+                                        </sw-context-menu-button>
                                     </sw-grid-column>
                                 {% endblock %}
                             {% endblock %}
@@ -78,7 +97,13 @@
 
                                 {% block core_product_list_grid_sidebar_filter %}
                                     <sw-sidebar-item icon="default-action-filter" title="Filter">
-                                        <sw-field type="switch" v-for="(filter, index) in filters" :label="filter.label" :value="filter.active" :key="index" @change="onSwitchFilter(filter.criteria, index)"></sw-field>
+                                        <sw-field type="switch"
+                                                  v-for="(filter, index) in filters"
+                                                  :label="filter.label"
+                                                  :value="filter.active"
+                                                  :key="index"
+                                                  @change="onSwitchFilter(filter.criteria, index)">
+                                        </sw-field>
 
                                         <sw-alert variant="warning" :showIcon="false">
                                             <strong>Demo</strong> filters which will be replaced with more meaningful filters in the future.

@@ -3,6 +3,8 @@ import './sw-grid-column.less';
 import template from './sw-grid-column.html.twig';
 
 Component.register('sw-grid-column', {
+    template,
+
     props: {
         label: {
             type: String,
@@ -46,7 +48,5 @@ Component.register('sw-grid-column', {
                 });
             }
         }
-    },
-
-    template
+    }
 });

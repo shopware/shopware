@@ -3,6 +3,8 @@ import './sw-grid.less';
 import template from './sw-grid.html.twig';
 
 Component.register('sw-grid', {
+    template,
+
     data() {
         return {
             columns: [],
@@ -142,7 +144,5 @@ Component.register('sw-grid', {
 
             return 0;
         }
-    },
-
-    template
+    }
 });

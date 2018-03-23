@@ -5,6 +5,8 @@ import './base/sw-alert';
 import './base/sw-avatar';
 import './base/sw-sidebar';
 import './base/sw-sidebar-item';
+import './base/sw-context-menu-button';
+import './base/sw-context-menu-item';
 
 import './grid/sw-grid';
 import './grid/sw-grid-column';

@@ -1,5 +1,4 @@
 import { storiesOf } from '@storybook/vue';
-import { action } from '@storybook/addon-actions';
 import { withKnobs } from '@storybook/addon-knobs/vue';
 
 import SwagVueInfoPanel from '../addons/info-addon';

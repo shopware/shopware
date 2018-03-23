@@ -15,5 +15,13 @@ Component.register('sw-product-price-form', {
             required: true,
             default: []
         }
+    },
+
+    computed: {
+        productTaxRate() {
+            return this.taxRates.find((taxRate) => {
+                return taxRate.id === this.product.taxId;
+            });
+        }
     }
 });

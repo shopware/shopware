@@ -1,0 +1,35 @@
+{% block sw_price_field %}
+    <div class="sw-price-field">
+
+        {% block sw_price_field_gross %}
+            <sw-field type="number"
+                      label="Preis (Brutto)"
+                      suffix="€"
+                      min="0.00"
+                      step="0.01"
+                      @input="onPriceGrossChange"
+                      @change="onPriceGrossChange"
+                      v-model="price.gross">
+            </sw-field>
+        {% endblock %}
+
+        {% block sw_price_field_lock_button %}
+            <button class="sw-price-field__lock" :class="{ 'is--locked': locked }" @click="onLockSwitch">
+                <sw-icon name="default-lock-closed" size="16" v-if="locked"></sw-icon>
+                <sw-icon name="default-lock-open" size="16 "v-else></sw-icon>
+            </button>
+        {% endblock %}
+
+        {% block sw_price_field_net %}
+            <sw-field type="number"
+                      label="Preis (Netto)"
+                      suffix="€"
+                      min="0.00"
+                      step="0.01"
+                      @input="onPriceNetChange"
+                      @change="onPriceNetChange"
+                      v-model="price.net">
+            </sw-field>
+        {% endblock %}
+    </div>
+{% endblock %}

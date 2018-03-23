@@ -1,0 +1,27 @@
+@import "~less/variables";
+
+.sw-price-field {
+    display: grid;
+    grid-template-columns: 1fr 30px 1fr;
+
+    .sw-price-field__lock {
+        height: 45px;
+        margin-top: 24px;
+        background: none;
+        border: none;
+        color: @color-gutenberg;
+        outline: none;
+        cursor: pointer;
+
+        &.is--locked {
+            color: @color-shopware-blue;
+        }
+    }
+
+    .sw-field {
+        .sw-field__suffix {
+            font-weight: 400;
+            font-size: 20px;
+        }
+    }
+}

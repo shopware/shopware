@@ -14,6 +14,7 @@ import './grid/sw-grid-column';
 import './grid/sw-pagination';
 
 import './form/sw-field';
+import './form/sw-price-field';
 import './form/sw-form-grid';
 import './form/sw-multi-select';
 

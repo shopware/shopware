@@ -15,11 +15,6 @@ Component.register('sw-product-basic-form', {
             required: true,
             default: []
         },
-        taxRates: {
-            type: Array,
-            required: true,
-            default: []
-        },
         serviceProvider: {
             type: Object,
             required: true

@@ -12,6 +12,8 @@ use Shopware\Api\Entity\Field\FkField;
 use Shopware\Api\Entity\Field\FloatField;
 use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\IntField;
+use Shopware\Api\Entity\Field\JsonArrayField;
+use Shopware\Api\Entity\Field\JsonObjectField;
 use Shopware\Api\Entity\Field\LongTextField;
 use Shopware\Api\Entity\Field\LongTextWithHtmlField;
 use Shopware\Api\Entity\Field\ManyToManyAssociationField;
@@ -215,6 +217,10 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
     private function getType(Field $field): string
     {
         switch (true) {
+            case $field instanceof JsonObjectField:
+                return 'json_object';
+            case $field instanceof JsonArrayField:
+                return 'json_array';
             case $field instanceof OneToManyAssociationField:
             case $field instanceof ManyToManyAssociationField:
                 return 'array';
@@ -242,27 +248,22 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
             'type' => $this->getType($field),
         ];
 
-        if ($field instanceof DateField) {
-            $property['format'] = 'date-time';
-        }
-
-        if ($field instanceof FloatField) {
-            $property['format'] = 'float';
-        }
-
         switch (true) {
+            case $field instanceof DateField:
+                $property['format'] = 'date-time';
+                break;
+            case $field instanceof FloatField:
+                $property['format'] = 'float';
+                break;
+            case $field instanceof IntField:
+                $property['format'] = 'int64';
+                break;
             case $field instanceof VersionField:
             case $field instanceof ReferenceVersionField:
             case $field instanceof FkField:
             case $field instanceof IdField:
                 $property['type'] = 'string';
                 $property['format'] = 'uuid';
-                break;
-        }
-
-        switch ($property['type']) {
-            case 'int':
-                $property['format'] = 'int64';
                 break;
         }
 

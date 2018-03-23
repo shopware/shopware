@@ -9,7 +9,7 @@ class XmlPluginInfoReader
     public function read($file)
     {
         try {
-            $dom = XmlUtils::loadFile($file, __DIR__ . '/schema/plugin.xsd');
+            $dom = XmlUtils::loadFile($file, __DIR__ . '/Schema/plugin.xsd');
         } catch (\Exception $e) {
             throw new \InvalidArgumentException(sprintf('Unable to parse file "%s". Message: %s', $file, $e->getMessage()), $e->getCode(), $e);
         }

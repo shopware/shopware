@@ -1,22 +1,74 @@
 @import "~less/variables";
 
-.container--card {
+@sw-card-color-background:             @color-white;
+@sw-card-color-border:                 @color-steam-cloud;
+@sw-card-border-radius:                @border-radius-default;
+@sw-card-color-title-text:             @color-kashmir;
+
+@sw-tabs-item-color-border:            @color-steam-cloud;
+@sw-tabs-item-color-background:        @color-light-gray;
+@sw-tabs-item-color-background-active: @color-white;
+
+.sw-card {
     margin-bottom: 28px;
     position: relative;
-    background: @color-white;
-    border-radius: @border-radius-default;
-    border: 1px solid @color-steam-cloud;
+    background: @sw-card-color-background;
+    border-radius: @sw-card-border-radius;
+    border: 1px solid @sw-card-color-border;
     padding: 30px;
     font-size: 13px;
     line-height: 18px;
 
-    .card--title {
+    &.sw-card--has-tabs {
+        padding: 0;
+    }
+
+    .sw-card__title {
         left: -245px;
         top: 0;
         text-align: right;
         position: absolute;
         font-size: 20px;
         line-height: 25px;
-        color: @color-kashmir;
+        color: @sw-card-color-title-text;
+    }
+
+    .sw-tabs {
+        border-width: 0 0 1px 0;
+        border-bottom-right-radius: 0;
+        border-bottom-left-radius: 0;
+        margin-bottom: 0;
+
+        .sw-tabs__container {
+            position: relative;
+            top: -5px;
+        }
+    }
+
+    .sw-tabs-item {
+        margin: 0;
+        padding-top: 5px;
+        line-height: 44px;
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+
+        &:hover {
+            border-bottom-color: @sw-tabs-item-color-border;
+        }
+
+        &:focus {
+            background-color: @sw-tabs-item-color-background;
+            border-bottom-color: @sw-tabs-item-color-border;
+        }
+
+        &:active {
+            border-bottom-color: @sw-tabs-item-color-background-active;
+            background-color: @sw-tabs-item-color-background-active;
+        }
+
+        &.router-link-active {
+            background-color: @sw-tabs-item-color-background-active;
+            border-bottom-color: @sw-tabs-item-color-background-active;
+        }
     }
 }

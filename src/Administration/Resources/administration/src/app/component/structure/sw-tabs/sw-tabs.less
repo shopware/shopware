@@ -1,0 +1,61 @@
+@import "~less/variables";
+
+@sw-tabs-background-color:       @color-light-gray;
+@sw-tabs-border-radius:          @border-radius-default;
+@sw-tabs-color-border:           @color-steam-cloud;
+@sw-tabs-arrow-color-background: @color-light-gray;
+@sw-tabs-arrow-color-icon:       lighten(@color-gutenberg, 20%);
+
+.sw-tabs {
+    position: relative;
+    display: block;
+    padding: 0;
+    margin-bottom: 30px;
+    height: 48px;
+    background-color: @sw-tabs-background-color;
+    border-radius: @sw-tabs-border-radius;
+    border: 1px solid @sw-tabs-color-border;
+
+    .sw-tabs__arrow {
+        width: 30px;
+        line-height: 46px;
+        padding: 0;
+        position: absolute;
+        bottom: 0;
+        background-color: transparent;
+        color: @sw-tabs-arrow-color-icon;
+        text-align: center;
+        cursor: pointer;
+        outline: none;
+        border: 0 none;
+
+        &:hover {
+            color: darken(@sw-tabs-arrow-color-icon, 10%);
+        }
+    }
+
+    .sw-tabs__arrow--left {
+        left: 0;
+    }
+
+    .sw-tabs__arrow--right {
+        right: 0;
+    }
+
+    .sw-tabs__container {
+        margin-left: 30px;
+        margin-right: 30px;
+    }
+
+    .sw-tabs__navigation {
+        overflow-x: scroll;
+        overflow-y: hidden;
+        white-space: nowrap;
+        -ms-overflow-style: none;
+        -webkit-overflow-scrolling: touch;
+
+        &::-webkit-scrollbar {
+            display: none;
+        }
+    }
+}

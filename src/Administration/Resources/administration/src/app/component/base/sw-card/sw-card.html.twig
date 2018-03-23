@@ -1,6 +1,7 @@
-<div class="container--card">
-    <div class="card--title">
+<div class="sw-card" :class="{ 'sw-card--has-tabs': hasTabsSlot }">
+    <div class="sw-card__title">
         {{ title }}
     </div>
+    <slot name="tabs"></slot>
     <slot></slot>
 </div>

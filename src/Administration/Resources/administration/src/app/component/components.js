@@ -18,6 +18,7 @@ import './form/sw-multi-select';
 
 import './utils/sw-loader';
 import './utils/sw-notifications';
+import './utils/sw-vnode-renderer';
 import './utils/sw-color-badge';
 
 import './structure/sw-admin';
@@ -28,3 +29,5 @@ import './structure/sw-admin-menu';
 
 import './structure/sw-search-bar';
 import './structure/sw-workspace';
+import './structure/sw-tabs';
+import './structure/sw-tabs-item';

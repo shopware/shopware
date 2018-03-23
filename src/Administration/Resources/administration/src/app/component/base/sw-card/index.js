@@ -3,6 +3,8 @@ import './sw-card.less';
 import template from './sw-card.html.twig';
 
 Component.register('sw-card', {
+    template,
+
     props: {
         title: {
             type: String,
@@ -10,5 +12,9 @@ Component.register('sw-card', {
         }
     },
 
-    template
+    computed: {
+        hasTabsSlot() {
+            return !!this.$slots.tabs;
+        }
+    }
 });

@@ -1,0 +1,39 @@
+{% block sw_tabs %}
+    <div class="sw-tabs">
+        {% block sw_tabs_container %}
+            <div class="sw-tabs__container">
+                {% block sw_tabs_navigation %}
+                    <nav class="sw-tabs__navigation" ref="swTabsNavigation">
+                        {% block sw_tabs_navigation_items %}
+                            <slot>
+                                {% block sw_tabs_slot_default %}{% endblock %}
+                            </slot>
+                        {% endblock %}
+                    </nav>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block sw_tabs_arrows %}
+            {% block sw_tabs_arrow_left %}
+                <button v-if="showArrowControls"
+                        @click="onClickArrow('left')"
+                        class="sw-tabs__arrow sw-tabs__arrow--left">
+                    {% block sw_tabs_arrow_left_icon %}
+                        <sw-icon name="small-arrow-medium-left" small></sw-icon>
+                    {% endblock %}
+                </button>
+            {% endblock %}
+
+            {% block sw_tabs_arrow_right %}
+                <button v-if="showArrowControls"
+                        @click="onClickArrow('right')"
+                        class="sw-tabs__arrow sw-tabs__arrow--right">
+                    {% block sw_tabs_arrow_right_icon %}
+                        <sw-icon name="small-arrow-medium-right" small></sw-icon>
+                    {% endblock %}
+                </button>
+            {% endblock %}
+        {% endblock %}
+    </div>
+{% endblock %}

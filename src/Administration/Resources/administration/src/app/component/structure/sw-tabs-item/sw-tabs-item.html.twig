@@ -1,0 +1,7 @@
+{% block sw_tabs_item %}
+    <router-link class="sw-tabs-item" :to="route">
+        {% block sw_tabs_item_label %}
+            <slot>{% block sw_tabs_item_slot_default %}{% endblock %}</slot>
+        {% endblock %}
+    </router-link>
+{% endblock %}

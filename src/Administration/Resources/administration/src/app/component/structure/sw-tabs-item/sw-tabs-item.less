@@ -1,0 +1,52 @@
+@import "~less/variables";
+
+@sw-tabs-item-color-border:            @color-steam-cloud;
+@sw-tabs-item-color-text:              @color-kashmir;
+@sw-tabs-item-color-text-active:       @color-shopware-blue;
+@sw-tabs-item-color-background:        @color-light-gray;
+@sw-tabs-item-color-background-active: @color-white;
+@sw-tabs-item-border-radius:           @border-radius-default;
+@sw-tabs-item-font-size:               14px;
+
+.sw-tabs-item {
+    display: inline-block;
+    padding: 2px 28px;
+    margin: 4px 0;
+    line-height: 32px;
+    font-size: @sw-tabs-item-font-size;
+    border: 1px solid transparent;
+    border-radius: @sw-tabs-item-border-radius;
+    color: @sw-tabs-item-color-text;
+    text-decoration: none;
+    outline: none;
+
+    &:first-child {
+        margin-left: 0;
+    }
+
+    &:last-child {
+        margin-right: 0;
+    }
+
+    &:hover {
+        border-color: @sw-tabs-item-color-border;
+        color: @sw-tabs-item-color-text-active;
+        background-color: @sw-tabs-item-color-background;
+    }
+
+    &.router-link-active {
+        border-color: @sw-tabs-item-color-border;
+        color: @sw-tabs-item-color-text-active;
+        background-color: @sw-tabs-item-color-background-active;
+    }
+
+    &:focus {
+        border-color: darken(@sw-tabs-item-color-border, 10%);
+    }
+
+    &:active {
+        background-color: @sw-tabs-item-color-background-active;
+        border-color: darken(@sw-tabs-item-color-border, 10%);
+        color: @sw-tabs-item-color-text-active;
+    }
+}

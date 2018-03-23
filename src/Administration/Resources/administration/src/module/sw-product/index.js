@@ -32,6 +32,12 @@ Module.register('sw-product', {
             path: 'product/create',
             meta: {
                 parentPath: 'sw.product.index'
+            },
+            children: {
+                general: {
+                    component: 'sw-product-detail-general',
+                    path: 'general'
+                }
             }
         },
 
@@ -40,6 +46,20 @@ Module.register('sw-product', {
             path: 'detail/:id',
             meta: {
                 parentPath: 'sw.product.index'
+            },
+            children: {
+                general: {
+                    component: 'sw-product-detail-general',
+                    path: 'general'
+                },
+                variants: {
+                    component: 'sw-product-detail-variants',
+                    path: 'variants'
+                },
+                advancedPrices: {
+                    component: 'sw-product-detail-advanced-prices',
+                    path: 'advanced-prices'
+                }
             }
         }
     },

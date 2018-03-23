@@ -194,6 +194,20 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
                 }
                 componentList[componentKey] = component;
             });
+
+            if (route.children && route.children.length) {
+                route.children = route.children.map((child) => {
+                    let component = child.component;
+
+                    // Just convert component names
+                    if (typeof component === 'string') {
+                        component = getViewComponent(component);
+                    }
+                    child.component = component;
+                    return child;
+                });
+            }
+
             route.components = componentList;
         }
 

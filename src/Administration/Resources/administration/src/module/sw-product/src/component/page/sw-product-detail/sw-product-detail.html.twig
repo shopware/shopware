@@ -16,36 +16,18 @@
         </div>
     </header>
 
-    <div class="sw-product--detail" slot="default" v-if="isLoaded">
-        <ul class="container--tabs">
-            <li class="tabs--item router-link-active">
-                <a href="#" class="item--link">
-                    Allgemein
-                </a>
-            </li>
-            <li class="tabs--item">
-                <a href="#" class="item--link">
-                    Cross Selling
-                </a>
-            </li>
-            <li class="tabs--item">
-                <a href="#" class="item--link">
-                    Tab
-                </a>
-            </li>
-            <li class="tabs--item">
-                <a href="#" class="item--link">
-                    Tab
-                </a>
-            </li>
-            <li class="tabs--item">
-                <a href="#" class="item--link">
-                    Tab
-                </a>
-            </li>
-        </ul>
+    <div class="sw-product-detail" slot="default" v-if="isLoaded">
+        <sw-tabs>
+            <sw-tabs-item :route="{ name: 'sw.product.detail.general', params: { id: product.id } }" title="Allgemein">Allgemein</sw-tabs-item>
+            <sw-tabs-item :route="{ name: 'sw.product.detail.variants', params: { id: product.id } }" title="Varianten">Varianten</sw-tabs-item>
+            <sw-tabs-item :route="{ name: 'sw.product.detail.advancedPrices', params: { id: product.id } }" title="Erweiterte Preise">Erweiterte Preise</sw-tabs-item>
+        </sw-tabs>
 
-        <sw-product-basic-form :product="product" :manufacturers="manufacturers" :taxRates="taxRates" :serviceProvider="categoryService"></sw-product-basic-form>
+        <router-view :product="product"
+                     :manufacturers="manufacturers"
+                     :taxRates="taxRates"
+                     :serviceProvider="categoryService">
+        </router-view>
 
         {% block core_product_detail_workspace_additional %}{% endblock %}
     </div>

@@ -132,12 +132,32 @@ function registerModule(moduleId, module) {
             delete route.component;
         }
 
+        if (route.children && Object.keys(route.children).length) {
+            route.children = Object.keys(route.children).map((key) => {
+                const child = route.children[key];
+                if (child.path && child.path.length === 0) {
+                    child.path = '';
+                } else {
+                    child.path = `${route.path}/${child.path}`;
+                }
+
+                child.name = `${splitModuleId.join('.')}.${routeKey}.${key}`;
+                child.isChildren = true;
+
+                // Register the child in the module routes
+                moduleRoutes.set(child.name, child);
+
+                return child;
+            });
+        }
+
         // Alias support
         if (route.alias && route.alias.length > 0
             && (!route.coreRoute)) {
             route.alias = `/${splitModuleId.join('/')}/${route.alias}`;
         }
 
+        route.isChildren = false;
         moduleRoutes.set(route.name, route);
     });
 
@@ -179,6 +199,9 @@ function getModuleRoutes() {
 
     modules.forEach((module) => {
         module.routes.forEach((route) => {
+            if (route.isChildren) {
+                return;
+            }
             moduleRoutes.push(route);
         });
     });

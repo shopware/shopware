@@ -76,16 +76,6 @@ Component.register('sw-field', {
         };
     },
 
-    computed: {
-        hasError() {
-            return false;
-        },
-
-        hasErrorCls() {
-            return false;
-        }
-    },
-
     watch: {
         value() {
             this.currentValue = this.value;

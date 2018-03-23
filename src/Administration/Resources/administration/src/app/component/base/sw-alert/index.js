@@ -46,8 +46,8 @@ Component.register('sw-alert', {
                 `sw-alert--${this.variant}`,
                 {
                     'sw-alert--system': this.system,
-                    'sw-alert--no-icon': !this.showIcon
-                    'sw-alert--closable': this.closable,
+                    'sw-alert--no-icon': !this.showIcon,
+                    'sw-alert--closable': this.closable
                 }
             ];
         },

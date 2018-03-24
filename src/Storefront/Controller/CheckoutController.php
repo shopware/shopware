@@ -207,7 +207,7 @@ class CheckoutController extends StorefrontController
      */
     public function finalizeTransactionAction(Request $request, StorefrontContext $context): RedirectResponse
     {
-        $paymentToken = $this->tokenFactory->validateToken($request->get('token'));
+        $paymentToken = $this->tokenFactory->validateToken($request->get('_sw_payment_token'));
 
         $this->tokenFactory->invalidateToken($paymentToken->getToken());
 

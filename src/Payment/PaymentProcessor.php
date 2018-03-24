@@ -41,6 +41,11 @@ class PaymentProcessor
      */
     private $router;
 
+    /**
+     * @var ContainerInterface
+     */
+    private $container;
+
     public function __construct(
         PaymentTransactionTokenFactoryInterface $tokenFactory,
         OrderRepository $orderRepository,
@@ -120,7 +125,7 @@ class PaymentProcessor
     {
         return $this->router->generate(
             'checkout_finalize_transaction',
-            ['token' => $token],
+            ['_sw_payment_token' => $token],
             Router::ABSOLUTE_URL
         );
     }

@@ -155,13 +155,13 @@ class #classUc#Repository implements RepositoryInterface
 
         return $event;
     }
-    
+
     public function createVersion(string $id, ShopContext $context, ?string $name = null, ?string $versionId = null): string
     {
         return $this->versionManager->createVersion(#classUc#Definition::class, $id, WriteContext::createFromShopContext($context), $name, $versionId);
     }
 
-    public function merge(string $versionId, ShopContext $context)
+    public function merge(string $versionId, ShopContext $context): void
     {
         $this->versionManager->merge($versionId, WriteContext::createFromShopContext($context));
     }

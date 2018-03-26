@@ -3,7 +3,6 @@
 {% block frontend_listing_filter_facet_value_tree %}
     {% set filterType = 'value-tree' %}
     {% set listingMode = shopware.config.listingMode %}
-    {% set listingMode = 'full_page_reload' %}
 
     {% if listingMode == 'filter_ajax_reload' %}
         {% set type = 'value-tree-single' %}

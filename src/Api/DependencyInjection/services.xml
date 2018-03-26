@@ -42,6 +42,7 @@
         <service class="Shopware\Api\Entity\Dbal\EntityAggregator" id="Shopware\Api\Entity\Dbal\EntityAggregator">
             <argument id="Doctrine\DBAL\Connection" type="service"/>
             <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+            <tag name="shopware.traceable" label="entity.aggregator" />
         </service>
 
         <service class="Shopware\Api\Entity\Dbal\EntitySearcher" id="Shopware\Api\Entity\Dbal\EntitySearcher" >

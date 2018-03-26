@@ -2,7 +2,8 @@
 {# @var product \Shopware\Storefront\Bridge\Product\Struct\ListingProductStruct #}
 
 {% block frontend_listing_box_article %}
-    <div class="product--box box--{{ productBoxLayout }}"
+    {% set class = 'product--box box--' ~ productBoxLayout %}
+    <div class="{{ class }}"
          data-page-index="{{ pageIndex }}"
          data-ordernumber="{{ product.id }}"
          {% if shopware.config.disableArticleNavigation == false %}data-category-id="{{ navigation.activeCategory.id }}"{% endif %}>

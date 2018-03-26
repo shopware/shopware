@@ -1,6 +1,8 @@
 {% block frontend_listing_list_inline_ajax %}
-    {# Actual listing #}
-    {% for product in products %}
+    {# @var listing \Shopware\Storefront\Page\Listing\ListingPageStruct #}
+
+    {% set productBoxLayout = listing.productBoxLayout %}
+    {% for product in listing.products %}
         {% sw_include '@Storefront/frontend/listing/box_product.html.twig' %}
     {% endfor %}
 {% endblock %}

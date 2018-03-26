@@ -1,98 +1,39 @@
 {# Config #}
-{% set productSliderCls %}
-    {% if productSliderCls is defined %}{{ productSliderCls }}{% else %}""{% endif %}
-{% endset %}
-{% set productBoxLayout %}
-    {% if productBoxLayout is defined %}{{ productBoxLayout }}{% else %}"slider"{% endif %}
-{% endset %}
-{% set sliderMode %}
-    {% if sliderMode is defined %}{{ sliderMode }}{% else %}""{% endif %}
-{% endset %}
-{% set sliderOrientation %}
-    {% if sliderOrientation is defined %}{{ sliderOrientation }}{% else %}""{% endif %}
-{% endset %}
-{% set sliderItemMinWidth %}
-    {% if sliderItemMinWidth is defined %}{{ sliderItemMinWidth }}{% else %}""{% endif %}
-{% endset %}
-{% set sliderItemMinHeight %}
-    {% if sliderItemMinHeight is defined %}{{ sliderItemMinHeight }}{% else %}""{% endif %}
-{% endset %}
-{% set sliderItemsPerSlide %}
-    {% if sliderItemsPerSlide is defined %}{{ sliderItemsPerSlide }}{% else %}""{% endif %}
-{% endset %}
-{% set sliderItemsPerPage %}
-    {% if sliderItemsPerPage is defined %}{{ sliderItemsPerPage }}{% else %}""{% endif %}
-{% endset %}
-{% set sliderAutoSlide %}
-    {% if sliderAutoSlide is defined %}{{ sliderAutoSlide }}{% else %}""{% endif %}
-{% endset %}
-{% set sliderAutoSlideDirection %}
-    {% if sliderAutoSlideDirection is defined %}{{ sliderAutoSlideDirection }}{% else %}""{% endif %}
-{% endset %}
-{% set sliderAutoSlideSpeed %}
-    {% if sliderAutoSlideSpeed is defined %}{{ sliderAutoSlideSpeed }}{% else %}""{% endif %}
-{% endset %}
-{% set sliderAutoScroll %}
-    {% if sliderAutoScroll is defined %}{{ sliderAutoScroll }}{% else %}""{% endif %}
-{% endset %}
-{% set sliderAutoScrollDirection %}
-    {% if sliderAutoScrollDirection is defined %}{{ sliderAutoScrollDirection }}{% else %}""{% endif %}
-{% endset %}
-{% set sliderAutoScrollSpeed %}
-    {% if sliderAutoScrollSpeed is defined %}{{ sliderAutoScrollSpeed }}{% else %}""{% endif %}
-{% endset %}
-{% set sliderScrollDistance %}
-    {% if sliderScrollDistance is defined %}{{ sliderScrollDistance }}{% else %}""{% endif %}
-{% endset %}
-{% set sliderAnimationSpeed %}
-    {% if sliderAnimationSpeed is defined %}{{ sliderAnimationSpeed }}{% else %}""{% endif %}
-{% endset %}
-{% set sliderArrowControls %}
-    {% if sliderArrowControls is defined %}{{ sliderArrowControls }}{% else %}""{% endif %}
-{% endset %}
-{% set sliderArrowAction %}
-    {% if sliderArrowAction is defined %}{{ sliderArrowAction }}{% else %}""{% endif %}
-{% endset %}
-{% set sliderWrapperCls %}
-    {% if sliderWrapperCls is defined %}{{ sliderWrapperCls }}{% else %}""{% endif %}
-{% endset %}
-{% set sliderHorizontalCls %}
-    {% if sliderHorizontalCls is defined %}{{ sliderHorizontalCls }}{% else %}""{% endif %}
-{% endset %}
-{% set sliderVerticalCls %}
-    {% if sliderVerticalCls is defined %}{{ sliderVerticalCls }}{% else %}""{% endif %}
-{% endset %}
-{% set sliderArrowCls %}
-    {% if sliderArrowCls is defined %}{{ sliderArrowCls }}{% else %}""{% endif %}
-{% endset %}
-{% set sliderPrevArrowCls %}
-    {% if sliderPrevArrowCls is defined %}{{ sliderPrevArrowCls }}{% else %}""{% endif %}
-{% endset %}
-{% set sliderNextArrowCls %}
-    {% if sliderNextArrowCls is defined %}{{ sliderNextArrowCls }}{% else %}""{% endif %}
-{% endset %}
-{% set sliderAjaxCtrlUrl %}
-    {% if sliderAjaxCtrlUrl is defined %}{{ sliderAjaxCtrlUrl }}{% else %}""{% endif %}
-{% endset %}
-{% set sliderAjaxCategoryID %}
-    {% if sliderAjaxCategoryID is defined %}{{ sliderAjaxCategoryID }}{% else %}""{% endif %}
-{% endset %}
-{% set sliderAjaxMaxShow %}
-    {% if sliderAjaxMaxShow is defined %}{{ sliderAjaxMaxShow }}{% else %}""{% endif %}
-{% endset %}
-{% set sliderAjaxShowLoadingIndicator %}
-    {% if sliderAjaxShowLoadingIndicator is defined %}{{ sliderAjaxShowLoadingIndicator }}{% else %}""{% endif %}
-{% endset %}
-{% set sliderInitOnEvent %}
-    {% if sliderInitOnEvent is defined %}{{ sliderInitOnEvent }}{% else %}""{% endif %}
-{% endset %}
-{% set fixedImageSize %}
-    {% if fixedImageSize is defined %}{{ fixedImageSize }}{% else %}""{% endif %}
-{% endset %}
+{% set productSliderCls %}{% if productSliderCls is defined %}{{ productSliderCls }}{% else %}{% endif %}{% endset %}
+{% set productBoxLayout %}{% if productBoxLayout is defined %}{{ productBoxLayout }}{% else %}slider{% endif %}{% endset %}
+{% set sliderMode %}{% if sliderMode is defined %}{{ sliderMode }}{% else %}{% endif %}{% endset %}
+{% set sliderOrientation %}{% if sliderOrientation is defined %}{{ sliderOrientation }}{% else %}{% endif %}{% endset %}
+{% set sliderItemMinWidth %}{% if sliderItemMinWidth is defined %}{{ sliderItemMinWidth }}{% else %}{% endif %}{% endset %}
+{% set sliderItemMinHeight %}{% if sliderItemMinHeight is defined %}{{ sliderItemMinHeight }}{% else %}{% endif %}{% endset %}
+{% set sliderItemsPerSlide %}{% if sliderItemsPerSlide is defined %}{{ sliderItemsPerSlide }}{% else %}{% endif %}{% endset %}
+{% set sliderItemsPerPage %}{% if sliderItemsPerPage is defined %}{{ sliderItemsPerPage }}{% else %}{% endif %}{% endset %}
+{% set sliderAutoSlide %}{% if sliderAutoSlide is defined %}{{ sliderAutoSlide }}{% else %}{% endif %}{% endset %}
+{% set sliderAutoSlideDirection %}{% if sliderAutoSlideDirection is defined %}{{ sliderAutoSlideDirection }}{% else %}{% endif %}{% endset %}
+{% set sliderAutoSlideSpeed %}{% if sliderAutoSlideSpeed is defined %}{{ sliderAutoSlideSpeed }}{% else %}{% endif %}{% endset %}
+{% set sliderAutoScroll %}{% if sliderAutoScroll is defined %}{{ sliderAutoScroll }}{% else %}{% endif %}{% endset %}
+{% set sliderAutoScrollDirection %}{% if sliderAutoScrollDirection is defined %}{{ sliderAutoScrollDirection }}{% else %}{% endif %}{% endset %}
+{% set sliderAutoScrollSpeed %}{% if sliderAutoScrollSpeed is defined %}{{ sliderAutoScrollSpeed }}{% else %}{% endif %}{% endset %}
+{% set sliderScrollDistance %}{% if sliderScrollDistance is defined %}{{ sliderScrollDistance }}{% else %}{% endif %}{% endset %}
+{% set sliderAnimationSpeed %}{% if sliderAnimationSpeed is defined %}{{ sliderAnimationSpeed }}{% else %}{% endif %}{% endset %}
+{% set sliderArrowControls %}{% if sliderArrowControls is defined %}{{ sliderArrowControls }}{% else %}{% endif %}{% endset %}
+{% set sliderArrowAction %}{% if sliderArrowAction is defined %}{{ sliderArrowAction }}{% else %}{% endif %}{% endset %}
+{% set sliderWrapperCls %}{% if sliderWrapperCls is defined %}{{ sliderWrapperCls }}{% else %}{% endif %}{% endset %}
+{% set sliderHorizontalCls %}{% if sliderHorizontalCls is defined %}{{ sliderHorizontalCls }}{% else %}{% endif %}{% endset %}
+{% set sliderVerticalCls %}{% if sliderVerticalCls is defined %}{{ sliderVerticalCls }}{% else %}{% endif %}{% endset %}
+{% set sliderArrowCls %}{% if sliderArrowCls is defined %}{{ sliderArrowCls }}{% else %}{% endif %}{% endset %}
+{% set sliderPrevArrowCls %}{% if sliderPrevArrowCls is defined %}{{ sliderPrevArrowCls }}{% else %}{% endif %}{% endset %}
+{% set sliderNextArrowCls %}{% if sliderNextArrowCls is defined %}{{ sliderNextArrowCls }}{% else %}{% endif %}{% endset %}
+{% set sliderAjaxCtrlUrl %}{% if sliderAjaxCtrlUrl is defined %}{{ sliderAjaxCtrlUrl }}{% else %}{% endif %}{% endset %}
+{% set sliderAjaxCategoryID %}{% if sliderAjaxCategoryID is defined %}{{ sliderAjaxCategoryID }}{% else %}{% endif %}{% endset %}
+{% set sliderAjaxMaxShow %}{% if sliderAjaxMaxShow is defined %}{{ sliderAjaxMaxShow }}{% else %}{% endif %}{% endset %}
+{% set sliderAjaxShowLoadingIndicator %}{% if sliderAjaxShowLoadingIndicator is defined %}{{ sliderAjaxShowLoadingIndicator }}{% else %}{% endif %}{% endset %}
+{% set sliderInitOnEvent %}{% if sliderInitOnEvent is defined %}{{ sliderInitOnEvent }}{% else %}{% endif %}{% endset %}
+{% set fixedImageSize %}{% if fixedImageSize is defined %}{{ fixedImageSize }}{% else %}{% endif %}{% endset %}
 
 {# Template #}
 {% block frontend_common_product_slider_component %}
-    <div class="product-slider {{ productSliderCls }}"
+    {% set class = 'product-slider ' ~ productSliderCls %}
+    <div class="{{ class }}"
          {% if sliderMode %}data-mode="{{ sliderMode }}"{% endif %}
          {% if sliderOrientation %}data-orientation="{{ sliderOrientation }}"{% endif %}
          {% if sliderItemMinWidth %}data-itemMinWidth="{{ sliderItemMinWidth }}"{% endif %}

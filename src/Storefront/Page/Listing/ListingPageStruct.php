@@ -56,9 +56,15 @@ class ListingPageStruct extends Struct
      */
     protected $productBoxLayout;
 
+    /**
+     * @var array
+     */
+    protected $parameters;
+
     public function __construct(
         ProductBasicCollection $products,
         Criteria $criteria,
+        array $parameters = [],
         int $currentPage = 1,
         int $pageCount = 1,
         bool $showListing = true,
@@ -80,6 +86,7 @@ class ListingPageStruct extends Struct
 
         $this->aggregations = $aggregations;
         $this->sortings = $sortings;
+        $this->parameters = $parameters;
     }
 
 
@@ -172,5 +179,10 @@ class ListingPageStruct extends Struct
     public function setProductBoxLayout(string $productBoxLayout): void
     {
         $this->productBoxLayout = $productBoxLayout;
+    }
+
+    public function getParameters(): array
+    {
+        return $this->parameters;
     }
 }

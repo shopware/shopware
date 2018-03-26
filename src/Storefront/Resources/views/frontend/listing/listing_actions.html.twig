@@ -1,7 +1,6 @@
 {# Listing actions #}
 {% block frontend_listing_actions_top %}
     {% set listingMode = shopware.config.listingMode %}
-    {% set listingMode = 'full_page_reload' %}
 
     {% set class = 'listing--actions is--rounded' %}
 
@@ -29,7 +28,7 @@
 
         {# Order by selection #}
         {% block frontend_listing_actions_sort %}
-             {% sw_include '@Storefront/frontend/listing/actions/action-sorting.html.twig' %}
+            {% sw_include '@Storefront/frontend/listing/actions/action-sorting.html.twig' %}
         {% endblock %}
 
         {# Filter options #}
@@ -41,7 +40,9 @@
 
         {# Listing pagination #}
         {% block frontend_listing_actions_paging %}
-             {% sw_include '@Storefront/frontend/listing/actions/action-pagination.html.twig' %}
+            {% if listing.pageCount > 1 %}
+                {% sw_include '@Storefront/frontend/listing/actions/action-pagination.html.twig' %}
+            {% endif %}
         {% endblock %}
 
         {% block frontend_listing_actions_close %}{% endblock %}

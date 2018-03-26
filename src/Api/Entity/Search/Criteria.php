@@ -232,4 +232,9 @@ class Criteria extends Struct
     {
         array_map([$this, 'addSorting'], $sortings);
     }
+
+    public function setAggregations(array $aggregations): void
+    {
+        $this->aggregations = $aggregations;
+    }
 }

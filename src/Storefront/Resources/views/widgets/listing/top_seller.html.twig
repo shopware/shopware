@@ -1,0 +1,21 @@
+{% block widgets_listing_top_seller %}
+    {# @var products \Shopware\Api\Product\Collection\ProductBasicCollection #}
+    {% if products.count > 0 %}
+        {% block widgets_listing_top_seller_panel %}
+            <div class="topseller panel has--border is--rounded">
+                {% block widgets_listing_top_seller_panel_inner %}
+
+                    {% block widgets_listing_top_seller_title %}
+                        <div class="topseller--title panel--title is--underline">
+                            {% trans from "frontend/plugins/index/topseller" %}TopsellerHeading{% endtrans %}
+                        </div>
+                    {% endblock %}
+
+                    {% block widgets_listing_top_seller_slider %}
+                        {% sw_include '@Storefront/frontend/_includes/product_slider.html.twig' with { productSliderCls: 'topseller--content panel--body', products: products }%}
+                    {% endblock %}
+                {% endblock %}
+            </div>
+        {% endblock %}
+    {% endif %}
+{% endblock %}

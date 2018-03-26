@@ -165,5 +165,13 @@
             <tag name="storefront.listing.handler"/>
         </service>
 
+        <service class="Shopware\Storefront\Controller\Widgets\ListingController" id="Shopware\Storefront\Controller\Widgets\ListingController">
+            <argument id="Shopware\StorefrontApi\Product\StorefrontProductRepository" type="service"/>
+            <argument type="service" id="Shopware\Storefront\Page\Listing\ListingPageLoader"/>
+            <call method="setContainer">
+                <argument id="service_container" type="service"/>
+            </call>
+        </service>
+
     </services>
 </container>

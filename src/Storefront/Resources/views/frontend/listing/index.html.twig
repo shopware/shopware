@@ -5,10 +5,7 @@
 {% endblock %}
 
 {% block frontend_index_content_left %}
-    {% block frontend_index_controller_url %}
-        {# Controller url for the found products counter #}
-        {#{% set countCtrlUrl = "{url module="widgets" controller="listing" action="listingCount" params=$ajaxCountUrlParams fullPath}"}#}
-    {% endblock %}
+    {% set countCtrlUrl = path('widgets/listing-list') %}
 
     {% sw_include '@Storefront/frontend/listing/sidebar.html.twig' %}
 {% endblock %}
@@ -19,11 +16,7 @@
     {% set emotionViewports = {0: 'xl', 1: 'l', 2: 'm', 3: 's', 4: 'xs'} %}
 
     {# Count of available product pages #}
-    {% set pages = 1 %}
-
-    {% if listing.criteria %}
-        {% set pages = (numberOfProducts / listing.criteria.limit)|round %}
-    {% endif %}
+    {% set pages = listing.pageCount %}
 
     {# Layout for the product boxes #}
     {% set productBoxLayout = 'basic' %}
@@ -31,6 +24,8 @@
     {% if navigation.activeCategory.productBoxLayout != null and navigation.activeCategory.productBoxLayout != 'extend' %}
         {% set productBoxLayout = navigation.activeCategory.productBoxLayout %}
     {% endif %}
+
+    {% set countCtrlUrl = path('widgets/listing-list') %}
 
     <div class="content listing--content">
 
@@ -49,11 +44,13 @@
         {%  endblock %}
 
         {# Topseller #}
-        {#{% block frontend_listing_index_topseller %}#}
-            {#{% if hasEmotion == false and {% config name=topSellerActive %} %}#}
-                {#{action module=widgets controller=listing action=top_seller sCategory=$sCategoryContent.id}#}
-            {#{% endif %}#}
-        {#{% endblock %}#}
+        {% block frontend_listing_index_topseller %}
+            {% set topSellerActive = config.topSellerActive %}
+            {% set topSellerActive = true %}
+            {% if hasEmotion == false and topSellerActive %}
+                {{ render(controller('Storefront:Widgets/Listing:topSeller')) }}
+            {% endif %}
+        {% endblock %}
 
         {# Listing #}
         {% block frontend_listing_index_listing %}

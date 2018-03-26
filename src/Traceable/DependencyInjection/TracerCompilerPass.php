@@ -28,7 +28,7 @@ class TracerCompilerPass implements CompilerPassInterface
 
         $services = $container->findTaggedServiceIds('shopware.traceable');
         foreach ($services as $id => $tags) {
-            $this->replaceService($container, $id);
+            $this->replaceService($container, $id, $tags);
         }
 
         $services = $container->findTaggedServiceIds('cart.collector');
@@ -46,11 +46,18 @@ class TracerCompilerPass implements CompilerPassInterface
      * @param ContainerBuilder $container
      * @param string           $serviceId
      */
-    protected function replaceService(ContainerBuilder $container, string $serviceId): void
+    protected function replaceService(ContainerBuilder $container, string $serviceId, array $tags = []): void
     {
         $definition = $container->getDefinition($serviceId);
 
-        $className = $this->generator->createTracer($definition->getClass(), $serviceId);
+        $label = $serviceId;
+        foreach ($tags as $tag) {
+            if (array_key_exists('label', $tag)) {
+                $label = $tag['label'];
+            }
+        }
+
+        $className = $this->generator->createTracer($definition->getClass(), $label);
 
         $new = new Definition(
             $className, [

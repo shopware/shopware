@@ -47,7 +47,7 @@ class ListingController extends StorefrontController
     public function indexAction(string $id, StorefrontContext $context, Request $request)
     {
         $listingPage = $this->listingPageLoader->load($id, $request, $context);
-
+        
         return $this->renderStorefront('@Storefront/frontend/listing/index.html.twig', [
             'listing' => $listingPage,
         ]);

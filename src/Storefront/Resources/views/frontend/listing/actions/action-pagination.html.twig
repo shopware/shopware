@@ -5,11 +5,16 @@
     {# Pagination label #}
     {% block frontend_listing_actions_paging_label %}{% endblock %}
 
+    {% set parameters = listing.parameters %}
+
     {# @var listing \Shopware\Storefront\Page\Listing\ListingPageStruct #}
     {# Pagination - Frist page #}
     {% block frontend_listing_actions_paging_first %}
         {% if listing.currentPage > 1 %}
-            <a href="{{ baseUrl }}?p=1" title="{% trans from 'frontend/listing/listing_actions' %}ListingLinkFirst{% endtrans %}" class="paging--link paging--prev" data-action-link="true">
+            {% set parameters = parameters + { p : 1} %}
+            {% set url = path('listing_page', parameters, 5) %}
+
+            <a href="{{ url }}" title="{% trans from 'frontend/listing/listing_actions' %}ListingLinkFirst{% endtrans %}" class="paging--link paging--prev" data-action-link="true">
                 <i class="icon--arrow-left"></i>
                 <i class="icon--arrow-left"></i>
             </a>
@@ -19,7 +24,10 @@
     {# Pagination - Previous page #}
     {% block frontend_listing_actions_paging_previous %}
         {% if listing.currentPage > 1 %}
-            <a href="{{ baseUrl }}?p={{ listing.currentPage - 1 }}" title="{% trans from 'frontend/listing/listing_actions' %}ListingLinkPrevious{% endtrans %}" class="paging--link paging--prev" data-action-link="true">
+            {% set parameters = parameters + { p : listing.currentPage - 1 } %}
+            {% set url = path('listing_page', parameters) %}
+
+            <a href="{{ url }}" title="{% trans from 'frontend/listing/listing_actions' %}ListingLinkPrevious{% endtrans %}" class="paging--link paging--prev" data-action-link="true">
                 <i class="icon--arrow-left"></i>
             </a>
         {% endif %}
@@ -35,7 +43,10 @@
     {# Pagination - Next page #}
     {% block frontend_listing_actions_paging_next %}
         {% if listing.currentPage < listing.pageCount %}
-            <a href="{{ baseUrl }}?p={{ listing.currentPage + 1 }}" title="{% trans from 'frontend/listing/listing_actions' %}ListingLinkNext{% endtrans %}" class="paging--link paging--next" data-action-link="true">
+            {% set parameters = parameters + { p : listing.currentPage + 1 } %}
+            {% set url = path('listing_page', parameters) %}
+
+            <a href="{{ url }}" title="{% trans from 'frontend/listing/listing_actions' %}ListingLinkNext{% endtrans %}" class="paging--link paging--next" data-action-link="true">
                 <i class="icon--arrow-right"></i>
             </a>
         {% endif %}
@@ -44,7 +55,10 @@
     {# Pagination - Last page #}
     {% block frontend_listing_actions_paging_last %}
         {% if listing.currentPage < listing.pageCount %}
-            <a href="{{ baseUrl }}?p={{ listing.pageCount }}" title="{% trans from 'frontend/listing/listing_actions' %}ListingLinkLast{% endtrans %}" class="paging--link paging--next" data-action-link="true">
+            {% set parameters = parameters + { p : listing.pageCount } %}
+            {% set url = path('listing_page', parameters) %}
+
+            <a href="{{ url }}" title="{% trans from 'frontend/listing/listing_actions' %}ListingLinkLast{% endtrans %}" class="paging--link paging--next" data-action-link="true">
                 <i class="icon--arrow-right"></i>
                 <i class="icon--arrow-right"></i>
             </a>

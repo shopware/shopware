@@ -38,22 +38,26 @@ class ListingPageLoader
         $this->logger = $logger;
     }
 
-    public function load(string $categoryId, Request $request, StorefrontContext $context): ListingPageStruct
+    public function load(string $categoryId, Request $request, StorefrontContext $context, bool $loadAggregations = true): ListingPageStruct
     {
         $criteria = $this->createCriteria($categoryId, $request, $context);
+
+        if (!$loadAggregations) {
+            $criteria->setAggregations([]);
+        }
         $products = $this->productRepository->search($criteria, $context);
 
         $currentPage = $request->query->getInt('p', 1);
 
-        $listingPageStruct = new ListingPageStruct(
-            $products,
-            $criteria,
-            $currentPage,
-            $this->getPageCount($products, $criteria, $currentPage),
-            true,
-            $request->query->get('o'),
-            'basic'
-        );
+        $parameters = $request->query->all();
+        $parameters['id'] = $categoryId;
+
+        $listingPageStruct = new ListingPageStruct($products, $criteria, $parameters);
+        $listingPageStruct->setCurrentPage($currentPage);
+        $listingPageStruct->setPageCount($this->getPageCount($products, $criteria, $currentPage));
+        $listingPageStruct->setShowListing(true);
+        $listingPageStruct->setCurrentSorting($request->query->get('o'));
+        $listingPageStruct->setProductBoxLayout('basic');
 
         $this->logger->info('Listing search result', json_decode(json_encode($products), true));
 

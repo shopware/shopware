@@ -205,8 +205,9 @@ class SearchIndexer implements IndexerInterface
         }
     }
 
-    private function stringReverse(string $keyword)
+    public static function stringReverse($keyword)
     {
+        $keyword = (string) $keyword;
         $peaces = preg_split('//u', $keyword, -1, PREG_SPLIT_NO_EMPTY);
         $peaces = array_reverse($peaces);
         return implode('', $peaces);

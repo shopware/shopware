@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Test;
 use Doctrine\DBAL\Connection;
 use Shopware\Api\Entity\Search\Term\SearchTerm;
 use Shopware\Context\Struct\ShopContext;
+use Shopware\DbalIndexing\Search\SearchIndexer;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\Uuid;
 use Shopware\StorefrontApi\Search\KeywordSearchTermInterpreter;
@@ -66,11 +67,11 @@ class KeywordSearchTermInterpreterTest extends KernelTestCase
         return [
             [
                 'zeichn',
-                ['zeichnet', 'zeichen', 'zweichnet', 'gezeichnet', 'ausgezeichnet', 'verkehrzeichennetzwerk'],
+                ['zeichnet', 'zeichen', 'zweichnet'],
             ],
             [
                 'zeichent',
-                ['zeichen', 'zeichnet', 'gezeichnet', 'ausgezeichnet', 'verkehrzeichennetzwerk'],
+                ['zeichen', 'zeichnet', 'gezeichnet', 'ausgezeichnet'],
             ],
             [
                 'Büronetz',
@@ -124,6 +125,7 @@ class KeywordSearchTermInterpreterTest extends KernelTestCase
                 'keyword' => $keyword,
                 'language_id' => Uuid::fromStringToBytes(Defaults::LANGUAGE),
                 'version_id' => Uuid::fromStringToBytes(Defaults::LIVE_VERSION),
+                'reversed' => SearchIndexer::stringReverse($keyword)
             ]);
         }
     }

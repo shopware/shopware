@@ -123,6 +123,9 @@
          <service class="Shopware\Api\Product\Definition\ProductVariationDefinition" id="shopware.product.product_variation_definition" >
             <tag name="shopware.entity.definition" entity="product_variation" />
         </service>
+        <service class="Shopware\Api\Product\Definition\ProductCategoryTreeDefinition" id="shopware.product.product_category_tree_definition" >
+            <tag name="shopware.entity.definition" entity="product_category_tree" />
+        </service>
     </services>
 </container>                
                 

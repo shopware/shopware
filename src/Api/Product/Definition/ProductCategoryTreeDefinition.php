@@ -10,6 +10,8 @@ use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\MappingEntityDefinition;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
+use Shopware\Api\Product\Event\ProductCategoryTree\ProductCategoryTreeDeletedEvent;
+use Shopware\Api\Product\Event\ProductCategoryTree\ProductCategoryTreeWrittenEvent;
 
 class ProductCategoryTreeDefinition extends MappingEntityDefinition
 {

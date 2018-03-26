@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api\Product\Event\ProductCategory;
+namespace Shopware\Api\Product\Event\ProductCategoryTree;
 
 use Shopware\Api\Entity\Write\WrittenEvent;
 use Shopware\Api\Product\Definition\ProductCategoryTreeDefinition;

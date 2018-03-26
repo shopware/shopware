@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Page\Listing\ListingHandler;
 
 use Shopware\Api\Configuration\Collection\ConfigurationGroupOptionBasicCollection;
 use Shopware\Api\Configuration\Definition\ConfigurationGroupOptionDefinition;
+use Shopware\Api\Configuration\Struct\ConfigurationGroupDetailStruct;
 use Shopware\Api\Entity\Search\Aggregation\AggregationResult;
 use Shopware\Api\Entity\Search\Aggregation\EntityAggregation;
 use Shopware\Api\Entity\Search\AggregatorResult;
@@ -21,11 +22,13 @@ use Symfony\Component\HttpFoundation\Request;
 
 class DatasheetListingHandler implements ListingHandler
 {
+    const DATASHEET_ID_FIELD = 'product.datasheet.id';
+
     public function prepareCriteria(Request $request, Criteria $criteria, StorefrontContext $context): void
     {
         $criteria->addAggregation(
             new EntityAggregation(
-                'product.datasheet.id',
+                self::DATASHEET_ID_FIELD,
                 ConfigurationGroupOptionDefinition::class,
                 'datasheet'
             )
@@ -39,7 +42,7 @@ class DatasheetListingHandler implements ListingHandler
         $ids= array_filter(explode('|', $ids));
 
         $criteria->addPostFilter(
-            new TermsQuery('product.datasheet.id', $ids)
+            new TermsQuery(self::DATASHEET_ID_FIELD, $ids)
         );
     }
 
@@ -76,28 +79,34 @@ class DatasheetListingHandler implements ListingHandler
             return;
         }
 
-        $items = [];
-        foreach ($values as $option) {
-            $item = new ListItem(
-                $option->getName(),
-                \in_array($option->getId(), $actives, true),
-                $option->getName()
+        $groups = $values->groupByConfigurationGroups();
+
+        /** @var ConfigurationGroupDetailStruct $group */
+        foreach ($groups as $group) {
+            $items = [];
+
+            foreach ($group->getOptions() as $option) {
+                $item = new ListItem(
+                    $option->getName(),
+                    \in_array($option->getId(), $actives, true),
+                    $option->getId()
+                );
+
+                $item->addExtension('option', $option);
+                $items[] = $item;
+            }
+
+            $listingPage->getAggregations()->add(
+                new ListAggregation('option', $active, $group->getName(), 'option', $items)
             );
-
-            $item->addExtension('option', $option);
-            $items[] = $item;
         }
-
-        $listingPage->getAggregations()->add(
-            new ListAggregation('option', $active, 'Datasheet', 'option', $items)
-        );
     }
 
     private function getFilter(NestedQuery $nested): ?TermsQuery
     {
         /** @var Query $query */
         foreach ($nested->getQueries() as $query) {
-            if ($query instanceof TermsQuery && $query->getField() === 'product.datasheet.id') {
+            if ($query instanceof TermsQuery && $query->getField() === self::DATASHEET_ID_FIELD) {
                 return $query;
             }
 

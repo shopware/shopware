@@ -5,27 +5,20 @@ namespace Shopware\Framework\Command;
 use Bezhanov\Faker\Provider\Commerce;
 use Faker\Factory;
 use Faker\Generator;
+use Ramsey\Uuid\Uuid;
 use Shopware\Api\Category\Definition\CategoryDefinition;
-use Shopware\Api\Configuration\Definition\ConfigurationGroupDefinition;
 use Shopware\Api\Context\Definition\ContextRuleDefinition;
 use Shopware\Api\Customer\Definition\CustomerDefinition;
 use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\WriteContext;
 use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Api\Product\Definition\ProductManufacturerDefinition;
-use Shopware\Api\Product\Repository\ProductRepository;
 use Shopware\Context\Rule\Container\AndRule;
 use Shopware\Context\Rule\Container\NotRule;
 use Shopware\Context\Rule\CurrencyRule;
-use Shopware\Context\Rule\CustomerGroupRule;
-use Shopware\Context\Rule\DateRangeRule;
-use Shopware\Context\Rule\GoodsPriceRule;
-use Shopware\Context\Rule\IsNewCustomerRule;
-use Shopware\Context\Rule\ShopRule;
+use Shopware\Context\Rule\OrderAmountRule;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Defaults;
-use Shopware\Framework\Struct\Uuid;
-use Shopware\Product\Service\VariantGenerator;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -53,25 +46,11 @@ class DemodataCommand extends ContainerAwareCommand
      * @var array
      */
     private $categories = [];
-    /**
-     * @var VariantGenerator
-     */
-    private $variantGenerator;
-    /**
-     * @var ProductRepository
-     */
-    private $productRepository;
 
-    public function __construct(
-        ?string $name = null,
-        EntityWriterInterface $writer,
-        VariantGenerator $variantGenerator,
-        ProductRepository $productRepository
-    ) {
+    public function __construct(?string $name = null, EntityWriterInterface $writer)
+    {
         parent::__construct($name);
         $this->writer = $writer;
-        $this->variantGenerator = $variantGenerator;
-        $this->productRepository = $productRepository;
     }
 
     protected function configure()
@@ -91,15 +70,12 @@ class DemodataCommand extends ContainerAwareCommand
         $this->io->title('Demodata Generator');
 
         $contextRuleIds = $this->createContextRules();
-
         $this->createCustomer($input->getOption('customers'));
-
         $this->createDefaultCustomer();
 
         $categories = $this->createCategory($input->getOption('categories'));
 
         $manufacturer = $this->createManufacturer($input->getOption('manufacturers'));
-
         $this->createProduct(
             $categories,
             $manufacturer,
@@ -124,7 +100,7 @@ class DemodataCommand extends ContainerAwareCommand
         $payload = [];
         for ($i = 0; $i < $count; ++$i) {
             $payload[] = [
-                'id' => Uuid::uuid4()->getHex(),
+                'id' => $this->faker->uuid,
                 'name' => $this->randomDepartment(),
                 'parentId' => 'a1abd0ee-0aa6-4fcd-aef7-25b8b84e5943',
             ];
@@ -133,7 +109,7 @@ class DemodataCommand extends ContainerAwareCommand
         foreach ($parents as $category) {
             for ($x = 0; $x < 40; ++$x) {
                 $payload[] = [
-                    'id' => Uuid::uuid4()->getHex(),
+                    'id' => $this->faker->uuid,
                     'name' => $this->randomDepartment(),
                     'parentId' => $category['id'],
                 ];
@@ -163,8 +139,8 @@ class DemodataCommand extends ContainerAwareCommand
 
         $payload = [];
         for ($i = 0; $i < $count; ++$i) {
-            $id = Uuid::uuid4()->getHex();
-            $addressId = Uuid::uuid4()->getHex();
+            $id = $this->faker->uuid;
+            $addressId = $this->faker->uuid;
             $firstName = $this->faker->firstName;
             $lastName = $this->faker->lastName;
             $salutation = $this->faker->title;
@@ -215,8 +191,8 @@ class DemodataCommand extends ContainerAwareCommand
 
     private function createDefaultCustomer()
     {
-        $id = Uuid::uuid4()->getHex();
-        $addressId = Uuid::uuid4()->getHex();
+        $id = $this->faker->uuid;
+        $addressId = $this->faker->uuid;
 
         $customer = [
             'id' => $id,
@@ -251,6 +227,8 @@ class DemodataCommand extends ContainerAwareCommand
 
     private function createProduct(array $categories, array $manufacturer, array $contextRules, $count = 500)
     {
+        $categoryCount = count($categories) - 1;
+        $manufacturerCount = count($manufacturer) - 1;
         $payload = [];
 
         $size = 100;
@@ -261,23 +239,30 @@ class DemodataCommand extends ContainerAwareCommand
         $this->io->section(sprintf('Generating %d products...', $count));
         $this->io->progressStart($count);
 
-        $configurator = $this->createConfigurators();
-
         for ($i = 0; $i < $count; ++$i) {
-            if ($i % 10 === 0) {
-                $this->createConfiguratorProduct($categories, $manufacturer, $contextRules, $configurator);
-            } else {
-                $payload[] = $this->createSimpleProduct($categories, $manufacturer, $contextRules);
-            }
-            if ($i % $size === 0 && $i > 0) {
+            $price = mt_rand(1, 1000);
+
+            $payload[] = [
+                'id' => $this->faker->uuid,
+                'price' => ['gross' => $price, 'net' => $price / 1.19],
+                'name' => $this->faker->productName,
+                'description' => $this->faker->text(),
+                'descriptionLong' => $this->faker->randomHtml(2, 3),
+                'taxId' => '49260353-68e3-4d9f-a695-e017d7a231b9',
+                'manufacturerId' => $manufacturer[random_int(0, $manufacturerCount)],
+                'active' => true,
+                'categories' => [
+                    ['id' => $categories[random_int(0, $categoryCount)]],
+                ],
+                'stock' => $this->faker->randomNumber(),
+                'contextPrices' => $this->createPrices($contextRules),
+            ];
+
+            if ($i % $size === 0) {
                 $this->writer->upsert(ProductDefinition::class, $payload, $this->getContext());
-                $this->io->progressAdvance(count($payload) + 10);
+                $this->io->progressAdvance(count($payload));
                 $payload = [];
             }
-        }
-
-        if (!empty($payload)) {
-            $this->writer->upsert(ProductDefinition::class, $payload, $this->getContext());
         }
 
         $this->io->progressFinish();
@@ -291,7 +276,7 @@ class DemodataCommand extends ContainerAwareCommand
         $payload = [];
         for ($i = 0; $i < $count; ++$i) {
             $payload[] = [
-                'id' => Uuid::uuid4()->getHex(),
+                'id' => $this->faker->uuid,
                 'name' => $this->faker->company,
                 'link' => $this->faker->url,
             ];
@@ -311,25 +296,22 @@ class DemodataCommand extends ContainerAwareCommand
 
     private function createContextRules(): array
     {
-        $pool = [
-            new IsNewCustomerRule(),
-            new DateRangeRule(new \DateTime(), (new \DateTime())->modify('+2 day')),
-            new GoodsPriceRule(5000, GoodsPriceRule::OPERATOR_GTE),
-            new ShopRule([Defaults::SHOP], ShopRule::OPERATOR_NEQ),
-            new NotRule([new CustomerGroupRule([Defaults::FALLBACK_CUSTOMER_GROUP])]),
-            new NotRule([new CurrencyRule([Defaults::CURRENCY])]),
-        ];
-
-        $payload = [];
-        for ($i = 0; $i < 50; ++$i) {
-            $rules = \array_slice($pool, random_int(0, count($pool) - 2), random_int(1, 2));
-
-            $payload[] = [
-                'id' => Uuid::uuid4()->getHex(),
+        $payload = [
+            [
+                'id' => Uuid::uuid4()->toString(),
                 'name' => 'High cart value',
-                'payload' => new AndRule($rules),
-            ];
-        }
+                'payload' => new AndRule([
+                    new OrderAmountRule(5000, OrderAmountRule::OPERATOR_GTE),
+                ]),
+            ],
+            [
+                'id' => Uuid::uuid4()->toString(),
+                'name' => 'Other currency',
+                'payload' => new NotRule([
+                    new CurrencyRule([Defaults::CURRENCY]),
+                ]),
+            ],
+        ];
 
         $this->writer->insert(ContextRuleDefinition::class, $payload, $this->getContext());
 
@@ -339,13 +321,7 @@ class DemodataCommand extends ContainerAwareCommand
     private function createPrices(array $contextRules)
     {
         $prices = [];
-        $rules = \array_slice(
-            $contextRules,
-            random_int(0, count($contextRules) - 5),
-            random_int(1, 5)
-        );
-
-        foreach ($rules as $ruleId) {
+        foreach ($contextRules as $ruleId) {
             $gross = random_int(500, 1000);
 
             $prices[] = [
@@ -397,115 +373,5 @@ class DemodataCommand extends ContainerAwareCommand
         $this->categories[] = $categoryName;
 
         return $categoryName;
-    }
-
-    /**
-     * @param array $categories
-     * @param array $manufacturer
-     * @param array $contextRules
-     *
-     * @return array
-     */
-    private function createSimpleProduct(array $categories, array $manufacturer, array $contextRules): array
-    {
-        $price = mt_rand(1, 1000);
-
-        $product = [
-            'id' => Uuid::uuid4()->getHex(),
-            'price' => ['gross' => $price, 'net' => $price / 1.19],
-            'name' => $this->faker->productName,
-            'description' => $this->faker->text(),
-            'descriptionLong' => $this->faker->randomHtml(2, 3),
-            'taxId' => '4926035368e34d9fa695e017d7a231b9',
-            'manufacturerId' => $manufacturer[random_int(0, count($manufacturer) - 1)],
-            'active' => true,
-            'categories' => [
-                ['id' => $categories[random_int(0, count($categories) - 1)]],
-            ],
-            'stock' => $this->faker->randomNumber(),
-            'contextPrices' => $this->createPrices($contextRules),
-        ];
-
-        return $product;
-    }
-
-    private function createConfiguratorProduct(
-        array $categories,
-        array $manufacturer,
-        array $contextRules,
-        array $configurator
-    ) {
-        $product = $this->createSimpleProduct($categories, $manufacturer, $contextRules);
-
-        $groups = array_slice($configurator, 0, random_int(1, 2));
-
-        $optionIds = [];
-        foreach ($groups as $group) {
-            $ids = array_column($group['options'], 'id');
-
-            $count = random_int(2, count($ids));
-
-            $offset = random_int(0, count($ids) / 3);
-
-            $optionIds = array_merge(
-                $ids,
-                array_slice($ids, $offset, $count)
-            );
-        }
-
-        $options = array_map(function ($id) {
-            $price = random_int(2, 10);
-
-            return [
-                'optionId' => $id,
-                'price' => ['gross' => $price, 'net' => $price / 1.19],
-            ];
-        }, $optionIds);
-
-        $product['configurators'] = $options;
-
-        $this->writer->insert(ProductDefinition::class, [$product], $this->getContext());
-
-        $this->variantGenerator->generate($product['id'], ShopContext::createDefaultContext());
-    }
-
-    private function createConfigurators()
-    {
-        $data = [
-            [
-                'id' => Uuid::uuid4()->getHex(),
-                'name' => 'color',
-                'options' => [
-                    ['id' => Uuid::uuid4()->getHex(), 'name' => 'red'],
-                    ['id' => Uuid::uuid4()->getHex(), 'name' => 'blue'],
-                    ['id' => Uuid::uuid4()->getHex(), 'name' => 'green'],
-                    ['id' => Uuid::uuid4()->getHex(), 'name' => 'black'],
-                    ['id' => Uuid::uuid4()->getHex(), 'name' => 'white'],
-                    ['id' => Uuid::uuid4()->getHex(), 'name' => 'coral'],
-                    ['id' => Uuid::uuid4()->getHex(), 'name' => 'brown'],
-                    ['id' => Uuid::uuid4()->getHex(), 'name' => 'orange'],
-                    ['id' => Uuid::uuid4()->getHex(), 'name' => 'violet'],
-                ],
-            ],
-            [
-                'id' => Uuid::uuid4()->getHex(),
-                'name' => 'size',
-                'options' => [
-                    ['id' => Uuid::uuid4()->getHex(), 'name' => '32'],
-                    ['id' => Uuid::uuid4()->getHex(), 'name' => '34'],
-                    ['id' => Uuid::uuid4()->getHex(), 'name' => '36'],
-                    ['id' => Uuid::uuid4()->getHex(), 'name' => '38'],
-                    ['id' => Uuid::uuid4()->getHex(), 'name' => '40'],
-                    ['id' => Uuid::uuid4()->getHex(), 'name' => '42'],
-                    ['id' => Uuid::uuid4()->getHex(), 'name' => '44'],
-                    ['id' => Uuid::uuid4()->getHex(), 'name' => '46'],
-                    ['id' => Uuid::uuid4()->getHex(), 'name' => '48'],
-                ],
-            ],
-        ];
-
-        $this->writer->insert(ConfigurationGroupDefinition::class, $data, $this->getContext());
-
-        return $data;
     }
 }

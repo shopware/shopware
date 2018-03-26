@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 class SortingListingHandler implements ListingHandler
 {
+    const SELECTED_SORTING_CLASS = 'selected_sorting_class';
     /**
      * @var ListingSortingRepository
      */
@@ -34,7 +35,6 @@ class SortingListingHandler implements ListingHandler
 
         $search = new Criteria();
         $search->addFilter(new TermQuery('listing_sorting.uniqueKey', $sort));
-
         $sortings = $this->repository->search($search, $context->getShopContext());
 
         if ($sortings->count() <= 0) {
@@ -53,29 +53,5 @@ class SortingListingHandler implements ListingHandler
         $search = new Criteria();
         $sortings = $this->repository->search($search, $context->getShopContext());
         $listingPage->getSortings()->fill($sortings->getElements());
-
-//
-//        $sortings = [
-//            [
-//                'label' => 'Cheapest price',
-//                'uniqueKey' => 'cheapest-price',
-//                'payload' => json_encode([new FieldSorting('product.listingPrices', FieldSorting::ASCENDING)])
-//            ],
-//            [
-//                'label' => 'Highest price',
-//                'uniqueKey' => 'highest-price',
-//                'payload' => json_encode([new FieldSorting('product.listingPrices', FieldSorting::DESCENDING)])
-//            ],
-//            [
-//                'label' => 'Product name',
-//                'uniqueKey' => 'product-name',
-//                'payload' => json_encode([new FieldSorting('product.name', FieldSorting::ASCENDING)])
-//            ]
-//        ];
-//
-//
-//        $this->repository->create($sortings, $context->getShopContext());
-
-
     }
 }

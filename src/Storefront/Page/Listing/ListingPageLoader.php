@@ -76,7 +76,6 @@ class ListingPageLoader
 
         //base filtering of category listings
         $criteria->addFilter(new TermQuery('product.active', 1));
-//        $criteria->addFilter(new TermQuery('product.categoryTree', $categoryId));
         $criteria->addFilter(new TermQuery('product.categoriesRo.id', $categoryId));
 
         //aggregations

@@ -3,7 +3,6 @@
 namespace Shopware\Api\Entity\Dbal;
 
 use Doctrine\DBAL\Connection;
-use Ramsey\Uuid\Uuid;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Read\EntityReaderInterface;
 use Shopware\Api\Entity\Search\Aggregation\Aggregation;
@@ -23,6 +22,7 @@ use Shopware\Api\Entity\Search\EntityAggregatorInterface;
 use Shopware\Api\Entity\Search\Parser\SqlQueryParser;
 use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Context\Struct\ShopContext;
+use Shopware\Framework\Struct\Uuid;
 
 /**
  * Allows to execute aggregated queries for all entities in the system
@@ -115,7 +115,7 @@ class EntityAggregator implements EntityAggregatorInterface
             $ids = array_filter($ids);
 
             $ids = array_map(function($bytes) {
-                return Uuid::fromBytes($bytes)->toString();
+                return Uuid::fromBytesToHex($bytes);
             }, $ids);
 
             return $this->reader->readBasic($aggregation->getDefinition(), $ids, $context);
@@ -133,9 +133,9 @@ class EntityAggregator implements EntityAggregatorInterface
 
         if ($aggregation instanceof StatsAggregation) {
             $query->select([
-//                'COUNT(' . $field . ')' . ' as `count`',
-//                'AVG(' . $field . ')' . ' as `avg`',
-//                'SUM(' . $field . ')' . ' as `sum`',
+                'COUNT(' . $field . ')' . ' as `count`',
+                'AVG(' . $field . ')' . ' as `avg`',
+                'SUM(' . $field . ')' . ' as `sum`',
                 'MIN(' . $field . ')' . ' as `min`',
                 'MAX(' . $field . ')' . ' as `max`',
             ]);

@@ -13,14 +13,14 @@ class AggregationViewCollection extends Collection
 
     public function add(AggregationViewInterface $view)
     {
-        $this->elements[$view->getAggregationName()] = $view;
+        $this->elements[] = $view;
     }
 
-    public function get(string $name): ?AggregationViewInterface
+    public function get($key): ?AggregationViewInterface
     {
-        if (!$this->has($name)) {
+        if (!$this->has($key)) {
             return null;
         }
-        return $this->elements[$name];
+        return $this->elements[$key];
     }
 }

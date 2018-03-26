@@ -69,14 +69,14 @@ class ProductRepositoryTest extends KernelTestCase
         $this->repository = $this->container->get(ProductRepository::class);
         $this->eventDispatcher = $this->container->get('event_dispatcher');
         $this->connection = $this->container->get(Connection::class);
-//        $this->connection->beginTransaction();
+        $this->connection->beginTransaction();
         $this->connection->executeUpdate('DELETE FROM product');
         $this->context = ShopContext::createDefaultContext();
     }
 
     protected function tearDown()
     {
-//        $this->connection->rollBack();
+        $this->connection->rollBack();
         parent::tearDown();
     }
 
@@ -1137,7 +1137,7 @@ class ProductRepositoryTest extends KernelTestCase
                 [
                     'id' => $redId,
                     'name' => 'red',
-                    'group' => ['id' => $colorId, 'name' => $colorId],
+                    'group' => ['id' => $colorId, 'name' => 'color'],
                 ],
                 [
                     'id' => $blueId,

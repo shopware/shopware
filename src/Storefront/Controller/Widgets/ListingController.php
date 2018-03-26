@@ -24,12 +24,14 @@
 
 namespace Shopware\Storefront\Controller\Widgets;
 
+use function GuzzleHttp\Promise\queue;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Storefront\Controller\StorefrontController;
 use Shopware\Storefront\Page\Listing\ListingPageLoader;
+use Shopware\Storefront\Page\Search\SearchPageLoader;
 use Shopware\StorefrontApi\Product\StorefrontProductRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -43,17 +45,25 @@ class ListingController extends StorefrontController
      * @var StorefrontProductRepository
      */
     private $repository;
+
     /**
      * @var ListingPageLoader
      */
     private $listingPageLoader;
 
+    /**
+     * @var SearchPageLoader
+     */
+    private $searchPageLoader;
+
     public function __construct(
         StorefrontProductRepository $repository,
-        ListingPageLoader $listingPageLoader
+        ListingPageLoader $listingPageLoader,
+        SearchPageLoader $searchPageLoader
     ) {
         $this->repository = $repository;
         $this->listingPageLoader = $listingPageLoader;
+        $this->searchPageLoader = $searchPageLoader;
     }
 
     /**
@@ -80,7 +90,16 @@ class ListingController extends StorefrontController
     {
         $categoryId = $request->query->get('categoryId');
 
-        $page = $this->listingPageLoader->load($categoryId, $request, $context, false);
+        if ($request->query->has('search')) {
+            $term = $request->query->get('search');
+            $page = $this->searchPageLoader->load($term, $request, $context, false);
+
+        } else if ($request->query->has('categoryId')) {
+            $page = $this->listingPageLoader->load($categoryId, $request, $context, false);
+
+        } else {
+            throw new \RuntimeException('Requires category id or search term');
+        }
 
         $template = $this->render('@Storefront/frontend/listing/listing_ajax.html.twig', [
             'listing' => $page
@@ -93,7 +112,7 @@ class ListingController extends StorefrontController
         return new JsonResponse([
             'listing' => $template->getContent(),
             'pagination' => $pagination->getContent(),
-            'totalCount' => $page->getPageCount()
+            'totalCount' => $page->getProducts()->getTotal()
         ]);
     }
 

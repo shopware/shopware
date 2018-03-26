@@ -10,6 +10,7 @@ use Shopware\Api\Product\Struct\ProductSearchResult;
 use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Defaults;
 use Shopware\Framework\Config\ConfigServiceInterface;
+use Shopware\Storefront\Page\Listing\ListingHandler\ListingHandlerRegistry;
 use Shopware\StorefrontApi\Product\StorefrontProductRepository;
 use Shopware\StorefrontApi\Search\KeywordSearchTermInterpreter;
 use Symfony\Component\HttpFoundation\Request;
@@ -31,14 +32,21 @@ class SearchPageLoader
      */
     private $termInterpreter;
 
+    /**
+     * @var ListingHandlerRegistry
+     */
+    private $listingHandlerRegistry;
+
     public function __construct(
         ConfigServiceInterface $configService,
         StorefrontProductRepository $productRepository,
+        ListingHandlerRegistry $listingHandlerRegistry,
         KeywordSearchTermInterpreter $termInterpreter
     ) {
         $this->configService = $configService;
         $this->productRepository = $productRepository;
         $this->termInterpreter = $termInterpreter;
+        $this->listingHandlerRegistry = $listingHandlerRegistry;
     }
 
     /**
@@ -48,11 +56,14 @@ class SearchPageLoader
      *
      * @return SearchPageStruct
      */
-    public function load(string $searchTerm, Request $request, StorefrontContext $context): SearchPageStruct
+    public function load(string $searchTerm, Request $request, StorefrontContext $context, bool $loadAggregations = true): SearchPageStruct
     {
         $config = $this->configService->getByShop($context->getShop()->getId(), null);
 
         $criteria = $this->createCriteria(trim($searchTerm), $request, $context);
+        if (!$loadAggregations) {
+            $criteria->setAggregations([]);
+        }
 
         $products = $this->productRepository->search($criteria, $context);
 
@@ -60,23 +71,16 @@ class SearchPageLoader
 
         $currentPage = $request->query->getInt('p', 1);
 
-        $listingPageStruct = new SearchPageStruct(
-            $products,
-            $criteria,
-            $currentPage,
-            $this->getPageCount($products, $criteria, $currentPage),
-            true,
-            $request->query->get('o'),
-            $layout
-        );
+        $page = new SearchPageStruct($products, $criteria);
+        $page->setCurrentPage($currentPage);
+        $page->setPageCount($this->getPageCount($products, $criteria, $currentPage));
+        $page->setShowListing(true);
+        $page->setCurrentSorting($request->query->get('o'));
+        $page->setProductBoxLayout($layout);
 
-        $currentPage = $request->query->getInt('p', 1);
-        $listingPageStruct->setCurrentPage($currentPage);
-        $listingPageStruct->setPageCount(
-            $this->getPageCount($products, $criteria, $currentPage)
-        );
+        $this->listingHandlerRegistry->preparePage($page, $products, $context);
 
-        return $listingPageStruct;
+        return $page;
     }
 
     private function createCriteria(string $searchTerm, Request $request, StorefrontContext $context): Criteria
@@ -116,6 +120,9 @@ class SearchPageLoader
         ));
 
         $criteria->setFetchCount(Criteria::FETCH_COUNT_NEXT_PAGES);
+
+        //aggregations
+        $this->listingHandlerRegistry->prepareCriteria($request, $criteria, $context);
 
         return $criteria;
     }

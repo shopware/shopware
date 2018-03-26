@@ -88,12 +88,12 @@
         <service class="Shopware\Storefront\Page\Listing\ListingPageLoader" id="Shopware\Storefront\Page\Listing\ListingPageLoader">
             <argument id="Shopware\StorefrontApi\Product\StorefrontProductRepository" type="service"/>
             <argument id="Shopware\Storefront\Page\Listing\ListingHandler\ListingHandlerRegistry" type="service"/>
-            <argument type="service" id="logger"/>
         </service>
 
         <service class="Shopware\Storefront\Page\Search\SearchPageLoader" id="Shopware\Storefront\Page\Search\SearchPageLoader">
             <argument type="service" id="Shopware\Framework\Config\ConfigService" />
             <argument id="Shopware\StorefrontApi\Product\StorefrontProductRepository" type="service"/>
+            <argument type="service" id="Shopware\Storefront\Page\Listing\ListingHandler\ListingHandlerRegistry"/>
             <argument type="service" id="Shopware\StorefrontApi\Search\KeywordSearchTermInterpreter"/>
         </service>
 
@@ -171,6 +171,7 @@
             <call method="setContainer">
                 <argument id="service_container" type="service"/>
             </call>
+            <argument type="service" id="Shopware\Storefront\Page\Search\SearchPageLoader"/>
         </service>
 
     </services>

@@ -18,6 +18,10 @@
             {{ 'SearchHeadline'|trans({'%searchTerm%': searchTerm, '%searchResultProductsCount%': listing.products.total}, 'frontend/search/fuzzy')|raw}}
         </h1>
 
+        {% set baseParameters = { search: searchTerm } %}
+
+        {% set countCtrlUrl = path('widgets/listing-list') %}
+
         {# Listing #}
         {% block frontend_listing_index_listing %}
             {% sw_include '@Storefront/frontend/listing/listing.html.twig' %}

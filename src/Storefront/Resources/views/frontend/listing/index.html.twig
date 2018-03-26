@@ -25,6 +25,8 @@
         {% set productBoxLayout = navigation.activeCategory.productBoxLayout %}
     {% endif %}
 
+    {% set baseParameters = { categoryId: navigation.activeCategory.id } %}
+
     {% set countCtrlUrl = path('widgets/listing-list') %}
 
     <div class="content listing--content">

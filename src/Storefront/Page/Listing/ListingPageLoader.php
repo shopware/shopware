@@ -23,19 +23,10 @@ class ListingPageLoader
      */
     private $handlerRegistry;
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    public function __construct(
-        StorefrontProductRepository $productRepository,
-        ListingHandlerRegistry $listingHandlerRegistry,
-        LoggerInterface $logger
-    ) {
+    public function __construct(StorefrontProductRepository $productRepository, ListingHandlerRegistry $listingHandlerRegistry)
+    {
         $this->productRepository = $productRepository;
         $this->handlerRegistry = $listingHandlerRegistry;
-        $this->logger = $logger;
     }
 
     public function load(string $categoryId, Request $request, StorefrontContext $context, bool $loadAggregations = true): ListingPageStruct
@@ -49,21 +40,16 @@ class ListingPageLoader
 
         $currentPage = $request->query->getInt('p', 1);
 
-        $parameters = $request->query->all();
-        $parameters['id'] = $categoryId;
+        $page = new ListingPageStruct($products, $criteria);
+        $page->setCurrentPage($currentPage);
+        $page->setPageCount($this->getPageCount($products, $criteria, $currentPage));
+        $page->setShowListing(true);
+        $page->setCurrentSorting($request->query->get('o'));
+        $page->setProductBoxLayout('basic');
 
-        $listingPageStruct = new ListingPageStruct($products, $criteria, $parameters);
-        $listingPageStruct->setCurrentPage($currentPage);
-        $listingPageStruct->setPageCount($this->getPageCount($products, $criteria, $currentPage));
-        $listingPageStruct->setShowListing(true);
-        $listingPageStruct->setCurrentSorting($request->query->get('o'));
-        $listingPageStruct->setProductBoxLayout('basic');
+        $this->handlerRegistry->preparePage($page, $products, $context);
 
-        $this->logger->info('Listing search result', json_decode(json_encode($products), true));
-
-        $this->handlerRegistry->preparePage($listingPageStruct, $products, $context);
-
-        return $listingPageStruct;
+        return $page;
     }
 
     private function createCriteria(string $categoryId, Request $request, StorefrontContext $context): Criteria

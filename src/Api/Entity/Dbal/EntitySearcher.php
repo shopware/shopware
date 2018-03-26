@@ -81,13 +81,10 @@ class EntitySearcher implements EntitySearcherInterface
         //execute and fetch ids
         $data = $query->execute()->fetchAll(\PDO::FETCH_GROUP | \PDO::FETCH_UNIQUE);
 
-        if ($criteria->fetchCount() === Criteria::FETCH_COUNT_TOTAL) {
-            $total = (int) $this->connection->fetchColumn('SELECT FOUND_ROWS()');
-        } elseif ($criteria->fetchCount() === Criteria::FETCH_COUNT_NEXT_PAGES) {
-            $total = count($data) - $criteria->getLimit();
+        $total = $this->getTotalCount($criteria, $data);
+
+        if ($criteria->fetchCount() === Criteria::FETCH_COUNT_NEXT_PAGES) {
             $data = array_slice($data, 0, $criteria->getLimit());
-        } else {
-            $total = count($data);
         }
 
         $converted = [];
@@ -211,5 +208,14 @@ class EntitySearcher implements EntitySearcherInterface
         foreach ($fields as $field) {
             $query->addGroupBy($field);
         }
+    }
+
+    private function getTotalCount(Criteria $criteria, array $data): int
+    {
+        if ($criteria->fetchCount() === Criteria::FETCH_COUNT_TOTAL) {
+            return (int)$this->connection->fetchColumn('SELECT FOUND_ROWS()');
+        }
+
+        return \count($data);
     }
 }

@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Page\Listing;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Listing\Collection\ListingSortingBasicCollection;
 use Shopware\Api\Product\Collection\ProductBasicCollection;
+use Shopware\Api\Product\Struct\ProductSearchResult;
 use Shopware\Framework\Struct\Struct;
 use Shopware\Storefront\Page\Listing\AggregationView\AggregationViewCollection;
 use Shopware\Storefront\Page\Listing\AggregationView\AggregationViewInterfaceCollection;
@@ -12,7 +13,7 @@ use Shopware\Storefront\Page\Listing\AggregationView\AggregationViewInterfaceCol
 class ListingPageStruct extends Struct
 {
     /**
-     * @var ProductBasicCollection
+     * @var ProductSearchResult
      */
     protected $products;
 
@@ -56,15 +57,9 @@ class ListingPageStruct extends Struct
      */
     protected $productBoxLayout;
 
-    /**
-     * @var array
-     */
-    protected $parameters;
-
     public function __construct(
-        ProductBasicCollection $products,
+        ProductSearchResult $products,
         Criteria $criteria,
-        array $parameters = [],
         int $currentPage = 1,
         int $pageCount = 1,
         bool $showListing = true,
@@ -86,16 +81,14 @@ class ListingPageStruct extends Struct
 
         $this->aggregations = $aggregations;
         $this->sortings = $sortings;
-        $this->parameters = $parameters;
     }
 
-
-    public function getProducts(): ProductBasicCollection
+    public function getProducts(): ProductSearchResult
     {
         return $this->products;
     }
 
-    public function setProducts(ProductBasicCollection $products): void
+    public function setProducts(ProductSearchResult $products): void
     {
         $this->products = $products;
     }
@@ -179,10 +172,5 @@ class ListingPageStruct extends Struct
     public function setProductBoxLayout(string $productBoxLayout): void
     {
         $this->productBoxLayout = $productBoxLayout;
-    }
-
-    public function getParameters(): array
-    {
-        return $this->parameters;
     }
 }

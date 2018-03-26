@@ -30,6 +30,10 @@
                         data-instant-filter-result="{% if listingMode != 'full_page_reload' %}true{% else %}false{% endif %}"
                         class="{%  if listingMode != 'full_page_reload' %} is--instant-filter{% endif %}">
 
+                        {% for key, value in baseParameters %}
+                            <input type="hidden" name="{{ key }}" value="{{ value }}">
+                        {% endfor %}
+
                         {% if listingMode == 'full_page_reload' %}
                             {% set clsSuffix = 'filter--actions-top' %}
                             {% sw_include '@Storefront/frontend/listing/actions/filter-apply-button.html.twig' %}

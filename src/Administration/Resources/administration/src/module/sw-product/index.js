@@ -1,5 +1,10 @@
 import { Module } from 'src/core/shopware';
-import './src';
+import './component/sw-product-basic-form';
+import './component/sw-product-category-form';
+import './component/sw-product-price-form';
+import './component/sw-product-settings-form';
+import './page/sw-product-list';
+import './page/sw-product-detail';
 
 Module.register('sw-product', {
     type: 'core',

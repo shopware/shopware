@@ -1,5 +1,5 @@
 import { Module } from 'src/core/shopware';
-import './src/component/page/sw-login';
+import './page/sw-login';
 
 Module.register('sw-login', {
     type: 'core',

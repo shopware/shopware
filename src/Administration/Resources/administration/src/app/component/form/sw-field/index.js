@@ -76,15 +76,21 @@ Component.register('sw-field', {
         };
     },
 
+    computed: {
+        hasSuffix() {
+            return this.suffix.length || !!this.$slots.suffix;
+        }
+    },
+
     watch: {
         value() {
-            this.currentValue = this.value;
+            this.currentValue = this.convertValueType(this.value);
         }
     },
 
     mounted() {
         this.valueType = typeof this.value;
-        this.currentValue = this.value;
+        this.currentValue = this.convertValueType(this.value);
 
         if (this.$vnode.data && this.$vnode.data.model) {
             this.boundExpressionPath = this.$vnode.data.model.expression.split('.');
@@ -139,6 +145,10 @@ Component.register('sw-field', {
          * @returns {*}
          */
         convertValueType(value) {
+            if (typeof value === 'undefined' || value === null) {
+                return null;
+            }
+
             if (this.valueType === 'number') {
                 return parseFloat(value);
             }
@@ -149,6 +159,11 @@ Component.register('sw-field', {
 
             if (this.valueType === 'string' && value.length <= 0) {
                 return null;
+            }
+
+            // Datetime field does not support time zones
+            if ((this.type === 'datetime' || this.type === 'datetime-local') && this.valueType === 'string') {
+                value = value.split('+')[0];
             }
 
             return value;

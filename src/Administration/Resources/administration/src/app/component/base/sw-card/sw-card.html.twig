@@ -7,11 +7,15 @@
         <slot name="tabs"></slot>
 
         {% block sw_card_content %}
-        <div class="sw-card__content">
-            <slot>
-                {% block sw_card_slot_default %}{% endblock %}
-            </slot>
-        </div>
+            <div class="sw-card__content">
+                <slot>
+                    {% block sw_card_slot_default %}{% endblock %}
+                </slot>
+            </div>
+        {% endblock %}
+
+        {% block sw_card_loader %}
+            <sw-loader v-if="loading"></sw-loader>
         {% endblock %}
     </div>
 {% endblock %}

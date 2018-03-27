@@ -1,0 +1,122 @@
+{% block sw_product_settings_form %}
+    <div class="sw-product-settings-form">
+
+        {% block sw_product_settings_form_content %}
+            <sw-container grid="1fr 1fr" gap="30px">
+
+                {% block sw_product_settings_form_create_date_field %}
+                    <sw-field type="datetime"
+                              name="createdAt"
+                              label="Einstelldatum"
+                              v-model="product.createdAt">
+                        <sw-icon name="default-calendar-full" slot="suffix"></sw-icon>
+                    </sw-field>
+                {% endblock %}
+
+                {% block sw_product_settings_form_release_date_field %}
+                    <sw-field type="datetime"
+                              name="releaseDate"
+                              label="Erscheinungsdatum"
+                              v-model="product.releaseDate">
+                        <sw-icon name="default-calendar-full" slot="suffix"></sw-icon>
+                    </sw-field>
+                {% endblock %}
+            </sw-container>
+
+            <sw-container grid="1fr 1fr 1fr 1fr" gap="30px">
+                {% block sw_product_settings_form_width_field %}
+                    <sw-field type="text"
+                              name="width"
+                              label="Breite"
+                              suffix="mm"
+                              v-model="product.width">
+                    </sw-field>
+                {% endblock %}
+
+                {% block sw_product_settings_form_height_field %}
+                    <sw-field type="text"
+                              name="height"
+                              label="Höhe"
+                              suffix="mm"
+                              v-model="product.height">
+                    </sw-field>
+                {% endblock %}
+
+                {% block sw_product_settings_form_length_field %}
+                    <sw-field type="text"
+                              name="length"
+                              label="Länge"
+                              suffix="mm"
+                              v-model="product.length">
+                    </sw-field>
+                {% endblock %}
+
+                {% block sw_product_settings_form_weight_field %}
+                    <sw-field type="text"
+                              name="weight"
+                              label="Gewicht"
+                              suffix="kg"
+                              v-model="product.weight">
+                    </sw-field>
+                {% endblock %}
+            </sw-container>
+
+            <sw-container grid="1fr 1fr" gap="30px">
+                <sw-container grid="1fr 1fr" gap="30px">
+
+                    {% block sw_product_settings_form_min_purchase_field %}
+                        <sw-field type="number"
+                                  name="minPurchase"
+                                  label="Mindestabnahme"
+                                  v-model="product.minPurchase">
+                        </sw-field>
+                    {% endblock %}
+
+                    {% block sw_product_settings_form_max_purchase_field %}
+                        <sw-field type="number"
+                                  name="maxPurchase"
+                                  label="Maximalabnahme"
+                                  v-model="product.maxPurchase">
+                        </sw-field>
+                    {% endblock %}
+                </sw-container>
+
+                {% block sw_product_settings_form_ean_field %}
+                    <sw-field type="text"
+                              name="ean"
+                              label="EAN"
+                              v-model="product.ean">
+                    </sw-field>
+                {% endblock %}
+            </sw-container>
+
+            <sw-container grid="1fr 1fr" gap="30px">
+                {% block sw_product_settings_form_pseudo_sales_field %}
+                    <sw-field type="number"
+                              name="pseudoSales"
+                              label="Pseudo-Verkäufe"
+                              v-model="product.pseudoSales">
+                    </sw-field>
+                {% endblock %}
+
+                <sw-container grid="1fr 1fr" gap="30px" align="center">
+                    {% block sw_product_settings_form_shipping_free_field %}
+                        <sw-field type="checkbox"
+                                  name="shippingFree"
+                                  label="Versandkostenfrei"
+                                  v-model="product.shippingFree">
+                        </sw-field>
+                    {% endblock %}
+
+                    {% block sw_product_settings_form_mark_as_topseller_field %}
+                        <sw-field type="checkbox"
+                                  name="markAsTopseller"
+                                  label="Produkt hervorheben"
+                                  v-model="product.markAsTopseller">
+                        </sw-field>
+                    {% endblock %}
+                </sw-container>
+            </sw-container>
+        {% endblock %}
+    </div>
+{% endblock %}

@@ -9,6 +9,11 @@ Component.register('sw-card', {
         title: {
             type: String,
             required: false
+        },
+        loading: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     }
     },

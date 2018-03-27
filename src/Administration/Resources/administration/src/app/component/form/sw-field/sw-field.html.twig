@@ -1,5 +1,5 @@
 {% block sw_field %}
-    <div :class="['sw-field', `sw-field--${type}`, hasErrorCls() ? 'has--error' : '', suffix.length ? 'has--suffix': '', disabled ? 'is--disabled' : '']">
+    <div :class="['sw-field', `sw-field--${type}`, hasErrorCls() ? 'has--error' : '', hasSuffix ? 'has--suffix': '', disabled ? 'is--disabled' : '']">
 
         <!-- Label -->
         {% block sw_field_label %}
@@ -166,7 +166,7 @@
 
                 <!-- Suffix -->
                 {% block sw_field_input_suffix %}
-                    <span v-if="suffix" class="sw-field__suffix">
+                    <span v-if="hasSuffix" class="sw-field__suffix">
                         <slot name="suffix">
                             {% block sw_field_slot_suffix %}
                                 {{ suffix }}

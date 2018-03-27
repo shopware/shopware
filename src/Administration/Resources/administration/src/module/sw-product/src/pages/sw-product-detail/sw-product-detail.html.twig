@@ -22,26 +22,36 @@
 
         {% block sw_product_detail_content %}
             <sw-card-view slot="content">
+
                 {% block sw_product_detail_content_basic_info_card %}
                     <sw-card title="Produkt Informationen" :loading="isLoading">
                         {% block sw_product_detail_content_basic_info_form %}
-                            <sw-product-basic-form :product="product"
-                                                   :manufacturers="manufacturers"
-                                                   :serviceProvider="categoryService">
-                            </sw-product-basic-form>
+                            <sw-product-basic-form :product="product" :manufacturers="manufacturers"></sw-product-basic-form>
+                        {% endblock %}
+                    </sw-card>
+                {% endblock %}
+
+                {% block sw_product_detail_content_category_card %}
+                    <sw-card title="Zuordnung" :loading="isLoading">
+                        {% block sw_product_detail_content_category_form %}
+                            <sw-product-category-form :product="product"></sw-product-category-form>
                         {% endblock %}
                     </sw-card>
                 {% endblock %}
 
                 {% block sw_product_detail_content_price_card %}
                     <sw-card title="Preise" :loading="isLoading">
-                        <sw-product-price-form :product="product" :taxRates="taxRates"></sw-product-price-form>
+                        {% block sw_product_detail_content_price_form %}
+                            <sw-product-price-form :product="product" :taxRates="taxRates"></sw-product-price-form>
+                        {% endblock %}
                     </sw-card>
                 {% endblock %}
 
                 {% block sw_product_detail_content_settings_card %}
                     <sw-card title="Einstellungen" :loading="isLoading">
-                        <sw-product-settings-form :product="product"></sw-product-settings-form>
+                        {% block sw_product_detail_content_settings_form %}
+                            <sw-product-settings-form :product="product"></sw-product-settings-form>
+                        {% endblock %}
                     </sw-card>
                 {% endblock %}
             </sw-card-view>

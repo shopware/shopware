@@ -25,37 +25,41 @@
 
             <sw-container grid="1fr 1fr 1fr 1fr" gap="30px">
                 {% block sw_product_settings_form_width_field %}
-                    <sw-field type="text"
+                    <sw-field type="number"
                               name="width"
                               label="Breite"
                               suffix="mm"
+                              step="0.01"
                               v-model="product.width">
                     </sw-field>
                 {% endblock %}
 
                 {% block sw_product_settings_form_height_field %}
-                    <sw-field type="text"
+                    <sw-field type="number"
                               name="height"
                               label="Höhe"
                               suffix="mm"
+                              step="0.01"
                               v-model="product.height">
                     </sw-field>
                 {% endblock %}
 
                 {% block sw_product_settings_form_length_field %}
-                    <sw-field type="text"
+                    <sw-field type="number"
                               name="length"
                               label="Länge"
                               suffix="mm"
+                              step="0.01"
                               v-model="product.length">
                     </sw-field>
                 {% endblock %}
 
                 {% block sw_product_settings_form_weight_field %}
-                    <sw-field type="text"
+                    <sw-field type="number"
                               name="weight"
                               label="Gewicht"
                               suffix="kg"
+                              step="0.01"
                               v-model="product.weight">
                     </sw-field>
                 {% endblock %}

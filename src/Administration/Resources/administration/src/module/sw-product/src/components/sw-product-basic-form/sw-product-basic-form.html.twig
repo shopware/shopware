@@ -41,15 +41,5 @@
                 </sw-field>
             {% endblock %}
         </sw-container>
-
-        {% block sw_product_basic_form_category_field %}
-            <sw-multi-select label="Kategorie"
-                             id="category"
-                             placeholder="Your product categories..."
-                             :serviceProvider="serviceProvider"
-                             :values="productCategoryIds"
-                             v-model="product.categories">
-            </sw-multi-select>
-        {% endblock %}
     </div>
 {% endblock %}

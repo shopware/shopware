@@ -1,0 +1,25 @@
+{% block sw_product_category_form %}
+    <div class="sw-product-category-form">
+
+        {% block sw_product_category_form_content %}
+            {% block sw_product_category_form_catalog_field %}
+                <sw-field type="select"
+                          name="catalogId"
+                          label="Katalog"
+                          v-model="product.catalogId">
+                    <option slot="options" value="ffffffffffffffffffffffffffffffff">Standard Katalog</option>
+                </sw-field>
+            {% endblock %}
+
+            {% block sw_product_category_form_category_field %}
+                <sw-multi-select label="Kategorie"
+                                 id="categories"
+                                 placeholder="Your product categories..."
+                                 :serviceProvider="categoryService"
+                                 :values="productCategoryIds"
+                                 v-model="product.categories">
+                </sw-multi-select>
+            {% endblock %}
+        {% endblock %}
+    </div>
+{% endblock %}

@@ -14,18 +14,6 @@ Component.register('sw-product-basic-form', {
             type: Array,
             required: true,
             default: []
-        },
-        serviceProvider: {
-            type: Object,
-            required: true
-        }
-    },
-
-    computed: {
-        productCategoryIds() {
-            return this.product.categories.map((category) => {
-                return { id: category.id };
-            });
         }
     }
 });

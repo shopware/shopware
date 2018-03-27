@@ -1,4 +1,5 @@
 import './components/sw-product-basic-form';
+import './components/sw-product-category-form';
 import './components/sw-product-price-form';
 import './components/sw-product-settings-form';
 

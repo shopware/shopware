@@ -3,7 +3,7 @@ import template from './sw-product-detail.html.twig';
 import './sw-product-detail.less';
 
 Component.register('sw-product-detail', {
-    inject: ['categoryService', 'productManufacturerService', 'taxService', 'customerGroupService'],
+    inject: ['productManufacturerService', 'taxService', 'customerGroupService'],
 
     mixins: [
         Mixin.getByName('product'),
@@ -19,10 +19,6 @@ Component.register('sw-product-detail', {
     },
 
     computed: {
-        categoryService() {
-            return this.categoryService;
-        },
-
         customerGroupOptions() {
             const options = [];
 

@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block frontend_index_content_left %}
-    {% set countCtrlUrl = path('widgets/listing-list') %}
+    {% set countCtrlUrl = path('widgets_listing_list') %}
 
     {% sw_include '@Storefront/frontend/listing/sidebar.html.twig' %}
 {% endblock %}
@@ -27,7 +27,7 @@
 
     {% set baseParameters = { categoryId: navigation.activeCategory.id } %}
 
-    {% set countCtrlUrl = path('widgets/listing-list') %}
+    {% set countCtrlUrl = path('widgets_listing_list') %}
 
     <div class="content listing--content">
 

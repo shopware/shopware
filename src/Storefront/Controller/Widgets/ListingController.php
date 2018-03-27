@@ -67,7 +67,7 @@ class ListingController extends StorefrontController
     }
 
     /**
-     * @Route("/widgets/listing/top_seller", name="widgets/top-seller")
+     * @Route("/widgets/listing/top_seller", name="widgets_top_seller")
      * @Method({"GET"})
      */
     public function topSellerAction(StorefrontContext $context)
@@ -83,7 +83,7 @@ class ListingController extends StorefrontController
     }
 
     /**
-     * @Route("/widgets/listing/list", name="widgets/listing-list")
+     * @Route("/widgets/listing/list", name="widgets_listing_list")
      * @Method({"GET"})
      */
     public function listAction(Request $request, StorefrontContext $context)

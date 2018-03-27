@@ -5,7 +5,7 @@ import './base/sw-alert';
 import './base/sw-avatar';
 import './base/sw-sidebar';
 import './base/sw-sidebar-item';
-import './base/sw-context-menu-button';
+import './base/sw-context-button';
 import './base/sw-context-menu-item';
 
 import './grid/sw-grid';
@@ -18,7 +18,7 @@ import './form/sw-multi-select';
 
 import './utils/sw-loader';
 import './utils/sw-notifications';
-import './utils/sw-color-swatch';
+import './utils/sw-color-badge';
 
 import './structure/sw-admin';
 import './structure/sw-desktop';

@@ -1,8 +1,8 @@
 import { Component } from 'src/core/shopware';
-import template from './sw-context-menu-button.html.twig';
-import './sw-context-menu-button.less';
+import template from './sw-context-button.html.twig';
+import './sw-context-button.less';
 
-Component.register('sw-context-menu-button', {
+Component.register('sw-context-button', {
     template,
 
     props: {

@@ -41,7 +41,7 @@ Component.register('sw-pagination', {
         },
         displayedPages() {
             const maxLength = this.totalVisible;
-            const value = this.page - 1;
+            const value = this.currentPage;
 
             if (this.maxPage <= maxLength) {
                 return this.range(1, this.maxPage);
@@ -103,8 +103,13 @@ Component.register('sw-pagination', {
             this.pageChange();
         },
 
-        changePage(pageNum) {
+        changePageByPageNumber(pageNum) {
             this.currentPage = pageNum;
+            this.pageChange();
+        },
+
+        changePageByOffsetLimit(offset) {
+            this.currentPage = offset / this.perPage;
             this.pageChange();
         },
 

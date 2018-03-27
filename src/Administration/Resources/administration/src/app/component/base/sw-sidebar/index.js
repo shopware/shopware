@@ -11,6 +11,11 @@ Component.register('sw-sidebar', {
             currentlyExpanded: null
         };
     },
+
+    created() {
+        this.$on('closeNonExpandedContentPanels', this.closeNonExpandedContentPanels);
+    },
+
     methods: {
         closeNonExpandedContentPanels(activePanelId) {
             Object.keys(this.items).forEach((key) => {

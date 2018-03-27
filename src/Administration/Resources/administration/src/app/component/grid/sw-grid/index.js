@@ -73,19 +73,22 @@ Component.register('sw-grid', {
         sort() {
             return this.sortBy;
         },
+
         sortDir() {
             return this.sortDirection;
         },
+
         sizeClass() {
-            return `sw-grid__${this.variant}`;
+            return `sw-grid--${this.variant}`;
         },
+
         gridClasses() {
             return {
-                'sw-grid': true,
                 'sw-grid--sidebar': this.sidebar,
                 [this.sizeClass]: true
             };
         },
+
         columnFlex() {
             let flex = (this.selectable === true) ? '50px ' : '';
 
@@ -143,6 +146,14 @@ Component.register('sw-grid', {
             }
 
             return 0;
+        },
+
+        onGridCellClick(event, column) {
+            if (!column.sortable) {
+                return;
+            }
+
+            this.$emit('sort-column', column);
         }
     }
 });

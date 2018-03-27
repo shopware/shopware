@@ -1,8 +1,8 @@
 import { Component } from 'src/core/shopware';
-import template from './sw-color-swatch.html.twig';
-import './sw-color-swatch.less';
+import template from './sw-color-badge.html.twig';
+import './sw-color-badge.less';
 
-Component.register('sw-color-swatch', {
+Component.register('sw-color-badge', {
     template,
 
     props: {
@@ -32,8 +32,8 @@ Component.register('sw-color-swatch', {
         },
         variantClass() {
             return {
-                [`sw-color-swatch__${this.variant}`]: true,
-                'sw-color-swatch__rounded': this.rounded
+                [`is--${this.variant}`]: true,
+                'is--rounded': this.rounded
             };
         }
     }

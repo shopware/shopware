@@ -4,15 +4,12 @@ import template from './sw-product-list.twig';
 import './sw-product-list.less';
 
 Component.register('sw-product-list', {
+    template,
+
     mixins: [
         PaginationMixin,
         Mixin.getByName('productList')
     ],
-
-    created() {
-        this.updateParamsUsingRoute();
-        this.updateRoute();
-    },
 
     data() {
         return {
@@ -38,6 +35,11 @@ Component.register('sw-product-list', {
                 }
             }]
         };
+    },
+
+    created() {
+        this.updateParamsUsingRoute();
+        this.updateRoute();
     },
 
     filters: {
@@ -145,7 +147,5 @@ Component.register('sw-product-list', {
                 offset: this.offset
             });
         }
-    },
-
-    template
+    }
 });

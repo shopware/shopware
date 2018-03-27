@@ -13,8 +13,8 @@
                 {% block sw_pagination_page_list_item_button %}
                     <button v-if="typeof(pageNum) === 'number'"
                             class="sw-pagination__list-button"
-                            :class="{ 'is-active': page === pageNum }"
-                            @click="changePage(pageNum)">
+                            :class="{ 'is-active': currentPage === pageNum }"
+                            @click="changePageByPageNumber(pageNum)">
                         {{ pageNum }}
                     </button>
                 {% endblock %}

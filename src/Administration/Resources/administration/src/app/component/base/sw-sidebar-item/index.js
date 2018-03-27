@@ -21,6 +21,7 @@ Component.register('sw-sidebar-item', {
             default: false
         }
     },
+
     data() {
         return {
             panelId: utils.createId(),
@@ -51,7 +52,7 @@ Component.register('sw-sidebar-item', {
             }
 
             this.isExpanded = !this.isExpanded;
-            this.$parent.closeNonExpandedContentPanels(this.panelId);
+            this.$parent.$emit('closeNonExpandedContentPanels', this.panelId);
         }
     }
 });

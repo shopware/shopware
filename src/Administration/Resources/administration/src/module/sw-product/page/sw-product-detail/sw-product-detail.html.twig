@@ -42,7 +42,7 @@
                 {% block sw_product_detail_content_price_card %}
                     <sw-card title="Preise" :loading="isLoading">
                         {% block sw_product_detail_content_price_form %}
-                            <sw-product-price-form :product="product" :taxRates="taxRates"></sw-product-price-form>
+                            <sw-product-price-form :product="product" :taxRates="taxes"></sw-product-price-form>
                         {% endblock %}
                     </sw-card>
                 {% endblock %}

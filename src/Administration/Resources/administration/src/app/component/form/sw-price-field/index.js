@@ -42,6 +42,10 @@ Component.register('sw-price-field', {
             if (value === true) {
                 this.price.net = this.convertGrossToNet(this.price.gross);
             }
+        },
+
+        taxRate() {
+            this.price.net = this.convertGrossToNet(this.price.gross);
         }
     },
 

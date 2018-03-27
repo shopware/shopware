@@ -24,7 +24,7 @@ State.register('manufacturer', {
     },
 
     actions: {
-        getManufacturerList({ commit }, offset, limit) {
+        getManufacturerList({ commit }, offset = 0, limit = 25) {
             const providerContainer = Shopware.Application.getContainer('service');
             const manufacturerService = providerContainer.productManufacturerService;
 

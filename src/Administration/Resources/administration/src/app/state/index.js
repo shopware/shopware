@@ -4,3 +4,4 @@ import './notification.state';
 
 import './product.state';
 import './manufacturer.state';
+import './tax.state';

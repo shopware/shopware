@@ -71,7 +71,6 @@ Component.register('sw-field', {
     data() {
         return {
             currentValue: null,
-            valueType: 'string',
             boundExpressionPath: []
         };
     },
@@ -83,13 +82,12 @@ Component.register('sw-field', {
     },
 
     watch: {
-        value() {
-            this.currentValue = this.convertValueType(this.value);
+        value(value) {
+            this.currentValue = this.convertValueType(value);
         }
     },
 
     mounted() {
-        this.valueType = typeof this.value;
         this.currentValue = this.convertValueType(this.value);
 
         if (this.$vnode.data && this.$vnode.data.model) {
@@ -145,24 +143,28 @@ Component.register('sw-field', {
          * @returns {*}
          */
         convertValueType(value) {
-            if (typeof value === 'undefined' || value === null) {
+            if (!value || typeof value === 'undefined' || value === null) {
                 return null;
             }
 
-            if (this.valueType === 'number') {
+            if (this.type === 'number') {
+                if (typeof value === 'string' && value.length <= 0) {
+                    return null;
+                }
+
                 return parseFloat(value);
             }
 
-            if (this.valueType === 'boolean') {
+            if (this.type === 'checkbox' || this.type === 'switch') {
                 return value === 'true' || value === true;
             }
 
-            if (this.valueType === 'string' && value.length <= 0) {
+            if (typeof value === 'string' && value.length <= 0) {
                 return null;
             }
 
             // Datetime field does not support time zones
-            if ((this.type === 'datetime' || this.type === 'datetime-local') && this.valueType === 'string') {
+            if ((this.type === 'datetime' || this.type === 'datetime-local') && typeof value === 'string') {
                 value = value.split('+')[0];
             }
 

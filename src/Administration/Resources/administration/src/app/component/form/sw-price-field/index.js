@@ -31,12 +31,6 @@ Component.register('sw-price-field', {
         };
     },
 
-    computed: {
-        mathematicalTaxRate() {
-            return (this.taxRate.rate / 100) + 1;
-        }
-    },
-
     watch: {
         locked(value) {
             if (value === true) {
@@ -45,6 +39,7 @@ Component.register('sw-price-field', {
         },
 
         taxRate() {
+            // ToDo: Does not trigger value update!?
             this.price.net = this.convertGrossToNet(this.price.gross);
         }
     },
@@ -76,14 +71,30 @@ Component.register('sw-price-field', {
          * Todo: We need to change this to server side calculation because of issues with floating point numbers
          */
         convertNetToGross(value) {
-            return value * this.mathematicalTaxRate;
+            if (!value || value === null || typeof value !== 'number') {
+                return null;
+            }
+
+            return value * this.getMathTaxRate();
         },
 
         /**
          * Todo: We need to change this to server side calculation because of issues with floating point numbers
          */
         convertGrossToNet(value) {
-            return value / this.mathematicalTaxRate;
+            if (!value || value === null || typeof value !== 'number') {
+                return null;
+            }
+
+            return value / this.getMathTaxRate();
+        },
+
+        getMathTaxRate() {
+            if (!this.taxRate || !this.taxRate.rate) {
+                return 1;
+            }
+
+            return (this.taxRate.rate / 100) + 1;
         }
     }
 });

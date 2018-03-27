@@ -7,13 +7,15 @@ import CriteriaFactory from 'src/core/factory/criteria.factory';
 Mixin.register('productList', {
     data() {
         return {
-            isLoading: false,
             products: [],
-            total: 0,
+            offset: 0,
+            limit: 25,
+            totalProducts: 0,
             sortBy: 'name',
             sortDirection: 'ASC',
             term: '',
-            filters: []
+            filters: [],
+            isLoading: false
         };
     },
 
@@ -72,7 +74,7 @@ Mixin.register('productList', {
             }
 
             return this.$store.dispatch('product/getProductList', config).then((response) => {
-                this.total = response.total;
+                this.totalProducts = response.total;
                 this.products = response.products;
                 this.isLoading = false;
 

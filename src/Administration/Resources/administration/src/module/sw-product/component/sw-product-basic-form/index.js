@@ -13,7 +13,9 @@ Component.register('sw-product-basic-form', {
         manufacturers: {
             type: Array,
             required: true,
-            default: []
+            default() {
+                return [];
+            }
         }
     }
 });

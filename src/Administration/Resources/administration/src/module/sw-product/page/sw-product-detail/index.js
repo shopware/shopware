@@ -3,17 +3,17 @@ import template from './sw-product-detail.html.twig';
 import './sw-product-detail.less';
 
 Component.register('sw-product-detail', {
-    inject: ['productManufacturerService', 'taxService', 'customerGroupService'],
+    inject: ['taxService', 'customerGroupService'],
 
     mixins: [
         Mixin.getByName('product'),
+        Mixin.getByName('manufacturerList'),
         Mixin.getByName('notification')
     ],
 
     data() {
         return {
             taxRates: [],
-            manufacturers: [],
             customerGroups: []
         };
     },
@@ -47,15 +47,8 @@ Component.register('sw-product-detail', {
 
     methods: {
         getData() {
-            this.getManufacturerData();
             this.getCustomerGroupData();
             this.getTaxData();
-        },
-
-        getManufacturerData() {
-            this.productManufacturerService.getList().then((response) => {
-                this.manufacturers = response.data;
-            });
         },
 
         getTaxData() {

@@ -34,9 +34,14 @@
                                     :id="name"
                                     :value="currentValue"
                                     :disabled="disabled ? 'disabled' : false"
+                                    :class="{ 'is--placeholder': currentValue === null }"
                                     @input="onInput"
                                     @change="onChange"
                                     v-bind="$attrs">
+
+                                {% block sw_field_input_select_field_placeholder_option %}
+                                    <option class="sw-field__placeholder-option" v-if="placeholder" :value="null">{{ placeholder }}</option>
+                                {% endblock %}
 
                                 {% block sw_field_input_select_field_options %}
                                     <slot name="options">

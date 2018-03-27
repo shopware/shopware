@@ -1,28 +1,76 @@
-<div class="sw-product-price-form">
+{% block sw_product_price_form %}
+    <div class="sw-product-price-form">
 
-    <sw-container grid="1fr 1fr" gap="30px">
-        {% block sw_product_price_form_tax_field %}
-            <sw-field type="select"
-                      label="Steuersatz"
-                      name="tax"
-                      placeholder="Tax rate"
-                      v-model="product.taxId">
-                {% block sw_product_price_form_tax_field_options %}
-                    <option slot="options" v-for="tax in taxRates" :value="tax.id">{{ tax.name }}</option>
-                {% endblock %}
-            </sw-field>
-        {% endblock %}
+        <sw-container grid="1fr 1fr" gap="30px">
+            {% block sw_product_price_form_tax_field %}
+                <sw-field type="select"
+                          label="Steuersatz"
+                          name="tax"
+                          placeholder="Tax rate"
+                          v-model="product.taxId">
+                    {% block sw_product_price_form_tax_field_options %}
+                        <option slot="options" v-for="tax in taxRates" :value="tax.id">{{ tax.name }}</option>
+                    {% endblock %}
+                </sw-field>
+            {% endblock %}
+
+            {% block sw_product_price_form_purchase_price_field %}
+                <sw-field type="number"
+                          label="Einkaufspreis (Brutto)"
+                          name="purchasePrice"
+                          suffix="EUR"
+                          placeholder="Purchase price..."
+                          min="0.00"
+                          step="0.01"
+                          v-model="product.purchasePrice">
+                </sw-field>
+            {% endblock %}
+        </sw-container>
 
         {% block sw_product_price_form_price_field %}
-            <sw-field type="number"
-                      label="Preis"
-                      name="price"
-                      suffix="EUR"
-                      placeholder="Product price..."
-                      v-model="product.price.gross">
-            </sw-field>
+            <sw-price-field :price="product.price" :taxRate="productTaxRate"></sw-price-field>
         {% endblock %}
-    </sw-container>
 
-    <sw-price-field v-model="product.price" :taxRate="productTaxRate"></sw-price-field>
-</div>
+        <sw-container grid="1fr 1fr 1fr 1fr" gap="30px">
+
+            {% block sw_product_price_form_unit_field %}
+                <sw-field type="select"
+                          label="Maßeinheit"
+                          placeholder="Wählen..."
+                          v-model="product.unitId">
+                    <option slot="options" :value="1">Liter</option>
+                    <option slot="options" :value="2">Kg</option>
+                    <option slot="options" :value="3">Meter</option>
+                </sw-field>
+            {% endblock %}
+
+            {% block sw_product_price_form_purchase_unit_field %}
+                <sw-field type="number"
+                          label="Inhalt"
+                          placeholder="Inhalt"
+                          min="0.00"
+                          step="0.01"
+                          v-model="product.purchaseUnit">
+                </sw-field>
+            {% endblock %}
+
+            {% block sw_product_price_form_reference_unit_field %}
+                <sw-field type="number"
+                          label="Grundeinheit"
+                          placeholder="Grundeinheit"
+                          min="0.00"
+                          step="0.01"
+                          v-model="product.referenceUnit">
+                </sw-field>
+            {% endblock %}
+
+            {% block sw_product_price_form_pack_unit_field %}
+                <sw-field type="text"
+                          label="Verpackungseinheit"
+                          placeholder="Karton, Flasche, ..."
+                          v-model="product.packUnit">
+                </sw-field>
+            {% endblock %}
+        </sw-container>
+    </div>
+{% endblock %}

@@ -112,9 +112,10 @@
     label {
         display: block;
         line-height: 16px;
+        font-size: 14px;
         margin-bottom: 8px;
         color: @sw-field-color-label;
-        font-weight: 600;
+        font-weight: normal;
         cursor: pointer;
         user-select: none;
     }
@@ -178,6 +179,10 @@
             pointer-events: none;
         }
 
+        .sw-field__placeholder-option {
+            color: lighten(@sw-field-color-text, 25);
+        }
+
         select {
             display: block;
             width: 100%;
@@ -193,6 +198,10 @@
             -webkit-appearance: none;
             -moz-appearance: none;
             appearance: none;
+
+            &.is--placeholder {
+                color: lighten(@sw-field-color-text, 25);
+            }
 
             &:focus {
                 border-color: @sw-field-color-focus;

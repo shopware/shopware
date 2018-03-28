@@ -50,7 +50,7 @@ class PaginationSubscriber implements EventSubscriberInterface
 
     private function getPageCount(ProductSearchResult $products, Criteria $criteria, int $currentPage): int
     {
-        $pageCount = floor($products->getTotal() / $criteria->getLimit());
+        $pageCount = (int) floor($products->getTotal() / $criteria->getLimit());
 
         if ($criteria->fetchCount() !== Criteria::FETCH_COUNT_NEXT_PAGES) {
             return max(1, $pageCount);

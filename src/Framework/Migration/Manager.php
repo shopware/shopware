@@ -91,10 +91,7 @@ class Manager
         return $this;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getMigrationPath()
+    public function getMigrationPath(): string
     {
         return $this->migrationPath;
     }

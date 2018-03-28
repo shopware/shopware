@@ -81,12 +81,9 @@ class XmlPluginInfoReader
     /**
      * Get child elements by name.
      *
-     * @param \DOMNode $node
-     * @param mixed    $name
-     *
      * @return \DOMElement[]
      */
-    private function getChildren(\DOMNode $node, $name)
+    private function getChildren(\DOMNode $node, string $name): array
     {
         $children = [];
         foreach ($node->childNodes as $child) {
@@ -116,12 +113,9 @@ class XmlPluginInfoReader
     /**
      * Get child element values by name.
      *
-     * @param \DOMNode $node
-     * @param mixed    $name
-     *
      * @return \DOMElement[]
      */
-    private function getChildrenValues(\DOMNode $node, $name)
+    private function getChildrenValues(\DOMNode $node, string $name): array
     {
         $children = [];
         foreach ($node->childNodes as $child) {

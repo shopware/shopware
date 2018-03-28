@@ -156,17 +156,11 @@ class ListingPageStruct extends Struct
         $this->currentSorting = $currentSorting;
     }
 
-    /**
-     * @return mixed
-     */
     public function getProductBoxLayout(): string
     {
         return $this->productBoxLayout;
     }
 
-    /**
-     * @param mixed $productBoxLayout
-     */
     public function setProductBoxLayout(string $productBoxLayout): void
     {
         $this->productBoxLayout = $productBoxLayout;

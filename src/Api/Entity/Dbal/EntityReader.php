@@ -466,13 +466,7 @@ class EntityReader implements EntityReaderInterface
         return $ids;
     }
 
-    /**
-     * @param string          $definition
-     * @param FieldCollection $fields
-     *
-     * @return mixed
-     */
-    private function requiresToManyAssociation(string $definition, FieldCollection $fields)
+    private function requiresToManyAssociation(string $definition, FieldCollection $fields): bool
     {
         foreach ($fields as $field) {
             if (!$field instanceof AssociationInterface) {

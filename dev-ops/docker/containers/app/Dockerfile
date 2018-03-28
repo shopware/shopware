@@ -1,4 +1,4 @@
-FROM webdevops/php-apache-dev:7.2
+FROM webdevops/php-apache:7.2
 
 # Install Google Chrome
 RUN curl -sL https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -

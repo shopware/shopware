@@ -20,10 +20,6 @@ templates:
     destination: ".env"
   - source: "dev-ops/common/templates/check_requirements.php"
     destination: "dev-ops/check_requirements.php"
-  - source: "dev-ops/docker/templates/Dockerfile-app"
-    destination: "dev-ops/docker/containers/app/Dockerfile"
-  - source: "dev-ops/docker/templates/Dockerfile-mysql"
-    destination: "dev-ops/docker/containers/mysql/Dockerfile"
 
 const:
   DB_USER: "app"
@@ -33,11 +29,8 @@ const:
   DB_NAME: "shopware"
   SW_HOST: "127.0.0.1:8088"
   SW_BASE_PATH: ""
-  PHP_VERSION: "7.2"
-  MYSQL_VERSION: "10.2"
   APP_DEBUG: "1"
   APP_ENV: "dev"
-  CONTAINER_SUFFIX: "-dev"
 
 dynamic:
   USERKEY: echo "$(id -u):$(id -g)"
@@ -65,10 +58,6 @@ environments:
         destination: "dev-ops/check_requirements.php"
       - source: "dev-ops/bamboo.shopware.com/docker-compose.override.yml"
         destination: "docker-compose.override.yml"
-      - source: "dev-ops/docker/templates/Dockerfile-app"
-        destination: "dev-ops/docker/containers/app/Dockerfile"
-      - source: "dev-ops/docker/templates/Dockerfile-mysql"
-        destination: "dev-ops/docker/containers/mysql/Dockerfile"
     dynamic:
       REVISION: echo "${SW_REVISION}"
       PARENT_REVISION: echo "${SW_PARENT_REVISION}"

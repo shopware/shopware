@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Storefront\Page\Listing\AggregationView;
 
@@ -21,6 +21,7 @@ class AggregationViewCollection extends Collection
         if (!$this->has($key)) {
             return null;
         }
+
         return $this->elements[$key];
     }
 }

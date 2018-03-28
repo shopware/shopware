@@ -9,8 +9,6 @@ use Shopware\Api\Entity\Field\DateField;
 use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\IntField;
 use Shopware\Api\Entity\Field\JsonArrayField;
-use Shopware\Api\Entity\Field\JsonObjectField;
-use Shopware\Api\Entity\Field\LongTextField;
 use Shopware\Api\Entity\Field\OneToManyAssociationField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;

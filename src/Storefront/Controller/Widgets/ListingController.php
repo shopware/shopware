@@ -24,7 +24,6 @@
 
 namespace Shopware\Storefront\Controller\Widgets;
 
-use function GuzzleHttp\Promise\queue;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Api\Entity\Search\Criteria;
@@ -79,7 +78,7 @@ class ListingController extends StorefrontController
         $products = $this->repository->search($criteria, $context);
 
         return $this->renderStorefront('@Storefront/widgets/listing/top_seller.html.twig', [
-            'products' => $products
+            'products' => $products,
         ]);
     }
 
@@ -93,27 +92,24 @@ class ListingController extends StorefrontController
 
         if ($request->query->has(SearchTermSubscriber::TERM_PARAMETER)) {
             $page = $this->searchPageLoader->load($request, $context, false);
-
-        } else if ($request->query->has('categoryId')) {
+        } elseif ($request->query->has('categoryId')) {
             $page = $this->listingPageLoader->load($categoryId, $request, $context, false);
-
         } else {
             throw new \RuntimeException('Requires category id or search term');
         }
 
         $template = $this->renderStorefront('@Storefront/frontend/listing/listing_ajax.html.twig', [
-            'listing' => $page
+            'listing' => $page,
         ], null, false);
 
         $pagination = $this->renderStorefront('@Storefront/frontend/listing/actions/action-pagination.html.twig', [
-            'listing' => $page
+            'listing' => $page,
         ], null, false);
 
         return new JsonResponse([
             'listing' => $template->getContent(),
             'pagination' => $pagination->getContent(),
-            'totalCount' => $page->getProducts()->getTotal()
+            'totalCount' => $page->getProducts()->getTotal(),
         ]);
     }
-
 }

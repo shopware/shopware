@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Storefront\Subscriber;
 
@@ -29,7 +29,7 @@ class SortingSubscriber implements EventSubscriberInterface
     {
         return [
             ListingEvents::PAGE_CRITERIA_CREATED_EVENT => 'buildCriteria',
-            ListingEvents::LISTING_PAGE_LOADED_EVENT => 'buildAggregationView'
+            ListingEvents::LISTING_PAGE_LOADED_EVENT => 'buildAggregationView',
         ];
     }
 

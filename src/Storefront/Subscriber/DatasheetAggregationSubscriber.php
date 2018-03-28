@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Storefront\Subscriber;
 
@@ -8,7 +8,6 @@ use Shopware\Api\Configuration\Struct\ConfigurationGroupDetailStruct;
 use Shopware\Api\Entity\Search\Aggregation\AggregationResult;
 use Shopware\Api\Entity\Search\Aggregation\EntityAggregation;
 use Shopware\Api\Entity\Search\AggregatorResult;
-use Shopware\Api\Entity\Search\Query\NestedQuery;
 use Shopware\Api\Entity\Search\Query\Query;
 use Shopware\Api\Entity\Search\Query\TermsQuery;
 use Shopware\Storefront\Event\ListingEvents;
@@ -30,7 +29,7 @@ class DatasheetAggregationSubscriber implements EventSubscriberInterface
     {
         return [
             ListingEvents::PAGE_CRITERIA_CREATED_EVENT => 'buildCriteria',
-            ListingEvents::LISTING_PAGE_LOADED_EVENT => 'buildAggregationView'
+            ListingEvents::LISTING_PAGE_LOADED_EVENT => 'buildAggregationView',
         ];
     }
 
@@ -76,7 +75,7 @@ class DatasheetAggregationSubscriber implements EventSubscriberInterface
 
         $aggregations = $result->getAggregations();
 
-        /** @var AggregatorResult $result */
+        /* @var AggregatorResult $result */
         if (!$aggregations->has(self::AGGREGATION_NAME)) {
             return;
         }

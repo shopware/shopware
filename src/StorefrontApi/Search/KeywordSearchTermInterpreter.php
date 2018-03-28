@@ -39,7 +39,7 @@ class KeywordSearchTermInterpreter
         $tokens = $this->tokenizer->tokenize($word);
 
         $slops = $this->slop($tokens);
-    
+
         $matches = $this->fetchKeywords($context, $slops);
 
         $scoring = $this->score($tokens, $matches, $context);
@@ -62,7 +62,7 @@ class KeywordSearchTermInterpreter
     {
         $slops = [
             'normal' => [],
-            'reversed' => []
+            'reversed' => [],
         ];
         foreach ($tokens as $index => $token) {
             $slopSize = strlen($token) > 4 ? 2 : 1;

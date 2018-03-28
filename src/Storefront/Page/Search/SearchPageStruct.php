@@ -6,5 +6,4 @@ use Shopware\Storefront\Page\Listing\ListingPageStruct;
 
 class SearchPageStruct extends ListingPageStruct
 {
-
 }

@@ -43,6 +43,7 @@ class SearchPattern
         foreach ($this->terms as $term) {
             $terms[] = $term->getTerm();
         }
+
         return $terms;
     }
 }

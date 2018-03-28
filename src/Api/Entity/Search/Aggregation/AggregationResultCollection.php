@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Api\Entity\Search\Aggregation;
 
@@ -21,6 +21,7 @@ class AggregationResultCollection extends Collection
         if (!$this->has($name)) {
             return null;
         }
+
         return $this->elements[$name];
     }
 }

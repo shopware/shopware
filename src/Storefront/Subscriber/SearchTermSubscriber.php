@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Storefront\Subscriber;
 
@@ -31,7 +31,7 @@ class SearchTermSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            ListingEvents::PAGE_CRITERIA_CREATED_EVENT => 'buildCriteria'
+            ListingEvents::PAGE_CRITERIA_CREATED_EVENT => 'buildCriteria',
         ];
     }
 

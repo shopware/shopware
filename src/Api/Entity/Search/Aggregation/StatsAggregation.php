@@ -31,7 +31,8 @@ class StatsAggregation implements Aggregation
      */
     protected $sum;
 
-    public function __construct(string $field, string $name, bool $count = true, bool $avg = true, bool $sum = true, bool $min = true, bool $max = true) {
+    public function __construct(string $field, string $name, bool $count = true, bool $avg = true, bool $sum = true, bool $min = true, bool $max = true)
+    {
         $this->field = $field;
         $this->name = $name;
         $this->count = $count;

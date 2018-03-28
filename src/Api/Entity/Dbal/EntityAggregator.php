@@ -65,7 +65,7 @@ class EntityAggregator implements EntityAggregatorInterface
     {
         /** @var EntityDefinition $definition */
         $table = $definition::getEntityName();
-        
+
         $query = EntityDefinitionQueryHelper::getBaseQuery($this->connection, ProductDefinition::class, $context);
 
         $fields = array_merge(
@@ -114,7 +114,7 @@ class EntityAggregator implements EntityAggregatorInterface
             $ids = $query->execute()->fetchAll(\PDO::FETCH_COLUMN);
             $ids = array_filter($ids);
 
-            $ids = array_map(function($bytes) {
+            $ids = array_map(function ($bytes) {
                 return Uuid::fromBytesToHex($bytes);
             }, $ids);
 
@@ -131,9 +131,7 @@ class EntityAggregator implements EntityAggregatorInterface
             return $query->execute()->fetchAll(\PDO::FETCH_ASSOC);
         }
 
-
         if ($aggregation instanceof StatsAggregation) {
-
             $select = [];
             if ($aggregation->fetchCount()) {
                 $select[] = 'COUNT(' . $field . ')' . ' as `count`';

@@ -53,6 +53,7 @@ class RangeQuery extends Query
         if (!$this->hasParameter($key)) {
             return null;
         }
+
         return $this->parameters[$key];
     }
 

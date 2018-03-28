@@ -125,7 +125,7 @@ class KeywordSearchTermInterpreterTest extends KernelTestCase
                 'keyword' => $keyword,
                 'language_id' => Uuid::fromStringToBytes(Defaults::LANGUAGE),
                 'version_id' => Uuid::fromStringToBytes(Defaults::LIVE_VERSION),
-                'reversed' => SearchIndexer::stringReverse($keyword)
+                'reversed' => SearchIndexer::stringReverse($keyword),
             ]);
         }
     }

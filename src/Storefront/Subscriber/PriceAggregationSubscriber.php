@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Storefront\Subscriber;
 
@@ -11,8 +11,6 @@ use Shopware\Storefront\Event\ListingPageLoadedEvent;
 use Shopware\Storefront\Event\PageCriteriaCreatedEvent;
 use Shopware\Storefront\Page\Listing\AggregationView\SliderAggregation;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpKernel\Event\GetResponseEvent;
-use Symfony\Component\HttpKernel\KernelEvents;
 
 class PriceAggregationSubscriber implements EventSubscriberInterface
 {
@@ -28,7 +26,7 @@ class PriceAggregationSubscriber implements EventSubscriberInterface
     {
         return [
             ListingEvents::PAGE_CRITERIA_CREATED_EVENT => 'buildCriteria',
-            ListingEvents::LISTING_PAGE_LOADED_EVENT => 'buildAggregationView'
+            ListingEvents::LISTING_PAGE_LOADED_EVENT => 'buildAggregationView',
         ];
     }
 
@@ -69,7 +67,7 @@ class PriceAggregationSubscriber implements EventSubscriberInterface
 
         $aggregations = $result->getAggregations();
 
-        /** @var AggregatorResult $result */
+        /* @var AggregatorResult $result */
         if (!$aggregations->has(self::AGGREGATION_NAME)) {
             return;
         }

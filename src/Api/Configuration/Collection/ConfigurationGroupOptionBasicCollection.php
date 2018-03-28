@@ -64,7 +64,6 @@ class ConfigurationGroupOptionBasicCollection extends EntityCollection
     {
         $groups = new ConfigurationGroupDetailCollection();
         foreach ($this->elements as $element) {
-
             if ($groups->has($element->getGroupId())) {
                 $group = $groups->get($element->getGroupId());
             } else {

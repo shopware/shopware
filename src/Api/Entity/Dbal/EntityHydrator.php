@@ -259,12 +259,13 @@ class EntityHydrator
                 }
 
                 $structs = [];
-                $array = json_decode($value, true);;
+                $array = json_decode($value, true);
                 foreach ($array as $item) {
                     $structs[] = $this->serializer->deserialize(json_encode($item), '', 'json');
                 }
+
                 return $structs;
-                
+
             case $field instanceof JsonObjectField:
                 if ($field->is(Serialized::class)) {
                     return $this->serializer->deserialize($value, '', 'json');

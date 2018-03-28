@@ -3,18 +3,12 @@
 namespace Shopware\Storefront\Page\Search;
 
 use Shopware\Api\Entity\Search\Criteria;
-use Shopware\Api\Entity\Search\Query\ScoreQuery;
 use Shopware\Api\Entity\Search\Query\TermQuery;
-use Shopware\Api\Entity\Search\Query\TermsQuery;
-use Shopware\Api\Product\Struct\ProductSearchResult;
 use Shopware\Context\Struct\StorefrontContext;
-use Shopware\Defaults;
 use Shopware\Framework\Config\ConfigServiceInterface;
 use Shopware\Storefront\Event\ListingPageLoadedEvent;
 use Shopware\Storefront\Event\PageCriteriaCreatedEvent;
-use Shopware\Storefront\Page\Listing\ListingHandler\ListingHandlerRegistry;
 use Shopware\StorefrontApi\Product\StorefrontProductRepository;
-use Shopware\StorefrontApi\Search\KeywordSearchTermInterpreter;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 

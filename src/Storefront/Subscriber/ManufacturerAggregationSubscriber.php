@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Storefront\Subscriber;
 
@@ -41,7 +41,7 @@ class ManufacturerAggregationSubscriber implements EventSubscriberInterface
     {
         return [
             ListingEvents::PAGE_CRITERIA_CREATED_EVENT => 'buildCriteria',
-            ListingEvents::LISTING_PAGE_LOADED_EVENT => 'buildAggregationView'
+            ListingEvents::LISTING_PAGE_LOADED_EVENT => 'buildAggregationView',
         ];
     }
 
@@ -87,7 +87,7 @@ class ManufacturerAggregationSubscriber implements EventSubscriberInterface
 
         $aggregations = $result->getAggregations();
 
-        /** @var AggregatorResult $result */
+        /* @var AggregatorResult $result */
         if (!$aggregations->has(self::AGGREGATION_NAME)) {
             return;
         }

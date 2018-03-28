@@ -135,6 +135,15 @@ class SearchIndexer implements IndexerInterface
         $queue->execute();
     }
 
+    public static function stringReverse($keyword)
+    {
+        $keyword = (string) $keyword;
+        $peaces = preg_split('//u', $keyword, -1, PREG_SPLIT_NO_EMPTY);
+        $peaces = array_reverse($peaces);
+
+        return implode('', $peaces);
+    }
+
     private function indexContext(ShopContext $context, \DateTime $timestamp): void
     {
         $iterator = new RepositoryIterator($this->productRepository, $context);
@@ -190,7 +199,7 @@ class SearchIndexer implements IndexerInterface
                 'language_id' => $languageId,
                 'version_id' => $versionId,
                 'keyword' => $keyword,
-                'reversed' => $reversed
+                'reversed' => $reversed,
             ]);
 
             $queue->addInsert($documentTable, [
@@ -203,13 +212,5 @@ class SearchIndexer implements IndexerInterface
                 'ranking' => $ranking,
             ]);
         }
-    }
-
-    public static function stringReverse($keyword)
-    {
-        $keyword = (string) $keyword;
-        $peaces = preg_split('//u', $keyword, -1, PREG_SPLIT_NO_EMPTY);
-        $peaces = array_reverse($peaces);
-        return implode('', $peaces);
     }
 }

@@ -131,6 +131,35 @@ class EntityAggregator implements EntityAggregatorInterface
             return $query->execute()->fetchAll(\PDO::FETCH_ASSOC);
         }
 
+
+        if ($aggregation instanceof StatsAggregation) {
+
+            $select = [];
+            if ($aggregation->fetchCount()) {
+                $select[] = 'COUNT(' . $field . ')' . ' as `count`';
+            }
+            if ($aggregation->fetchAvg()) {
+                $select[] = 'AVG(' . $field . ')' . ' as `avg`';
+            }
+            if ($aggregation->fetchSum()) {
+                $select[] = 'SUM(' . $field . ')' . ' as `sum`';
+            }
+            if ($aggregation->fetchMin()) {
+                $select[] = 'MIN(' . $field . ')' . ' as `min`';
+            }
+            if ($aggregation->fetchMax()) {
+                $select[] = 'MAX(' . $field . ')' . ' as `max`';
+            }
+
+            if (empty($select)) {
+                throw new \RuntimeException('StatsAggregation configured without fetch');
+            }
+
+            $query->select($select);
+
+            return $query->execute()->fetch(\PDO::FETCH_ASSOC);
+        }
+
         if ($aggregation instanceof StatsAggregation) {
             $query->select([
                 'COUNT(' . $field . ')' . ' as `count`',

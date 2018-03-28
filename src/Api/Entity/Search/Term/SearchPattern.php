@@ -36,4 +36,13 @@ class SearchPattern
     {
         $this->terms[] = $term;
     }
+
+    public function getAllTerms(): array
+    {
+        $terms = [$this->original->getTerm()];
+        foreach ($this->terms as $term) {
+            $terms[] = $term->getTerm();
+        }
+        return $terms;
+    }
 }

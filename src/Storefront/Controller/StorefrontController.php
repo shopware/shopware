@@ -36,10 +36,13 @@ abstract class StorefrontController extends Controller
     /**
      * {@inheritdoc}
      */
-    protected function renderStorefront($view, array $parameters = [], Response $response = null): Response
+    protected function renderStorefront($view, array $parameters = [], Response $response = null, bool $navigation = true): Response
     {
         $view = $this->resolveView($view);
-        $parameters['navigation'] = $this->getNavigation();
+
+        if ($navigation) {
+            $parameters['navigation'] = $this->getNavigation();
+        }
 
         return $this->render($view, $parameters, $response);
     }
@@ -66,7 +69,7 @@ abstract class StorefrontController extends Controller
      */
     private function getNavigation(): ?Navigation
     {
-        $request = $this->get('request_stack')->getCurrentRequest();
+        $request = $this->get('request_stack')->getMasterRequest();
 
         $context = $request->attributes->get(ContextSubscriber::SHOP_CONTEXT_PROPERTY);
 

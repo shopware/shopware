@@ -55,7 +55,7 @@ class SearchController extends StorefrontController
             );
         }
 
-        $listing = $this->searchPageLoader->load($searchTerm, $request, $context);
+        $listing = $this->searchPageLoader->load($request, $context);
 
         return $this->renderStorefront(
             '@Storefront/frontend/search/index.html.twig',
@@ -86,7 +86,7 @@ class SearchController extends StorefrontController
         return $this->renderStorefront(
             '@Storefront/frontend/search/ajax.html.twig',
             [
-                'listing' => $this->searchPageLoader->load($searchTerm, $request, $context),
+                'listing' => $this->searchPageLoader->load($request, $context),
                 'searchTerm' => $searchTerm,
             ]
         );

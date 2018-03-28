@@ -1,6 +1,6 @@
 <?php
 
-namespace Shopware\Storefront\Page\Listing\ListingHandler;
+namespace Shopware\Storefront\Subscriber;
 
 use Shopware\Api\Configuration\Collection\ConfigurationGroupOptionBasicCollection;
 use Shopware\Api\Configuration\Definition\ConfigurationGroupOptionDefinition;
@@ -8,47 +8,67 @@ use Shopware\Api\Configuration\Struct\ConfigurationGroupDetailStruct;
 use Shopware\Api\Entity\Search\Aggregation\AggregationResult;
 use Shopware\Api\Entity\Search\Aggregation\EntityAggregation;
 use Shopware\Api\Entity\Search\AggregatorResult;
-use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\NestedQuery;
-use Shopware\Api\Entity\Search\Query\NotQuery;
 use Shopware\Api\Entity\Search\Query\Query;
 use Shopware\Api\Entity\Search\Query\TermsQuery;
-use Shopware\Api\Entity\Search\SearchResultInterface;
-use Shopware\Context\Struct\StorefrontContext;
+use Shopware\Storefront\Event\ListingEvents;
+use Shopware\Storefront\Event\ListingPageLoadedEvent;
+use Shopware\Storefront\Event\PageCriteriaCreatedEvent;
 use Shopware\Storefront\Page\Listing\AggregationView\ListAggregation;
 use Shopware\Storefront\Page\Listing\AggregationView\ListItem;
-use Shopware\Storefront\Page\Listing\ListingPageStruct;
-use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class DatasheetListingHandler implements ListingHandler
+class DatasheetAggregationSubscriber implements EventSubscriberInterface
 {
-    const DATASHEET_ID_FIELD = 'product.datasheet.id';
+    public const DATASHEET_ID_FIELD = 'product.datasheet.id';
 
-    public function prepareCriteria(Request $request, Criteria $criteria, StorefrontContext $context): void
+    public const DATASHEET_PARAMETER = 'option';
+
+    const AGGREGATION_NAME = 'datasheet';
+
+    public static function getSubscribedEvents()
     {
-        $criteria->addAggregation(
+        return [
+            ListingEvents::PAGE_CRITERIA_CREATED_EVENT => 'buildCriteria',
+            ListingEvents::LISTING_PAGE_LOADED_EVENT => 'buildAggregationView'
+        ];
+    }
+
+    public function buildCriteria(PageCriteriaCreatedEvent $event): void
+    {
+        $request = $event->getRequest();
+
+        $event->getCriteria()->addAggregation(
             new EntityAggregation(
                 self::DATASHEET_ID_FIELD,
                 ConfigurationGroupOptionDefinition::class,
-                'datasheet'
+                self::AGGREGATION_NAME
             )
         );
 
-        if (!$request->query->has('option')) {
+        if (!$request->query->has(self::DATASHEET_PARAMETER)) {
             return;
         }
 
-        $ids = $request->query->get('option', '');
-        $ids= array_filter(explode('|', $ids));
+        $ids = $request->query->get(self::DATASHEET_PARAMETER, '');
+        $ids = array_filter(explode('|', $ids));
 
-        $criteria->addPostFilter(
-            new TermsQuery(self::DATASHEET_ID_FIELD, $ids)
-        );
+        if (empty($ids)) {
+            return;
+        }
+
+        $query = new TermsQuery(self::DATASHEET_ID_FIELD, $ids);
+
+        //add query as extension to transport active aggregation view elements
+        $event->getCriteria()->addExtension(self::AGGREGATION_NAME, $query);
+        $event->getCriteria()->addPostFilter($query);
     }
 
-    public function preparePage(ListingPageStruct $listingPage, SearchResultInterface $searchResult, StorefrontContext $context): void
+    public function buildAggregationView(ListingPageLoadedEvent $event): void
     {
-        $result = $searchResult->getAggregationResult();
+        $page = $event->getPage();
+
+        $result = $page->getProducts()->getAggregationResult();
 
         if ($result === null) {
             return;
@@ -57,16 +77,15 @@ class DatasheetListingHandler implements ListingHandler
         $aggregations = $result->getAggregations();
 
         /** @var AggregatorResult $result */
-        if (!$aggregations->has('datasheet')) {
+        if (!$aggregations->has(self::AGGREGATION_NAME)) {
             return;
         }
 
         /** @var AggregationResult $aggregation */
-        $aggregation = $aggregations->get('datasheet');
+        $aggregation = $aggregations->get(self::AGGREGATION_NAME);
 
-        $criteria = $searchResult->getCriteria();
-
-        $filter = $this->getFilter($criteria->getPostFilters());
+        /** @var TermsQuery|null $filter */
+        $filter = $page->getCriteria()->getExtension(self::AGGREGATION_NAME);
 
         $active = $filter !== null;
 
@@ -96,31 +115,9 @@ class DatasheetListingHandler implements ListingHandler
                 $items[] = $item;
             }
 
-            $listingPage->getAggregations()->add(
+            $page->getAggregations()->add(
                 new ListAggregation('option', $active, $group->getName(), 'option', $items)
             );
         }
-    }
-
-    private function getFilter(NestedQuery $nested): ?TermsQuery
-    {
-        /** @var Query $query */
-        foreach ($nested->getQueries() as $query) {
-            if ($query instanceof TermsQuery && $query->getField() === self::DATASHEET_ID_FIELD) {
-                return $query;
-            }
-
-            if (!$query instanceof NestedQuery || !$query instanceof NotQuery) {
-                continue;
-            }
-
-            $found = $this->getFilter($query);
-
-            if ($found) {
-                return $found;
-            }
-        }
-
-        return null;
     }
 }

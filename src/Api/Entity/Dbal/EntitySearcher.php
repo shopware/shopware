@@ -213,7 +213,7 @@ class EntitySearcher implements EntitySearcherInterface
     private function getTotalCount(Criteria $criteria, array $data): int
     {
         if ($criteria->fetchCount() === Criteria::FETCH_COUNT_TOTAL) {
-            return (int)$this->connection->fetchColumn('SELECT FOUND_ROWS()');
+            return (int) $this->connection->fetchColumn('SELECT FOUND_ROWS()');
         }
 
         return \count($data);

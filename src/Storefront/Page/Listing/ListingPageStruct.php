@@ -113,7 +113,7 @@ class ListingPageStruct extends Struct
         $this->showListing = $showListing;
     }
 
-    public function setCurrentPage(int $page)
+    public function setCurrentPage(int $page): void
     {
         $this->currentPage = $page;
     }
@@ -123,7 +123,7 @@ class ListingPageStruct extends Struct
         return $this->currentPage;
     }
 
-    public function setPageCount(int $count)
+    public function setPageCount(int $count): void
     {
         $this->pageCount = $count;
     }
@@ -133,7 +133,7 @@ class ListingPageStruct extends Struct
         return $this->pageCount;
     }
 
-    public function setAggregations(AggregationViewCollection $aggregations)
+    public function setAggregations(AggregationViewCollection $aggregations): void
     {
         $this->aggregations = $aggregations;
     }

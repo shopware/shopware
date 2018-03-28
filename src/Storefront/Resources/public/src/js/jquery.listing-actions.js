@@ -578,7 +578,8 @@
                 linkParamsArray = linkParams.split('');
 
             if (me.showInstantFilterResult && linkParamsArray[0] === 'p') {
-                me.setPageInput(linkParamsArray[2]);
+                linkParamsArray = linkParams.split('=');
+                me.setPageInput(linkParamsArray[1]);
             }
 
             me.applyCategoryParams(
@@ -1007,6 +1008,7 @@
             }
 
             me.resetBuffer();
+
             me.enableLoading(loadingIndicator, loadProducts, function() {
                 // send ajax request to load products and facets
                 me.sendListingRequest(params, loadFacets, loadProducts, function(response) {

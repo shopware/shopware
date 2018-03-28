@@ -32,6 +32,7 @@ use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Storefront\Controller\StorefrontController;
 use Shopware\Storefront\Page\Listing\ListingPageLoader;
 use Shopware\Storefront\Page\Search\SearchPageLoader;
+use Shopware\Storefront\Subscriber\SearchTermSubscriber;
 use Shopware\StorefrontApi\Product\StorefrontProductRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -77,7 +78,7 @@ class ListingController extends StorefrontController
 
         $products = $this->repository->search($criteria, $context);
 
-        return $this->render('@Storefront/widgets/listing/top_seller.html.twig', [
+        return $this->renderStorefront('@Storefront/widgets/listing/top_seller.html.twig', [
             'products' => $products
         ]);
     }
@@ -90,9 +91,8 @@ class ListingController extends StorefrontController
     {
         $categoryId = $request->query->get('categoryId');
 
-        if ($request->query->has('search')) {
-            $term = $request->query->get('search');
-            $page = $this->searchPageLoader->load($term, $request, $context, false);
+        if ($request->query->has(SearchTermSubscriber::TERM_PARAMETER)) {
+            $page = $this->searchPageLoader->load($request, $context, false);
 
         } else if ($request->query->has('categoryId')) {
             $page = $this->listingPageLoader->load($categoryId, $request, $context, false);
@@ -101,13 +101,13 @@ class ListingController extends StorefrontController
             throw new \RuntimeException('Requires category id or search term');
         }
 
-        $template = $this->render('@Storefront/frontend/listing/listing_ajax.html.twig', [
+        $template = $this->renderStorefront('@Storefront/frontend/listing/listing_ajax.html.twig', [
             'listing' => $page
-        ]);
+        ], null, false);
 
-        $pagination = $this->render('@Storefront/frontend/listing/actions/action-pagination.html.twig', [
+        $pagination = $this->renderStorefront('@Storefront/frontend/listing/actions/action-pagination.html.twig', [
             'listing' => $page
-        ]);
+        ], null, false);
 
         return new JsonResponse([
             'listing' => $template->getContent(),

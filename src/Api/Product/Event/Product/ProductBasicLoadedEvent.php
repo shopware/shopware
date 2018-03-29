@@ -8,7 +8,7 @@ use Shopware\Api\Product\Event\ProductManufacturer\ProductManufacturerBasicLoade
 use Shopware\Api\Seo\Event\SeoUrl\SeoUrlBasicLoadedEvent;
 use Shopware\Api\Tax\Event\Tax\TaxBasicLoadedEvent;
 use Shopware\Api\Unit\Event\Unit\UnitBasicLoadedEvent;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 
@@ -17,7 +17,7 @@ class ProductBasicLoadedEvent extends NestedEvent
     public const NAME = 'product.basic.loaded';
 
     /**
-     * @var ShopContext
+     * @var ApplicationContext
      */
     protected $context;
 
@@ -26,7 +26,7 @@ class ProductBasicLoadedEvent extends NestedEvent
      */
     protected $products;
 
-    public function __construct(ProductBasicCollection $products, ShopContext $context)
+    public function __construct(ProductBasicCollection $products, ApplicationContext $context)
     {
         $this->context = $context;
         $this->products = $products;
@@ -37,7 +37,7 @@ class ProductBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ShopContext
+    public function getContext(): ApplicationContext
     {
         return $this->context;
     }

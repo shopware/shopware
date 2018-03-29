@@ -2,9 +2,9 @@
 
 namespace Shopware\Api\Entity\Search\Term;
 
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 
 interface SearchFilterInterface
 {
-    public function filter(array $tokens, ShopContext $context): array;
+    public function filter(array $tokens, ApplicationContext $context): array;
 }

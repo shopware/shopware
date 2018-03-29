@@ -6,7 +6,7 @@ use Shopware\Api\Config\Event\ConfigForm\ConfigFormBasicLoadedEvent;
 use Shopware\Api\Payment\Event\PaymentMethod\PaymentMethodBasicLoadedEvent;
 use Shopware\Api\Plugin\Collection\PluginDetailCollection;
 use Shopware\Api\Shop\Event\ShopTemplate\ShopTemplateBasicLoadedEvent;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 
@@ -15,7 +15,7 @@ class PluginDetailLoadedEvent extends NestedEvent
     public const NAME = 'plugin.detail.loaded';
 
     /**
-     * @var ShopContext
+     * @var ApplicationContext
      */
     protected $context;
 
@@ -24,7 +24,7 @@ class PluginDetailLoadedEvent extends NestedEvent
      */
     protected $plugins;
 
-    public function __construct(PluginDetailCollection $plugins, ShopContext $context)
+    public function __construct(PluginDetailCollection $plugins, ApplicationContext $context)
     {
         $this->context = $context;
         $this->plugins = $plugins;
@@ -35,7 +35,7 @@ class PluginDetailLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ShopContext
+    public function getContext(): ApplicationContext
     {
         return $this->context;
     }

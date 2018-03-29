@@ -80,12 +80,6 @@
             <argument type="service" id="logger"/>
         </service>
 
-        <service class="Shopware\StorefrontApi\Context\ContextSubscriber" id="Shopware\StorefrontApi\Context\ContextSubscriber">
-            <tag name="kernel.event_subscriber"/>
-            <argument type="service" id="Shopware\StorefrontApi\Context\StorefrontContextService"/>
-            <argument type="service" id="Shopware\StorefrontApi\Context\ContextTokenResolver"/>
-        </service>
-
         <service class="Shopware\StorefrontApi\Firewall\ContextUserProvider" id="Shopware\StorefrontApi\Firewall\ContextUserProvider">
             <argument id="Shopware\StorefrontApi\Context\StorefrontContextService" type="service"/>
             <argument id="Doctrine\DBAL\Connection" type="service"/>

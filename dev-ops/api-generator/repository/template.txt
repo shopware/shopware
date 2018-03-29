@@ -122,7 +122,7 @@ class #classUc#Repository implements RepositoryInterface
 
     public function update(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->versionManager->update(#classUc#Definition::class, $data, WriteContext::createFromShopContext($context));
+        $affected = $this->versionManager->update(#classUc#Definition::class, $data, WriteContext::createFromApplicationContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
@@ -131,7 +131,7 @@ class #classUc#Repository implements RepositoryInterface
 
     public function upsert(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->versionManager->upsert(#classUc#Definition::class, $data, WriteContext::createFromShopContext($context));
+        $affected = $this->versionManager->upsert(#classUc#Definition::class, $data, WriteContext::createFromApplicationContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
@@ -140,7 +140,7 @@ class #classUc#Repository implements RepositoryInterface
 
     public function create(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->versionManager->insert(#classUc#Definition::class, $data, WriteContext::createFromShopContext($context));
+        $affected = $this->versionManager->insert(#classUc#Definition::class, $data, WriteContext::createFromApplicationContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
@@ -149,7 +149,7 @@ class #classUc#Repository implements RepositoryInterface
 
     public function delete(array $ids, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->versionManager->delete(#classUc#Definition::class, $ids, WriteContext::createFromShopContext($context));
+        $affected = $this->versionManager->delete(#classUc#Definition::class, $ids, WriteContext::createFromApplicationContext($context));
         $event = GenericWrittenEvent::createWithDeletedEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
@@ -158,11 +158,11 @@ class #classUc#Repository implements RepositoryInterface
 
     public function createVersion(string $id, ShopContext $context, ?string $name = null, ?string $versionId = null): string
     {
-        return $this->versionManager->createVersion(#classUc#Definition::class, $id, WriteContext::createFromShopContext($context), $name, $versionId);
+        return $this->versionManager->createVersion(#classUc#Definition::class, $id, WriteContext::createFromApplicationContext($context), $name, $versionId);
     }
 
     public function merge(string $versionId, ShopContext $context): void
     {
-        $this->versionManager->merge($versionId, WriteContext::createFromShopContext($context));
+        $this->versionManager->merge($versionId, WriteContext::createFromApplicationContext($context));
     }
 }

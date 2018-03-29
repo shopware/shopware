@@ -27,7 +27,7 @@ use Shopware\Api\Version\Definition\VersionCommitDataDefinition;
 use Shopware\Api\Version\Definition\VersionCommitDefinition;
 use Shopware\Api\Version\Definition\VersionDefinition;
 use Shopware\Api\Version\Struct\VersionCommitDataBasicStruct;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\Collection;
 use Shopware\Framework\Struct\Struct;
@@ -157,10 +157,10 @@ class VersionManager
         $criteria->addFilter(new TermQuery('version_commit.versionId', $versionId));
         $criteria->addSorting(new FieldSorting('version_commit.ai'));
 
-        $shopContext = $context->getShopContext();
+        $applicationContext = $context->getApplicationContext();
 
-        $commitIds = $this->entitySearcher->search(VersionCommitDefinition::class, $criteria, $shopContext);
-        $commits = $this->entityReader->readBasic(VersionCommitDefinition::class, $commitIds->getIds(), $shopContext);
+        $commitIds = $this->entitySearcher->search(VersionCommitDefinition::class, $criteria, $applicationContext);
+        $commits = $this->entityReader->readBasic(VersionCommitDefinition::class, $commitIds->getIds(), $applicationContext);
 
         $allChanges = [];
         $entities = [];
@@ -245,7 +245,7 @@ class VersionManager
     {
         /** @var Entity $detail */
         /** @var string|EntityDefinition $definition */
-        $detail = $this->entityReader->readRaw($definition, [$primaryKey['id']], $context->getShopContext())->first();
+        $detail = $this->entityReader->readRaw($definition, [$primaryKey['id']], $context->getApplicationContext())->first();
 
         if ($detail === null) {
             throw new \Exception(sprintf('Cannot create new version. %s by id (%s) not found.', $definition::getEntityName(), print_r($primaryKey, true)));
@@ -371,7 +371,7 @@ class VersionManager
 
         $userId = $userId ? Uuid::fromStringToBytes($userId) : null;
 
-        $versionId = $versionId ?? $writeContext->getShopContext()->getVersionId();
+        $versionId = $versionId ?? $writeContext->getApplicationContext()->getVersionId();
 
         $commitId = Uuid::uuid4();
 
@@ -457,7 +457,7 @@ class VersionManager
         $criteria->setLimit(1);
         $criteria->addFilter(new TermQuery(UserDefinition::getEntityName() . '.username', $name));
 
-        $users = $this->entitySearcher->search(UserDefinition::class, $criteria, ShopContext::createDefaultContext());
+        $users = $this->entitySearcher->search(UserDefinition::class, $criteria, ApplicationContext::createDefaultContext());
         $ids = $users->getIds();
 
         $id = array_shift($ids);

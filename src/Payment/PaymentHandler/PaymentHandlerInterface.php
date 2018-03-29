@@ -2,7 +2,7 @@
 
 namespace Shopware\Payment\PaymentHandler;
 
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Payment\Struct\PaymentTransaction;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,13 +14,13 @@ interface PaymentHandlerInterface
      * Allows to process the order and store additional information.
      *
      * @param PaymentTransaction $transaction
-     * @param ShopContext        $context
+     * @param ApplicationContext        $context
      *
      * @return null|RedirectResponse if a RedirectResponse is provided, a redirect to the url will be performed
      */
     public function pay(
         PaymentTransaction $transaction,
-        ShopContext $context
+        ApplicationContext $context
     ): ?RedirectResponse;
 
     /**
@@ -29,11 +29,11 @@ interface PaymentHandlerInterface
      *
      * @param string      $transactionId
      * @param Request     $request
-     * @param ShopContext $context
+     * @param ApplicationContext $context
      */
     public function finalize(
         string $transactionId,
         Request $request,
-        ShopContext $context
+        ApplicationContext $context
     ): void;
 }

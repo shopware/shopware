@@ -24,9 +24,11 @@
 
 namespace Shopware\Context\Struct;
 
+use Shopware\Api\Application\Struct\ApplicationBasicStruct;
 use Shopware\Api\Currency\Struct\CurrencyBasicStruct;
 use Shopware\Api\Customer\Struct\CustomerBasicStruct;
 use Shopware\Api\Customer\Struct\CustomerGroupBasicStruct;
+use Shopware\Api\Language\Struct\LanguageBasicStruct;
 use Shopware\Api\Payment\Struct\PaymentMethodBasicStruct;
 use Shopware\Api\Shipping\Struct\ShippingMethodBasicStruct;
 use Shopware\Api\Shop\Struct\ShopBasicStruct;
@@ -66,9 +68,9 @@ class StorefrontContext extends Struct
     protected $currency;
 
     /**
-     * @var ShopBasicStruct
+     * @var ApplicationBasicStruct
      */
-    protected $shop;
+    protected $application;
 
     /**
      * @var TaxBasicCollection
@@ -113,9 +115,26 @@ class StorefrontContext extends Struct
      */
     protected $taxState = CartPrice::TAX_STATE_GROSS;
 
+    /**
+     * @var ApplicationContext
+     */
+    private $context;
+
+    /**
+     * @var LanguageBasicStruct
+     */
+    private $language;
+
+    /**
+     * @var null|LanguageBasicStruct
+     */
+    private $fallbackLanguage;
+
     public function __construct(
         string $token,
-        ShopBasicStruct $shop,
+        ApplicationBasicStruct $application,
+        LanguageBasicStruct $language,
+        ?LanguageBasicStruct $fallbackLanguage,
         CurrencyBasicStruct $currency,
         CustomerGroupBasicStruct $currentCustomerGroup,
         CustomerGroupBasicStruct $fallbackCustomerGroup,
@@ -129,7 +148,7 @@ class StorefrontContext extends Struct
         $this->currentCustomerGroup = $currentCustomerGroup;
         $this->fallbackCustomerGroup = $fallbackCustomerGroup;
         $this->currency = $currency;
-        $this->shop = $shop;
+        $this->application = $application;
         $this->taxRules = $taxRules;
         $this->customer = $customer;
         $this->paymentMethod = $paymentMethod;
@@ -137,6 +156,8 @@ class StorefrontContext extends Struct
         $this->shippingLocation = $shippingLocation;
         $this->contextRulesIds = $contextRulesIds;
         $this->token = $token;
+        $this->language = $language;
+        $this->fallbackLanguage = $fallbackLanguage;
     }
 
     public function getCurrentCustomerGroup(): CustomerGroupBasicStruct
@@ -154,9 +175,9 @@ class StorefrontContext extends Struct
         return $this->currency;
     }
 
-    public function getShop(): ShopBasicStruct
+    public function getApplication(): ApplicationBasicStruct
     {
-        return $this->shop;
+        return $this->application;
     }
 
     public function getTaxRules(): TaxBasicCollection
@@ -184,15 +205,19 @@ class StorefrontContext extends Struct
         return $this->shippingLocation;
     }
 
-    public function getShopContext(): ShopContext
+    public function getApplicationContext(): ApplicationContext
     {
-        return new ShopContext(
-            $this->shop->getId(),
-            $this->shop->getCatalogIds(),
+        if ($this->context) {
+            return $this->context;
+        }
+
+        return $this->context = new ApplicationContext(
+            $this->application->getId(),
+            $this->application->getCatalogIds(),
             $this->contextRulesIds,
             $this->currency->getId(),
-            Defaults::LANGUAGE,
-            null,
+            $this->language->getId(),
+            $this->language->getParentId(),
             Defaults::LIVE_VERSION,
             $this->currency->getFactor()
         );
@@ -220,6 +245,16 @@ class StorefrontContext extends Struct
     public function getToken(): string
     {
         return $this->token;
+    }
+
+    public function getLanguage(): LanguageBasicStruct
+    {
+        return $this->language;
+    }
+
+    public function getFallbackLanguage(): ?LanguageBasicStruct
+    {
+        return $this->fallbackLanguage;
     }
 
     public function getTaxState(): string

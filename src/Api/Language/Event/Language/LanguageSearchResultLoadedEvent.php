@@ -3,7 +3,7 @@
 namespace Shopware\Api\Language\Event\Language;
 
 use Shopware\Api\Language\Struct\LanguageSearchResult;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class LanguageSearchResultLoadedEvent extends NestedEvent
@@ -25,7 +25,7 @@ class LanguageSearchResultLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ShopContext
+    public function getContext(): ApplicationContext
     {
         return $this->result->getContext();
     }

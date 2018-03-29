@@ -2,6 +2,7 @@
 
 namespace Shopware\Api\Shipping\Definition;
 
+use Shopware\Api\Application\Definition\ApplicationDefinition;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\Field\BoolField;
@@ -89,6 +90,7 @@ class ShippingMethodDefinition extends EntityDefinition
             new LongTextField('calculation_sql', 'calculationSql'),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
+            (new OneToManyAssociationField('applications', ApplicationDefinition::class, 'shipping_method_id', false, 'id'))->setFlags(new RestrictDelete()),
             (new TranslatedField(new LongTextField('description', 'description')))->setFlags(new SearchRanking(self::LOW_SEARCH_RAKING)),
             (new TranslatedField(new StringField('comment', 'comment')))->setFlags(new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
             (new OneToManyAssociationField('orderDeliveries', OrderDeliveryDefinition::class, 'shipping_method_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),

@@ -3,15 +3,17 @@
 namespace Shopware\Api\Language\Event\Language;
 
 use Shopware\Api\Language\Collection\LanguageBasicCollection;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Api\Locale\Event\Locale\LocaleBasicLoadedEvent;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
+use Shopware\Framework\Event\NestedEventCollection;
 
 class LanguageBasicLoadedEvent extends NestedEvent
 {
     public const NAME = 'language.basic.loaded';
 
     /**
-     * @var ShopContext
+     * @var ApplicationContext
      */
     protected $context;
 
@@ -20,7 +22,7 @@ class LanguageBasicLoadedEvent extends NestedEvent
      */
     protected $languages;
 
-    public function __construct(LanguageBasicCollection $languages, ShopContext $context)
+    public function __construct(LanguageBasicCollection $languages, ApplicationContext $context)
     {
         $this->context = $context;
         $this->languages = $languages;
@@ -31,7 +33,7 @@ class LanguageBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ShopContext
+    public function getContext(): ApplicationContext
     {
         return $this->context;
     }
@@ -39,5 +41,15 @@ class LanguageBasicLoadedEvent extends NestedEvent
     public function getLanguages(): LanguageBasicCollection
     {
         return $this->languages;
+    }
+
+    public function getEvents(): ?NestedEventCollection
+    {
+        $events = [];
+        if ($this->languages->getLocales()->count() > 0) {
+            $events[] = new LocaleBasicLoadedEvent($this->languages->getLocales(), $this->context);
+        }
+
+        return new NestedEventCollection($events);
     }
 }

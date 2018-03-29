@@ -3,7 +3,7 @@
 namespace Shopware\Api\Config\Event\ConfigForm;
 
 use Shopware\Api\Config\Collection\ConfigFormBasicCollection;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class ConfigFormBasicLoadedEvent extends NestedEvent
@@ -11,7 +11,7 @@ class ConfigFormBasicLoadedEvent extends NestedEvent
     public const NAME = 'config_form.basic.loaded';
 
     /**
-     * @var ShopContext
+     * @var ApplicationContext
      */
     protected $context;
 
@@ -20,7 +20,7 @@ class ConfigFormBasicLoadedEvent extends NestedEvent
      */
     protected $configForms;
 
-    public function __construct(ConfigFormBasicCollection $configForms, ShopContext $context)
+    public function __construct(ConfigFormBasicCollection $configForms, ApplicationContext $context)
     {
         $this->context = $context;
         $this->configForms = $configForms;
@@ -31,7 +31,7 @@ class ConfigFormBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ShopContext
+    public function getContext(): ApplicationContext
     {
         return $this->context;
     }

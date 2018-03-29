@@ -9,7 +9,7 @@ use Shopware\Api\Category\Struct\CategoryBasicStruct;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\Product\Repository\ProductRepository;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -55,7 +55,7 @@ class CatalogTest extends KernelTestCase
     public function testCreateWithoutCatalogProvided(): void
     {
         $id = Uuid::uuid4();
-        $context = ShopContext::createDefaultContext();
+        $context = ApplicationContext::createDefaultContext();
         $category = ['id' => $id->getHex(), 'name' => 'catalog test category'];
 
         $this->categoryRepository->create([$category], $context);
@@ -68,7 +68,7 @@ class CatalogTest extends KernelTestCase
     public function testWithCatalogProvided(): void
     {
         $id = Uuid::uuid4();
-        $context = ShopContext::createDefaultContext();
+        $context = ApplicationContext::createDefaultContext();
         $catalogId = $this->createCatalog($context);
         $category = [
             'id' => $id->getHex(),
@@ -86,9 +86,9 @@ class CatalogTest extends KernelTestCase
     public function testReadWithEmptyCatalogContext(): void
     {
         $id = Uuid::uuid4();
-        $context = ShopContext::createDefaultContext();
+        $context = ApplicationContext::createDefaultContext();
 
-        $context = new ShopContext(
+        $context = new ApplicationContext(
             $context->getApplicationId(),
             [],
             [],
@@ -117,7 +117,7 @@ class CatalogTest extends KernelTestCase
     public function testReadWithDefaultCatalogContext(): void
     {
         $id = Uuid::uuid4();
-        $context = ShopContext::createDefaultContext();
+        $context = ApplicationContext::createDefaultContext();
         $catalogId = $this->createCatalog($context);
         $category = [
             'id' => $id->getHex(),
@@ -139,10 +139,10 @@ class CatalogTest extends KernelTestCase
     public function testReadWithCorrectCatalogContext(): void
     {
         $id = Uuid::uuid4();
-        $context = ShopContext::createDefaultContext();
+        $context = ApplicationContext::createDefaultContext();
         $catalogId = $this->createCatalog($context);
 
-        $context = new ShopContext(
+        $context = new ApplicationContext(
             $context->getApplicationId(),
             [$catalogId],
             [],
@@ -169,7 +169,7 @@ class CatalogTest extends KernelTestCase
 
     public function testReadWithMultipleCatalogs(): void
     {
-        $context = ShopContext::createDefaultContext();
+        $context = ApplicationContext::createDefaultContext();
 
         $id1 = Uuid::uuid4();
         $id2 = Uuid::uuid4();
@@ -186,7 +186,7 @@ class CatalogTest extends KernelTestCase
         $this->categoryRepository->create($categories, $context);
 
         // read with two enabled catalogs
-        $context = new ShopContext(
+        $context = new ApplicationContext(
             $context->getApplicationId(),
             [$catalogId1, $catalogId2],
             [],
@@ -198,7 +198,7 @@ class CatalogTest extends KernelTestCase
         $this->assertEquals(2, $foundCategories->count());
 
         // read with default and another two enabled catalogs
-        $context = new ShopContext(
+        $context = new ApplicationContext(
             $context->getApplicationId(),
             [$catalogId1, $catalogId2, Defaults::CATALOG],
             [],
@@ -215,10 +215,10 @@ class CatalogTest extends KernelTestCase
         $id = Uuid::uuid4();
         $id2 = Uuid::uuid4();
         $parentId = Uuid::uuid4();
-        $context = ShopContext::createDefaultContext();
+        $context = ApplicationContext::createDefaultContext();
         $catalogId = $this->createCatalog($context);
 
-        $context = new ShopContext(
+        $context = new ApplicationContext(
             $context->getApplicationId(),
             [$catalogId],
             [],
@@ -285,10 +285,10 @@ class CatalogTest extends KernelTestCase
         $categoryId = Uuid::uuid4();
         $manufacturerId = Uuid::uuid4();
         $taxId = Uuid::uuid4();
-        $context = ShopContext::createDefaultContext();
+        $context = ApplicationContext::createDefaultContext();
         $catalogId = $this->createCatalog($context);
 
-        $context = new ShopContext(
+        $context = new ApplicationContext(
             $context->getApplicationId(),
             [$catalogId],
             [],
@@ -338,7 +338,7 @@ class CatalogTest extends KernelTestCase
         $this->assertEquals(2, $products->count(), 'Products were not fetched correctly');
 
         // should not work as catalog differs from the default
-        $context = ShopContext::createDefaultContext();
+        $context = ApplicationContext::createDefaultContext();
         $products = $this->productRepository->readBasic([$productId1->getHex(), $productId2->getHex()], $context);
         $this->assertEquals(0, $products->count(), 'Products should not be fetched');
     }
@@ -350,10 +350,10 @@ class CatalogTest extends KernelTestCase
         $categoryId = Uuid::uuid4();
         $manufacturerId = Uuid::uuid4();
         $taxId = Uuid::uuid4();
-        $context = ShopContext::createDefaultContext();
+        $context = ApplicationContext::createDefaultContext();
         $catalogId = $this->createCatalog($context);
 
-        $context = new ShopContext(
+        $context = new ApplicationContext(
             $context->getApplicationId(),
             [$catalogId],
             [],
@@ -406,12 +406,12 @@ class CatalogTest extends KernelTestCase
         $this->assertEquals(2, $products->count(), 'Products were not fetched correctly');
 
         // should not work as catalog differs from the default
-        $context = ShopContext::createDefaultContext();
+        $context = ApplicationContext::createDefaultContext();
         $products = $this->productRepository->search($criteria, $context);
         $this->assertEquals(0, $products->count(), 'Products should not be fetched');
     }
 
-    private function createCatalog(ShopContext $context): string
+    private function createCatalog(ApplicationContext $context): string
     {
         $catalogId = Uuid::uuid4();
         $catalog = ['id' => $catalogId->getHex(), 'name' => 'unit test catalog'];

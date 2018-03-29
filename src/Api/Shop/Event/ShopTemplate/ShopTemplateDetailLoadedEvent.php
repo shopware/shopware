@@ -7,7 +7,7 @@ use Shopware\Api\Shop\Collection\ShopTemplateDetailCollection;
 use Shopware\Api\Shop\Event\ShopTemplateConfigForm\ShopTemplateConfigFormBasicLoadedEvent;
 use Shopware\Api\Shop\Event\ShopTemplateConfigFormField\ShopTemplateConfigFormFieldBasicLoadedEvent;
 use Shopware\Api\Shop\Event\ShopTemplateConfigPreset\ShopTemplateConfigPresetBasicLoadedEvent;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 
@@ -16,7 +16,7 @@ class ShopTemplateDetailLoadedEvent extends NestedEvent
     public const NAME = 'shop_template.detail.loaded';
 
     /**
-     * @var ShopContext
+     * @var ApplicationContext
      */
     protected $context;
 
@@ -25,7 +25,7 @@ class ShopTemplateDetailLoadedEvent extends NestedEvent
      */
     protected $shopTemplates;
 
-    public function __construct(ShopTemplateDetailCollection $shopTemplates, ShopContext $context)
+    public function __construct(ShopTemplateDetailCollection $shopTemplates, ApplicationContext $context)
     {
         $this->context = $context;
         $this->shopTemplates = $shopTemplates;
@@ -36,7 +36,7 @@ class ShopTemplateDetailLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ShopContext
+    public function getContext(): ApplicationContext
     {
         return $this->context;
     }

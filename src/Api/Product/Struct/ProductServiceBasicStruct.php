@@ -9,7 +9,7 @@ use Shopware\Api\Tax\Struct\TaxBasicStruct;
 use Shopware\Cart\Price\Struct\PriceDefinition;
 use Shopware\Cart\Tax\Struct\PercentageTaxRule;
 use Shopware\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 
 class ProductServiceBasicStruct extends Entity
 {
@@ -123,7 +123,7 @@ class ProductServiceBasicStruct extends Entity
         $this->tax = $tax;
     }
 
-    public function getPriceDefinition(int $quantity, ShopContext $context): PriceDefinition
+    public function getPriceDefinition(int $quantity, ApplicationContext $context): PriceDefinition
     {
         $taxRules = $this->getTaxRuleCollection();
 

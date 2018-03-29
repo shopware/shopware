@@ -16,7 +16,7 @@ use Shopware\Api\Entity\Search\Term\SearchTermInterpreter;
 use Shopware\Api\Order\Definition\OrderDefinition;
 use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Api\Version\Repository\VersionCommitDataRepository;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Struct\ArrayStruct;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -54,7 +54,7 @@ class AdministrationSearch
         $this->changesRepository = $changesRepository;
     }
 
-    public function search(string $term, int $page, int $limit, ShopContext $context, string $userId): array
+    public function search(string $term, int $page, int $limit, ApplicationContext $context, string $userId): array
     {
         $definitions = [
             ProductDefinition::class,
@@ -99,11 +99,11 @@ class AdministrationSearch
     /**
      * @param string|EntityDefinition $definition
      * @param string                  $term
-     * @param ShopContext             $context
+     * @param ApplicationContext             $context
      *
      * @return SearchResultInterface
      */
-    private function searchDefinition(string $definition, string $term, ShopContext $context): SearchResultInterface
+    private function searchDefinition(string $definition, string $term, ApplicationContext $context): SearchResultInterface
     {
         $repository = $this->container->get($definition::getRepositoryClass());
 
@@ -144,7 +144,7 @@ class AdministrationSearch
         $criteria->addSorting(new FieldSorting('version_commit_data.ai', 'DESC'));
         $criteria->setLimit(100);
 
-        $changes = $this->changesRepository->search($criteria, ShopContext::createDefaultContext());
+        $changes = $this->changesRepository->search($criteria, ApplicationContext::createDefaultContext());
 
         foreach ($results as $definition => $entities) {
             $definitionChanges = $changes->filterByEntity($definition);

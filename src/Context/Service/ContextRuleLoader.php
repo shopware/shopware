@@ -19,7 +19,7 @@ use Shopware\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Cart\Price\Struct\CartPrice;
 use Shopware\Cart\Tax\TaxDetector;
 use Shopware\CartBridge\Service\StoreFrontCartService;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Context\Struct\StorefrontContext;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -116,7 +116,7 @@ class ContextRuleLoader
             );
         }
 
-        $rules = $this->loadRules($context->getShopContext());
+        $rules = $this->loadRules($context->getApplicationContext());
 
         $rules->sortByPriority();
 
@@ -157,7 +157,7 @@ class ContextRuleLoader
         return $rules;
     }
 
-    private function loadRules(ShopContext $context): ContextRuleBasicCollection
+    private function loadRules(ApplicationContext $context): ContextRuleBasicCollection
     {
         if ($this->rules !== null) {
             return $this->rules;

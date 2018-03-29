@@ -2,6 +2,7 @@
 
 namespace Shopware\Api\Payment\Definition;
 
+use Shopware\Api\Application\Definition\ApplicationDefinition;
 use Shopware\Api\Customer\Definition\CustomerDefinition;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\EntityExtensionInterface;
@@ -90,6 +91,7 @@ class PaymentMethodDefinition extends EntityDefinition
             new LongTextField('risk_rules', 'riskRules'),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
+            (new OneToManyAssociationField('applications', ApplicationDefinition::class, 'payment_method_id', false, 'id'))->setFlags(new RestrictDelete()),
             new ManyToOneAssociationField('plugin', 'plugin_id', PluginDefinition::class, false),
             (new OneToManyAssociationField('customers', CustomerDefinition::class, 'default_payment_method_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
             (new OneToManyAssociationField('customers', CustomerDefinition::class, 'last_payment_method_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),

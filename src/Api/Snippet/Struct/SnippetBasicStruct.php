@@ -9,7 +9,7 @@ class SnippetBasicStruct extends Entity
     /**
      * @var string
      */
-    protected $shopId;
+    protected $applicationId;
 
     /**
      * @var string
@@ -46,14 +46,14 @@ class SnippetBasicStruct extends Entity
      */
     protected $dirty;
 
-    public function getShopId(): string
+    public function getApplicationId(): string
     {
-        return $this->shopId;
+        return $this->applicationId;
     }
 
-    public function setShopId(string $shopId): void
+    public function setApplicationId(string $applicationId): void
     {
-        $this->shopId = $shopId;
+        $this->applicationId = $applicationId;
     }
 
     public function getNamespace(): string

@@ -5,7 +5,7 @@ namespace Shopware\Api\Product\Event\ProductStream;
 use Shopware\Api\Listing\Event\ListingSorting\ListingSortingBasicLoadedEvent;
 use Shopware\Api\Product\Collection\ProductStreamDetailCollection;
 use Shopware\Api\Product\Event\Product\ProductBasicLoadedEvent;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 
@@ -14,7 +14,7 @@ class ProductStreamDetailLoadedEvent extends NestedEvent
     public const NAME = 'product_stream.detail.loaded';
 
     /**
-     * @var ShopContext
+     * @var ApplicationContext
      */
     protected $context;
 
@@ -23,7 +23,7 @@ class ProductStreamDetailLoadedEvent extends NestedEvent
      */
     protected $productStreams;
 
-    public function __construct(ProductStreamDetailCollection $productStreams, ShopContext $context)
+    public function __construct(ProductStreamDetailCollection $productStreams, ApplicationContext $context)
     {
         $this->context = $context;
         $this->productStreams = $productStreams;
@@ -34,7 +34,7 @@ class ProductStreamDetailLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ShopContext
+    public function getContext(): ApplicationContext
     {
         return $this->context;
     }

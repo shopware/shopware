@@ -10,7 +10,7 @@ use Shopware\Api\Language\Repository\LanguageRepository;
 use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Api\Product\Repository\ProductRepository;
 use Shopware\Api\Product\Struct\ProductSearchResult;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\DbalIndexing\Common\IndexTableOperator;
 use Shopware\DbalIndexing\Common\RepositoryIterator;
 use Shopware\DbalIndexing\Event\ProgressAdvancedEvent;
@@ -97,12 +97,12 @@ class SearchIndexer implements IndexerInterface
         $this->connection->executeUpdate('ALTER TABLE `' . $documentTable . '` ADD FOREIGN KEY (`product_id`, `product_version_id`) REFERENCES `product` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE');
         $this->connection->executeUpdate('ALTER TABLE `' . $documentTable . '` ADD FOREIGN KEY (`language_id`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE');
 
-        $languages = $this->languageRepository->search(new Criteria(), ShopContext::createDefaultContext());
-        $catalogIds = $this->catalogRepository->searchIds(new Criteria(), ShopContext::createDefaultContext());
+        $languages = $this->languageRepository->search(new Criteria(), ApplicationContext::createDefaultContext());
+        $catalogIds = $this->catalogRepository->searchIds(new Criteria(), ApplicationContext::createDefaultContext());
 
         foreach ($languages as $language) {
-            $context = new ShopContext(
-                Defaults::SHOP,
+            $context = new ApplicationContext(
+                Defaults::APPLICATION,
                 $catalogIds->getIds(),
                 [],
                 Defaults::CURRENCY,
@@ -144,7 +144,7 @@ class SearchIndexer implements IndexerInterface
         return implode('', $peaces);
     }
 
-    private function indexContext(ShopContext $context, \DateTime $timestamp): void
+    private function indexContext(ApplicationContext $context, \DateTime $timestamp): void
     {
         $iterator = new RepositoryIterator($this->productRepository, $context);
 
@@ -182,7 +182,7 @@ class SearchIndexer implements IndexerInterface
 
     private function updateQueryQueue(
         MultiInsertQueryQueue $queue,
-        ShopContext $context,
+        ApplicationContext $context,
         string $productId,
         array $keywords,
         string $table,

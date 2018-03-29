@@ -3,7 +3,7 @@
 namespace Shopware\Payment\PaymentHandler;
 
 use Shopware\Api\Order\Repository\OrderTransactionRepository;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 use Shopware\Payment\Struct\PaymentTransaction;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -21,7 +21,7 @@ class PrePayment implements PaymentHandlerInterface
         $this->transactionRepository = $transactionRepository;
     }
 
-    public function pay(PaymentTransaction $transaction, ShopContext $context): ?RedirectResponse
+    public function pay(PaymentTransaction $transaction, ApplicationContext $context): ?RedirectResponse
     {
         $data = [
             'id' => $transaction->getTransactionId(),
@@ -32,7 +32,7 @@ class PrePayment implements PaymentHandlerInterface
         return null;
     }
 
-    public function finalize(string $transactionId, Request $request, ShopContext $context): void
+    public function finalize(string $transactionId, Request $request, ApplicationContext $context): void
     {
     }
 }

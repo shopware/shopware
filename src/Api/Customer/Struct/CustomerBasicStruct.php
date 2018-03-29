@@ -2,6 +2,7 @@
 
 namespace Shopware\Api\Customer\Struct;
 
+use Shopware\Api\Application\Struct\ApplicationBasicStruct;
 use Shopware\Api\Entity\Entity;
 use Shopware\Api\Payment\Struct\PaymentMethodBasicStruct;
 use Shopware\Api\Shop\Struct\ShopBasicStruct;
@@ -21,7 +22,7 @@ class CustomerBasicStruct extends Entity
     /**
      * @var string
      */
-    protected $shopId;
+    protected $applicationId;
 
     /**
      * @var string|null
@@ -169,9 +170,9 @@ class CustomerBasicStruct extends Entity
     protected $defaultPaymentMethod;
 
     /**
-     * @var ShopBasicStruct
+     * @var ApplicationBasicStruct
      */
-    protected $shop;
+    protected $application;
 
     /**
      * @var PaymentMethodBasicStruct|null
@@ -217,14 +218,14 @@ class CustomerBasicStruct extends Entity
         $this->defaultPaymentMethodId = $defaultPaymentMethodId;
     }
 
-    public function getShopId(): string
+    public function getApplicationId(): string
     {
-        return $this->shopId;
+        return $this->applicationId;
     }
 
-    public function setShopId(string $shopId): void
+    public function setApplicationId(string $applicationId): void
     {
-        $this->shopId = $shopId;
+        $this->applicationId = $applicationId;
     }
 
     public function getLastPaymentMethodId(): ?string
@@ -517,14 +518,14 @@ class CustomerBasicStruct extends Entity
         $this->defaultPaymentMethod = $defaultPaymentMethod;
     }
 
-    public function getShop(): ShopBasicStruct
+    public function getApplication(): ApplicationBasicStruct
     {
-        return $this->shop;
+        return $this->application;
     }
 
-    public function setShop(ShopBasicStruct $shop): void
+    public function setApplication(ApplicationBasicStruct $application): void
     {
-        $this->shop = $shop;
+        $this->application = $application;
     }
 
     public function getLastPaymentMethod(): ?PaymentMethodBasicStruct

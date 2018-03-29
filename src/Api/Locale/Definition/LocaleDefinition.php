@@ -2,6 +2,7 @@
 
 namespace Shopware\Api\Locale\Definition;
 
+use Shopware\Api\Application\Definition\ApplicationDefinition;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\Field\DateField;
@@ -64,6 +65,8 @@ class LocaleDefinition extends EntityDefinition
             new TranslatedField(new StringField('territory', 'territory')),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
+            new OneToManyAssociationField('applications', ApplicationDefinition::class, 'fallback_locale_id', false, 'id'),
+            (new OneToManyAssociationField('applications', ApplicationDefinition::class, 'locale_id', false, 'id'))->setFlags(new RestrictDelete()),
             (new TranslationsAssociationField('translations', LocaleTranslationDefinition::class, 'locale_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
             (new OneToManyAssociationField('shops', ShopDefinition::class, 'locale_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
             (new OneToManyAssociationField('users', UserDefinition::class, 'locale_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),

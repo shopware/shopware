@@ -4,7 +4,7 @@ namespace Shopware\Api\Category\Event\Category;
 
 use Shopware\Api\Category\Collection\CategoryBasicCollection;
 use Shopware\Api\Seo\Event\SeoUrl\SeoUrlBasicLoadedEvent;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 
@@ -13,7 +13,7 @@ class CategoryBasicLoadedEvent extends NestedEvent
     public const NAME = 'category.basic.loaded';
 
     /**
-     * @var ShopContext
+     * @var ApplicationContext
      */
     protected $context;
 
@@ -22,7 +22,7 @@ class CategoryBasicLoadedEvent extends NestedEvent
      */
     protected $categories;
 
-    public function __construct(CategoryBasicCollection $categories, ShopContext $context)
+    public function __construct(CategoryBasicCollection $categories, ApplicationContext $context)
     {
         $this->context = $context;
         $this->categories = $categories;
@@ -33,7 +33,7 @@ class CategoryBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ShopContext
+    public function getContext(): ApplicationContext
     {
         return $this->context;
     }

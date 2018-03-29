@@ -27,7 +27,7 @@ namespace Shopware\Api\Entity\Write;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Language\Definition\LanguageDefinition;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 
 class WriteContext
 {
@@ -39,9 +39,9 @@ class WriteContext
     public $paths = [];
 
     /**
-     * @var ShopContext
+     * @var ApplicationContext
      */
-    private $shopContext;
+    private $applicationContext;
 
     /**
      * @var array[]
@@ -55,9 +55,9 @@ class WriteContext
      */
     private $inheritance = [];
 
-    private function __construct(ShopContext $shopContext)
+    private function __construct(ApplicationContext $applicationContext)
     {
-        $this->shopContext = $shopContext;
+        $this->applicationContext = $applicationContext;
     }
 
     public function addInheritance(string $definition, array $inheritance): void
@@ -72,7 +72,7 @@ class WriteContext
         );
     }
 
-    public static function createFromShopContext(ShopContext $context): self
+    public static function createFromApplicationContext(ApplicationContext $context): self
     {
         $self = new self($context);
         $self->set(LanguageDefinition::class, 'id', $context->getLanguageId());
@@ -154,20 +154,20 @@ class WriteContext
         return isset($inheritance[$raw['id']]);
     }
 
-    public function getShopContext(): ShopContext
+    public function getApplicationContext(): ApplicationContext
     {
-        return $this->shopContext;
+        return $this->applicationContext;
     }
 
     public function resetPaths(): void
     {
         $this->paths = [];
-        $this->set(LanguageDefinition::class, 'id', $this->shopContext->getLanguageId());
+        $this->set(LanguageDefinition::class, 'id', $this->applicationContext->getLanguageId());
     }
 
     public function createWithVersionId(string $versionId): self
     {
-        return self::createFromShopContext($this->getShopContext()->createWithVersionId($versionId));
+        return self::createFromApplicationContext($this->getApplicationContext()->createWithVersionId($versionId));
     }
 
     /**

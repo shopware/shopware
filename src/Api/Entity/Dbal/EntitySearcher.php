@@ -9,7 +9,7 @@ use Shopware\Api\Entity\Search\EntitySearcherInterface;
 use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Search\Parser\SqlQueryParser;
 use Shopware\Api\Entity\Search\Query\ScoreQuery;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Struct\Uuid;
 
 /**
@@ -29,7 +29,7 @@ class EntitySearcher implements EntitySearcherInterface
         $this->connection = $connection;
     }
 
-    public function search(string $definition, Criteria $criteria, ShopContext $context): IdSearchResult
+    public function search(string $definition, Criteria $criteria, ApplicationContext $context): IdSearchResult
     {
         /** @var EntityDefinition $definition */
         $table = $definition::getEntityName();
@@ -97,7 +97,7 @@ class EntitySearcher implements EntitySearcherInterface
         return new IdSearchResult($total, $converted, $criteria, $context);
     }
 
-    private function addQueries(string $definition, Criteria $criteria, QueryBuilder $query, ShopContext $context): void
+    private function addQueries(string $definition, Criteria $criteria, QueryBuilder $query, ApplicationContext $context): void
     {
         /** @var string|EntityDefinition $definition */
         $queries = SqlQueryParser::parseRanking(
@@ -133,7 +133,7 @@ class EntitySearcher implements EntitySearcherInterface
         }
     }
 
-    private function addFilters(string $definition, Criteria $criteria, QueryBuilder $query, ShopContext $context): void
+    private function addFilters(string $definition, Criteria $criteria, QueryBuilder $query, ApplicationContext $context): void
     {
         $parsed = SqlQueryParser::parse($criteria->getAllFilters(), $definition, $context);
 
@@ -147,7 +147,7 @@ class EntitySearcher implements EntitySearcherInterface
         }
     }
 
-    private function addSortings(string $definition, Criteria $criteria, QueryBuilder $query, ShopContext $context): void
+    private function addSortings(string $definition, Criteria $criteria, QueryBuilder $query, ApplicationContext $context): void
     {
         /* @var string|EntityDefinition $definition */
         foreach ($criteria->getSortings() as $sorting) {
@@ -180,7 +180,7 @@ class EntitySearcher implements EntitySearcherInterface
         $query->select($selects);
     }
 
-    private function addGroupBy(string $definition, Criteria $criteria, QueryBuilder $query, ShopContext $context): void
+    private function addGroupBy(string $definition, Criteria $criteria, QueryBuilder $query, ApplicationContext $context): void
     {
         /** @var string|EntityDefinition $definition */
         $table = $definition::getEntityName();

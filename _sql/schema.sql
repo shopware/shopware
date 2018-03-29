@@ -2,6 +2,37 @@ SET NAMES utf8mb4;
 
 SET FOREIGN_KEY_CHECKS=0;
 
+DROP TABLE IF EXISTS `application`;
+CREATE TABLE `application` (
+  `id` binary(16) NOT NULL,
+  `type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `configuration` LONGTEXT NULL DEFAULT NULL,
+  `access_key` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `secret_access_key` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `catalog_ids` LONGTEXT NOT NULL,
+  `currency_ids` LONGTEXT NOT NULL,
+  `language_ids` LONGTEXT NOT NULL,
+  `language_id` binary(16) NOT NULL,
+  `currency_id` binary(16) NOT NULL,
+  `payment_method_id` binary(16) NOT NULL,
+  `shipping_method_id` binary(16) NOT NULL,
+  `country_id` binary(16) NOT NULL,
+  `active` tinyint(1) NOT NULL DEFAULT '1',
+  `tax_calculation_type` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'vertical',
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  CHECK (JSON_VALID(`catalog_ids`)),
+  CHECK (JSON_VALID(`currency_ids`)),
+  CHECK (JSON_VALID(`language_ids`)),
+  CONSTRAINT `fk_application.country_id` FOREIGN KEY (`country_id`) REFERENCES `country` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_application.currency_id` FOREIGN KEY (`currency_id`) REFERENCES `currency` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_application.language_id` FOREIGN KEY (`language_id`) REFERENCES `language` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_application.payment_method_id` FOREIGN KEY (`payment_method_id`) REFERENCES `payment_method` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_application.shipping_method_id` FOREIGN KEY (`shipping_method_id`) REFERENCES `shipping_method` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 DROP TABLE IF EXISTS `cart`;
 CREATE TABLE `cart` (
   `version_id` binary(16) NOT NULL,
@@ -21,8 +52,7 @@ CREATE TABLE `cart` (
   `country_version_id` binary(16) NOT NULL,
   `customer_id` binary(16) DEFAULT NULL,
   `customer_version_id` binary(16) DEFAULT NULL,
-  `shop_id` binary(16) NOT NULL,
-  `shop_version_id` binary(16) NOT NULL,
+  `application_id` binary(16) NOT NULL,
   `created_at` datetime NOT NULL,
   CHECK (JSON_VALID(`container`)),
   CHECK (JSON_VALID(`calculated`)),
@@ -32,7 +62,7 @@ CREATE TABLE `cart` (
   CONSTRAINT `fk_cart.customer_id` FOREIGN KEY (`customer_id`, `customer_version_id`) REFERENCES `customer` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_cart.payment_method_id` FOREIGN KEY (`payment_method_id`, `payment_method_version_id`) REFERENCES `payment_method` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_cart.shipping_method_id` FOREIGN KEY (`shipping_method_id`, `shipping_method_version_id`) REFERENCES `shipping_method` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_cart.shop_id` FOREIGN KEY (`shop_id`, `shop_version_id`) REFERENCES `shop` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `fk_cart.application_id` FOREIGN KEY (`application_id`) REFERENCES `application` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -405,8 +435,7 @@ CREATE TABLE `customer` (
   `customer_group_version_id` binary(16) NOT NULL,
   `default_payment_method_id` binary(16) NOT NULL,
   `default_payment_method_version_id` binary(16) NOT NULL,
-  `shop_id` binary(16) NOT NULL,
-  `shop_version_id` binary(16) NOT NULL,
+  `application_id` binary(16) NOT NULL,
   `last_payment_method_id` binary(16) DEFAULT NULL,
   `last_payment_method_version_id` binary(16) DEFAULT NULL,
   `default_billing_address_id` binary(16) NOT NULL,
@@ -446,7 +475,7 @@ CREATE TABLE `customer` (
   CONSTRAINT `fk_customer.customer_group_id` FOREIGN KEY (`customer_group_id`, `customer_group_version_id`) REFERENCES `customer_group` (`id`, `version_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_customer.default_payment_method_id` FOREIGN KEY (`default_payment_method_id`, `default_payment_method_version_id`) REFERENCES `payment_method` (`id`, `version_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_customer.last_payment_method_id` FOREIGN KEY (`last_payment_method_id`, `last_payment_method_version_id`) REFERENCES `payment_method` (`id`, `version_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `fk_customer.shop_id` FOREIGN KEY (`shop_id`, `shop_version_id`) REFERENCES `shop` (`id`, `version_id`) ON DELETE RESTRICT ON UPDATE CASCADE
+  CONSTRAINT `fk_customer.application_id` FOREIGN KEY (`application_id`) REFERENCES `application` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -771,8 +800,7 @@ CREATE TABLE `order` (
   `payment_method_version_id` binary(16) NOT NULL,
   `currency_id` binary(16) NOT NULL,
   `currency_version_id` binary(16) NOT NULL,
-  `shop_id` binary(16) NOT NULL,
-  `shop_version_id` binary(16) NOT NULL,
+  `application_id` binary(16) NOT NULL,
   `billing_address_id` binary(16) NOT NULL,
   `billing_address_version_id` binary(16) NOT NULL,
   `order_date` datetime NOT NULL,
@@ -791,7 +819,7 @@ CREATE TABLE `order` (
   CONSTRAINT `fk_order.customer_id` FOREIGN KEY (`customer_id`, `customer_version_id`) REFERENCES `customer` (`id`, `version_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_order.order_state_id` FOREIGN KEY (`order_state_id`, `order_state_version_id`) REFERENCES `order_state` (`id`, `version_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_order.payment_method_id` FOREIGN KEY (`payment_method_id`, `payment_method_version_id`) REFERENCES `payment_method` (`id`, `version_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `fk_order.shop_id` FOREIGN KEY (`shop_id`, `shop_version_id`) REFERENCES `shop` (`id`, `version_id`) ON DELETE RESTRICT ON UPDATE CASCADE
+  CONSTRAINT `fk_order.application_id` FOREIGN KEY (`application_id`) REFERENCES `application` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -1189,18 +1217,17 @@ CREATE TABLE `product_media` (
 
 DROP TABLE IF EXISTS `product_seo_category`;
 CREATE TABLE `product_seo_category` (
-  `shop_id` binary(16) NOT NULL,
-  `shop_version_id` binary(16) NOT NULL,
+  `application_id` binary(16) NOT NULL,
   `product_id` binary(16) NOT NULL,
   `product_version_id` binary(16) NOT NULL,
   `category_id` binary(16) NOT NULL,
   `category_version_id` binary(16) NOT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`shop_id`, `product_id`, `category_id`, `product_version_id`, `category_version_id`, `shop_version_id`),
+  PRIMARY KEY (`application_id`, `product_id`, `category_id`, `product_version_id`, `category_version_id`),
   CONSTRAINT `fk_product_seo_category.category_id` FOREIGN KEY (`category_id`, `category_version_id`) REFERENCES `category` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_product_seo_category.product_id` FOREIGN KEY (`product_id`, `product_version_id`) REFERENCES `product` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_product_seo_category.shop_id` FOREIGN KEY (`shop_id`, `shop_version_id`) REFERENCES `shop` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `fk_product_seo_category.application_id` FOREIGN KEY (`application_id`) REFERENCES `application` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -1299,8 +1326,7 @@ DROP TABLE IF EXISTS `seo_url`;
 CREATE TABLE `seo_url` (
   `id` binary(16) NOT NULL,
   `version_id` binary(16) NOT NULL,
-  `shop_id` binary(16) NOT NULL,
-  `shop_version_id` binary(16) NOT NULL,
+  `application_id` binary(16) NOT NULL,
   `name` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
   `foreign_key` binary(16) NOT NULL,
   `foreign_key_version_id` binary(16) NOT NULL,
@@ -1311,9 +1337,9 @@ CREATE TABLE `seo_url` (
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`, `version_id`),
-  INDEX `seo_routing` (`version_id`, `shop_id`, `seo_path_info`),
-  INDEX `entity_canonical_url` (`shop_id`, `foreign_key`, `name`, `is_canonical`),
-  CONSTRAINT `fk_seo_url.shop_id` FOREIGN KEY (`shop_id`, `shop_version_id`) REFERENCES `shop` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE
+  INDEX `seo_routing` (`version_id`, `application_id`, `seo_path_info`),
+  INDEX `entity_canonical_url` (`application_id`, `foreign_key`, `name`, `is_canonical`),
+  CONSTRAINT `fk_seo_url.application_id` FOREIGN KEY (`application_id`) REFERENCES `application` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `session`;
@@ -1453,21 +1479,6 @@ CREATE TABLE `shop` (
   CONSTRAINT `fk_shop.shop_template_id` FOREIGN KEY (`shop_template_id`, `shop_template_version_id`) REFERENCES `shop_template` (`id`, `version_id`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-
-DROP TABLE IF EXISTS `shop_currency`;
-CREATE TABLE `shop_currency` (
-  `shop_id` binary(16) NOT NULL,
-  `shop_version_id` binary(16) NOT NULL,
-  `currency_id` binary(16) NOT NULL,
-  `currency_version_id` binary(16) NOT NULL,
-  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`shop_id`,`currency_id`),
-  CONSTRAINT `fk_shop_currency.currency_id` FOREIGN KEY (`currency_id`, `currency_version_id`) REFERENCES `currency` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_shop_currency.shop_id` FOREIGN KEY (`shop_id`, `shop_version_id`) REFERENCES `shop` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-
 DROP TABLE IF EXISTS `shop_template`;
 CREATE TABLE `shop_template` (
   `id` binary(16) NOT NULL,
@@ -1581,12 +1592,11 @@ CREATE TABLE `snippet` (
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `value` mediumtext COLLATE utf8mb4_unicode_ci NOT NULL,
   `dirty` tinyint(1) DEFAULT '0',
-  `shop_id` binary(16) NOT NULL,
-  `shop_version_id` binary(16) NOT NULL,
+  `application_id` binary(16) NOT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  CONSTRAINT `fk_snippet.shop_id` FOREIGN KEY (`shop_id`, `shop_version_id`) REFERENCES `shop` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `fk_snippet.application_id` FOREIGN KEY (`application_id`) REFERENCES `application` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 

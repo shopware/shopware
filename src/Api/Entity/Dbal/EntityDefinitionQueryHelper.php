@@ -15,7 +15,7 @@ use Shopware\Api\Entity\Write\FieldAware\SqlParseAware;
 use Shopware\Api\Entity\Write\FieldAware\StorageAware;
 use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\Inherited;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\Uuid;
 
@@ -67,7 +67,7 @@ class EntityDefinitionQueryHelper
         );
     }
 
-    public static function getFieldAccessor(string $fieldName, string $definition, string $root, ShopContext $context): string
+    public static function getFieldAccessor(string $fieldName, string $definition, string $root, ApplicationContext $context): string
     {
         $original = $fieldName;
         $prefix = $root . '.';
@@ -139,7 +139,7 @@ class EntityDefinitionQueryHelper
         );
     }
 
-    public static function getBaseQuery(Connection $connection, string $definition, ShopContext $context): QueryBuilder
+    public static function getBaseQuery(Connection $connection, string $definition, ApplicationContext $context): QueryBuilder
     {
         /** @var string|EntityDefinition $definition */
         $table = $definition::getEntityName();
@@ -156,7 +156,7 @@ class EntityDefinitionQueryHelper
 
         if ($definition::isCatalogAware()) {
             $catalogIds = array_map(function (string $catalogId) {
-                return Uuid::fromStringToBytes($catalogId);
+                return Uuid::fromHexToBytes($catalogId);
             }, $context->getCatalogIds());
 
             $query->andWhere(self::escape($table) . '.`catalog_id` IN (:catalogIds)');
@@ -166,7 +166,7 @@ class EntityDefinitionQueryHelper
         return $query;
     }
 
-    public static function joinField(string $fieldName, string $definition, string $root, QueryBuilder $query, ShopContext $context): void
+    public static function joinField(string $fieldName, string $definition, string $root, QueryBuilder $query, ApplicationContext $context): void
     {
         $original = $fieldName;
         $prefix = $root . '.';
@@ -241,7 +241,7 @@ class EntityDefinitionQueryHelper
      * @param ManyToOneAssociationField $field
      * @param QueryBuilder              $query
      */
-    public static function joinManyToOne(string $definition, string $root, ManyToOneAssociationField $field, QueryBuilder $query, ShopContext $context): void
+    public static function joinManyToOne(string $definition, string $root, ManyToOneAssociationField $field, QueryBuilder $query, ApplicationContext $context): void
     {
         /** @var EntityDefinition|string $reference */
         $reference = $field->getReferenceClass();
@@ -331,7 +331,7 @@ class EntityDefinitionQueryHelper
         self::joinManyToOne($reference, $alias, $parent, $query, $context);
     }
 
-    public static function joinOneToMany(string $definition, string $root, OneToManyAssociationField $field, QueryBuilder $query, ShopContext $context): void
+    public static function joinOneToMany(string $definition, string $root, OneToManyAssociationField $field, QueryBuilder $query, ApplicationContext $context): void
     {
         /** @var EntityDefinition|string $reference */
         $reference = $field->getReferenceClass();
@@ -383,7 +383,7 @@ class EntityDefinitionQueryHelper
         self::joinManyToOne($reference, $alias, $parent, $query, $context);
     }
 
-    public static function joinManyToMany(string $definition, string $root, ManyToManyAssociationField $field, QueryBuilder $query, ShopContext $context): void
+    public static function joinManyToMany(string $definition, string $root, ManyToManyAssociationField $field, QueryBuilder $query, ApplicationContext $context): void
     {
         /** @var EntityDefinition $mapping */
         $mapping = $field->getMappingDefinition();
@@ -466,7 +466,7 @@ class EntityDefinitionQueryHelper
         self::joinManyToOne($reference, $alias, $parent, $query, $context);
     }
 
-    public static function joinTranslation(string $root, string $definition, QueryBuilder $query, ShopContext $context, bool $raw = false): void
+    public static function joinTranslation(string $root, string $definition, QueryBuilder $query, ApplicationContext $context, bool $raw = false): void
     {
         self::joinTranslationTable($root, $definition, $query, $context);
 
@@ -481,7 +481,7 @@ class EntityDefinitionQueryHelper
         self::joinTranslationTable($alias, $definition, $query, $context);
     }
 
-    public static function addTranslationSelect(string $root, string $definition, QueryBuilder $query, ShopContext $context, array $fields, bool $raw = false): void
+    public static function addTranslationSelect(string $root, string $definition, QueryBuilder $query, ApplicationContext $context, array $fields, bool $raw = false): void
     {
         self::joinTranslation($root, $definition, $query, $context, $raw);
 
@@ -526,7 +526,7 @@ class EntityDefinitionQueryHelper
         }, $ids);
     }
 
-    private static function joinVersion(QueryBuilder $query, string $definition, string $root, ShopContext $context): void
+    private static function joinVersion(QueryBuilder $query, string $definition, string $root, ApplicationContext $context): void
     {
         /** @var string|EntityDefinition $definition */
         $table = $definition::getEntityName();
@@ -558,7 +558,7 @@ class EntityDefinitionQueryHelper
         );
     }
 
-    private static function joinTranslationTable(string $root, string $definition, QueryBuilder $query, ShopContext $context): void
+    private static function joinTranslationTable(string $root, string $definition, QueryBuilder $query, ApplicationContext $context): void
     {
         $alias = $root . '.translation';
         if ($query->hasState($alias)) {
@@ -632,7 +632,7 @@ class EntityDefinitionQueryHelper
         return sprintf('COALESCE(%s)', implode(',', $chainSelect));
     }
 
-    private static function buildTranslationChain(string $root, string $definition, ShopContext $context, bool $raw = false): array
+    private static function buildTranslationChain(string $root, string $definition, ApplicationContext $context, bool $raw = false): array
     {
         $chain = [$root . '.translation'];
 

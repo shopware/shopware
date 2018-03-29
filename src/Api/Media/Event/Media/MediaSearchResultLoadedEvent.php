@@ -3,7 +3,7 @@
 namespace Shopware\Api\Media\Event\Media;
 
 use Shopware\Api\Media\Struct\MediaSearchResult;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class MediaSearchResultLoadedEvent extends NestedEvent
@@ -25,7 +25,7 @@ class MediaSearchResultLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ShopContext
+    public function getContext(): ApplicationContext
     {
         return $this->result->getContext();
     }

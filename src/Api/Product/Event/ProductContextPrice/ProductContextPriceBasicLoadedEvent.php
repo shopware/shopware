@@ -3,7 +3,7 @@
 namespace Shopware\Api\Product\Event\ProductContextPrice;
 
 use Shopware\Api\Product\Collection\ProductContextPriceBasicCollection;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class ProductContextPriceBasicLoadedEvent extends NestedEvent
@@ -11,7 +11,7 @@ class ProductContextPriceBasicLoadedEvent extends NestedEvent
     public const NAME = 'product_context_price.basic.loaded';
 
     /**
-     * @var ShopContext
+     * @var ApplicationContext
      */
     protected $context;
 
@@ -20,7 +20,7 @@ class ProductContextPriceBasicLoadedEvent extends NestedEvent
      */
     protected $productContextPrices;
 
-    public function __construct(ProductContextPriceBasicCollection $productContextPrices, ShopContext $context)
+    public function __construct(ProductContextPriceBasicCollection $productContextPrices, ApplicationContext $context)
     {
         $this->context = $context;
         $this->productContextPrices = $productContextPrices;
@@ -31,7 +31,7 @@ class ProductContextPriceBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ShopContext
+    public function getContext(): ApplicationContext
     {
         return $this->context;
     }

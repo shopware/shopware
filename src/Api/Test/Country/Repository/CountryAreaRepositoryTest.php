@@ -9,7 +9,7 @@ use Shopware\Api\Entity\RepositoryInterface;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Api\Entity\Search\Term\SearchTermInterpreter;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -50,16 +50,16 @@ class CountryAreaRepositoryTest extends KernelTestCase
             ['id' => $recordB, 'name' => 'match not exact'],
         ];
 
-        $this->repository->create($records, ShopContext::createDefaultContext());
+        $this->repository->create($records, ApplicationContext::createDefaultContext());
 
         $criteria = new Criteria();
 
         $builder = $this->container->get(EntityScoreQueryBuilder::class);
-        $pattern = $this->container->get(SearchTermInterpreter::class)->interpret('match', ShopContext::createDefaultContext());
+        $pattern = $this->container->get(SearchTermInterpreter::class)->interpret('match', ApplicationContext::createDefaultContext());
         $queries = $builder->buildScoreQueries($pattern, CountryAreaDefinition::class, CountryAreaDefinition::getEntityName());
         $criteria->addQueries($queries);
 
-        $result = $this->repository->searchIds($criteria, ShopContext::createDefaultContext());
+        $result = $this->repository->searchIds($criteria, ApplicationContext::createDefaultContext());
 
         $this->assertCount(2, $result->getIds());
 

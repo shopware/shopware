@@ -3,7 +3,7 @@
 namespace Shopware\Api\Customer\Event\CustomerAddress;
 
 use Shopware\Api\Customer\Struct\CustomerAddressSearchResult;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class CustomerAddressSearchResultLoadedEvent extends NestedEvent
@@ -25,7 +25,7 @@ class CustomerAddressSearchResultLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ShopContext
+    public function getContext(): ApplicationContext
     {
         return $this->result->getContext();
     }

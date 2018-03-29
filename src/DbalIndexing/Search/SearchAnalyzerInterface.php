@@ -3,9 +3,9 @@
 namespace Shopware\DbalIndexing\Search;
 
 use Shopware\Api\Product\Struct\ProductBasicStruct;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 
 interface SearchAnalyzerInterface
 {
-    public function analyze(ProductBasicStruct $product, ShopContext $context): array;
+    public function analyze(ProductBasicStruct $product, ApplicationContext $context): array;
 }

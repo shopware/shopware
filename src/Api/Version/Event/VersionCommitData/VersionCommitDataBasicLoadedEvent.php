@@ -3,7 +3,7 @@
 namespace Shopware\Api\Version\Event\VersionCommitData;
 
 use Shopware\Api\Version\Collection\VersionCommitDataBasicCollection;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class VersionCommitDataBasicLoadedEvent extends NestedEvent
@@ -11,7 +11,7 @@ class VersionCommitDataBasicLoadedEvent extends NestedEvent
     public const NAME = 'version_commit_data.basic.loaded';
 
     /**
-     * @var ShopContext
+     * @var ApplicationContext
      */
     protected $context;
 
@@ -20,7 +20,7 @@ class VersionCommitDataBasicLoadedEvent extends NestedEvent
      */
     protected $versionChanges;
 
-    public function __construct(VersionCommitDataBasicCollection $versionChanges, ShopContext $context)
+    public function __construct(VersionCommitDataBasicCollection $versionChanges, ApplicationContext $context)
     {
         $this->context = $context;
         $this->versionChanges = $versionChanges;
@@ -31,7 +31,7 @@ class VersionCommitDataBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ShopContext
+    public function getContext(): ApplicationContext
     {
         return $this->context;
     }

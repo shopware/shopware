@@ -3,7 +3,7 @@
 namespace Shopware\Api\Entity\Write;
 
 use Shopware\Api\Entity\EntityDefinition;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 
@@ -12,7 +12,7 @@ class GenericWrittenEvent extends NestedEvent
     public const NAME = 'entity.written';
 
     /**
-     * @var ShopContext
+     * @var ApplicationContext
      */
     protected $context;
 
@@ -26,7 +26,7 @@ class GenericWrittenEvent extends NestedEvent
      */
     private $errors;
 
-    public function __construct(ShopContext $context, NestedEventCollection $events, array $errors)
+    public function __construct(ApplicationContext $context, NestedEventCollection $events, array $errors)
     {
         $this->context = $context;
         $this->events = $events;
@@ -38,7 +38,7 @@ class GenericWrittenEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ShopContext
+    public function getContext(): ApplicationContext
     {
         return $this->context;
     }
@@ -62,7 +62,7 @@ class GenericWrittenEvent extends NestedEvent
         return null;
     }
 
-    public static function createWithWrittenEvents(array $identifiers, ShopContext $context, array $errors): self
+    public static function createWithWrittenEvents(array $identifiers, ApplicationContext $context, array $errors): self
     {
         $events = new NestedEventCollection();
 
@@ -82,7 +82,7 @@ class GenericWrittenEvent extends NestedEvent
         return new self($context, $events, $errors);
     }
 
-    public static function createWithDeletedEvents(array $identifiers, ShopContext $context, array $errors): self
+    public static function createWithDeletedEvents(array $identifiers, ApplicationContext $context, array $errors): self
     {
         $events = new NestedEventCollection();
 

@@ -3,7 +3,7 @@
 namespace Shopware\Api\Customer\Event\CustomerGroupDiscount;
 
 use Shopware\Api\Customer\Struct\CustomerGroupDiscountSearchResult;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class CustomerGroupDiscountSearchResultLoadedEvent extends NestedEvent
@@ -25,7 +25,7 @@ class CustomerGroupDiscountSearchResultLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ShopContext
+    public function getContext(): ApplicationContext
     {
         return $this->result->getContext();
     }

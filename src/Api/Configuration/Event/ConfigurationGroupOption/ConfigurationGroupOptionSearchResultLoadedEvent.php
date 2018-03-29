@@ -3,7 +3,7 @@
 namespace Shopware\Api\Configuration\Event\ConfigurationGroupOption;
 
 use Shopware\Api\Configuration\Struct\ConfigurationGroupOptionSearchResult;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class ConfigurationGroupOptionSearchResultLoadedEvent extends NestedEvent
@@ -25,7 +25,7 @@ class ConfigurationGroupOptionSearchResultLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ShopContext
+    public function getContext(): ApplicationContext
     {
         return $this->result->getContext();
     }

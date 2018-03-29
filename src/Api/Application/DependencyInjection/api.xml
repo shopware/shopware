@@ -1,0 +1,20 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+         <service class="Shopware\Api\Application\Definition\ApplicationDefinition" id="shopware.application.application_definition" >
+            <tag name="shopware.entity.definition" entity="application" />
+        </service>
+        <service class="Shopware\Api\Application\Repository\ApplicationRepository" id="Shopware\Api\Application\Repository\ApplicationRepository" public="true">
+          <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Version\VersionManager" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+    </services>
+</container>                
+                

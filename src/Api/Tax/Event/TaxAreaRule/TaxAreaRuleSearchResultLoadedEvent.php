@@ -3,7 +3,7 @@
 namespace Shopware\Api\Tax\Event\TaxAreaRule;
 
 use Shopware\Api\Tax\Struct\TaxAreaRuleSearchResult;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class TaxAreaRuleSearchResultLoadedEvent extends NestedEvent
@@ -25,7 +25,7 @@ class TaxAreaRuleSearchResultLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ShopContext
+    public function getContext(): ApplicationContext
     {
         return $this->result->getContext();
     }

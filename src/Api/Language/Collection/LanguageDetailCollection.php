@@ -21,15 +21,6 @@ class LanguageDetailCollection extends LanguageBasicCollection
         );
     }
 
-    public function getLocales(): LocaleBasicCollection
-    {
-        return new LocaleBasicCollection(
-            $this->fmap(function (LanguageDetailStruct $language) {
-                return $language->getLocale();
-            })
-        );
-    }
-
     public function getChildrenIds(): array
     {
         $ids = [];

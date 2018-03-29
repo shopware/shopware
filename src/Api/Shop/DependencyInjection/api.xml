@@ -15,9 +15,6 @@
           <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>
-         <service class="Shopware\Api\Shop\Definition\ShopCurrencyDefinition" id="shopware.shop.shop_currency_definition" >
-            <tag name="shopware.entity.definition" entity="shop_currency" />
-        </service>
          <service class="Shopware\Api\Shop\Definition\ShopTemplateDefinition" id="shopware.shop.shop_template_definition" >
             <tag name="shopware.entity.definition" entity="shop_template" />
         </service>

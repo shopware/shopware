@@ -3,7 +3,7 @@
 namespace Shopware\Api\Shipping\Event\ShippingMethodPrice;
 
 use Shopware\Api\Shipping\Struct\ShippingMethodPriceSearchResult;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class ShippingMethodPriceSearchResultLoadedEvent extends NestedEvent
@@ -25,7 +25,7 @@ class ShippingMethodPriceSearchResultLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ShopContext
+    public function getContext(): ApplicationContext
     {
         return $this->result->getContext();
     }

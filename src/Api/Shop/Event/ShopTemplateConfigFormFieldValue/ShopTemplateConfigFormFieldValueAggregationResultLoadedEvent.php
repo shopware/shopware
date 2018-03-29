@@ -3,7 +3,7 @@
 namespace Shopware\Api\Shop\Event\ShopTemplateConfigFormFieldValue;
 
 use Shopware\Api\Entity\Search\AggregatorResult;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class ShopTemplateConfigFormFieldValueAggregationResultLoadedEvent extends NestedEvent
@@ -25,7 +25,7 @@ class ShopTemplateConfigFormFieldValueAggregationResultLoadedEvent extends Neste
         return self::NAME;
     }
 
-    public function getContext(): ShopContext
+    public function getContext(): ApplicationContext
     {
         return $this->result->getContext();
     }

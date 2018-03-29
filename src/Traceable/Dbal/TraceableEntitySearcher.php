@@ -6,7 +6,7 @@ use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
 use Shopware\Api\Entity\Search\IdSearchResult;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Symfony\Component\Stopwatch\Stopwatch;
 
 class TraceableEntitySearcher implements EntitySearcherInterface
@@ -27,7 +27,7 @@ class TraceableEntitySearcher implements EntitySearcherInterface
         $this->stopwatch = $stopwatch;
     }
 
-    public function search(string $definition, Criteria $criteria, ShopContext $context): IdSearchResult
+    public function search(string $definition, Criteria $criteria, ApplicationContext $context): IdSearchResult
     {
         /** @var EntityDefinition $definition */
         $entity = $definition::getEntityName();

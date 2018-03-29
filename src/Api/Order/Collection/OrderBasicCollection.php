@@ -2,6 +2,7 @@
 
 namespace Shopware\Api\Order\Collection;
 
+use Shopware\Api\Application\Collection\ApplicationBasicCollection;
 use Shopware\Api\Currency\Collection\CurrencyBasicCollection;
 use Shopware\Api\Customer\Collection\CustomerBasicCollection;
 use Shopware\Api\Entity\EntityCollection;
@@ -82,17 +83,17 @@ class OrderBasicCollection extends EntityCollection
         });
     }
 
-    public function getShopIds(): array
+    public function getApplicationIds(): array
     {
         return $this->fmap(function (OrderBasicStruct $order) {
-            return $order->getShopId();
+            return $order->getApplicationId();
         });
     }
 
-    public function filterByShopId(string $id): self
+    public function filterByApplicationId(string $id): self
     {
         return $this->filter(function (OrderBasicStruct $order) use ($id) {
-            return $order->getShopId() === $id;
+            return $order->getApplicationId() === $id;
         });
     }
 
@@ -146,11 +147,11 @@ class OrderBasicCollection extends EntityCollection
         );
     }
 
-    public function getShops(): ShopBasicCollection
+    public function getApplications(): ApplicationBasicCollection
     {
-        return new ShopBasicCollection(
+        return new ApplicationBasicCollection(
             $this->fmap(function (OrderBasicStruct $order) {
-                return $order->getShop();
+                return $order->getApplication();
             })
         );
     }

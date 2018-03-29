@@ -3,7 +3,7 @@
 namespace Shopware\Api\Listing\Event\ListingSorting;
 
 use Shopware\Api\Listing\Collection\ListingSortingBasicCollection;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class ListingSortingBasicLoadedEvent extends NestedEvent
@@ -11,7 +11,7 @@ class ListingSortingBasicLoadedEvent extends NestedEvent
     public const NAME = 'listing_sorting.basic.loaded';
 
     /**
-     * @var ShopContext
+     * @var ApplicationContext
      */
     protected $context;
 
@@ -20,7 +20,7 @@ class ListingSortingBasicLoadedEvent extends NestedEvent
      */
     protected $listingSortings;
 
-    public function __construct(ListingSortingBasicCollection $listingSortings, ShopContext $context)
+    public function __construct(ListingSortingBasicCollection $listingSortings, ApplicationContext $context)
     {
         $this->context = $context;
         $this->listingSortings = $listingSortings;
@@ -31,7 +31,7 @@ class ListingSortingBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ShopContext
+    public function getContext(): ApplicationContext
     {
         return $this->context;
     }

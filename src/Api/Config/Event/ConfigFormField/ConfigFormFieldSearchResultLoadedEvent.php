@@ -3,7 +3,7 @@
 namespace Shopware\Api\Config\Event\ConfigFormField;
 
 use Shopware\Api\Config\Struct\ConfigFormFieldSearchResult;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class ConfigFormFieldSearchResultLoadedEvent extends NestedEvent
@@ -25,7 +25,7 @@ class ConfigFormFieldSearchResultLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ShopContext
+    public function getContext(): ApplicationContext
     {
         return $this->result->getContext();
     }

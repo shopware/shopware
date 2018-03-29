@@ -47,6 +47,6 @@ class StorefrontContextPersister
             return [];
         }
 
-        return json_decode($parameter, true);
+        return array_filter(json_decode($parameter, true));
     }
 }

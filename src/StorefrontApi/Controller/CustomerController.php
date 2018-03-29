@@ -5,6 +5,7 @@ namespace Shopware\StorefrontApi\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Context\Struct\StorefrontContext;
+use Shopware\Framework\Application\ApplicationResolver;
 use Shopware\StorefrontApi\Context\StorefrontContextPersister;
 use Shopware\StorefrontApi\Context\StorefrontContextValueResolver;
 use Shopware\StorefrontApi\Firewall\ApplicationAuthenticator;
@@ -78,7 +79,7 @@ class CustomerController extends Controller
         );
 
         return new JsonResponse([
-            ApplicationAuthenticator::CONTEXT_TOKEN_KEY => $context->getContextToken(),
+            ApplicationResolver::CONTEXT_HEADER => $context->getContextToken(),
         ]);
     }
 

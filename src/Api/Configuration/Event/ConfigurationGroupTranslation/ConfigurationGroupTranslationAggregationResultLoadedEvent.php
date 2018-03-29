@@ -3,7 +3,7 @@
 namespace Shopware\Api\Configuration\Event\ConfigurationGroupTranslation;
 
 use Shopware\Api\Entity\Search\AggregatorResult;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class ConfigurationGroupTranslationAggregationResultLoadedEvent extends NestedEvent
@@ -25,7 +25,7 @@ class ConfigurationGroupTranslationAggregationResultLoadedEvent extends NestedEv
         return self::NAME;
     }
 
-    public function getContext(): ShopContext
+    public function getContext(): ApplicationContext
     {
         return $this->result->getContext();
     }

@@ -25,6 +25,8 @@
 namespace Shopware\Context\Service;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Api\Application\Repository\ApplicationRepository;
+use Shopware\Api\Application\Struct\ApplicationBasicStruct;
 use Shopware\Api\Country\Repository\CountryRepository;
 use Shopware\Api\Country\Repository\CountryStateRepository;
 use Shopware\Api\Currency\Repository\CurrencyRepository;
@@ -34,6 +36,7 @@ use Shopware\Api\Customer\Repository\CustomerGroupRepository;
 use Shopware\Api\Customer\Repository\CustomerRepository;
 use Shopware\Api\Customer\Struct\CustomerBasicStruct;
 use Shopware\Api\Entity\Search\Criteria;
+use Shopware\Api\Language\Repository\LanguageRepository;
 use Shopware\Api\Payment\Repository\PaymentMethodRepository;
 use Shopware\Api\Payment\Struct\PaymentMethodBasicStruct;
 use Shopware\Api\Shipping\Repository\ShippingMethodRepository;
@@ -46,18 +49,19 @@ use Shopware\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Cart\Tax\TaxDetector;
 use Shopware\Context\Struct\CheckoutScope;
 use Shopware\Context\Struct\CustomerScope;
-use Shopware\Context\Struct\ShopContext;
-use Shopware\Context\Struct\ShopScope;
+use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Context\Struct\ApplicationScope;
 use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\Uuid;
+use Shopware\StorefrontApi\Context\StorefrontContextService;
 
 class ContextFactory implements ContextFactoryInterface
 {
     /**
-     * @var ShopRepository
+     * @var ApplicationRepository
      */
-    private $shopRepository;
+    private $applicationRepository;
 
     /**
      * @var CurrencyRepository
@@ -110,12 +114,17 @@ class ContextFactory implements ContextFactoryInterface
     private $countryStateRepository;
 
     /**
+     * @var LanguageRepository
+     */
+    private $languageRepository;
+
+    /**
      * @var TaxDetector
      */
     private $taxDetector;
 
     public function __construct(
-        ShopRepository $shopRepository,
+        ApplicationRepository $applicationRepository,
         CurrencyRepository $currencyRepository,
         CustomerRepository $customerRepository,
         CustomerGroupRepository $customerGroupRepository,
@@ -126,9 +135,10 @@ class ContextFactory implements ContextFactoryInterface
         ShippingMethodRepository $shippingMethodRepository,
         Connection $connection,
         CountryStateRepository $countryStateRepository,
+        LanguageRepository $languageRepository,
         TaxDetector $taxDetector
     ) {
-        $this->shopRepository = $shopRepository;
+        $this->applicationRepository = $applicationRepository;
         $this->currencyRepository = $currencyRepository;
         $this->customerRepository = $customerRepository;
         $this->customerGroupRepository = $customerGroupRepository;
@@ -139,71 +149,81 @@ class ContextFactory implements ContextFactoryInterface
         $this->shippingMethodRepository = $shippingMethodRepository;
         $this->connection = $connection;
         $this->countryStateRepository = $countryStateRepository;
+        $this->languageRepository = $languageRepository;
         $this->taxDetector = $taxDetector;
     }
 
     public function create(
         string $token,
-        ShopScope $shopScope,
-        CustomerScope $customerScope,
-        CheckoutScope $checkoutScope
+        string $applicationId,
+        array $options = []
     ): StorefrontContext {
-        $shopContext = $this->getShopContext($shopScope->getShopId());
+        $applicationContext = $this->getApplicationContext($applicationId);
 
-        /** @var ShopBasicStruct $shop */
-        $shop = $this->shopRepository->readBasic([$shopScope->getShopId()], $shopContext)
-            ->get($shopScope->getShopId());
+        $application = $this->applicationRepository->readBasic([$applicationContext->getApplicationId()], $applicationContext)
+            ->get($applicationContext->getApplicationId());
 
-        if (!$shop) {
-            throw new \RuntimeException(sprintf('Shop with id %s not found or not valid!', $shopScope->getShopId()));
+        if (!$application) {
+            throw new \RuntimeException(sprintf('Application with id %s not found or not valid!', $applicationContext->getApplicationId()));
         }
 
         //load active currency, fallback to shop currency
-        $currency = $this->getCurrency($shop, $shopScope->getCurrencyId(), $shopContext);
+        $currency = $application->getCurrency();
+        if (array_key_exists(StorefrontContextService::CURRENCY_ID, $options)) {
+            $currency = $this->currencyRepository->readBasic([$options[StorefrontContextService::CURRENCY_ID]], $applicationContext)->get($options[StorefrontContextService::CURRENCY_ID]);
+        }
+
+        $language = $application->getLanguage();
+        if (array_key_exists(StorefrontContextService::LANGUAGE_ID, $options)) {
+            $language = $this->languageRepository->readBasic([$options[StorefrontContextService::LANGUAGE_ID]], $applicationContext)->get($options[StorefrontContextService::LANGUAGE_ID]);
+        }
+
+        $fallbackLanguage = null;
+        if ($language->getParentId()) {
+            $language = $this->languageRepository->readBasic([$language->getParentId()], $applicationContext)->get($language->getParentId());
+        }
 
         //fallback customer group is hard coded to 'EK'
-        $customerGroups = $this->customerGroupRepository->readBasic(
-            [Defaults::FALLBACK_CUSTOMER_GROUP, $shop->getCustomerGroupId()],
-            $shopContext
-        );
-
+        $customerGroups = $this->customerGroupRepository->readBasic([Defaults::FALLBACK_CUSTOMER_GROUP], $applicationContext);
         $fallbackGroup = $customerGroups->get(Defaults::FALLBACK_CUSTOMER_GROUP);
-        $customerGroup = $customerGroups->get($shop->getCustomerGroupId());
+        $customerGroup = $customerGroups->get(Defaults::FALLBACK_CUSTOMER_GROUP);
 
+        // customer
         $customer = null;
-
-        if ($customerScope->getCustomerId() !== null) {
+        if (array_key_exists(StorefrontContextService::CUSTOMER_ID, $options)) {
             //load logged in customer and set active addresses
-            $customer = $this->loadCustomer($customerScope, $shopContext);
+            $customer = $this->loadCustomer($options, $applicationContext);
 
-            $shippingLocation = ShippingLocation::createFromAddress($customer->getActiveShippingAddress());
-
-            $customerGroup = $customer->getGroup();
+            if ($customer) {
+                $shippingLocation = ShippingLocation::createFromAddress($customer->getActiveShippingAddress());
+                $customerGroup = $customer->getGroup();
+            }
         } else {
             //load not logged in customer with default shop configuration or with provided checkout scopes
-            $shippingLocation = $this->loadShippingLocation($shop, $shopContext, $checkoutScope);
+            $shippingLocation = $this->loadShippingLocation($options, $applicationContext, $application);
         }
 
         //customer group switched?
-        if ($customerScope->getCustomerGroupId() !== null) {
-            $customerGroup = $this->customerGroupRepository->readBasic([$customerScope->getCustomerGroupId()], $shopContext)
-                ->get($customerScope->getCustomerGroupId());
+        if (array_key_exists(StorefrontContextService::CUSTOMER_GROUP_ID, $options)) {
+            $customerGroup = $this->customerGroupRepository->readBasic([$options[StorefrontContextService::CUSTOMER_GROUP_ID]], $applicationContext)->get($options[StorefrontContextService::CUSTOMER_GROUP_ID]);
         }
 
         //loads tax rules based on active customer group and delivery address
         //todo@dr load area based tax rules
         $criteria = new Criteria();
-        $taxRules = $this->taxRepository->search($criteria, $shopContext);
+        $taxRules = $this->taxRepository->search($criteria, $applicationContext);
 
         //detect active payment method, first check if checkout defined other payment method, otherwise validate if customer logged in, at least use shop default
-        $payment = $this->getPaymentMethod($customer, $shop, $shopContext, $checkoutScope);
+        $payment = $this->getPaymentMethod($options, $applicationContext, $application, $customer);
 
         //detect active delivery method, at first checkout scope, at least shop default method
-        $delivery = $this->getShippingMethod($shop, $shopContext, $checkoutScope);
+        $delivery = $this->getShippingMethod($options, $applicationContext, $application);
 
         $context = new StorefrontContext(
             $token,
-            $shop,
+            $application,
+            $language,
+            $fallbackLanguage,
             $currency,
             $customerGroup,
             $fallbackGroup,
@@ -220,27 +240,11 @@ class ContextFactory implements ContextFactoryInterface
         return $context;
     }
 
-    private function getCurrency(ShopBasicStruct $shop, ?string $currencyId, ShopContext $context): CurrencyBasicStruct
-    {
-        if ($currencyId === null) {
-            return $shop->getCurrency();
-        }
-
-        $currency = $this->currencyRepository->readBasic([$currencyId], $context);
-
-        if (!$currency->has($currencyId)) {
-            return $shop->getCurrency();
-        }
-
-        return $currency->get($currencyId);
-    }
-
-    private function getPaymentMethod(?CustomerBasicStruct $customer, ShopBasicStruct $shop, ShopContext $context, CheckoutScope $checkoutScope): PaymentMethodBasicStruct
+    private function getPaymentMethod(array $options, ApplicationContext $context, ApplicationBasicStruct $application, ?CustomerBasicStruct $customer): PaymentMethodBasicStruct
     {
         //payment switched in checkout?
-        if ($checkoutScope->getPaymentMethodId() !== null) {
-            return $this->paymentMethodRepository->readBasic([$checkoutScope->getPaymentMethodId()], $context)
-                ->get($checkoutScope->getPaymentMethodId());
+        if (array_key_exists(StorefrontContextService::PAYMENT_METHOD_ID, $options)) {
+            return $this->paymentMethodRepository->readBasic([$options[StorefrontContextService::PAYMENT_METHOD_ID]], $context)->get($options[StorefrontContextService::PAYMENT_METHOD_ID]);
         }
 
         //customer has a last payment method from previous order?
@@ -253,98 +257,104 @@ class ContextFactory implements ContextFactoryInterface
             return $customer->getDefaultPaymentMethod();
         }
 
-        return $this->paymentMethodRepository->readBasic([$shop->getPaymentMethodId()], $context)
-            ->get($shop->getPaymentMethodId());
+        return $this->paymentMethodRepository->readBasic([$application->getPaymentMethodId()], $context)
+            ->get($application->getPaymentMethodId());
     }
 
-    private function getShippingMethod(ShopBasicStruct $shop, ShopContext $context, CheckoutScope $checkoutScope): ShippingMethodBasicStruct
+    private function getShippingMethod(array $options, ApplicationContext $context, ApplicationBasicStruct $application): ShippingMethodBasicStruct
     {
-        $id = $checkoutScope->getShippingMethodId() ?? $shop->getShippingMethodId();
+        $id = $application->getShippingMethodId();
+        if (array_key_exists(StorefrontContextService::SHIPPING_METHOD_ID, $options)) {
+            $id = $options[StorefrontContextService::SHIPPING_METHOD_ID];
+        }
 
-        return $this->shippingMethodRepository->readBasic([$id], $context)
-            ->get($id);
+        return $this->shippingMethodRepository->readBasic([$id], $context)->get($id);
     }
 
-    private function getShopContext(string $shopId): ShopContext
+    private function getApplicationContext(string $applicationId): ApplicationContext
     {
         $query = $this->connection->createQueryBuilder();
         $query->select([
-            'shop.id as shop_id',
-            'shop.locale_id as shop_locale_id',
-            'shop.currency_id as shop_currency_id',
-            'shop.fallback_translation_id as shop_fallback_translation_id',
-            'shop.catalog_ids as shop_catalog_ids',
+            'application.id as shop_id',
+            'application.language_id as shop_language_id',
+            'application.currency_id as shop_currency_id',
+            'application.catalog_ids as shop_catalog_ids',
             'currency.factor as shop_currency_factor',
+            'language.parent_id as shop_language_parent_id'
         ]);
-        $query->from('shop', 'shop');
-        $query->innerJoin('shop', 'currency', 'currency', 'shop.currency_id = currency.id');
-        $query->where('shop.id = :id');
-        $query->setParameter('id', Uuid::fromStringToBytes($shopId));
+        $query->from('application', 'application');
+        $query->innerJoin('application', 'currency', 'currency', 'application.currency_id = currency.id');
+        $query->innerJoin('application', 'language', 'language', 'application.language_id = language.id');
+        $query->where('application.id = :id');
+        $query->setParameter('id', Uuid::fromHexToBytes($applicationId));
 
         $data = $query->execute()->fetch(\PDO::FETCH_ASSOC);
 
-        return new ShopContext(
+        return new ApplicationContext(
             Uuid::fromBytesToHex($data['shop_id']),
             json_decode($data['shop_catalog_ids'], true),
             [],
             Uuid::fromBytesToHex($data['shop_currency_id']),
-            Defaults::LANGUAGE,
-            null,
+            Uuid::fromBytesToHex($data['shop_language_id']),
+            $data['shop_language_parent_id'] ? Uuid::fromBytesToHex($data['shop_language_parent_id']) : null,
             Defaults::LIVE_VERSION,
             (float) $data['shop_currency_factor']
         );
     }
 
-    private function loadCustomer(CustomerScope $customerScope, ShopContext $shopContext): ?CustomerBasicStruct
+    private function loadCustomer(array $options, ApplicationContext $applicationContext): ?CustomerBasicStruct
     {
-        $customers = $this->customerRepository->readBasic([$customerScope->getCustomerId()], $shopContext);
-        $customer = $customers->get($customerScope->getCustomerId());
+        $customerId = $options[StorefrontContextService::CUSTOMER_ID];
+        $customer = $this->customerRepository->readBasic([$customerId], $applicationContext)->get($customerId);
 
         if (!$customer) {
             return $customer;
         }
 
-        if ($customerScope->getBillingAddressId() === null && $customerScope->getShippingAddressId() === null) {
+        if (false === array_key_exists(StorefrontContextService::BILLING_ADDRESS_ID, $options) && false === array_key_exists(StorefrontContextService::SHIPPING_ADDRESS_ID, $options)) {
             return $customer;
         }
 
-        $addresses = $this->addressRepository->readBasic(
-            [$customerScope->getBillingAddressId(), $customerScope->getShippingAddressId()],
-            $shopContext
-        );
+        $billingAddressId = $options[StorefrontContextService::BILLING_ADDRESS_ID];
+        $shippingAddressId = $options[StorefrontContextService::SHIPPING_ADDRESS_ID];
+
+        $addresses = $this->addressRepository->readBasic([$billingAddressId, $shippingAddressId], $applicationContext);
 
         //billing address changed within checkout?
-        if ($customerScope->getBillingAddressId() !== null) {
-            $customer->setActiveBillingAddress($addresses->get($customerScope->getBillingAddressId()));
+        if ($billingAddressId !== null) {
+            $customer->setActiveBillingAddress($addresses->get($billingAddressId));
         }
 
         //shipping address changed within checkout?
-        if ($customerScope->getShippingAddressId() !== null) {
-            $customer->setActiveShippingAddress($addresses->get($customerScope->getShippingAddressId()));
+        if ($shippingAddressId !== null) {
+            $customer->setActiveShippingAddress($addresses->get($shippingAddressId));
         }
 
         return $customer;
     }
 
     private function loadShippingLocation(
-        ShopBasicStruct $shop,
-        ShopContext $shopContext,
-        CheckoutScope $checkoutScope
+        array $options,
+        ApplicationContext $applicationContext,
+        ApplicationBasicStruct $application
     ): ShippingLocation {
         //allows to preview cart calculation for a specify state for not logged in customers
-        if ($checkoutScope->getStateId() !== null) {
-            $state = $this->countryStateRepository->readBasic([$checkoutScope->getStateId()], $shopContext)
-                ->get($checkoutScope->getStateId());
+        if (array_key_exists(StorefrontContextService::STATE_ID, $options)) {
+            $state = $this->countryStateRepository->readBasic([$options[StorefrontContextService::STATE_ID]], $applicationContext)
+                ->get($options[StorefrontContextService::STATE_ID]);
 
-            $country = $this->countryRepository->readBasic([$state->getCountryId()], $shopContext)
+            $country = $this->countryRepository->readBasic([$state->getCountryId()], $applicationContext)
                 ->get($state->getCountryId());
 
             return new ShippingLocation($country, $state, null);
         }
 
-        $countryId = $checkoutScope->getCountryId() ?? $shop->getCountryId();
+        $countryId = $application->getCountryId();
+        if (array_key_exists(StorefrontContextService::COUNTRY_ID, $options)) {
+            $countryId = $options[StorefrontContextService::COUNTRY_ID];
+        }
 
-        $country = $this->countryRepository->readBasic([$countryId], $shopContext)
+        $country = $this->countryRepository->readBasic([$countryId], $applicationContext)
             ->get($countryId);
 
         return ShippingLocation::createFromCountry($country);

@@ -47,21 +47,21 @@ class StorefrontProductRepository
 
     public function read(array $ids, StorefrontContext $context): ProductBasicCollection
     {
-        $basics = $this->repository->readBasic($ids, $context->getShopContext());
+        $basics = $this->repository->readBasic($ids, $context->getApplicationContext());
 
         return $this->loadListProducts($basics, $context);
     }
 
     public function readDetail(array $ids, StorefrontContext $context): ProductBasicCollection
     {
-        $basics = $this->repository->readDetail($ids, $context->getShopContext());
+        $basics = $this->repository->readDetail($ids, $context->getApplicationContext());
 
         return $this->loadDetailProducts($context, $basics);
     }
 
     public function search(Criteria $criteria, StorefrontContext $context): ProductSearchResult
     {
-        $basics = $this->repository->search($criteria, $context->getShopContext());
+        $basics = $this->repository->search($criteria, $context->getApplicationContext());
 
         $listProducts = $this->loadListProducts($basics, $context);
 
@@ -73,7 +73,7 @@ class StorefrontProductRepository
 
     public function searchIds(Criteria $criteria, StorefrontContext $context): IdSearchResult
     {
-        return $this->repository->searchIds($criteria, $context->getShopContext());
+        return $this->repository->searchIds($criteria, $context->getApplicationContext());
     }
 
     private function fetchMedia(array $ids, StorefrontContext $context): ProductMediaSearchResult
@@ -84,7 +84,7 @@ class StorefrontProductRepository
         $criteria->addSorting(new FieldSorting('product_media.isCover', FieldSorting::DESCENDING));
         $criteria->addSorting(new FieldSorting('product_media.position'));
 
-        return $this->productMediaRepository->search($criteria, $context->getShopContext());
+        return $this->productMediaRepository->search($criteria, $context->getApplicationContext());
     }
 
     private function loadListProducts(ProductBasicCollection $products, StorefrontContext $context): ProductBasicCollection
@@ -134,17 +134,17 @@ class StorefrontProductRepository
     private function calculatePrices(StorefrontContext $context, StorefrontProductBasicInterface $product): void
     {
         //calculate listing price
-        $listingPriceDefinition = $product->getListingPriceDefinition($context->getShopContext());
+        $listingPriceDefinition = $product->getListingPriceDefinition($context->getApplicationContext());
         $listingPrice = $this->priceCalculator->calculate($listingPriceDefinition, $context);
         $product->setCalculatedListingPrice($listingPrice);
 
         //calculate context prices
-        $contextPriceDefinitions = $product->getContextPriceDefinitions($context->getShopContext());
+        $contextPriceDefinitions = $product->getContextPriceDefinitions($context->getApplicationContext());
         $contextPrices = $this->priceCalculator->calculateCollection($contextPriceDefinitions, $context);
         $product->setCalculatedContextPrices($contextPrices);
 
         //calculate simple price
-        $priceDefinition = $product->getPriceDefinition($context->getShopContext());
+        $priceDefinition = $product->getPriceDefinition($context->getApplicationContext());
         $price = $this->priceCalculator->calculate($priceDefinition, $context);
         $product->setCalculatedPrice($price);
     }

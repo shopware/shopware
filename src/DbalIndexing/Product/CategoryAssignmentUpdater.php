@@ -4,7 +4,7 @@ namespace Shopware\DbalIndexing\Product;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Api\Entity\Dbal\EntityDefinitionQueryHelper;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 use Shopware\Framework\Doctrine\MultiInsertQueryQueue;
 use Shopware\Framework\Struct\Uuid;
@@ -21,7 +21,7 @@ class CategoryAssignmentUpdater
         $this->connection = $connection;
     }
 
-    public function update(array $ids, ShopContext $context): void
+    public function update(array $ids, ApplicationContext $context): void
     {
         if (empty($ids)) {
             return;
@@ -74,7 +74,7 @@ class CategoryAssignmentUpdater
         $query->execute();
     }
 
-    private function fetchCategories(array $ids, ShopContext $context): array
+    private function fetchCategories(array $ids, ApplicationContext $context): array
     {
         $query = $this->connection->createQueryBuilder();
         $query->select([

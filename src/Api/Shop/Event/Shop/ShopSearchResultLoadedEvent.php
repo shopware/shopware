@@ -3,7 +3,7 @@
 namespace Shopware\Api\Shop\Event\Shop;
 
 use Shopware\Api\Shop\Struct\ShopSearchResult;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class ShopSearchResultLoadedEvent extends NestedEvent
@@ -25,7 +25,7 @@ class ShopSearchResultLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ShopContext
+    public function getContext(): ApplicationContext
     {
         return $this->result->getContext();
     }

@@ -5,7 +5,7 @@ namespace Shopware\Api\Entity\Search;
 use Shopware\Api\Entity\Entity;
 use Shopware\Api\Entity\EntityCollection;
 use Shopware\Api\Entity\Search\Aggregation\AggregationResultCollection;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Struct\ArrayStruct;
 
 trait SearchResultTrait
@@ -35,7 +35,7 @@ trait SearchResultTrait
         return $this->idResult->getCriteria();
     }
 
-    public function getContext(): ShopContext
+    public function getContext(): ApplicationContext
     {
         return $this->idResult->getContext();
     }

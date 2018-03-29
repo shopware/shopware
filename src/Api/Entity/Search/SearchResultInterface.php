@@ -3,7 +3,7 @@
 namespace Shopware\Api\Entity\Search;
 
 use Shopware\Api\Entity\Search\Aggregation\AggregationResultCollection;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 
 interface SearchResultInterface
 {
@@ -13,7 +13,7 @@ interface SearchResultInterface
 
     public function getCriteria(): Criteria;
 
-    public function getContext(): ShopContext;
+    public function getContext(): ApplicationContext;
 
     public function getAggregationResult(): ?AggregatorResult;
 

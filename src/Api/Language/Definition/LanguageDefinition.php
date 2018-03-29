@@ -83,7 +83,7 @@ class LanguageDefinition extends EntityDefinition
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
             new ManyToOneAssociationField('parent', 'parent_id', LanguageDefinition::class, false),
-            new ManyToOneAssociationField('locale', 'locale_id', LocaleDefinition::class, false),
+            new ManyToOneAssociationField('locale', 'locale_id', LocaleDefinition::class, true),
             new ChildrenAssociationField(self::class),
             (new TranslationsAssociationField('categoryTranslations', CategoryTranslationDefinition::class, 'language_id', false, 'id'))->setFlags(new WriteOnly(), new CascadeDelete()),
             (new TranslationsAssociationField('countryAreaTranslations', CountryAreaTranslationDefinition::class, 'language_id', false, 'id'))->setFlags(new WriteOnly(), new CascadeDelete()),

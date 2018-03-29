@@ -17,6 +17,7 @@ use Shopware\Cart\Order\OrderPersisterInterface;
 use Shopware\CartBridge\Product\ProductProcessor;
 use Shopware\CartBridge\Service\StoreFrontCartService;
 use Shopware\Context\Struct\StorefrontContext;
+use Shopware\Framework\Application\ApplicationResolver;
 use Shopware\Framework\Struct\Uuid;
 use Shopware\Rest\Response\Type\JsonType;
 use Shopware\StorefrontApi\Context\StorefrontContextPersister;
@@ -109,9 +110,9 @@ class CheckoutController extends Controller
         $this->persister->delete($user->getContext()->getToken(), self::CART_NAME);
 
         return new JsonResponse(
-            [ApplicationAuthenticator::CONTEXT_TOKEN_KEY => $user->getContextToken()],
+            [ApplicationResolver::CONTEXT_HEADER => $user->getContextToken()],
             JsonResponse::HTTP_OK,
-            [ApplicationAuthenticator::CONTEXT_TOKEN_KEY => $user->getContextToken()]
+            [ApplicationResolver::CONTEXT_HEADER => $user->getContextToken()]
         );
     }
 
@@ -256,7 +257,7 @@ class CheckoutController extends Controller
 
         $orderId = array_shift($ids);
 
-        $order = $this->orderRepository->readDetail([$orderId], $user->getContext()->getShopContext());
+        $order = $this->orderRepository->readDetail([$orderId], $user->getContext()->getApplicationContext());
 
         $this->contextPersister->save($user->getContextToken(), ['cartToken' => null]);
 

@@ -3,7 +3,7 @@
 namespace Shopware\Api\Country\Event\CountryState;
 
 use Shopware\Api\Country\Struct\CountryStateSearchResult;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class CountryStateSearchResultLoadedEvent extends NestedEvent
@@ -25,7 +25,7 @@ class CountryStateSearchResultLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ShopContext
+    public function getContext(): ApplicationContext
     {
         return $this->result->getContext();
     }

@@ -3,7 +3,7 @@
 namespace Shopware\Api\Config\Event\ConfigFormFieldTranslation;
 
 use Shopware\Api\Config\Collection\ConfigFormFieldTranslationBasicCollection;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class ConfigFormFieldTranslationBasicLoadedEvent extends NestedEvent
@@ -11,7 +11,7 @@ class ConfigFormFieldTranslationBasicLoadedEvent extends NestedEvent
     public const NAME = 'config_form_field_translation.basic.loaded';
 
     /**
-     * @var ShopContext
+     * @var ApplicationContext
      */
     protected $context;
 
@@ -20,7 +20,7 @@ class ConfigFormFieldTranslationBasicLoadedEvent extends NestedEvent
      */
     protected $configFormFieldTranslations;
 
-    public function __construct(ConfigFormFieldTranslationBasicCollection $configFormFieldTranslations, ShopContext $context)
+    public function __construct(ConfigFormFieldTranslationBasicCollection $configFormFieldTranslations, ApplicationContext $context)
     {
         $this->context = $context;
         $this->configFormFieldTranslations = $configFormFieldTranslations;
@@ -31,7 +31,7 @@ class ConfigFormFieldTranslationBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ShopContext
+    public function getContext(): ApplicationContext
     {
         return $this->context;
     }

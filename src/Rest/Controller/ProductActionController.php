@@ -5,7 +5,7 @@ namespace Shopware\Rest\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Api\Product\Definition\ProductDefinition;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Product\Service\VariantGenerator;
 use Shopware\Rest\Context\RestContext;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -29,7 +29,7 @@ class ProductActionController extends Controller
      * @Method({"POST"})
      *
      * @param string      $productId
-     * @param ShopContext $context
+     * @param ApplicationContext $context
      *
      * @throws \Shopware\Product\Exception\NoConfiguratorFoundException
      * @throws \Shopware\Product\Exception\ProductNotFoundException
@@ -41,7 +41,7 @@ class ProductActionController extends Controller
         $offset = $request->query->get('offset', null);
         $limit = $request->query->get('limit', null);
 
-        $events = $this->generator->generate($productId, $context->getShopContext(), $offset, $limit);
+        $events = $this->generator->generate($productId, $context->getApplicationContext(), $offset, $limit);
 
         $event = $events->getEventByDefinition(ProductDefinition::class);
 

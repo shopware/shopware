@@ -5,7 +5,7 @@ namespace Shopware\DbalIndexing\Search;
 use Shopware\Api\Entity\Search\Term\SearchFilterInterface;
 use Shopware\Api\Entity\Search\Term\TokenizerInterface;
 use Shopware\Api\Product\Struct\ProductBasicStruct;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 
 class LanguageAnalyzer implements SearchAnalyzerInterface
 {
@@ -25,7 +25,7 @@ class LanguageAnalyzer implements SearchAnalyzerInterface
         $this->filter = $filter;
     }
 
-    public function analyze(ProductBasicStruct $product, ShopContext $context): array
+    public function analyze(ProductBasicStruct $product, ApplicationContext $context): array
     {
         $tokens = [];
         $tokens = $this->mergeTokens($tokens, $this->tokenizer->tokenize((string) $product->getName()), 500);

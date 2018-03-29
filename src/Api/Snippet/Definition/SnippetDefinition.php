@@ -2,6 +2,7 @@
 
 namespace Shopware\Api\Snippet\Definition;
 
+use Shopware\Api\Application\Definition\ApplicationDefinition;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\Field\BoolField;
@@ -55,8 +56,7 @@ class SnippetDefinition extends EntityDefinition
 
         self::$fields = new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('shop_id', 'shopId', ShopDefinition::class))->setFlags(new Required()),
-            (new ReferenceVersionField(ShopDefinition::class))->setFlags(new Required()),
+            (new FkField('application_id', 'applicationId', ApplicationDefinition::class))->setFlags(new Required()),
             (new StringField('namespace', 'namespace'))->setFlags(new Required(), new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
             (new StringField('locale', 'locale'))->setFlags(new Required()),
             (new StringField('name', 'name'))->setFlags(new Required(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
@@ -64,7 +64,7 @@ class SnippetDefinition extends EntityDefinition
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
             new BoolField('dirty', 'dirty'),
-            new ManyToOneAssociationField('shop', 'shop_id', ShopDefinition::class, false),
+            new ManyToOneAssociationField('application', 'application_id', ApplicationDefinition::class, false),
         ]);
 
         foreach (self::$extensions as $extension) {

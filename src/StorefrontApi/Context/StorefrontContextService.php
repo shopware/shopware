@@ -31,7 +31,7 @@ use Shopware\Context\Service\ContextFactoryInterface;
 use Shopware\Context\Service\ContextRuleLoader;
 use Shopware\Context\Struct\CheckoutScope;
 use Shopware\Context\Struct\CustomerScope;
-use Shopware\Context\Struct\ShopScope;
+use Shopware\Context\Struct\ApplicationScope;
 use Shopware\Context\Struct\StorefrontContext;
 use Symfony\Component\Serializer\SerializerInterface;
 
@@ -43,6 +43,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 class StorefrontContextService implements StorefrontContextServiceInterface
 {
     public const CURRENCY_ID = 'currencyId';
+    public const LANGUAGE_ID = 'languageId';
     public const CUSTOMER_ID = 'customerId';
     public const CUSTOMER_GROUP_ID = 'customerGroupId';
     public const BILLING_ADDRESS_ID = 'billingAddressId';
@@ -125,29 +126,9 @@ class StorefrontContextService implements StorefrontContextServiceInterface
 
         $parameters = $this->contextPersister->load($token);
 
-        $shopScope = new ShopScope(
-            $applicationId,
-            $parameters[self::CURRENCY_ID] ?? null
-        );
+        $cacheKey = $this->getCacheKey($parameters);
 
-        $customerScope = new CustomerScope(
-            $parameters[self::CUSTOMER_ID] ?? null,
-            $parameters[self::CUSTOMER_GROUP_ID] ?? null,
-            $parameters[self::BILLING_ADDRESS_ID] ?? null,
-            $parameters[self::SHIPPING_ADDRESS_ID] ?? null
-        );
-
-        $checkoutScope = new CheckoutScope(
-            $parameters[self::PAYMENT_METHOD_ID] ?? null,
-            $parameters[self::SHIPPING_METHOD_ID] ?? null,
-            $parameters[self::COUNTRY_ID] ?? null,
-            $parameters[self::STATE_ID] ?? null,
-            $token
-        );
-
-        $inputKey = $this->getCacheKey($shopScope, $customerScope, $checkoutScope);
-
-        $cacheItem = $this->cache->getItem($inputKey);
+        $cacheItem = $this->cache->getItem($cacheKey);
 
         if ($useCache && $context = $cacheItem->get()) {
             try {
@@ -157,11 +138,12 @@ class StorefrontContextService implements StorefrontContextServiceInterface
             }
         }
 
-        $context = $this->factory->create($token, $shopScope, $customerScope, $checkoutScope);
+        $context = $this->factory->create($token, $applicationId, $parameters);
 
-        $this->writeCache($context, $cacheItem);
+        $cacheItem->set($context);
+        $this->cache->save($cacheItem);
 
-        $rules = $this->contextRuleLoader->loadMatchingRules($context, $checkoutScope->getCartToken());
+        $rules = $this->contextRuleLoader->loadMatchingRules($context, $token);
         $context->setContextRulesIds($rules->getIds());
         $context->lockRules();
 
@@ -179,7 +161,8 @@ class StorefrontContextService implements StorefrontContextServiceInterface
         /** @var StorefrontContext $cacheContext */
         $context = new StorefrontContext(
             $token,
-            $cacheContext->getShop(),
+            $cacheContext->getApplication(),
+            $cacheContext->getLanguage(),
             $cacheContext->getCurrency(),
             $cacheContext->getCurrentCustomerGroup(),
             $cacheContext->getFallbackCustomerGroup(),
@@ -202,27 +185,15 @@ class StorefrontContextService implements StorefrontContextServiceInterface
         return $context;
     }
 
-    private function getCacheKey(
-        ShopScope $shopScope,
-        CustomerScope $customerScope,
-        CheckoutScope $checkoutScope
-    ): string {
-        return md5(
-            json_encode($shopScope) .
-            json_encode($customerScope) .
-            json_encode([
-                $checkoutScope->getShippingMethodId(),
-                $checkoutScope->getPaymentMethodId(),
-                $checkoutScope->getCountryId(),
-                $checkoutScope->getStateId(),
-            ])
-        );
+    private function getCacheKey(array $parameters): string
+    {
+        return md5(json_encode($parameters));
     }
 
-    private function writeCache(StorefrontContext $context, CacheItemInterface $cacheItem): void
+    private function writeCache(array $parameters, CacheItemInterface $cacheItem): void
     {
-        $outputKey = $this->getCacheKey(
-            ShopScope::createFromContext($context),
+        $outputKey = $this->getCacheKey($context->
+            ApplicationScope::createFromContext($context),
             CustomerScope::createFromContext($context),
             CheckoutScope::createFromContext($context)
         );

@@ -3,7 +3,7 @@
 namespace Shopware\Api\Mail\Event\Mail;
 
 use Shopware\Api\Mail\Struct\MailSearchResult;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class MailSearchResultLoadedEvent extends NestedEvent
@@ -25,7 +25,7 @@ class MailSearchResultLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ShopContext
+    public function getContext(): ApplicationContext
     {
         return $this->result->getContext();
     }

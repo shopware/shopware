@@ -7,8 +7,9 @@ use Ramsey\Uuid\Uuid;
 use Shopware\Api\Customer\Repository\CustomerRepository;
 use Shopware\Api\Product\Repository\ProductRepository;
 use Shopware\CartBridge\Product\ProductProcessor;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
+use Shopware\Framework\Application\ApplicationResolver;
 use Shopware\Rest\Test\ApiTestCase;
 use Shopware\StorefrontApi\Context\StorefrontContextValueResolver;
 use Shopware\StorefrontApi\Firewall\ApplicationAuthenticator;
@@ -64,7 +65,7 @@ class CheckoutControllerTest extends ApiTestCase
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'rate' => 17, 'name' => 'with id'],
             ],
-        ], ShopContext::createDefaultContext());
+        ], ApplicationContext::createDefaultContext());
 
         $client = $this->createCart();
 
@@ -107,7 +108,7 @@ class CheckoutControllerTest extends ApiTestCase
                 'manufacturerId' => $this->manufacturerId,
                 'taxId' => $this->taxId,
             ],
-        ], ShopContext::createDefaultContext());
+        ], ApplicationContext::createDefaultContext());
 
         $client = $this->createCart();
 
@@ -145,7 +146,7 @@ class CheckoutControllerTest extends ApiTestCase
                 'manufacturerId' => $this->manufacturerId,
                 'taxId' => $this->taxId,
             ],
-        ], ShopContext::createDefaultContext());
+        ], ApplicationContext::createDefaultContext());
 
         $client = $this->createCart();
 
@@ -191,7 +192,7 @@ class CheckoutControllerTest extends ApiTestCase
                 'manufacturerId' => $this->manufacturerId,
                 'taxId' => $this->taxId,
             ],
-        ], ShopContext::createDefaultContext());
+        ], ApplicationContext::createDefaultContext());
 
         $client = $this->createCart();
 
@@ -234,7 +235,7 @@ class CheckoutControllerTest extends ApiTestCase
                 'manufacturerId' => $this->manufacturerId,
                 'taxId' => $this->taxId,
             ],
-        ], ShopContext::createDefaultContext());
+        ], ApplicationContext::createDefaultContext());
 
         $client = $this->createCart();
 
@@ -281,7 +282,7 @@ class CheckoutControllerTest extends ApiTestCase
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'rate' => 17, 'name' => 'with id'],
             ],
-        ], ShopContext::createDefaultContext());
+        ], ApplicationContext::createDefaultContext());
 
         $client = $this->createCart();
 
@@ -315,7 +316,7 @@ class CheckoutControllerTest extends ApiTestCase
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'rate' => 17, 'name' => 'with id'],
             ],
-        ], ShopContext::createDefaultContext());
+        ], ApplicationContext::createDefaultContext());
 
         $addressId = Uuid::uuid4()->getHex();
 
@@ -328,7 +329,7 @@ class CheckoutControllerTest extends ApiTestCase
 
         $this->customerRepository->create([
             [
-                'shopId' => Defaults::SHOP,
+                'shopId' => Defaults::APPLICATION,
                 'defaultShippingAddress' => [
                     'id' => $addressId,
                     'firstName' => 'not',
@@ -353,7 +354,7 @@ class CheckoutControllerTest extends ApiTestCase
                 'salutation' => 'not',
                 'number' => 'not',
             ],
-        ], ShopContext::createDefaultContext());
+        ], ApplicationContext::createDefaultContext());
 
         $client = $this->createCart();
 
@@ -385,7 +386,7 @@ class CheckoutControllerTest extends ApiTestCase
         $content = json_decode($client->getResponse()->getContent(), true);
 
         return $this->getCartClient(
-            $content[ApplicationAuthenticator::CONTEXT_TOKEN_KEY]
+            $content[ApplicationResolver::CONTEXT_HEADER]
         );
     }
 
@@ -403,11 +404,11 @@ class CheckoutControllerTest extends ApiTestCase
         $headers = [
             'CONTENT_TYPE' => 'application/json',
             'HTTP_ACCEPT' => ['application/json'],
-            'HTTP_X_APPLICATION_ID' => Defaults::SHOP
+            'HTTP_X_SW_ACCESS_KEY' => Defaults::APPLICATION
         ];
 
         if ($token !== null) {
-            $headers['HTTP_X_CONTEXT_TOKEN'] = $token;
+            $headers['HTTP_X_SW_CONTEXT'] = $token;
         }
 
         return self::createClient(

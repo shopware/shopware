@@ -6,7 +6,7 @@ use Shopware\Api\Category\Collection\CategoryDetailCollection;
 use Shopware\Api\Category\Event\CategoryTranslation\CategoryTranslationBasicLoadedEvent;
 use Shopware\Api\Media\Event\Media\MediaBasicLoadedEvent;
 use Shopware\Api\Product\Event\ProductStream\ProductStreamBasicLoadedEvent;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 
@@ -15,7 +15,7 @@ class CategoryDetailLoadedEvent extends NestedEvent
     public const NAME = 'category.detail.loaded';
 
     /**
-     * @var ShopContext
+     * @var ApplicationContext
      */
     protected $context;
 
@@ -24,7 +24,7 @@ class CategoryDetailLoadedEvent extends NestedEvent
      */
     protected $categories;
 
-    public function __construct(CategoryDetailCollection $categories, ShopContext $context)
+    public function __construct(CategoryDetailCollection $categories, ApplicationContext $context)
     {
         $this->context = $context;
         $this->categories = $categories;
@@ -35,7 +35,7 @@ class CategoryDetailLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ShopContext
+    public function getContext(): ApplicationContext
     {
         return $this->context;
     }

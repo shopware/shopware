@@ -3,7 +3,7 @@
 namespace Shopware\Api\Listing\Event\ListingFacetTranslation;
 
 use Shopware\Api\Entity\Search\AggregatorResult;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class ListingFacetTranslationAggregationResultLoadedEvent extends NestedEvent
@@ -25,7 +25,7 @@ class ListingFacetTranslationAggregationResultLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ShopContext
+    public function getContext(): ApplicationContext
     {
         return $this->result->getContext();
     }

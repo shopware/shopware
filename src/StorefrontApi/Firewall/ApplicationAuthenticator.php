@@ -3,6 +3,7 @@
 namespace Shopware\StorefrontApi\Firewall;
 
 use Ramsey\Uuid\Uuid;
+use Shopware\Framework\Application\ApplicationResolver;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
@@ -16,19 +17,19 @@ use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
 
 class ApplicationAuthenticator extends AbstractGuardAuthenticator
 {
-    public const APPLICATION_ID = 'x-application-id';
-    public const CONTEXT_TOKEN_KEY = 'x-context-token';
+    public const APPLICATION_ACCESS_KEY = 'x-sw-access-key';
+    public const APPLICATION_CONFIGURATION = '_application_config';
 
     public function createToken(Request $request, $providerKey)
     {
-        $apiKey = $request->headers->get(self::APPLICATION_ID);
+        $apiKey = $request->headers->get(self::APPLICATION_ACCESS_KEY);
 
         if (!$apiKey) {
             throw new BadCredentialsException();
         }
 
-        if ($request->headers->has(self::CONTEXT_TOKEN_KEY)) {
-            $contextKey = $request->headers->get(self::CONTEXT_TOKEN_KEY);
+        if ($request->headers->has(ApplicationResolver::CONTEXT_HEADER)) {
+            $contextKey = $request->headers->get(ApplicationResolver::CONTEXT_HEADER);
         } else {
             $contextKey = Uuid::uuid4()->toString();
         }
@@ -89,7 +90,7 @@ class ApplicationAuthenticator extends AbstractGuardAuthenticator
      */
     public function start(Request $request, AuthenticationException $authException = null)
     {
-        if ($request->headers->has(self::APPLICATION_ID) === false) {
+        if ($request->headers->has(self::APPLICATION_ACCESS_KEY) === false) {
             throw new UnauthorizedHttpException('header', 'Header "X-Application-Id" is required to access the storefront api.');
         }
 
@@ -107,7 +108,7 @@ class ApplicationAuthenticator extends AbstractGuardAuthenticator
      */
     public function supports(Request $request)
     {
-        return $request->headers->has(self::APPLICATION_ID);
+        return $request->headers->has(self::APPLICATION_ACCESS_KEY);
     }
 
     /**
@@ -135,14 +136,14 @@ class ApplicationAuthenticator extends AbstractGuardAuthenticator
      */
     public function getCredentials(Request $request)
     {
-        if ($request->headers->has(self::CONTEXT_TOKEN_KEY)) {
-            $contextKey = $request->headers->get(self::CONTEXT_TOKEN_KEY);
+        if ($request->headers->has(ApplicationResolver::CONTEXT_HEADER)) {
+            $contextKey = $request->headers->get(ApplicationResolver::CONTEXT_HEADER);
         } else {
             $contextKey = Uuid::uuid4()->toString();
         }
 
         return new ApplicationToken(
-            $request->headers->get(self::APPLICATION_ID),
+            $request->headers->get(self::APPLICATION_ACCESS_KEY),
             $contextKey
         );
     }

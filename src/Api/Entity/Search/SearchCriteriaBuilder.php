@@ -10,7 +10,7 @@ use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\Entity\Search\Sorting\FieldSorting;
 use Shopware\Api\Entity\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Api\Entity\Search\Term\SearchTermInterpreter;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
@@ -33,7 +33,7 @@ class SearchCriteriaBuilder
         $this->entityScoreQueryBuilder = $entityScoreQueryBuilder;
     }
 
-    public function handleRequest(Request $request, string $definition, ShopContext $context): Criteria
+    public function handleRequest(Request $request, string $definition, ApplicationContext $context): Criteria
     {
         switch ($request->getMethod()) {
             case 'POST':
@@ -52,7 +52,7 @@ class SearchCriteriaBuilder
         return new Criteria();
     }
 
-    private function fromArray(array $payload, string $definition, ShopContext $context): Criteria
+    private function fromArray(array $payload, string $definition, ApplicationContext $context): Criteria
     {
         $criteria = new Criteria();
         $criteria->setFetchCount(Criteria::FETCH_COUNT_TOTAL);

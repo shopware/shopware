@@ -8,4 +8,4 @@ docker-compose build && docker-compose up -d
 wait
 
 echo "All containers started successfully"
-echo "Web server IP: http://__SW_HOST____SW_BASE_PATH__"
+echo "Web server IP: http://__APP_URL__"

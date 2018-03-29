@@ -9,7 +9,7 @@ use Shopware\Api\Entity\RepositoryInterface;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Api\Entity\Search\Term\SearchTermInterpreter;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -69,7 +69,7 @@ class CustomerRepositoryTest extends KernelTestCase
         $records = [
             [
                 'id' => $recordA,
-                'shopId' => Defaults::SHOP,
+                'shopId' => Defaults::APPLICATION,
                 'defaultShippingAddress' => $address,
                 'defaultPaymentMethodId' => 'e84976ac-e9ab-4928-a3dc-c387b66dbaa6',
                 'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
@@ -82,7 +82,7 @@ class CustomerRepositoryTest extends KernelTestCase
             ],
             [
                 'id' => $recordB,
-                'shopId' => Defaults::SHOP,
+                'shopId' => Defaults::APPLICATION,
                 'defaultShippingAddress' => $address,
                 'defaultPaymentMethodId' => 'e84976ac-e9ab-4928-a3dc-c387b66dbaa6',
                 'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
@@ -95,7 +95,7 @@ class CustomerRepositoryTest extends KernelTestCase
             ],
             [
                 'id' => $recordC,
-                'shopId' => Defaults::SHOP,
+                'shopId' => Defaults::APPLICATION,
                 'defaultShippingAddress' => $address,
                 'defaultPaymentMethodId' => 'e84976ac-e9ab-4928-a3dc-c387b66dbaa6',
                 'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
@@ -108,7 +108,7 @@ class CustomerRepositoryTest extends KernelTestCase
             ],
             [
                 'id' => $recordD,
-                'shopId' => Defaults::SHOP,
+                'shopId' => Defaults::APPLICATION,
                 'defaultShippingAddress' => $address,
                 'defaultPaymentMethodId' => 'e84976ac-e9ab-4928-a3dc-c387b66dbaa6',
                 'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
@@ -121,16 +121,16 @@ class CustomerRepositoryTest extends KernelTestCase
             ],
         ];
 
-        $this->repository->create($records, ShopContext::createDefaultContext());
+        $this->repository->create($records, ApplicationContext::createDefaultContext());
 
         $criteria = new Criteria();
 
         $builder = $this->container->get(EntityScoreQueryBuilder::class);
-        $pattern = $this->container->get(SearchTermInterpreter::class)->interpret('match', ShopContext::createDefaultContext());
+        $pattern = $this->container->get(SearchTermInterpreter::class)->interpret('match', ApplicationContext::createDefaultContext());
         $queries = $builder->buildScoreQueries($pattern, CustomerDefinition::class, CustomerDefinition::getEntityName());
         $criteria->addQueries($queries);
 
-        $result = $this->repository->searchIds($criteria, ShopContext::createDefaultContext());
+        $result = $this->repository->searchIds($criteria, ApplicationContext::createDefaultContext());
 
         $this->assertCount(4, $result->getIds());
 

@@ -3,7 +3,7 @@
 namespace Shopware\DbalIndexing\Search;
 
 use Shopware\Api\Product\Struct\ProductBasicStruct;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 
 class SearchAnalyzerRegistry
 {
@@ -17,7 +17,7 @@ class SearchAnalyzerRegistry
         $this->analyzers = $analyzers;
     }
 
-    public function analyze(ProductBasicStruct $product, ShopContext $context): array
+    public function analyze(ProductBasicStruct $product, ApplicationContext $context): array
     {
         $collection = [];
 

@@ -5,7 +5,7 @@ namespace Shopware\Api\Entity\Field;
 use Shopware\Api\Entity\Write\DataStack\KeyValuePair;
 use Shopware\Api\Entity\Write\EntityExistence;
 use Shopware\Api\Entity\Write\FieldAware\SqlParseAware;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 
 class ContextPricesJsonField extends JsonObjectField implements SqlParseAware
@@ -30,7 +30,7 @@ class ContextPricesJsonField extends JsonObjectField implements SqlParseAware
         yield $this->storageName => $value;
     }
 
-    public function parse(string $root, ShopContext $context): string
+    public function parse(string $root, ApplicationContext $context): string
     {
         $keys = $context->getContextRules();
 

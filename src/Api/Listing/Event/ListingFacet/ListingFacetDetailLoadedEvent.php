@@ -4,7 +4,7 @@ namespace Shopware\Api\Listing\Event\ListingFacet;
 
 use Shopware\Api\Listing\Collection\ListingFacetDetailCollection;
 use Shopware\Api\Listing\Event\ListingFacetTranslation\ListingFacetTranslationBasicLoadedEvent;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 
@@ -13,7 +13,7 @@ class ListingFacetDetailLoadedEvent extends NestedEvent
     public const NAME = 'listing_facet.detail.loaded';
 
     /**
-     * @var ShopContext
+     * @var ApplicationContext
      */
     protected $context;
 
@@ -22,7 +22,7 @@ class ListingFacetDetailLoadedEvent extends NestedEvent
      */
     protected $listingFacets;
 
-    public function __construct(ListingFacetDetailCollection $listingFacets, ShopContext $context)
+    public function __construct(ListingFacetDetailCollection $listingFacets, ApplicationContext $context)
     {
         $this->context = $context;
         $this->listingFacets = $listingFacets;
@@ -33,7 +33,7 @@ class ListingFacetDetailLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ShopContext
+    public function getContext(): ApplicationContext
     {
         return $this->context;
     }

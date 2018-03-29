@@ -24,7 +24,7 @@
 
 namespace Shopware\Framework\Event;
 
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Struct\JsonSerializableTrait;
 use Symfony\Component\EventDispatcher\Event;
 
@@ -34,7 +34,7 @@ abstract class NestedEvent extends Event implements \JsonSerializable
 
     abstract public function getName(): string;
 
-    abstract public function getContext(): ShopContext;
+    abstract public function getContext(): ApplicationContext;
 
     /**
      * @return NestedEventCollection|null

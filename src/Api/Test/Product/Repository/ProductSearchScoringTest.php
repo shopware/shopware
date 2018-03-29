@@ -10,7 +10,7 @@ use Shopware\Api\Entity\Search\Term\SearchPattern;
 use Shopware\Api\Entity\Search\Term\SearchTerm;
 use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Api\Product\Repository\ProductRepository;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Struct\ArrayStruct;
 use Shopware\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -48,7 +48,7 @@ class ProductSearchScoringTest extends KernelTestCase
         $criteria = new Criteria();
         $criteria->addQueries($queries);
 
-        $context = ShopContext::createDefaultContext();
+        $context = ApplicationContext::createDefaultContext();
         $this->repository->create([
             ['id' => Uuid::uuid4()->getHex(), 'name' => 'product 1 test', 'tax' => ['name' => 'test', 'rate' => 5], 'manufacturer' => ['name' => 'test'], 'price' => ['gross' => 10, 'net' => 9]],
             ['id' => Uuid::uuid4()->getHex(), 'name' => 'product 2 test', 'tax' => ['name' => 'test', 'rate' => 5], 'manufacturer' => ['name' => 'test'], 'price' => ['gross' => 10, 'net' => 9]],

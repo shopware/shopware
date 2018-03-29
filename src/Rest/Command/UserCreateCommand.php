@@ -5,7 +5,7 @@ namespace Shopware\Rest\Command;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\User\Repository\UserRepository;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Struct\Uuid;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -81,7 +81,7 @@ class UserCreateCommand extends Command
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('user.username', $username));
 
-        $result = $this->userRepository->searchIds($criteria, ShopContext::createDefaultContext());
+        $result = $this->userRepository->searchIds($criteria, ApplicationContext::createDefaultContext());
 
         return $result->getTotal() > 0;
     }
@@ -91,7 +91,7 @@ class UserCreateCommand extends Command
         $encoder = $this->encoderFactory->getEncoder(User::class);
         $password = $encoder->encodePassword($password, $username);
 
-        $context = ShopContext::createDefaultContext();
+        $context = ApplicationContext::createDefaultContext();
 
         $this->userRepository->create([
             [

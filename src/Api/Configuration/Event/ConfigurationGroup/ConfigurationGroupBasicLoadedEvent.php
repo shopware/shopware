@@ -3,7 +3,7 @@
 namespace Shopware\Api\Configuration\Event\ConfigurationGroup;
 
 use Shopware\Api\Configuration\Collection\ConfigurationGroupBasicCollection;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class ConfigurationGroupBasicLoadedEvent extends NestedEvent
@@ -11,7 +11,7 @@ class ConfigurationGroupBasicLoadedEvent extends NestedEvent
     public const NAME = 'configuration_group.basic.loaded';
 
     /**
-     * @var ShopContext
+     * @var ApplicationContext
      */
     protected $context;
 
@@ -20,7 +20,7 @@ class ConfigurationGroupBasicLoadedEvent extends NestedEvent
      */
     protected $configurationGroups;
 
-    public function __construct(ConfigurationGroupBasicCollection $configurationGroups, ShopContext $context)
+    public function __construct(ConfigurationGroupBasicCollection $configurationGroups, ApplicationContext $context)
     {
         $this->context = $context;
         $this->configurationGroups = $configurationGroups;
@@ -31,7 +31,7 @@ class ConfigurationGroupBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ShopContext
+    public function getContext(): ApplicationContext
     {
         return $this->context;
     }

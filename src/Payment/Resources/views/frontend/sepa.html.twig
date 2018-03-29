@@ -4,7 +4,7 @@
             <input name="sepaIban"
                    type="text"
                    id="iban"
-                   placeholder="{% trans from 'frontend/plugins/payment/sepa' %}PaymentSepaLabelIban{% endtrans %}{% trans from 'frontend/register/index' %}RequiredField{% endtrans %}"
+                   placeholder="{% trans from 'frontend' %}plugins/payment/sepa.PaymentSepaLabelIban{% endtrans %}{% trans from 'frontend' %}register/index.RequiredField{% endtrans %}"
                    {#value="{$form_data.sSepaIban|escape}"#}
                    {#class="is--required{if $error_flags.sSepaIban} has--error{/if}"#}
                    class="is--required"
@@ -17,7 +17,7 @@
                    type="text"
                    id="bic"
                    {#placeholder="{s namespace='frontend/plugins/payment/sepa' name='PaymentSepaLabelBic'}{/s}{if {config name=sepaRequireBic}}{s name="RequiredField" namespace="frontend/register/index"}{/s}{/if}"#}
-                   placeholder="{% trans from 'frontend/plugins/payment/sepa' %}PaymentSepaLabelBic{% endtrans %}"
+                   placeholder="{% trans from 'frontend' %}plugins/payment/sepa.PaymentSepaLabelBic{% endtrans %}"
                    {#value="{$form_data.sSepaBic|escape}"#}
                    {#class="{if {config name=sepaRequireBic}}is--required {/if}{if $error_flags.sSepaBic} has--error{/if}"#}
                    {#{if $payment_mean.id == $form_data.payment && {config name=sepaRequireBic}}required="required" aria-required="true"{/if} />#}
@@ -30,7 +30,7 @@
                    type="text"
                    id="bank"
                    {#placeholder="{s namespace='frontend/plugins/payment/sepa' name='PaymentSepaLabelBankName'}{/s}{if {config name=sepaRequireBankName}}{s name="RequiredField" namespace="frontend/register/index"}{/s}{/if}"#}
-                   placeholder="{% trans from 'frontend/plugins/payment/sepa' %}PaymentSepaLabelBankName{% endtrans %}"
+                   placeholder="{% trans from 'frontend' %}plugins/payment/sepa.PaymentSepaLabelBankName{% endtrans %}"
                    {#value="{$form_data.sSepaBankName|escape}"#}
                    {#class="{if {config name=sepaRequireBankName}}is--required {/if}{if $error_flags.sSepaBankName} has--error{/if}"#}
                    {#{if $payment_mean.id == $form_data.payment  && {config name=sepaRequireBankName}}required="required" aria-required="true"{/if} />#}
@@ -46,7 +46,7 @@
             {#class="checkbox{if $error_flags.sSepaBankHolder} has--error{/if}"/>#}
             class="checkbox"/>
             <label for="usebilling" style="float:none; width:100%; display:inline">
-                {% trans from 'frontend/plugins/payment/sepa' %}PaymentSepaLabelUseBillingData{% endtrans %}
+                {% trans from 'frontend' %}plugins/payment/sepa.PaymentSepaLabelUseBillingData{% endtrans %}
             </label>
         </p>
         {#{/if}#}

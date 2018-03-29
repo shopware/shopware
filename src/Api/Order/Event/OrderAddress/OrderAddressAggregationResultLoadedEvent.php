@@ -3,7 +3,7 @@
 namespace Shopware\Api\Order\Event\OrderAddress;
 
 use Shopware\Api\Entity\Search\AggregatorResult;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class OrderAddressAggregationResultLoadedEvent extends NestedEvent
@@ -25,7 +25,7 @@ class OrderAddressAggregationResultLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ShopContext
+    public function getContext(): ApplicationContext
     {
         return $this->result->getContext();
     }

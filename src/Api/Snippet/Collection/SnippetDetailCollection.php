@@ -2,6 +2,7 @@
 
 namespace Shopware\Api\Snippet\Collection;
 
+use Shopware\Api\Application\Collection\ApplicationBasicCollection;
 use Shopware\Api\Shop\Collection\ShopBasicCollection;
 use Shopware\Api\Snippet\Struct\SnippetDetailStruct;
 
@@ -12,11 +13,11 @@ class SnippetDetailCollection extends SnippetBasicCollection
      */
     protected $elements = [];
 
-    public function getShops(): ShopBasicCollection
+    public function getApplications(): ApplicationBasicCollection
     {
-        return new ShopBasicCollection(
+        return new ApplicationBasicCollection(
             $this->fmap(function (SnippetDetailStruct $snippet) {
-                return $snippet->getShop();
+                return $snippet->getApplication();
             })
         );
     }

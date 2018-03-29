@@ -78,11 +78,10 @@ const:
   DB_HOST: "localhost"
   DB_NAME: "shopware"
   DB_PORT: "3306"
-  SW_HOST: "your-shop.com"  
-  SW_BASE_PATH: ""
-  PHP_VERSION: "7.1"
+  APP_URL: "http://shop.com"
 ``` 
 Please replace the provided credentials with your own. After that you can provision your installation via psh.phar:
+
 ```bash
 ./psh.phar init
 ```
@@ -93,7 +92,7 @@ If you want to download and install our demo images, execute the following comma
 ./psh.phar install-demoimages
 ``` 
 
-You can now access your shop. If you want to install Shopware in a sub directory, please fill out the setting `SW_BASE PATH` with your installation path e.g. for example `/sub/direcory`. If you're seeing an Apache directory listing, then you have to modify your `SW_BASE_PATH` and append `/web` to the given path. Please keep in mind that you have to re-run `./psh.phar init` when you're modifying your `.psh.yaml.override` file.
+You can now access your shop.
 
 # Administration
 

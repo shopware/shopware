@@ -2,13 +2,13 @@
 
 namespace Shopware\Api\Entity\Write\FieldAware;
 
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 
 /**
  * Allows to parse the field access by your own. Helpful if the field contains json or other nested data
- * which related to the provided ShopContext.
+ * which related to the provided ApplicationContext.
  */
 interface SqlParseAware
 {
-    public function parse(string $selection, ShopContext $context): string;
+    public function parse(string $selection, ApplicationContext $context): string;
 }

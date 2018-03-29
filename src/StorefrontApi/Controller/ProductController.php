@@ -51,14 +51,14 @@ class ProductController extends Controller
         /** @var ContextUser $user */
         $user = $this->getUser();
 
-        $criteria = $this->criteriaBuilder->handleRequest($request, ProductDefinition::class, $user->getContext()->getShopContext());
+        $criteria = $this->criteriaBuilder->handleRequest($request, ProductDefinition::class, $user->getContext()->getApplicationContext());
 
         $result = $this->repository->search($criteria, $user->getContext());
 
         return $this->responseFactory->createListingResponse(
             $result,
             ProductDefinition::class,
-            new RestContext($request, $user->getContext()->getShopContext(), null)
+            new RestContext($request, $user->getContext()->getApplicationContext(), null)
         );
     }
 
@@ -79,7 +79,7 @@ class ProductController extends Controller
         return $this->responseFactory->createDetailResponse(
             $products->get($productId),
             ProductDefinition::class,
-            new RestContext($request, $user->getContext()->getShopContext(), null)
+            new RestContext($request, $user->getContext()->getApplicationContext(), null)
         );
     }
 }

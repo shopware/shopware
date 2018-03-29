@@ -42,7 +42,7 @@ class TemplateFinder
         }
 
         $namespaces = $this->loader->getNamespaces();
-        
+
         foreach ($namespaces as $namespace) {
             if ($namespace[0] === '!' || $namespace === '__main__') {
                 continue;
@@ -74,7 +74,7 @@ class TemplateFinder
         if (!$wholeInheritance && array_key_exists($template, $this->queue)) {
             $queue = $this->queue[$template];
         }
-        if (empty($queue)) {
+        if (empty($queue) || $wholeInheritance === true) {
             $queue = $this->queue[$template] = $this->directories;
         }
 
@@ -88,6 +88,6 @@ class TemplateFinder
             }
         }
 
-        throw new \Twig_Error_Loader(sprintf('Unable to load template "%s".', $template));
+        throw new \Twig_Error_Loader(sprintf('Unable to load template "%s". (Looked into: %s)', $template, implode(', ', array_values($queue))));
     }
 }

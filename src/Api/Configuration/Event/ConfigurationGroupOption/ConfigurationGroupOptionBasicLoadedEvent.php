@@ -4,7 +4,7 @@ namespace Shopware\Api\Configuration\Event\ConfigurationGroupOption;
 
 use Shopware\Api\Configuration\Collection\ConfigurationGroupOptionBasicCollection;
 use Shopware\Api\Configuration\Event\ConfigurationGroup\ConfigurationGroupBasicLoadedEvent;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 
@@ -13,7 +13,7 @@ class ConfigurationGroupOptionBasicLoadedEvent extends NestedEvent
     public const NAME = 'configuration_group_option.basic.loaded';
 
     /**
-     * @var ShopContext
+     * @var ApplicationContext
      */
     protected $context;
 
@@ -22,7 +22,7 @@ class ConfigurationGroupOptionBasicLoadedEvent extends NestedEvent
      */
     protected $configurationGroupOptions;
 
-    public function __construct(ConfigurationGroupOptionBasicCollection $configurationGroupOptions, ShopContext $context)
+    public function __construct(ConfigurationGroupOptionBasicCollection $configurationGroupOptions, ApplicationContext $context)
     {
         $this->context = $context;
         $this->configurationGroupOptions = $configurationGroupOptions;
@@ -33,7 +33,7 @@ class ConfigurationGroupOptionBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ShopContext
+    public function getContext(): ApplicationContext
     {
         return $this->context;
     }

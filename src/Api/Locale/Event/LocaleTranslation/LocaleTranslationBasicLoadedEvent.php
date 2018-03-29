@@ -3,7 +3,7 @@
 namespace Shopware\Api\Locale\Event\LocaleTranslation;
 
 use Shopware\Api\Locale\Collection\LocaleTranslationBasicCollection;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class LocaleTranslationBasicLoadedEvent extends NestedEvent
@@ -11,7 +11,7 @@ class LocaleTranslationBasicLoadedEvent extends NestedEvent
     public const NAME = 'locale_translation.basic.loaded';
 
     /**
-     * @var ShopContext
+     * @var ApplicationContext
      */
     protected $context;
 
@@ -20,7 +20,7 @@ class LocaleTranslationBasicLoadedEvent extends NestedEvent
      */
     protected $localeTranslations;
 
-    public function __construct(LocaleTranslationBasicCollection $localeTranslations, ShopContext $context)
+    public function __construct(LocaleTranslationBasicCollection $localeTranslations, ApplicationContext $context)
     {
         $this->context = $context;
         $this->localeTranslations = $localeTranslations;
@@ -31,7 +31,7 @@ class LocaleTranslationBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ShopContext
+    public function getContext(): ApplicationContext
     {
         return $this->context;
     }

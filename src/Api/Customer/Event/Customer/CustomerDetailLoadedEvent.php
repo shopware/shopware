@@ -2,13 +2,14 @@
 
 namespace Shopware\Api\Customer\Event\Customer;
 
+use Shopware\Api\Application\Event\Application\ApplicationBasicLoadedEvent;
 use Shopware\Api\Customer\Collection\CustomerDetailCollection;
 use Shopware\Api\Customer\Event\CustomerAddress\CustomerAddressBasicLoadedEvent;
 use Shopware\Api\Customer\Event\CustomerGroup\CustomerGroupBasicLoadedEvent;
 use Shopware\Api\Order\Event\Order\OrderBasicLoadedEvent;
 use Shopware\Api\Payment\Event\PaymentMethod\PaymentMethodBasicLoadedEvent;
 use Shopware\Api\Shop\Event\Shop\ShopBasicLoadedEvent;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 
@@ -17,7 +18,7 @@ class CustomerDetailLoadedEvent extends NestedEvent
     public const NAME = 'customer.detail.loaded';
 
     /**
-     * @var ShopContext
+     * @var ApplicationContext
      */
     protected $context;
 
@@ -26,7 +27,7 @@ class CustomerDetailLoadedEvent extends NestedEvent
      */
     protected $customers;
 
-    public function __construct(CustomerDetailCollection $customers, ShopContext $context)
+    public function __construct(CustomerDetailCollection $customers, ApplicationContext $context)
     {
         $this->context = $context;
         $this->customers = $customers;
@@ -37,7 +38,7 @@ class CustomerDetailLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ShopContext
+    public function getContext(): ApplicationContext
     {
         return $this->context;
     }
@@ -56,8 +57,8 @@ class CustomerDetailLoadedEvent extends NestedEvent
         if ($this->customers->getDefaultPaymentMethods()->count() > 0) {
             $events[] = new PaymentMethodBasicLoadedEvent($this->customers->getDefaultPaymentMethods(), $this->context);
         }
-        if ($this->customers->getShops()->count() > 0) {
-            $events[] = new ShopBasicLoadedEvent($this->customers->getShops(), $this->context);
+        if ($this->customers->getApplications()->count() > 0) {
+            $events[] = new ApplicationBasicLoadedEvent($this->customers->getApplications(), $this->context);
         }
         if ($this->customers->getLastPaymentMethods()->count() > 0) {
             $events[] = new PaymentMethodBasicLoadedEvent($this->customers->getLastPaymentMethods(), $this->context);

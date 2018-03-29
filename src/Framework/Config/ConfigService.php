@@ -55,9 +55,9 @@ class ConfigService implements ConfigServiceInterface
             ->leftJoin('e', 'config_form_field_value', 'parentShop', 'parentShop.config_form_field_id = e.id AND parentShop.shop_id = :parentShopId')
             ->leftJoin('e', 'config_form_field_value', 'fallbackShop', 'fallbackShop.config_form_field_id = e.id AND fallbackShop.shop_id = :fallbackShopId')
             ->leftJoin('e', 'config_form', 'forms', 'forms.id = e.config_form_id')
-            ->setParameter('fallbackShopId', Uuid::fromStringToBytes(Defaults::SHOP))
+            ->setParameter('fallbackShopId', Uuid::fromStringToBytes(Defaults::APPLICATION))
             ->setParameter('currentShopId', Uuid::fromStringToBytes($shopId))
-            ->setParameter('parentShopId', $parentId ? Uuid::fromStringToBytes($parentId) : Uuid::fromStringToBytes(Defaults::SHOP))
+            ->setParameter('parentShopId', $parentId ? Uuid::fromStringToBytes($parentId) : Uuid::fromStringToBytes(Defaults::APPLICATION))
         ;
 
         $data = $builder->execute()->fetchAll(\PDO::FETCH_KEY_PAIR);

@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Entity\Write;
 
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 
@@ -19,7 +19,7 @@ abstract class WrittenEvent extends NestedEvent
     protected $errors;
 
     /**
-     * @var ShopContext
+     * @var ApplicationContext
      */
     protected $context;
 
@@ -36,7 +36,7 @@ abstract class WrittenEvent extends NestedEvent
     public function __construct(
         array $ids,
         array $payload,
-        ShopContext $context,
+        ApplicationContext $context,
         array $errors = []
     ) {
         $this->events = new NestedEventCollection();
@@ -48,7 +48,7 @@ abstract class WrittenEvent extends NestedEvent
 
     abstract public function getDefinition(): string;
 
-    public function getContext(): ShopContext
+    public function getContext(): ApplicationContext
     {
         return $this->context;
     }

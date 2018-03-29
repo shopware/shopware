@@ -2,6 +2,7 @@
 
 namespace Shopware\Api\Country\Definition;
 
+use Shopware\Api\Application\Definition\ApplicationDefinition;
 use Shopware\Api\Country\Collection\CountryBasicCollection;
 use Shopware\Api\Country\Collection\CountryDetailCollection;
 use Shopware\Api\Country\Event\Country\CountryDeletedEvent;
@@ -83,6 +84,7 @@ class CountryDefinition extends EntityDefinition
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
             new ManyToOneAssociationField('area', 'country_area_id', CountryAreaDefinition::class, false),
+            (new OneToManyAssociationField('applications', ApplicationDefinition::class, 'country_id', false, 'id'))->setFlags(new RestrictDelete()),
             (new OneToManyAssociationField('states', CountryStateDefinition::class, 'country_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField('translations', CountryTranslationDefinition::class, 'country_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
             (new OneToManyAssociationField('customerAddresses', CustomerAddressDefinition::class, 'country_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),

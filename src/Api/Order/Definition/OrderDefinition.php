@@ -2,6 +2,7 @@
 
 namespace Shopware\Api\Order\Definition;
 
+use Shopware\Api\Application\Definition\ApplicationDefinition;
 use Shopware\Api\Currency\Definition\CurrencyDefinition;
 use Shopware\Api\Customer\Definition\CustomerDefinition;
 use Shopware\Api\Entity\EntityDefinition;
@@ -75,8 +76,7 @@ class OrderDefinition extends EntityDefinition
             (new FkField('currency_id', 'currencyId', CurrencyDefinition::class))->setFlags(new Required()),
             (new ReferenceVersionField(CurrencyDefinition::class))->setFlags(new Required()),
 
-            (new FkField('shop_id', 'shopId', ShopDefinition::class))->setFlags(new Required()),
-            (new ReferenceVersionField(ShopDefinition::class))->setFlags(new Required()),
+            (new FkField('application_id', 'applicationId', ApplicationDefinition::class))->setFlags(new Required()),
 
             (new FkField('billing_address_id', 'billingAddressId', OrderAddressDefinition::class))->setFlags(new Required()),
             (new ReferenceVersionField(OrderAddressDefinition::class, 'billing_address_version_id'))->setFlags(new Required()),
@@ -95,7 +95,7 @@ class OrderDefinition extends EntityDefinition
             new ManyToOneAssociationField('state', 'order_state_id', OrderStateDefinition::class, true),
             (new ManyToOneAssociationField('paymentMethod', 'payment_method_id', PaymentMethodDefinition::class, true))->setFlags(new SearchRanking(self::ASSOCIATION_SEARCH_RANKING)),
             new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, true),
-            new ManyToOneAssociationField('shop', 'shop_id', ShopDefinition::class, true),
+            new ManyToOneAssociationField('application', 'application_id', ApplicationDefinition::class, true),
             (new ManyToOneAssociationField('billingAddress', 'billing_address_id', OrderAddressDefinition::class, true))->setFlags(new SearchRanking(self::ASSOCIATION_SEARCH_RANKING)),
             (new OneToManyAssociationField('deliveries', OrderDeliveryDefinition::class, 'order_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new OneToManyAssociationField('lineItems', OrderLineItemDefinition::class, 'order_id', false, 'id'))->setFlags(new CascadeDelete(), new SearchRanking(self::ASSOCIATION_SEARCH_RANKING)),

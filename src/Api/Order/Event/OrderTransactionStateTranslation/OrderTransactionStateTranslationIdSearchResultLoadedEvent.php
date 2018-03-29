@@ -3,7 +3,7 @@
 namespace Shopware\Api\Order\Event\OrderTransactionStateTranslation;
 
 use Shopware\Api\Entity\Search\IdSearchResult;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class OrderTransactionStateTranslationIdSearchResultLoadedEvent extends NestedEvent
@@ -25,7 +25,7 @@ class OrderTransactionStateTranslationIdSearchResultLoadedEvent extends NestedEv
         return self::NAME;
     }
 
-    public function getContext(): ShopContext
+    public function getContext(): ApplicationContext
     {
         return $this->result->getContext();
     }

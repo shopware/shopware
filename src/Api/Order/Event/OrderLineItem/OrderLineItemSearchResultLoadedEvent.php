@@ -3,7 +3,7 @@
 namespace Shopware\Api\Order\Event\OrderLineItem;
 
 use Shopware\Api\Order\Struct\OrderLineItemSearchResult;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class OrderLineItemSearchResultLoadedEvent extends NestedEvent
@@ -25,7 +25,7 @@ class OrderLineItemSearchResultLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ShopContext
+    public function getContext(): ApplicationContext
     {
         return $this->result->getContext();
     }

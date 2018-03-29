@@ -3,7 +3,7 @@
 namespace Shopware\Api\Unit\Event\Unit;
 
 use Shopware\Api\Unit\Collection\UnitBasicCollection;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class UnitBasicLoadedEvent extends NestedEvent
@@ -11,7 +11,7 @@ class UnitBasicLoadedEvent extends NestedEvent
     public const NAME = 'unit.basic.loaded';
 
     /**
-     * @var ShopContext
+     * @var ApplicationContext
      */
     protected $context;
 
@@ -20,7 +20,7 @@ class UnitBasicLoadedEvent extends NestedEvent
      */
     protected $units;
 
-    public function __construct(UnitBasicCollection $units, ShopContext $context)
+    public function __construct(UnitBasicCollection $units, ApplicationContext $context)
     {
         $this->context = $context;
         $this->units = $units;
@@ -31,7 +31,7 @@ class UnitBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ShopContext
+    public function getContext(): ApplicationContext
     {
         return $this->context;
     }

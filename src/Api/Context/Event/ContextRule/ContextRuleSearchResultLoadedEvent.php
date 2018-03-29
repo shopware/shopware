@@ -3,7 +3,7 @@
 namespace Shopware\Api\Context\Event\ContextRule;
 
 use Shopware\Api\Context\Struct\ContextRuleSearchResult;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class ContextRuleSearchResultLoadedEvent extends NestedEvent
@@ -25,7 +25,7 @@ class ContextRuleSearchResultLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ShopContext
+    public function getContext(): ApplicationContext
     {
         return $this->result->getContext();
     }

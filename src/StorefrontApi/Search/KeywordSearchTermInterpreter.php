@@ -7,7 +7,7 @@ use Psr\Log\LoggerInterface;
 use Shopware\Api\Entity\Search\Term\SearchPattern;
 use Shopware\Api\Entity\Search\Term\SearchTerm;
 use Shopware\Api\Entity\Search\Term\TokenizerInterface;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Struct\Uuid;
 
 class KeywordSearchTermInterpreter
@@ -34,7 +34,7 @@ class KeywordSearchTermInterpreter
         $this->logger = $logger;
     }
 
-    public function interpret(string $word, ShopContext $context): SearchPattern
+    public function interpret(string $word, ApplicationContext $context): SearchPattern
     {
         $tokens = $this->tokenizer->tokenize($word);
 
@@ -103,7 +103,7 @@ class KeywordSearchTermInterpreter
         return $slops;
     }
 
-    private function fetchKeywords(ShopContext $context, array $slops): array
+    private function fetchKeywords(ApplicationContext $context, array $slops): array
     {
         $query = $this->connection->createQueryBuilder();
         $query->select('keyword');
@@ -129,7 +129,7 @@ class KeywordSearchTermInterpreter
         return $query->execute()->fetchAll(\PDO::FETCH_COLUMN);
     }
 
-    private function score(array $tokens, array $matches, ShopContext $context): array
+    private function score(array $tokens, array $matches, ApplicationContext $context): array
     {
         $scoring = [];
 

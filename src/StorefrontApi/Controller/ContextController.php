@@ -11,6 +11,7 @@ use Shopware\Api\Payment\Repository\PaymentMethodRepository;
 use Shopware\Api\Shipping\Repository\ShippingMethodRepository;
 use Shopware\CartBridge\Exception\NotLoggedInCustomerException;
 use Shopware\Context\Struct\StorefrontContext;
+use Shopware\Framework\Application\ApplicationResolver;
 use Shopware\StorefrontApi\Context\StorefrontContextPersister;
 use Shopware\StorefrontApi\Context\StorefrontContextValueResolver;
 use Shopware\StorefrontApi\Exception\AddressNotFoundHttpException;
@@ -88,7 +89,7 @@ class ContextController extends Controller
         $this->contextPersister->save($context->getToken(), $update);
 
         return new JsonResponse([
-            ApplicationAuthenticator::CONTEXT_TOKEN_KEY => $context->getToken(),
+            ApplicationResolver::CONTEXT_HEADER => $context->getToken(),
         ]);
     }
 

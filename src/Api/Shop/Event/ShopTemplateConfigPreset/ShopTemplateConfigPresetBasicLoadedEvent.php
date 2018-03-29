@@ -3,7 +3,7 @@
 namespace Shopware\Api\Shop\Event\ShopTemplateConfigPreset;
 
 use Shopware\Api\Shop\Collection\ShopTemplateConfigPresetBasicCollection;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class ShopTemplateConfigPresetBasicLoadedEvent extends NestedEvent
@@ -11,7 +11,7 @@ class ShopTemplateConfigPresetBasicLoadedEvent extends NestedEvent
     public const NAME = 'shop_template_config_preset.basic.loaded';
 
     /**
-     * @var ShopContext
+     * @var ApplicationContext
      */
     protected $context;
 
@@ -20,7 +20,7 @@ class ShopTemplateConfigPresetBasicLoadedEvent extends NestedEvent
      */
     protected $shopTemplateConfigPresets;
 
-    public function __construct(ShopTemplateConfigPresetBasicCollection $shopTemplateConfigPresets, ShopContext $context)
+    public function __construct(ShopTemplateConfigPresetBasicCollection $shopTemplateConfigPresets, ApplicationContext $context)
     {
         $this->context = $context;
         $this->shopTemplateConfigPresets = $shopTemplateConfigPresets;
@@ -31,7 +31,7 @@ class ShopTemplateConfigPresetBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ShopContext
+    public function getContext(): ApplicationContext
     {
         return $this->context;
     }

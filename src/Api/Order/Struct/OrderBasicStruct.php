@@ -2,6 +2,7 @@
 
 namespace Shopware\Api\Order\Struct;
 
+use Shopware\Api\Application\Struct\ApplicationBasicStruct;
 use Shopware\Api\Currency\Struct\CurrencyBasicStruct;
 use Shopware\Api\Customer\Struct\CustomerBasicStruct;
 use Shopware\Api\Entity\Entity;
@@ -33,7 +34,7 @@ class OrderBasicStruct extends Entity
     /**
      * @var string
      */
-    protected $shopId;
+    protected $applicationId;
 
     /**
      * @var string
@@ -111,9 +112,9 @@ class OrderBasicStruct extends Entity
     protected $currency;
 
     /**
-     * @var ShopBasicStruct
+     * @var ApplicationBasicStruct
      */
-    protected $shop;
+    protected $application;
 
     /**
      * @var OrderAddressBasicStruct
@@ -160,14 +161,14 @@ class OrderBasicStruct extends Entity
         $this->currencyId = $currencyId;
     }
 
-    public function getShopId(): string
+    public function getApplicationId(): string
     {
-        return $this->shopId;
+        return $this->applicationId;
     }
 
-    public function setShopId(string $shopId): void
+    public function setApplicationId(string $applicationId): void
     {
-        $this->shopId = $shopId;
+        $this->applicationId = $applicationId;
     }
 
     public function getBillingAddressId(): string
@@ -320,14 +321,14 @@ class OrderBasicStruct extends Entity
         $this->currency = $currency;
     }
 
-    public function getShop(): ShopBasicStruct
+    public function getApplication(): ApplicationBasicStruct
     {
-        return $this->shop;
+        return $this->application;
     }
 
-    public function setShop(ShopBasicStruct $shop): void
+    public function setApplication(ApplicationBasicStruct $application): void
     {
-        $this->shop = $shop;
+        $this->application = $application;
     }
 
     public function getBillingAddress(): OrderAddressBasicStruct

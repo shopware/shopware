@@ -158,12 +158,12 @@ class EntityWriter implements EntityWriterInterface
                 }
 
                 if ($field instanceof ReferenceVersionField) {
-                    $mapped[$field->getStorageName()] = $writeContext->getShopContext()->getVersionId();
+                    $mapped[$field->getStorageName()] = $writeContext->getApplicationContext()->getVersionId();
                     continue;
                 }
 
                 if ($field instanceof VersionField) {
-                    $mapped[$field->getStorageName()] = $writeContext->getShopContext()->getVersionId();
+                    $mapped[$field->getStorageName()] = $writeContext->getApplicationContext()->getVersionId();
                     continue;
                 }
 
@@ -177,7 +177,7 @@ class EntityWriter implements EntityWriterInterface
 
         $instance = new $definition();
         if (!$instance instanceof MappingEntityDefinition) {
-            $restrictions = $this->foreignKeyResolver->getAffectedDeleteRestrictions($definition, $resolved, $writeContext->getShopContext());
+            $restrictions = $this->foreignKeyResolver->getAffectedDeleteRestrictions($definition, $resolved, $writeContext->getApplicationContext());
 
             if (!empty($restrictions)) {
                 $restrictions = array_map(function ($restriction) {
@@ -190,7 +190,7 @@ class EntityWriter implements EntityWriterInterface
 
         $cascades = [];
         if (!$instance instanceof MappingEntityDefinition) {
-            $cascadeDeletes = $this->foreignKeyResolver->getAffectedDeletes($definition, $resolved, $writeContext->getShopContext());
+            $cascadeDeletes = $this->foreignKeyResolver->getAffectedDeletes($definition, $resolved, $writeContext->getApplicationContext());
 
             $cascadeDeletes = array_column($cascadeDeletes, 'restrictions');
             foreach ($cascadeDeletes as $cascadeDelete) {

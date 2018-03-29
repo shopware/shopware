@@ -5,7 +5,7 @@ namespace Shopware\Api\Product\Event\ProductService;
 use Shopware\Api\Configuration\Event\ConfigurationGroupOption\ConfigurationGroupOptionBasicLoadedEvent;
 use Shopware\Api\Product\Collection\ProductServiceBasicCollection;
 use Shopware\Api\Tax\Event\Tax\TaxBasicLoadedEvent;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 
@@ -14,7 +14,7 @@ class ProductServiceBasicLoadedEvent extends NestedEvent
     public const NAME = 'product_service.basic.loaded';
 
     /**
-     * @var ShopContext
+     * @var ApplicationContext
      */
     protected $context;
 
@@ -23,7 +23,7 @@ class ProductServiceBasicLoadedEvent extends NestedEvent
      */
     protected $productServices;
 
-    public function __construct(ProductServiceBasicCollection $productServices, ShopContext $context)
+    public function __construct(ProductServiceBasicCollection $productServices, ApplicationContext $context)
     {
         $this->context = $context;
         $this->productServices = $productServices;
@@ -34,7 +34,7 @@ class ProductServiceBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ShopContext
+    public function getContext(): ApplicationContext
     {
         return $this->context;
     }

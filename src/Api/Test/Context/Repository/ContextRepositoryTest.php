@@ -7,7 +7,7 @@ use Shopware\Api\Context\Repository\ContextRuleRepository;
 use Shopware\Api\Entity\RepositoryInterface;
 use Shopware\Context\Rule\Container\AndRule;
 use Shopware\Context\Rule\Container\OrRule;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -30,7 +30,7 @@ class ContextRepositoryTest extends KernelTestCase
     private $repository;
 
     /**
-     * @var ShopContext
+     * @var ApplicationContext
      */
     private $context;
 
@@ -40,7 +40,7 @@ class ContextRepositoryTest extends KernelTestCase
         $this->container = self::$kernel->getContainer();
         $this->repository = $this->container->get(ContextRuleRepository::class);
         $this->connection = $this->container->get(Connection::class);
-        $this->context = ShopContext::createDefaultContext();
+        $this->context = ApplicationContext::createDefaultContext();
         $this->connection->beginTransaction();
     }
 

@@ -6,7 +6,7 @@ use Shopware\Api\Order\Collection\OrderTransactionBasicCollection;
 use Shopware\Api\Order\Repository\OrderRepository;
 use Shopware\Api\Order\Struct\OrderDetailStruct;
 use Shopware\Api\Payment\Repository\PaymentMethodRepository;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 use Shopware\Payment\Exception\InvalidOrderException;
 use Shopware\Payment\Exception\UnknownPaymentMethodException;
@@ -60,17 +60,17 @@ class PaymentProcessor
 
     /**
      * @param string      $orderId
-     * @param ShopContext $shopContext
+     * @param ApplicationContext $applicationContext
      *
      * @throws InvalidOrderException
      * @throws UnknownPaymentMethodException
      *
      * @return null|RedirectResponse
      */
-    public function process(string $orderId, ShopContext $shopContext): ?RedirectResponse
+    public function process(string $orderId, ApplicationContext $applicationContext): ?RedirectResponse
     {
         /** @var OrderDetailStruct $order */
-        $order = $this->orderRepository->readDetail([$orderId], $shopContext)->first();
+        $order = $this->orderRepository->readDetail([$orderId], $applicationContext)->first();
 
         if (!$order) {
             throw new InvalidOrderException($orderId);
@@ -92,9 +92,9 @@ class PaymentProcessor
                 $returnUrl
             );
 
-            $handler = $this->getPaymentHandlerById($transaction->getPaymentMethodId(), $shopContext);
+            $handler = $this->getPaymentHandlerById($transaction->getPaymentMethodId(), $applicationContext);
 
-            $response = $handler->pay($paymentTransaction, $shopContext);
+            $response = $handler->pay($paymentTransaction, $applicationContext);
             if ($response) {
                 return $response;
             }
@@ -103,7 +103,7 @@ class PaymentProcessor
         return null;
     }
 
-    private function getPaymentHandlerById(string $paymentMethodId, ShopContext $context): PaymentHandlerInterface
+    private function getPaymentHandlerById(string $paymentMethodId, ApplicationContext $context): PaymentHandlerInterface
     {
         $paymentMethods = $this->paymentMethodRepository->readBasic([$paymentMethodId], $context);
 

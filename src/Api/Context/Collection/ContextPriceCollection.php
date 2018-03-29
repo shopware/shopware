@@ -4,7 +4,7 @@ namespace Shopware\Api\Context\Collection;
 
 use Shopware\Api\Context\Struct\ContextPriceStruct;
 use Shopware\Api\Entity\EntityCollection;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 
 class ContextPriceCollection extends EntityCollection
 {
@@ -51,7 +51,7 @@ class ContextPriceCollection extends EntityCollection
         });
     }
 
-    public function getPriceRulesForContext(ShopContext $context): ?self
+    public function getPriceRulesForContext(ApplicationContext $context): ?self
     {
         foreach ($context->getContextRules() as $ruleId) {
             $rules = $this->filterByContextRuleId($ruleId);

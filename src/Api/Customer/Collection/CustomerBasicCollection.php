@@ -2,6 +2,7 @@
 
 namespace Shopware\Api\Customer\Collection;
 
+use Shopware\Api\Application\Collection\ApplicationBasicCollection;
 use Shopware\Api\Customer\Struct\CustomerBasicStruct;
 use Shopware\Api\Entity\EntityCollection;
 use Shopware\Api\Payment\Collection\PaymentMethodBasicCollection;
@@ -52,17 +53,17 @@ class CustomerBasicCollection extends EntityCollection
         });
     }
 
-    public function getShopIds(): array
+    public function getApplicationIds(): array
     {
         return $this->fmap(function (CustomerBasicStruct $customer) {
-            return $customer->getShopId();
+            return $customer->getApplicationId();
         });
     }
 
-    public function filterByShopId(string $id): self
+    public function filterByApplicationId(string $id): self
     {
         return $this->filter(function (CustomerBasicStruct $customer) use ($id) {
-            return $customer->getShopId() === $id;
+            return $customer->getApplicationId() === $id;
         });
     }
 
@@ -140,11 +141,11 @@ class CustomerBasicCollection extends EntityCollection
         );
     }
 
-    public function getShops(): ShopBasicCollection
+    public function getApplications(): ApplicationBasicCollection
     {
-        return new ShopBasicCollection(
+        return new ApplicationBasicCollection(
             $this->fmap(function (CustomerBasicStruct $customer) {
-                return $customer->getShop();
+                return $customer->getApplication();
             })
         );
     }

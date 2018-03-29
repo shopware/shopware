@@ -3,7 +3,7 @@
 namespace Shopware\Api\Entity\Search;
 
 use Shopware\Api\Entity\EntityCollection;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 
 class EntitySearchResult
 {
@@ -28,7 +28,7 @@ class EntitySearchResult
     protected $criteria;
 
     /**
-     * @var ShopContext
+     * @var ApplicationContext
      */
     protected $context;
 
@@ -37,7 +37,7 @@ class EntitySearchResult
         EntityCollection $entities,
         AggregatorResult $aggregations,
         Criteria $criteria,
-        ShopContext $context
+        ApplicationContext $context
     ) {
         $this->total = $total;
         $this->entities = $entities;

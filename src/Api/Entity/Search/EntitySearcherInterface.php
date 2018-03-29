@@ -2,9 +2,9 @@
 
 namespace Shopware\Api\Entity\Search;
 
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 
 interface EntitySearcherInterface
 {
-    public function search(string $definition, Criteria $criteria, ShopContext $context): IdSearchResult;
+    public function search(string $definition, Criteria $criteria, ApplicationContext $context): IdSearchResult;
 }

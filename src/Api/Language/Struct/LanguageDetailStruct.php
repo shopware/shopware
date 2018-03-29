@@ -37,16 +37,6 @@ class LanguageDetailStruct extends LanguageBasicStruct
         $this->parent = $parent;
     }
 
-    public function getLocale(): LocaleBasicStruct
-    {
-        return $this->locale;
-    }
-
-    public function setLocale(LocaleBasicStruct $locale): void
-    {
-        $this->locale = $locale;
-    }
-
     public function getChildren(): LanguageBasicCollection
     {
         return $this->children;

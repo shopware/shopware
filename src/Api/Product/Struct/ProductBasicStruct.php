@@ -12,7 +12,7 @@ use Shopware\Cart\Price\Struct\PriceDefinition;
 use Shopware\Cart\Price\Struct\PriceDefinitionCollection;
 use Shopware\Cart\Tax\Struct\PercentageTaxRule;
 use Shopware\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 
 class ProductBasicStruct extends Entity
 {
@@ -703,7 +703,6 @@ class ProductBasicStruct extends Entity
         $this->unit = $unit;
     }
 
-
     public function getContextPrices(): ProductContextPriceBasicCollection
     {
         return $this->contextPrices;
@@ -755,8 +754,7 @@ class ProductBasicStruct extends Entity
         $this->maxDeliveryTime = $maxDeliveryTime;
     }
 
-
-    public function getContextPriceDefinitions(ShopContext $context): PriceDefinitionCollection
+    public function getContextPriceDefinitions(ApplicationContext $context): PriceDefinitionCollection
     {
         $taxRules = $this->getTaxRuleCollection();
 
@@ -778,12 +776,12 @@ class ProductBasicStruct extends Entity
         return new PriceDefinitionCollection($definitions);
     }
 
-    public function getPriceDefinition(ShopContext $context): PriceDefinition
+    public function getPriceDefinition(ApplicationContext $context): PriceDefinition
     {
         return new PriceDefinition($this->getPrice()->getGross(), $this->getTaxRuleCollection(), 1, true);
     }
 
-    public function getListingPriceDefinition(ShopContext $context): PriceDefinition
+    public function getListingPriceDefinition(ApplicationContext $context): PriceDefinition
     {
         $taxRules = $this->getTaxRuleCollection();
 
@@ -813,7 +811,7 @@ class ProductBasicStruct extends Entity
         return new PriceDefinition($price->getPrice()->getGross(), $taxRules, 1, true);
     }
 
-    public function getPriceDefinitionForQuantity(ShopContext $context, int $quantity): PriceDefinition
+    public function getPriceDefinitionForQuantity(ApplicationContext $context, int $quantity): PriceDefinition
     {
         $taxRules = $this->getTaxRuleCollection();
 

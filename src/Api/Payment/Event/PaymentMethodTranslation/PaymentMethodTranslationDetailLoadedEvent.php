@@ -5,7 +5,7 @@ namespace Shopware\Api\Payment\Event\PaymentMethodTranslation;
 use Shopware\Api\Payment\Collection\PaymentMethodTranslationDetailCollection;
 use Shopware\Api\Payment\Event\PaymentMethod\PaymentMethodBasicLoadedEvent;
 use Shopware\Api\Shop\Event\Shop\ShopBasicLoadedEvent;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 
@@ -14,7 +14,7 @@ class PaymentMethodTranslationDetailLoadedEvent extends NestedEvent
     public const NAME = 'payment_method_translation.detail.loaded';
 
     /**
-     * @var ShopContext
+     * @var ApplicationContext
      */
     protected $context;
 
@@ -23,7 +23,7 @@ class PaymentMethodTranslationDetailLoadedEvent extends NestedEvent
      */
     protected $paymentMethodTranslations;
 
-    public function __construct(PaymentMethodTranslationDetailCollection $paymentMethodTranslations, ShopContext $context)
+    public function __construct(PaymentMethodTranslationDetailCollection $paymentMethodTranslations, ApplicationContext $context)
     {
         $this->context = $context;
         $this->paymentMethodTranslations = $paymentMethodTranslations;
@@ -34,7 +34,7 @@ class PaymentMethodTranslationDetailLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ShopContext
+    public function getContext(): ApplicationContext
     {
         return $this->context;
     }

@@ -4,7 +4,7 @@ namespace Shopware\StorefrontApi\Test\Firewall;
 
 use Ramsey\Uuid\Uuid;
 use Shopware\Api\Product\Repository\ProductRepository;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 use Shopware\Rest\Test\ApiTestCase;
 
@@ -53,7 +53,7 @@ class ApplicationAuthenticatorTest extends ApiTestCase
             [
                 'CONTENT_TYPE' => 'application/json',
                 'HTTP_ACCEPT' => ['application/json'],
-                'HTTP_X_APPLICATION_ID' => 'ffffffff-ffff-ffff-ffff-ffffffffffff'
+                'HTTP_X_SW_ACCESS_KEY' => 'ffffffff-ffff-ffff-ffff-ffffffffffff'
             ]
         );
 

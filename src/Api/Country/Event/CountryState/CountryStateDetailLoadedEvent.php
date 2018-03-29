@@ -5,7 +5,7 @@ namespace Shopware\Api\Country\Event\CountryState;
 use Shopware\Api\Country\Collection\CountryStateDetailCollection;
 use Shopware\Api\Country\Event\Country\CountryBasicLoadedEvent;
 use Shopware\Api\Country\Event\CountryStateTranslation\CountryStateTranslationBasicLoadedEvent;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 
@@ -14,7 +14,7 @@ class CountryStateDetailLoadedEvent extends NestedEvent
     public const NAME = 'country_state.detail.loaded';
 
     /**
-     * @var ShopContext
+     * @var ApplicationContext
      */
     protected $context;
 
@@ -23,7 +23,7 @@ class CountryStateDetailLoadedEvent extends NestedEvent
      */
     protected $countryStates;
 
-    public function __construct(CountryStateDetailCollection $countryStates, ShopContext $context)
+    public function __construct(CountryStateDetailCollection $countryStates, ApplicationContext $context)
     {
         $this->context = $context;
         $this->countryStates = $countryStates;
@@ -34,7 +34,7 @@ class CountryStateDetailLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ShopContext
+    public function getContext(): ApplicationContext
     {
         return $this->context;
     }

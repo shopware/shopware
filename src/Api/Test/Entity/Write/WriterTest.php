@@ -12,7 +12,7 @@ use Shopware\Api\Language\Repository\LanguageRepository;
 use Shopware\Api\Locale\Repository\LocaleRepository;
 use Shopware\Api\Product\Definition\ProductCategoryDefinition;
 use Shopware\Api\Product\Definition\ProductDefinition;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -441,11 +441,11 @@ class WriterTest extends KernelTestCase
         $localeId = Uuid::uuid4()->getHex();
         $this->container->get(LocaleRepository::class)->upsert([
             ['id' => $localeId, 'name' => 'test', 'territory' => 'tmp', 'code' => Uuid::uuid4()->getHex()],
-        ], ShopContext::createDefaultContext());
+        ], ApplicationContext::createDefaultContext());
 
         $this->container->get(LanguageRepository::class)->upsert([
             ['id' => '2d905256-e751-4967-8dd5-a32a81b94f1f', 'name' => 'language 2', 'localeId' => $localeId, 'localeVersionId' => Defaults::LIVE_VERSION],
-        ], ShopContext::createDefaultContext());
+        ], ApplicationContext::createDefaultContext());
 
         $this->getWriter()->update(
             ProductDefinition::class,
@@ -557,7 +557,7 @@ class WriterTest extends KernelTestCase
      */
     protected function createWriteContext(): WriteContext
     {
-        $context = WriteContext::createFromShopContext(ShopContext::createDefaultContext());
+        $context = WriteContext::createFromApplicationContext(ApplicationContext::createDefaultContext());
 
         return $context;
     }

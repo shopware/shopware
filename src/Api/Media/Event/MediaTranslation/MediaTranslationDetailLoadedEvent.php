@@ -5,7 +5,7 @@ namespace Shopware\Api\Media\Event\MediaTranslation;
 use Shopware\Api\Media\Collection\MediaTranslationDetailCollection;
 use Shopware\Api\Media\Event\Media\MediaBasicLoadedEvent;
 use Shopware\Api\Shop\Event\Shop\ShopBasicLoadedEvent;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 
@@ -14,7 +14,7 @@ class MediaTranslationDetailLoadedEvent extends NestedEvent
     public const NAME = 'media_translation.detail.loaded';
 
     /**
-     * @var ShopContext
+     * @var ApplicationContext
      */
     protected $context;
 
@@ -23,7 +23,7 @@ class MediaTranslationDetailLoadedEvent extends NestedEvent
      */
     protected $mediaTranslations;
 
-    public function __construct(MediaTranslationDetailCollection $mediaTranslations, ShopContext $context)
+    public function __construct(MediaTranslationDetailCollection $mediaTranslations, ApplicationContext $context)
     {
         $this->context = $context;
         $this->mediaTranslations = $mediaTranslations;
@@ -34,7 +34,7 @@ class MediaTranslationDetailLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ShopContext
+    public function getContext(): ApplicationContext
     {
         return $this->context;
     }

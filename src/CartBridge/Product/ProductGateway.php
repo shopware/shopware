@@ -43,6 +43,6 @@ class ProductGateway implements ProductGatewayInterface
 
     public function get(array $ids, StorefrontContext $context): ProductBasicCollection
     {
-        return $this->repository->readBasic($ids, $context->getShopContext());
+        return $this->repository->readBasic($ids, $context->getApplicationContext());
     }
 }

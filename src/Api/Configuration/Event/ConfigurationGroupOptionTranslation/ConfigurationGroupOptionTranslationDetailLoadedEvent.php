@@ -5,7 +5,7 @@ namespace Shopware\Api\Configuration\Event\ConfigurationGroupOptionTranslation;
 use Shopware\Api\Configuration\Collection\ConfigurationGroupOptionTranslationDetailCollection;
 use Shopware\Api\Configuration\Event\ConfigurationGroupOption\ConfigurationGroupOptionBasicLoadedEvent;
 use Shopware\Api\Shop\Event\Shop\ShopBasicLoadedEvent;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 
@@ -14,7 +14,7 @@ class ConfigurationGroupOptionTranslationDetailLoadedEvent extends NestedEvent
     public const NAME = 'configuration_group_option_translation.detail.loaded';
 
     /**
-     * @var ShopContext
+     * @var ApplicationContext
      */
     protected $context;
 
@@ -23,7 +23,7 @@ class ConfigurationGroupOptionTranslationDetailLoadedEvent extends NestedEvent
      */
     protected $configurationGroupOptionTranslations;
 
-    public function __construct(ConfigurationGroupOptionTranslationDetailCollection $configurationGroupOptionTranslations, ShopContext $context)
+    public function __construct(ConfigurationGroupOptionTranslationDetailCollection $configurationGroupOptionTranslations, ApplicationContext $context)
     {
         $this->context = $context;
         $this->configurationGroupOptionTranslations = $configurationGroupOptionTranslations;
@@ -34,7 +34,7 @@ class ConfigurationGroupOptionTranslationDetailLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ShopContext
+    public function getContext(): ApplicationContext
     {
         return $this->context;
     }

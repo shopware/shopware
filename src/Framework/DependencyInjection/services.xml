@@ -124,28 +124,16 @@
         </service>
 
         <!-- Routing -->
-        <service id="router" alias="Shopware\Framework\Routing\Router" public="true" />
-        <service id="Shopware\Framework\Routing\Router" class="Shopware\Framework\Routing\Router">
-            <argument type="service" id="service_container" />
-            <argument>%router.resource%</argument>
-            <argument type="collection">
-                <argument key="cache_dir">%kernel.cache_dir%</argument>
-                <argument key="debug">%kernel.debug%</argument>
-                <argument key="generator_class">Symfony\Component\Routing\Generator\UrlGenerator</argument>
-                <argument key="generator_base_class">Symfony\Component\Routing\Generator\UrlGenerator</argument>
-                <argument key="generator_dumper_class">Symfony\Component\Routing\Generator\Dumper\PhpGeneratorDumper</argument>
-                <argument key="generator_cache_class">%router.cache_class_prefix%UrlGenerator</argument>
-                <argument key="matcher_class">Symfony\Bundle\FrameworkBundle\Routing\RedirectableUrlMatcher</argument>
-                <argument key="matcher_base_class">Symfony\Bundle\FrameworkBundle\Routing\RedirectableUrlMatcher</argument>
-                <argument key="matcher_dumper_class">Symfony\Component\Routing\Matcher\Dumper\PhpMatcherDumper</argument>
-                <argument key="matcher_cache_class">%router.cache_class_prefix%UrlMatcher</argument>
-                <argument key="resource_type">service</argument>
-            </argument>
-            <argument type="service" id="router.request_context" on-invalid="ignore" />
-            <call method="setConfigCacheFactory">
-                <argument type="service" id="config_cache_factory" />
-            </call>
+        <service class="Shopware\Framework\Application\ApplicationResolver" id="Shopware\Framework\Application\ApplicationResolver">
+            <argument id="Doctrine\DBAL\Connection" type="service"/>
         </service>
+
+        <service class="Shopware\Framework\Routing\ApplicationSubscriber" id="Shopware\Framework\Routing\ApplicationSubscriber">
+            <argument id="Shopware\Framework\Application\ApplicationResolver" type="service"/>
+            <argument id="Shopware\StorefrontApi\Context\StorefrontContextService" type="service"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
 
         <!-- Twig -->
         <service class="Shopware\Framework\Twig\TemplateFinder" public="true" id="Shopware\Framework\Twig\TemplateFinder">

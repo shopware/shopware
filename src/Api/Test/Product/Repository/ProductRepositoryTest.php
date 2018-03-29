@@ -27,7 +27,7 @@ use Shopware\Api\Tax\Definition\TaxDefinition;
 use Shopware\Api\Tax\Event\Tax\TaxWrittenEvent;
 use Shopware\Api\Tax\Struct\TaxBasicStruct;
 use Shopware\Context\Rule\Container\AndRule;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -57,7 +57,7 @@ class ProductRepositoryTest extends KernelTestCase
     private $connection;
 
     /**
-     * @var ShopContext
+     * @var ApplicationContext
      */
     private $context;
 
@@ -71,7 +71,7 @@ class ProductRepositoryTest extends KernelTestCase
         $this->connection = $this->container->get(Connection::class);
         $this->connection->beginTransaction();
         $this->connection->executeUpdate('DELETE FROM product');
-        $this->context = ShopContext::createDefaultContext();
+        $this->context = ApplicationContext::createDefaultContext();
     }
 
     protected function tearDown()
@@ -265,7 +265,7 @@ class ProductRepositoryTest extends KernelTestCase
                 'tax' => ['name' => 'test', 'rate' => 19],
                 'manufacturer' => ['name' => 'test'],
             ],
-        ], ShopContext::createDefaultContext());
+        ], ApplicationContext::createDefaultContext());
 
         //validate that nested events are triggered
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
@@ -273,7 +273,7 @@ class ProductRepositoryTest extends KernelTestCase
         $this->eventDispatcher->addListener(ProductBasicLoadedEvent::NAME, $listener);
         $this->eventDispatcher->addListener(ProductManufacturerBasicLoadedEvent::NAME, $listener);
 
-        $products = $this->repository->readBasic([$id->getHex()], ShopContext::createDefaultContext());
+        $products = $this->repository->readBasic([$id->getHex()], ApplicationContext::createDefaultContext());
 
         //check only provided id loaded
         $this->assertCount(1, $products);
@@ -302,7 +302,7 @@ class ProductRepositoryTest extends KernelTestCase
         $this->container->get(ContextRuleRepository::class)->create([
             ['id' => $ruleA, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 1],
             ['id' => $ruleB, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 2],
-        ], ShopContext::createDefaultContext());
+        ], ApplicationContext::createDefaultContext());
 
         $id = Uuid::uuid4();
         $data = [
@@ -329,8 +329,8 @@ class ProductRepositoryTest extends KernelTestCase
             ],
         ];
 
-        $this->repository->create([$data], ShopContext::createDefaultContext());
-        $products = $this->repository->readBasic([$id->getHex()], ShopContext::createDefaultContext());
+        $this->repository->create([$data], ApplicationContext::createDefaultContext());
+        $products = $this->repository->readBasic([$id->getHex()], ApplicationContext::createDefaultContext());
 
         $this->assertInstanceOf(ProductBasicCollection::class, $products);
         $this->assertCount(1, $products);
@@ -363,7 +363,7 @@ class ProductRepositoryTest extends KernelTestCase
 
         $this->container->get(ContextRuleRepository::class)->create([
             ['id' => $ruleA, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 1],
-        ], ShopContext::createDefaultContext());
+        ], ApplicationContext::createDefaultContext());
 
         $data = [
             [
@@ -413,13 +413,13 @@ class ProductRepositoryTest extends KernelTestCase
             ],
         ];
 
-        $this->repository->create($data, ShopContext::createDefaultContext());
+        $this->repository->create($data, ApplicationContext::createDefaultContext());
 
         $criteria = new Criteria();
         $criteria->addSorting(new FieldSorting('product.contextPrices.price', FieldSorting::ASCENDING));
 
-        $context = new ShopContext(
-            Defaults::SHOP,
+        $context = new ApplicationContext(
+            Defaults::APPLICATION,
             [Defaults::CATALOG],
             [$ruleA],
             Defaults::CURRENCY,
@@ -473,10 +473,10 @@ class ProductRepositoryTest extends KernelTestCase
             ['id' => $greenId, 'price' => $greenPrice, 'parentId' => $parentId],
         ];
 
-        $this->repository->create($products, ShopContext::createDefaultContext());
+        $this->repository->create($products, ApplicationContext::createDefaultContext());
 
-        $products = $this->repository->readBasic([$redId, $greenId], ShopContext::createDefaultContext());
-        $parents = $this->repository->readBasic([$parentId], ShopContext::createDefaultContext());
+        $products = $this->repository->readBasic([$redId, $greenId], ApplicationContext::createDefaultContext());
+        $parents = $this->repository->readBasic([$parentId], ApplicationContext::createDefaultContext());
 
         $this->assertTrue($parents->has($parentId));
         $this->assertTrue($products->has($redId));
@@ -526,9 +526,9 @@ class ProductRepositoryTest extends KernelTestCase
             ['id' => $id, 'name' => 'Update', 'price' => ['gross' => 12, 'net' => 10]],
         ];
 
-        $this->repository->upsert($data, ShopContext::createDefaultContext());
+        $this->repository->upsert($data, ApplicationContext::createDefaultContext());
 
-        $products = $this->repository->readBasic([$id], ShopContext::createDefaultContext());
+        $products = $this->repository->readBasic([$id], ApplicationContext::createDefaultContext());
         $this->assertTrue($products->has($id));
 
         /** @var ProductBasicStruct $product */
@@ -551,9 +551,9 @@ class ProductRepositoryTest extends KernelTestCase
             ['id' => $child, 'parentId' => $id, 'name' => 'Update', 'price' => ['gross' => 12, 'net' => 11]],
         ];
 
-        $this->repository->upsert($data, ShopContext::createDefaultContext());
+        $this->repository->upsert($data, ApplicationContext::createDefaultContext());
 
-        $products = $this->repository->readBasic([$id, $child], ShopContext::createDefaultContext());
+        $products = $this->repository->readBasic([$id, $child], ApplicationContext::createDefaultContext());
         $this->assertTrue($products->has($id));
         $this->assertTrue($products->has($child));
 
@@ -569,7 +569,7 @@ class ProductRepositoryTest extends KernelTestCase
 
         $e = null;
         try {
-            $this->repository->upsert($data, ShopContext::createDefaultContext());
+            $this->repository->upsert($data, ApplicationContext::createDefaultContext());
         } catch (\Exception $e) {
         }
         $this->assertInstanceOf(WriteStackException::class, $e);
@@ -590,7 +590,7 @@ class ProductRepositoryTest extends KernelTestCase
             ],
         ];
 
-        $this->repository->upsert($data, ShopContext::createDefaultContext());
+        $this->repository->upsert($data, ApplicationContext::createDefaultContext());
 
         $raw = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', [
             'id' => Uuid::fromStringToBytes($child),
@@ -598,7 +598,7 @@ class ProductRepositoryTest extends KernelTestCase
 
         $this->assertNull($raw['parent_id']);
 
-        $products = $this->repository->readBasic([$child], ShopContext::createDefaultContext());
+        $products = $this->repository->readBasic([$child], ApplicationContext::createDefaultContext());
         $product = $products->get($child);
 
         /* @var ProductBasicStruct $product */
@@ -633,10 +633,10 @@ class ProductRepositoryTest extends KernelTestCase
             ['id' => $greenId, 'parentId' => $parentId, 'tax' => ['id' => $greenTax, 'rate' => 13, 'name' => 'green']],
         ];
 
-        $this->repository->create($products, ShopContext::createDefaultContext());
+        $this->repository->create($products, ApplicationContext::createDefaultContext());
 
-        $products = $this->repository->readBasic([$redId, $greenId], ShopContext::createDefaultContext());
-        $parents = $this->repository->readBasic([$parentId], ShopContext::createDefaultContext());
+        $products = $this->repository->readBasic([$redId, $greenId], ApplicationContext::createDefaultContext());
+        $parents = $this->repository->readBasic([$parentId], ApplicationContext::createDefaultContext());
 
         $this->assertTrue($parents->has($parentId));
         $this->assertTrue($products->has($redId));
@@ -685,7 +685,7 @@ class ProductRepositoryTest extends KernelTestCase
             ['name' => 'test', 'tax' => $tax, 'price' => ['gross' => 10, 'net' => 9], 'manufacturer' => ['name' => 'test']],
         ];
 
-        $written = $this->repository->create($data, ShopContext::createDefaultContext());
+        $written = $this->repository->create($data, ApplicationContext::createDefaultContext());
 
         /** @var TaxWrittenEvent $taxes */
         $taxes = $written->getEventByDefinition(TaxDefinition::class);
@@ -747,10 +747,10 @@ class ProductRepositoryTest extends KernelTestCase
             ],
         ];
 
-        $this->repository->create($products, ShopContext::createDefaultContext());
+        $this->repository->create($products, ApplicationContext::createDefaultContext());
 
-        $products = $this->repository->readDetail([$redId, $greenId], ShopContext::createDefaultContext());
-        $parents = $this->repository->readDetail([$parentId], ShopContext::createDefaultContext());
+        $products = $this->repository->readDetail([$redId, $greenId], ApplicationContext::createDefaultContext());
+        $parents = $this->repository->readDetail([$parentId], ApplicationContext::createDefaultContext());
 
         $this->assertTrue($parents->has($parentId));
         $this->assertTrue($products->has($redId));
@@ -815,10 +815,10 @@ class ProductRepositoryTest extends KernelTestCase
             ],
         ];
 
-        $this->repository->create($products, ShopContext::createDefaultContext());
+        $this->repository->create($products, ApplicationContext::createDefaultContext());
 
-        $products = $this->repository->readDetail([$redId, $greenId], ShopContext::createDefaultContext());
-        $parents = $this->repository->readDetail([$parentId], ShopContext::createDefaultContext());
+        $products = $this->repository->readDetail([$redId, $greenId], ApplicationContext::createDefaultContext());
+        $parents = $this->repository->readDetail([$parentId], ApplicationContext::createDefaultContext());
 
         $this->assertTrue($parents->has($parentId));
         $this->assertTrue($products->has($redId));
@@ -877,12 +877,12 @@ class ProductRepositoryTest extends KernelTestCase
             ['id' => $greenId,  'price' => $greenPrice, 'parentId' => $parentId],
         ];
 
-        $this->repository->create($products, ShopContext::createDefaultContext());
+        $this->repository->create($products, ApplicationContext::createDefaultContext());
 
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('product.name', $parentName));
 
-        $products = $this->repository->search($criteria, ShopContext::createDefaultContext());
+        $products = $this->repository->search($criteria, ApplicationContext::createDefaultContext());
         $this->assertCount(2, $products);
         $this->assertTrue($products->has($parentId));
         $this->assertTrue($products->has($greenId));
@@ -890,7 +890,7 @@ class ProductRepositoryTest extends KernelTestCase
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('product.name', $redName));
 
-        $products = $this->repository->search($criteria, ShopContext::createDefaultContext());
+        $products = $this->repository->search($criteria, ApplicationContext::createDefaultContext());
         $this->assertCount(1, $products);
         $this->assertTrue($products->has($redId));
     }
@@ -922,12 +922,12 @@ class ProductRepositoryTest extends KernelTestCase
             ['id' => $greenId,  'price' => $greenPrice, 'parentId' => $parentId],
         ];
 
-        $this->repository->create($products, ShopContext::createDefaultContext());
+        $this->repository->create($products, ApplicationContext::createDefaultContext());
 
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('product.price', $parentPrice['gross']));
 
-        $products = $this->repository->search($criteria, ShopContext::createDefaultContext());
+        $products = $this->repository->search($criteria, ApplicationContext::createDefaultContext());
         $this->assertCount(2, $products);
         $this->assertTrue($products->has($parentId));
         $this->assertTrue($products->has($redId));
@@ -935,7 +935,7 @@ class ProductRepositoryTest extends KernelTestCase
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('product.price', $greenPrice['gross']));
 
-        $products = $this->repository->search($criteria, ShopContext::createDefaultContext());
+        $products = $this->repository->search($criteria, ApplicationContext::createDefaultContext());
         $this->assertCount(1, $products);
         $this->assertTrue($products->has($greenId));
     }
@@ -972,13 +972,13 @@ class ProductRepositoryTest extends KernelTestCase
             ['id' => $greenId,  'price' => $greenPrice, 'parentId' => $parentId],
         ];
 
-        $this->repository->create($products, ShopContext::createDefaultContext());
+        $this->repository->create($products, ApplicationContext::createDefaultContext());
 
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('category.products.price', $greenPrice['gross']));
 
         $repository = $this->container->get(CategoryRepository::class);
-        $categories = $repository->searchIds($criteria, ShopContext::createDefaultContext());
+        $categories = $repository->searchIds($criteria, ApplicationContext::createDefaultContext());
 
         $this->assertEquals(1, $categories->getTotal());
         $this->assertContains($categoryId, $categories->getIds());
@@ -988,7 +988,7 @@ class ProductRepositoryTest extends KernelTestCase
         $criteria->addFilter(new TermQuery('category.products.parentId', null));
 
         $repository = $this->container->get(CategoryRepository::class);
-        $categories = $repository->searchIds($criteria, ShopContext::createDefaultContext());
+        $categories = $repository->searchIds($criteria, ApplicationContext::createDefaultContext());
 
         $this->assertEquals(1, $categories->getTotal());
         $this->assertContains($categoryId, $categories->getIds());
@@ -1034,13 +1034,13 @@ class ProductRepositoryTest extends KernelTestCase
             ['id' => $greenId, 'price' => $greenPrice, 'parentId' => $parentId],
         ];
 
-        $this->repository->create($products, ShopContext::createDefaultContext());
+        $this->repository->create($products, ApplicationContext::createDefaultContext());
 
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('product_manufacturer.products.price', $greenPrice['gross']));
 
         $repository = $this->container->get(ProductManufacturerRepository::class);
-        $result = $repository->searchIds($criteria, ShopContext::createDefaultContext());
+        $result = $repository->searchIds($criteria, ApplicationContext::createDefaultContext());
 
         $this->assertEquals(1, $result->getTotal());
         $this->assertContains($manufacturerId, $result->getIds());
@@ -1069,9 +1069,9 @@ class ProductRepositoryTest extends KernelTestCase
 
         $repository = $this->container->get(CategoryRepository::class);
 
-        $repository->create($categories, ShopContext::createDefaultContext());
+        $repository->create($categories, ApplicationContext::createDefaultContext());
 
-        $products = $this->repository->readDetail([$productId], ShopContext::createDefaultContext());
+        $products = $this->repository->readDetail([$productId], ApplicationContext::createDefaultContext());
 
         $this->assertCount(1, $products);
         $this->assertTrue($products->has($productId));
@@ -1106,9 +1106,9 @@ class ProductRepositoryTest extends KernelTestCase
 
         $repository = $this->container->get(ProductManufacturerRepository::class);
 
-        $repository->create($manufacturers, ShopContext::createDefaultContext());
+        $repository->create($manufacturers, ApplicationContext::createDefaultContext());
 
-        $products = $this->repository->readBasic([$productId], ShopContext::createDefaultContext());
+        $products = $this->repository->readBasic([$productId], ApplicationContext::createDefaultContext());
 
         $this->assertCount(1, $products);
         $this->assertTrue($products->has($productId));
@@ -1147,9 +1147,9 @@ class ProductRepositoryTest extends KernelTestCase
             ],
         ];
 
-        $this->repository->create([$data], ShopContext::createDefaultContext());
+        $this->repository->create([$data], ApplicationContext::createDefaultContext());
 
-        $product = $this->repository->readDetail([$id], ShopContext::createDefaultContext())
+        $product = $this->repository->readDetail([$id], ApplicationContext::createDefaultContext())
             ->get($id);
 
         /** @var ProductDetailStruct $product */
@@ -1197,9 +1197,9 @@ class ProductRepositoryTest extends KernelTestCase
             ],
         ];
 
-        $this->repository->create([$data], ShopContext::createDefaultContext());
+        $this->repository->create([$data], ApplicationContext::createDefaultContext());
 
-        $product = $this->repository->readDetail([$id], ShopContext::createDefaultContext())
+        $product = $this->repository->readDetail([$id], ApplicationContext::createDefaultContext())
             ->get($id);
 
         /** @var ProductDetailStruct $product */
@@ -1255,9 +1255,9 @@ class ProductRepositoryTest extends KernelTestCase
             ],
         ];
 
-        $this->repository->create([$data], ShopContext::createDefaultContext());
+        $this->repository->create([$data], ApplicationContext::createDefaultContext());
 
-        $product = $this->repository->readDetail([$id], ShopContext::createDefaultContext())
+        $product = $this->repository->readDetail([$id], ApplicationContext::createDefaultContext())
             ->get($id);
 
         /** @var ProductDetailStruct $product */
@@ -1318,9 +1318,9 @@ class ProductRepositoryTest extends KernelTestCase
             ],
         ];
 
-        $this->repository->create([$data], ShopContext::createDefaultContext());
+        $this->repository->create([$data], ApplicationContext::createDefaultContext());
 
-        $product = $this->repository->readDetail([$id], ShopContext::createDefaultContext())
+        $product = $this->repository->readDetail([$id], ApplicationContext::createDefaultContext())
             ->get($id);
 
         /** @var ProductDetailStruct $product */
@@ -1355,7 +1355,7 @@ class ProductRepositoryTest extends KernelTestCase
         $this->container->get(ContextRuleRepository::class)->create([
             ['id' => $ruleA, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 1],
             ['id' => $ruleB, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 2],
-        ], ShopContext::createDefaultContext());
+        ], ApplicationContext::createDefaultContext());
 
         $id = Uuid::uuid4()->getHex();
 
@@ -1388,8 +1388,8 @@ class ProductRepositoryTest extends KernelTestCase
             ],
         ];
 
-        $this->repository->create([$data], ShopContext::createDefaultContext());
-        $products = $this->repository->readBasic([$id], ShopContext::createDefaultContext());
+        $this->repository->create([$data], ApplicationContext::createDefaultContext());
+        $products = $this->repository->readBasic([$id], ApplicationContext::createDefaultContext());
         $this->assertTrue($products->has($id));
 
         /** @var ProductBasicStruct $product */

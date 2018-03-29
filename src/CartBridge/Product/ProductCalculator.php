@@ -76,7 +76,7 @@ class ProductCalculator
             $priceDefinition = $lineItem->getPriceDefinition();
             if (!$priceDefinition) {
                 $priceDefinition = $product->getPriceDefinitionForQuantity(
-                    $context->getShopContext(),
+                    $context->getApplicationContext(),
                     $lineItem->getQuantity()
                 );
             }
@@ -111,7 +111,7 @@ class ProductCalculator
                     continue;
                 }
 
-                $priceDefinition = $service->getPriceDefinition($lineItem->getQuantity(), $context->getShopContext());
+                $priceDefinition = $service->getPriceDefinition($lineItem->getQuantity(), $context->getApplicationContext());
                 $price = $this->priceCalculator->calculate($priceDefinition, $context);
 
                 $calculatedProduct->addChild(

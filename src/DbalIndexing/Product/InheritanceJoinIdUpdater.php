@@ -9,7 +9,7 @@ use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Api\Product\Definition\ProductMediaDefinition;
 use Shopware\Api\Product\Event\Product\ProductWrittenEvent;
 use Shopware\Api\Product\Event\ProductMedia\ProductMediaWrittenEvent;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Struct\Uuid;
 
 class InheritanceJoinIdUpdater
@@ -24,7 +24,7 @@ class InheritanceJoinIdUpdater
         $this->connection = $connection;
     }
 
-    public function update(array $ids, ShopContext $context)
+    public function update(array $ids, ApplicationContext $context)
     {
         $version = Uuid::fromStringToBytes($context->getVersionId());
 
@@ -63,7 +63,7 @@ class InheritanceJoinIdUpdater
         }
     }
 
-    private function mediaWritten(array $mediaIds, ShopContext $context)
+    private function mediaWritten(array $mediaIds, ApplicationContext $context)
     {
         $version = Uuid::fromStringToBytes($context->getVersionId());
 

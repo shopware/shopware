@@ -3,7 +3,7 @@
 namespace Shopware\Api\Order\Event\OrderDeliveryPosition;
 
 use Shopware\Api\Order\Struct\OrderDeliveryPositionSearchResult;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class OrderDeliveryPositionSearchResultLoadedEvent extends NestedEvent
@@ -25,7 +25,7 @@ class OrderDeliveryPositionSearchResultLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ShopContext
+    public function getContext(): ApplicationContext
     {
         return $this->result->getContext();
     }

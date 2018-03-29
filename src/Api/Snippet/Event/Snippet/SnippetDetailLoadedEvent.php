@@ -2,9 +2,10 @@
 
 namespace Shopware\Api\Snippet\Event\Snippet;
 
+use Shopware\Api\Application\Event\Application\ApplicationBasicLoadedEvent;
 use Shopware\Api\Shop\Event\Shop\ShopBasicLoadedEvent;
 use Shopware\Api\Snippet\Collection\SnippetDetailCollection;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 
@@ -13,7 +14,7 @@ class SnippetDetailLoadedEvent extends NestedEvent
     public const NAME = 'snippet.detail.loaded';
 
     /**
-     * @var ShopContext
+     * @var ApplicationContext
      */
     protected $context;
 
@@ -22,7 +23,7 @@ class SnippetDetailLoadedEvent extends NestedEvent
      */
     protected $snippets;
 
-    public function __construct(SnippetDetailCollection $snippets, ShopContext $context)
+    public function __construct(SnippetDetailCollection $snippets, ApplicationContext $context)
     {
         $this->context = $context;
         $this->snippets = $snippets;
@@ -33,7 +34,7 @@ class SnippetDetailLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ShopContext
+    public function getContext(): ApplicationContext
     {
         return $this->context;
     }
@@ -46,8 +47,8 @@ class SnippetDetailLoadedEvent extends NestedEvent
     public function getEvents(): ?NestedEventCollection
     {
         $events = [];
-        if ($this->snippets->getShops()->count() > 0) {
-            $events[] = new ShopBasicLoadedEvent($this->snippets->getShops(), $this->context);
+        if ($this->snippets->getApplications()->count() > 0) {
+            $events[] = new ApplicationBasicLoadedEvent($this->snippets->getApplications(), $this->context);
         }
 
         return new NestedEventCollection($events);

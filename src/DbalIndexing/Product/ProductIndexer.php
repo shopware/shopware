@@ -3,16 +3,13 @@
 namespace Shopware\DbalIndexing\Product;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Api\Entity\Search\Criteria;
-use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Product\Definition\ProductCategoryDefinition;
 use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Api\Product\Repository\ProductRepository;
 use Shopware\Api\Shop\Repository\ShopRepository;
-use Shopware\Api\Shop\Struct\ShopBasicStruct;
 use Shopware\Category\Extension\CategoryPathBuilder;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\DbalIndexing\Common\RepositoryIterator;
 use Shopware\DbalIndexing\Event\ProgressAdvancedEvent;
 use Shopware\DbalIndexing\Event\ProgressFinishedEvent;
@@ -100,9 +97,7 @@ class ProductIndexer implements IndexerInterface
 
     public function index(\DateTime $timestamp): void
     {
-        $shop = $this->getDefaultShop();
-
-        $context = ShopContext::createFromShop($shop);
+        $context = ApplicationContext::createDefaultContext();
 
         $this->pathBuilder->update(Defaults::ROOT_CATEGORY, $context);
 
@@ -172,14 +167,5 @@ class ProductIndexer implements IndexerInterface
         }
 
         return $ids;
-    }
-
-    private function getDefaultShop(): ShopBasicStruct
-    {
-        $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('shop.isDefault', true));
-        $result = $this->shopRepository->search($criteria, ShopContext::createDefaultContext());
-
-        return $result->first();
     }
 }

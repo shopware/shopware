@@ -20,7 +20,7 @@ use Shopware\Api\Product\Event\ProductMedia\ProductMediaDetailLoadedEvent;
 use Shopware\Api\Product\Event\ProductMedia\ProductMediaIdSearchResultLoadedEvent;
 use Shopware\Api\Product\Event\ProductMedia\ProductMediaSearchResultLoadedEvent;
 use Shopware\Api\Product\Struct\ProductMediaSearchResult;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Version\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -65,7 +65,7 @@ class ProductMediaRepository implements RepositoryInterface
         $this->versionManager = $versionManager;
     }
 
-    public function search(Criteria $criteria, ShopContext $context): ProductMediaSearchResult
+    public function search(Criteria $criteria, ApplicationContext $context): ProductMediaSearchResult
     {
         $ids = $this->searchIds($criteria, $context);
 
@@ -84,7 +84,7 @@ class ProductMediaRepository implements RepositoryInterface
         return $result;
     }
 
-    public function aggregate(Criteria $criteria, ShopContext $context): AggregatorResult
+    public function aggregate(Criteria $criteria, ApplicationContext $context): AggregatorResult
     {
         $result = $this->aggregator->aggregate(ProductMediaDefinition::class, $criteria, $context);
 
@@ -94,7 +94,7 @@ class ProductMediaRepository implements RepositoryInterface
         return $result;
     }
 
-    public function searchIds(Criteria $criteria, ShopContext $context): IdSearchResult
+    public function searchIds(Criteria $criteria, ApplicationContext $context): IdSearchResult
     {
         $result = $this->searcher->search(ProductMediaDefinition::class, $criteria, $context);
 
@@ -104,7 +104,7 @@ class ProductMediaRepository implements RepositoryInterface
         return $result;
     }
 
-    public function readBasic(array $ids, ShopContext $context): ProductMediaBasicCollection
+    public function readBasic(array $ids, ApplicationContext $context): ProductMediaBasicCollection
     {
         /** @var ProductMediaBasicCollection $entities */
         $entities = $this->reader->readBasic(ProductMediaDefinition::class, $ids, $context);
@@ -115,7 +115,7 @@ class ProductMediaRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $ids, ShopContext $context): ProductMediaDetailCollection
+    public function readDetail(array $ids, ApplicationContext $context): ProductMediaDetailCollection
     {
         /** @var ProductMediaDetailCollection $entities */
         $entities = $this->reader->readDetail(ProductMediaDefinition::class, $ids, $context);
@@ -126,49 +126,49 @@ class ProductMediaRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function update(array $data, ShopContext $context): GenericWrittenEvent
+    public function update(array $data, ApplicationContext $context): GenericWrittenEvent
     {
-        $affected = $this->versionManager->update(ProductMediaDefinition::class, $data, WriteContext::createFromShopContext($context));
+        $affected = $this->versionManager->update(ProductMediaDefinition::class, $data, WriteContext::createFromApplicationContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function upsert(array $data, ShopContext $context): GenericWrittenEvent
+    public function upsert(array $data, ApplicationContext $context): GenericWrittenEvent
     {
-        $affected = $this->versionManager->upsert(ProductMediaDefinition::class, $data, WriteContext::createFromShopContext($context));
+        $affected = $this->versionManager->upsert(ProductMediaDefinition::class, $data, WriteContext::createFromApplicationContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function create(array $data, ShopContext $context): GenericWrittenEvent
+    public function create(array $data, ApplicationContext $context): GenericWrittenEvent
     {
-        $affected = $this->versionManager->insert(ProductMediaDefinition::class, $data, WriteContext::createFromShopContext($context));
+        $affected = $this->versionManager->insert(ProductMediaDefinition::class, $data, WriteContext::createFromApplicationContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function delete(array $ids, ShopContext $context): GenericWrittenEvent
+    public function delete(array $ids, ApplicationContext $context): GenericWrittenEvent
     {
-        $affected = $this->versionManager->delete(ProductMediaDefinition::class, $ids, WriteContext::createFromShopContext($context));
+        $affected = $this->versionManager->delete(ProductMediaDefinition::class, $ids, WriteContext::createFromApplicationContext($context));
         $event = GenericWrittenEvent::createWithDeletedEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function createVersion(string $id, ShopContext $context, ?string $name = null, ?string $versionId = null): string
+    public function createVersion(string $id, ApplicationContext $context, ?string $name = null, ?string $versionId = null): string
     {
-        return $this->versionManager->createVersion(ProductMediaDefinition::class, $id, WriteContext::createFromShopContext($context), $name, $versionId);
+        return $this->versionManager->createVersion(ProductMediaDefinition::class, $id, WriteContext::createFromApplicationContext($context), $name, $versionId);
     }
 
-    public function merge(string $versionId, ShopContext $context): void
+    public function merge(string $versionId, ApplicationContext $context): void
     {
-        $this->versionManager->merge($versionId, WriteContext::createFromShopContext($context));
+        $this->versionManager->merge($versionId, WriteContext::createFromApplicationContext($context));
     }
 }

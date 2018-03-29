@@ -11,7 +11,7 @@ use Shopware\Api\Entity\Write\EntityExistence;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\ReadOnly;
 use Shopware\Api\Entity\Write\WrittenEvent;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 
 abstract class EntityDefinition
 {
@@ -101,7 +101,7 @@ abstract class EntityDefinition
             });
     }
 
-    public static function createWrittenEvent(array $identifiers, ShopContext $context, array $errors): ?WrittenEvent
+    public static function createWrittenEvent(array $identifiers, ApplicationContext $context, array $errors): ?WrittenEvent
     {
         if (!array_key_exists(static::class, $identifiers)) {
             return null;

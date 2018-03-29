@@ -27,7 +27,8 @@ final class ExtendsTokenParser extends \Twig_TokenParser
             //set pointer to next value (contains the template file name)
             $this->getTemplateName(
                 $stream->next()->getValue()
-            )
+            ),
+            true
         );
 
         //set pointer to end of line - BLOCK_END_TYPE

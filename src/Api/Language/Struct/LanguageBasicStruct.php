@@ -3,6 +3,7 @@
 namespace Shopware\Api\Language\Struct;
 
 use Shopware\Api\Entity\Entity;
+use Shopware\Api\Locale\Struct\LocaleBasicStruct;
 
 class LanguageBasicStruct extends Entity
 {
@@ -35,6 +36,11 @@ class LanguageBasicStruct extends Entity
      * @var \DateTime|null
      */
     protected $updatedAt;
+
+    /**
+     * @var LanguageBasicStruct
+     */
+    protected $locale;
 
     public function getParentId(): ?string
     {
@@ -94,5 +100,15 @@ class LanguageBasicStruct extends Entity
     public function setUpdatedAt(?\DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
+    }
+
+    public function getLocale(): LocaleBasicStruct
+    {
+        return $this->locale;
+    }
+
+    public function setLocale(LocaleBasicStruct $locale): void
+    {
+        $this->locale = $locale;
     }
 }

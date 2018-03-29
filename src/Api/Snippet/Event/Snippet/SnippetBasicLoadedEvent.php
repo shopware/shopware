@@ -3,7 +3,7 @@
 namespace Shopware\Api\Snippet\Event\Snippet;
 
 use Shopware\Api\Snippet\Collection\SnippetBasicCollection;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class SnippetBasicLoadedEvent extends NestedEvent
@@ -11,7 +11,7 @@ class SnippetBasicLoadedEvent extends NestedEvent
     public const NAME = 'snippet.basic.loaded';
 
     /**
-     * @var ShopContext
+     * @var ApplicationContext
      */
     protected $context;
 
@@ -20,7 +20,7 @@ class SnippetBasicLoadedEvent extends NestedEvent
      */
     protected $snippets;
 
-    public function __construct(SnippetBasicCollection $snippets, ShopContext $context)
+    public function __construct(SnippetBasicCollection $snippets, ApplicationContext $context)
     {
         $this->context = $context;
         $this->snippets = $snippets;
@@ -31,7 +31,7 @@ class SnippetBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ShopContext
+    public function getContext(): ApplicationContext
     {
         return $this->context;
     }

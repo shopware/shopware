@@ -6,7 +6,7 @@ use Shopware\Api\Mail\Collection\MailDetailCollection;
 use Shopware\Api\Mail\Event\MailAttachment\MailAttachmentBasicLoadedEvent;
 use Shopware\Api\Mail\Event\MailTranslation\MailTranslationBasicLoadedEvent;
 use Shopware\Api\Order\Event\OrderState\OrderStateBasicLoadedEvent;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 
@@ -15,7 +15,7 @@ class MailDetailLoadedEvent extends NestedEvent
     public const NAME = 'mail.detail.loaded';
 
     /**
-     * @var ShopContext
+     * @var ApplicationContext
      */
     protected $context;
 
@@ -24,7 +24,7 @@ class MailDetailLoadedEvent extends NestedEvent
      */
     protected $mails;
 
-    public function __construct(MailDetailCollection $mails, ShopContext $context)
+    public function __construct(MailDetailCollection $mails, ApplicationContext $context)
     {
         $this->context = $context;
         $this->mails = $mails;
@@ -35,7 +35,7 @@ class MailDetailLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ShopContext
+    public function getContext(): ApplicationContext
     {
         return $this->context;
     }

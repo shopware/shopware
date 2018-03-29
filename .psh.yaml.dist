@@ -27,10 +27,8 @@ const:
   DB_HOST: "mysql"
   DB_PORT: "3306"
   DB_NAME: "shopware"
-  SW_HOST: "127.0.0.1:8088"
-  SW_BASE_PATH: ""
-  APP_DEBUG: "1"
   APP_ENV: "dev"
+  APP_URL: "http://127.0.0.1:8088"
 
 dynamic:
   USERKEY: echo "$(id -u):$(id -g)"

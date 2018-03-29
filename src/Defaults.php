@@ -4,7 +4,7 @@ namespace Shopware;
 
 final class Defaults
 {
-    public const SHOP = 'ffa32a50e2d04cf38389a53f8d6cd594';
+    public const APPLICATION = 'ffffffffffffffffffffffffffffffff';
 
     public const LANGUAGE = 'ffffffffffffffffffffffffffffffff';
 
@@ -35,4 +35,10 @@ final class Defaults
     public const PAYMENT_METHOD_PAID_IN_ADVANCE = '47160b00cd064b0188176451f9f3c247';
 
     public const PAYMENT_METHOD_SEPA = 'a6ddadce4cb441f3976a32505049f037';
+
+    public const COUNTRY = 'bd5e2dcf547e4df6bb1ff58a554bc69e';
+
+    public const SHIPPING_METHOD = '417beeb2dddf45d1b90188fd211343c3';
+
+    public const LOCALE = '7b52d9dd2b0640ec90be9f57edf29be7';
 }

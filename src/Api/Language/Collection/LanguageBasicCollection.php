@@ -4,6 +4,7 @@ namespace Shopware\Api\Language\Collection;
 
 use Shopware\Api\Entity\EntityCollection;
 use Shopware\Api\Language\Struct\LanguageBasicStruct;
+use Shopware\Api\Locale\Collection\LocaleBasicCollection;
 
 class LanguageBasicCollection extends EntityCollection
 {
@@ -62,6 +63,15 @@ class LanguageBasicCollection extends EntityCollection
         return $this->filter(function (LanguageBasicStruct $language) use ($id) {
             return $language->getLocaleVersionId() === $id;
         });
+    }
+
+    public function getLocales(): LocaleBasicCollection
+    {
+        return new LocaleBasicCollection(
+            $this->fmap(function (LanguageBasicStruct $language) {
+                return $language->getLocale();
+            })
+        );
     }
 
     protected function getExpectedClass(): string

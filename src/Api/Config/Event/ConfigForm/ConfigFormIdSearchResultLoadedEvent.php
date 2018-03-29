@@ -3,7 +3,7 @@
 namespace Shopware\Api\Config\Event\ConfigForm;
 
 use Shopware\Api\Entity\Search\IdSearchResult;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class ConfigFormIdSearchResultLoadedEvent extends NestedEvent
@@ -25,7 +25,7 @@ class ConfigFormIdSearchResultLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ShopContext
+    public function getContext(): ApplicationContext
     {
         return $this->result->getContext();
     }

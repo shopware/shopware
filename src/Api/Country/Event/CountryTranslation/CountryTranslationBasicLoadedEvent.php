@@ -3,7 +3,7 @@
 namespace Shopware\Api\Country\Event\CountryTranslation;
 
 use Shopware\Api\Country\Collection\CountryTranslationBasicCollection;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class CountryTranslationBasicLoadedEvent extends NestedEvent
@@ -11,7 +11,7 @@ class CountryTranslationBasicLoadedEvent extends NestedEvent
     public const NAME = 'country_translation.basic.loaded';
 
     /**
-     * @var ShopContext
+     * @var ApplicationContext
      */
     protected $context;
 
@@ -20,7 +20,7 @@ class CountryTranslationBasicLoadedEvent extends NestedEvent
      */
     protected $countryTranslations;
 
-    public function __construct(CountryTranslationBasicCollection $countryTranslations, ShopContext $context)
+    public function __construct(CountryTranslationBasicCollection $countryTranslations, ApplicationContext $context)
     {
         $this->context = $context;
         $this->countryTranslations = $countryTranslations;
@@ -31,7 +31,7 @@ class CountryTranslationBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ShopContext
+    public function getContext(): ApplicationContext
     {
         return $this->context;
     }

@@ -6,7 +6,7 @@
 
     <services>
         <service class="Shopware\Context\Service\ContextFactory" id="Shopware\Context\Service\ContextFactory">
-            <argument type="service" id="Shopware\Api\Shop\Repository\ShopRepository"/>
+            <argument type="service" id="Shopware\Api\Application\Repository\ApplicationRepository"/>
             <argument type="service" id="Shopware\Api\Currency\Repository\CurrencyRepository"/>
             <argument type="service" id="Shopware\Api\Customer\Repository\CustomerRepository"/>
             <argument type="service" id="Shopware\Api\Customer\Repository\CustomerGroupRepository"/>
@@ -17,8 +17,8 @@
             <argument type="service" id="Shopware\Api\Shipping\Repository\ShippingMethodRepository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Api\Country\Repository\CountryStateRepository"/>
+            <argument type="service" id="Shopware\Api\Language\Repository\LanguageRepository"/>
             <argument type="service" id="Shopware\Cart\Tax\TaxDetector"/>
-            <tag name="shopware.traceable" />
         </service>
 
         <service class="Shopware\Context\Service\ContextRuleLoader" id="Shopware\Context\Service\ContextRuleLoader">

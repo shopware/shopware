@@ -3,7 +3,7 @@
 namespace Shopware\Api\Context\Event\ContextRule;
 
 use Shopware\Api\Context\Collection\ContextRuleBasicCollection;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class ContextRuleBasicLoadedEvent extends NestedEvent
@@ -11,7 +11,7 @@ class ContextRuleBasicLoadedEvent extends NestedEvent
     public const NAME = 'context_rule.basic.loaded';
 
     /**
-     * @var ShopContext
+     * @var ApplicationContext
      */
     protected $context;
 
@@ -20,7 +20,7 @@ class ContextRuleBasicLoadedEvent extends NestedEvent
      */
     protected $contextRules;
 
-    public function __construct(ContextRuleBasicCollection $contextRules, ShopContext $context)
+    public function __construct(ContextRuleBasicCollection $contextRules, ApplicationContext $context)
     {
         $this->context = $context;
         $this->contextRules = $contextRules;
@@ -31,7 +31,7 @@ class ContextRuleBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ShopContext
+    public function getContext(): ApplicationContext
     {
         return $this->context;
     }

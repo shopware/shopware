@@ -3,7 +3,7 @@
 namespace Shopware\Api\Test;
 
 use Shopware\Api\Entity\Write\WriteContext;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 
 class TestWriteContext extends WriteContext
 {
@@ -13,8 +13,8 @@ class TestWriteContext extends WriteContext
 
     public static function create(): WriteContext
     {
-        return WriteContext::createFromShopContext(
-            ShopContext::createDefaultContext()
+        return WriteContext::createFromApplicationContext(
+            ApplicationContext::createDefaultContext()
         );
     }
 }

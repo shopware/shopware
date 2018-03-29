@@ -10,7 +10,7 @@ use Shopware\Api\Order\Repository\OrderTransactionRepository;
 use Shopware\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\Uuid;
 use Shopware\Payment\Token\PaymentTransactionTokenFactory;
@@ -34,9 +34,9 @@ class TokenFactoryTest extends KernelTestCase
     protected $container;
 
     /**
-     * @var ShopContext
+     * @var ApplicationContext
      */
-    protected $shopContext;
+    protected $applicationContext;
 
     /**
      * @var OrderRepository
@@ -64,7 +64,7 @@ class TokenFactoryTest extends KernelTestCase
         $this->container = self::$kernel->getContainer();
 
         $this->tokenFactory = $this->container->get(PaymentTransactionTokenFactory::class);
-        $this->shopContext = ShopContext::createDefaultContext();
+        $this->applicationContext = ApplicationContext::createDefaultContext();
         $this->connection = $this->container->get(Connection::class);
 
         $this->orderRepository = $this->container->get(OrderRepository::class);
@@ -80,7 +80,7 @@ class TokenFactoryTest extends KernelTestCase
     {
         $transactionId = $this->prepare();
 
-        $transactions = $this->orderTransactionRepository->readBasic([$transactionId], ShopContext::createDefaultContext());
+        $transactions = $this->orderTransactionRepository->readBasic([$transactionId], ApplicationContext::createDefaultContext());
 
         $tokenIdentifier = $this->tokenFactory->generateToken(
             $transactions->get($transactionId)
@@ -101,7 +101,7 @@ class TokenFactoryTest extends KernelTestCase
     {
         $transactionId = $this->prepare();
 
-        $transactions = $this->orderTransactionRepository->readBasic([$transactionId], ShopContext::createDefaultContext());
+        $transactions = $this->orderTransactionRepository->readBasic([$transactionId], ApplicationContext::createDefaultContext());
 
         $tokenIdentifier = $this->tokenFactory->generateToken(
             $transactions->get($transactionId)
@@ -122,7 +122,7 @@ class TokenFactoryTest extends KernelTestCase
     {
         $transactionId = $this->prepare();
 
-        $transactions = $this->orderTransactionRepository->readBasic([$transactionId], ShopContext::createDefaultContext());
+        $transactions = $this->orderTransactionRepository->readBasic([$transactionId], ApplicationContext::createDefaultContext());
 
         $tokenIdentifier = $this->tokenFactory->generateToken(
             $transactions->get($transactionId)
@@ -135,16 +135,16 @@ class TokenFactoryTest extends KernelTestCase
 
     private function prepare(): string
     {
-        $customerId = $this->createCustomer($this->customerRepository, $this->shopContext);
-        $orderId = $this->createOrder($customerId, $this->orderRepository, $this->shopContext);
+        $customerId = $this->createCustomer($this->customerRepository, $this->applicationContext);
+        $orderId = $this->createOrder($customerId, $this->orderRepository, $this->applicationContext);
 
-        return $this->createTransaction($orderId, $this->orderTransactionRepository, $this->shopContext);
+        return $this->createTransaction($orderId, $this->orderTransactionRepository, $this->applicationContext);
     }
 
     private function createTransaction(
         string $orderId,
         OrderTransactionRepository $orderTransactionRepository,
-        ShopContext $shopContext
+        ApplicationContext $applicationContext
     ): string {
         $id = Uuid::uuid4()->getHex();
         $transaction = [
@@ -156,7 +156,7 @@ class TokenFactoryTest extends KernelTestCase
             'payload' => '{}',
         ];
 
-        $orderTransactionRepository->upsert([$transaction], $shopContext);
+        $orderTransactionRepository->upsert([$transaction], $applicationContext);
 
         return $id;
     }
@@ -164,7 +164,7 @@ class TokenFactoryTest extends KernelTestCase
     private function createOrder(
         string $customerId,
         OrderRepository $orderRepository,
-        ShopContext $shopContext
+        ApplicationContext $applicationContext
     ) {
         $orderId = Uuid::uuid4()->getHex();
 
@@ -182,7 +182,7 @@ class TokenFactoryTest extends KernelTestCase
             'stateId' => Defaults::ORDER_STATE_OPEN,
             'paymentMethodId' => self::PAYMENT_METHOD_INVOICE,
             'currencyId' => Defaults::CURRENCY,
-            'shopId' => Defaults::SHOP,
+            'shopId' => Defaults::APPLICATION,
             'billingAddress' => [
                 'salutation' => 'mr',
                 'firstName' => 'Max',
@@ -199,12 +199,12 @@ class TokenFactoryTest extends KernelTestCase
             'payload' => '{}',
         ];
 
-        $orderRepository->upsert([$order], $shopContext);
+        $orderRepository->upsert([$order], $applicationContext);
 
         return $orderId;
     }
 
-    private function createCustomer(CustomerRepository $repository, ShopContext $context): string
+    private function createCustomer(CustomerRepository $repository, ApplicationContext $context): string
     {
         $customerId = Uuid::uuid4()->getHex();
         $addressId = Uuid::uuid4()->getHex();
@@ -219,7 +219,7 @@ class TokenFactoryTest extends KernelTestCase
             'password' => password_hash('shopware', PASSWORD_BCRYPT, ['cost' => 13]),
             'defaultPaymentMethodId' => self::PAYMENT_METHOD_INVOICE,
             'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-            'shopId' => Defaults::SHOP,
+            'shopId' => Defaults::APPLICATION,
             'defaultBillingAddressId' => $addressId,
             'defaultShippingAddressId' => $addressId,
             'addresses' => [

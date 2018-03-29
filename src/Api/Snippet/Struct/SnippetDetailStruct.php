@@ -2,22 +2,23 @@
 
 namespace Shopware\Api\Snippet\Struct;
 
+use Shopware\Api\Application\Struct\ApplicationBasicStruct;
 use Shopware\Api\Shop\Struct\ShopBasicStruct;
 
 class SnippetDetailStruct extends SnippetBasicStruct
 {
     /**
-     * @var ShopBasicStruct
+     * @var ApplicationBasicStruct
      */
-    protected $shop;
+    protected $application;
 
-    public function getShop(): ShopBasicStruct
+    public function getApplication(): ApplicationBasicStruct
     {
-        return $this->shop;
+        return $this->application;
     }
 
-    public function setShop(ShopBasicStruct $shop): void
+    public function setApplication(ApplicationBasicStruct $application): void
     {
-        $this->shop = $shop;
+        $this->application = $application;
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Shopware\Api\Currency\Definition;
 
+use Shopware\Api\Application\Definition\ApplicationDefinition;
 use Shopware\Api\Currency\Collection\CurrencyBasicCollection;
 use Shopware\Api\Currency\Collection\CurrencyDetailCollection;
 use Shopware\Api\Currency\Event\Currency\CurrencyDeletedEvent;
@@ -16,7 +17,6 @@ use Shopware\Api\Entity\Field\DateField;
 use Shopware\Api\Entity\Field\FloatField;
 use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\IntField;
-use Shopware\Api\Entity\Field\ManyToManyAssociationField;
 use Shopware\Api\Entity\Field\OneToManyAssociationField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
@@ -30,8 +30,6 @@ use Shopware\Api\Entity\Write\Flag\RestrictDelete;
 use Shopware\Api\Entity\Write\Flag\SearchRanking;
 use Shopware\Api\Entity\Write\Flag\WriteOnly;
 use Shopware\Api\Order\Definition\OrderDefinition;
-use Shopware\Api\Shop\Definition\ShopCurrencyDefinition;
-use Shopware\Api\Shop\Definition\ShopDefinition;
 
 class CurrencyDefinition extends EntityDefinition
 {
@@ -73,9 +71,9 @@ class CurrencyDefinition extends EntityDefinition
             new IntField('position', 'position'),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
+            (new OneToManyAssociationField('applications', ApplicationDefinition::class, 'currency_id', false, 'id'))->setFlags(new RestrictDelete()),
             (new TranslationsAssociationField('translations', CurrencyTranslationDefinition::class, 'currency_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
             (new OneToManyAssociationField('orders', OrderDefinition::class, 'currency_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
-            (new ManyToManyAssociationField('shops', ShopDefinition::class, ShopCurrencyDefinition::class, false, 'currency_id', 'shop_id'))->setFlags(new CascadeDelete(), new WriteOnly()),
         ]);
 
         foreach (self::$extensions as $extension) {

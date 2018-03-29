@@ -9,7 +9,7 @@ use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Api\Product\Repository\ProductRepository;
 use Shopware\Api\Product\Struct\ProductBasicStruct;
 use Shopware\Api\User\Repository\UserRepository;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -37,7 +37,7 @@ class AuditLogSearchTest extends KernelTestCase
     private $search;
 
     /**
-     * @var ShopContext
+     * @var ApplicationContext
      */
     private $context;
 
@@ -56,7 +56,7 @@ class AuditLogSearchTest extends KernelTestCase
 
         $this->productRepository = $this->container->get(ProductRepository::class);
         $this->search = $this->container->get(AdministrationSearch::class);
-        $this->context = $context = ShopContext::createDefaultContext();
+        $this->context = $context = ApplicationContext::createDefaultContext();
 
         $this->connection->executeUpdate('
             DELETE FROM `version`;
@@ -93,7 +93,7 @@ class AuditLogSearchTest extends KernelTestCase
 
     public function testProductRanking()
     {
-        $context = ShopContext::createDefaultContext();
+        $context = ApplicationContext::createDefaultContext();
 
         $p1 = Uuid::uuid4()->getHex();
         $productId2 = Uuid::uuid4()->getHex();
@@ -129,7 +129,7 @@ class AuditLogSearchTest extends KernelTestCase
             ['id' => $productId2, 'price' => ['gross' => 20, 'net' => 1]],
             ['id' => $productId2, 'price' => ['gross' => 25, 'net' => 1]],
             ['id' => $productId2, 'price' => ['gross' => 30, 'net' => 1]],
-        ], ShopContext::createDefaultContext());
+        ], ApplicationContext::createDefaultContext());
 
         $changes = $this->getVersionData(ProductDefinition::getEntityName(), $productId2, Defaults::LIVE_VERSION);
         $this->assertNotEmpty($changes);

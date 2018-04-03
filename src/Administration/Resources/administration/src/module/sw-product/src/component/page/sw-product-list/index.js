@@ -59,7 +59,7 @@ Component.register('sw-product-list', {
         onEdit(product) {
             if (product && product.id) {
                 this.$router.push({
-                    name: 'sw.product.detail.general',
+                    name: 'sw.product.detail',
                     params: {
                         id: product.id
                     }

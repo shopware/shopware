@@ -7,17 +7,21 @@
 @sw-tabs-item-color-background-active: @color-white;
 @sw-tabs-item-border-radius:           @border-radius-default;
 @sw-tabs-item-font-size:               14px;
+@sw-tabs-item-font-family:             @font-family-default;
 
 .sw-tabs-item {
     display: inline-block;
     padding: 2px 28px;
     margin: 4px 0;
     line-height: 32px;
+    font-family: @sw-tabs-item-font-family;
     font-size: @sw-tabs-item-font-size;
     border: 1px solid transparent;
     border-radius: @sw-tabs-item-border-radius;
+    background: none;
     color: @sw-tabs-item-color-text;
     text-decoration: none;
+    cursor: pointer;
     outline: none;
 
     &:first-child {
@@ -34,7 +38,8 @@
         background-color: @sw-tabs-item-color-background;
     }
 
-    &.router-link-active {
+    &.router-link-active,
+    &.is--active {
         border-color: @sw-tabs-item-color-border;
         color: @sw-tabs-item-color-text-active;
         background-color: @sw-tabs-item-color-background-active;

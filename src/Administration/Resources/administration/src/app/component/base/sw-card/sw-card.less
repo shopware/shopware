@@ -1,13 +1,12 @@
 @import "~less/variables";
 
-@sw-card-color-background:             @color-white;
-@sw-card-color-border:                 @color-steam-cloud;
-@sw-card-border-radius:                @border-radius-default;
-@sw-card-color-title-text:             @color-kashmir;
-
-@sw-tabs-item-color-border:            @color-steam-cloud;
-@sw-tabs-item-color-background:        @color-light-gray;
-@sw-tabs-item-color-background-active: @color-white;
+@sw-card-color-background:                  @color-white;
+@sw-card-color-border:                      @color-steam-cloud;
+@sw-card-border-radius:                     @border-radius-default;
+@sw-card-color-title-text:                  @color-kashmir;
+@sw-card-tabs-item-color-border:            @color-steam-cloud;
+@sw-card-tabs-item-color-background:        @color-light-gray;
+@sw-card-tabs-item-color-background-active: @color-white;
 
 .sw-card {
     margin-bottom: 28px;
@@ -19,7 +18,7 @@
     font-size: 13px;
     line-height: 18px;
 
-    &.sw-card--has-tabs {
+    &.sw-card--tabs {
         padding: 0;
     }
 
@@ -53,22 +52,22 @@
         border-bottom-right-radius: 0;
 
         &:hover {
-            border-bottom-color: @sw-tabs-item-color-border;
+            border-bottom-color: @sw-card-tabs-item-color-border;
         }
 
         &:focus {
-            background-color: @sw-tabs-item-color-background;
-            border-bottom-color: @sw-tabs-item-color-border;
+            background-color: @sw-card-tabs-item-color-background;
+            border-bottom-color: @sw-card-tabs-item-color-border;
         }
 
         &:active {
-            border-bottom-color: @sw-tabs-item-color-background-active;
-            background-color: @sw-tabs-item-color-background-active;
+            border-bottom-color: @sw-card-tabs-item-color-background-active;
+            background-color: @sw-card-tabs-item-color-background-active;
         }
 
         &.router-link-active {
-            background-color: @sw-tabs-item-color-background-active;
-            border-bottom-color: @sw-tabs-item-color-background-active;
+            background-color: @sw-card-tabs-item-color-background-active;
+            border-bottom-color: @sw-card-tabs-item-color-background-active;
         }
     }
 }

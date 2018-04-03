@@ -1,7 +1,17 @@
 {% block sw_tabs_item %}
-    <router-link class="sw-tabs-item" :to="route">
-        {% block sw_tabs_item_label %}
-            <slot>{% block sw_tabs_item_slot_default %}{% endblock %}</slot>
-        {% endblock %}
-    </router-link>
+    {% block sw_tabs_item_router_link %}
+        <router-link v-if="route" class="sw-tabs-item" :to="route">
+            {% block sw_tabs_item_router_link_label %}
+                <slot>{% block sw_tabs_item_router_link_slot_default %}{% endblock %}</slot>
+            {% endblock %}
+        </router-link>
+    {% endblock %}
+
+    {% block sw_tabs_item_button %}
+        <button v-else class="sw-tabs-item">
+            {% block sw_tabs_item_button_label %}
+                <slot>{% block sw_tabs_item_button_slot_default %}{% endblock %}</slot>
+            {% endblock %}
+        </button>
+    {% endblock %}
 {% endblock %}

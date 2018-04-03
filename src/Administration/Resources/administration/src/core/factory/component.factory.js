@@ -76,19 +76,7 @@ function register(componentName, componentConfiguration = {}) {
 
     config.name = componentName;
 
-    if (!Object.prototype.hasOwnProperty.call(config, 'functional')) {
-        config.functional = false;
-    }
-
-    if (!config.template && !config.functional) {
-        warn(
-            'ComponentFactory',
-            `The component "${config.name}" needs a template to be functional.`,
-            'Please add a "template" property to your component definition',
-            config
-        );
-        return false;
-    } else if (config.template) {
+    if (config.template) {
         /**
          * Register the main template of the component.
          */
@@ -99,6 +87,14 @@ function register(componentName, componentConfiguration = {}) {
          * The complete rendered template including all overrides will be added later.
          */
         delete config.template;
+    } else {
+        warn(
+            'ComponentFactory',
+            `The component "${config.name}" needs a template to be functional.`,
+            'Please add a "template" property to your component definition',
+            config
+        );
+        return false;
     }
 
     componentRegistry.set(componentName, config);

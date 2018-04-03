@@ -18,7 +18,6 @@ import './form/sw-multi-select';
 
 import './utils/sw-loader';
 import './utils/sw-notifications';
-import './utils/sw-vnode-renderer';
 import './utils/sw-color-badge';
 
 import './structure/sw-admin';

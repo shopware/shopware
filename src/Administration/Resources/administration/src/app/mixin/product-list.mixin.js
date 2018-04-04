@@ -11,7 +11,7 @@ Mixin.register('productList', {
             offset: 0,
             limit: 25,
             totalProducts: 0,
-            sortBy: 'name',
+            sortBy: null,
             sortDirection: 'ASC',
             term: '',
             filters: [],
@@ -33,12 +33,15 @@ Mixin.register('productList', {
          */
         generateCriteriaFromFilters(filters, operator = 'AND') {
             const terms = [];
+
             this.filters.forEach((filter) => {
                 if (!filter.active) {
                     return;
                 }
+
                 const criteria = filter.criteria;
                 const term = CriteriaFactory[criteria.type](criteria.field, criteria.options);
+
                 terms.push(term);
             });
 
@@ -46,10 +49,7 @@ Mixin.register('productList', {
                 return null;
             }
 
-            return CriteriaFactory.nested(
-                operator,
-                ...terms
-            );
+            return CriteriaFactory.nested(operator, ...terms);
         },
 
         /**
@@ -64,10 +64,16 @@ Mixin.register('productList', {
             const config = {
                 offset: this.offset,
                 limit: this.limit,
-                sortBy: this.sortBy,
-                sortDirection: this.sortDirection,
-                term: this.term
+                sortDirection: this.sortDirection
             };
+
+            if (this.term && this.term.length > 0) {
+                config.term = this.term;
+            }
+
+            if (this.sortBy && this.sortBy.length > 0) {
+                config.sortBy = this.sortBy;
+            }
 
             if (criterias) {
                 config.criterias = [criterias.getQuery()];

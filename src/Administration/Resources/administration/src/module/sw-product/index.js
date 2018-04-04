@@ -3,6 +3,7 @@ import './component/sw-product-basic-form';
 import './component/sw-product-category-form';
 import './component/sw-product-price-form';
 import './component/sw-product-settings-form';
+import './view/sw-product-detail-base';
 import './page/sw-product-list';
 import './page/sw-product-detail';
 
@@ -37,12 +38,6 @@ Module.register('sw-product', {
             path: 'product/create',
             meta: {
                 parentPath: 'sw.product.index'
-            },
-            children: {
-                general: {
-                    component: 'sw-product-detail-general',
-                    path: 'general'
-                }
             }
         },
 
@@ -53,17 +48,9 @@ Module.register('sw-product', {
                 parentPath: 'sw.product.index'
             },
             children: {
-                general: {
-                    component: 'sw-product-detail-general',
-                    path: 'general'
-                },
-                variants: {
-                    component: 'sw-product-detail-variants',
-                    path: 'variants'
-                },
-                advancedPrices: {
-                    component: 'sw-product-detail-advanced-prices',
-                    path: 'advanced-prices'
+                base: {
+                    component: 'sw-product-detail-base',
+                    path: 'base'
                 }
             }
         }

@@ -1,0 +1,36 @@
+{% block sw_product_detail_base %}
+    <div class="sw-product-detail-base">
+
+        {% block sw_product_detail_base_basic_info_card %}
+            <sw-card title="Produkt Informationen" :loading="isLoading">
+                {% block sw_product_detail_base_basic_info_form %}
+                    <sw-product-basic-form :product="product" :manufacturers="manufacturers"></sw-product-basic-form>
+                {% endblock %}
+            </sw-card>
+        {% endblock %}
+
+        {% block sw_product_detail_base_category_card %}
+            <sw-card title="Zuordnung" :loading="isLoading">
+                {% block sw_product_detail_base_category_form %}
+                    <sw-product-category-form :product="product"></sw-product-category-form>
+                {% endblock %}
+            </sw-card>
+        {% endblock %}
+
+        {% block sw_product_detail_base_price_card %}
+            <sw-card title="Preise" :loading="isLoading">
+                {% block sw_product_detail_base_price_form %}
+                    <sw-product-price-form :product="product" :taxRates="taxes"></sw-product-price-form>
+                {% endblock %}
+            </sw-card>
+        {% endblock %}
+
+        {% block sw_product_detail_base_settings_card %}
+            <sw-card title="Einstellungen" :loading="isLoading">
+                {% block sw_product_detail_base_settings_form %}
+                    <sw-product-settings-form :product="product"></sw-product-settings-form>
+                {% endblock %}
+            </sw-card>
+        {% endblock %}
+    </div>
+{% endblock %}

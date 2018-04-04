@@ -15,7 +15,6 @@ Component.register('sw-card', {
             required: false,
             default: false
         }
-    }
     },
 
     computed: {

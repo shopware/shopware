@@ -1,7 +1,7 @@
 import { Component } from 'src/core/shopware';
-import template from './sw-product-detail-general.html.twig';
+import template from './sw-product-detail-base.html.twig';
 
-Component.register('sw-product-detail-general', {
+Component.register('sw-product-detail-base', {
     template,
 
     props: {
@@ -15,14 +15,15 @@ Component.register('sw-product-detail-general', {
             required: true,
             default: []
         },
-        taxRates: {
+        taxes: {
             type: Array,
             required: true,
             default: []
         },
-        serviceProvider: {
-            type: Object,
-            required: true
+        isLoading: {
+            type: Boolean,
+            required: true,
+            default: false
         }
     }
 });

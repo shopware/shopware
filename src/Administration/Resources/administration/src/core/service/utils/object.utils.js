@@ -64,7 +64,7 @@ export function getObjectChangeSet(baseObject, compareObject) {
             return { ...acc, [key]: diff };
         }
 
-        return acc;
+        return { ...acc, [key]: c[key] };
     }, {});
 }
 

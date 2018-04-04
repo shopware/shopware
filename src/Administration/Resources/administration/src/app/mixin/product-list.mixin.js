@@ -52,6 +52,36 @@ Mixin.register('productList', {
             return CriteriaFactory.nested(operator, ...terms);
         },
 
+        getDataFromRoute() {
+            const params = this.$route.params;
+
+            this.offset = params.offset || this.offset;
+            this.limit = params.limit || this.limit;
+            this.sortDirection = params.sortDirection || this.sortDirection;
+            this.sortBy = params.sortBy || this.sortBy;
+            this.term = params.term || this.term;
+
+            return params;
+        },
+
+        getListingParams() {
+            const params = {
+                limit: this.limit,
+                offset: this.offset
+            };
+
+            if (this.term && this.term.length) {
+                params.term = this.term;
+            }
+
+            if (this.sortBy && this.sortBy.length) {
+                params.sortBy = this.sortBy;
+                params.sortDirection = this.sortDirection;
+            }
+
+            return params;
+        },
+
         /**
          * Requests the product list from the API using the {@link module:app/state/product} state module.
          *
@@ -60,26 +90,14 @@ Mixin.register('productList', {
         getProductList() {
             this.isLoading = true;
 
+            const params = this.getListingParams();
             const criterias = this.generateCriteriaFromFilters(this.filters);
-            const config = {
-                offset: this.offset,
-                limit: this.limit,
-                sortDirection: this.sortDirection
-            };
-
-            if (this.term && this.term.length > 0) {
-                config.term = this.term;
-            }
-
-            if (this.sortBy && this.sortBy.length > 0) {
-                config.sortBy = this.sortBy;
-            }
 
             if (criterias) {
-                config.criterias = [criterias.getQuery()];
+                params.criterias = [criterias.getQuery()];
             }
 
-            return this.$store.dispatch('product/getProductList', config).then((response) => {
+            return this.$store.dispatch('product/getProductList', params).then((response) => {
                 this.totalProducts = response.total;
                 this.products = response.products;
                 this.isLoading = false;

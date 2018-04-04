@@ -38,7 +38,7 @@ Component.register('sw-product-list', {
     },
 
     created() {
-        this.updateParamsUsingRoute();
+        this.getDataFromRoute();
         this.updateRoute();
     },
 
@@ -56,15 +56,25 @@ Component.register('sw-product-list', {
     },
 
     methods: {
-        onEdit(product) {
-            if (product && product.id) {
-                this.$router.push({
-                    name: 'sw.product.detail',
-                    params: {
-                        id: product.id
-                    }
-                });
-            }
+        updateRoute() {
+            const params = this.getListingParams();
+
+            this.$router.push({
+                name: 'sw.product.index',
+                params
+            });
+        },
+
+        handlePagination() {
+            this.updateRoute();
+            this.getProductList();
+        },
+
+        onSearch(value) {
+            this.term = value;
+
+            this.updateRoute();
+            this.getProductList();
         },
 
         onSortColumn(column) {
@@ -76,58 +86,7 @@ Component.register('sw-product-list', {
             }
 
             this.updateRoute();
-
-            this.getProductList({
-                limit: this.limit,
-                offset: this.offset
-            });
-        },
-
-        handlePagination() {
-            this.updateRoute();
-
-            this.getProductList({
-                limit: this.limit,
-                offset: this.offset
-            });
-        },
-
-        updateParamsUsingRoute() {
-            const routeParams = this.$route.params;
-
-            this.offset = routeParams.offset || this.offset;
-            this.limit = routeParams.limit || this.limit;
-            this.sortDirection = routeParams.sortDirection || this.sortDirection;
-            this.sortBy = routeParams.sortBy || this.sortBy;
-            this.term = routeParams.term || this.term;
-        },
-
-        updateRoute() {
-            const params = {
-                limit: this.limit,
-                offset: this.offset,
-                sortBy: this.sortBy,
-                sortDirection: this.sortDirection
-            };
-
-            if (this.term && this.term.length) {
-                params.term = this.term;
-            }
-
-            this.$router.push({
-                name: 'sw.product.indexPaginated',
-                params
-            });
-        },
-
-        onSearch(value) {
-            this.term = value;
-
-            this.updateRoute();
-            this.getProductList({
-                limit: this.limit,
-                offset: this.offset
-            });
+            this.getProductList();
         },
 
         onSwitchFilter(filter, filterIndex) {
@@ -135,17 +94,22 @@ Component.register('sw-product-list', {
 
             // Switch back to the first page when a filter was enabled / disabled
             this.offset = 0;
-            this.getProductList({
-                limit: this.limit,
-                offset: this.offset
-            });
+            this.getProductList();
         },
 
         onRefresh() {
-            this.getProductList({
-                limit: this.limit,
-                offset: this.offset
-            });
+            this.getProductList();
+        },
+
+        onEdit(product) {
+            if (product && product.id) {
+                this.$router.push({
+                    name: 'sw.product.detail',
+                    params: {
+                        id: product.id
+                    }
+                });
+            }
         }
     }
 });

@@ -1,0 +1,49 @@
+@import '~less/variables';
+
+@sw-context-menu-color-background-hover: @color-light-gray;
+@sw-context-menu-color-text: @color-gutenberg;
+@sw-context-menu-color-active: @color-shopware-blue;
+
+.sw-context-menu-item {
+    display: grid;
+    grid-template-columns: 16px auto;
+    align-items: center;
+    justify-items: stretch;
+    justify-content: stretch;
+    position: relative;
+    padding: 8px 0 8px 16px;
+    margin: 0;
+    line-height: 18px;
+
+    &:hover {
+        background: @sw-context-menu-color-background-hover;
+        color: @sw-context-menu-color-active;
+
+        a,
+        .sw-icon {
+            color: @sw-context-menu-color-active;
+        }
+    }
+
+    &.is-disabled {
+        pointer-events: none;
+        opacity: .5;
+    }
+
+    a {
+        display: block;
+        padding-right: 16px;
+        color: @sw-context-menu-color-text;
+        text-decoration: none;
+        outline: none;
+    }
+
+    & > .sw-icon {
+        color: @sw-context-menu-color-text;
+    }
+
+    .sw-context-menu-item__text {
+        display: block;
+        padding: 0 0 0 12px;
+    }
+}

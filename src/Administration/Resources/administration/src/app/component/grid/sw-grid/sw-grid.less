@@ -15,8 +15,10 @@
 .sw-grid {
     width: 100%;
     height: 100%;
+    display: grid;
     overflow: hidden;
     position: absolute;
+    grid-template-rows: 100%;
 
     &.sw-grid--sidebar {
         grid-template-columns: auto 64px;
@@ -43,36 +45,37 @@
     }
 
     .sw-grid__content {
-        width: 100%;
-        height: 100%;
         display: grid;
         grid-template-rows: auto;
 
         &.sw-grid__content--header {
-            grid-template-rows: 64px auto;
+            grid-template-rows: 64px 1fr;
         }
 
         &.sw-grid__content--pagination {
-            grid-template-rows: auto 64px;
+            grid-template-rows: 1fr 64px;
         }
 
         &.sw-grid__content--header.sw-grid__content--pagination {
-            grid-template-rows: 64px auto 64px;
+            grid-template-rows: 64px 1fr 64px;
         }
     }
 
     .sw-grid__header {
-        height: 64px;
         display: grid;
         grid-auto-flow: column;
         background-color: @sw-grid-header-color-background;
         border-bottom: 1px solid @sw-grid-header-color-border;
-        padding-right: 15px;
+        padding-right: 17px; // ToDo: Has to be set dynamically for the scrollbar width
 
         .sw-grid__cell {
             font-size: 16px;
             font-weight: bold;
             color: @sw-grid-header-color-text;
+
+            &:last-child {
+                border-right: 0 none;
+            }
 
             &.is--sortable {
                 cursor: pointer;
@@ -90,6 +93,7 @@
     }
 
     .sw-grid__body {
+        justify-self: stretch;
         overflow-x: hidden;
         overflow-y: scroll;
     }
@@ -104,6 +108,10 @@
             background: @sw-grid-item-even-color-background;
         }
 
+        &:last-child {
+            border-bottom: 0 none;
+        }
+
         &:hover {
             background: lighten(@sw-grid-item-active-color-background, 2%);
         }
@@ -111,10 +119,14 @@
         &.is--selected {
             background: @sw-grid-item-active-color-background;
             border-bottom: 1px solid @sw-grid-item-active-color-border;
+            box-shadow: 0 -1px 0 0 @sw-grid-item-active-color-border;
         }
     }
 
     .sw-grid__cell {
+        display: grid;
+        grid-auto-flow: column;
+        align-items: center;
         min-height: 64px;
         line-height: 24px;
         padding: 20px 20px;
@@ -122,6 +134,14 @@
         cursor: default;
         position: relative;
         border-right: 1px solid @sw-grid-item-color-border;
+
+        .sw-field  {
+            margin-bottom: 0;
+        }
+
+        .sw-context-button {
+            height: 24px;
+        }
     }
 
     .sw-grid__action-button {
@@ -138,7 +158,6 @@
     }
 
     .sw-grid__pagination {
-        height: 64px;
         background: @sw-grid-item-color-background;
         border-top: 1px solid @sw-grid-item-color-border;
     }

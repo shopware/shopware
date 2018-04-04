@@ -1,13 +1,31 @@
-.sw-grid {
-    .sw-grid__cell-left {
+@import "~less/variables";
+
+@sw-grid-column-color-action:        @color-shopware-blue;
+
+.sw-grid-column {
+    &.sw-grid-column--left {
         text-align: left;
+        justify-items: left;
+        justify-content: left;
     }
 
-    .sw-grid__cell-center {
+    &.sw-grid-column--center {
         text-align: center;
+        justify-items: center;
+        justify-content: center;
     }
 
-    .sw-grid__cell-right {
+    &.sw-grid-column--right {
         text-align: right;
+        justify-items: right;
+        justify-content: right;
+    }
+
+    &.has--action {
+        cursor: pointer;
+
+        &:hover {
+            color: @sw-grid-column-color-action;
+        }
     }
 }

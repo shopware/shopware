@@ -1,5 +1,5 @@
 {% block sw_context_menu_item %}
-    <li class="sw-context-menu-item" v-on="$listeners" :class="{ 'is-disabled': disabled }">
+    <div class="sw-context-menu-item" v-on="$listeners" :class="{ 'is-disabled': disabled }">
         {% block sw_context_menu_item %}
             <sw-icon :name="icon" small v-if="icon"></sw-icon>
         {% endblock %}
@@ -9,5 +9,5 @@
                 <slot>{% block sw_context_menu_item_text_slot_default %}{% endblock %}</slot>
             </span>
         {% endblock %}
-    </li>
+    </div>
 {% endblock %}

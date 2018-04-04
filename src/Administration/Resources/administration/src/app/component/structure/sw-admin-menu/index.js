@@ -59,6 +59,10 @@ Component.register('sw-admin-menu', {
 
         onToggleSidebar() {
             this.isExpanded = !this.isExpanded;
+
+            if (!this.isExpanded) {
+                this.closeFlyout();
+            }
         },
 
         onToggleUserActions() {

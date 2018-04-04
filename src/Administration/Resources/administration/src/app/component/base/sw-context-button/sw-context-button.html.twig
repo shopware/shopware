@@ -7,9 +7,9 @@
         {% endblock %}
 
         {% block sw_context_button_menu %}
-            <ul class="sw-context-menu" v-if="showMenu" :style="{ 'right': rightPos }">
+            <div class="sw-context-button__menu" v-if="showMenu" :style="{ 'right': rightPos }">
                 <slot>{% block sw_context_button_menu_slot_default %}{% endblock %}</slot>
-            </ul>
+            </div>
         {% endblock %}
     </div>
 {% endblock %}

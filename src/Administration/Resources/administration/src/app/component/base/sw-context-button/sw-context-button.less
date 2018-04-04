@@ -3,12 +3,15 @@
 @sw-context-menu-color-border: @color-steam-cloud;
 @sw-context-menu-color-background-hover: @color-light-gray;
 @sw-context-menu-color-text: @color-gutenberg;
+@sw-context-menu-color-active: @color-shopware-blue;
 
 .sw-context-button {
     display: inline-block;
     position: relative;
+    color: @sw-context-menu-color-text;
+    cursor: pointer;
 
-    .sw-context-menu {
+    .sw-context-button__menu {
         position: absolute;
         z-index: 10;
         width: 255px;
@@ -17,7 +20,6 @@
         box-shadow: 0 3px 6px 0 rgba(120,138,155,0.5);
         border: 1px solid @sw-context-menu-color-border;
         border-radius: 4px;
-        list-style: none;
         text-align: left;
         font-size: 14px;
         color: @sw-context-menu-color-text;
@@ -33,39 +35,6 @@
             background: #fff;
             border-top: 1px solid @sw-context-menu-color-border;
             border-left: 1px solid @sw-context-menu-color-border;
-        }
-
-        .sw-context-menu-item {
-            position: relative;
-            margin: 0;
-            padding: 8px 16px;
-            line-height: 18px;
-
-            &.is-disabled {
-                pointer-events: none;
-                opacity: .5;
-            }
-
-            a {
-                display: block;
-                color: @sw-context-menu-color-text;
-                text-decoration: none;
-            }
-
-            &:hover {
-                background: @sw-context-menu-color-background-hover;
-            }
-
-            & > .sw-icon {
-                position: absolute;
-                top: 10px;
-                color: @sw-context-menu-color-text;
-            }
-
-            .sw-context-menu-item__text {
-                display: block;
-                padding: 0 0 0 24px;
-            }
         }
     }
 }

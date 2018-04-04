@@ -13,13 +13,6 @@
     color: @sw-pagination-controls-color-text;
     position: relative;
 
-    .sw-pagination__per-page {
-        display: inline-block;
-        font-size: 14px;
-        line-height: 16px;
-        color: @color-kashmir;
-    }
-
     .sw-pagination__list {
         display: inline-block;
     }
@@ -32,10 +25,16 @@
     .sw-pagination__list-button,
     .sw-pagination__page-button,
     .sw-pagination__list-separator {
-        border: 0 none;
         padding: 8px 12px;
+        border: 0 none;
+        color: @sw-pagination-controls-color-text;
         background: #fff;
+        cursor: pointer;
         outline: none;
+
+        &:hover {
+            color: @sw-pagination-controls-color-hover;
+        }
     }
 
     .sw-pagination__list-button {
@@ -48,21 +47,32 @@
     }
 
     .sw-pagination__per-page {
+        display: inline-block;
+        font-size: 14px;
+        line-height: 16px;
         position: absolute;
         right: 0;
         margin: 0 20px;
 
-        select {
-            display: inline-block;
-            height: 32px;
-            width: 60px;
-            padding: 0 0 0 5px;
-            margin: 0 0 0 10px;
-            border: 1px solid @sw-pagination-controls-color-border;
-            border-radius: @sw-pagination-border-radius;
-            background-color: @sw-pagination-color-background;
-            text-align: center;
-            outline: none;
+        .sw-field {
+            display: grid;
+            grid-template-columns: 120px 60px;
+            align-items: center;
+
+            label {
+                margin-bottom: 0;
+            }
+
+            .sw-field__select {
+                select {
+                    padding: 2px 12px;
+                }
+
+                .sw-icon {
+                    top: 9px;
+                    right: 9px;
+                }
+            }
         }
     }
 }

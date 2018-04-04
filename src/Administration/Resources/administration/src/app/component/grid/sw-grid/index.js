@@ -19,14 +19,6 @@ Component.register('sw-grid', {
             default: null
         },
 
-        actions: {
-            type: Array,
-            required: false,
-            default() {
-                return ['edit', 'delete', 'duplicate'];
-            }
-        },
-
         selectable: {
             type: Boolean,
             required: false,
@@ -99,10 +91,6 @@ Component.register('sw-grid', {
                     flex += `${column.flex} `;
                 }
             });
-
-            if (this.actions.length > 0) {
-                flex += '140px';
-            }
 
             return {
                 'grid-template-columns': flex.trim()

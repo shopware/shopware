@@ -7,7 +7,13 @@ import { deepCopyObject, getObjectChangeSet } from 'src/core/service/utils/objec
  */
 State.register('product', {
     namespaced: true,
-    strict: true,
+    /**
+     * VueJS now also throws an error when changing sub properties on the state directly.
+     * This does not work with our current concept of the watchers.
+     *
+     * ToDo: Evaluate strict state handling with large object structures.
+     */
+    // strict: true,
 
     state() {
         return {

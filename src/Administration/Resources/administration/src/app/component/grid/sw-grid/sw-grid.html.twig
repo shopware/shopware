@@ -26,10 +26,6 @@
                                             </span>
                                         {% endblock %}
                                     </div>
-
-                                    {% block sw_grid_slot_header_cell_actions %}
-                                        <div class="sw-grid__cell" v-if="actions.length > 0">Aktionen</div>
-                                    {% endblock %}
                                 </div>
                             {% endblock %}
                         {% endblock %}
@@ -49,30 +45,8 @@
                                                 </div>
                                             {% endblock %}
 
-                                            <slot name="columns" :item="item">{% block sw_grid_slot_columns %}{% endblock %}</slot>
-
-                                            <slot name="actions" v-if="actions.length > 0">
-                                                {% block sw_grid_slot_actions %}
-                                                    <div class="sw-grid__cell">
-                                                        {% block sw_grid_action_edit %}
-                                                            <button class="sw-grid__action-button" @click="$emit('edit', item)" v-if="actions.indexOf('edit') !== -1">
-                                                                <sw-icon name="small-pencil-paper" title="Edit" small />
-                                                            </button>
-                                                        {% endblock %}
-
-                                                        {% block sw_grid_action_delete %}
-                                                            <button class="sw-grid__action-button" @click="$emit('delete', item)" v-if="actions.indexOf('delete') !== -1">
-                                                                <sw-icon name="small-default-x-line-medium" title="Delete" small />
-                                                            </button>
-                                                        {% endblock %}
-
-                                                        {% block sw_grid_action_delete %}
-                                                            <button class="sw-grid__action-button" @click="$emit('duplicate', item)" v-if="actions.indexOf('duplicate') !== -1">
-                                                                <sw-icon name="small-copy" title="Copy" small />
-                                                            </button>
-                                                        {% endblock %}
-                                                    </div>
-                                                {% endblock %}
+                                            <slot name="columns" :item="item">
+                                                {% block sw_grid_slot_columns %}{% endblock %}
                                             </slot>
                                         </div>
                                     {% endblock %}

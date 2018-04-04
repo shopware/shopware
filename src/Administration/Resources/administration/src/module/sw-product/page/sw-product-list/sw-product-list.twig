@@ -1,35 +1,172 @@
-<sw-page>
-    <template slot="smart-bar-header">
-        <h2>Produktübersicht</h2>
-    </template>
+{% block sw_product_list %}
+    <sw-page>
+        <template slot="smart-bar-header">
+            {% block sw_product_list_smart_bar_header %}
+                <h2>Produktübersicht ({{ totalProducts }} Produkte)</h2>
+            {% endblock %}
+        </template>
 
-    <template slot="smart-bar-actions">
-        <router-link :to="{ name: 'sw.product.create' }">
-            <sw-button :isPrimary="true">Neues Produkt anlegen</sw-button>
-        </router-link>
-    </template>
+        <template slot="smart-bar-actions">
+            {% block sw_product_list_smart_bar_actions %}
+                <router-link :to="{ name: 'sw.product.create' }">
+                    <sw-button :isPrimary="true">Neues Produkt anlegen</sw-button>
+                </router-link>
+            {% endblock %}
+        </template>
 
-    <template slot="content">
-        <div class="sw-product--list">
-            <sw-grid :items="products" :pagination="true" v-on:edit="onEdit">
-                <template slot="columns" slot-scope="{ item }">
-                    <sw-grid-column flex="50px" label="#"></sw-grid-column>
-                    <sw-grid-column flex="1" label="Name">{{ item.name }}</sw-grid-column>
-                    <sw-grid-column flex="1" label="Manufacturer">{{ item.manufacturer.name }}</sw-grid-column>
-                    <sw-grid-column flex="100px" label="Active">
-                        <sw-icon name="small-default-checkmark-line-medium" small v-if="item.active" />
-                        <sw-icon name="small-default-x-line-medium" small v-else />
-                    </sw-grid-column>
-                    <sw-grid-column flex="100px" label="Price">{{ item.price.gross | currency }}</sw-grid-column>
-                    <sw-grid-column flex="200px" label="Stock">{{ item.stock }} in stock</sw-grid-column>
-                </template>
+        <template slot="content">
+            {% block sw_product_list_content %}
+                <div class="sw-product--list">
+                    {% block sw_product_list_grid %}
+                        <sw-grid :items="products"
+                                 :pagination="true"
+                                 :sortBy="sortBy"
+                                 :sortDirection="sortDirection"
+                                 :sidebar="true"
+                                 :actions="[]"
+                                 @edit="onEdit"
+                                 @sort-column="onSortColumn">
 
-                <template slot="pagination">
-                    <sw-pagination :page="page" :max-page="maxPage" :limit="limit" :total="total" v-on:page-change="pageChange"></sw-pagination>
-                </template>
-            </sw-grid>
+                            {% block sw_product_list_grid_slots %}
+                                <template slot="columns" slot-scope="{ item }">
+                                    {% block sw_product_list_grid_columns %}
 
-            <sw-loader v-if="isLoading"></sw-loader>
-        </div>
-    </template>
-</sw-page>
+                                        {% block sw_product_list_grid_columns_name %}
+                                            <sw-grid-column flex="1"
+                                                            label="Name"
+                                                            sortable
+                                                            dataIndex="name"
+                                                            @click="onEdit(item)"
+                                                            class="has--action">
+                                                {{ item.name }}
+                                            </sw-grid-column>
+                                        {% endblock %}
+
+                                        {% block sw_product_list_grid_columns_manufacturer %}
+                                            <sw-grid-column flex="1"
+                                                            label="Hersteller"
+                                                            sortable
+                                                            dataIndex="manufacturer.name">
+                                                {{ item.manufacturer.name }}
+                                            </sw-grid-column>
+                                        {% endblock %}
+
+                                        {% block sw_product_list_grid_columns_active %}
+                                            <sw-grid-column flex="75px"
+                                                            label="Aktiv"
+                                                            sortable
+                                                            dataIndex="active"
+                                                            align="center">
+                                                <sw-icon name="small-default-checkmark-line-medium" small v-if="item.active" class="is--active" />
+                                                <sw-icon name="small-default-x-line-medium" small v-else class="is--inactive" />
+                                            </sw-grid-column>
+                                        {% endblock %}
+
+                                        {% block sw_product_list_grid_columns_price %}
+                                            <sw-grid-column flex="100px"
+                                                            label="Preis"
+                                                            sortable
+                                                            dataIndex="price"
+                                                            align="right">
+                                                {{ item.price.gross | currency }}
+                                            </sw-grid-column>
+                                        {% endblock %}
+
+                                        {% block sw_product_list_grid_columns_stock %}
+                                            <sw-grid-column flex="135px"
+                                                            label="Lager"
+                                                            sortable
+                                                            dataIndex="stock"
+                                                            align="right">
+                                                {{ item.stock }}
+                                                <sw-color-badge :variant="item.stock | stockColorVariant"></sw-color-badge>
+                                            </sw-grid-column>
+                                        {% endblock %}
+
+                                        {% block sw_product_list_grid_columns_actions %}
+                                            <sw-grid-column flex="100px" label="Aktionen" align="center">
+                                                <sw-context-button>
+
+                                                    {% block sw_product_list_grid_columns_actions_edit %}
+                                                        <sw-context-menu-item icon="small-pencil-paper">
+                                                            <router-link :to="{
+                                                                    name: 'sw.product.detail',
+                                                                    params: { id: item.id } }">
+                                                                Produkt editieren
+                                                            </router-link>
+                                                        </sw-context-menu-item>
+                                                    {% endblock %}
+
+                                                    {% block sw_product_list_grid_columns_actions_delete %}
+                                                        <sw-context-menu-item icon="small-default-x-line-medium" :disabled="true">
+                                                            Produkt löschen
+                                                        </sw-context-menu-item>
+                                                    {% endblock %}
+
+                                                    {% block sw_product_list_grid_columns_actions_duplicate %}
+                                                        <sw-context-menu-item icon="small-copy" :disabled="true">
+                                                            Produkt duplizieren
+                                                        </sw-context-menu-item>
+                                                    {% endblock %}
+                                                </sw-context-button>
+                                            </sw-grid-column>
+                                        {% endblock %}
+                                    {% endblock %}
+                                </template>
+
+                                <template slot="pagination">
+                                    {% block sw_product_list_grid_pagination %}
+                                        <sw-pagination :offset="offset"
+                                                       :limit="limit"
+                                                       :total="totalProducts"
+                                                       :total-visible="7"
+                                                       @page-change="pageChange">
+                                        </sw-pagination>
+                                    {% endblock %}
+                                </template>
+
+                                {% block sw_product_list_grid_sidebar %}
+                                    <sw-sidebar slot="sidebar">
+                                        {% block sw_product_list_grid_sidebar_search %}
+                                            <sw-sidebar-item icon="default-action-search" title="Search">
+                                                <sw-field type="text" placeholder="Enter search term..." :value="term" @change="onSearch"></sw-field>
+
+                                                <sw-alert variant="warning" :showIcon="false">
+                                                    This is a <strong>demo</strong>. The search will be placed in the header later on.
+                                                </sw-alert>
+                                            </sw-sidebar-item>
+                                        {% endblock %}
+
+                                        {% block sw_product_list_grid_sidebar_filter %}
+                                            <sw-sidebar-item icon="default-action-filter" title="Filter">
+                                                <sw-field type="switch"
+                                                          v-for="(filter, index) in filters"
+                                                          :label="filter.label"
+                                                          :value="filter.active"
+                                                          :key="index"
+                                                          @change="onSwitchFilter(filter.criteria, index)">
+                                                </sw-field>
+
+                                                <sw-alert variant="warning" :showIcon="false">
+                                                    <strong>Demo</strong> filters which will be replaced with more meaningful filters in the future.
+                                                </sw-alert>
+                                            </sw-sidebar-item>
+                                        {% endblock %}
+
+                                        {% block sw_product_list_grid_sidebar_refresh %}
+                                            <sw-sidebar-item icon="default-arrow-360-left" @click="onRefresh"></sw-sidebar-item>
+                                        {% endblock %}
+                                    </sw-sidebar>
+                                {% endblock %}
+                            {% endblock %}
+                        </sw-grid>
+                    {% endblock %}
+
+                    {% block sw_product_list_grid_loader %}
+                        <sw-loader v-if="isLoading"></sw-loader>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        </template>
+    </sw-page>
+{% endblock %}

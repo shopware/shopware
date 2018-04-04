@@ -1,5 +1,5 @@
 {% block sw_grid_column %}
-    <div class="sw-grid__column sw-grid__cell" :class="'sw-grid__cell-' + align" v-on="$listeners">
+    <div class="sw-grid-column sw-grid__cell" :class="'sw-grid-column--' + align" v-on="$listeners">
         <slot>{% block sw_grid_column_slot_default %}{% endblock %}</slot>
     </div>
 {% endblock %}

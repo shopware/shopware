@@ -8,6 +8,8 @@ import './base/sw-sidebar';
 import './base/sw-sidebar-item';
 import './base/sw-context-button';
 import './base/sw-context-menu-item';
+import './base/sw-tabs';
+import './base/sw-tabs-item';
 
 import './grid/sw-grid';
 import './grid/sw-grid-column';
@@ -29,7 +31,4 @@ import './structure/sw-card-view';
 
 import './structure/sw-admin-menu-item';
 import './structure/sw-admin-menu';
-
 import './structure/sw-search-bar';
-import './structure/sw-tabs';
-import './structure/sw-tabs-item';

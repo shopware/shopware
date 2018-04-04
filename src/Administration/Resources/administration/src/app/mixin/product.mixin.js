@@ -23,7 +23,7 @@ Mixin.register('product', {
      * @param next
      */
     beforeRouteEnter(to, from, next) {
-        if (to.name === 'sw.product.create' && !to.params.id) {
+        if (to.name.includes('sw.product.create') && !to.params.id) {
             to.params.id = utils.createId();
         }
 
@@ -62,7 +62,7 @@ Mixin.register('product', {
     },
 
     mounted() {
-        if (this.$route.name === 'sw.product.create') {
+        if (this.$route.name.includes('sw.product.create')) {
             this.createEmptyProduct(this.productId);
         } else {
             this.getProductById(this.productId);

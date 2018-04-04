@@ -22,15 +22,19 @@
 
         {% block sw_product_detail_content %}
             <sw-card-view slot="content">
-                <sw-tabs class="sw-product-detail-page__tabs">
-                    <sw-tabs-item :route="{ name: 'sw.product.detail.base', params: { id: product.id } }" title="Allgemein">Allgemein</sw-tabs-item>
-                </sw-tabs>
+                {% block sw_product_detail_content_tabs %}
+                    <sw-tabs class="sw-product-detail-page__tabs">
+                        <sw-tabs-item :route="{ name: 'sw.product.detail', params: { id: $route.params.id } }" title="Allgemein">Allgemein</sw-tabs-item>
+                    </sw-tabs>
+                {% endblock %}
 
-                <router-view :product="product"
-                             :manufacturers="manufacturers"
-                             :taxes="taxes"
-                             :isLoading="isLoading">
-                </router-view>
+                {% block sw_product_detail_content_view %}
+                    <router-view :product="product"
+                                 :manufacturers="manufacturers"
+                                 :taxes="taxes"
+                                 :isLoading="isLoading">
+                    </router-view>
+                {% endblock %}
             </sw-card-view>
         {% endblock %}
     </sw-page>

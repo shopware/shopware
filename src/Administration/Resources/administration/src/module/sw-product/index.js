@@ -6,6 +6,7 @@ import './component/sw-product-settings-form';
 import './view/sw-product-detail-base';
 import './page/sw-product-list';
 import './page/sw-product-detail';
+import './page/sw-product-create';
 
 Module.register('sw-product', {
     type: 'core',
@@ -34,23 +35,35 @@ Module.register('sw-product', {
         },
 
         create: {
-            component: 'sw-product-detail',
+            component: 'sw-product-create',
             path: 'product/create',
-            meta: {
-                parentPath: 'sw.product.index'
+            redirect: {
+                name: 'sw.product.create.base'
+            },
+            children: {
+                base: {
+                    component: 'sw-product-detail-base',
+                    path: 'base',
+                    meta: {
+                        parentPath: 'sw.product.index'
+                    }
+                }
             }
         },
 
         detail: {
             component: 'sw-product-detail',
             path: 'detail/:id',
-            meta: {
-                parentPath: 'sw.product.index'
+            redirect: {
+                name: 'sw.product.detail.base'
             },
             children: {
                 base: {
                     component: 'sw-product-detail-base',
-                    path: 'base'
+                    path: 'base',
+                    meta: {
+                        parentPath: 'sw.product.index'
+                    }
                 }
             }
         }
@@ -64,7 +77,6 @@ Module.register('sw-product', {
     }, {
         path: 'sw.product.create',
         label: 'Produkt anlegen',
-        parent: 'sw.product.index',
         color: '#57D9A3'
     }],
 

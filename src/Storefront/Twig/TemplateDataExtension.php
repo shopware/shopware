@@ -93,7 +93,10 @@ class TemplateDataExtension extends \Twig_Extension implements \Twig_Extension_G
 
         return [
             'shopware' => [
-                'config' => $this->configService->getByShop($context->getShop()->getId(), null),
+                'config' => array_merge(
+                    $this->getDefaultConfiguration(),
+                    $this->configService->getByShop($context->getShop()->getId(), null)
+                ),
                 'theme' => $this->getThemeConfig(),
             ],
             'controllerName' => $controllerInfo->getName(),
@@ -117,12 +120,18 @@ class TemplateDataExtension extends \Twig_Extension implements \Twig_Extension_G
                 'tabletLandscapeLogo' => 'bundles/storefront/src/img/logos/logo--tablet.png',
                 'tabletLogo' => 'bundles/storefront/src/img/logos/logo--tablet.png',
                 'mobileLogo' => 'bundles/storefront/src/img/logos/logo--mobile.png',
-//                TODO remove
                 'offcanvasCart' => true,
             ]
         );
 
         return $themeConfig;
+    }
+
+    private function getDefaultConfiguration(): array
+    {
+        return [
+            'showBirthdayField' => true,
+        ];
     }
 
     private function getControllerInfo(Request $request): ControllerInfo

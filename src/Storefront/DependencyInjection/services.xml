@@ -110,6 +110,9 @@
             <argument id="Shopware\Api\Country\Repository\CountryStateRepository" type="service"/>
             <argument id="Shopware\Api\Customer\Repository\CustomerAddressRepository" type="service"/>
             <argument id="Shopware\Api\Customer\Repository\CustomerRepository" type="service"/>
+            <argument type="service" id="security.authentication.manager"/>
+            <argument type="service" id="security.token_storage"/>
+            <argument type="service" id="Shopware\StorefrontApi\Context\StorefrontContextPersister"/>
         </service>
 
         <service class="Shopware\Storefront\Controller\AccountController" public="true" id="Shopware\Storefront\Controller\AccountController">

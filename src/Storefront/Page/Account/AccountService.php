@@ -16,7 +16,13 @@ use Shopware\Api\Entity\Search\Sorting\FieldSorting;
 use Shopware\CartBridge\Exception\NotLoggedInCustomerException;
 use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\Uuid;
+use Shopware\StorefrontApi\Context\StorefrontContextPersister;
 use Shopware\StorefrontApi\Exception\AddressNotFoundHttpException;
+use Shopware\StorefrontApi\Firewall\CustomerUser;
+use Symfony\Component\HttpKernel\HttpCache\Store;
+use Symfony\Component\Security\Core\Authentication\AuthenticationManagerInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 
 class AccountService
 {
@@ -40,16 +46,37 @@ class AccountService
      */
     private $customerRepository;
 
+    /**
+     * @var AuthenticationManagerInterface
+     */
+    private $authenticationManager;
+
+    /**
+     * @var TokenStorageInterface
+     */
+    private $tokenStorage;
+
+    /**
+     * @var StorefrontContextPersister
+     */
+    private $contextPersister;
+
     public function __construct(
         CountryRepository $countryRepository,
         CountryStateRepository $countryStateRepository,
         CustomerAddressRepository $customerAddressRepository,
-        CustomerRepository $customerRepository
+        CustomerRepository $customerRepository,
+        AuthenticationManagerInterface $authenticationManager,
+        TokenStorageInterface $tokenStorage,
+        StorefrontContextPersister $contextPersister
     ) {
         $this->countryRepository = $countryRepository;
         $this->countryStateRepository = $countryStateRepository;
         $this->customerAddressRepository = $customerAddressRepository;
         $this->customerRepository = $customerRepository;
+        $this->authenticationManager = $authenticationManager;
+        $this->tokenStorage = $tokenStorage;
+        $this->contextPersister = $contextPersister;
     }
 
     public function changeProfile(array $data, StorefrontContext $context)
@@ -60,6 +87,7 @@ class AccountService
             'lastName' => $data['lastname'],
             'title' => $data['title'] ?? null,
             'salutation' => $data['salutation'] ?? null,
+            'birthday' => array_key_exists('birthday', $data) ? $this->formatBirthday($data['birthday']) : null,
         ];
 
         $data = array_filter($data);
@@ -144,7 +172,6 @@ class AccountService
             'department' => $formData['department'] ?? null,
             'title' => $formData['title'] ?? null,
             'vatId' => $formData['vatId'] ?? null,
-            'phoneNumber' => $formData['phone'] ?? null,
             'additionalAddressLine1' => $formData['additionalAddressLine1'] ?? null,
             'additionalAddressLine2' => $formData['additionalAddressLine2'] ?? null,
         ];
@@ -195,6 +222,101 @@ class AccountService
         $this->customerRepository->update([$data], $context->getShopContext());
     }
 
+    public function createNewCustomer(array $formData, StorefrontContext $context)
+    {
+        $customerId = Uuid::uuid4()->toString();
+        $billingAddressId = Uuid::uuid4()->toString();
+
+        $personal = $formData['personal'];
+        $billing = $formData['billing'];
+        $shipping = $formData['shipping'];
+
+        $addresses = [];
+
+        $addresses[] = array_filter([
+            'id' => $billingAddressId,
+            'customerId' => $customerId,
+            'countryId' => $billing['country'],
+            'salutation' => $billing['salutation'] ?? $personal['salutation'],
+            'firstName' => $billing['firstname'] ?? $personal['firstname'],
+            'lastName' => $billing['lastname'] ?? $personal['lastname'],
+            'street' => $billing['street'],
+            'zipcode' => $billing['zipcode'],
+            'city' => $billing['city'],
+            'phoneNumber' => $billing['phone'] ?? null,
+            'vatId' => $billing['vatId'] ?? null,
+            'additionalAddressLine1' => $billing['additionalAddressLine1'] ?? null,
+            'additionalAddressLine2' => $billing['additionalAddressLine2'] ?? null,
+            'countryStateId' => $billing['country_state'] ?? null,
+        ]);
+
+        if (array_key_exists('shippingAddress', $billing) && $billing['shippingAddress'] === '1') {
+            $shippingAddressId = Uuid::uuid4()->toString();
+            $addresses[] = array_filter([
+                'id' => $shippingAddressId,
+                'customerId' => $customerId,
+                'countryId' => $shipping['country'],
+                'salutation' => $shipping['salutation'] ?? $personal['salutation'],
+                'firstName' => $shipping['firstname'] ?? $personal['firstname'],
+                'lastName' => $shipping['lastname'] ?? $personal['lastname'],
+                'street' => $shipping['street'],
+                'zipcode' => $shipping['zipcode'],
+                'city' => $shipping['city'],
+                'countryStateId' => $shipping['country_state'] ?? null,
+            ]);
+        }
+
+        // todo implement customer number generator
+        $data = [
+            'id' => $customerId,
+            'customerGroupId' => $context->getShop()->getCustomerGroupId(),
+            'defaultPaymentMethodId' => $context->getShop()->getPaymentMethodId(),
+            'groupId' => $context->getShop()->getCustomerGroupId(),
+            'shopId' => $context->getShop()->getId(),
+            'number' => '123',
+            'salutation' => $personal['salutation'],
+            'firstName' => $personal['firstname'],
+            'lastName' => $personal['lastname'],
+            'password' => password_hash($personal['password'], PASSWORD_BCRYPT, ['cost' => 13]),
+            'email' => $personal['email'],
+            'title' => $personal['title'] ?? null,
+            'encoder' => 'bcrypt',
+            'active' => true,
+            'defaultBillingAddressId' => $billingAddressId,
+            'defaultShippingAddressId' => $shippingAddressId ?? $billingAddressId,
+            'addresses' => $addresses,
+            'birthday' => sprintf('%s-%s-%s',
+                    (int) $personal['birthday']['year'],
+                    (int) $personal['birthday']['month'],
+                    (int) $personal['birthday']['day']
+                ) ?? null,
+        ];
+
+        $data = array_filter($data);
+        $this->customerRepository->create([$data], $context->getShopContext());
+    }
+
+    public function loginCustomer(string $username, string $password, StorefrontContext $context)
+    {
+        $unauthenticatedToken = new UsernamePasswordToken($username, $password, 'storefront');
+
+        $authenticatedToken = $this->authenticationManager->authenticate($unauthenticatedToken);
+
+        $this->tokenStorage->setToken($authenticatedToken);
+
+        /** @var CustomerUser $user */
+        $user = $authenticatedToken->getUser();
+
+        $this->contextPersister->save(
+            $context->getToken(),
+            [
+                'customerId' => $user->getId(),
+                'billingAddressId' => null,
+                'shippingAddressId' => null,
+            ]
+        );
+    }
+
     /**
      * @throws NotLoggedInCustomerException
      */
@@ -243,5 +365,21 @@ class AccountService
         ]);
 
         return $this->countryStateRepository->search($criteria, $context->getShopContext());
+    }
+
+    private function formatBirthday(array $data): ?string
+    {
+        if (!array_key_exists('year', $data) or
+            !array_key_exists('month', $data) or
+            !array_key_exists('day', $data)) {
+            return null;
+        }
+
+        return sprintf(
+            '%s-%s-%s',
+            (int) $data['year'],
+            (int) $data['month'],
+            (int) $data['day']
+        );
     }
 }

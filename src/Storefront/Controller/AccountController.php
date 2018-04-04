@@ -95,7 +95,7 @@ class AccountController extends StorefrontController
     /**
      * @Route("/account", name="account_home")
      */
-    public function indexAction()
+    public function indexAction(): Response
     {
         return $this->renderStorefront('frontend/account/index.html.twig');
     }
@@ -104,7 +104,7 @@ class AccountController extends StorefrontController
      * @Route("/account/login", name="account_login")
      * @Method({"GET"})
      */
-    public function loginAction(Request $request)
+    public function loginAction(Request $request, StorefrontContext $context): Response
     {
         // get the login error if there is one
         $error = $this->authUtils->getLastAuthenticationError();
@@ -113,6 +113,8 @@ class AccountController extends StorefrontController
         $lastEmail = $this->authUtils->getLastUsername();
 
         return $this->renderStorefront('frontend/register/index.html.twig', [
+            'redirectTo' => $request->get('redirectTo', $this->generateUrl('account_home')),
+            'countryList' => $this->accountService->getCountryList($context),
             'last_email' => $lastEmail,
             'error' => $error,
         ]);
@@ -128,7 +130,7 @@ class AccountController extends StorefrontController
     /**
      * @Route("/account/logout", name="account_logout")
      */
-    public function logoutAction(StorefrontContext $context)
+    public function logoutAction(StorefrontContext $context): Response
     {
         $this->contextPersister->save(
             $context->getToken(),
@@ -136,6 +138,25 @@ class AccountController extends StorefrontController
         );
 
         return new Response('<html><body>Admin page!</body></html>');
+    }
+
+    /**
+     * @Route("/account/saveRegistration", name="account_save_registration")
+     * @Method({"POST"})
+     */
+    public function saveRegistrationAction(Request $request, StorefrontContext $context): Response
+    {
+        $formData = $request->request->get('register');
+        // todo validate user input
+        $this->accountService->createNewCustomer($formData, $context);
+
+        $this->accountService->loginCustomer(
+            $formData['personal']['email'],
+            $formData['personal']['password'],
+            $context
+        );
+
+        return $this->handleRedirectTo($request->query->get('redirectTo'));
     }
 
     /**

@@ -62,7 +62,7 @@ security:
                 target: /
 
     access_control:
-        - { path: ^/account/(login|login_check|logout)$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/account/(login|login_check|logout|saveRegistration)$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/account, roles: ROLE_CUSTOMER }
         - { path: ^/checkout/(index|cart|cartAmount|ajaxCart)$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/checkout, roles: ROLE_CUSTOMER }

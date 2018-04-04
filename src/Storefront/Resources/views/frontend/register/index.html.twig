@@ -102,37 +102,48 @@
             {% endblock %}
 
             {% block frontend_register_index_form %}
-                <form method="post" action="{url action=saveRegister sTarget=$sTarget sTargetAction=$sTargetAction}" class="panel register--form">
-
+                {# TODO sTarget sTargetAction #}
+                <form method="post" action="{{ path('account_save_registration', {'redirectTo': redirectTo}) }}" class="panel register--form">
                     {% block frontend_register_index_form_captcha_fieldset %}
                         {#{include file="frontend/register/error_message.tpl" error_messages=$errors.captcha}#}
                     {% endblock %}
 
                     {% block frontend_register_index_form_personal_fieldset %}
                         {#{include file="frontend/register/error_message.tpl" error_messages=$errors.personal}#}
-                        {#{% sw_include "frontend/register/personal_fieldset.html.twig" with {"formData": register.personal, "errorFlags": errors.personal} %}#}
+                        {% sw_include 'frontend/register/personal_fieldset.html.twig' with {
+                            'formData': register.personal,
+                            'errorFlags': errors.personal
+                        } %}
                     {% endblock %}
 
                     {% block frontend_register_index_form_billing_fieldset %}
                         {#{include file="frontend/register/error_message.tpl" error_messages=$errors.billing}#}
-                        {#{% sw_include "frontend/register/billing_fieldset.html.twig" with {"formData": register.billing, "errorFlags": errors.billing, 'countries': countries} %}#}
+                        {% sw_include 'frontend/register/billing_fieldset.html.twig' with {
+                            'formData': register.billing,
+                            'errorFlags': errors.billing,
+                            'countries': countries
+                        } %}
                     {% endblock %}
 
                     {% block frontend_register_index_form_shipping_fieldset %}
                         {#{include file="frontend/register/error_message.tpl" error_messages=$errors.shipping}#}
-                        {#{% sw_include "frontend/register/shipping_fieldset.html.twig" with {"formData": register.shipping, "errorFlags": errors.shipping, 'countries': countries} %}#}
+                        {% sw_include 'frontend/register/shipping_fieldset.html.twig' with {
+                            'formData': register.shipping,
+                            'errorFlags': errors.shipping,
+                            'countries': countries
+                        } %}
                     {% endblock %}
 
                     {# Privacy checkbox #}
                     {#{if !$update}#}
-                        {#{if {config name=ACTDPRCHECK}}#}
+                        {% if shopware.config.ACTDPRCHECK %}
                             {% block frontend_register_index_input_privacy %}
                                 <div class="register--privacy">
-                                    <input name="register[personal][dpacheckbox]" type="checkbox" id="dpacheckbox"{if $form_data.dpacheckbox} checked="checked"{/if} required="required" aria-required="true" value="1" class="chkbox is--required" />
-                                    <label for="dpacheckbox" class="chklabel{if isset($errors.personal.dpacheckbox)} has--error{/if}">{% trans from 'frontend/register/index' %}RegisterLabelDataCheckbox{% endtrans %}</label>
+                                    <input name="register[personal][dpacheckbox]" type="checkbox" id="dpacheckbox"{% if form_data.dpacheckbox %} checked="checked"{% endif %} required="required" aria-required="true" value="1" class="chkbox is--required" />
+                                    <label for="dpacheckbox" class="chklabel{% if errors.personal.dpacheckbox %} has--error{% endif %}">{% trans from 'frontend/register/index' %}RegisterLabelDataCheckbox{% endtrans %}</label>
                                 </div>
                             {% endblock %}
-                        {#{/if}#}
+                        {% endif %}
                     {#{/if}#}
 
                     {% block frontend_register_index_form_required %}

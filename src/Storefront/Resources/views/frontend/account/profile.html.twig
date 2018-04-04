@@ -130,7 +130,7 @@
                                                         </option>
 
                                                         {% for day in 1..31 %}
-                                                            <option value="{{ day }}" {% if day == formData.profile.birthday.day|default(customer.birthday|date('j')) %} selected{% endif %}>{{ day }}</option>
+                                                            <option value="{{ day }}" {% if day == formData.profile.birthday.day|default(customer.birthday ? customer.birthday|date('j')) %} selected{% endif %}>{{ day }}</option>
                                                         {% endfor %}
                                                     </select>
                                                 </div>
@@ -147,7 +147,7 @@
                                                         </option>
 
                                                         {% for month in 1..12 %}
-                                                            <option value="{{ month }}" {% if month == formData.profile.birthday.month|default(customer.birthday|date('n')) %}selected{% endif %}>{{ month }}</option>
+                                                            <option value="{{ month }}" {% if month == formData.profile.birthday.month|default(customer.birthday ? customer.birthday|date('n')) %}selected{% endif %}>{{ month }}</option>
                                                         {% endfor %}
                                                     </select>
                                                 </div>
@@ -164,7 +164,7 @@
                                                         </option>
 
                                                         {% for year in 'now'|date('Y')..'now - 120 years'|date('Y') %}
-                                                            <option value="{{ year }}" {% if year == formData.profile.birthday.year|default(customer.birthday|date('Y')) %}selected{% endif %}>{{ year }}</option>
+                                                            <option value="{{ year }}" {% if year == formData.profile.birthday.year|default(customer.birthday ? customer.birthday|date('Y')) %}selected{% endif %}>{{ year }}</option>
                                                         {% endfor %}
                                                     </select>
                                                 </div>

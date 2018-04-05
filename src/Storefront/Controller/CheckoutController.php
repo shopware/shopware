@@ -146,6 +146,7 @@ class CheckoutController extends StorefrontController
 
         return $this->renderStorefront('@Storefront/frontend/checkout/confirm.html.twig', [
             'cart' => $this->cartService->getCalculatedCart($context),
+            'redirectTo' => urlencode($request->getRequestUri())
         ]);
     }
 

@@ -21,7 +21,7 @@
 
         {% block frontend_address_form_content %}
             <div class="panel has--border is--rounded">
-                <form name="frmAddresses" method="post" action="{{ path('address_save') }}">
+                <form name="frmAddresses" method="post" action="{{ path('address_save', {'redirectTo': redirectTo}) }}">
                     <input type="hidden" name="address[addressId]" value="{{ formData.id }}">
                     {% sw_include '@Storefront/frontend/address/form.html.twig' %}
                 </form>

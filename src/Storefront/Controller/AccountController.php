@@ -21,12 +21,15 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
+use Symfony\Component\Security\Http\Util\TargetPathTrait;
 
 /**
  * @Route(service="Shopware\Storefront\Controller\AccountController")
  */
 class AccountController extends StorefrontController
 {
+    use TargetPathTrait;
+
     /**
      * @var AuthenticationUtils
      */
@@ -156,7 +159,11 @@ class AccountController extends StorefrontController
             $context
         );
 
-        return $this->handleRedirectTo($request->query->get('redirectTo'));
+        if ($targetPath = $this->getTargetPath($request->getSession(), 'storefront')) {
+            return $this->redirect($targetPath);
+        }
+
+        return $this->redirectToRoute('account_home');
     }
 
     /**
@@ -309,7 +316,6 @@ class AccountController extends StorefrontController
     {
         // todo validate user input
         $formData = $request->request->get('address');
-        $customerId = $context->getCustomer()->getId();
         $addressId = $this->accountService->saveAddress($formData, $context);
 
         if (array_key_exists('additional', $formData)) {
@@ -322,6 +328,10 @@ class AccountController extends StorefrontController
             }
         }
         $this->storefrontContextService->refresh($context->getShop()->getId(), $context->getToken());
+
+        if($url = $request->query->get('redirectTo')) {
+            return $this->handleRedirectTo($url);
+        }
 
         return $this->redirectToRoute('address_index');
     }
@@ -337,6 +347,7 @@ class AccountController extends StorefrontController
         return $this->renderStorefront('@Storefront/frontend/address/edit.html.twig', [
             'formData' => $address,
             'countryList' => $this->accountService->getCountryList($context),
+            'redirectTo' => $request->query->get('redirectTo'),
         ]);
     }
 

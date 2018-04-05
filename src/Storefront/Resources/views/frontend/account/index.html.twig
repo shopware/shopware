@@ -70,7 +70,7 @@
                                 {% if shopware.config.displayprofiletitle %}{{ context.customer.title }}{% endif %}
                                 {{ context.customer.firstName }} {{ context.customer.lastName }}<br/>
                                 {% if context.customer.birthday %}
-                                    {{ context.customer.birthday.format('dd.MM.y') }}<br/>
+                                    {{ context.customer.birthday|date('d.m.Y') }}<br/>
                                 {% endif %}
                                 {{ context.customer.email }}
                             </p>

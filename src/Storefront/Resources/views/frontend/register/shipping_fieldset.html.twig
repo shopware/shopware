@@ -208,10 +208,8 @@
                 {% for country in countryList %}
                     {% set states = country.extensions.states.elements %}
                     {% if states %}
-                        {# TODO #}
-                        {# $country.force_state_in_registration} #}
                         <div data-country-id="{{ country.id }}" data-address-type="shipping" class="register--state-selection field--select select-field{% if country.id != form_data.country %} is--hidden{% endif %}">
-                            <select name="register[shipping][country_state]"{% if country.id != form_data.country %} disabled="disabled"{% endif %} class="select--state{% if error_flags.stateID %} has--error{% endif %}">
+                            <select name="register[shipping][country_state]"{% if country.id != form_data.country %} disabled="disabled"{% endif %}{% if country.forceStateInRegistration %} required="required" aria-required="true"{% endif %} class="select--state{% if error_flags.stateID %} has--error{% endif %}">
                                 <option value="" selected="selected">{% trans %}RegisterShippingLabelState{% endtrans %}</option>
                                 {% for state in states %}
                                     <option value="{{ state.id }}" {% if state.id == form_data[state.id] %}selected="selected"{% endif %}>{{ state.name }}</option>

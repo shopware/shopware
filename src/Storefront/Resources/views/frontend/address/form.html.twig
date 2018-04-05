@@ -293,9 +293,9 @@
                                                 required="required"
                                                 aria-required="true"{% endif %}
                                                 class="select--state {% if country.forceStateInRegistration %}is--required{% endif %}{% if error_flags.state %} has--error{% endif %}">
-                                            <option value="" selected="selected"{% if country.force_state_in_registration %} disabled="disabled"{% endif %}>
+                                            <option value="" selected="selected"{% if country.forceStateInRegistration %} disabled="disabled"{% endif %}>
                                                 {% trans from 'frontend/register/billing_fieldset' %}RegisterBillingLabelState{% endtrans %}
-                                                {% if country.force_state_in_registration %}
+                                                {% if country.forceStateInRegistration %}
                                                     {% trans from 'frontend/register/index' %}RequiredField{% endtrans %}
                                                 {% endif %}
                                             </option>

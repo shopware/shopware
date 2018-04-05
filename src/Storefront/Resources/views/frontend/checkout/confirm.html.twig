@@ -170,8 +170,7 @@
                                                             {% block frontend_checkout_confirm_information_addresses_equal_panel_actions_change %}
                                                                 <div class="address--actions-change">
                                                                     {% block frontend_checkout_confirm_information_addresses_equal_panel_shipping_change_address %}
-                                                                        {# todo redirectTo #}
-                                                                        <a href="{{ path('address_edit', {'addressId': context.customer.activeBillingAddress.id}) }}"
+                                                                        <a href="{{ path('address_edit', {'addressId': context.customer.activeBillingAddress.id, 'redirectTo': redirectTo}) }}"
                                                                            data-address-editor="true"
                                                                            data-id="{{ context.customer.activeBillingAddress.id }}"
                                                                            data-setDefaultShippingAddress="true"
@@ -242,8 +241,7 @@
                                                         {% block frontend_checkout_confirm_information_addresses_billing_panel_actions_change %}
                                                             <div class="address--actions-change">
                                                                 {% block frontend_checkout_confirm_information_addresses_billing_panel_actions_change_address %}
-                                                                    {# TODO redirect to #}
-                                                                    <a href="{{ path('address_edit', {'addressId': context.customer.activeBillingAddress.id}) }}"
+                                                                    <a href="{{ path('address_edit', {'addressId': context.customer.activeBillingAddress.id, 'redirectTo': redirectTo}) }}"
                                                                        data-address-editor="true"
                                                                        data-setDefaultBillingAddress="true"
                                                                        data-id="{{ context.customer.activeBillingAddress.id }}"
@@ -298,8 +296,7 @@
                                                         {% block frontend_checkout_confirm_information_addresses_shipping_panel_actions_change %}
                                                             <div class="address--actions-change">
                                                                 {% block frontend_checkout_confirm_information_addresses_shipping_panel_actions_change_address %}
-                                                                    {# TODO redirectTo #}
-                                                                    <a href="{{ path('address_edit', {'addressId': context.customer.activeShippingAddress.id }) }}"
+                                                                    <a href="{{ path('address_edit', {'addressId': context.customer.activeShippingAddress.id, 'redirectTo': redirectTo }) }}"
                                                                        title="{% trans from 'frontend/checkout/confirm' %}ConfirmAddressSelectButton{% endtrans %}"
                                                                        data-title="{% trans from 'frontend/checkout/confirm' %}ConfirmAddressSelectButton{% endtrans %}"
                                                                        data-address-editor="true"
@@ -370,7 +367,6 @@
                                         {% block frontend_checkout_confirm_left_payment_method_actions %}
                                             <div class="panel--actions is--wide">
                                                 {# Action buttons #}
-                                                {# todo redirectTo #}
                                                 <a href="{{ path('checkout_shipping_payment') }}"
                                                    class="btn is--small btn--change-payment">
                                                     {% trans from 'frontend/checkout/confirm' %}ConfirmLinkChangePayment{% endtrans %}

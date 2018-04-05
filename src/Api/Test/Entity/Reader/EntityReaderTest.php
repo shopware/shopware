@@ -210,4 +210,74 @@ class EntityReaderTest extends KernelTestCase
         $inheritance = $green->getExtension('inheritance');
         $this->assertFalse($inheritance->get('contextPrices'));
     }
+
+
+    public function testTranslationExtension()
+    {
+        $redId = Uuid::uuid4()->getHex();
+        $greenId = Uuid::uuid4()->getHex();
+        $parentId = Uuid::uuid4()->getHex();
+
+        $parentTax = Uuid::uuid4()->getHex();
+        $greenTax = Uuid::uuid4()->getHex();
+
+        $products = [
+            [
+                'id' => $parentId,
+                'price' => ['gross' => 10, 'net' => 9],
+                'manufacturer' => ['name' => 'test'],
+                'name' => 'parent',
+                'tax' => ['id' => $parentTax, 'rate' => 13, 'name' => 'green'],
+            ],
+            [
+                'id' => $redId,
+                'parentId' => $parentId,
+                'name' => 'red'
+            ],
+            [
+                'id' => $greenId,
+                'parentId' => $parentId
+            ],
+        ];
+
+        $this->repository->create($products, ShopContext::createDefaultContext());
+
+        $products = $this->repository->readBasic([$redId, $greenId], ShopContext::createDefaultContext());
+
+        $this->assertTrue($products->has($redId));
+        $this->assertTrue($products->has($greenId));
+
+        /** @var ProductBasicStruct $red */
+        $red = $products->get($redId);
+
+        /** @var ArrayStruct $translated */
+        /** @var ArrayStruct $inheritance */
+        $this->assertTrue($red->hasExtension('translated'));
+        $this->assertTrue($red->hasExtension('inheritance'));
+
+        $inheritance = $red->getExtension('inheritance');
+        $translated  = $red->getExtension('translated');
+
+        $this->assertTrue($translated->get('name'));
+        $this->assertFalse($inheritance->get('name'));
+
+        $this->assertFalse($translated->get('description'));
+        $this->assertTrue($inheritance->get('description'));
+
+        /** @var ProductBasicStruct $green */
+        $green = $products->get($greenId);
+
+        $this->assertTrue($green->hasExtension('translated'));
+        $this->assertTrue($green->hasExtension('inheritance'));
+
+        $inheritance = $green->getExtension('inheritance');
+        $translated  = $green->getExtension('translated');
+
+        $this->assertTrue($translated->get('name'));
+        $this->assertTrue($inheritance->get('name'));
+
+        $this->assertFalse($translated->get('description'));
+        $this->assertTrue($inheritance->get('description'));
+    }
+
 }

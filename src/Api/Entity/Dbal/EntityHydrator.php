@@ -86,6 +86,7 @@ class EntityHydrator
         $data = [];
         $toOneAssociations = [];
         $inheritance = new ArrayStruct();
+        $translated = new ArrayStruct();
 
         foreach ($row as $originalKey => $value) {
             $field = $this->getField($fields, $originalKey, $root);
@@ -100,6 +101,14 @@ class EntityHydrator
                 if (array_key_exists($inheritedKey, $row)) {
                     $inheritance->set($field->getPropertyName(), (bool) $row[$inheritedKey]);
                     unset($row[$inheritedKey]);
+                }
+            }
+            if ($field instanceof TranslatedField) {
+                $translationKey = '_' . $originalKey . '.translated';
+
+                if (array_key_exists($translationKey, $row)) {
+                    $translated->set($field->getPropertyName(), (bool) $row[$translationKey]);
+                    unset($row[$translationKey]);
                 }
             }
 
@@ -176,6 +185,10 @@ class EntityHydrator
             }
 
             $entity->addExtension('inheritance', $inheritance);
+        }
+
+        if ($definition::getTranslationDefinitionClass()) {
+            $entity->addExtension('translated', $translated);
         }
 
         return $entity;

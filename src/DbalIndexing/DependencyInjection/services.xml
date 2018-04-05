@@ -58,6 +58,16 @@
             <argument type="service" id="Shopware\DbalIndexing\Product\CategoryAssignmentUpdater"/>
             <argument type="service" id="Shopware\DbalIndexing\Product\InheritanceJoinIdUpdater"/>
             <argument type="service" id="Shopware\DbalIndexing\Product\ListingPriceUpdater"/>
+            <argument type="service" id="Shopware\DbalIndexing\Product\VariationJsonUpdater"/>
+            <argument type="service" id="Shopware\DbalIndexing\Product\DatasheetJsonUpdater"/>
+        </service>
+
+        <service class="Shopware\DbalIndexing\Product\DatasheetJsonUpdater" id="Shopware\DbalIndexing\Product\DatasheetJsonUpdater">
+            <argument id="Doctrine\DBAL\Connection" type="service"/>
+        </service>
+
+        <service class="Shopware\DbalIndexing\Product\VariationJsonUpdater" id="Shopware\DbalIndexing\Product\VariationJsonUpdater">
+            <argument id="Doctrine\DBAL\Connection" type="service"/>
         </service>
 
         <service class="Shopware\DbalIndexing\Product\ListingPriceUpdater" id="Shopware\DbalIndexing\Product\ListingPriceUpdater">

@@ -43,6 +43,7 @@ use Shopware\Api\Shop\Struct\ShopBasicStruct;
 use Shopware\Api\Tax\Collection\TaxBasicCollection;
 use Shopware\Api\Tax\Repository\TaxRepository;
 use Shopware\Cart\Delivery\Struct\ShippingLocation;
+use Shopware\Cart\Tax\TaxDetector;
 use Shopware\Context\Struct\CheckoutScope;
 use Shopware\Context\Struct\CustomerScope;
 use Shopware\Context\Struct\ShopContext;
@@ -108,6 +109,11 @@ class ContextFactory implements ContextFactoryInterface
      */
     private $countryStateRepository;
 
+    /**
+     * @var TaxDetector
+     */
+    private $taxDetector;
+
     public function __construct(
         ShopRepository $shopRepository,
         CurrencyRepository $currencyRepository,
@@ -119,7 +125,8 @@ class ContextFactory implements ContextFactoryInterface
         PaymentMethodRepository $paymentMethodRepository,
         ShippingMethodRepository $shippingMethodRepository,
         Connection $connection,
-        CountryStateRepository $countryStateRepository
+        CountryStateRepository $countryStateRepository,
+        TaxDetector $taxDetector
     ) {
         $this->shopRepository = $shopRepository;
         $this->currencyRepository = $currencyRepository;
@@ -132,6 +139,7 @@ class ContextFactory implements ContextFactoryInterface
         $this->shippingMethodRepository = $shippingMethodRepository;
         $this->connection = $connection;
         $this->countryStateRepository = $countryStateRepository;
+        $this->taxDetector = $taxDetector;
     }
 
     public function create(
@@ -193,7 +201,7 @@ class ContextFactory implements ContextFactoryInterface
         //detect active delivery method, at first checkout scope, at least shop default method
         $delivery = $this->getShippingMethod($shop, $shopContext, $checkoutScope);
 
-        return new StorefrontContext(
+        $context = new StorefrontContext(
             $token,
             $shop,
             $currency,
@@ -206,6 +214,10 @@ class ContextFactory implements ContextFactoryInterface
             $customer,
             []
         );
+
+        $context->setTaxState($this->taxDetector->getTaxState($context));
+
+        return $context;
     }
 
     private function getCurrency(ShopBasicStruct $shop, ?string $currencyId, ShopContext $context): CurrencyBasicStruct

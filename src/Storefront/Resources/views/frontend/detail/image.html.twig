@@ -9,6 +9,7 @@
     {% block frontend_detail_image_box %}
         {% spaceless %}
 
+        {# @var product \Shopware\Api\Product\Struct\ProductDetailStruct #}
         <div class="image-slider--container{% if not product.media %} no--image{% endif %}{% if product.media.count == 0 %} no--thumbnails{% endif %}">
             <div class="image-slider--slide">
 
@@ -19,8 +20,8 @@
 
                             {% set alt = product.name|escape %}
 
-                            {% if product.image.description %}
-                                {% set alt = product.image.description|escape %}
+                            {% if product.cover.description %}
+                                {% set alt = product.cover.description|escape %}
                             {% endif %}
 
                             <span class="image--element"

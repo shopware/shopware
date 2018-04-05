@@ -32,6 +32,11 @@ class ProductConfiguratorBasicStruct extends Entity
      */
     protected $option;
 
+    /**
+     * @var bool
+     */
+    protected $selected = false;
+
     public function getProductId(): string
     {
         return $this->productId;
@@ -80,5 +85,15 @@ class ProductConfiguratorBasicStruct extends Entity
     public function setOption(ConfigurationGroupOptionBasicStruct $option): void
     {
         $this->option = $option;
+    }
+
+    public function isSelected(): bool
+    {
+        return $this->selected;
+    }
+
+    public function setSelected(bool $selected): void
+    {
+        $this->selected = $selected;
     }
 }

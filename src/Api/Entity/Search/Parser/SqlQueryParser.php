@@ -139,6 +139,11 @@ class SqlQueryParser
 
         if ($field instanceof JsonArrayField) {
             $result->addWhere('JSON_CONTAINS(' . $select . ', JSON_ARRAY(:' . $key . '))');
+
+            if (\is_array($query->getValue())) {
+                $result->addParameter($key, $query->getValue(), Connection::PARAM_STR_ARRAY);
+                return $result;
+            }
             $result->addParameter($key, $query->getValue());
 
             return $result;

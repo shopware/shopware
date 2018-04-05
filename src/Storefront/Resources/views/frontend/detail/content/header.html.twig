@@ -3,36 +3,11 @@
         {% block frontend_detail_index_header_inner %}
             <div class="product--info">
                 {% block frontend_detail_index_product_info %}
-
                     {# Product name #}
                     {% block frontend_detail_index_name %}
                         <h1 class="product--title" itemprop="name">
                             {{ product.name }}
                         </h1>
-                    {% endblock %}
-
-                    {# Product - Supplier information #}
-                    {% block frontend_detail_supplier_info %}
-                        {% if product.supplierImg %}
-                            <div class="product--supplier">
-                                {#<a href="{url controller='listing' action='manufacturer' sSupplier=$sArticle.supplierID}"#}
-                                   {#title="{"{s name="DetailDescriptionLinkInformation" namespace="frontend/detail/description"}{/s}"|escape}"#}
-                                   {#class="product--supplier-link">#}
-                                    {#<img src="{$sArticle.supplierImg}" alt="{$sArticle.supplierName|escape}">#}
-                                {#</a>#}
-                            </div>
-                        {% endif %}
-                    {% endblock %}
-
-                    {# Product rating #}
-                    {% block frontend_detail_comments_overview %}
-                        {% if shopware.config.votedisable %}
-                            {#<div class="product--rating-container">#}
-                                {#<a href="#product--publish-comment" class="product--rating-link" rel="nofollow" title="{"{s namespace="frontend/detail/actions" name='DetailLinkReview'}{/s}"|escape}">#}
-                                    {#{include file='frontend/_includes/rating.tpl' points=$sArticle.sVoteAverage.average type="aggregated" count=$sArticle.sVoteAverage.count}#}
-                                {#</a>#}
-                            {#</div>#}
-                        {% endif %}
                     {% endblock %}
                 {% endblock %}
             </div>

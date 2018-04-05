@@ -3,7 +3,20 @@
     {%  for configurator in product.configurators if not break %}
         {% if configurator.user_selected %}
             {% block frontend_detail_configurator_reset_button %}
-                <a class="btn is--icon-left reset--configuration" href="{url sArticle=$sArticle.articleID sCategory=$sArticle.categoryID}">
+                {# @var canonical \Shopware\Api\Seo\Struct\SeoUrlBasicStruct #}
+                {# @var product \Shopware\StorefrontApi\Product\ProductBasicStruct #}
+
+                {% set url = path('detail_page', { id: product.id }) %}
+                {% if product.parentId %}
+                    {% set url = path('detail_page', { id: product.parentId }) %}
+                {% endif %}
+
+                {% set canonical = product.extension('canonicalUrl') %}
+                {% if canonical  %}
+                    {% set url = canonical.url %}
+                {% endif %}
+
+                <a class="btn is--icon-left reset--configuration" href="{{ url }}">
                     <i class="icon--cross"></i>
                     {% trans from 'frontend/detail/index' %}DetailConfiguratorReset{% endtrans %}
                 </a>

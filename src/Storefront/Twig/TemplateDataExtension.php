@@ -120,6 +120,7 @@ class TemplateDataExtension extends \Twig_Extension implements \Twig_Extension_G
                 'tabletLandscapeLogo' => 'bundles/storefront/src/img/logos/logo--tablet.png',
                 'tabletLogo' => 'bundles/storefront/src/img/logos/logo--tablet.png',
                 'mobileLogo' => 'bundles/storefront/src/img/logos/logo--mobile.png',
+                'ajaxVariantSwitch' => true,
                 'offcanvasCart' => true,
             ]
         );

@@ -1,37 +1,66 @@
-{% sw_extends '@Shopware/frontend/index/header.html.twig' %}
+{% sw_extends '@Storefront/frontend/index/header.html.twig' %}
 
 {# Meta title #}
 {% block frontend_index_header_title %}
-    {% if product.metaTitle %}{{ product.metaTitle|escape('html')}} | {{ shopware.config.shopName|escape('html') }}{% else %}{{ product.name }} | {{ parent() }}{% endif %}
+    {% spaceless %}
+        {% set product = page.product %}
+        {% if product.metaTitle %}{{ product.metaTitle|escape('html')}} | {{ shopware.config.shopName|escape('html') }}{% else %}{{ product.name }} | {{ parent() }}{% endif %}
+    {% endspaceless %}
 {% endblock %}
 
 {# Meta opengraph tags #}
 {% block frontend_index_header_meta_tags_opengraph %}
+    {# @var product \Shopware\StorefrontApi\Product\ProductBasicStruct #}
+
+    {% set product = page.product %}
     <meta property="og:type" content="product" />
     <meta property="og:site_name" content="{{ shopware.config.shopName|escape('html') }}" />
-    {#<meta property="og:url" content="{url sArticle=$sArticle.articleID title=$sArticle.articleName}" />#}
-    <meta property="og:title" content="{{ product.name|escape('html') }}" />
-    {#<meta property="og:description" content="{$sArticle.description_long|strip_tags|trim|truncate:240|escapeHtml}" />#}
-    {#<meta property="og:image" content="{$sArticle.image.source}" />#}
+    {% set url = path('detail_page', { 'id' : page.product.id }) %}
+    {% if page.product.extension('canonicalUrl') %}
+        {% set url = page.product.extension('canonicalUrl').url %}
+    {% endif %}
 
-    {#<meta property="product:brand" content="{$sArticle.supplierName|escapeHtml}" />#}
-    {#<meta property="product:price" content="{$sArticle.price}" />#}
-    {#<meta property="product:product_link" content="{url sArticle=$sArticle.articleID title=$sArticle.articleName}" />#}
+    <meta property="og:url" content="{{ url }}" />
+    <meta property="og:title" content="{{ product.name|escape('html') }}" />
+    <meta property="og:description" content="{{ product.descriptionLong|escape('html') }}" />
+    <meta property="og:image" content="{{ product.cover.media.url }}" />
+    <meta property="product:brand" content="{{ product.manufacturer.name|escape('html') }}" />
+    <meta property="product:price" content="{{ product.calculatedPrice.totalPrice }}" />
+    <meta property="product:product_link" content="{{ url }}" />
 
     <meta name="twitter:card" content="product" />
     <meta name="twitter:site" content="{{ shopware.config.shopName|escape('html') }}" />
     <meta name="twitter:title" content="{{ product.name|escape('html') }}" />
-    {#<meta name="twitter:description" content="{$sArticle.description_long|strip_tags|trim|truncate:240|escapeHtml}" />#}
-    {#<meta name="twitter:image" content="{$sArticle.image.source}" />#}
+    <meta name="twitter:description" content="{{ product.descriptionLong|escape('html') }}" />
+    <meta name="twitter:image" content="{{ product.cover.media.url }}" />
 {% endblock %}
 
 {# Keywords #}
-{#{block name="frontend_index_header_meta_keywords"}{if $sArticle.keywords}{$sArticle.keywords|escapeHtml}{elseif $sArticle.sDescriptionKeywords}{$sArticle.sDescriptionKeywords|escapeHtml}{/if}{/block}#}
+{% block frontend_index_header_meta_keywords %}
+    {% spaceless %}
+        {# @var product \Shopware\StorefrontApi\Product\ProductBasicStruct #}
+        {% if page.product.keywords %}
+            {{ page.product.keywords|escape('html') }}
+        {% endif %}
+    {% endspaceless %}
+{% endblock %}
 
 {# Description #}
-{#{block name="frontend_index_header_meta_description"}{if $sArticle.description}{$sArticle.description|escapeHtml}{else}{$sArticle.description_long|strip_tags|trim|escapeHtml}{/if}{/block}#}
+{# @var product \Shopware\StorefrontApi\Product\ProductBasicStruct #}
+{% block frontend_index_header_meta_description %}
+    {% spaceless %}
+        {% if page.product.description  %}
+            {{ page.product.description|escape('html') }}
+        {% else %}
+            {{ page.product.descriptionLong|escape('html') }}
+        {% endif %}
+    {% endspaceless %}
+{% endblock %}
 
 {# Canonical link #}
 {% block frontend_index_header_canonical %}
-    {#<link rel="canonical" href="{url sArticle=$sArticle.articleID title=$sArticle.articleName}" />#}
+    {# @var url \Shopware\Api\Seo\Struct\SeoUrlBasicStruct #}
+    {% set url = page.product.extension('canonicalUrl') %}
+
+    <link rel="canonical" href="{{ url.url }}" />
 {% endblock %}

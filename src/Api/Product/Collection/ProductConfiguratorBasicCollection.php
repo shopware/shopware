@@ -82,6 +82,16 @@ class ProductConfiguratorBasicCollection extends EntityCollection
         return $groups;
     }
 
+    public function getByOptionId(string $optionId): ?ProductConfiguratorBasicStruct
+    {
+        foreach ($this->elements as $element) {
+            if ($element->getOptionId() === $optionId) {
+                return $element;
+            }
+        }
+        return null;
+    }
+
     protected function getExpectedClass(): string
     {
         return ProductConfiguratorBasicStruct::class;

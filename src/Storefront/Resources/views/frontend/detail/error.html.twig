@@ -2,17 +2,6 @@
 
 {% block frontend_index_content %}
     <div class="detail-error content listing--content">
-
         <h1 class="detail-error--headline">{% trans from 'frontend/detail/error' %}DetailRelatedHeader{% endtrans %}</h1>
-
-        {% if relatedProducts %}
-            <h2 class="detail-error--articles">{% trans from 'frontend/detail/error' %}DetailRelatedHeaderSimilarArticles{% endtrans %}</h2>
-
-            <div class="detail-error--listing listing">
-                {% for product in relatedProducts %}
-                    {% sw_include '@Storefront/frontend/listing/box_product.html.twig' %}
-                {% endfor %}
-            </div>
-        {% endif %}
     </div>
 {% endblock %}

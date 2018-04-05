@@ -1,76 +1,83 @@
 {% block frontend_detail_index_buy_container %}
-    <div class="product--buybox block{% if product.sConfigurator and product.sConfiguratorSettings.type == 2 %} is--wide{% endif %}">
+    {# @var product \Shopware\StorefrontApi\Product\ProductBasicStruct #}
+    {# @var page \Shopware\Storefront\Page\Detail\DetailPageStruct #}
+    <div class="product--buybox block{% if page.configurator and product.sConfiguratorSettings.type == 2 %} is--wide{% endif %}">
 
         {% block frontend_detail_rich_snippets_brand %}
-            {#<meta itemprop="brand" content="{$sArticle.supplierName|escape}"/>#}
+            <meta itemprop="brand" content="{{ product.manufacturer.name }}"/>
         {% endblock %}
 
         {% block frontend_detail_rich_snippets_weight %}
-            {#{% if $sArticle.weight}#}
-                {#<meta itemprop="weight" content="{$sArticle.weight} kg"/>#}
-            {#{% endif }#}
+            {% if product.weight %}
+                <meta itemprop="weight" content="{{ product.weight }} kg"/>
+            {% endif %}
         {% endblock %}
 
         {% block frontend_detail_rich_snippets_height %}
-            {#{% if $sArticle.height}#}
-                {#<meta itemprop="height" content="{$sArticle.height} cm"/>#}
-            {#{% endif }#}
+            {% if product.height %}
+                <meta itemprop="height" content="{{ product.height }} cm"/>
+            {% endif %}
         {% endblock %}
 
         {% block frontend_detail_rich_snippets_width %}
-            {#{% if $sArticle.width}#}
-                {#<meta itemprop="width" content="{$sArticle.width} cm"/>#}
-            {#{% endif }#}
+            {% if product.width %}
+                <meta itemprop="width" content="{{ product.width }} cm"/>
+            {% endif %}
         {% endblock %}
 
         {% block frontend_detail_rich_snippets_depth %}
-            {#{% if $sArticle.length}#}
-                {#<meta itemprop="depth" content="{$sArticle.length} cm"/>#}
-            {#{% endif }#}
+            {% if product.length %}
+                <meta itemprop="depth" content="{{ product.length }} cm"/>
+            {% endif %}
         {% endblock %}
 
         {% block frontend_detail_rich_snippets_release_date %}
-            {#{% if $sArticle.sReleasedate}#}
-                {#<meta itemprop="releaseDate" content="{$sArticle.sReleasedate}"/>#}
-            {#{% endif }#}
+            {% if product.releaseDate %}
+                <meta itemprop="releaseDate" content="{{ product.releaseDate.format('Y-m-d') }}"/>
+            {% endif %}
         {% endblock %}
 
         {% block frontend_detail_buy_laststock %}
             {#{% if !$sArticle.isAvailable && ($sArticle.isSelectionSpecified || !$sArticle.sConfigurator)}#}
                 {#{include file="frontend/_includes/messages.tpl" type="error" content="{s name='DetailBuyInfoNotAvailable' namespace='frontend/detail/buy'}{/s}"}#}
-            {#{% endif }#}
+            {#{% endif %}#}
         {% endblock %}
 
         {# Product email notification #}
         {% block frontend_detail_index_notification %}
-            {#{% if $sArticle.notification && $sArticle.instock <= 0 && $ShowNotification}#}
-                {#{include file="frontend/plugins/notification/index.tpl"}#}
-            {#{% endif }#}
+            {% if product.allowNotification and product.stock < product.minPurchase %}
+                {% sw_include '@Storefront/frontend/plugins/notification/index.html.twig' %}
+            {% endif %}
         {% endblock %}
 
         {# Product data #}
         {% block frontend_detail_index_buy_container_inner %}
-            <div itemprop="offers" itemscope itemtype="{% if product.sBlockPrices %}http://schema.org/AggregateOffer{% else %}http://schema.org/Offer{% endif %}" class="buybox--inner">
+
+            <div itemprop="offers" itemscope itemtype="{% if product.calculatedContextPrices.count > 0 %}http://schema.org/AggregateOffer{% else %}http://schema.org/Offer{% endif %}" class="buybox--inner">
 
                 {% block frontend_detail_index_data %}
-                    {#{% if $sArticle.sBlockPrices}#}
-                        {#{$lowestPrice=false}#}
-                        {#{$highestPrice=false}#}
-                        {#{foreach $sArticle.sBlockPrices as $blockPrice}#}
-                            {#{% if $lowestPrice === false || $blockPrice.price < $lowestPrice}#}
-                                {#{$lowestPrice=$blockPrice.price}#}
-                            {#{% endif }#}
-                            {#{% if $highestPrice === false || $blockPrice.price > $highestPrice}#}
-                                {#{$highestPrice=$blockPrice.price}#}
-                            {#{% endif }#}
-                        {#{/foreach}#}
-                        {#<meta itemprop="lowPrice" content="{$lowestPrice}"/>#}
-                        {#<meta itemprop="highPrice" content="{$highestPrice}"/>#}
-                        {#<meta itemprop="offerCount" content="{$sArticle.sBlockPrices|count}"/>#}
-                    {#{else}#}
-                        {#<meta itemprop="priceCurrency" content="{$Shop->getCurrency()->getCurrency()}"/>#}
-                    {#{% endif }#}
-                    {% sw_include '@Shopware/frontend/detail/data.html.twig' %} {#sArticle=$sArticle sView=1 #}
+                    {% if product.calculatedContextPrices.count %}
+                        {% set lowestPrice = false %}
+                        {% set highestPrice = false %}
+
+                        {# @var price \Shopware\Cart\Price\Struct\CalculatedPrice #}
+                        {% for price in product.calculatedContextPrices %}
+                            {% if lowestPrice == false or price.totalPrice < lowestPrice %}
+                                {% set lowestPrice = price.totalPrice %}
+                            {% endif %}
+
+                            {% if highestPrice == false or price.totalPrice > highestPrice %}
+                                {% set highestPrice = price.totalPrice %}
+                            {% endif %}
+                        {% endfor %}
+                        <meta itemprop="lowPrice" content="{{ lowestPrice }}"/>
+                        <meta itemprop="highPrice" content="{{ highestPrice }}"/>
+                        <meta itemprop="offerCount" content="{{ product.calculatedContextPrices.count }}"/>
+                    {% else %}
+                        <meta itemprop="priceCurrency" content="{{ context.currency.name }}"/>
+                    {% endif %}
+
+                    {% sw_include '@Storefront/frontend/detail/data.html.twig' %}
                 {% endblock %}
 
                 {% block frontend_detail_index_after_data %}{% endblock %}
@@ -78,15 +85,9 @@
                 {# Configurator drop down menu's #}
                 {% block frontend_detail_index_configurator %}
                     <div class="product--configurator">
-                        {#{% if $sArticle.sConfigurator %}#}
-                            {#{% if $sArticle.sConfiguratorSettings.type == 1 %}#}
-                                {#{include file="frontend/detail/config_step.tpl" %}#}
-                            {#{elseif $sArticle.sConfiguratorSettings.type == 2}#}
-                                {#{include file="frontend/detail/config_variant.tpl" %}#}
-                            {#{% else %}#}
-                                {#{include file="frontend/detail/config_upprice.tpl" %}#}
-                            {#{% endif %}#}
-                        {#{% endif %}#}
+                        {% if page.configurator.count >= 0 %}
+                            {% sw_include '@Storefront/frontend/detail/config_step.html.twig' %}
+                        {% endif %}
                     </div>
                 {% endblock %}
 
@@ -95,12 +96,6 @@
                     {% sw_include '@Shopware/frontend/detail/buy.html.twig' %}
                 {% endblock %}
 
-                {# Product actions #}
-                {% block frontend_detail_index_actions %}
-                    <nav class="product--actions">
-                        {% sw_include '@Shopware/frontend/detail/actions.html.twig' %}
-                    </nav>
-                {% endblock %}
             </div>
         {% endblock %}
 
@@ -127,40 +122,6 @@
                             </span>
                         {% endblock %}
                     </li>
-                {% endblock %}
-
-                {# Product attributes fields #}
-                {% block frontend_detail_data_attributes %}
-
-                    {# Product attribute 1 #}
-                    {% block frontend_detail_data_attributes_attr1 %}
-                        {#{% if $sArticle.attr1}#}
-                            {#<li class="base-info--entry entry-attribute">#}
-                                {#<strong class="entry--label">#}
-                                    {#{s name="DetailAttributeField1Label" namepace="frontend/detail/index"}{/s}:#}
-                                {#</strong>#}
-
-                                {#<span class="entry--content">#}
-                                    {#{$sArticle.attr1|escape}#}
-                                {#</span>#}
-                            {#</li>#}
-                        {#{% endif }#}
-                    {% endblock %}
-
-                    {# Product attribute 2 #}
-                    {% block frontend_detail_data_attributes_attr2 %}
-                        {#{% if $sArticle.attr2}#}
-                            {#<li class="base-info--entry entry-attribute">#}
-                                {#<strong class="entry--label">#}
-                                    {#{s name="DetailAttributeField2Label" namepace="frontend/detail/index"}{/s}:#}
-                                {#</strong>#}
-
-                                {#<span class="entry--content">#}
-                                    {#{$sArticle.attr2|escape}#}
-                                {#</span>#}
-                            {#</li>#}
-                        {#{% endif }#}
-                    {% endblock %}
                 {% endblock %}
             </ul>
         {% endblock %}

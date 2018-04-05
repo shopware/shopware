@@ -89,11 +89,7 @@ class ProductCartCollector implements CartCollectorInterface
 
     private function getServiceIds(array $payloads): array
     {
-        if (!array_key_exists('services', $payloads) || empty($payloads['services'])) {
-            return [];
-        }
-
-        $serviceIds = array_column($payloads, 'services');
+        $serviceIds = array_filter(array_column($payloads, 'services'));
         $flat = [];
         foreach ($serviceIds as $ids) {
             $flat = array_merge($flat, $ids);

@@ -2,16 +2,19 @@
 
 namespace Shopware\StorefrontApi\Product;
 
+use Shopware\Api\Configuration\Struct\ConfigurationGroupOptionBasicStruct;
 use Shopware\Api\Entity\Search\Criteria;
+use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Search\Query\TermsQuery;
 use Shopware\Api\Entity\Search\Sorting\FieldSorting;
 use Shopware\Api\Product\Collection\ProductBasicCollection;
+use Shopware\Api\Product\Collection\ProductDetailCollection;
 use Shopware\Api\Product\Collection\ProductMediaBasicCollection;
 use Shopware\Api\Product\Repository\ProductMediaRepository;
 use Shopware\Api\Product\Repository\ProductRepository;
-use Shopware\Api\Product\Repository\ProductServiceRepository;
 use Shopware\Api\Product\Struct\ProductMediaSearchResult;
 use Shopware\Api\Product\Struct\ProductSearchResult;
+use Shopware\Api\Product\Struct\ProductServiceBasicStruct;
 use Shopware\Cart\Price\PriceCalculator;
 use Shopware\Context\Struct\StorefrontContext;
 
@@ -32,21 +35,14 @@ class StorefrontProductRepository
      */
     private $productMediaRepository;
 
-    /**
-     * @var ProductServiceRepository
-     */
-    private $serviceRepository;
-
     public function __construct(
         ProductRepository $repository,
         PriceCalculator $priceCalculator,
-        ProductMediaRepository $productMediaRepository,
-        ProductServiceRepository $serviceRepository
+        ProductMediaRepository $productMediaRepository
     ) {
         $this->repository = $repository;
         $this->priceCalculator = $priceCalculator;
         $this->productMediaRepository = $productMediaRepository;
-        $this->serviceRepository = $serviceRepository;
     }
 
     public function read(array $ids, StorefrontContext $context): ProductBasicCollection
@@ -58,13 +54,9 @@ class StorefrontProductRepository
 
     public function readDetail(array $ids, StorefrontContext $context): ProductBasicCollection
     {
-        $basics = $this->repository->readBasic($ids, $context->getShopContext());
+        $basics = $this->repository->readDetail($ids, $context->getShopContext());
 
-        $products = $this->loadListProducts($basics, $context);
-
-        $collection = $this->loadDetailProducts($ids, $context, $products);
-
-        return $collection;
+        return $this->loadDetailProducts($context, $basics);
     }
 
     public function search(Criteria $criteria, StorefrontContext $context): ProductSearchResult
@@ -77,6 +69,11 @@ class StorefrontProductRepository
         $basics->fill($listProducts->getElements());
 
         return $basics;
+    }
+
+    public function searchIds(Criteria $criteria, StorefrontContext $context): IdSearchResult
+    {
+        return $this->repository->searchIds($criteria, $context->getShopContext());
     }
 
     private function fetchMedia(array $ids, StorefrontContext $context): ProductMediaSearchResult
@@ -101,20 +98,7 @@ class StorefrontProductRepository
             $product = ProductBasicStruct::createFrom($base);
             $listingProducts->add($product);
 
-            //calculate listing price
-            $listingPriceDefinition = $product->getListingPriceDefinition($context->getShopContext());
-            $listingPrice = $this->priceCalculator->calculate($listingPriceDefinition, $context);
-            $product->setCalculatedListingPrice($listingPrice);
-
-            //calculate context prices
-            $contextPriceDefinitions = $product->getContextPriceDefinitions($context->getShopContext());
-            $contextPrices = $this->priceCalculator->calculateCollection($contextPriceDefinitions, $context);
-            $product->setCalculatedContextPrices($contextPrices);
-
-            //calculate simple price
-            $priceDefinition = $product->getPriceDefinition($context->getShopContext());
-            $price = $this->priceCalculator->calculate($priceDefinition, $context);
-            $product->setCalculatedPrice($price);
+            $this->calculatePrices($context, $product);
 
             $productMedia = $media->filterByProductId($product->getId())->getElements();
             $product->setMedia(new ProductMediaBasicCollection($productMedia));
@@ -123,23 +107,45 @@ class StorefrontProductRepository
         return $listingProducts;
     }
 
-    private function loadDetailProducts(array $ids, StorefrontContext $context, ProductBasicCollection $products): ProductBasicCollection
+    private function loadDetailProducts(StorefrontContext $context, ProductDetailCollection $products): ProductBasicCollection
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(new TermsQuery('product_service.productId', $ids));
-
-        $services = $this->serviceRepository->search($criteria, $context->getShopContext());
-
         $collection = new ProductBasicCollection();
+
         foreach ($products as $product) {
+            /** @var ProductDetailStruct $detail */
             $detail = ProductDetailStruct::createFrom($product);
 
-            $productServices = $services->filterByProductId($product->getId());
+            $this->calculatePrices($context, $detail);
 
-            $detail->setServices($productServices);
+            $detail->getServices()->sort(function(ProductServiceBasicStruct $a, ProductServiceBasicStruct $b) {
+                return $a->getOption()->getGroupId() <=> $b->getOption()->getGroupId();
+            });
+
+            $detail->getDatasheet()->sort(function(ConfigurationGroupOptionBasicStruct $a, ConfigurationGroupOptionBasicStruct $b) {
+                return $a->getGroupId() <=> $b->getGroupId();
+            });
+
             $collection->add($detail);
         }
 
         return $collection;
+    }
+
+    private function calculatePrices(StorefrontContext $context, StorefrontProductBasicInterface $product): void
+    {
+        //calculate listing price
+        $listingPriceDefinition = $product->getListingPriceDefinition($context->getShopContext());
+        $listingPrice = $this->priceCalculator->calculate($listingPriceDefinition, $context);
+        $product->setCalculatedListingPrice($listingPrice);
+
+        //calculate context prices
+        $contextPriceDefinitions = $product->getContextPriceDefinitions($context->getShopContext());
+        $contextPrices = $this->priceCalculator->calculateCollection($contextPriceDefinitions, $context);
+        $product->setCalculatedContextPrices($contextPrices);
+
+        //calculate simple price
+        $priceDefinition = $product->getPriceDefinition($context->getShopContext());
+        $price = $this->priceCalculator->calculate($priceDefinition, $context);
+        $product->setCalculatedPrice($price);
     }
 }

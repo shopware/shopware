@@ -3,7 +3,8 @@
 namespace Shopware\Api\Entity\Search\Query;
 
 use Shopware\Api\Entity\Search\CriteriaPartInterface;
+use Shopware\Framework\Struct\Struct;
 
-abstract class Query implements CriteriaPartInterface
+abstract class Query extends Struct implements CriteriaPartInterface
 {
 }

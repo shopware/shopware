@@ -1,10 +1,9 @@
 {% block frontend_detail_data_block_prices_start %}
-    {# @var product \Shopware\Storefront\Bridge\Product\Struct\DetailProductStruct #}
+    {# @var product \Shopware\StorefrontApi\Product\ProductBasicStruct #}
 
     <div class="block-prices--container block-price--{{ product.id }}">
 
-        {#{hasReferencePrice = ($sArticle.referenceprice > 0)}#}
-        {% set hasReferencePrice = 1 %}
+        {% set hasReferencePrice = product.calculatedPrice.referencePrice > 0 %}
 
         {% block frontend_detail_data_block_prices_table %}
             <table class="block-prices--table">
@@ -42,8 +41,8 @@
                             {% block frontend_detail_data_block_prices_table_body_inner %}
                                 {% set cylceClasses = ['is--primary', 'is--secondary'] %}
 
-                                {% for key, price in product.calculatedPrices %}
-                                    {% set next = product.calculatedPrices[key+1]  %}
+                                {% for key, price in product.calculatedContextPrices %}
+                                    {% set next = product.calculatedContextPrices[key+1]  %}
 
                                     {# @var price \Shopware\Cart\CalculatedPrice\Struct\CalculatedPrice #}
                                     {% block frontend_detail_data_block_prices %}
@@ -73,9 +72,9 @@
                                                 {% if hasReferencePrice %}
                                                     {% block frontend_detail_data_block_prices_table_body_cell_reference_price %}
                                                         <td class="block-prices--cell">
-                                                            {#{$blockPrice.referenceprice|currency}#}
-                                                            {#{% trans from 'frontend/listing/box_article' %}Star{% endtrans %} /#}
-                                                            {#{$sArticle.referenceunit} {$sArticle.sUnit.description}#}
+                                                            {{ price.referencePrice|localizedcurrency(context.currency.shortName) }}
+                                                            {% trans from 'frontend/listing/box_article' %}Star{% endtrans %} /
+                                                            {{ product.referenceUnit }} {{ product.unit.name }}
                                                         </td>
                                                     {% endblock %}
                                                 {% endif %}

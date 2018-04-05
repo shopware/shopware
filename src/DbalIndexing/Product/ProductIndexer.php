@@ -63,6 +63,16 @@ class ProductIndexer implements IndexerInterface
      */
     private $listingPriceUpdater;
 
+    /**
+     * @var VariationJsonUpdater
+     */
+    private $variationJsonUpdater;
+
+    /**
+     * @var DatasheetJsonUpdater
+     */
+    private $datasheetJsonUpdater;
+
     public function __construct(
         ProductRepository $productRepository,
         Connection $connection,
@@ -71,7 +81,10 @@ class ProductIndexer implements IndexerInterface
         ShopRepository $shopRepository,
         CategoryAssignmentUpdater $categoryAssignmentUpdater,
         InheritanceJoinIdUpdater $inheritanceJoinIdUpdater,
-        ListingPriceUpdater $listingPriceUpdater
+        ListingPriceUpdater $listingPriceUpdater,
+        VariationJsonUpdater $variationJsonUpdater,
+        DatasheetJsonUpdater $datasheetJsonUpdater
+
     ) {
         $this->productRepository = $productRepository;
         $this->connection = $connection;
@@ -81,6 +94,8 @@ class ProductIndexer implements IndexerInterface
         $this->categoryAssignmentUpdater = $categoryAssignmentUpdater;
         $this->inheritanceJoinIdUpdater = $inheritanceJoinIdUpdater;
         $this->listingPriceUpdater = $listingPriceUpdater;
+        $this->variationJsonUpdater = $variationJsonUpdater;
+        $this->datasheetJsonUpdater = $datasheetJsonUpdater;
     }
 
     public function index(\DateTime $timestamp): void
@@ -105,6 +120,10 @@ class ProductIndexer implements IndexerInterface
 
             $this->listingPriceUpdater->update($ids);
 
+            $this->variationJsonUpdater->update($ids);
+
+            $this->datasheetJsonUpdater->update($ids);
+
             $this->eventDispatcher->dispatch(
                 ProgressAdvancedEvent::NAME,
                 new ProgressAdvancedEvent(count($ids))
@@ -127,6 +146,10 @@ class ProductIndexer implements IndexerInterface
             $this->categoryAssignmentUpdater->update($ids, $event->getContext());
 
             $this->listingPriceUpdater->update($ids);
+
+            $this->variationJsonUpdater->update($ids);
+
+            $this->datasheetJsonUpdater->update($ids);
         });
     }
 

@@ -103,12 +103,34 @@ class InheritanceJoinIdUpdater
                       product.parent_id
                     ),
                     
+                    product.datasheet_join_id      = IFNULL(
+                      (
+                        SELECT product_datasheet.product_id 
+                        FROM product_datasheet
+                        WHERE product_datasheet.product_id = product.id 
+                        AND product.version_id = product_datasheet.product_version_id 
+                        LIMIT 1
+                      ), 
+                      product.parent_id
+                    ),
+                    
                     product.media_join_id         = IFNULL(
                       (
                         SELECT product_media.product_id 
                         FROM product_media 
                         WHERE product_media.product_id = product.id 
                         AND product.version_id = product_media.version_id 
+                        LIMIT 1
+                      ), 
+                      product.parent_id
+                    ),
+                    
+                    product.services_join_id         = IFNULL(
+                      (
+                        SELECT product_service.product_id 
+                        FROM product_service 
+                        WHERE product_service.product_id = product.id 
+                        AND product.version_id = product_service.version_id 
                         LIMIT 1
                       ), 
                       product.parent_id
@@ -177,6 +199,17 @@ class InheritanceJoinIdUpdater
                    ), 
                    product.parent_id
                 ),
+                
+                product.datasheet_join_id      = IFNULL(
+                  (
+                    SELECT product_datasheet.product_id 
+                    FROM product_datasheet
+                    WHERE product_datasheet.product_id = product.id 
+                    AND product.version_id = product_datasheet.product_version_id 
+                    LIMIT 1
+                  ), 
+                  product.parent_id
+                ),
                   
                 product.media_join_id         = IFNULL(
                   (
@@ -184,6 +217,17 @@ class InheritanceJoinIdUpdater
                     FROM product_media 
                     WHERE product_media.product_id = product.id 
                     AND product.version_id = product_media.version_id 
+                    LIMIT 1
+                  ), 
+                  product.parent_id
+                ),
+                
+                product.services_join_id         = IFNULL(
+                  (
+                    SELECT product_service.product_id 
+                    FROM product_service 
+                    WHERE product_service.product_id = product.id 
+                    AND product.version_id = product_service.version_id 
                     LIMIT 1
                   ), 
                   product.parent_id

@@ -17,18 +17,16 @@
 
         <input type="hidden" name="identifier" value="{{ product.id }}"/>
 
-        {#{$sCountConfigurator=$sArticle.sConfigurator|@count}#}
-
         {% block frontend_detail_buy_button_container_outer %}
             {% if product.active is defined == false or product.active %}
                 {% if product.isAvailable %}
                     {% block frontend_detail_buy_button_container %}
-                        <div class="buybox--button-container block-group{% if NotifyHideBasket and product.notification and product.instock <= 0 %} is--hidden{% endif %}">
+                        <div class="buybox--button-container block-group{% if NotifyHideBasket and product.allowNotification and product.stock <= 0 %} is--hidden{% endif %}">
 
                             {# Quantity selection #}
                             {% block frontend_detail_buy_quantity %}
                                 <div class="buybox--quantity block">
-                                    {% set maxPurchase = product.maxPurchase ?? shopware.config.maxpurchase %}
+                                    {% set maxPurchase = product.maxPurchase ?? 25 %}
                                     {% set maxQuantity = maxPurchase %}
                                     {% if product.isCloseout() and product.stock < maxPurchase %}
                                         {% set maxQuantity = product.stock %}

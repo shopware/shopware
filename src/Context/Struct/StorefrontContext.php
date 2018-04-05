@@ -32,6 +32,7 @@ use Shopware\Api\Shipping\Struct\ShippingMethodBasicStruct;
 use Shopware\Api\Shop\Struct\ShopBasicStruct;
 use Shopware\Api\Tax\Collection\TaxBasicCollection;
 use Shopware\Cart\Delivery\Struct\ShippingLocation;
+use Shopware\Cart\Price\Struct\CartPrice;
 use Shopware\Context\Exception\ContextRulesLockedException;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\Struct;
@@ -43,6 +44,12 @@ use Shopware\Framework\Struct\Struct;
  */
 class StorefrontContext extends Struct
 {
+    /**
+     * Unique token for context, e.g. stored in session or provided in request headers
+     * @var string
+     */
+    protected $token;
+
     /**
      * @var CustomerGroupBasicStruct
      */
@@ -98,10 +105,13 @@ class StorefrontContext extends Struct
      */
     protected $rulesLocked = false;
 
+
     /**
+     * @see CartPrice::TAX_STATE_GROSS, CartPrice::TAX_STATE_NET, CartPrice::TAX_STATE_FREE
+     *
      * @var string
      */
-    protected $token;
+    protected $taxState = CartPrice::TAX_STATE_GROSS;
 
     public function __construct(
         string $token,
@@ -210,5 +220,15 @@ class StorefrontContext extends Struct
     public function getToken(): string
     {
         return $this->token;
+    }
+
+    public function getTaxState(): string
+    {
+        return $this->taxState;
+    }
+
+    public function setTaxState(string $taxState): void
+    {
+        $this->taxState = $taxState;
     }
 }

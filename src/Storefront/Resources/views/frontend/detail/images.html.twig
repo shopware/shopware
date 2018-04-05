@@ -1,4 +1,5 @@
 {# Thumbnails #}
+{# @var product \Shopware\StorefrontApi\Product\ProductDetailStruct #}
 {% if product.media.count %}
 
     {# Thumbnail - Container #}
@@ -9,12 +10,14 @@
             {% block frontend_detail_image_thumbnail_items %}
 
                 {# Thumbnail - Main image #}
-                {% if product.cover.media.extensions.thumbnails %}
+                {% if product.cover.media.extension('thumbnails') %}
+                    {% set thumbnails = product.cover.media.extension('thumbnails') %}
+
                     <a href="{{ product.cover.media.url }}"
                        title="{% trans from 'frontend/detail/index' %}DetailThumbnailText{% endtrans %}: {{ product.name }}"
                        class="thumbnail--link is--active">
                         {% block frontend_detail_image_thumbs_main_img %}
-                            <img srcset="{{ product.cover.media.extensions.thumbnails[0].url }}"
+                            <img srcset="{{ thumbnails[0].url }}"
                                  alt="{% trans from 'frontend/detail/index' %}DetailThumbnailText{% endtrans %}: {{ product.name }}"
                                  title="{% trans from 'frontend/detail/index' %}DetailThumbnailText{% endtrans %}: {{ product.name }}"
                                  class="thumbnail--image" />
@@ -23,14 +26,16 @@
                 {% endif %}
 
                 {# Thumbnails #}
-                {% for thumbnail in product.media[1:] %}
-                    {% if thumbnail.media.extensions.thumbnails %}
+                {# @var media \Shopware\Api\Product\Struct\ProductMediaBasicStruct #}
+                {% for media in product.media[1:] %}
+                    {% if media.media.extension('thumbnails') %}
+                        {% set thumbnails = media.media.extension('thumbnails') %}
                         {% block frontend_detail_image_thumbnail_images %}
-                            <a href="{{ thumbnail.media.url }}{$image.src.1}"
+                            <a href="{{ media.media.url }}"
                                title="{% trans from 'frontend/detail/index' %}DetailThumbnailText{% endtrans %}: {{ product.name }}"
                                class="thumbnail--link">
                                 {% block frontend_detail_image_thumbs_images_img %}
-                                    <img srcset="{{ thumbnail.media.extensions.thumbnails[0].url }}"
+                                    <img srcset="{{ thumbnails[0].url }}"
                                          alt="{% trans from 'frontend/detail/index' %}DetailThumbnailText{% endtrans %}: {{ product.name }}"
                                          title="{% trans from 'frontend/detail/index' %}DetailThumbnailText{% endtrans %}: {{ product.name }}"
                                          class="thumbnail--image" />

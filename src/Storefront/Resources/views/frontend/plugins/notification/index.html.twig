@@ -1,0 +1,47 @@
+<div class="product--notification">
+    <input type="hidden" value="{{ notifyHideBasket }}" name="notifyHideBasket" id="notifyHideBasket"/>
+
+    {% if notifyValid == true %}
+        {% set messageType = "success" %}
+        {% set messageContent %}{% trans from 'frontend/plugins/notification' %}DetailNotifyInfoValid{% endtrans %}{% endset %}
+    {% elseif notifyInvalid == true and notifyAlreadyRegistered != true %}
+        {% set messageType = "warning" %}
+        {% set messageContent %}{% trans from 'frontend/plugins/notification' %}DetailNotifyInfoInvalid{% endtrans %}{% endset %}
+    {% elseif notifyEmailError == true %}
+        {% set messageType = "error" %}
+        {% set messageContent %}{% trans from 'frontend/plugins/notification' %}DetailNotifyInfoErrorMail{% endtrans %}{% endset %}
+    {% elseif waitingForOptInApprovement %}
+        {% set messageType = "success" %}
+        {% set messageContent %}{% trans from 'frontend/plugins/notification' %}DetailNotifyInfoSuccess{% endtrans %}{% endset %}
+    {% elseif notifyAlreadyRegistered == true %}
+        {% set messageType = "warning" %}
+        {% set messageContent %}{% trans from 'frontend/plugins/notification' %}DetailNotifyAlreadyRegistered{% endtrans %}{% endset %}
+    {% else %}
+        {% if notifyValid != true %}
+            {% set messageType = "warning" %}
+            {% set messageContent %}{% trans from 'frontend/plugins/notification' %}DetailNotifyHeader{% endtrans %}{% endset %}
+        {% endif %}
+    {% endif %}
+
+    {% sw_include '@Storefront/frontend/_includes/messages.tpl' with { type: messageType, content: messageContent } %}
+
+    {% block frontend_detail_index_notification_form %}
+        {% if notifyAlreadyRegistered == false %}
+            <form method="post" action="" class="notification--form block-group">
+                <input type="hidden" name="notifyOrdernumber" value="{{ product.id }}"/>
+                {% block frontend_detail_index_notification_field %}
+                    <input name="email"
+                           type="email"
+                           class="notification--field block"
+                           placeholder="{% trans from 'frontend/plugins/notification' %}DetailNotifyLabelMail{% endtrans %}"/>
+                {% endblock %}
+
+                {% block frontend_detail_index_notification_button %}
+                    <button type="submit" class="notification--button btn is--center block">
+                        <i class="icon--mail"></i>
+                    </button>
+                {% endblock %}
+            </form>
+        {% endif %}
+    {% endblock %}
+</div>

@@ -4,16 +4,17 @@
 {% block frontend_detail_description_buttons_offcanvas %}
     <div class="buttons--off-canvas">
         {% block frontend_detail_description_buttons_offcanvas_inner %}
-            {#<a href="#" title="{"{s name="OffcanvasCloseMenu" namespace="frontend/detail/description"}{/s}"|escape}" class="close--off-canvas">#}
-                {#<i class="icon--arrow-left"></i>#}
-                {#{s name="OffcanvasCloseMenu" namespace="frontend/detail/description"}{/s}#}
-            {#</a>#}
+            <a href="#" title="{% trans from 'frontend/detail/description' %}OffcanvasCloseMenu{% endtrans %}" class="close--off-canvas">
+                <i class="icon--arrow-left"></i>
+                {% trans from 'frontend/detail/description' %}OffcanvasCloseMenu{% endtrans %}
+            </a>
         {% endblock %}
     </div>
 {% endblock %}
 
 {% block frontend_detail_description %}
 <div class="content--description">
+    {# @var product \Shopware\StorefrontApi\Product\ProductDetailStruct #}
 
     {# Headline #}
     {% block frontend_detail_description_title %}
@@ -24,7 +25,7 @@
 
     {# Product description #}
     {% block frontend_detail_description_text %}
-        {# @var product \Shopware\StorefrontApi\Product\ProductBasicStruct #}
+
         <div class="product--description" itemprop="description">
             {{ product.descriptionLong | raw }}
         </div>
@@ -32,19 +33,28 @@
 
     {# Properties #}
     {% block frontend_detail_description_properties %}
-        {% if product.properties %}
+        {% if product.datasheet.count > 0 %}
             <div class="product--properties panel has--border">
                 <table class="product--properties-table">
-                    {% for property in product.properties %}
+
+                    {% set grouped = product.datasheet.groupByConfigurationGroups %}
+
+                    {# @var group \Shopware\Api\Configuration\Struct\ConfigurationGroupDetailStruct #}
+                    {% for group in grouped %}
                         <tr class="product--properties-row">
                             {# Property label #}
                             {% block frontend_detail_description_properties_label %}
-                                <td class="product--properties-label is--bold">{{ property.name|escape }}:</td>
+                                <td class="product--properties-label is--bold">{{ group.name|escape }}:</td>
                             {% endblock %}
+
+                            {% set names = [] %}
+                            {% for option in group.options %}
+                                {% set names = names|merge([option.name]) %}
+                            {% endfor %}
 
                             {# Property content #}
                             {% block frontend_detail_description_properties_content %}
-                                <td class="product--properties-value">{{ property.value|escape }}</td>
+                                <td class="product--properties-value">{{ names|join(', ') }}</td>
                             {% endblock %}
                         </tr>
                     {% endfor %}
@@ -55,85 +65,12 @@
 
     {# Product - Further links #}
     {% block frontend_detail_description_links %}
-
         {# Further links title #}
         {% block frontend_detail_description_links_title %}
             <div class="content--title">
                 {% trans from 'frontend/detail/description' %}ArticleTipMoreInformation{% endtrans %} "{{ product.name }}"
             </div>
         {% endblock %}
-
-        {# Links list #}
-        {% block frontend_detail_description_links_list %}
-            <ul class="content--list list--unstyled">
-                {% block frontend_detail_actions_contact %}
-                    <li class="list--entry">
-                        <a href="{$sInquiry}" rel="nofollow" class="content--link link--contact" title="{"{s name='DetailLinkContact' namespace="frontend/detail/actions"}{/s}"|escape}">
-                            <i class="icon--arrow-right"></i> {% trans from 'frontend/detail/actions' %}DetailLinkContact{% endtrans %}
-                        </a>
-                    </li>
-                {% endblock %}
-
-                {% for information in product.links %}
-                    {% if information.supplierSearch %}
-
-                        {# Vendor landing page link #}
-                        {% block frontend_detail_description_links_supplier %}
-                            <li class="list--entry">
-                                <a href="{url controller='listing' action='manufacturer' sSupplier=$sArticle.supplierID}"
-                                   target="{$information.target}"
-                                   class="content--link link--supplier"
-                                   title="{"{s name="DetailDescriptionLinkInformation"}{/s}"|escape}">
-
-                                    <i class="icon--arrow-right"></i> {s name="DetailDescriptionLinkInformation"}{/s}
-                                </a>
-                            </li>
-                        {% endblock %}
-                    {% else %}
-
-                        {# Links which will be added throught the administration #}
-                        {% block frontend_detail_description_links_link %}
-                            <li class="list--entry">
-                                <a href="{$information.link}"
-                                   target="{if $information.target}{$information.target}{else}_blank{/if}"
-                                   class="content--link link--further-links"
-                                   title="{$information.description|escapeHtml}">
-                                    <i class="icon--arrow-right"></i> {{ information.description|escape('html') }}
-                                </a>
-                            </li>
-                        {% endblock %}
-                    {% endif %}
-                {% endfor %}
-            </ul>
-        {% endblock %}
-    {% endblock %}
-
-    {# Downloads #}
-    {% block frontend_detail_description_downloads %}
-        {% if product.sDownloads %}
-
-            {# Downloads title #}
-            {% block frontend_detail_description_downloads_title %}
-                <div class="content--title">
-                    {s name="DetailDescriptionHeaderDownloads"}{/s}
-                </div>
-            {% endblock %}
-
-            {# Downloads list #}
-            {% block frontend_detail_description_downloads_content %}
-                <ul class="content--list list--unstyled">
-                    {% for download in product.downloads %}
-                        {% block frontend_detail_description_downloads_content_link %}
-                            <li class="list--entry">
-                                <a href="{$download.filename}" target="_blank" class="content--link link--download" title="{"{s name="DetailDescriptionLinkDownload"}{/s}"|escape} {{ download.description|escape }}">
-                                    <i class="icon--arrow-right"></i> {s name="DetailDescriptionLinkDownload"}{/s} {{ download.description }}
-                                </a>
-                            </li>
-                        {% endblock %}
-                    {% endfor %}
-                </ul>
-            {% endblock %}
-        {% endif %}
     {% endblock %}
 </div>
 {% endblock %}

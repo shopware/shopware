@@ -92,6 +92,7 @@
 
         <service class="Shopware\Storefront\Page\Detail\DetailPageLoader" id="Shopware\Storefront\Page\Detail\DetailPageLoader">
             <argument id="Shopware\StorefrontApi\Product\StorefrontProductRepository" type="service"/>
+            <argument type="service" id="Shopware\Api\Product\Repository\ProductConfiguratorRepository"/>
         </service>
 
         <service class="Shopware\Storefront\Page\Listing\ListingPageLoader" id="Shopware\Storefront\Page\Listing\ListingPageLoader">
@@ -169,6 +170,7 @@
                  decorates="Shopware\StorefrontApi\Context\ContextTokenResolver">
 
             <argument id="Shopware\Storefront\Session\SessionContextTokenResolver.inner" type="service" />
+            <argument type="service" id="Shopware\StorefrontApi\Context\StorefrontContextPersister"/>
         </service>
 
         <service class="Shopware\Storefront\Controller\Widgets\ListingController" id="Shopware\Storefront\Controller\Widgets\ListingController">

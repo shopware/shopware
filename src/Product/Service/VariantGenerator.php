@@ -65,10 +65,16 @@ class VariantGenerator
                 }
             );
 
+            $names = $options->map(function(ProductConfiguratorBasicStruct $config) {
+                return $config->getOption()->getName();
+            });
+
             $variant = [
                 'parentId' => $productId,
+                'name' => $product->getName() . ' ' . implode(' ', $names),
                 'variations' => $mapping,
-                'price' => $this->buildPrice($product, $options),
+                'variationIds' => array_values($options->getOptionIds()),
+                'price' => $this->buildPrice($product, $options)
             ];
 
             $variants[] = array_filter($variant);

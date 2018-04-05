@@ -1,22 +1,21 @@
 {% block frontend_index_content_inner %}
-    <div class="content product--details" itemscope itemtype="http://schema.org/Product"{% if shopware.config.disableArticleNavigation == false %} {#data-product-navigation="{url module="widgets" controller="listing" action="productNavigation"}"#} data-category-id="{{ product.categoryID }}" data-main-ordernumber="{{ product.mainVariantNumber }}"{% endif %} data-ajax-wishlist="true" data-compare-ajax="true"{% if theme.ajaxVariantSwitch %} data-ajax-variants-container="true"{% endif %}>
+    {% set product = page.product %}
 
-        {# The configurator selection is checked at this early point
-           to use it in different included files in the detail template. #}
-        {% block frontend_detail_index_configurator_settings %}
+    {% set ajaxVariantSwitch = '' %}
+    {% if shopware.theme.ajaxVariantSwitch %}
+        {% set ajaxVariantSwitch = 'data-ajax-variants-container=true' %}
+    {% endif %}
 
-            {# Variable for tracking active user variant selection #}
-            {% set activeConfiguratorSelection = true %}
+    <div class="content product--details"
+         itemscope itemtype="http://schema.org/Product"
+         data-ajax-wishlist="true"
+         data-compare-ajax="true"
+         {{ ajaxVariantSwitch }}>
 
-            {#{if $sArticle.sConfigurator && ($sArticle.sConfiguratorSettings.type == 1 || $sArticle.sConfiguratorSettings.type == 2)}#}
-                {# If user has no selection in this group set it to false #}
-                {#{% for configuratorGroup in product.configurator %}#}
-                    {#{% if !$configuratorGroup.selected_value %}#}
-                        {#{% set activeConfiguratorSelection = false %}#}
-                    {#{% endif %}#}
-                {#{% endfor %}#}
-            {#{% endif %}#}
-        {% endblock %}
+        {# @var url \Shopware\Api\Seo\Struct\SeoUrlBasicStruct #}
+        {% set url = product.extension('canonicalUrl') %}
+
+        <div class="is--hidden canonical-url">{{ url.url }}</div>
 
         {# Product header #}
         {% sw_include '@Shopware/frontend/detail/content/header.html.twig' %}
@@ -26,43 +25,25 @@
             {% block frontend_detail_index_image_container %}
                 <div class="product--image-container image-slider{% if product.media.count and shopware.config.usezoomplus %} product--image-zoom{% endif %}"
                     {% if product.media.count %}
-                    data-image-slider="true"
-                    data-image-gallery="true"
-                    data-maxZoom="{{ theme.lightboxZoomFactor }}"
-                    data-thumbnails=".image--thumbnails"
+                        data-image-slider="true"
+                        data-image-gallery="true"
+                        data-maxZoom="{{ theme.lightboxZoomFactor }}"
+                        data-thumbnails=".image--thumbnails"
                     {% endif %}>
+
                     {% sw_include '@Storefront/frontend/detail/image.html.twig' %}
                 </div>
             {% endblock %}
 
             {# "Buy now" box container #}
-            {% sw_include '@Shopware/frontend/detail/content/buy_container.html.twig' %}
+            {% sw_include '@Storefront/frontend/detail/content/buy_container.html.twig' %}
         </div>
 
-        {# Product bundle hook point #}
-        {% block frontend_detail_index_bundle %}{% endblock %}
-
         {% block frontend_detail_index_detail %}
-
             {# Tab navigation #}
             {% block frontend_detail_index_tabs %}
-                {% sw_include '@Shopware/frontend/detail/tabs.html.twig' %}
+                {% sw_include '@Storefront/frontend/detail/tabs.html.twig' %}
             {% endblock %}
-        {% endblock %}
-
-        {# Crossselling tab panel #}
-        {% block frontend_detail_index_tabs_cross_selling %}
-
-            {% set showAlsoViewed = shopware.config.similarViewedShow %}
-            {% set showAlsoBought = shopware.config.alsoBoughtShow %}
-            <div class="tab-menu--cross-selling"{if $sArticle.relatedProductStreams} data-scrollable="true"{/if}>
-
-                {# Tab navigation #}
-                {% sw_include '@Shopware/frontend/detail/content/tab_navigation.html.twig' %}
-
-                {# Tab content container #}
-                {#{% sw_include '@Shopware/frontend/detail/content/tab_container.html.twig' %}#}
-            </div>
         {% endblock %}
     </div>
 {% endblock %}

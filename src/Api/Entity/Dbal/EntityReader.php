@@ -126,6 +126,8 @@ class EntityReader implements EntityReaderInterface
             return $collection;
         }
 
+        $ids = array_map('strtolower', $ids);
+
         /** @var EntityDefinition|string $definition */
         $rows = $this->fetch($ids, $definition, $context, $fields, $raw);
         $entities = $this->hydrator->hydrate($entity, $definition, $rows, $definition::getEntityName());

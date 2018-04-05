@@ -44,7 +44,7 @@ class KeywordSearchTermInterpreter
 
         $scoring = $this->score($tokens, $matches, $context);
 
-        $scoring = array_slice($scoring, 0, 10);
+        $scoring = \array_slice($scoring, 0, 10);
 
         foreach ($scoring as $match) {
             $this->logger->info('Search match: ' . $match['keyword'], $match);

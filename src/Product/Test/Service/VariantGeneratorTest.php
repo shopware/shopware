@@ -257,7 +257,7 @@ class VariantGeneratorTest extends KernelTestCase
 
         $data = [
             'id' => $id,
-            'name' => 'test',
+            'name' => 'Variant Generator',
             'price' => ['gross' => 50, 'net' => 25],
             'tax' => ['name' => 'test', 'rate' => 19],
             'manufacturer' => ['name' => 'test'],

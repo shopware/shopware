@@ -10,6 +10,7 @@
             <argument type="service" id="Shopware\Cart\Price\PriceCalculator"/>
             <argument type="service" id="Shopware\Api\Product\Repository\ProductMediaRepository"/>
             <argument type="service" id="Shopware\Api\Product\Repository\ProductServiceRepository"/>
+            <argument type="service" id="Shopware\Api\Configuration\Repository\ConfigurationGroupOptionRepository"/>
             <tag name="shopware.traceable" label="product.storefront-repository" />
         </service>
 

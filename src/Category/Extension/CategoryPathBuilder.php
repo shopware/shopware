@@ -20,8 +20,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class CategoryPathBuilder implements EventSubscriberInterface
 {
-    public const ROOT = '57f4ecb1-1628-43e6-9dab-c4a6a7b66eab';
-
     /**
      * @var CategoryRepository
      */
@@ -56,6 +54,7 @@ class CategoryPathBuilder implements EventSubscriberInterface
         $context = $event->getContext();
 
         $parentIds = $this->fetchParentIds($event->getIds(), $event->getContext());
+        $parentIds = array_keys(array_flip($parentIds));
 
         foreach ($parentIds as $id) {
             $this->update($id, $context);
@@ -66,10 +65,6 @@ class CategoryPathBuilder implements EventSubscriberInterface
     {
         $version = Uuid::fromStringToBytes($context->getVersionId());
 
-        $this->connection->executeUpdate(
-            'UPDATE category SET path = NULL WHERE version_id = :version',
-            ['version' => $version]
-        );
         $count = (int) $this->connection->fetchColumn(
             'SELECT COUNT(id) FROM category WHERE parent_id IS NOT NULL AND version_id = :version',
             ['version' => $version]
@@ -168,6 +163,10 @@ class CategoryPathBuilder implements EventSubscriberInterface
 
     private function fetchParentIds(array $ids, ShopContext $context): array
     {
+        $ids = array_map(function($id) {
+            return Uuid::fromStringToBytes($id);
+        }, $ids);
+
         $query = $this->connection->createQueryBuilder();
         $query->select(['parent_id']);
         $query->from('category');

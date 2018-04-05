@@ -174,22 +174,24 @@ class StorefrontContextService implements StorefrontContextServiceInterface
     {
         $key = $applicationId . '-' . $token;
 
-        $context = $this->serializer->deserialize($json, '', 'json');
+        $cacheContext = $this->serializer->deserialize($json, '', 'json');
 
-        /** @var StorefrontContext $context */
+        /** @var StorefrontContext $cacheContext */
         $context = new StorefrontContext(
             $token,
-            $context->getShop(),
-            $context->getCurrency(),
-            $context->getCurrentCustomerGroup(),
-            $context->getFallbackCustomerGroup(),
-            $context->getTaxRules(),
-            $context->getPaymentMethod(),
-            $context->getShippingMethod(),
-            $context->getShippingLocation(),
-            $context->getCustomer(),
+            $cacheContext->getShop(),
+            $cacheContext->getCurrency(),
+            $cacheContext->getCurrentCustomerGroup(),
+            $cacheContext->getFallbackCustomerGroup(),
+            $cacheContext->getTaxRules(),
+            $cacheContext->getPaymentMethod(),
+            $cacheContext->getShippingMethod(),
+            $cacheContext->getShippingLocation(),
+            $cacheContext->getCustomer(),
             []
         );
+
+        $context->setTaxState($cacheContext->getTaxState());
 
         $rules = $this->contextRuleLoader->loadMatchingRules($context, $token);
         $context->setContextRulesIds($rules->getIds());

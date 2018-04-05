@@ -2,28 +2,9 @@
 
 namespace Shopware\StorefrontApi\Product;
 
-use Shopware\Api\Product\Collection\ProductServiceBasicCollection;
+use Shopware\Api\Product\Struct\ProductDetailStruct as ApiProductDetailStruct;
 
-class ProductDetailStruct extends ProductBasicStruct
+class ProductDetailStruct extends ApiProductDetailStruct implements StorefrontProductBasicInterface
 {
-    /**
-     * @var ProductServiceBasicCollection
-     */
-    protected $services;
-
-    public function __construct()
-    {
-        parent::__construct();
-        $this->services = new ProductServiceBasicCollection();
-    }
-
-    public function getServices(): ProductServiceBasicCollection
-    {
-        return $this->services;
-    }
-
-    public function setServices(ProductServiceBasicCollection $services): void
-    {
-        $this->services = $services;
-    }
+    use StorefrontProductBasicTrait;
 }

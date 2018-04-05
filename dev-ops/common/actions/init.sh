@@ -6,5 +6,6 @@ INCLUDE: ./check_requirements.sh
 INCLUDE: ./init-database.sh
 INCLUDE: ./init-composer.sh
 INCLUDE: ./init-shopware.sh
+INCLUDE: ./demo-data.sh
 
 INCLUDE: ./cache.sh

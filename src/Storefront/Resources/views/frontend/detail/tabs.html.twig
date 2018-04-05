@@ -7,22 +7,9 @@
             {% block frontend_detail_tabs_navigation %}
                 <div class="tab--navigation">
                     {% block frontend_detail_tabs_navigation_inner %}
-
                         {# Description tab #}
                         {% block frontend_detail_tabs_description %}
                             <a href="#" class="tab--link" title="{% trans from 'frontend/detail/tabs' %}DetailTabsDescription{% endtrans %}" data-tabName="description">{% trans from 'frontend/detail/tabs' %}DetailTabsDescription{% endtrans %}</a>
-                        {% endblock %}
-
-                        {# Rating tab #}
-                        {% block frontend_detail_tabs_rating %}
-                            {% if shopware.config.vodedisable == false %}
-                                <a href="#" class="tab--link" title="{% trans from 'frontend/detail/tabs' %}DetailTabsRating{% endtrans %}" data-tabName="rating">
-                                    {% trans from 'frontend/detail/tabs' %}DetailTabsRating{% endtrans %}
-                                    {% block frontend_detail_tabs_navigation_rating_count %}
-                                        <span class="product--rating-count">{{ product.voteAverage.count }}</span>
-                                    {% endblock %}
-                                </a>
-                            {% endif %}
                         {% endblock %}
                     {% endblock %}
                 </div>
@@ -68,48 +55,6 @@
                                 {% endblock %}
                             </div>
                         {% endblock %}
-
-                        {# Rating container #}
-                        {% block frontend_detail_tabs_content_rating %}
-                            {% if shopware.config.voteDisable == false %}
-                                <div class="tab--container">
-                                    {% block frontend_detail_tabs_content_rating_inner %}
-
-                                        {# Rating title #}
-                                        {% block frontend_detail_tabs_rating_title %}
-                                            <div class="tab--header">
-                                                {% block frontend_detail_tabs_rating_title_inner %}
-                                                    <a href="#" class="tab--title" title="{% trans from 'frontend/detail/tabs' %}DetailTabsRating{% endtrans %}">{% trans from 'frontend/detail/tabs' %}DetailTabsRating{% endtrans %}</a>
-                                                    {% block frontend_detail_tabs_rating_title_count %}
-                                                        <span class="product--rating-count">{{ product.voteAverage.count }}</span>
-                                                    {% endblock %}
-                                                {% endblock %}
-                                            </div>
-                                        {% endblock %}
-
-                                        {# Rating preview #}
-                                        {% block frontend_detail_tabs_rating_preview %}
-                                            <div class="tab--preview">
-                                                {% block frontend_detail_tabs_rating_preview_inner %}
-                                                {% trans from 'frontend/detail/tabs' %}RatingPreviewText{% endtrans %}<a href="#" class="tab--link" title="{% trans from 'frontend/detail/tabs' %}PreviewTextMore{% endtrans %}">{% trans from 'frontend/detail/tabs' %}PreviewTextMore{% endtrans %}</a>
-                                                {% endblock %}
-                                            </div>
-                                        {% endblock %}
-
-                                        {# Rating content #}
-                                        {% block frontend_detail_tabs_rating_content %}
-                                            <div class="tab--content">
-                                                {% block frontend_detail_tabs_rating_content_inner %}
-                                                    {% sw_include '@Shopware/frontend/detail/tabs/comment.html.twig' %}
-                                                {% endblock %}
-                                            </div>
-                                        {% endblock %}
-
-                                    {% endblock %}
-                                </div>
-                            {% endif %}
-                        {% endblock %}
-
                     {% endblock %}
                 </div>
             {% endblock %}

@@ -1,37 +1,11 @@
-{% sw_extends '@Shopware/frontend/index/index.html.twig' %}
+{% sw_extends '@Storefront/frontend/index/index.html.twig' %}
 
 {# Custom header #}
 {% block frontend_index_header %}
-    {% sw_include '@Shopware/frontend/detail/header.html.twig' %}
-{% endblock %}
-
-{# Modify the breadcrumb #}
-{% block frontend_index_breadcrumb_inner %}
-    {% block frontend_detail_breadcrumb_overview %}
-        {#{% if shopware.config.disableArticleNavigation == false %}#}
-            {#{$breadCrumbBackLink = $sBreadcrumb[count($sBreadcrumb) - 1]['link']}#}
-            {#<a class="breadcrumb--button breadcrumb--link" href="{if $breadCrumbBackLink}{$breadCrumbBackLink}{else}#{/if}" title="{s name="DetailNavIndex" namespace="frontend/detail/navigation"}{/s}">#}
-                {#<i class="icon--arrow-left"></i>#}
-                {#<span class="breadcrumb--title">{s name='DetailNavIndex' namespace="frontend/detail/navigation"}{/s}</span>#}
-            {#</a>#}
-        {#{% endif %}#}
-    {% endblock %}
-    {{ parent() }}
-{% endblock %}
-
-{% block frontend_index_content_top %}
-    {{ parent() }}
-    {# Product navigation - Previous and next arrow button #}
-    {% block frontend_detail_index_navigation %}
-        {% if shopware.config.disableArticleNavigation == false %}
-            <nav class="product--navigation">
-                {% sw_include '@Shopware/frontend/detail/navigation.html.twig' %}
-            </nav>
-        {% endif %}
-    {% endblock %}
+    {% sw_include '@Storefront/frontend/detail/header.html.twig' %}
 {% endblock %}
 
 {# Main content #}
 {% block frontend_index_content %}
-    {% sw_include '@Shopware/frontend/detail/content.html.twig' %}
+    {% sw_include '@Storefront/frontend/detail/content.html.twig' %}
 {% endblock %}

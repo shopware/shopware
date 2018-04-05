@@ -30,6 +30,7 @@
         defaults: {
             productDetailsSelector: '.product--detail-upper',
             configuratorFormSelector: '.configurator--form',
+            canonicalUrlSelector: '.canonical-url',
             orderNumberSelector: '.entry--sku .entry--content',
             historyIdentifier: 'sw-ajax-variants',
             productDetailsDescriptionSelector: '.content--description',
@@ -112,7 +113,6 @@
             if (stateObj.params.hasOwnProperty('c')) {
                 values.c = stateObj.params.c;
             }
-
             $.ajax({
                 url: stateObj.location,
                 data: values,
@@ -121,11 +121,17 @@
                     var $response = $($.parseHTML(response, document, true)),
                         $productDetails,
                         $productDescription,
+                        $canonicalUrl,
                         ordernumber;
 
                     // Replace the content
                     $productDetails = $response.find(me.opts.productDetailsSelector);
                     $(me.opts.productDetailsSelector).html($productDetails.html());
+
+                    $canonicalUrl = $response.find(me.opts.canonicalUrlSelector);
+                    if ($canonicalUrl) {
+                        $canonicalUrl = $canonicalUrl.html();
+                    }
 
                     // Replace the description box
                     $productDescription = $response.find(me.opts.productDetailsDescriptionSelector);
@@ -148,13 +154,14 @@
                     $.publish('plugin/swAjaxVariant/onRequestData', [ me, response, values, stateObj.location ]);
 
                     if (pushState && me.hasHistorySupport) {
+
                         var location = stateObj.location + '?number=' + ordernumber;
 
                         if (stateObj.params.hasOwnProperty('c')) {
                             location += '&c=' + stateObj.params.c;
                         }
 
-                        window.history.pushState(stateObj.state, stateObj.title, location);
+                        window.history.pushState(stateObj.state, stateObj.title, $canonicalUrl);
                     }
                 },
                 complete: function() {

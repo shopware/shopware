@@ -199,6 +199,16 @@ class ProductBasicStruct extends Entity
     protected $categoryTree;
 
     /**
+     * @var array|null
+     */
+    protected $variationIds;
+
+    /**
+     * @var array|null
+     */
+    protected $datasheetIds;
+
+    /**
      * @var string|null
      */
     protected $additionalText;
@@ -756,6 +766,9 @@ class ProductBasicStruct extends Entity
             return new PriceDefinitionCollection();
         }
 
+        /** @var ProductContextPriceBasicCollection $prices */
+        $prices->sortByQuantity();
+
         $definitions = $prices->map(function (ProductContextPriceBasicStruct $rule) use ($taxRules) {
             $quantity = $rule->getQuantityEnd() ?? $rule->getQuantityStart();
 
@@ -810,6 +823,7 @@ class ProductBasicStruct extends Entity
             return new PriceDefinition($this->getPrice()->getGross(), $taxRules, $quantity, true);
         }
 
+        /** @var ProductContextPriceBasicCollection $prices */
         $price = $prices->getQuantityPrice($quantity);
 
         return new PriceDefinition($price->getPrice()->getGross(), $taxRules, $quantity, true);
@@ -838,5 +852,33 @@ class ProductBasicStruct extends Entity
         $deliveryDate = $this->getDeliveryDate();
 
         return $deliveryDate->add(new \DateInterval('P' . $this->getRestockTime() . 'D'));
+    }
+
+    public function isReleased(): bool
+    {
+        if (!$this->getReleaseDate()) {
+            return true;
+        }
+        return $this->releaseDate < new \DateTime();
+    }
+
+    public function getVariationIds(): ?array
+    {
+        return $this->variationIds;
+    }
+
+    public function setVariationIds(?array $variationIds): void
+    {
+        $this->variationIds = $variationIds;
+    }
+
+    public function getDatasheetIds(): ?array
+    {
+        return $this->datasheetIds;
+    }
+
+    public function setDatasheetIds(?array $datasheetIds): void
+    {
+        $this->datasheetIds = $datasheetIds;
     }
 }

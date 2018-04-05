@@ -214,4 +214,13 @@ class CalculatedProduct extends Struct implements DeliverableLineItemInterface, 
     {
         return $this->product->getDescription();
     }
+
+    public function getExtension(string $name): ?Struct
+    {
+        if (!$this->hasExtension($name)) {
+            return $this->product->getExtension($name);
+        }
+        return parent::getExtension($name);
+    }
+
 }

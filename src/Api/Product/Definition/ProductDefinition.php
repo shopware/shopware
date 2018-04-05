@@ -130,6 +130,8 @@ class ProductDefinition extends EntityDefinition
             (new DateField('release_date', 'releaseDate'))->setFlags(new Inherited()),
             (new IdField('price_group_id', 'priceGroupId'))->setFlags(new Inherited()),
             (new JsonArrayField('category_tree', 'categoryTree'))->setFlags(new Inherited()),
+            (new JsonArrayField('datasheet_ids', 'datasheetIds'))->setFlags(new Inherited()),
+            new JsonArrayField('variation_ids', 'variationIds'),
 
             (new IntField('min_delivery_time', 'minDeliveryTime'))->setFlags(new Inherited()),
             (new IntField('max_delivery_time', 'maxDeliveryTime'))->setFlags(new Inherited()),
@@ -144,6 +146,9 @@ class ProductDefinition extends EntityDefinition
             new IdField('manufacturer_join_id', 'manufacturerJoinId'),
             new IdField('tax_join_id', 'taxJoinId'),
             new IdField('unit_join_id', 'unitJoinId'),
+            new IdField('datasheet_join_id', 'datasheetJoinId'),
+            new IdField('services_join_id', 'servicesJoinId'),
+            new IdField('context_price_join_id', 'contextPriceJoinId'),
 
             (new TranslatedField(new StringField('additional_text', 'additionalText')))->setFlags(new Inherited()),
             (new TranslatedField(new StringField('name', 'name')))->setFlags(new Inherited(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
@@ -155,7 +160,7 @@ class ProductDefinition extends EntityDefinition
 
             //parent - child inheritance
             (new ManyToOneAssociationField('parent', 'parent_id', self::class, false))->setFlags(new WriteOnly()),
-            (new OneToManyAssociationField('children', self::class, 'parent_id', false, 'id'))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('children', self::class, 'parent_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
 
             //inherited associations
             (new ManyToOneAssociationField('tax', 'tax_id', TaxDefinition::class, true, 'id', 'tax_join_id'))->setFlags(new Inherited()),
@@ -164,21 +169,20 @@ class ProductDefinition extends EntityDefinition
             (new ManyToOneAssociationField('unit', 'unit_id', UnitDefinition::class, true, 'id', 'unit_join_id'))->setFlags(new Inherited()),
             (new OneToManyAssociationField('media', ProductMediaDefinition::class, 'product_id', false, 'media_join_id'))->setFlags(new CascadeDelete(), new Inherited()),
             (new OneToManyAssociationField('contextPrices', ProductContextPriceDefinition::class, 'product_id', true, 'context_price_join_id'))->setFlags(new CascadeDelete(), new Inherited()),
+            (new OneToManyAssociationField('services', ProductServiceDefinition::class, 'product_id', false, 'services_join_id'))->setFlags(new CascadeDelete(), new Inherited()),
+            (new ManyToManyAssociationField('datasheet', ConfigurationGroupOptionDefinition::class, ProductDatasheetDefinition::class, false, 'product_id', 'configuration_group_option_id', 'datasheet_join_id'))->setFlags(new CascadeDelete(), new Inherited()),
             (new ManyToManyAssociationField('categories', CategoryDefinition::class, ProductCategoryDefinition::class, false, 'product_id', 'category_id', 'category_join_id'))->setFlags(new CascadeDelete(), new Inherited()),
-            (new ManyToManyAssociationField('categoriesRo', CategoryDefinition::class, ProductCategoryTreeDefinition::class, false, 'product_id', 'category_id', 'category_join_id'))->setFlags(new CascadeDelete(), new Inherited()),
+            (new ManyToManyAssociationField('categoriesRo', CategoryDefinition::class, ProductCategoryTreeDefinition::class, false, 'product_id', 'category_id', 'category_join_id'))->setFlags(new CascadeDelete(), new Inherited(), new WriteOnly()),
 
             //not inherited associations
             (new ManyToManyAssociationField('seoCategories', CategoryDefinition::class, ProductSeoCategoryDefinition::class, false, 'product_id', 'category_id'))->setFlags(new CascadeDelete()),
             (new ManyToManyAssociationField('tabs', ProductStreamDefinition::class, ProductStreamTabDefinition::class, false, 'product_id', 'product_stream_id'))->setFlags(new CascadeDelete()),
             (new ManyToManyAssociationField('streams', ProductStreamDefinition::class, ProductStreamAssignmentDefinition::class, false, 'product_id', 'product_stream_id'))->setFlags(new CascadeDelete()),
-            (new OneToManyAssociationField('searchKeywords', ProductSearchKeywordDefinition::class, 'product_id', false, 'id'))->setFlags(new CascadeDelete(), new SearchRanking(self::ASSOCIATION_SEARCH_RANKING)),
-            (new TranslationsAssociationField('translations', ProductTranslationDefinition::class, 'product_id', false, 'id'))->setFlags(new Inherited(), new CascadeDelete(), new Required()),
+            (new OneToManyAssociationField('searchKeywords', ProductSearchKeywordDefinition::class, 'product_id', false, 'id'))->setFlags(new CascadeDelete(), new SearchRanking(self::ASSOCIATION_SEARCH_RANKING), new WriteOnly()),
+            (new TranslationsAssociationField('translations', ProductTranslationDefinition::class, 'product_id', false, 'id'))->setFlags(new Inherited(), new CascadeDelete(), new Required(), new WriteOnly()),
 
             (new OneToManyAssociationField('configurators', ProductConfiguratorDefinition::class, 'product_id', false, 'id'))->setFlags(new CascadeDelete()),
-            (new OneToManyAssociationField('services', ProductServiceDefinition::class, 'product_id', false, 'id'))->setFlags(new CascadeDelete()),
-            (new ManyToManyAssociationField('datasheet', ConfigurationGroupOptionDefinition::class, ProductDatasheetDefinition::class, false, 'product_id', 'configuration_group_option_id'))->setFlags(new CascadeDelete()),
             (new ManyToManyAssociationField('variations', ConfigurationGroupOptionDefinition::class, ProductVariationDefinition::class, false, 'product_id', 'configuration_group_option_id'))->setFlags(new CascadeDelete()),
-
             new CanonicalUrlAssociationField('canonicalUrl', 'id', true, DetailPageSeoUrlIndexer::ROUTE_NAME),
         ]);
 

@@ -10,6 +10,7 @@ use Shopware\Api\Entity\Search\Aggregation\EntityAggregation;
 use Shopware\Api\Entity\Search\AggregatorResult;
 use Shopware\Api\Entity\Search\Query\Query;
 use Shopware\Api\Entity\Search\Query\TermsQuery;
+use Shopware\Framework\Struct\ArrayStruct;
 use Shopware\Storefront\Event\ListingEvents;
 use Shopware\Storefront\Event\ListingPageLoadedEvent;
 use Shopware\Storefront\Event\PageCriteriaCreatedEvent;
@@ -19,11 +20,13 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class DatasheetAggregationSubscriber implements EventSubscriberInterface
 {
-    public const DATASHEET_ID_FIELD = 'product.datasheet.id';
+    public const DATASHEET_FILTER_FIELD = 'product.datasheetIds';
 
     public const DATASHEET_PARAMETER = 'option';
 
     const AGGREGATION_NAME = 'datasheet';
+
+    const DATASHEET_AGGREGATION_FIELD = 'product.datasheet.id';
 
     public static function getSubscribedEvents()
     {
@@ -39,7 +42,7 @@ class DatasheetAggregationSubscriber implements EventSubscriberInterface
 
         $event->getCriteria()->addAggregation(
             new EntityAggregation(
-                self::DATASHEET_ID_FIELD,
+                self::DATASHEET_AGGREGATION_FIELD,
                 ConfigurationGroupOptionDefinition::class,
                 self::AGGREGATION_NAME
             )
@@ -56,10 +59,10 @@ class DatasheetAggregationSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $query = new TermsQuery(self::DATASHEET_ID_FIELD, $ids);
+        $query = new TermsQuery(self::DATASHEET_FILTER_FIELD, $ids);
 
         //add query as extension to transport active aggregation view elements
-        $event->getCriteria()->addExtension(self::AGGREGATION_NAME, $query);
+        $event->getCriteria()->addExtension(self::AGGREGATION_NAME, new ArrayStruct(['ids' => $ids]));
         $event->getCriteria()->addPostFilter($query);
     }
 
@@ -83,12 +86,12 @@ class DatasheetAggregationSubscriber implements EventSubscriberInterface
         /** @var AggregationResult $aggregation */
         $aggregation = $aggregations->get(self::AGGREGATION_NAME);
 
-        /** @var TermsQuery|null $filter */
+        /** @var ArrayStruct $filter */
         $filter = $page->getCriteria()->getExtension(self::AGGREGATION_NAME);
 
         $active = $filter !== null;
 
-        $actives = $filter ? $filter->getValue() : [];
+        $actives = $filter ? $filter->get('ids') : [];
 
         /** @var ConfigurationGroupOptionBasicCollection $values */
         $values = $aggregation->getResult();

@@ -46,10 +46,15 @@ class DetailController extends StorefrontController
      */
     public function indexAction(string $id, StorefrontContext $context, Request $request)
     {
-        $product = $this->detailPageLoader->load($id, $context);
+        $page = $this->detailPageLoader->load($id, $request, $context);
 
-        return $this->renderStorefront('@Storefront/frontend/detail/index.html.twig', [
-            'product' => $product,
-        ]);
+        $xhr = $request->isXmlHttpRequest();
+        $template = '@Storefront/frontend/detail/index.html.twig';
+
+        if ($xhr) {
+            $template = '@Storefront/frontend/detail/content.html.twig';
+        }
+
+        return $this->renderStorefront($template, ['page' => $page,], null, !$xhr);
     }
 }

@@ -1,24 +1,34 @@
 {% block frontend_detail_product_quick_view %}
+    {# @var product \Shopware\StorefrontApi\Product\ProductDetailStruct#}
     <div class="product--quick-view">
+        {% set url = path('detail_page', { id: product.id }) %}
+
+        {% if product.extension('canonicalUrl') %}
+            {% set url = product.extension('canonicalUrl').url %}
+        {% endif %}
+
         {% block frontend_detail_product_quick_view_inner %}
 
+            {# @var cover \Shopware\Api\Product\Struct\ProductMediaBasicStruct #}
+            {% set cover = product.cover %}
+
+            {# @var thumbnails \Shopware\Media\Struct\ThumbnailStruct[] #}
+            {% set thumbnails = cover.media.extension('thumbnails') %}
+
             {% block frontend_detail_product_quick_view_image_link %}
-                <a class="quick-view--image-link" href="{{ product.linkDetails }}" title="{% if product.image.res.description %}{{ product.image.res.descriptione }}{% else %}{{ product.name }}{% endif %}">
+
+                {% set description = product.name %}
+
+                <a class="quick-view--image-link" href="{{ url }}" title="{{ description }}">
                     {% block frontend_detail_product_quick_view_image %}
-
-                        {% set alt = product.name %}
-
-                        {% if product.image.description %}
-                            {% set alt = product.image.description %}
-                        {% endif %}
 
                         <span class="quick-view--image">
                             {% block frontend_detail_product_quick_view_image_inner %}
-                                {% if product.image.thumbnails %}
-                                    <img srcset="{{ product.image.thumbnails[1].sourceSet }}" alt="{{ alt }}" />
+                                {% if thumbnails %}
+                                    <img srcset="{{ thumbnails[1].url }}" alt="{{ description }}" />
                                 {% else %}
                                     {% block product_quick_view_image_fallback %}
-                                        <img src="{{ asset('bundles/storefront/src/img/no-picture.jpg') }}" alt="{{ alt }}">
+                                        <img src="{{ asset('bundles/storefront/src/img/no-picture.jpg') }}" alt="{{ description }}">
                                     {% endblock %}
                                 {% endif %}
                             {% endblock %}
@@ -31,7 +41,7 @@
                 <div class="quick-view--header">
                     {% block frontend_detail_product_quick_view_header_inner %}
                         {% block frontend_detail_product_quick_view_title %}
-                            <a href="{{ product.linkDetails }}" class="quick-view--title" title="{{ product.name }}">
+                            <a href="{{ url }}" class="quick-view--title" title="{{ product.name }}">
                                 {% block frontend_detail_product_quick_view_title_inner %}
                                     {{ product.name }}
                                 {% endblock %}
@@ -41,7 +51,7 @@
                         {% block frontend_detail_product_quick_view_supplier %}
                             <div class="quick-view--supplier">
                                 {% block frontend_detail_product_quick_view_supplier_inner %}
-                                    {{ product.supplierName }}
+                                    {{ product.manufacturer.name }}
                                 {% endblock %}
                             </div>
                         {% endblock %}

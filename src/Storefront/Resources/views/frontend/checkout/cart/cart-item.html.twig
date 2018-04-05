@@ -6,8 +6,9 @@
 {% block frontend_checkout_cart_item %}
     <div class="table--tr block-group row--product{% if isLast %} is--last-row{% endif %}">
 
-        {% if calculatedLineItem.extensions.canonicalUrl %}
-            {% set detailUrl = calculatedLineItem.extensions.canonicalUrl.url %}
+        {# @var calculatedLineItem \Shopware\Cart\LineItem\CalculatedLineItem #}
+        {% if calculatedLineItem.extension('canonicalUrl') %}
+            {% set detailUrl = calculatedLineItem.extension('canonicalUrl').url %}
         {% else %}
             {% if calculatedLineItem.id %}
                 {% set detailUrl = url('detail_page', { 'id': calculatedLineItem.id }) %}

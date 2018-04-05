@@ -36,7 +36,7 @@
         {% endblock %}
 
         {% block sw_admin_menu_body %}
-            <div class="sw-admin-menu__body">
+            <div class="sw-admin-menu__body" ref="swAdminMenuBody" :style="scrollbarOffsetStyle">
 
                 {% block sw_admin_menu_navigation_main %}
                     <nav class="sw-admin-menu__navigation">

@@ -3,7 +3,7 @@
         {% block sw_tabs_container %}
             <div class="sw-tabs__container">
                 {% block sw_tabs_navigation %}
-                    <nav class="sw-tabs__navigation" ref="swTabsNavigation">
+                    <nav class="sw-tabs__navigation" ref="swTabsNavigation" :style="scrollbarOffsetStyle">
                         {% block sw_tabs_navigation_items %}
                             <slot>
                                 {% block sw_tabs_slot_default %}{% endblock %}

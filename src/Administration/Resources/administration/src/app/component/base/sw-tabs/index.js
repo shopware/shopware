@@ -1,4 +1,5 @@
 import { Component } from 'src/core/shopware';
+import dom from 'src/core/service/utils/dom.utils';
 import template from './sw-tabs.html.twig';
 import './sw-tabs.less';
 
@@ -7,12 +8,23 @@ Component.register('sw-tabs', {
 
     data() {
         return {
-            showArrowControls: false
+            showArrowControls: false,
+            scrollbarOffset: ''
         };
+    },
+
+    computed: {
+        scrollbarOffsetStyle() {
+            return {
+                bottom: this.scrollbarOffset,
+                'margin-top': this.scrollbarOffset
+            };
+        }
     },
 
     mounted() {
         this.initializeArrows();
+        this.addScrollbarOffset();
     },
 
     methods: {
@@ -29,6 +41,12 @@ Component.register('sw-tabs', {
                 return;
             }
             tabsNavigation.scrollLeft += -tabsNavigationWidth;
+        },
+
+        addScrollbarOffset() {
+            const offset = dom.getScrollbarHeight(this.$refs.swTabsNavigation);
+
+            this.scrollbarOffset = `-${offset}px`;
         },
 
         initializeArrows() {

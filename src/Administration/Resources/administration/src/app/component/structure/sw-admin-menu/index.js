@@ -1,4 +1,5 @@
 import { Component } from 'src/core/shopware';
+import dom from 'src/core/service/utils/dom.utils';
 import template from './sw-admin-menu.html.twig';
 import './sw-admin-menu.less';
 
@@ -14,7 +15,8 @@ Component.register('sw-admin-menu', {
             flyoutEntries: [],
             flyoutStyle: {},
             flyoutLabel: '',
-            subMenuOpen: false
+            subMenuOpen: false,
+            scrollbarOffset: ''
         };
     },
 
@@ -29,7 +31,18 @@ Component.register('sw-admin-menu', {
 
         userActionsToggleIcon() {
             return this.isUserActionsActive ? 'small-arrow-medium-up' : 'small-arrow-medium-down';
+        },
+
+        scrollbarOffsetStyle() {
+            return {
+                right: this.scrollbarOffset,
+                'margin-left': this.scrollbarOffset
+            };
         }
+    },
+
+    mounted() {
+        this.addScrollbarOffset();
     },
 
     methods: {
@@ -46,7 +59,7 @@ Component.register('sw-admin-menu', {
             this.flyoutLabel = entry.label;
 
             this.flyoutStyle = {
-                top: `${currentTarget.offsetTop}px`,
+                top: `${currentTarget.getBoundingClientRect().top}px`,
                 'border-color': entry.color
             };
 
@@ -90,6 +103,12 @@ Component.register('sw-admin-menu', {
             this.$router.push({
                 name: 'sw.login.index'
             });
+        },
+
+        addScrollbarOffset() {
+            const offset = dom.getScrollbarWidth(this.$refs.swAdminMenuBody);
+
+            this.scrollbarOffset = `-${offset}px`;
         }
     }
 });

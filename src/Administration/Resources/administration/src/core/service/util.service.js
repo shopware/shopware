@@ -7,6 +7,7 @@ import uuidV4 from 'uuid/v4';
 import { deepCopyObject, getObjectChangeSet } from './utils/object.utils';
 import { warn } from './utils/debug.utils';
 import { currency, date } from './utils/format.utils';
+import domUtils from './utils/dom.utils';
 import stringUtils from './utils/string.utils';
 import typesUtils from './utils/types.utils';
 
@@ -22,6 +23,11 @@ export const debug = {
 export const format = {
     currency: currency,
     date: date
+};
+
+export const dom = {
+    getScrollbarHeight: domUtils.getScrollbarHeight,
+    getScrollbarWidth: domUtils.getScrollbarWidth
 };
 
 export const string = {
@@ -46,6 +52,7 @@ export default {
     object,
     debug,
     format,
+    dom,
     string,
     types
 };

@@ -131,13 +131,16 @@ class ProductDefinition extends EntityDefinition
             (new IdField('price_group_id', 'priceGroupId'))->setFlags(new Inherited()),
             (new JsonArrayField('category_tree', 'categoryTree'))->setFlags(new Inherited()),
 
-            //Read only join ids for inheritance
+            //to many join fields
             new IdField('media_join_id', 'mediaJoinId'),
             new IdField('category_join_id', 'categoryJoinId'),
+            new IdField('context_price_join_id', 'contextPriceJoinId'),
+
+            //many to one join fields
             new IdField('manufacturer_join_id', 'manufacturerJoinId'),
             new IdField('tax_join_id', 'taxJoinId'),
             new IdField('unit_join_id', 'unitJoinId'),
-            new IdField('context_price_join_id', 'contextPriceJoinId'),
+
 
             (new TranslatedField(new StringField('additional_text', 'additionalText')))->setFlags(new Inherited()),
             (new TranslatedField(new StringField('name', 'name')))->setFlags(new Inherited(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
@@ -153,6 +156,8 @@ class ProductDefinition extends EntityDefinition
 
             //inherited associations
             (new ManyToOneAssociationField('tax', 'tax_id', TaxDefinition::class, true, 'id', 'tax_join_id'))->setFlags(new Inherited()),
+
+
             (new ManyToOneAssociationField('manufacturer', 'product_manufacturer_id', ProductManufacturerDefinition::class, true, 'id', 'manufacturer_join_id'))->setFlags(new Inherited(), new SearchRanking(self::ASSOCIATION_SEARCH_RANKING)),
             (new ManyToOneAssociationField('unit', 'unit_id', UnitDefinition::class, true, 'id', 'unit_join_id'))->setFlags(new Inherited()),
             (new OneToManyAssociationField('media', ProductMediaDefinition::class, 'product_id', false, 'media_join_id'))->setFlags(new CascadeDelete(), new Inherited()),

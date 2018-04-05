@@ -128,7 +128,6 @@ class EntityReader implements EntityReaderInterface
 
         /** @var EntityDefinition|string $definition */
         $rows = $this->fetch($ids, $definition, $context, $fields, $raw);
-
         $entities = $this->hydrator->hydrate($entity, $definition, $rows, $definition::getEntityName());
         $collection->fill($entities);
 
@@ -236,6 +235,14 @@ class EntityReader implements EntityReaderInterface
 
                 $query->addSelect(
                     sprintf('COALESCE(%s, %s) as %s', $child, $parentField, $fieldAlias)
+                );
+
+                $fieldAlias = EntityDefinitionQueryHelper::escape(
+                    '_' . implode('.', [$root, $field->getPropertyName(), 'inherited'])
+                );
+
+                $query->addSelect(
+                    sprintf('%s IS NULL as %s', $child, $fieldAlias)
                 );
                 continue;
             }

@@ -283,8 +283,8 @@
                     <div class="country-area-state-selection">
                         {% for country in countryList %}
                             {% block frontend_address_form_input_country_states_item %}
-                                {% set states = country.extensions.states %}
-                                {% if states.elements %}
+                                {% set states = country.states %}
+                                {% if states.count %}
                                     <div data-country-id="{{ country.id }}"
                                          data-address-type="address"
                                          class="address--state-selection field--select select-field{% if country.id != formData.country.id %} is--hidden{% endif %}">

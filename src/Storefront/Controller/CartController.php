@@ -9,6 +9,7 @@ use Shopware\CartBridge\Product\ProductProcessor;
 use Shopware\CartBridge\Service\StoreFrontCartService;
 use Shopware\CartBridge\Voucher\VoucherProcessor;
 use Shopware\Context\Struct\StorefrontContext;
+use Symfony\Component\HttpFoundation\AcceptHeader;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -54,7 +55,7 @@ class CartController extends StorefrontController
      * @Route("/cart/addProduct", name="cart_add_product", options={"seo"="false"})
      * @Method({"POST"})
      */
-    public function addProductAction(Request $request, StorefrontContext $context)
+    public function addProductAction(Request $request, StorefrontContext $context): Response
     {
         $identifier = $request->request->get('identifier');
         $quantity = $request->request->getInt('quantity');
@@ -70,6 +71,13 @@ class CartController extends StorefrontController
 
         $this->addProductToCart($context, $identifier, $quantity, $services);
 
+        if ($this->acceptsHTML($request)) {
+            return $this->renderStorefront(
+                '@Storefront/frontend/checkout/ajax_cart.html.twig',
+                ['cart' => $this->cartService->getCalculatedCart($context)]
+            );
+        }
+
         return $this->conditionalResponse($request, $target);
     }
 
@@ -77,7 +85,7 @@ class CartController extends StorefrontController
      * @Route("/cart/removeLineItem", name="cart_delete_line_item", options={"seo"="false"})
      * @Method({"POST"})
      */
-    public function removeLineItemAction(Request $request, StorefrontContext $context)
+    public function removeLineItemAction(Request $request, StorefrontContext $context): Response
     {
         $identifier = $request->request->get('identifier');
         $target = $request->request->get('target');
@@ -91,6 +99,13 @@ class CartController extends StorefrontController
 
         $this->cartService->remove($identifier, $context);
 
+        if ($this->acceptsHTML($request)) {
+            return $this->renderStorefront(
+                '@Storefront/frontend/checkout/ajax_cart.html.twig',
+                ['cart' => $this->cartService->getCalculatedCart($context)]
+            );
+        }
+
         return $this->conditionalResponse($request, $target);
     }
 
@@ -98,7 +113,7 @@ class CartController extends StorefrontController
      * @Route("/cart/setLineItemQuantity", name="cart_set_line_item_quantity", options={"seo"="false"})
      * @Method({"POST"})
      */
-    public function setLineItemQuantityAction(Request $request, StorefrontContext $context)
+    public function setLineItemQuantityAction(Request $request, StorefrontContext $context): Response
     {
         $identifier = $request->request->get('identifier');
         $quantity = $request->request->getInt('quantity');
@@ -127,7 +142,7 @@ class CartController extends StorefrontController
      * @Route("/cart/addVoucher", name="cart_add_voucher", options={"seo"="false"})
      * @Method({"POST"})
      */
-    public function addVoucherAction(Request $request, StorefrontContext $context)
+    public function addVoucherAction(Request $request, StorefrontContext $context): Response
     {
         $identifier = $request->request->get('identifier', false);
         $target = $request->request->get('target');
@@ -148,12 +163,12 @@ class CartController extends StorefrontController
     }
 
     /**
-     * @Route("/cart/ajaxAmount", name="cart_ajax_amount", options={"seo"="false"})
+     * @Route("/cart/getAmount", name="cart_get_amount", options={"seo"="false"})
      * @Method({"POST"})
      *
      * @throws \Exception
      */
-    public function ajaxCartAmountAction(Request $request, StorefrontContext $context): Response
+    public function getCartAmountAction(Request $request, StorefrontContext $context): Response
     {
         $calculatedCart = $this->cartService->getCalculatedCart($context);
 
@@ -169,12 +184,12 @@ class CartController extends StorefrontController
     }
 
     /**
-     * @Route("/cart/ajaxCart", name="cart_ajax_cart", options={"seo"="false"})
+     * @Route("/cart/getCart", name="cart_get_cart", options={"seo"="false"})
      * @Method({"POST"})
      *
      * @throws \Exception
      */
-    public function ajaxCartAction(Request $request, StorefrontContext $context): Response
+    public function getCartAction(Request $request, StorefrontContext $context): Response
     {
         $calculatedCart = $this->cartService->getCalculatedCart($context);
 
@@ -185,62 +200,7 @@ class CartController extends StorefrontController
     }
 
     /**
-     * @Route("/cart/ajaxRemoveLineItem", name="cart_ajax_remove_line_item", options={"seo"="false"})
-     * @Method({"POST"})
-     *
-     * @throws \Exception
-     */
-    public function ajaxRemoveLineItemAction(Request $request, StorefrontContext $context): Response
-    {
-        $identifier = $request->request->get('identifier');
-
-        if (!$identifier) {
-            return new JsonResponse([
-                'success' => false,
-                'message' => 'Invalid identifier',
-            ]);
-        }
-
-        $this->cartService->remove($identifier, $context);
-
-        return $this->renderStorefront(
-            '@Storefront/frontend/checkout/ajax_cart.html.twig',
-            ['cart' => $this->cartService->getCalculatedCart($context)]
-        );
-    }
-
-    /**
-     * @Route("/cart/ajaxAddLineItem", name="cart_ajax_add_line_item", options={"seo"="false"})
-     * @Method({"POST"})
-     *
-     * @throws \Exception
-     */
-    public function ajaxAddLineItemAction(Request $request, StorefrontContext $context): Response
-    {
-        $identifier = $request->request->get('identifier');
-        $quantity = $request->request->getInt('quantity');
-        $services = $request->request->get('service', []);
-
-        if (!($identifier && $quantity)) {
-            return new JsonResponse([
-                'success' => false,
-                'message' => 'Invalid identifier or quantity',
-            ]);
-        }
-
-        $this->addProductToCart($context, $identifier, $quantity, $services);
-
-        return $this->renderStorefront(
-            '@Storefront/frontend/checkout/ajax_cart.html.twig',
-            ['cart' => $this->cartService->getCalculatedCart($context)]
-        );
-    }
-
-    /**
      * Serve response depending on target and current user state
-     *
-     * @param Request $request
-     * @param string  $target
      *
      * @return JsonResponse|RedirectResponse|Response
      */
@@ -274,5 +234,15 @@ class CartController extends StorefrontController
             ),
             $context
         );
+    }
+
+    private function acceptsHTML(Request $request): bool
+    {
+        $acceptHeader = AcceptHeader::fromString($request->headers->get('Accept'));
+        if ($acceptHeader->has('text/html')) {
+            return true;
+        }
+
+        return false;
     }
 }

@@ -107,7 +107,6 @@
 
         <service class="Shopware\Storefront\Page\Account\AccountService" id="Shopware\Storefront\Page\Account\AccountService">
             <argument id="Shopware\Api\Country\Repository\CountryRepository" type="service"/>
-            <argument id="Shopware\Api\Country\Repository\CountryStateRepository" type="service"/>
             <argument id="Shopware\Api\Customer\Repository\CustomerAddressRepository" type="service"/>
             <argument id="Shopware\Api\Customer\Repository\CustomerRepository" type="service"/>
             <argument type="service" id="security.authentication.manager"/>

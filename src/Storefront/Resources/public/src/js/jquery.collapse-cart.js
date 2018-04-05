@@ -325,6 +325,7 @@
             $.ajax({
                 'url': opts.ajaxRemoveLineItemURL,
                 'method': 'POST',
+                'dataType': 'html',
                 'data': {
                     'identifier': identifier
                 },
@@ -450,6 +451,7 @@
             $.ajax({
                 'url': opts.ajaxCartURL,
                 'method': 'POST',
+                'dataType': 'html',
                 'success': function (result) {
                     $el.html(result);
                     picturefill();

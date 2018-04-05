@@ -170,15 +170,15 @@
             var controller = controller || {
                 'vat_check_enabled': '{{ shopware.config.vatcheckendabled }}',
                 'vat_check_required': '{{ shopware.config.vatcheckrequired }}',
-                'ajax_cart': '{{ path('cart_ajax_cart') }}',
-                'ajax_remove_item': '{{ path('cart_ajax_remove_line_item') }}',
+                'ajax_cart': '{{ path('cart_get_cart') }}',
+                'ajax_remove_item': '{{ path('cart_delete_line_item') }}',
                 'ajax_search': '{{ path('search_ajax') }}',
                 'register': '{url controller="register"}',
                 'checkout': '{url controller="checkout"}',
                 'ajax_validate': '{url controller="register"}',
                 'ajax_add_article': '{url controller="checkout" action="addArticle"}',
                 'ajax_listing': '{url module="widgets" controller="Listing" action="ajaxListing"}',
-                'ajax_cart_refresh': '{{ path('cart_ajax_amount') }}',
+                'ajax_cart_refresh': '{{ path('cart_get_amount') }}',
                 'ajax_address_selection': '{{ path('address_ajax_selection') }}',
                 'ajax_address_editor': '{{ path('address_ajax_editor') }}'
             };

@@ -130,8 +130,8 @@
             $.ajax({
                 'type': 'POST',
                 'data': ajaxData,
-                // 'dataType': 'jsonp',
                 'url': opts.addArticleUrl,
+                'dataType': 'html',
                 'success': function (result) {
                     $.publish('plugin/swAddArticle/onAddArticle', [ me, result ]);
 

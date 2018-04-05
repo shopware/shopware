@@ -50,6 +50,21 @@ class CountryBasicCollection extends EntityCollection
         });
     }
 
+    public function sortByPositionAndName(): void
+    {
+        uasort($this->elements, function (CountryBasicStruct $a, CountryBasicStruct $b) {
+            if ($a->getPosition() !== $b->getPosition()) {
+                return $a->getPosition() <=> $b->getPosition();
+            }
+
+            if ($a->getName() !== $b->getName()) {
+                return strnatcasecmp($a->getName(), $b->getName());
+            }
+
+            return 0;
+        });
+    }
+
     protected function getExpectedClass(): string
     {
         return CountryBasicStruct::class;

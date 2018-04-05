@@ -64,6 +64,14 @@ class CountryDetailCollection extends CountryBasicCollection
         return $collection;
     }
 
+    public function sortCountryAndStates(): void
+    {
+        $this->sortByPositionAndName();
+        foreach ($this->elements as $country) {
+            $country->getStates()->sortByPositionAndName();
+        }
+    }
+
     protected function getExpectedClass(): string
     {
         return CountryDetailStruct::class;

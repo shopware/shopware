@@ -57,7 +57,10 @@ class OrderingProcessTest extends WebTestCase
 
         self::$webClient = self::createClient(
             ['test_case' => 'OrderingProcessTest'],
-            ['HTTP_X-Requested-With' => 'XMLHttpRequest']
+            [
+                'HTTP_X-Requested-With' => 'XMLHttpRequest',
+                'HTTP_Accept' => 'application/json'
+            ]
         );
         self::$container = self::$kernel->getContainer();
         self::$apiClient = self::authorizeClient($apiClient);

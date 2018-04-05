@@ -4,22 +4,17 @@ namespace Shopware\Storefront\Page\Account;
 
 use Shopware\Api\Country\Repository\CountryRepository;
 use Shopware\Api\Country\Repository\CountryStateRepository;
-use Shopware\Api\Country\Struct\CountrySearchResult;
-use Shopware\Api\Country\Struct\CountryStateSearchResult;
 use Shopware\Api\Customer\Repository\CustomerAddressRepository;
 use Shopware\Api\Customer\Repository\CustomerRepository;
 use Shopware\Api\Customer\Struct\CustomerAddressBasicStruct;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\TermQuery;
-use Shopware\Api\Entity\Search\Query\TermsQuery;
-use Shopware\Api\Entity\Search\Sorting\FieldSorting;
 use Shopware\CartBridge\Exception\NotLoggedInCustomerException;
 use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\Uuid;
 use Shopware\StorefrontApi\Context\StorefrontContextPersister;
 use Shopware\StorefrontApi\Exception\AddressNotFoundHttpException;
 use Shopware\StorefrontApi\Firewall\CustomerUser;
-use Symfony\Component\HttpKernel\HttpCache\Store;
 use Symfony\Component\Security\Core\Authentication\AuthenticationManagerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
@@ -63,7 +58,6 @@ class AccountService
 
     public function __construct(
         CountryRepository $countryRepository,
-        CountryStateRepository $countryStateRepository,
         CustomerAddressRepository $customerAddressRepository,
         CustomerRepository $customerRepository,
         AuthenticationManagerInterface $authenticationManager,
@@ -71,7 +65,6 @@ class AccountService
         StorefrontContextPersister $contextPersister
     ) {
         $this->countryRepository = $countryRepository;
-        $this->countryStateRepository = $countryStateRepository;
         $this->customerAddressRepository = $customerAddressRepository;
         $this->customerRepository = $customerRepository;
         $this->authenticationManager = $authenticationManager;
@@ -120,12 +113,13 @@ class AccountService
 
     public function getCountryList(StorefrontContext $context): array
     {
-        $countries = $this->getCountries($context);
-        $states = $this->getCountryStates($context, $countries->getIds());
-
-        foreach ($countries as $country) {
-            $country->addExtension('states', $states->filterByCountryId($country->getId()));
-        }
+        $criteria = new Criteria();
+        $criteria->addFilter(new TermQuery('country.active', true));
+        $countries = $this->countryRepository->readDetail(
+            $this->countryRepository->searchIds($criteria, $context->getShopContext())->getIds(),
+            $context->getShopContext()
+        );
+        $countries->sortCountryAndStates();
 
         return $countries->getElements();
     }
@@ -341,30 +335,6 @@ class AccountService
         }
 
         return $address;
-    }
-
-    private function getCountries(StorefrontContext $context): CountrySearchResult
-    {
-        $criteria = new Criteria();
-        $criteria->addFilter(new TermQuery('country.active', true));
-        $criteria->addSortings([
-            new FieldSorting('country.position', FieldSorting::DESCENDING),
-            new FieldSorting('country.name'),
-        ]);
-
-        return $this->countryRepository->search($criteria, $context->getShopContext());
-    }
-
-    private function getCountryStates(StorefrontContext $context, array $countryIds): CountryStateSearchResult
-    {
-        $criteria = new Criteria();
-        $criteria->addFilter(new TermsQuery('country_state.countryId', $countryIds));
-        $criteria->addSortings([
-            new FieldSorting('country_state.position', FieldSorting::DESCENDING),
-            new FieldSorting('country_state.name'),
-        ]);
-
-        return $this->countryStateRepository->search($criteria, $context->getShopContext());
     }
 
     private function formatBirthday(array $data): ?string

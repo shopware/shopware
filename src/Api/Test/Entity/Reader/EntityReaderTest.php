@@ -145,7 +145,12 @@ class EntityReaderTest extends KernelTestCase
         $ruleA = Uuid::uuid4()->getHex();
 
         $this->container->get(ContextRuleRepository::class)->create([
-            ['id' => $ruleA, 'name' => 'test', 'payload' => new AndRule()],
+            [
+                'id' => $ruleA,
+                'name' => 'test',
+                'payload' => new AndRule(),
+                'priority' => 1
+            ],
         ], ShopContext::createDefaultContext());
 
         $parentId = Uuid::uuid4()->getHex();

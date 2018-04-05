@@ -10,9 +10,9 @@
           data-add-article="true"
           data-eventName="submit"
           {% if shopware.theme.offcanvasCart %}
-            {% set url = path('cart_ajax_add_line_item') %}
-            data-showModal="false"
-            data-addArticleUrl="{{ url }}"
+              {% set url = path('cart_add_product') %}
+              data-showModal="false"
+              data-addArticleUrl="{{ url }}"
           {% endif %}>
 
         <input type="hidden" name="identifier" value="{{ product.id }}"/>

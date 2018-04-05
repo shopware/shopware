@@ -1,5 +1,11 @@
 @import "~less/variables";
 
+@sw-page-smart-bar-border-color:            @color-steam-cloud;
+@sw-page-smart-bar-background-color:        @color-white;
+@sw-page-smart-bar-headline-color:          @color-kashmir;
+@sw-page-smart-bar-headline-font-size:      18px;
+@sw-page-smart-bar-headline-font-weight:    600;
+
 .sw-page {
     display: grid;
     grid-template-rows: 70px auto;
@@ -8,8 +14,8 @@
         height: 70px;
         padding: 0 40px;
         position: relative;
-        background: @color-white;
-        border-bottom: 2px solid #d8dde6;
+        background: @sw-page-smart-bar-background-color;
+        border-bottom: 2px solid @sw-page-smart-bar-border-color;
 
         .smart-bar__back-btn {
             width: 54px;
@@ -37,10 +43,10 @@
         }
 
         .smart-bar__header h2 {
-            font-size: 18px;
             line-height: 70px;
-            color: @color-kashmir;
-            font-weight: 600;
+            color: @sw-page-smart-bar-headline-color;
+            font-size: @sw-page-smart-bar-headline-font-size;
+            font-weight: @sw-page-smart-bar-headline-font-weight;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;

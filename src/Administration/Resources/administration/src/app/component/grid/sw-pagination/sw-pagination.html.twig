@@ -9,22 +9,22 @@
         {% block sw_pagination_page_list %}
             <ul class="sw-pagination__list">
                 {% block sw_pagination_page_list_item %}
-                <li v-for="(pageNum, index) in displayedPages" :key="index" class="sw-pagination__list-item">
-                    {% block sw_pagination_page_list_item_button %}
-                        <button v-if="typeof(pageNum) === 'number'"
-                                class="sw-pagination__list-button"
-                                :class="{ 'is-active': currentPage === pageNum }"
-                                @click="changePageByPageNumber(pageNum)">
-                            {{ pageNum }}
-                        </button>
-                    {% endblock %}
+                    <li v-for="(pageNum, index) in displayedPages" :key="index" class="sw-pagination__list-item">
+                        {% block sw_pagination_page_list_item_button %}
+                            <button v-if="typeof(pageNum) === 'number'"
+                                    class="sw-pagination__list-button"
+                                    :class="{ 'is-active': currentPage === pageNum }"
+                                    @click="changePageByPageNumber(pageNum)">
+                                {{ pageNum }}
+                            </button>
+                        {% endblock %}
 
-                    {% block sw_pagination_page_list_item_separator %}
-                        <span class="sw-pagination__list-separator" v-else>
-                            {{ pageNum }}
-                        </span>
-                    {% endblock %}
-                </li>
+                        {% block sw_pagination_page_list_item_separator %}
+                            <span class="sw-pagination__list-separator" v-else>
+                                {{ pageNum }}
+                            </span>
+                        {% endblock %}
+                    </li>
                 {% endblock %}
             </ul>
         {% endblock %}

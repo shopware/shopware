@@ -28,7 +28,7 @@ Module.register('sw-product', {
 
         create: {
             component: 'sw-product-create',
-            path: 'product/create',
+            path: 'create',
             redirect: {
                 name: 'sw.product.create.base'
             },

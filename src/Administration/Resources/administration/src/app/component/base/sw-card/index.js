@@ -10,7 +10,7 @@ Component.register('sw-card', {
             type: String,
             required: false
         },
-        loading: {
+        isLoading: {
             type: Boolean,
             required: false,
             default: false

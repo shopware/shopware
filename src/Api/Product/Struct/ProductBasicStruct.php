@@ -7,6 +7,7 @@ use Shopware\Api\Entity\Entity;
 use Shopware\Api\Product\Collection\ProductContextPriceBasicCollection;
 use Shopware\Api\Tax\Struct\TaxBasicStruct;
 use Shopware\Api\Unit\Struct\UnitBasicStruct;
+use Shopware\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Cart\Price\Struct\PriceDefinition;
 use Shopware\Cart\Price\Struct\PriceDefinitionCollection;
 use Shopware\Cart\Tax\Struct\PercentageTaxRule;
@@ -59,6 +60,23 @@ class ProductBasicStruct extends Entity
      * @var int|null
      */
     protected $stock;
+
+
+    /**
+     * @var int
+     */
+    protected $minDeliveryTime;
+
+    /**
+     * @var int
+     */
+    protected $maxDeliveryTime;
+
+    /**
+     * @var int
+     */
+    protected $restockTime;
+
 
     /**
      * @var bool|null
@@ -675,6 +693,59 @@ class ProductBasicStruct extends Entity
         $this->unit = $unit;
     }
 
+
+    public function getContextPrices(): ProductContextPriceBasicCollection
+    {
+        return $this->contextPrices;
+    }
+
+    public function setContextPrices(ProductContextPriceBasicCollection $contextPrices): void
+    {
+        $this->contextPrices = $contextPrices;
+    }
+
+    public function getListingPrices(): ?ContextPriceCollection
+    {
+        return $this->listingPrices;
+    }
+
+    public function setListingPrices(?ContextPriceCollection $listingPrices): void
+    {
+        $this->listingPrices = $listingPrices;
+    }
+
+    public function getMinDeliveryTime(): int
+    {
+        return $this->minDeliveryTime;
+    }
+
+    public function setMinDeliveryTime(int $minDeliveryTime): void
+    {
+        $this->minDeliveryTime = $minDeliveryTime;
+    }
+
+
+    public function getRestockTime(): int
+    {
+        return $this->restockTime;
+    }
+
+    public function setRestockTime(int $restockTime): void
+    {
+        $this->restockTime = $restockTime;
+    }
+
+    public function getMaxDeliveryTime(): int
+    {
+        return $this->maxDeliveryTime;
+    }
+
+    public function setMaxDeliveryTime(int $maxDeliveryTime): void
+    {
+        $this->maxDeliveryTime = $maxDeliveryTime;
+    }
+
+
     public function getContextPriceDefinitions(ShopContext $context): PriceDefinitionCollection
     {
         $taxRules = $this->getTaxRuleCollection();
@@ -751,23 +822,21 @@ class ProductBasicStruct extends Entity
         ]);
     }
 
-    public function getContextPrices(): ProductContextPriceBasicCollection
+    public function getDeliveryDate(): DeliveryDate
     {
-        return $this->contextPrices;
+        return new DeliveryDate(
+            (new \DateTime())
+                ->add(new \DateInterval('P' . $this->getMinDeliveryTime() . 'D')),
+            (new \DateTime())
+                ->add(new \DateInterval('P' . $this->getMinDeliveryTime()  .'D'))
+                ->add(new \DateInterval('P' . $this->getMaxDeliveryTime() .'D'))
+        );
     }
 
-    public function setContextPrices(ProductContextPriceBasicCollection $contextPrices): void
+    public function getRestockDeliveryDate(): DeliveryDate
     {
-        $this->contextPrices = $contextPrices;
-    }
+        $deliveryDate = $this->getDeliveryDate();
 
-    public function getListingPrices(): ?ContextPriceCollection
-    {
-        return $this->listingPrices;
-    }
-
-    public function setListingPrices(?ContextPriceCollection $listingPrices): void
-    {
-        $this->listingPrices = $listingPrices;
+        return $deliveryDate->add(new \DateInterval('P' . $this->getRestockTime() . 'D'));
     }
 }

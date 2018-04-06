@@ -65,4 +65,12 @@ class DeliveryDate extends Struct
     {
         return $this->latest;
     }
+
+    public function add(\DateInterval $interval): self
+    {
+        $this->earliest = $this->earliest->add($interval);
+        $this->latest = $this->latest->add($interval);
+
+        return $this;
+    }
 }

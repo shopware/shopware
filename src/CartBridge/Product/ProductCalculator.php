@@ -95,10 +95,9 @@ class ProductCalculator
                 $price,
                 $lineItem->getIdentifier(),
                 $lineItem->getQuantity(),
-                $this->getInstockDeliveryDate(),
-                $this->getOutOfStockDeliveryDate(),
-                $product,
-                null
+                $product->getDeliveryDate(),
+                $product->getRestockDeliveryDate(),
+                $product
             );
 
             foreach ($serviceIds as $serviceId) {
@@ -130,29 +129,5 @@ class ProductCalculator
         }
 
         return $products;
-    }
-
-    private function getInstockDeliveryDate(): DeliveryDate
-    {
-        return new DeliveryDate(
-            (new \DateTime())
-                ->add(new \DateInterval('P1D')),
-            (new \DateTime())
-                ->add(new \DateInterval('P1D'))
-                ->add(new \DateInterval('P3D'))
-        );
-    }
-
-    private function getOutOfStockDeliveryDate(): DeliveryDate
-    {
-        return new DeliveryDate(
-            (new \DateTime())
-                ->add(new \DateInterval('P10D'))
-                ->add(new \DateInterval('P1D')),
-            (new \DateTime())
-                ->add(new \DateInterval('P10D'))
-                ->add(new \DateInterval('P1D'))
-                ->add(new \DateInterval('P3D'))
-        );
     }
 }

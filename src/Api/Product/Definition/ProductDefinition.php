@@ -131,6 +131,10 @@ class ProductDefinition extends EntityDefinition
             (new IdField('price_group_id', 'priceGroupId'))->setFlags(new Inherited()),
             (new JsonArrayField('category_tree', 'categoryTree'))->setFlags(new Inherited()),
 
+            (new IntField('min_delivery_time', 'minDeliveryTime'))->setFlags(new Inherited()),
+            (new IntField('max_delivery_time', 'maxDeliveryTime'))->setFlags(new Inherited()),
+            (new IntField('restock_time', 'restockTime'))->setFlags(new Inherited()),
+
             //to many join fields
             new IdField('media_join_id', 'mediaJoinId'),
             new IdField('category_join_id', 'categoryJoinId'),
@@ -240,6 +244,9 @@ class ProductDefinition extends EntityDefinition
             'purchaseSteps' => 1,
             'shippingFree' => false,
             'sales' => 0,
+            'restockTime' => 1,
+            'minDeliveryTime' => 1,
+            'maxDeliveryTime' => 2,
         ];
     }
 }

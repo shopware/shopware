@@ -57,7 +57,8 @@ class StockDeliverySeparator
         DeliveryCollection $deliveries,
         CalculatedLineItemCollection $items,
         StorefrontContext $context
-    ): void {
+    ): void
+    {
         foreach ($items as $item) {
             if (!$item instanceof DeliverableLineItemInterface) {
                 continue;
@@ -107,7 +108,7 @@ class StockDeliverySeparator
                 continue;
             }
 
-            $outOfStock = (int) abs($item->getStock() - $quantity);
+            $outOfStock = (int)abs($item->getStock() - $quantity);
 
             $position = $this->recalculatePosition(
                 $item,
@@ -180,14 +181,14 @@ class StockDeliverySeparator
             return;
         }
 
-        $deliveries->add(
-            new Delivery(
-                new DeliveryPositionCollection([$position]),
-                $position->getDeliveryDate(),
-                $shippingMethod,
-                $location,
-                new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
-            )
+        $delivery = new Delivery(
+            new DeliveryPositionCollection([$position]),
+            $position->getDeliveryDate(),
+            $shippingMethod,
+            $location,
+            new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
         );
+        
+        $deliveries->add($delivery);
     }
 }

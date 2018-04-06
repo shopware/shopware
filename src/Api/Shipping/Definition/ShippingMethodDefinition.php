@@ -72,6 +72,8 @@ class ShippingMethodDefinition extends EntityDefinition
             new IntField('calculation', 'calculation'),
             new IntField('surcharge_calculation', 'surchargeCalculation'),
             new IntField('tax_calculation', 'taxCalculation'),
+            new IntField('min_delivery_time', 'minDeliveryTime'),
+            new IntField('max_delivery_time', 'maxDeliveryTime'),
             new FloatField('shipping_free', 'shippingFree'),
             new IntField('bind_time_from', 'bindTimeFrom'),
             new IntField('bind_time_to', 'bindTimeTo'),

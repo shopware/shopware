@@ -56,6 +56,11 @@ class Delivery extends Struct
      */
     protected $shippingCosts;
 
+    /**
+     * @var DeliveryDate
+     */
+    protected $endDeliveryDate;
+
     public function __construct(
         DeliveryPositionCollection $positions,
         DeliveryDate $deliveryDate,
@@ -68,6 +73,15 @@ class Delivery extends Struct
         $this->deliveryDate = $deliveryDate;
         $this->shippingMethod = $shippingMethod;
         $this->shippingCosts = $shippingCosts;
+        $this->endDeliveryDate = new DeliveryDate(
+            $this->deliveryDate->getEarliest()->add(
+                new \DateInterval('P' . $this->shippingMethod->getMinDeliveryTime() . 'D')
+            ),
+            $this->deliveryDate->getLatest()->add(
+                new \DateInterval('P' . $this->shippingMethod->getMaxDeliveryTime() . 'D')
+            )
+        );;
+
     }
 
     public function getPositions(): DeliveryPositionCollection
@@ -83,6 +97,11 @@ class Delivery extends Struct
     public function getDeliveryDate(): DeliveryDate
     {
         return $this->deliveryDate;
+    }
+
+    public function getEndDeliveryDate()
+    {
+        return $this->endDeliveryDate;
     }
 
     public function getShippingMethod(): ShippingMethodBasicStruct

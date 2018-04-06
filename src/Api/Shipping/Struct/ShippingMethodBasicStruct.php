@@ -142,6 +142,16 @@ class ShippingMethodBasicStruct extends Entity
      */
     protected $prices;
 
+    /**
+     * @var int
+     */
+    protected $minDeliveryTime;
+
+    /**
+     * @var int
+     */
+    protected $maxDeliveryTime;
+
     public function getType(): int
     {
         return $this->type;
@@ -410,5 +420,25 @@ class ShippingMethodBasicStruct extends Entity
     public function setPrices(ShippingMethodPriceBasicCollection $prices): void
     {
         $this->prices = $prices;
+    }
+
+    public function getMinDeliveryTime(): int
+    {
+        return $this->minDeliveryTime;
+    }
+
+    public function setMinDeliveryTime(int $minDeliveryTime): void
+    {
+        $this->minDeliveryTime = $minDeliveryTime;
+    }
+
+    public function getMaxDeliveryTime(): int
+    {
+        return $this->maxDeliveryTime;
+    }
+
+    public function setMaxDeliveryTime(int $maxDeliveryTime): void
+    {
+        $this->maxDeliveryTime = $maxDeliveryTime;
     }
 }

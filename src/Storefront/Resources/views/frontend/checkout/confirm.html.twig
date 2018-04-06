@@ -428,7 +428,7 @@
                     {% block frontend_checkout_confirm_delivery_title %}
                         <h2>Lieferung {{ loop.index }}</h2>
 
-                        {% set deliveryDate = delivery.deliveryDate %}
+                        {% set deliveryDate = delivery.endDeliveryDate %}
 
                         Wird geliefert zwischen dem <i>{{ deliveryDate.earliest.date|date('d.m.Y') }}</i> und dem
                         <i>{{ deliveryDate.latest.date|date('d.m.Y') }}</i>

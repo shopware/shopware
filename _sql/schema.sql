@@ -1337,6 +1337,8 @@ CREATE TABLE `shipping_method` (
   `calculation` int(1) unsigned NOT NULL DEFAULT '0',
   `surcharge_calculation` int(1) unsigned DEFAULT NULL,
   `tax_calculation` int(11) unsigned NOT NULL DEFAULT '0',
+  `min_delivery_time` int(11) DEFAULT '1',
+  `max_delivery_time` int(11) DEFAULT '2',
   `shipping_free` decimal(10,2) unsigned DEFAULT NULL,
   `bind_shippingfree` tinyint(1) NOT NULL,
   `bind_time_from` int(11) unsigned DEFAULT NULL,

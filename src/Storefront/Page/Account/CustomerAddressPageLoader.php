@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Page\Account;
 
-use Shopware\Api\Customer\Collection\CustomerAddressBasicCollection;
 use Shopware\Api\Customer\Repository\CustomerAddressRepository;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\TermQuery;

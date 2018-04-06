@@ -1,15 +1,12 @@
-<?php
-
+<?php declare(strict_types=1);
 
 namespace Shopware\Storefront\Page\Account;
-
 
 use Shopware\Api\Customer\Struct\CustomerBasicStruct;
 use Shopware\Framework\Struct\Struct;
 
 class CustomerPageStruct extends Struct
 {
-
     /**
      * @var CustomerBasicStruct
      */
@@ -17,7 +14,6 @@ class CustomerPageStruct extends Struct
 
     public function __construct(CustomerBasicStruct $customer)
     {
-
         $this->customer = $customer;
     }
 
@@ -25,5 +21,4 @@ class CustomerPageStruct extends Struct
     {
         return $this->customer;
     }
-
 }

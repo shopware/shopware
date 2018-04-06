@@ -1,15 +1,12 @@
-<?php
-
+<?php declare(strict_types=1);
 
 namespace Shopware\Storefront\Page\Account;
-
 
 use Shopware\Api\Customer\Collection\CustomerAddressBasicCollection;
 use Shopware\Framework\Struct\Struct;
 
 class CustomerAddressPageStruct extends Struct
 {
-
     /**
      * @var CustomerAddressBasicCollection
      */
@@ -24,5 +21,4 @@ class CustomerAddressPageStruct extends Struct
     {
         return $this->addresses;
     }
-
 }

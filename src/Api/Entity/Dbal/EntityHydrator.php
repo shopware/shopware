@@ -175,7 +175,7 @@ class EntityHydrator
             $associations = $definition::getFields()
                 ->filterByFlag(Inherited::class)
                 ->filter(
-                    function(Field $field) {
+                    function (Field $field) {
                         return $field instanceof ManyToManyAssociationField || $field instanceof OneToManyAssociationField;
                     }
                 );
@@ -324,14 +324,14 @@ class EntityHydrator
 
     private function isInherited(string $definition, array $row, AssociationInterface $association)
     {
-        /** @var string|EntityDefinition $definition */
+        /* @var string|EntityDefinition $definition */
         if ($association instanceof ManyToOneAssociationField) {
             $joinField = $association->getJoinField();
             $idField = $association->getStorageName();
-        } else if ($association instanceof ManyToManyAssociationField) {
+        } elseif ($association instanceof ManyToManyAssociationField) {
             $joinField = $association->getLocalField();
             $idField = 'id';
-        }  else {
+        } else {
             /** @var OneToManyAssociationField $association */
             $joinField = $association->getLocalField();
             $idField = 'id';

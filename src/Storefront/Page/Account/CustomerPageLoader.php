@@ -1,8 +1,6 @@
-<?php
-
+<?php declare(strict_types=1);
 
 namespace Shopware\Storefront\Page\Account;
-
 
 use Shopware\Context\Struct\StorefrontContext;
 
@@ -16,5 +14,4 @@ class CustomerPageLoader
     {
         return new CustomerPageStruct($context->getCustomer());
     }
-
 }

@@ -110,7 +110,6 @@ class EntityDefinitionQueryHelper
                     $parentSelect = self::escape($root . '.' . $definition::getParentPropertyName())
                         . '.' .
                         self::escape($field->getStorageName());
-
                 }
 
                 return sprintf('IFNULL(%s, %s)', $select, $parentSelect);
@@ -507,7 +506,7 @@ class EntityDefinitionQueryHelper
             }
 
             $query->addSelect(
-                $select  . ' IS NOT NULL'
+                $select . ' IS NOT NULL'
                 . ' as ' .
                 self::escape('_' . $root . '.' . $field->getPropertyName() . '.translated')
             );

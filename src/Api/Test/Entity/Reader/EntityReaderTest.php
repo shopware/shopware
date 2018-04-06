@@ -106,12 +106,12 @@ class EntityReaderTest extends KernelTestCase
             [
                 'id' => $redId,
                 'parentId' => $parentId,
-                'name' => 'red'
+                'name' => 'red',
             ],
             [
                 'id' => $greenId,
                 'parentId' => $parentId,
-                'tax' => ['id' => $greenTax, 'rate' => 13, 'name' => 'green']
+                'tax' => ['id' => $greenTax, 'rate' => 13, 'name' => 'green'],
             ],
         ];
 
@@ -165,8 +165,8 @@ class EntityReaderTest extends KernelTestCase
                         'quantityStart' => 1,
                         'contextRuleId' => $ruleA,
                         'price' => ['gross' => 15, 'net' => 10],
-                    ]
-                ]
+                    ],
+                ],
             ],
             [
                 'id' => $greenId,
@@ -177,13 +177,13 @@ class EntityReaderTest extends KernelTestCase
                         'quantityStart' => 1,
                         'contextRuleId' => $ruleA,
                         'price' => ['gross' => 100, 'net' => 90],
-                    ]
-                ]
+                    ],
+                ],
             ],
             [
                 'id' => $redId,
-                'parentId' => $parentId
-            ]
+                'parentId' => $parentId,
+            ],
         ];
 
         $this->repository->create($data, ShopContext::createDefaultContext());
@@ -211,7 +211,6 @@ class EntityReaderTest extends KernelTestCase
         $this->assertFalse($inheritance->get('contextPrices'));
     }
 
-
     public function testTranslationExtension()
     {
         $redId = Uuid::uuid4()->getHex();
@@ -230,11 +229,11 @@ class EntityReaderTest extends KernelTestCase
             [
                 'id' => $redId,
                 'parentId' => $parentId,
-                'name' => 'red'
+                'name' => 'red',
             ],
             [
                 'id' => $greenId,
-                'parentId' => $parentId
+                'parentId' => $parentId,
             ],
         ];
 
@@ -248,13 +247,13 @@ class EntityReaderTest extends KernelTestCase
         /** @var ProductBasicStruct $red */
         $red = $products->get($redId);
 
-        /** @var ArrayStruct $translated */
-        /** @var ArrayStruct $inheritance */
+        /* @var ArrayStruct $translated */
+        /* @var ArrayStruct $inheritance */
         $this->assertTrue($red->hasExtension('translated'));
         $this->assertTrue($red->hasExtension('inherited'));
 
         $inheritance = $red->getExtension('inherited');
-        $translated  = $red->getExtension('translated');
+        $translated = $red->getExtension('translated');
 
         $this->assertTrue($translated->get('name'));
         $this->assertFalse($inheritance->get('name'));
@@ -269,7 +268,7 @@ class EntityReaderTest extends KernelTestCase
         $this->assertTrue($green->hasExtension('inherited'));
 
         $inheritance = $green->getExtension('inherited');
-        $translated  = $green->getExtension('translated');
+        $translated = $green->getExtension('translated');
 
         $this->assertTrue($translated->get('name'));
         $this->assertTrue($inheritance->get('name'));
@@ -277,5 +276,4 @@ class EntityReaderTest extends KernelTestCase
         $this->assertFalse($translated->get('description'));
         $this->assertTrue($inheritance->get('description'));
     }
-
 }

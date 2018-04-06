@@ -1,11 +1,19 @@
-import { Component } from 'src/core/shopware';
+import { Component, Mixin } from 'src/core/shopware';
 import template from './sw-login.html.twig';
 import './sw-login.less';
 
 Component.register('sw-login', {
+    template,
+
+    mixins: [
+        Mixin.getByName('notification')
+    ],
+
     data() {
         return {
-            isLoading: false
+            isLoading: false,
+            isLoginSuccess: false,
+            isLoginError: false
         };
     },
 
@@ -42,8 +50,35 @@ Component.register('sw-login', {
                 this.isLoading = false;
 
                 if (success === true) {
-                    this.forwardLogin();
+                    this.handleLoginSuccess();
+                } else {
+                    this.handleLoginError();
                 }
+            });
+        },
+
+        handleLoginSuccess() {
+            const loginSuccessDuration = 400;
+
+            this.isLoginSuccess = true;
+
+            setTimeout(() => {
+                this.isLoginSuccess = false;
+                this.forwardLogin();
+
+                this.createNotificationSuccess({
+                    title: 'Anmeldung',
+                    message: 'Du hast dich erfolgreich angemeldet.'
+                });
+            }, loginSuccessDuration);
+        },
+
+        handleLoginError() {
+            this.isLoginError = true;
+
+            this.createNotificationError({
+                title: 'Anmeldung Fehlgeschlagen',
+                message: 'Bitte überprüfe, ob Benutzername und Passwort korrekt sind.'
             });
         },
 
@@ -57,7 +92,5 @@ Component.register('sw-login', {
                 name: 'core'
             });
         }
-    },
-
-    template
+    }
 });

@@ -49,6 +49,8 @@ State.register('login', {
         loginUserWithPasswordSuccess(state, payload) {
             state.token = payload.data.token;
             state.expiry = payload.data.expiry;
+            state.errorTitle = '';
+            state.errorMessage = '';
         },
 
         loginUserWithPasswordFailure(state, payload) {

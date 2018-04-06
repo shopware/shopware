@@ -21,6 +21,11 @@ class ConfigurationGroupBasicStruct extends Entity
      */
     protected $comparable;
 
+    /**
+     * @var int
+     */
+    protected $position;
+
     public function getName(): string
     {
         return $this->name;
@@ -49,5 +54,15 @@ class ConfigurationGroupBasicStruct extends Entity
     public function setComparable(bool $comparable): void
     {
         $this->comparable = $comparable;
+    }
+
+    public function getPosition(): int
+    {
+        return $this->position;
+    }
+
+    public function setPosition(int $position): void
+    {
+        $this->position = $position;
     }
 }

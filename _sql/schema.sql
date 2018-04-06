@@ -186,6 +186,7 @@ DROP TABLE IF EXISTS `configuration_group`;
 CREATE TABLE `configuration_group` (
   `id` binary(16) NOT NULL,
   `version_id` binary(16) NOT NULL,
+  `position` int(11) NOT NULL DEFAULT '0',
   `filterable` tinyint(1) NOT NULL DEFAULT '0',
   `comparable` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`, `version_id`)

@@ -160,6 +160,15 @@ class ProductBasicCollection extends EntityCollection
         );
     }
 
+    public function filterByVariationIds(array $optionIds): self
+    {
+        return $this->filter(function(ProductBasicStruct $product) use ($optionIds) {
+            $ids = $product->getVariationIds();
+            $same = array_intersect($ids, $optionIds);
+            return count($same) === count($optionIds);
+        });
+    }
+
     protected function getExpectedClass(): string
     {
         return ProductBasicStruct::class;

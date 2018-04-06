@@ -65,6 +65,8 @@ class VariantGenerator
                 }
             );
 
+            $options->sortByGroup();
+
             $names = $options->map(function(ProductConfiguratorBasicStruct $config) {
                 return $config->getOption()->getName();
             });

@@ -13,6 +13,7 @@ use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\Field\BoolField;
 use Shopware\Api\Entity\Field\IdField;
+use Shopware\Api\Entity\Field\IntField;
 use Shopware\Api\Entity\Field\OneToManyAssociationField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
@@ -55,6 +56,7 @@ class ConfigurationGroupDefinition extends EntityDefinition
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
             (new TranslatedField(new StringField('name', 'name')))->setFlags(new Required()),
+            new IntField('position', 'position'),
             new BoolField('filterable', 'filterable'),
             new BoolField('comparable', 'comparable'),
             (new OneToManyAssociationField('options', ConfigurationGroupOptionDefinition::class, 'configuration_group_id', false, 'id'))->setFlags(new CascadeDelete()),

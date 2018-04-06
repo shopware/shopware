@@ -98,14 +98,6 @@ class VariantGeneratorTest extends KernelTestCase
         $variants = $this->repository->readDetail($productWritten->getIds(), ShopContext::createDefaultContext());
         $this->assertCount(2, $variants);
 
-        $parent = $this->repository->readBasic([$id], ShopContext::createDefaultContext())
-            ->get($id);
-
-        foreach ($variants as $variant) {
-            $this->assertEquals($id, $variant->getParentId());
-            $this->assertEquals($parent->getName(), $variant->getName());
-        }
-
         /** @var ProductDetailStruct $red */
         $red = $variants->filter(function (ProductDetailStruct $detail) use ($redId) {
             return in_array($redId, $detail->getVariations()->getIds(), true);
@@ -115,6 +107,9 @@ class VariantGeneratorTest extends KernelTestCase
         $blue = $variants->filter(function (ProductDetailStruct $detail) use ($blueId) {
             return in_array($blueId, $detail->getVariations()->getIds(), true);
         })->first();
+
+        $this->assertEquals('test blue', $blue->getName());
+        $this->assertEquals('test red', $red->getName());
 
         $this->assertInstanceOf(ProductDetailStruct::class, $red);
         $this->assertInstanceOf(ProductDetailStruct::class, $blue);
@@ -128,6 +123,10 @@ class VariantGeneratorTest extends KernelTestCase
         $id = Uuid::uuid4()->getHex();
         $colorId = Uuid::uuid4()->getHex();
         $sizeId = Uuid::uuid4()->getHex();
+        $redId = Uuid::uuid4()->getHex();
+        $blueId = Uuid::uuid4()->getHex();
+        $bigId = Uuid::uuid4()->getHex();
+        $smallId = Uuid::uuid4()->getHex();
 
         $data = [
             'id' => $id,
@@ -138,24 +137,28 @@ class VariantGeneratorTest extends KernelTestCase
             'configurators' => [
                 [
                     'option' => [
+                        'id' => $redId,
                         'name' => 'red',
-                        'group' => ['id' => $colorId, 'name' => 'color'],
+                        'group' => ['id' => $colorId, 'name' => 'color', 'position' => 1],
                     ],
                 ],
                 [
                     'option' => [
+                        'id' => $blueId,
                         'name' => 'blue',
-                        'groupId' => $colorId,
+                        'groupId' => $colorId
                     ],
                 ],
                 [
                     'option' => [
+                        'id' => $bigId,
                         'name' => 'big',
-                        'group' => ['id' => $sizeId, 'name' => 'size'],
+                        'group' => ['id' => $sizeId, 'name' => 'size', 'position' => 2],
                     ],
                 ],
                 [
                     'option' => [
+                        'id' => $smallId,
                         'name' => 'small',
                         'groupId' => $sizeId,
                     ],
@@ -177,10 +180,25 @@ class VariantGeneratorTest extends KernelTestCase
         $parent = $this->repository->readBasic([$id], ShopContext::createDefaultContext())
             ->get($id);
 
+        $filtered = $variants->filterByVariationIds([$redId, $bigId]);
+        $this->assertCount(1, $filtered);
+        $this->assertEquals('test red big', $filtered->first()->getName());
+
+        $filtered = $variants->filterByVariationIds([$blueId, $bigId]);
+        $this->assertCount(1, $filtered);
+        $this->assertEquals('test blue big', $filtered->first()->getName());
+
+        $filtered = $variants->filterByVariationIds([$redId, $smallId]);
+        $this->assertCount(1, $filtered);
+        $this->assertEquals('test red small', $filtered->first()->getName());
+
+        $filtered = $variants->filterByVariationIds([$blueId, $smallId]);
+        $this->assertCount(1, $filtered);
+        $this->assertEquals('test blue small', $filtered->first()->getName());
+
         foreach ($variants as $variant) {
             $this->assertEquals($id, $variant->getParentId());
             $this->assertEquals($parent->getPrice(), $variant->getPrice());
-            $this->assertEquals($parent->getName(), $variant->getName());
         }
     }
 
@@ -247,7 +265,6 @@ class VariantGeneratorTest extends KernelTestCase
         foreach ($variants as $variant) {
             $this->assertEquals($id, $variant->getParentId());
             $this->assertEquals($parent->getPrice(), $variant->getPrice());
-            $this->assertEquals($parent->getName(), $variant->getName());
         }
     }
 

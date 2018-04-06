@@ -286,7 +286,6 @@ class PluginManager
             $info['link'] = $info['link'] ?? null;
 
             $data = [
-                'active' => 0,
                 'version' => $info['version'],
                 'author' => $info['author'],
                 'name' => $pluginName,
@@ -313,6 +312,7 @@ class PluginManager
             } else {
                 $data['id'] = $pluginName;
                 $data['created_at'] = $refreshDate->format('Y-m-d H:i:s');
+                $data['active'] = 0;
 
                 $this->connection->insert('plugin', $data);
             }

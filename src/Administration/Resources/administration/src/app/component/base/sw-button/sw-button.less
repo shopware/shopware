@@ -1,7 +1,7 @@
 @import '~less/variables';
 
 @sw-button-default-color-background: @color-link-water;
-@sw-button-default-color-text:       @color-gutenberg;
+@sw-button-default-color-text:       @color-kashmir;
 @sw-button-default-color-border:     @color-steam-cloud;
 @sw-button-primary-color-background: @color-shopware-blue;
 @sw-button-primary-color-text:       @color-white;
@@ -118,5 +118,9 @@
         padding-right: 28px;
         line-height: 42px;
         font-size: 15px;
+    }
+
+    &:not(.sw-button--primary):not(.sw-button--ghost) .sw-icon {
+        color: lighten(@sw-button-default-color-text, 30%);
     }
 }

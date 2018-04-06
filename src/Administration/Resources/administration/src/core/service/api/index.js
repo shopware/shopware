@@ -13,6 +13,7 @@ import ShippingMethodApiService from 'src/core/service/api/shipping-method.api.s
 import CountryApiService from 'src/core/service/api/country.api.service';
 import CurrencyApiService from 'src/core/service/api/currency.api.service';
 import TaxApiService from 'src/core/service/api/tax.api.service';
+import ContextRuleApiService from 'src/core/service/api/context-rule.api.service';
 import MediaApiService from 'src/core/service/api/media.api.service';
 
 export default {
@@ -31,5 +32,6 @@ export default {
     countryService: CountryApiService,
     currencyService: CurrencyApiService,
     taxService: TaxApiService,
+    contextRuleService: ContextRuleApiService,
     mediaService: MediaApiService
 };

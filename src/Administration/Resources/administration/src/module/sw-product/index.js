@@ -4,6 +4,7 @@ import './component/sw-product-category-form';
 import './component/sw-product-price-form';
 import './component/sw-product-settings-form';
 import './view/sw-product-detail-base';
+import './view/sw-product-detail-context-prices';
 import './page/sw-product-list';
 import './page/sw-product-detail';
 import './page/sw-product-create';
@@ -56,6 +57,13 @@ Module.register('sw-product', {
                     meta: {
                         parentPath: 'sw.product.index'
                     }
+                },
+                prices: {
+                    component: 'sw-product-detail-context-prices',
+                    path: 'prices',
+                    meta: {
+                        parentPath: 'sw.product.index'
+                    }
                 }
             }
         }
@@ -69,6 +77,7 @@ Module.register('sw-product', {
     }, {
         path: 'sw.product.create',
         label: 'Produkt anlegen',
+        parent: 'sw.product.index',
         color: '#57D9A3'
     }],
 

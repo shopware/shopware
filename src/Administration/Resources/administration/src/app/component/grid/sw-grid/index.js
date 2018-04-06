@@ -51,6 +51,12 @@ Component.register('sw-grid', {
             type: String,
             required: false,
             default: 'ASC'
+        },
+
+        isFullpage: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
@@ -78,6 +84,7 @@ Component.register('sw-grid', {
         gridClasses() {
             return {
                 'sw-grid--sidebar': this.sidebar,
+                'sw-grid--fullpage': this.isFullpage,
                 [this.sizeClass]: true
             };
         },

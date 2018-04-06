@@ -5,3 +5,4 @@ import './notification.state';
 import './product.state';
 import './manufacturer.state';
 import './tax.state';
+import './context-rule.state';

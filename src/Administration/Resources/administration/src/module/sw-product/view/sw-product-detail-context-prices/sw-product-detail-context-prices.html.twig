@@ -1,0 +1,38 @@
+<div class="sw-product-detail-context-prices">
+    <sw-card v-for="priceGroup in contextPriceGroups" :key="priceGroup.contextRuleId" class="context-price">
+        <div class="context-price__toolbar">
+            <sw-field type="select" v-model="priceGroup.contextRuleId" @change="onContextRuleChange($event, priceGroup)">
+                <option slot="options" v-for="rule in contextRules" :value="rule.id">{{ rule.name }}</option>
+            </sw-field>
+            <sw-button><sw-icon name="small-default-x-line-medium" size="20"></sw-icon>Preisregel löschen</sw-button>
+            <sw-button><sw-icon name="small-copy" size="20"></sw-icon>Preisregel kopieren</sw-button>
+        </div>
+
+        <div class="context-price__prices">
+            <sw-grid :items="priceGroup.contextPrices">
+                <template slot="columns" slot-scope="{ item }">
+                    <sw-grid-column flex="1"
+                                    align="stretch"
+                                    dataIndex="quantityStart"
+                                    label="Menge von">
+                        <sw-field type="number" v-model="item.quantityStart"></sw-field>
+                    </sw-grid-column>
+
+                    <sw-grid-column flex="1"
+                                    align="stretch"
+                                    dataIndex="quantityStart"
+                                    label="Menge bis">
+                        <sw-field type="number" v-model="item.quantityEnd"></sw-field>
+                    </sw-grid-column>
+
+                    <sw-grid-column flex="1"
+                                    align="stretch"
+                                    dataIndex="quantityStart"
+                                    label="Preis (Brutto / Netto)">
+                        <sw-price-field :price="item.price" :taxRate="productTaxRate"></sw-price-field>
+                    </sw-grid-column>
+                </template>
+            </sw-grid>
+        </div>
+    </sw-card>
+</div>

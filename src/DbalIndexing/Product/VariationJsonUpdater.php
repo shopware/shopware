@@ -21,14 +21,7 @@ class VariationJsonUpdater
     {
         $sql = <<<SQL
 UPDATE product, product_variation SET product.variation_ids = (
-    SELECT CONCAT(
-        '[',
-        GROUP_CONCAT(
-            CONCAT('\"', LOWER(HEX(product_variation.configuration_group_option_id)), '\"') 
-            SEPARATOR ','
-        ),
-        ']'
-    )
+    SELECT CONCAT('[', GROUP_CONCAT(JSON_QUOTE(LOWER(HEX(product_variation.configuration_group_option_id)))), ']')
     FROM product_variation
     WHERE product_variation.product_id = product.id
 )

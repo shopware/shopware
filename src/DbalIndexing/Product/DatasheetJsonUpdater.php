@@ -21,15 +21,8 @@ class DatasheetJsonUpdater
     {
         $sql = <<<SQL
 UPDATE product, product_datasheet SET product.datasheet_ids = (
-    SELECT CONCAT(
-        '[',
-        GROUP_CONCAT(
-            CONCAT('\"', LOWER(HEX(product_datasheet.configuration_group_option_id)), '\"') 
-            SEPARATOR ','
-        ),
-        ']'
-    )
-    FROM product_datasheet 
+    SELECT CONCAT('[', GROUP_CONCAT(JSON_QUOTE(LOWER(HEX(product_datasheet.configuration_group_option_id)))), ']')
+    FROM product_datasheet
     WHERE product_datasheet.product_id = product.datasheet_join_id
 )
 WHERE product_datasheet.product_id = product.datasheet_join_id

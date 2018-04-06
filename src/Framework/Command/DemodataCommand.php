@@ -60,14 +60,35 @@ class DemodataCommand extends ContainerAwareCommand
      */
     private $variantGenerator;
 
+    /**
+     * @var ProductRepository
+     */
+    private $productRepository;
+
+    /**
+     * @var ContextRuleRepository
+     */
+    private $contextRuleRepository;
+
+    /**
+     * @var CategoryRepository
+     */
+    private $categoryRepository;
+
     public function __construct(
         ?string $name = null,
         EntityWriterInterface $writer,
-        VariantGenerator $variantGenerator
+        VariantGenerator $variantGenerator,
+        ProductRepository $productRepository,
+        ContextRuleRepository $contextRuleRepository,
+        CategoryRepository $categoryRepository
     ) {
         parent::__construct($name);
         $this->writer = $writer;
         $this->variantGenerator = $variantGenerator;
+        $this->productRepository = $productRepository;
+        $this->contextRuleRepository = $contextRuleRepository;
+        $this->categoryRepository = $categoryRepository;
     }
 
     protected function configure()
@@ -126,8 +147,6 @@ class DemodataCommand extends ContainerAwareCommand
             ];
         }
 
-        $repository = $this->getContainer()->get(CategoryRepository::class);
-
         $parents = $payload;
         foreach ($parents as $category) {
             for ($x = 0; $x < 40; ++$x) {
@@ -145,7 +164,7 @@ class DemodataCommand extends ContainerAwareCommand
 
         $chunks = array_chunk($payload, 100);
         foreach ($chunks as $chunk) {
-            $repository->upsert($chunk, ShopContext::createDefaultContext());
+            $this->categoryRepository->upsert($chunk, ShopContext::createDefaultContext());
             $this->io->progressAdvance(count($chunk));
         }
 
@@ -271,8 +290,6 @@ class DemodataCommand extends ContainerAwareCommand
 
         $services = $this->createServices();
 
-        $repository = $this->getContainer()->get(ProductRepository::class);
-
         for ($i = 0; $i < $count; ++$i) {
             $product = $this->createSimpleProduct($categories, $manufacturer, $contextRules);
 
@@ -293,7 +310,7 @@ class DemodataCommand extends ContainerAwareCommand
             if ($isConfigurator) {
                 $this->io->progressAdvance();
 
-                $repository->upsert([$product], ShopContext::createDefaultContext());
+                $this->productRepository->upsert([$product], ShopContext::createDefaultContext());
 
                 $this->variantGenerator->generate($product['id'], ShopContext::createDefaultContext());
 
@@ -304,13 +321,13 @@ class DemodataCommand extends ContainerAwareCommand
 
             if (count($payload) >= 20) {
                 $this->io->progressAdvance(count($payload));
-                $repository->upsert($payload, ShopContext::createDefaultContext());
+                $this->productRepository->upsert($payload, ShopContext::createDefaultContext());
                 $payload = [];
             }
         }
 
         if (!empty($payload)) {
-            $repository->upsert($payload, ShopContext::createDefaultContext());
+            $this->productRepository->upsert($payload, ShopContext::createDefaultContext());
         }
 
         $this->io->progressFinish();
@@ -344,9 +361,7 @@ class DemodataCommand extends ContainerAwareCommand
 
     private function createContextRules(): array
     {
-        $repo = $this->getContainer()->get(ContextRuleRepository::class);
-
-        $ids = $repo->searchIds(new Criteria(), ShopContext::createDefaultContext());
+        $ids = $this->contextRuleRepository->searchIds(new Criteria(), ShopContext::createDefaultContext());
 
         if (!empty($ids->getIds())) {
             return $ids->getIds();

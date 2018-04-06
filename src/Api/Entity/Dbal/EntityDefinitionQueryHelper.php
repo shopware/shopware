@@ -63,7 +63,7 @@ class EntityDefinitionQueryHelper
         return self::getField(
             $original,
             $referenceClass,
-            implode('.', [$root, $field->getPropertyName()])
+            $root . '.' . $field->getPropertyName()
         );
     }
 
@@ -92,10 +92,9 @@ class EntityDefinitionQueryHelper
                 if ($field instanceof SqlParseAware) {
                     $select = $field->parse($root, $context);
                 } else {
-                    $select = implode('.', [
-                        self::escape($root),
-                        self::escape($field->getStorageName()),
-                    ]);
+                    $select = self::escape($root)
+                        . '.' .
+                        self::escape($field->getStorageName());
                 }
 
                 if (!$field->is(Inherited::class)) {
@@ -108,10 +107,10 @@ class EntityDefinitionQueryHelper
                         $context
                     );
                 } else {
-                    $parentSelect = implode('.', [
-                        self::escape($root . '.' . $definition::getParentPropertyName()),
-                        self::escape($field->getStorageName()),
-                    ]);
+                    $parentSelect = self::escape($root . '.' . $definition::getParentPropertyName())
+                        . '.' .
+                        self::escape($field->getStorageName());
+
                 }
 
                 return sprintf('IFNULL(%s, %s)', $select, $parentSelect);
@@ -136,7 +135,7 @@ class EntityDefinitionQueryHelper
         return self::getFieldAccessor(
             $original,
             $referenceClass,
-            implode('.', [$root, $field->getPropertyName()]),
+            $root . '.' . $field->getPropertyName(),
             $context
         );
     }
@@ -231,7 +230,7 @@ class EntityDefinitionQueryHelper
         self::joinField(
             $original,
             $referenceClass,
-            implode('.', [$root, $field->getPropertyName()]),
+            $root . '.' . $field->getPropertyName(),
             $query,
             $context
         );
@@ -503,10 +502,7 @@ class EntityDefinitionQueryHelper
             if ($definition::getParentPropertyName() && $field->is(Inherited::class) && !$raw) {
                 $select = sprintf(
                     'COALESCE(%s)',
-                    implode(',', [
-                        $select,
-                        self::escape($chain[1]) . '.' . self::escape($field->getStorageName())
-                    ])
+                    $select . ',' . self::escape($chain[1]) . '.' . self::escape($field->getStorageName())
                 );
             }
 

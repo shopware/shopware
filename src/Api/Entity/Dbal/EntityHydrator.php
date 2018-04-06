@@ -85,7 +85,7 @@ class EntityHydrator
 
         $data = [];
         $toOneAssociations = [];
-        $inheritance = new ArrayStruct();
+        $inherited = new ArrayStruct();
         $translated = new ArrayStruct();
 
         foreach ($row as $originalKey => $value) {
@@ -99,7 +99,7 @@ class EntityHydrator
                 $inheritedKey = '_' . $originalKey . '.inherited';
 
                 if (array_key_exists($inheritedKey, $row)) {
-                    $inheritance->set($field->getPropertyName(), (bool) $row[$inheritedKey]);
+                    $inherited->set($field->getPropertyName(), (bool) $row[$inheritedKey]);
                     unset($row[$inheritedKey]);
                 }
             }
@@ -126,7 +126,7 @@ class EntityHydrator
             }
 
             if ($field instanceof ManyToManyAssociationField) {
-                $property = implode('.', [$root, $field->getPropertyName()]);
+                $property = $root . '.' . $field->getPropertyName();
 
                 $ids = explode('||', (string) $row[$property]);
                 $ids = array_filter($ids);
@@ -154,7 +154,7 @@ class EntityHydrator
                 new $structClass(),
                 $field->getReferenceClass(),
                 $row,
-                implode('.', [$root, $property])
+                $root . '.' . $property
             );
 
             /** @var Field $field */
@@ -181,10 +181,10 @@ class EntityHydrator
                 );
 
             foreach ($associations as $association) {
-                $inheritance->set($association->getPropertyName(), $this->isInherited($definition, $row, $association));
+                $inherited->set($association->getPropertyName(), $this->isInherited($definition, $row, $association));
             }
 
-            $entity->addExtension('inheritance', $inheritance);
+            $entity->addExtension('inherited', $inherited);
         }
 
         if ($definition::getTranslationDefinitionClass()) {

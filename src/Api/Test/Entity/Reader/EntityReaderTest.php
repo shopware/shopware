@@ -125,10 +125,10 @@ class EntityReaderTest extends KernelTestCase
         /** @var ProductBasicStruct $red */
         $red = $products->get($redId);
 
-        $this->assertTrue($red->hasExtension('inheritance'));
+        $this->assertTrue($red->hasExtension('inherited'));
 
         /** @var ArrayStruct $inheritance */
-        $inheritance = $red->getExtension('inheritance');
+        $inheritance = $red->getExtension('inherited');
 
         $this->assertTrue($inheritance->get('manufacturerId'));
         $this->assertTrue($inheritance->get('unitId'));
@@ -136,7 +136,7 @@ class EntityReaderTest extends KernelTestCase
 
         /** @var ProductBasicStruct $green */
         $green = $products->get($greenId);
-        $inheritance = $green->getExtension('inheritance');
+        $inheritance = $green->getExtension('inherited');
         $this->assertFalse($inheritance->get('taxId'));
     }
 
@@ -196,10 +196,10 @@ class EntityReaderTest extends KernelTestCase
         /** @var ProductBasicStruct $red */
         $red = $products->get($redId);
 
-        $this->assertTrue($red->hasExtension('inheritance'));
+        $this->assertTrue($red->hasExtension('inherited'));
 
         /** @var ArrayStruct $inheritance */
-        $inheritance = $red->getExtension('inheritance');
+        $inheritance = $red->getExtension('inherited');
 
         $this->assertTrue($inheritance->get('manufacturerId'));
         $this->assertTrue($inheritance->get('unitId'));
@@ -207,7 +207,7 @@ class EntityReaderTest extends KernelTestCase
 
         /** @var ProductBasicStruct $green */
         $green = $products->get($greenId);
-        $inheritance = $green->getExtension('inheritance');
+        $inheritance = $green->getExtension('inherited');
         $this->assertFalse($inheritance->get('contextPrices'));
     }
 
@@ -217,9 +217,7 @@ class EntityReaderTest extends KernelTestCase
         $redId = Uuid::uuid4()->getHex();
         $greenId = Uuid::uuid4()->getHex();
         $parentId = Uuid::uuid4()->getHex();
-
         $parentTax = Uuid::uuid4()->getHex();
-        $greenTax = Uuid::uuid4()->getHex();
 
         $products = [
             [
@@ -253,9 +251,9 @@ class EntityReaderTest extends KernelTestCase
         /** @var ArrayStruct $translated */
         /** @var ArrayStruct $inheritance */
         $this->assertTrue($red->hasExtension('translated'));
-        $this->assertTrue($red->hasExtension('inheritance'));
+        $this->assertTrue($red->hasExtension('inherited'));
 
-        $inheritance = $red->getExtension('inheritance');
+        $inheritance = $red->getExtension('inherited');
         $translated  = $red->getExtension('translated');
 
         $this->assertTrue($translated->get('name'));
@@ -268,9 +266,9 @@ class EntityReaderTest extends KernelTestCase
         $green = $products->get($greenId);
 
         $this->assertTrue($green->hasExtension('translated'));
-        $this->assertTrue($green->hasExtension('inheritance'));
+        $this->assertTrue($green->hasExtension('inherited'));
 
-        $inheritance = $green->getExtension('inheritance');
+        $inheritance = $green->getExtension('inherited');
         $translated  = $green->getExtension('translated');
 
         $this->assertTrue($translated->get('name'));

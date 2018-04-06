@@ -238,7 +238,7 @@ class EntityReader implements EntityReaderInterface
                 );
 
                 $fieldAlias = EntityDefinitionQueryHelper::escape(
-                    '_' . implode('.', [$root, $field->getPropertyName(), 'inherited'])
+                    '_' . $root . '.' . $field->getPropertyName() . '.' . 'inherited'
                 );
 
                 $query->addSelect(

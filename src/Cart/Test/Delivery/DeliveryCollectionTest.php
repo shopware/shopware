@@ -55,7 +55,7 @@ class DeliveryCollectionTest extends TestCase
                     new \DateTime(),
                     new \DateTime()
                 ),
-                new ShippingMethodBasicStruct(),
+                new DefaultShippingMethod(),
                 self::createShippingLocation(),
                 new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
             )
@@ -72,7 +72,7 @@ class DeliveryCollectionTest extends TestCase
                     new \DateTime(),
                     new \DateTime()
                 ),
-                new ShippingMethodBasicStruct(),
+                new DefaultShippingMethod(),
                 self::createShippingLocation(),
                 new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
             ),
@@ -82,7 +82,7 @@ class DeliveryCollectionTest extends TestCase
                     new \DateTime(),
                     new \DateTime()
                 ),
-                new ShippingMethodBasicStruct(),
+                new DefaultShippingMethod(),
                 self::createShippingLocation(),
                 new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
             ),
@@ -99,7 +99,7 @@ class DeliveryCollectionTest extends TestCase
                     new \DateTime(),
                     new \DateTime()
                 ),
-                new ShippingMethodBasicStruct(),
+                new DefaultShippingMethod(),
                 self::createShippingLocation(),
                 new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
             ),
@@ -109,7 +109,7 @@ class DeliveryCollectionTest extends TestCase
                     new \DateTime(),
                     new \DateTime()
                 ),
-                new ShippingMethodBasicStruct(),
+                new DefaultShippingMethod(),
                 self::createShippingLocation(),
                 new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
             ),
@@ -125,4 +125,11 @@ class DeliveryCollectionTest extends TestCase
 
         return ShippingLocation::createFromCountry($country);
     }
+}
+
+class DefaultShippingMethod extends ShippingMethodBasicStruct
+{
+    protected $minDeliveryTime = 1;
+    protected $maxDeliveryTime = 1;
+
 }

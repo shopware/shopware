@@ -65,11 +65,13 @@ class DeliveryCollection extends Collection
     public function getDelivery(DeliveryDate $deliveryDate, ShippingLocation $location): ? Delivery
     {
         foreach ($this->elements as $delivery) {
-            //find delivery with same data
-            //use only single "=", otherwise same object is expected
-            if ($delivery->getDeliveryDate() != $deliveryDate) {
+            if ($delivery->getDeliveryDate()->getEarliest() != $deliveryDate->getEarliest()) {
                 continue;
             }
+            if ($delivery->getDeliveryDate()->getLatest() != $deliveryDate->getLatest()) {
+                continue;
+            }
+
             if ($delivery->getLocation() != $location) {
                 continue;
             }

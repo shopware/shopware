@@ -93,6 +93,8 @@ class StockDeliverySeparatorTest extends TestCase
     {
         $location = self::createShippingLocation();
 
+        $context = Generator::createContext(null, null, null, null, null, null, $location->getAreaId(), $location->getCountry(), $location->getState());
+
         $item = new CalculatedProduct(
             new LineItem('A', ProductProcessor::TYPE_PRODUCT, 100),
             new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
@@ -116,7 +118,7 @@ class StockDeliverySeparatorTest extends TestCase
         $this->separator->addItemsToDeliveries(
             $deliveries,
             new CalculatedLineItemCollection([$item]),
-            Generator::createContext(null, null, null, null, null, null, $location->getAreaId(), $location->getCountry(), $location->getState())
+            $context
         );
 
         static::assertEquals(
@@ -126,7 +128,7 @@ class StockDeliverySeparatorTest extends TestCase
                         DeliveryPosition::createByLineItemForInStockDate($item),
                     ]),
                     new DeliveryDate(new \DateTime('2012-01-01'), new \DateTime('2012-01-02')),
-                    (new ShippingMethodBasicStruct())->assign(['id' => '8beeb66e-9dda-46b1-8891-a059257a590e']),
+                    $context->getShippingMethod(),
                     $location,
                     new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
                 ),
@@ -171,26 +173,21 @@ class StockDeliverySeparatorTest extends TestCase
             Generator::createContext(null, null, null, null, null, null, $location->getAreaId(), $location->getCountry(), $location->getState())
         );
 
-        static::assertEquals(
-            new DeliveryCollection([
-                new Delivery(
-                    new DeliveryPositionCollection([
-                        DeliveryPosition::createByLineItemForInStockDate($itemA),
-                        DeliveryPosition::createByLineItemForInStockDate($itemB),
-                    ]),
-                    new DeliveryDate(new \DateTime('2012-01-01'), new \DateTime('2012-01-02')),
-                    (new ShippingMethodBasicStruct())->assign(['id' => '8beeb66e-9dda-46b1-8891-a059257a590e']),
-                    $location,
-                    new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
-                ),
-            ]),
-            $deliveries
-        );
+        static::assertCount(1, $deliveries);
+
+        /** @var Delivery $delivery */
+        $delivery = $deliveries->first();
+        $this->assertCount(2, $delivery->getPositions());
+
+        static::assertContains($itemA->getIdentifier(), $delivery->getPositions()->getKeys());
+        static::assertContains($itemB->getIdentifier(), $delivery->getPositions()->getKeys());
     }
 
     public function testOutOfStockItemsCanBeDelivered(): void
     {
         $location = self::createShippingLocation();
+
+        $context = Generator::createContext(null, null, null, null, null, null, $location->getAreaId(), $location->getCountry(), $location->getState());
 
         $itemA = new CalculatedProduct(
             new LineItem('A', ProductProcessor::TYPE_PRODUCT, 5),
@@ -215,7 +212,7 @@ class StockDeliverySeparatorTest extends TestCase
         $this->separator->addItemsToDeliveries(
             $deliveries,
             new CalculatedLineItemCollection([$itemA, $itemB]),
-            Generator::createContext(null, null, null, null, null, null, $location->getAreaId(), $location->getCountry(), $location->getState())
+            $context
         );
 
         static::assertEquals(
@@ -226,7 +223,7 @@ class StockDeliverySeparatorTest extends TestCase
                         DeliveryPosition::createByLineItemForOutOfStockDate($itemB),
                     ]),
                     new DeliveryDate(new \DateTime('2012-01-04'), new \DateTime('2012-01-05')),
-                    (new ShippingMethodBasicStruct())->assign(['id' => '8beeb66e-9dda-46b1-8891-a059257a590e']),
+                    $context->getShippingMethod(),
                     $location,
                     new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
                 ),
@@ -237,7 +234,10 @@ class StockDeliverySeparatorTest extends TestCase
 
     public function testNoneDeliverableItemBeIgnored(): void
     {
+
         $location = self::createShippingLocation();
+        $context = Generator::createContext(null, null, null, null, null, null, $location->getAreaId(), $location->getCountry(), $location->getState());
+
         $product = new CalculatedProduct(
             new LineItem('A', ProductProcessor::TYPE_PRODUCT, 5),
             new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
@@ -260,7 +260,7 @@ class StockDeliverySeparatorTest extends TestCase
         $this->separator->addItemsToDeliveries(
             $deliveries,
             new CalculatedLineItemCollection([$product, $voucher]),
-            Generator::createContext(null, null, null, null, null, null, $location->getAreaId(), $location->getCountry(), $location->getState())
+            $context
         );
 
         static::assertEquals(
@@ -270,7 +270,7 @@ class StockDeliverySeparatorTest extends TestCase
                         DeliveryPosition::createByLineItemForInStockDate($product),
                     ]),
                     $product->getInStockDeliveryDate(),
-                    (new ShippingMethodBasicStruct())->assign(['id' => '8beeb66e-9dda-46b1-8891-a059257a590e']),
+                    $context->getShippingMethod(),
                     $location,
                     new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
                 ),
@@ -282,6 +282,8 @@ class StockDeliverySeparatorTest extends TestCase
     public function testPositionWithMoreQuantityThanStockWillBeSplitted(): void
     {
         $location = self::createShippingLocation();
+
+        $context = Generator::createContext(null, null, null, null, null, null, $location->getAreaId(), $location->getCountry(), $location->getState());
 
         $product = new CalculatedProduct(
             new LineItem('A', ProductProcessor::TYPE_PRODUCT, 10),
@@ -297,7 +299,7 @@ class StockDeliverySeparatorTest extends TestCase
         $this->separator->addItemsToDeliveries(
             $deliveries,
             new CalculatedLineItemCollection([$product]),
-            Generator::createContext(null, null, null, null, null, null, $location->getAreaId(), $location->getCountry(), $location->getState())
+            $context
         );
 
         static::assertEquals(
@@ -310,7 +312,7 @@ class StockDeliverySeparatorTest extends TestCase
                         ),
                     ]),
                     $product->getInStockDeliveryDate(),
-                    (new ShippingMethodBasicStruct())->assign(['id' => '8beeb66e-9dda-46b1-8891-a059257a590e']),
+                    $context->getShippingMethod(),
                     $location,
                     new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
                 ),
@@ -322,7 +324,7 @@ class StockDeliverySeparatorTest extends TestCase
                         ),
                     ]),
                     $product->getOutOfStockDeliveryDate(),
-                    (new ShippingMethodBasicStruct())->assign(['id' => '8beeb66e-9dda-46b1-8891-a059257a590e']),
+                    $context->getShippingMethod(),
                     $location,
                     new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
                 ),
@@ -352,6 +354,8 @@ class StockDeliverySeparatorTest extends TestCase
         $product->setStock($stock);
         $product->setName($name);
         $product->setWeight($weight);
+        $product->setMinDeliveryTime(1);
+        $product->setMaxDeliveryTime(2);
 
         return $product;
     }

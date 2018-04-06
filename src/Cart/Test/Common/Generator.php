@@ -110,7 +110,11 @@ class Generator extends TestCase
         }
 
         $paymentMethod = (new PaymentMethodBasicStruct())->assign(['id' => '19d144ff-e15f-4772-860d-59fca7f207c1']);
-        $shippingMethod = (new ShippingMethodBasicStruct())->assign(['id' => '8beeb66e-9dda-46b1-8891-a059257a590e']);
+        $shippingMethod = (new ShippingMethodBasicStruct())->assign([
+            'id' => '8beeb66e9dda46b18891a059257a590e',
+            'minDeliveryTime' => 1,
+            'maxDeliveryTime' => 2,
+        ]);
         $customer = (new CustomerBasicStruct())->assign(['id' => Uuid::uuid4()->getHex()]);
 
         return new StorefrontContext(

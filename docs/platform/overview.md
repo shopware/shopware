@@ -117,7 +117,7 @@ As we can see, we can even filter related objects like the manufacturer. Another
 $criteria = new Criteria();
 $criteria->addFilter(new TermsQuery('product.categories.name', ['Towel', 'Bathroom']));
 $criteria->addFilter(new MatchQuery('product.manufacturer.name', 'Factory'));
-$criteria->addFilter(new RangeQuery('product.details.prices.price', [RangeQuery::LT => 50]));
+$criteria->addFilter(new RangeQuery('product.contextPrices.price', [RangeQuery::LT => 50]));
 ```
 
 ### Query types

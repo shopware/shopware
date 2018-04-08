@@ -100,11 +100,11 @@ class ListingController extends StorefrontController
 
         $template = $this->renderStorefront('@Storefront/frontend/listing/listing_ajax.html.twig', [
             'listing' => $page,
-        ], null, false);
+        ]);
 
         $pagination = $this->renderStorefront('@Storefront/frontend/listing/actions/action-pagination.html.twig', [
             'listing' => $page,
-        ], null, false);
+        ]);
 
         return new JsonResponse([
             'listing' => $template->getContent(),

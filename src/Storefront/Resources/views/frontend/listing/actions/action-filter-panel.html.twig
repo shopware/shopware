@@ -62,8 +62,8 @@
                         {% endblock %}
 
                         {% block frontend_listing_actions_filter_form_category %}
-                            {% if not sCategoryContent and sCategoryCurrent != sCategoryStart and controllerName != 'search' %}
-                                <input type="hidden" name="c" value="" />
+                            {% if controllerName != 'search' %}
+                                <input type="hidden" name="categoryId" value="{{ listing.categoryId }}" />
                             {% endif %}
                         {% endblock %}
 

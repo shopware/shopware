@@ -49,7 +49,7 @@ class ListingPageLoader
 
         $products = $this->productRepository->search($criteria, $context);
 
-        $page = new ListingPageStruct($products, $criteria);
+        $page = new ListingPageStruct($categoryId, $products, $criteria);
 
         $page->setShowListing(true);
         $page->setProductBoxLayout('basic');

@@ -55,7 +55,13 @@ class ListingPageStruct extends Struct
      */
     protected $productBoxLayout;
 
+    /**
+     * @var string
+     */
+    protected $categoryId;
+
     public function __construct(
+        string $categoryId,
         ProductSearchResult $products,
         Criteria $criteria,
         int $currentPage = 1,
@@ -79,6 +85,7 @@ class ListingPageStruct extends Struct
 
         $this->aggregations = $aggregations;
         $this->sortings = $sortings;
+        $this->categoryId = $categoryId;
     }
 
     public function getProducts(): ProductSearchResult
@@ -164,5 +171,15 @@ class ListingPageStruct extends Struct
     public function setProductBoxLayout(string $productBoxLayout): void
     {
         $this->productBoxLayout = $productBoxLayout;
+    }
+
+    public function getCategoryId(): string
+    {
+        return $this->categoryId;
+    }
+
+    public function setCategoryId(string $categoryId): void
+    {
+        $this->categoryId = $categoryId;
     }
 }

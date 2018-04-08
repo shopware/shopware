@@ -101,9 +101,9 @@ This endpoint allows to receive a entity list even by sending a post request. Al
 Defines an exact match of the expression. Sql example `WHERE product.name = awesome`
 ```json
 {
-    "type": "term",
-    "field": "product.name",
-    "value": "awesome"
+  "type": "term",
+  "field": "product.name",
+  "value": "awesome"
 }
 ```
 
@@ -111,9 +111,9 @@ Defines an exact match of the expression. Sql example `WHERE product.name = awes
 Defines an inexact match of the expression. Sql example `WHERE product.name LIKE %awesome%`
 ```json
 {
-    "type": "match",
-    "field": "product.name",
-    "value": "awesome"
+  "type": "match",
+  "field": "product.name",
+  "value": "awesome"
 }
 ```
 
@@ -121,9 +121,9 @@ Defines an inexact match of the expression. Sql example `WHERE product.name LIKE
 Defines a multi value term query. Sql example `WHERE product.name IN (awesome, shopware)`
 ```json
 {
-    "type": "terms",
-    "field": "product.name",
-    "value": "awesome|shopware"
+  "type": "terms",
+  "field": "product.name",
+  "value": "awesome|shopware"
 }
 ```
 
@@ -131,12 +131,12 @@ Defines a multi value term query. Sql example `WHERE product.name IN (awesome, s
 Allows to query a range value of a field by using **G**reater **T**han **E**quals (GTE), **G**reater **T**han (GT), **L**ess **T**han **E**quals (LTE), **L**ess **T**han (LT) . Sql example: `WHERE (product.price >= 100 AND product.price <= 200)`
 ```json
 {
-    "type": "range",
-    "field": "product.stock",
-    "parameters": {
-      "lte": 200,
-      "gte": 100
-    }
+  "type": "range",
+  "field": "product.stock",
+  "parameters": {
+    "lte": 200,
+    "gte": 100
+  }
 }
 ```
 
@@ -144,36 +144,36 @@ Allows to query a range value of a field by using **G**reater **T**han **E**qual
 A nested query allows to group multiple queries in a clip and control the AND behavior. Sql example `WHERE (product.name LIKE %name% AND product.price = 100 AND (product.stock = 0 OR product.minStock = 0))`
 ```json
 {
-    "type": "nested",
-    "operator": "AND",
-    "queries": [
+  "type": "nested",
+  "operator": "AND",
+  "queries": [
+    {
+      "type": "match",
+      "field": "product.name",
+      "value": "awesome"
+    },
+    {
+      "type": "term",
+      "field": "product.price",
+      "value": 100
+    },
+    {
+      "type": "nested",
+      "operator": "OR",
+      "queries": [
         {
-            "type": "match",
-            "field": "product.name",
-            "value": "awesome"
+          "type": "term",
+          "field": "product.stock",
+          "value": 0
         },
         {
-            "type": "term",
-            "field": "product.price",
-            "value": 100
-        },
-        {
-            "type": "nested",
-            "operator": "OR",
-            "queries": [
-                {
-                    "type": "term",
-                    "field": "product.stock",
-                    "value": 0
-                },
-                {
-                    "type": "term",
-                    "field": "product.minStock",
-                    "value": 0
-                }
-            ]
+          "type": "term",
+          "field": "product.minStock",
+          "value": 0
         }
-    ]
+      ]
+    }
+  ]
 }
 ```
 
@@ -181,20 +181,20 @@ A nested query allows to group multiple queries in a clip and control the AND be
 The not query allows to negate a collection of queries. Sql example `WHERE !(product.name = awesome AND product.price = 100)` 
 ```json
 {
-    "type": "not",
-    "operator": "AND",
-    "queries": [
-        {
-            "type": "term",
-            "field": "product.name",
-            "value": "awesome"
-        },
-        {
-            "type": "term",
-            "field": "product.price",
-            "value": 100
-        }
-    ]
+  "type": "not",
+  "operator": "AND",
+  "queries": [
+    {
+      "type": "term",
+      "field": "product.name",
+      "value": "awesome"
+    },
+    {
+      "type": "term",
+      "field": "product.price",
+      "value": 100
+    }
+  ]
 }
 ```
 
@@ -202,19 +202,19 @@ The not query allows to negate a collection of queries. Sql example `WHERE !(pro
 A score query can only be used in `advanced mode` and only in the `query` context. This query allows to build a query which is used for ranking calculation in the query.
 ```json
 {
-    "offset": 0,
-    "limit": 10,
-    "query": [
-        { 
-			"score": 100,
-			"scoreField": "product.stock",
-			"query": {
-				"type": "match",
-				"field": "product.name",
-				"value": "awesome"
-			}
-		}
-    ]
+  "offset": 0,
+  "limit": 10,
+  "query": [
+    { 
+      "score": 100,
+      "scoreField": "product.stock",
+      "query": {
+        "type": "match",
+        "field": "product.name",
+        "value": "awesome"
+      }
+    }
+  ]
 }
 ```
 Parameters of the score query are used as follow:

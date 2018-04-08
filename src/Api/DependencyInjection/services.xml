@@ -54,6 +54,7 @@
             <argument type="service" id="Shopware\Api\Entity\Write\FieldAware\DefaultExtender"/>
             <argument type="service" id="Shopware\Api\Entity\Dbal\EntityForeignKeyResolver"/>
             <argument id="Shopware\Api\Entity\Dbal\EntityWriteGateway" type="service"/>
+            <tag name="shopware.traceable" label="entity.writer" />
         </service>
 
         <service class="Shopware\Api\Entity\Write\WriteCommandExtractor" id="Shopware\Api\Entity\Write\WriteCommandExtractor">
@@ -62,6 +63,7 @@
 
         <service class="Shopware\Api\Entity\Dbal\EntityWriteGateway" id="Shopware\Api\Entity\Dbal\EntityWriteGateway">
             <argument id="Doctrine\DBAL\Connection" type="service"/>
+            <tag name="shopware.traceable" label="entity.write-gateway" />
         </service>
 
         <service id="Shopware\Api\Entity\Write\Validation\ConstraintBuilder" class="Shopware\Api\Entity\Write\Validation\ConstraintBuilder"/>

@@ -18,6 +18,11 @@ class ContextRuleBasicStruct extends Entity
     protected $payload;
 
     /**
+     * @var int
+     */
+    protected $priority;
+
+    /**
      * @var DateTime
      */
     protected $createdAt;
@@ -65,5 +70,15 @@ class ContextRuleBasicStruct extends Entity
     public function setUpdatedAt(DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
+    }
+
+    public function getPriority(): int
+    {
+        return $this->priority;
+    }
+
+    public function setPriority(int $priority): void
+    {
+        $this->priority = $priority;
     }
 }

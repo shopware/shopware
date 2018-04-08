@@ -118,6 +118,8 @@ class ContextRuleLoader
 
         $rules = $this->loadRules($context->getShopContext());
 
+        $rules->sortByPriority();
+
         $valid = false;
 
         //first collect additional data for cart processors outside the loop to prevent duplicate database access

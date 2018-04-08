@@ -52,6 +52,7 @@ class DemodataCommand extends ContainerAwareCommand
      * @var array
      */
     private $categories = [];
+
     /**
      * @var VariantGenerator
      */
@@ -328,6 +329,7 @@ class DemodataCommand extends ContainerAwareCommand
             $payload[] = [
                 'id' => Uuid::uuid4()->getHex(),
                 'name' => 'High cart value',
+                'priority' => $i,
                 'payload' => new AndRule($rules),
             ];
         }

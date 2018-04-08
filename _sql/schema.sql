@@ -1722,6 +1722,7 @@ DROP TABLE IF EXISTS `context_rule`;
 CREATE TABLE `context_rule` (
   `id` binary(16) NOT NULL,
   `name` varchar(500) NOT NULL,
+  `priority` int(11) NOT NULL,
   `payload` longtext NOT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NULL DEFAULT NULL,

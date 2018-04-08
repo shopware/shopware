@@ -33,6 +33,13 @@ class ContextRuleBasicCollection extends EntityCollection
         );
     }
 
+    public function sortByPriority(): void
+    {
+        $this->sort(function(ContextRuleBasicStruct $a, ContextRuleBasicStruct $b) {
+            return $b->getPriority() <=> $a->getPriority();
+        });
+    }
+
     protected function getExpectedClass(): string
     {
         return ContextRuleBasicStruct::class;

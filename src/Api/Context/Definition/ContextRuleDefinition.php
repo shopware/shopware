@@ -11,6 +11,7 @@ use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\Field\DateField;
 use Shopware\Api\Entity\Field\IdField;
+use Shopware\Api\Entity\Field\IntField;
 use Shopware\Api\Entity\Field\JsonObjectField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\FieldCollection;
@@ -49,6 +50,7 @@ class ContextRuleDefinition extends EntityDefinition
         self::$fields = new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new StringField('name', 'name'))->setFlags(new Required()),
+            (new IntField('priority', 'priority'))->setFlags(new Required()),
             (new JsonObjectField('payload', 'payload'))->setFlags(new Required(), new Serialized()),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),

@@ -58,8 +58,6 @@ Component.register('sw-login', {
         },
 
         handleLoginSuccess() {
-            const loginSuccessDuration = 400;
-
             this.isLoginSuccess = true;
 
             setTimeout(() => {
@@ -70,7 +68,7 @@ Component.register('sw-login', {
                     title: 'Anmeldung',
                     message: 'Du hast dich erfolgreich angemeldet.'
                 });
-            }, loginSuccessDuration);
+            }, 400);
         },
 
         handleLoginError() {
@@ -78,11 +76,11 @@ Component.register('sw-login', {
 
             setTimeout(() => {
                 this.isLoginError = false;
-            }, 500);
+            }, 400);
 
             this.createNotificationError({
-                title: 'Anmeldung Fehlgeschlagen',
-                message: 'Bitte überprüfe, ob Benutzername und Passwort korrekt sind.'
+                title: this.$store.state.login.errorTitle,
+                message: this.$store.state.login.errorMessage
             });
         },
 

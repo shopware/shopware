@@ -1,58 +1,83 @@
 @import "~less/variables";
 
+@sw-loader-color-overlay: rgba(255, 255, 255, 0.8);
 @sw-loader-element-color: @color-shopware-blue;
 
-.sw-loader--overlay {
+.sw-loader {
     position: absolute;
     top: 0;
     bottom: 0;
     left: 0;
     right: 0;
-    background: rgba(255, 255, 255, 0.8);
-}
+    background: @sw-loader-color-overlay;
 
-.sw-loader {
-    width: 50px;
-    height: 50px;
-    text-align: center;
-    position: relative;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-
-    .sw-loader--elements {
-        background: @sw-loader-element-color;
-        border-radius: 6px;
-        height: 100%;
-        width: 6px;
-        display: inline-block;
-        animation: stretch-delay 1.2s infinite ease-in-out;
+    .sw-loader__container {
+        width: 50px;
+        height: 50px;
+        text-align: center;
+        position: relative;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
     }
 
-    .element-2 {
-        background: lighten(@sw-loader-element-color, 10%);
-        animation-delay: -1.1s;
+    .sw-loader__element {
+        animation: sw-loader-rotator 1.4s linear infinite;
     }
 
-    .element-3 {
-        background: lighten(@sw-loader-element-color, 20%);
-        animation-delay: -1.0s;
+    .sw-loader__path {
+        stroke-dasharray: 187;
+        stroke-dashoffset: 0;
+        transform-origin: center;
+        animation: sw-loader-dash 1.4s ease-in-out infinite,
+                   sw-loader-colors 5.6s ease-in-out infinite;
     }
 
-    .element-4 {
-        background: lighten(@sw-loader-element-color, 30%);
-        animation-delay: -0.9s;
-    }
-}
+    @keyframes sw-loader-colors {
+        0% {
+            stroke: @sw-loader-element-color;
+        }
 
-@keyframes stretch-delay {
-    0%, 40%, 100% {
-        transform: scaleY(0.4);
-        -webkit-transform: scaleY(0.4);
+        25% {
+            stroke: lighten(@sw-loader-element-color, 25%);
+        }
+
+        50% {
+            stroke: saturate(@sw-loader-element-color, 50%);
+        }
+
+        75% {
+            stroke: lighten(@sw-loader-element-color, 25%);
+        }
+
+        100% {
+            stroke: @sw-loader-element-color;
+        }
     }
 
-    20% {
-        transform: scaleY(1.0);
-        -webkit-transform: scaleY(1.0);
+    @keyframes sw-loader-dash {
+        0% {
+            stroke-dashoffset: 187;
+        }
+
+        50% {
+            stroke-dashoffset: 46.75;
+            transform: rotate(135deg);
+        }
+
+        100% {
+            stroke-dashoffset: 187;
+            transform: rotate(450deg);
+        }
+    }
+
+    @keyframes sw-loader-rotator {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(270deg);
+        }
     }
 }

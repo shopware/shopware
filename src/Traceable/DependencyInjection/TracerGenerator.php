@@ -116,8 +116,12 @@ class #className# extends #originalClass#
         $file = $this->directory . '/' . $className . '.php';
         file_put_contents($file, $template);
 
-        require_once $file;
+        $className = 'ShopwareTracer\\' . $className;
 
-        return 'ShopwareTracer\\' . $className;
+        if (!class_exists($className)) {
+            require_once $file;
+        }
+
+        return $className;
     }
 }

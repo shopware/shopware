@@ -57,6 +57,7 @@ class ContextRepositoryTest extends KernelTestCase
         $data = [
             'id' => $id,
             'name' => 'test rule',
+            'priority' => 1,
             'payload' => new AndRule([new OrRule()]),
         ];
 

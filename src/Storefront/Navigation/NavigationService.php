@@ -39,6 +39,11 @@ class NavigationService
      */
     private $repository;
 
+    /**
+     * @var Navigation[]
+     */
+    private $navigation;
+
     public function __construct(CategoryRepository $repository)
     {
         $this->repository = $repository;
@@ -46,6 +51,10 @@ class NavigationService
 
     public function load(string $categoryId, StorefrontContext $context): ?Navigation
     {
+        if ($this->navigation[$categoryId]) {
+            return $this->navigation[$categoryId];
+        }
+
         $activeCategory = $this->repository->readBasic([$categoryId], $context->getShopContext())
             ->get($categoryId);
 
@@ -69,6 +78,11 @@ class NavigationService
             $categories->sortByPosition()->sortByName()
         );
 
-        return new Navigation($activeCategory, $tree);
+
+        $navigation = new Navigation($activeCategory, $tree);
+
+        $this->navigation[$categoryId] = $navigation;
+
+        return $navigation;
     }
 }

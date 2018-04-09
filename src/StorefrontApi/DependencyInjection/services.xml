@@ -10,6 +10,7 @@
             <argument type="service" id="Shopware\Cart\Price\PriceCalculator"/>
             <argument type="service" id="Shopware\Api\Product\Repository\ProductMediaRepository"/>
             <argument type="service" id="Shopware\Api\Product\Repository\ProductServiceRepository"/>
+            <tag name="shopware.traceable" label="product.storefront-repository" />
         </service>
 
         <service class="Shopware\StorefrontApi\Context\StorefrontContextPersister" id="Shopware\StorefrontApi\Context\StorefrontContextPersister">
@@ -23,6 +24,7 @@
             <argument type="service" id="Shopware\Context\Service\ContextRuleLoader"/>
             <argument type="service" id="logger"/>
             <argument type="service" id="Shopware\StorefrontApi\Context\StorefrontContextPersister"/>
+            <tag name="shopware.traceable" />
         </service>
 
         <service class="Shopware\StorefrontApi\Context\StorefrontContextValueResolver" id="Shopware\StorefrontApi\Context\StorefrontContextValueResolver">

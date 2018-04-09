@@ -41,6 +41,7 @@ class Traceable extends Theme
     public function build(ContainerBuilder $container)
     {
         parent::build($container);
+
         $container->addCompilerPass(new TracerCompilerPass());
         $container->addCompilerPass(new CartTracerCompilerPass());
 

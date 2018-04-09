@@ -300,8 +300,8 @@ class ProductRepositoryTest extends KernelTestCase
         $ruleB = Uuid::uuid4()->getHex();
 
         $this->container->get(ContextRuleRepository::class)->create([
-            ['id' => $ruleA, 'name' => 'test', 'payload' => new AndRule()],
-            ['id' => $ruleB, 'name' => 'test', 'payload' => new AndRule()],
+            ['id' => $ruleA, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 1],
+            ['id' => $ruleB, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 2],
         ], ShopContext::createDefaultContext());
 
         $id = Uuid::uuid4();
@@ -362,7 +362,7 @@ class ProductRepositoryTest extends KernelTestCase
         $ruleA = Uuid::uuid4()->getHex();
 
         $this->container->get(ContextRuleRepository::class)->create([
-            ['id' => $ruleA, 'name' => 'test', 'payload' => new AndRule()],
+            ['id' => $ruleA, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 1],
         ], ShopContext::createDefaultContext());
 
         $data = [
@@ -1353,8 +1353,8 @@ class ProductRepositoryTest extends KernelTestCase
         $ruleB = Uuid::uuid4()->getHex();
 
         $this->container->get(ContextRuleRepository::class)->create([
-            ['id' => $ruleA, 'name' => 'test', 'payload' => new AndRule()],
-            ['id' => $ruleB, 'name' => 'test', 'payload' => new AndRule()],
+            ['id' => $ruleA, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 1],
+            ['id' => $ruleB, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 2],
         ], ShopContext::createDefaultContext());
 
         $id = Uuid::uuid4()->getHex();

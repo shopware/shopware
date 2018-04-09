@@ -17,6 +17,7 @@
             <argument type="service" id="Shopware\Api\Shipping\Repository\ShippingMethodRepository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Api\Country\Repository\CountryStateRepository"/>
+            <tag name="shopware.traceable" />
         </service>
     </services>
 </container>

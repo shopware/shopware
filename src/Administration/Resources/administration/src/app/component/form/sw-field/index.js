@@ -59,11 +59,6 @@ Component.register('sw-field', {
             required: false,
             default: null
         },
-        togglePasswordVisibility: {
-            type: Boolean,
-            required: false,
-            default: false
-        },
         options: {
             type: Array,
             required: false,

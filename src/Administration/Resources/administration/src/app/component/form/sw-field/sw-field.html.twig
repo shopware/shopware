@@ -1,5 +1,5 @@
 {% block sw_field %}
-    <div :class="['sw-field', `sw-field--${type}`, hasErrorCls() ? 'has--error' : '', hasSuffix ? 'has--suffix': '', disabled ? 'is--disabled' : '', togglePasswordVisibility ? 'sw-field--password-visibility' : '']">
+    <div :class="['sw-field', `sw-field--${type}`, hasErrorCls() ? 'has--error' : '', hasSuffix ? 'has--suffix': '', disabled ? 'is--disabled' : '']">
 
         <!-- Label -->
         {% block sw_field_label %}
@@ -152,7 +152,7 @@
 
                 <!-- Password -->
                 {% block sw_field_input_password %}
-                    <template v-else-if="type === 'password' && togglePasswordVisibility">
+                    <template v-else-if="type === 'password'">
                         {% block sw_field_input_password_input %}
                             <input :type="showPassword ? 'text' : 'password'"
                                    :name="name"

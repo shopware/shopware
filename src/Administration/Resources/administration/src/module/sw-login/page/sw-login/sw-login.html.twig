@@ -46,7 +46,6 @@
 
                         {% block sw_login_password_field %}
                             <sw-field :class="{ 'has--error' : errorTitle.length && errorMessage.length }"
-                                      togglePasswordVisibility
                                       v-model="password"
                                       label="Passwort"
                                       type="password">

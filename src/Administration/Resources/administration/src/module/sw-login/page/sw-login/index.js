@@ -54,6 +54,8 @@ Component.register('sw-login', {
                 } else {
                     this.handleLoginError();
                 }
+
+                this.$store.commit('login/setUserPassword', '');
             });
         },
 
@@ -63,12 +65,7 @@ Component.register('sw-login', {
             setTimeout(() => {
                 this.isLoginSuccess = false;
                 this.forwardLogin();
-
-                this.createNotificationSuccess({
-                    title: 'Anmeldung',
-                    message: 'Du hast dich erfolgreich angemeldet.'
-                });
-            }, 400);
+            }, 300);
         },
 
         handleLoginError() {

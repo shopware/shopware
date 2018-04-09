@@ -76,6 +76,10 @@ Component.register('sw-login', {
         handleLoginError() {
             this.isLoginError = true;
 
+            setTimeout(() => {
+                this.isLoginError = false;
+            }, 500);
+
             this.createNotificationError({
                 title: 'Anmeldung Fehlgeschlagen',
                 message: 'Bitte überprüfe, ob Benutzername und Passwort korrekt sind.'

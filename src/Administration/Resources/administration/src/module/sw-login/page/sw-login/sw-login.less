@@ -12,20 +12,20 @@
     justify-content: center;
     padding: 20px;
     background-color: @sw-login-color-background;
-    transition: background-color 0.4s ease-in-out;
+    transition: background-color .4s ease-in-out;
     overflow: auto;
 
     @media screen and (max-width: 400px) {
         padding: 0;
         align-items: start;
-        background: @color-white;
+        background: @sw-login-container-color-background;
         transition: none;
     }
 
     .sw-login__form,
     .sw-login__image {
-        transition: opacity 0.4s ease-in-out,
-                    padding 0.2s ease-in-out;
+        transition: opacity .4s ease-in-out,
+                    padding .2s ease-in-out;
         opacity: 1;
     }
 
@@ -35,10 +35,14 @@
         min-height: 590px;
         display: grid;
         grid-template-columns: auto 480px;
-        transition: all 0.4s ease-in-out;
+        transition: all .4s ease-in-out;
         transform: scale(1);
 
-        @media screen and (max-width: (480px + 40px)) {
+        &.is--login-error {
+            animation: sw-login-error-shake .1s ease-in-out infinite;
+        }
+
+        @media screen and (max-width: 520px) {
             min-height: auto;
             width: 100%;
             display: block;
@@ -50,13 +54,13 @@
         padding: 130px 60px;
         position: relative;
 
-        @media screen and (max-width: (480px + 40px)) {
+        @media screen and (max-width: 520px) {
             padding: 30px;
         }
     }
 
     .sw-button {
-        @media screen and (max-width: (480px + 40px)) {
+        @media screen and (max-width: 520px) {
             display: block;
         }
     }
@@ -66,7 +70,7 @@
         font-size: 18px;
         font-weight: normal;
 
-        @media screen and (max-width: (480px + 40px)) {
+        @media screen and (max-width: 520px) {
             padding-right: 80px;
         }
     }
@@ -82,14 +86,14 @@
         right: -10px;
         z-index: 10;
         background: @sw-login-badge-color-background;
-        transition: top 0.2s ease-in-out,
-                    right 0.2s ease-in-out;
+        transition: top .2s ease-in-out,
+                    right .2s ease-in-out;
 
         svg {
             fill: @color-white;
         }
 
-        @media screen and (max-width: (480px + 40px)) {
+        @media screen and (max-width: 520px) {
             top: 0;
             right: 0;
         }
@@ -106,7 +110,7 @@
         display: flex;
         flex-direction: row;
 
-        @media screen and (max-width: (480px + 40px)) {
+        @media screen and (max-width: 520px) {
             display: none;
         }
     }
@@ -116,7 +120,7 @@
         align-self: flex-end;
         white-space: nowrap;
         color: @color-white;
-        transition: opacity 0.2s ease-in-out;
+        transition: opacity .2s ease-in-out;
         opacity: 1;
 
         @media screen and (max-width: 850px) {
@@ -127,7 +131,7 @@
     .sw-login__headline {
         font-size: 60px;
         font-weight: 600;
-        transition: font-size 0.2s ease-in-out;
+        transition: font-size .2s ease-in-out;
 
         @media screen and (max-width: 1100px) {
             font-size: 40px;
@@ -136,7 +140,7 @@
 
     .sw-login__sub-headline {
         font-size: 50px;
-        transition: font-size 0.2s ease-in-out;
+        transition: font-size .2s ease-in-out;
 
         @media screen and (max-width: 1100px) {
             font-size: 30px;
@@ -162,7 +166,7 @@
     }
 
     &.is--login-success {
-        background-color: @color-white;
+        background-color: @sw-login-container-color-background;
         overflow: hidden;
 
         .sw-login__container {
@@ -173,5 +177,13 @@
         .sw-login__image {
             opacity: 0;
         }
+    }
+
+    @keyframes sw-login-error-shake {
+        0% { transform: translateX(-2px) }
+        25% { transform: translateX(0px) }
+        50% { transform: translateX(3px) }
+        75% { transform: translateX(0px) }
+        100% { transform: translateX(-2px) }
     }
 }

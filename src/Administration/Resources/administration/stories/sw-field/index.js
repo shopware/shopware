@@ -93,6 +93,14 @@ storiesOf('sw-field', module)
               name="password" 
               placeholder="Your password...">
     </sw-field>
+    
+    <!-- Password field with visibility toggle -->
+    <sw-field type="password"
+              label="Password with visibility toggle" 
+              name="password_visibility"
+              value="password" 
+              :togglePasswordVisibility="true">
+    </sw-field>
 
     <!-- Checkbox field -->
     <sw-field type="checkbox" 

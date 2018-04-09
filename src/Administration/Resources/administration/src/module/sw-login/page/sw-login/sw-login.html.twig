@@ -20,7 +20,6 @@
 
                 {% block sw_login_form %}
                     <form class="sw-login__form" @submit.prevent="loginUserWithPassword">
-
                         {% block sw_login_badge %}
                             <div class="sw-login__badge">
                                 {% block sw_login_badge_image %}
@@ -47,30 +46,19 @@
 
                         {% block sw_login_password_field %}
                             <sw-field :class="{ 'has--error' : errorTitle.length && errorMessage.length }"
+                                      togglePasswordVisibility
                                       v-model="password"
-                                      label="Password"
+                                      label="Passwort"
                                       type="password">
                             </sw-field>
                         {% endblock %}
 
-                        {% block sw_login_actions %}
-                            <sw-container class="sw-login__actions" grid="1fr 1fr" gap="0">
-                                {% block sw_login_save_login_checkbox_field %}
-                                    <sw-field class="sw-login__save-login"
-                                              type="checkbox"
-                                              name="saveLogin"
-                                              label="Login merken">
-                                    </sw-field>
+                        {% block sw_login_submit %}
+                            <div class="sw-login__submit">
+                                {% block sw_login_submit_button %}
+                                    <sw-button :isPrimary="true">Anmelden</sw-button>
                                 {% endblock %}
-
-                                {% block sw_login_submit %}
-                                    <div class="sw-login__submit">
-                                        {% block sw_login_submit_button %}
-                                            <sw-button :isPrimary="true">Anmelden</sw-button>
-                                        {% endblock %}
-                                    </div>
-                                {% endblock %}
-                            </sw-container>
+                            </div>
                         {% endblock %}
 
                         {% block sw_login_loader %}

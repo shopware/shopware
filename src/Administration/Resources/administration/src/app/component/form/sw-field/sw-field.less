@@ -109,6 +109,30 @@
         grid-template-columns: 180px 1fr;
     }
 
+    &.sw-field--password-visibility .sw-field__input {
+        position: relative;
+
+        input {
+            padding-right: 45px;
+        }
+
+        .sw-field__toggle-password-visibility {
+            width: 45px;
+            position: absolute;
+            color: @color-gutenberg;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            cursor: pointer;
+            text-align: center;
+            line-height: 42px;
+
+            &:hover {
+                color: @color-shopware-blue;
+            }
+        }
+    }
+
     label {
         display: block;
         line-height: 16px;

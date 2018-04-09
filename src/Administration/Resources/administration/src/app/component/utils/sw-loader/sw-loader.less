@@ -1,7 +1,9 @@
 @import "~less/variables";
 
-@sw-loader-color-overlay: rgba(255, 255, 255, 0.8);
-@sw-loader-element-color: @color-shopware-blue;
+@sw-loader-color-overlay:   rgba(255, 255, 255, 0.8);
+@sw-loader-element-color:   @color-shopware-blue;
+@sw-loader-rotate-duration: 1.4s;
+@sw-loader-colors-duration: 5.6s;
 
 .sw-loader {
     position: absolute;
@@ -22,15 +24,15 @@
     }
 
     .sw-loader__element {
-        animation: sw-loader-rotator 1.4s linear infinite;
+        animation: sw-loader-rotator @sw-loader-rotate-duration linear infinite;
     }
 
     .sw-loader__path {
         stroke-dasharray: 187;
         stroke-dashoffset: 0;
         transform-origin: center;
-        animation: sw-loader-dash 1.4s ease-in-out infinite,
-                   sw-loader-colors 5.6s ease-in-out infinite;
+        animation: sw-loader-dash @sw-loader-rotate-duration ease-in-out infinite,
+                   sw-loader-colors @sw-loader-colors-duration ease-in-out infinite;
     }
 
     @keyframes sw-loader-colors {

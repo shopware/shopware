@@ -1,9 +1,11 @@
 @import "~less/variables";
 
-@sw-login-color-background:           #1C232C;
-@sw-login-container-color-background: @color-white;
-@sw-login-image-path:                 'assets/sw-login_gerrit-vermeulen.png';
-@sw-login-badge-color-background:     @color-shopware-blue;
+@sw-login-color-background:               #1C232C;
+@sw-login-container-color-background:     @color-white;
+@sw-login-badge-color-background:         @color-shopware-blue;
+@sw-login-success-animation-duration:     .4s;
+@sw-login-media-query-animation-duration: .2s;
+@sw-login-error-animation-duration:       .15s;
 
 .sw-login {
     height: 100%;
@@ -12,7 +14,7 @@
     justify-content: center;
     padding: 20px;
     background-color: @sw-login-color-background;
-    transition: background-color .4s ease-in-out;
+    transition: background-color @sw-login-success-animation-duration ease-in-out;
     overflow: auto;
 
     @media screen and (max-width: 400px) {
@@ -22,24 +24,17 @@
         transition: none;
     }
 
-    .sw-login__form,
-    .sw-login__image {
-        transition: opacity .4s ease-in-out,
-                    padding .2s ease-in-out;
-        opacity: 1;
-    }
-
     .sw-login__container {
         background: @color-white;
         width: 1120px;
         min-height: 590px;
         display: grid;
         grid-template-columns: auto 480px;
-        transition: all .4s ease-in-out;
+        transition: all @sw-login-success-animation-duration ease-in-out;
         transform: scale(1);
 
         &.is--login-error {
-            animation: sw-login-error-shake .1s ease-in-out infinite;
+            animation: sw-login-error-shake @sw-login-error-animation-duration ease-in-out infinite;
         }
 
         @media screen and (max-width: 520px) {
@@ -53,6 +48,9 @@
         min-width: 320px;
         padding: 130px 60px;
         position: relative;
+        opacity: 1;
+        transition: opacity @sw-login-success-animation-duration ease-in-out,
+                    padding @sw-login-media-query-animation-duration ease-in-out;
 
         @media screen and (max-width: 520px) {
             padding: 30px;
@@ -86,8 +84,8 @@
         right: -10px;
         z-index: 10;
         background: @sw-login-badge-color-background;
-        transition: top .2s ease-in-out,
-                    right .2s ease-in-out;
+        transition: top @sw-login-media-query-animation-duration ease-in-out,
+                    right @sw-login-media-query-animation-duration ease-in-out;
 
         svg {
             fill: @color-white;
@@ -101,14 +99,32 @@
 
     .sw-login__submit {
         text-align: right;
+
+        .sw-button {
+            display: inline-block;
+        }
+
+        @media screen and (max-width: 400px) {
+            .sw-button {
+                display: block;
+            }
+
+            .sw-button__element {
+                display: block;
+                width: 100%;
+            }
+        }
     }
 
     .sw-login__image {
-        background: url(@sw-login-image-path) center center;
-        background-size: cover;
-        overflow: hidden;
         display: flex;
         flex-direction: row;
+        overflow: hidden;
+        background: url('/static/img/sw-login-background.png') center center;
+        background-size: cover;
+        opacity: 1;
+        transition: opacity @sw-login-success-animation-duration ease-in-out,
+                    padding @sw-login-media-query-animation-duration ease-in-out;
 
         @media screen and (max-width: 520px) {
             display: none;
@@ -120,7 +136,7 @@
         align-self: flex-end;
         white-space: nowrap;
         color: @color-white;
-        transition: opacity .2s ease-in-out;
+        transition: opacity @sw-login-media-query-animation-duration ease-in-out;
         opacity: 1;
 
         @media screen and (max-width: 850px) {
@@ -131,7 +147,7 @@
     .sw-login__headline {
         font-size: 60px;
         font-weight: 600;
-        transition: font-size .2s ease-in-out;
+        transition: font-size @sw-login-media-query-animation-duration ease-in-out;
 
         @media screen and (max-width: 1100px) {
             font-size: 40px;
@@ -140,7 +156,7 @@
 
     .sw-login__sub-headline {
         font-size: 50px;
-        transition: font-size .2s ease-in-out;
+        transition: font-size @sw-login-media-query-animation-duration ease-in-out;
 
         @media screen and (max-width: 1100px) {
             font-size: 30px;

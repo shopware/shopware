@@ -76,7 +76,7 @@ Component.register('sw-login', {
 
             setTimeout(() => {
                 this.isLoginError = false;
-            }, 400);
+            }, 500);
 
             this.createNotificationError({
                 title: this.$store.state.login.errorTitle,

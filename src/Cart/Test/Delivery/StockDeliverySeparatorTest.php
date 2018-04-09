@@ -39,6 +39,8 @@ use Shopware\Cart\Delivery\Struct\DeliveryPositionCollection;
 use Shopware\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Cart\LineItem\LineItem;
+use Shopware\Cart\Price\GrossPriceCalculator;
+use Shopware\Cart\Price\NetPriceCalculator;
 use Shopware\Cart\Price\PriceCalculator;
 use Shopware\Cart\Price\PriceRounding;
 use Shopware\Cart\Price\Struct\CalculatedPrice;
@@ -65,13 +67,15 @@ class StockDeliverySeparatorTest extends TestCase
     {
         parent::setUp();
 
+        $taxCalculator = new TaxCalculator(
+            new PriceRounding(2),
+            [new TaxRuleCalculator(new PriceRounding(2))]
+        );
+
         $this->separator = new StockDeliverySeparator(
             new PriceCalculator(
-                new TaxCalculator(
-                    new PriceRounding(2),
-                    [new TaxRuleCalculator(new PriceRounding(2))]
-                ),
-                new PriceRounding(2),
+                new GrossPriceCalculator($taxCalculator, new PriceRounding(2)),
+                new NetPriceCalculator($taxCalculator, new PriceRounding(2)),
                 Generator::createGrossPriceDetector()
             )
         );

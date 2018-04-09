@@ -25,6 +25,8 @@
 namespace Shopware\Cart\Test\Price;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Cart\Price\GrossPriceCalculator;
+use Shopware\Cart\Price\NetPriceCalculator;
 use Shopware\Cart\Price\PriceCalculator;
 use Shopware\Cart\Price\PriceRounding;
 use Shopware\Cart\Price\Struct\CalculatedPrice;
@@ -56,12 +58,14 @@ class PriceCalculatorTest extends TestCase
         CalculatedPrice $expected,
         PriceDefinition $priceDefinition
     ): void {
-        $calculator = new PriceCalculator(
-            new TaxCalculator(
-                $priceRounding,
-                [new TaxRuleCalculator($priceRounding)]
-            ),
+        $taxCalculator = new TaxCalculator(
             $priceRounding,
+            [new TaxRuleCalculator($priceRounding)]
+        );
+
+        $calculator = new PriceCalculator(
+            new GrossPriceCalculator($taxCalculator, $priceRounding),
+            new NetPriceCalculator($taxCalculator, $priceRounding),
             Generator::createGrossPriceDetector()
         );
 
@@ -87,12 +91,14 @@ class PriceCalculatorTest extends TestCase
         $detector->method('useGross')->will($this->returnValue(false));
         $detector->method('isNetDelivery')->will($this->returnValue(false));
 
-        $calculator = new PriceCalculator(
-            new TaxCalculator(
-                new PriceRounding(2),
-                [new TaxRuleCalculator(new PriceRounding(2))]
-            ),
+        $taxCalculator = new TaxCalculator(
             new PriceRounding(2),
+            [new TaxRuleCalculator(new PriceRounding(2))]
+        );
+
+        $calculator = new PriceCalculator(
+            new GrossPriceCalculator($taxCalculator, new PriceRounding(2)),
+            new NetPriceCalculator($taxCalculator, new PriceRounding(2)),
             $detector
         );
 
@@ -117,12 +123,14 @@ class PriceCalculatorTest extends TestCase
         $detector->method('useGross')->will($this->returnValue(false));
         $detector->method('isNetDelivery')->will($this->returnValue(true));
 
-        $calculator = new PriceCalculator(
-            new TaxCalculator(
-                new PriceRounding(2),
-                [new TaxRuleCalculator(new PriceRounding(2))]
-            ),
+        $taxCalculator = new TaxCalculator(
             new PriceRounding(2),
+            [new TaxRuleCalculator(new PriceRounding(2))]
+        );
+
+        $calculator = new PriceCalculator(
+            new GrossPriceCalculator($taxCalculator, new PriceRounding(2)),
+            new NetPriceCalculator($taxCalculator, new PriceRounding(2)),
             $detector
         );
 

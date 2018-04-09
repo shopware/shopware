@@ -268,10 +268,6 @@ class PriceActionControllerTest extends ApiTestCase
 
         $data = $response['data'];
 
-        echo '<pre>';
-        print_r(json_encode($data, JSON_PRESERVE_ZERO_FRACTION));
-        exit();
-
         return new CalculatedPrice(
             $data['unitPrice'],
             $data['totalPrice'],

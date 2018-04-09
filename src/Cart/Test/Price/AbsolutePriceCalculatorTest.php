@@ -26,6 +26,8 @@ namespace Shopware\Cart\Test\Price;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Cart\Price\AbsolutePriceCalculator;
+use Shopware\Cart\Price\GrossPriceCalculator;
+use Shopware\Cart\Price\NetPriceCalculator;
 use Shopware\Cart\Price\PriceCalculator;
 use Shopware\Cart\Price\PriceRounding;
 use Shopware\Cart\Price\Struct\CalculatedPrice;
@@ -58,16 +60,18 @@ class AbsolutePriceCalculatorTest extends TestCase
     ): void {
         $rounding = new PriceRounding(2);
 
+        $taxCalculator = new TaxCalculator(
+            new PriceRounding(2),
+            [
+                new TaxRuleCalculator($rounding),
+                new PercentageTaxRuleCalculator(new TaxRuleCalculator($rounding)),
+            ]
+        );
+
         $calculator = new AbsolutePriceCalculator(
             new PriceCalculator(
-                new TaxCalculator(
-                    new PriceRounding(2),
-                    [
-                        new TaxRuleCalculator($rounding),
-                        new PercentageTaxRuleCalculator(new TaxRuleCalculator($rounding)),
-                    ]
-                ),
-                $rounding,
+                new GrossPriceCalculator($taxCalculator, $rounding),
+                new NetPriceCalculator($taxCalculator, $rounding),
                 Generator::createGrossPriceDetector()
             ),
             new PercentageTaxRuleBuilder()

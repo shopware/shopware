@@ -13,7 +13,7 @@ Following parameter can be provided for different configurations:
 * (string) output (*net*/*gross*):to calculate a net or gross price
 * (bool) calculated:defines that the price is already the end unit price
 
-As a response, the end returns a json encoded `Shopware\Cart\Price\Struct\CalculatedPrice` object:
+As a response, the endpoint returns a json encoded `Shopware\Cart\Price\Struct\CalculatedPrice` object:
 
 ### Net to gross calculation
 

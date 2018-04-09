@@ -61,7 +61,7 @@ class PriceActionController extends Controller
      *
      * @return JsonResponse
      */
-    public function generateVariants(Request $request, RestContext $context): JsonResponse
+    public function calculateAction(Request $request, RestContext $context): JsonResponse
     {
         $post = $this->getPost($request);
 

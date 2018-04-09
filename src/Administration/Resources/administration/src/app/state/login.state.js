@@ -51,6 +51,7 @@ State.register('login', {
             state.expiry = payload.data.expiry;
             state.errorTitle = '';
             state.errorMessage = '';
+            state.password = '';
         },
 
         loginUserWithPasswordFailure(state, payload) {
@@ -68,6 +69,7 @@ State.register('login', {
 
             state.errorTitle = error.title;
             state.errorMessage = error.detail;
+            state.password = '';
         }
     }
 });

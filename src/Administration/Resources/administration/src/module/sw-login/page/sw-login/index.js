@@ -54,8 +54,6 @@ Component.register('sw-login', {
                 } else {
                     this.handleLoginError();
                 }
-
-                this.$store.commit('login/setUserPassword', '');
             });
         },
 

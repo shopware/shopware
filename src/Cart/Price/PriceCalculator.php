@@ -31,21 +31,20 @@ use Shopware\Cart\Price\Struct\PriceDefinition;
 use Shopware\Cart\Price\Struct\PriceDefinitionCollection;
 use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Cart\Tax\TaxCalculator;
 use Shopware\Cart\Tax\TaxDetector;
 use Shopware\Context\Struct\StorefrontContext;
 
 class PriceCalculator
 {
     /**
-     * @var TaxCalculator
+     * @var GrossPriceCalculator
      */
-    private $taxCalculator;
+    private $grossPriceCalculator;
 
     /**
-     * @var PriceRounding
+     * @var NetPriceCalculator
      */
-    private $priceRounding;
+    private $netPriceCalculator;
 
     /**
      * @var TaxDetector
@@ -53,16 +52,16 @@ class PriceCalculator
     private $taxDetector;
 
     public function __construct(
-        TaxCalculator $taxCalculator,
-        PriceRounding $priceRounding,
+        GrossPriceCalculator $grossPriceCalculator,
+        NetPriceCalculator $netPriceCalculator,
         TaxDetector $taxDetector
     ) {
-        $this->taxCalculator = $taxCalculator;
-        $this->priceRounding = $priceRounding;
+        $this->grossPriceCalculator = $grossPriceCalculator;
+        $this->netPriceCalculator = $netPriceCalculator;
         $this->taxDetector = $taxDetector;
     }
 
-    public function calculateCollection(PriceDefinitionCollection $collection, StorefrontContext $context)
+    public function calculateCollection(PriceDefinitionCollection $collection, StorefrontContext $context): CalculatedPriceCollection
     {
         $prices = $collection->map(
             function (PriceDefinition $definition) use ($context) {
@@ -73,52 +72,28 @@ class PriceCalculator
         return new CalculatedPriceCollection($prices);
     }
 
-    public function calculate(
-        PriceDefinition $definition,
-        StorefrontContext $context
-    ): CalculatedPrice {
-        $unitPrice = $this->getUnitPrice($definition, $context);
-
-        $price = $this->priceRounding->round(
-            $unitPrice * $definition->getQuantity()
-        );
-
-        $taxRules = $definition->getTaxRules();
-
-        switch (true) {
-            case $this->taxDetector->useGross($context):
-                $calculatedTaxes = $this->taxCalculator->calculateGrossTaxes($price, $definition->getTaxRules());
-                break;
-
-            case $this->taxDetector->isNetDelivery($context):
-                $taxRules = new TaxRuleCollection([]);
-                $calculatedTaxes = new CalculatedTaxCollection([]);
-                break;
-
-            default:
-                $calculatedTaxes = $this->taxCalculator->calculateNetTaxes($price, $definition->getTaxRules());
-                break;
-        }
-
-        return new CalculatedPrice($unitPrice, $price, $calculatedTaxes, $taxRules, $definition->getQuantity());
-    }
-
-    private function getUnitPrice(PriceDefinition $definition, StorefrontContext $context): float
+    public function calculate(PriceDefinition $definition, StorefrontContext $context): CalculatedPrice
     {
-        //unit price already calculated?
-        if ($definition->isCalculated()) {
-            return $definition->getPrice();
+        if ($this->taxDetector->useGross($context)) {
+            $price = $this->grossPriceCalculator->calculate($definition);
+        } else {
+            $price = $this->netPriceCalculator->calculate($definition);
         }
 
-        if (!$this->taxDetector->useGross($context)) {
-            return $this->priceRounding->round($definition->getPrice());
+        $taxRules = $price->getTaxRules();
+        $calculatedTaxes = $price->getCalculatedTaxes();
+
+        if ($this->taxDetector->isNetDelivery($context)) {
+            $taxRules = new TaxRuleCollection();
+            $calculatedTaxes = new CalculatedTaxCollection();
         }
 
-        $price = $this->taxCalculator->calculateGross(
-            $definition->getPrice(),
-            $definition->getTaxRules()
+        return new CalculatedPrice(
+            $price->getUnitPrice(),
+            $price->getTotalPrice(),
+            $calculatedTaxes,
+            $taxRules,
+            $price->getQuantity()
         );
-
-        return $this->priceRounding->round($price);
     }
 }

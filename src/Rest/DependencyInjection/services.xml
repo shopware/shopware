@@ -103,5 +103,12 @@
                 <argument id="service_container" type="service"/>
             </call>
         </service>
+
+        <service class="Shopware\Rest\Controller\PriceActionController" id="Shopware\Rest\Controller\PriceActionController">
+            <argument type="service" id="serializer"/>
+            <argument type="service" id="Shopware\Api\Tax\Repository\TaxRepository"/>
+            <argument type="service" id="Shopware\Cart\Price\NetPriceCalculator"/>
+            <argument type="service" id="Shopware\Cart\Price\GrossPriceCalculator"/>
+        </service>
     </services>
 </container>

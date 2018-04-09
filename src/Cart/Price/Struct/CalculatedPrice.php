@@ -34,6 +34,16 @@ class CalculatedPrice extends Struct
     /**
      * @var float
      */
+    protected $unitPrice;
+
+    /**
+     * @var int
+     */
+    protected $quantity;
+
+    /**
+     * @var float
+     */
     protected $totalPrice;
 
     /**
@@ -45,16 +55,6 @@ class CalculatedPrice extends Struct
      * @var \Shopware\Cart\Tax\Struct\TaxRuleCollection
      */
     protected $taxRules;
-
-    /**
-     * @var float
-     */
-    protected $unitPrice;
-
-    /**
-     * @var int
-     */
-    protected $quantity;
 
     public function __construct(
         float $unitPrice,

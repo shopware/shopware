@@ -22,9 +22,19 @@
         </service>
 
         <service class="Shopware\Cart\Price\PriceCalculator" id="Shopware\Cart\Price\PriceCalculator">
-            <argument type="service" id="Shopware\Cart\Tax\TaxCalculator" />
-            <argument type="service" id="Shopware\Cart\Price\PriceRounding" />
-            <argument type="service" id="Shopware\Cart\Tax\TaxDetector" />
+            <argument type="service" id="Shopware\Cart\Price\GrossPriceCalculator"/>
+            <argument type="service" id="Shopware\Cart\Price\NetPriceCalculator"/>
+            <argument type="service" id="Shopware\Cart\Tax\TaxDetector"/>
+        </service>
+
+        <service class="Shopware\Cart\Price\GrossPriceCalculator" id="Shopware\Cart\Price\GrossPriceCalculator">
+            <argument id="Shopware\Cart\Tax\TaxCalculator" type="service"/>
+            <argument id="Shopware\Cart\Price\PriceRounding" type="service"/>
+        </service>
+
+        <service class="Shopware\Cart\Price\NetPriceCalculator" id="Shopware\Cart\Price\NetPriceCalculator">
+            <argument id="Shopware\Cart\Tax\TaxCalculator" type="service"/>
+            <argument id="Shopware\Cart\Price\PriceRounding" type="service"/>
         </service>
 
         <service class="Shopware\Cart\Price\PercentagePriceCalculator" id="Shopware\Cart\Price\PercentagePriceCalculator">

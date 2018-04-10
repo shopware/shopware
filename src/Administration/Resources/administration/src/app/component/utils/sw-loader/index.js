@@ -3,5 +3,13 @@ import './sw-loader.less';
 import template from './sw-loader.html.twig';
 
 Component.register('sw-loader', {
-    template
+    template,
+
+    props: {
+        size: {
+            type: String,
+            required: false,
+            default: '50px'
+        }
+    }
 });

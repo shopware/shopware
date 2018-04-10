@@ -19,7 +19,7 @@
                 {% endblock %}
 
                 {% block sw_login_form %}
-                    <form class="sw-login__form" @submit.prevent="loginUserWithPassword">
+                    <div class="sw-login__form">
                         {% block sw_login_badge %}
                             <div class="sw-login__badge">
                                 {% block sw_login_badge_image %}
@@ -55,7 +55,7 @@
                         {% block sw_login_submit %}
                             <div class="sw-login__submit">
                                 {% block sw_login_submit_button %}
-                                    <sw-button variant="primary">Anmelden</sw-button>
+                                    <sw-button variant="primary" @click="loginUserWithPassword">Anmelden</sw-button>
                                 {% endblock %}
                             </div>
                         {% endblock %}
@@ -63,7 +63,7 @@
                         {% block sw_login_loader %}
                             <sw-loader v-if="isLoading"></sw-loader>
                         {% endblock %}
-                    </form>
+                    </div>
                 {% endblock %}
             </div>
         {% endblock %}

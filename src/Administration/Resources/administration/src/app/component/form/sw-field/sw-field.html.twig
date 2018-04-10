@@ -37,6 +37,7 @@
                                     :class="{ 'is--placeholder': currentValue === null }"
                                     @input="onInput"
                                     @change="onChange"
+                                    v-if="$slots.options && $slots.options.length"
                                     v-bind="$attrs">
 
                                 {% block sw_field_input_select_field_placeholder_option %}
@@ -55,7 +56,15 @@
                             </select>
                         {% endblock %}
 
-                        <sw-icon name="small-arrow-medium-down" small decorative/>
+                        {% block sw_field_input_select_field_load_placeholder %}
+                            <div class="sw-field__select-load-placeholder" v-else>
+                                <sw-loader size="20px"></sw-loader>
+                            </div>
+                        {% endblock %}
+
+                        {% block sw_field_input_select_field_icon %}
+                            <sw-icon name="small-arrow-medium-down" small decorative/>
+                        {% endblock %}
                     </div>
                 {% endblock %}
 

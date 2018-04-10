@@ -257,6 +257,22 @@
                 color: @sw-field-color-placeholder;
             }
         }
+
+        .sw-field__select-load-placeholder {
+            height: 40px;
+            border-radius: @sw-field-border-radius;
+            border: 1px solid @sw-field-color-border;
+            background: @sw-field-color-background;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            user-select: none;
+            position: relative;
+
+            .sw-loader {
+                background: none;
+            }
+        }
     }
 
     .sw-field__checkbox {

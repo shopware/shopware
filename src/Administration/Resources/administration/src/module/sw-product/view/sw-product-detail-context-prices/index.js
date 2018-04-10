@@ -26,18 +26,6 @@ Component.register('sw-product-detail-context-prices', {
         contextPriceGroups() {
             const contextPriceGroups = {};
 
-            this.product.contextPrices.sort((a, b) => {
-                if (a.quantityStart < b.quantityStart) {
-                    return -1;
-                }
-
-                if (a.quantityStart > b.quantityStart) {
-                    return 1;
-                }
-
-                return 0;
-            });
-
             this.product.contextPrices.forEach((ctx) => {
                 if (!contextPriceGroups[ctx.contextRuleId]) {
                     contextPriceGroups[ctx.contextRuleId] = {

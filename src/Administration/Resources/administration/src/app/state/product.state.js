@@ -214,6 +214,18 @@ State.register('product', {
                 return;
             }
 
+            product.contextPrices.sort((a, b) => {
+                if (a.quantityStart < b.quantityStart) {
+                    return -1;
+                }
+
+                if (a.quantityStart > b.quantityStart) {
+                    return 1;
+                }
+
+                return 0;
+            });
+
             const originalProduct = deepCopyObject(product);
             const draftProduct = deepCopyObject(product);
 

@@ -6,7 +6,7 @@
 
                     <slot name="header" v-if="header">
                         {% block sw_grid_slot_header %}
-                            <div class="sw-grid__header" :style="columnFlex">
+                            <div class="sw-grid__header" :style="[columnFlex, { paddingRight: `${scrollbarOffset}px` }]">
                                 {% block sw_grid_slot_header_cell_selectable %}
                                     <div class="sw-grid-column" v-if="selectable">
                                         <div class="sw-grid__cell-content">
@@ -35,19 +35,19 @@
 
                     <slot name="body">
                         {% block sw_grid_slot_body %}
-                            <div class="sw-grid__body">
+                            <div class="sw-grid__body" ref="swGridBody">
 
                                 <slot name="items" v-for="item in items">
                                     {% block sw_grid_body_slot_items %}
                                         <sw-grid-row class="sw-grid__item"
                                                      :style="columnFlex"
                                                      :item="item"
-                                                     :class="{ 'is--selected': item.selected }">
+                                                     :class="{ 'is--selected': isSelected(item.id) }">
 
                                             {% block sw_grid_body_item_selectable %}
                                                 <div class="sw-grid-column" v-if="selectable">
                                                     <div class="sw-grid__cell-content">
-                                                        <sw-field type="checkbox" v-model="item.selected"></sw-field>
+                                                        <sw-field type="checkbox" :value="isSelected(item.id)" @change="selectItem($event, item)"></sw-field>
                                                     </div>
                                                 </div>
                                             {% endblock %}

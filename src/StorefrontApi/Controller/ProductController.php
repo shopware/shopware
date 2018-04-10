@@ -7,6 +7,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Api\Entity\Search\SearchCriteriaBuilder;
 use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Context\Struct\StorefrontContext;
+use Shopware\Framework\Routing\ApplicationRequestContextResolver;
 use Shopware\Product\Exception\ProductNotFoundException;
 use Shopware\Rest\Context\RestContext;
 use Shopware\Rest\Response\ResponseFactory;
@@ -46,19 +47,16 @@ class ProductController extends Controller
     /**
      * @Route("/storefront-api/product", name="storefront.api.product.list")
      */
-    public function listAction(Request $request): Response
+    public function listAction(Request $request, StorefrontContext $context): Response
     {
-        /** @var ContextUser $user */
-        $user = $this->getUser();
+        $criteria = $this->criteriaBuilder->handleRequest($request, ProductDefinition::class, $context->getApplicationContext());
 
-        $criteria = $this->criteriaBuilder->handleRequest($request, ProductDefinition::class, $user->getContext()->getApplicationContext());
-
-        $result = $this->repository->search($criteria, $user->getContext());
+        $result = $this->repository->search($criteria, $context);
 
         return $this->responseFactory->createListingResponse(
             $result,
             ProductDefinition::class,
-            new RestContext($request, $user->getContext()->getApplicationContext(), null)
+            new RestContext($request, $context->getApplicationContext(), null)
         );
     }
 

@@ -7,9 +7,7 @@ use Shopware\Api\Entity\Search\EntitySearcherInterface;
 use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\User\Definition\UserDefinition;
 use Shopware\Context\Struct\ApplicationContext;
-use Shopware\Context\Struct\StorefrontContext;
-use Shopware\Framework\Routing\ApplicationSubscriber;
-use Shopware\StorefrontApi\Context\ContextSubscriber;
+use Shopware\Framework\Routing\RequestContextResolverInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ArgumentValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
@@ -46,13 +44,12 @@ class RestContextValueResolver implements ArgumentValueResolverInterface
 
     public function resolve(Request $request, ArgumentMetadata $argument): iterable
     {
-        /** @var StorefrontContext $storefrontContext */
-        $storefrontContext = $request->attributes->get(ApplicationSubscriber::SHOP_CONTEXT_PROPERTY);
+        $context = $request->attributes->get(RequestContextResolverInterface::CONTEXT_REQUEST_ATTRIBUTE);
 
         yield new RestContext(
             $request,
-            $storefrontContext->getApplicationContext(),
-            $this->getUserId($storefrontContext->getApplicationContext())
+            $context,
+            $this->getUserId($context)
         );
     }
 

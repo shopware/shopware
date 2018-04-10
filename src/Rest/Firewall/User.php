@@ -2,30 +2,31 @@
 
 namespace Shopware\Rest\Firewall;
 
+use Shopware\Framework\Struct\JsonSerializableTrait;
 use Shopware\Framework\Struct\Uuid;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-class User implements UserInterface
+class User implements UserInterface, \JsonSerializable
 {
     /**
      * @var string
      */
-    private $id;
+    protected $id;
 
     /**
      * @var string
      */
-    private $username;
+    protected $username;
 
     /**
      * @var string
      */
-    private $languageId;
+    protected $languageId;
 
     /**
      * @var string
      */
-    private $currencyId;
+    protected $currencyId;
 
     private function __construct(string $id, string $username, string $languageId, string $currencyId)
     {
@@ -124,5 +125,10 @@ class User implements UserInterface
     public function getCurrencyId(): string
     {
         return $this->currencyId;
+    }
+
+    public function jsonSerialize()
+    {
+        return get_object_vars($this);
     }
 }

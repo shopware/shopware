@@ -22,10 +22,6 @@
             <argument type="service" id="Shopware\Api\Entity\Dbal\EntitySearcher"/>
         </service>
 
-        <service class="Shopware\Rest\Firewall\AuthProvider" id="Shopware\Rest\Firewall\AuthProvider">
-            <argument type="service" id="Doctrine\DBAL\Connection" />
-        </service>
-
         <service class="Shopware\Rest\Command\UserCreateCommand" id="Shopware\Rest\Command\UserCreateCommand">
             <argument id="Shopware\Api\User\Repository\UserRepository" type="service"/>
             <argument id="security.encoder_factory.generic" type="service"/>

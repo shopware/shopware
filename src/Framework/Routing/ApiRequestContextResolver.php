@@ -5,7 +5,9 @@ namespace Shopware\Framework\Routing;
 use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
+use Shopware\Rest\Firewall\User;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\Authentication\Token\AnonymousToken;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class ApiRequestContextResolver implements RequestContextResolverInterface
@@ -28,10 +30,9 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
 
     public function resolve(Request $master, Request $request): void
     {
-        //todo@jb implement token storage usage, extract auth id of token to fetch context data from user table
-        $token = null;
-        if (!$token) {
-            throw new \RuntimeException('Not authenticated');
+        $user = $this->tokenStorage->getToken()->getUser();
+        if (!$user instanceof User) {
+            return;
         }
 
         //sub requests can use context of master
@@ -43,21 +44,21 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             return;
         }
 
-        $defaults = $this->connection->fetchAssoc('SELECT * FROM `user` WHERE id = :id');
-
-        $runtime = $this->getRuntimeParameters($master);
-
-        $config = array_replace_recursive($defaults, $runtime);
+        $config = array_replace_recursive(
+            json_decode(json_encode($user), true),
+            $this->getRuntimeParameters($master)
+        );
 
         $currencyFactory = 1.0;
 
         $context = new ApplicationContext(
-            null,
+            Defaults::APPLICATION,
             [],
             [],
             $config['currencyId'],
             $config['languageId'],
-            $config['fallbackLanguageId'],
+            $config['languageId'],
+            //$config['fallbackLanguageId'],
             Defaults::LIVE_VERSION,
             $currencyFactory
         );

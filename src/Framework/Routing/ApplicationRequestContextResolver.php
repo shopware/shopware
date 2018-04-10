@@ -2,8 +2,11 @@
 
 namespace Shopware\Framework\Routing;
 
+use Shopware\Framework\Struct\Uuid;
 use Shopware\StorefrontApi\Context\StorefrontContextService;
+use Shopware\StorefrontApi\Firewall\Application;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\Authentication\Token\AnonymousToken;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class ApplicationRequestContextResolver implements RequestContextResolverInterface
@@ -40,16 +43,17 @@ class ApplicationRequestContextResolver implements RequestContextResolverInterfa
 
     public function resolve(Request $master, Request $request): void
     {
-        $appToken = $master->headers->get(self::APPLICATION_HEADER);
-        
-        if (!$appToken) {
-            try {
-                $this->decorated->resolve($master, $request);
-            } catch (\Exception $e) {
-                throw new \RuntimeException('No application detected', 400, $e);
-            }
+        /** @var Application $application */
+        $application = $this->tokenStorage->getToken()->getUser();
+
+        if (!$application instanceof Application) {
+            $this->decorated->resolve($master, $request);
 
             return;
+        }
+
+        if (!$master->headers->has(self::CONTEXT_TOKEN_HEADER)) {
+            $master->headers->set(self::CONTEXT_TOKEN_HEADER, Uuid::uuid4()->getHex());
         }
 
         if (!$master->headers->get(self::CONTEXT_TOKEN_HEADER)) {
@@ -63,14 +67,7 @@ class ApplicationRequestContextResolver implements RequestContextResolverInterfa
         }
 
         $contextToken = $master->headers->get(self::CONTEXT_TOKEN_HEADER);
-        $applicationId = $appToken;
-
-        //todo@jb implement token storage for application authentification and get application id of app token
-//        $auth = $this->tokenStorage->getToken();
-//        if ($auth->getUser()) {
-//            $applicationId = $auth->getUser()->getApplicationId();
-//            $contextToken = $auth->getUser()->getContextToken();
-//        }
+        $applicationId = $application->getApplicationId();
 
         //sub requests can use the context of the master request
         if ($master->attributes->has(self::STOREFRONT_CONTEXT_REQUEST_ATTRIBUTE)) {

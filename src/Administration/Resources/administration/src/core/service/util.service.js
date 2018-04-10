@@ -47,7 +47,7 @@ export const types = {
 };
 
 export default {
-    createId: uuidV4,
+    createId,
     throttle,
     object,
     debug,
@@ -56,3 +56,12 @@ export default {
     string,
     types
 };
+
+/**
+ * Returns a uuid string in hex format.
+ *
+ * @returns {String}
+ */
+function createId() {
+    return uuidV4().replace(/-/g, '');
+}

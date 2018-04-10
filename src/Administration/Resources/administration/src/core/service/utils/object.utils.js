@@ -6,7 +6,8 @@ import type from './types.utils';
 
 export default {
     deepCopyObject,
-    getObjectChangeSet
+    getObjectChangeSet,
+    getPropertyBlacklist
 };
 
 /**
@@ -17,6 +18,16 @@ export default {
  */
 export function deepCopyObject(copyObject = {}) {
     return JSON.parse(JSON.stringify(copyObject));
+}
+
+/**
+ * Some properties are read-only because they are handled by the server.
+ * They should not be set by the client and have to be removed from entity objects.
+ *
+ * @returns {string[]}
+ */
+function getPropertyBlacklist() {
+    return ['createdAt', 'updatedAt'];
 }
 
 /**
@@ -89,12 +100,18 @@ export function getObjectChangeSet(baseObject, compareObject, entitySchemaName =
 
         // If the property is not present on the base object, it is an addition from the compare object.
         if (!b.hasOwnProperty(key)) {
-            return { ...acc, [key]: c[key] };
+            const addition = validateObjectSchema(c[key], associatedEntity);
+
+            if (hasNoChanges(addition)) {
+                return { ...acc };
+            }
+
+            return { ...acc, [key]: addition };
         }
 
         // If the property is an array, we also try to find changes in the array items.
         if (type.isArray(b[key])) {
-            return handleArrayProp(b[key], c[key], acc, key);
+            return handleArrayProp(b[key], c[key], acc, key, associatedEntity);
         }
 
         // Recursively get changes of nested object properties.
@@ -120,20 +137,16 @@ export function getObjectChangeSet(baseObject, compareObject, entitySchemaName =
  *
  * @param baseArray
  * @param compareArray
+ * @param entitySchemaName
  * @returns {*}
  */
-function getArrayChangeSet(baseArray, compareArray) {
+function getArrayChangeSet(baseArray, compareArray, entitySchemaName = null) {
     if (baseArray === compareArray) {
         return [];
     }
 
     // The passed properties are no comparable arrays so there must be a change.
     if (!type.isArray(baseArray) || !type.isArray(compareArray)) {
-        return compareArray;
-    }
-
-    // If the base array is empty all items of the compare array are additions.
-    if (baseArray.length === 0) {
         return compareArray;
     }
 
@@ -147,7 +160,7 @@ function getArrayChangeSet(baseArray, compareArray) {
     const c = [...compareArray];
 
     // If the items of the arrays are no comparable objects, we simply get the additions.
-    if (!type.isObject(b[0]) || !type.isObject(c[0])) {
+    if (!type.isObject(c[0])) {
         return c.filter(value => b.indexOf(value) < 0);
     }
 
@@ -157,7 +170,7 @@ function getArrayChangeSet(baseArray, compareArray) {
     c.forEach((item, index) => {
         // If the items have no identifier property we compare all items simply based on the index.
         if (!item.id) {
-            const diffObject = getObjectChangeSet(b[index], c[index]);
+            const diffObject = getObjectChangeSet(b[index], c[index], entitySchemaName);
 
             if (type.isObject(diffObject) && !type.isEmpty(diffObject)) {
                 diff.push(diffObject);
@@ -170,10 +183,14 @@ function getArrayChangeSet(baseArray, compareArray) {
 
             // If the base array does not contain the item, it is an addition.
             if (!compareObject) {
-                diff.push(item);
+                const addition = validateObjectSchema(item, entitySchemaName);
+
+                if (!hasNoChanges(addition)) {
+                    diff.push(addition);
+                }
             // If both arrays contain the same item, we generate the changeset for them.
             } else {
-                const diffObject = getObjectChangeSet(compareObject, item);
+                const diffObject = getObjectChangeSet(compareObject, item, entitySchemaName);
 
                 if (type.isObject(diffObject) && !type.isEmpty(diffObject)) {
                     diff.push({ ...diffObject, id: item.id });
@@ -193,8 +210,8 @@ function isJsonFieldProp(propertyType) {
     return ['json_object', 'json_array'].includes(propertyType);
 }
 
-function handleArrayProp(baseProp, compareProp, accumulator, propName) {
-    const arrayDiff = getArrayChangeSet(baseProp, compareProp);
+function handleArrayProp(baseProp, compareProp, accumulator, propName, entitySchemaName = null) {
+    const arrayDiff = getArrayChangeSet(baseProp, compareProp, entitySchemaName);
 
     if (type.isArray(arrayDiff) && arrayDiff.length === 0) {
         return { ...accumulator };
@@ -221,4 +238,24 @@ function handleJsonFieldProp(baseProp, compareProp, accumulator, propName) {
     }
 
     return { ...accumulator };
+}
+
+function validateObjectSchema(obj, entitySchemaName) {
+    if (!type.isObject(obj) || !entitySchemaName) {
+        return obj;
+    }
+
+    const entitySchema = Shopware.Entity.getDefinition(entitySchemaName);
+    const entityProperties = Object.keys(entitySchema.properties);
+    const blacklist = getPropertyBlacklist();
+
+    return Object.keys(obj).reduce((acc, property) => {
+        if (blacklist.includes(property) ||
+            hasNoChanges(obj[property]) ||
+            !entityProperties.includes(property)) {
+            return { ...acc };
+        }
+
+        return { ...acc, [property]: obj[property] };
+    }, {});
 }

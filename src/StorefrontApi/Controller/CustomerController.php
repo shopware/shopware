@@ -8,7 +8,7 @@ use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Application\ApplicationResolver;
 use Shopware\StorefrontApi\Context\StorefrontContextPersister;
 use Shopware\StorefrontApi\Context\StorefrontContextValueResolver;
-use Shopware\StorefrontApi\Firewall\ApplicationAuthenticator;
+use Shopware\StorefrontApi\Firewall\ApplicationAuthenticator2;
 use Shopware\StorefrontApi\Firewall\ContextUser;
 use Shopware\StorefrontApi\Firewall\CustomerProvider;
 use Shopware\StorefrontApi\Firewall\CustomerUser;

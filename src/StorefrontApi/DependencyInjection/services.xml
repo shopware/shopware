@@ -85,7 +85,10 @@
             <argument id="Doctrine\DBAL\Connection" type="service"/>
         </service>
 
-        <service class="Shopware\StorefrontApi\Firewall\ApplicationAuthenticator" id="Shopware\StorefrontApi\Firewall\ApplicationAuthenticator" />
+        <service class="Shopware\StorefrontApi\Firewall\ApplicationAuthenticator" id="Shopware\StorefrontApi\Firewall\ApplicationAuthenticator">
+            <argument id="Doctrine\DBAL\Connection" type="service"/>
+        </service>
+
 
     </services>
 </container>

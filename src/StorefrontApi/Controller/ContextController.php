@@ -17,7 +17,7 @@ use Shopware\StorefrontApi\Context\StorefrontContextValueResolver;
 use Shopware\StorefrontApi\Exception\AddressNotFoundHttpException;
 use Shopware\StorefrontApi\Exception\PaymentMethodNotFoundHttpException;
 use Shopware\StorefrontApi\Exception\ShippingMethodNotFoundHttpException;
-use Shopware\StorefrontApi\Firewall\ApplicationAuthenticator;
+use Shopware\StorefrontApi\Firewall\ApplicationAuthenticator2;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;

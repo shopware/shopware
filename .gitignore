@@ -17,6 +17,7 @@ Thumbs.db
 /composer.phar
 /vendor/*
 !/vendor/.htaccess
+/composer.lock
 
 # User installed plugins
 /custom/plugins/*

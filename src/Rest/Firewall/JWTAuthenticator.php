@@ -1,29 +1,43 @@
 <?php
 
-namespace Shopware\StorefrontApi\Firewall;
+namespace Shopware\Rest\Firewall;
 
 use Doctrine\DBAL\Connection;
+use Firebase\JWT\JWT;
+use Shopware\Framework\Struct\Uuid;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
 
-class ApplicationAuthenticator extends AbstractGuardAuthenticator
+class JWTAuthenticator extends AbstractGuardAuthenticator
 {
-    public const APPLICATION_ACCESS_KEY = 'x-sw-application-token';
-
     /**
      * @var Connection
      */
     private $connection;
 
-    public function __construct(Connection $connection)
+    /**
+     * @var string
+     */
+    private $publicKey;
+
+    /**
+     * @var string
+     */
+    private $privateKey;
+
+    public function __construct(Connection $connection, string $projectDir)
     {
         $this->connection = $connection;
+        $this->privateKey = file_get_contents($projectDir . '/config/jwt/private.pem');
+
+        JWT::$leeway = 60;
     }
 
     /**
@@ -46,12 +60,11 @@ class ApplicationAuthenticator extends AbstractGuardAuthenticator
      */
     public function start(Request $request, AuthenticationException $authException = null)
     {
-        if ($request->headers->has(self::APPLICATION_ACCESS_KEY) === false) {
-            throw new UnauthorizedHttpException('header', 'Header "X-SW-Application-Token" is required.');
+        if (!$request->headers->has('Authorization')) {
+            throw new UnauthorizedHttpException('Bearer', 'Please provide a valid token.');
         }
 
-        throw new UnauthorizedHttpException('header', $authException->getMessageKey());
-
+        throw new UnauthorizedHttpException('Bearer', $authException->getMessageKey());
     }
 
     /**
@@ -65,7 +78,18 @@ class ApplicationAuthenticator extends AbstractGuardAuthenticator
      */
     public function supports(Request $request)
     {
-        return $request->headers->has(self::APPLICATION_ACCESS_KEY);
+        if (!$request->headers->has('Authorization')) {
+            return false;
+        }
+
+        $authorizationHeader = $request->headers->get('Authorization');
+        $headerParts = explode(' ', $authorizationHeader);
+
+        if (!(2 === count($headerParts) && $headerParts[0] === 'Bearer')) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -93,9 +117,18 @@ class ApplicationAuthenticator extends AbstractGuardAuthenticator
      */
     public function getCredentials(Request $request)
     {
-        return [
-            'access_key' => $request->headers->get(self::APPLICATION_ACCESS_KEY)
-        ];
+        $authorizationHeader = $request->headers->get('Authorization');
+        $headerParts = explode(' ', $authorizationHeader);
+        $token = $headerParts[1];
+
+        // JWT decode header
+        try {
+            $credentials = (array) JWT::decode($token, $this->privateKey, ['HS256']);
+        } catch (\UnexpectedValueException $exception) {
+            throw new UnauthorizedHttpException('Bearer', $exception->getMessage());
+        }
+
+        return $credentials;
     }
 
     /**
@@ -115,29 +148,33 @@ class ApplicationAuthenticator extends AbstractGuardAuthenticator
      */
     public function getUser($credentials, UserProviderInterface $userProvider)
     {
+        if (empty($credentials['username'])) {
+            throw new UsernameNotFoundException();
+        }
+
         $builder = $this->connection->createQueryBuilder();
-        $application = $builder->select([
-                'application.id',
-                'application.language_id',
-                'application.currency_id',
-                'application.payment_method_id',
-                'application.shipping_method_id',
-                'application.country_id',
-                'application.tax_calculation_type',
-                'application.catalog_ids',
-                'application.language_ids',
-            ])
-            ->from('application')
-            ->where('access_key = :accessKey')
-            ->setParameter('accessKey', $credentials['access_key'])
+        $user = $builder->select([
+                'user.id',
+                'user.username',
+                '"ffffffffffffffffffffffffffffffff" as languageId', //'user.languageId',
+                '"4c8eba11bd3546d786afbed481a6e665" as currencyId', //'user.currencyId',
+                /*'user.tenant_id'*/
+        ])
+            ->from('user')
+            ->where('username = :username')
+            ->setParameter('username', $credentials['username'])
             ->execute()
             ->fetch();
 
-        if (!$application) {
-            return null;
+        if (!$user) {
+            throw new UsernameNotFoundException();
         }
 
-        return Application::createFromDatabase($application);
+        // todo: remove me
+        $user['languageId'] = Uuid::fromHexToBytes($user['languageId']);
+        $user['currencyId'] = Uuid::fromHexToBytes($user['currencyId']);
+
+        return User::createFromDatabase($user);
     }
 
     /**
@@ -158,7 +195,7 @@ class ApplicationAuthenticator extends AbstractGuardAuthenticator
      */
     public function checkCredentials($credentials, UserInterface $user)
     {
-        return $user instanceof Application;
+        return $user instanceof User;
     }
 
     /**
@@ -217,5 +254,43 @@ class ApplicationAuthenticator extends AbstractGuardAuthenticator
     public function supportsRememberMe()
     {
         return false;
+    }
+
+    /**
+     * @param array $payload
+     * @param int $expiry
+     *
+     * @return string
+     */
+    public function createToken(array $payload, int $expiry = 3600): string
+    {
+        $timestamp = time();
+
+        $jwtPayload = [
+            'iat' => $timestamp,
+            'nbf' => $timestamp,
+            'exp' => $timestamp + $expiry
+        ];
+
+        $payload = array_merge($payload, $jwtPayload);
+
+        return JWT::encode($payload, $this->privateKey, 'HS256');
+    }
+
+    public function checkPassword(string $username, string $password): bool
+    {
+        $builder = $this->connection->createQueryBuilder();
+        $user = $builder->select(['user.password'])
+            ->from('user')
+            ->where('username = :username')
+            ->setParameter('username', $username)
+            ->execute()
+            ->fetch();
+
+        if (!$user) {
+            return false;
+        }
+
+        return password_verify($password, $user['password']);
     }
 }

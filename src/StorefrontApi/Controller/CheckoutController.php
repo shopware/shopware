@@ -22,7 +22,7 @@ use Shopware\Framework\Struct\Uuid;
 use Shopware\Rest\Response\Type\JsonType;
 use Shopware\StorefrontApi\Context\StorefrontContextPersister;
 use Shopware\StorefrontApi\Context\StorefrontContextValueResolver;
-use Shopware\StorefrontApi\Firewall\ApplicationAuthenticator;
+use Shopware\StorefrontApi\Firewall\ApplicationAuthenticator2;
 use Shopware\StorefrontApi\Firewall\ContextUser;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;

@@ -7,6 +7,7 @@ use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\User\Repository\UserRepository;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Struct\Uuid;
+use Shopware\Framework\Util\Random;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -71,9 +72,14 @@ class UserCreateCommand extends Command
             exit(1);
         }
 
-        $this->createUser($username, $password);
+        $accessKey = $this->createUser($username, $password);
 
         $io->success(sprintf('User "%s" successfully created.', $username));
+        $io->table(
+            ['Key', 'Value'],
+            ['Username', $username],
+            ['Access key', $accessKey]
+        );
     }
 
     private function userExists(string $username): bool
@@ -86,10 +92,11 @@ class UserCreateCommand extends Command
         return $result->getTotal() > 0;
     }
 
-    private function createUser(string $username, string $password): void
+    private function createUser(string $username, string $password): string
     {
         $encoder = $this->encoderFactory->getEncoder(User::class);
         $password = $encoder->encodePassword($password, $username);
+        $accessKey = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode(Random::getAlphanumericString(32)));
 
         $context = ApplicationContext::createDefaultContext();
 
@@ -103,7 +110,10 @@ class UserCreateCommand extends Command
                 'localeId' => '7b52d9dd-2b06-40ec-90be-9f57edf29be7',
                 'roleId' => '7b52d9dd-2b06-40ec-90be-9f57edf29be7',
                 'active' => true,
+                'api_key' => $accessKey
             ],
         ], $context);
+
+        return $accessKey;
     }
 }

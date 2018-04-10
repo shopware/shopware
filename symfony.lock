@@ -89,15 +89,6 @@
     "league/flysystem-azure": {
         "version": "1.0.4"
     },
-    "lexik/jwt-authentication-bundle": {
-        "version": "2.3",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "master",
-            "version": "2.3",
-            "ref": "751ee6748c1026fa4350c155d1b3a77b7ddca69c"
-        }
-    },
     "mbezhanov/faker-provider-collection": {
         "version": "1.0.0"
     },
@@ -112,9 +103,6 @@
     },
     "myclabs/deep-copy": {
         "version": "1.7.0"
-    },
-    "namshi/jose": {
-        "version": "7.2.3"
     },
     "paragonie/random_compat": {
         "version": "v2.0.11"
@@ -344,13 +332,7 @@
     "symfony/polyfill-mbstring": {
         "version": "v1.7.0"
     },
-    "symfony/polyfill-php56": {
-        "version": "v1.7.0"
-    },
     "symfony/polyfill-php72": {
-        "version": "v1.7.0"
-    },
-    "symfony/polyfill-util": {
         "version": "v1.7.0"
     },
     "symfony/profiler-pack": {

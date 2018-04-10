@@ -1,6 +1,6 @@
 <?php
 
-namespace Shopware\StorefrontApi\Firewall;
+namespace Shopware\Rest\Firewall;
 
 use Doctrine\DBAL\Connection;
 use Symfony\Component\HttpFoundation\Request;
@@ -8,13 +8,14 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
 
-class ApplicationAuthenticator extends AbstractGuardAuthenticator
+class TokenAuthenticator extends AbstractGuardAuthenticator
 {
-    public const APPLICATION_ACCESS_KEY = 'x-sw-application-token';
+    public const ACCESS_KEY_HEADER = 'x-sw-access-key';
 
     /**
      * @var Connection
@@ -46,12 +47,11 @@ class ApplicationAuthenticator extends AbstractGuardAuthenticator
      */
     public function start(Request $request, AuthenticationException $authException = null)
     {
-        if ($request->headers->has(self::APPLICATION_ACCESS_KEY) === false) {
-            throw new UnauthorizedHttpException('header', 'Header "X-SW-Application-Token" is required.');
+        if ($request->headers->has(self::ACCESS_KEY_HEADER) === false) {
+            throw new UnauthorizedHttpException('header', 'Header "X-SW-Access-Key" is required.');
         }
 
         throw new UnauthorizedHttpException('header', $authException->getMessageKey());
-
     }
 
     /**
@@ -65,7 +65,7 @@ class ApplicationAuthenticator extends AbstractGuardAuthenticator
      */
     public function supports(Request $request)
     {
-        return $request->headers->has(self::APPLICATION_ACCESS_KEY);
+        return $request->headers->has(self::ACCESS_KEY_HEADER);
     }
 
     /**
@@ -94,7 +94,7 @@ class ApplicationAuthenticator extends AbstractGuardAuthenticator
     public function getCredentials(Request $request)
     {
         return [
-            'access_key' => $request->headers->get(self::APPLICATION_ACCESS_KEY)
+            'access_key' => $request->headers->get(self::ACCESS_KEY_HEADER)
         ];
     }
 
@@ -116,28 +116,24 @@ class ApplicationAuthenticator extends AbstractGuardAuthenticator
     public function getUser($credentials, UserProviderInterface $userProvider)
     {
         $builder = $this->connection->createQueryBuilder();
-        $application = $builder->select([
-                'application.id',
-                'application.language_id',
-                'application.currency_id',
-                'application.payment_method_id',
-                'application.shipping_method_id',
-                'application.country_id',
-                'application.tax_calculation_type',
-                'application.catalog_ids',
-                'application.language_ids',
+        $user = $builder->select([
+                'user.id',
+                'user.username',
+                '"ffffffffffffffffffffffffffffffff" as languageId', //'user.languageId',
+                '"4c8eba11bd3546d786afbed481a6e665" as currencyId', //'user.currencyId',
+                /*'user.tenant_id'*/
             ])
-            ->from('application')
-            ->where('access_key = :accessKey')
+            ->from('user')
+            ->where('api_key = :accessKey')
             ->setParameter('accessKey', $credentials['access_key'])
             ->execute()
             ->fetch();
 
-        if (!$application) {
-            return null;
+        if (!$user) {
+            throw new UsernameNotFoundException('Bad credentials, please verify that your username/password are correctly set.');
         }
 
-        return Application::createFromDatabase($application);
+        return User::createFromDatabase($user);
     }
 
     /**
@@ -158,7 +154,7 @@ class ApplicationAuthenticator extends AbstractGuardAuthenticator
      */
     public function checkCredentials($credentials, UserInterface $user)
     {
-        return $user instanceof Application;
+        return $user instanceof User;
     }
 
     /**

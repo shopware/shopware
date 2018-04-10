@@ -12,7 +12,7 @@ use Shopware\Defaults;
 use Shopware\Framework\Application\ApplicationResolver;
 use Shopware\Rest\Test\ApiTestCase;
 use Shopware\StorefrontApi\Context\StorefrontContextValueResolver;
-use Shopware\StorefrontApi\Firewall\ApplicationAuthenticator;
+use Shopware\StorefrontApi\Firewall\ApplicationAuthenticator2;
 use Symfony\Bundle\FrameworkBundle\Client;
 
 class CheckoutControllerTest extends ApiTestCase

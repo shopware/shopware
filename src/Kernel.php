@@ -26,12 +26,12 @@ class Kernel extends HttpKernel
     /**
      * @var \PDO
      */
-    private static $connection;
+    protected static $connection;
 
     /**
      * @var PluginCollection
      */
-    private static $plugins;
+    protected static $plugins;
 
     /**
      * {@inheritdoc}
@@ -271,7 +271,9 @@ class Kernel extends HttpKernel
 
     private function initializePluginSystem(): void
     {
-        self::$connection = DatabaseConnector::createPdoConnection();
+        if (!self::$connection) {
+            self::$connection = DatabaseConnector::createPdoConnection();
+        }
 
         $this->initializePlugins();
     }

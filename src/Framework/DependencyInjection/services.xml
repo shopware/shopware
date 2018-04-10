@@ -124,13 +124,10 @@
         </service>
 
         <!-- Routing -->
-        <service class="Shopware\Framework\Application\ApplicationResolver" id="Shopware\Framework\Application\ApplicationResolver">
-            <argument id="Doctrine\DBAL\Connection" type="service"/>
-        </service>
 
         <service class="Shopware\Framework\Routing\ApplicationSubscriber" id="Shopware\Framework\Routing\ApplicationSubscriber">
-            <argument id="Shopware\Framework\Application\ApplicationResolver" type="service"/>
-            <argument id="Shopware\StorefrontApi\Context\StorefrontContextService" type="service"/>
+            <argument type="service" id="request_stack"/>
+            <argument type="service" id="Shopware\Framework\Routing\RequestContextResolverInterface"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
@@ -157,6 +154,23 @@
 
         <service class="Shopware\Framework\Twig\InstanceOfExtension" id="Shopware\Framework\Twig\InstanceOfExtension">
             <tag name="twig.extension"/>
+        </service>
+
+
+        <service class="Shopware\Framework\Routing\ApiRequestContextResolver"
+                 id="Shopware\Framework\Routing\RequestContextResolverInterface">
+
+            <argument id="security.token_storage" type="service"/>
+            <argument id="Doctrine\DBAL\Connection" type="service"/>
+        </service>
+
+        <service class="Shopware\Framework\Routing\ApplicationRequestContextResolver"
+                 decorates="Shopware\Framework\Routing\RequestContextResolverInterface"
+                 id="Shopware\Framework\Routing\ApplicationRequestContextResolver">
+
+            <argument id="Shopware\Framework\Routing\ApplicationRequestContextResolver.inner" type="service"/>
+            <argument id="Shopware\StorefrontApi\Context\StorefrontContextService" type="service"/>
+            <argument type="service" id="security.token_storage"/>
         </service>
 
     </services>

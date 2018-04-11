@@ -51,7 +51,6 @@ class PriceActionController extends Controller
         $this->grossCalculator = $grossCalculator;
     }
 
-
     /**
      * @Route("/api/price/actions/calculate", name="api.price.actions.calculate")
      * @Method({"POST"})
@@ -61,7 +60,7 @@ class PriceActionController extends Controller
      *
      * @return JsonResponse
      */
-    public function calculateAction(Request $request, RestContext $context): JsonResponse
+    public function calculate(Request $request, RestContext $context): JsonResponse
     {
         $post = $this->getPost($request);
 

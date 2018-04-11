@@ -1062,6 +1062,8 @@ CREATE TABLE `product` (
   CHECK (JSON_VALID(`category_tree`)),
   CHECK (JSON_VALID(`listing_prices`)),
   CHECK (JSON_VALID(`price`)),
+  CHECK (JSON_VALID(`datasheet_ids`)),
+  CHECK (JSON_VALID(`variation_ids`)),
   PRIMARY KEY (`id`, `version_id`),
   KEY (`catalog_id`),
   CONSTRAINT `fk_product.product_manufacturer_id` FOREIGN KEY (`product_manufacturer_id`, `product_manufacturer_version_id`) REFERENCES `product_manufacturer` (`id`, `version_id`) ON DELETE RESTRICT ON UPDATE CASCADE,

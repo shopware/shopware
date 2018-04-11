@@ -27,6 +27,11 @@ Component.register('sw-grid-column', {
             type: String,
             required: false,
             default: ''
+        },
+        editable: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
@@ -38,15 +43,17 @@ Component.register('sw-grid-column', {
         registerColumn() {
             const hasColumn = this.$parent.columns.findIndex((column) => column.label === this.label);
 
-            if (hasColumn === -1) {
-                this.$parent.columns.push({
-                    label: this.label,
-                    flex: this.flex,
-                    sortable: this.sortable,
-                    dataIndex: this.dataIndex,
-                    align: this.align
-                });
+            if (hasColumn !== -1) {
+                return;
             }
+
+            this.$parent.columns.push({
+                label: this.label,
+                flex: this.flex,
+                sortable: this.sortable,
+                dataIndex: this.dataIndex,
+                align: this.align
+            });
         }
     }
 });

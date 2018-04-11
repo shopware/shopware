@@ -13,6 +13,7 @@ import './base/sw-tabs-item';
 
 import './grid/sw-grid';
 import './grid/sw-grid-column';
+import './grid/sw-grid-row';
 import './grid/sw-pagination';
 
 import './form/sw-field';

@@ -97,6 +97,8 @@ Mixin.register('productList', {
                 params.criterias = [criterias.getQuery()];
             }
 
+            this.products = [];
+
             return this.$store.dispatch('product/getProductList', params).then((response) => {
                 this.totalProducts = response.total;
                 this.products = response.products;

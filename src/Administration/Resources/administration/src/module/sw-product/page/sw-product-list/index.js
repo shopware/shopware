@@ -110,6 +110,16 @@ Component.register('sw-product-list', {
                     }
                 });
             }
+        },
+
+        onInlineEditSave(opts) {
+            this.isLoading = true;
+
+            return this.$store.dispatch('product/saveProduct', opts.item).then(() => {
+                this.isLoading = false;
+            }).catch(() => {
+                this.isLoading = false;
+            });
         }
     }
 });

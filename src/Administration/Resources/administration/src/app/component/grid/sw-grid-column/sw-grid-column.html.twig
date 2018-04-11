@@ -1,5 +1,15 @@
 {% block sw_grid_column %}
     <div class="sw-grid-column sw-grid__cell" :class="'sw-grid-column--' + align" v-on="$listeners">
-        <slot>{% block sw_grid_column_slot_default %}{% endblock %}</slot>
+        {% block sw_grid_column_content %}
+            <div class="sw-grid__cell-content">
+                <slot>{% block sw_grid_column_slot_default %}{% endblock %}</slot>
+            </div>
+        {% endblock %}
+
+        {% block sw_grid_column_editing %}
+            <div class="sw-grid__cell-inline-editing" v-if="editable">
+                <slot name="inline-edit">{% block sw_grid_column_slot_inline_edit %}{% endblock %}</slot>
+            </div>
+        {% endblock %}
     </div>
 {% endblock %}

@@ -5,13 +5,6 @@ import template from './sw-grid.html.twig';
 Component.register('sw-grid', {
     template,
 
-    data() {
-        return {
-            columns: [],
-            selected: false
-        };
-    },
-
     props: {
         items: {
             type: Array,
@@ -61,6 +54,14 @@ Component.register('sw-grid', {
         }
     },
 
+    data() {
+        return {
+            columns: [],
+            selected: false,
+            editing: []
+        };
+    },
+
     computed: {
         sort() {
             return this.sortBy;
@@ -108,7 +109,25 @@ Component.register('sw-grid', {
         }
     },
 
+    created() {
+        this.registerInlineEditingEvents();
+    },
+
     methods: {
+        registerInlineEditingEvents() {
+            this.$on('sw-row-inline-edit-start', (id) => {
+                this.editing.push(id);
+            });
+
+            this.$on('sw-row-inline-edit-cancel', this.disableActiveInlineEditing);
+        },
+
+        disableActiveInlineEditing(id) {
+            this.editing = this.editing.filter((item) => {
+                return item !== id;
+            });
+        },
+
         selectAll(selected) {
             this.items.forEach((item) => {
                 this.$set(item, 'selected', selected);
@@ -141,6 +160,7 @@ Component.register('sw-grid', {
                 return;
             }
 
+            this.$emit('sw-grid-disable-inline-editing');
             this.$emit('sort-column', column);
         }
     }

@@ -23,9 +23,8 @@
                                  :sortBy="sortBy"
                                  :sortDirection="sortDirection"
                                  :sidebar="true"
-                                 :actions="[]"
-                                 @edit="onEdit"
-                                 @sort-column="onSortColumn">
+                                 @sort-column="onSortColumn"
+                                 @sw-row-inline-edit-finish="onInlineEditSave">
 
                             {% block sw_product_list_grid_slots %}
                                 <template slot="columns" slot-scope="{ item }">
@@ -34,31 +33,44 @@
                                         {% block sw_product_list_grid_columns_name %}
                                             <sw-grid-column flex="1"
                                                             label="Name"
-                                                            sortable
                                                             dataIndex="name"
-                                                            @click="onEdit(item)"
-                                                            class="has--action">
+                                                            sortable
+                                                            editable>
                                                 {{ item.name }}
+
+                                                {% block sw_product_list_grid_columns_name_editor %}
+                                                    <sw-field type="text" v-model="item.name" slot="inline-edit"></sw-field>
+                                                {% endblock %}
                                             </sw-grid-column>
                                         {% endblock %}
 
                                         {% block sw_product_list_grid_columns_manufacturer %}
                                             <sw-grid-column flex="1"
                                                             label="Hersteller"
+                                                            dataIndex="manufacturer.name"
                                                             sortable
-                                                            dataIndex="manufacturer.name">
+                                                            editable>
                                                 {{ item.manufacturer.name }}
+
+                                                {% block sw_product_list_grid_columns_manufacturer_editor %}
+                                                    <sw-field type="text" v-model="item.manufacturer.name" slot="inline-edit"></sw-field>
+                                                {% endblock %}
                                             </sw-grid-column>
                                         {% endblock %}
 
                                         {% block sw_product_list_grid_columns_active %}
                                             <sw-grid-column flex="75px"
                                                             label="Aktiv"
-                                                            sortable
                                                             dataIndex="active"
-                                                            align="center">
-                                                <sw-icon name="small-default-checkmark-line-medium" small v-if="item.active" class="is--active" />
-                                                <sw-icon name="small-default-x-line-medium" small v-else class="is--inactive" />
+                                                            align="center"
+                                                            sortable
+                                                            editable>
+                                                <sw-icon name="small-default-checkmark-line-medium" small v-if="item.active" class="is--active"></sw-icon>
+                                                <sw-icon name="small-default-x-line-medium" small v-else class="is--inactive"></sw-icon>
+
+                                                {% block sw_product_list_grid_columns_active_editor %}
+                                                    <sw-field type="checkbox" v-model="item.active" slot="inline-edit"></sw-field>
+                                                {% endblock %}
                                             </sw-grid-column>
                                         {% endblock %}
 

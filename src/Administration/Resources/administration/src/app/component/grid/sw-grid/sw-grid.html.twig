@@ -9,7 +9,9 @@
                             <div class="sw-grid__header" :style="columnFlex">
                                 {% block sw_grid_slot_header_cell_selectable %}
                                     <div class="sw-grid__cell" v-if="selectable">
-                                        <sw-field type="checkbox" @change="selectAll"></sw-field>
+                                        <div class="sw-grid__cell-content">
+                                            <sw-field type="checkbox" @change="selectAll"></sw-field>
+                                        </div>
                                     </div>
                                 {% endblock %}
 
@@ -37,18 +39,23 @@
 
                                 <slot name="items" v-for="item in items">
                                     {% block sw_grid_body_slot_items %}
-                                        <div class="sw-grid__item" :style="columnFlex" :class="{ 'is--selected': item.selected }">
+                                        <sw-grid-row class="sw-grid__item"
+                                                     :style="columnFlex"
+                                                     :item="item"
+                                                     :class="{ 'is--selected': item.selected }">
 
                                             {% block sw_grid_body_item_selectable %}
                                                 <div class="sw-grid__cell" v-if="selectable">
-                                                    <sw-field type="checkbox" v-model="item.selected"></sw-field>
+                                                    <div class="sw-grid__cell-content">
+                                                        <sw-field type="checkbox" v-model="item.selected"></sw-field>
+                                                    </div>
                                                 </div>
                                             {% endblock %}
 
                                             <slot name="columns" :item="item">
                                                 {% block sw_grid_slot_columns %}{% endblock %}
                                             </slot>
-                                        </div>
+                                        </sw-grid-row>
                                     {% endblock %}
                                 </slot>
                             </div>

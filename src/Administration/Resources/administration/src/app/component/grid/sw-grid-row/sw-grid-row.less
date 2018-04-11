@@ -1,0 +1,51 @@
+@import "~less/variables";
+
+@sw-grid-row-color-border:     @color-shopware-blue;
+@sw-grid-row-color-background: @color-cadet-blue;
+
+.sw-grid-row {
+    position: relative;
+    border-top: 1px solid transparent;
+
+    .sw-grid__cell-inline-editing {
+        display: none;
+        width: 100%;
+    }
+
+    .sw-field {
+        width: 100%;
+        text-align: left;
+    }
+
+    &.is--inline-editing {
+        background: @sw-grid-row-color-background !important; // Necessary to force the right color
+        border-color: @sw-grid-row-color-border;
+        border-top: 1px solid @sw-grid-row-color-border;
+
+        .sw-grid__cell-content {
+            display: none;
+        }
+
+        .sw-grid-column {
+            justify-content: normal;
+        }
+
+        .sw-grid__cell-inline-editing,
+        .sw-grid-row__actions {
+            display: block;
+        }
+    }
+
+    .sw-grid-row__actions {
+        display: none;
+        position: absolute;
+        bottom: -61px;
+        left: 50%;
+        transform: translate(-50%, 0);
+        z-index: 10;
+        padding: 10px 16px;
+        background: @sw-grid-row-color-background;
+        border: 1px solid @sw-grid-row-color-border;
+        border-top: 0 none;
+    }
+}

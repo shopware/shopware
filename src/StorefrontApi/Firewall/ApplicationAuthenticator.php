@@ -51,7 +51,6 @@ class ApplicationAuthenticator extends AbstractGuardAuthenticator
         }
 
         throw new UnauthorizedHttpException('header', $authException->getMessageKey());
-
     }
 
     /**

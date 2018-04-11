@@ -21,29 +21,28 @@ framework:
 
 security:
     firewalls:
-        login:
-            pattern: ^/api/auth$
+        rest:
+            pattern: ^/api/(?!(auth|info|entity-schema))
             stateless: true
-            anonymous: true
-            provider: api
-            json_login:
-                check_path: /api/auth
-                success_handler: lexik_jwt_authentication.handler.authentication_success
-                failure_handler: lexik_jwt_authentication.handler.authentication_failure
-                require_previous_session: false
-
-        api:
-            pattern: ^/api/(?!(info|entity-schema))
-            stateless: true
-            provider: api
+            provider: rest
             guard:
+                entry_point: Shopware\Rest\Firewall\TokenAuthenticator
                 authenticators:
-                    - lexik_jwt_authentication.jwt_token_authenticator
+                    - Shopware\Rest\Firewall\TokenAuthenticator
+                    - Shopware\Rest\Firewall\JWTAuthenticator
 
         storefront_api:
             pattern: ^/storefront-api/
             stateless: true
-            provider: storefront_api
+            provider: rest
+            guard:
+                authenticator:
+                  - Shopware\StorefrontApi\Firewall\ApplicationAuthenticator
+
+        storefront:
+            pattern: ^/(?!(_profiler|_wdt|_error|admin|storefront-api|api))
+            stateless: true
+            provider: rest
             guard:
                 authenticator:
                   - Shopware\StorefrontApi\Firewall\ApplicationAuthenticator
@@ -51,24 +50,14 @@ security:
     access_control:
         - { path: ^/api/auth, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api/info, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/api/entity-schema.json, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api, roles: ROLE_ADMIN }
         - { path: ^/storefront-api, roles: ROLE_APPLICATION }
+        - { path: ^/checkout/(index|cart|cartAmount|ajaxCart)$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
 
     providers:
-        api:
-            id: Shopware\Rest\Firewall\AuthProvider
-        customer:
-            id: Shopware\StorefrontApi\Firewall\CustomerProvider
-        storefront_api:
-            id: Shopware\StorefrontApi\Firewall\ContextUserProvider
-
-    encoders:
-        Symfony\Component\Security\Core\User\User:
-            algorithm: bcrypt
-            cost: 13
-        Shopware\StorefrontApi\Firewall\CustomerUser:
-            algorithm: bcrypt
-            cost: 13
+        rest:
+            id: Shopware\Rest\Firewall\RestUserProvider
 
 shopware:
     csrfProtection:

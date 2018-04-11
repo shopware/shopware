@@ -62,7 +62,6 @@ class CustomerController extends Controller
         }
 
         $username = $post['username'];
-        $password = $post['password'];
 
         $user = $this->customerProvider->loadUserByUsername($username);
 

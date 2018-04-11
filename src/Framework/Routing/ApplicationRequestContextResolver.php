@@ -43,6 +43,11 @@ class ApplicationRequestContextResolver implements RequestContextResolverInterfa
 
     public function resolve(Request $master, Request $request): void
     {
+        if (!$this->tokenStorage->getToken()) {
+            $this->decorated->resolve($master, $request);
+
+            return;
+        }
         /** @var Application $application */
         $application = $this->tokenStorage->getToken()->getUser();
 

@@ -7,7 +7,6 @@ use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 use Shopware\Rest\Firewall\User;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Security\Core\Authentication\Token\AnonymousToken;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class ApiRequestContextResolver implements RequestContextResolverInterface
@@ -30,6 +29,10 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
 
     public function resolve(Request $master, Request $request): void
     {
+        if (!$this->tokenStorage->getToken()) {
+            return;
+        }
+
         $user = $this->tokenStorage->getToken()->getUser();
         if (!$user instanceof User) {
             return;
@@ -53,7 +56,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
 
         $context = new ApplicationContext(
             Defaults::APPLICATION,
-            [],
+            null,
             [],
             $config['currencyId'],
             $config['languageId'],
@@ -63,7 +66,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             $currencyFactory
         );
 
-        $request->attributes->set('context', $context);
+        $request->attributes->set(self::CONTEXT_REQUEST_ATTRIBUTE, $context);
     }
 
     private function getRuntimeParameters(Request $request): array

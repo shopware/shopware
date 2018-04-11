@@ -27,9 +27,12 @@ namespace Shopware\Api\Entity\Field;
 use Shopware\Api\Catalog\Definition\CatalogDefinition;
 use Shopware\Api\Entity\Write\DataStack\KeyValuePair;
 use Shopware\Api\Entity\Write\EntityExistence;
+use Shopware\Api\Entity\Write\FieldException\InvalidFieldException;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\Uuid;
+use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationList;
 
 class CatalogField extends FkField
 {
@@ -51,6 +54,18 @@ class CatalogField extends FkField
             $value = $kvPair->getValue();
         } else {
             $value = Defaults::CATALOG;
+        }
+
+        $restriction = $this->writeContext->getApplicationContext()->getCatalogIds();
+
+        //user has restricted catalog access
+        if ($restriction !== null && !in_array($value, $restriction, true)) {
+            throw new InvalidFieldException(
+                $this->path,
+                new ConstraintViolationList([
+                    new ConstraintViolation(sprintf('No access to catalog id %s', $value))
+                ])
+            );
         }
 
         //write catalog id of current object to write context

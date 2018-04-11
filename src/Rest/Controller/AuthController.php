@@ -35,7 +35,7 @@ class AuthController extends Controller
             throw new NotAcceptableHttpException('Authentication only supported using the POST method.');
         }
 
-        if ($request->headers->get('content-type') === 'application/json') {
+        if (!empty($request->getContent())) {
             $content = json_decode($request->getContent(), true);
 
             $username = $content['username'] ?? '';
@@ -43,8 +43,8 @@ class AuthController extends Controller
 
             $expiry = array_key_exists('expiry', $content) ? (int) $content['expiry'] : 0;
         } else {
-            $username = $request->get('username');
-            $password = $request->get('password');
+            $username = $request->get('username', '');
+            $password = $request->get('password', '');
 
             $expiry = (int) $request->get('expiry');
         }

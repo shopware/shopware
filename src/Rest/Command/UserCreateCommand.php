@@ -77,8 +77,10 @@ class UserCreateCommand extends Command
         $io->success(sprintf('User "%s" successfully created.', $username));
         $io->table(
             ['Key', 'Value'],
-            ['Username', $username],
-            ['Access key', $accessKey]
+            [
+                ['Username', $username],
+                ['Access key', $accessKey]
+            ]
         );
     }
 
@@ -94,8 +96,7 @@ class UserCreateCommand extends Command
 
     private function createUser(string $username, string $password): string
     {
-        $encoder = $this->encoderFactory->getEncoder(User::class);
-        $password = $encoder->encodePassword($password, $username);
+        $password = password_hash($password, PASSWORD_BCRYPT);
         $accessKey = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode(Random::getAlphanumericString(32)));
 
         $context = ApplicationContext::createDefaultContext();
@@ -110,7 +111,7 @@ class UserCreateCommand extends Command
                 'localeId' => '7b52d9dd-2b06-40ec-90be-9f57edf29be7',
                 'roleId' => '7b52d9dd-2b06-40ec-90be-9f57edf29be7',
                 'active' => true,
-                'api_key' => $accessKey
+                'apiKey' => $accessKey
             ],
         ], $context);
 

@@ -28,12 +28,7 @@
             <tag name="shopware.traceable" />
         </service>
 
-        <service class="Shopware\StorefrontApi\Context\ContextTokenResolver" id="Shopware\StorefrontApi\Context\ContextTokenResolver"/>
-
         <service class="Shopware\StorefrontApi\Controller\ProductController" id="Shopware\StorefrontApi\Controller\ProductController" public="true">
-            <call method="setContainer">
-                <argument id="service_container" type="service"/>
-            </call>
             <argument id="Shopware\StorefrontApi\Product\StorefrontProductRepository" type="service"/>
             <argument type="service" id="Shopware\Rest\Response\ResponseFactory"/>
             <argument type="service" id="Shopware\Api\Entity\Search\SearchCriteriaBuilder"/>
@@ -46,17 +41,11 @@
             <argument type="service" id="Shopware\Api\Order\Repository\OrderRepository"/>
             <argument type="service" id="serializer"/>
             <argument type="service" id="Shopware\StorefrontApi\Context\StorefrontContextPersister"/>
-            <call method="setContainer">
-                <argument id="service_container" type="service"/>
-            </call>
         </service>
 
         <service class="Shopware\StorefrontApi\Controller\CustomerController" id="Shopware\StorefrontApi\Controller\CustomerController" public="true">
             <argument id="serializer" type="service"/>
             <argument type="service" id="Shopware\StorefrontApi\Context\StorefrontContextPersister"/>
-            <call method="setContainer">
-                <argument id="service_container" type="service"/>
-            </call>
             <argument type="service" id="Shopware\StorefrontApi\Firewall\CustomerProvider"/>
         </service>
 
@@ -65,9 +54,7 @@
             <argument id="Shopware\Api\Shipping\Repository\ShippingMethodRepository" type="service"/>
             <argument id="Shopware\Api\Customer\Repository\CustomerAddressRepository" type="service"/>
             <argument id="Shopware\StorefrontApi\Context\StorefrontContextPersister" type="service"/>
-            <call method="setContainer">
-                <argument id="service_container" type="service"/>
-            </call>
+            <argument type="service" id="serializer"/>
         </service>
 
         <service class="Shopware\StorefrontApi\Firewall\CustomerProvider" id="Shopware\StorefrontApi\Firewall\CustomerProvider">
@@ -88,7 +75,6 @@
         <service class="Shopware\StorefrontApi\Firewall\ApplicationAuthenticator" id="Shopware\StorefrontApi\Firewall\ApplicationAuthenticator">
             <argument id="Doctrine\DBAL\Connection" type="service"/>
         </service>
-
 
     </services>
 </container>

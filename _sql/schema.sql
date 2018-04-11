@@ -1722,7 +1722,7 @@ CREATE TABLE `user` (
   `username` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `password` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `encoder` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'LegacyBackendMd5',
-  `api_key` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `api_key` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `session_id` varchar(128) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `last_login` datetime DEFAULT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,

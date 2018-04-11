@@ -51,7 +51,7 @@ class ApplicationContext extends Struct
     protected $applicationId;
 
     /**
-     * @var array
+     * @var array|null
      */
     protected $catalogIds;
 
@@ -70,7 +70,7 @@ class ApplicationContext extends Struct
      */
     protected $contextRules;
 
-    public function __construct(string $applicationId, array $catalogIds, array $contextRules, string $currencyId, string $languageId, ?string $fallbackLanguageId = null, string $versionId = Defaults::LIVE_VERSION, float $currencyFactor = 1.0)
+    public function __construct(string $applicationId, ?array $catalogIds, array $contextRules, string $currencyId, string $languageId, ?string $fallbackLanguageId = null, string $versionId = Defaults::LIVE_VERSION, float $currencyFactor = 1.0)
     {
         $this->applicationId = $applicationId;
         $this->catalogIds = $catalogIds;
@@ -122,7 +122,7 @@ class ApplicationContext extends Struct
         return $this->languageId;
     }
 
-    public function getCatalogIds(): array
+    public function getCatalogIds(): ?array
     {
         return $this->catalogIds;
     }

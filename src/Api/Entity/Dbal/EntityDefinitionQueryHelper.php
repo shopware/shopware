@@ -154,7 +154,7 @@ class EntityDefinitionQueryHelper
             $query->setParameter('version', Uuid::fromStringToBytes($context->getVersionId()));
         }
 
-        if ($definition::isCatalogAware()) {
+        if ($definition::isCatalogAware() && $context->getCatalogIds() !== null) {
             $catalogIds = array_map(function (string $catalogId) {
                 return Uuid::fromHexToBytes($catalogId);
             }, $context->getCatalogIds());

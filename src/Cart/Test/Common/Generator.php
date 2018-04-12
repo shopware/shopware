@@ -54,7 +54,7 @@ class Generator extends TestCase
         ?CurrencyBasicStruct $currency = null,
         $priceGroupDiscounts = null,
         ?TaxBasicCollection $taxes = null,
-        ?CountryAreaBasicStruct $area = null,
+        ?string $areaId = null,
         ?CountryBasicStruct $country = null,
         ?CountryStateBasicStruct $state = null,
         ?CustomerAddressBasicStruct $shipping = null,
@@ -93,10 +93,11 @@ class Generator extends TestCase
 
             $taxes = new TaxBasicCollection([$tax]);
         }
-
-        if (!$area) {
-            $area = new CountryAreaBasicStruct();
+        $area = new CountryAreaBasicStruct();
+        if (!$areaId) {
             $area->setId('5cff02b1029741a4891c430bcd9e3603');
+        } else {
+            $area->setId($areaId);
         }
 
         if (!$country) {

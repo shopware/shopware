@@ -25,10 +25,9 @@ declare(strict_types=1);
 
 namespace Shopware\Context\Rule\Container;
 
-use Shopware\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Context\MatchContext\RuleMatchContext;
 use Shopware\Context\Rule\Match;
 use Shopware\Context\Rule\Rule;
-use Shopware\Context\Struct\StorefrontContext;
 
 /**
  * NotRule inverses the return value of the child rule. Only one child is possible
@@ -48,14 +47,13 @@ class NotRule extends Container
     }
 
     public function match(
-        CalculatedCart $calculatedCart,
-        StorefrontContext $context
+        RuleMatchContext $matchContext
     ): Match {
         $rules = $this->rules;
 
         $rule = array_shift($rules);
 
-        $match = $rule->match($calculatedCart, $context);
+        $match = $rule->match($matchContext);
 
         return new Match(
             !$match->matches(),

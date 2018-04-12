@@ -5,6 +5,7 @@ namespace Shopware\Api\Context\Collection;
 use Shopware\Api\Context\Struct\ContextRuleBasicStruct;
 use Shopware\Api\Entity\EntityCollection;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Context\MatchContext\CartRuleMatchContext;
 use Shopware\Context\Struct\StorefrontContext;
 
 class ContextRuleBasicCollection extends EntityCollection
@@ -28,7 +29,7 @@ class ContextRuleBasicCollection extends EntityCollection
     {
         return $this->filter(
             function (ContextRuleBasicStruct $rule) use ($cart, $context) {
-                return $rule->getPayload()->match($cart, $context)->matches();
+                return $rule->getPayload()->match(new CartRuleMatchContext($cart, $context))->matches();
             }
         );
     }

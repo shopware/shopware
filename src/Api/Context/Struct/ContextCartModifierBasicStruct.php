@@ -13,7 +13,7 @@ class ContextCartModifierBasicStruct extends Entity
     protected $name;
 
     /**
-     * @var Rule|null
+     * @var Rule
      */
     protected $rule;
 
@@ -82,12 +82,12 @@ class ContextCartModifierBasicStruct extends Entity
         $this->absolute = $amount;
     }
 
-    public function getRule(): ?Rule
+    public function getRule(): Rule
     {
         return $this->rule;
     }
 
-    public function setRule(?Rule $rule): void
+    public function setRule(Rule $rule): void
     {
         $this->rule = $rule;
     }

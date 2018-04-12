@@ -1,8 +1,6 @@
-<?php
-
+<?php declare(strict_types=1);
 
 namespace Shopware\CartBridge\Exception;
-
 
 class UnsupportedModifierType extends \Exception
 {

@@ -3,11 +3,12 @@
 namespace Shopware\Api\Context\Definition;
 
 use Shopware\Api\Context\Collection\ContextCartModifierBasicCollection;
-use Shopware\Api\Context\Event\ContextRule\ContextCartModifierDeletedEvent;
-use Shopware\Api\Context\Event\ContextRule\ContextCartModifierWrittenEvent;
+use Shopware\Api\Context\Collection\ContextCartModifierDetailCollection;
+use Shopware\Api\Context\Event\ContextCartModifier\ContextCartModifierDeletedEvent;
+use Shopware\Api\Context\Event\ContextCartModifier\ContextCartModifierWrittenEvent;
 use Shopware\Api\Context\Repository\ContextCartModifierRepository;
 use Shopware\Api\Context\Struct\ContextCartModifierBasicStruct;
-use Shopware\Api\Customer\Definition\CustomerGroupDefinition;
+use Shopware\Api\Context\Struct\ContextCartModifierDetailStruct;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\Field\DateField;
@@ -15,6 +16,7 @@ use Shopware\Api\Entity\Field\FkField;
 use Shopware\Api\Entity\Field\FloatField;
 use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\JsonObjectField;
+use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\Field\TranslationsAssociationField;
@@ -54,15 +56,16 @@ class ContextCartModifierDefinition extends EntityDefinition
 
         self::$fields = new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            (new TranslatedField(new StringField('name', 'name'))),
-            (new FkField('context_rule_id', 'contextRuleId', CustomerGroupDefinition::class))->setFlags(new Required()),
-//            (new ReferenceField(ContextRuleDefinition::class))->setFlags(new Required()),
+            (new TranslatedField(new StringField('name', 'name')))->setFlags(new Required()),
+            (new FkField('context_rule_id', 'contextRuleId', ContextRuleDefinition::class))->setFlags(new Required()),
             (new JsonObjectField('rule', 'rule'))->setFlags(new Serialized(), new Required()),
             (new StringField('type', 'type'))->setFlags(new Required()),
             (new FloatField('amount', 'amount'))->setFlags(new Required()),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
+
             (new TranslationsAssociationField('translations', ContextCartModifierTranslationDefinition::class, 'context_cart_modifier_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
+            new ManyToOneAssociationField('contextRule', 'context_rule_id', ContextRuleDefinition::class, true),
         ]);
 
         foreach (self::$extensions as $extension) {
@@ -100,5 +103,15 @@ class ContextCartModifierDefinition extends EntityDefinition
     public static function getTranslationDefinitionClass(): ?string
     {
         return ContextCartModifierTranslationDefinition::class;
+    }
+
+    public static function getDetailStructClass(): string
+    {
+        return ContextCartModifierDetailStruct::class;
+    }
+
+    public static function getDetailCollectionClass(): string
+    {
+        return ContextCartModifierDetailCollection::class;
     }
 }

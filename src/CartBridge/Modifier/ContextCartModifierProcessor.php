@@ -14,17 +14,17 @@ use Shopware\Cart\Price\PercentagePriceCalculator;
 use Shopware\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Cart\Price\Struct\CalculatedPriceCollection;
 use Shopware\CartBridge\Exception\UnsupportedModifierType;
-use Shopware\Context\Exception\UnsupportedOperatorException;
+use Shopware\Context\MatchContext\CalculatedLineItemMatchContext;
 use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class ContextCartModifierProcessor implements CartProcessorInterface
 {
-    const TYPE = 'context_cart_modifier';
+    public const TYPE = 'context_cart_modifier';
 
-    const ABSOLUTE_MODIFIER = 'absolute';
+    public const ABSOLUTE_MODIFIER = 'absolute';
 
-    const PERCENTAL_MODIFIER = 'percental';
+    public const PERCENTAL_MODIFIER = 'percental';
 
     /**
      * @var ContextCartModifierRepository
@@ -61,7 +61,7 @@ class ContextCartModifierProcessor implements CartProcessorInterface
         StorefrontContext $context
     ): void {
         /** @var ContextCartModifierSearchResult $contextCartModifiers */
-        $contextCartModifiers = $dataCollection->get(ContextCartModifierCollector::CONTEXT_CART_MODIFIER);
+        $contextCartModifiers = $dataCollection->get(self::TYPE);
 
         if (!$contextCartModifiers) {
             return;
@@ -69,7 +69,7 @@ class ContextCartModifierProcessor implements CartProcessorInterface
 
         /** @var ContextCartModifierBasicStruct $modifier */
         foreach ($contextCartModifiers->getElements() as $modifier) {
-            if (!in_array($modifier->getContextRuleId(), $context->getContextRulesIds())) {
+            if (!in_array($modifier->getContextRuleId(), $context->getContextRulesIds(), true)) {
                 continue;
             }
 
@@ -95,28 +95,30 @@ class ContextCartModifierProcessor implements CartProcessorInterface
         ContextCartModifierBasicStruct $modifier,
         CalculatedCart $calculatedCart,
         StorefrontContext $context
-    ): ?CalculatedPrice {
-//        $prices = new CalculatedPriceCollection();
-//        if ($modifier->getRule()->)
-        // TODO use to restrict the discount
-//        if($modifier->getRule()) {
-//            if(!$modifier->getRule()->match($calculatedCart, $context))
-//                continue;
-//        }
+    ): CalculatedPrice {
+        $prices = new CalculatedPriceCollection();
+        foreach ($calculatedCart->getCalculatedLineItems() as $calculatedLineItem) {
+            $match = $modifier->getRule()->match(
+                new CalculatedLineItemMatchContext($calculatedLineItem, $context)
+            );
 
-        $goods = $calculatedCart->getCalculatedLineItems()->filterGoods();
+            if ($match->matches()) {
+                continue;
+            }
+            $prices->add($calculatedLineItem->getPrice());
+        }
 
         switch ($modifier->getType()) {
             case self::ABSOLUTE_MODIFIER:
                 return $this->absolutePriceCalculator->calculate(
                     $modifier->getAmount(),
-                    $goods->getPrices(),
+                    $prices,
                     $context
                 );
             case self::PERCENTAL_MODIFIER:
                 return $this->percentagePriceCalculator->calculate(
                     $modifier->getAmount(),
-                    $goods->getPrices(),
+                    $prices,
                     $context
                 );
             default:

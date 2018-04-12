@@ -3,7 +3,7 @@
 namespace Shopware\Api\Context\Event\ContextCartModifierTranslation;
 
 use Shopware\Api\Context\Collection\ContextCartModifierTranslationDetailCollection;
-use Shopware\Api\Context\Event\ContextRule\ContextCartModifierBasicLoadedEvent;
+use Shopware\Api\Context\Event\ContextCartModifier\ContextCartModifierBasicLoadedEvent;
 use Shopware\Api\Shop\Event\Shop\ShopBasicLoadedEvent;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Event\NestedEvent;

@@ -36,6 +36,7 @@ use Shopware\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Cart\Delivery\Struct\DeliveryPosition;
 use Shopware\Cart\Delivery\Struct\DeliveryPositionCollection;
 use Shopware\Cart\Delivery\Struct\ShippingLocation;
+use Shopware\Cart\LineItem\CalculatedLineItem;
 use Shopware\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Cart\LineItem\LineItem;
 use Shopware\Cart\Price\GrossPriceCalculator;
@@ -52,7 +53,6 @@ use Shopware\Cart\Tax\TaxRuleCalculator;
 use Shopware\Cart\Test\Common\Generator;
 use Shopware\CartBridge\Product\ProductProcessor;
 use Shopware\CartBridge\Product\Struct\CalculatedProduct;
-use Shopware\CartBridge\Voucher\Struct\CalculatedVoucher;
 use Shopware\Context\Rule\Container\AndRule;
 
 class StockDeliverySeparatorTest extends TestCase
@@ -250,18 +250,19 @@ class StockDeliverySeparatorTest extends TestCase
             self::createProduct()
         );
 
-        $voucher = new CalculatedVoucher(
-            'Code1',
-            new LineItem('B', 'discount', 1),
-            new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
-            'voucher',
-            new AndRule()
+        $calculatedLineItem = new CalculatedLineItem(
+            'SW123456',
+            new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            1,
+            'no_deliverable_item',
+            'Test',
+            new LineItem('SW123456', 'lineItem', 1)
         );
 
         $deliveries = new DeliveryCollection();
         $this->separator->addItemsToDeliveries(
             $deliveries,
-            new CalculatedLineItemCollection([$product, $voucher]),
+            new CalculatedLineItemCollection([$product, $calculatedLineItem]),
             $context
         );
 

@@ -11,20 +11,10 @@
             <argument id="Shopware\Cart\Price\PriceCalculator" type="service"/>
         </service>
 
-        <service id="Shopware\CartBridge\Voucher\VoucherCalculator" class="Shopware\CartBridge\Voucher\VoucherCalculator" >
-            <argument id="Shopware\Cart\Price\PercentagePriceCalculator" type="service"/>
-            <argument id="Shopware\Cart\Price\AbsolutePriceCalculator" type="service"/>
-        </service>
-
         <!--cart processors-->
         <service class="Shopware\CartBridge\Product\ProductProcessor" id="Shopware\CartBridge\Product\ProductProcessor">
             <argument type="service" id="Shopware\CartBridge\Product\ProductCalculator" />
             <tag name="cart.processor" priority="1000" />
-        </service>
-
-        <service id="Shopware\CartBridge\Voucher\VoucherProcessor" class="Shopware\CartBridge\Voucher\VoucherProcessor" >
-            <argument id="Shopware\CartBridge\Voucher\VoucherCalculator" type="service"/>
-            <tag name="cart.processor" priority="900"/>
         </service>
 
         <service class="Shopware\CartBridge\CustomerGroup\CustomerGroupDiscountProcessor" id="Shopware\CartBridge\CustomerGroup\CustomerGroupDiscountProcessor">
@@ -57,11 +47,6 @@
             <argument type="service" id="Shopware\Api\Product\Repository\ProductServiceRepository"/>
         </service>
 
-        <service id="Shopware\CartBridge\Voucher\VoucherCartCollector" class="Shopware\CartBridge\Voucher\VoucherCartCollector" >
-            <argument id="Shopware\CartBridge\Voucher\VoucherGateway" type="service"/>
-            <tag name="cart.collector"/>
-        </service>
-
         <service class="Shopware\CartBridge\Modifier\ContextCartModifierCollector" id="Shopware\CartBridge\Modifier\ContextCartModifierCollector">
             <argument id="Shopware\Api\Context\Repository\ContextCartModifierRepository" type="service"/>
             <tag name="cart.collector"/>
@@ -87,11 +72,6 @@
         <service class="Shopware\CartBridge\Cart\CartPersister" id="Shopware\CartBridge\Cart\CartPersister">
             <argument type="service" id="Doctrine\DBAL\Connection" />
             <argument type="service" id="serializer" />
-        </service>
-
-        <service id="Shopware\CartBridge\Voucher\VoucherGateway" class="Shopware\CartBridge\Voucher\VoucherGateway" >
-            <argument type="service" id="Doctrine\DBAL\Connection" />
-            <argument type="service" id="Shopware\Cart\Tax\PercentageTaxRuleBuilder" />
         </service>
 
         <service class="Shopware\CartBridge\CustomerGroup\CustomerGroupDiscountCartCollector" id="Shopware\CartBridge\CustomerGroup\CustomerGroupDiscountCartCollector">

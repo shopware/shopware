@@ -25,9 +25,8 @@ declare(strict_types=1);
 
 namespace Shopware\Context\Rule\Container;
 
-use Shopware\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Context\MatchContext\RuleMatchContext;
 use Shopware\Context\Rule\Match;
-use Shopware\Context\Struct\StorefrontContext;
 
 /**
  * AndRule returns true, if all child-rules are true
@@ -35,15 +34,14 @@ use Shopware\Context\Struct\StorefrontContext;
 class AndRule extends Container
 {
     public function match(
-        CalculatedCart $calculatedCart,
-        StorefrontContext $context
+        RuleMatchContext $matchContext
     ): Match {
         $valid = true;
 
         $messages = [];
 
         foreach ($this->rules as $rule) {
-            $reason = $rule->match($calculatedCart, $context);
+            $reason = $rule->match($matchContext);
 
             if (!$reason->matches()) {
                 $valid = false;

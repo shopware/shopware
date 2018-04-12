@@ -3,11 +3,12 @@
 namespace Shopware\Api\Context\Repository;
 
 use Shopware\Api\Context\Collection\ContextCartModifierBasicCollection;
+use Shopware\Api\Context\Collection\ContextCartModifierDetailCollection;
 use Shopware\Api\Context\Definition\ContextCartModifierDefinition;
-use Shopware\Api\Context\Event\ContextRule\ContextCartModifierAggregationResultLoadedEvent;
-use Shopware\Api\Context\Event\ContextRule\ContextCartModifierBasicLoadedEvent;
-use Shopware\Api\Context\Event\ContextRule\ContextCartModifierIdSearchResultLoadedEvent;
-use Shopware\Api\Context\Event\ContextRule\ContextCartModifierSearchResultLoadedEvent;
+use Shopware\Api\Context\Event\ContextCartModifier\ContextCartModifierAggregationResultLoadedEvent;
+use Shopware\Api\Context\Event\ContextCartModifier\ContextCartModifierBasicLoadedEvent;
+use Shopware\Api\Context\Event\ContextCartModifier\ContextCartModifierIdSearchResultLoadedEvent;
+use Shopware\Api\Context\Event\ContextCartModifier\ContextCartModifierSearchResultLoadedEvent;
 use Shopware\Api\Context\Struct\ContextCartModifierSearchResult;
 use Shopware\Api\Entity\Read\EntityReaderInterface;
 use Shopware\Api\Entity\RepositoryInterface;
@@ -113,12 +114,12 @@ class ContextCartModifierRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $ids, ShopContext $context): ContextRuleDetailCollection
+    public function readDetail(array $ids, ShopContext $context): ContextCartModifierDetailCollection
     {
-        /** @var ContextRuleDetailCollection $entities */
+        /** @var ContextCartModifierDetailCollection $entities */
         $entities = $this->reader->readDetail(ContextCartModifierDefinition::class, $ids, $context);
 
-        $event = new ContextRuleDetailLoadedEvent($entities, $context);
+        $event = new ContextCartModifierDetailLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $entities;

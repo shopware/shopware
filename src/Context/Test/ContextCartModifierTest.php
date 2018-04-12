@@ -11,9 +11,14 @@ use Shopware\Cart\LineItem\LineItemCollection;
 use Shopware\Cart\Test\Common\Generator;
 use Shopware\CartBridge\Modifier\ContextCartModifierProcessor;
 use Shopware\CartBridge\Product\ProductProcessor;
+use Shopware\Context\Rule\CalculatedCart\GoodsPriceRule;
+use Shopware\Context\Rule\CalculatedCart\OrderAmountRule;
+use Shopware\Context\Rule\CalculatedLineItem\IdRule;
+use Shopware\Context\Rule\CalculatedLineItem\ItemTypeRule;
+use Shopware\Context\Rule\CalculatedLineItem\ManufacturerRule;
+use Shopware\Context\Rule\CalculatedLineItem\QuantityRule;
+use Shopware\Context\Rule\CalculatedLineItem\TotalPriceRule;
 use Shopware\Context\Rule\Container\AndRule;
-use Shopware\Context\Rule\GoodsPriceRule;
-use Shopware\Context\Rule\OrderAmountRule;
 use Shopware\Context\Rule\Rule;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Context\Struct\StorefrontContext;
@@ -22,11 +27,6 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class ContextCartModifierTest extends KernelTestCase
 {
-
-    const TYPE_ABSOLUTE = 'absolute';
-
-    const TYPE_PERCENTAL = 'percental';
-
     /**
      * @var ContextCartModifierRepository
      */
@@ -52,10 +52,8 @@ class ContextCartModifierTest extends KernelTestCase
      */
     public static $calculation;
 
-    public static function setUpBeforeClass()
+    public function setUp()
     {
-        parent::setUpBeforeClass();
-
         self::bootKernel();
         self::$contextCartModifierRepository = self::$kernel->getContainer()->get(ContextCartModifierRepository::class);
         self::$contextRuleRepository = self::$kernel->getContainer()->get(ContextRuleRepository::class);
@@ -79,7 +77,7 @@ class ContextCartModifierTest extends KernelTestCase
             'Test modifier (absolute)',
             $contextRuleId,
             null,
-            self::TYPE_ABSOLUTE,
+            ContextCartModifierProcessor::ABSOLUTE_MODIFIER,
             2
         );
 
@@ -99,10 +97,11 @@ class ContextCartModifierTest extends KernelTestCase
         ]);
 
         $cart = new Cart('test', 'test', $lineItems, new ErrorCollection());
-
         $context = $this->createContext($contextRuleId);
-
         $calculatedCart = self::$calculation->calculate($cart, $context);
+
+        $this->removeContextCartModifier($modifierId);
+
         $lineItem = $calculatedCart->getCalculatedLineItems()->get($modifierId);
 
         $this->assertEquals(52, $calculatedCart->getPrice()->getTotalPrice());
@@ -116,19 +115,27 @@ class ContextCartModifierTest extends KernelTestCase
     {
         $productA = $this->createProduct('Product A', 10, 11.9, 19);
         $productB = $this->createProduct('Product B', 20, 23.8, 19);
+        $manufacturerA = $this->getManufacturersOfProduct($productA);
 
         $rules = [
-            new GoodsPriceRule(55, OrderAmountRule::OPERATOR_LTE),
+            new GoodsPriceRule(45, OrderAmountRule::OPERATOR_LTE),
             new GoodsPriceRule(25, OrderAmountRule::OPERATOR_GTE),
         ];
         $contextRuleId = $this->createContextRule($rules, 'Test rule');
 
+        $rules = [
+            new QuantityRule(3, Rule::OPERATOR_EQ),
+            new ItemTypeRule(ProductProcessor::TYPE_PRODUCT),
+            new TotalPriceRule(30, Rule::OPERATOR_EQ),
+            new IdRule($productA),
+            new ManufacturerRule($manufacturerA),
+        ];
         $modifierId = $this->createContextCartModifier(
-            'Test modifier (absolute)',
+            'Test modifier (percental)',
             $contextRuleId,
-            null,
-            self::TYPE_PERCENTAL,
-            20
+            new AndRule($rules),
+            ContextCartModifierProcessor::PERCENTAL_MODIFIER,
+            -20
         );
 
         $lineItems = new LineItemCollection([
@@ -149,13 +156,14 @@ class ContextCartModifierTest extends KernelTestCase
         $cart = new Cart('test', 'test', $lineItems, new ErrorCollection());
 
         $context = $this->createContext($contextRuleId);
-
         $calculatedCart = self::$calculation->calculate($cart, $context);
+        $this->removeContextCartModifier($modifierId);
+
         $lineItem = $calculatedCart->getCalculatedLineItems()->get($modifierId);
 
-        $this->assertEquals(60, $calculatedCart->getPrice()->getTotalPrice());
+        $this->assertEquals(46, $calculatedCart->getPrice()->getTotalPrice());
         $this->assertInstanceOf(CalculatedLineItem::class, $lineItem);
-        $this->assertEquals(10, $lineItem->getPrice()->getTotalPrice());
+        $this->assertEquals(-4, $lineItem->getPrice()->getTotalPrice());
         $this->assertEquals(1, $lineItem->getQuantity());
         $this->assertEquals(ContextCartModifierProcessor::TYPE, $lineItem->getType());
     }
@@ -197,6 +205,11 @@ class ContextCartModifierTest extends KernelTestCase
         return $id;
     }
 
+    private function removeContextCartModifier(string $id)
+    {
+        self::$contextCartModifierRepository->delete([['id' => $id]], self::$context);
+    }
+
     private function createProduct(
         string $name,
         float $grossPrice,
@@ -215,6 +228,13 @@ class ContextCartModifierTest extends KernelTestCase
         self::$productRepository->upsert([$data], self::$context);
 
         return $id;
+    }
+
+    private function getManufacturersOfProduct(string $productId): string
+    {
+        $product = self::$productRepository->readBasic([$productId], self::$context)->get($productId);
+
+        return $product->getManufacturer()->getId();
     }
 
     private function createContext(string $contextRuleId): StorefrontContext

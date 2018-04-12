@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api\Context\Event\ContextRule;
+namespace Shopware\Api\Context\Event\ContextCartModifier;
 
 use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Context\Struct\ShopContext;

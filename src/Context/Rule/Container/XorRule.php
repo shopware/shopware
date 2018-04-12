@@ -25,9 +25,8 @@ declare(strict_types=1);
 
 namespace Shopware\Context\Rule\Container;
 
-use Shopware\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Context\MatchContext\RuleMatchContext;
 use Shopware\Context\Rule\Match;
-use Shopware\Context\Struct\StorefrontContext;
 
 /**
  * XorRule returns true, if exactly one child rule is true
@@ -35,14 +34,13 @@ use Shopware\Context\Struct\StorefrontContext;
 class XorRule extends Container
 {
     public function match(
-        CalculatedCart $calculatedCart,
-        StorefrontContext $context
+        RuleMatchContext $matchContext
     ): Match {
         $matches = 0;
         $messages = [];
 
         foreach ($this->rules as $rule) {
-            $match = $rule->match($calculatedCart, $context);
+            $match = $rule->match($matchContext);
             if (!$match->matches()) {
                 continue;
             }

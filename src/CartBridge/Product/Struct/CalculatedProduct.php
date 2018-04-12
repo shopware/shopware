@@ -27,6 +27,7 @@ namespace Shopware\CartBridge\Product\Struct;
 
 use Shopware\Api\Media\Struct\MediaBasicStruct;
 use Shopware\Api\Product\Struct\ProductBasicStruct;
+use Shopware\Api\Product\Struct\ProductManufacturerBasicStruct;
 use Shopware\Cart\Delivery\Struct\Delivery;
 use Shopware\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Cart\LineItem\CalculatedLineItemCollection;
@@ -148,6 +149,11 @@ class CalculatedProduct extends Struct implements DeliverableLineItemInterface, 
     public function considerChildrenPrices(): bool
     {
         return true;
+    }
+
+    public function getProduct(): ProductBasicStruct
+    {
+        return $this->product;
     }
 
     public function getStock(): int

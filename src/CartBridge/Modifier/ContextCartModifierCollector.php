@@ -13,8 +13,6 @@ use Shopware\Framework\Struct\StructCollection;
 
 class ContextCartModifierCollector implements CartCollectorInterface
 {
-    const CONTEXT_CART_MODIFIER = 'context_cart_modifier';
-
     /**
      * @var ContextCartModifierRepository
      */
@@ -60,6 +58,6 @@ class ContextCartModifierCollector implements CartCollectorInterface
         $criteria->addFilter(new TermsQuery('context_cart_modifier.contextRuleId', $ids));
         $contextCartModifiers = $this->repository->search($criteria, $context->getShopContext());
 
-        $dataCollection->add($contextCartModifiers, self::CONTEXT_CART_MODIFIER);
+        $dataCollection->add($contextCartModifiers, ContextCartModifierProcessor::TYPE);
     }
 }

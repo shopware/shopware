@@ -22,6 +22,20 @@ class ContextCartModifierBasicCollection extends EntityCollection
         return parent::current();
     }
 
+    public function getContextRuleIds(): array
+    {
+        return $this->fmap(function (ContextCartModifierBasicStruct $contextCartModifier) {
+            return $contextCartModifier->getContextRuleId();
+        });
+    }
+
+    public function filterByContextRuleId(string $id): self
+    {
+        return $this->filter(function (ContextCartModifierBasicStruct $contextCartModifier) use ($id) {
+            return $contextCartModifier->getContextRuleId() === $id;
+        });
+    }
+
     protected function getExpectedClass(): string
     {
         return ContextCartModifierBasicStruct::class;

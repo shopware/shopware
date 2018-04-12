@@ -46,6 +46,9 @@ class OrderAmountRule extends \Shopware\Context\Rule\Rule
         $this->operator = $operator;
     }
 
+    /**
+     * @throws UnsupportedOperatorException
+     */
     public function match(
         CalculatedCart $calculatedCart,
         StorefrontContext $context
@@ -55,14 +58,14 @@ class OrderAmountRule extends \Shopware\Context\Rule\Rule
 
                 return new Match(
                     $calculatedCart->getPrice()->getTotalPrice() >= $this->amount,
-                    ['Total price to low']
+                    ['Total price too low']
                 );
 
             case self::OPERATOR_LTE:
 
                 return new Match(
                     $calculatedCart->getPrice()->getTotalPrice() <= $this->amount,
-                    ['Total price to high']
+                    ['Total price too high']
                 );
 
             default:

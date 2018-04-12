@@ -22,39 +22,28 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Context\Exception;
+namespace Shopware\Context\Rule\LineItem;
 
-class UnsupportedOperatorException extends \Exception
+use Shopware\Cart\LineItem\CalculatedLineItem;
+use Shopware\Context\Rule\Match;
+use Shopware\Context\Struct\StorefrontContext;
+use Shopware\Framework\Struct\Struct;
+
+abstract class LineItemRule extends Struct
 {
-    public const CODE = 200002;
+    public const OPERATOR_GTE = '=>';
+
+    public const OPERATOR_LTE = '<=';
+
+    public const OPERATOR_EQ = '=';
+
+    public const OPERATOR_NEQ = '!=';
 
     /**
-     * @var string
+     * Validate the current rule and returns a reason object which contains defines if the rule match and if not why not
      */
-    protected $operator;
-
-    /**
-     * @var string
-     */
-    protected $class;
-
-    public function __construct(string $operator, string $class)
-    {
-        $this->operator = $operator;
-        $this->class = $class;
-        parent::__construct(
-            sprintf('Unsupported operator %s in %s', $this->operator, $this->class),
-            self::CODE
-        );
-    }
-
-    public function getOperator(): string
-    {
-        return $this->operator;
-    }
-
-    public function getClass(): string
-    {
-        return $this->class;
-    }
+    abstract public function match(
+        CalculatedLineItem $calculatedLineItem,
+        StorefrontContext $context
+    ): Match;
 }

@@ -71,7 +71,7 @@ class Generator extends TestCase
 
         $currency = $currency ?: (new CurrencyBasicStruct())->assign([
             'id' => '4c8eba11bd3546d786afbed481a6e665',
-            'factor' => 1
+            'factor' => 1,
         ]);
 
         if (!$currentCustomerGroup) {
@@ -128,7 +128,6 @@ class Generator extends TestCase
         $customer = new CustomerBasicStruct();
         $customer->setId(Uuid::uuid4()->getHex());
         $customer->setGroup($currentCustomerGroup);
-
 
         return new StorefrontContext(
             Uuid::uuid4()->toString(),

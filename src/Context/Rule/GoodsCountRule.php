@@ -58,14 +58,14 @@ class GoodsCountRule extends Rule
 
                 return new Match(
                     $goods->count() >= $this->count,
-                    ['GoodsInterface count to much']
+                    ['GoodsInterface count too much']
                 );
 
             case self::OPERATOR_LTE:
 
                 return new Match(
                     $goods->count() <= $this->count,
-                    ['Good count to less']
+                    ['Good count too less']
                 );
 
             default:

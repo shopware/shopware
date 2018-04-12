@@ -2,13 +2,15 @@
 
 namespace Shopware\Api\Context\Repository;
 
-use Shopware\Api\Context\Collection\ContextCartModifierBasicCollection;
-use Shopware\Api\Context\Definition\ContextCartModifierDefinition;
-use Shopware\Api\Context\Event\ContextRule\ContextCartModifierAggregationResultLoadedEvent;
-use Shopware\Api\Context\Event\ContextRule\ContextCartModifierBasicLoadedEvent;
-use Shopware\Api\Context\Event\ContextRule\ContextCartModifierIdSearchResultLoadedEvent;
-use Shopware\Api\Context\Event\ContextRule\ContextCartModifierSearchResultLoadedEvent;
-use Shopware\Api\Context\Struct\ContextCartModifierSearchResult;
+use Shopware\Api\Context\Collection\ContextCartModifierTranslationBasicCollection;
+use Shopware\Api\Context\Collection\ContextCartModifierTranslationDetailCollection;
+use Shopware\Api\Context\Definition\ContextCartModifierTranslationDefinition;
+use Shopware\Api\Context\Event\ContextCartModifierTranslation\ContextCartModifierTranslationAggregationResultLoadedEvent;
+use Shopware\Api\Context\Event\ContextCartModifierTranslation\ContextCartModifierTranslationBasicLoadedEvent;
+use Shopware\Api\Context\Event\ContextCartModifierTranslation\ContextCartModifierTranslationDetailLoadedEvent;
+use Shopware\Api\Context\Event\ContextCartModifierTranslation\ContextCartModifierTranslationIdSearchResultLoadedEvent;
+use Shopware\Api\Context\Event\ContextCartModifierTranslation\ContextCartModifierTranslationSearchResultLoadedEvent;
+use Shopware\Api\Context\Struct\ContextCartModifierTranslationSearchResult;
 use Shopware\Api\Entity\Read\EntityReaderInterface;
 use Shopware\Api\Entity\RepositoryInterface;
 use Shopware\Api\Entity\Search\AggregatorResult;
@@ -22,7 +24,7 @@ use Shopware\Context\Struct\ShopContext;
 use Shopware\Version\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class ContextCartModifierRepository implements RepositoryInterface
+class ContextCartModifierTranslationRepository implements RepositoryInterface
 {
     /**
      * @var EntityReaderInterface
@@ -63,7 +65,7 @@ class ContextCartModifierRepository implements RepositoryInterface
         $this->versionManager = $versionManager;
     }
 
-    public function search(Criteria $criteria, ShopContext $context): ContextCartModifierSearchResult
+    public function search(Criteria $criteria, ShopContext $context): ContextCartModifierTranslationSearchResult
     {
         $ids = $this->searchIds($criteria, $context);
 
@@ -74,9 +76,9 @@ class ContextCartModifierRepository implements RepositoryInterface
             $aggregations = $this->aggregate($criteria, $context);
         }
 
-        $result = ContextCartModifierSearchResult::createFromResults($ids, $entities, $aggregations);
+        $result = ContextCartModifierTranslationSearchResult::createFromResults($ids, $entities, $aggregations);
 
-        $event = new ContextCartModifierSearchResultLoadedEvent($result);
+        $event = new ContextCartModifierTranslationSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $result;
@@ -84,9 +86,9 @@ class ContextCartModifierRepository implements RepositoryInterface
 
     public function aggregate(Criteria $criteria, ShopContext $context): AggregatorResult
     {
-        $result = $this->aggregator->aggregate(ContextCartModifierDefinition::class, $criteria, $context);
+        $result = $this->aggregator->aggregate(ContextCartModifierTranslationDefinition::class, $criteria, $context);
 
-        $event = new ContextCartModifierAggregationResultLoadedEvent($result);
+        $event = new ContextCartModifierTranslationAggregationResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $result;
@@ -94,31 +96,31 @@ class ContextCartModifierRepository implements RepositoryInterface
 
     public function searchIds(Criteria $criteria, ShopContext $context): IdSearchResult
     {
-        $result = $this->searcher->search(ContextCartModifierDefinition::class, $criteria, $context);
+        $result = $this->searcher->search(ContextCartModifierTranslationDefinition::class, $criteria, $context);
 
-        $event = new ContextCartModifierIdSearchResultLoadedEvent($result);
+        $event = new ContextCartModifierTranslationIdSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $result;
     }
 
-    public function readBasic(array $ids, ShopContext $context): ContextCartModifierBasicCollection
+    public function readBasic(array $ids, ShopContext $context): ContextCartModifierTranslationBasicCollection
     {
-        /** @var ContextCartModifierBasicCollection $entities */
-        $entities = $this->reader->readBasic(ContextCartModifierDefinition::class, $ids, $context);
+        /** @var ContextCartModifierTranslationBasicCollection $entities */
+        $entities = $this->reader->readBasic(ContextCartModifierTranslationDefinition::class, $ids, $context);
 
-        $event = new ContextCartModifierBasicLoadedEvent($entities, $context);
+        $event = new ContextCartModifierTranslationBasicLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $entities;
     }
 
-    public function readDetail(array $ids, ShopContext $context): ContextRuleDetailCollection
+    public function readDetail(array $ids, ShopContext $context): ContextCartModifierTranslationDetailCollection
     {
-        /** @var ContextRuleDetailCollection $entities */
-        $entities = $this->reader->readDetail(ContextCartModifierDefinition::class, $ids, $context);
+        /** @var ContextCartModifierTranslationDetailCollection $entities */
+        $entities = $this->reader->readDetail(ContextCartModifierTranslationDefinition::class, $ids, $context);
 
-        $event = new ContextRuleDetailLoadedEvent($entities, $context);
+        $event = new ContextCartModifierTranslationDetailLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $entities;
@@ -126,7 +128,7 @@ class ContextCartModifierRepository implements RepositoryInterface
 
     public function update(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->versionManager->update(ContextCartModifierDefinition::class, $data, WriteContext::createFromShopContext($context));
+        $affected = $this->versionManager->update(ContextCartModifierTranslationDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
@@ -135,7 +137,7 @@ class ContextCartModifierRepository implements RepositoryInterface
 
     public function upsert(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->versionManager->upsert(ContextCartModifierDefinition::class, $data, WriteContext::createFromShopContext($context));
+        $affected = $this->versionManager->upsert(ContextCartModifierTranslationDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
@@ -144,7 +146,7 @@ class ContextCartModifierRepository implements RepositoryInterface
 
     public function create(array $data, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->versionManager->insert(ContextCartModifierDefinition::class, $data, WriteContext::createFromShopContext($context));
+        $affected = $this->versionManager->insert(ContextCartModifierTranslationDefinition::class, $data, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
@@ -153,7 +155,7 @@ class ContextCartModifierRepository implements RepositoryInterface
 
     public function delete(array $ids, ShopContext $context): GenericWrittenEvent
     {
-        $affected = $this->versionManager->delete(ContextCartModifierDefinition::class, $ids, WriteContext::createFromShopContext($context));
+        $affected = $this->versionManager->delete(ContextCartModifierTranslationDefinition::class, $ids, WriteContext::createFromShopContext($context));
         $event = GenericWrittenEvent::createWithDeletedEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
@@ -162,7 +164,7 @@ class ContextCartModifierRepository implements RepositoryInterface
 
     public function createVersion(string $id, ShopContext $context, ?string $name = null, ?string $versionId = null): string
     {
-        return $this->versionManager->createVersion(ContextCartModifierDefinition::class, $id, WriteContext::createFromShopContext($context), $name, $versionId);
+        return $this->versionManager->createVersion(ContextCartModifierTranslationDefinition::class, $id, WriteContext::createFromShopContext($context), $name, $versionId);
     }
 
     public function merge(string $versionId, ShopContext $context): void

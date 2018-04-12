@@ -1,11 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\CartBridge\Modifier;
 
 use Shopware\Api\Context\Repository\ContextCartModifierRepository;
 use Shopware\Api\Context\Struct\ContextCartModifierBasicStruct;
-use Shopware\Api\Entity\Search\Criteria;
-use Shopware\Api\Entity\Search\Query\TermsQuery;
+use Shopware\Api\Context\Struct\ContextCartModifierSearchResult;
 use Shopware\Cart\Cart\CartProcessorInterface;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Cart\Struct\Cart;
@@ -14,13 +13,18 @@ use Shopware\Cart\Price\AbsolutePriceCalculator;
 use Shopware\Cart\Price\PercentagePriceCalculator;
 use Shopware\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Cart\Price\Struct\CalculatedPriceCollection;
+use Shopware\CartBridge\Exception\UnsupportedModifierType;
+use Shopware\Context\Exception\UnsupportedOperatorException;
 use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class ContextCartModifierProcessor implements CartProcessorInterface
 {
-
     const TYPE = 'context_cart_modifier';
+
+    const ABSOLUTE_MODIFIER = 'absolute';
+
+    const PERCENTAL_MODIFIER = 'percental';
 
     /**
      * @var ContextCartModifierRepository
@@ -47,23 +51,26 @@ class ContextCartModifierProcessor implements CartProcessorInterface
         $this->percentagePriceCalculator = $percentagePriceCalculator;
     }
 
+    /**
+     * @throws UnsupportedModifierType
+     */
     public function process(
         Cart $cart,
         CalculatedCart $calculatedCart,
         StructCollection $dataCollection,
         StorefrontContext $context
-    ): void
-    {
-        $ids = $context->getContextRulesIds();
-        $criteria = new Criteria();
-        $criteria->addFilter(new TermsQuery('context_cart_modifier.contextRuleId', $ids));
-        $contextCartModifiers = $this->repository->search($criteria, $context->getShopContext())->getElements();
-        
+    ): void {
+        /** @var ContextCartModifierSearchResult $contextCartModifiers */
+        $contextCartModifiers = $dataCollection->get(ContextCartModifierCollector::CONTEXT_CART_MODIFIER);
+
+        if (!$contextCartModifiers) {
+            return;
+        }
+
         /** @var ContextCartModifierBasicStruct $modifier */
-        foreach ($contextCartModifiers as $modifier) {
-            if($modifier->getRule()) {
-                if(!$modifier->getRule()->match($calculatedCart, $context))
-                    continue;
+        foreach ($contextCartModifiers->getElements() as $modifier) {
+            if (!in_array($modifier->getContextRuleId(), $context->getContextRulesIds())) {
+                continue;
             }
 
             $price = $this->calculate($modifier, $calculatedCart, $context);
@@ -78,32 +85,42 @@ class ContextCartModifierProcessor implements CartProcessorInterface
 
                 $calculatedCart->getCalculatedLineItems()->add($calculatedLineItem);
             }
-
         }
     }
 
+    /**
+     * @throws UnsupportedModifierType
+     */
     private function calculate(
         ContextCartModifierBasicStruct $modifier,
         CalculatedCart $calculatedCart,
         StorefrontContext $context
     ): ?CalculatedPrice {
+//        $prices = new CalculatedPriceCollection();
+//        if ($modifier->getRule()->)
+        // TODO use to restrict the discount
+//        if($modifier->getRule()) {
+//            if(!$modifier->getRule()->match($calculatedCart, $context))
+//                continue;
+//        }
 
         $goods = $calculatedCart->getCalculatedLineItems()->filterGoods();
 
-        switch (true) {
-            case $modifier->getAbsolute() !== null:
+        switch ($modifier->getType()) {
+            case self::ABSOLUTE_MODIFIER:
                 return $this->absolutePriceCalculator->calculate(
-                    $modifier->getAbsolute(),
-                    new CalculatedPriceCollection(),
-                    $context
-                );
-            case $modifier->getPercental() !== null:
-                return $this->percentagePriceCalculator->calculate(
-                    $modifier->getPercental(),
+                    $modifier->getAmount(),
                     $goods->getPrices(),
                     $context
                 );
+            case self::PERCENTAL_MODIFIER:
+                return $this->percentagePriceCalculator->calculate(
+                    $modifier->getAmount(),
+                    $goods->getPrices(),
+                    $context
+                );
+            default:
+                throw new UnsupportedModifierType($modifier->getType(), self::class);
         }
-        return null;
     }
 }

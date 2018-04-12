@@ -122,6 +122,8 @@ class ContextRuleLoader
 
         $valid = false;
 
+        $context->setContextRulesIds($rules->getIds());
+
         //first collect additional data for cart processors outside the loop to prevent duplicate database access
         $processorData = $this->cartCollector->collect($calculated->getCart(), $context);
 

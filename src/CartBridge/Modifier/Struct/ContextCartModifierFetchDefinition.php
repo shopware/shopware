@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\CartBridge\Modifier\Struct;
 
@@ -16,7 +16,7 @@ class ContextCartModifierFetchDefinition extends Struct
      */
     public function __construct(array $ids)
     {
-    $this->ids = $ids;
+        $this->ids = $ids;
     }
 
     /**
@@ -24,7 +24,6 @@ class ContextCartModifierFetchDefinition extends Struct
      */
     public function getIds(): array
     {
-    return $this->ids;
+        return $this->ids;
     }
-
 }

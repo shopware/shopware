@@ -1978,21 +1978,33 @@ CREATE TABLE `context_rule` (
   `payload` longtext NOT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NULL DEFAULT NULL,
-  PRIMARY KEY (`id`, `tenant_id`)
+  PRIMARY KEY (`id`, `tenant_id`),
+  CHECK (JSON_VALID (`payload`))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `context_cart_modifier`;
 CREATE TABLE `context_cart_modifier` (
   `id` BINARY(16) NOT NULL,
-  `name` VARCHAR(500) NOT NULL,
   `context_rule_id` BINARY(16) NOT NULL,
-  `rule` LONGTEXT NULL DEFAULT NULL,
-  `absolute` FLOAT,
-  `percental` FLOAT,
+  `rule` LONGTEXT NOT NULL,
+  `type` VARCHAR(255),
+  `amount` FLOAT,
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
   `updated_at` DATETIME DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
    PRIMARY KEY (`id`),
+   CHECK (JSON_VALID (`rule`)),
    CONSTRAINT `fk_context_cart_modifier.context_rule_id` FOREIGN KEY (`context_rule_id`) REFERENCES `context_rule` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `context_cart_modifier_translation`;
+CREATE TABLE `context_cart_modifier_translation` (
+  `context_cart_modifier_id` BINARY(16) NOT NULL,
+  `language_id` BINARY(16) NOT NULL,
+#   `version_id` BINARY(16) NOT NULL,
+  `name` VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  PRIMARY KEY (`context_cart_modifier_id`, `language_id`),
+  CONSTRAINT `context_cart_modifier_translation_ibfk_1` FOREIGN KEY (`language_id`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `context_cart_modifier_translation_ibfk_2` FOREIGN KEY (`context_cart_modifier_id`) REFERENCES `context_cart_modifier` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `version`;

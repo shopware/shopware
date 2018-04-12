@@ -1,10 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\CartBridge\Modifier;
 
 use Shopware\Api\Context\Repository\ContextCartModifierRepository;
 use Shopware\Api\Entity\Search\Criteria;
-use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\Entity\Search\Query\TermsQuery;
 use Shopware\Cart\Cart\CartCollectorInterface;
 use Shopware\Cart\Cart\Struct\Cart;
@@ -12,9 +11,9 @@ use Shopware\CartBridge\Modifier\Struct\ContextCartModifierFetchDefinition;
 use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
-// TODO@JU REMOVE WHOLE CLASS?
 class ContextCartModifierCollector implements CartCollectorInterface
 {
+    const CONTEXT_CART_MODIFIER = 'context_cart_modifier';
 
     /**
      * @var ContextCartModifierRepository
@@ -30,14 +29,13 @@ class ContextCartModifierCollector implements CartCollectorInterface
         StructCollection $fetchDefinition,
         Cart $cart,
         StorefrontContext $context
-    ): void
-    {
+    ): void {
         $contextRuleIds = $context->getContextRulesIds();
 
         if (!$contextRuleIds) {
             return;
         }
-        
+
         $fetchDefinition->add(new ContextCartModifierFetchDefinition($contextRuleIds));
     }
 
@@ -45,8 +43,7 @@ class ContextCartModifierCollector implements CartCollectorInterface
         StructCollection $dataCollection,
         StructCollection $fetchCollection,
         StorefrontContext $context
-    ): void
-    {
+    ): void {
         $definitions = $fetchCollection->filterInstance(ContextCartModifierFetchDefinition::class);
 
         if ($definitions->count() === 0) {
@@ -61,8 +58,8 @@ class ContextCartModifierCollector implements CartCollectorInterface
 
         $criteria = new Criteria();
         $criteria->addFilter(new TermsQuery('context_cart_modifier.contextRuleId', $ids));
-        $contextCartModifiers = $this->repository->search($criteria, $context->getShopContext())->getElements();
+        $contextCartModifiers = $this->repository->search($criteria, $context->getShopContext());
 
-        $dataCollection->fill($contextCartModifiers);
+        $dataCollection->add($contextCartModifiers, self::CONTEXT_CART_MODIFIER);
     }
 }

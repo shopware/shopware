@@ -15,10 +15,11 @@ use Shopware\Api\Entity\Field\FkField;
 use Shopware\Api\Entity\Field\FloatField;
 use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\JsonObjectField;
-use Shopware\Api\Entity\Field\ReferenceField;
-use Shopware\Api\Entity\Field\ReferenceVersionField;
 use Shopware\Api\Entity\Field\StringField;
+use Shopware\Api\Entity\Field\TranslatedField;
+use Shopware\Api\Entity\Field\TranslationsAssociationField;
 use Shopware\Api\Entity\FieldCollection;
+use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Entity\Write\Flag\Serialized;
@@ -53,15 +54,15 @@ class ContextCartModifierDefinition extends EntityDefinition
 
         self::$fields = new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            // todo translated
-            (new StringField('name', 'name'))->setFlags(new Required()),
+            (new TranslatedField(new StringField('name', 'name'))),
             (new FkField('context_rule_id', 'contextRuleId', CustomerGroupDefinition::class))->setFlags(new Required()),
 //            (new ReferenceField(ContextRuleDefinition::class))->setFlags(new Required()),
-            (new JsonObjectField('rule', 'rule'))->setFlags(new Serialized()),
-            new FloatField('absolute', 'absolute'),
-            new FloatField('percental', 'percental'),
+            (new JsonObjectField('rule', 'rule'))->setFlags(new Serialized(), new Required()),
+            (new StringField('type', 'type'))->setFlags(new Required()),
+            (new FloatField('amount', 'amount'))->setFlags(new Required()),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
+            (new TranslationsAssociationField('translations', ContextCartModifierTranslationDefinition::class, 'context_cart_modifier_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
         ]);
 
         foreach (self::$extensions as $extension) {
@@ -98,6 +99,6 @@ class ContextCartModifierDefinition extends EntityDefinition
 
     public static function getTranslationDefinitionClass(): ?string
     {
-        return null;
+        return ContextCartModifierTranslationDefinition::class;
     }
 }

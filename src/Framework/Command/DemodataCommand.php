@@ -23,7 +23,7 @@ use Shopware\Context\Rule\DateRangeRule;
 use Shopware\Context\Rule\GoodsPriceRule;
 use Shopware\Context\Rule\IsNewCustomerRule;
 use Shopware\Context\Rule\ShopRule;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\Uuid;
 use Shopware\Product\Service\VariantGenerator;
@@ -131,8 +131,8 @@ class DemodataCommand extends ContainerAwareCommand
 
     private function getContext()
     {
-        return WriteContext::createFromShopContext(
-            ShopContext::createDefaultContext()
+        return WriteContext::createFromApplicationContext(
+            ApplicationContext::createDefaultContext()
         );
     }
 
@@ -164,7 +164,7 @@ class DemodataCommand extends ContainerAwareCommand
 
         $chunks = array_chunk($payload, 100);
         foreach ($chunks as $chunk) {
-            $this->categoryRepository->upsert($chunk, ShopContext::createDefaultContext());
+            $this->categoryRepository->upsert($chunk, ApplicationContext::createDefaultContext());
             $this->io->progressAdvance(count($chunk));
         }
 
@@ -310,9 +310,9 @@ class DemodataCommand extends ContainerAwareCommand
             if ($isConfigurator) {
                 $this->io->progressAdvance();
 
-                $this->productRepository->upsert([$product], ShopContext::createDefaultContext());
+                $this->productRepository->upsert([$product], ApplicationContext::createDefaultContext());
 
-                $this->variantGenerator->generate($product['id'], ShopContext::createDefaultContext());
+                $this->variantGenerator->generate($product['id'], ApplicationContext::createDefaultContext());
 
                 continue;
             }
@@ -321,13 +321,13 @@ class DemodataCommand extends ContainerAwareCommand
 
             if (count($payload) >= 20) {
                 $this->io->progressAdvance(count($payload));
-                $this->productRepository->upsert($payload, ShopContext::createDefaultContext());
+                $this->productRepository->upsert($payload, ApplicationContext::createDefaultContext());
                 $payload = [];
             }
         }
 
         if (!empty($payload)) {
-            $this->productRepository->upsert($payload, ShopContext::createDefaultContext());
+            $this->productRepository->upsert($payload, ApplicationContext::createDefaultContext());
         }
 
         $this->io->progressFinish();
@@ -361,7 +361,7 @@ class DemodataCommand extends ContainerAwareCommand
 
     private function createContextRules(): array
     {
-        $ids = $this->contextRuleRepository->searchIds(new Criteria(), ShopContext::createDefaultContext());
+        $ids = $this->contextRuleRepository->searchIds(new Criteria(), ApplicationContext::createDefaultContext());
 
         if (!empty($ids->getIds())) {
             return $ids->getIds();

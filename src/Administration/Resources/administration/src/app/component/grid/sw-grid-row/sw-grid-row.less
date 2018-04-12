@@ -2,38 +2,70 @@
 
 @sw-grid-row-color-border:     @color-shopware-blue;
 @sw-grid-row-color-background: @color-cadet-blue;
+@sw-grid-item-color-border:               @color-steam-cloud;
+@sw-grid-item-color-background:           @color-light-gray;
+@sw-grid-item-even-color-background:      @color-white;
+@sw-grid-item-active-color-border:        @color-shopware-blue;
+@sw-grid-item-active-color-background:    @color-cadet-blue;
+@sw-grid-item-active-color-text:          @color-black;
 
 .sw-grid-row {
+    display: grid;
+    grid-auto-flow: column;
+    border-bottom: 1px solid @sw-grid-item-color-border;
+    background: @sw-grid-item-color-background;
     position: relative;
-    border-top: 1px solid transparent;
 
-    .sw-grid__cell-inline-editing {
-        display: none;
-        width: 100%;
+    &:nth-child(even) {
+        background: @sw-grid-item-even-color-background;
     }
 
-    .sw-field {
-        width: 100%;
-        text-align: left;
+    &:last-child {
+        border-bottom: 0 none;
+    }
+
+    &:hover {
+        background: lighten(@sw-grid-item-active-color-background, 2%);
+    }
+
+    &.is--selected {
+        background: @sw-grid-item-active-color-background;
+        border-bottom: 1px solid @sw-grid-item-active-color-border;
+        box-shadow: 0 -1px 0 0 @sw-grid-item-active-color-border;
+    }
+
+    &:first-child.is--selected {
+        box-shadow: inset 0 1px 0 0 @sw-grid-item-active-color-border;
     }
 
     &.is--inline-editing {
-        background: @sw-grid-row-color-background !important; // Necessary to force the right color
-        border-color: @sw-grid-row-color-border;
-        border-top: 1px solid @sw-grid-row-color-border;
+        background: @sw-grid-item-active-color-background;
+        border-bottom: 1px solid @sw-grid-item-active-color-border;
+        box-shadow: 0 -1px 0 0 @sw-grid-item-active-color-border;
 
         .sw-grid__cell-content {
             display: none;
         }
 
-        .sw-grid-column {
-            justify-content: normal;
+        .sw-grid__cell-inline-editing {
+            display: grid;
+            grid-auto-flow: column;
+            align-items: center;
+            justify-items: stretch;
+            justify-content: stretch;
+            height: 100%;
+            line-height: 24px;
+            padding: 20px 20px;
+            text-align: center;
         }
 
-        .sw-grid__cell-inline-editing,
         .sw-grid-row__actions {
             display: block;
         }
+    }
+
+    .sw-grid__cell-inline-editing {
+        display: none;
     }
 
     .sw-grid-row__actions {

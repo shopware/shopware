@@ -4,13 +4,6 @@
 @sw-grid-column-color-border: @color-steam-cloud;
 
 .sw-grid-column {
-    display: grid;
-    grid-auto-flow: column;
-    align-items: center;
-    min-height: 64px;
-    line-height: 24px;
-    padding: 20px 20px;
-    text-align: left;
     cursor: default;
     position: relative;
     border-right: 1px solid @sw-grid-column-color-border;
@@ -19,32 +12,60 @@
         margin-bottom: 0;
     }
 
+    .sw-price-field {
+        label {
+            display: none;
+        }
+
+        .sw-price-field__lock {
+            margin-top: 0;
+        }
+    }
+
     .sw-context-button {
         height: 24px;
     }
 
-    &.sw-grid-column--left {
+    .sw-grid__cell-content {
+        display: grid;
+        grid-auto-flow: column;
+        align-items: center;
+        min-height: 64px;
+        line-height: 24px;
+        padding: 20px 20px;
         text-align: left;
-        justify-items: left;
-        justify-content: left;
+    }
+
+    &.sw-grid-column--left {
+        .sw-grid__cell-content {
+            text-align: left;
+            justify-items: left;
+            justify-content: left;
+        }
     }
 
     &.sw-grid-column--center {
-        text-align: center;
-        justify-items: center;
-        justify-content: center;
+        .sw-grid__cell-content {
+            text-align: center;
+            justify-items: center;
+            justify-content: center;
+        }
     }
 
     &.sw-grid-column--right {
-        text-align: right;
-        justify-items: right;
-        justify-content: right;
+        .sw-grid__cell-content {
+            text-align: right;
+            justify-items: right;
+            justify-content: right;
+        }
     }
 
     &.sw-grid-column--stretch {
-        text-align: left;
-        justify-items: stretch;
-        justify-content: stretch;
+        .sw-grid__cell-content {
+            text-align: left;
+            justify-items: stretch;
+            justify-content: stretch;
+        }
     }
 
     &.has--action {

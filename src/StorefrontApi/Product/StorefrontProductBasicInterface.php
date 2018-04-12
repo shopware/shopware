@@ -8,11 +8,10 @@ use Shopware\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Cart\Price\Struct\CalculatedPriceCollection;
 use Shopware\Cart\Price\Struct\PriceDefinition;
 use Shopware\Cart\Price\Struct\PriceDefinitionCollection;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 
 interface StorefrontProductBasicInterface
 {
-
     public function getCover(): ?ProductMediaBasicStruct;
 
     public function getMedia(): ProductMediaBasicCollection;
@@ -33,9 +32,9 @@ interface StorefrontProductBasicInterface
 
     public function setCalculatedPrice(CalculatedPrice $calculatedPrice): void;
 
-    public function getListingPriceDefinition(ShopContext $context): PriceDefinition;
+    public function getListingPriceDefinition(ApplicationContext $context): PriceDefinition;
 
-    public function getContextPriceDefinitions(ShopContext $context): PriceDefinitionCollection;
+    public function getContextPriceDefinitions(ApplicationContext $context): PriceDefinitionCollection;
 
-    public function getPriceDefinition(ShopContext $context): PriceDefinition;
+    public function getPriceDefinition(ApplicationContext $context): PriceDefinition;
 }

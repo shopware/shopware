@@ -40,6 +40,7 @@
             <argument type="service" id="Shopware\DbalIndexing\Product\ListingPriceUpdater"/>
             <argument type="service" id="Shopware\DbalIndexing\Product\VariationJsonUpdater"/>
             <argument type="service" id="Shopware\DbalIndexing\Product\DatasheetJsonUpdater"/>
+            <argument type="service" id="Shopware\DbalIndexing\Product\EventIdExtractor"/>
         </service>
 
         <service class="Shopware\DbalIndexing\Product\DatasheetJsonUpdater" id="Shopware\DbalIndexing\Product\DatasheetJsonUpdater">
@@ -79,6 +80,6 @@
             <argument id="Doctrine\DBAL\Connection" type="service"/>
         </service>
 
-
+        <service class="Shopware\DbalIndexing\Product\EventIdExtractor" id="Shopware\DbalIndexing\Product\EventIdExtractor"/>
     </services>
 </container>

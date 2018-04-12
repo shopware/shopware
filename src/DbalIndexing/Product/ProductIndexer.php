@@ -70,6 +70,11 @@ class ProductIndexer implements IndexerInterface
      */
     private $datasheetJsonUpdater;
 
+    /**
+     * @var EventIdExtractor
+     */
+    private $eventIdExtractor;
+
     public function __construct(
         ProductRepository $productRepository,
         Connection $connection,
@@ -80,8 +85,8 @@ class ProductIndexer implements IndexerInterface
         InheritanceJoinIdUpdater $inheritanceJoinIdUpdater,
         ListingPriceUpdater $listingPriceUpdater,
         VariationJsonUpdater $variationJsonUpdater,
-        DatasheetJsonUpdater $datasheetJsonUpdater
-
+        DatasheetJsonUpdater $datasheetJsonUpdater,
+        EventIdExtractor $eventIdExtractor
     ) {
         $this->productRepository = $productRepository;
         $this->connection = $connection;
@@ -93,6 +98,7 @@ class ProductIndexer implements IndexerInterface
         $this->listingPriceUpdater = $listingPriceUpdater;
         $this->variationJsonUpdater = $variationJsonUpdater;
         $this->datasheetJsonUpdater = $datasheetJsonUpdater;
+        $this->eventIdExtractor = $eventIdExtractor;
     }
 
     public function index(\DateTime $timestamp): void
@@ -136,7 +142,7 @@ class ProductIndexer implements IndexerInterface
         $this->inheritanceJoinIdUpdater->updateByEvent($event);
 
         $this->connection->transactional(function () use ($event) {
-            $ids = $this->getRefreshedProductIds($event);
+            $ids = $this->eventIdExtractor->getProductIds($event);
 
             $this->categoryAssignmentUpdater->update($ids, $event->getContext());
 

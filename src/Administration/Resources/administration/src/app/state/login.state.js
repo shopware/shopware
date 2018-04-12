@@ -5,7 +5,6 @@ import { State } from 'src/core/shopware';
  */
 State.register('login', {
     namespaced: true,
-    strict: true,
 
     state() {
         return {

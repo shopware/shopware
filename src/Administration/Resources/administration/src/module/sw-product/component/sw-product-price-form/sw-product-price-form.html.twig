@@ -28,7 +28,7 @@
         </sw-container>
 
         {% block sw_product_price_form_price_field %}
-            <sw-price-field :price="product.price" :taxRate="productTaxRate"></sw-price-field>
+            <sw-price-field :price="product.price" :taxRate="productTaxRate" :currency="defaultCurrency"></sw-price-field>
         {% endblock %}
 
         <sw-container grid="1fr 1fr 1fr 1fr" gap="30px">

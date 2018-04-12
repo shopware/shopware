@@ -20,7 +20,7 @@
         {% block sw_product_detail_base_price_card %}
             <sw-card title="Preise" :isLoading="isLoading">
                 {% block sw_product_detail_base_price_form %}
-                    <sw-product-price-form :product="product" :taxRates="taxes"></sw-product-price-form>
+                    <sw-product-price-form :product="product" :taxRates="taxes" :currencies="currencies"></sw-product-price-form>
                 {% endblock %}
             </sw-card>
         {% endblock %}

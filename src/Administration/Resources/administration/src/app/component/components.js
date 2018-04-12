@@ -6,8 +6,6 @@ import './base/sw-avatar';
 import './base/sw-container';
 import './base/sw-sidebar';
 import './base/sw-sidebar-item';
-import './base/sw-context-button';
-import './base/sw-context-menu-item';
 import './base/sw-tabs';
 import './base/sw-tabs-item';
 
@@ -20,6 +18,10 @@ import './form/sw-field';
 import './form/sw-price-field';
 import './form/sw-form-grid';
 import './form/sw-multi-select';
+
+import './context-menu/sw-context-button';
+import './context-menu/sw-context-menu';
+import './context-menu/sw-context-menu-item';
 
 import './utils/sw-loader';
 import './utils/sw-notifications';

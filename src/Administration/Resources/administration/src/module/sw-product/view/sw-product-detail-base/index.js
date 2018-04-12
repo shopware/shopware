@@ -20,6 +20,11 @@ Component.register('sw-product-detail-base', {
             required: true,
             default: []
         },
+        currencies: {
+            type: Array,
+            required: true,
+            default: []
+        },
         isLoading: {
             type: Boolean,
             required: true,

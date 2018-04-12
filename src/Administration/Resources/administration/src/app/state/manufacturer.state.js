@@ -6,7 +6,6 @@ import { deepCopyObject } from 'src/core/service/utils/object.utils';
  */
 State.register('manufacturer', {
     namespaced: true,
-    strict: true,
 
     state() {
         return {
@@ -53,7 +52,6 @@ State.register('manufacturer', {
             const originalManufacturer = deepCopyObject(manufacturer);
             const draftManufacturer = deepCopyObject(manufacturer);
 
-            manufacturer.isLoaded = true;
             state.original[manufacturer.id] = Object.assign(state.original[manufacturer.id] || {}, originalManufacturer);
             state.draft[manufacturer.id] = Object.assign(state.draft[manufacturer.id] || {}, draftManufacturer);
         }

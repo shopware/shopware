@@ -1,15 +1,15 @@
 {% block sw_context_button %}
     <div class="sw-context-button" @mouseenter="onToggleMenu" @mouseleave="onToggleMenu">
-        {% block sw_context_button_icon %}
-            <slot name="icon">
-                <sw-icon :name="icon" decorative></sw-icon>
+        {% block sw_context_button_button %}
+            <slot name="button">
+                <sw-icon name="default-action-more-horizontal" decorative></sw-icon>
             </slot>
         {% endblock %}
 
         {% block sw_context_button_menu %}
-            <div class="sw-context-button__menu" v-if="showMenu" :style="{ 'right': rightPos }">
+            <sw-context-menu :style="{ 'left': positionLeft, 'top': positionTop, 'display': showMenu ? 'block' : 'none' }">
                 <slot>{% block sw_context_button_menu_slot_default %}{% endblock %}</slot>
-            </div>
+            </sw-context-menu>
         {% endblock %}
     </div>
 {% endblock %}

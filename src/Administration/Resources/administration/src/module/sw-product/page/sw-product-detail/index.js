@@ -9,6 +9,7 @@ Component.register('sw-product-detail', {
         Mixin.getByName('product'),
         Mixin.getByName('manufacturerList'),
         Mixin.getByName('taxList'),
+        Mixin.getByName('currencyList'),
         Mixin.getByName('notification')
     ],
 

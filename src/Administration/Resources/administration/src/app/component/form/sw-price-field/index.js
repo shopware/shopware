@@ -22,6 +22,13 @@ Component.register('sw-price-field', {
             default() {
                 return {};
             }
+        },
+        currency: {
+            type: Object,
+            required: true,
+            default() {
+                return {};
+            }
         }
     },
 

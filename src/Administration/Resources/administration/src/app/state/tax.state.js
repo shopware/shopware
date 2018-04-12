@@ -6,7 +6,6 @@ import { deepCopyObject } from 'src/core/service/utils/object.utils';
  */
 State.register('tax', {
     namespaced: true,
-    strict: true,
 
     state() {
         return {

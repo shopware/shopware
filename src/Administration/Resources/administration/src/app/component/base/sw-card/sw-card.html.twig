@@ -11,11 +11,11 @@
                 <slot>
                     {% block sw_card_slot_default %}{% endblock %}
                 </slot>
-            </div>
-        {% endblock %}
 
-        {% block sw_card_loader %}
-            <sw-loader v-if="isLoading"></sw-loader>
+                {% block sw_card_loader %}
+                    <sw-loader v-if="isLoading"></sw-loader>
+                {% endblock %}
+            </div>
         {% endblock %}
     </div>
 {% endblock %}

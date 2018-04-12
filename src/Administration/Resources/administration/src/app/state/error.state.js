@@ -6,7 +6,6 @@ import utils from 'src/core/service/util.service';
  */
 State.register('error', {
     namespaced: true,
-    strict: true,
 
     state() {
         return {

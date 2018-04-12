@@ -6,11 +6,6 @@ Component.register('sw-context-button', {
     template,
 
     props: {
-        icon: {
-            type: String,
-            required: false,
-            default: 'default-action-more-horizontal'
-        },
         showMenuOnStartup: {
             type: Boolean,
             required: false,
@@ -26,15 +21,24 @@ Component.register('sw-context-button', {
     data() {
         return {
             showMenu: this.showMenuOnStartup,
-            rightPos: 0
+            positionTop: 0,
+            positionLeft: 0
         };
     },
 
     methods: {
         onToggleMenu() {
-            const width = this.$el.clientWidth;
-            this.rightPos = `${(width / 2) - this.menuOffset}px`;
+            this.positionTop = this.$el.offsetTop;
+            this.positionLeft = this.$el.offsetLeft;
             this.showMenu = !this.showMenu;
+
+            console.log(this.$el.offsetTop);
+
+            if (this.showMenu) {
+                document.body.appendChild(this.$children[1].$el);
+            } else {
+                document.body.removeChild(this.$children[1].$el);
+            }
         }
     }
 });

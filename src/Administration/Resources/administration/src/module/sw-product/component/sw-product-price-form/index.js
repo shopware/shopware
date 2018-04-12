@@ -14,6 +14,11 @@ Component.register('sw-product-price-form', {
             type: Array,
             required: true,
             default: []
+        },
+        currencies: {
+            type: Array,
+            required: true,
+            default: []
         }
     },
 
@@ -21,6 +26,12 @@ Component.register('sw-product-price-form', {
         productTaxRate() {
             return this.taxRates.find((taxRate) => {
                 return taxRate.id === this.product.taxId;
+            });
+        },
+
+        defaultCurrency() {
+            return this.currencies.find((currency) => {
+                return currency.isDefault;
             });
         }
     }

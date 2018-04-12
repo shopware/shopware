@@ -8,7 +8,6 @@ import utils from 'src/core/service/util.service';
  */
 State.register('notification', {
     namespaced: true,
-    strict: true,
 
     state() {
         return {

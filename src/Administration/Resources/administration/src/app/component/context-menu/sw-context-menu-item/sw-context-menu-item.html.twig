@@ -1,7 +1,11 @@
 {% block sw_context_menu_item %}
     <div class="sw-context-menu-item" v-on="$listeners" :class="{ 'is-disabled': disabled }">
         {% block sw_context_menu_item %}
-            <sw-icon :name="icon" small v-if="icon"></sw-icon>
+            <slot name="icon">
+                {% block sw_context_menu_item_slot_icon %}
+                    <sw-icon :name="icon" small v-if="icon"></sw-icon>
+                {% endblock %}
+            </slot>
         {% endblock %}
 
         {% block sw_context_menu_item_text %}

@@ -1,38 +1,70 @@
 <div class="sw-product-detail-context-prices">
-    <sw-card v-for="priceGroup in contextPriceGroups" :key="priceGroup.contextRuleId" class="context-price">
-        <div class="context-price__toolbar">
-            <sw-field type="select" v-model="priceGroup.contextRuleId" @change="onContextRuleChange($event, priceGroup)">
+
+    <sw-card class="context-prices__empty-state" v-if="isLoading && !product.contextPrices.length">
+        <sw-loader></sw-loader>
+    </sw-card>
+
+    <sw-card :title="findContextRuleById(priceGroup.contextRuleId) ? findContextRuleById(priceGroup.contextRuleId).name : 'Neue Preisregel'"
+             v-for="priceGroup in contextPriceGroups"
+             :key="priceGroup.contextRuleId"
+             class="context-price"
+             :isLoading="isLoading"
+             v-else>
+        <div class="context-prices__toolbar">
+            <sw-field type="select"
+                      placeholder="Bitte wählen ..."
+                      v-model="priceGroup.contextRuleId"
+                      validation="required"
+                      @change="onContextRuleChange($event, priceGroup)">
                 <option slot="options" v-for="rule in contextRules" :value="rule.id">{{ rule.name }}</option>
             </sw-field>
-            <sw-button><sw-icon name="small-default-x-line-medium" size="20"></sw-icon>Preisregel löschen</sw-button>
-            <sw-button><sw-icon name="small-copy" size="20"></sw-icon>Preisregel kopieren</sw-button>
+            <sw-button @click="onPriceGroupDelete(priceGroup.contextRuleId)"><sw-icon name="small-default-x-line-medium" size="20"></sw-icon>Preisregel löschen</sw-button>
+            <sw-button @click="onPriceGroupDuplicate(priceGroup)"><sw-icon name="small-copy" size="20"></sw-icon>Preisregel duplizieren</sw-button>
+
+            <sw-context-button>
+                <sw-button slot="button"><sw-icon name="default-basic-plus-circle" size="20"></sw-icon>Währung hinzufügen</sw-button>
+
+                <sw-context-menu-item v-for="currency in currencies" :key="currency.id" @click="onAddCurrency(currency)"><span slot="icon">{{ currency.symbol }}</span>{{ currency.name }}</sw-context-menu-item>
+            </sw-context-button>
         </div>
 
-        <div class="context-price__prices">
-            <sw-grid :items="priceGroup.contextPrices">
+        <div class="context-prices__prices" v-for="currency in priceGroup.currencies">
+            <h3>Preisregeln für Währung: {{ currency.currency.name }}</h3>
+            <sw-grid :items="currency.prices">
                 <template slot="columns" slot-scope="{ item }">
                     <sw-grid-column flex="1"
                                     align="stretch"
-                                    dataIndex="quantityStart"
                                     label="Menge von">
                         <sw-field type="number" v-model="item.quantityStart"></sw-field>
                     </sw-grid-column>
 
-                    <sw-grid-column flex="1"
-                                    align="stretch"
-                                    dataIndex="quantityStart"
-                                    label="Menge bis">
-                        <sw-field type="number" v-model="item.quantityEnd"></sw-field>
+                    <sw-grid-column flex="1" align="stretch" label="Menge bis">
+                        <sw-field type="number"
+                                  v-model="item.quantityEnd"
+                                  @change="onQuantityEndChange($event, item, priceGroup)"
+                                  placeholder="unendlich">
+                        </sw-field>
                     </sw-grid-column>
 
-                    <sw-grid-column flex="1"
-                                    align="stretch"
-                                    dataIndex="quantityStart"
-                                    label="Preis (Brutto / Netto)">
-                        <sw-price-field :price="item.price" :taxRate="productTaxRate"></sw-price-field>
+                    <sw-grid-column flex="2" align="stretch" label="Preis (Brutto / Netto)">
+                        <sw-price-field :price="item.price"
+                                        :taxRate="productTaxRate"
+                                        :currency="findCurrencyById(item.currencyId)">
+                        </sw-price-field>
+                    </sw-grid-column>
+
+                    <sw-grid-column flex="64px" align="center" label="">
+                        <sw-context-button>
+                            <sw-context-menu-item icon="small-copy" @click="onPriceRuleDuplicate(item)">Duplizieren</sw-context-menu-item>
+                            <sw-context-menu-item icon="small-default-x-line-medium" @click="onPriceRuleDelete(item)">Löschen</sw-context-menu-item>
+                        </sw-context-button>
                     </sw-grid-column>
                 </template>
             </sw-grid>
         </div>
     </sw-card>
+
+    <div class="context-prices__actions" v-if="!isLoading">
+        <sw-button @click="onAddNewPriceGroup">Weitere Preisregel hinzufügen</sw-button>
+    </div>
 </div>

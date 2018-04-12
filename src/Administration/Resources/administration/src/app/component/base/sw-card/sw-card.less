@@ -35,8 +35,30 @@
     .sw-card__content {
         padding: 30px;
         background: @sw-card-color-background;
+        background-clip: padding-box;
         border-radius: @sw-card-border-radius;
         border: 1px solid @sw-card-color-border;
+        position: relative;
+
+        h1, h2, h3, h4, h5, h6 {
+            font-weight: normal;
+        }
+
+        h1 {
+            font-size: 24px;
+        }
+
+        h2 {
+            font-size: 22px;
+        }
+
+        h3 {
+            font-size: 20px;
+        }
+
+        h4, h5, h6 {
+            font-size: 18px;
+        }
     }
 
     .sw-tabs {

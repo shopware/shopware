@@ -1,14 +1,34 @@
 .sw-product-detail-context-prices {
+
     .sw-card {
         max-width: 1330px;
+
+        .sw-card__title {
+            width: auto;
+            position: relative;
+            top: 0; left: 0;
+            text-align: left;
+        }
     }
 
-    .context-price__toolbar {
+    .context-prices__empty-state .sw-card__content {
+        height: 250px;
+        position: relative;
+
+        .sw-loader {
+            background: none;
+        }
+    }
+
+    .context-prices__toolbar {
         display: grid;
-        grid-template-columns: 300px auto auto 1fr;
+        grid-template-columns: 300px auto auto auto 1fr;
         grid-column-gap: 20px;
+        margin-bottom: 30px;
 
         .sw-field--select {
+            margin-bottom: 0;
+
             select {
                 padding: 6px 16px;
                 line-height: 26px;
@@ -20,7 +40,17 @@
         }
     }
 
-    .context-price__prices {
+    .context-prices__prices {
 
+    }
+
+    .context-prices__actions {
+        max-width: 800px;
+        margin: 40px auto;
+        display: grid;
+        grid-auto-flow: column;
+        justify-content: center;
+        justify-items: center;
+        align-items: center;
     }
 }

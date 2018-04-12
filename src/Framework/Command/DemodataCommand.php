@@ -143,7 +143,7 @@ class DemodataCommand extends ContainerAwareCommand
             $payload[] = [
                 'id' => Uuid::uuid4()->getHex(),
                 'name' => $this->randomDepartment(),
-                'parentId' => 'a1abd0ee-0aa6-4fcd-aef7-25b8b84e5943',
+                'parentId' => Defaults::ROOT_CATEGORY,
             ];
         }
 

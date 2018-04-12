@@ -84,7 +84,7 @@ class CheckoutController extends Controller
      * @Route("/storefront-api/checkout", name="storefront.api.checkout.get")
      * @Method({"GET"})
      */
-    public function get(): JsonResponse
+    public function getCart(): JsonResponse
     {
         /** @var ContextUser $user */
         $user = $this->getUser();

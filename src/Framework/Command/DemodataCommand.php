@@ -197,7 +197,7 @@ class DemodataCommand extends ContainerAwareCommand
                 'password' => $password,
                 'defaultPaymentMethodId' => '47160b00-cd06-4b01-8817-6451f9f3c247',
                 'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-                'shopId' => Defaults::SHOP,
+                'applicationId' => Defaults::APPLICATION,
                 'defaultBillingAddressId' => $addressId,
                 'defaultShippingAddressId' => $addressId,
                 'addresses' => [
@@ -247,7 +247,7 @@ class DemodataCommand extends ContainerAwareCommand
             'password' => password_hash('shopware', PASSWORD_BCRYPT, ['cost' => 13]),
             'defaultPaymentMethodId' => '47160b00cd064b0188176451f9f3c247',
             'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-            'shopId' => Defaults::SHOP,
+            'applicationId' => Defaults::APPLICATION,
             'defaultBillingAddressId' => $billingAddressId,
             'defaultShippingAddressId' => $shippingAddressId,
             'addresses' => [
@@ -371,7 +371,7 @@ class DemodataCommand extends ContainerAwareCommand
             new IsNewCustomerRule(),
             new DateRangeRule(new \DateTime(), (new \DateTime())->modify('+2 day')),
             new GoodsPriceRule(5000, GoodsPriceRule::OPERATOR_GTE),
-            new ShopRule([Defaults::SHOP], ShopRule::OPERATOR_NEQ),
+            new ShopRule([Defaults::APPLICATION], ShopRule::OPERATOR_NEQ),
             new NotRule([new CustomerGroupRule([Defaults::FALLBACK_CUSTOMER_GROUP])]),
             new NotRule([new CurrencyRule([Defaults::CURRENCY])]),
         ];

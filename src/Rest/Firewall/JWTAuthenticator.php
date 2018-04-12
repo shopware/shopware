@@ -25,11 +25,6 @@ class JWTAuthenticator extends AbstractGuardAuthenticator
     /**
      * @var string
      */
-    private $publicKey;
-
-    /**
-     * @var string
-     */
     private $privateKey;
 
     public function __construct(Connection $connection, string $projectDir)

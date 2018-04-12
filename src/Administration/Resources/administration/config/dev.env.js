@@ -22,5 +22,5 @@ If you're using PSH, you can run the following command to automatically set the 
 
 module.exports = merge(prodEnv, {
     NODE_ENV: '"development"',
-    BASE_PATH: `"http://${path}"`
+    BASE_PATH: `"${path}"`
 });

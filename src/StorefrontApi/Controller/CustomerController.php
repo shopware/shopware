@@ -53,7 +53,7 @@ class CustomerController extends Controller
      * @Route("/storefront-api/customer/login", name="storefront.api.customer.login")
      * @Method({"POST"})
      */
-    public function loginAction(Request $request): JsonResponse
+    public function login(Request $request): JsonResponse
     {
         $post = $this->getPost($request);
 
@@ -86,7 +86,7 @@ class CustomerController extends Controller
      * @Route("/storefront-api/customer/logout", name="storefront.api.customer.logout")
      * @Method({"POST"})
      */
-    public function logoutAction(): void
+    public function logout(): void
     {
         /** @var ContextUser $user */
         $user = $this->getUser();

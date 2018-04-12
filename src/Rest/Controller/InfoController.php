@@ -30,7 +30,7 @@ class InfoController extends Controller
      *
      * @return \Symfony\Component\HttpFoundation\JsonResponse|Response
      */
-    public function infoYamlAction(string $format)
+    public function infoYaml(string $format)
     {
         $data = $this->definitionService->generate(OpenApi3Generator::FORMAT);
 
@@ -50,7 +50,7 @@ class InfoController extends Controller
     /**
      * @Route("/api/entity-schema.{format}", name="api_entity_schema")
      */
-    public function entitySchemaAction(string $format)
+    public function entitySchema(string $format)
     {
         $data = $this->definitionService->getSchema(OpenApi3Generator::FORMAT);
 
@@ -70,7 +70,7 @@ class InfoController extends Controller
     /**
      * @Route("/api/info", name="api_info_html")
      */
-    public function infoHtmlAction()
+    public function infoHtml()
     {
         return $this->render('@Rest/swagger.html.twig');
     }

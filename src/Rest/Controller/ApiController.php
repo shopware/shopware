@@ -81,7 +81,7 @@ class ApiController extends Controller
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
     }
 
-    public function detailAction(Request $request, RestContext $context): Response
+    public function detail(Request $request, RestContext $context): Response
     {
         $path = $this->buildEntityPath($request->getPathInfo());
 
@@ -119,7 +119,7 @@ class ApiController extends Controller
         return $this->responseFactory->createDetailResponse($entity, (string) $definition, $context);
     }
 
-    public function listAction(Request $request, RestContext $context): Response
+    public function list(Request $request, RestContext $context): Response
     {
         $path = $this->buildEntityPath($request->getPathInfo());
 
@@ -236,17 +236,17 @@ class ApiController extends Controller
         return $this->responseFactory->createListingResponse($result, (string) $definition, $context);
     }
 
-    public function createAction(Request $request, RestContext $context): Response
+    public function create(Request $request, RestContext $context): Response
     {
         return $this->write($request, $context, self::WRITE_CREATE);
     }
 
-    public function updateAction(Request $request, RestContext $context)
+    public function update(Request $request, RestContext $context)
     {
         return $this->write($request, $context, self::WRITE_UPDATE);
     }
 
-    public function deleteAction(Request $request, RestContext $context): Response
+    public function delete(Request $request, RestContext $context): Response
     {
         $path = $this->buildEntityPath($request->getPathInfo());
 
@@ -317,7 +317,7 @@ class ApiController extends Controller
         throw new \RuntimeException(sprintf('Unsupported association for field %s', $association->getPropertyName()));
     }
 
-    public function searchAction(Request $request, RestContext $context, string $path): Response
+    public function search(Request $request, RestContext $context, string $path): Response
     {
         $path = $this->buildEntityPath($path);
         $first = array_shift($path);

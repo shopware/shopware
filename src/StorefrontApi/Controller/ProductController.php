@@ -47,7 +47,7 @@ class ProductController extends Controller
     /**
      * @Route("/storefront-api/product", name="storefront.api.product.list")
      */
-    public function listAction(Request $request, StorefrontContext $context): Response
+    public function list(Request $request, StorefrontContext $context): Response
     {
         $criteria = $this->criteriaBuilder->handleRequest($request, ProductDefinition::class, $context->getApplicationContext());
 
@@ -64,7 +64,7 @@ class ProductController extends Controller
      * @Route("/storefront-api/product/{productId}", name="storefront.api.product.detail")
      * @Method({"GET"})
      */
-    public function detailAction(string $productId, Request $request): Response
+    public function detail(string $productId, Request $request): Response
     {
         /** @var ContextUser $user */
         $user = $this->getUser();

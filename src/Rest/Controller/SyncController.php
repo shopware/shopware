@@ -50,7 +50,7 @@ class SyncController extends Controller
      *
      * @return Response
      */
-    public function syncAction(Request $request, RestContext $restContext): Response
+    public function sync(Request $request, RestContext $restContext): Response
     {
         $payload = $this->serializer->decode($request->getContent(), 'json');
 

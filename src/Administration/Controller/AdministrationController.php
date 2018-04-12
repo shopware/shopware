@@ -34,7 +34,7 @@ class AdministrationController extends Controller
     /**
      * @Route("/admin", name="administration")
      */
-    public function indexAction()
+    public function index()
     {
         $template = $this->finder->find('administration/index.html.twig', true);
 
@@ -51,7 +51,7 @@ class AdministrationController extends Controller
      *
      * @return JsonResponse
      */
-    public function searchAction(Request $request, RestContext $restContext): JsonResponse
+    public function search(Request $request, RestContext $restContext): JsonResponse
     {
         $term = $request->query->get('term');
         $page = $request->query->getInt('page', 1);

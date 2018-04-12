@@ -84,7 +84,7 @@ class CheckoutController extends Controller
      * @Route("/storefront-api/checkout", name="storefront.api.checkout.get")
      * @Method({"GET"})
      */
-    public function getAction(): JsonResponse
+    public function get(): JsonResponse
     {
         /** @var ContextUser $user */
         $user = $this->getUser();
@@ -102,7 +102,7 @@ class CheckoutController extends Controller
      * @Route("/storefront-api/checkout", name="storefront.api.checkout.create")
      * @Method({"POST"})
      */
-    public function createAction(): JsonResponse
+    public function create(): JsonResponse
     {
         /** @var ContextUser $user */
         $user = $this->getUser();
@@ -120,7 +120,7 @@ class CheckoutController extends Controller
      * @Route("/storefront-api/checkout/add-product/{identifier}", name="storefront.api.checkout.add.product")
      * @Method({"POST"})
      */
-    public function addProductAction(string $identifier, Request $request): JsonResponse
+    public function addProduct(string $identifier, Request $request): JsonResponse
     {
         /** @var ContextUser $user */
         $user = $this->getUser();
@@ -144,7 +144,7 @@ class CheckoutController extends Controller
      * @Route("/storefront-api/checkout/add", name="storefront.api.checkout.add")
      * @Method({"POST"})
      */
-    public function addAction(Request $request): JsonResponse
+    public function add(Request $request): JsonResponse
     {
         /** @var ContextUser $user */
         $user = $this->getUser();
@@ -180,7 +180,7 @@ class CheckoutController extends Controller
      * @Route("/storefront-api/checkout/{identifier}", name="storefront.api.checkout.delete")
      * @Method({"DELETE"})
      */
-    public function removeAction(string $identifier): JsonResponse
+    public function remove(string $identifier): JsonResponse
     {
         /** @var ContextUser $user */
         $user = $this->getUser();
@@ -206,7 +206,7 @@ class CheckoutController extends Controller
      * @Route("/storefront-api/checkout/set-quantity/{identifier}", name="storefront.api.checkout.set-quantity")
      * @Method({"PUT"})
      */
-    public function setQuantityAction(string $identifier, Request $request): JsonResponse
+    public function setQuantity(string $identifier, Request $request): JsonResponse
     {
         /** @var ContextUser $user */
         $user = $this->getUser();
@@ -240,7 +240,7 @@ class CheckoutController extends Controller
      * @Route("/storefront-api/checkout/order", name="storefront.api.checkout.order")
      * @Method({"POST"})
      */
-    public function orderAction(): JsonResponse
+    public function order(): JsonResponse
     {
         /** @var ContextUser $user */
         $user = $this->getUser();

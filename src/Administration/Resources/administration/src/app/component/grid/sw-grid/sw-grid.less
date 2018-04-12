@@ -32,12 +32,12 @@
         .sw-grid__header {
             height: 42px;
         }
-        .sw-grid__header .sw-grid__cell {
+        .sw-grid__header .sw-grid-column {
             font-size: 15px;
             padding: 8px 20px;
             min-height: 24px;
         }
-        .sw-grid__body .sw-grid__cell {
+        .sw-grid__body .sw-grid-column {
             min-height: 24px;
             padding: 4px 20px;
             font-size: 14px;
@@ -68,7 +68,7 @@
         border-bottom: 1px solid @sw-grid-header-color-border;
         padding-right: 17px; // ToDo: Has to be set dynamically for the scrollbar width
 
-        .sw-grid__cell {
+        .sw-grid-column {
             font-size: 16px;
             font-weight: bold;
             color: @sw-grid-header-color-text;
@@ -120,27 +120,6 @@
             background: @sw-grid-item-active-color-background;
             border-bottom: 1px solid @sw-grid-item-active-color-border;
             box-shadow: 0 -1px 0 0 @sw-grid-item-active-color-border;
-        }
-    }
-
-    .sw-grid__cell {
-        display: grid;
-        grid-auto-flow: column;
-        align-items: center;
-        min-height: 64px;
-        line-height: 24px;
-        padding: 20px 20px;
-        text-align: left;
-        cursor: default;
-        position: relative;
-        border-right: 1px solid @sw-grid-item-color-border;
-
-        .sw-field  {
-            margin-bottom: 0;
-        }
-
-        .sw-context-button {
-            height: 24px;
         }
     }
 

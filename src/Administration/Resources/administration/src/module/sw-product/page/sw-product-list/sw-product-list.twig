@@ -24,7 +24,7 @@
                                  :sortDirection="sortDirection"
                                  :sidebar="true"
                                  @sort-column="onSortColumn"
-                                 @sw-row-inline-edit-finish="onInlineEditSave">
+                                 @inline-edit-finish="onInlineEditSave">
 
                             {% block sw_product_list_grid_slots %}
                                 <template slot="columns" slot-scope="{ item }">

@@ -60,7 +60,7 @@ Component.register('sw-grid-row', {
 
         onInlineEditFinish() {
             this.isEditingActive = false;
-            this.$parent.$emit('sw-row-inline-edit-finish', {
+            this.$parent.$emit('inline-edit-finish', {
                 id: this.id,
                 item: this.item
             });

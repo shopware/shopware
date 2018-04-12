@@ -115,11 +115,13 @@ Component.register('sw-grid', {
 
     methods: {
         registerInlineEditingEvents() {
-            this.$on('sw-row-inline-edit-start', (id) => {
-                this.editing.push(id);
-            });
+            this.$on('sw-row-inline-edit-start', this.inlineEditingStart);
 
             this.$on('sw-row-inline-edit-cancel', this.disableActiveInlineEditing);
+        },
+
+        inlineEditingStart(id) {
+            this.editing.push(id);
         },
 
         disableActiveInlineEditing(id) {

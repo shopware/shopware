@@ -9,6 +9,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 class Traceable extends Bundle
@@ -33,11 +34,13 @@ class Traceable extends Bundle
 
         $finder = new Finder();
         $classes = $finder->in($directory);
+        /** @var SplFileInfo $file */
         foreach ($classes->getIterator() as $file) {
-            try {
-                require_once (string)$file;
-            } catch (\Exception $e) {
+            $class = str_replace('.php', '', $file->getFilename());
+            $full = 'ShopwareTracer\\' . $class;
 
+            if (!class_exists($full)) {
+                require_once (string)$file;
             }
         }
     }

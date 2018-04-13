@@ -11,10 +11,20 @@ Component.register('sw-context-button', {
             required: false,
             default: false
         },
-        menuOffset: {
+        menuWidth: {
             type: Number,
             required: false,
-            default: 32
+            default: 255
+        },
+        menuOffsetTop: {
+            type: Number,
+            required: false,
+            default: 10
+        },
+        menuOffsetLeft: {
+            type: Number,
+            required: false,
+            default: 22
         }
     },
 
@@ -22,22 +32,58 @@ Component.register('sw-context-button', {
         return {
             showMenu: this.showMenuOnStartup,
             positionTop: 0,
-            positionLeft: 0
+            positionLeft: 0,
+            paddingTop: 0
         };
     },
 
+    computed: {
+        menuStyles() {
+            return {
+                left: `${this.positionLeft}px`,
+                top: `${this.positionTop}px`,
+                display: this.showMenu ? 'block' : 'none',
+                width: `${this.menuWidth}px`,
+                'padding-top': `${this.paddingTop}px`
+            };
+        }
+    },
+
+    beforeDestroy() {
+        this.removeMenuFromBody();
+    },
+
     methods: {
-        onToggleMenu() {
-            this.positionTop = this.$el.offsetTop;
-            this.positionLeft = this.$el.offsetLeft;
-            this.showMenu = !this.showMenu;
+        openMenu() {
+            const boundingBox = this.$el.getBoundingClientRect();
+            const secureOffset = 5;
 
-            console.log(this.$el.offsetTop);
+            this.positionTop = boundingBox.top - secureOffset;
+            this.positionLeft = (boundingBox.left + boundingBox.width + this.menuOffsetLeft) - this.menuWidth;
+            this.paddingTop = boundingBox.height + secureOffset + this.menuOffsetTop;
 
-            if (this.showMenu) {
+            this.showMenu = true;
+
+            this.addMenuToBody();
+        },
+
+        closeMenu() {
+            this.showMenu = false;
+
+            this.removeMenuFromBody();
+        },
+
+        addMenuToBody() {
+            if (this.$children[1]) {
                 document.body.appendChild(this.$children[1].$el);
-            } else {
-                document.body.removeChild(this.$children[1].$el);
+                this.$children[1].$el.addEventListener('mouseleave', this.closeMenu);
+            }
+        },
+
+        removeMenuFromBody() {
+            if (this.$children[1]) {
+                this.$children[1].$el.removeEventListener('mouseleave', this.closeMenu);
+                this.$children[1].$el.remove();
             }
         }
     }

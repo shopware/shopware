@@ -1,5 +1,5 @@
 {% block sw_context_button %}
-    <div class="sw-context-button" @mouseenter="onToggleMenu" @mouseleave="onToggleMenu">
+    <div class="sw-context-button" @mouseenter="openMenu">
         {% block sw_context_button_button %}
             <slot name="button">
                 <sw-icon name="default-action-more-horizontal" decorative></sw-icon>
@@ -7,7 +7,7 @@
         {% endblock %}
 
         {% block sw_context_button_menu %}
-            <sw-context-menu :style="{ 'left': positionLeft, 'top': positionTop, 'display': showMenu ? 'block' : 'none' }">
+            <sw-context-menu :style="menuStyles">
                 <slot>{% block sw_context_button_menu_slot_default %}{% endblock %}</slot>
             </sw-context-menu>
         {% endblock %}

@@ -3,7 +3,8 @@
 namespace Shopware\StorefrontApi\Firewall;
 
 use Doctrine\DBAL\Connection;
-use Symfony\Component\HttpFoundation\Request;
+use Shopware\PlatformRequest;
+use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -14,8 +15,6 @@ use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
 
 class ApplicationAuthenticator extends AbstractGuardAuthenticator
 {
-    public const APPLICATION_ACCESS_KEY = 'x-sw-application-token';
-
     /**
      * @var Connection
      */
@@ -44,9 +43,9 @@ class ApplicationAuthenticator extends AbstractGuardAuthenticator
      *
      * @return Response
      */
-    public function start(Request $request, AuthenticationException $authException = null)
+    public function start(SymfonyRequest $request, AuthenticationException $authException = null)
     {
-        if ($request->headers->has(self::APPLICATION_ACCESS_KEY) === false) {
+        if ($request->headers->has(PlatformRequest::HEADER_APPLICATION_TOKEN) === false) {
             throw new UnauthorizedHttpException('header', 'Header "X-SW-Application-Token" is required.');
         }
 
@@ -58,13 +57,13 @@ class ApplicationAuthenticator extends AbstractGuardAuthenticator
      *
      * If this returns false, the authenticator will be skipped.
      *
-     * @param Request $request
+     * @param SymfonyRequest $request
      *
      * @return bool
      */
-    public function supports(Request $request)
+    public function supports(SymfonyRequest $request)
     {
-        return $request->headers->has(self::APPLICATION_ACCESS_KEY);
+        return $request->headers->has(PlatformRequest::HEADER_APPLICATION_TOKEN);
     }
 
     /**
@@ -90,10 +89,10 @@ class ApplicationAuthenticator extends AbstractGuardAuthenticator
      *
      * @throws \UnexpectedValueException If null is returned
      */
-    public function getCredentials(Request $request)
+    public function getCredentials(SymfonyRequest $request)
     {
         return [
-            'access_key' => $request->headers->get(self::APPLICATION_ACCESS_KEY)
+            'access_key' => $request->headers->get(PlatformRequest::HEADER_APPLICATION_TOKEN)
         ];
     }
 
@@ -169,12 +168,12 @@ class ApplicationAuthenticator extends AbstractGuardAuthenticator
      * If you return null, the request will continue, but the user will
      * not be authenticated. This is probably not what you want to do.
      *
-     * @param Request $request
+     * @param SymfonyRequest $request
      * @param AuthenticationException $exception
      *
      * @return Response|null
      */
-    public function onAuthenticationFailure(Request $request, AuthenticationException $exception)
+    public function onAuthenticationFailure(SymfonyRequest $request, AuthenticationException $exception)
     {
         throw $exception;
     }
@@ -188,13 +187,13 @@ class ApplicationAuthenticator extends AbstractGuardAuthenticator
      * If you return null, the current request will continue, and the user
      * will be authenticated. This makes sense, for example, with an API.
      *
-     * @param Request $request
+     * @param SymfonyRequest $request
      * @param TokenInterface $token
      * @param string $providerKey The provider (i.e. firewall) key
      *
      * @return Response|null
      */
-    public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
+    public function onAuthenticationSuccess(SymfonyRequest $request, TokenInterface $token, $providerKey)
     {
         return null;
     }

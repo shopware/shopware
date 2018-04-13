@@ -3,6 +3,7 @@
 namespace Shopware\Rest\Firewall;
 
 use Doctrine\DBAL\Connection;
+use Shopware\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
@@ -15,8 +16,6 @@ use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
 
 class TokenAuthenticator extends AbstractGuardAuthenticator
 {
-    public const ACCESS_KEY_HEADER = 'x-sw-access-key';
-
     /**
      * @var Connection
      */
@@ -47,8 +46,8 @@ class TokenAuthenticator extends AbstractGuardAuthenticator
      */
     public function start(Request $request, AuthenticationException $authException = null)
     {
-        if ($request->headers->has(self::ACCESS_KEY_HEADER) === false) {
-            throw new UnauthorizedHttpException('header', 'Header "X-SW-Access-Key" is required.');
+        if ($request->headers->has(PlatformRequest::HEADER_ACCESS_KEY) === false) {
+            throw new UnauthorizedHttpException('header', 'Header "'. PlatformRequest::HEADER_ACCESS_KEY .'" is required.');
         }
 
         throw new UnauthorizedHttpException('header', $authException->getMessageKey());
@@ -65,7 +64,7 @@ class TokenAuthenticator extends AbstractGuardAuthenticator
      */
     public function supports(Request $request)
     {
-        return $request->headers->has(self::ACCESS_KEY_HEADER);
+        return $request->headers->has(PlatformRequest::HEADER_ACCESS_KEY);
     }
 
     /**
@@ -94,7 +93,7 @@ class TokenAuthenticator extends AbstractGuardAuthenticator
     public function getCredentials(Request $request)
     {
         return [
-            'access_key' => $request->headers->get(self::ACCESS_KEY_HEADER)
+            'access_key' => $request->headers->get(PlatformRequest::HEADER_ACCESS_KEY)
         ];
     }
 

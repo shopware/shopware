@@ -3,20 +3,14 @@
 namespace Shopware\Framework\Routing;
 
 use Shopware\Framework\Struct\Uuid;
+use Shopware\PlatformRequest;
 use Shopware\StorefrontApi\Context\StorefrontContextService;
 use Shopware\StorefrontApi\Firewall\Application;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Security\Core\Authentication\Token\AnonymousToken;
+use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class ApplicationRequestContextResolver implements RequestContextResolverInterface
 {
-    public const STOREFRONT_CONTEXT_REQUEST_ATTRIBUTE = 'x-sw-storefront-context';
-
-    public const APPLICATION_HEADER = 'x-sw-application-token';
-
-    public const CONTEXT_TOKEN_HEADER = 'x-sw-context-token';
-
     /**
      * @var RequestContextResolverInterface
      */
@@ -26,6 +20,7 @@ class ApplicationRequestContextResolver implements RequestContextResolverInterfa
      * @var StorefrontContextService
      */
     private $contextService;
+
     /**
      * @var TokenStorageInterface
      */
@@ -41,7 +36,7 @@ class ApplicationRequestContextResolver implements RequestContextResolverInterfa
         $this->tokenStorage = $tokenStorage;
     }
 
-    public function resolve(Request $master, Request $request): void
+    public function resolve(SymfonyRequest $master, SymfonyRequest $request): void
     {
         if (!$this->tokenStorage->getToken()) {
             $this->decorated->resolve($master, $request);
@@ -57,11 +52,11 @@ class ApplicationRequestContextResolver implements RequestContextResolverInterfa
             return;
         }
 
-        if (!$master->headers->has(self::CONTEXT_TOKEN_HEADER)) {
-            $master->headers->set(self::CONTEXT_TOKEN_HEADER, Uuid::uuid4()->getHex());
+        if (!$master->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN)) {
+            $master->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, Uuid::uuid4()->getHex());
         }
 
-        if (!$master->headers->get(self::CONTEXT_TOKEN_HEADER)) {
+        if (!$master->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN)) {
             try {
                 $this->decorated->resolve($master, $request);
             } catch (\Exception $e) {
@@ -71,17 +66,17 @@ class ApplicationRequestContextResolver implements RequestContextResolverInterfa
             return;
         }
 
-        $contextToken = $master->headers->get(self::CONTEXT_TOKEN_HEADER);
+        $contextToken = $master->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
         $applicationId = $application->getApplicationId();
 
         //sub requests can use the context of the master request
-        if ($master->attributes->has(self::STOREFRONT_CONTEXT_REQUEST_ATTRIBUTE)) {
-            $context = $master->attributes->get(self::STOREFRONT_CONTEXT_REQUEST_ATTRIBUTE);
+        if ($master->attributes->has(PlatformRequest::ATTRIBUTE_STOREFRONT_CONTEXT_OBJECT)) {
+            $context = $master->attributes->get(PlatformRequest::ATTRIBUTE_STOREFRONT_CONTEXT_OBJECT);
         } else {
             $context = $this->contextService->getStorefrontContext($applicationId, $contextToken);
         }
 
-        $request->attributes->set(self::CONTEXT_REQUEST_ATTRIBUTE, $context->getApplicationContext());
-        $request->attributes->set(self::STOREFRONT_CONTEXT_REQUEST_ATTRIBUTE, $context);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context->getApplicationContext());
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_STOREFRONT_CONTEXT_OBJECT, $context);
     }
 }

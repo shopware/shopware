@@ -5,6 +5,7 @@ namespace Shopware\Framework\Routing;
 use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
+use Shopware\PlatformRequest;
 use Shopware\Rest\Firewall\User;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -39,10 +40,10 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         }
 
         //sub requests can use context of master
-        if ($master->attributes->has(self::CONTEXT_REQUEST_ATTRIBUTE)) {
+        if ($master->attributes->has(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT)) {
             $request->attributes->set(
-                self::CONTEXT_REQUEST_ATTRIBUTE,
-                $master->attributes->get(self::CONTEXT_REQUEST_ATTRIBUTE)
+                PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT,
+                $master->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT)
             );
             return;
         }
@@ -66,7 +67,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             $currencyFactory
         );
 
-        $request->attributes->set(self::CONTEXT_REQUEST_ATTRIBUTE, $context);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context);
     }
 
     private function getRuntimeParameters(Request $request): array

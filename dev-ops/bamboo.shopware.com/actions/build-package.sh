@@ -2,17 +2,7 @@
 
 docker exec -u __USERKEY__ __APP_ID__ /usr/local/bin/wait-for-it.sh --timeout=60 mysql:3306
 docker exec -u __USERKEY__ __APP_ID__ ./psh.phar bamboo:init
-docker exec -u __USERKEY__ __APP_ID__ php bin/console framework:demodata --products=3000 --categories=1 --manufacturers=5 --customers=2000
-docker exec -u __USERKEY__ __APP_ID__ php bin/console framework:demodata --products=3000 --categories=1 --manufacturers=5
-docker exec -u __USERKEY__ __APP_ID__ php bin/console framework:demodata --products=3000 --categories=1 --manufacturers=5
-docker exec -u __USERKEY__ __APP_ID__ php bin/console framework:demodata --products=3000 --categories=1 --manufacturers=5
-docker exec -u __USERKEY__ __APP_ID__ php bin/console framework:demodata --products=3000 --categories=1 --manufacturers=5
-docker exec -u __USERKEY__ __APP_ID__ php bin/console framework:demodata --products=3000 --categories=1 --manufacturers=5
-docker exec -u __USERKEY__ __APP_ID__ php bin/console framework:demodata --products=3000 --categories=1 --manufacturers=5
-docker exec -u __USERKEY__ __APP_ID__ php bin/console framework:demodata --products=3000 --categories=1 --manufacturers=5
-docker exec -u __USERKEY__ __APP_ID__ php bin/console framework:demodata --products=3000 --categories=1 --manufacturers=5
-docker exec -u __USERKEY__ __APP_ID__ php bin/console framework:demodata --products=3000 --categories=1 --manufacturers=5
-docker exec -u __USERKEY__ __APP_ID__ php bin/console dbal:refresh:index -vvv
+docker exec -u __USERKEY__ __APP_ID__ php bin/console framework:demodata --products=3000 --categories=1 --manufacturers=5 --customers=2000 -eprod
 docker exec -u __USERKEY__ __APP_ID__ ./psh.phar administration:init
 docker exec -u __USERKEY__ __APP_ID__ ./psh.phar administration:build
 

@@ -16,17 +16,11 @@ use Shopware\Cart\LineItem\LineItem;
 use Shopware\Cart\Order\OrderPersisterInterface;
 use Shopware\CartBridge\Product\ProductProcessor;
 use Shopware\CartBridge\Service\StoreFrontCartService;
-use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Context\Struct\StorefrontContext;
-use Shopware\Framework\Application\ApplicationResolver;
-use Shopware\Framework\Routing\ApplicationRequestContextResolver;
 use Shopware\Framework\Struct\Uuid;
+use Shopware\PlatformRequest;
 use Shopware\Rest\Response\Type\JsonType;
 use Shopware\StorefrontApi\Context\StorefrontContextPersister;
-use Shopware\StorefrontApi\Context\StorefrontContextValueResolver;
-use Shopware\StorefrontApi\Firewall\Application;
-use Shopware\StorefrontApi\Firewall\ApplicationAuthenticator2;
-use Shopware\StorefrontApi\Firewall\ContextUser;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -107,9 +101,9 @@ class CheckoutController extends Controller
         $this->persister->delete($context->getToken(), self::CART_NAME);
 
         return new JsonResponse(
-            [ApplicationRequestContextResolver::CONTEXT_TOKEN_HEADER => $context->getToken()],
+            [PlatformRequest::HEADER_CONTEXT_TOKEN => $context->getToken()],
             JsonResponse::HTTP_OK,
-            [ApplicationRequestContextResolver::CONTEXT_TOKEN_HEADER => $context->getToken()]
+            [PlatformRequest::HEADER_CONTEXT_TOKEN => $context->getToken()]
         );
     }
 

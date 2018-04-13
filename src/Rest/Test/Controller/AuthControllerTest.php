@@ -19,7 +19,7 @@ class AuthControllerTest extends ApiTestCase
         $this->assertArrayHasKey('errors', $response);
         $this->assertCount(1, $response['errors']);
         $this->assertEquals(401, $response['errors'][0]['status']);
-        $this->assertEquals('Header "X-SW-Access-Key" is required.', $response['errors'][0]['detail']);
+        $this->assertEquals('Header "x-sw-access-key" is required.', $response['errors'][0]['detail']);
     }
 
     public function testCreateTokenWithInvalidCredentials(): void

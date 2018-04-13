@@ -27,7 +27,7 @@ class ResponseExceptionListener extends ExceptionListener
     public static function getSubscribedEvents()
     {
         return [
-            KernelEvents::EXCEPTION => ['onKernelException', -100],
+            KernelEvents::EXCEPTION => ['onKernelException', -128],
         ];
     }
 

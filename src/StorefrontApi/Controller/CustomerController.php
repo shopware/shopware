@@ -7,6 +7,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Application\ApplicationResolver;
 use Shopware\Framework\Routing\ApplicationRequestContextResolver;
+use Shopware\PlatformRequest;
 use Shopware\StorefrontApi\Context\StorefrontContextPersister;
 use Shopware\StorefrontApi\Context\StorefrontContextValueResolver;
 use Shopware\StorefrontApi\Firewall\ApplicationAuthenticator2;
@@ -76,7 +77,7 @@ class CustomerController extends Controller
         );
 
         return new JsonResponse([
-            ApplicationRequestContextResolver::CONTEXT_TOKEN_HEADER => $context->getToken(),
+            PlatformRequest::HEADER_CONTEXT_TOKEN => $context->getToken(),
         ]);
     }
 

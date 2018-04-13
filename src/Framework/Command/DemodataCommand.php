@@ -100,6 +100,13 @@ class DemodataCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $env = $this->getContainer()->getParameter('kernel.environment');
+
+        if ($env !== 'prod') {
+            $output->writeln('Demo data command should only be used in production environment. You can provide the environment as follow `framework:demodata -eprod`');
+            return;
+        }
+        
         $this->io = new SymfonyStyle($input, $output);
         $this->faker = Factory::create('de_DE');
         $this->faker->addProvider(new Commerce($this->faker));

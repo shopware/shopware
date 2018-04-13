@@ -8,8 +8,19 @@
     position: relative;
     border-right: 1px solid @sw-grid-column-color-border;
 
+    &:last-child {
+        border-right: 0 none;
+    }
+
     .sw-field  {
         margin-bottom: 0;
+
+        &.sw-field--checkbox {
+            grid-template-columns: auto;
+            align-items: center;
+            justify-items: center;
+            justify-content: center;
+        }
     }
 
     .sw-price-field {
@@ -27,6 +38,7 @@
     }
 
     .sw-grid__cell-content {
+        height: 100%;
         display: grid;
         grid-auto-flow: column;
         align-items: center;
@@ -39,8 +51,8 @@
     &.sw-grid-column--left {
         .sw-grid__cell-content {
             text-align: left;
-            justify-items: left;
-            justify-content: left;
+            justify-items: start;
+            justify-content: start;
         }
     }
 
@@ -55,8 +67,8 @@
     &.sw-grid-column--right {
         .sw-grid__cell-content {
             text-align: right;
-            justify-items: right;
-            justify-content: right;
+            justify-items: end;
+            justify-content: end;
         }
     }
 

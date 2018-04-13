@@ -43,7 +43,8 @@ export const types = {
     isArray: typesUtils.isArray,
     isFunction: typesUtils.isFunction,
     isDate: typesUtils.isDate,
-    isString: typesUtils.isString
+    isString: typesUtils.isString,
+    isBoolean: typesUtils.isBoolean
 };
 
 export default {

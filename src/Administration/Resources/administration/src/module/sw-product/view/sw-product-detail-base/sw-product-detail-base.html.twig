@@ -22,6 +22,12 @@
                 {% block sw_product_detail_base_price_form %}
                     <sw-product-price-form :product="product" :taxRates="taxes" :currencies="currencies"></sw-product-price-form>
                 {% endblock %}
+
+                <sw-container grid="1fr" justify="end">
+                    <router-link :to="{ name: 'sw.product.detail.prices', params: { id: $route.params.id } }" class="quick-link">
+                        Erweiterte Preisansicht öffnen <sw-icon name="default-arrow-simple-right" small></sw-icon>
+                    </router-link>
+                </sw-container>
             </sw-card>
         {% endblock %}
 

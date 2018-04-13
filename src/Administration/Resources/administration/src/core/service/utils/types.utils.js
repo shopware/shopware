@@ -10,6 +10,7 @@ import isArray from 'lodash/isArray';
 import isFunction from 'lodash/isFunction';
 import isDate from 'lodash/isDate';
 import isString from 'lodash/isString';
+import isBoolean from 'lodash/isBoolean';
 
 export default {
     isObject,
@@ -19,5 +20,6 @@ export default {
     isArray,
     isFunction,
     isDate,
-    isString
+    isString,
+    isBoolean
 };

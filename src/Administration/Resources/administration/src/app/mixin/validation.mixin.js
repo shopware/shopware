@@ -9,7 +9,7 @@ Mixin.register('validation', {
 
     props: {
         validation: {
-            type: [String, Array, Object],
+            type: [String, Array, Object, Boolean],
             required: false,
             default: null
         }
@@ -26,6 +26,10 @@ Mixin.register('validation', {
             let validation = this.validation;
             let valid = true;
 
+            if (types.isBoolean(validation)) {
+                return validation;
+            }
+
             if (types.isString(validation)) {
                 const validationList = validation.split(',');
 
@@ -38,6 +42,10 @@ Mixin.register('validation', {
 
             if (types.isArray(validation)) {
                 valid = validation.every((validationRule) => {
+                    if (types.isBoolean(validationRule)) {
+                        return validationRule;
+                    }
+
                     return this.validateRule(value, validationRule.trim());
                 });
             }

@@ -1,14 +1,20 @@
-<router-link v-if="link.length"
-             :to="{ 'name': link }"
-             class="sw-button"
-             :class="buttonClasses">
-    <slot></slot>
-</router-link>
+{% block sw_button %}
+    {% block sw_button_link %}
+        <router-link v-if="link.length"
+                     :to="{ 'name': link }"
+                     class="sw-button"
+                     :class="buttonClasses">
+            <slot>{% block sw_button_link_slot_default %}{% endblock %}</slot>
+        </router-link>
+    {% endblock %}
 
-<button class="sw-button"
-        :class="buttonClasses"
-        :disabled="disabled"
-        v-on="$listeners"
-        v-else>
-    <slot></slot>
-</button>
+    {% block sw_button_button %}
+        <button class="sw-button"
+                :class="buttonClasses"
+                :disabled="disabled"
+                v-on="$listeners"
+                v-else>
+            <slot>{% block sw_button_button_slot_default %}{% endblock %}</slot>
+        </button>
+    {% endblock %}
+{% endblock %}

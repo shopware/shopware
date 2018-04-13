@@ -44,6 +44,7 @@ Component.register('sw-button', {
             default: ''
         }
     },
+
     computed: {
         buttonClasses() {
             return {

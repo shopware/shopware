@@ -31,6 +31,7 @@ use Shopware\Api\Entity\Write\FieldException\InvalidFieldException;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\Uuid;
+use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
@@ -41,6 +42,11 @@ class CatalogField extends FkField
         parent::__construct('catalog_id', 'catalogId', CatalogDefinition::class);
 
         $this->setFlags(new Required());
+    }
+
+    public function getExtractPriority(): int
+    {
+        return 1000;
     }
 
     /**
@@ -59,18 +65,44 @@ class CatalogField extends FkField
         $restriction = $this->writeContext->getApplicationContext()->getCatalogIds();
 
         //user has restricted catalog access
-        if ($restriction !== null && !in_array($value, $restriction, true)) {
-            throw new InvalidFieldException(
-                $this->path,
-                new ConstraintViolationList([
-                    new ConstraintViolation(sprintf('No access to catalog id %s', $value))
-                ])
-            );
+        if (is_array($restriction)) {
+            $this->validateCatalog($restriction, $value, $existence);
         }
 
         //write catalog id of current object to write context
         $this->writeContext->set($this->definition, 'catalogId', $value);
+        if ($this->definition::getTranslationDefinitionClass()) {
+            $this->writeContext->set($this->definition::getTranslationDefinitionClass(), 'catalogId', $value);
+        }
 
         yield $this->storageName => Uuid::fromStringToBytes($value);
+    }
+
+    private function validateCatalog(array $restrictedCatalogs, $catalogId, EntityExistence $existence): void
+    {
+        $violationList = new ConstraintViolationList();
+        $violations = $this->validator->validate($catalogId, [new Choice(['choices' => $restrictedCatalogs])]);
+
+        /** @var ConstraintViolation $violation */
+        foreach ($violations as $violation) {
+            $violationList->add(
+                new ConstraintViolation(
+                    sprintf('No access to catalog id: %s', $catalogId),
+                    'No access to catalog id: {{ value }}',
+                    $violation->getParameters(),
+                    $violation->getRoot(),
+                    'catalogId',
+                    $violation->getInvalidValue(),
+                    $violation->getPlural(),
+                    $violation->getCode(),
+                    $violation->getConstraint(),
+                    $violation->getCause()
+                )
+            );
+        }
+
+        if (count($violationList)) {
+            throw new InvalidFieldException($this->path . '/catalogId', $violationList);
+        }
     }
 }

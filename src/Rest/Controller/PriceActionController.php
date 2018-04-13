@@ -77,7 +77,7 @@ class PriceActionController extends Controller
         $output = $post['output'] ?? 'gross';
         $preCalculated = (bool) ($post['calculated'] ?? true);
 
-        $taxes = $this->taxRepository->readBasic([$taxId], $context->getShopContext());
+        $taxes = $this->taxRepository->readBasic([$taxId], $context->getApplicationContext());
         $tax = $taxes->get($taxId);
         if (!$tax) {
             throw new \InvalidArgumentException(sprintf('Tax rule with id %s not found taxId missing', $taxId));

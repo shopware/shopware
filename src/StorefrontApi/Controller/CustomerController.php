@@ -6,6 +6,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Application\ApplicationResolver;
+use Shopware\Framework\Routing\ApplicationRequestContextResolver;
 use Shopware\StorefrontApi\Context\StorefrontContextPersister;
 use Shopware\StorefrontApi\Context\StorefrontContextValueResolver;
 use Shopware\StorefrontApi\Firewall\ApplicationAuthenticator2;
@@ -53,7 +54,7 @@ class CustomerController extends Controller
      * @Route("/storefront-api/customer/login", name="storefront.api.customer.login")
      * @Method({"POST"})
      */
-    public function login(Request $request): JsonResponse
+    public function login(Request $request, StorefrontContext $context): JsonResponse
     {
         $post = $this->getPost($request);
 
@@ -65,11 +66,8 @@ class CustomerController extends Controller
 
         $user = $this->customerProvider->loadUserByUsername($username);
 
-        /** @var ContextUser $context */
-        $context = $this->getUser();
-
         $this->contextPersister->save(
-            $context->getContextToken(),
+            $context->getToken(),
             [
                 'customerId' => $user->getId(),
                 'billingAddressId' => null,
@@ -78,7 +76,7 @@ class CustomerController extends Controller
         );
 
         return new JsonResponse([
-            ApplicationResolver::CONTEXT_HEADER => $context->getContextToken(),
+            ApplicationRequestContextResolver::CONTEXT_TOKEN_HEADER => $context->getToken(),
         ]);
     }
 

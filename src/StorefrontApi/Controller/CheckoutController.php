@@ -16,12 +16,15 @@ use Shopware\Cart\LineItem\LineItem;
 use Shopware\Cart\Order\OrderPersisterInterface;
 use Shopware\CartBridge\Product\ProductProcessor;
 use Shopware\CartBridge\Service\StoreFrontCartService;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Application\ApplicationResolver;
+use Shopware\Framework\Routing\ApplicationRequestContextResolver;
 use Shopware\Framework\Struct\Uuid;
 use Shopware\Rest\Response\Type\JsonType;
 use Shopware\StorefrontApi\Context\StorefrontContextPersister;
 use Shopware\StorefrontApi\Context\StorefrontContextValueResolver;
+use Shopware\StorefrontApi\Firewall\Application;
 use Shopware\StorefrontApi\Firewall\ApplicationAuthenticator2;
 use Shopware\StorefrontApi\Firewall\ContextUser;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -84,14 +87,11 @@ class CheckoutController extends Controller
      * @Route("/storefront-api/checkout", name="storefront.api.checkout.get")
      * @Method({"GET"})
      */
-    public function getCart(): JsonResponse
+    public function getCart(StorefrontContext $context): JsonResponse
     {
-        /** @var ContextUser $user */
-        $user = $this->getUser();
+        $cart = $this->loadCart($context->getToken());
 
-        $cart = $this->loadCart($user->getContextToken());
-
-        $calculated = $this->calculation->calculate($cart, $user->getContext());
+        $calculated = $this->calculation->calculate($cart, $context);
 
         return new JsonResponse(
             $this->serialize($calculated)
@@ -102,17 +102,14 @@ class CheckoutController extends Controller
      * @Route("/storefront-api/checkout", name="storefront.api.checkout.create")
      * @Method({"POST"})
      */
-    public function create(): JsonResponse
+    public function create(StorefrontContext $context): JsonResponse
     {
-        /** @var ContextUser $user */
-        $user = $this->getUser();
-
-        $this->persister->delete($user->getContext()->getToken(), self::CART_NAME);
+        $this->persister->delete($context->getToken(), self::CART_NAME);
 
         return new JsonResponse(
-            [ApplicationResolver::CONTEXT_HEADER => $user->getContextToken()],
+            [ApplicationRequestContextResolver::CONTEXT_TOKEN_HEADER => $context->getToken()],
             JsonResponse::HTTP_OK,
-            [ApplicationResolver::CONTEXT_HEADER => $user->getContextToken()]
+            [ApplicationRequestContextResolver::CONTEXT_TOKEN_HEADER => $context->getToken()]
         );
     }
 
@@ -120,11 +117,8 @@ class CheckoutController extends Controller
      * @Route("/storefront-api/checkout/add-product/{identifier}", name="storefront.api.checkout.add.product")
      * @Method({"POST"})
      */
-    public function addProduct(string $identifier, Request $request): JsonResponse
+    public function addProduct(string $identifier, Request $request, StorefrontContext $context): JsonResponse
     {
-        /** @var ContextUser $user */
-        $user = $this->getUser();
-
         $post = $this->getPost($request);
 
         $quantity = isset($post['quantity']) ? (int) $post['quantity'] : 1;
@@ -133,7 +127,7 @@ class CheckoutController extends Controller
 
         $payload = array_replace_recursive(['id' => $identifier], $payload);
 
-        $calculated = $this->addLineItem($user->getContext(), $identifier, ProductProcessor::TYPE_PRODUCT, $quantity, $payload);
+        $calculated = $this->addLineItem($context, $identifier, ProductProcessor::TYPE_PRODUCT, $quantity, $payload);
 
         return new JsonResponse(
             $this->serialize($calculated)
@@ -144,11 +138,8 @@ class CheckoutController extends Controller
      * @Route("/storefront-api/checkout/add", name="storefront.api.checkout.add")
      * @Method({"POST"})
      */
-    public function add(Request $request): JsonResponse
+    public function add(Request $request, StorefrontContext $context): JsonResponse
     {
-        /** @var ContextUser $user */
-        $user = $this->getUser();
-
         $post = $this->getPost($request);
 
         if (!isset($post['identifier'])) {
@@ -169,7 +160,7 @@ class CheckoutController extends Controller
         $type = $post['type'];
         $payload = $post['payload'];
 
-        $calculated = $this->addLineItem($user->getContext(), $identifier, $type, $quantity, $payload);
+        $calculated = $this->addLineItem($context, $identifier, $type, $quantity, $payload);
 
         return new JsonResponse(
             $this->serialize($calculated)
@@ -180,12 +171,9 @@ class CheckoutController extends Controller
      * @Route("/storefront-api/checkout/{identifier}", name="storefront.api.checkout.delete")
      * @Method({"DELETE"})
      */
-    public function remove(string $identifier): JsonResponse
+    public function remove(string $identifier, StorefrontContext $context): JsonResponse
     {
-        /** @var ContextUser $user */
-        $user = $this->getUser();
-
-        $cart = $this->loadCart($user->getContextToken());
+        $cart = $this->loadCart($context->getToken());
 
         if (!$lineItem = $cart->getLineItems()->get($identifier)) {
             throw new LineItemNotFoundException($identifier);
@@ -193,9 +181,9 @@ class CheckoutController extends Controller
 
         $cart->getLineItems()->remove($identifier);
 
-        $calculated = $this->calculation->calculate($cart, $user->getContext());
+        $calculated = $this->calculation->calculate($cart, $context);
 
-        $this->save($calculated, $user->getContext());
+        $this->save($calculated, $context);
 
         return new JsonResponse(
             $this->serialize($calculated)
@@ -206,12 +194,9 @@ class CheckoutController extends Controller
      * @Route("/storefront-api/checkout/set-quantity/{identifier}", name="storefront.api.checkout.set-quantity")
      * @Method({"PUT"})
      */
-    public function setQuantity(string $identifier, Request $request): JsonResponse
+    public function setQuantity(string $identifier, Request $request, StorefrontContext $context): JsonResponse
     {
-        /** @var ContextUser $user */
-        $user = $this->getUser();
-
-        $cart = $this->loadCart($user->getContextToken());
+        $cart = $this->loadCart($context->getToken());
 
         $post = $this->getPost($request);
 
@@ -227,9 +212,9 @@ class CheckoutController extends Controller
 
         $lineItem->setQuantity($quantity);
 
-        $calculated = $this->calculation->calculate($cart, $user->getContext());
+        $calculated = $this->calculation->calculate($cart, $context);
 
-        $this->save($calculated, $user->getContext());
+        $this->save($calculated, $context);
 
         return new JsonResponse(
             $this->serialize($calculated)
@@ -240,16 +225,13 @@ class CheckoutController extends Controller
      * @Route("/storefront-api/checkout/order", name="storefront.api.checkout.order")
      * @Method({"POST"})
      */
-    public function order(): JsonResponse
+    public function order(StorefrontContext $context): JsonResponse
     {
-        /** @var ContextUser $user */
-        $user = $this->getUser();
+        $cart = $this->loadCart($context->getToken());
 
-        $cart = $this->loadCart($user->getContextToken());
+        $calculated = $this->calculation->calculate($cart, $context);
 
-        $calculated = $this->calculation->calculate($cart, $user->getContext());
-
-        $events = $this->orderPersister->persist($calculated, $user->getContext());
+        $events = $this->orderPersister->persist($calculated, $context);
 
         $orders = $events->getEventByDefinition(OrderDefinition::class);
 
@@ -257,9 +239,9 @@ class CheckoutController extends Controller
 
         $orderId = array_shift($ids);
 
-        $order = $this->orderRepository->readDetail([$orderId], $user->getContext()->getApplicationContext());
+        $order = $this->orderRepository->readDetail([$orderId], $context->getApplicationContext());
 
-        $this->contextPersister->save($user->getContextToken(), ['cartToken' => null]);
+        $this->contextPersister->save($context->getToken(), ['cartToken' => null]);
 
         return new JsonResponse(
             $this->serialize($order->get($orderId))

@@ -9,10 +9,9 @@ use Shopware\Api\Product\Repository\ProductRepository;
 use Shopware\CartBridge\Product\ProductProcessor;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
-use Shopware\Framework\Application\ApplicationResolver;
+use Shopware\Framework\Routing\ApplicationRequestContextResolver;
+use Shopware\Framework\Routing\RequestContextResolverInterface;
 use Shopware\Rest\Test\ApiTestCase;
-use Shopware\StorefrontApi\Context\StorefrontContextValueResolver;
-use Shopware\StorefrontApi\Firewall\ApplicationAuthenticator2;
 use Symfony\Bundle\FrameworkBundle\Client;
 
 class CheckoutControllerTest extends ApiTestCase
@@ -329,7 +328,7 @@ class CheckoutControllerTest extends ApiTestCase
 
         $this->customerRepository->create([
             [
-                'shopId' => Defaults::APPLICATION,
+                'applicationId' => Defaults::APPLICATION,
                 'defaultShippingAddress' => [
                     'id' => $addressId,
                     'firstName' => 'not',
@@ -386,7 +385,7 @@ class CheckoutControllerTest extends ApiTestCase
         $content = json_decode($client->getResponse()->getContent(), true);
 
         return $this->getCartClient(
-            $content[ApplicationResolver::CONTEXT_HEADER]
+            $content[ApplicationRequestContextResolver::CONTEXT_TOKEN_HEADER]
         );
     }
 
@@ -404,11 +403,11 @@ class CheckoutControllerTest extends ApiTestCase
         $headers = [
             'CONTENT_TYPE' => 'application/json',
             'HTTP_ACCEPT' => ['application/json'],
-            'HTTP_X_SW_ACCESS_KEY' => Defaults::APPLICATION
+            'HTTP_X_SW_APPLICATION_TOKEN' => 'TzhovH7sgws8n9UjgEdDEzNkA6xURua8'
         ];
 
         if ($token !== null) {
-            $headers['HTTP_X_SW_CONTEXT'] = $token;
+            $headers['HTTP_X_SW_CONTEXT_TOKEN'] = $token;
         }
 
         return self::createClient(

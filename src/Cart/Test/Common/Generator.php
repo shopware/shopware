@@ -25,6 +25,7 @@
 namespace Shopware\Cart\Test\Common;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Api\Application\Struct\ApplicationBasicStruct;
 use Shopware\Api\Country\Struct\CountryAreaBasicStruct;
 use Shopware\Api\Country\Struct\CountryBasicStruct;
 use Shopware\Api\Country\Struct\CountryStateBasicStruct;
@@ -32,6 +33,8 @@ use Shopware\Api\Currency\Struct\CurrencyBasicStruct;
 use Shopware\Api\Customer\Struct\CustomerAddressBasicStruct;
 use Shopware\Api\Customer\Struct\CustomerBasicStruct;
 use Shopware\Api\Customer\Struct\CustomerGroupBasicStruct;
+use Shopware\Api\Language\Struct\LanguageBasicStruct;
+use Shopware\Api\Locale\Struct\LocaleBasicStruct;
 use Shopware\Api\Payment\Struct\PaymentMethodBasicStruct;
 use Shopware\Api\Shipping\Struct\ShippingMethodBasicStruct;
 use Shopware\Api\Shop\Struct\ShopDetailStruct;
@@ -48,20 +51,20 @@ class Generator extends TestCase
     public static function createContext(
         $currentCustomerGroup = null,
         $fallbackCustomerGroup = null,
-        $shop = null,
+        $application = null,
         $currency = null,
         $priceGroupDiscounts = null,
         $taxes = null,
         $area = null,
         $country = null,
         $state = null,
-        $shipping = null
+        $shipping = null,
+        $language = null,
+        $fallbackLanguage = null
     ) {
-        if ($shop === null) {
-            $shop = new ShopDetailStruct();
-            $shop->setId('FFA32A50-E2D0-4CF3-8389-A53F8D6CD594');
-            $shop->setIsDefault(true);
-            $shop->setFallbackTranslationId(null);
+        if ($application === null) {
+            $application = new ApplicationBasicStruct();
+            $application->setId('ffa32a50e2d04cf38389a53f8d6cd594');
         }
 
         $currency = $currency ?: (new CurrencyBasicStruct())->assign([
@@ -109,6 +112,24 @@ class Generator extends TestCase
             $shipping->setCountryState($state);
         }
 
+        if (!$language) {
+            $locale = new LocaleBasicStruct();
+            $locale->setCode('en_GB');
+
+            $language = new LanguageBasicStruct();
+            $language->setLocale($locale);
+            $language->setName('Language 1');
+        }
+
+        if (!$fallbackLanguage) {
+            $locale = new LocaleBasicStruct();
+            $locale->setCode('en_GB');
+
+            $fallbackLanguage = new LanguageBasicStruct();
+            $fallbackLanguage->setLocale($locale);
+            $fallbackLanguage->setName('Fallback Language 1');
+        }
+
         $paymentMethod = (new PaymentMethodBasicStruct())->assign(['id' => '19d144ff-e15f-4772-860d-59fca7f207c1']);
         $shippingMethod = (new ShippingMethodBasicStruct())->assign([
             'id' => '8beeb66e9dda46b18891a059257a590e',
@@ -119,7 +140,9 @@ class Generator extends TestCase
 
         return new StorefrontContext(
             Uuid::uuid4()->toString(),
-            $shop,
+            $application,
+            $language,
+            $fallbackLanguage,
             $currency,
             $currentCustomerGroup,
             $fallbackCustomerGroup,

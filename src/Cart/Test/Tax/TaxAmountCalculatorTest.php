@@ -25,7 +25,7 @@
 namespace Shopware\Cart\Test\Tax;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Api\Shop\Struct\ShopDetailStruct;
+use Shopware\Api\Application\Struct\ApplicationBasicStruct;
 use Shopware\Cart\Price\PriceRounding;
 use Shopware\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Cart\Price\Struct\CalculatedPriceCollection;
@@ -54,11 +54,11 @@ class TaxAmountCalculatorTest extends TestCase
      */
     public function testCalculation(string $calculationType, TaxDetector $taxDetector, CalculatedPriceCollection $prices, CalculatedTaxCollection $expected): void
     {
-        $shop = $this->createMock(ShopDetailStruct::class);
+        $shop = $this->createMock(ApplicationBasicStruct::class);
         $shop->method('getTaxCalculationType')->will($this->returnValue($calculationType));
 
         $context = $this->createMock(StorefrontContext::class);
-        $context->method('getShop')->will($this->returnValue($shop));
+        $context->method('getApplication')->will($this->returnValue($shop));
 
         $taxAmountCalculator = new TaxAmountCalculator(
             new PercentageTaxRuleBuilder(),

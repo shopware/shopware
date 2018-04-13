@@ -200,64 +200,6 @@ class CategoryRepositoryTest extends KernelTestCase
         $this->assertContains($childId->getHex(), $event->getIds(), 'Category children id did not detected by delete');
     }
 
-    public function testICanNotDeleteShopCategory()
-    {
-        $categoryId = Uuid::uuid4();
-        $shopId = Uuid::uuid4();
-
-        $this->repository->create(
-            [['id' => $categoryId->getHex(), 'name' => 'System']],
-            ApplicationContext::createDefaultContext()
-        );
-
-        $this->container->get(EntityWriter::class)->insert(
-            ShopTemplateDefinition::class,
-            [['id' => $shopId->getHex(), 'catalogId' => Defaults::CATALOG, 'template' => 'Test', 'name' => 'test']],
-            TestWriteContext::create()
-        );
-
-        $shopRepo = $this->container->get(ShopRepository::class);
-        $shopRepo->create([
-            [
-                'id' => $shopId->getHex(),
-                'catalogIds' => [Defaults::CATALOG],
-                'categoryId' => $categoryId->getHex(),
-                'templateId' => $shopId->getHex(),
-                'documentTemplateId' => $shopId->getHex(),
-                'localeId' => '7b52d9dd-2b06-40ec-90be-9f57edf29be7',
-                'currencyId' => '4c8eba11-bd35-46d7-86af-bed481a6e665',
-                'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-                'paymentMethodId' => 'e84976ac-e9ab-4928-a3dc-c387b66dbaa6',
-                'shippingMethodId' => '417beeb2-dddf-45d1-b901-88fd211343c3',
-                'countryId' => 'bd5e2dcf-547e-4df6-bb1f-f58a554bc69e',
-                'name' => 'test',
-                'host' => 'test',
-                'basePath' => 'a',
-                'baseUrl' => 'a',
-                'position' => 1,
-            ],
-        ], ApplicationContext::createDefaultContext());
-
-        try {
-            $this->repository->delete(
-                [['id' => $categoryId->getHex()]],
-                ApplicationContext::createDefaultContext()
-            );
-        } catch (RestrictDeleteViolationException $e) {
-            $restrictions = $e->getRestrictions();
-            /** @var RestrictDeleteViolation $restriction */
-            $restriction = array_shift($restrictions);
-
-            $this->assertEquals($categoryId->getHex(), $restriction->getId());
-
-            $this->assertArrayHasKey(ShopDefinition::class, $restriction->getRestrictions());
-            $this->assertEquals(
-                [$shopId->getHex()],
-                $restriction->getRestrictions()[ShopDefinition::class]
-            );
-        }
-    }
-
     public function testSearchRanking()
     {
         $parent = Uuid::uuid4()->getHex();

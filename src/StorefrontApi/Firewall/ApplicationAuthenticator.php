@@ -133,7 +133,7 @@ class ApplicationAuthenticator extends AbstractGuardAuthenticator
             ->fetch();
 
         if (!$application) {
-            return null;
+            throw new ApplicationNotFoundException($credentials['access_key']);
         }
 
         return Application::createFromDatabase($application);

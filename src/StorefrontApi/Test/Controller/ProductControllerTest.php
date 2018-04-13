@@ -42,7 +42,7 @@ class ProductControllerTest extends ApiTestCase
             [
                 'CONTENT_TYPE' => 'application/json',
                 'HTTP_ACCEPT' => ['application/json'],
-                'HTTP_X_SW_ACCESS_KEY' => Defaults::APPLICATION
+                'HTTP_X_SW_APPLICATION_TOKEN' => 'TzhovH7sgws8n9UjgEdDEzNkA6xURua8'
             ]
         );
 

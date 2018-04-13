@@ -35,9 +35,7 @@ use Shopware\Context\Rule\CustomerGroupRule;
 use Shopware\Context\Rule\DateRangeRule;
 use Shopware\Context\Rule\GoodsPriceRule;
 use Shopware\Context\Rule\LineItemInCartRule;
-use Shopware\Context\Rule\ProductOfManufacturerRule;
 use Shopware\Context\Rule\Rule;
-use Shopware\Context\Rule\ShopRule;
 use Shopware\Context\Struct\StorefrontContext;
 
 class VoucherGateway implements VoucherGatewayInterface
@@ -130,12 +128,6 @@ class VoucherGateway implements VoucherGatewayInterface
                     $row['valid_from'] ? new \DateTime($row['valid_from']) : null,
                     $row['valid_to'] ? new \DateTime($row['valid_to']) : null
                 )
-            );
-        }
-
-        if ($row['subshopID']) {
-            $rule->addRule(
-                new ShopRule([(int) $row['subshopID']], Rule::OPERATOR_EQ)
             );
         }
 

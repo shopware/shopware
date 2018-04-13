@@ -43,7 +43,7 @@ class ApplicationAuthenticatorTest extends ApiTestCase
 
         $error = array_shift($content['errors']);
 
-        $this->assertEquals($error['detail'], 'Header "X-Application-Id" is required to access the storefront api.');
+        $this->assertEquals($error['detail'], 'Header "X-SW-Application-Token" is required.');
     }
 
     public function testNoAccessWithUnknownApplicationToken()
@@ -53,13 +53,13 @@ class ApplicationAuthenticatorTest extends ApiTestCase
             [
                 'CONTENT_TYPE' => 'application/json',
                 'HTTP_ACCEPT' => ['application/json'],
-                'HTTP_X_SW_ACCESS_KEY' => 'ffffffff-ffff-ffff-ffff-ffffffffffff'
+                'HTTP_X_SW_APPLICATION_TOKEN' => 'ffffffff-ffff-ffff-ffff-ffffffffffff'
             ]
         );
 
         $client->request('GET', '/storefront-api/checkout');
 
-        self::assertSame(403, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        self::assertSame(401, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         $content = json_decode($client->getResponse()->getContent(), true);
 
@@ -69,6 +69,6 @@ class ApplicationAuthenticatorTest extends ApiTestCase
 
         $error = array_shift($content['errors']);
 
-        $this->assertEquals($error['detail'], 'Application Key "ffffffff-ffff-ffff-ffff-ffffffffffff" is not valid.');
+        $this->assertEquals($error['detail'], 'No application found for provided token.');
     }
 }

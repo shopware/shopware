@@ -92,6 +92,10 @@ class Kernel extends HttpKernel
 
     public static function getConnection(): ?\PDO
     {
+        if (!self::$connection) {
+            self::$connection = DatabaseConnector::createPdoConnection();
+        }
+
         return self::$connection;
     }
 
@@ -146,38 +150,38 @@ class Kernel extends HttpKernel
         // detail routes
         $route = new Route('/api/{path}');
         $route->setMethods(['GET']);
-        $route->setDefault('_controller', $class . '::detailAction');
+        $route->setDefault('_controller', $class . '::detail');
         $route->addRequirements(['path' => $uuidRegex]);
         $routes->addRoute($route, 'api_controller.detail');
 
         $route = new Route('/api/{path}');
         $route->setMethods(['PATCH']);
-        $route->setDefault('_controller', $class . '::updateAction');
+        $route->setDefault('_controller', $class . '::update');
         $route->addRequirements(['path' => $uuidRegex]);
         $routes->addRoute($route, 'api_controller.update');
 
         $route = new Route('/api/{path}');
         $route->setMethods(['DELETE']);
-        $route->setDefault('_controller', $class . '::deleteAction');
+        $route->setDefault('_controller', $class . '::delete');
         $route->addRequirements(['path' => $uuidRegex]);
         $routes->addRoute($route, 'api_controller.delete');
 
         // list routes
         $route = new Route('/api/{path}');
         $route->setMethods(['GET']);
-        $route->setDefault('_controller', $class . ':listAction');
+        $route->setDefault('_controller', $class . ':list');
         $route->addRequirements(['path' => '.*']);
         $routes->addRoute($route, 'api_controller.list');
 
         $route = new Route('/api/search/{path}');
         $route->setMethods(['POST']);
-        $route->setDefault('_controller', $class . '::searchAction');
+        $route->setDefault('_controller', $class . '::search');
         $route->addRequirements(['path' => '.*']);
         $routes->addRoute($route, 'api_controller.search');
 
         $route = new Route('/api/{path}');
         $route->setMethods(['POST']);
-        $route->setDefault('_controller', $class . '::createAction');
+        $route->setDefault('_controller', $class . '::create');
         $route->addRequirements(['path' => '.*']);
         $routes->addRoute($route, 'api_controller.create');
     }

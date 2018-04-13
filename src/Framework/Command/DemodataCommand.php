@@ -22,7 +22,6 @@ use Shopware\Context\Rule\CustomerGroupRule;
 use Shopware\Context\Rule\DateRangeRule;
 use Shopware\Context\Rule\GoodsPriceRule;
 use Shopware\Context\Rule\IsNewCustomerRule;
-use Shopware\Context\Rule\ShopRule;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\Uuid;
@@ -371,7 +370,6 @@ class DemodataCommand extends ContainerAwareCommand
             new IsNewCustomerRule(),
             new DateRangeRule(new \DateTime(), (new \DateTime())->modify('+2 day')),
             new GoodsPriceRule(5000, GoodsPriceRule::OPERATOR_GTE),
-            new ShopRule([Defaults::APPLICATION], ShopRule::OPERATOR_NEQ),
             new NotRule([new CustomerGroupRule([Defaults::FALLBACK_CUSTOMER_GROUP])]),
             new NotRule([new CurrencyRule([Defaults::CURRENCY])]),
         ];

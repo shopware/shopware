@@ -8,6 +8,7 @@ use Shopware\Api\Category\Repository\CategoryRepository;
 use Shopware\Api\Category\Struct\CategoryBasicStruct;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\TermQuery;
+use Shopware\Api\Entity\Write\FieldException\WriteStackException;
 use Shopware\Api\Product\Repository\ProductRepository;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
@@ -65,8 +66,10 @@ class CatalogTest extends KernelTestCase
         $this->assertEquals(Defaults::CATALOG, Uuid::fromBytesToHex($catalogId));
     }
 
-    public function testWithCatalogProvided(): void
+    public function testCreateWithCatalogProvidedButNotInContext(): void
     {
+        $this->expectException(WriteStackException::class);
+
         $id = Uuid::uuid4();
         $context = ApplicationContext::createDefaultContext();
         $catalogId = $this->createCatalog($context);
@@ -83,12 +86,34 @@ class CatalogTest extends KernelTestCase
         $this->assertEquals($catalogId, Uuid::fromBytesToHex($createdCatalogId));
     }
 
-    public function testReadWithEmptyCatalogContext(): void
+    public function testWithCatalogProvided(): void
     {
         $id = Uuid::uuid4();
         $context = ApplicationContext::createDefaultContext();
+        $catalogId = $this->createCatalog($context);
+        $category = [
+            'id' => $id->getHex(),
+            'catalogId' => $catalogId,
+            'name' => 'catalog test category',
+        ];
 
-        $context = new ApplicationContext(
+        $catalogContext = $this->addCatalogIdToContext($context, $catalogId);
+
+        $this->categoryRepository->create([$category], $catalogContext);
+
+        $createdCatalogId = $this->connection->fetchColumn('SELECT catalog_id FROM category WHERE id = :id', ['id' => $id->getBytes()]);
+
+        $this->assertEquals($catalogId, Uuid::fromBytesToHex($createdCatalogId));
+    }
+
+    public function testReadWithEmptyCatalogContext(): void
+    {
+        $this->expectException(WriteStackException::class);
+
+        $id = Uuid::uuid4();
+        $context = ApplicationContext::createDefaultContext();
+
+        $readContext = new ApplicationContext(
             $context->getApplicationId(),
             [],
             [],
@@ -110,7 +135,7 @@ class CatalogTest extends KernelTestCase
         $this->assertEquals($id->getHex(), Uuid::fromBytesToHex($createdCategory['id']));
         $this->assertEquals($catalogId, Uuid::fromBytesToHex($createdCategory['catalog_id']));
 
-        $categories = $this->categoryRepository->readBasic([$id->getHex()], $context);
+        $categories = $this->categoryRepository->readBasic([$id->getHex()], $readContext);
         $this->assertEquals(0, $categories->count(), 'Category could be fetched but should not.');
     }
 
@@ -119,13 +144,14 @@ class CatalogTest extends KernelTestCase
         $id = Uuid::uuid4();
         $context = ApplicationContext::createDefaultContext();
         $catalogId = $this->createCatalog($context);
+        $catalogContext = $this->addCatalogIdToContext($context, $catalogId);
         $category = [
             'id' => $id->getHex(),
             'catalogId' => $catalogId,
             'name' => 'catalog test category',
         ];
 
-        $this->categoryRepository->create([$category], $context);
+        $this->categoryRepository->create([$category], $catalogContext);
 
         // verify category has been created correctly
         $createdCategory = $this->connection->fetchAssoc('SELECT id, catalog_id FROM category WHERE id = :id', ['id' => $id->getBytes()]);
@@ -142,13 +168,7 @@ class CatalogTest extends KernelTestCase
         $context = ApplicationContext::createDefaultContext();
         $catalogId = $this->createCatalog($context);
 
-        $context = new ApplicationContext(
-            $context->getApplicationId(),
-            [$catalogId],
-            [],
-            $context->getCurrencyId(),
-            $context->getLanguageId()
-        );
+        $context = $this->addCatalogIdToContext($context, $catalogId);
 
         $category = [
             'id' => $id->getHex(),
@@ -177,19 +197,23 @@ class CatalogTest extends KernelTestCase
         $catalogId1 = $this->createCatalog($context);
         $catalogId2 = $this->createCatalog($context);
 
+        $fullContext = ApplicationContext::createDefaultContext();
+        $fullContext = $this->addCatalogIdToContext($fullContext, $catalogId1);
+        $fullContext = $this->addCatalogIdToContext($fullContext, $catalogId2);
+
         $categories = [
             ['id' => $id1->getHex(), 'catalogId' => $catalogId1, 'name' => 'test category catalog1'],
             ['id' => $id2->getHex(), 'catalogId' => $catalogId2, 'name' => 'test category catalog2'],
             ['id' => $id3->getHex(), 'name' => 'test category default catalog'],
         ];
 
-        $this->categoryRepository->create($categories, $context);
+        $this->categoryRepository->create($categories, $fullContext);
 
         // read with two enabled catalogs
         $context = new ApplicationContext(
             $context->getApplicationId(),
             [$catalogId1, $catalogId2],
-            [],
+            $context->getContextRules(),
             $context->getCurrencyId(),
             $context->getLanguageId()
         );
@@ -306,7 +330,7 @@ class CatalogTest extends KernelTestCase
                     'catalogId' => $catalogId,
                     'name' => 'product catalog 1',
                     'price' => ['gross' => 10, 'net' => 10],
-                    'manufacturer' => ['id' => $manufacturerId->getHex(), 'name' => 'catalog manufacturer'],
+                    'manufacturer' => ['id' => $manufacturerId->getHex(), 'name' => 'catalog manufacturer', 'catalogId' => $catalogId],
                     'tax' => ['id' => $taxId->getHex(), 'name' => '10%', 'rate' => 10],
                 ],
                 [
@@ -314,7 +338,7 @@ class CatalogTest extends KernelTestCase
                     'catalogId' => $catalogId,
                     'name' => 'product catalog 2',
                     'price' => ['gross' => 20, 'net' => 20],
-                    'manufacturer' => ['id' => $manufacturerId->getHex(), 'name' => 'catalog manufacturer'],
+                    'manufacturer' => ['id' => $manufacturerId->getHex(), 'name' => 'catalog manufacturer', 'catalogId' => $catalogId],
                     'tax' => ['id' => $taxId->getHex(), 'name' => '10%', 'rate' => 10],
                 ],
             ],
@@ -371,7 +395,7 @@ class CatalogTest extends KernelTestCase
                     'catalogId' => $catalogId,
                     'name' => 'product catalog 1',
                     'price' => ['gross' => 10, 'net' => 10],
-                    'manufacturer' => ['id' => $manufacturerId->getHex(), 'name' => 'catalog manufacturer'],
+                    'manufacturer' => ['id' => $manufacturerId->getHex(), 'name' => 'catalog manufacturer', 'catalogId' => $catalogId,],
                     'tax' => ['id' => $taxId->getHex(), 'name' => '10%', 'rate' => 10],
                 ],
                 [
@@ -379,7 +403,7 @@ class CatalogTest extends KernelTestCase
                     'catalogId' => $catalogId,
                     'name' => 'product catalog 2',
                     'price' => ['gross' => 10, 'net' => 10],
-                    'manufacturer' => ['id' => $manufacturerId->getHex(), 'name' => 'catalog manufacturer'],
+                    'manufacturer' => ['id' => $manufacturerId->getHex(), 'name' => 'catalog manufacturer', 'catalogId' => $catalogId,],
                     'tax' => ['id' => $taxId->getHex(), 'name' => '10%', 'rate' => 10],
                 ],
             ],
@@ -418,5 +442,19 @@ class CatalogTest extends KernelTestCase
         $this->catalogRepository->create([$catalog], $context);
 
         return $catalogId->getHex();
+    }
+
+    private function addCatalogIdToContext(ApplicationContext $context, string $catalogId): ApplicationContext
+    {
+        return new ApplicationContext(
+            $context->getApplicationId(),
+            array_merge($context->getCatalogIds(), [$catalogId]),
+            $context->getContextRules(),
+            $context->getCurrencyId(),
+            $context->getLanguageId(),
+            $context->getFallbackLanguageId(),
+            $context->getVersionId(),
+            $context->getCurrencyFactor()
+        );
     }
 }

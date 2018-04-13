@@ -10,7 +10,7 @@ use Shopware\CartBridge\Product\ProductProcessor;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 use Shopware\Framework\Routing\ApplicationRequestContextResolver;
-use Shopware\Framework\Routing\RequestContextResolverInterface;
+use Shopware\PlatformRequest;
 use Shopware\Rest\Test\ApiTestCase;
 use Symfony\Bundle\FrameworkBundle\Client;
 
@@ -385,7 +385,7 @@ class CheckoutControllerTest extends ApiTestCase
         $content = json_decode($client->getResponse()->getContent(), true);
 
         return $this->getCartClient(
-            $content[ApplicationRequestContextResolver::CONTEXT_TOKEN_HEADER]
+            $content[PlatformRequest::HEADER_CONTEXT_TOKEN]
         );
     }
 

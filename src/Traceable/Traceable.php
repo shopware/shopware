@@ -34,7 +34,11 @@ class Traceable extends Bundle
         $finder = new Finder();
         $classes = $finder->in($directory);
         foreach ($classes->getIterator() as $file) {
-            require_once (string) $file;
+            try {
+                require_once (string)$file;
+            } catch (\Exception $e) {
+
+            }
         }
     }
 

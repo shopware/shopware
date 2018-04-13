@@ -1154,9 +1154,9 @@ CREATE TABLE `product_search_keyword` (
   `product_version_id` binary(16) NOT NULL,
   `ranking` float NOT NULL,
   PRIMARY KEY (`id`, `version_id`),
-  UNIQUE KEY (`product_id`, `language_id`, `version_id`, `keyword`),
   CONSTRAINT `fk_product_search_keyword.product_id` FOREIGN KEY (`product_id`, `product_version_id`) REFERENCES `product` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_product_search_keyword.language_id` FOREIGN KEY (`language_id`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `fk_product_search_keyword.language_id` FOREIGN KEY (`language_id`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  UNIQUE KEY (`language_id`, `keyword`, `product_id`, `ranking`, `version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `product_manufacturer`;

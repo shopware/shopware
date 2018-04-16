@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Field\AssociationInterface;
 use Shopware\Api\Entity\Field\Field;
+use Shopware\Api\Entity\Field\JsonObjectField;
 use Shopware\Api\Entity\Field\ManyToManyAssociationField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\OneToManyAssociationField;
@@ -82,38 +83,7 @@ class EntityDefinitionQueryHelper
         if ($fields->has($fieldName)) {
             $field = $fields->get($fieldName);
 
-            if ($field instanceof TranslatedField) {
-                $inheritedChain = self::buildTranslationChain($root, $definition, $context);
-
-                return self::getTranslationFieldAccessor($root, $field, $inheritedChain);
-            }
-
-            if ($field instanceof StorageAware) {
-                if ($field instanceof SqlParseAware) {
-                    $select = $field->parse($root, $context);
-                } else {
-                    $select = self::escape($root)
-                        . '.' .
-                        self::escape($field->getStorageName());
-                }
-
-                if (!$field->is(Inherited::class)) {
-                    return $select;
-                }
-
-                if ($field instanceof SqlParseAware) {
-                    $parentSelect = $field->parse(
-                        $root . '.' . $definition::getParentPropertyName(),
-                        $context
-                    );
-                } else {
-                    $parentSelect = self::escape($root . '.' . $definition::getParentPropertyName())
-                        . '.' .
-                        self::escape($field->getStorageName());
-                }
-
-                return sprintf('IFNULL(%s, %s)', $select, $parentSelect);
-            }
+            return self::buildInheritedAccessor($field, $root, $definition, $context, $fieldName);
         }
 
         $associationKey = explode('.', $fieldName);
@@ -125,6 +95,9 @@ class EntityDefinitionQueryHelper
 
         /** @var AssociationInterface|Field $field */
         $field = $fields->get($associationKey);
+        if (!$field instanceof AssociationInterface && $field instanceof StorageAware) {
+            return self::buildInheritedAccessor($field, $root, $definition, $context, $fieldName);
+        }
 
         $referenceClass = $field->getReferenceClass();
         if ($field instanceof ManyToManyAssociationField) {
@@ -654,5 +627,52 @@ class EntityDefinitionQueryHelper
         }
 
         return $chain;
+    }
+
+    private static function buildInheritedAccessor(Field $field, string $root, string $definition, ApplicationContext $context, string $original): string
+    {
+        /** @var string|EntityDefinition $definition */
+        if ($field instanceof TranslatedField) {
+            $inheritedChain = self::buildTranslationChain($root, $definition, $context);
+
+            return self::getTranslationFieldAccessor($root, $field, $inheritedChain);
+        }
+
+        $select = self::buildFieldSelector($root, $field, $context, $original);
+
+        if (!$field->is(Inherited::class)) {
+            return $select;
+        }
+
+        $parentSelect = self::buildFieldSelector(
+            $root . '.' . $definition::getParentPropertyName(),
+            $field,
+            $context,
+            $original
+        );
+
+        return sprintf('IFNULL(%s, %s)', $select, $parentSelect);
+    }
+
+    private static function buildFieldSelector(string $root, Field $field, ApplicationContext $context, string $original): string
+    {
+
+        if ($field instanceof SqlParseAware) {
+            return $field->parse($root, $context);
+        }
+
+        /** @var StorageAware $field */
+        if ($field instanceof JsonObjectField) {
+            $original = str_replace($field->getPropertyName() . '.', '', $original);
+
+            return sprintf(
+                'JSON_UNQUOTE(JSON_EXTRACT(`%s`.`%s`, "$.%s"))',
+                $root,
+                $field->getPropertyName(),
+                $original
+            );
+        }
+
+        return self::escape($root) . '.' . self::escape($field->getStorageName());
     }
 }

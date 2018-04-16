@@ -25,6 +25,7 @@ use Shopware\Api\Entity\Write\Flag\Inherited;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Struct\ArrayStruct;
 use Shopware\Framework\Struct\Struct;
+use Shopware\Framework\Struct\Uuid;
 
 /**
  * Reads entities in specify data form (basic, detail, dynamic).

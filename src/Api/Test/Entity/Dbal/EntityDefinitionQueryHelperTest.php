@@ -34,6 +34,17 @@ class EntityDefinitionQueryHelperTest extends TestCase
 
         self::assertEquals('JSON_UNQUOTE(JSON_EXTRACT(`json_object_test`.`amount`, "$.gross.value"))', $accessor);
     }
+
+    public function testGetFieldWithJsonAccessor()
+    {
+        $field = EntityDefinitionQueryHelper::getField(
+            'json_object_test.amount.gross.value',
+            JsonObjectTestDefinition::class,
+            JsonObjectTestDefinition::getEntityName()
+        );
+
+        $this->assertInstanceOf(JsonObjectField::class, $field);
+    }
 }
 
 class JsonObjectTestDefinition extends EntityDefinition

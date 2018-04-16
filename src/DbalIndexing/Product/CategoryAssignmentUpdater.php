@@ -93,7 +93,9 @@ class CategoryAssignmentUpdater
         $query->setParameter('version', Uuid::fromStringToBytes($context->getVersionId()));
         $query->setParameter('live', Uuid::fromStringToBytes(Defaults::LIVE_VERSION));
 
-        $bytes = EntityDefinitionQueryHelper::uuidStringsToBytes($ids);
+        $bytes = array_map(function (string $id) {
+            return Uuid::fromStringToBytes($id);
+        }, $ids);
 
         $query->setParameter('ids', $bytes, Connection::PARAM_STR_ARRAY);
 

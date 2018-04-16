@@ -56,6 +56,10 @@ class EntityDefinitionQueryHelper
         /** @var AssociationInterface|Field $field */
         $field = $fields->get($associationKey);
 
+        if (!$field instanceof AssociationInterface) {
+            return $field;
+        }
+
         $referenceClass = $field->getReferenceClass();
         if ($field instanceof ManyToManyAssociationField) {
             $referenceClass = $field->getReferenceDefinition();
@@ -171,7 +175,7 @@ class EntityDefinitionQueryHelper
         /** @var AssociationInterface|Field $field */
         $field = $fields->get($associationKey);
 
-        if (!$field) {
+        if (!$field instanceof AssociationInterface) {
             return;
         }
 
@@ -271,7 +275,7 @@ class EntityDefinitionQueryHelper
                         self::escape($alias),
                         self::escape($field->getReferenceField()),
                     ],
-                    '#root#.#source_column# = #alias#.#reference_column# AND #root#.version_id = #alias#.version_id' . $catalogJoinCondition
+                    '#root#.#source_column# = #alias#.#reference_column# AND #root#.`version_id` = #alias#.`version_id`' . $catalogJoinCondition
                 )
             );
         } else {
@@ -492,13 +496,6 @@ class EntityDefinitionQueryHelper
         }
     }
 
-    public static function uuidStringsToBytes(array $ids)
-    {
-        return array_map(function (string $id) {
-            return Uuid::fromStringToBytes($id);
-        }, $ids);
-    }
-
     private static function joinVersion(QueryBuilder $query, string $definition, string $root, ApplicationContext $context): void
     {
         /** @var string|EntityDefinition $definition */
@@ -507,12 +504,12 @@ class EntityDefinitionQueryHelper
         $connection = $query->getConnection();
         $versionQuery = $connection->createQueryBuilder();
         $versionQuery->select([
-            'COALESCE(draft.id, live.id) as id',
-            'COALESCE(draft.version_id, live.version_id) as version_id',
+            'COALESCE(draft.`id`, live.`id`) as id',
+            'COALESCE(draft.`version_id`, live.`version_id`) as version_id',
         ]);
         $versionQuery->from(self::escape($table), 'live');
-        $versionQuery->leftJoin('live', self::escape($table), 'draft', 'draft.id = live.id AND draft.version_id = :version');
-        $versionQuery->andWhere('live.version_id = :liveVersion');
+        $versionQuery->leftJoin('live', self::escape($table), 'draft', 'draft.`id` = live.`id` AND draft.`version_id` = :version');
+        $versionQuery->andWhere('live.`version_id` = :liveVersion');
 
         $query->setParameter('liveVersion', Uuid::fromStringToBytes(Defaults::LIVE_VERSION));
         $query->setParameter('version', Uuid::fromStringToBytes($context->getVersionId()));
@@ -526,7 +523,7 @@ class EntityDefinitionQueryHelper
             str_replace(
                 ['#version#', '#root#'],
                 [self::escape($versionRoot), self::escape($root)],
-                '#version#.version_id = #root#.version_id AND #version#.id = #root#.id'
+                '#version#.`version_id` = #root#.`version_id` AND #version#.`id` = #root#.`id`'
             )
         );
     }
@@ -548,7 +545,7 @@ class EntityDefinitionQueryHelper
 
         $versionJoin = '';
         if ($definition::isVersionAware()) {
-            $versionJoin = ' AND #alias#.version_id = #root#.version_id';
+            $versionJoin = ' AND #alias#.`version_id` = #root#.`version_id`';
         }
 
         $query->leftJoin(
@@ -583,7 +580,7 @@ class EntityDefinitionQueryHelper
                     $definition::getEntityName(),
                     self::escape($root),
                 ],
-                '#alias#.#entity#_id = #root#.id AND #alias#.language_id = :fallbackLanguageId' . $versionJoin
+                '#alias#.`#entity#_id` = #root#.`id` AND #alias#.`language_id` = :fallbackLanguageId' . $versionJoin
             )
         );
         $languageId = Uuid::fromStringToBytes($context->getFallbackLanguageId());

@@ -7,7 +7,7 @@
                 <slot name="actions">
                     {% block sw_grid_row_slot_actions %}
                         <sw-button @click="onInlineEditCancel">Cancel</sw-button>
-                        <sw-button :isPrimary="true" @click="onInlineEditFinish">Save changes</sw-button>
+                        <sw-button variant="primary" @click="onInlineEditFinish">Save changes</sw-button>
                     {% endblock %}
                 </slot>
             </div>

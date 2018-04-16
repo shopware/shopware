@@ -1,6 +1,6 @@
 import { storiesOf } from '@storybook/vue';
 import { action } from '@storybook/addon-actions';
-import { withKnobs, text, boolean } from '@storybook/addon-knobs/vue';
+import { withKnobs, text, boolean, select } from '@storybook/addon-knobs/vue';
 
 import SwagVueInfoPanel from '../addons/info-addon';
 import vueComponents from '../helper/components.collector';
@@ -20,20 +20,18 @@ storiesOf('sw-button', module)
                 action('button-clicked')(event);
             }
         },
-        template: `
-            <div class="is-centered">
-                <div class="primary-buttons">
-                    <sw-button :isPrimary="true" @click="onClick($event)">Default Primary button</sw-button>
-                    <sw-button :isPrimary="true" :isGhost="true" @click="onClick($event)">Ghost Primary button</sw-button>
-                    <sw-button :isPrimary="true" :isLarge="true" @click="onClick($event)">Large Primary button</sw-button>
-                    <sw-button :isPrimary="true" :isSmall="true" @click="onClick($event)">Small Primary button</sw-button>
-                </div>
-                
-                <div class="default-buttons">
+        template:
+            `<div>
+                <div class="button-variants" style="margin-bottom: 20px;">
                     <sw-button @click="onClick($event)">Default button</sw-button>
-                    <sw-button :isGhost="true" @click="onClick($event)">Ghost button</sw-button>
-                    <sw-button :isLarge="true" @click="onClick($event)">Large button</sw-button>
-                    <sw-button :isSmall="true" @click="onClick($event)">Small button</sw-button>
+                    <sw-button variant="primary" @click="onClick($event)">Primary button</sw-button>
+                    <sw-button variant="ghost" @click="onClick($event)">Ghost button</sw-button>
+                </div>
+
+                <div class="button-sizes">
+                    <sw-button size="small" @click="onClick($event)">Small button</sw-button>
+                    <sw-button @click="onClick($event)">Medium button</sw-button>
+                    <sw-button size="large" @click="onClick($event)">Large button</sw-button>
                 </div>
             </div>`
     }))
@@ -46,15 +44,26 @@ storiesOf('sw-button', module)
                 action('button-clicked')(event, this.$refs[componentName]);
             }
         },
-        template: `
-            <sw-button 
-                :isPrimary="true" 
-                :isDisabled="true" 
-                ref="primary" 
-                @click="onClick('primary', $event)">
-                Disabled primary button
-            </sw-button>
-        `
+        template:
+            `<div>
+                <sw-button disabled 
+                           ref="primary" 
+                           @click="onClick('primary', $event)">
+                           Disabled button
+                </sw-button>
+                <sw-button variant="primary" 
+                           disabled 
+                           ref="primary" 
+                           @click="onClick('primary', $event)">
+                           Disabled primary button
+                </sw-button>
+                <sw-button variant="ghost" 
+                           disabled 
+                           ref="primary" 
+                           @click="onClick('primary', $event)">
+                           Disabled ghost button
+                </sw-button>
+            </div>`
     }))
     .add('Interactive button', () => ({
         components: {
@@ -68,15 +77,19 @@ storiesOf('sw-button', module)
         data() {
             return {
                 text: text('Button text', "I'm a button"),
-                isPrimaryButton: boolean('Primary', true),
-                isDisabledButton: boolean('Disabled', false)
+                isDisabledButton: boolean('Disabled', false),
+                isBlockButton: boolean('Block', false),
+                variant: select('Variant', { primary: 'Primary', ghost: 'Ghost' }, ''),
+                size: select('Size', { small: 'Small', large: 'Large' }, '')
             };
         },
         template: `
             <sw-button 
-                :isPrimary="isPrimaryButton" 
-                :isDisabled="isDisabledButton" 
-                ref="button" 
+                :variant="variant"
+                :size="size"
+                :block="isBlockButton"
+                :disabled="isDisabledButton"
+                ref="button"
                 @click="onClick($event)">
                 {{ text }}
             </sw-button>`

@@ -11,11 +11,11 @@
         {% block sw_product_detail_actions %}
             <template slot="smart-bar-actions">
                 {% block sw_product_detail_actions_abort %}
-                    <sw-button :isDisabled="isLoading" link="sw.product.index">Abbrechen</sw-button>
+                    <sw-button :disabled="isLoading" link="sw.product.index">Abbrechen</sw-button>
                 {% endblock %}
 
                 {% block sw_product_detail_actions_save %}
-                    <sw-button :isPrimary="true" :isDisabled="isLoading" @click.prevent="onSave">Speichern</sw-button>
+                    <sw-button variant="primary" :disabled="isLoading" @click.prevent="onSave">Speichern</sw-button>
                 {% endblock %}
             </template>
         {% endblock %}

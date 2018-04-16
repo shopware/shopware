@@ -39,10 +39,26 @@ class EntityAggregator implements EntityAggregatorInterface
      */
     private $reader;
 
-    public function __construct(Connection $connection, EntityReaderInterface $reader)
-    {
+    /**
+     * @var SqlQueryParser
+     */
+    private $queryParser;
+    
+    /**
+     * @var EntityDefinitionQueryHelper
+     */
+    private $queryHelper;
+
+    public function __construct(
+        Connection $connection,
+        EntityReaderInterface $reader,
+        SqlQueryParser $queryParser,
+        EntityDefinitionQueryHelper $queryHelper
+    ) {
         $this->connection = $connection;
         $this->reader = $reader;
+        $this->queryParser = $queryParser;
+        $this->queryHelper = $queryHelper;
     }
 
     public function aggregate(string $definition, Criteria $criteria, ApplicationContext $context): AggregatorResult
@@ -66,7 +82,7 @@ class EntityAggregator implements EntityAggregatorInterface
         /** @var EntityDefinition $definition */
         $table = $definition::getEntityName();
 
-        $query = EntityDefinitionQueryHelper::getBaseQuery($this->connection, ProductDefinition::class, $context);
+        $query = $this->queryHelper->getBaseQuery($this->connection, ProductDefinition::class, $context);
 
         $fields = array_merge(
             $criteria->getFilterFields(),
@@ -75,7 +91,7 @@ class EntityAggregator implements EntityAggregatorInterface
 
         //join association and translated fields
         foreach ($fields as $fieldName) {
-            EntityDefinitionQueryHelper::joinField($fieldName, $definition, $table, $query, $context);
+            $this->queryHelper->resolveAccessor($fieldName, $definition, $table, $query, $context);
         }
 
         $parent = null;
@@ -83,10 +99,10 @@ class EntityAggregator implements EntityAggregatorInterface
         if ($definition::getParentPropertyName()) {
             /** @var EntityDefinition|string $definition */
             $parent = $definition::getFields()->get($definition::getParentPropertyName());
-            EntityDefinitionQueryHelper::joinManyToOne($definition, $table, $parent, $query, $context);
+            $this->queryHelper->resolveField($parent, $definition, $table, $query, $context);
         }
 
-        $parsed = SqlQueryParser::parse($criteria->getFilters(), $definition, $context);
+        $parsed = $this->queryParser->parse($criteria->getFilters(), $definition, $context);
         if (!empty($parsed->getWheres())) {
             $query->andWhere(implode(' AND ', $parsed->getWheres()));
             foreach ($parsed->getParameters() as $key => $value) {
@@ -100,7 +116,7 @@ class EntityAggregator implements EntityAggregatorInterface
     private function fetchAggregation(string $definition, QueryBuilder $query, Aggregation $aggregation, ApplicationContext $context)
     {
         /** @var EntityDefinition|string $definition */
-        $field = EntityDefinitionQueryHelper::getFieldAccessor(
+        $field = $this->queryHelper->getFieldAccessor(
             $aggregation->getField(),
             $definition,
             $definition::getEntityName(),

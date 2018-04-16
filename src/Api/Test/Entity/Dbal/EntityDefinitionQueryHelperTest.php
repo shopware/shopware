@@ -4,6 +4,9 @@ namespace Shopware\Api\Test\Entity\Dbal;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Api\Entity\Dbal\EntityDefinitionQueryHelper;
+use Shopware\Api\Entity\Dbal\FieldAccessorBuilder\FieldAccessorBuilderRegistry;
+use Shopware\Api\Entity\Dbal\FieldAccessorBuilder\JsonObjectFieldAccessorBuilder;
+use Shopware\Api\Entity\Dbal\FieldResolver\FieldResolverRegistry;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Field\JsonObjectField;
 use Shopware\Api\Entity\FieldCollection;
@@ -11,9 +14,32 @@ use Shopware\Context\Struct\ApplicationContext;
 
 class EntityDefinitionQueryHelperTest extends TestCase
 {
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testJsonObjectAccessWithoutAccessorBuilder()
+    {
+        $helper = new EntityDefinitionQueryHelper(
+            new FieldResolverRegistry([]),
+            new FieldAccessorBuilderRegistry([])
+        );
+        $helper->getFieldAccessor(
+            'json_object_test.amount.gross',
+            JsonObjectTestDefinition::class,
+            JsonObjectTestDefinition::getEntityName(),
+            ApplicationContext::createDefaultContext()
+        );
+    }
+
     public function testJsonObjectAccess()
     {
-        $accessor = EntityDefinitionQueryHelper::getFieldAccessor(
+        $helper = new EntityDefinitionQueryHelper(
+            new FieldResolverRegistry([]),
+            new FieldAccessorBuilderRegistry([
+                new JsonObjectFieldAccessorBuilder()
+            ])
+        );
+        $accessor = $helper->getFieldAccessor(
             'json_object_test.amount.gross',
             JsonObjectTestDefinition::class,
             JsonObjectTestDefinition::getEntityName(),
@@ -25,7 +51,13 @@ class EntityDefinitionQueryHelperTest extends TestCase
 
     public function testNestedJsonObjectAccessor()
     {
-        $accessor = EntityDefinitionQueryHelper::getFieldAccessor(
+        $helper = new EntityDefinitionQueryHelper(
+            new FieldResolverRegistry([]),
+            new FieldAccessorBuilderRegistry([
+                new JsonObjectFieldAccessorBuilder()
+            ])
+        );
+        $accessor = $helper->getFieldAccessor(
             'json_object_test.amount.gross.value',
             JsonObjectTestDefinition::class,
             JsonObjectTestDefinition::getEntityName(),
@@ -37,7 +69,13 @@ class EntityDefinitionQueryHelperTest extends TestCase
 
     public function testGetFieldWithJsonAccessor()
     {
-        $field = EntityDefinitionQueryHelper::getField(
+        $helper = new EntityDefinitionQueryHelper(
+            new FieldResolverRegistry([]),
+            new FieldAccessorBuilderRegistry([
+                new JsonObjectFieldAccessorBuilder()
+            ])
+        );
+        $field = $helper->getField(
             'json_object_test.amount.gross.value',
             JsonObjectTestDefinition::class,
             JsonObjectTestDefinition::getEntityName()

@@ -52,15 +52,21 @@ class EntityReader implements EntityReaderInterface
      * @var EntityHydrator
      */
     private $hydrator;
+    /**
+     * @var EntityDefinitionQueryHelper
+     */
+    private $queryHelper;
 
     public function __construct(
         Connection $connection,
         EntitySearcherInterface $searcher,
-        EntityHydrator $hydrator
+        EntityHydrator $hydrator,
+        EntityDefinitionQueryHelper $queryHelper
     ) {
         $this->connection = $connection;
         $this->searcher = $searcher;
         $this->hydrator = $hydrator;
+        $this->queryHelper = $queryHelper;
     }
 
     public function readDetail(string $definition, array $ids, ApplicationContext $context): EntityCollection
@@ -185,7 +191,7 @@ class EntityReader implements EntityReaderInterface
         if ($definition::getParentPropertyName() && !$raw) {
             /** @var EntityDefinition|string $definition */
             $parent = $definition::getFields()->get($definition::getParentPropertyName());
-            EntityDefinitionQueryHelper::joinManyToOne($definition, $root, $parent, $query, $context);
+            $this->queryHelper->resolveField($parent, $definition, $root, $query, $context);
         }
 
         foreach ($filtered as $field) {
@@ -210,7 +216,7 @@ class EntityReader implements EntityReaderInterface
                     continue;
                 }
 
-                EntityDefinitionQueryHelper::joinManyToOne($definition, $root, $field, $query, $context);
+                $this->queryHelper->resolveField($field, $definition, $root, $query, $context);
 
                 $alias = $root . '.' . $field->getPropertyName();
                 $this->joinBasic($field->getReferenceClass(), $context, $alias, $query, $basics, $raw);
@@ -274,7 +280,7 @@ class EntityReader implements EntityReaderInterface
             return;
         }
 
-        EntityDefinitionQueryHelper::addTranslationSelect($root, $definition, $query, $context, $translatedFields, $raw);
+        $this->queryHelper->addTranslationSelect($root, $definition, $query, $context, $translatedFields, $raw);
     }
 
     /**
@@ -289,7 +295,7 @@ class EntityReader implements EntityReaderInterface
     {
         $table = $definition::getEntityName();
 
-        $query = EntityDefinitionQueryHelper::getBaseQuery($this->connection, $definition, $context);
+        $query = $this->queryHelper->getBaseQuery($this->connection, $definition, $context);
 
         $this->joinBasic($definition, $context, $table, $query, $fields, $raw);
 

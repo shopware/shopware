@@ -628,7 +628,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         $associationEntityName = $field->getReferenceClass()::getEntityName();
 
         if ($field instanceof ManyToManyAssociationField) {
-            $associationEntityName = $field->getReferenceDefinition()::getEntityName();
+            $associationEntityName = $field->getReferenceClass()::getEntityName();
         }
 
         return [

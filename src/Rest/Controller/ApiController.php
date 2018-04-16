@@ -101,7 +101,7 @@ class ApiController extends Controller
 
             $definition = $field->getReferenceClass();
             if ($field instanceof ManyToManyAssociationField) {
-                $definition = $field->getReferenceDefinition();
+                $definition = $field->getReferenceClass();
             }
 
             $repository = $this->get($definition::getRepositoryClass());
@@ -165,7 +165,7 @@ class ApiController extends Controller
              * route:           /api/product/SW1/categories
              * $definition:     \Shopware\Category\Definition\CategoryDefinition
              */
-            $definition = $association->getReferenceDefinition();
+            $definition = $association->getReferenceClass();
 
             //fetch inverse association definition for filter
             $reverse = $definition::getFields()->filter(
@@ -463,7 +463,7 @@ class ApiController extends Controller
         /** @var ManyToManyAssociationField $association */
 
         /** @var EntityDefinition|string $reference */
-        $reference = $association->getReferenceDefinition();
+        $reference = $association->getReferenceClass();
 
         $events = $this->executeWriteOperation($reference, $payload, $context, $type);
         $event = $events->getEventByDefinition($reference);

@@ -25,10 +25,15 @@ class EntityForeignKeyResolver
      * @var Connection
      */
     private $connection;
+    /**
+     * @var EntityDefinitionQueryHelper
+     */
+    private $queryHelper;
 
-    public function __construct(Connection $connection)
+    public function __construct(Connection $connection, EntityDefinitionQueryHelper $queryHelper)
     {
         $this->connection = $connection;
+        $this->queryHelper = $queryHelper;
     }
 
     /**
@@ -87,9 +92,9 @@ class EntityForeignKeyResolver
 
     /**
      * @param EntityDefinition|string $definition
-     * @param array                   $ids
-     *
-     * @throws \RuntimeException
+     * @param array $ids
+     * @param string $class
+     * @param ApplicationContext $context
      *
      * @return array
      */
@@ -131,7 +136,7 @@ class EntityForeignKeyResolver
             $alias = $root . '.' . $cascade->getPropertyName();
 
             if ($cascade instanceof OneToManyAssociationField) {
-                EntityDefinitionQueryHelper::joinOneToMany($definition, $root, $cascade, $query, $context);
+                $this->queryHelper->resolveField($cascade, $definition, $root, $query, $context);
 
                 $query->addSelect(
                     'GROUP_CONCAT(HEX(' .
@@ -143,7 +148,7 @@ class EntityForeignKeyResolver
             if ($cascade instanceof ManyToManyAssociationField) {
                 $mappingAlias = $root . '.' . $cascade->getPropertyName() . '.mapping';
 
-                EntityDefinitionQueryHelper::joinManyToMany($definition, $root, $cascade, $query, $context);
+                $this->queryHelper->resolveField($cascade, $definition, $root, $query, $context);
 
                 $query->addSelect(
                     'GROUP_CONCAT(HEX(' .
@@ -154,7 +159,7 @@ class EntityForeignKeyResolver
             }
 
             if ($cascade instanceof ManyToOneAssociationField) {
-                EntityDefinitionQueryHelper::joinManyToOne($definition, $root, $cascade, $query, $context);
+                $this->queryHelper->resolveField($cascade, $definition, $root, $query, $context);
 
                 $query->addSelect(
                     'GROUP_CONCAT(HEX(' .
@@ -218,7 +223,7 @@ class EntityForeignKeyResolver
 
                 $value = array_map('strtolower', $value);
 
-                $field = EntityDefinitionQueryHelper::getField($key, $definition, $root);
+                $field = $this->queryHelper->getField($key, $definition, $root);
 
                 if (!$field) {
                     throw new \RuntimeException(sprintf('Field by key %s not found', $key));

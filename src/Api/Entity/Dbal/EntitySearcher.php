@@ -24,9 +24,24 @@ class EntitySearcher implements EntitySearcherInterface
      */
     private $connection;
 
-    public function __construct(Connection $connection)
-    {
+    /**
+     * @var SqlQueryParser
+     */
+    private $queryParser;
+
+    /**
+     * @var EntityDefinitionQueryHelper
+     */
+    private $queryHelper;
+
+    public function __construct(
+        Connection $connection,
+        SqlQueryParser $queryParser,
+        EntityDefinitionQueryHelper $queryHelper
+    ) {
         $this->connection = $connection;
+        $this->queryParser = $queryParser;
+        $this->queryHelper = $queryHelper;
     }
 
     public function search(string $definition, Criteria $criteria, ApplicationContext $context): IdSearchResult
@@ -34,12 +49,12 @@ class EntitySearcher implements EntitySearcherInterface
         /** @var EntityDefinition $definition */
         $table = $definition::getEntityName();
 
-        $query = EntityDefinitionQueryHelper::getBaseQuery($this->connection, $definition, $context);
+        $query = $this->queryHelper->getBaseQuery($this->connection, $definition, $context);
 
         if ($definition::getParentPropertyName()) {
             /** @var EntityDefinition|string $definition */
             $parent = $definition::getFields()->get($definition::getParentPropertyName());
-            EntityDefinitionQueryHelper::joinManyToOne($definition, $definition::getEntityName(), $parent, $query, $context);
+            $this->queryHelper->resolveField($parent, $definition, $definition::getEntityName(), $query, $context);
         }
 
         //add id select, e.g. `product`.`id`;
@@ -57,7 +72,7 @@ class EntitySearcher implements EntitySearcherInterface
 
         //join association and translated fields
         foreach ($fields as $fieldName) {
-            EntityDefinitionQueryHelper::joinField($fieldName, $definition, $table, $query, $context);
+            $this->queryHelper->resolveAccessor($fieldName, $definition, $table, $query, $context);
         }
 
         $this->addFilters($definition, $criteria, $query, $context);
@@ -100,7 +115,7 @@ class EntitySearcher implements EntitySearcherInterface
     private function addQueries(string $definition, Criteria $criteria, QueryBuilder $query, ApplicationContext $context): void
     {
         /** @var string|EntityDefinition $definition */
-        $queries = SqlQueryParser::parseRanking(
+        $queries = $this->queryParser->parseRanking(
             $criteria->getQueries(),
             $definition,
             $definition::getEntityName(),
@@ -110,7 +125,7 @@ class EntitySearcher implements EntitySearcherInterface
             return;
         }
 
-        $query->addState(EntityDefinitionQueryHelper::REQUIRES_GROUP_BY);
+        $query->addState(EntityDefinitionQueryHelper::HAS_TO_MANY_JOIN);
 
         $select = 'SUM(' . implode(' + ', $queries->getWheres()) . ')';
         $query->addSelect($select . ' as score');
@@ -135,7 +150,7 @@ class EntitySearcher implements EntitySearcherInterface
 
     private function addFilters(string $definition, Criteria $criteria, QueryBuilder $query, ApplicationContext $context): void
     {
-        $parsed = SqlQueryParser::parse($criteria->getAllFilters(), $definition, $context);
+        $parsed = $this->queryParser->parse($criteria->getAllFilters(), $definition, $context);
 
         if (empty($parsed->getWheres())) {
             return;
@@ -152,7 +167,7 @@ class EntitySearcher implements EntitySearcherInterface
         /* @var string|EntityDefinition $definition */
         foreach ($criteria->getSortings() as $sorting) {
             $query->addOrderBy(
-                EntityDefinitionQueryHelper::getFieldAccessor(
+                $this->queryHelper->getFieldAccessor(
                     $sorting->getField(),
                     $definition,
                     $definition::getEntityName(),
@@ -185,7 +200,7 @@ class EntitySearcher implements EntitySearcherInterface
         /** @var string|EntityDefinition $definition */
         $table = $definition::getEntityName();
 
-        if (!$query->hasState(EntityDefinitionQueryHelper::REQUIRES_GROUP_BY)) {
+        if (!$query->hasState(EntityDefinitionQueryHelper::HAS_TO_MANY_JOIN)) {
             return;
         }
 
@@ -195,7 +210,7 @@ class EntitySearcher implements EntitySearcherInterface
 
         // each order by column has to be inside the group by statement (sql_mode=only_full_group_by)
         foreach ($criteria->getSortings() as $sorting) {
-            $fields[] = EntityDefinitionQueryHelper::getFieldAccessor(
+            $fields[] = $this->queryHelper->getFieldAccessor(
                 $sorting->getField(),
                 $definition,
                 $definition::getEntityName(),

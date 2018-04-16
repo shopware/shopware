@@ -4,10 +4,8 @@ namespace Shopware\Api\Entity\Field;
 
 use Shopware\Api\Entity\Write\DataStack\KeyValuePair;
 use Shopware\Api\Entity\Write\EntityExistence;
-use Shopware\Api\Entity\Write\FieldAware\SqlParseAware;
-use Shopware\Context\Struct\ApplicationContext;
 
-class PriceField extends JsonObjectField implements SqlParseAware
+class PriceField extends JsonObjectField
 {
     public function __invoke(EntityExistence $existence, KeyValuePair $data): \Generator
     {
@@ -25,10 +23,5 @@ class PriceField extends JsonObjectField implements SqlParseAware
         }
 
         yield $this->storageName => $value;
-    }
-
-    public function parse(string $root, ApplicationContext $context): string
-    {
-        return sprintf('(CAST(JSON_UNQUOTE(JSON_EXTRACT(`%s`.`%s`, "$.gross")) AS DECIMAL))', $root, $this->storageName);
     }
 }

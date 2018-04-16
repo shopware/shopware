@@ -3,28 +3,37 @@ import './sw-button.less';
 import template from './sw-button.html.twig';
 
 Component.register('sw-button', {
+    template,
+
     props: {
-        isPrimary: {
+        disabled: {
             type: Boolean,
             required: false,
             default: false
         },
-        isGhost: {
-            type: Boolean,
+        variant: {
+            type: String,
             required: false,
-            default: false
+            default: '',
+            validator(value) {
+                if (!value.length) {
+                    return true;
+                }
+                return ['primary', 'ghost'].includes(value);
+            }
         },
-        isSmall: {
-            type: Boolean,
+        size: {
+            type: String,
             required: false,
-            default: false
+            default: '',
+            validator(value) {
+                if (!value.length) {
+                    return true;
+                }
+                return ['small', 'large'].includes(value);
+            }
         },
-        isLarge: {
-            type: Boolean,
-            required: false,
-            default: false
-        },
-        isDisabled: {
+        block: {
             type: Boolean,
             required: false,
             default: false
@@ -38,14 +47,11 @@ Component.register('sw-button', {
     computed: {
         buttonClasses() {
             return {
-                'sw-button__element--primary': this.isPrimary,
-                'sw-button__element--ghost': this.isGhost,
-                'sw-button__element--disabled': this.isDisabled,
-                'sw-button__element--small': this.isSmall,
-                'sw-button__element--large': this.isLarge,
-                'sw-button--block': this.isBlock
+                [`sw-button--${this.variant}`]: this.variant,
+                [`sw-button--${this.size}`]: this.size,
+                'sw-button--block': this.block,
+                'sw-button--disabled': this.disabled
             };
         }
-    },
-    template
+    }
 });

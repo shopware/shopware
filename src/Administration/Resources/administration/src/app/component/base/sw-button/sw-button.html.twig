@@ -1,16 +1,14 @@
-<div class="sw-button">
-    <router-link v-if="link.length"
-                 :to="{ 'name': link }"
-                 class="sw-button__element"
-                 :class="buttonClasses">
-        <slot></slot>
-    </router-link>
+<router-link v-if="link.length"
+             :to="{ 'name': link }"
+             class="sw-button"
+             :class="buttonClasses">
+    <slot></slot>
+</router-link>
 
-    <button class="sw-button__element"
-            :class="buttonClasses"
-            :disabled="isDisabled"
-            v-on="$listeners"
-            v-else>
-        <slot></slot>
-    </button>
-</div>
+<button class="sw-button"
+        :class="buttonClasses"
+        :disabled="disabled"
+        v-on="$listeners"
+        v-else>
+    <slot></slot>
+</button>

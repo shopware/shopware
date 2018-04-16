@@ -12,110 +12,106 @@
 @sw-button-font-family:              @font-family-default;
 
 .sw-button {
-    vertical-align: middle;
+    border: 1px solid @sw-button-default-color-border;
+    background: @sw-button-default-color-background;
+    color: @sw-button-default-color-text;
+    transition: @sw-button-transition;
     display: inline-block;
+    border-radius: @sw-button-border-radius;
+    padding: 2px 24px;
+    font-size: 14px;
+    line-height: 34px;
+    outline: none;
+    font-weight: 600;
+    font-family: @sw-button-font-family;
+    vertical-align: middle;
+    text-decoration: none;
+    cursor: pointer;
+    margin: 0;
 
-    .sw-button__element {
-        border: 1px solid @sw-button-default-color-border;
-        background: @sw-button-default-color-background;
-        color: @sw-button-default-color-text;
-        transition: @sw-button-transition;
-        display: inline-block;
-        border-radius: @sw-button-border-radius;
-        padding: 2px 24px;
-        font-size: 14px;
-        line-height: 34px;
-        outline: none;
-        font-weight: 600;
-        font-family: @sw-button-font-family;
-        text-decoration: none;
-        cursor: pointer;
-        margin: 0;
+    &:hover {
+        color: darken(@sw-button-default-color-text, 5%);
+        background: darken(@sw-button-default-color-background, 5%);
+        border-color: darken(@sw-button-default-color-border, 5%);
+    }
+
+    &:active {
+        color: darken(@sw-button-default-color-text, 10%);
+        background: darken(@sw-button-default-color-background, 10%);
+        border-color: darken(@sw-button-default-color-border, 20%);
+    }
+
+    &:disabled,
+    &.sw-button--disabled {
+        background: darken(@sw-button-default-color-background, 5%);
+        border-color: darken(@sw-button-default-color-border, 10%);
+        color: lighten(@sw-button-default-color-text, 20%);
+        cursor: default;
+    }
+
+    &.sw-button--primary {
+        background: @sw-button-primary-color-background;
+        color: @sw-button-primary-color-text;
+        line-height: 36px;
+        border: 0 none;
+
+        &.sw-button--small {
+            line-height: 28px;
+        }
+
+        &.sw-button--large {
+            line-height: 44px;
+        }
 
         &:hover {
-            color: darken(@sw-button-default-color-text, 5%);
-            background: darken(@sw-button-default-color-background, 5%);
-            border-color: darken(@sw-button-default-color-border, 5%);
+            background: darken(@sw-button-primary-color-background, 10%);
         }
 
         &:active {
-            color: darken(@sw-button-default-color-text, 10%);
-            background: darken(@sw-button-default-color-background, 10%);
-            border-color: darken(@sw-button-default-color-border, 20%);
+            background: darken(@sw-button-primary-color-background, 15%);
         }
 
         &:disabled,
-        &.sw-button__element--disabled {
-            background: darken(@sw-button-default-color-background, 5%);
-            border-color: darken(@sw-button-default-color-border, 10%);
-            color: lighten(@sw-button-default-color-text, 20%);
-            cursor: default;
+        &.sw-button--disabled {
+            background: lighten(@sw-button-primary-color-background, 20%);
+        }
+    }
+
+    &.sw-button--ghost {
+        background-color: transparent;
+        border-color: @sw-button-ghost-color;
+        color: @sw-button-ghost-color;
+
+        &:hover {
+            background-color: @sw-button-ghost-color;
+            color: @sw-button-ghost-color-text-hover;
         }
 
-        &.sw-button__element--primary {
-            background: @sw-button-primary-color-background;
-            color: @sw-button-primary-color-text;
-            line-height: 36px;
-            border: 0 none;
-
-            &.sw-button__element--small {
-                line-height: 28px;
-            }
-
-            &.sw-button__element--large {
-                line-height: 44px;
-            }
-
-            &:hover {
-                background: darken(@sw-button-primary-color-background, 10%);
-            }
-
-            &:active {
-                background: darken(@sw-button-primary-color-background, 15%);
-            }
-
-            &:disabled,
-            &.sw-button__element--disabled {
-                background: lighten(@sw-button-primary-color-background, 20%);
-            }
+        &:active {
+            background-color: darken(@sw-button-ghost-color, 10%);
+            border-color: darken(@sw-button-ghost-color, 10%);
+            color: @sw-button-ghost-color-text-hover;
         }
 
-        &.sw-button__element--ghost {
+        &:disabled,
+        &.sw-button--disabled {
             background-color: transparent;
-            border-color: @sw-button-ghost-color;
-            color: @sw-button-ghost-color;
-
-            &:hover {
-                background-color: @sw-button-ghost-color;
-                color: @sw-button-ghost-color-text-hover;
-            }
-
-            &:active {
-                background-color: darken(@sw-button-ghost-color, 10%);
-                border-color: darken(@sw-button-ghost-color, 10%);
-                color: @sw-button-ghost-color-text-hover;
-            }
-
-            &:disabled,
-            &.sw-button__element--disabled {
-                background-color: transparent;
-                border-color: lighten(@sw-button-ghost-color, 20%);
-                color: lighten(@sw-button-ghost-color, 20%);
-            }
+            border-color: lighten(@sw-button-ghost-color, 20%);
+            color: lighten(@sw-button-ghost-color, 20%);
         }
+    }
 
-        &.sw-button__element--small {
-            padding-left: 15px;
-            padding-right: 15px;
-            font-size: 12px;
-            line-height: 26px;
-        }
+    &.sw-button--small {
+        padding-left: 15px;
+        padding-right: 15px;
+        font-size: 12px;
+        line-height: 26px;
+    }
 
-        &.sw-button__element--large {
-            padding-left: 28px;
-            padding-right: 28px;
-            line-height: 42px;
-            font-size: 15px;
-        }
+    &.sw-button--large {
+        padding-left: 28px;
+        padding-right: 28px;
+        line-height: 42px;
+        font-size: 15px;
     }
 }

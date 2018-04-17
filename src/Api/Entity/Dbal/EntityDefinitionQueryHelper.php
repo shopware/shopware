@@ -198,6 +198,7 @@ class EntityDefinitionQueryHelper
      */
     public function resolveAccessor(string $fieldName, string $definition, string $root, QueryBuilder $query, ApplicationContext $context): void
     {
+        //example: `product.manufacturer.media.name`
         $original = $fieldName;
         $prefix = $root . '.';
 

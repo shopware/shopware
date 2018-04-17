@@ -4,6 +4,7 @@ namespace Shopware\Api\Entity\Dbal\FieldAccessorBuilder;
 
 use Shopware\Api\Entity\Field\Field;
 use Shopware\Api\Entity\Field\JsonObjectField;
+use Shopware\Api\Entity\Write\FieldAware\StorageAware;
 use Shopware\Context\Struct\ApplicationContext;
 
 class JsonObjectFieldAccessorBuilder implements FieldAccessorBuilderInterface

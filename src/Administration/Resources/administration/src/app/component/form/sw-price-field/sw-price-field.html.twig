@@ -8,8 +8,10 @@
                       :suffix="currency.symbol"
                       min="0.00"
                       step="0.01"
+                      :validation="validation"
                       @input="onPriceGrossChange"
                       @change="onPriceGrossChange"
+                      v-bind="$attrs"
                       v-model="price.gross">
             </sw-field>
         {% endblock %}
@@ -28,8 +30,10 @@
                       :suffix="currency.symbol"
                       min="0.00"
                       step="0.01"
+                      :validation="validation"
                       @input="onPriceNetChange"
                       @change="onPriceNetChange"
+                      v-bind="$attrs"
                       v-model="price.net">
             </sw-field>
         {% endblock %}

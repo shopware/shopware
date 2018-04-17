@@ -74,16 +74,20 @@ Component.register('sw-context-button', {
         },
 
         addMenuToBody() {
-            if (this.$children[1]) {
-                document.body.appendChild(this.$children[1].$el);
-                this.$children[1].$el.addEventListener('mouseleave', this.closeMenu);
+            const menuEl = this.$children[1];
+
+            if (menuEl) {
+                document.body.appendChild(menuEl.$el);
+                menuEl.$el.addEventListener('mouseleave', this.closeMenu);
             }
         },
 
         removeMenuFromBody() {
-            if (this.$children[1]) {
-                this.$children[1].$el.removeEventListener('mouseleave', this.closeMenu);
-                this.$children[1].$el.remove();
+            const menuEl = this.$children[1];
+
+            if (menuEl) {
+                menuEl.$el.removeEventListener('mouseleave', this.closeMenu);
+                menuEl.$el.remove();
             }
         }
     }

@@ -1,7 +1,5 @@
 {% block sw_grid_row %}
     <div class="sw-grid-row" @dblclick="onInlineEditStart($event.currentTarget)" ref="swGridRow">
-        <slot>{% block sw_grid_row_slot_default %}{% endblock %}</slot>
-
         {% block sw_grid_row_actions %}
             <div class="sw-grid-row__actions">
                 <slot name="actions">
@@ -12,5 +10,7 @@
                 </slot>
             </div>
         {% endblock %}
+
+        <slot>{% block sw_grid_row_slot_default %}{% endblock %}</slot>
     </div>
 {% endblock %}

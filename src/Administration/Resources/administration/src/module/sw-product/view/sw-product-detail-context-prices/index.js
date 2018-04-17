@@ -92,6 +92,10 @@ Component.register('sw-product-detail-context-prices', {
         },
 
         onAddNewPriceGroup() {
+            if (typeof this.contextPriceGroups.null !== 'undefined') {
+                return;
+            }
+
             const newContextPrice = Shopware.Entity.getRawEntityObject('product_context_price');
 
             newContextPrice.id = utils.createId();
@@ -125,6 +129,10 @@ Component.register('sw-product-detail-context-prices', {
         },
 
         onPriceGroupDuplicate(priceGroup) {
+            if (typeof this.contextPriceGroups.null !== 'undefined') {
+                return;
+            }
+
             Object.keys(priceGroup.currencies).forEach((currencyId) => {
                 priceGroup.currencies[currencyId].prices.forEach((price) => {
                     const newContextPrice = deepCopyObject(price);
@@ -144,6 +152,16 @@ Component.register('sw-product-detail-context-prices', {
         },
 
         onPriceRuleDelete(contextPrice) {
+            // Do not delete the last price of the default currency
+            if (contextPrice.currencyId === this.defaultCurrency.id) {
+                const contextPriceGroup = this.contextPriceGroups[contextPrice.contextRuleId];
+                const defaultCurrencyPrices = contextPriceGroup.currencies[this.defaultCurrency.id].prices;
+
+                if (defaultCurrencyPrices.length <= 1 && Object.keys(contextPriceGroup.currencies).length > 1) {
+                    return;
+                }
+            }
+
             this.product.contextPrices = this.product.contextPrices.filter((price) => {
                 return price.id !== contextPrice.id;
             });

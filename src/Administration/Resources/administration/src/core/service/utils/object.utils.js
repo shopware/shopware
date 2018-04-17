@@ -7,6 +7,7 @@ import type from './types.utils';
 export default {
     deepCopyObject,
     getObjectChangeSet,
+    getAssociatedDeletions,
     getPropertyBlacklist
 };
 
@@ -21,13 +22,61 @@ export function deepCopyObject(copyObject = {}) {
 }
 
 /**
- * Some properties are read-only because they are handled by the server.
- * They should not be set by the client and have to be removed from entity objects.
+ * Compares two entity versions and returns all deleted associations of that entity.
  *
- * @returns {string[]}
+ * @param baseObject
+ * @param compareObject
+ * @param entitySchemaName
+ * @returns {{}}
  */
-function getPropertyBlacklist() {
-    return ['createdAt', 'updatedAt'];
+export function getAssociatedDeletions(baseObject, compareObject, entitySchemaName) {
+    if (!baseObject || !compareObject || !entitySchemaName) {
+        return {};
+    }
+
+    const entitySchema = Shopware.Entity.getDefinition(entitySchemaName);
+    const entityProperties = Object.keys(entitySchema.properties);
+
+    const b = { ...baseObject };
+    const c = { ...compareObject };
+
+    return Object.keys(b).reduce((acc, key) => {
+        if (!entityProperties.includes(key)) {
+            return { ...acc };
+        }
+
+        const property = entitySchema.properties[key];
+        let associatedEntity = null;
+
+        if (property.entity && property.entity.length) {
+            associatedEntity = property.entity;
+        }
+
+        // The property does not exist on the compare object, so it is a direct deletion.
+        if (typeof c[key] === 'undefined' && associatedEntity !== null) {
+            return { ...acc, [key]: b[key] };
+        }
+
+        if (type.isArray(b[key]) && associatedEntity !== null) {
+            const arrayDeletions = [];
+
+            b[key].forEach((item) => {
+                if (type.isObject(item) && item.id) {
+                    if (typeof c[key].find((compareItem) => compareItem.id === item.id) === 'undefined') {
+                        arrayDeletions.push(item);
+                    }
+                }
+            });
+
+            if (arrayDeletions.length > 0) {
+                return { ...acc, [key]: arrayDeletions };
+            }
+
+            return { ...acc };
+        }
+
+        return { ...acc };
+    }, {});
 }
 
 /**
@@ -153,7 +202,7 @@ function getArrayChangeSet(baseArray, compareArray, entitySchemaName = null) {
     // If there are no items in the compare array, there are no changes.
     // Deletions are handled separately.
     if (compareArray.length === 0) {
-        return baseArray;
+        return [];
     }
 
     const b = [...baseArray];
@@ -200,6 +249,16 @@ function getArrayChangeSet(baseArray, compareArray, entitySchemaName = null) {
     });
 
     return diff;
+}
+
+/**
+ * Some properties are read-only because they are handled by the server.
+ * They should not be set by the client and have to be removed from entity objects.
+ *
+ * @returns {string[]}
+ */
+function getPropertyBlacklist() {
+    return ['createdAt', 'updatedAt'];
 }
 
 function hasNoChanges(diff) {

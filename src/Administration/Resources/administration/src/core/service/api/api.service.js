@@ -105,6 +105,33 @@ class ApiService {
     }
 
     /**
+     * Delete associations of the entity.
+     *
+     * @param id
+     * @param associationKey
+     * @param associationId
+     * @param additionalHeaders
+     * @returns {*}
+     */
+    deleteAssociation(id, associationKey, associationId, additionalHeaders) {
+        if (!id || !associationId || !associationId) {
+            return Promise.reject(new Error('Missing required arguments.'));
+        }
+
+        const headers = this.getBasicHeaders(additionalHeaders);
+
+        return this.httpClient.delete(`${this.getApiBasePath(id)}/${associationKey}/${associationId}`, {
+            headers
+        }).then((response) => {
+            if (response.status >= 200 && response.status < 300) {
+                return Promise.resolve(response);
+            }
+
+            return Promise.reject(response);
+        });
+    }
+
+    /**
      * Creates a new entity
      *
      * @param {any} payload
@@ -156,7 +183,8 @@ class ApiService {
     getBasicHeaders(additionalHeaders = {}) {
         const basicHeaders = {
             Accept: this.contentType,
-            Authorization: `Bearer ${this.loginService.getToken()}`
+            Authorization: `Bearer ${this.loginService.getToken()}`,
+            'Content-Type': 'application/json'
         };
 
         return Object.assign({}, basicHeaders, additionalHeaders);

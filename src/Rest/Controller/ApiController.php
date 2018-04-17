@@ -622,7 +622,7 @@ class ApiController extends Controller
      */
     private function getRequestBody(Request $request): array
     {
-        $contentType = $request->headers->get('CONTENT_TYPE');
+        $contentType = $request->headers->get('CONTENT_TYPE', '');
         $semicolonPosition = strpos($contentType, ';');
 
         if ($semicolonPosition !== false) {

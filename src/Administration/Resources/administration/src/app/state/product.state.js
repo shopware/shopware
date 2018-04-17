@@ -1,6 +1,6 @@
 import { State } from 'src/core/shopware';
 import utils, { types } from 'src/core/service/util.service';
-import { deepCopyObject, getObjectChangeSet } from 'src/core/service/utils/object.utils';
+import { deepCopyObject, getAssociatedDeletions, getObjectChangeSet } from 'src/core/service/utils/object.utils';
 
 /**
  * @module app/state/product
@@ -150,50 +150,85 @@ State.register('product', {
          * @param {Function} commit
          * @param {Object} state
          * @param {Object} product
-         * @returns {Promise<T>}
+         * @return {Promise}
          */
         saveProduct({ commit, state }, product) {
             if (!product.id) {
-                return false;
+                return Promise.reject();
             }
 
             const providerContainer = Shopware.Application.getContainer('service');
             const productService = providerContainer.productService;
 
             const changeset = getObjectChangeSet(state.original[product.id], product, 'product');
+            const deletions = getAssociatedDeletions(state.original[product.id], product, 'product');
 
-            if (types.isEmpty(changeset)) {
-                return false;
-            }
+            const deletionCue = [];
 
-            if (product.isNew) {
-                return productService.create(changeset).then((response) => {
-                    const newProduct = response.data;
-
-                    commit('initProduct', newProduct);
-                    return newProduct;
-                }).catch((exception) => {
-                    if (exception.response.data && exception.response.data.errors) {
-                        exception.response.data.errors.forEach((error) => {
-                            commit('addProductError', error);
+            if (!types.isEmpty(deletions)) {
+                Object.keys(deletions).forEach((property) => {
+                    if (types.isArray(deletions[property])) {
+                        deletions[property].forEach((association) => {
+                            deletionCue.push(new Promise((resolve, reject) => {
+                                productService.deleteAssociation(product.id, property, association.id)
+                                    .then((response) => {
+                                        resolve(response);
+                                    })
+                                    .catch((response) => {
+                                        reject(response);
+                                    });
+                            }));
                         });
                     }
-
-                    return Promise.reject(exception);
                 });
             }
 
-            return productService.updateById(product.id, changeset).then((response) => {
-                commit('initProduct', response.data);
-                return response.data;
-            }).catch((exception) => {
-                if (exception.response.data && exception.response.data.errors) {
-                    exception.response.data.errors.forEach((error) => {
+            return Promise.all(deletionCue).then((deleteResponse) => {
+                if (types.isEmpty(changeset)) {
+                    return deleteResponse;
+                }
+
+                if (product.isNew) {
+                    return productService.create(changeset)
+                        .then((response) => {
+                            const newProduct = response.data;
+
+                            commit('initProduct', newProduct);
+                            return newProduct;
+                        })
+                        .catch((exception) => {
+                            if (exception.response.data && exception.response.data.errors) {
+                                exception.response.data.errors.forEach((error) => {
+                                    commit('addProductError', error);
+                                });
+                            }
+
+                            return exception;
+                        });
+                }
+
+                return productService.updateById(product.id, changeset)
+                    .then((response) => {
+                        commit('initProduct', response.data);
+                        return response.data;
+                    })
+                    .catch((exception) => {
+                        if (exception.response.data && exception.response.data.errors) {
+                            exception.response.data.errors.forEach((error) => {
+                                commit('addProductError', error);
+                            });
+                        }
+
+                        return exception;
+                    });
+            }).catch((deleteException) => {
+                if (deleteException.response.data && deleteException.response.data.errors) {
+                    deleteException.response.data.errors.forEach((error) => {
                         commit('addProductError', error);
                     });
                 }
 
-                return Promise.reject(exception);
+                return deleteException;
             });
         }
     },

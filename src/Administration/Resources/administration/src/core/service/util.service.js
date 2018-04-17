@@ -4,7 +4,7 @@
 import throttle from 'lodash/throttle';
 import uuidV4 from 'uuid/v4';
 
-import { deepCopyObject, getObjectChangeSet } from './utils/object.utils';
+import { deepCopyObject, getObjectChangeSet, getAssociatedDeletions } from './utils/object.utils';
 import { warn } from './utils/debug.utils';
 import { currency, date } from './utils/format.utils';
 import domUtils from './utils/dom.utils';
@@ -13,7 +13,8 @@ import typesUtils from './utils/types.utils';
 
 export const object = {
     deepCopyObject: deepCopyObject,
-    getObjectChangeSet: getObjectChangeSet
+    getObjectChangeSet: getObjectChangeSet,
+    getAssociatedDeletions: getAssociatedDeletions
 };
 
 export const debug = {

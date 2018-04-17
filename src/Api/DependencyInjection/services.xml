@@ -8,7 +8,7 @@
 
         <service class="Shopware\Api\Entity\Dbal\EntityDefinitionQueryHelper" id="Shopware\Api\Entity\Dbal\EntityDefinitionQueryHelper" >
             <argument type="service" id="Shopware\Api\Entity\Dbal\FieldResolver\FieldResolverRegistry"/>
-            <argument type="service" id="FieldAccessorBuilderRegistry"/>
+            <argument type="service" id="Shopware\Api\Entity\Dbal\FieldAccessorBuilder\FieldAccessorBuilderRegistry"/>
         </service>
 
         <service class="Shopware\Api\Entity\Dbal\EntityHydrator" id="Shopware\Api\Entity\Dbal\EntityHydrator">
@@ -153,7 +153,7 @@
             <tag name="shopware.entity.field_resolver"  priority="100" />
         </service>
 
-        <service class="FieldAccessorBuilderRegistry" id="Shopware\Api\Entity\Dbal\FieldAccessorBuilder\FieldAccessorBuilderRegistry">
+        <service class="Shopware\Api\Entity\Dbal\FieldAccessorBuilder\FieldAccessorBuilderRegistry" id="Shopware\Api\Entity\Dbal\FieldAccessorBuilder\FieldAccessorBuilderRegistry">
             <argument type="tagged" tag="shopware.entity.field_accessor_builder" />
         </service>
 

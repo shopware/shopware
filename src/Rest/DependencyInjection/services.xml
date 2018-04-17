@@ -17,7 +17,7 @@
         </service>
 
         <service class="Shopware\Rest\Context\RestContextValueResolver" id="Shopware\Rest\Context\RestContextValueResolver">
-            <tag name="controller.argument_value_resolver"/>
+            <tag name="controller.argument_value_resolver" priority="1000"/>
             <argument type="service" id="security.token_storage"/>
             <argument type="service" id="Shopware\Api\Entity\Dbal\EntitySearcher"/>
         </service>

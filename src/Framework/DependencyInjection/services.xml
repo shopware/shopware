@@ -157,11 +157,8 @@
         </service>
 
 
-        <service class="Shopware\Framework\Routing\ApiRequestContextResolver"
-                 id="Shopware\Framework\Routing\RequestContextResolverInterface">
-
+        <service class="Shopware\Framework\Routing\ApiRequestContextResolver" id="Shopware\Framework\Routing\RequestContextResolverInterface">
             <argument id="security.token_storage" type="service"/>
-            <argument id="Doctrine\DBAL\Connection" type="service"/>
         </service>
 
         <service class="Shopware\Framework\Routing\ApplicationRequestContextResolver"

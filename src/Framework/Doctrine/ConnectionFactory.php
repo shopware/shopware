@@ -54,6 +54,10 @@ class ConnectionFactory extends \Doctrine\Bundle\DoctrineBundle\ConnectionFactor
     ): Connection {
         $params['pdo'] = $this->connection;
 
+        // remove url from parameters as doctrine would create a new connection
+        // and does not use the existing pdo connection.
+        unset($params['url']);
+
         return parent::createConnection(
             $params,
             $config,

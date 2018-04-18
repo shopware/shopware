@@ -31,7 +31,6 @@ use Shopware\Context\Service\ContextFactoryInterface;
 use Shopware\Context\Service\ContextRuleLoader;
 use Shopware\Context\Struct\CheckoutScope;
 use Shopware\Context\Struct\CustomerScope;
-use Shopware\Context\Struct\ApplicationScope;
 use Shopware\Context\Struct\StorefrontContext;
 use Symfony\Component\Serializer\SerializerInterface;
 

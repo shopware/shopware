@@ -17,15 +17,9 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
      */
     private $tokenStorage;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
-
-    public function __construct(TokenStorageInterface $tokenStorage, Connection $connection)
+    public function __construct(TokenStorageInterface $tokenStorage)
     {
         $this->tokenStorage = $tokenStorage;
-        $this->connection = $connection;
     }
 
     public function resolve(Request $master, Request $request): void

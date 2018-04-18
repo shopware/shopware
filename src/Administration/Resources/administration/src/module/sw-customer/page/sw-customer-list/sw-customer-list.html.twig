@@ -1,0 +1,165 @@
+<sw-page>
+    <template slot="smart-bar-header">
+        {% block sw_customer_list_smart_bar_header %}
+            <h2>Kunden ({{ totalCustomers }} Kunden)</h2>
+        {% endblock %}
+    </template>
+
+    <template slot="smart-bar-actions">
+        {% block sw_customer_list_smart_bar_actions %}
+            <sw-button variant="primary" disabled>Kunden anlegen</sw-button>
+        {% endblock %}
+    </template>
+
+    <template slot="content">
+        {% block sw_customer_list_content %}
+            <div class="sw-customer-list">
+
+                <sw-grid :items="customers"
+                         :pagination="true"
+                         :sortBy="sortBy"
+                         :sortDirection="sortDirection"
+                         :sidebar="true"
+                         :isFullpage="true"
+                         @sort-column="onSortColumn"
+                         @inline-edit-finish="onInlineEditSave">
+
+                    <template slot="columns" slot-scope="{ item }">
+                        <sw-grid-column flex="minmax(80px, 100px)"
+                                        label="Kd Nr"
+                                        dataIndex="number"
+                                        sortable
+                                        editable>
+                            {{ item.number }}
+
+                            {% block sw_customer_list_grid_columns_name_editor %}
+                                <sw-field type="text" v-model="item.number" slot="inline-edit"></sw-field>
+                            {% endblock %}
+                        </sw-grid-column>
+
+                        <sw-grid-column flex="minmax(100px,1fr)"
+                                        label="Vorname"
+                                        dataIndex="firstName"
+                                        sortable
+                                        editable>
+                            {{ item.firstName }}
+
+                            <sw-field type="text" v-model="item.firstName" slot="inline-edit"></sw-field>
+                        </sw-grid-column>
+
+                        <sw-grid-column flex="minmax(100px,1fr)"
+                                        label="Nachname"
+                                        dataIndex="lastName"
+                                        sortable
+                                        editable>
+                            {{ item.lastName }}
+
+                            <sw-field type="text" v-model="item.lastName" slot="inline-edit"></sw-field>
+                        </sw-grid-column>
+
+                        <sw-grid-column flex="minmax(100px,1fr)"
+                                        label="Straße"
+                                        dataIndex="defaultBillingAddress.street"
+                                        sortable>
+                            {{ item.defaultBillingAddress.street }}
+
+                            <sw-field type="text" v-model="item.defaultBillingAddress.street" slot="inline-edit"></sw-field>
+                        </sw-grid-column>
+
+                        <sw-grid-column flex="minmax(80px, 100px)"
+                                        label="PLZ"
+                                        dataIndex="defaultBillingAddress.zipcode"
+                                        sortable>
+                            {{ item.defaultBillingAddress.zipcode }}
+
+                            <sw-field type="text" v-model="item.defaultBillingAddress.zipcode" slot="inline-edit"></sw-field>
+                        </sw-grid-column>
+
+                        <sw-grid-column flex="minmax(100px,1fr)"
+                                        label="Stadt"
+                                        dataIndex="defaultBillingAddress.city"
+                                        sortable>
+                            {{ item.defaultBillingAddress.city }}
+
+                            <sw-field type="text" v-model="item.defaultBillingAddress.city" slot="inline-edit"></sw-field>
+                        </sw-grid-column>
+
+                        <sw-grid-column flex="minmax(250px, 1fr)"
+                                        label="E-Mail"
+                                        dataIndex="email"
+                                        sortable
+                                        editable>
+                            {{ item.email }}
+
+                            <sw-field type="text" v-model="item.email" slot="inline-edit"></sw-field>
+                        </sw-grid-column>
+
+                        <sw-grid-column flex="minmax(100px,1fr)"
+                                        label="Zuletzt eingeloggt"
+                                        dataIndex="lastLogin"
+                                        sortable>
+                            {{ item.lastLogin }}
+                        </sw-grid-column>
+
+                        <sw-grid-column flex="100px" label="Aktionen" align="center">
+                            <sw-context-button>
+                                {% block sw_customer_list_grid_columns_actions_edit %}
+                                    <sw-context-menu-item icon="small-pencil-paper" :disabled="true">
+                                        Kunde bearbeiten
+                                    </sw-context-menu-item>
+                                {% endblock %}
+
+                                {% block sw_customer_list_grid_columns_actions_delete %}
+                                    <sw-context-menu-item icon="small-default-x-line-medium" :disabled="true">
+                                        Kunde löschen
+                                    </sw-context-menu-item>
+                                {% endblock %}
+
+                                {% block sw_customer_list_grid_columns_actions_duplicate %}
+                                    <sw-context-menu-item icon="small-copy" :disabled="true">
+                                        Kunde duplizieren
+                                    </sw-context-menu-item>
+                                {% endblock %}
+                            </sw-context-button>
+                        </sw-grid-column>
+                    </template>
+
+                    <template slot="pagination">
+                        {% block sw_customer_list_grid_pagination %}
+                            <sw-pagination :offset="offset"
+                                           :limit="limit"
+                                           :total="totalCustomers"
+                                           :total-visible="7"
+                                           @page-change="pageChange">
+                            </sw-pagination>
+                        {% endblock %}
+                    </template>
+
+                    {% block sw_customer_list_grid_sidebar %}
+                        <sw-sidebar slot="sidebar">
+                            {% block sw_customer_list_grid_sidebar_search %}
+                                <sw-sidebar-item icon="default-action-search" title="Search">
+                                    <sw-field type="text" placeholder="Enter search term..." :value="term" @change="onSearch"></sw-field>
+
+                                    <sw-alert variant="warning" :showIcon="false">
+                                        This is a <strong>demo</strong>. The search will be placed in the header later on.
+                                    </sw-alert>
+                                </sw-sidebar-item>
+                            {% endblock %}
+
+                            {% block sw_customer_list_grid_sidebar_refresh %}
+                                <sw-sidebar-item icon="default-arrow-360-left" @click="onRefresh"></sw-sidebar-item>
+                            {% endblock %}
+                        </sw-sidebar>
+                    {% endblock %}
+                </sw-grid>
+
+                {% block sw_customer_list_grid_loader %}
+                    <sw-loader v-if="isLoading"></sw-loader>
+                {% endblock %}
+
+            </div>
+        {% endblock %}
+    </template>
+
+</sw-page>

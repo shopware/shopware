@@ -3,6 +3,7 @@ import './error.state';
 import './notification.state';
 
 import './product.state';
+import './customer.state';
 import './manufacturer.state';
 import './tax.state';
 import './currency.state';

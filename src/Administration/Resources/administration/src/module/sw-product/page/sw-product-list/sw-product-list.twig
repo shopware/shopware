@@ -8,9 +8,7 @@
 
         <template slot="smart-bar-actions">
             {% block sw_product_list_smart_bar_actions %}
-                <router-link :to="{ name: 'sw.product.create' }">
-                    <sw-button variant="primary">Neues Produkt anlegen</sw-button>
-                </router-link>
+                <sw-button :link="'sw.product.create'" variant="primary">Produkt anlegen</sw-button>
             {% endblock %}
         </template>
 

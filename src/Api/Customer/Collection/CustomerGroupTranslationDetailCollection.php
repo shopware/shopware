@@ -3,7 +3,7 @@
 namespace Shopware\Api\Customer\Collection;
 
 use Shopware\Api\Customer\Struct\CustomerGroupTranslationDetailStruct;
-use Shopware\Api\Shop\Collection\ShopBasicCollection;
+use Shopware\Api\Language\Collection\LanguageBasicCollection;
 
 class CustomerGroupTranslationDetailCollection extends CustomerGroupTranslationBasicCollection
 {
@@ -21,9 +21,9 @@ class CustomerGroupTranslationDetailCollection extends CustomerGroupTranslationB
         );
     }
 
-    public function getLanguages(): ShopBasicCollection
+    public function getLanguages(): LanguageBasicCollection
     {
-        return new ShopBasicCollection(
+        return new LanguageBasicCollection(
             $this->fmap(function (CustomerGroupTranslationDetailStruct $customerGroupTranslation) {
                 return $customerGroupTranslation->getLanguage();
             })

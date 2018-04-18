@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Unit\Event\UnitTranslation;
 
-use Shopware\Api\Shop\Event\Shop\ShopBasicLoadedEvent;
+use Shopware\Api\Language\Event\Language\LanguageBasicLoadedEvent;
 use Shopware\Api\Unit\Collection\UnitTranslationDetailCollection;
 use Shopware\Api\Unit\Event\Unit\UnitBasicLoadedEvent;
 use Shopware\Context\Struct\ApplicationContext;
@@ -51,7 +51,7 @@ class UnitTranslationDetailLoadedEvent extends NestedEvent
             $events[] = new UnitBasicLoadedEvent($this->unitTranslations->getUnits(), $this->context);
         }
         if ($this->unitTranslations->getLanguages()->count() > 0) {
-            $events[] = new ShopBasicLoadedEvent($this->unitTranslations->getLanguages(), $this->context);
+            $events[] = new LanguageBasicLoadedEvent($this->unitTranslations->getLanguages(), $this->context);
         }
 
         return new NestedEventCollection($events);

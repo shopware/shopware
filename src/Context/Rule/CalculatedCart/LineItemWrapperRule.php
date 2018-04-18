@@ -2,7 +2,6 @@
 
 namespace Shopware\Context\Rule\CalculatedCart;
 
-use Shopware\Context\Exception\InvalidMatchContext;
 use Shopware\Context\MatchContext\CalculatedLineItemMatchContext;
 use Shopware\Context\MatchContext\CartRuleMatchContext;
 use Shopware\Context\MatchContext\RuleMatchContext;

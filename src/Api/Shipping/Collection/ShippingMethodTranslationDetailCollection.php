@@ -2,8 +2,8 @@
 
 namespace Shopware\Api\Shipping\Collection;
 
+use Shopware\Api\Language\Collection\LanguageBasicCollection;
 use Shopware\Api\Shipping\Struct\ShippingMethodTranslationDetailStruct;
-use Shopware\Api\Shop\Collection\ShopBasicCollection;
 
 class ShippingMethodTranslationDetailCollection extends ShippingMethodTranslationBasicCollection
 {
@@ -21,9 +21,9 @@ class ShippingMethodTranslationDetailCollection extends ShippingMethodTranslatio
         );
     }
 
-    public function getLanguages(): ShopBasicCollection
+    public function getLanguages(): LanguageBasicCollection
     {
-        return new ShopBasicCollection(
+        return new LanguageBasicCollection(
             $this->fmap(function (ShippingMethodTranslationDetailStruct $shippingMethodTranslation) {
                 return $shippingMethodTranslation->getLanguage();
             })

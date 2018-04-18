@@ -3,7 +3,7 @@
 namespace Shopware\Api\Currency\Collection;
 
 use Shopware\Api\Currency\Struct\CurrencyTranslationDetailStruct;
-use Shopware\Api\Shop\Collection\ShopBasicCollection;
+use Shopware\Api\Language\Collection\LanguageBasicCollection;
 
 class CurrencyTranslationDetailCollection extends CurrencyTranslationBasicCollection
 {
@@ -21,9 +21,9 @@ class CurrencyTranslationDetailCollection extends CurrencyTranslationBasicCollec
         );
     }
 
-    public function getLanguages(): ShopBasicCollection
+    public function getLanguages(): LanguageBasicCollection
     {
-        return new ShopBasicCollection(
+        return new LanguageBasicCollection(
             $this->fmap(function (CurrencyTranslationDetailStruct $currencyTranslation) {
                 return $currencyTranslation->getLanguage();
             })

@@ -2,8 +2,8 @@
 
 namespace Shopware\Api\Order\Collection;
 
+use Shopware\Api\Language\Collection\LanguageBasicCollection;
 use Shopware\Api\Order\Struct\OrderStateTranslationDetailStruct;
-use Shopware\Api\Shop\Collection\ShopBasicCollection;
 
 class OrderStateTranslationDetailCollection extends OrderStateTranslationBasicCollection
 {
@@ -21,9 +21,9 @@ class OrderStateTranslationDetailCollection extends OrderStateTranslationBasicCo
         );
     }
 
-    public function getLanguages(): ShopBasicCollection
+    public function getLanguages(): LanguageBasicCollection
     {
-        return new ShopBasicCollection(
+        return new LanguageBasicCollection(
             $this->fmap(function (OrderStateTranslationDetailStruct $orderStateTranslation) {
                 return $orderStateTranslation->getLanguage();
             })

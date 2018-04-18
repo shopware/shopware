@@ -4,7 +4,7 @@ namespace Shopware\Api\Context\Event\ContextCartModifierTranslation;
 
 use Shopware\Api\Context\Collection\ContextCartModifierTranslationDetailCollection;
 use Shopware\Api\Context\Event\ContextCartModifier\ContextCartModifierBasicLoadedEvent;
-use Shopware\Api\Shop\Event\Shop\ShopBasicLoadedEvent;
+use Shopware\Api\Language\Event\Language\LanguageBasicLoadedEvent;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
@@ -51,7 +51,7 @@ class ContextCartModifierTranslationDetailLoadedEvent extends NestedEvent
             $events[] = new ContextCartModifierBasicLoadedEvent($this->contextCartModifierTranslations->getContextCartModifiers(), $this->context);
         }
         if ($this->contextCartModifierTranslations->getLanguages()->count() > 0) {
-            $events[] = new ShopBasicLoadedEvent($this->contextCartModifierTranslations->getLanguages(), $this->context);
+            $events[] = new LanguageBasicLoadedEvent($this->contextCartModifierTranslations->getLanguages(), $this->context);
         }
 
         return new NestedEventCollection($events);

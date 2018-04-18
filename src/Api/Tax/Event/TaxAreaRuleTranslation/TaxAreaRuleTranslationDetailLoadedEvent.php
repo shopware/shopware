@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Tax\Event\TaxAreaRuleTranslation;
 
-use Shopware\Api\Shop\Event\Shop\ShopBasicLoadedEvent;
+use Shopware\Api\Language\Event\Language\LanguageBasicLoadedEvent;
 use Shopware\Api\Tax\Collection\TaxAreaRuleTranslationDetailCollection;
 use Shopware\Api\Tax\Event\TaxAreaRule\TaxAreaRuleBasicLoadedEvent;
 use Shopware\Context\Struct\ApplicationContext;
@@ -51,7 +51,7 @@ class TaxAreaRuleTranslationDetailLoadedEvent extends NestedEvent
             $events[] = new TaxAreaRuleBasicLoadedEvent($this->taxAreaRuleTranslations->getTaxAreaRules(), $this->context);
         }
         if ($this->taxAreaRuleTranslations->getLanguages()->count() > 0) {
-            $events[] = new ShopBasicLoadedEvent($this->taxAreaRuleTranslations->getLanguages(), $this->context);
+            $events[] = new LanguageBasicLoadedEvent($this->taxAreaRuleTranslations->getLanguages(), $this->context);
         }
 
         return new NestedEventCollection($events);

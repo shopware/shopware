@@ -3,7 +3,7 @@
 namespace Shopware\Api\Configuration\Collection;
 
 use Shopware\Api\Configuration\Struct\ConfigurationGroupOptionTranslationDetailStruct;
-use Shopware\Api\Shop\Collection\ShopBasicCollection;
+use Shopware\Api\Language\Collection\LanguageBasicCollection;
 
 class ConfigurationGroupOptionTranslationDetailCollection extends ConfigurationGroupOptionTranslationBasicCollection
 {
@@ -21,9 +21,9 @@ class ConfigurationGroupOptionTranslationDetailCollection extends ConfigurationG
         );
     }
 
-    public function getLanguages(): ShopBasicCollection
+    public function getLanguages(): LanguageBasicCollection
     {
-        return new ShopBasicCollection(
+        return new LanguageBasicCollection(
             $this->fmap(function (ConfigurationGroupOptionTranslationDetailStruct $configurationGroupOptionTranslation) {
                 return $configurationGroupOptionTranslation->getLanguage();
             })

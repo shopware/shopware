@@ -3,7 +3,7 @@
 namespace Shopware\Api\Context\Collection;
 
 use Shopware\Api\Context\Struct\ContextCartModifierTranslationDetailStruct;
-use Shopware\Api\Shop\Collection\ShopBasicCollection;
+use Shopware\Api\Language\Collection\LanguageBasicCollection;
 
 class ContextCartModifierTranslationDetailCollection extends ContextCartModifierTranslationBasicCollection
 {
@@ -21,9 +21,9 @@ class ContextCartModifierTranslationDetailCollection extends ContextCartModifier
         );
     }
 
-    public function getLanguages(): ShopBasicCollection
+    public function getLanguages(): LanguageBasicCollection
     {
-        return new ShopBasicCollection(
+        return new LanguageBasicCollection(
             $this->fmap(function (ContextCartModifierTranslationDetailStruct $contextCartModifierTranslation) {
                 return $contextCartModifierTranslation->getLanguage();
             })

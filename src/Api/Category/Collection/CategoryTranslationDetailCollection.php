@@ -3,7 +3,7 @@
 namespace Shopware\Api\Category\Collection;
 
 use Shopware\Api\Category\Struct\CategoryTranslationDetailStruct;
-use Shopware\Api\Shop\Collection\ShopBasicCollection;
+use Shopware\Api\Language\Collection\LanguageBasicCollection;
 
 class CategoryTranslationDetailCollection extends CategoryTranslationBasicCollection
 {
@@ -21,9 +21,9 @@ class CategoryTranslationDetailCollection extends CategoryTranslationBasicCollec
         );
     }
 
-    public function getLanguages(): ShopBasicCollection
+    public function getLanguages(): LanguageBasicCollection
     {
-        return new ShopBasicCollection(
+        return new LanguageBasicCollection(
             $this->fmap(function (CategoryTranslationDetailStruct $categoryTranslation) {
                 return $categoryTranslation->getLanguage();
             })

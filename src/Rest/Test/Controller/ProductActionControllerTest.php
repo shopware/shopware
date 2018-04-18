@@ -8,20 +8,19 @@ use Shopware\Api\Product\Struct\ProductDetailStruct;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Struct\Uuid;
 use Shopware\Rest\Test\ApiTestCase;
-use Symfony\Component\BrowserKit\Client;
 
 class ProductActionControllerTest extends ApiTestCase
 {
     /**
      * @var ProductRepository
      */
-    private $repository;
+    private $productRepository;
 
     protected function setUp()
     {
         parent::setUp();
-        $container = self::$kernel->getContainer();
-        $this->repository = $container->get(ProductRepository::class);
+        
+        $this->productRepository = $this->getContainer()->get(ProductRepository::class);
     }
 
     public function testGenerateVariant(): void
@@ -59,13 +58,11 @@ class ProductActionControllerTest extends ApiTestCase
             ],
         ];
 
-        /** @var Client $client */
-        $client = $this->getClient();
-        $client->request('POST', '/api/product', [], [], [], json_encode($data));
+        $this->apiClient->request('POST', '/api/product', [], [], [], json_encode($data));
 
-        $this->assertSame(204, $client->getResponse()->getStatusCode());
+        $this->assertSame(204, $this->apiClient->getResponse()->getStatusCode());
 
-        $product = $this->repository->readDetail([$id], ApplicationContext::createDefaultContext())
+        $product = $this->productRepository->readDetail([$id], ApplicationContext::createDefaultContext())
             ->get($id);
 
         /** @var ProductDetailStruct $product */
@@ -88,19 +85,17 @@ class ProductActionControllerTest extends ApiTestCase
         $this->assertEquals($colorId, $red->getOption()->getGroupId());
         $this->assertEquals($colorId, $blue->getOption()->getGroupId());
 
-        /** @var Client $client */
-        $client = $this->getClient();
-        $client->request('POST', '/api/product/' . $id . '/actions/generate-variants');
-        $this->assertSame(200, $client->getResponse()->getStatusCode());
+        $this->apiClient->request('POST', '/api/product/' . $id . '/actions/generate-variants');
+        $this->assertSame(200, $this->apiClient->getResponse()->getStatusCode());
 
-        $ids = $client->getResponse()->getContent();
+        $ids = $this->apiClient->getResponse()->getContent();
         $this->assertNotEmpty($ids);
 
         $ids = json_decode($ids, true);
         $this->assertArrayHasKey('data', $ids);
         $this->assertCount(2, $ids['data']);
 
-        $products = $this->repository->readBasic($ids['data'], ApplicationContext::createDefaultContext());
+        $products = $this->productRepository->readBasic($ids['data'], ApplicationContext::createDefaultContext());
 
         foreach ($products as $product) {
             $this->assertSame($id, $product->getParentId());

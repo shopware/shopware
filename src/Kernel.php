@@ -90,7 +90,7 @@ class Kernel extends HttpKernel
         return self::$plugins;
     }
 
-    public static function getConnection(): ?\PDO
+    public static function getConnection(): \PDO
     {
         if (!self::$connection) {
             self::$connection = DatabaseConnector::createPdoConnection();

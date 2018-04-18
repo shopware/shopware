@@ -9,7 +9,6 @@ use Shopware\Api\Product\Repository\ProductRepository;
 use Shopware\CartBridge\Product\ProductProcessor;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
-use Shopware\Framework\Routing\ApplicationRequestContextResolver;
 use Shopware\PlatformRequest;
 use Shopware\Rest\Test\ApiTestCase;
 use Symfony\Bundle\FrameworkBundle\Client;
@@ -43,11 +42,11 @@ class CheckoutControllerTest extends ApiTestCase
 
     protected function setUp()
     {
-        self::bootKernel();
         parent::setUp();
-        $this->repository = self::$kernel->getContainer()->get(ProductRepository::class);
-        $this->customerRepository = self::$kernel->getContainer()->get(CustomerRepository::class);
-        $this->connection = self::$kernel->getContainer()->get(Connection::class);
+
+        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->repository = $this->getContainer()->get(ProductRepository::class);
+        $this->customerRepository = $this->getContainer()->get(CustomerRepository::class);
         $this->taxId = Uuid::uuid4()->getHex();
         $this->manufacturerId = Uuid::uuid4()->getHex();
     }
@@ -379,41 +378,23 @@ class CheckoutControllerTest extends ApiTestCase
 
     public function createCart(): Client
     {
-        $client = $this->getCartClient();
-        $client->request('POST', '/storefront-api/checkout');
+        $this->storefrontApiClient->request('POST', '/storefront-api/checkout');
 
-        $content = json_decode($client->getResponse()->getContent(), true);
+        $content = json_decode($this->storefrontApiClient->getResponse()->getContent(), true);
 
-        return $this->getCartClient(
-            $content[PlatformRequest::HEADER_CONTEXT_TOKEN]
-        );
+        $client = clone $this->storefrontApiClient;
+        $client->setServerParameter('HTTP_X_SW_CONTEXT_TOKEN', $content[PlatformRequest::HEADER_CONTEXT_TOKEN]);
+
+        return $client;
     }
 
     public function getCart(Client $client)
     {
-        $client->request('GET', '/storefront-api/checkout');
+        $this->storefrontApiClient->request('GET', '/storefront-api/checkout');
 
         $cart = json_decode($client->getResponse()->getContent(), true);
 
         return $cart['data'];
-    }
-
-    public function getCartClient(?string $token = null)
-    {
-        $headers = [
-            'CONTENT_TYPE' => 'application/json',
-            'HTTP_ACCEPT' => ['application/json'],
-            'HTTP_X_SW_APPLICATION_TOKEN' => 'TzhovH7sgws8n9UjgEdDEzNkA6xURua8'
-        ];
-
-        if ($token !== null) {
-            $headers['HTTP_X_SW_CONTEXT_TOKEN'] = $token;
-        }
-
-        return self::createClient(
-            ['test_case' => 'ApiTest'],
-            $headers
-        );
     }
 
     private function addProduct(Client $client, string $id, int $quantity = 1)

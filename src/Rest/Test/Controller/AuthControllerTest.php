@@ -76,12 +76,11 @@ class AuthControllerTest extends ApiTestCase
 
     public function testAccessProtectedResourceWithToken(): void
     {
-        $client = $this->getClient();
-        $client->request('GET', '/api/tax');
+        $this->apiClient->request('GET', '/api/tax');
 
-        $this->assertEquals(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        $this->assertEquals(200, $this->apiClient->getResponse()->getStatusCode(), $this->apiClient->getResponse()->getContent());
 
-        $response = json_decode($client->getResponse()->getContent(), true);
+        $response = json_decode($this->apiClient->getResponse()->getContent(), true);
 
         $this->assertArrayNotHasKey('errors', $response);
     }

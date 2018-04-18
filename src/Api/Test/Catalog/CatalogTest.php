@@ -51,6 +51,7 @@ class CatalogTest extends KernelTestCase
     public function tearDown()
     {
         $this->connection->rollBack();
+        parent::tearDown();
     }
 
     public function testCreateWithoutCatalogProvided(): void

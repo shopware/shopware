@@ -34,6 +34,6 @@ class BridgeDatabaseCompilerPass implements CompilerPassInterface
     public function process(ContainerBuilder $container): void
     {
         $container->getDefinition('doctrine.dbal.connection_factory')
-                  ->addArgument(new Reference('PDO'));
+                  ->addArgument(new Reference('kernel'));
     }
 }

@@ -5,7 +5,6 @@ namespace Shopware\StorefrontApi\Test\Controller;
 use Ramsey\Uuid\Uuid;
 use Shopware\Api\Product\Repository\ProductRepository;
 use Shopware\Context\Struct\ApplicationContext;
-use Shopware\Defaults;
 use Shopware\Rest\Test\ApiTestCase;
 
 class ProductControllerTest extends ApiTestCase
@@ -13,13 +12,13 @@ class ProductControllerTest extends ApiTestCase
     /**
      * @var ProductRepository
      */
-    private $repository;
+    private $productRepository;
 
     protected function setUp()
     {
-        self::bootKernel();
         parent::setUp();
-        $this->repository = self::$kernel->getContainer()->get(ProductRepository::class);
+        
+        $this->productRepository = self::$kernel->getContainer()->get(ProductRepository::class);
     }
 
     public function testProductList()
@@ -27,7 +26,7 @@ class ProductControllerTest extends ApiTestCase
         $manufacturerId = Uuid::uuid4()->toString();
         $taxId = Uuid::uuid4()->toString();
 
-        $this->repository->create([
+        $this->productRepository->create([
             [
                 'id' => Uuid::uuid4()->toString(),
                 'name' => 'Test',
@@ -37,20 +36,11 @@ class ProductControllerTest extends ApiTestCase
             ],
         ], ApplicationContext::createDefaultContext());
 
-        $client = self::createClient(
-            ['test_case' => 'ApiTest'],
-            [
-                'CONTENT_TYPE' => 'application/json',
-                'HTTP_ACCEPT' => ['application/json'],
-                'HTTP_X_SW_APPLICATION_TOKEN' => 'TzhovH7sgws8n9UjgEdDEzNkA6xURua8'
-            ]
-        );
+        $this->storefrontApiClient->request('GET', '/storefront-api/product');
 
-        $client->request('GET', '/storefront-api/product');
+        self::assertSame(200, $this->storefrontApiClient->getResponse()->getStatusCode(), $this->storefrontApiClient->getResponse()->getContent());
 
-        self::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
-
-        $content = json_decode($client->getResponse()->getContent(), true);
+        $content = json_decode($this->storefrontApiClient->getResponse()->getContent(), true);
 
         $this->assertNotEmpty($content);
         $this->assertArrayHasKey('total', $content);

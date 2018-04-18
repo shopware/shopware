@@ -22,9 +22,8 @@ class ApiControllerTest extends ApiTestCase
             'price' => ['gross' => 50, 'net' => 25],
         ];
 
-        $client = $this->getClient();
-        $client->request('POST', '/api/product', [], [], [], json_encode($data));
-        $response = $client->getResponse();
+        $this->apiClient->request('POST', '/api/product', [], [], [], json_encode($data));
+        $response = $this->apiClient->getResponse();
 
         /* @var Response $response */
         self::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
@@ -32,8 +31,8 @@ class ApiControllerTest extends ApiTestCase
         self::assertNotEmpty($response->headers->get('Location'));
         self::assertEquals('http://localhost/api/product/' . $id, $response->headers->get('Location'));
 
-        $client->request('GET', '/api/product/' . $id);
-        $this->assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
+        $this->apiClient->request('GET', '/api/product/' . $id);
+        $this->assertSame(Response::HTTP_OK, $this->apiClient->getResponse()->getStatusCode());
     }
 
     public function testOneToManyInsert(): void
@@ -42,15 +41,14 @@ class ApiControllerTest extends ApiTestCase
 
         $data = ['id' => $id, 'name' => $id];
 
-        $client = $this->getClient();
-        $client->request('POST', '/api/country', [], [], [], json_encode($data));
-        $response = $client->getResponse();
-        self::assertSame(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        $this->apiClient->request('POST', '/api/country', [], [], [], json_encode($data));
+        $response = $this->apiClient->getResponse();
+        self::assertSame(Response::HTTP_NO_CONTENT, $this->apiClient->getResponse()->getStatusCode(), $this->apiClient->getResponse()->getContent());
         self::assertNotEmpty($response->headers->get('Location'));
         self::assertEquals('http://localhost/api/country/' . $id, $response->headers->get('Location'));
 
-        $client->request('GET', '/api/country/' . $id);
-        $this->assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        $this->apiClient->request('GET', '/api/country/' . $id);
+        $this->assertSame(Response::HTTP_OK, $this->apiClient->getResponse()->getStatusCode(), $this->apiClient->getResponse()->getContent());
 
         $data = [
             'id' => $id,
@@ -58,15 +56,15 @@ class ApiControllerTest extends ApiTestCase
             'shortCode' => 'test',
         ];
 
-        $client->request('POST', '/api/country/' . $id . '/states/', [], [], [], json_encode($data));
-        $response = $client->getResponse();
-        $this->assertSame(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        $this->apiClient->request('POST', '/api/country/' . $id . '/states/', [], [], [], json_encode($data));
+        $response = $this->apiClient->getResponse();
+        $this->assertSame(Response::HTTP_NO_CONTENT, $this->apiClient->getResponse()->getStatusCode(), $this->apiClient->getResponse()->getContent());
         self::assertNotEmpty($response->headers->get('Location'));
         self::assertEquals('http://localhost/api/country-state/' . $id, $response->headers->get('Location'));
 
-        $client->request('GET', '/api/country/' . $id . '/states/');
-        $responseData = json_decode($client->getResponse()->getContent(), true);
-        $this->assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
+        $this->apiClient->request('GET', '/api/country/' . $id . '/states/');
+        $responseData = json_decode($this->apiClient->getResponse()->getContent(), true);
+        $this->assertSame(Response::HTTP_OK, $this->apiClient->getResponse()->getStatusCode());
 
         $this->assertArrayHasKey('data', $responseData);
         $this->assertCount(1, $responseData['data'], sprintf('Expected country %s has only one state', $id));
@@ -91,10 +89,9 @@ class ApiControllerTest extends ApiTestCase
             'price' => ['gross' => 50, 'net' => 25],
         ];
 
-        $client = $this->getClient();
-        $client->request('POST', '/api/product', [], [], [], json_encode($data));
-        $response = $client->getResponse();
-        self::assertSame(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode(), 'Create product failed id:' . $id);
+        $this->apiClient->request('POST', '/api/product', [], [], [], json_encode($data));
+        $response = $this->apiClient->getResponse();
+        self::assertSame(Response::HTTP_NO_CONTENT, $this->apiClient->getResponse()->getStatusCode(), 'Create product failed id:' . $id);
         self::assertNotEmpty($response->headers->get('Location'));
         self::assertEquals('http://localhost/api/product/' . $id, $response->headers->get('Location'));
 
@@ -104,18 +101,18 @@ class ApiControllerTest extends ApiTestCase
             'link' => 'https://www.shopware.com',
         ];
 
-        $client->request('POST', '/api/product/' . $id . '/manufacturer', [], [], [], json_encode($data));
-        $response = $client->getResponse();
-        $this->assertSame(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode(), 'Create manufacturer over product failed id:' . $id . "\n" . $client->getResponse()->getContent());
+        $this->apiClient->request('POST', '/api/product/' . $id . '/manufacturer', [], [], [], json_encode($data));
+        $response = $this->apiClient->getResponse();
+        $this->assertSame(Response::HTTP_NO_CONTENT, $this->apiClient->getResponse()->getStatusCode(), 'Create manufacturer over product failed id:' . $id . "\n" . $this->apiClient->getResponse()->getContent());
         self::assertNotEmpty($response->headers->get('Location'));
         self::assertEquals('http://localhost/api/product-manufacturer/' . $manufacturer, $response->headers->get('Location'));
 
-        $client->request('GET', '/api/product/' . $id . '/manufacturer');
-        $responseData = json_decode($client->getResponse()->getContent(), true);
-        $this->assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode(), 'Read manufacturer of product failed id: ' . $id . PHP_EOL . $client->getResponse()->getContent());
+        $this->apiClient->request('GET', '/api/product/' . $id . '/manufacturer');
+        $responseData = json_decode($this->apiClient->getResponse()->getContent(), true);
+        $this->assertSame(Response::HTTP_OK, $this->apiClient->getResponse()->getStatusCode(), 'Read manufacturer of product failed id: ' . $id . PHP_EOL . $this->apiClient->getResponse()->getContent());
 
-        $this->assertArrayHasKey('data', $responseData, $client->getResponse()->getContent());
-        $this->assertArrayHasKey(0, $responseData['data'], $client->getResponse()->getContent());
+        $this->assertArrayHasKey('data', $responseData, $this->apiClient->getResponse()->getContent());
+        $this->assertArrayHasKey(0, $responseData['data'], $this->apiClient->getResponse()->getContent());
         $this->assertSame($data['name'], $responseData['data'][0]['attributes']['name']);
         $this->assertSame($data['link'], $responseData['data'][0]['attributes']['link']);
         $this->assertSame($data['id'], $responseData['data'][0]['id']);
@@ -133,10 +130,9 @@ class ApiControllerTest extends ApiTestCase
             'price' => ['gross' => 50, 'net' => 25],
         ];
 
-        $client = $this->getClient();
-        $client->request('POST', '/api/product', [], [], [], json_encode($data));
-        $response = $client->getResponse();
-        self::assertSame(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        $this->apiClient->request('POST', '/api/product', [], [], [], json_encode($data));
+        $response = $this->apiClient->getResponse();
+        self::assertSame(Response::HTTP_NO_CONTENT, $this->apiClient->getResponse()->getStatusCode(), $this->apiClient->getResponse()->getContent());
         self::assertNotEmpty($response->headers->get('Location'));
         self::assertEquals('http://localhost/api/product/' . $id, $response->headers->get('Location'));
 
@@ -145,15 +141,15 @@ class ApiControllerTest extends ApiTestCase
             'name' => 'Category - 1',
         ];
 
-        $client->request('POST', '/api/product/' . $id . '/categories/', [], [], [], json_encode($data));
-        $response = $client->getResponse();
-        $this->assertSame(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        $this->apiClient->request('POST', '/api/product/' . $id . '/categories/', [], [], [], json_encode($data));
+        $response = $this->apiClient->getResponse();
+        $this->assertSame(Response::HTTP_NO_CONTENT, $this->apiClient->getResponse()->getStatusCode(), $this->apiClient->getResponse()->getContent());
         self::assertNotEmpty($response->headers->get('Location'));
         self::assertEquals('http://localhost/api/category/' . $id, $response->headers->get('Location'));
 
-        $client->request('GET', '/api/product/' . $id . '/categories/');
-        $responseData = json_decode($client->getResponse()->getContent(), true);
-        $this->assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
+        $this->apiClient->request('GET', '/api/product/' . $id . '/categories/');
+        $responseData = json_decode($this->apiClient->getResponse()->getContent(), true);
+        $this->assertSame(Response::HTTP_OK, $this->apiClient->getResponse()->getStatusCode());
 
         $this->assertArrayHasKey('data', $responseData);
         $this->assertSame($data['name'], $responseData['data'][0]['attributes']['name']);
@@ -172,24 +168,18 @@ class ApiControllerTest extends ApiTestCase
             'price' => ['gross' => 50, 'net' => 25],
         ];
 
-        $client = $this->getClient();
-        $client->request('POST', '/api/product', [], [], [], json_encode($data));
-        $response = $client->getResponse();
-        self::assertSame(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        $this->apiClient->request('POST', '/api/product', [], [], [], json_encode($data));
+        $response = $this->apiClient->getResponse();
+        self::assertSame(Response::HTTP_NO_CONTENT, $this->apiClient->getResponse()->getStatusCode(), $this->apiClient->getResponse()->getContent());
         self::assertNotEmpty($response->headers->get('Location'));
         self::assertEquals('http://localhost/api/product/' . $id->getHex(), $response->headers->get('Location'));
 
-        /** @var Connection $connection */
-        $connection = self::$container->get(Connection::class);
-        $exists = $connection->fetchAll('SELECT * FROM product WHERE id = :id', ['id' => $id->getBytes()]);
-        $this->assertNotEmpty($exists);
+        $this->assertEntityExists('product', $id->getHex());
 
-        $client = $this->getClient();
-        $client->request('DELETE', '/api/product/' . $id->getHex());
-        self::assertSame(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        $this->apiClient->request('DELETE', '/api/product/' . $id->getHex());
+        self::assertSame(Response::HTTP_NO_CONTENT, $this->apiClient->getResponse()->getStatusCode(), $this->apiClient->getResponse()->getContent());
 
-        $exists = $connection->fetchAll('SELECT * FROM product WHERE id = :id', ['id' => $id->getBytes()]);
-        $this->assertEmpty($exists);
+        $this->assertEntityNotExists('product', $id->getHex());
     }
 
     public function testDeleteOneToMany(): void
@@ -205,27 +195,20 @@ class ApiControllerTest extends ApiTestCase
             ],
         ];
 
-        $client = $this->getClient();
-        $client->request('POST', '/api/country', [], [], [], json_encode($data));
-        $response = $client->getResponse();
-        self::assertSame(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        $this->apiClient->request('POST', '/api/country', [], [], [], json_encode($data));
+        $response = $this->apiClient->getResponse();
+        self::assertSame(Response::HTTP_NO_CONTENT, $this->apiClient->getResponse()->getStatusCode(), $this->apiClient->getResponse()->getContent());
         self::assertNotEmpty($response->headers->get('Location'));
         self::assertEquals('http://localhost/api/country/' . $id->getHex(), $response->headers->get('Location'));
 
-        /** @var Connection $connection */
-        $connection = self::$container->get(Connection::class);
-        $exists = $connection->fetchAll('SELECT * FROM country WHERE id = :id', ['id' => $id->getBytes()]);
-        $this->assertNotEmpty($exists);
+        $this->assertEntityExists('country', $id->getHex());
+        $this->assertEntityExists('country-state', $stateId->getHex());
 
-        $exists = $connection->fetchAll('SELECT * FROM country_state WHERE country_id = :id', ['id' => $id->getBytes()]);
-        $this->assertNotEmpty($exists);
+        $this->apiClient->request('DELETE', '/api/country/' . $id->getHex() . '/states/' . $stateId->getHex(), $data);
+        self::assertSame(Response::HTTP_NO_CONTENT, $this->apiClient->getResponse()->getStatusCode(), $this->apiClient->getResponse()->getContent());
 
-        $client = $this->getClient();
-        $client->request('DELETE', '/api/country/' . $id->getHex() . '/states/' . $stateId->getHex(), $data);
-        self::assertSame(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
-
-        $exists = $connection->fetchAll('SELECT * FROM country_state WHERE country_id = :id', ['id' => $id->getBytes()]);
-        $this->assertEmpty($exists);
+        $this->assertEntityExists('country', $id->getHex());
+        $this->assertEntityNotExists('country-state', $stateId->getHex());
     }
 
     public function testDeleteManyToOne(): void
@@ -239,30 +222,20 @@ class ApiControllerTest extends ApiTestCase
             'area' => ['id' => $area->getHex(), 'name' => 'Test'],
         ];
 
-        $client = $this->getClient();
-        $client->request('POST', '/api/country', [], [], [], json_encode($data));
-        $response = $client->getResponse();
-        self::assertSame(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        $this->apiClient->request('POST', '/api/country', [], [], [], json_encode($data));
+        $response = $this->apiClient->getResponse();
+        self::assertSame(Response::HTTP_NO_CONTENT, $this->apiClient->getResponse()->getStatusCode(), $this->apiClient->getResponse()->getContent());
         self::assertNotEmpty($response->headers->get('Location'));
         self::assertEquals('http://localhost/api/country/' . $country->getHex(), $response->headers->get('Location'));
 
-        /** @var Connection $connection */
-        $connection = self::$container->get(Connection::class);
-        $exists = $connection->fetchAll('SELECT * FROM country WHERE id = :id', ['id' => $country->getBytes()]);
-        $this->assertNotEmpty($exists);
+        $this->assertEntityExists('country', $country->getHex());
+        $this->assertEntityExists('country-area', $area->getHex());
 
-        $exists = $connection->fetchAll('SELECT * FROM country_area WHERE id = :id', ['id' => $area->getBytes()]);
-        $this->assertNotEmpty($exists);
+        $this->apiClient->request('DELETE', '/api/country/' . $country->getHex() . '/area/' . $area->getHex());
+        self::assertSame(Response::HTTP_NO_CONTENT, $this->apiClient->getResponse()->getStatusCode(), $this->apiClient->getResponse()->getContent());
 
-        $client = $this->getClient();
-        $client->request('DELETE', '/api/country/' . $country->getHex() . '/area/' . $area->getHex());
-        self::assertSame(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
-
-        $exists = $connection->fetchAll('SELECT * FROM country WHERE id = :id', ['id' => $country->getBytes()]);
-        $this->assertNotEmpty($exists);
-
-        $exists = $connection->fetchAll('SELECT * FROM country_area WHERE id = :id', ['id' => $area->getBytes()]);
-        $this->assertEmpty($exists);
+        $this->assertEntityExists('country', $country->getHex());
+        $this->assertEntityNotExists('country-area', $area->getHex());
     }
 
     public function testDeleteManyToMany(): void
@@ -281,36 +254,23 @@ class ApiControllerTest extends ApiTestCase
             ],
         ];
 
-        $client = $this->getClient();
-        $client->request('POST', '/api/product', [], [], [], json_encode($data));
-        $response = $client->getResponse();
-        self::assertSame(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        $this->apiClient->request('POST', '/api/product', [], [], [], json_encode($data));
+        $response = $this->apiClient->getResponse();
+        self::assertSame(Response::HTTP_NO_CONTENT, $this->apiClient->getResponse()->getStatusCode(), $this->apiClient->getResponse()->getContent());
         self::assertNotEmpty($response->headers->get('Location'));
         self::assertEquals('http://localhost/api/product/' . $id->getHex(), $response->headers->get('Location'));
 
-        /** @var Connection $connection */
-        $connection = self::$container->get(Connection::class);
-        $exists = $connection->fetchAll('SELECT * FROM product WHERE id = :id', ['id' => $id->getBytes()]);
-        $this->assertNotEmpty($exists);
+        $this->assertEntityExists('product', $id->getHex());
+        $this->assertEntityExists('category', $category->getHex());
 
-        $exists = $connection->fetchAll('SELECT * FROM category WHERE id = :id', ['id' => $category->getBytes()]);
-        $this->assertNotEmpty($exists);
+        $this->apiClient->request('DELETE', '/api/product/' . $id->getHex() . '/categories/' . $category->getHex());
+        self::assertSame(Response::HTTP_NO_CONTENT, $this->apiClient->getResponse()->getStatusCode(), $this->apiClient->getResponse()->getContent());
 
-        $client = $this->getClient();
-        $client->request('DELETE', '/api/product/' . $id->getHex() . '/categories/' . $category->getHex());
-        self::assertSame(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        $a = self::$kernel->getContainer()->get(Connection::class)->executeQuery('SELECT * FROM product_category WHERE product_id = :pid AND category_id = :cid', ['pid' => $id->getBytes(), 'cid' => $category->getBytes()])->fetchAll();
+        $this->assertEmpty($a);
 
-        $exists = $connection->fetchAll(
-            'SELECT * FROM product_category WHERE product_id = :product AND category_id = :category',
-            ['category' => $category->getBytes(), 'product' => $id->getHex()]
-        );
-        $this->assertEmpty($exists);
-
-        $exists = $connection->fetchAll('SELECT * FROM product WHERE id = :id', ['id' => $id->getBytes()]);
-        $this->assertNotEmpty($exists);
-
-        $exists = $connection->fetchAll('SELECT * FROM category WHERE id = :id', ['id' => $category->getBytes()]);
-        $this->assertNotEmpty($exists);
+        $this->assertEntityExists('product', $id->getHex());
+        $this->assertEntityExists('category', $category->getHex());
     }
 
     public function testResponseDataTypeOnWrite(): void
@@ -319,38 +279,36 @@ class ApiControllerTest extends ApiTestCase
 
         $data = ['id' => $id->getHex(), 'name' => $id->getHex(), 'rate' => 50];
 
-        $client = $this->getClient();
-
         // create without response
-        $client->request('POST', '/api/tax', [], [], [], json_encode($data));
-        $response = $client->getResponse();
-        self::assertSame(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        $this->apiClient->request('POST', '/api/tax', [], [], [], json_encode($data));
+        $response = $this->apiClient->getResponse();
+        self::assertSame(Response::HTTP_NO_CONTENT, $this->apiClient->getResponse()->getStatusCode(), $this->apiClient->getResponse()->getContent());
         self::assertNotEmpty($response->headers->get('Location'));
         self::assertEquals('http://localhost/api/tax/' . $id->getHex(), $response->headers->get('Location'));
 
         // update without response
-        $client->request('PATCH', '/api/tax/' . $id->getHex(), [], [], [], json_encode(['name' => 'foo']));
-        $response = $client->getResponse();
-        self::assertSame(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode());
+        $this->apiClient->request('PATCH', '/api/tax/' . $id->getHex(), [], [], [], json_encode(['name' => 'foo']));
+        $response = $this->apiClient->getResponse();
+        self::assertSame(Response::HTTP_NO_CONTENT, $this->apiClient->getResponse()->getStatusCode());
         self::assertNotEmpty($response->headers->get('Location'));
         self::assertEquals('http://localhost/api/tax/' . $id->getHex(), $response->headers->get('Location'));
 
         // basic response
-        $client->request('PATCH', '/api/tax/' . $id->getHex() . '?_response=basic', [], [], [], json_encode(['name' => 'foo']));
-        $response = $client->getResponse();
-        self::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
+        $this->apiClient->request('PATCH', '/api/tax/' . $id->getHex() . '?_response=basic', [], [], [], json_encode(['name' => 'foo']));
+        $response = $this->apiClient->getResponse();
+        self::assertSame(Response::HTTP_OK, $this->apiClient->getResponse()->getStatusCode());
         self::assertNull($response->headers->get('Location'));
 
         // detail response
-        $client->request('PATCH', '/api/tax/' . $id->getHex() . '?_response=detail', [], [], [], json_encode(['name' => 'foo']));
-        $response = $client->getResponse();
-        self::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
+        $this->apiClient->request('PATCH', '/api/tax/' . $id->getHex() . '?_response=detail', [], [], [], json_encode(['name' => 'foo']));
+        $response = $this->apiClient->getResponse();
+        self::assertSame(Response::HTTP_OK, $this->apiClient->getResponse()->getStatusCode());
         self::assertNull($response->headers->get('Location'));
 
         // invalid response
-        $client->request('PATCH', '/api/tax/' . $id->getHex() . '?_response=does_not_exists', [], [], [], json_encode(['name' => 'foo']));
-        $response = $client->getResponse();
-        self::assertSame(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
+        $this->apiClient->request('PATCH', '/api/tax/' . $id->getHex() . '?_response=does_not_exists', [], [], [], json_encode(['name' => 'foo']));
+        $response = $this->apiClient->getResponse();
+        self::assertSame(Response::HTTP_BAD_REQUEST, $this->apiClient->getResponse()->getStatusCode());
         self::assertNull($response->headers->get('Location'));
     }
 
@@ -366,10 +324,9 @@ class ApiControllerTest extends ApiTestCase
             'price' => ['gross' => 50, 'net' => 25],
         ];
 
-        $client = $this->getClient();
-        $client->request('POST', '/api/product', [], [], [], json_encode($data));
-        $response = $client->getResponse();
-        self::assertSame(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        $this->apiClient->request('POST', '/api/product', [], [], [], json_encode($data));
+        $response = $this->apiClient->getResponse();
+        self::assertSame(Response::HTTP_NO_CONTENT, $this->apiClient->getResponse()->getStatusCode(), $this->apiClient->getResponse()->getContent());
         self::assertNotEmpty($response->headers->get('Location'));
         self::assertEquals('http://localhost/api/product/' . $id, $response->headers->get('Location'));
 
@@ -424,15 +381,15 @@ class ApiControllerTest extends ApiTestCase
             ],
         ];
 
-        $client->request('POST', '/api/search/product', [], [], [], json_encode($data));
-        $response = $client->getResponse();
+        $this->apiClient->request('POST', '/api/search/product', [], [], [], json_encode($data));
+        $response = $this->apiClient->getResponse();
         $content = json_decode($response->getContent(), true);
 
         self::assertEquals(1, $content['meta']['total']);
         self::assertEquals($id, $content['data'][0]['id']);
 
-        $client->request('DELETE', '/api/product/' . $id);
-        $this->assertEquals(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode());
+        $this->apiClient->request('DELETE', '/api/product/' . $id);
+        $this->assertEquals(Response::HTTP_NO_CONTENT, $this->apiClient->getResponse()->getStatusCode());
     }
 
     public function testSimpleFilter()
@@ -447,10 +404,9 @@ class ApiControllerTest extends ApiTestCase
             'price' => ['gross' => 8300, 'net' => 8300],
         ];
 
-        $client = $this->getClient();
-        $client->request('POST', '/api/product', [], [], [], json_encode($data));
-        $response = $client->getResponse();
-        self::assertSame(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        $this->apiClient->request('POST', '/api/product', [], [], [], json_encode($data));
+        $response = $this->apiClient->getResponse();
+        self::assertSame(Response::HTTP_NO_CONTENT, $this->apiClient->getResponse()->getStatusCode(), $this->apiClient->getResponse()->getContent());
         self::assertNotEmpty($response->headers->get('Location'));
         self::assertEquals('http://localhost/api/product/' . $id, $response->headers->get('Location'));
 
@@ -462,8 +418,8 @@ class ApiControllerTest extends ApiTestCase
             ],
         ];
 
-        $client->request('GET', '/api/product', $data);
-        $response = $client->getResponse();
+        $this->apiClient->request('GET', '/api/product', $data);
+        $response = $this->apiClient->getResponse();
         $content = json_decode($response->getContent(), true);
         self::assertEquals(1, $content['meta']['total']);
         self::assertEquals($id, $content['data'][0]['id']);

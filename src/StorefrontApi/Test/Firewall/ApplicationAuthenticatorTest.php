@@ -2,25 +2,10 @@
 
 namespace Shopware\StorefrontApi\Test\Firewall;
 
-use Ramsey\Uuid\Uuid;
-use Shopware\Api\Product\Repository\ProductRepository;
-use Shopware\Context\Struct\ApplicationContext;
-use Shopware\Defaults;
 use Shopware\Rest\Test\ApiTestCase;
 
 class ApplicationAuthenticatorTest extends ApiTestCase
 {
-    /**
-     * @var ProductRepository
-     */
-    private $repository;
-
-    protected function setUp()
-    {
-        self::bootKernel();
-        parent::setUp();
-    }
-
     public function testNoAccessWithoutApplicationToken()
     {
         $client = self::createClient(

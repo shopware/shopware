@@ -28,19 +28,20 @@ namespace Shopware\Framework\Doctrine;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
+use Shopware\Kernel;
 
 class ConnectionFactory extends \Doctrine\Bundle\DoctrineBundle\ConnectionFactory
 {
     /**
-     * @var \PDO
+     * @var Kernel
      */
-    private $connection;
+    private $kernel;
 
-    public function __construct(array $typesConfig, \PDO $connection = null)
+    public function __construct(array $typesConfig, Kernel $kernel)
     {
         parent::__construct($typesConfig);
 
-        $this->connection = $connection;
+        $this->kernel = $kernel;
     }
 
     /**
@@ -52,7 +53,7 @@ class ConnectionFactory extends \Doctrine\Bundle\DoctrineBundle\ConnectionFactor
         EventManager $eventManager = null,
         array $mappingTypes = []
     ): Connection {
-        $params['pdo'] = $this->connection;
+        $params['pdo'] = $this->kernel::getConnection();
 
         // remove url from parameters as doctrine would create a new connection
         // and does not use the existing pdo connection.

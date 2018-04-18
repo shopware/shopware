@@ -40,6 +40,12 @@ class CountryRepositoryTest extends KernelTestCase
         $this->connection->beginTransaction();
     }
 
+    protected function tearDown()
+    {
+        $this->connection->rollBack();
+        parent::tearDown();
+    }
+
     public function testSearchRanking()
     {
         $recordA = Uuid::uuid4()->getHex();

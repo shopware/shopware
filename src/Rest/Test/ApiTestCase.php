@@ -5,66 +5,86 @@ namespace Shopware\Rest\Test;
 use Doctrine\DBAL\Connection;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\Uuid;
+use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Component\BrowserKit\Client;
 use Symfony\Component\DependencyInjection\Container;
+use Symfony\Component\HttpFoundation\Response;
 
 class ApiTestCase extends WebTestCase
 {
     /**
-     * @var Client
-     */
-    public static $client;
-
-    /**
      * @var Container
      */
-    public static $container;
+    public $container;
 
     /**
      * @var string[]
      */
-    protected static $apiUsernames = [];
+    protected $apiUsernames = [];
 
-    public static function setUpBeforeClass()
+    /**
+     * @var Client
+     */
+    protected $apiClient;
+
+    /**
+     * @var Client
+     */
+    protected $storefrontApiClient;
+
+    protected function setUp()
     {
-        parent::setUpBeforeClass();
+        parent::setUp();
 
-        $client = self::createClient(
-            ['test_case' => 'ApiTest'],
-            [
-                'CONTENT_TYPE' => 'application/json',
-                'HTTP_ACCEPT' => ['application/vnd.api+json,application/json'],
-            ]
-        );
+        self::bootKernel();
 
-        self::$container = self::$kernel->getContainer();
-        self::$client = self::authorizeClient($client);
+        $this->container = self::$kernel->getContainer();
+
+        $apiClient = $this->getClient();
+        $apiClient->setServerParameters([
+            'CONTENT_TYPE' => 'application/json',
+            'HTTP_ACCEPT' => ['application/vnd.api+json,application/json'],
+        ]);
+        $this->authorizeClient($apiClient);
+
+        $storefrontApiClient = $this->getClient();
+        $storefrontApiClient->setServerParameters([
+            'HTTP_X-Requested-With' => 'XMLHttpRequest',
+            'HTTP_Accept' => 'application/json',
+            'HTTP_X_SW_APPLICATION_TOKEN' => 'TzhovH7sgws8n9UjgEdDEzNkA6xURua8',
+            'HTTP_X_SW_CONTEXT_TOKEN' => Uuid::uuid4()->getHex(),
+        ]);
+
+        $this->apiClient = $apiClient;
+        $this->storefrontApiClient = $storefrontApiClient;
     }
 
-    public static function tearDownAfterClass()
+    public function tearDown()
     {
-        self::$container->get(Connection::class)->executeQuery('DELETE FROM user WHERE username IN (:usernames)', ['usernames' => self::$apiUsernames], ['usernames' => Connection::PARAM_STR_ARRAY]);
+        self::$kernel->getContainer()->get(Connection::class)->executeQuery('DELETE FROM user WHERE username IN (:usernames)', ['usernames' => $this->apiUsernames], ['usernames' => Connection::PARAM_STR_ARRAY]);
 
-        parent::tearDownAfterClass();
+        parent::tearDown();
     }
 
     public function getClient()
     {
-        return clone self::$client;
+        $clientKernel = self::createKernel();
+        $clientKernel->boot();
+
+        return $clientKernel->getContainer()->get('test.client');
     }
 
     public function getContainer()
     {
-        return self::$container;
+        return $this->container;
     }
 
-    private static function authorizeClient(Client $client): Client
+    protected function authorizeClient(Client $client): void
     {
         $username = Uuid::uuid4()->getHex();
         $password = Uuid::uuid4()->getHex();
 
-        self::$container->get(Connection::class)->insert('user', [
+        self::$kernel->getContainer()->get(Connection::class)->insert('user', [
             'id' => Uuid::uuid4()->getBytes(),
             'name' => $username,
             'email' => 'admin@example.com',
@@ -77,7 +97,7 @@ class ApiTestCase extends WebTestCase
             'locale_version_id' => Uuid::fromStringToBytes(Defaults::LIVE_VERSION),
         ]);
 
-        self::$apiUsernames[] = $username;
+        $this->apiUsernames[] = $username;
 
         $authPayload = json_encode(['username' => $username, 'password' => $password]);
 
@@ -88,7 +108,23 @@ class ApiTestCase extends WebTestCase
         self::assertArrayHasKey('token', $data, 'No token returned from API: ' . print_r($data, true));
 
         $client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['token']));
+    }
 
-        return $client;
+    public function assertEntityExists(...$params): void
+    {
+        $url = '/api/' . implode('/', $params);
+
+        $this->apiClient->request('GET', $url);
+
+        $this->assertSame(Response::HTTP_OK, $this->apiClient->getResponse()->getStatusCode(), 'Entity does not exists but should do.');
+    }
+
+    public function assertEntityNotExists(...$params): void
+    {
+        $url = '/api/' . implode('/', $params);
+
+        $this->apiClient->request('GET', $url);
+
+        $this->assertSame(Response::HTTP_NOT_FOUND, $this->apiClient->getResponse()->getStatusCode(), 'Entity exists but should not.');
     }
 }

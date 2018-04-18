@@ -107,7 +107,6 @@ class StorefrontContext extends Struct
      */
     protected $rulesLocked = false;
 
-
     /**
      * @see CartPrice::TAX_STATE_GROSS, CartPrice::TAX_STATE_NET, CartPrice::TAX_STATE_FREE
      *
@@ -123,12 +122,12 @@ class StorefrontContext extends Struct
     /**
      * @var LanguageBasicStruct
      */
-    private $language;
+    protected $language;
 
     /**
      * @var null|LanguageBasicStruct
      */
-    private $fallbackLanguage;
+    protected $fallbackLanguage;
 
     public function __construct(
         string $token,

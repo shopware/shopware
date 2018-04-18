@@ -125,21 +125,21 @@ class StorefrontContextService implements StorefrontContextServiceInterface
 
         $parameters = $this->contextPersister->load($token);
 
-        $cacheKey = $this->getCacheKey($parameters);
-
+        $cacheKey = $this->getCacheKey($applicationId, $parameters);
         $cacheItem = $this->cache->getItem($cacheKey);
 
-        if ($useCache && $context = $cacheItem->get()) {
+        if ($useCache && $serializedContext = $cacheItem->get()) {
             try {
-                return $this->loadFromCache($applicationId, $token, $context);
+                return $this->loadFromCache($applicationId, $token, $serializedContext);
             } catch (\Exception $e) {
+                throw $e;
                 $this->logger->error($e->getMessage());
             }
         }
 
         $context = $this->factory->create($token, $applicationId, $parameters);
 
-        $cacheItem->set($context);
+        $cacheItem->set($this->serializer->serialize($context, 'json'));
         $this->cache->save($cacheItem);
 
         $rules = $this->contextRuleLoader->loadMatchingRules($context, $token);
@@ -151,17 +151,18 @@ class StorefrontContextService implements StorefrontContextServiceInterface
         return $context;
     }
 
-    private function loadFromCache(string $applicationId, string $token, $json): StorefrontContext
+    private function loadFromCache(string $applicationId, string $token, $serializedContext): StorefrontContext
     {
         $key = $applicationId . '-' . $token;
 
-        $cacheContext = $this->serializer->deserialize($json, '', 'json');
+        $cacheContext = $this->serializer->deserialize($serializedContext, '', 'json');
 
         /** @var StorefrontContext $cacheContext */
         $context = new StorefrontContext(
             $token,
             $cacheContext->getApplication(),
             $cacheContext->getLanguage(),
+            $cacheContext->getFallbackLanguage(),
             $cacheContext->getCurrency(),
             $cacheContext->getCurrentCustomerGroup(),
             $cacheContext->getFallbackCustomerGroup(),
@@ -184,9 +185,9 @@ class StorefrontContextService implements StorefrontContextServiceInterface
         return $context;
     }
 
-    private function getCacheKey(array $parameters): string
+    private function getCacheKey(string $applicationId, array $parameters): string
     {
-        return md5(json_encode($parameters));
+        return $applicationId . '.' . md5(json_encode($parameters));
     }
 
     private function writeCache(array $parameters, CacheItemInterface $cacheItem): void

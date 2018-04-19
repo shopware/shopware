@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../../engine/Shopware/Components/Plugin/schema/plugin.xsd">
+
+    <label>My plugin</label>
+    <version>0.1.0-dev</version>
+    <requiredPlugins>
+        <requiredPlugin pluginName="SwagBundle" minVersion="2.0" maxVersion="3.0">
+            <blacklist>2.1</blacklist>
+        </requiredPlugin>
+
+        <requiredPlugin pluginName="SwagLiveShopping">
+            <blacklist>2.0</blacklist>
+        </requiredPlugin>
+    </requiredPlugins>
+</plugin>

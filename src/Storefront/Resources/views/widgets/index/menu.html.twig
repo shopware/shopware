@@ -1,0 +1,13 @@
+{% block widgets_index_menu %}
+    {% if sGroup|length %}
+        <ul class="service--list is--rounded" role="menu">
+            {% for item in sGroup %}
+                <li class="service--entry" role="menuitem">
+                    <a class="service--link" href="{% if item.link %}{{ item.link }}{% else %}{url controller='custom' sCustom=$item.id title=$item.description}{% endif %}" title="{{ item.description|escape('html') }}" {% if item.target %}target="{{ item.target }}"{% endif %}>
+                        {{ item.description }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endblock %}

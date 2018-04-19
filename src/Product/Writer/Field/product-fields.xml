@@ -1,0 +1,143 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <service id="shopware.product.product.writer_field_uuid" class="Shopware\Product\Writer\Field\Product\UuidField">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product.writer_field"/> 
+</service>        
+<service id="shopware.product.product.writer_field_productManufacturerUuid" class="Shopware\Product\Writer\Field\Product\ProductManufacturerUuidField">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product.writer_field"/> 
+</service>        
+<service id="shopware.product.product.writer_field_productManufacturer" class="Shopware\Product\Writer\Field\Product\ProductManufacturerField">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product.writer_field"/> 
+</service>        
+<service id="shopware.product.product.writer_field_title" class="Shopware\Product\Writer\Field\Product\TitleField">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product.writer_field"/> 
+</service>        
+<service id="shopware.product.product.writer_field_description" class="Shopware\Product\Writer\Field\Product\DescriptionField">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product.writer_field"/> 
+</service>        
+<service id="shopware.product.product.writer_field_descriptionLong" class="Shopware\Product\Writer\Field\Product\DescriptionLongField">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product.writer_field"/> 
+</service>        
+<service id="shopware.product.product.writer_field_shippingTime" class="Shopware\Product\Writer\Field\Product\ShippingTimeField">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product.writer_field"/> 
+</service>        
+<service id="shopware.product.product.writer_field_createdAt" class="Shopware\Product\Writer\Field\Product\CreatedAtField">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product.writer_field"/> 
+</service>        
+<service id="shopware.product.product.writer_field_active" class="Shopware\Product\Writer\Field\Product\ActiveField">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product.writer_field"/> 
+</service>        
+<service id="shopware.product.product.writer_field_taxUuid" class="Shopware\Product\Writer\Field\Product\TaxUuidField">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product.writer_field"/> 
+</service>        
+<service id="shopware.product.product.writer_field_tax" class="Shopware\Product\Writer\Field\Product\TaxField">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product.writer_field"/> 
+</service>        
+<service id="shopware.product.product.writer_field_mainDetailUuid" class="Shopware\Product\Writer\Field\Product\MainDetailUuidField">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product.writer_field"/> 
+</service>        
+<service id="shopware.product.product.writer_field_mainDetail" class="Shopware\Product\Writer\Field\Product\MainDetailField">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product.writer_field"/> 
+</service>        
+<service id="shopware.product.product.writer_field_pseudoSales" class="Shopware\Product\Writer\Field\Product\PseudoSalesField">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product.writer_field"/> 
+</service>        
+<service id="shopware.product.product.writer_field_topseller" class="Shopware\Product\Writer\Field\Product\TopsellerField">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product.writer_field"/> 
+</service>        
+<service id="shopware.product.product.writer_field_metaTitle" class="Shopware\Product\Writer\Field\Product\MetaTitleField">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product.writer_field"/> 
+</service>        
+<service id="shopware.product.product.writer_field_keywords" class="Shopware\Product\Writer\Field\Product\KeywordsField">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product.writer_field"/> 
+</service>        
+<service id="shopware.product.product.writer_field_updatedAt" class="Shopware\Product\Writer\Field\Product\UpdatedAtField">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product.writer_field"/> 
+</service>        
+<service id="shopware.product.product.writer_field_priceGroupId" class="Shopware\Product\Writer\Field\Product\PriceGroupIdField">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product.writer_field"/> 
+</service>        
+<service id="shopware.product.product.writer_field_lastStock" class="Shopware\Product\Writer\Field\Product\LastStockField">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product.writer_field"/> 
+</service>        
+<service id="shopware.product.product.writer_field_crossbundlelook" class="Shopware\Product\Writer\Field\Product\CrossbundlelookField">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product.writer_field"/> 
+</service>        
+<service id="shopware.product.product.writer_field_notification" class="Shopware\Product\Writer\Field\Product\NotificationField">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product.writer_field"/> 
+</service>        
+<service id="shopware.product.product.writer_field_template" class="Shopware\Product\Writer\Field\Product\TemplateField">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product.writer_field"/> 
+</service>        
+<service id="shopware.product.product.writer_field_mode" class="Shopware\Product\Writer\Field\Product\ModeField">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product.writer_field"/> 
+</service>        
+<service id="shopware.product.product.writer_field_availableFrom" class="Shopware\Product\Writer\Field\Product\AvailableFromField">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product.writer_field"/> 
+</service>        
+<service id="shopware.product.product.writer_field_availableTo" class="Shopware\Product\Writer\Field\Product\AvailableToField">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product.writer_field"/> 
+</service>        
+<service id="shopware.product.product.writer_field_configuratorSetId" class="Shopware\Product\Writer\Field\Product\ConfiguratorSetIdField">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product.writer_field"/> 
+</service>
+    </services>
+</container>

@@ -1,0 +1,54 @@
+/*
+Transition mixin
+=========================================
+The mixins provides you a cross-browser compatible method to set a transition.
+
+Please refer to <http://caniuse.com/css-transitions> to see the browser support table of the feature.
+
+######Example:
+`.transition([property], [duration-value], [easing]);`
+
+`@param: {String} properties: The properites which should be animated (Default: all)`<br/>
+`@param: {String} duration: Duration of the transition including the unit (Default: 0.3s)`<br/>
+`@param: {String} easing: The easing which should be used for the transition (Default: ease-out)`
+*/
+
+.transition(@transition: all 0.3s ease-out) {
+    -webkit-transition: @transition;
+    -moz-transition: @transition;
+    -ms-transition: @transition;
+    -o-transition: @transition;
+    transition: @transition;
+}
+
+.transition-property (@property) {
+    -webkit-transition-property: @property;
+    -moz-transition-property: @property;
+    -ms-transition-property: @property;
+    -o-transition-property: @property;
+    transition-property: @property;
+}
+
+.transition-duration (@duration) {
+    -webkit-transition-duration: @duration;
+    -moz-transition-duration: @duration;
+    -ms-transition-duration: @duration;
+    -o-transition-duration: @duration;
+    transition-duration: @duration;
+}
+
+.transition-timing-function (@timing) {
+    -webkit-transition-timing-function: @timing;
+    -moz-transition-timing-function: @timing;
+    -ms-transition-timing-function: @timing;
+    -o-transition-timing-function: @timing;
+    transition-timing-function: @timing;
+}
+
+.transition-delay (@delay) {
+    -webkit-transition-delay: @delay;
+    -moz-transition-delay: @delay;
+    -ms-transition-delay: @delay;
+    -o-transition-delay: @delay;
+    transition-delay: @delay;
+}

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="../../../../../engine/Shopware/Components/Plugin/schema/menu.xsd">
+
+    <entries>
+        <entry isRootMenu="true">
+            <name>SwagDefaultSort</name>
+            <label>Menu entry root element</label>
+            <parent>foo</parent>
+        </entry>
+    </entries>
+</menu>

@@ -1,0 +1,32 @@
+import EventEmitter from 'src/core/factory/event-emitter.factory';
+import ProductService from 'src/core/service/api/product/product.service';
+import ManufacturerService from 'src/core/service/api/manufacturer/manufacturer.service';
+import MediaService from 'src/core/service/api/media/media.service';
+import LoginService from 'src/core/service/api/login/login.service';
+import ConvenientProductService from 'src/core/service/convenient/product.convenient.service';
+
+export default function initializeProviders(app, configuration, done) {
+    const httpClient = configuration.httpClient;
+    const eventSystem = configuration.eventSystem;
+    const stateContainer = configuration.stateContainer;
+    const applicationState = configuration.applicationState;
+
+    app.addProvider('httpClient', httpClient)
+        .addProvider('eventSystem', eventSystem)
+        .addProvider('eventEmitter', EventEmitter(eventSystem))
+        .addProvider('stateContainer', stateContainer)
+        .addProvider('productService', ProductService(httpClient))
+        .addProvider('manufacturerService', ManufacturerService(httpClient))
+        .addProvider('mediaService', MediaService(httpClient))
+        .addProvider('loginService', LoginService(httpClient))
+        .addProvider('applicationState', applicationState)
+        .addProvider('convenientProductService',
+            ConvenientProductService(
+                ProductService(httpClient),
+                ManufacturerService(httpClient),
+                MediaService(httpClient)
+            )
+        );
+
+    done(configuration);
+}

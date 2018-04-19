@@ -1,0 +1,43 @@
+{% import _self as menu %}
+
+{# Maincategories left #}
+{% macro categories(categories, level = 0) %}
+    <ul class="sidebar--navigation categories--navigation navigation--list{% if not level %} is--drop-down{% endif %} is--level{{ level }}{% if level > 1 %} navigation--level-high{% endif %} is--rounded" role="menu">
+        {# @deprecated The block "frontend_index_categories_left_ul" will be removed in further versions, please use "frontend_index_categories_left_before" #}
+        {% block frontend_index_categories_left_ul %}{% endblock %}
+
+        {% block frontend_index_categories_left_before %}{% endblock %}
+
+        {% for category in categories %}
+            {% block frontend_index_categories_left_entry %}
+                <li class="navigation--entry{% if category.flag %} is--active{% endif %}{% if category.subcategories %} has--sub-categories{% endif %}{% if category.childrenCount %} has--sub-children{% endif %}" role="menuitem">
+                    <a class="navigation--link{% if category.flag %} is--active{% endif %}{% if category.subcategories %} has--sub-categories{% endif %}{% if category.childrenCount %} link--go-forward{% endif %}"
+                       href="{{ category.link }}"
+                       data-categoryId="{{ category.id }}"
+                       data-fetchUrl="{url module=widgets controller=listing action=getCategory categoryId={$category.id}}"
+                       title="{{ category.description|escape }}">
+                        {{  category.description }}
+
+                        {% if category.childrenCount %}
+                            <span class="is--icon-right">
+                                <i class="icon--arrow-right"></i>
+                            </span>
+                        {% endif %}
+                    </a>
+                    {% block frontend_index_categories_left_entry_subcategories %}
+                        {% if category.subcategories %}
+                            {{ menu.categories(category.subcategories, level+1) }}
+                        {% endif %}
+                    {% endblock %}
+                </li>
+            {% endblock %}
+        {% endfor %}
+        {% block frontend_index_categories_left_after %}{% endblock %}
+    </ul>
+{% endmacro categories %}
+
+{% if sCategories %}
+    {{ menu.categories(sCategories) }}
+{% elseif shopware.mainCategories %}
+    {{ menu.categories(shopware.mainCategories) }}
+{% endif %}

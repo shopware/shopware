@@ -1,0 +1,98 @@
+/*
+Delivery information
+=========================================
+Defines the delivery status for products (e.g. detail page, note).
+
+The styling includes the base styling and the delivery states.
+
+
+```
+<div class="product--delivery">
+    <p class="delivery--information">
+        <span class="delivery--text delivery--text-available">
+            <i class="delivery--status-icon delivery--status-available"></i>
+            delivery--text-available
+        </span>
+    </p>
+</div>
+
+<div class="product--delivery">
+    <p class="delivery--information">
+        <span class="delivery--text delivery--text-more-is-coming">
+            <i class="delivery--status-icon delivery--status-more-is-coming"></i>
+            delivery--text-more-is-coming
+        </span>
+    </p>
+</div>
+
+<div class="product--delivery">
+    <p class="delivery--information">
+        <span class="delivery--text delivery--text-shipping-free">
+            <i class="delivery--status-icon delivery--status-shipping-free"></i>
+            delivery--text-shipping-free
+        </span>
+    </p>
+</div>
+
+<div class="product--delivery">
+    <p class="delivery--information">
+        <span class="delivery--text delivery--text-not-available">
+            <i class="delivery--status-icon delivery--status-not-available"></i>
+            delivery--text-not-available
+        </span>
+    </p>
+</div>
+```
+*/
+
+.product--delivery {
+	.unitize(font-size, 14);
+
+    p { margin: 0; }
+
+	// Base class for the icon
+	.delivery--status-icon {
+		.unitize-variable(9); // returns the variable "emValue"
+		.border-radius(~"@{emValue}rem");
+		.unitize-margin(0, 5, 0, 0);
+		.unitize-width(9);
+		.unitize-height(9);
+        .unitize(line-height, 10);
+		display: inline-block;
+        position: relative;
+	}
+
+    .delivery--status-shipping-free {
+        background: @highlight-info;
+    }
+    .delivery--text-shipping-free {
+        color: @highlight-info;
+    }
+
+	.delivery--status-available {
+        background: @highlight-success
+	}
+	.delivery--text-available {
+        color: @highlight-success;
+	}
+
+    .delivery--status-more-is-coming {
+        background: @highlight-notice;
+    }
+    .delivery--text-more-is-coming {
+        color: @highlight-notice;
+    }
+
+    .delivery--status-not-available {
+        background: @highlight-error;
+    }
+
+    .delivery--text-not-available {
+        color: @highlight-error;
+    }
+
+	.delivery--text {
+		margin: 0;
+		display: inline-block;
+	}
+}

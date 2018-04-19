@@ -1,0 +1,312 @@
+{% block frontend_index_start %}{% endblock %}
+{% block frontend_index_doctype %}
+<!DOCTYPE html>
+{% endblock %}
+
+{% block frontend_index_html %}
+<html class="no-js" lang="{% trans from 'frontend/index/index' %}IndexXmlLang{% endtrans %}" itemscope="itemscope" itemtype="http://schema.org/WebPage">
+{% endblock %}
+
+{% block frontend_index_header %}
+    {% sw_include '@Shopware/frontend/index/header.html.twig' %}
+{% endblock %}
+
+<body class="{% block frontend_index_body_classes %}
+    is--ctl-{{ controllerName|lower }} is--act-{{ controllerAction|lower }}
+    {% if sUserLoggedIn %} is--user{% endif %}
+    {% if sTarget %} is--target-{{ sTarget|escape('html') }}{% endif %}
+    {% if theme.checkoutHeader and (( controllerName|lower == "checkout" and controllerAction|lower != "cart") or (controllerName|lower == "register" and sTarget != "account")) %} is--minimal-header{% endif %}
+    {% if not shopware.theme.displaysidebar %} is--no-sidebar{% endif %}
+    {% endblock %}">
+
+    {% block frontend_index_after_body %}{% endblock %}
+
+    {% block frontend_index_page_wrap %}
+        <div class="page-wrap">
+
+            {# Message if javascript is disabled #}
+            {% block frontend_index_no_script_message %}
+                <noscript class="noscript-main">
+                    {% sw_include "@Shopware/frontend/_includes/messages.html.twig" with {"type": "warning", "content": 'IndexNoscriptNotice'|trans([], 'frontend/index/index'), "borderRadius": false} %}
+                </noscript>
+            {% endblock %}
+
+            {% block frontend_index_before_page %}{% endblock %}
+
+            {# Shop header #}
+            {% block frontend_index_navigation %}
+                <header class="header-main">
+                    {# Include the top bar navigation #}
+                    {% block frontend_index_top_bar_container %}
+                        {% sw_include '@Shopware/frontend/index/topbar-navigation.html.twig' %}
+                    {% endblock %}
+
+                    {% block frontend_index_header_navigation %}
+                        <div class="container header--navigation">
+
+                            {# Logo container #}
+                            {% block frontend_index_logo_container %}
+                                {% sw_include '@Shopware/frontend/index/logo-container.html.twig' %}
+                            {% endblock %}
+
+                            {# Shop navigation #}
+                            {% block frontend_index_shop_navigation %}
+                                {% sw_include '@Shopware/frontend/index/shop-navigation.html.twig' %}
+                            {% endblock %}
+
+                            {% block frontend_index_container_ajax_cart %}
+                                <div class="container--ajax-cart" data-collapse-cart="true"{% if theme.offcanvasCart %} data-displayMode="offcanvas"{% endif %}></div>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+                </header>
+
+                {# Maincategories navigation top #}
+                {% block frontend_index_navigation_categories_top %}
+                    <nav class="navigation-main{% if shopware.config.advancedmenu.show %} is--advanced-menu{% endif %}">
+                        <div class="container" data-menu-scroller="true" data-listSelector=".navigation--list.container" data-viewPortSelector=".navigation--list-wrapper">
+                            {% block frontend_index_navigation_categories_top_include %}
+                                {% sw_include '@Shopware/frontend/index/main-navigation.html.twig' %}
+
+                                {% if shopware.config.advancedmenu.show %}
+                                    {% block frontend_advanced_menu_outer %}
+										{#{action module=widgets controller=advancedMenu action=index}#}
+                                    {% endblock %}
+                                {% endif %}
+                            {% endblock %}
+                        </div>
+                    </nav>
+                {% endblock %}
+            {% endblock %}
+
+            {% block frontend_index_emotion_loading_overlay %}
+                {% if hasEmotion %}
+                    <div class="emotion--overlay">
+                        <i class="emotion--loading-indicator"></i>
+                    </div>
+                {% endif %}
+            {% endblock %}
+
+            {% block frontend_index_content_main %}
+                <section class="content-main container block-group">
+
+                    {# Breadcrumb #}
+                    {% block frontend_index_breadcrumb %}
+                        {% if sBreadcrum|length %}
+                            <nav class="content--breadcrumb block">
+                                {% block frontend_index_breadcrumb_inner %}
+                                    {% sw_include '@Shopware/frontend/index/breadcrumb.html.twig' %}
+                                {% endblock %}
+                            </nav>
+                        {% endif %}
+                    {% endblock %}
+
+                    {# Content top container #}
+                    {% block frontend_index_content_top %}{% endblock %}
+
+                    <div class="content-main--inner">
+
+                        {# Sidebar left #}
+                        {% block frontend_index_content_left %}
+                            {#{% sw_include '@Shopware/frontend/index/sidebar.html.twig' %}#}
+                        {% endblock %}
+
+                        {# Main content #}
+                        {% block frontend_index_content_wrapper %}
+                            <div class="content--wrapper">
+                                {% block frontend_index_content %}{% endblock %}
+                            </div>
+                        {% endblock %}
+
+                        {# Sidebar right #}
+                        {% block frontend_index_content_right %}{% endblock %}
+
+                        {# Last seen products #}
+                        {% block frontend_index_left_last_articles %}
+                            {% if sLastArticlesShow and not isEmotionLandingPage %}
+                                {# Last seen products #}
+                                <div class="last-seen-products is--hidden" data-last-seen-products="true">
+                                    <div class="last-seen-products--title">
+                                        {% trans from 'frontend/plugins/index/viewlast' %}WidgetsRecentlyViewedHeadline{% endtrans %}
+                                    </div>
+                                    <div class="last-seen-products--slider product-slider" data-product-slider="true">
+                                        <div class="last-seen-products--container product-slider--container"></div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endblock %}
+                    </div>
+                </section>
+            {% endblock %}
+
+            {# Footer #}
+            {% block frontend_index_footer %}
+                <footer class="footer-main">
+                    <div class="container">
+                        {% block frontend_index_footer_container %}
+                            {% sw_include '@Shopware/frontend/index/footer.html.twig' %}
+                        {% endblock %}
+                    </div>
+                </footer>
+            {% endblock %}
+
+            {% block frontend_index_body_inline %}{% endblock %}
+        </div>
+    {% endblock %}
+
+    {# If required add the cookiePermission hint #}
+    {% block frontend_index_cookie_permission %}
+        {% if shopware.config.show_cookie_note %}
+            {% sw_include '@Shopware/frontend/_includes/cookie_permission_note.html.twig' %}
+        {% endif %}
+    {% endblock %}
+
+{% block frontend_index_header_javascript %}
+    <script type="text/javascript" id="footer--js-inline">
+        //<![CDATA[
+        {% block frontend_index_header_javascript_inline %}
+            var timeNow = {{ "now"|date('U') }};
+
+            var controller = controller || {
+                'vat_check_enabled': '{{ shopware.config.vatcheckendabled }}',
+                'vat_check_required': '{{ shopware.config.vatcheckrequired }}',
+                'ajax_cart': '{url controller="checkout" action="ajaxCart"}',
+                'ajax_search': '{url controller="ajax_search" _seo=false}',
+                'register': '{url controller="register"}',
+                'checkout': '{url controller="checkout"}',
+                'ajax_validate': '{url controller="register"}',
+                'ajax_add_article': '{url controller="checkout" action="addArticle"}',
+                'ajax_listing': '{url module="widgets" controller="Listing" action="ajaxListing"}',
+                'ajax_cart_refresh': '{url controller="checkout" action="ajaxAmount"}',
+                'ajax_address_selection': '{url controller="address" action="ajaxSelection" fullPath}',
+                'ajax_address_editor': '{url controller="address" action="ajaxEditor" fullPath}'
+            };
+
+            var snippets = snippets || {
+                'noCookiesNotice': '{% trans from 'frontend/index/index' %}IndexNoCookiesNotice{% endtrans %}'
+            };
+
+            var themeConfig = themeConfig || {
+                'offcanvasOverlayPage': '{{ theme.offcanvasOverlayPage }}'
+            };
+
+            var lastSeenProductsConfig = lastSeenProductsConfig || {
+                'baseUrl': '{{ Shop.getBaseUrl }}',
+                'shopId': '{{ Shop.getId() }}',
+                'noPicture': '{link file="frontend/_public/src/img/no-picture.jpg"}',
+                'productLimit': ~~('{{ shopware.config.lastarticlestoshow }}'),
+                'currentArticle': {
+                {% if sArticle %}
+                    {% for key, value in sLastArticlesConfig %}
+                        '{{ key }}': '{{ value }}',
+                    {% endfor %}
+                    'articleId': ~~('{{ sArticle.articleID }}'),
+                    'linkDetailsRewritten': '{{ sArticle.linkDetailsRewrited }}',
+                    'articleName': '{{ sArticle.articleName|escape('javascript') }}{% if sArticle.additionaltext %} {{ sArticle.additionaltext|escape('javascript') }}{% endif %}',
+                    'imageTitle': '{{ sArticle.image.description|escape('javascript') }}',
+                    'images': {
+                        {% for key, image in sArticle.image.thumbnails %}
+                            '{{ key }}': {
+                                'source': '{{ image.source }}',
+                                'retinaSource': '{{ image.retinaSource }}',
+                                'sourceSet': '{{ image.sourceSet }}'
+                            },
+                        {% endfor %}
+                    }
+                {% endif %}
+                }
+            };
+
+            var csrfConfig = csrfConfig || {
+                'generateUrl': '{{ url('csrftoken') }}',
+                'basePath': '{{ Shop.getBasePath() }}',
+                'shopId': '{{ Shop.getId() }}'
+            };
+        {% endblock %}
+        //]]>
+    </script>
+
+    {% if theme.additionalJsLibraries %}
+        {{ theme.additionalJsLibraries }}
+    {% endif %}
+{% endblock %}
+
+{% block frontend_index_header_javascript_jquery %}
+    {# Add the partner statistics widget, if configured #}
+    {% if not shopware.config.disableshopwarestatistics %}
+        {% sw_include '@Shopware/widgets/index/statistic_include.html.twig' %}
+    {% endif %}
+{% endblock %}
+
+{# Include jQuery and all other javascript files at the bottom of the page #}
+{% block frontend_index_header_javascript_jquery_lib %}
+    {% javascripts filter='?jsmin' output='js/app.js'
+
+        '@Storefront/Resources/public/src/js/vendors/modernizr/modernizr.custom.35977.js'
+        '@Storefront/Resources/public/vendors/js/jquery/jquery.min.js'
+        '@Storefront/Resources/public/vendors/js/picturefill/picturefill.min.js'
+        '@Storefront/Resources/public/vendors/js/jquery.transit/jquery.transit.js'
+        '@Storefront/Resources/public/vendors/js/jquery.event.move/jquery.event.move.js'
+        '@Storefront/Resources/public/vendors/js/jquery.event.swipe/jquery.event.swipe.js'
+
+        '@Storefront/Resources/public/src/js/jquery.ie-fixes.js'
+        '@Storefront/Resources/public/src/js/jquery.plugin-base.js'
+        '@Storefront/Resources/public/src/js/jquery.state-manager.js'
+        '@Storefront/Resources/public/src/js/jquery.storage-manager.js'
+        '@Storefront/Resources/public/src/js/jquery.off-canvas-menu.js'
+        '@Storefront/Resources/public/src/js/jquery.search.js'
+        '@Storefront/Resources/public/src/js/jquery.tab-menu.js'
+        '@Storefront/Resources/public/src/js/jquery.image-slider.js'
+        '@Storefront/Resources/public/src/js/jquery.image-zoom.js'
+        '@Storefront/Resources/public/src/js/jquery.collapse-panel.js'
+        '@Storefront/Resources/public/src/js/jquery.auto-submit.js'
+        '@Storefront/Resources/public/src/js/jquery.scroll.js'
+        '@Storefront/Resources/public/src/js/jquery.product-slider.js'
+        '@Storefront/Resources/public/src/js/jquery.register.js'
+        '@Storefront/Resources/public/src/js/jquery.modal.js'
+        '@Storefront/Resources/public/src/js/jquery.selectbox-replacement.js'
+        '@Storefront/Resources/public/src/js/jquery.captcha.js'
+        '@Storefront/Resources/public/src/js/jquery.drop-down-menu.js'
+        '@Storefront/Resources/public/src/js/jquery.loading-indicator.js'
+        '@Storefront/Resources/public/src/js/jquery.overlay.js'
+        '@Storefront/Resources/public/src/js/jquery.form-polyfill.js'
+        '@Storefront/Resources/public/src/js/jquery.pseudo-text.js'
+        '@Storefront/Resources/public/src/js/jquery.last-seen-products.js'
+        '@Storefront/Resources/public/src/js/jquery.lightbox.js'
+        '@Storefront/Resources/public/src/js/jquery.ajax-product-navigation.js'
+        '@Storefront/Resources/public/src/js/jquery.newsletter.js'
+        '@Storefront/Resources/public/src/js/jquery.menu-scroller.js'
+        '@Storefront/Resources/public/src/js/jquery.shipping-payment.js'
+        '@Storefront/Resources/public/src/js/jquery.add-article.js'
+        '@Storefront/Resources/public/src/js/jquery.range-slider.js'
+        '@Storefront/Resources/public/src/js/jquery.filter-component.js'
+        '@Storefront/Resources/public/src/js/jquery.listing-actions.js'
+        '@Storefront/Resources/public/src/js/jquery.collapse-cart.js'
+        '@Storefront/Resources/public/src/js/jquery.emotion.js'
+        '@Storefront/Resources/public/src/js/jquery.product-compare-add.js'
+        '@Storefront/Resources/public/src/js/jquery.product-compare-menu.js'
+        '@Storefront/Resources/public/src/js/jquery.infinite-scrolling.js'
+        '@Storefront/Resources/public/src/js/jquery.off-canvas-button.js'
+        '@Storefront/Resources/public/src/js/jquery.subcategory-nav.js'
+        '@Storefront/Resources/public/src/js/jquery.ajax-wishlist.js'
+        '@Storefront/Resources/public/src/js/jquery.preloader-button.js'
+        '@Storefront/Resources/public/src/js/jquery.image-gallery.js'
+        '@Storefront/Resources/public/src/js/jquery.offcanvas-html-panel.js'
+        '@Storefront/Resources/public/src/js/jquery.jump-to-tab.js'
+        '@Storefront/Resources/public/src/js/jquery.ajax-variant.js'
+        '@Storefront/Resources/public/src/js/jquery.csrf-protection.js'
+        '@Storefront/Resources/public/src/js/jquery.panel-auto-resizer.js'
+        '@Storefront/Resources/public/src/js/jquery.address-selection.js'
+        '@Storefront/Resources/public/src/js/jquery.address-editor.js'
+        '@Storefront/Resources/public/src/js/jquery.cookie-permission.js'
+        '@Storefront/Resources/public/src/js/jquery.shopware-responsive.js'
+        '@Storefront/Resources/public/src/js/jquery.advanced-menu.js'
+
+        '@plugin_javascripts'
+    %}
+        <script src="{{ asset_url }}"{% if Storefront.theme.asyncJavascriptLoading %} async{% endif %}></script>
+    {% endjavascripts %}
+{% endblock %}
+
+</body>
+</html>

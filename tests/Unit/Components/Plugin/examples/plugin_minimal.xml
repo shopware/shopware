@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="../../../../../engine/Shopware/Components/Plugin/schema/plugin.xsd">
+
+    <label>My plugin</label>
+    <version>0.1.0-dev</version>
+</plugin>

@@ -1,0 +1,268 @@
+/*
+Address
+================================
+Defines the styles for the address pages and the modals.
+*/
+.address-manager--modal {
+
+    .header > .title {
+        .unitize(padding-left, 2%);
+        padding-left: 2%;
+    }
+
+    &.address-manager--editor {
+
+        .address-editor--errors {
+            .unitize(padding, 20);
+            padding-bottom: 0;
+        }
+
+        .address-editor--body {
+            padding: 0;
+        }
+    }
+
+    &.address-manager--selection {
+        .content {
+            .clearfix();
+
+            .modal--container {
+                .clearfix();
+                margin: -2% 0 0 -2%;
+
+                .modal--container-item {
+                    padding: 2% 0 0 2%;
+                    float: left;
+                    width: 100%;
+                }
+            }
+
+            .panel--actions {
+                .btn {
+                    width: 100%;
+                    text-align: center;
+
+                    .js--loading {
+                        .unitize-width(18);
+                        .unitize-height(18);
+                        .border-radius(100%);
+                        .unitize(right, 6);
+                        .unitize(top, 2);
+                        .unitize-margin(8, 5, 8, 5);
+                        .animation(keyframe--spin 1s linear infinite);
+                        border: 2px solid @border-color;
+                        border-top: 2px solid darken(@border-color, 50%);
+                        display: block;
+                        position: absolute;
+                    }
+                }
+            }
+        }
+    }
+}
+
+.account--address,
+.address-manager--modal {
+
+    &.account--content {
+        .unitize(margin, 0);
+        .unitize(padding-top, 45);
+    }
+
+    .address--item-body .panel--title {
+        .unitize-margin(0, 0, 20, 0);
+        padding-top: 0;
+    }
+
+    .account--welcome {
+        margin-bottom: 0;
+    }
+
+    &.account--address-form {
+        .alert {
+            .unitize-margin(20, 18, 20, 18);
+        }
+    }
+
+    .address--form-actions {
+        .clearfix();
+
+        .address--form-submit {
+            .unitize(margin-bottom, 10);
+            width: 100%;
+            text-align: center;
+        }
+    }
+
+    .address--actions-set-defaults {
+        .unitize(margin-bottom, 10);
+        line-height: normal;
+
+        .btn {
+            padding: 0;
+            color: @brand-secondary;
+
+            &:hover {
+                color: @brand-primary;
+            }
+        }
+    }
+
+    .address--required-info {
+        .unitize-margin(0, 26, 16);
+        .unitize(font-size, 14);
+    }
+
+    .select-field {
+        .unitize(margin-bottom, 5);
+        max-width: 100%;
+    }
+
+    .address--field {
+        .unitize(margin-bottom, 10);
+        width: 100%;
+    }
+
+    .address--customertype {
+        display: block;
+    }
+
+    .address--zip-city {
+        .address--field-zipcode {
+            width: 28%;
+            float: left;
+        }
+
+        .address--field-city {
+            .clearfix();
+            width: 70%;
+            float: left;
+        }
+
+        .address--spacer {
+            margin-right: 2%;
+        }
+
+    }
+
+    &.address--delete {
+        .panel {
+            .unitize(margin-bottom, 20);
+        }
+    }
+
+    .address--delete-actions .btn.is--primary {
+        float: right;
+    }
+
+    .address--content {
+        .clearfix();
+
+        margin: -2% 0 0 -2%;
+    }
+
+    .address--item-content {
+        width: 100%;
+        float: left;
+        padding: 2% 0 0 2%;
+
+        .panel--actions {
+            display: table-cell;
+            vertical-align: bottom;
+        }
+    }
+
+    .address--item-create .btn {
+        text-align: center;
+    }
+
+    .address--item-actions form {
+        display: block;
+    }
+
+    .js--loading {
+        .unitize-width(18);
+        .unitize-height(18);
+        .border-radius(100%);
+        .unitize-margin(0, 0, 0, 5);
+        .unitize(top, 4);
+        .animation(keyframe--spin 1s linear infinite);
+        border: 2px solid @border-color;
+        border-top: 2px solid darken(@border-color, 50%);
+        display: inline-block;
+        position: relative;
+    }
+}
+
+@media screen and (min-width: @tabletViewportWidth) {
+
+    .account--address,
+    .address-manager--modal {
+        .address--form-actions .address--form-submit {
+            width: auto;
+        }
+    }
+
+    .address-manager--modal.address-manager--selection {
+        .content {
+            .modal--container {
+                .modal--container-item {
+                    width: 50%
+                }
+            }
+        }
+    }
+
+    .account--address.account--content {
+
+        .address--field {
+            .unitize(margin-bottom, 15);
+            width: 70%;
+        }
+
+        .select-field {
+            .unitize(max-width, 290);
+        }
+
+        .address--form-actions {
+            .clearfix();
+        }
+
+        .address--item-content {
+            width: 50%;
+        }
+
+        .address--zip-city {
+            .address--field-zipcode {
+                width: 18%;
+                float: left;
+            }
+
+            .address--field-city {
+                .clearfix();
+                width: 50%;
+                float: left;
+            }
+
+            .address--spacer {
+                margin-right: 2%;
+            }
+
+        }
+    }
+}
+
+@media screen and(min-width: @desktopViewportWidth) {
+    .address-manager--modal.address-manager--selection {
+        // Restrict the width of the modal box in desktop mode to fit the shop width
+        .unitize-max-width(1145);
+
+        .content {
+            .modal--container {
+                .modal--container-item {
+                    width: 33.3%
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,43 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <service id="shopware.product.product_notification.writer_field_uuid" class="Shopware\Product\Writer\Field\ProductNotification\UuidField">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product_notification.writer_field"/> 
+</service>        
+<service id="shopware.product.product_notification.writer_field_orderNumber" class="Shopware\Product\Writer\Field\ProductNotification\OrderNumberField">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product_notification.writer_field"/> 
+</service>        
+<service id="shopware.product.product_notification.writer_field_createdAt" class="Shopware\Product\Writer\Field\ProductNotification\CreatedAtField">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product_notification.writer_field"/> 
+</service>        
+<service id="shopware.product.product_notification.writer_field_mail" class="Shopware\Product\Writer\Field\ProductNotification\MailField">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product_notification.writer_field"/> 
+</service>        
+<service id="shopware.product.product_notification.writer_field_send" class="Shopware\Product\Writer\Field\ProductNotification\SendField">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product_notification.writer_field"/> 
+</service>        
+<service id="shopware.product.product_notification.writer_field_language" class="Shopware\Product\Writer\Field\ProductNotification\LanguageField">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product_notification.writer_field"/> 
+</service>        
+<service id="shopware.product.product_notification.writer_field_shopLink" class="Shopware\Product\Writer\Field\ProductNotification\ShopLinkField">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product_notification.writer_field"/> 
+</service>
+    </services>
+</container>

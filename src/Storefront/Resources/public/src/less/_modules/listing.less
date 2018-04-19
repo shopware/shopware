@@ -1,0 +1,511 @@
+/*
+Listing
+==========================================
+Contains the styles of the product listing and its components.
+
+The styling defines the listing components such as the product filter element.
+
+It contains the viewport specific styles inside media queries.
+*/
+
+    // Listing main content
+.listing--content {
+    .unitize-margin(20, 0);
+}
+
+    // Category banner
+.banner--container {
+    .unitize-margin(0, 0, 20, 0);
+}
+
+    // Listing teaser text
+.category--teaser {
+    .unitize-margin(0, 0, 20, 0);
+
+    .hero--text {
+        .unitize-padding(10, 20);
+    }
+
+    .offcanvas--content {
+        .unitize(padding, 20);
+
+        .content--title {
+            .unitize(font-size, 18);
+            .unitize-margin(10, 0, 15, 0);
+            font-weight: 700;
+            color: @text-color-dark;
+        }
+    }
+}
+
+    // Vendor information
+.vendor--info {
+    .clearfix();
+    .unitize-margin(0, 0, 20, 0);
+
+    .vendor--image-wrapper {
+        .unitize-margin(0, 0, 10, 0);
+        .unitize-max-width(200);
+        .unitize-height(70);
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .vendor--image {
+        margin: 0 auto;
+    }
+
+    .vendor--text {
+        .unitize-margin(0, 0, 20, 0);
+    }
+}
+
+// Listing actions
+.listing--actions {
+    .clearfix();
+    .tap-highlight-color();
+}
+
+.listing--wrapper.js--is-loading .js--loading-indicator {
+    .unitize(top, 150);
+}
+
+.listing {
+    .transition(opacity 0.5s ease-out);
+    opacity: 1;
+
+    &.is--loading {
+        opacity: 0;
+    }
+}
+
+
+.action--filter-btn {
+    .unitize(margin-bottom, 10);
+
+    .filter--trigger {
+        .unitize-height(34);
+        .unitize-padding(4, 4, 4, 10);
+        .unitize(24, 16, line-height);
+        display: block;
+        position: relative;
+        overflow: hidden;
+
+        .icon--filter {
+            .unitize(margin-right, 8);
+        }
+
+        .action--collapse-icon {
+            .unitize-padding(0, 10);
+            .unitize(line-height, 24);
+            .primary-gradient();
+            .border-radius();
+            display: inline-block;
+            color: #fff;
+            float: right;
+        }
+    }
+}
+
+    // Filter options
+.action--filter-options {
+    .filter--container {
+        .unitize-padding(0, 10);
+    }
+
+    .filter--close-btn {
+        .unitize-padding(12, 10);
+        .secondary-gradient();
+        display: block;
+        color: #fff;
+        font-weight: bold;
+
+        &:hover {
+            color: #fff;
+        }
+
+        .icon--arrow-right {
+            .unitize-margin(3, 0, 0, 0);
+            float: right;
+        }
+    }
+
+    .filter--btn-apply {
+        clear: both;
+    }
+
+    .filter--list {
+        list-style: none;
+    }
+
+    .filter--entry {
+        .unitize-padding(10, 20);
+        .unitize(font-size, 16);
+        display: block;
+        border-bottom: 1px solid @border-color;
+
+        &:last-child {
+            border: 0 none;
+        }
+    }
+
+    .filter--link {
+        color: @text-color;
+
+        &:hover {
+            color: @brand-primary;
+        }
+    }
+}
+
+    // Sorting options
+.action--sort {
+    .unitize(margin-bottom, 20);
+    display: block;
+
+    .sort--label {
+        display: none;
+    }
+
+    .sort--select {
+        .unitize-height(34);
+        max-width: 100%;
+
+        &:after,
+        .sort--field {
+            .unitize(line-height, 34);
+        }
+    }
+}
+
+    // Items per page filter
+.action--per-page {
+    display: none;
+}
+
+    // Listing paging
+.listing--paging {
+    .clearfix();
+    .unitize-padding(10, 0);
+    display: block;
+
+    .paging--label {
+        display: none;
+    }
+
+    .paging--display {
+        .unitize(line-height, 30);
+        .unitize(margin-left, 10);
+    }
+}
+
+.listing--bottom-paging {
+    .unitize-margin(10, 0, 20, 0);
+}
+
+.listing--container {
+    overflow: hidden;
+}
+
+.listing {
+    .clearfix();
+    margin: -2% 0 0 -2%;
+    padding: 0 0 2% 0;
+}
+
+    // button wrapper for ininite scrolling actions
+.infinite--actions {
+    width: 100%;
+    margin: 0 auto;
+    text-align: center;
+
+    .js--load-more, .js--load-previous {
+        .unitize(margin-bottom, 20);
+    }
+}
+
+    // Tablet view
+@media screen and(min-width: @tabletViewportWidth) {
+
+    .category--teaser {
+        .hero--headline {
+            .unitize(@font-size-h1, 16, font-size);
+            .unitize-padding(40, 0, 0, 0);
+            .unitize-margin(0, 40);
+        }
+        .hero--text {
+            .unitize-padding(25, 40, 10, 40);
+        }
+    }
+
+    .listing--content {
+        .clearfix();
+        .unitize-margin(30, 0);
+    }
+
+    .vendor--info {
+        .vendor--image-wrapper {
+            .unitize-margin(0, 20, 20, 0);
+            float: left;
+
+            & + .vendor--text {
+                .unitize-margin(0, 0, 0, 250);
+            }
+
+            .vendor--image {
+                margin: 0;
+            }
+        }
+    }
+
+    .listing--actions {
+        .border-radius();
+        .unitize-margin(0, 0, 20, 0);
+        .unitize(padding-top, 10);
+        border: 1px solid @border-color;
+        background: darken(@gray-light, 1%);
+
+        .listing--paging {
+            .unitize-padding(10, 10);
+            display: block;
+            border-top: 1px solid @border-color;
+        }
+    }
+
+    .listing--actions.without-facets.without-sortings.without-pagination {
+        display: none;
+    }
+
+    .listing--actions.without-facets.without-sortings {
+        .unitize(padding-top, 0);
+        border-top: none;
+    }
+
+    .action--per-page {
+        .unitize(line-height, 32);
+        display: inline-block;
+        width: 30%;
+        text-align: right;
+        float: right;
+
+        .per-page--label { display: none }
+
+        .per-page--select {
+            .unitize-width(80);
+            .unitize-height(32);
+            vertical-align: top;
+
+            &:after,
+            .per-page--field {
+                .unitize(line-height, 30);
+                text-align: center;
+            }
+        }
+    }
+
+    .action--sort {
+        .unitize-width(200);
+        .unitize-margin(0, 10, 0, 0);
+        display: inline-block;
+        text-align: right;
+        float: right;
+
+        .sort--select {
+            .unitize(max-width, 200);
+        }
+    }
+
+    .action--filter-btn {
+        .unitize-width(190);
+        .unitize-margin(0, 20, 10, 10);
+        float: left;
+
+        .filter--trigger {
+            .action--collapse-icon {
+                display: none;
+            }
+
+            &:before,
+            &:after {
+                .transition(margin-top .4s cubic-bezier(.02, .01, .47, 1));
+                .unitize-width(16);
+                .unitize-height(16);
+                .unitize(right, 10);
+                .unitize(margin-top, -8);
+                .unitize(font-size, 6);
+                .unitize(line-height, 16);
+                font-family: @sw-icon-fontname;
+                content: @sw-icon-arrow-down;
+                position: absolute;
+                text-align: center;
+                background: none;
+                color: inherit;
+                top: 50%;
+            }
+
+            &:after {
+                .unitize(margin-top, -48);
+                content: @sw-icon-arrow-up;
+            }
+
+            &.is--active {
+                .is--primary();
+
+                &:before {
+                    .unitize(margin-top, 40);
+                }
+
+                &:after {
+                    .unitize(margin-top, -8);
+                }
+            }
+        }
+    }
+
+    .action--filter-options {
+        width: auto;
+        height: auto;
+        padding: 0;
+        overflow: visible;
+        position: relative;
+        background: #fff;
+        border: 0 none;
+        clear: both;
+
+        &.is--collapsed,
+        &.is--active-filter {
+            border-width: 1px 0 0 0;
+            border-style: solid;
+            border-color: @border-color;
+        }
+
+        &.is--active-filter {
+            .filter--active-container {
+                display: block;
+            }
+        }
+
+        &.is--instant-filter-active .filter--active-container {
+            display: block;
+        }
+
+        .filter--close-btn {
+            display: none;
+        }
+
+        .filter--container {
+            .clearfix();
+            margin-left: -2%;
+            padding-left: 3%;
+        }
+
+        .filter--group {
+            .unitize-height(38);
+            width: 31%;
+            margin: 0 2% 2% 0;
+            position: relative;
+            float: left;
+        }
+
+        .filter--header {
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: @zindex-listing-filter-header;
+
+            &.is--active {
+                z-index: @zindex-listing-filter-header-active;
+            }
+        }
+
+        .filter--content {
+            .unitize(top, 38);
+            width: 100%;
+            position: absolute;
+            left: 0;
+        }
+
+        #filter {
+            .clearfix();
+        }
+    }
+
+    .listing--bottom-paging {
+        .unitize-padding(0, 10, 0, 10);
+        .border-radius();
+        border: 1px solid @border-color;
+        background: darken(@gray-light, 1%);
+    }
+}
+
+    // Desktop view
+@media screen and(min-width: @desktopViewportWidth) {
+
+    .listing--content {
+        .unitize(padding-top, 45);
+        .unitize-margin(0, 0);
+    }
+
+    .action--filter-btn {
+        width: 20%;
+        margin-right: 2%;
+
+        .filter--trigger {
+            .unitize(font-size, 14);
+
+            .action--collapse-icon {
+                .unitize(-8, 16, margin-top);
+            }
+        }
+    }
+
+    .action--filter-options {
+        background: #fff;
+
+        &.is--collapsed,
+        &.is--active-filter {
+            border-width: 1px 0 0 0;
+        }
+    }
+
+    .action--sort {
+        .unitize(line-height, 32);
+        .unitize-margin(0, 10, 10, 0);
+        width: 40%;
+
+        .sort--label {
+            .unitize-margin(0, 10, 0, 0);
+            display: inline-block;
+            font-weight: bold;
+        }
+
+        .sort--select {
+            .unitize(max-width, 200);
+            vertical-align: top;
+        }
+    }
+
+    .action--per-page {
+
+        .per-page--label {
+            .unitize-margin(0, 10, 0, 0);
+            display: inline-block;
+            font-weight: bold;
+        }
+    }
+
+    .listing--paging {
+        display: block;
+        clear: both;
+
+        .paging--label {
+            .unitize-margin(0, 10, 0, 0);
+            font-weight: bold;
+        }
+
+        .paging--display {
+            .unitize(line-height, 30);
+        }
+    }
+}

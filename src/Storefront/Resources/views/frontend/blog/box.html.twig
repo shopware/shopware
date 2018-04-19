@@ -1,0 +1,129 @@
+<div class="blog--box panel has--border is--rounded">
+    {% block frontend_blog_col_blog_entry %}
+
+        {# Blog Header #}
+        {% block frontend_blog-col_box_header %}
+            <div class="blog--box-header">
+
+                {# Article name #}
+                {% block frontend_blog_col_article_name %}
+                    <h2 class="blog--box-headline panel--title">
+                        <a class="blog--box-link" href="{url controller=blog action=detail sCategory=$sArticle.categoryId blogArticle=$sArticle.id}" title="{{ sArticle.title|escape }}">{{ sArticle.title }}</a>
+                    </h2>
+                {% endblock %}
+
+                {# Meta data #}
+                {% block frontend_blog_col_meta_data %}
+                    <div class="blog--box-metadata">
+
+                        {# Author #}
+                        {% block frontend_blog_col_meta_data_name %}
+                            {% if sArticle.author.name %}
+                                <span class="blog--metadata-author blog--metadata is--nowrap is--first">{s name="BlogInfoFrom"}{/s} {{ sArticle.author.name }}</span>
+                            {% endif %}
+                        {% endblock %}
+
+                        {# Date #}
+                        {% block frontend_blog_col_meta_data_date %}
+                            {% if sArticle.displayDate %}
+                                <span class="blog--metadata-date blog--metadata is--nowrap{% if not sArticle.author.name %} is--first{% endif %}">{{ sArticle.displayDate|date("DATETIME_SHORT") }}</span>
+                            {% endif %}
+                        {% endblock %}
+
+                        {# Description #}
+                        {% block frontend_blog_col_meta_data_description %}
+                            {% if sArticle.categoryInfo.description %}
+                                <span class="blog--metadata-description is--nowrap">
+                                    {% if sArticle.categoryInfo.linkCategory %}
+                                        <a href="{{ sArticle.categoryInfo.linkCategory }}" title="{{ sArticle.categoryInfo.description|escape }}">{{ sArticle.categoryInfo.description }}</a>
+                                    {% else %}
+                                        {{ sArticle.categoryInfo.description }}
+                                    {% endif %}
+                                </span>
+                            {% endif %}
+                        {% endblock %}
+
+                        {# Comments #}
+                        {% block frontend_blog_col_meta_data_comments %}
+                            <span class="blog--metadata-comments blog--metadata is--nowrap{% if sArticle.sVoteAverage|round == 0 %} is--last{% endif %}">
+                                <a href="{url controller=blog action=detail sCategory=$sArticle.categoryId blogArticle=$sArticle.id}#blog--comments-start"
+                                   title="{s name='BlogLinkComments' namespace='frontend/blog/detail'}{/s}|escape}">
+                                    {% if sArticle.numberOfComments %}{{ sArticle.numberOfComments }}{% else %}0{% endif %} {s name="BlogInfoComments"}{/s}
+                                </a>
+                            </span>
+                        {% endblock %}
+
+                        {# Rating #}
+                        {% block frontend_blog_col_meta_data_rating %}
+                            {% if sArticle.sVoteAverage|round != 0 %}
+                                <div class="blog--metadata-rating blog--metadata is--nowrap is--last">
+                                    {% sw_include "@Shopware/frontend/_includes/rating.html.twig" with {'points': sArticle.sVoteAverage|round, 'type': 'aggregated', 'count': sArticle.comments|length, 'microData': false} %}
+                                </div>
+                            {% endif %}
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+
+            </div>
+        {% endblock %}
+
+        {# Blog Box #}
+        {% block frontend_blog_col_box_content %}
+            <div class="blog--box-content panel--body is--wide block">
+
+                {# Article pictures #}
+                {% block frontend_blog_col_article_picture %}
+                    {% if sArticle.media %}
+                        <div class="blog--box-picture">
+                            <a href="{url controller=blog action=detail sCategory=$sArticle.categoryId blogArticle=$sArticle.id}"
+                               class="blog--picture-main"
+                               title="{{ sArticle.title|escape }}">
+                                {% if sArticle.media.thumbnails %}
+                                    <img srcset="{{ sArticle.media.thumbnails[0].sourceSet }}"
+                                         alt="{{ sArticle.title|escape }}"
+                                         title="{{ sArticle.title|escape[:160] }}" />
+                                {% else %}
+                                    <img src="{link file='frontend/_public/src/img/no-picture.jpg'}"
+                                         alt="{{ sArticle.title|escape }}"
+                                         title="{{ sArticle.title|escape[:160] }}" />
+                                {% endif %}
+                            </a>
+                        </div>
+                    {% endif %}
+                {% endblock %}
+
+                {# Article Description #}
+                {% block frontend_blog_col_description %}
+                    <div class="blog--box-description{if !$sArticle.media} is--fluid{/if}">
+
+                        {% block frontend_blog_col_description_short %}
+                            <div class="blog--box-description-short">
+                                {% if sArticle.shortDescription %}{{ sArticle.shortDescription|nl2br }}{% else %}{{ sArticle.shortDescription }}{% endif %}
+                            </div>
+                        {% endblock %}
+
+                        {# Read more button #}
+                        {% block frontend_blog_col_read_more %}
+                            <div class="blog--box-readmore">
+                                <a href="{url controller=blog action=detail sCategory=$sArticle.categoryId blogArticle=$sArticle.id}" title="{{ sArticle.title|escape }}" class="btn is--primary is--small">{s name="BlogLinkMore"}{/s}</a>
+                            </div>
+                        {% endblock %}
+
+                        {# Tags #}
+                        {% block frontend_blog_col_tags %}
+                            <div class="blog--box-tags">
+                                {% if sArticle.tags|length > 1 %}
+                                    <strong>{s name="BlogInfoTags"}{/s}</strong>
+                                    {% for tag in sArticle.tags %}
+                                        <a href="{{ tag.link }}" title="{{ tag.name|escape }}">{{ tag.name }}</a>{% if not loop.last %}, {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        {% endblock %}
+
+                    </div>
+                {% endblock %}
+
+            </div>
+    {% endblock %}
+</div>

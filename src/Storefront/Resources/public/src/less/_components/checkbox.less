@@ -1,0 +1,118 @@
+/*
+Checkboxes
+==========================================
+######Checkboxes elements
+Changes the default Checkboxes to custom-themed ones that contain the Shopware color variables.
+
+The checkboxes can be used in a `span` element containing an `input` tag or inside a anchor element. (Example inside a panel element)
+
+```
+
+<div class="panel">
+    <div class="panel--body">
+
+        <span class="checkbox">
+            <input type="checkbox" />
+            <span class="checkbox--state"></span>
+        </span> Option (actual checkbox)<br/>
+
+        <span class="checkbox">
+            <input type="checkbox" />
+            <span class="checkbox--state"></span>
+        </span> Option (actual checkbox)<br/>
+
+        <a href="#">
+            <span class="checkbox">
+                <span class="checkbox--state"></span>
+            </span>
+        </a> Option (inside a link)<br/>
+
+        <a href="#">
+            <span class="checkbox">
+                <span class="checkbox--state"></span>
+            </span>
+        </a> Option (inside a link)<br/>
+
+    </div>
+</div>
+
+```
+*/
+
+.checkbox {
+	.unitize-width(16);
+	.unitize-height(16);
+	.unitize-padding(1, 1);
+	.unitize(line-height, 16);
+	.border-radius();
+	display: inline-block;
+	position: relative;
+	vertical-align: middle;
+	border: 1px solid @border-color;
+	cursor: pointer;
+
+	.checkbox--state {
+		.border-radius();
+		display: block;
+		width: 100%;
+		height: 100%;
+		position: relative;
+		z-index: @zindex-checkbox-state;
+	}
+
+	input[type="checkbox"] {
+		.opacity(0);
+		display: block;
+		width: 100%;
+		height: 100%;
+		position: absolute;
+		top: 0; left: 0;
+		border: 0 none;
+		background: none;
+		cursor: pointer;
+		z-index: @zindex-checkbox-element;
+
+		&:checked ~ .checkbox--state {
+			.primary-gradient();
+
+			&:before {
+				.unitize-width(12);
+				.unitize-height(12);
+				.unitize(line-height, 12);
+				.unitize(font-size, 7);
+				display: inline-block;
+				font-family: @sw-icon-fontname;
+				font-weight: normal;
+				text-align: center;
+				vertical-align: top;
+				color: #fff;
+				content: @sw-icon-check;
+			}
+		}
+
+		&:disabled ~ .checkbox--state {
+			background: @body-bg;
+		}
+	}
+
+	&.is--active,
+	a:hover & {
+		.checkbox--state {
+			.primary-gradient();
+
+			&:before {
+				.unitize-width(12);
+				.unitize-height(12);
+				.unitize(line-height, 12);
+				.unitize(font-size, 7);
+				display: inline-block;
+				font-family: @sw-icon-fontname;
+				font-weight: normal;
+				text-align: center;
+				vertical-align: top;
+				color: #fff;
+				content: @sw-icon-check;
+			}
+		}
+	}
+}

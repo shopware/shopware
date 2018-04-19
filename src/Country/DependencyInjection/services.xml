@@ -1,0 +1,24 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service class="Shopware\Country\Struct\CountryHydrator" id="shopware.country.struct.country_hydrator">
+            <argument id="shopware.framework.struct.attribute_hydrator" type="service"/>
+            <argument id="shopware.country_area.struct.country_area_hydrator" type="service"/>
+        </service>
+
+        <service class="Shopware\Country\Gateway\CountryReader" id="shopware.country.gateway.country_reader">
+            <argument id="dbal_connection" type="service"/>
+            <argument id="shopware.framework.struct.field_helper" type="service"/>
+            <argument id="shopware.country.struct.country_hydrator" type="service"/>
+        </service>
+
+        <service class="Shopware\Country\Gateway\CountryRepository" id="shopware.country.gateway.country_repository">
+            <argument id="shopware.country.gateway.country_reader" type="service"/>
+        </service>
+
+    </services>
+</container>

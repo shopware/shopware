@@ -1,0 +1,146 @@
+/*
+Forms
+==========================================
+Defines the general form element styles.
+
+It contains the components as: `capacha`, `description`, `required information` etc.
+*/
+
+    // General
+.forms--content {
+    width: 100%;
+
+    .forms--headline {
+        .unitize(margin-bottom, 20);
+
+        .forms--title {
+			.unitize(margin-top, 0);
+		}
+
+	    .forms--text {
+			p { .unitize(margin-bottom, 12); }
+		}
+    }
+
+	// Margin alert message
+    .alert {
+		.unitize-margin(30, 0, 0, 0);
+    }
+
+    .forms--field {
+		.unitize(margin-bottom, 5);
+	    width: 100%;
+    }
+
+    input {
+		.unitize(margin-bottom, 10);
+		width: 100%;
+    }
+
+    textarea {
+		.unitize(margin-bottom, 10);
+		width: 100%;
+    }
+
+		.field--select {
+		    .unitize(margin-bottom, 10);
+    }
+
+    .btn {
+	    float: right;
+    }
+
+    .buttons {
+	    .clearfix();
+    }
+
+    .strasse {
+	    margin-right: 2%;
+	    width: 80%;
+		float: left;
+    }
+
+    .nr {
+	    width: 18%;
+	    float: left;
+    }
+
+    .plz {
+	    margin-right: 2%;
+	    width: 28%;
+	    float: left;
+    }
+
+    .ort {
+	    .clearfix();
+	    width: 70%;
+	    float: left;
+    }
+
+    .forms--required {
+	    .unitize(font-size, 12);
+	    .unitize(margin-bottom, 10);
+    }
+
+    .forms--description {
+		.unitize-margin(-8, 0, 10, 0, 16);
+	    clear: both;
+    }
+
+    .forms--captcha {
+
+		strong.captcha--notice {
+			.unitize(margin-bottom, 8);
+			display: block;
+		}
+
+    }
+
+    .forms--checkbox {
+        label {
+            .unitize(-2, 16, top);
+            position: relative;
+        }
+
+        input[type="checkbox"] {
+            width: auto;
+        }
+    }
+
+}
+
+@media screen and (min-width: @tabletViewportWidth) {
+
+    .forms--content {
+        .unitize(margin-top, 45);
+
+		input {
+			.unitize(margin-bottom, 15);
+		}
+
+		textarea {
+			.unitize(margin-bottom, 15);
+		}
+
+		.forms--captcha {
+
+			strong.captcha--notice {
+				.unitize(margin-bottom, 16);
+			}
+
+		}
+    }
+}
+
+@media screen and (min-width: @desktopViewportWidth) {
+
+    .forms--content {
+		.unitize(margin-top, 45);
+
+		// Margin alert message
+		.alert {
+			.unitize-margin(0, 0, 0, 0, 16);
+		}
+    }
+
+}

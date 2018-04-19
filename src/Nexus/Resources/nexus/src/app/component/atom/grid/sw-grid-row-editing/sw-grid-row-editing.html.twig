@@ -1,0 +1,22 @@
+<div class="sw-grid--row-editing sw-grid--row">
+    <div class="sw-row--col" v-for="item in items" :key="item.id" :style="item.colWidth">
+
+        <template v-if="item.editor === 'none'">
+            {{item.value}}
+        </template>
+
+        <input v-else-if="item.editor === 'checkbox'" type="checkbox" :name="item.dataIndex" :checked="item.value == true" :key="item.editor + '-' + item.dataIndex" v-model="item.value">
+        <input v-else-if="item.editor === 'text'" type="text" :value="item.value" :name="item.dataIndex" :key="item.editor + '-' + item.dataIndex" v-model="item.value">
+        <input v-else-if="item.editor === 'number'" type="number" :value="item.value" :name="item.dataIndex" :key="item.editor + '-' + item.dataIndex" v-model="item.value">
+    </div>
+
+    <div class="row-editing--actions">
+        <button type="button" @click="onCancelEditing">
+            Cancel
+        </button>
+
+        <button type="button" @click="onSaveEditing">
+            Save
+        </button>
+    </div>
+</div>

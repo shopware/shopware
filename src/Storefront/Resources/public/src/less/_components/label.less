@@ -1,0 +1,44 @@
+/*
+Labels
+===================================================================
+######Creates a label for displaying a status.
+
+To work properly the `span`-element needs the general `label`-class and a color scheme option:
+
+Options: `success`, `info`, `warning`, `error`.
+```
+<span class="label success">Success!</span>
+<span class="label info">Info!</span>
+<span class="label warning">Warning!</span>
+<span class="label error">Error!</span>
+```
+*/
+
+.label {
+    .unitize-padding(3, 8);
+    .unitize-margin(0, 5);
+    .unitize(@label-font-size, 16, font-size);
+    .unitize(line-height, 18);
+    .border-radius();
+    display: inline-block;
+    text-align: center;
+    white-space: nowrap;
+    color: @label-color;
+    background: @text-color;
+
+    &.success {
+        background: @highlight-success;
+    }
+
+    &.info {
+        background: @highlight-info;
+    }
+
+    &.warning {
+        background: @highlight-notice;
+    }
+
+    &.error {
+        background: @highlight-error;
+    }
+}

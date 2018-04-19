@@ -1,0 +1,110 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <!--interface implementations of cart bundle-->
+        <service id="cart.product.gateway" alias="shopware.cart.product.gateway" />
+        <service id="cart.voucher.gateway" alias="shopware.cart.voucher.gateway" />
+        <service id="cart.dynamic.line_item_gateway" alias="shopware.cart.dynamic.line_item_gateway" />
+
+        <service id="shopware.cart.dynamic.line_item_gateway" class="Shopware\CartBridge\Dynamic\DynamicLineItemGateway">
+            <argument id="shopware.cart.dynamic.customer_group_discount_gateway" type="service"/>
+            <argument id="shopware.cart.dynamic.minimum_order_value_gateway" type="service"/>
+            <argument id="shopware.cart.dynamic.payment_surcharge_gateway" type="service"/>
+        </service>
+
+        <service id="shopware.cart.dynamic.customer_group_discount_gateway" class="Shopware\CartBridge\Dynamic\CustomerGroupDiscountGateway">
+            <argument id="cart.price.percentage_calculator" type="service"/>
+            <argument id="dbal_connection" type="service"/>
+        </service>
+
+        <service id="shopware.cart.dynamic.minimum_order_value_gateway" class="Shopware\CartBridge\Dynamic\MinimumOrderValueGateway">
+            <argument id="cart.price.calculator" type="service"/>
+            <argument id="cart.tax.percentage_rule_builder" type="service"/>
+        </service>
+
+        <service id="shopware.cart.dynamic.payment_surcharge_gateway" class="Shopware\CartBridge\Dynamic\PaymentSurchargeGateway">
+            <argument id="cart.tax.percentage_rule_builder" type="service"/>
+            <argument id="cart.price.percentage_calculator" type="service"/>
+            <argument id="cart.price.calculator" type="service"/>
+        </service>
+
+        <service id="shopware.cart.product.gateway" class="Shopware\CartBridge\Product\ProductGateway" >
+            <argument id="shopware.cart.product.price_gateway" type="service"/>
+            <argument id="dbal_connection" type="service"/>
+        </service>
+
+        <service id="shopware.cart.product.price_gateway" class="Shopware\CartBridge\Product\ProductPriceGateway">
+            <argument type="service" id="dbal_connection" />
+        </service>
+
+        <service id="shopware.cart.storefront_service" class="Shopware\CartBridge\Service\StoreFrontCartService">
+            <argument type="service" id="cart.calculator" />
+            <argument type="service" id="shopware.cart.persister" />
+            <argument type="service" id="shopware.storefront.context.storefront_context_service" />
+            <argument type="service" id="session" />
+            <argument type="service" id="shopware.cart.view.cart_transformer" />
+            <argument type="service" id="logger" />
+            <argument type="service" id="shopware.cart.order.persister" />
+        </service>
+
+        <service id="shopware.cart.order.persister" class="Shopware\CartBridge\Order\OrderPersister">
+            <argument id="dbal_connection" type="service"/>
+        </service>
+
+        <service id="shopware.cart.persister" class="Shopware\CartBridge\Cart\CartPersister">
+            <argument type="service" id="dbal_connection" />
+            <argument type="service" id="shopware.serializer.json_serializer" />
+        </service>
+
+        <service id="shopware.cart.view.product_transformer" class="Shopware\CartBridge\View\ViewProductTransformer">
+            <argument type="service" id="shopware.product.gateway.product_repository" />
+        </service>
+
+        <service id="shopware.cart.view.cart_transformer" class="Shopware\CartBridge\View\ViewCartTransformer">
+            <argument type="collection">
+                <argument type="service" id="shopware.cart.view.product_transformer" />
+            </argument>
+        </service>
+
+        <service id="shopware.cart.voucher.gateway" class="Shopware\CartBridge\Voucher\VoucherGateway" >
+            <argument type="service" id="dbal_connection" />
+            <argument type="service" id="cart.tax.percentage_rule_builder" />
+        </service>
+
+        <service id="shopware.cart.rule.product_of_categories_collector" class="Shopware\CartBridge\Rule\Collector\ProductOfCategoriesRuleCollector">
+            <argument id="dbal_connection" type="service"/>
+            <tag name="cart.collector" priority="-1000" />
+        </service>
+
+        <service id="shopware.cart.rule.last_order_collector" class="Shopware\CartBridge\Rule\Collector\LastOrderRuleCollector">
+            <argument type="service" id="dbal_connection" />
+            <tag name="cart.collector" priority="-1000" />
+        </service>
+
+        <service id="shopware.cart.rule.order_cleared_state_collector" class="Shopware\CartBridge\Rule\Collector\OrderClearedStateRuleCollector">
+            <argument type="service" id="dbal_connection" />
+            <tag name="cart.collector" priority="-1000" />
+        </service>
+
+        <service id="shopware.cart.rule.order_count_collector" class="Shopware\CartBridge\Rule\Collector\OrderCountRuleCollector">
+            <argument type="service" id="dbal_connection" />
+            <tag name="cart.collector" priority="-1000" />
+        </service>
+
+        <service id="shopware.cart.rule.product_attribute_collector" class="Shopware\CartBridge\Rule\Collector\ProductAttributeRuleCollector">
+            <argument type="service" id="dbal_connection" />
+            <tag name="cart.collector" priority="-1000" />
+        </service>
+
+        <service id="shopware.cart.rule.product_of_manufacturer_collector" class="Shopware\CartBridge\Rule\Collector\ProductOfManufacturersRuleCollector" >
+            <argument type="service" id="dbal_connection" />
+            <tag name="cart.collector" priority="-1000" />
+        </service>
+
+
+    </services>
+</container>

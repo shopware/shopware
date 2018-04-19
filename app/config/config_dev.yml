@@ -1,0 +1,24 @@
+imports:
+    - { resource: parameters.yml }
+    - { resource: common/symfony.yml }
+    - { resource: common/shopware.yml }
+
+framework:
+    router:
+        strict_requirements: true
+    profiler: { only_exceptions: false }
+
+web_profiler:
+    toolbar: true
+    intercept_redirects: false
+
+monolog:
+    handlers:
+        main:
+            type: stream
+            path: "%kernel.logs_dir%/%kernel.environment%.log"
+            level: debug
+            channels: ['!event']
+        console:
+            type:   console
+            channels: ['!event', '!doctrine']

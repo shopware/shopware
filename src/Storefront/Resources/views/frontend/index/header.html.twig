@@ -1,0 +1,110 @@
+{% trans_default_domain 'frontend/index/header' %}
+
+<head>
+{# Http-Tags #}
+{% block frontend_index_header_meta_http_tags %}
+    <meta charset="utf-8">
+{% endblock %}
+
+{# Meta-Tags #}
+{% block frontend_index_header_meta_tags %}
+    <meta name="author" content="{% trans %}IndexMetaAuthor{% endtrans %}" />
+    {# <meta name="copyright" content="{% trans %}IndexMetaCopyright{% endtrans %}" /> #}
+    <meta name="robots" content="{% block frontend_index_header_meta_robots %}{% trans %}IndexMetaRobots{% endtrans %}{% endblock %}" />
+    <meta name="revisit-after" content="{% trans %}IndexMetaRevisit{% endtrans %}" />
+    <meta name="keywords" content="{% block frontend_index_header_meta_keywords %}{% if sCategoryContent.metaKeywords %}{{ sCategoryContent.metaKeywords|escape('html') }}{% else %}{% trans %}IndexMetaKeywordsStandard{% endtrans %}{% endif %}{% endblock %}" />
+    <meta name="description" content="{% block frontend_index_header_meta_description %}{% trans %}IndexMetaDescriptionStandard{% endtrans %}{% endblock %}" />
+
+    {# Meta opengraph tags #}
+    {% block frontend_index_header_meta_tags_opengraph %}
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="{{ shopware.config.shopname|escape('html') }}" />
+        <meta property="og:title" content="{{ shopware.config.shopname|escape('html') }}" />
+        <meta property="og:description" content="{% trans %}IndexMetaDescriptionStandard{% endtrans %}" />
+        <meta property="og:image" content="{link file=$theme.desktopLogo fullPath}" />
+
+        <meta name="twitter:card" content="website" />
+        <meta name="twitter:site" content="{{ shopware.config.shopname|escape('html') }}" />
+        <meta name="twitter:title" content="{{ shopware.config.shopname|escape('html') }}" />
+        <meta name="twitter:description" content="{% trans %}IndexMetaDescriptionStandard{% endtrans %}" />
+        <meta name="twitter:image" content="{link file=$theme.desktopLogo fullPath}" />
+    {% endblock %}
+
+    {% block frontend_index_header_meta_tags_schema_webpage %}
+        <meta itemprop="copyrightHolder" content="{{ shopware.config.shopname|escape('html') }}" />
+        <meta itemprop="copyrightYear" content="{% trans %}IndexMetaCopyrightYear{% endtrans %}" />
+        <meta itemprop="isFamilyFriendly" content="{{ shopware.config.metaisfamilyfriendly ? 'True' : 'False' }}" />
+        <meta itemprop="image" content="{link file=$theme.desktopLogo}" />
+    {% endblock %}
+
+    {% block frontend_index_header_meta_tags_mobile %}
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-title" content="{% if not theme.appleWebAppTitle %}{{ theme.appleWebAppTitle|escape('html') }}{% else %}{{ shopware.config.shopName|escape('html') }}{% endif %}">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    {% endblock %}
+{% endblock %}
+
+{# Set favicons and touch icons for all different sizes #}
+{% block frontend_index_header_favicons %}
+    <link rel="apple-touch-icon{% if shopware.theme.setprecomposed %}-precomposed{% endif %}" href="{{ shopware.theme.appletouchicon }}">
+    <link rel="shortcut icon" href="{{ shopware.theme.favicon }}">
+{% endblock %}
+
+{# Internet Explorer 9 specific meta tags #}
+{% block frontend_index_header_meta_tags_ie9 %}
+    <meta name="msapplication-navbutton-color" content="{$theme['brand-primary']}" />{# Navbutton color #}
+    <meta name="application-name" content="{{ shopware.config.shopname|escape('html') }}" />{# Pinned name #}
+    <meta name="msapplication-starturl" content="{url controller='index'}" />{# Start url to launch from the shortcut #}
+    <meta name="msapplication-window" content="width=1024;height=768" />{# Size of the window to launch #}
+    <meta name="msapplication-TileImage" content="{link file=$theme.win8TileImage}"> {# Image of the Windows 8 tile #}
+    <meta name="msapplication-TileColor" content="{$theme['brand-primary']}"> {# Backgroud Color of the Windows 8 tile #}
+{% endblock %}
+
+{# Android specifc meta tags #}
+{% block frontend_index_header_meta_tags_android %}
+    <meta name="theme-color" content="{$theme['brand-primary']}" />
+{% endblock %}
+
+{# Canonical link #}
+{% block frontend_index_header_canonical %}{% endblock %}
+
+{# RSS and Atom feeds #}
+{% block frontend_index_header_feeds %}{% endblock %}
+
+{# Page title #}
+<title itemprop="name">{% block frontend_index_header_title %}{% spaceless %}
+    {% if sBreadcrumb %}{% for breadcrum in sBreadcrum|reverse %}{{ breadcrumb.name }} | {% endfor %}{% endif %}{{ shopware.config.shopname|escape('html') }}
+{% endspaceless %}{% endblock %}</title>
+
+{# Stylesheets #}
+{% block frontend_index_header_css_screen %}
+    {% stylesheets output='css/app.css'
+        '@Storefront/Resources/public/src/less/all.less'
+        '@plugin_stylesheets'
+    %}
+        <link href="{{ asset_url }}" media="all" rel="stylesheet" type="text/css" />
+    {% endstylesheets %}
+
+    {% if theme.additionalCssData %}
+        {{ theme.additionalCssData }}
+    {% endif %}
+{% endblock %}
+
+{# Print Stylesheets #}
+{% block frontend_index_header_css_print %}{% endblock %}
+
+{# Add Modernizr in the "<head>"-element to have all the classes before the page was rendered #}
+{% block frontend_index_header_javascript_modernizr_lib %}
+    {% if not theme.asyncJavascriptLoading %}
+        <script src="{{ asset('js/app_modernizr.custom.35977_1.js') }}"></script>
+    {% endif %}
+{% endblock %}
+
+{# Block for IE specific stylesheets - @deprecated due to the stylesheets are now merged #}
+{% block frontend_index_header_css_ie %}{% endblock %}
+
+{# Block for tracking codes which are required to include in the `head` section of the document #}
+{% block frontend_index_header_javascript_tracking %}{% endblock %}
+</head>

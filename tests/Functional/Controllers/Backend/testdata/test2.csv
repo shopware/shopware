@@ -1,0 +1,5 @@
+email;group;salutation;firstname;lastname;street;zipcode;city
+email1@shopware.de;Group2;Mr;John;One;street12;12122;city12
+email2@shopware.de;;Mr;Michael;Two;street2;22222;city2
+email3@shopware.de;Group3;Mr;Jake;Three;street3;33333;city3
+email4@shopware.de;;Mrs;Maria;Four;street4;44444;city4

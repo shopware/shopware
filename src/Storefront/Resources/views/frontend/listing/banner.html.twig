@@ -1,0 +1,32 @@
+{% block frontend_listing_banner %}
+    {% if sBanner %}
+        <div class="banner--container">
+
+            {% if sBanner.media.thumbnails %}
+                {% if not sBanner.link or sBanner.link == "#" %}
+
+                    {# Image only banner #}
+                    {% block frontend_listing_image_only_banner %}
+                        <picture>
+                            <source srcset="{{ sBanner.media.thumbnails[1].sourceSet }}" media="(min-width: 48em)">
+
+                            <img srcset="{{ sBanner.media.thumbnails[0].sourceSet }}" alt="{{ sBanner.description|escape }}" class="banner--img" />
+                        </picture>
+                    {% endblock %}
+                {% else %}
+
+                    {# Normal banner #}
+                    {% block frontend_listing_normal_banner %}
+                        <a href="{{ sBanner.link }}" class="banner--link" {% if sBanner.link_target %}target="{{ sBanner.link_target }}"{% endif %} title="{{ sBanner.description|escape }}">
+                            <picture>
+                                <source srcset="{{ sBanner.media.thumbnails[1].sourceSet }}" media="(min-width: 48em)">
+
+                                <img srcset="{{ sBanner.media.thumbnails[0].sourceSet }}" alt="{{ sBanner.description|escape }}" class="banner--img" />
+                            </picture>
+                        </a>
+                    {% endblock %}
+                {% endif %}
+            {% endif %}
+        </div>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,10 @@
+<div class="sw-grid--row" @dblclick="startEditing">
+    <slot></slot>
+    <sw-grid-row-editing
+            ref="rowEditing"
+            v-if="isEditing"
+            :items="editingItems"
+            v-on:cancel-editing="isEditing = false"
+            v-on:save-editing="saveEditing">
+    </sw-grid-row-editing>
+</div>

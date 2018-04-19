@@ -1,0 +1,1011 @@
+/*
+Emotions
+=========================================
+Contains the basic styles for the Shopware 5 shopping worlds and its elements.
+
+Shopware 5 provides 11 integrated elements inside the shopping worlds that can be chosen and modified inside the backend shopping world editor such as sliders, video elements and blog-articles.
+*/
+.createColumns(@n, @state: ~'', @i: 1) when (@i =< @n) {
+
+    .col@{state}-@{i} {
+        width: (100% / @n * @i);
+    }
+
+    .start-col@{state}-@{i} {
+        left: (100% / @n * (@i - 1));
+    }
+
+    .createColumns(@n, @state, (@i + 1));
+}
+
+.createGrid(@n) {
+
+    &.emotion--column-@{n} {
+
+        .createColumns(@n);
+        .createColumns(@n, ~'-xs');
+
+        @media screen and(min-width: @phoneLandscapeViewportWidth) {
+            .createColumns(@n, ~'-s');
+        }
+
+        @media screen and(min-width: @tabletViewportWidth) {
+            .createColumns(@n, ~'-m');
+        }
+
+        @media screen and(min-width: @tabletLandscapeViewportWidth) {
+            .createColumns(@n, ~'-l');
+        }
+
+        @media screen and(min-width: @desktopViewportWidth) {
+            .createColumns(@n, ~'-xl');
+        }
+    }
+}
+
+    // Content fullscreen mode
+.content-main.is--fullscreen {
+    .box-shadow(none);
+    max-width: none;
+    padding: 0;
+    margin: 0;
+
+    .content,
+    .content-main--inner {
+        padding: 0;
+        margin: 0 auto;
+    }
+
+    .content--breadcrumb,
+    .last-seen-products {
+        display: none;
+    }
+
+    .listing--wrapper {
+        .unitize(max-width, 1160);
+        .unitize-padding(20, 10);
+        margin: 0 auto;
+
+        @media screen and(min-width: @tabletViewportWidth) {
+            .unitize-padding(20, 30);
+        }
+
+        @media screen and(min-width: @desktopViewportWidth) {
+            .unitize-padding(20, 0);
+        }
+    }
+}
+
+    // Emotion loading overlay
+.emotion--overlay {
+    .unitize-width(50);
+    .unitize-height(50);
+    .unitize(top, 50);
+    .border-radius(3px);
+    margin: 0 auto;
+    position: relative;
+    left: 0;
+    z-index: @zindex-emotion-overlay;
+
+    & .emotion--loading-indicator {
+        padding: 0;
+        position: absolute;
+        top: 0; bottom: 0;
+        left: 0; right: 0;
+        margin: auto;
+    }
+
+    & ~ .content-main {
+        .unitize-min-height(2000);
+        visibility: hidden;
+    }
+}
+
+    // Emotion loading indicator
+.emotion--loading-indicator {
+    .unitize-width(21);
+    .unitize-height(21);
+    .unitize-padding(50, 0);
+    margin: 0 auto;
+    display: block;
+    position: relative;
+    box-sizing: content-box;
+
+    &:before {
+        .border-radius(100%);
+        .animation(keyframe--spin 1s linear infinite);
+        width: 100%;
+        height: 100%;
+        box-sizing: border-box;
+        display: block;
+        content: "";
+        border-width: 2px;
+        border-style: solid;
+        border-color: #333 #CCC #CCC #CCC;
+    }
+}
+
+    // Emotion content
+.content--emotions {
+    display: block;
+
+    .emotion--container:last-child {
+        .unitize(margin-bottom, 20);
+    }
+}
+
+    // Emotion preview content
+body.emotion--preview {
+    background: #ffffff;
+
+    .content-main {
+        .box-shadow(none);
+        margin: 0;
+    }
+}
+
+    // Emotion show listing link
+.emotion--show-listing {
+    .unitize-margin(20, 0);
+}
+
+    // Emotion wrapper
+.emotion--wrapper {
+    display: block;
+    margin: 0 auto;
+    max-width: 1160px;
+    overflow: hidden;
+
+    &.is--fullscreen {
+        max-width: none;
+    }
+}
+
+    // Emotion container
+.emotion--container {
+    .clearfix();
+    display: block;
+    position: relative;
+    top: 0; left: 0;
+    background: #fff;
+
+    &.emotion--mode-resize {
+        .transform-origin(0, 0, 0);
+    }
+
+    &.emotion--mode-rows {
+        .emotion--sizer,
+        .emotion--sizer-xs,
+        .emotion--sizer-s,
+        .emotion--sizer-m,
+        .emotion--sizer-l,
+        .emotion--sizer-xl {
+            display: none;
+        }
+
+        .emotion--row {
+            .clearfix();
+        }
+    }
+
+    // Create the grid classes for different grid sizes
+    .createGrid(1); // Container with one column
+    .createGrid(2); // Container with two columns
+    .createGrid(3); // Container with three columns
+    .createGrid(4); // Container with four columns
+    .createGrid(5); // Container with five columns
+    .createGrid(6); // Container with six columns
+    .createGrid(7); // Container with seven columns
+    .createGrid(8); // Container with eight columns
+    .createGrid(9); // Container with nine columns
+    .createGrid(10); // Container with ten columns
+    .createGrid(11); // Container with eleven columns
+    .createGrid(12); // Container with twelve columns
+
+    // Hide elements which are not visible in the current viewport
+    .is--hidden-s,
+    .is--hidden-m,
+    .is--hidden-l,
+    .is--hidden-xl {
+        display: block;
+    }
+
+    .is--hidden-xs {
+        display: none;
+    }
+
+    // Hide all sizer which don't match the current viewport
+    .emotion--sizer-s,
+    .emotion--sizer-m,
+    .emotion--sizer-l,
+    .emotion--sizer-xl {
+        display: none;
+    }
+
+    // Only show the sizer of the current viewport
+    .emotion--sizer-xs {
+        display: block;
+
+        // Hide the default sizer when there is a sizer for the current viewport
+        & ~ .emotion--sizer {
+            display: none;
+        }
+    }
+
+    @media screen and(min-width: @phoneLandscapeViewportWidth) {
+        .is--hidden-xs,
+        .is--hidden-m,
+        .is--hidden-l,
+        .is--hidden-xl {
+            display: block;
+        }
+
+        .is--hidden-s {
+            display: none;
+        }
+
+        .emotion--sizer-xs,
+        .emotion--sizer-m,
+        .emotion--sizer-l,
+        .emotion--sizer-xl {
+            display: none;
+        }
+
+        .emotion--sizer-s {
+            display: block;
+
+            & ~ .emotion--sizer {
+                display: none;
+            }
+        }
+    }
+
+    @media screen and(min-width: @tabletViewportWidth) {
+        .is--hidden-xs,
+        .is--hidden-s,
+        .is--hidden-l,
+        .is--hidden-xl {
+            display: block;
+        }
+
+        .is--hidden-m {
+            display: none;
+        }
+
+        .emotion--sizer-s,
+        .emotion--sizer-xs,
+        .emotion--sizer-l,
+        .emotion--sizer-xl {
+            display: none;
+        }
+
+        .emotion--sizer-m {
+            display: block;
+
+            & ~ .emotion--sizer {
+                display: none;
+            }
+        }
+    }
+
+    @media screen and(min-width: @tabletLandscapeViewportWidth) {
+        .is--hidden-xs,
+        .is--hidden-s,
+        .is--hidden-m,
+        .is--hidden-xl {
+            display: block;
+        }
+
+        .is--hidden-l {
+            display: none;
+        }
+
+        .emotion--sizer-xs,
+        .emotion--sizer-s,
+        .emotion--sizer-m,
+        .emotion--sizer-xl {
+            display: none;
+        }
+
+        .emotion--sizer-l {
+            display: block;
+
+            & ~ .emotion--sizer {
+                display: none;
+            }
+        }
+    }
+
+    @media screen and(min-width: @desktopViewportWidth) {
+        .is--hidden-xs,
+        .is--hidden-s,
+        .is--hidden-m,
+        .is--hidden-l {
+            display: block;
+        }
+
+        .is--hidden-xl {
+            display: none;
+        }
+
+        .emotion--sizer-s,
+        .emotion--sizer-xs,
+        .emotion--sizer-m,
+        .emotion--sizer-l {
+            display: none;
+        }
+
+        .emotion--sizer-xl {
+            display: block;
+
+            & ~ .emotion--sizer {
+                display: none;
+            }
+        }
+    }
+}
+
+    // Emotion element
+.emotion--element {
+    display: block;
+    position: absolute;
+    top: 0; left: 0;
+
+    .emotion--container.emotion--mode-rows & {
+        position: relative;
+        top: 0; left: 0;
+        float: left;
+        vertical-align: top;
+    }
+}
+
+    // Banner element
+.emotion--banner {
+    height: 100%;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+
+    .banner--content {
+        .transform(translate(-50%, -50%));
+        display: block;
+        position: absolute;
+        top: 50%; left: 50%;
+
+        &.left.top {
+            .transform(translate(0, 0));
+            left: 0; top: 0;
+        }
+        &.left.center {
+            .transform(translate(0, -50%));
+            left: 0; top: 50%;
+        }
+        &.left.bottom {
+            .transform(translate(0, -100%));
+            left: 0; top: 100%;
+        }
+        &.center.top {
+            .transform(translate(-50%, 0));
+            left: 50%; top: 0;
+        }
+        &.center.bottom {
+            .transform(translate(-50%, -100%));
+            left: 50%; top: 100%;
+        }
+        &.right.top {
+            .transform(translate(-100%, 0));
+            left: 100%; top: 0;
+        }
+        &.right.center {
+            .transform(translate(-100%, -50%));
+            left: 100%; top: 50%;
+        }
+        &.right.bottom {
+            .transform(translate(-100%, -100%));
+            left: 100%; top: 100%;
+        }
+    }
+
+    .emotion--mode-rows & {
+        height: auto;
+
+        .banner--content,
+        .banner--content.left.top,
+        .banner--content.left.center,
+        .banner--content.left.bottom,
+        .banner--content.center.top,
+        .banner--content.center.bottom,
+        .banner--content.right.top,
+        .banner--content.right.center,
+        .banner--content.right.bottom {
+            .transform(translate(0, 0));
+            position: relative;
+            left: 0; top: 0;
+            float: none;
+        }
+    }
+
+    .banner--image {
+        width: 100%;
+    }
+
+    .banner--link {
+        display: block;
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0; left: 0;
+        z-index: @zindex-emotion-mapping-link;
+    }
+
+    .banner--mapping {
+        display: block;
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0; left: 0;
+    }
+
+    .banner--mapping-link {
+        position: absolute;
+        display: block;
+        z-index: @zindex-emotion-mapping-link;
+        background: rgba(0,0,0,0);
+    }
+}
+
+    // Banner-Slider element
+.emotion--banner-slider {
+    width: 100%;
+    height: 100%;
+
+    .emotion--mode-rows & {
+        height: auto;
+
+        .banner-slider--container,
+        .banner-slider--slide {
+            height: auto;
+        }
+
+        .banner-slider--item {
+            vertical-align: middle;
+        }
+
+        .banner-slider--banner {
+            .transform(none);
+            position: relative;
+            top: 0; left: 0;
+            width: 100%;
+        }
+    }
+
+    .banner-slider--title {
+        .unitize-padding(10, 20);
+        display: block;
+        width: 100%;
+        position: absolute;
+        top: 0; left: 0;
+        z-index: @zindex-emotion-image-slider-title;
+        color: #fff;
+        font-weight: 600;
+        background: rgba(0, 0, 0, 0.5);
+        white-space: nowrap;
+        overflow: hidden;
+        text-align: center;
+        text-overflow: ellipsis;
+    }
+
+    .banner-slider--container,
+    .banner-slider--slide {
+        width: 100%;
+        height: 100%;
+    }
+
+    .banner-slider--container .arrow {
+        display: block;
+    }
+
+    .banner-slider--item {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .banner-slider--banner {
+        .transform(translate(-50%, -50%));
+        display: block;
+        position: absolute;
+        top: 50%; left: 50%;
+        z-index: 100;
+    }
+
+    .banner-slider--image {
+        width: 100%;
+    }
+
+    .banner-slider--link {
+        display: block;
+        height: 100%;
+        width: 100%;
+        position: absolute;
+        top: 0; left: 0;
+        z-index: 200;
+        text-indent: 200%;
+        white-space: nowrap;
+        overflow: hidden;
+    }
+
+    .image-slider--dots {
+        display: none;
+    }
+}
+
+    // Product-Slider element
+.emotion--product-slider {
+    width: 100%;
+    height: 100%;
+    position: relative;
+
+    .emotion--mode-rows & {
+        .unitize-height(360);
+    }
+
+    .product-slider--title {
+        .unitize-height(55);
+        position: relative;
+        top: 0; left: 0;
+        z-index: @zindex-emotion-product-slider-title;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .product-slider--content {
+        .unitize-padding(10, 10);
+        height: 100%;
+        width: 100%;
+        position: absolute;
+        top: 0; left: 0;
+        z-index: @zindex-emotion-product-slider-content;
+    }
+
+    .product-slider--title ~ .product-slider--content {
+        .unitize(padding-top, 65);
+    }
+
+    .product-slider--arrow {
+        &.arrow--next { border-right: 0 none; }
+        &.arrow--prev { border-left: 0 none; }
+    }
+
+    .box--emotion {
+        width: 100%;
+        height: 100%;
+        padding: 0;
+        text-align: center;
+
+        .box--content {
+            padding: 0;
+            border: 0 none;
+        }
+
+        .product--info {
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .product--image {
+            height: 60%;
+            margin: 0 auto;
+        }
+
+        .product--details {
+            max-height: 35%;
+            width: 100%;
+            margin-top: 5%;
+        }
+
+        .product--title {
+            .unitize(14, 16, font-size);
+            font-weight: normal;
+            white-space: normal;
+        }
+
+        .product--price-info .price--unit {
+            .unitize-height(15);
+            .unitize(10, 16, font-size);
+        }
+
+        .product--price .price--default {
+            .unitize(14, 16, font-size);
+        }
+    }
+}
+
+    // Product-Box element
+.emotion--product {
+    width: 100%;
+    height: 100%;
+
+    .emotion--mode-rows & {
+        .unitize-height(360);
+    }
+
+    &.is--no-border {
+        .box--content {
+            border: 0 none;
+        }
+    }
+
+    .product--box {
+        width: 100%;
+        height: 100%;
+        padding: 0;
+        float: none;
+
+        .box--content {
+            .unitize-padding(10, 10);
+        }
+
+        .product--info {
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .product--image {
+            height: 70%;
+            margin: 0 auto;
+
+            &.is--large {
+                height: 100%;
+            }
+        }
+
+        .product--details {
+            max-height: 30%;
+            width: 100%;
+            position: absolute;
+            bottom: 0; left: 0;
+        }
+
+        .product--title {
+            text-overflow: ellipsis;
+        }
+    }
+}
+
+    // Category-Teaser element
+.emotion--category-teaser {
+    width: 100%;
+    height: 100%;
+
+    .emotion--mode-rows & {
+        .unitize-height(360);
+    }
+
+    .category-teaser--link {
+        display: block;
+        width: 100%;
+        height: 100%;
+        position: relative;
+        background-position: center center;
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-color: transparent;
+    }
+
+    .category-teaser--title {
+        .unitize-padding(10, 20);
+        display: block;
+        width: 100%;
+        position: absolute;
+        bottom: 0; left: 0;
+        color: #fff;
+        font-weight: 600;
+        background: rgba(0, 0, 0, 0.5);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+
+    // Manufacturer element
+.emotion--manufacturer {
+    width: 100%;
+    height: 100%;
+    position: relative;
+
+    .emotion--mode-rows & {
+        .unitize-height(260);
+    }
+
+    .manufacturer--title {
+        .unitize-height(55);
+        position: relative;
+        top: 0; left: 0;
+        z-index: @zindex-emotion-product-slider-title;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .manufacturer--content {
+        .unitize-padding(10, 20);
+        height: 100%;
+        width: 100%;
+        position: absolute;
+        top: 0; left: 0;
+        z-index: @zindex-emotion-product-slider-content;
+    }
+
+    .manufacturer--title ~ .manufacturer--content {
+        .unitize(padding-top, 65);
+    }
+
+    .manufacturer--slider {
+        height: 100%;
+
+        .arrow--next {
+            .unitize(-20, 16, right);
+            border-right: 0 none;
+        }
+        .arrow--prev {
+            .unitize(-20, 16, left);
+            border-left: 0 none;
+        }
+    }
+
+    .manufacturer--item {
+        .unitize-padding(10, 15);
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .manufacturer--link {
+        .unitize(font-size, 18);
+        display: block;
+        width: 100%;
+        height: 100%;
+        color: @text-color;
+        font-weight: 600;
+        position: relative;
+
+        &:hover {
+            color: @link-color;
+        }
+    }
+
+    .manufacturer--image {
+        position: absolute;
+        top: 0; bottom: 0;
+        left: 0; right: 0;
+        margin: auto;
+    }
+}
+
+    // YouTube element
+.emotion--youtube {
+    width: 100%;
+    height: 100%;
+
+    .emotion--mode-rows & {
+        .unitize-height(360);
+    }
+}
+
+    // Video element
+.emotion--video {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+
+    .emotion--mode-rows & {
+        height: auto;
+
+        .video--element {
+            height: auto;
+            position: relative;
+        }
+    }
+
+    video::-moz-media-controls,
+    video::-webkit-media-controls {
+        bottom: 15%;
+    }
+
+    .video--element {
+        width: 100%;
+        height: 100%;
+        background: #000;
+        position: absolute;
+        top: 0; left: 0;
+        z-index: @zindex-emotion-video-element;
+    }
+
+    .video--cover {
+        display: block;
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0; left: 0;
+        z-index: @zindex-emotion-video-cover;
+        background-position: center center;
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-color: #000;
+        text-align: center;
+
+        .video--play-icon {
+            .unitize-width(100);
+            .unitize-height(100);
+            .unitize(font-size, 100);
+            display: block;
+            position: absolute;
+            top: 0; bottom: 0;
+            right: 0; left: 0;
+            margin: auto;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.6);
+            color: #fff;
+        }
+    }
+
+    .video--play-btn {
+        .transition();
+        .unitize(top, 25);
+        .unitize(right, 25);
+        .unitize(line-height, 40);
+        .unitize(font-size, 21);
+        .unitize-width(42);
+        .unitize-height(42);
+        .border-radius(100%);
+        position: absolute;
+        cursor: pointer;
+        color: #fff;
+        border: 2px solid #fff;
+        text-align: center;
+        z-index: @zindex-emotion-video-play-btn;
+    }
+
+    .video--text {
+        width: 100%;
+        height: 100%;
+        margin: auto;
+        position: absolute;
+        left: 0; right: 0;
+        top: 0; bottom: 0;
+        z-index: @zindex-emotion-video-text;
+        color: #fff;
+        text-align: center;
+
+        &.no--events {
+            pointer-events: none;
+        }
+    }
+}
+
+    // Iframe element
+.emotion--iframe {
+    width: 100%;
+    height: 100%;
+
+    .emotion--mode-rows & {
+        .unitize-height(360);
+    }
+}
+
+    // Blog element
+.emotion--blog {
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+
+    .emotion--mode-rows & {
+        height: auto;
+
+        .blog--image {
+            .unitize-height(160);
+        }
+    }
+
+    .blog--container {
+        height: 100%;
+        margin: 0 0 0 -1%;
+    }
+
+    .blog--entry {
+        height: 100%;
+        padding-left: 1%;
+    }
+
+    .blog--image {
+        height: 40%;
+        width: 100%;
+        display: block;
+        background-position: center center;
+        background-size: cover;
+        margin-bottom: 2%;
+    }
+
+    .blog--title {
+        .unitize(font-size, 14);
+        display: block;
+        font-weight: bold;
+        color: @text-color-dark;
+        margin-bottom: 2%;
+
+        &:hover {
+            color: @link-color;
+        }
+    }
+
+    .blog--description {
+        .unitize(font-size, 14);
+        .unitize(line-height, 20);
+        color: @text-color;
+        height: auto;
+        max-height: 60%;
+    }
+}
+
+    // HTML element
+.emotion--html {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: auto;
+
+    .emotion--mode-rows & {
+        height: auto;
+    }
+
+    .html--content {
+        :last-child {
+            margin-bottom: 0;
+        }
+    }
+}
+
+@media screen and(min-width: @tabletViewportWidth) {
+    .emotion--blog {
+        overflow: hidden;
+    }
+}
+
+@media screen and(min-width: @desktopViewportWidth) {
+
+    .emotion--banner-slider {
+        .image-slider--dots {
+            .unitize(bottom, 10);
+            top: auto;
+            left: 0;
+            display: block;
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            padding: 0;
+
+            .dot--link {
+                .border-radius(100%);
+                .unitize-margin(0, 2);
+                .unitize-width(20);
+                .unitize-height(20);
+                .transition(all .3s ease);
+                background: darken(@brand-secondary, 15%);
+                display: inline-block;
+                border: 5px solid rgba(255, 255, 255, .5);
+                cursor: pointer;
+                text-indent: -99999em;
+                background-clip: padding-box;
+
+                &.is--active {
+                    background: @brand-primary;
+                    background-clip: padding-box;
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,47 @@
+/*
+Off-canvas menu button
+=======================================
+Defines the styling of the off-canvas menu trigger button that is used for the shopping off-canvas cart.
+
+The Shopware 5 off-canvas menu can be enabled/disabled inside the Shopware backend.
+
+The functionality is provided by the `jquery.off-canvas-button.js` file.
+*/
+
+.js--off-canvas-button {
+    .unitize-padding(10, 10);
+    .unitize(margin-bottom, 10);
+    .border-radius();
+    position: relative;
+    border: 1px solid @panel-border;
+    cursor: pointer;
+    display: block;
+
+    .tab--header {
+        .unitize(margin-bottom, 10);
+        position: relative;
+    }
+
+    .tab--title:after {
+        .unitize(font-size, 12);
+        .unitize(right, 5);
+        .unitize(-6, 16, margin-top);
+        content: @sw-icon-arrow-right;
+    }
+
+    .tab--preview {
+        display: block;
+
+        p:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    .tab--content {
+        cursor: default;
+    }
+
+    &:hover .tab--title {
+        color: @link-color;
+    }
+}

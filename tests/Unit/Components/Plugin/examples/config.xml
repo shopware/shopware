@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="../../../../../engine/Shopware/Components/Plugin/schema/config.xsd">
+
+    <label lang="en">My Form Label</label>
+    <label lang="de">Mein Form</label>
+
+    <description lang="en">My Form description</description>
+    <description lang="de">Meine Form Beschreibung</description>
+
+    <elements>
+        <element scope="locale" required="true" type="text">
+            <name>my-field</name>
+            <label lang="de">Mein textfeld</label>
+            <label lang="en">My Textfield</label>
+            <value>Some default value</value>
+            <description lang="de">Meine Feld Beschreibung</description>
+            <description lang="en">My Field description</description>
+            <options>
+                <minValue>1</minValue>
+                <maxValue>2</maxValue>
+                <maxValue>some value</maxValue>
+                <maxValuasde><asd>asdf</asd></maxValuasde>
+                <maxValud foobar="baz">5</maxValud>
+            </options>
+        </element>
+
+        <element scope="shop"  type="select">
+            <name>my-second-field</name>
+            <label lang="de">Meine Selektion</label>
+            <label lang="en">My Selection</label>
+            <value>1</value>
+            <description lang="de">Meine Feld Beschreibung</description>
+            <description lang="en">My Field description</description>
+            <store>
+                <![CDATA[
+array(
+    array(1, 'Testvariable 1'),
+    array(2, 'Testvariable 2'),
+    array(3, 'Testvariable 3')
+)
+                ]]>
+            </store>
+        </element>
+    </elements>
+</config>

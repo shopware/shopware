@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="../../../../../engine/Shopware/Components/Plugin/schema/menu.xsd">
+
+    <entries>
+        <entry>
+            <name>SwagDefaultSort</name>
+            <label>SwagDefaultSort</label>
+            <controller>SwagDefaultSort</controller>
+            <action>index</action>
+            <class>sprite-sort</class>
+            <parent identifiedBy="label">Einstellungen</parent>
+            <active>false</active>
+            <position>-1</position>
+        </entry>
+
+        <entry>
+            <name>SwagDefaultSort</name>
+            <label lang="en">SwagDefaultSort EN</label>
+            <label lang="de">SwagDefaultSort DE</label>
+            <controller>SwagDefaultSort</controller>
+            <action>index</action>
+            <class>sprite-sort</class>
+            <parent identifiedBy="label">Einstellungen</parent>
+            <active>false</active>
+            <position>-1</position>
+        </entry>
+    </entries>
+</menu>

@@ -1,0 +1,39 @@
+<nav class="shop--navigation block-group">
+    <ul class="navigation--list block-group" role="menubar">
+
+        {# Menu (Off canvas left) trigger #}
+        {% block frontend_index_offcanvas_left_trigger %}
+            <li class="navigation--entry entry--menu-left" role="menuitem">
+                <a class="entry--link entry--trigger btn is--icon-left" href="#offcanvas--left" data-offcanvas="true" data-offCanvasSelector=".sidebar-main">
+                    <i class="icon--menu"></i> {% trans from 'frontend/index/menu_left' %}IndexLinkMenu{% endtrans %}
+                </a>
+            </li>
+        {% endblock %}
+
+        {# Search form #}
+        {% block frontend_index_search %}
+            <li class="navigation--entry entry--search" role="menuitem" data-search="true" aria-haspopup="true"{% if theme.focusSearch and controllerName|lower == 'index' %} data-activeOnStart="true"{% endif %}>
+                <a class="btn entry--link entry--trigger" href="#show-hide--search" title="{{ snippet('IndexTitleSearchToggle', 'frontend/index/search')|escape }}">
+                    <i class="icon--search"></i>
+
+                    {% block frontend_index_search_display %}
+                        <span class="search--display">{% trans from 'frontend/index/search' %}IndexSearchFieldSubmit{% endtrans %}</span>
+                    {% endblock %}
+                </a>
+
+                {# Include of the search form #}
+                {% block frontend_index_search_include %}
+                    {% sw_include '@Shopware/frontend/index/search.html.twig' %}
+                {% endblock %}
+            </li>
+        {% endblock %}
+
+        {# Cart entry #}
+        {% block frontend_index_checkout_actions %}
+            {# Include of the cart #}
+            {% block frontend_index_checkout_actions_include %}
+                {{ render('widgets/checkout/info') }}
+            {% endblock %}
+        {% endblock %}
+    </ul>
+</nav>

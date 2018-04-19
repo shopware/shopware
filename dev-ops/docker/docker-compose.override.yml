@@ -1,0 +1,34 @@
+#override defaults for dev
+version: "2"
+
+services:
+  app_server:
+    ports:
+      - "8088:80"
+    volumes:
+      - ~/.composer/cache:/var/www/composer-cache-dir
+    networks:
+      enterprise:
+        ipv4_address: 10.101.101.56
+
+  app_mysql:
+    networks:
+      enterprise:
+        ipv4_address: 10.101.101.57
+
+  app_volumes:
+    image: tianon/true
+    container_name: app_volumes
+    volumes:
+      - .:/project
+      - .:/var/www/shopware
+      - ./dev-ops/docker/_volumes/app-mysqldata:/var/lib/mysql
+
+networks:
+  enterprise:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+      - subnet: 10.101.101.0/24
+        gateway: 10.101.101.1

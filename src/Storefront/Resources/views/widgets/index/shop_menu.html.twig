@@ -1,0 +1,57 @@
+{# Language switcher #}
+{% block frontend_index_actions_active_shop %}
+    {% if shop and shops|length > 1 %}
+        <div class="top-bar--language navigation--entry">
+            {% block frontend_index_actions_active_shop_top_bar_language %}
+                <form method="post" class="language--form">
+                    {% block frontend_index_actions_active_shop_language_form_content %}
+                        <div class="field--select">
+                            <div class="language--flag {{ shop.locale.locale }}">{{ shop.name }}</div>
+
+                            {% block frontend_index_actions_active_shop_language_form_select %}
+                                <div class="select-field">
+                                    <select name="__shop" class="language--select" data-auto-submit="true">
+                                        {% for language in shops %}
+                                            <option value="{{ language.id }}" {% if language.id == shop.id %}selected="selected"{% endif %}>
+                                                {{ language.name }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            {% endblock %}
+                            <input type="hidden" name="__redirect" value="1">
+                            {% block frontend_index_actions_active_shop_inline %}{% endblock %}
+                        </div>
+                    {% endblock %}
+                </form>
+            {% endblock %}
+        </div>
+    {% endif %}
+{% endblock %}
+
+{# Currency changer #}
+{% block frontend_index_actions_currency %}
+    {% if currencies|length > 1 %}
+        <div class="top-bar--currency navigation--entry">
+            {% block frontend_index_actions_currency_form %}
+                <form method="post" class="currency--form">
+                    {% block frontend_index_actions_currency_form_content %}
+                        <div class="field--select">
+                            {% block frontend_index_actions_currency_form_select %}
+                                <div class="select-field">
+                                    <select name="__currency" class="currency--select" data-auto-submit="true">
+                                        {% for selection in currencies %}
+                                            <option value="{{ selection.id }}"{% if selection.id == currency.id %} selected="selected"{% endif %}>
+                                                {% if selection.symbol != selection.currency %}{{ selection.symbol|raw }} {% endif %} {{ selection.currency }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+                </form>
+            {% endblock %}
+        </div>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,13 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service class="Shopware\ProductStream\Struct\ProductStreamHydrator" id="shopware.product_stream.struct.product_stream_hydrator">
+            <argument id="shopware.framework.struct.attribute_hydrator" type="service"/>
+        </service>
+
+    </services>
+</container>

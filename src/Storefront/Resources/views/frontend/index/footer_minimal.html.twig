@@ -1,0 +1,33 @@
+{% block frontend_index_minimal_footer %}
+    <div class="container footer-minimal">
+
+        {# Service menu #}
+        {% block frontend_index_minimal_footer_menu %}
+            <div class="footer--service-menu">
+                {% sw_include "@Shopware/widgets/index/menu.html.twig" with {"sGroup": gLeft} %}
+            </div>
+        {% endblock %}
+
+        {# Vat info #}
+        {% if not hideCopyrightNotice %}
+            {% block frontend_index_minimal_footer_vat_info %}
+                <div class="footer--vat-info">
+                    <p class="vat-info--text">
+                        {% if sOutputNet %}
+                            {% trans from 'frontend/index/footer' %}FooterInfoExcludeVat{% endtrans %}
+                        {% else %}
+                            {% trans from 'frontend/index/footer' %}FooterInfoIncludeVat{% endtrans %}
+                        {% endif %}
+                    </p>
+                </div>
+            {% endblock %}
+
+            {# Copyright #}
+            {% block frontend_index_minimal_footer_copyright %}
+                <div class="footer--copyright">
+                    {% trans from 'frontend/index/footer' %}IndexCopyright{% endtrans %}
+                </div>
+            {% endblock %}
+        {% endif %}
+    </div>
+{% endblock %}

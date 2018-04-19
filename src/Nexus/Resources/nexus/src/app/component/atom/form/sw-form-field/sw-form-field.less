@@ -1,0 +1,42 @@
+.sw-form-field {
+    width: 100%;
+
+    * {
+        box-sizing: border-box;
+    }
+
+    label, input, textarea {
+        float: left;
+    }
+
+    label {
+        width: 25%;
+        display: block;
+        text-align: right;
+        padding: 0 10px;
+        font-weight: bold;
+
+        &:after {
+            content: ':';
+        }
+    }
+
+    input, textarea {
+        width: 50%;
+        display: block;
+        border: 1px solid #ccc;
+        padding: 5px;
+    }
+
+    textarea {
+        border: 1px solid #ccc;
+        min-height: 125px;
+        max-height: 300px;
+    }
+
+    &:after {
+        content: '';
+        display: table;
+        clear: both;
+    }
+}

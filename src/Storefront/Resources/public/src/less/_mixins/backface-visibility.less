@@ -1,0 +1,18 @@
+/*
+Backface visibility mixin
+============================================
+The mixins provides you a cross-browser compatible method to set the backface-visibility of the element.
+
+Please refer to <http://caniuse.com/transforms3d> to see the browser support table of the feature.
+
+######Example:
+`.backface-visibility([value]);`
+
+`@param {String} visibility The visibility you want to use`
+*/
+
+.backface-visibility(@visibility: hidden) {
+	-webkit-backface-visibility: @visibility;
+	-moz-backface-visibility: @visibility;
+	backface-visibility: @visibility;
+}

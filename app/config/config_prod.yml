@@ -1,0 +1,32 @@
+imports:
+    - { resource: parameters.yml }
+    - { resource: common/symfony.yml }
+    - { resource: prod/security.yml }
+    - { resource: common/shopware.yml }
+
+#monolog:
+#    handlers:
+#        main:
+#            type:         fingers_crossed
+#            action_level: error
+#            handler:      nested
+#        nested:
+#            type:  stream
+#            path:  "%kernel.logs_dir%/%kernel.environment%.log"
+#            level: debug
+#        console:
+#            type:  console
+
+monolog:
+    handlers:
+        main:
+            type: stream
+            path: "%kernel.logs_dir%/%kernel.environment%.log"
+            level: debug
+            channels: [!event]
+        console:
+            type:   console
+            channels: [!event, !doctrine]
+
+parameters:
+    swag_test.param1: 1000

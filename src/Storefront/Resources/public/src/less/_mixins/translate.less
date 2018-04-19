@@ -1,0 +1,31 @@
+/*
+Translate mixin
+============================================
+The mixins provides you a cross-browser compatible method to set a transition.
+
+Please refer to <http://caniuse.com/css-transitions> to see the browser support table of the feature.
+
+Keep in mind, that 3d translations are needing an perspective, otherwise the translated elements get skewed up.
+
+######Example:
+`.translate([x-value],[y-value],[z-value]);`
+
+`@param: {String} rotateX: The rotation on the x-axis`<br/>
+`@param: {String} rotateY: The rotation on the y-axis`<br/>
+`@param: {String} rotateZ: The rotation on the z-axis`<br/>
+*/
+
+.translate(@x: 0, @y: 0, @z: -1) when (@z > -1) {
+	-webkit-transform: translate3d(@x, @y, @z);
+	-moz-transform: translate3d(@x, @y, @z);
+	-ms-transform: translate3d(@x, @y, @z);
+	-o-transform: translate3d(@x, @y, @z);
+	transform: translate3d(@x, @y, @z);
+}
+.translate(@x: 0, @y: 0, @z: -1) when (@z < 0) {
+	-webkit-transform: translate(@x, @y);
+	-moz-transform: translate(@x, @y);
+	-ms-transform: translate(@x, @y);
+	-o-transform: translate(@x, @y);
+	transform: translate(@x, @y);
+}

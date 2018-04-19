@@ -1,0 +1,41 @@
+<div class="sw-pagination">
+
+    <button class="sw-pagination--btn sw-pagination--first-page" :disabled="pageNum === 1" @click="firstPage">
+        &laquo;
+    </button>
+
+    <button class="sw-pagination--btn sw-pagination--prev-page" :disabled="pageNum === 1" @click="prevPage">
+        &lsaquo;
+    </button>
+
+    <div class="sw-pagination--page-selection">
+        Page
+        <input type="number" class="sw-pagination--page-selection-field" name="current-page-number" min="1" :max="maxPage" :value="pageNum" @change="changePageNum">
+        of {{maxPage}}
+    </div>
+
+    <button class="sw-pagination--btn sw-pagination--next-page" :disabled="pageNum === maxPage" @click="nextPage">
+        &rsaquo;
+    </button>
+
+    <button class="sw-pagination--btn sw-pagination--last-page" :disabled="pageNum === maxPage" @click="lastPage">
+        &raquo;
+    </button>
+
+    <button class="sw-pagination--btn sw-pagination--refresh" @click="refresh">
+        &#8634;
+    </button>
+
+    <div class="sw-pagination--per-page">
+        Items per page:
+        <select class="sw-pagination--per-page" @change="changeLimit">
+            <option v-for="step in steps" :value="step">
+                {{step}}
+            </option>
+        </select>
+    </div>
+
+    <div class="sw-pagination--total">
+        Items total: {{total}}
+    </div>
+</div>

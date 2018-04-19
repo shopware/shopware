@@ -1,0 +1,7 @@
+app:
+    resource: "@Storefront/Controller/"
+    type:     annotation
+
+nexus:
+    resource: "@Nexus/Controller/"
+    type:     annotation

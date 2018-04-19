@@ -1,0 +1,23 @@
+/*
+Variables
+==================================================
+The `variables.less` file contains the imports to all variables that Shopware uses.
+
+Most variables are controllable by using the backend theme manager.
+
+Mixin specific documentation can be found inside each mixin file.
+*/
+
+// Used for the `.unitize()` mixin as the scale factor
+@remScaleFactor: 16;
+
+@phoneLandscapeViewportWidth: 30em;     // 480px
+@tabletViewportWidth: 48em;             // 768px
+@tabletLandscapeViewportWidth: 64em;    // 1024px
+@desktopViewportWidth: 78.75em;         // 1260px
+
+@import "_variables/defaults";
+@import "_variables/structure";
+@import "_variables/typography";
+@import "_variables/zindex";
+@import "_variables/icons";

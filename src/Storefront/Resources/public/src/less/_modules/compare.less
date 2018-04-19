@@ -1,0 +1,251 @@
+/*
+Compare
+==============================================
+Defines the styling of the comparison tool and its elements.
+
+The comparision creates a fixed modalbox in that the user can compare multiple articles.
+
+The user can open the tool inside the product detail section.
+*/
+
+    // Basic header
+.top-bar--navigation {
+	position: relative;
+
+    .entry--compare {
+        .unitize-padding(0, 8);
+
+		// Compare quantity
+		.compare--quantity {
+			.unitize(margin-left, 5);
+			font-weight: 600;
+			display: inline-block;
+			color: @brand-primary;
+		}
+
+		.icon--compare {
+			.unitize(font-size, 12);
+		}
+    }
+
+    .compare--list {
+        .unitize-width(280);
+        .unitize-padding(5, 10, 10, 10);
+        .unitize(top, 32);
+		.unitize(right, 12);
+        text-align: left;
+        position: absolute;
+        display: none;
+        list-style: none;
+        background: #fff;
+        z-index: @zindex-compare-list;
+        border: 1px solid @border-color;
+
+        &::after {
+            .rotate(135deg);
+            .unitize-width(8);
+            .unitize-height(8);
+            .unitize(top, -5);
+            .unitize(left, 25);
+            content: '';
+            display: block;
+            position: absolute;
+            background: #fff;
+            border-color: @border-color;
+            border-width: 0 0 1px 1px;
+            border-style: solid;
+        }
+
+        .btn--compare-delete {
+            width: 100%;
+        }
+    }
+
+    .js--is--dropdown-active .compare--list {
+        display: block;
+
+		.compare--entry {
+            cursor: default;
+
+            form {
+                display: inline-block;
+            }
+        }
+
+        .compare--link {
+            .unitize(width, 230);
+            .unitize-padding(10, 0);
+            .unitize(font-size, 14);
+            color: @text-color;
+            display: inline-block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+
+            &:hover {
+                color: @brand-primary;
+            }
+        }
+
+        .compare--button {
+            .unitize-padding(3, 4);
+            .unitize-margin(3, 0, 0, 0);
+            float: right;
+        }
+
+        .btn--item-delete {
+			.unitize-height(21);
+			.unitize-width(21);
+			.unitize-padding(4, 5);
+			.unitize-margin(8, 0);
+			.unitize(font-size, 8);
+			.unitize(line-height, 14);
+            float: right;
+
+            .icon--cross {
+                padding: 0;
+                margin: 0;
+            }
+        }
+
+        .compare--button .icon--cross {
+            padding: 0;
+            margin: 0;
+        }
+
+        .btn--compare {
+            .unitize(margin-top, 5);
+        }
+    }
+}
+
+    // Compare modal
+.compare--wrapper {
+    display: block;
+    overflow: auto;
+}
+
+.modal--compare {
+    .unitize(font-size, 14);
+    .unitize(letter-spacing, -4);
+    display: inline-block;
+    white-space: nowrap;
+    vertical-align: top;
+
+    &.is--fluid {
+        width: 100%;
+        overflow: hidden;
+    }
+
+    .modal--title {
+        .unitize-padding(10, 40, 10, 20);
+        .unitize(font-size, 16);
+        font-weight: 700;
+        border-bottom: 1px solid @text-color;
+        letter-spacing: 0;
+    }
+
+    .modal--error {
+        .unitize-padding(20, 20);
+        letter-spacing: 0;
+    }
+
+    .list--head {
+        background: @gray-light;
+        font-weight: 700;
+    }
+
+    .compare--group {
+        .unitize-width(200);
+        display: inline-block;
+        white-space: normal;
+        vertical-align: top;
+        letter-spacing: 0;
+    }
+
+    .group--small {
+        .unitize-width(200);
+    }
+
+    .compare--group-list {
+        margin: 0;
+        padding: 0;
+    }
+
+    .list--entry {
+        .unitize-padding(10, 30, 10, 10);
+        color: @text-color;
+        border-bottom: 1px solid @border-color;
+    }
+
+    .entry--picture {
+        .unitize(height, 160);
+        position: relative;
+
+        .image--element img {
+            max-width: 90%;
+            max-height: 90%;
+            position: absolute;
+            margin: auto;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+    }
+
+    .entry--name {
+        .unitize(height, 125);
+    }
+
+    .link--name {
+        position: relative;
+        display: block;
+        height: 70px;
+        color: @text-color-dark;
+        font-weight: 700;
+    }
+
+    .entry--voting {
+        .unitize(height, 50);
+
+        .icon--star,
+        .icon--star-empty {
+            color: @rating-star-color;
+        }
+    }
+
+    .entry--description {
+        .unitize(height, 150);
+        text-align: left;
+        word-wrap: break-word;
+    }
+
+    .entry--price {
+        .unitize(height, 130);
+
+        .price--pseudoprice {
+            text-decoration: line-through;
+        }
+
+        .price--normal {
+            .unitize(font-size, 16);
+            color: @text-color-dark;
+            font-weight: 700;
+        }
+
+        .price--reduced {
+            color: @badge-discount-bg;
+        }
+    }
+
+    .entry--property {
+        height: auto;
+    }
+}
+
+@media screen and(min-width: @desktopViewportWidth) {
+	.top-bar--navigation {
+		.compare--list { right: 0; }
+	}
+}

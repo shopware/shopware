@@ -1,0 +1,69 @@
+{% block frontend_index_sidebar %}
+    <aside class="sidebar-main off-canvas">
+        {% block frontend_index_left_inner %}
+            {# Mobile specific menu actions #}
+            {% block frontend_index_left_navigation_smartphone %}
+                <div class="navigation--smartphone">
+                    <ul class="navigation--list ">
+
+                        {# Trigger to close the off canvas menu #}
+                        {% block frontend_index_left_categories_close_menu %}
+                            <li class="navigation--entry entry--close-off-canvas">
+                                <a href="#close-categories-menu" title="{{ snippet('IndexActionCloseMenu', 'frontend/index/menu_left')|escape }}" class="navigation--link">
+                                    {% trans from 'frontend/index/menu_left' %}IndexActionCloseMenu{% endtrans %} <i class="icon--arrow-right"></i>
+                                </a>
+                            </li>
+                        {% endblock %}
+
+                        {# Switches for currency and language on mobile devices #}
+                        {% block frontend_index_left_switches %}
+                            <div class="mobile--switches">
+                                {#{action module=widgets controller=index action=shopMenu}#}
+                            </div>
+                        {% endblock %}
+                    </ul>
+                </div>
+            {% endblock %}
+
+            {# if sCategoryContent is not available use sArticle.categoryID #}
+            {% set subCategoryId = 0 %}
+            {% if sCategoryContent.id %}
+                {% set subCategoryId = sCategoryContent.id %}
+            {% elseif sArticle.categoryID %}
+                {% set subCategoryId = sArticle.categoryID %}
+            {% elseif sCustomPage.id %}
+                {% set subCategoryId = sCustomPage.id %}
+            {% endif %}
+
+            <div class="sidebar--categories-wrapper"
+                 data-subcategory-nav="true"
+                 data-mainCategoryId="{{ sCategoryStart }}"
+                 data-categoryId="{{ subCategoryId }}"
+                 data-fetchUrl="{% if subCategoryId %}{% if sCustomPage %}{url module=widgets controller=listing action=getCustomPage pageId={$subCategoryId}}{% else %}{url module=widgets controller=listing action=getCategory categoryId={$subCategoryId}}{% endif %}{% endif %}">
+
+                {# Sidebar category tree #}
+                {% block frontend_index_left_categories %}
+
+                    {# Categories headline #}
+                    {% block frontend_index_left_categories_headline %}
+                        <div class="categories--headline navigation--headline">
+                            {% trans from 'frontend/index/menu_left' %}IndexSidebarCategoryHeadline{% endtrans %}
+                        </div>
+                    {% endblock %}
+
+                    {# Actual include of the categories #}
+                    {% block frontend_index_left_categories_inner %}
+                        <div class="sidebar--categories-navigation">
+                            {% sw_include '@Shopware/frontend/index/sidebar-categories.html.twig' %}
+                        </div>
+                    {% endblock %}
+                {% endblock %}
+
+                {# Static sites #}
+                {% block frontend_index_left_menu %}
+                    {% sw_include '@Shopware/frontend/index/sites-navigation.html.twig' %}
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </aside>
+{% endblock %}

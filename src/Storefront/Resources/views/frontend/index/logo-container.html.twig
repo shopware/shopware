@@ -1,0 +1,29 @@
+<div class="logo-main block-group" role="banner">
+
+    {# Main shop logo #}
+    {% block frontend_index_logo %}
+        <div class="logo--shop block">
+            <a class="logo--link" href="{{ url('homepage') }}" title="{{ shopware.config.shopname|escape('html') }} - {{ snippet('IndexLinkDefault', 'frontend/index/index')|escape }}">
+                <picture>
+                    <source srcset="{{ asset(shopware.theme.desktopLogo) }}" media="(min-width: 78.75em)">
+                    <source srcset="{{ asset(shopware.theme.tabletLandscapeLogo) }}" media="(min-width: 64em)">
+                    <source srcset="{{ asset(shopware.theme.tabletLogo) }}" media="(min-width: 48em)">
+
+                    <img srcset="{{ asset(shopware.theme.mobileLogo) }}" alt="{{ shopware.config.shopname|escape('html') }} - {{ snippet('IndexLinkDefault', 'frontend/index/index')|escape }}" />
+                </picture>
+            </a>
+        </div>
+    {% endblock %}
+
+    {# Support Info #}
+    {% block frontend_index_logo_supportinfo %}
+        {% if theme.checkoutHeader and controllerName|lower == 'checkout' and controllerAction|lower != 'cart' %}
+            <div class="logo--supportinfo block">
+                {% trans from 'frontend/register/index' %}RegisterSupportInfo{% endtrans %}
+            </div>
+        {% endif %}
+    {% endblock %}
+
+    {# Trusted Shops #}
+    {% block frontend_index_logo_trusted_shops %}{% endblock %}
+</div>

@@ -1,0 +1,87 @@
+/*
+Range Slider
+==========================================
+######Range Slider
+The range slider element lets the user filter elements by a price-span they decide on.
+
+The slider handlers can be dragged to the numeric value that the user intends. The value is displayed below the element.
+
+The functionality is provided by the `jquery.range-slider.js` file.
+```
+<div class="range-slider" data-range-slider="true" data-startmin="37.99" data-startmax="349.99" data-rangemin="37.99" data-rangemax="349.99">
+    <div class="range-slider--container">
+        <div class="range-slider--range-bar" style="left: 0%; width: 100%;">
+            <div class="range-slider--handle is--min"></div>
+            <div class="range-slider--handle is--max"></div>
+        </div>
+    </div>
+    <input type="hidden" id="min" name="min" data-range-input="min" value="37.99" disabled="disabled">
+    <input type="hidden" id="max" name="max" data-range-input="max" value="349.99" disabled="disabled">
+    <div class="range-slider--currency" data-range-currency="0,00&nbsp;€"></div>
+    <div class="filter-panel--range-info">
+        <span class="range-info--min">von</span>
+        <label class="range-info--label" for="min" data-range-label="min">35,00&nbsp;€</label>
+        <span class="range-info--max">bis</span>
+        <label class="range-info--label" for="max" data-range-label="max">350,00&nbsp;€</label>
+    </div>
+</div>
+```
+*/
+
+.range-slider {
+    .touch-callout(none);
+}
+
+.range-slider--container {
+    .unitize-height(12);
+    .border-radius(6px);
+    display: block;
+    width: 100%;
+    background: @body-bg;
+    box-shadow: inset 0 1px 1px #f0f0f0;
+    border: 1px solid @border-color;
+    -ms-touch-action: none;
+}
+
+.range-slider--range-bar {
+    .user-select(none);
+    .touch-callout(none);
+    .tap-highlight-color(rgba(0, 0, 0, 0));
+    .box-shadow(inset 0 0 3px darken(@brand-primary, 0.8));
+    height: 100%;
+    width: 100%;
+    position: relative;
+    background: @brand-primary;
+}
+
+.range-slider--handle {
+    .unitize-width(20);
+    .unitize-height(20);
+    .border-radius();
+    .linear-gradient(#FFF, @body-bg);
+    .user-select(none);
+    .touch-callout(none);
+    .tap-highlight-color(rgba(0, 0, 0, 0));
+    position: absolute;
+    border: 1px solid @border-color;
+    cursor: pointer;
+
+    &.is--min {
+        .unitize(-10, 16, left);
+        .unitize(-4, 16, top);
+    }
+
+    &.is--max {
+        .unitize(-10, 16, right);
+        .unitize(-4, 16, top);
+    }
+
+    &:hover,
+    &.is--dragging {
+        border-color: @brand-primary;
+    }
+}
+
+.range-slider--format {
+    display: none;
+}

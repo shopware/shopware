@@ -1,0 +1,371 @@
+/*
+Checkout finish
+==========================================
+Contains the styles for the finish page.
+
+It is displayed after the Shopware checkout process is finished and contains the important order information, the users information and option to print the order confirmation.
+*/
+
+.is--act-finish .content-main {
+    .unitize(margin-top, 20);
+}
+
+.finish--content {
+    .unitize(padding-top, 10);
+
+    .information--panel-item {
+        .clearfix();
+        .unitize(margin-bottom, 20);
+
+        .panel--body {
+            .clearfix();
+        }
+    }
+
+    .information--panel-item.information--panel-address {
+        .shipping--panel {
+            text-align: center;
+        }
+    }
+
+    .product--table {
+        margin-top: 0;
+    }
+}
+
+.finish--teaser {
+    .unitize-margin(0, 0, 20, 0);
+}
+
+.teaser--btn-back {
+    .unitize-margin(0, 0, 20, 0);
+}
+
+.teaser--btn-print,
+.teaser--btn-back {
+    text-align: center;
+    width: 100%;
+
+    *[class^="icon--"] {
+        .unitize-margin(4, 0, 0, 0);
+        float: left;
+    }
+}
+
+.finish--table {
+    .panel--body {
+        border: 1px solid @panel-border;
+    }
+
+    .table--tr {
+        .unitize-padding(10, 10);
+    }
+
+    .column--quantity,
+    .column--total-price {
+        padding-right: 0;
+    }
+
+
+    .table--aggregation {
+        display: none;
+    }
+
+    .aggregation--list {
+        margin: 0;
+        border-bottom: 0 none;
+    }
+
+    .basket--footer {
+        border-top: 1px solid @panel-border;
+    }
+
+    .is--last-row {
+        border-bottom: 0 none;
+    }
+}
+
+@media screen and (min-width: @phoneLandscapeViewportWidth) {
+
+    .finish--table {
+        .table--tr .column--quantity {
+            margin-left: 42.3%;
+
+            .column--label {
+                .unitize(margin-bottom, 12);
+                text-align: right;
+            }
+        }
+    }
+}
+
+@media screen and (min-width: @tabletViewportWidth) {
+
+    .teaser--btn-print { text-align: left; width: auto; }
+
+    .is--act-finish .content-main {
+        .unitize(margin-top, 40);
+    }
+
+    .finish--content {
+        .unitize(padding-top, 20);
+
+        // Personal information panels like billing and shipping address
+        .information--panel-wrapper {
+            margin: -2% 0 0 -2%;
+            .unitize(margin-bottom, 20);
+
+            .information--panel-item {
+                &.information--panel-item-billing {
+                    width: 50%;
+
+                    .panel {
+                        border-right: 0;
+                        border-top-right-radius: 0;
+                        border-bottom-right-radius: 0;
+                    }
+                }
+
+                &.information--panel-item-shipping {
+                    padding-left: 0;
+                    width: 50%;
+
+                    .panel {
+                        border-left: 0;
+                        border-top-left-radius: 0;
+                        border-bottom-left-radius: 0;
+                    }
+                }
+            }
+
+            .information--panel {
+                margin: 0;
+            }
+
+            .information--panel-item {
+                padding: 2% 0 0 2%;
+                width: 100%;
+                float: left;
+                margin-bottom: 0;
+            }
+        }
+
+        .information--panel-address {
+            .panel--body {
+                .clearfix();
+
+                .billing--panel {
+                    float: left;
+                    width: 50%;
+                }
+
+                .shipping--panel {
+                    float: right;
+                    width: 50%;
+                }
+            }
+        }
+    }
+
+    .teaser--btn-back {
+        .unitize-margin(0, 20, 0, 0);
+        width: auto;
+    }
+
+    .finish--table {
+        .unitize-margin(20, 0, 0, 0);
+
+        .table--header .panel--th {
+            padding-right: 0;
+        }
+
+        .panel--body {
+            .unitize-padding(20, 20);
+        }
+
+        .column--total-price {
+            width: 37%;
+        }
+
+        .table--tr {
+            padding: 0;
+
+            &:last-child { border: 0 none; }
+
+            .column--quantity {
+                .unitize(line-height, 42);
+                margin: 0;
+            }
+        }
+
+        .row--rebate .column--total-price,
+        .row--premium-product .column--total-price {
+            width: 22.5%;
+        }
+
+        .row--voucher .column--total-price {
+            margin-left: 0;
+            width: 48%;
+        }
+
+        .table--aggregation {
+            display: block;
+            width: 50%;
+        }
+
+        .aggregation--list {
+            .unitize-padding(20, 20);
+        }
+    }
+}
+
+@media screen and (min-width: @tabletLandscapeViewportWidth) {
+    .finish--content {
+        .information--panel-wrapper {
+            .unitize(margin-bottom, 20);
+
+            .information--panel-item {
+                width: 33.3%;
+
+                &.information--panel-item-billing,
+                &.information--panel-item-shipping {
+                    width: 33.3%;
+                }
+
+                &.information--panel-address {
+                    width: 66.6%;
+                }
+            }
+
+            .information--panel-item-billing {
+                .panel {
+                    border-right: 0;
+                    border-top-right-radius: 0;
+                    border-bottom-right-radius: 0;
+                }
+            }
+
+            .information--panel-item-shipping {
+                padding-left: 0;
+
+                .panel {
+                    border-left: 0;
+                    border-top-left-radius: 0;
+                    border-bottom-left-radius: 0;
+                }
+            }
+        }
+    }
+}
+
+@media screen and (min-width: @desktopViewportWidth) {
+
+    .finish--content {
+        .unitize(padding-top, 45);
+
+        .column--total-price {
+            width: 34%;
+        }
+
+        .finish--table {
+
+            .table--header .column--product {
+                width: 55%;
+            }
+            .row--premium-product .column--total-price,
+            .row--rebate .column--total-price {
+                width: 19.5%
+            }
+            .row--voucher .column--total-price {
+                width: 45%;
+            }
+        }
+    }
+}
+
+@media print {
+
+    body {
+        width: auto;
+        height: auto;
+        overflow: auto;
+        background: #ffffff;
+    }
+
+    .container {
+        max-width: none;
+    }
+
+    .is--act-finish .content-main {
+        margin-top: 0;
+    }
+
+    .finish--teaser,
+    .navigation-main,
+    .footer--columns,
+    .shop--navigation,
+    .top-bar,
+    .btn--back-top-shop,
+    .header-main .container--ajax-cart {
+        display: none;
+    }
+
+    .is--ctl-checkout.is--minimal-header .header-main,
+    .header-main {
+        border-bottom: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .content-main {
+        margin-bottom: 0;
+    }
+
+    .finish--table {
+        clear: both;
+
+        .table--tr {
+            page-break-inside: avoid;
+        }
+
+        .table--content {
+            width: 85%;
+        }
+
+        .column--product .column--image {
+            width: 15%;
+        }
+
+        .column--label.quantity--label {
+            margin: 0;
+        }
+
+        .column--product {
+            .clearfix();
+            width: 100%;
+        }
+
+        .column--total-price,
+        .column--quantity {
+            margin-left: 70%;
+            width: 30%;
+        }
+    }
+
+    .footer-minimal,
+    .footer-main {
+        .footer--service-menu,
+        .footer--copyright,
+        .footer--logo {
+            display: none;
+        }
+
+        .vat-info--text {
+            .unitize(font-size, 9);
+        }
+
+        a {
+            color: @text-color
+        }
+    }
+}

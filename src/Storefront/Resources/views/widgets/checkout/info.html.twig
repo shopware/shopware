@@ -1,0 +1,53 @@
+{# Notepad entry #}
+{% block frontend_index_checkout_actions_notepad %}
+    <li class="navigation--entry entry--notepad" role="menuitem">
+        <a href="{url controller='note'}" title="{{ 'IndexLinkNotepad'|trans([], 'frontend/index/checkout_actions')|escape }}" class="btn">
+            <i class="icon--heart"></i>
+            {% if sNotesQuantity > 0 %}
+                <span class="badge notes--quantity">
+                    {{ sNotesQuantity ?: '0' }}
+                </span>
+            {% endif %}
+        </a>
+    </li>
+{% endblock %}
+
+{# My account entry #}
+{% block frontend_index_checkout_actions_my_options %}
+    <li class="navigation--entry entry--account" role="menuitem">
+        {% block frontend_index_checkout_actions_account %}
+            <a href="{url controller='account'}" title="{{ 'IndexLinkAccount'|trans([], 'frontend/index/checkout_actions')|escape }}" class="btn is--icon-left entry--link account--link">
+                <i class="icon--account"></i>
+                <span class="account--display">
+                    {% trans from "frontend/index/checkout_actions" %}IndexLinkAccount{% endtrans %}
+                </span>
+            </a>
+        {% endblock %}
+    </li>
+{% endblock %}
+
+{# Cart entry #}
+{% block frontend_index_checkout_actions_cart %}
+    <li class="navigation--entry entry--cart" role="menuitem">
+        <a class="btn is--icon-left cart--link" href="{url controller='checkout' action='cart'}" title="{{ 'IndexLinkCart'|trans([], 'frontend/index/checkout_actions')|escape }}">
+            <span class="cart--display">
+                {% if shopware.context.logged_in %}
+                    {% trans from "frontend/index/checkout_actions" %}IndexLinkCheckout{% endtrans %}
+                {% else %}
+                    {% trans from "frontend/index/checkout_actions" %}IndexLinkCart{% endtrans %}
+                {% endif %}
+            </span>
+
+            <span class="badge is--primary is--minimal cart--quantity{% if sBasketQuantity < 1 %} is--hidden{% endif %}">{{ sBasketQuantity ?: '0' }}</span>
+
+            <i class="icon--basket"></i>
+
+            <span class="cart--amount">
+                {{ sBasketAmount|number_format(2) }} {% trans from "frontend/listing/box_article" %}Star{% endtrans %}
+            </span>
+        </a>
+        <div class="ajax-loader">&nbsp;</div>
+    </li>
+{% endblock %}
+
+{% block frontend_index_checkout_actions_inner %}{% endblock %}

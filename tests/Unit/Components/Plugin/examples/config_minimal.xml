@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="../../../../../engine/Shopware/Components/Plugin/schema/config.xsd">
+
+    <elements>
+        <element>
+            <name>my-field</name>
+            <label>My Form Label</label>
+            <value>Some default value</value>
+        </element>
+    </elements>
+</config>

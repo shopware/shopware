@@ -1,0 +1,6 @@
+<div class="sw-form-field">
+    <label v-if="label" :for="id">{{ label }}</label>
+    <textarea v-if="type === 'textarea'" v-html="value" :name="name" :id="id"></textarea>
+    <input v-else-if="type === 'checkbox'" type="checkbox" :name="name" :id="id" :checked="value === true">
+    <input v-else :type="type" :name="name" :id="id" :placeholder="placeholder" :value="value" />
+</div>

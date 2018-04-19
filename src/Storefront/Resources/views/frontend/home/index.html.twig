@@ -1,0 +1,64 @@
+{% sw_extends '@Shopware/frontend/index/index.html.twig' %}
+
+{% block frontend_index_content_top %}{% endblock %}
+
+{# Page title #}
+{% block frontend_index_header_title %}{% spaceless %}
+    {% if sCategoryContent.metaTitle %}
+        {{ sCategoryContent.metaTitle|escape('html') }} | {{ shopware.config.shopname|escape('html') }}
+    {% else %}
+        {{ parent() }}
+    {% endif %}
+{% endspaceless %}{% endblock %}
+
+{# Canonical URL #}
+{% block frontend_index_header_canonical %}
+    <link rel="canonical" href="{{ url('homepage') }}" />
+{% endblock %}
+
+{# Main content #}
+{% block frontend_index_content %}
+<div class="content content--home">
+
+    {% block frontend_home_index_banner %}
+        {# Banner #}
+        {% sw_include "@Shopware/frontend/listing/banner.html.twig" %}
+    {% endblock %}
+
+    {% block frontend_home_index_text %}
+        {# Category headline #}
+        {% if not hasEmotion %}
+            {% sw_include '@Shopware/frontend/listing/text.html.twig' %}
+        {% endif %}
+    {% endblock %}
+
+    {# Promotion #}
+    {% block frontend_home_index_promotions %}
+        <img src="/emotion.png" />
+        {% if hasEmotion %}
+            <div class="content--emotions">
+                {% for emotion in emotions %}
+                    <div class="emotion--wrapper"
+                         data-controllerUrl="{url module=widgets controller=emotion action=index emotionId=$emotion.id controllerName=$Controller}"
+                         data-availableDevices="{{ emotion.devices }}">
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endblock %}
+
+    {% block frontend_home_index_blog %}
+        {# Blog Articles #}
+        {% if sBlog.sArticles|length %}
+            <div class="listing_box">
+                <h2 class="headingbox_nobg largesize">{% trans from 'blog/listing' %}WidgetsBlogHeadline{% endtrans%}:</h2>
+                {% for key, article in sBlog.sArticles %}
+                    {% include "@Shopware/frontend/blog/box.html.twig" with {'sArticle': article, 'key': key, 'homepage': true} %}
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endblock %}
+</div>
+{% endblock %}
+
+{% block frontend_index_left_last_articles %}{% endblock %}

@@ -1,0 +1,301 @@
+/*
+Footer
+==========================================
+Defines the styles for the storefront footer and its components.
+
+Contains the footer columns, the navigation elements and the vat notice/logo at the bottom of the page.
+
+It contains the viewport specific styles inside media queries.
+
+The footer element sizes are defined with the unitize mixin.
+*/
+
+.footer-main {
+    background: #fff;
+
+    .footer--phone-link {
+        .unitize(font-size, 19);
+        font-weight: bold;
+        color: @brand-secondary;
+    }
+
+    .footer--column {
+        .unitize-padding(0, 10);
+        border-top: 1px solid @border-color;
+
+        &.is--last {
+            border-bottom: 1px solid @border-color;
+        }
+    }
+
+    .column--headline {
+        .user-select(none);
+        .unitize-padding(8, 0);
+        margin: 0;
+        font-weight: 700;
+        color: @brand-primary;
+        cursor: pointer;
+        .unitize(font-size, 16);
+        .unitize(line-height, 26);
+
+        &.is--active::after {
+            content: @sw-icon-minus3;
+        }
+
+        &::after {
+            .unitize(font-size, 18);
+            font-family: @sw-icon-fontname;
+            color: @text-color;
+            font-weight: 700;
+            content: @sw-icon-plus3;
+            float: right;
+        }
+    }
+
+    .column--content {
+        display: none;
+
+        &.is--active {
+            display: block;
+        }
+    }
+
+    // Second footer with the Shopware logo and vat notice
+    .footer--bottom {
+        .unitize(font-size, 12);
+        .unitize-padding(16, 12, 0, 12, 12);
+        text-align: center;
+    }
+
+    .footer--copyright {
+        .unitize(font-size, 13);
+    }
+
+    .footer--logo {
+        .unitize(font-size, 28);
+        color: #009fe3;
+    }
+
+    // Navigation links
+    .navigation--list {
+        .unitize-padding(0, 0, 16, 0);
+
+        .is--level1 {
+            .unitize(padding-bottom, 10);
+
+            .navigation--entry {
+                .unitize(margin-left, 10);
+            }
+        }
+    }
+
+    .navigation--link {
+        .unitize-padding(10, 0, 10, 0, 16);
+        display: block;
+        color: @text-color;
+
+        &:hover {
+            color: @brand-primary;
+        }
+    }
+
+    // Newsletter registration
+    .newsletter--form {
+        .clearfix();
+        .unitize-padding(0, 0, 16, 0, 16);
+    }
+
+    .newsletter--field {
+        .border-radius-multi(3px, 0, 0, 3px);
+        position: relative;
+        width: 87.5%;
+        float: left;
+
+        &:focus {
+            z-index: @zindex-footer-newsletter-field-focus;
+        }
+    }
+
+    .newsletter--button {
+        .box-shadow(0 0 0 transparent);
+        .border-radius-multi(0, 3px, 3px, 0);
+        .unitize-padding(3, 5, 3, 5, 16);
+        .unitize(-1, 16, margin-left);
+        position: relative;
+        width: 12.5%;
+        text-align: center;
+        float: left;
+
+        .icon--mail {
+            .unitize(font-size, 14);
+            .unitize(margin-right, 0);
+        }
+
+        .button--text {
+            display: none
+        }
+    }
+
+    .footer--logo {
+        .unitize-padding(10, 0);
+    }
+}
+
+.footer-vat {
+    .unitize(margin-top, 10);
+    .unitize-padding(0, 5);
+    background: transparent;
+}
+
+.footer--vat-info {
+    .vat-info--text {
+        .unitize(font-size, 12);
+        .unitize(margin-bottom, 10);
+        text-align: center;
+    }
+}
+
+.footer-minimal {
+    .unitize(font-size, 13);
+    .unitize-padding(40, 10, 20, 10);
+    background: transparent;
+    text-align: center;
+
+    .footer-main & {
+        padding: 0;
+    }
+
+    .footer--service-menu .service--list {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+
+        .service--link {
+            .unitize-padding(8, 2);
+            display: inline-block;
+        }
+
+        .service--entry {
+            display: inline-block;
+
+            &:after {
+                .unitize-height(10, 16);
+                .unitize-width(1, 16);
+                .unitize-margin(0, 5);
+                border-left: 1px solid darken(@border-color, 10%);
+                display: inline-block;
+                content: '';
+            }
+
+            &:last-child:after {
+                display: none;
+            }
+        }
+    }
+
+    .footer--vat-info {
+        .unitize-margin(15, 0, 10, 0);
+
+        .vat-info--text {
+            .unitize(line-height, 18);
+            margin: 0;
+        }
+    }
+}
+
+@media screen and (min-width: @tabletViewportWidth) {
+    .footer-main .footer-minimal {
+        display: none;
+    }
+}
+
+
+@media screen and (min-width: @tabletViewportWidth) {
+    .footer-main {
+        border-top: 1px solid @border-color;
+
+        .column--headline {
+            .unitize-margin(28, 0, 10, 0, 16);
+            padding: 0;
+            cursor: text;
+
+            &::after {
+                display: none;
+            }
+        }
+
+        .footer--column {
+            .unitize-padding(0, 10, 0, 0, 16);
+            width: 25%;
+            border: 0 none;
+
+            &.is--last {
+                padding-right: 0;
+                border-bottom: 0 none;
+            }
+        }
+
+        .footer--columns {
+            .unitize-padding(0, 30);
+            border-bottom: 1px solid @border-color;
+        }
+
+        .column--content {
+            display: block;
+        }
+
+        // Don't display sub Navigation links on tablet/desktop
+        .navigation--list {
+            .is--level1 {
+                display: none;
+            }
+        }
+
+        .navigation--entry {
+            padding: 0;
+        }
+
+        .navigation--link {
+            line-height: 1.7;
+            padding: 0
+        }
+
+        .newsletter--field {
+            width: 80%;
+        }
+
+        .newsletter--button {
+            width: 20%;
+
+            .icon--mail {
+                .unitize(font-size, 12);
+            }
+        }
+    }
+
+    .footer-vat {
+        padding: 0;
+    }
+
+    .footer--vat-info {
+        .vat-info--text {
+            .unitize(margin-bottom, 20);
+        }
+    }
+}
+
+@media screen and (min-width: @desktopViewportWidth) {
+    .footer-main {
+        .footer--columns {
+            .unitize-padding(0, 0, 20, 0, 16);
+        }
+
+        .footer--bottom {
+            .unitize(font-size, 15);
+        }
+    }
+
+    .footer-minimal {
+        padding-top: 0;
+    }
+}

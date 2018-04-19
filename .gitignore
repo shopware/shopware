@@ -1,0 +1,90 @@
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+./Icon?
+ehthumbs.db
+Thumbs.db
+# SASS/SCSS cache
+.sass-cache/
+
+# PhpStorm-Project
+/.idea/
+
+# Composer
+/composer.phar
+/vendor/*
+!/vendor/.htaccess
+
+# User installed plugins
+/engine/Shopware/Plugins/Community/Backend/*
+/engine/Shopware/Plugins/Community/Core/*
+/engine/Shopware/Plugins/Community/Frontend/*
+/engine/Shopware/Plugins/Local/Backend/*
+/engine/Shopware/Plugins/Local/Core/*
+/engine/Shopware/Plugins/Local/Frontend/*
+
+/custom/plugins/*
+
+# User installed themes
+/themes/Frontend/*
+!/themes/Frontend/Bare
+!/themes/Frontend/Responsive
+
+
+# Caches/Proxies
+.php_cs
+.php_cs.cache
+/tests/Shopware/TempFiles/*
+/var/cache/*
+!/var/cache/.htaccess
+!/var/cache/clear_cache.sh
+/web/cache/*
+/var/bootstrap.php.cache
+
+# User provided content
+/web/media/archive/*
+/web/media/image/*
+!/web/media/image/thumbnail
+/web/media/image/thumbnail/*
+/web/media/music/*
+/web/media/pdf/*
+/web/media/temp/*
+!/web/media/temp/.htaccess
+/web/media/unknown/*
+/web/media/video/*
+
+/web/*
+!/web/media
+!/web/app.php
+!/web/app_dev.php
+!/web/.htaccess
+!/web/css/.gitkeep
+!/web/js/.gitkeep
+
+/files/documents/*
+!/files/documents/.htaccess
+/files/downloads/*
+
+# Snippet exports
+/snippetsExport/
+
+!**/.gitkeep
+
+# Log files
+/var/logs/*
+!/var/logs/.htaccess
+/var/log/*
+!/var/log/.htaccess
+
+# User configurations
+app/config/parameters.yml
+
+# tooling
+/dev-ops/docker/_volumes
+/docker-compose.override.yml
+/.psh.yml
+/dev-ops/docker/containers/*/createuser.sh
+/dev-ops/docker/containers/php7/Dockerfile

@@ -1,0 +1,116 @@
+/*
+Collapse Box
+================================================
+A collapse box for panels and text elements.
+
+Displays a folding box that responds if the content does not fit the element.
+
+```
+
+<div class="collapse--header">
+  Collapse box title
+    <span class="collapse--toggler">
+    </span>
+</div>
+<div class="collapse--content is--collapsed">
+    This content will be shown by the is--collapsed class.
+</div>
+
+<div class="collapse--header">
+  Collapse box title
+    <span class="collapse--toggler">
+    </span>
+</div>
+<div class="collapse--content">
+    Lorem ipsum dolor
+</div>
+
+<div class="collapse--header">
+  Collapse box title
+    <span class="collapse--toggler">
+    </span>
+</div>
+<div class="collapse--content">
+    Lorem ipsum dolor
+</div>
+
+```
+*/
+
+.collapse--header {
+    .unitize-padding(10, 20);
+    .unitize-margin(10, 0, 0, 0);
+    .unitize(font-size, 16);
+    .unitize(line-height, 16);
+    .linear-gradient(#ffffff, @gray-light);
+    .border-radius();
+    .box-shadow(0 1px 1px 0 rgba(236, 238, 241, 0.8));
+    display: block;
+    position: relative;
+    z-index: @zindex-collapse-header;
+    border: 1px solid @border-color;
+    cursor: pointer;
+
+    .collapse--toggler {
+        .unitize-height(16);
+        .unitize(top, 10);
+        .unitize(right, 20);
+        .unitize(font-size, 6);
+        .unitize(line-height, 16);
+        position: absolute;
+        font-weight: normal;
+        font-family: @sw-icon-fontname;
+
+        &:before {
+            content: @sw-icon-arrow-down;
+        }
+    }
+
+    &:hover {
+        color: @brand-primary;
+    }
+
+    &.is--active {
+        .secondary-gradient();
+        .box-shadow(0 1px 3px 0 rgba(95, 114, 133, 0.5));
+        color: #fff;
+        font-weight: bold;
+        border-width: 0 0 1px 0;
+        border-style: solid;
+        border-color: darken(@border-color, 15%);
+        z-index: @zindex-collapse-header-active;
+
+        .collapse--toggler {
+            &:before {
+                content: @sw-icon-arrow-up;
+            }
+        }
+    }
+}
+
+.collapse--content {
+    .unitize-padding(5, 0, 0, 0);
+    .unitize(-5, 16, top);
+    .border-radius-multi(0, 0, 3px, 3px);
+    .box-shadow(0 1px 1px 0 rgba(236, 238, 241, 0.8));
+    display: none;
+    position: relative;
+    z-index: @zindex-collapse-content;
+    background: #fff;
+    border-width: 0 1px 1px 1px;
+    border-style: solid;
+    border-color: @border-color;
+
+    &.is--collapsed {
+        display: block;
+        z-index: @zindex-collapse-content-collapsed;
+    }
+}
+
+.js--collapse-target {
+    display: none;
+
+    &.is--collapsed {
+        display: block;
+    }
+}

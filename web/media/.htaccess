@@ -1,0 +1,6 @@
+<IfModule mod_rewrite.c>
+RewriteEngine on
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^(.*)$ ../shopware.php?controller=Media&action=fallback [PT,L,QSA]
+</IfModule>

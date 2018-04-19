@@ -1,0 +1,25 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service class="Shopware\Customer\Struct\CustomerHydrator" id="shopware.customer.struct.customer_hydrator">
+            <argument id="shopware.framework.struct.attribute_hydrator" type="service"/>
+            <argument id="shopware.customer_group.struct.customer_group_hydrator" type="service"/>
+        </service>
+        <service class="Shopware\Customer\Gateway\CustomerReader" id="shopware.customer.gateway.customer_reader">
+            <argument id="shopware.framework.struct.field_helper" type="service"/>
+            <argument id="shopware.customer.struct.customer_hydrator" type="service"/>
+            <argument id="dbal_connection" type="service"/>
+        </service>
+        <service class="Shopware\Customer\Gateway\CustomerRepository" id="shopware.customer.gateway.customer_repository">
+            <argument id="shopware.customer.gateway.customer_reader" type="service"/>
+            <argument id="shopware.address.gateway.address_repository" type="service"/>
+            <argument id="shopware.shop.gateway.shop_repository" type="service"/>
+            <argument id="shopware.payment_method.gateway.payment_method_repository" type="service"/>
+        </service>
+
+    </services>
+</container>

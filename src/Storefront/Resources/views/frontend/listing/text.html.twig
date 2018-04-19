@@ -1,0 +1,61 @@
+{#{namespace name="frontend/listing/listing"}#}
+
+{# Categorie headline #}
+{% block frontend_listing_text %}
+    {% if sCategoryContent.cmsheadline or sCategoryContent.cmstext %}
+        <div class="hero-unit category--teaser panel has--border is--rounded">
+
+            {# Headline #}
+            {% block frontend_listing_text_headline %}
+                {% if sCategoryContent.cmsheadline %}
+                    <h1 class="hero--headline panel--title">{{ sCategoryContent.cmsheadline }}</h1>
+                {% endif %}
+            {% endblock %}
+
+            {# Category text #}
+            {% block frontend_listing_text_content %}
+                <div class="hero--text panel--body is--wide">
+                    {% if sCategoryContent.cmstext %}
+
+                        {# Long description #}
+                        {% block frontend_listing_text_content_long %}
+                            <div class="teaser--text-long">
+                                {{ sCategoryContent.cmstext }}
+                            </div>
+                        {% endblock %}
+
+                        {# Short description #}
+                        {% block frontend_listing_text_content_short %}
+                            <div class="teaser--text-short is--hidden">
+                                {{ sCategoryContent.cmstext|striptags[:200] }}
+                                <a href="#" title="{s namespace='frontend/listing/listing' name='ListingActionsOpenOffCanvas'}{/s}|escape}" class="text--offcanvas-link">
+                                    {s namespace="frontend/listing/listing" name="ListingActionsOpenOffCanvas"}{/s} &raquo;
+                                </a>
+                            </div>
+                        {% endblock %}
+
+                        {# Off Canvas Container #}
+                        {% block frontend_listing_text_content_offcanvas %}
+                            <div class="teaser--text-offcanvas is--hidden">
+
+                                {# Close Button #}
+                                {% block frontend_listing_text_content_offcanvas_close %}
+                                    <a href="#" title="{s namespace='frontend/listing/listing' name='ListingActionsCloseOffCanvas'}{/s}|escape}" class="close--off-canvas">
+                                        <i class="icon--arrow-left"></i> {s namespace="frontend/listing/listing" name="ListingActionsCloseOffCanvas"}{/s}
+                                    </a>
+                                {% endblock %}
+                                {# Off Canvas Content #}
+                                {% block frontend_listing_text_content_offcanvas_content %}
+                                    <div class="offcanvas--content">
+                                        <div class="content--title">{{ sCategoryContent.cmsheadline }}</div>
+                                        {{ sCategoryContent.cmstext }}
+                                    </div>
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+                    {% endif %}
+                </div>
+            {% endblock %}
+        </div>
+    {% endif %}
+{% endblock %}

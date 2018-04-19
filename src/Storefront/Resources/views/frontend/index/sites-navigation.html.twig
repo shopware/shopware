@@ -1,0 +1,51 @@
+{% import _self as sites_navigation %}
+
+{# Static sites #}
+{% macro customPages(customPages, level) %}
+    <ul class="shop-sites--navigation sidebar--navigation navigation--list{% if not level %} is--drop-down{% endif %} is--level{{ level }}" role="menu">
+        {% block frontend_index_left_menu_before %}{% endblock %}
+
+        {% block frontend_index_left_menu_entries %}
+            {% for page in customPages %}
+                {% block frontend_index_left_menu_entry %}
+                    <li class="navigation--entry{% if page.active %} is--active{% endif %}" role="menuitem">
+                        <a class="navigation--link{% if page.active %} is--active{% endif %}{% if page.childrenCount %} link--go-forward{% endif %}"
+                           href="{% if page.link %}{{ page.link }}{% else %}{url controller='custom' sCustom=$page.id title=$page.description}{% endif %}"
+                           title="{{ page.description|escape }}"
+                           data-categoryId="{{ page.id }}"
+                           data-fetchUrl="{url module=widgets controller=listing action=getCustomPage pageId=page.id}"
+                           {% if page.target %}target="{{ page.target }}"{% endif %}>
+                            {{ page.description }}
+
+                            {% if page.childrenCount %}
+                            <span class="is--icon-right">
+                                <i class="icon--arrow-right"></i>
+                            </span>
+                            {% endif %}
+                        </a>
+
+                        {% if page.active and page.subPages %}
+                            {{ sites_navigation.customPages(page.subPages, level+1) }}
+                        {% endif %}
+                    </li>
+                {% endblock %}
+            {% endfor %}
+        {% endblock %}
+
+        {% block frontend_index_left_menu_after %}{% endblock %}
+    </ul>
+{% endmacro customPages %}
+
+{% if shopware.menu.gLeft %}
+    {% block frontend_index_left_menu_container %}
+        <div class="shop-sites--container is--rounded">
+            {% block frontend_index_left_menu_headline %}
+                <div class="shop-sites--headline navigation--headline">
+                    {% trans from 'frontend/index/menu_left' %}MenuLeftHeadingInformation{% endtrans %}
+                </div>
+            {% endblock %}
+
+            {{ sites_navigation.customPages(shopware.menu.gLeft) }}
+        </div>
+    {% endblock %}
+{% endif %}

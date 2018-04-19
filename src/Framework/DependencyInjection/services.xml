@@ -1,0 +1,89 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <parameters>
+        <parameter key="doctrine.dbal.connection_factory.class">Shopware\Framework\Doctrine\ConnectionFactory</parameter>
+
+        <parameter key="shopware.slug.config" type="collection">
+            <parameter key="regexp">/([^A-Za-z0-9\.]|-)+/</parameter>
+            <parameter key="lowercase">false</parameter>
+        </parameter>
+    </parameters>
+
+    <services>
+        <!-- database / doctrine -->
+        <service id="dbal_connection" alias="doctrine.dbal.default_connection" />
+
+        <service id="db_connection" class="PDO" public="false">
+            <factory class="AppKernel" method="getConnection" />
+        </service>
+
+        <!-- Cache -->
+        <service id="shopware.cache" alias="cache.app" />
+
+        <!-- Routing -->
+        <service id="router" alias="shopware.router" />
+
+        <service id="shopware.router" class="Shopware\Framework\Routing\Router">
+            <argument>%router.resource%</argument>
+            <argument type="service" id="kernel" />
+            <argument type="service" id="router.request_context" on-invalid="ignore" />
+            <argument type="service" id="logger" on-invalid="ignore" />
+            <argument type="service" id="shopware.framework.routing.url_resolver" />
+            <argument type="service" id="shopware.framework.routing.shop_finder" />
+            <argument type="service" id="routing.loader" />
+        </service>
+
+        <!-- Translation / Snippet -->
+        <service id="shopware.translator.database_loader" class="Shopware\Framework\Translator\DatabaseLoader">
+            <tag name="translation.loader" alias="database" />
+
+            <argument type="service" id="dbal_connection" />
+        </service>
+
+        <!-- Config -->
+        <service id="shopware.config.cache_warmer" class="Shopware\Framework\Config\CacheWarmer">
+            <tag name="kernel.cache_warmer" />
+
+            <argument type="service" id="dbal_connection" />
+            <argument type="service" id="shopware.config.config_service" />
+        </service>
+
+        <service id="shopware.config.config_service" class="Shopware\Framework\Config\ConfigService">
+            <argument type="service" id="dbal_connection" />
+        </service>
+
+        <service id="shopware.config.cached_config_service" class="Shopware\Framework\Config\CachedConfigService" decorates="shopware.config.config_service">
+            <argument type="service" id="shopware.config.cached_config_service.inner" />
+            <argument type="service" id="shopware.cache" />
+        </service>
+
+        <service id="shopware.config" alias="shopware.config.config" />
+        <service synthetic="true" id="shopware.config.config" class="Shopware\Framework\Config\Config" />
+
+        <service class="Shopware\Framework\Routing\ShopFinder" id="shopware.framework.routing.shop_finder">
+            <argument id="dbal_connection" type="service"/>
+        </service>
+
+        <service id="slugify" class="Cocur\Slugify\Slugify" public="false">
+            <argument>%shopware.slug.config%</argument>
+        </service>
+
+        <service class="Shopware\Framework\Routing\UrlResolver" id="shopware.framework.routing.url_resolver">
+            <argument id="shopware.seo_url.gateway.seo_url_repository" type="service"/>
+        </service>
+
+        <!-- Validator -->
+        <service id="shopware.validation.constraint_builder" class="Shopware\Framework\Validation\ConstraintBuilder"/>
+
+        <service class="Shopware\Framework\Struct\AttributeHydrator" id="shopware.framework.struct.attribute_hydrator"/>
+
+        <service class="Symfony\Component\Routing\RouteAssembler" id="symfony.component.routing.route_assembler">
+            <argument id="shopware.router" type="service"/>
+        </service>
+
+    </services>
+</container>

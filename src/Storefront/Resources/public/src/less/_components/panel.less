@@ -1,0 +1,620 @@
+/*
+Panels
+===================================================================
+######Basic panel component for boxes and bordered containers.
+
+The panel can be used with different content structures.
+
+Styling options: `has--border` and `has--shadow`
+
+```
+<div class="panel">
+    <div class="panel--body">
+        Basic panel element
+    </div>
+</div>
+
+<div class="panel has--border">
+    <div class="panel--body">
+        Basic panel with border
+    </div>
+</div>
+```
+*/
+
+.panel {
+    display: block;
+    background: @panel-bg;
+
+    &.has--shadow {
+        .box-shadow(0 1px 3px 0 rgba(0, 0, 0, 0.1));
+    }
+
+    &.has--border {
+        border: 1px solid @panel-border;
+    }
+}
+/*
+<h6>A header box for a panel.</h6>
+<p>Can be used by adding the `panel--header`-element and `primary` or `secondary` classes.</p>
+```
+<div class="panel">
+    <div class="panel--header primary">Panel header primary</div>
+    <div class="panel--header secondary">Panel header secondary</div>
+    <div class="panel--body">
+        Panel body
+    </div>
+</div>
+```
+*/
+.panel--header {
+    .unitize-padding(10, 10);
+    .unitize(@panel-header-font-size, 16, font-size);
+    background: @panel-header-bg;
+    display: block;
+    margin: 0;
+    font-weight: bold;
+    color: @panel-header-color;
+    border-bottom: 1px solid @panel-border;
+
+    &.secondary {
+        color: @text-color;
+        background: #fff;
+    }
+
+    &.primary {
+        color: @brand-primary;
+        background: #fff;
+    }
+}
+/*
+<h6>A title heading for a panel.</h6>
+<p>The `panel--title` can be used as an alternative to the `panel--header` element.</p>
+<p>When using the `panel--title` element, make sure that the `panel--body` element has the class `is--wide` assigned in order to work properly. Also the `is--underline` class was added here.
+```
+<div class="panel">
+    <h3 class="panel--title is--underline">Panel title</h3>
+    <div class="panel--body is--wide">
+        Panel body
+    </div>
+</div>
+```
+*/
+.panel--title {
+    .unitize-padding(20, 0, 0, 0);
+    .unitize-margin(0, 20);
+    .unitize(font-size, 16);
+    display: block;
+    font-weight: bold;
+    color: @text-color-dark;
+
+    &.is--underline {
+        .unitize-padding(20, 0, 10, 0);
+        border-bottom: 1px solid @panel-border;
+        text-decoration: none !important;
+    }
+
+    &.is--secondary {
+        color: @text-color;
+    }
+
+    &.is--primary {
+        color: @brand-primary;
+    }
+}
+/*
+<h6>The content body for a panel</h6>
+<p>Styling options: `is--slim`, `is--wide`, `is--flat`, `is--embossed`.</p>
+
+```
+<div class="panel">
+<div class="panel--body is--wide">Panel content ...</div>
+</div>
+```
+*/
+.panel--body {
+    .unitize-padding(10, 10);
+    .unitize(font-size, 14);
+    .unitize(line-height, 24);
+    display: block;
+    position: relative;
+
+    &.has--border {
+        border: 1px solid @panel-border;
+    }
+
+    &.is--slim {
+        .unitize-padding(5, 5);
+    }
+
+    &.is--wide {
+        .unitize-padding(20, 20);
+    }
+
+    &.is--flat {
+        background: @gray;
+    }
+
+    &.is--embossed {
+        .box-shadow(inset 0 0 3px 0 rgba(0, 0, 0, 0.2));
+        background: @gray;
+    }
+}
+
+/*
+######A container for action elements
+```
+<div class="panel--actions">
+    <a href="" class="btn">Action Link</a>
+    <a href="" class="btn">Action Link</a>
+</div>
+```
+*/
+.panel--actions {
+    .unitize-padding(10, 10);
+    .unitize(line-height, 40);
+    display: block;
+
+    &.has--border {
+        .unitize-margin(10, 0, 0, 0);
+        .unitize-padding(10, 0, 0, 0);
+        border-top: 1px solid @panel-border;
+    }
+
+    &.is--slim {
+        .unitize-padding(5, 5);
+    }
+
+    &.is--wide {
+        .unitize-padding(20, 20);
+    }
+
+    .btn {
+        .unitize-margin(0, 6, 0, 0);
+    }
+}
+
+/*
+######A table inside a panel.
+```
+<div class="panel--table">
+    <div class="panel--tr">
+        <div class="panel--th></div>
+        <div class="panel--th></div>
+        <div class="panel--th></div>
+    </div>
+    <div class="panel--tr">
+        <div class="panel--td"></div>
+        <div class="panel--td"></div>
+        <div class="panel--td"></div>
+    </div>
+</div>
+```
+*/
+.panel--table {
+    .clearfix();
+    width: 100%;
+    display: block;
+    border-collapse: collapse;
+    border-spacing: 0;
+    empty-cells: show;
+
+    &.has--border {
+        border: 1px solid @panel-border;
+    }
+}
+
+.panel--tr {
+    .clearfix();
+    display: block;
+    width: 100%;
+    border-width: 0 0 1px 0;
+    border-style: solid;
+    border-color: @panel-border;
+
+    &:last-child {
+        border-width: 0;
+    }
+
+    &.is--odd {
+        background: darken(@panel-bg, 4%);
+    }
+
+    &.is--secondary {
+        background: darken(@panel-bg, 4%);
+    }
+
+    &.is--primary {
+        color: @brand-primary;
+    }
+}
+
+.panel--th,
+.panel--td {
+    .clearfix();
+    .unitize-padding(10, 10);
+    .unitize(font-size, 14);
+    .unitize(line-height, 24);
+    display: inline-block;
+    float: left;
+
+    &.has--border {
+        border-width: 0 1px 0 0;
+        border-style: solid;
+        border-color: @panel-border;
+
+        &:last-child {
+            border-width: 0;
+        }
+    }
+
+    p {
+        margin: 0;
+    }
+}
+
+.panel--th {
+    font-weight: bold;
+    color: @text-color-dark;
+}
+
+/*
+######A list in a panel.
+
+```
+<div class="panel">
+    <ul class="panel--list">
+        <li>list element 1</li>
+        <li class="secondary">list element 2</li>
+        <li class="primary">list element 3</li>
+    </ul>
+</div>
+```
+*/
+.panel--list {
+    list-style: none;
+
+    &.has--border {
+        border: 1px solid @panel-border;
+    }
+
+    li {
+        .unitize-padding(10, 10);
+        .unitize(font-size, 14);
+        .unitize(line-height, 24);
+        border-bottom: 1px solid @panel-border;
+
+        &:last-child {
+            border-bottom: 0 none;
+        }
+
+        &.is--secondary {
+            background: @gray;
+        }
+
+        &.is--primary {
+            color: @brand-primary;
+        }
+    }
+}
+
+/*
+######Arrow buttons for example for a slider panel.
+Displays an arrow button that is used to navigate through the slider pages.
+*/
+.panel--arrow {
+    .unitize-width(22);
+    .unitize-height(30);
+    .unitize(-15, 16, margin-top);
+    .unitize(line-height, 28);
+    .unitize(font-size, 12);
+    display: none;
+    position: absolute;
+    top: 50%;
+    z-index: @zindex-panel-arrow;
+    font-family: @sw-icon-fontname;
+    text-align: center;
+    color: @text-color;
+
+    &.has--background {
+        .border-radius();
+        .linear-gradient(#ffffff, @gray-light);
+        border: 1px solid @panel-border;
+    }
+
+    &.left--arrow {
+        .unitize(left, 10);
+
+        &:before,
+        &::before {
+            content: @sw-icon-arrow-left;
+        }
+    }
+
+    &.right--arrow {
+        .unitize(right, 10);
+
+        &:before {
+            content: @sw-icon-arrow-right;
+        }
+    }
+
+    &:hover {
+        color: @brand-primary;
+    }
+}
+
+/*
+######A small dot navigation for example for a slider panel.
+
+```
+<div class="panel--dot-nav">
+    <a href=""></a>
+    <a href="" class="is--active"></a>
+    <a href=""></a>
+</div>
+```
+*/
+.panel--dot-nav {
+    .unitize-height(11);
+    position: relative;
+
+    .dot--link, a {
+        .unitize-variable(21, 16);
+        .border-radius(11px);
+        .unitize-margin(0, 5);
+        .unitize-width(11);
+        .unitize-height(11);
+        display: inline-block;
+        border: 1px solid @border-color;
+
+        &.is--active {
+            border-color: @brand-primary;
+            background: @brand-primary;
+        }
+    }
+}
+
+/*
+######A tab navigation for a tab-content panel.
+
+```
+<div class="panel">
+    <ul class="panel--tab-nav">
+        <li><a href="" class="is--active">Nav entry</a></li>
+        <li><a href="">Nav entry</a></li>
+    </ul>
+    <div class="panel--body has--border">
+        <div class="panel--tab-content is--active">Active content</div>
+        <div class="panel--tab-content">inactive content</div>
+    </div>
+</div>
+```
+*/
+.panel--tab-nav {
+    list-style: none;
+
+    .navigation--entry {
+        display: inline-block;
+    }
+
+    .navigation--link {
+        .unitize-padding(10, 15);
+        .unitize-margin(0, 5, 0, 0);
+        .unitize(line-height, 24);
+        .unitize(font-size, 14);
+        .white-gradient();
+        .border-radius-multi(3px, 3px, 0, 0);
+        display: block;
+        position: relative;
+        z-index: @zindex-panel-link;
+        font-weight: bold;
+        text-align: center;
+        color: @text-color;
+        border-width: 1px 1px 0 1px;
+        border-style: solid;
+        border-color: @panel-border;
+        white-space: nowrap;
+
+        &.is--active {
+            .unitize(top, 1);
+            color: @text-color-dark;
+            background: @panel-bg;
+
+            &:hover {
+                color: @text-color-dark;
+            }
+        }
+
+        &:hover {
+            color: @brand-primary;
+        }
+    }
+}
+/*
+######A paging navigation for pagination content.
+```
+<div class="panel--paging">
+    <a href=""><i class="icon--arrow-left"></i></a>
+    <a href="">1</a>
+    <a href="">2</a>
+    <a href="">...</a>
+    <a href=""><i class="icon--arrow-right"></i></a>
+</div>
+```
+*/
+.panel--paging {
+	.unitize(line-height, 32);
+    display: inline-block;
+
+    .paging--link {
+        .unitize-padding(0, 10);
+        .unitize-margin(0, 1);
+        .unitize(font-size, 14);
+        .unitize(line-height, 30);
+        .border-radius();
+		.linear-gradient(@btn-default-top-bg, @btn-default-bottom-bg);
+        display: inline-block;
+        font-weight: normal;
+        text-align: center;
+		border: 1px solid @btn-default-border-color;
+		color: @btn-default-text-color;
+
+        [class^="icon--"] {
+            .unitize(font-size, 10);
+        }
+
+        &.is--active,
+        &.is--active:hover {
+			.unitize(line-height, 32);
+			.linear-gradient(@btn-primary-top-bg, @btn-primary-bottom-bg);
+			color: @btn-primary-text-color;
+			border: 0 none;
+			font-weight: bold;
+			cursor: default;
+        }
+
+        &:hover {
+			background: @btn-default-hover-bg;
+			color: @btn-default-hover-text-color;
+			border-color: @btn-default-hover-border-color;
+        }
+    }
+}
+
+/*
+######A btn for filter options in a filter action panel.
+```
+<a href="" class="panel--filter-btn">
+  <i class="icon--numbered-list"></i> Weitere Filtermöglichkeiten
+</a>
+```
+*/
+.panel--filter-btn {
+    .unitize-padding(0, 10);
+    .unitize-margin(0, 10);
+    .unitize(font-size, 14);
+    .unitize(line-height, 26);
+    .border-radius();
+    .linear-gradient(#ffffff, @gray-light);
+    .box-shadow(0 1px 1px 0 rgba(0, 0, 0, 0.05));
+    display: inline-block;
+    color: @text-color;
+    font-weight: normal;
+    text-align: center;
+    border: 1px solid #c7cfda;
+
+    i {
+        .unitize-margin(0, 10, 0, 0);
+        .unitize(font-size, 10);
+    }
+
+    &:hover {
+        color: @brand-primary;
+    }
+}
+
+/*
+######A combobox for a filter selection.
+```
+<div class="panel--filter-select">
+    <span class="arrow"></span>
+    <select name="selection" size="1">
+        <option>Option 1</option>
+        <option>Option 2</option>
+        <option>Option 3</option>
+    </select>
+</div>
+```
+*/
+.panel--filter-select {
+    .unitize-width(160);
+    .unitize-height(28);
+    .unitize(font-size, 14);
+    .unitize(line-height, 26);
+    .border-radius();
+    .box-sizing();
+    .box-shadow(0 1px 1px 0 rgba(0, 0, 0, 0.05));
+    .linear-gradient(#ffffff, @gray-light);
+    display: inline-block;
+    vertical-align: bottom;
+    position: relative;
+    border: 1px solid @border-color;
+    overflow: hidden;
+
+    .arrow {
+        .unitize-width(34);
+        .unitize(font-size, 6);
+        .unitize(line-height, 28);
+        display: block;
+        position: absolute;
+        top: 0;
+        right: 0;
+        border-left: 1px solid @border-color;
+        font-family: @sw-icon-fontname;
+        text-align: center;
+
+        &:before,
+        &::before {
+            content: @sw-icon-arrow-down;
+        }
+    }
+
+    select {
+        .unitize-width(180);
+        .unitize-padding(0, 0, 0, 10);
+        .unitize(font-size, 14);
+        .unitize(line-height, 26);
+        .appearance(none);
+        color: @text-color;
+        background: transparent;
+        border: 0 none;
+    }
+
+    option {
+        .unitize-padding(0, 10);
+        display: block;
+        border: 0 none;
+        background: #fff;
+    }
+}
+
+.js--mobile-tab-panel {
+    .navigation--entry {
+        .unitize-margin(0, 0, 6, 0);
+        display: block;
+
+        & > [class^=content] {
+            .unitize-padding(10, 10);
+            border: 1px solid @border-color;
+            border-top: 0 none;
+        }
+    }
+
+    .navigation--link {
+        .unitize-padding(5, 10, 5, 10);
+        text-align: left;
+        font-weight: normal;
+        border: 1px solid @border-color;
+        margin: 0;
+
+        &:after,
+        &::after {
+            .unitize(font-size, 16);
+            .unitize(right, 8);
+            content: '+';
+            position: absolute;
+            font-weight: bold;
+        }
+
+        &.is--active {
+            top: 0;
+            cursor: default
+        }
+
+        &.is--active:after,
+        &.is--active::after {
+            content: '-';
+        }
+    }
+}

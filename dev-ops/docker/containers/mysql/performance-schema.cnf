@@ -1,0 +1,2 @@
+[mysqld]
+performance_schema = ON

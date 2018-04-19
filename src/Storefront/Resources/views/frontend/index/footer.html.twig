@@ -1,0 +1,47 @@
+{# Footer menu #}
+{% block frontend_index_footer_menu %}
+    <div class="footer--columns block-group">
+        {% sw_include '@Shopware/frontend/index/footer-navigation.html.twig' %}
+    </div>
+{% endblock %}
+
+{# Copyright in the footer #}
+{% block frontend_index_footer_copyright %}
+    <div class="footer--bottom">
+
+        {# Vat info #}
+        {% block frontend_index_footer_vatinfo %}
+            <div class="footer--vat-info">
+                <p class="vat-info--text">
+                    {% if sOutputNet %}
+                        {% trans from 'frontend/index/footer' %}FooterInfoExcludeVat{% endtrans %}
+                    {% else %}
+                        {% trans from 'frontend/index/footer' %}FooterInfoIncludeVat{% endtrans %}
+                    {% endif %}
+                </p>
+            </div>
+        {% endblock %}
+
+        {% block frontend_index_footer_minimal %}
+            {% sw_include "@Shopware/frontend/index/footer_minimal.html.twig" with {'hideCopyrightNotice': 'true'} %}
+        {% endblock %}
+
+        {# Shopware footer #}
+        {% block frontend_index_shopware_footer %}
+
+            {# Copyright #}
+            {% block frontend_index_shopware_footer_copyright %}
+                <div class="footer--copyright">
+                    {% trans from 'frontend/index/footer' %}IndexCopyright{% endtrans %}
+                </div>
+            {% endblock %}
+
+            {# Logo #}
+            {% block frontend_index_shopware_footer_logo %}
+                <div class="footer--logo">
+                    <i class="icon--shopware"></i>
+                </div>
+            {% endblock %}
+        {% endblock %}
+    </div>
+{% endblock %}

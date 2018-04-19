@@ -1,0 +1,22 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service class="Shopware\PaymentMethod\Struct\PaymentMethodHydrator" id="shopware.payment_method.struct.payment_method_hydrator">
+            <argument id="shopware.framework.struct.attribute_hydrator" type="service"/>
+            <argument id="shopware.serializer.json_serializer" type="service"/>
+        </service>
+        <service class="Shopware\PaymentMethod\Gateway\PaymentMethodReader" id="shopware.payment_method.gateway.payment_method_reader">
+            <argument id="shopware.framework.struct.field_helper" type="service"/>
+            <argument id="shopware.payment_method.struct.payment_method_hydrator" type="service"/>
+            <argument id="dbal_connection" type="service"/>
+        </service>
+        <service class="Shopware\PaymentMethod\Gateway\PaymentMethodRepository" id="shopware.payment_method.gateway.payment_method_repository">
+            <argument id="shopware.payment_method.gateway.payment_method_reader" type="service"/>
+        </service>
+
+    </services>
+</container>

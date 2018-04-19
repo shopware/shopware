@@ -1,0 +1,18 @@
+/*
+Appearance mixin
+============================================
+The mixins provides you a cross-browser compatible method to set the appearance of the element.
+
+Please refer to <http://caniuse.com/appearance> to see the browser support table of the feature.
+
+######Example:
+`.appearance([value]);`
+
+`@param {String} type The type you want to use`
+*/
+
+.appearance(@type: none) {
+	-webkit-appearance: @type;
+	-moz-appearance: @type;
+	appearance: @type;
+}

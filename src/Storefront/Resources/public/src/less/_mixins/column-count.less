@@ -1,0 +1,26 @@
+/*
+Column count mixin
+=============================================
+This mixin provides you a cross-browser compatible method to set the column count property.
+
+Please refer to <http://caniuse.com/multicolumn> to see the browser support table of the feature.
+
+######Example:
+`.column-count([value]);`
+
+`@param: {Number} count: The amount of columns you want to set (Default: auto)`
+*/
+
+.column-count(@count: auto) {
+    -moz-column-count: @count;
+    -webkit-column-count: @count;
+    column-count: @count;
+}
+
+.column-break-inside(@type: avoid) {
+    -webkit-column-break-inside: @type;
+    -moz-column-break-inside: @type;
+    -o-column-break-inside: @type;
+    -ms-column-break-inside: @type;
+    column-break-inside: @type;
+}

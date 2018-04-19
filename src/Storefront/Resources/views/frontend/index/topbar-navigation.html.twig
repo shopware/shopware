@@ -1,0 +1,42 @@
+{# Top bar main #}
+{% block frontend_index_top_bar_main %}
+    <div class="top-bar">
+
+        {# Top bar main container #}
+        {% block frontend_index_top_bar_main_container %}
+            <div class="container block-group">
+
+                {# Top bar navigation #}
+                {% block frontend_index_top_bar_nav %}
+                    <nav class="top-bar--navigation block" role="menubar">
+
+                        {{ render('widgets/index/shopMenu') }}
+
+                        {# Article Compare #}
+                        {% block frontend_index_navigation_inline %}
+                            {% if shopware.config.compareshow %}
+                                <div class="navigation--entry entry--compare is--hidden" role="menuitem" aria-haspopup="true" data-drop-down-menu="true">
+                                    {% block frontend_index_navigation_compare %}
+                                        {#{action module=widgets controller=compare}#}
+                                    {% endblock %}
+                                </div>
+                            {% endif %}
+                        {% endblock %}
+
+                        {# Service / Support drop down #}
+                        {% block frontend_index_checkout_actions_service_menu %}
+                            <div class="navigation--entry entry--service has--drop-down" role="menuitem" aria-haspopup="true" data-drop-down-menu="true">
+                                <i class="icon--service"></i> {% trans from 'frontend/index/checkout_actions' %}IndexLinkService{% endtrans %}
+
+                                {# Include of the widget #}
+                                {% block frontend_index_checkout_actions_service_menu_include %}
+                                    {% sw_include "@Shopware/widgets/index/menu.html.twig" with {"sGroup": shopware.menu.gLeft} %}
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+                    </nav>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

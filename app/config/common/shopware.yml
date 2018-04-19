@@ -1,0 +1,150 @@
+twig:
+    strict_variables: false
+
+assetic:
+    use_controller: false
+    filters:
+        cssrewrite: ~
+        jsmin: ~
+        lessphp:
+            apply_to: '\.less$'
+
+framework:
+    translator:
+        fallbacks: [en_GB]
+    session:
+        handler_id:  shopware.session.save_handler
+    cache:
+        prefix_seed: shopware
+        app: cache.adapter.filesystem
+
+shopware:
+    csrfProtection:
+        frontend: true
+        backend: true
+
+    filesystem:
+        private:
+            type: "local"
+            config:
+                root: "%kernel.root_dir%/../../files"
+        public:
+            type: "local"
+            config:
+                root: "%kernel.root_dir%/../../web"
+
+    custom: ~
+    config: ~
+    trustedproxies: []
+
+    cdn:
+        url: ~
+        strategy: "md5"
+
+    snippet:
+        readFromDb: true
+        writeToDb: true
+        readFromIni: false
+        writeToIni: false
+        showSnippetPlaceholder: false
+
+    errorHandler:
+        throwOnRecoverableError: false
+
+    elasticsearch:
+        prefix: "sw_shop"
+        enabled: false
+        write_backlog: true
+        number_of_replicas: ~
+        number_of_shards: ~
+        wait_for_status: "green"
+        client:
+            hosts: ["localhost:9200"]
+
+    front:
+        noErrorHandler: false
+        throwExceptions: false
+        disableOutputBuffering: false
+        showException: false
+        charset: "utf-8"
+
+    store:
+        apiEndpoint: "https://api.shopware.com"
+
+    plugin_directory: "%kernel.root_dir%/../../custom/plugins"
+
+    template:
+        compileCheck: true
+        compileLocking: true
+        useSubDirs: true
+        forceCompile: false
+        useIncludePath: true
+        charset: 'utf-8'
+        forceCache: false
+        cacheDir: "%kernel.cache_dir%/templates"
+        compileDir: "%kernel.cache_dir%/templates"
+
+    mail:
+        charset: "utf-8"
+
+    httpcache:
+        enabled: true
+        lookup_optimization: true
+        debug: false
+        default_ttl: 0
+        private_headers: ["Authorization", "Cookie"]
+        allow_reload: false
+        allow_revalidate: false
+        stale_while_revalidate: 2
+        stale_if_error: false
+        cache_dir: "%kernel.cache_dir%/html"
+        cache_cookies: ["shop", "currency", "x-cache-context-hash"]
+
+    session:
+        cookie_lifetime: 0
+        cookie_httponly: true
+        gc_probability: 1
+        gc_divisor: 200
+        save_handler: "db"
+        save_path: ~
+        use_trans_sid: false
+        locking: true
+
+    phpsettings:
+        error_reporting: E_ALL & ~E_USER_DEPRECATED,
+        display_errors: true
+        date:
+            timezone: "Europe/Berlin"
+
+    cache:
+        frontendOptions:
+            automatic_serialization: true
+            automatic_cleaning_factor: 0
+            lifetime: 3600
+            cache_id_prefix: "%kernel.cache_dir%"
+        backend: "auto"
+        backendOptions:
+            hashed_directory_perm: 0777 & ~umask()
+            cache_file_perm: 0666 & ~umask()
+            hashed_directory_level: 3
+            cache_dir: "%kernel.cache_dir%/general"
+            file_name_prefix: "shopware"
+
+    hook:
+        proxyDir: "%kernel.cache_dir%/proxies"
+        proxyNamespace: "%kernel.name%"
+
+    model:
+        autoGenerateProxyClasses: false
+        attributeDir: "%kernel.cache_dir%/doctrine/attributes"
+        proxyDir: "%kernel.cache_dir%/doctrine/proxies"
+        proxyNamespace: "%kernel.name%\Proxies"
+        cacheProvider: "auto"
+        cacheNamespace: ~
+
+    backendsession:
+        name: "SHOPWAREBACKEND"
+        cookie_lifetime: 0
+        cookie_httponly: false
+        use_trans_sid: 0
+        locking: false

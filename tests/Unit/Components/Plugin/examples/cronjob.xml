@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<cronjobs xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="../../../../../engine/Shopware/Components/Plugin/schema/cronjob.xsd">
+    <cronjob>
+        <name>Article Importer</name>
+        <action>ImportArticle</action>
+        <active>true</active>
+        <interval>3600</interval>
+        <disableOnError>false</disableOnError>
+    </cronjob>
+</cronjobs>

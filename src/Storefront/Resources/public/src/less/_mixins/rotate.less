@@ -1,0 +1,21 @@
+/*
+Rotate mixin
+===============================================
+The mixins provides you a cross-browser compatible method to set a transformation which rotates the element. Keep in
+mind that you can not mix different transformations.
+
+Please refer to <http://caniuse.com/transforms2d> to see the browser support table of the feature.
+
+######Example:
+`.rotate([value]);`
+
+`@param {String} degree The degree value you want to set. Please keep in mind that you need to suffix the unit.`
+*/
+
+.rotate(@degree) {
+	-webkit-transform: rotate(@degree);
+	-moz-transform: rotate(@degree);
+	-ms-transform: rotate(@degree);
+	-o-transform: rotate(@degree);
+	transform: rotate(@degree);
+}

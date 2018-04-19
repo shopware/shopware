@@ -1,0 +1,40 @@
+.page-wrap--cookie-permission {
+    .unitize(padding, 10);
+    z-index: @zindex-offcanvas;
+    border-top: 1px solid @gray-dark;
+    background: #fff;
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    left: 0;
+
+    .cookie-permission--container {
+        .clearfix();
+        width: 100%;
+        text-align: center;
+
+        .cookie-permission--button {
+            margin: 0 auto;
+            .unitize(margin-top, 20);
+        }
+    }
+}
+
+@media screen and (min-width: @tabletLandscapeViewportWidth) {
+    .page-wrap--cookie-permission {
+        .cookie-permission--container {
+            .clearfix();
+            width: 100%;
+
+            .cookie-permission--content {
+                .unitize(padding, 12);
+                float: left;
+            }
+
+            .cookie-permission--button {
+                margin: 0;
+                float: right;
+            }
+        }
+    }
+}

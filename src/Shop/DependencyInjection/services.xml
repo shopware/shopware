@@ -1,0 +1,45 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service class="Shopware\Shop\Struct\ShopHydrator" id="shopware.shop.struct.shop_hydrator">
+            <argument id="shopware.shop_template.struct.shop_template_hydrator" type="service"/>
+            <argument id="shopware.category.struct.category_hydrator" type="service"/>
+            <argument id="shopware.locale.struct.locale_hydrator" type="service"/>
+            <argument id="shopware.currency.struct.currency_hydrator" type="service"/>
+            <argument id="shopware.customer_group.struct.customer_group_hydrator" type="service"/>
+            <argument id="shopware.country.struct.country_hydrator" type="service"/>
+            <argument id="shopware.payment_method.struct.payment_method_hydrator" type="service"/>
+            <argument id="shopware.shipping_method.struct.shipping_method_hydrator" type="service"/>
+        </service>
+
+        <service class="Shopware\Shop\Gateway\ShopReader" id="shopware.shop.gateway.shop_reader">
+            <argument id="shopware.shop.struct.shop_hydrator" type="service"/>
+            <argument id="shopware.framework.struct.field_helper" type="service"/>
+            <argument id="dbal_connection" type="service"/>
+        </service>
+
+        <service class="Shopware\Shop\Gateway\ShopRepository" id="shopware.shop.gateway.shop_repository">
+            <argument id="shopware.shop.gateway.shop_reader" type="service"/>
+            <argument id="shopware.shop.gateway.shop_searcher" type="service"/>
+            <argument id="event_dispatcher" type="service"/>
+        </service>
+
+        <service class="Shopware\Shop\Gateway\ShopSearcher" id="shopware.shop.gateway.shop_searcher">
+            <argument id="dbal_connection" type="service"/>
+            <argument type="collection">
+                <argument type="service" id="shopware.shop.gateway.handler.parent_condition_handler" />
+                <argument type="service" id="shopware.shop.gateway.handler.active_condition_handler" />
+            </argument>
+            <argument id="shopware.framework.struct.field_helper" type="service"/>
+            <argument id="shopware.shop.struct.shop_hydrator" type="service"/>
+        </service>
+
+        <service class="Shopware\Shop\Gateway\Handler\ParentConditionHandler" id="shopware.shop.gateway.handler.parent_condition_handler"/>
+        <service class="Shopware\Shop\Gateway\Handler\ActiveConditionHandler" id="shopware.shop.gateway.handler.active_condition_handler"/>
+
+    </services>
+</container>

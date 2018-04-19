@@ -1,0 +1,42 @@
+{# Search container #}
+{% block frontend_index_search_container %}
+    <form action="{url controller='search' fullPath=false}" method="get" class="main-search--form">
+        {% block frontend_index_search_innerform %}{% endblock %}
+
+        {# Search icon #}
+        {% block frontend_index_search_icon %}
+
+        {% endblock %}
+
+        {# Search field #}
+        {% block frontend_index_search_field %}
+            <input type="search" name="sSearch" class="main-search--field" autocomplete="off" autocapitalize="off" placeholder="{% trans from 'frontend/index/search' %}IndexSearchFieldPlaceholder{% endtrans %}" maxlength="30"  />
+        {% endblock %}
+
+        {# Search input #}
+        {% block frontend_index_search_field_submit %}
+            <button type="submit" class="main-search--button">
+
+                {# Search icon #}
+                {% block frontend_index_search_field_submit_icon %}
+                    <i class="icon--search"></i>
+                {% endblock %}
+
+                {# Search text #}
+                {% block frontend_index_search_field_submit_text %}
+                    <span class="main-search--text">{% trans from 'frontend/index/search' %}IndexSearchFieldSubmit{% endtrans %}</span>
+                {% endblock %}
+            </button>
+        {% endblock %}
+
+        {# Ajax loader #}
+        {% block frontend_index_search_ajax_loader %}
+            <div class="form--ajax-loader">&nbsp;</div>
+        {% endblock %}
+    </form>
+
+    {# Search results #}
+    {% block frontend_index_search_results %}
+        <div class="main-search--results"></div>
+    {% endblock %}
+{% endblock %}

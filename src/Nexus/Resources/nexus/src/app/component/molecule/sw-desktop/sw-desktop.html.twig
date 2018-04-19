@@ -1,0 +1,30 @@
+<div class="sw-desktop">
+    <h1>sw-desktop</h1>
+    <aside>
+        <ul>
+            <li>
+                <router-link :to="{ name: 'core.dashboard.index'}">
+                    Dashboard
+                </router-link>
+            </li>
+            <li>
+                <router-link :to="{ name: 'core.login.index'}">
+                    Login / Signin
+                </router-link>
+            </li>
+
+            <li>
+                <router-link :to="{ name: 'core.product.index'}">
+                    Product overview
+                </router-link>
+            </li>
+
+            <li>
+                <router-link :to="{ name: 'core.product.extension.index'}">
+                    Product Extension
+                </router-link>
+            </li>
+        </ul>
+    </aside>
+    <router-view></router-view>
+</div>

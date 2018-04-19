@@ -1,0 +1,12 @@
+<?xml version="1.0" ?>
+<dataset>
+    <s_categories id="1" parent="##NULL##" description="ROOT" />
+    <s_categories id="2" parent="1" description="German" />
+    <s_categories id="3" parent="1" description="English" />
+    <s_categories id="4" parent="2" description="Genusswelten" />
+    <s_categories id="5" parent="4" description="Getränke" />
+    <s_categories id="6" parent="3" description="World of food" />
+    <s_categories id="7" parent="6" description="spirits" />
+</dataset>
+
+

@@ -1,0 +1,3 @@
+email;group;salutation;firstname;lastname;street;zipcode;city
+email1@shopware.de;Newsletter-Empfänger;Mr;John;One;street1;11111;city1
+email2@shopware.de;Newsletter-Empfänger;Mr;Michael;Two;street2;22222;city2

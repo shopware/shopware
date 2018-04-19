@@ -1,0 +1,19 @@
+/*
+Transform style mixin
+======================================
+The mixins provides you a cross-browser compatible method to set a transformation style.
+
+Please refer to <http://caniuse.com/transforms3d> to see the browser support table of the feature.
+
+######Example:
+`.transform-style([value]);`
+
+`@param {String} Style The style you want for your transformation (Default: preserve-3d)`
+*/
+
+.transform-style(@style: preserve-3d) {
+	-webkit-transform-style: @style;
+	-moz-transform-style: @style;
+	-ms-transform-style: @style;
+	transform-style: @style;
+}

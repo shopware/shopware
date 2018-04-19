@@ -1,0 +1,51 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service class="Shopware\Product\Struct\ProductHydrator" id="shopware.product.struct.product_hydrator"/>
+        <service class="Shopware\Product\Gateway\Handler\CategoryConditionHandler" id="shopware.product.gateway.handler.category_condition_handler"/>
+        <service class="Shopware\Product\Gateway\Handler\ActiveConditionHandler" id="shopware.product.gateway.handler.active_condition_handler"/>
+        <service class="Shopware\Product\Gateway\Handler\ShopConditionHandler" id="shopware.product.gateway.handler.shop_condition_handler"/>
+        <service class="Shopware\Product\Gateway\Handler\MainVariantConditionHandler" id="shopware.product.gateway.handler.main_variant_condition_handler"/>
+
+        <service class="Shopware\Product\Gateway\ProductReader" id="shopware.product.gateway.product_reader">
+            <argument id="dbal_connection" type="service"/>
+            <argument id="shopware.framework.struct.field_helper" type="service"/>
+            <argument id="shopware.product.struct.product_hydrator" type="service"/>
+        </service>
+
+        <service class="Shopware\Product\Gateway\ProductSearcher" id="shopware.product.gateway.product_searcher">
+            <argument id="dbal_connection" type="service"/>
+
+            <argument type="collection">
+                <argument type="service" id="shopware.product.gateway.handler.active_condition_handler" />
+                <argument type="service" id="shopware.product.gateway.handler.category_condition_handler" />
+                <argument type="service" id="shopware.product.gateway.handler.shop_condition_handler" />
+                <argument type="service" id="shopware.product.gateway.handler.main_variant_condition_handler" />
+            </argument>
+            <argument type="service" id="shopware.framework.struct.field_helper" />
+            <argument type="service" id="shopware.product.struct.product_hydrator" />
+        </service>
+
+        <service class="Shopware\Product\Gateway\ProductRepository" id="shopware.product.gateway.product_repository">
+            <argument id="shopware.product.gateway.product_reader" type="service"/>
+            <argument id="shopware.product.gateway.product_searcher" type="service"/>
+        </service>
+
+
+
+
+        <service id="shopware.product.writer" class="Shopware\Product\Writer\Writer">
+            <argument type="service" id="shopware.product.sql_gateway"/>
+            <argument type="service" id="shopware.product.field_collection"/>
+            <argument type="service" id="validator"/>
+        </service>
+        <service id="shopware.product.sql_gateway" class="Shopware\Product\Writer\SqlGateway">
+            <argument type="service" id="doctrine.dbal.default_connection"/>
+        </service>
+        <service id="shopware.product.field_collection" class="Shopware\Product\Writer\Api\FieldCollection" />
+    </services>
+</container>

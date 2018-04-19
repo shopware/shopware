@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="../../../../../engine/Shopware/Components/Plugin/schema/plugin.xsd">
+
+    <label lang="de">My plugin</label>
+    <label lang="en">My plugin</label>
+    <version>1.5.3</version>
+    <copyright>(c) Hansa Corp.</copyright>
+    <license>MIT</license>
+    <link>Some link</link>
+    <author>Hasna Corp.</author>
+
+    <description>
+        <![CDATA[
+<h2>My Plugin</h2>
+<p>My long description</p>
+]]>
+    </description>
+    <description lang="de">
+        <![CDATA[
+<h2>Mein Plugin</h2>
+<p>Meine Plugin Beschreibugn</p>
+]]>
+    </description>
+
+
+    <changelog version="1.0.6">
+        <changes lang="de">German changes</changes>
+        <changes lang="de">Some more changes</changes>
+        <changes lang="de">changes</changes>
+        <changes lang="en">English changes</changes>
+    </changelog>
+
+    <changelog version="1.0.5">
+        <changes lang="de">German changes</changes>
+        <changes lang="en">English changes</changes>
+    </changelog>
+
+    <compatibility minVersion="5.1.0" maxVersion="5.2.5">
+        <blacklist>5.1.2</blacklist>
+        <blacklist>5.1.3</blacklist>
+    </compatibility>
+
+    <foobar>asdf</foobar>
+    <asdfasd>asdf</asdfasd>
+    <foobasdfasdfar>
+        <some>asbasdf</some>
+    </foobasdfasdfar>
+</plugin>

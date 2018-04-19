@@ -1,0 +1,30 @@
+@editingColor: lighten(#ffffdd, 3%);
+
+.sw-grid .sw-grid--row-editing {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background: @editingColor;
+
+    input {
+        padding: 2px 5px;
+    }
+
+    &:hover {
+        background: @editingColor;
+    }
+
+    .row-editing--actions {
+        position: absolute;
+        z-index: 10;
+        top: 100%;
+        left: 50%;
+        transform: translate(-50%, 0);
+        padding: 5px 15px;
+        border: 1px solid #ccc;
+        border-top-color: @editingColor;
+        background: @editingColor;
+    }
+}

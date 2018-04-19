@@ -1,0 +1,19 @@
+/*
+Animations mixin
+============================================
+The mixins provides you a cross-browser compatible method to set animation values.
+
+Please refer to <http://caniuse.com/css-animation> to see the browser support table of the feature.
+
+######Example:
+`.animation([value]);`
+
+`@param: {String} value: All animation values`
+*/
+
+.animation(@value) {
+    -webkit-animation: @value;
+    -moz-animation: @value;
+    -o-animation: @value;
+    animation: @value;
+}

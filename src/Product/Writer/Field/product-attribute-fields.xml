@@ -1,0 +1,143 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <service id="shopware.product.product_attribute.writer_field_uuid" class="Shopware\Product\Writer\Field\ProductAttribute\UuidField">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product_attribute.writer_field"/> 
+</service>        
+<service id="shopware.product.product_attribute.writer_field_productId" class="Shopware\Product\Writer\Field\ProductAttribute\ProductIdField">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product_attribute.writer_field"/> 
+</service>        
+<service id="shopware.product.product_attribute.writer_field_productUuid" class="Shopware\Product\Writer\Field\ProductAttribute\ProductUuidField">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product_attribute.writer_field"/> 
+</service>        
+<service id="shopware.product.product_attribute.writer_field_product" class="Shopware\Product\Writer\Field\ProductAttribute\ProductField">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product_attribute.writer_field"/> 
+</service>        
+<service id="shopware.product.product_attribute.writer_field_productDetailsId" class="Shopware\Product\Writer\Field\ProductAttribute\ProductDetailsIdField">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product_attribute.writer_field"/> 
+</service>        
+<service id="shopware.product.product_attribute.writer_field_productDetailUuid" class="Shopware\Product\Writer\Field\ProductAttribute\ProductDetailUuidField">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product_attribute.writer_field"/> 
+</service>        
+<service id="shopware.product.product_attribute.writer_field_productDetail" class="Shopware\Product\Writer\Field\ProductAttribute\ProductDetailField">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product_attribute.writer_field"/> 
+</service>        
+<service id="shopware.product.product_attribute.writer_field_attr1" class="Shopware\Product\Writer\Field\ProductAttribute\Attr1Field">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product_attribute.writer_field"/> 
+</service>        
+<service id="shopware.product.product_attribute.writer_field_attr2" class="Shopware\Product\Writer\Field\ProductAttribute\Attr2Field">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product_attribute.writer_field"/> 
+</service>        
+<service id="shopware.product.product_attribute.writer_field_attr3" class="Shopware\Product\Writer\Field\ProductAttribute\Attr3Field">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product_attribute.writer_field"/> 
+</service>        
+<service id="shopware.product.product_attribute.writer_field_attr4" class="Shopware\Product\Writer\Field\ProductAttribute\Attr4Field">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product_attribute.writer_field"/> 
+</service>        
+<service id="shopware.product.product_attribute.writer_field_attr5" class="Shopware\Product\Writer\Field\ProductAttribute\Attr5Field">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product_attribute.writer_field"/> 
+</service>        
+<service id="shopware.product.product_attribute.writer_field_attr6" class="Shopware\Product\Writer\Field\ProductAttribute\Attr6Field">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product_attribute.writer_field"/> 
+</service>        
+<service id="shopware.product.product_attribute.writer_field_attr7" class="Shopware\Product\Writer\Field\ProductAttribute\Attr7Field">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product_attribute.writer_field"/> 
+</service>        
+<service id="shopware.product.product_attribute.writer_field_attr8" class="Shopware\Product\Writer\Field\ProductAttribute\Attr8Field">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product_attribute.writer_field"/> 
+</service>        
+<service id="shopware.product.product_attribute.writer_field_attr9" class="Shopware\Product\Writer\Field\ProductAttribute\Attr9Field">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product_attribute.writer_field"/> 
+</service>        
+<service id="shopware.product.product_attribute.writer_field_attr10" class="Shopware\Product\Writer\Field\ProductAttribute\Attr10Field">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product_attribute.writer_field"/> 
+</service>        
+<service id="shopware.product.product_attribute.writer_field_attr11" class="Shopware\Product\Writer\Field\ProductAttribute\Attr11Field">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product_attribute.writer_field"/> 
+</service>        
+<service id="shopware.product.product_attribute.writer_field_attr12" class="Shopware\Product\Writer\Field\ProductAttribute\Attr12Field">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product_attribute.writer_field"/> 
+</service>        
+<service id="shopware.product.product_attribute.writer_field_attr13" class="Shopware\Product\Writer\Field\ProductAttribute\Attr13Field">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product_attribute.writer_field"/> 
+</service>        
+<service id="shopware.product.product_attribute.writer_field_attr14" class="Shopware\Product\Writer\Field\ProductAttribute\Attr14Field">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product_attribute.writer_field"/> 
+</service>        
+<service id="shopware.product.product_attribute.writer_field_attr15" class="Shopware\Product\Writer\Field\ProductAttribute\Attr15Field">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product_attribute.writer_field"/> 
+</service>        
+<service id="shopware.product.product_attribute.writer_field_attr16" class="Shopware\Product\Writer\Field\ProductAttribute\Attr16Field">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product_attribute.writer_field"/> 
+</service>        
+<service id="shopware.product.product_attribute.writer_field_attr17" class="Shopware\Product\Writer\Field\ProductAttribute\Attr17Field">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product_attribute.writer_field"/> 
+</service>        
+<service id="shopware.product.product_attribute.writer_field_attr18" class="Shopware\Product\Writer\Field\ProductAttribute\Attr18Field">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product_attribute.writer_field"/> 
+</service>        
+<service id="shopware.product.product_attribute.writer_field_attr19" class="Shopware\Product\Writer\Field\ProductAttribute\Attr19Field">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product_attribute.writer_field"/> 
+</service>        
+<service id="shopware.product.product_attribute.writer_field_attr20" class="Shopware\Product\Writer\Field\ProductAttribute\Attr20Field">
+    <argument type="service" id="shopware.validation.constraint_builder"/>   
+    
+    <tag name="shopware.product.product_attribute.writer_field"/> 
+</service>
+    </services>
+</container>

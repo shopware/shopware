@@ -83,7 +83,7 @@ class CheckoutController extends Controller
      */
     public function getCart(StorefrontContext $context): JsonResponse
     {
-        $cart = $this->loadCart($context->getToken());
+        $cart = $this->loadCart($context->getToken(), $context);
 
         $calculated = $this->calculation->calculate($cart, $context);
 
@@ -98,7 +98,7 @@ class CheckoutController extends Controller
      */
     public function create(StorefrontContext $context): JsonResponse
     {
-        $this->persister->delete($context->getToken(), self::CART_NAME);
+        $this->persister->delete($context->getToken(), self::CART_NAME, $context);
 
         return new JsonResponse(
             [PlatformRequest::HEADER_CONTEXT_TOKEN => $context->getToken()],
@@ -167,7 +167,7 @@ class CheckoutController extends Controller
      */
     public function remove(string $identifier, StorefrontContext $context): JsonResponse
     {
-        $cart = $this->loadCart($context->getToken());
+        $cart = $this->loadCart($context->getToken(), $context);
 
         if (!$lineItem = $cart->getLineItems()->get($identifier)) {
             throw new LineItemNotFoundException($identifier);
@@ -190,7 +190,7 @@ class CheckoutController extends Controller
      */
     public function setQuantity(string $identifier, Request $request, StorefrontContext $context): JsonResponse
     {
-        $cart = $this->loadCart($context->getToken());
+        $cart = $this->loadCart($context->getToken(), $context);
 
         $post = $this->getPost($request);
 
@@ -221,7 +221,7 @@ class CheckoutController extends Controller
      */
     public function order(StorefrontContext $context): JsonResponse
     {
-        $cart = $this->loadCart($context->getToken());
+        $cart = $this->loadCart($context->getToken(), $context);
 
         $calculated = $this->calculation->calculate($cart, $context);
 
@@ -235,21 +235,21 @@ class CheckoutController extends Controller
 
         $order = $this->orderRepository->readDetail([$orderId], $context->getApplicationContext());
 
-        $this->contextPersister->save($context->getToken(), ['cartToken' => null]);
+        $this->contextPersister->save($context->getToken(), ['cartToken' => null], $context->getTenantId());
 
         return new JsonResponse(
             $this->serialize($order->get($orderId))
         );
     }
 
-    private function loadCart(?string $token): Cart
+    private function loadCart(?string $token, StorefrontContext $context): Cart
     {
         if (!$token) {
             $token = Uuid::uuid4()->getHex();
         }
 
         try {
-            $cart = $this->persister->load($token, self::CART_NAME);
+            $cart = $this->persister->load($token, self::CART_NAME, $context);
         } catch (CartTokenNotFoundException $e) {
             return Cart::createNew(self::CART_NAME, $token);
         }
@@ -282,7 +282,7 @@ class CheckoutController extends Controller
 
     private function addLineItem(StorefrontContext $context, string $identifier, string $type, int $quantity, array $payload): CalculatedCart
     {
-        $cart = $this->loadCart($context->getToken());
+        $cart = $this->loadCart($context->getToken(), $context);
 
         $lineItem = new LineItem($identifier, $type, $quantity, $payload);
 

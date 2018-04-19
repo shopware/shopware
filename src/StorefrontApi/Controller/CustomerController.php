@@ -64,7 +64,8 @@ class CustomerController extends Controller
                 'customerId' => $user->getId(),
                 'billingAddressId' => null,
                 'shippingAddressId' => null,
-            ]
+            ],
+            $context->getTenantId()
         );
 
         return new JsonResponse([
@@ -87,7 +88,8 @@ class CustomerController extends Controller
                 'customerId' => null,
                 'billingAddressId' => null,
                 'shippingAddressId' => null,
-            ]
+            ],
+            $context->getTenantId()
         );
     }
 

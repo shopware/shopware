@@ -86,14 +86,8 @@
     "league/flysystem-aws-s3-v3": {
         "version": "1.0.18"
     },
-    "league/flysystem-azure": {
-        "version": "1.0.4"
-    },
     "mbezhanov/faker-provider-collection": {
         "version": "1.0.0"
-    },
-    "microsoft/azure-storage": {
-        "version": "v0.10.2"
     },
     "monolog/monolog": {
         "version": "1.23.0"

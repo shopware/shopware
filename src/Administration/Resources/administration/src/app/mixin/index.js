@@ -1,7 +1,9 @@
+import './catalog.mixin';
+import './catalog-list.mixin';
 import './product.mixin';
+import './product-list.mixin';
 import './customer.mixin';
 import './customer-list.mixin';
-import './product-list.mixin';
 import './manufacturer-list.mixin';
 import './tax-list.mixin';
 import './currency-list.mixin';

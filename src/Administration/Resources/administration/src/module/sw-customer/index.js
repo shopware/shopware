@@ -11,7 +11,7 @@ import './component/sw-customer-default-addresses';
 
 Module.register('sw-customer', {
     type: 'core',
-    name: 'moduleNames.customers',
+    name: 'Customers',
     description: 'The module for managing customers.',
     version: '1.0.0',
     targetVersion: '1.0.0',

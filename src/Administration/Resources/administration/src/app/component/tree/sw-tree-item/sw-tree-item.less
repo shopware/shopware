@@ -1,0 +1,100 @@
+@import "~less/variables";
+
+@sw-tree-item-color-border:                 @color-steam-cloud;
+@sw-tree-item-color-background:             @color-iron;
+@sw-tree-item-color-text:                   @color-gutenberg;
+
+.sw-tree-item {
+    padding-left: 20px;
+
+    &.is--dragging {
+        user-select: none;
+        pointer-events: none;
+
+        .sw-tree-item__element {
+            background: transparent;
+            border: 1px solid @sw-tree-item-color-border;
+
+            .sw-tree-item__leaf,
+            .sw-tree-item__toggle,
+            .sw-tree-item__grip,
+            .sw-tree-item__content,
+            .sw-tree-item__actions,
+            .sw-tree-item__selection {
+                display: none;
+            }
+        }
+    }
+
+    &.is--dragging-el {
+        user-select: none;
+        pointer-events: none;
+    }
+
+    &.is--sortable {
+        .sw-tree-item__grip,
+        .sw-tree-item__content {
+            cursor: move;
+            user-select: none;
+        }
+    }
+
+    .sw-tree-item__element {
+        height: 42px;
+        display: grid;
+        grid-template-columns: 24px 16px auto 30px 24px;
+        grid-column-gap: 4px;
+        align-items: center;
+        align-content: center;
+        padding: 0 12px;
+        margin-bottom: 10px;
+        font-size: 14px;
+        border-radius: 3px;
+        background: darken(@sw-tree-item-color-background, 3);
+        color: @sw-tree-item-color-text;
+
+        &:hover {
+            background: darken(@sw-tree-item-color-background, 5);
+        }
+    }
+
+    .sw-tree-item__toggle {
+        width: 24px;
+        height: 24px;
+        line-height: 22px;
+        position: relative;
+        cursor: pointer;
+        user-select: none;
+
+        .sw-loader {
+            background: none;
+        }
+    }
+
+    .sw-tree-item__grip {
+        height: 16px;
+        line-height: 14px;
+        color: lighten(@sw-tree-item-color-text, 40);
+    }
+
+    .sw-tree-item__content {
+        padding: 12px 0;
+    }
+
+    .sw-field.sw-field--checkbox {
+        grid-template-columns: auto;
+        margin-bottom: 0;
+    }
+
+    .sw-tree-item__children {
+        position: relative;
+
+        .sw-tree-item__element {
+            background: @sw-tree-item-color-background;
+
+            &:hover {
+                background: darken(@sw-tree-item-color-background, 2);
+            }
+        }
+    }
+}

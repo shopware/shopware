@@ -1,0 +1,63 @@
+{% block sw_catalog_list %}
+    <sw-page class="sw-catalog-list">
+        <template slot="smart-bar-header">
+            {% block sw_catalog_list_smart_bar_header %}
+                <h2>{{ $tc('sw-catalog.general.headlineCatalogs') }}</h2>
+            {% endblock %}
+        </template>
+
+        <template slot="smart-bar-actions">
+            {% block sw_catalog_list_smart_bar_actions %}
+                <sw-button :link="'sw.catalog.create'" variant="primary">{{ $tc('sw-catalog.general.buttonCreateCatalog') }}</sw-button>
+            {% endblock %}
+        </template>
+
+        <sw-card-view slot="content" class="sw-catalog-list__content">
+            {% block sw_catalog_list_content %}
+
+                {% block sw_catalog_list_introduction %}
+                    <sw-card class="sw-catalog-list__overview">
+                        <sw-container grid="100px 1fr" align="start">
+                            <sw-icon name="default-package-closed" size="60" :style="{ color: $route.meta.$module.color }"></sw-icon>
+                            <div class="sw-catalog-list__intro">
+                                <h3>{{ $tc('sw-catalog.general.introHeadlineCatalogs') }}</h3>
+                                <p>{{ $tc('sw-catalog.general.introDescriptionCatalogs') }}</p>
+                            </div>
+                        </sw-container>
+                    </sw-card>
+                {% endblock %}
+
+                {% block sw_catalog_list_overview %}
+                    <sw-card :isLoading="isLoading" class="sw-catalog-list__overview">
+                        {% block sw_catalog_list_grid %}
+                            <sw-grid :items="catalogs">
+
+                                <template slot="columns" slot-scope="{ item }">
+                                    {% block sw_catalog_list_grid_columns %}
+                                        {% block sw_catalog_list_grid_column_name %}
+                                            <sw-grid-column flex="1fr"
+                                                            :label="$tc('sw-catalog.list.columnLabelName')"
+                                                            dataIndex="name">
+                                                {{ item.name }}
+                                            </sw-grid-column>
+                                        {% endblock %}
+
+                                        {% block sw_catalog_list_grid_column_actions %}
+                                            <sw-grid-column flex="200px" :label="$tc('sw-catalog.list.columnLabelActions')" align="center">
+                                                {% block sw_catalog_list_grid_column_actions_edit %}
+                                                    <router-link :to="{ name: 'sw.catalog.detail', params: { id: item.id } }" class="sw-catalog-list__edit-action">
+                                                        <sw-icon name="small-pencil-paper" size="16"></sw-icon> {{ $tc('sw-catalog.list.actionLabelEdit') }}
+                                                    </router-link>
+                                                {% endblock %}
+                                            </sw-grid-column>
+                                        {% endblock %}
+                                    {% endblock %}
+                                </template>
+                            </sw-grid>
+                        {% endblock %}
+                    </sw-card>
+                {% endblock %}
+            {% endblock %}
+        </sw-card-view>
+    </sw-page>
+{% endblock %}

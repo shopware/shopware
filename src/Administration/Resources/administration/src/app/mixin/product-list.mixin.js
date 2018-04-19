@@ -91,10 +91,10 @@ Mixin.register('productList', {
             this.isLoading = true;
 
             const params = this.getListingParams();
-            const criterias = this.generateCriteriaFromFilters(this.filters);
+            const criteria = this.generateCriteriaFromFilters(this.filters);
 
-            if (criterias) {
-                params.criterias = [criterias.getQuery()];
+            if (criteria) {
+                params.criterias = [criteria.getQuery()];
             }
 
             this.products = [];

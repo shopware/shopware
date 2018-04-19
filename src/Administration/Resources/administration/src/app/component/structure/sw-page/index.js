@@ -1,4 +1,5 @@
 import { Component } from 'src/core/shopware';
+import dom from 'src/core/service/utils/dom.utils';
 import template from './sw-page.html.twig';
 import './sw-page.less';
 
@@ -8,7 +9,8 @@ Component.register('sw-page', {
     data() {
         return {
             module: null,
-            parentRoute: null
+            parentRoute: null,
+            scrollbarOffset: 0
         };
     },
 
@@ -22,6 +24,10 @@ Component.register('sw-page', {
         this.initPage();
     },
 
+    updated() {
+        this.setScrollbarOffset();
+    },
+
     methods: {
         initPage() {
             if (this.$route.meta.$module) {
@@ -31,6 +37,10 @@ Component.register('sw-page', {
             if (this.$route.meta.parentPath) {
                 this.parentRoute = this.$route.meta.parentPath;
             }
+        },
+
+        setScrollbarOffset() {
+            this.scrollbarOffset = dom.getScrollbarWidth(this.$refs.swPageContent.firstChild);
         }
     }
 });

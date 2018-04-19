@@ -270,7 +270,7 @@ function getArrayChangeSet(baseArray, compareArray, entitySchemaName = null) {
  * @returns {string[]}
  */
 function getPropertyBlacklist() {
-    return ['createdAt', 'updatedAt'];
+    return ['createdAt', 'updatedAt', 'tenantId', 'versionId'];
 }
 
 function hasNoChanges(diff) {

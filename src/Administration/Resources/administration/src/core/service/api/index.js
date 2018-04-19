@@ -1,4 +1,5 @@
 import ShopApiService from 'src/core/service/api/shop.api.service';
+import CatalogApiService from 'src/core/service/api/catalog.api.service';
 import CategoryApiService from 'src/core/service/api/category.api.service';
 import ProductApiService from 'src/core/service/api/product.api.service';
 import ProductManufacturerApiService from 'src/core/service/api/product-manufacturer.api.service';
@@ -19,6 +20,7 @@ import ApplicationApiService from 'src/core/service/api/application.api.service'
 
 export default {
     shopService: ShopApiService,
+    catalogService: CatalogApiService,
     categoryService: CategoryApiService,
     productService: ProductApiService,
     productManufacturerService: ProductManufacturerApiService,

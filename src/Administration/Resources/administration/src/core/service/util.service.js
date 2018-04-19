@@ -2,6 +2,7 @@
  * @module core/service/utils
  */
 import throttle from 'lodash/throttle';
+import debounce from 'lodash/debounce';
 import uuidV4 from 'uuid/v4';
 
 import { deepCopyObject, getObjectChangeSet, getAssociatedDeletions } from './utils/object.utils';
@@ -51,6 +52,7 @@ export const types = {
 export default {
     createId,
     throttle,
+    debounce,
     object,
     debug,
     format,

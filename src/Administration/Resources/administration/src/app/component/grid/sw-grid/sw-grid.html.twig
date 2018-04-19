@@ -21,7 +21,7 @@
                                          @click="onGridCellClick($event, column)">
 
                                             <div class="sw-grid__cell-content">
-                                                {{ column.label }}
+                                                <span class="sw-grid__cell-label">{{ column.label }}</span>
 
                                                 {% block sw_grid_slot_header_cell_sortable %}
                                                     <span class="sw-grid_cell-sortable" v-if="column.sortable && sort === column.dataIndex">

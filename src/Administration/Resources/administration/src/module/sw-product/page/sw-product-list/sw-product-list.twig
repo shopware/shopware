@@ -2,7 +2,7 @@
     <sw-page>
         <template slot="smart-bar-header">
             {% block sw_product_list_smart_bar_header %}
-                <h2>Produktübersicht ({{ totalProducts }} Produkte)</h2>
+                <h2>Produktübersicht <span v-if="!isLoading">({{ totalProducts }} Produkte)</span></h2>
             {% endblock %}
         </template>
 
@@ -31,7 +31,7 @@
                                     {% block sw_product_list_grid_columns %}
 
                                         {% block sw_product_list_grid_columns_name %}
-                                            <sw-grid-column flex="1"
+                                            <sw-grid-column flex="minmax(200px, 1fr)"
                                                             label="Name"
                                                             dataIndex="name"
                                                             sortable
@@ -45,7 +45,7 @@
                                         {% endblock %}
 
                                         {% block sw_product_list_grid_columns_manufacturer %}
-                                            <sw-grid-column flex="1"
+                                            <sw-grid-column flex="minmax(200px, 1fr)"
                                                             label="Hersteller"
                                                             dataIndex="manufacturer.name"
                                                             sortable
@@ -59,7 +59,7 @@
                                         {% endblock %}
 
                                         {% block sw_product_list_grid_columns_active %}
-                                            <sw-grid-column flex="75px"
+                                            <sw-grid-column flex="minmax(80px, 95px)"
                                                             label="Aktiv"
                                                             dataIndex="active"
                                                             align="center"
@@ -75,7 +75,7 @@
                                         {% endblock %}
 
                                         {% block sw_product_list_grid_columns_price %}
-                                            <sw-grid-column flex="100px"
+                                            <sw-grid-column flex="minmax(95px, 105px)"
                                                             label="Preis"
                                                             sortable
                                                             dataIndex="price"
@@ -85,7 +85,7 @@
                                         {% endblock %}
 
                                         {% block sw_product_list_grid_columns_stock %}
-                                            <sw-grid-column flex="135px"
+                                            <sw-grid-column flex="minmax(95px, 150px)"
                                                             label="Lager"
                                                             sortable
                                                             dataIndex="stock"
@@ -96,7 +96,7 @@
                                         {% endblock %}
 
                                         {% block sw_product_list_grid_columns_actions %}
-                                            <sw-grid-column flex="100px" label="Aktionen" align="center">
+                                            <sw-grid-column flex="minmax(100px, 110px)" label="Aktionen" align="center">
                                                 <sw-context-button>
 
                                                     {% block sw_product_list_grid_columns_actions_edit %}

@@ -1,5 +1,5 @@
 {% block sw_customer_list %}
-    <sw-page>
+    <sw-page class="sw-customer-list">
         {% block sw_customer_list_smart_bar_header %}
             <template slot="smart-bar-header">
                 {% block sw_customer_list_smart_bar_header_slot %}
@@ -18,7 +18,7 @@
 
         <template slot="content">
             {% block sw_customer_list_content %}
-                <div class="sw-customer-list">
+                <div class="sw-customer-list__content">
                     {% block sw_customer_list_grid %}
                         <sw-grid :items="customers"
                                  :pagination="true"
@@ -35,7 +35,7 @@
 
                                         {% block sw_customer_list_grid_columns_customer_number %}
                                             <sw-grid-column flex="minmax(80px, 100px)"
-                                                            label="Kd Nr"
+                                                            label="Kd. Nr."
                                                             dataIndex="number"
                                                             sortable
                                                             editable

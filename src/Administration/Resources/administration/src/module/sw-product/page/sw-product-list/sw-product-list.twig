@@ -1,5 +1,5 @@
 {% block sw_product_list %}
-    <sw-page>
+    <sw-page class="sw-product-list">
         <template slot="smart-bar-header">
             {% block sw_product_list_smart_bar_header %}
                 <h2>Produktübersicht <span v-if="!isLoading">({{ totalProducts }} Produkte)</span></h2>
@@ -14,7 +14,7 @@
 
         <template slot="content">
             {% block sw_product_list_content %}
-                <div class="sw-product--list">
+                <div class="sw-product-list__content">
                     {% block sw_product_list_grid %}
                         <sw-grid :items="products"
                                  :pagination="true"

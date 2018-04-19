@@ -79,32 +79,5 @@ Module.register('sw-product', {
         label: 'Produkt anlegen',
         parent: 'sw.product.index',
         color: '#57D9A3'
-    }],
-
-    commands: [{
-        title: 'Übersicht',
-        route: 'product.index'
-    }, {
-        title: '%0 öffnen',
-        route: 'product.detail'
-    }],
-
-    shortcuts: {
-        index: {
-            mac: {
-                title: 'product.index.shortcut.mac',
-                combination: [
-                    'CMD',
-                    'P'
-                ]
-            },
-            win: {
-                title: 'product.index.shortcut.win',
-                combination: [
-                    'CTRL',
-                    'P'
-                ]
-            }
-        }
-    }
+    }]
 });

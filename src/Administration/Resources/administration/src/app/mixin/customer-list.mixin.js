@@ -83,7 +83,7 @@ Mixin.register('customerList', {
         },
 
         /**
-         * Requests the product list from the API using the {@link module:app/state/customer} state module.
+         * Requests the customer list from the API using the {@link module:app/state/customer} state module.
          *
          * @returns {Promise<any>}
          */

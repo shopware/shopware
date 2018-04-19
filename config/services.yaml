@@ -1,3 +1,6 @@
+parameters:
+    locale: 'en'
+
 services:
     _defaults:
         public: true

@@ -86,12 +86,13 @@ class ApiTestCase extends WebTestCase
 
         self::$kernel->getContainer()->get(Connection::class)->insert('user', [
             'id' => Uuid::uuid4()->getBytes(),
+            'tenant_id' => Uuid::fromHexToBytes(Defaults::TENANT_ID),
             'name' => $username,
             'email' => 'admin@example.com',
             'username' => $username,
             'password' => password_hash($password, PASSWORD_BCRYPT, ['cost' => 13]),
             'locale_id' => Uuid::fromStringToBytes('7b52d9dd-2b06-40ec-90be-9f57edf29be7'),
-            'user_role_id' => '123',
+            'locale_tenant_id' => Uuid::fromHexToBytes(Defaults::TENANT_ID),
             'active' => 1,
             'version_id' => Uuid::fromStringToBytes(Defaults::LIVE_VERSION),
             'locale_version_id' => Uuid::fromStringToBytes(Defaults::LIVE_VERSION),

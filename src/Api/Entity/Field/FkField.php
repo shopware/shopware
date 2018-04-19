@@ -52,12 +52,18 @@ class FkField extends Field implements StorageAware
      */
     protected $referenceField;
 
+    /**
+     * @var string
+     */
+    protected $tenantIdField;
+
     public function __construct(string $storageName, string $propertyName, string $referenceClass, string $referenceField = 'id')
     {
         $this->referenceClass = $referenceClass;
         $this->storageName = $storageName;
         $this->referenceField = $referenceField;
         parent::__construct($propertyName);
+        $this->tenantIdField = str_replace('_id', '_tenant_id', $this->storageName);
     }
 
     public function __invoke(EntityExistence $existence, KeyValuePair $data): \Generator
@@ -75,11 +81,13 @@ class FkField extends Field implements StorageAware
 
         if ($value === null) {
             yield $this->storageName => null;
+            yield $this->tenantIdField => null;
 
             return;
         }
 
         yield $this->storageName => Uuid::fromStringToBytes($value);
+        yield $this->tenantIdField => Uuid::fromStringToBytes($this->writeContext->getApplicationContext()->getTenantId());
     }
 
     public function getStorageName(): string

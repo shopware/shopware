@@ -11,6 +11,11 @@ class Entity extends Struct
      */
     protected $id;
 
+    /**
+     * @var string
+     */
+    protected $tenantId;
+
     public function getId(): string
     {
         return $this->id;
@@ -30,5 +35,15 @@ class Entity extends Struct
                 sprintf('Property %s do not exist in class %s', $property, get_class($this))
             );
         }
+    }
+
+    public function getTenantId(): string
+    {
+        return $this->tenantId;
+    }
+
+    public function setTenantId(string $tenantId): void
+    {
+        $this->tenantId = $tenantId;
     }
 }

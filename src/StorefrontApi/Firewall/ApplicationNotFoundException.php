@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\StorefrontApi\Firewall;
 
@@ -10,5 +10,4 @@ class ApplicationNotFoundException extends UsernameNotFoundException
     {
         return 'No application found for provided token.';
     }
-
 }

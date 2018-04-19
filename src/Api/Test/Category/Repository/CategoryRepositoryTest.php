@@ -11,14 +11,7 @@ use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\Entity\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Api\Entity\Search\Term\SearchTermInterpreter;
-use Shopware\Api\Entity\Write\EntityWriter;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
-use Shopware\Api\Entity\Write\Validation\RestrictDeleteViolation;
-use Shopware\Api\Entity\Write\Validation\RestrictDeleteViolationException;
-use Shopware\Api\Shop\Definition\ShopDefinition;
-use Shopware\Api\Shop\Definition\ShopTemplateDefinition;
-use Shopware\Api\Shop\Repository\ShopRepository;
-use Shopware\Api\Test\TestWriteContext;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\Uuid;
@@ -65,19 +58,19 @@ class CategoryRepositoryTest extends KernelTestCase
         $this->repository->create([
             ['id' => $parentId->getHex(), 'name' => 'parent-1'],
             ['id' => $childId->getHex(), 'name' => 'child', 'parentId' => $parentId->getHex()],
-        ], ApplicationContext::createDefaultContext());
+        ], ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
 
         $exists = $this->connection->fetchAll(
-            'SELECT * FROM category WHERE id IN (:ids)',
-            ['ids' => [$parentId->getBytes(), $childId->getBytes()]],
+            'SELECT * FROM category WHERE id IN (:ids) AND tenant_id = :tenant',
+            ['ids' => [$parentId->getBytes(), $childId->getBytes()], 'tenant' => Uuid::fromHexToBytes(Defaults::TENANT_ID)],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
 
         $this->assertCount(2, $exists);
 
         $child = $this->connection->fetchAll(
-            'SELECT * FROM category WHERE id IN (:ids)',
-            ['ids' => [$childId->getBytes()]],
+            'SELECT * FROM category WHERE id IN (:ids) AND tenant_id = :tenant',
+            ['ids' => [$childId->getBytes()], 'tenant' => Uuid::fromHexToBytes(Defaults::TENANT_ID)],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
         $child = array_shift($child);
@@ -86,7 +79,7 @@ class CategoryRepositoryTest extends KernelTestCase
 
         $result = $this->repository->delete(
             [['id' => $parentId->getHex()]],
-            ApplicationContext::createDefaultContext()
+            ApplicationContext::createDefaultContext(Defaults::TENANT_ID)
         );
 
         $this->assertInstanceOf(GenericWrittenEvent::class, $result);
@@ -101,8 +94,8 @@ class CategoryRepositoryTest extends KernelTestCase
         );
 
         $exists = $this->connection->fetchAll(
-            'SELECT * FROM category WHERE id IN (:ids)',
-            ['ids' => [$parentId->getBytes(), $childId->getBytes()]],
+            'SELECT * FROM category WHERE id IN (:ids) AND tenant_id = :tenant',
+            ['ids' => [$parentId->getBytes(), $childId->getBytes()], 'tenant' => Uuid::fromHexToBytes(Defaults::TENANT_ID)],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
 
@@ -117,7 +110,7 @@ class CategoryRepositoryTest extends KernelTestCase
         $this->repository->create([
             ['id' => $parentId->getHex(), 'name' => 'parent-1'],
             ['id' => $childId->getHex(), 'name' => 'child', 'parentId' => $parentId->getHex()],
-        ], ApplicationContext::createDefaultContext());
+        ], ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
 
         $exists = $this->connection->fetchAll(
             'SELECT * FROM category WHERE id IN (:ids)',
@@ -136,7 +129,7 @@ class CategoryRepositoryTest extends KernelTestCase
 
         $result = $this->repository->delete(
             [['id' => $childId->getHex()]],
-            ApplicationContext::createDefaultContext()
+            ApplicationContext::createDefaultContext(Defaults::TENANT_ID)
         );
 
         $this->assertInstanceOf(GenericWrittenEvent::class, $result);
@@ -168,7 +161,7 @@ class CategoryRepositoryTest extends KernelTestCase
         $this->repository->create([
             ['id' => $parentId->getHex(), 'name' => 'parent-1'],
             ['id' => $childId->getHex(), 'name' => 'child', 'parentId' => $parentId->getHex()],
-        ], ApplicationContext::createDefaultContext());
+        ], ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
 
         $exists = $this->connection->fetchAll(
             'SELECT * FROM category WHERE id IN (:ids)',
@@ -189,7 +182,7 @@ class CategoryRepositoryTest extends KernelTestCase
 
         $result = $this->repository->delete([
             ['id' => $parentId->getHex()],
-        ], ApplicationContext::createDefaultContext());
+        ], ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
 
         $this->assertInstanceOf(GenericWrittenEvent::class, $result);
 
@@ -212,18 +205,18 @@ class CategoryRepositoryTest extends KernelTestCase
             ['id' => $recordB, 'name' => 'not', 'metaKeywords' => 'match', 'parentId' => $parent],
         ];
 
-        $this->repository->create($categories, ApplicationContext::createDefaultContext());
+        $this->repository->create($categories, ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
 
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('category.parentId', $parent));
 
         $builder = $this->container->get(EntityScoreQueryBuilder::class);
 
-        $pattern = $this->container->get(SearchTermInterpreter::class)->interpret('match', ApplicationContext::createDefaultContext());
+        $pattern = $this->container->get(SearchTermInterpreter::class)->interpret('match', ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
         $queries = $builder->buildScoreQueries($pattern, CategoryDefinition::class, 'category');
         $criteria->addQueries($queries);
 
-        $result = $this->repository->searchIds($criteria, ApplicationContext::createDefaultContext());
+        $result = $this->repository->searchIds($criteria, ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
 
         $this->assertCount(2, $result->getIds());
 

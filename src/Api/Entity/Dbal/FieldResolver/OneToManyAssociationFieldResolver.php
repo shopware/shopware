@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Api\Entity\Dbal\FieldResolver;
 
@@ -49,6 +49,11 @@ class OneToManyAssociationFieldResolver implements FieldResolverInterface
             $catalogJoinCondition = ' AND #root#.catalog_id = #alias#.catalog_id';
         }
 
+        $tenantJoinCondition = '';
+        if ($definition::isTenantAware() && $reference::isTenantAware()) {
+            $tenantJoinCondition = ' AND #root#.tenant_id = #alias#.tenant_id';
+        }
+
         $query->leftJoin(
             EntityDefinitionQueryHelper::escape($root),
             EntityDefinitionQueryHelper::escape($table),
@@ -61,7 +66,7 @@ class OneToManyAssociationFieldResolver implements FieldResolverInterface
                     EntityDefinitionQueryHelper::escape($alias),
                     EntityDefinitionQueryHelper::escape($field->getReferenceField()),
                 ],
-                '#root#.#source_column# = #alias#.#reference_column#' . $versionJoin . $catalogJoinCondition
+                '#root#.#source_column# = #alias#.#reference_column#' . $versionJoin . $catalogJoinCondition . $tenantJoinCondition
             )
         );
 

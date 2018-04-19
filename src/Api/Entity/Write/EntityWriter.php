@@ -30,6 +30,7 @@ use Shopware\Api\Entity\Field\Field;
 use Shopware\Api\Entity\Field\FkField;
 use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\ReferenceVersionField;
+use Shopware\Api\Entity\Field\TenantIdField;
 use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\MappingEntityDefinition;
 use Shopware\Api\Entity\Write\Command\DeleteCommand;
@@ -167,6 +168,11 @@ class EntityWriter implements EntityWriterInterface
                     continue;
                 }
 
+                if ($field instanceof TenantIdField) {
+                    $mapped[$field->getStorageName()] = $writeContext->getApplicationContext()->getTenantId();
+                    continue;
+                }
+
                 throw new \InvalidArgumentException(
                     sprintf('Missing primary key value %s for entity %s', $field->getPropertyName(), $definition::getEntityName())
                 );
@@ -288,7 +294,7 @@ class EntityWriter implements EntityWriterInterface
     {
         $fields = $command->getDefinition()::getPrimaryKeys();
         $fields = $fields->filter(function (Field $field) {
-            return !$field instanceof VersionField && !$field instanceof ReferenceVersionField;
+            return !$field instanceof VersionField && !$field instanceof ReferenceVersionField && !$field instanceof TenantIdField;
         });
 
         $primaryKey = $command->getPrimaryKey();
@@ -320,6 +326,10 @@ class EntityWriter implements EntityWriterInterface
         $convertedPayload = [];
         foreach ($payload as $key => $value) {
             $field = $fields->getByStorageName($key);
+
+            if (!$field) {
+                continue;
+            }
 
             if (($field instanceof IdField || $field instanceof FkField) && !empty($value)) {
                 $value = Uuid::fromBytesToHex($value);

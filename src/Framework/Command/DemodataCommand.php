@@ -74,6 +74,11 @@ class DemodataCommand extends ContainerAwareCommand
      */
     private $categoryRepository;
 
+    /**
+     * @var string
+     */
+    private $tenantId;
+
     public function __construct(
         ?string $name = null,
         EntityWriterInterface $writer,
@@ -92,6 +97,7 @@ class DemodataCommand extends ContainerAwareCommand
 
     protected function configure()
     {
+        $this->addOption('tenant-id', 't', InputOption::VALUE_REQUIRED, 'Tenant id');
         $this->addOption('products', 'p', InputOption::VALUE_REQUIRED, 'Product count', 500);
         $this->addOption('categories', 'c', InputOption::VALUE_REQUIRED, 'Category count', 10);
         $this->addOption('manufacturers', 'm', InputOption::VALUE_REQUIRED, 'Manufacturer count', 50);
@@ -104,9 +110,19 @@ class DemodataCommand extends ContainerAwareCommand
 
         if ($env !== 'prod') {
             $output->writeln('Demo data command should only be used in production environment. You can provide the environment as follow `framework:demodata -eprod`');
+
             return;
         }
-        
+        $tenantId = $input->getOption('tenant-id');
+
+        if (!$tenantId) {
+            throw new \Exception('No tenant id provided');
+        }
+        if (!Uuid::isValid($tenantId)) {
+            throw new \Exception('Invalid uuid provided');
+        }
+        $this->tenantId = $tenantId;
+
         $this->io = new SymfonyStyle($input, $output);
         $this->faker = Factory::create('de_DE');
         $this->faker->addProvider(new Commerce($this->faker));
@@ -138,7 +154,7 @@ class DemodataCommand extends ContainerAwareCommand
     private function getContext()
     {
         return WriteContext::createFromApplicationContext(
-            ApplicationContext::createDefaultContext()
+            ApplicationContext::createDefaultContext($this->tenantId)
         );
     }
 
@@ -148,6 +164,7 @@ class DemodataCommand extends ContainerAwareCommand
         for ($i = 0; $i < $count; ++$i) {
             $payload[] = [
                 'id' => Uuid::uuid4()->getHex(),
+                'catalogId' => Defaults::CATALOG,
                 'name' => $this->randomDepartment(),
                 'parentId' => Defaults::ROOT_CATEGORY,
             ];
@@ -158,6 +175,7 @@ class DemodataCommand extends ContainerAwareCommand
             for ($x = 0; $x < 40; ++$x) {
                 $payload[] = [
                     'id' => Uuid::uuid4()->getHex(),
+                    'catalogId' => Defaults::CATALOG,
                     'name' => $this->randomDepartment(),
                     'parentId' => $category['id'],
                 ];
@@ -170,7 +188,7 @@ class DemodataCommand extends ContainerAwareCommand
 
         $chunks = array_chunk($payload, 100);
         foreach ($chunks as $chunk) {
-            $this->categoryRepository->upsert($chunk, ApplicationContext::createDefaultContext());
+            $this->categoryRepository->upsert($chunk, ApplicationContext::createDefaultContext($this->tenantId));
             $this->io->progressAdvance(count($chunk));
         }
 
@@ -308,7 +326,7 @@ class DemodataCommand extends ContainerAwareCommand
             if ($isConfigurator) {
                 $product['configurators'] = $this->buildProductConfigurator($configurator);
 
-                $product['datasheet'] = array_map(function($config) {
+                $product['datasheet'] = array_map(function ($config) {
                     return ['id' => $config['optionId']];
                 }, $product['configurators']);
             }
@@ -316,9 +334,9 @@ class DemodataCommand extends ContainerAwareCommand
             if ($isConfigurator) {
                 $this->io->progressAdvance();
 
-                $this->productRepository->upsert([$product], ApplicationContext::createDefaultContext());
+                $this->productRepository->upsert([$product], ApplicationContext::createDefaultContext($this->tenantId));
 
-                $this->variantGenerator->generate($product['id'], ApplicationContext::createDefaultContext());
+                $this->variantGenerator->generate($product['id'], ApplicationContext::createDefaultContext($this->tenantId));
 
                 continue;
             }
@@ -327,13 +345,13 @@ class DemodataCommand extends ContainerAwareCommand
 
             if (count($payload) >= 20) {
                 $this->io->progressAdvance(count($payload));
-                $this->productRepository->upsert($payload, ApplicationContext::createDefaultContext());
+                $this->productRepository->upsert($payload, ApplicationContext::createDefaultContext($this->tenantId));
                 $payload = [];
             }
         }
 
         if (!empty($payload)) {
-            $this->productRepository->upsert($payload, ApplicationContext::createDefaultContext());
+            $this->productRepository->upsert($payload, ApplicationContext::createDefaultContext($this->tenantId));
         }
 
         $this->io->progressFinish();
@@ -367,7 +385,7 @@ class DemodataCommand extends ContainerAwareCommand
 
     private function createContextRules(): array
     {
-        $ids = $this->contextRuleRepository->searchIds(new Criteria(), ApplicationContext::createDefaultContext());
+        $ids = $this->contextRuleRepository->searchIds(new Criteria(), ApplicationContext::createDefaultContext($this->tenantId));
 
         if (!empty($ids->getIds())) {
             return $ids->getIds();
@@ -533,6 +551,7 @@ class DemodataCommand extends ContainerAwareCommand
 
     /**
      * @param array $groups
+     *
      * @return array
      */
     private function buildProductConfigurator(array $groups): array
@@ -606,13 +625,13 @@ class DemodataCommand extends ContainerAwareCommand
     {
         $optionIds = $this->getRandomOptions($services);
 
-        return array_map(function($optionId) {
+        return array_map(function ($optionId) {
             $price = random_int(5, 100);
 
             return [
                 'price' => ['gross' => $price, 'net' => $price / 1.19],
                 'taxId' => '4926035368e34d9fa695e017d7a231b9',
-                'optionId' => $optionId
+                'optionId' => $optionId,
             ];
         }, $optionIds);
     }

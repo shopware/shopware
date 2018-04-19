@@ -1,20 +1,15 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Api\Application\Event\Application;
 
+use Shopware\Api\Application\Collection\ApplicationDetailCollection;
+use Shopware\Api\Country\Event\Country\CountryBasicLoadedEvent;
+use Shopware\Api\Payment\Event\PaymentMethod\PaymentMethodBasicLoadedEvent;
+use Shopware\Api\Shipping\Event\ShippingMethod\ShippingMethodBasicLoadedEvent;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\Api\Application\Collection\ApplicationDetailCollection;
-use Shopware\Api\Language\Event\Language\LanguageBasicLoadedEvent;
-use Shopware\Api\Currency\Event\Currency\CurrencyBasicLoadedEvent;
-use Shopware\Api\Payment\Event\PaymentMethod\PaymentMethodBasicLoadedEvent;
-use Shopware\Api\Shipping\Event\ShippingMethod\ShippingMethodBasicLoadedEvent;
-use Shopware\Api\Country\Event\Country\CountryBasicLoadedEvent;
-use Shopware\Api\Customer\Event\Customer\CustomerBasicLoadedEvent;
-use Shopware\Api\Order\Event\Order\OrderBasicLoadedEvent;
-use Shopware\Api\Snippet\Event\Snippet\SnippetBasicLoadedEvent;
 
 class ApplicationDetailLoadedEvent extends NestedEvent
 {
@@ -63,7 +58,7 @@ class ApplicationDetailLoadedEvent extends NestedEvent
         if ($this->applications->getCountries()->count() > 0) {
             $events[] = new CountryBasicLoadedEvent($this->applications->getCountries(), $this->context);
         }
+
         return new NestedEventCollection($events);
-    }            
-            
+    }
 }

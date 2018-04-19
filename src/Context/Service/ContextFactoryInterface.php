@@ -29,6 +29,7 @@ use Shopware\Context\Struct\StorefrontContext;
 interface ContextFactoryInterface
 {
     public function create(
+        string $tenantId,
         string $token,
         string $applicationId,
         array $options = []

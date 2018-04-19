@@ -53,11 +53,11 @@ class CartPersister implements CartPersisterInterface
         $this->serializer = $serializer;
     }
 
-    public function load(string $token, string $name): Cart
+    public function load(string $token, string $name, StorefrontContext $context): Cart
     {
         $content = $this->connection->fetchColumn(
-            'SELECT container FROM cart WHERE `token` = :token AND `name` = :name',
-            ['token' => $token, 'name' => $name]
+            'SELECT container FROM cart WHERE `token` = :token AND `name` = :name AND tenant_id = :tenant',
+            ['token' => $token, 'name' => $name, 'tenant' => Uuid::fromHexToBytes($context->getTenantId())]
         );
 
         if ($content === false) {
@@ -67,11 +67,11 @@ class CartPersister implements CartPersisterInterface
         return $this->serializer->deserialize((string) $content, null, 'json');
     }
 
-    public function loadCalculated(string $token, string $name): CalculatedCart
+    public function loadCalculated(string $token, string $name, StorefrontContext $context): CalculatedCart
     {
         $content = $this->connection->fetchColumn(
-            'SELECT calculated FROM cart WHERE `token` = :token AND `name` = :name',
-            ['token' => $token, 'name' => $name]
+            'SELECT calculated FROM cart WHERE `token` = :token AND `name` = :name AND tenant_id = :tenant',
+            ['token' => $token, 'name' => $name, 'tenant' => Uuid::fromHexToBytes($context->getTenantId())]
         );
 
         if ($content === false) {
@@ -85,34 +85,40 @@ class CartPersister implements CartPersisterInterface
     {
         //prevent empty carts
         if ($cart->getCalculatedLineItems()->count() <= 0) {
-            $this->delete($context->getToken(), $cart->getName());
+            $this->delete($context->getToken(), $cart->getName(), $context);
 
             return;
         }
 
-        $this->connection->executeUpdate(
-            'DELETE FROM cart WHERE `token` = :token AND `name` = :name',
-            ['token' => $context->getToken(), 'name' => $cart->getName()]
-        );
+        $this->delete($context->getToken(), $cart->getName(), $context);
 
         $liveVersion = Uuid::fromStringToBytes(Defaults::LIVE_VERSION);
 
         $customerId = $context->getCustomer() ? Uuid::fromStringToBytes($context->getCustomer()->getId()) : null;
 
+        $tenantId = Uuid::fromHexToBytes($context->getTenantId());
+
         $data = [
             'version_id' => $liveVersion,
+            'tenant_id' => $tenantId,
             'token' => $context->getToken(),
             'name' => $cart->getName(),
             'currency_id' => Uuid::fromStringToBytes($context->getCurrency()->getId()),
+            'currency_tenant_id' => $tenantId,
             'currency_version_id' => $liveVersion,
             'shipping_method_id' => Uuid::fromStringToBytes($context->getShippingMethod()->getId()),
+            'shipping_method_tenant_id' => $tenantId,
             'shipping_method_version_id' => $liveVersion,
             'payment_method_id' => Uuid::fromStringToBytes($context->getPaymentMethod()->getId()),
+            'payment_method_tenant_id' => $tenantId,
             'payment_method_version_id' => $liveVersion,
             'country_id' => Uuid::fromStringToBytes($context->getShippingLocation()->getCountry()->getId()),
+            'country_tenant_id' => $tenantId,
             'country_version_id' => $liveVersion,
             'application_id' => Uuid::fromStringToBytes($context->getApplication()->getId()),
+            'application_tenant_id' => $tenantId,
             'customer_id' => $customerId,
+            'customer_tenant_id' => $tenantId,
             'customer_version_id' => $context->getCustomer() ? $liveVersion : null,
             'price' => $cart->getPrice()->getTotalPrice(),
             'line_item_count' => $cart->getCalculatedLineItems()->count(),
@@ -124,17 +130,20 @@ class CartPersister implements CartPersisterInterface
         $this->connection->insert('cart', $data);
     }
 
-    public function delete(string $token, ?string $name = null): void
+    public function delete(string $token, ?string $name = null, StorefrontContext $context): void
     {
         if ($name === null) {
-            $this->connection->executeUpdate('DELETE FROM cart WHERE `token` = :token', ['token' => $token]);
+            $this->connection->executeUpdate(
+                'DELETE FROM cart WHERE `token` = :token AND tenant_id = :tenant',
+                ['token' => $token, 'tenant' => Uuid::fromHexToBytes($context->getTenantId())]
+            );
 
             return;
         }
 
         $this->connection->executeUpdate(
-            'DELETE FROM cart WHERE `token` = :token AND `name` = :name',
-            ['token' => $token, 'name' => $name]
+            'DELETE FROM cart WHERE `token` = :token AND `name` = :name AND tenant_id = :tenant',
+            ['token' => $token, 'name' => $name, 'tenant' => Uuid::fromHexToBytes($context->getTenantId())]
         );
     }
 }

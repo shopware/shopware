@@ -441,11 +441,11 @@ class WriterTest extends KernelTestCase
         $localeId = Uuid::uuid4()->getHex();
         $this->container->get(LocaleRepository::class)->upsert([
             ['id' => $localeId, 'name' => 'test', 'territory' => 'tmp', 'code' => Uuid::uuid4()->getHex()],
-        ], ApplicationContext::createDefaultContext());
+        ], ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
 
         $this->container->get(LanguageRepository::class)->upsert([
             ['id' => '2d905256-e751-4967-8dd5-a32a81b94f1f', 'name' => 'language 2', 'localeId' => $localeId, 'localeVersionId' => Defaults::LIVE_VERSION],
-        ], ApplicationContext::createDefaultContext());
+        ], ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
 
         $this->getWriter()->update(
             ProductDefinition::class,
@@ -557,7 +557,7 @@ class WriterTest extends KernelTestCase
      */
     protected function createWriteContext(): WriteContext
     {
-        $context = WriteContext::createFromApplicationContext(ApplicationContext::createDefaultContext());
+        $context = WriteContext::createFromApplicationContext(ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
 
         return $context;
     }

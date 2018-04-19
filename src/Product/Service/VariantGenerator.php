@@ -67,7 +67,7 @@ class VariantGenerator
 
             $options->sortByGroup();
 
-            $names = $options->map(function(ProductConfiguratorBasicStruct $config) {
+            $names = $options->map(function (ProductConfiguratorBasicStruct $config) {
                 return $config->getOption()->getName();
             });
 
@@ -76,7 +76,7 @@ class VariantGenerator
                 'name' => $product->getName() . ' ' . implode(' ', $names),
                 'variations' => $mapping,
                 'variationIds' => array_values($options->getOptionIds()),
-                'price' => $this->buildPrice($product, $options)
+                'price' => $this->buildPrice($product, $options),
             ];
 
             $variants[] = array_filter($variant);

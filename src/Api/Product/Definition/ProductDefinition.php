@@ -23,6 +23,7 @@ use Shopware\Api\Entity\Field\OneToManyAssociationField;
 use Shopware\Api\Entity\Field\PriceField;
 use Shopware\Api\Entity\Field\ReferenceVersionField;
 use Shopware\Api\Entity\Field\StringField;
+use Shopware\Api\Entity\Field\TenantIdField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\Field\TranslationsAssociationField;
 use Shopware\Api\Entity\Field\VersionField;
@@ -78,6 +79,7 @@ class ProductDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
+            new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
             new CatalogField(),
@@ -126,7 +128,6 @@ class ProductDefinition extends EntityDefinition
             (new StringField('template', 'template'))->setFlags(new Inherited()),
             (new BoolField('allow_notification', 'allowNotification'))->setFlags(new Inherited()),
             (new DateField('release_date', 'releaseDate'))->setFlags(new Inherited()),
-            (new IdField('price_group_id', 'priceGroupId'))->setFlags(new Inherited()),
             (new JsonArrayField('category_tree', 'categoryTree'))->setFlags(new Inherited()),
             (new JsonArrayField('datasheet_ids', 'datasheetIds'))->setFlags(new Inherited()),
             new JsonArrayField('variation_ids', 'variationIds'),

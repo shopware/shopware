@@ -36,20 +36,6 @@ class UserBasicCollection extends EntityCollection
         });
     }
 
-    public function getRoleIds(): array
-    {
-        return $this->fmap(function (UserBasicStruct $user) {
-            return $user->getRoleId();
-        });
-    }
-
-    public function filterByRoleId(string $id): self
-    {
-        return $this->filter(function (UserBasicStruct $user) use ($id) {
-            return $user->getRoleId() === $id;
-        });
-    }
-
     public function getSessionIds(): array
     {
         return $this->fmap(function (UserBasicStruct $user) {

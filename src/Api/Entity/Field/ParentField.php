@@ -67,11 +67,12 @@ class ParentField extends FkField
 
         if ($value === null) {
             yield $this->storageName => null;
-
+            yield $this->tenantIdField => null;
             return;
         }
 
         yield $this->storageName => Uuid::fromStringToBytes($value);
+        yield $this->tenantIdField => Uuid::fromStringToBytes($this->writeContext->getApplicationContext()->getTenantId());
     }
 
     public function getStorageName(): string

@@ -16,9 +16,11 @@ use Shopware\Api\Entity\Field\LongTextField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\OneToManyAssociationField;
 use Shopware\Api\Entity\Field\ReferenceVersionField;
+use Shopware\Api\Entity\Field\TenantIdField;
 use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\CascadeDelete;
+use Shopware\Api\Entity\Write\Flag\DelayedLoad;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Entity\Write\Flag\SearchRanking;
@@ -30,7 +32,6 @@ use Shopware\Api\Order\Repository\OrderRepository;
 use Shopware\Api\Order\Struct\OrderBasicStruct;
 use Shopware\Api\Order\Struct\OrderDetailStruct;
 use Shopware\Api\Payment\Definition\PaymentMethodDefinition;
-use Shopware\Api\Shop\Definition\ShopDefinition;
 
 class OrderDefinition extends EntityDefinition
 {
@@ -61,6 +62,7 @@ class OrderDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
+            new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
 
@@ -91,7 +93,7 @@ class OrderDefinition extends EntityDefinition
             (new LongTextField('payload', 'payload'))->setFlags(new Required()),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            (new ManyToOneAssociationField('customer', 'customer_id', CustomerDefinition::class, true))->setFlags(new SearchRanking(self::ASSOCIATION_SEARCH_RANKING)),
+            (new ManyToOneAssociationField('customer', 'customer_id', CustomerDefinition::class, true))->setFlags(new SearchRanking(self::ASSOCIATION_SEARCH_RANKING), new DelayedLoad()),
             new ManyToOneAssociationField('state', 'order_state_id', OrderStateDefinition::class, true),
             (new ManyToOneAssociationField('paymentMethod', 'payment_method_id', PaymentMethodDefinition::class, true))->setFlags(new SearchRanking(self::ASSOCIATION_SEARCH_RANKING)),
             new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, true),

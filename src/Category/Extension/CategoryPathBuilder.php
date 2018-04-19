@@ -66,8 +66,8 @@ class CategoryPathBuilder implements EventSubscriberInterface
         $version = Uuid::fromStringToBytes($context->getVersionId());
 
         $count = (int) $this->connection->fetchColumn(
-            'SELECT COUNT(id) FROM category WHERE parent_id IS NOT NULL AND version_id = :version',
-            ['version' => $version]
+            'SELECT COUNT(id) FROM category WHERE parent_id IS NOT NULL AND version_id = :version AND tenant_id = :tenant',
+            ['version' => $version, 'tenant' => Uuid::fromHexToBytes($context->getTenantId())]
         );
 
         $this->eventDispatcher->dispatch(
@@ -101,10 +101,11 @@ class CategoryPathBuilder implements EventSubscriberInterface
         $criteria->addFilter(new TermQuery('category.parentId', $parent->getId()));
         $categories = $this->repository->search($criteria, $context);
 
-        $pathUpdate = $this->connection->prepare('UPDATE category SET path = :path, level = :level WHERE id = :id AND version_id = :version');
-        $nameUpdate = $this->connection->prepare('UPDATE category_translation SET path_names = :names WHERE category_id = :id AND version_id = :version');
+        $pathUpdate = $this->connection->prepare('UPDATE category SET path = :path, level = :level WHERE id = :id AND version_id = :version AND tenant_id = :tenant');
+        $nameUpdate = $this->connection->prepare('UPDATE category_translation SET path_names = :names WHERE category_id = :id AND version_id = :version AND category_tenant_id = :tenant');
 
         $version = Uuid::fromStringToBytes($context->getVersionId());
+        $tenantId = Uuid::fromHexToBytes($context->getTenantId());
 
         /** @var CategoryBasicStruct $category */
         foreach ($categories as $category) {
@@ -131,11 +132,13 @@ class CategoryPathBuilder implements EventSubscriberInterface
                 'id' => $id,
                 'level' => $parent->getLevel() + 1,
                 'version' => $version,
+                'tenant' => $tenantId
             ]);
             $nameUpdate->execute([
                 'names' => '|' . $names . '|',
                 'id' => $id,
                 'version' => $version,
+                'tenant' => $tenantId
             ]);
         }
 
@@ -163,7 +166,7 @@ class CategoryPathBuilder implements EventSubscriberInterface
 
     private function fetchParentIds(array $ids, ApplicationContext $context): array
     {
-        $ids = array_map(function($id) {
+        $ids = array_map(function ($id) {
             return Uuid::fromStringToBytes($id);
         }, $ids);
 
@@ -171,9 +174,11 @@ class CategoryPathBuilder implements EventSubscriberInterface
         $query->select(['parent_id']);
         $query->from('category');
         $query->andWhere('category.id IN (:ids)');
+        $query->andWhere('category.tenant_id = :tenant');
         $query->andWhere('category.version_id = :version');
 
         $query->setParameter('version', Uuid::fromStringToBytes($context->getVersionId()));
+        $query->setParameter('tenant', Uuid::fromStringToBytes($context->getTenantId()));
         $query->setParameter('ids', $ids, Connection::PARAM_STR_ARRAY);
 
         $parents = $query->execute()->fetchAll(\PDO::FETCH_COLUMN);

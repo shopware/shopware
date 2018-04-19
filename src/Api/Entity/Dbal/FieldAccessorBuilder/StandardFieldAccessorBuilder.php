@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Api\Entity\Dbal\FieldAccessorBuilder;
 
@@ -12,7 +12,7 @@ class StandardFieldAccessorBuilder implements FieldAccessorBuilderInterface
     public function buildAccessor(string $root, Field $field, ApplicationContext $context, string $accessor): string
     {
         if (!$field instanceof StorageAware) {
-            return null;
+            throw new \RuntimeException('Only storage aware fields can be accessed');
         }
 
         return EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getStorageName());

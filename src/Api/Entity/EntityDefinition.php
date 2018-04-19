@@ -154,6 +154,11 @@ abstract class EntityDefinition
         return static::getFields()->has('catalogId');
     }
 
+    public static function isTenantAware(): bool
+    {
+        return static::getFields()->has('tenantId');
+    }
+
     protected static function filterAssociationReferences(string $type, FieldCollection $fields)
     {
         $associations = $fields->filterInstance($type)->getElements();

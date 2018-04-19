@@ -152,6 +152,7 @@ class SqlQueryParser
 
             if (\is_array($query->getValue())) {
                 $result->addParameter($key, $query->getValue(), Connection::PARAM_STR_ARRAY);
+
                 return $result;
             }
             $result->addParameter($key, $query->getValue());

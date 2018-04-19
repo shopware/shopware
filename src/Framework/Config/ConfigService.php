@@ -44,6 +44,7 @@ class ConfigService implements ConfigServiceInterface
 
     public function getByShop(string $shopId, ?string $parentId): array
     {
+        //todo@dr no tenant id available
         $builder = $this->connection->createQueryBuilder();
 
         $builder->select([

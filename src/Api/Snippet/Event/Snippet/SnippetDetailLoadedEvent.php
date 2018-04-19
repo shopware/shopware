@@ -3,7 +3,6 @@
 namespace Shopware\Api\Snippet\Event\Snippet;
 
 use Shopware\Api\Application\Event\Application\ApplicationBasicLoadedEvent;
-use Shopware\Api\Shop\Event\Shop\ShopBasicLoadedEvent;
 use Shopware\Api\Snippet\Collection\SnippetDetailCollection;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;

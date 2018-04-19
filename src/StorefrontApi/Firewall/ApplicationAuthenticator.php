@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\StorefrontApi\Firewall;
 
@@ -38,7 +38,7 @@ class ApplicationAuthenticator extends AbstractGuardAuthenticator
      *  B) For an API token authentication system, you return a 401 response
      *      return new Response('Auth header required', 401);
      *
-     * @param Request $request The request that resulted in an AuthenticationException
+     * @param Request                 $request       The request that resulted in an AuthenticationException
      * @param AuthenticationException $authException The exception that started the authentication process
      *
      * @return Response
@@ -85,14 +85,14 @@ class ApplicationAuthenticator extends AbstractGuardAuthenticator
      *
      * @param Request $request
      *
-     * @return mixed Any non-null value
-     *
      * @throws \UnexpectedValueException If null is returned
+     *
+     * @return mixed Any non-null value
      */
     public function getCredentials(SymfonyRequest $request)
     {
         return [
-            'access_key' => $request->headers->get(PlatformRequest::HEADER_APPLICATION_TOKEN)
+            'access_key' => $request->headers->get(PlatformRequest::HEADER_APPLICATION_TOKEN),
         ];
     }
 
@@ -104,7 +104,7 @@ class ApplicationAuthenticator extends AbstractGuardAuthenticator
      * You may throw an AuthenticationException if you wish. If you return
      * null, then a UsernameNotFoundException is thrown for you.
      *
-     * @param mixed $credentials
+     * @param mixed                 $credentials
      * @param UserProviderInterface $userProvider
      *
      * @throws AuthenticationException
@@ -113,6 +113,7 @@ class ApplicationAuthenticator extends AbstractGuardAuthenticator
      */
     public function getUser($credentials, UserProviderInterface $userProvider)
     {
+        //todo@dr no tenant id
         $builder = $this->connection->createQueryBuilder();
         $application = $builder->select([
                 'application.id',
@@ -147,12 +148,12 @@ class ApplicationAuthenticator extends AbstractGuardAuthenticator
      *
      * The *credentials* are the return value from getCredentials()
      *
-     * @param mixed $credentials
+     * @param mixed         $credentials
      * @param UserInterface $user
      *
-     * @return bool
-     *
      * @throws AuthenticationException
+     *
+     * @return bool
      */
     public function checkCredentials($credentials, UserInterface $user)
     {
@@ -168,7 +169,7 @@ class ApplicationAuthenticator extends AbstractGuardAuthenticator
      * If you return null, the request will continue, but the user will
      * not be authenticated. This is probably not what you want to do.
      *
-     * @param SymfonyRequest $request
+     * @param SymfonyRequest          $request
      * @param AuthenticationException $exception
      *
      * @return Response|null
@@ -189,7 +190,7 @@ class ApplicationAuthenticator extends AbstractGuardAuthenticator
      *
      * @param SymfonyRequest $request
      * @param TokenInterface $token
-     * @param string $providerKey The provider (i.e. firewall) key
+     * @param string         $providerKey The provider (i.e. firewall) key
      *
      * @return Response|null
      */

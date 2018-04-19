@@ -31,6 +31,7 @@ return [
                 'mediaAlbumVersionId' => null,
                 'userVersionId' => null,
                 'catalogId' => null,
+                'tenantId' => null,
             ],
             'links' => [
                 'self' => '/api/media/3e352be2-d858-46dd-9752-9c0f6b544870',
@@ -76,6 +77,7 @@ return [
                 'mediaAlbumVersionId' => null,
                 'userVersionId' => null,
                 'catalogId' => null,
+                'tenantId' => null,
             ],
             'relationships' => [
                 'album' => [
@@ -112,6 +114,7 @@ return [
                 'versionId' => null,
                 'parentVersionId' => null,
                 'catalogId' => null,
+                'tenantId' => null,
             ],
             'links' => [
                 'self' => '/api/media-album/f343a3c1-19cf-42a7-841a-a0ac5094908c',

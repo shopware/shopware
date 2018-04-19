@@ -25,6 +25,7 @@ class EntityForeignKeyResolver
      * @var Connection
      */
     private $connection;
+
     /**
      * @var EntityDefinitionQueryHelper
      */
@@ -92,9 +93,9 @@ class EntityForeignKeyResolver
 
     /**
      * @param EntityDefinition|string $definition
-     * @param array $ids
-     * @param string $class
-     * @param ApplicationContext $context
+     * @param array                   $ids
+     * @param string                  $class
+     * @param ApplicationContext      $context
      *
      * @return array
      */
@@ -121,9 +122,11 @@ class EntityForeignKeyResolver
         $this->joinCascades($definition, $cascades, $root, $query, $class, $context);
 
         $this->addWhere($ids, $rootAlias, $query);
+        $query->andWhere($rootAlias . '.tenant_id = :tenant');
 
         $query->setParameter('version', Uuid::fromStringToBytes($context->getVersionId()));
         $query->setParameter('liveVersion', Uuid::fromStringToBytes(Defaults::LIVE_VERSION));
+        $query->setParameter('tenant', Uuid::fromStringToBytes($context->getTenantId()));
 
         $result = $query->execute()->fetchAll(\PDO::FETCH_GROUP | \PDO::FETCH_UNIQUE);
 

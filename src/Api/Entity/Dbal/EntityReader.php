@@ -20,6 +20,7 @@ use Shopware\Api\Entity\Search\Query\TermsQuery;
 use Shopware\Api\Entity\Write\FieldAware\StorageAware;
 use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\Deferred;
+use Shopware\Api\Entity\Write\Flag\DelayedLoad;
 use Shopware\Api\Entity\Write\Flag\Extension;
 use Shopware\Api\Entity\Write\Flag\Inherited;
 use Shopware\Context\Struct\ApplicationContext;
@@ -52,6 +53,7 @@ class EntityReader implements EntityReaderInterface
      * @var EntityHydrator
      */
     private $hydrator;
+
     /**
      * @var EntityDefinitionQueryHelper
      */
@@ -212,7 +214,7 @@ class EntityReader implements EntityReaderInterface
 
                 $basics = $reference::getFields()->getBasicProperties();
 
-                if ($this->requiresToManyAssociation($reference, $basics)) {
+                if ($this->shouldBeLoadedDelayed($field, $reference, $basics)) {
                     continue;
                 }
 
@@ -286,7 +288,7 @@ class EntityReader implements EntityReaderInterface
     /**
      * @param array                   $ids
      * @param string|EntityDefinition $definition
-     * @param ApplicationContext             $context
+     * @param ApplicationContext      $context
      * @param FieldCollection         $fields
      *
      * @return array
@@ -312,7 +314,7 @@ class EntityReader implements EntityReaderInterface
     /**
      * @param string|EntityDefinition   $definition
      * @param ManyToOneAssociationField $association
-     * @param ApplicationContext               $context
+     * @param ApplicationContext        $context
      * @param EntityCollection          $collection
      */
     private function loadManyToOne(string $definition, ManyToOneAssociationField $association, ApplicationContext $context, EntityCollection $collection)
@@ -320,7 +322,7 @@ class EntityReader implements EntityReaderInterface
         $reference = $association->getReferenceClass();
 
         $fields = $reference::getFields()->getBasicProperties();
-        if (!$this->requiresToManyAssociation($reference, $fields)) {
+        if (!$this->shouldBeLoadedDelayed($association, $reference, $fields)) {
             return;
         }
 
@@ -444,6 +446,8 @@ class EntityReader implements EntityReaderInterface
             $catalogCondition = ' AND #alias#.catalog_id = #root#.catalog_id';
         }
 
+        $tenantField = $definition::getEntityName() . '_tenant_id';
+
         $query->addSelect(
             str_replace(
                 [
@@ -466,7 +470,7 @@ class EntityReader implements EntityReaderInterface
                 ],
                 '(SELECT GROUP_CONCAT(HEX(#alias#.#mapping_reference_column#) SEPARATOR \'||\')
                   FROM #mapping_table# #alias#
-                  WHERE #alias#.#mapping_local_column# = #root#.#source_column#
+                  WHERE #alias#.#mapping_local_column# = #root#.#source_column# AND #root#.tenant_id = #alias#. ' . $tenantField . '
                   ' . $versionCondition . '
                   ' . $catalogCondition . '
                   ) as #property#'
@@ -488,8 +492,13 @@ class EntityReader implements EntityReaderInterface
         return $ids;
     }
 
-    private function requiresToManyAssociation(string $definition, FieldCollection $fields): bool
+    private function shouldBeLoadedDelayed(AssociationInterface $association, string $definition, FieldCollection $fields): bool
     {
+        /** @var AssociationInterface|Field $association */
+        if ($association->is(DelayedLoad::class)) {
+            return true;
+        }
+
         foreach ($fields as $field) {
             if (!$field instanceof AssociationInterface) {
                 continue;
@@ -497,6 +506,10 @@ class EntityReader implements EntityReaderInterface
 
             if ($field->is(Deferred::class)) {
                 continue;
+            }
+
+            if ($field->is(DelayedLoad::class)) {
+                return true;
             }
 
             if ($field instanceof ManyToManyAssociationField || $field instanceof OneToManyAssociationField) {
@@ -510,7 +523,7 @@ class EntityReader implements EntityReaderInterface
                 continue;
             }
 
-            if ($this->requiresToManyAssociation($reference, $reference::getFields()->getBasicProperties())) {
+            if ($this->shouldBeLoadedDelayed($field, $reference, $reference::getFields()->getBasicProperties())) {
                 return true;
             }
         }
@@ -518,12 +531,9 @@ class EntityReader implements EntityReaderInterface
         return false;
     }
 
-    /**
-     * @param string $definition
-     * @param $details
-     */
     private function removeInheritance(string $definition, $details): void
     {
+        /** @var string|EntityDefinition $definition */
         $inherited = $definition::getFields()->filterInstance(AssociationInterface::class)->filterByFlag(
             Inherited::class
         );

@@ -18,6 +18,7 @@ use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\ParentField;
 use Shopware\Api\Entity\Field\ReferenceVersionField;
 use Shopware\Api\Entity\Field\StringField;
+use Shopware\Api\Entity\Field\TenantIdField;
 use Shopware\Api\Entity\Field\TranslationsAssociationField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\CascadeDelete;
@@ -75,6 +76,7 @@ class LanguageDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
+            new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new ParentField(self::class),
             (new FkField('locale_id', 'localeId', LocaleDefinition::class))->setFlags(new Required()),

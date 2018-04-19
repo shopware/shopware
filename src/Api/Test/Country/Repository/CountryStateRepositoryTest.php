@@ -11,6 +11,7 @@ use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Api\Entity\Search\Term\SearchTermInterpreter;
 use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Defaults;
 use Shopware\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -53,7 +54,7 @@ class CountryStateRepositoryTest extends KernelTestCase
 
         $this->container->get(CountryRepository::class)->create([
             ['id' => $country, 'name' => 'test'],
-        ], ApplicationContext::createDefaultContext());
+        ], ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
 
         $recordA = Uuid::uuid4()->getHex();
         $recordB = Uuid::uuid4()->getHex();
@@ -63,16 +64,16 @@ class CountryStateRepositoryTest extends KernelTestCase
             ['id' => $recordB, 'name' => 'not',   'shortCode' => 'match 1', 'countryId' => $country],
         ];
 
-        $this->repository->create($records, ApplicationContext::createDefaultContext());
+        $this->repository->create($records, ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
 
         $criteria = new Criteria();
 
         $builder = $this->container->get(EntityScoreQueryBuilder::class);
-        $pattern = $this->container->get(SearchTermInterpreter::class)->interpret('match', ApplicationContext::createDefaultContext());
+        $pattern = $this->container->get(SearchTermInterpreter::class)->interpret('match', ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
         $queries = $builder->buildScoreQueries($pattern, CountryStateDefinition::class, CountryStateDefinition::getEntityName());
         $criteria->addQueries($queries);
 
-        $result = $this->repository->searchIds($criteria, ApplicationContext::createDefaultContext());
+        $result = $this->repository->searchIds($criteria, ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
 
         $this->assertCount(2, $result->getIds());
 

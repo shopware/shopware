@@ -6,7 +6,7 @@ use Symfony\Component\Finder\SplFileInfo;
 
 interface ImportServiceInterface
 {
-    public function import(array $paths, bool $truncateBeforeImport): void;
+    public function import(array $paths, bool $truncateBeforeImport, string $tenantId): void;
 
-    public function importFile(SplFileInfo $file): void;
+    public function importFile(SplFileInfo $file, string $tenantId): void;
 }

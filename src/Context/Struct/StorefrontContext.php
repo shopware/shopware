@@ -31,7 +31,6 @@ use Shopware\Api\Customer\Struct\CustomerGroupBasicStruct;
 use Shopware\Api\Language\Struct\LanguageBasicStruct;
 use Shopware\Api\Payment\Struct\PaymentMethodBasicStruct;
 use Shopware\Api\Shipping\Struct\ShippingMethodBasicStruct;
-use Shopware\Api\Shop\Struct\ShopBasicStruct;
 use Shopware\Api\Tax\Collection\TaxBasicCollection;
 use Shopware\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Cart\Price\Struct\CartPrice;
@@ -48,6 +47,7 @@ class StorefrontContext extends Struct
 {
     /**
      * Unique token for context, e.g. stored in session or provided in request headers
+     *
      * @var string
      */
     protected $token;
@@ -129,7 +129,13 @@ class StorefrontContext extends Struct
      */
     protected $fallbackLanguage;
 
+    /**
+     * @var string
+     */
+    private $tenantId;
+
     public function __construct(
+        string $tenantId,
         string $token,
         ApplicationBasicStruct $application,
         LanguageBasicStruct $language,
@@ -157,6 +163,7 @@ class StorefrontContext extends Struct
         $this->token = $token;
         $this->language = $language;
         $this->fallbackLanguage = $fallbackLanguage;
+        $this->tenantId = $tenantId;
     }
 
     public function getCurrentCustomerGroup(): CustomerGroupBasicStruct
@@ -211,6 +218,7 @@ class StorefrontContext extends Struct
         }
 
         return $this->context = new ApplicationContext(
+            $this->tenantId,
             $this->application->getId(),
             $this->application->getCatalogIds(),
             $this->contextRulesIds,
@@ -264,5 +272,10 @@ class StorefrontContext extends Struct
     public function setTaxState(string $taxState): void
     {
         $this->taxState = $taxState;
+    }
+
+    public function getTenantId(): string
+    {
+        return $this->tenantId;
     }
 }

@@ -33,7 +33,7 @@ use Shopware\Context\Struct\StorefrontContext;
  */
 interface StorefrontContextServiceInterface
 {
-    public function getStorefrontContext(string $applicationId, string $token): StorefrontContext;
+    public function getStorefrontContext(string $tenantId, string $applicationId, string $token): StorefrontContext;
 
-    public function refresh(string $applicationId, string $token): void;
+    public function refresh(string $tenantId, string $applicationId, string $token): void;
 }

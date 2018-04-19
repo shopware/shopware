@@ -19,6 +19,7 @@ return [
             'versionId' => null,
             'parentVersionId' => null,
             'catalogId' => null,
+            'tenantId' => null,
         ],
         'relationships' => [
             'media' => [
@@ -76,6 +77,7 @@ return [
                 'mediaAlbumVersionId' => null,
                 'userVersionId' => null,
                 'catalogId' => null,
+                'tenantId' => null,
             ],
             'relationships' => [
                 'album' => [

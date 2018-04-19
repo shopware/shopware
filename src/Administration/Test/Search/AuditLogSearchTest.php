@@ -56,7 +56,7 @@ class AuditLogSearchTest extends KernelTestCase
 
         $this->productRepository = $this->container->get(ProductRepository::class);
         $this->search = $this->container->get(AdministrationSearch::class);
-        $this->context = $context = ApplicationContext::createDefaultContext();
+        $this->context = $context = ApplicationContext::createDefaultContext(Defaults::TENANT_ID);
 
         $this->connection->executeUpdate('
             DELETE FROM `version`;
@@ -93,7 +93,7 @@ class AuditLogSearchTest extends KernelTestCase
 
     public function testProductRanking()
     {
-        $context = ApplicationContext::createDefaultContext();
+        $context = ApplicationContext::createDefaultContext(Defaults::TENANT_ID);
 
         $p1 = Uuid::uuid4()->getHex();
         $productId2 = Uuid::uuid4()->getHex();
@@ -129,7 +129,7 @@ class AuditLogSearchTest extends KernelTestCase
             ['id' => $productId2, 'price' => ['gross' => 20, 'net' => 1]],
             ['id' => $productId2, 'price' => ['gross' => 25, 'net' => 1]],
             ['id' => $productId2, 'price' => ['gross' => 30, 'net' => 1]],
-        ], ApplicationContext::createDefaultContext());
+        ], ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
 
         $changes = $this->getVersionData(ProductDefinition::getEntityName(), $productId2, Defaults::LIVE_VERSION);
         $this->assertNotEmpty($changes);

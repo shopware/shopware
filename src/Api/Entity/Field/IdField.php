@@ -34,12 +34,12 @@ class IdField extends Field implements StorageAware
     /**
      * @var string
      */
-    private $storageName;
+    protected $storageName;
 
     /**
      * @var string
      */
-    private $generatorClass;
+    protected $generatorClass;
 
     public function __construct(string $storageName, string $propertyName, string $generatorClass = RamseyGenerator::class)
     {

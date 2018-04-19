@@ -51,6 +51,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         $this->connection->transactional(function () use ($commands) {
             foreach ($commands as $command) {
                 $definition = $command->getDefinition();
+                /** @var string|EntityDefinition $definition */
                 $table = $definition::getEntityName();
 
                 if ($command instanceof DeleteCommand) {

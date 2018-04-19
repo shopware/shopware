@@ -33,6 +33,11 @@ class ApplicationContext extends Struct
     /**
      * @var string
      */
+    protected $tenantId;
+
+    /**
+     * @var string
+     */
     protected $languageId;
 
     /**
@@ -70,8 +75,18 @@ class ApplicationContext extends Struct
      */
     protected $contextRules;
 
-    public function __construct(string $applicationId, ?array $catalogIds, array $contextRules, string $currencyId, string $languageId, ?string $fallbackLanguageId = null, string $versionId = Defaults::LIVE_VERSION, float $currencyFactor = 1.0)
-    {
+    public function __construct(
+        string $tenantId,
+        string $applicationId,
+        ?array $catalogIds,
+        array $contextRules,
+        string $currencyId,
+        string $languageId,
+        ?string $fallbackLanguageId = null,
+        string $versionId = Defaults::LIVE_VERSION,
+        float $currencyFactor = 1.0
+    ) {
+        $this->tenantId = $tenantId;
         $this->applicationId = $applicationId;
         $this->catalogIds = $catalogIds;
         $this->contextRules = $contextRules;
@@ -82,14 +97,15 @@ class ApplicationContext extends Struct
         $this->currencyFactor = $currencyFactor;
     }
 
-    public static function createDefaultContext(): self
+    public static function createDefaultContext(string $tenantId): self
     {
-        return new self(Defaults::APPLICATION, [Defaults::CATALOG], [], Defaults::CURRENCY, Defaults::LANGUAGE);
+        return new self($tenantId, Defaults::APPLICATION, [Defaults::CATALOG], [], Defaults::CURRENCY, Defaults::LANGUAGE);
     }
 
     public static function createFromApplication(ApplicationBasicStruct $application): self
     {
         return new self(
+            $application->getTenantId(),
             $application->getId(),
             $application->getCatalogIds(),
             [],
@@ -147,9 +163,15 @@ class ApplicationContext extends Struct
         return $this->fallbackLanguageId;
     }
 
+    public function getTenantId(): string
+    {
+        return $this->tenantId;
+    }
+
     public function createWithVersionId(string $versionId)
     {
         return new self(
+            $this->tenantId,
             $this->applicationId,
             $this->catalogIds,
             $this->contextRules,

@@ -24,7 +24,6 @@
 
 namespace Shopware\StorefrontApi\Context;
 
-use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Context\Service\ContextFactoryInterface;
@@ -103,44 +102,29 @@ class StorefrontContextService implements StorefrontContextServiceInterface
         $this->contextPersister = $contextPersister;
     }
 
-    public function getStorefrontContext(string $applicationId, string $token): StorefrontContext
+    public function getStorefrontContext(string $tenantId, string $applicationId, string $token): StorefrontContext
     {
-        return $this->load($applicationId, $token, true);
+        return $this->load($tenantId, $applicationId, $token, true);
     }
 
-    public function refresh(string $applicationId, string $token): void
+    public function refresh(string $tenantId, string $applicationId, string $token): void
     {
-        $key = $applicationId . '-' . $token;
+        $key = $applicationId . '-' . $token . '-' . $tenantId;
         $this->context[$key] = null;
-        $this->load($applicationId, $token, false);
+        $this->load($tenantId, $applicationId, $token, false);
     }
 
-    private function load(string $applicationId, string $token, bool $useCache): StorefrontContext
+    private function load(string $tenantId, string $applicationId, string $token, bool $useCache): StorefrontContext
     {
-        $key = $applicationId . '-' . $token;
+        $key = $applicationId . '-' . $token . '-' . $tenantId;
 
         if (isset($this->context[$key])) {
             return $this->context[$key];
         }
 
-        $parameters = $this->contextPersister->load($token);
+        $parameters = $this->contextPersister->load($token, $tenantId);
 
-        $cacheKey = $this->getCacheKey($applicationId, $parameters);
-        $cacheItem = $this->cache->getItem($cacheKey);
-
-        if ($useCache && $serializedContext = $cacheItem->get()) {
-            try {
-                return $this->loadFromCache($applicationId, $token, $serializedContext);
-            } catch (\Exception $e) {
-                throw $e;
-                $this->logger->error($e->getMessage());
-            }
-        }
-
-        $context = $this->factory->create($token, $applicationId, $parameters);
-
-        $cacheItem->set($this->serializer->serialize($context, 'json'));
-        $this->cache->save($cacheItem);
+        $context = $this->factory->create($tenantId, $token, $applicationId, $parameters);
 
         $rules = $this->contextRuleLoader->loadMatchingRules($context, $token);
         $context->setContextRulesIds($rules->getIds());
@@ -183,28 +167,5 @@ class StorefrontContextService implements StorefrontContextServiceInterface
         $this->context[$key] = $context;
 
         return $context;
-    }
-
-    private function getCacheKey(string $applicationId, array $parameters): string
-    {
-        return $applicationId . '.' . md5(json_encode($parameters));
-    }
-
-    private function writeCache(array $parameters, CacheItemInterface $cacheItem): void
-    {
-        $outputKey = $this->getCacheKey($context->
-            ApplicationScope::createFromContext($context),
-            CustomerScope::createFromContext($context),
-            CheckoutScope::createFromContext($context)
-        );
-
-        $data = $this->serializer->serialize($context, 'json');
-        $outputCacheItem = $this->cache->getItem($outputKey);
-
-        $cacheItem->set($data);
-        $outputCacheItem->set($data);
-
-        $this->cache->save($cacheItem);
-        $this->cache->save($outputCacheItem);
     }
 }

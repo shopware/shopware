@@ -17,30 +17,31 @@ class StorefrontContextPersister
         $this->connection = $connection;
     }
 
-    public function save(string $token, array $parameters): void
+    public function save(string $token, array $parameters, string $tenantId): void
     {
-        $existing = $this->load($token);
+        $existing = $this->load($token, $tenantId);
 
         $parameters = array_replace_recursive($existing, $parameters);
 
         $this->connection->executeUpdate(
-            'REPLACE INTO storefront_api_context (`token`, `payload`) VALUES (:token, :payload)',
+            'REPLACE INTO storefront_api_context (`token`, `tenant_id`, `payload`) VALUES (:token, :tenant, :payload)',
             [
                 'token' => Uuid::fromHexToBytes($token),
+                'tenant' => Uuid::fromHexToBytes($tenantId),
                 'payload' => json_encode($parameters),
             ]
         );
     }
 
-    public function load(string $token): array
+    public function load(string $token, string $tenantId): array
     {
         if (!Uuid::isValid($token)) {
             return [];
         }
 
         $parameter = $this->connection->fetchColumn(
-            'SELECT `payload` FROM storefront_api_context WHERE token = :token',
-            ['token' => Uuid::fromHexToBytes($token)]
+            'SELECT `payload` FROM storefront_api_context WHERE token = :token AND tenant_id = :tenant',
+            ['token' => Uuid::fromHexToBytes($token), 'tenant' => Uuid::fromHexToBytes($tenantId)]
         );
 
         if (!$parameter) {

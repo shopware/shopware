@@ -2,20 +2,12 @@
 
 namespace Shopware\Api\Application\Struct;
 
-use Shopware\Api\Language\Struct\LanguageBasicStruct;
-use Shopware\Api\Currency\Struct\CurrencyBasicStruct;
+use Shopware\Api\Country\Struct\CountryBasicStruct;
 use Shopware\Api\Payment\Struct\PaymentMethodBasicStruct;
 use Shopware\Api\Shipping\Struct\ShippingMethodBasicStruct;
-use Shopware\Api\Country\Struct\CountryBasicStruct;
-use Shopware\Api\Customer\Collection\CustomerBasicCollection;
-use Shopware\Api\Order\Collection\OrderBasicCollection;
-use Shopware\Api\Product\Collection\ProductSeoCategoryBasicCollection;
-use Shopware\Api\Seo\Collection\SeoUrlBasicCollection;
-use Shopware\Api\Snippet\Collection\SnippetBasicCollection;
 
 class ApplicationDetailStruct extends ApplicationBasicStruct
 {
-
     /**
      * @var PaymentMethodBasicStruct
      */
@@ -31,7 +23,6 @@ class ApplicationDetailStruct extends ApplicationBasicStruct
      */
     protected $country;
 
-
     public function getPaymentMethod(): PaymentMethodBasicStruct
     {
         return $this->paymentMethod;
@@ -41,7 +32,6 @@ class ApplicationDetailStruct extends ApplicationBasicStruct
     {
         $this->paymentMethod = $paymentMethod;
     }
-
 
     public function getShippingMethod(): ShippingMethodBasicStruct
     {
@@ -53,7 +43,6 @@ class ApplicationDetailStruct extends ApplicationBasicStruct
         $this->shippingMethod = $shippingMethod;
     }
 
-
     public function getCountry(): CountryBasicStruct
     {
         return $this->country;
@@ -63,5 +52,4 @@ class ApplicationDetailStruct extends ApplicationBasicStruct
     {
         $this->country = $country;
     }
-
 }

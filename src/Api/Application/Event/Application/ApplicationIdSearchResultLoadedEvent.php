@@ -1,10 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Api\Application\Event\Application;
 
 use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Context\Struct\ApplicationContext;
-use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class ApplicationIdSearchResultLoadedEvent extends NestedEvent

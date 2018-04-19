@@ -11,13 +11,12 @@ use Shopware\Api\Entity\Field\FkField;
 use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\LongTextField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
-use Shopware\Api\Entity\Field\ReferenceVersionField;
 use Shopware\Api\Entity\Field\StringField;
+use Shopware\Api\Entity\Field\TenantIdField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Entity\Write\Flag\SearchRanking;
-use Shopware\Api\Shop\Definition\ShopDefinition;
 use Shopware\Api\Snippet\Collection\SnippetBasicCollection;
 use Shopware\Api\Snippet\Collection\SnippetDetailCollection;
 use Shopware\Api\Snippet\Event\Snippet\SnippetDeletedEvent;
@@ -55,6 +54,7 @@ class SnippetDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
+            new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('application_id', 'applicationId', ApplicationDefinition::class))->setFlags(new Required()),
             (new StringField('namespace', 'namespace'))->setFlags(new Required(), new SearchRanking(self::MIDDLE_SEARCH_RANKING)),

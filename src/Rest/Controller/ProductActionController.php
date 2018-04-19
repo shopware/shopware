@@ -28,7 +28,7 @@ class ProductActionController extends Controller
      * @Route("/api/product/{productId}/actions/generate-variants", name="api.product.actions.generate-variants")
      * @Method({"POST"})
      *
-     * @param string      $productId
+     * @param string             $productId
      * @param ApplicationContext $context
      *
      * @throws \Shopware\Product\Exception\NoConfiguratorFoundException

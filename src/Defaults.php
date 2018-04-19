@@ -4,6 +4,8 @@ namespace Shopware;
 
 final class Defaults
 {
+    public const TENANT_ID = 'ffffffffffffffffffffffffffffffff';
+
     public const APPLICATION = 'ffffffffffffffffffffffffffffffff';
 
     public const LANGUAGE = 'ffffffffffffffffffffffffffffffff';

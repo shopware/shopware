@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Api\Entity\Dbal\FieldResolver;
 
@@ -37,7 +37,6 @@ class TranslationFieldResolver implements FieldResolverInterface
         $alias = $root . '.' . $parent->getPropertyName();
 
         $this->joinTranslationTable($alias, $definition, $query, $context);
-
     }
 
     private function joinTranslationTable(string $root, string $definition, QueryBuilder $query, ApplicationContext $context): void
@@ -71,7 +70,8 @@ class TranslationFieldResolver implements FieldResolverInterface
                     $definition::getEntityName(),
                     EntityDefinitionQueryHelper::escape($root),
                 ],
-                '#alias#.#entity#_id = #root#.id AND #alias#.language_id = :languageId' . $versionJoin
+                '#alias#.#entity#_id = #root#.id AND #alias#.language_id = :languageId' . $versionJoin .
+                ' AND #alias#.#entity#_tenant_id = #root#.tenant_id'
             )
         );
 
@@ -92,11 +92,11 @@ class TranslationFieldResolver implements FieldResolverInterface
                     $definition::getEntityName(),
                     EntityDefinitionQueryHelper::escape($root),
                 ],
-                '#alias#.`#entity#_id` = #root#.`id` AND #alias#.`language_id` = :fallbackLanguageId' . $versionJoin
+                '#alias#.`#entity#_id` = #root#.`id` AND #alias#.`language_id` = :fallbackLanguageId' . $versionJoin .
+                ' AND #alias#.#entity#_tenant_id = #root#.tenant_id'
             )
         );
         $languageId = Uuid::fromStringToBytes($context->getFallbackLanguageId());
         $query->setParameter('fallbackLanguageId', $languageId);
     }
-
 }

@@ -5,7 +5,6 @@ namespace Shopware\Api\Customer\Struct;
 use Shopware\Api\Application\Struct\ApplicationBasicStruct;
 use Shopware\Api\Entity\Entity;
 use Shopware\Api\Payment\Struct\PaymentMethodBasicStruct;
-use Shopware\Api\Shop\Struct\ShopBasicStruct;
 
 class CustomerBasicStruct extends Entity
 {

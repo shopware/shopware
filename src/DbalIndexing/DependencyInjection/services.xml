@@ -34,7 +34,6 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Category\Extension\CategoryPathBuilder"/>
-            <argument type="service" id="Shopware\Api\Shop\Repository\ShopRepository"/>
             <argument type="service" id="Shopware\DbalIndexing\Product\CategoryAssignmentUpdater"/>
             <argument type="service" id="Shopware\DbalIndexing\Product\InheritanceJoinIdUpdater"/>
             <argument type="service" id="Shopware\DbalIndexing\Product\ListingPriceUpdater"/>

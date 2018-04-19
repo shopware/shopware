@@ -25,11 +25,11 @@ class TemplateFinder
 
     private $defaultBundles = [
         'Administration',
-        'Rest'
+        'Rest',
     ];
 
     /**
-     * @param Kernel $kernel
+     * @param Kernel                  $kernel
      * @param \Twig_Loader_Filesystem $loader
      */
     public function __construct(Kernel $kernel, \Twig_Loader_Filesystem $loader)
@@ -37,7 +37,7 @@ class TemplateFinder
         $this->loader = $loader;
 
         foreach ($this->defaultBundles as $bundleName) {
-            $bundlePath  = $kernel->getBundle($bundleName)->getPath();
+            $bundlePath = $kernel->getBundle($bundleName)->getPath();
             $this->loader->addPath($bundlePath . '/Resources/views', $bundleName);
         }
 
@@ -47,7 +47,7 @@ class TemplateFinder
             if ($namespace[0] === '!' || $namespace === '__main__') {
                 continue;
             }
-            
+
             $this->directories[] = '@' . $namespace;
         }
 

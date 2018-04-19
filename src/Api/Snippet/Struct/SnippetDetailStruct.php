@@ -3,7 +3,6 @@
 namespace Shopware\Api\Snippet\Struct;
 
 use Shopware\Api\Application\Struct\ApplicationBasicStruct;
-use Shopware\Api\Shop\Struct\ShopBasicStruct;
 
 class SnippetDetailStruct extends SnippetBasicStruct
 {

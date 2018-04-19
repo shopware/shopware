@@ -43,7 +43,7 @@ class EntityAggregator implements EntityAggregatorInterface
      * @var SqlQueryParser
      */
     private $queryParser;
-    
+
     /**
      * @var EntityDefinitionQueryHelper
      */

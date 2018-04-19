@@ -3,7 +3,6 @@
 namespace Shopware\DbalIndexing\Product;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Api\Entity\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 use Shopware\Framework\Doctrine\MultiInsertQueryQueue;
@@ -34,6 +33,7 @@ class CategoryAssignmentUpdater
         $versionId = Uuid::fromStringToBytes($context->getVersionId());
         $liveVersionId = Uuid::fromStringToBytes(Defaults::LIVE_VERSION);
 
+        $tenantId = Uuid::fromStringToBytes($context->getTenantId());
         foreach ($categories as $productId => $mapping) {
             $categoryIds = $this->mapCategories($mapping);
 
@@ -43,11 +43,12 @@ class CategoryAssignmentUpdater
             }
 
             $this->connection->executeUpdate(
-                'UPDATE product SET category_tree = :tree WHERE id = :id AND version_id = :version',
+                'UPDATE product SET category_tree = :tree WHERE id = :id AND version_id = :version AND tenant_id = :tenant',
                 [
                     'id' => $productId,
                     'tree' => $json,
-                    'version' => Uuid::fromStringToBytes($context->getVersionId()),
+                    'version' => $versionId,
+                    'tenant' => $tenantId
                 ]
             );
 
@@ -58,16 +59,18 @@ class CategoryAssignmentUpdater
             foreach ($categoryIds as $id) {
                 $query->addInsert('product_category_tree', [
                     'product_id' => $productId,
+                    'product_tenant_id' => $tenantId,
                     'product_version_id' => $versionId,
                     'category_id' => Uuid::fromStringToBytes($id),
+                    'category_tenant_id' => $tenantId,
                     'category_version_id' => $liveVersionId,
                 ]);
             }
         }
 
         $this->connection->executeUpdate(
-            'DELETE FROM product_category_tree WHERE product_id IN (:ids)',
-            ['ids' => array_keys($categories)],
+            'DELETE FROM product_category_tree WHERE product_id IN (:ids) AND product_tenant_id = :tenant',
+            ['ids' => array_keys($categories), 'tenant' => $tenantId],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
 
@@ -83,13 +86,15 @@ class CategoryAssignmentUpdater
             "GROUP_CONCAT(HEX(category.id) SEPARATOR '||') as ids",
         ]);
         $query->from('product');
-        $query->leftJoin('product', 'product_category', 'mapping', 'mapping.product_id = product.id AND product.version_id = mapping.product_version_id');
-        $query->leftJoin('mapping', 'category', 'category', 'category.id = mapping.category_id AND category.version_id = :live');
+        $query->leftJoin('product', 'product_category', 'mapping', 'mapping.product_id = product.id AND product.version_id = mapping.product_version_id AND product.tenant_id = mapping.product_tenant_id');
+        $query->leftJoin('mapping', 'category', 'category', 'category.id = mapping.category_id AND category.version_id = :live AND category.tenant_id = product.tenant_id');
         $query->addGroupBy('product.id');
 
         $query->andWhere('product.id IN (:ids)');
         $query->andWhere('product.version_id = :version');
+        $query->andWhere('product.tenant_id = :tenant');
 
+        $query->setParameter('tenant', Uuid::fromStringToBytes($context->getTenantId()));
         $query->setParameter('version', Uuid::fromStringToBytes($context->getVersionId()));
         $query->setParameter('live', Uuid::fromStringToBytes(Defaults::LIVE_VERSION));
 

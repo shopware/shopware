@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Framework\Routing;
 
@@ -39,6 +39,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
                 PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT,
                 $master->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT)
             );
+
             return;
         }
 
@@ -50,6 +51,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         $currencyFactory = 1.0;
 
         $context = new ApplicationContext(
+            $master->headers->get(PlatformRequest::HEADER_TENANT_ID),
             Defaults::APPLICATION,
             null,
             [],

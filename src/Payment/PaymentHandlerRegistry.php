@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Payment;
 
@@ -19,11 +19,6 @@ class PaymentHandlerRegistry
         }
     }
 
-    private function add(PaymentHandlerInterface $handler)
-    {
-        $this->handlers[\get_class($handler)] = $handler;
-    }
-
     public function get(string $class)
     {
         if (!array_key_exists($class, $this->handlers)) {
@@ -31,5 +26,10 @@ class PaymentHandlerRegistry
         }
 
         return $this->handlers[$class];
+    }
+
+    private function add(PaymentHandlerInterface $handler)
+    {
+        $this->handlers[\get_class($handler)] = $handler;
     }
 }

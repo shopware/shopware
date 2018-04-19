@@ -19,7 +19,7 @@ class ProductActionControllerTest extends ApiTestCase
     protected function setUp()
     {
         parent::setUp();
-        
+
         $this->productRepository = $this->getContainer()->get(ProductRepository::class);
     }
 
@@ -62,7 +62,7 @@ class ProductActionControllerTest extends ApiTestCase
 
         $this->assertSame(204, $this->apiClient->getResponse()->getStatusCode());
 
-        $product = $this->productRepository->readDetail([$id], ApplicationContext::createDefaultContext())
+        $product = $this->productRepository->readDetail([$id], ApplicationContext::createDefaultContext(\Shopware\Defaults::TENANT_ID))
             ->get($id);
 
         /** @var ProductDetailStruct $product */
@@ -95,7 +95,7 @@ class ProductActionControllerTest extends ApiTestCase
         $this->assertArrayHasKey('data', $ids);
         $this->assertCount(2, $ids['data']);
 
-        $products = $this->productRepository->readBasic($ids['data'], ApplicationContext::createDefaultContext());
+        $products = $this->productRepository->readBasic($ids['data'], ApplicationContext::createDefaultContext(\Shopware\Defaults::TENANT_ID));
 
         foreach ($products as $product) {
             $this->assertSame($id, $product->getParentId());

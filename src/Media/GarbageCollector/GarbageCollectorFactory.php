@@ -124,6 +124,7 @@ class GarbageCollectorFactory
         return [];
         $mediaPositions = [];
 
+        //todo@dr tenant id missing
         // value is just the media ID
         $singleSelectionColumns = $this->connection->createQueryBuilder()
             ->select(['table_name', 'column_name'])

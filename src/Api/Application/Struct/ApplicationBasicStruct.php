@@ -6,10 +6,8 @@ use Shopware\Api\Currency\Struct\CurrencyBasicStruct;
 use Shopware\Api\Entity\Entity;
 use Shopware\Api\Language\Struct\LanguageBasicStruct;
 
-
 class ApplicationBasicStruct extends Entity
 {
-
     /**
      * @var string
      */
@@ -58,7 +56,7 @@ class ApplicationBasicStruct extends Entity
     /**
      * @var array
      */
-    protected $catalogIds;
+    protected $catalogIds = [];
 
     /**
      * @var array
@@ -105,7 +103,6 @@ class ApplicationBasicStruct extends Entity
      */
     protected $language;
 
-
     public function getLanguageId(): string
     {
         return $this->languageId;
@@ -115,7 +112,6 @@ class ApplicationBasicStruct extends Entity
     {
         $this->languageId = $languageId;
     }
-
 
     public function getCurrencyId(): string
     {
@@ -127,7 +123,6 @@ class ApplicationBasicStruct extends Entity
         $this->currencyId = $currencyId;
     }
 
-
     public function getPaymentMethodId(): string
     {
         return $this->paymentMethodId;
@@ -137,7 +132,6 @@ class ApplicationBasicStruct extends Entity
     {
         $this->paymentMethodId = $paymentMethodId;
     }
-
 
     public function getShippingMethodId(): string
     {
@@ -149,7 +143,6 @@ class ApplicationBasicStruct extends Entity
         $this->shippingMethodId = $shippingMethodId;
     }
 
-
     public function getCountryId(): string
     {
         return $this->countryId;
@@ -159,7 +152,6 @@ class ApplicationBasicStruct extends Entity
     {
         $this->countryId = $countryId;
     }
-
 
     public function getType(): string
     {
@@ -171,7 +163,6 @@ class ApplicationBasicStruct extends Entity
         $this->type = $type;
     }
 
-
     public function getName(): string
     {
         return $this->name;
@@ -181,7 +172,6 @@ class ApplicationBasicStruct extends Entity
     {
         $this->name = $name;
     }
-
 
     public function getAccessKey(): string
     {
@@ -193,7 +183,6 @@ class ApplicationBasicStruct extends Entity
         $this->accessKey = $accessKey;
     }
 
-
     public function getSecretAccessKey(): string
     {
         return $this->secretAccessKey;
@@ -203,7 +192,6 @@ class ApplicationBasicStruct extends Entity
     {
         $this->secretAccessKey = $secretAccessKey;
     }
-
 
     public function getCatalogIds(): array
     {
@@ -215,7 +203,6 @@ class ApplicationBasicStruct extends Entity
         $this->catalogIds = $catalogIds;
     }
 
-
     public function getCurrencyIds(): array
     {
         return $this->currencyIds;
@@ -225,7 +212,6 @@ class ApplicationBasicStruct extends Entity
     {
         $this->currencyIds = $currencyIds;
     }
-
 
     public function getLanguageIds(): array
     {
@@ -237,7 +223,6 @@ class ApplicationBasicStruct extends Entity
         $this->languageIds = $languageIds;
     }
 
-
     public function getConfiguration(): ?array
     {
         return $this->configuration;
@@ -247,7 +232,6 @@ class ApplicationBasicStruct extends Entity
     {
         $this->configuration = $configuration;
     }
-
 
     public function getActive(): bool
     {
@@ -259,7 +243,6 @@ class ApplicationBasicStruct extends Entity
         $this->active = $active;
     }
 
-
     public function getTaxCalculationType(): string
     {
         return $this->taxCalculationType;
@@ -270,7 +253,6 @@ class ApplicationBasicStruct extends Entity
         $this->taxCalculationType = $taxCalculationType;
     }
 
-
     public function getCreatedAt(): ?\DateTime
     {
         return $this->createdAt;
@@ -280,7 +262,6 @@ class ApplicationBasicStruct extends Entity
     {
         $this->createdAt = $createdAt;
     }
-
 
     public function getUpdatedAt(): ?\DateTime
     {
@@ -314,5 +295,4 @@ class ApplicationBasicStruct extends Entity
     {
         $this->language = $language;
     }
-
 }

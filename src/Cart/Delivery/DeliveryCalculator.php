@@ -33,7 +33,9 @@ use Shopware\Cart\Price\PriceCalculator;
 use Shopware\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Cart\Price\Struct\PriceDefinition;
 use Shopware\Cart\Tax\PercentageTaxRuleBuilder;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Context\Struct\StorefrontContext;
+use Shopware\Framework\Struct\Uuid;
 
 class DeliveryCalculator
 {
@@ -77,7 +79,8 @@ class DeliveryCalculator
                 $costs = $this->calculateShippingCosts(
                     $this->findShippingCosts(
                         $delivery->getShippingMethod(),
-                        $delivery->getPositions()->getWeight()
+                        $delivery->getPositions()->getWeight(),
+                        $context->getApplicationContext()
                     ),
                     $delivery->getPositions()->getLineItems(),
                     $context
@@ -88,7 +91,8 @@ class DeliveryCalculator
                 $costs = $this->calculateShippingCosts(
                     $this->findShippingCosts(
                         $delivery->getShippingMethod(),
-                        $delivery->getPositions()->getPrices()->sum()->getTotalPrice()
+                        $delivery->getPositions()->getPrices()->sum()->getTotalPrice(),
+                        $context->getApplicationContext()
                     ),
                     $delivery->getPositions()->getLineItems(),
                     $context
@@ -100,7 +104,8 @@ class DeliveryCalculator
                 $costs = $this->calculateShippingCosts(
                     $this->findShippingCosts(
                         $delivery->getShippingMethod(),
-                        $delivery->getPositions()->getQuantity()
+                        $delivery->getPositions()->getQuantity(),
+                        $context->getApplicationContext()
                     ),
                     $delivery->getPositions()->getLineItems(),
                     $context
@@ -132,15 +137,17 @@ class DeliveryCalculator
         return $this->priceCalculator->calculate($definition, $context);
     }
 
-    private function findShippingCosts(ShippingMethodBasicStruct $shippingMethod, float $value): float
+    private function findShippingCosts(ShippingMethodBasicStruct $shippingMethod, float $value, ApplicationContext $context): float
     {
         $query = $this->connection->createQueryBuilder();
         $query->select('costs.price');
         $query->from('shipping_method_price', 'costs');
         $query->andWhere('costs.`quantity_from` <= :value');
         $query->andWhere('costs.shipping_method_id = :id');
+        $query->andWhere('costs.tenant_id = :tenant');
         $query->setParameter('id', $shippingMethod->getId());
         $query->setParameter('value', $value);
+        $query->setParameter('tenant', Uuid::fromHexToBytes($context->getTenantId()));
         $query->addOrderBy('price', 'DESC');
         $query->setMaxResults(1);
 

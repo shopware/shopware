@@ -114,6 +114,12 @@
             <argument type="service" id="Shopware\Api\Category\Repository\CategoryRepository"/>
         </service>
 
+        <service class="Shopware\Framework\Command\CreateTenantCommand" id="Shopware\Framework\Command\CreateTenantCommand">
+            <tag name="console.command" command="framework:create:tenant" />
+            <argument>framework:create:tenant</argument>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
         <!-- Serializer -->
         <service class="Shopware\Framework\Serializer\StructNormalizer" id="Shopware\Framework\Serializer\StructNormalizer">
             <tag name="serializer.normalizer"/>

@@ -165,11 +165,12 @@ class StoreFrontCartService
             //try to access existing cart, identified by session token
             return $this->cart = $this->persister->load(
                 $context->getToken(),
-                self::CART_NAME
+                self::CART_NAME,
+                $context
             );
         } catch (\Exception $e) {
             //token not found, create new cart
-            return $this->cart = $this->createNewCart();
+            return $this->cart = $this->createNewCart($context);
         }
     }
 
@@ -193,7 +194,7 @@ class StoreFrontCartService
 
     private function createNewCart(StorefrontContext $context): Cart
     {
-        $this->persister->delete($context->getToken());
+        $this->persister->delete($context->getToken(), self::CART_NAME, $context);
         $this->cart = Cart::createNew(self::CART_NAME, $context->getToken());
         $this->calculated = null;
 

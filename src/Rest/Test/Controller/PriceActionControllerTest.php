@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Rest\Test\Controller;
 
@@ -36,13 +36,12 @@ class PriceActionControllerTest extends ApiTestCase
     public function testPriceMissingExecption()
     {
         $this->apiClient->request('POST', '/api/price/actions/calculate');
-        
+
         $response = $this->apiClient->getResponse()->getContent();
         $response = json_decode($response, true);
 
         $this->assertArrayHasKey('errors', $response);
     }
-
 
     public function testTaxIdMissingException()
     {
@@ -75,13 +74,13 @@ class PriceActionControllerTest extends ApiTestCase
     {
         $taxId = Uuid::uuid4()->getHex();
         $this->repository->create([
-            ['id' => $taxId, 'rate' => 19, 'name' => 'test']
-        ], ApplicationContext::createDefaultContext());
+            ['id' => $taxId, 'rate' => 19, 'name' => 'test'],
+        ], ApplicationContext:: createDefaultContext(\Shopware\Defaults::TENANT_ID));
 
         $price = $this->sendRequest([
             'price' => 10,
             'taxId' => $taxId,
-            'calculated' => false
+            'calculated' => false,
         ]);
 
         $this->assertEquals(
@@ -89,10 +88,10 @@ class PriceActionControllerTest extends ApiTestCase
                 11.9,
                 11.9,
                 new CalculatedTaxCollection([
-                    new CalculatedTax(1.9, 19, 11.9)
+                    new CalculatedTax(1.9, 19, 11.9),
                 ]),
                 new TaxRuleCollection([
-                    new PercentageTaxRule(19, 100)
+                    new PercentageTaxRule(19, 100),
                 ])
             ),
             $price
@@ -103,14 +102,14 @@ class PriceActionControllerTest extends ApiTestCase
     {
         $taxId = Uuid::uuid4()->getHex();
         $this->repository->create([
-            ['id' => $taxId, 'rate' => 19, 'name' => 'test']
-        ], ApplicationContext::createDefaultContext());
+            ['id' => $taxId, 'rate' => 19, 'name' => 'test'],
+        ], ApplicationContext:: createDefaultContext(\Shopware\Defaults::TENANT_ID));
 
         $price = $this->sendRequest([
             'price' => 10.002,
             'output' => 'net',
             'taxId' => $taxId,
-            'calculated' => false
+            'calculated' => false,
         ]);
 
         $this->assertEquals(
@@ -118,10 +117,10 @@ class PriceActionControllerTest extends ApiTestCase
                 10,
                 10,
                 new CalculatedTaxCollection([
-                    new CalculatedTax(1.9, 19, 10.0)
+                    new CalculatedTax(1.9, 19, 10.0),
                 ]),
                 new TaxRuleCollection([
-                    new PercentageTaxRule(19, 100)
+                    new PercentageTaxRule(19, 100),
                 ])
             ),
             $price
@@ -132,13 +131,13 @@ class PriceActionControllerTest extends ApiTestCase
     {
         $taxId = Uuid::uuid4()->getHex();
         $this->repository->create([
-            ['id' => $taxId, 'rate' => 19, 'name' => 'test']
-        ], ApplicationContext::createDefaultContext());
+            ['id' => $taxId, 'rate' => 19, 'name' => 'test'],
+        ], ApplicationContext:: createDefaultContext(\Shopware\Defaults::TENANT_ID));
 
         $price = $this->sendRequest([
             'price' => 11.9,
             'taxId' => $taxId,
-            'calculated' => true
+            'calculated' => true,
         ]);
 
         $this->assertEquals(
@@ -146,10 +145,10 @@ class PriceActionControllerTest extends ApiTestCase
                 11.9,
                 11.9,
                 new CalculatedTaxCollection([
-                    new CalculatedTax(1.9, 19, 11.9)
+                    new CalculatedTax(1.9, 19, 11.9),
                 ]),
                 new TaxRuleCollection([
-                    new PercentageTaxRule(19, 100)
+                    new PercentageTaxRule(19, 100),
                 ])
             ),
             $price
@@ -160,14 +159,14 @@ class PriceActionControllerTest extends ApiTestCase
     {
         $taxId = Uuid::uuid4()->getHex();
         $this->repository->create([
-            ['id' => $taxId, 'rate' => 19, 'name' => 'test']
-        ], ApplicationContext::createDefaultContext());
+            ['id' => $taxId, 'rate' => 19, 'name' => 'test'],
+        ], ApplicationContext:: createDefaultContext(\Shopware\Defaults::TENANT_ID));
 
         $price = $this->sendRequest([
             'price' => 10,
             'quantity' => 2,
             'taxId' => $taxId,
-            'calculated' => false
+            'calculated' => false,
         ]);
 
         $this->assertEquals(
@@ -175,10 +174,10 @@ class PriceActionControllerTest extends ApiTestCase
                 11.9,
                 23.8,
                 new CalculatedTaxCollection([
-                    new CalculatedTax(3.8, 19, 23.8)
+                    new CalculatedTax(3.8, 19, 23.8),
                 ]),
                 new TaxRuleCollection([
-                    new PercentageTaxRule(19, 100)
+                    new PercentageTaxRule(19, 100),
                 ]),
                 2
             ),
@@ -190,14 +189,14 @@ class PriceActionControllerTest extends ApiTestCase
     {
         $taxId = Uuid::uuid4()->getHex();
         $this->repository->create([
-            ['id' => $taxId, 'rate' => 19, 'name' => 'test']
-        ], ApplicationContext::createDefaultContext());
+            ['id' => $taxId, 'rate' => 19, 'name' => 'test'],
+        ], ApplicationContext:: createDefaultContext(\Shopware\Defaults::TENANT_ID));
 
         $price = $this->sendRequest([
             'price' => 10,
             'quantity' => 2,
             'taxId' => $taxId,
-            'calculated' => true
+            'calculated' => true,
         ]);
 
         $this->assertEquals(
@@ -205,10 +204,10 @@ class PriceActionControllerTest extends ApiTestCase
                 10,
                 20,
                 new CalculatedTaxCollection([
-                    new CalculatedTax(3.19, 19, 20)
+                    new CalculatedTax(3.19, 19, 20),
                 ]),
                 new TaxRuleCollection([
-                    new PercentageTaxRule(19, 100)
+                    new PercentageTaxRule(19, 100),
                 ]),
                 2
             ),
@@ -220,14 +219,14 @@ class PriceActionControllerTest extends ApiTestCase
     {
         $taxId = Uuid::uuid4()->getHex();
         $this->repository->create([
-            ['id' => $taxId, 'rate' => 19, 'name' => 'test']
-        ], ApplicationContext::createDefaultContext());
+            ['id' => $taxId, 'rate' => 19, 'name' => 'test'],
+        ], ApplicationContext:: createDefaultContext(\Shopware\Defaults::TENANT_ID));
 
         $price = $this->sendRequest([
             'price' => 11.9,
             'output' => 'net',
             'taxId' => $taxId,
-            'calculated' => true
+            'calculated' => true,
         ]);
 
         $this->assertEquals(
@@ -235,10 +234,10 @@ class PriceActionControllerTest extends ApiTestCase
                 11.9,
                 11.9,
                 new CalculatedTaxCollection([
-                    new CalculatedTax(2.26, 19, 11.9)
+                    new CalculatedTax(2.26, 19, 11.9),
                 ]),
                 new TaxRuleCollection([
-                    new PercentageTaxRule(19, 100)
+                    new PercentageTaxRule(19, 100),
                 ])
             ),
             $price
@@ -261,15 +260,14 @@ class PriceActionControllerTest extends ApiTestCase
             $data['unitPrice'],
             $data['totalPrice'],
             new CalculatedTaxCollection(
-                array_map(function($row) {
+                array_map(function ($row) {
                     return new CalculatedTax($row['tax'], $row['taxRate'], $row['price']);
-                },$data['calculatedTaxes'])
+                }, $data['calculatedTaxes'])
             ),
-            new TaxRuleCollection(array_map(function($row) {
+            new TaxRuleCollection(array_map(function ($row) {
                 return new PercentageTaxRule($row['rate'], $row['percentage']);
             }, $data['taxRules'])),
             $data['quantity']
         );
     }
-
 }

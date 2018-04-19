@@ -64,7 +64,7 @@ class TokenFactoryTest extends KernelTestCase
         $this->container = self::$kernel->getContainer();
 
         $this->tokenFactory = $this->container->get(PaymentTransactionTokenFactory::class);
-        $this->applicationContext = ApplicationContext::createDefaultContext();
+        $this->applicationContext = ApplicationContext:: createDefaultContext(\Shopware\Defaults::TENANT_ID);
         $this->connection = $this->container->get(Connection::class);
 
         $this->orderRepository = $this->container->get(OrderRepository::class);
@@ -80,10 +80,12 @@ class TokenFactoryTest extends KernelTestCase
     {
         $transactionId = $this->prepare();
 
-        $transactions = $this->orderTransactionRepository->readBasic([$transactionId], ApplicationContext::createDefaultContext());
+        $transactions = $this->orderTransactionRepository->readBasic([$transactionId], ApplicationContext:: createDefaultContext(\Shopware\Defaults::TENANT_ID));
 
+        $context = ApplicationContext::createDefaultContext(Defaults::TENANT_ID);
         $tokenIdentifier = $this->tokenFactory->generateToken(
-            $transactions->get($transactionId)
+            $transactions->get($transactionId),
+            $context
         );
 
         $token = $this->connection->fetchAssoc('SELECT * FROM payment_token WHERE token = ?;', [$tokenIdentifier]);
@@ -101,13 +103,16 @@ class TokenFactoryTest extends KernelTestCase
     {
         $transactionId = $this->prepare();
 
-        $transactions = $this->orderTransactionRepository->readBasic([$transactionId], ApplicationContext::createDefaultContext());
+        $transactions = $this->orderTransactionRepository->readBasic([$transactionId], ApplicationContext:: createDefaultContext(\Shopware\Defaults::TENANT_ID));
+
+        $context = ApplicationContext::createDefaultContext(Defaults::TENANT_ID);
 
         $tokenIdentifier = $this->tokenFactory->generateToken(
-            $transactions->get($transactionId)
+            $transactions->get($transactionId),
+            $context
         );
 
-        $token = $this->tokenFactory->validateToken($tokenIdentifier);
+        $token = $this->tokenFactory->validateToken($tokenIdentifier, $context);
 
         self::assertEquals($transactionId, $token->getTransactionId());
         self::assertEquals($tokenIdentifier, $token->getToken());
@@ -122,13 +127,15 @@ class TokenFactoryTest extends KernelTestCase
     {
         $transactionId = $this->prepare();
 
-        $transactions = $this->orderTransactionRepository->readBasic([$transactionId], ApplicationContext::createDefaultContext());
+        $transactions = $this->orderTransactionRepository->readBasic([$transactionId], ApplicationContext:: createDefaultContext(\Shopware\Defaults::TENANT_ID));
+        $context = ApplicationContext::createDefaultContext(Defaults::TENANT_ID);
 
         $tokenIdentifier = $this->tokenFactory->generateToken(
-            $transactions->get($transactionId)
+            $transactions->get($transactionId),
+            $context
         );
 
-        $success = $this->tokenFactory->invalidateToken($tokenIdentifier);
+        $success = $this->tokenFactory->invalidateToken($tokenIdentifier, $context);
 
         self::assertTrue($success);
     }

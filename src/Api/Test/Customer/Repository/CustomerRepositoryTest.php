@@ -121,16 +121,16 @@ class CustomerRepositoryTest extends KernelTestCase
             ],
         ];
 
-        $this->repository->create($records, ApplicationContext::createDefaultContext());
+        $this->repository->create($records, ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
 
         $criteria = new Criteria();
 
         $builder = $this->container->get(EntityScoreQueryBuilder::class);
-        $pattern = $this->container->get(SearchTermInterpreter::class)->interpret('match', ApplicationContext::createDefaultContext());
+        $pattern = $this->container->get(SearchTermInterpreter::class)->interpret('match', ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
         $queries = $builder->buildScoreQueries($pattern, CustomerDefinition::class, CustomerDefinition::getEntityName());
         $criteria->addQueries($queries);
 
-        $result = $this->repository->searchIds($criteria, ApplicationContext::createDefaultContext());
+        $result = $this->repository->searchIds($criteria, ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
 
         $this->assertCount(4, $result->getIds());
 

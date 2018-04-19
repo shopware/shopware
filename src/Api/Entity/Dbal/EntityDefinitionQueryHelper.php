@@ -49,6 +49,7 @@ class EntityDefinitionQueryHelper
 
     /**
      * Returns the field instance of the provided fieldName.
+     *
      * @example
      *
      * fieldName => 'product.name'
@@ -174,7 +175,6 @@ class EntityDefinitionQueryHelper
 
         if ($definition::isVersionAware() && $context->getVersionId() !== Defaults::LIVE_VERSION) {
             $this->joinVersion($query, $definition, $definition::getEntityName(), $context);
-
         } elseif ($definition::isVersionAware()) {
             $query->andWhere(self::escape($table) . '.`version_id` = :version');
             $query->setParameter('version', Uuid::fromStringToBytes($context->getVersionId()));
@@ -188,6 +188,11 @@ class EntityDefinitionQueryHelper
             $query->andWhere(self::escape($table) . '.`catalog_id` IN (:catalogIds)');
             $query->setParameter('catalogIds', $catalogIds, Connection::PARAM_STR_ARRAY);
         }
+
+        if ($definition::isTenantAware()) {
+            $query->andWhere(self::escape($table) . '.`tenant_id` = :tenant');
+            $query->setParameter('tenant', Uuid::fromHexToBytes($context->getTenantId()));
+        };
 
         return $query;
     }
@@ -306,13 +311,16 @@ class EntityDefinitionQueryHelper
         $versionQuery->select([
             'COALESCE(draft.`id`, live.`id`) as id',
             'COALESCE(draft.`version_id`, live.`version_id`) as version_id',
+            'live.`tenant_id` as tenant_id',
         ]);
         $versionQuery->from(self::escape($table), 'live');
-        $versionQuery->leftJoin('live', self::escape($table), 'draft', 'draft.`id` = live.`id` AND draft.`version_id` = :version');
+        $versionQuery->leftJoin('live', self::escape($table), 'draft', 'draft.`id` = live.`id` AND draft.`version_id` = :version AND draft.tenant_id = live.tenant_id');
         $versionQuery->andWhere('live.`version_id` = :liveVersion');
+        $versionQuery->andWhere('live.tenant_id = :tenant');
 
         $query->setParameter('liveVersion', Uuid::fromStringToBytes(Defaults::LIVE_VERSION));
         $query->setParameter('version', Uuid::fromStringToBytes($context->getVersionId()));
+        $query->setParameter('tenant', Uuid::fromStringToBytes($context->getTenantId()));
 
         $versionRoot = $root . '_version';
 
@@ -323,7 +331,7 @@ class EntityDefinitionQueryHelper
             str_replace(
                 ['#version#', '#root#'],
                 [self::escape($versionRoot), self::escape($root)],
-                '#version#.`version_id` = #root#.`version_id` AND #version#.`id` = #root#.`id`'
+                '#version#.`version_id` = #root#.`version_id` AND #version#.`id` = #root#.`id` AND #root#.tenant_id = #version#.tenant_id'
             )
         );
     }
@@ -369,7 +377,7 @@ class EntityDefinitionQueryHelper
 
     private function buildInheritedAccessor(Field $field, string $root, string $definition, ApplicationContext $context, string $original): string
     {
-        /** @var string|EntityDefinition $definition */
+        /* @var string|EntityDefinition $definition */
         if ($field instanceof TranslatedField) {
             $inheritedChain = $this->buildTranslationChain($root, $definition, $context);
 

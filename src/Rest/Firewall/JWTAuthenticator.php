@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Rest\Firewall;
 
@@ -48,7 +48,7 @@ class JWTAuthenticator extends AbstractGuardAuthenticator
      *  B) For an API token authentication system, you return a 401 response
      *      return new Response('Auth header required', 401);
      *
-     * @param Request $request The request that resulted in an AuthenticationException
+     * @param Request                 $request       The request that resulted in an AuthenticationException
      * @param AuthenticationException $authException The exception that started the authentication process
      *
      * @return Response
@@ -80,7 +80,7 @@ class JWTAuthenticator extends AbstractGuardAuthenticator
         $authorizationHeader = $request->headers->get('Authorization');
         $headerParts = explode(' ', $authorizationHeader);
 
-        if (!(2 === count($headerParts) && $headerParts[0] === 'Bearer')) {
+        if (!(count($headerParts) === 2 && $headerParts[0] === 'Bearer')) {
             return false;
         }
 
@@ -106,9 +106,9 @@ class JWTAuthenticator extends AbstractGuardAuthenticator
      *
      * @param Request $request
      *
-     * @return mixed Any non-null value
-     *
      * @throws \UnexpectedValueException If null is returned
+     *
+     * @return mixed Any non-null value
      */
     public function getCredentials(Request $request)
     {
@@ -134,7 +134,7 @@ class JWTAuthenticator extends AbstractGuardAuthenticator
      * You may throw an AuthenticationException if you wish. If you return
      * null, then a UsernameNotFoundException is thrown for you.
      *
-     * @param mixed $credentials
+     * @param mixed                 $credentials
      * @param UserProviderInterface $userProvider
      *
      * @throws AuthenticationException
@@ -147,6 +147,7 @@ class JWTAuthenticator extends AbstractGuardAuthenticator
             throw new UsernameNotFoundException();
         }
 
+        //todo@dr no tenant id here
         $builder = $this->connection->createQueryBuilder();
         $user = $builder->select([
                 'user.id',
@@ -181,12 +182,12 @@ class JWTAuthenticator extends AbstractGuardAuthenticator
      *
      * The *credentials* are the return value from getCredentials()
      *
-     * @param mixed $credentials
+     * @param mixed         $credentials
      * @param UserInterface $user
      *
-     * @return bool
-     *
      * @throws AuthenticationException
+     *
+     * @return bool
      */
     public function checkCredentials($credentials, UserInterface $user)
     {
@@ -202,7 +203,7 @@ class JWTAuthenticator extends AbstractGuardAuthenticator
      * If you return null, the request will continue, but the user will
      * not be authenticated. This is probably not what you want to do.
      *
-     * @param Request $request
+     * @param Request                 $request
      * @param AuthenticationException $exception
      *
      * @return Response|null
@@ -221,9 +222,9 @@ class JWTAuthenticator extends AbstractGuardAuthenticator
      * If you return null, the current request will continue, and the user
      * will be authenticated. This makes sense, for example, with an API.
      *
-     * @param Request $request
+     * @param Request        $request
      * @param TokenInterface $token
-     * @param string $providerKey The provider (i.e. firewall) key
+     * @param string         $providerKey The provider (i.e. firewall) key
      *
      * @return Response|null
      */
@@ -253,7 +254,7 @@ class JWTAuthenticator extends AbstractGuardAuthenticator
 
     /**
      * @param array $payload
-     * @param int $expiry
+     * @param int   $expiry
      *
      * @return string
      */
@@ -264,7 +265,7 @@ class JWTAuthenticator extends AbstractGuardAuthenticator
         $jwtPayload = [
             'iat' => $timestamp,
             'nbf' => $timestamp,
-            'exp' => $timestamp + $expiry
+            'exp' => $timestamp + $expiry,
         ];
 
         $payload = array_merge($payload, $jwtPayload);
@@ -274,6 +275,7 @@ class JWTAuthenticator extends AbstractGuardAuthenticator
 
     public function checkPassword(string $username, string $password): bool
     {
+        //todo@dr no tenant id
         $builder = $this->connection->createQueryBuilder();
         $user = $builder->select(['user.password'])
             ->from('user')

@@ -40,7 +40,7 @@ interface CartPersisterInterface
      *
      * @return Cart
      */
-    public function load(string $token, string $name): Cart;
+    public function load(string $token, string $name, StorefrontContext $context): Cart;
 
     /**
      * @param string $token
@@ -50,9 +50,9 @@ interface CartPersisterInterface
      *
      * @return CalculatedCart
      */
-    public function loadCalculated(string $token, string $name): CalculatedCart;
+    public function loadCalculated(string $token, string $name, StorefrontContext $context): CalculatedCart;
 
     public function save(CalculatedCart $cart, StorefrontContext $context): void;
 
-    public function delete(string $token, ?string $name = null): void;
+    public function delete(string $token, ?string $name = null, StorefrontContext $context): void;
 }

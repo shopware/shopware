@@ -4,7 +4,6 @@ namespace Shopware\Api\Category\Collection;
 
 use Shopware\Api\Category\Struct\CategoryBasicStruct;
 use Shopware\Api\Entity\EntityCollection;
-use Shopware\Api\Seo\Collection\SeoUrlBasicCollection;
 
 class CategoryBasicCollection extends EntityCollection
 {

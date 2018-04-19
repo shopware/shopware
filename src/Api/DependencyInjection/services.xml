@@ -122,12 +122,6 @@
             <tag name="shopware.api.entity.write.id_generator"/>
         </service>
 
-        <service class="Shopware\Api\Entity\Write\IdGenerator\ProductNumberGenerator" id="Shopware\Api\Entity\Write\IdGenerator\ProductNumberGenerator">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-
-            <tag name="shopware.api.entity.write.id_generator"/>
-        </service>
-
         <service class="Shopware\Api\Entity\Dbal\EntityForeignKeyResolver" id="Shopware\Api\Entity\Dbal\EntityForeignKeyResolver">
             <argument id="Doctrine\DBAL\Connection" type="service"/>
             <argument type="service" id="Shopware\Api\Entity\Dbal\EntityDefinitionQueryHelper"/>

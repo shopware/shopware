@@ -4,13 +4,11 @@ namespace Shopware\Rest\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Rest\Firewall\JWTAuthenticator;
-use Shopware\Rest\Firewall\RestUserProvider;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotAcceptableHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
-use Symfony\Component\Security\Core\Exception\AuthenticationException;
 
 class AuthController extends Controller
 {
@@ -53,17 +51,17 @@ class AuthController extends Controller
             $expiry = 3600;
         }
 
-        if (false === $this->jwtAuthenticator->checkPassword($username, $password)) {
+        if ($this->jwtAuthenticator->checkPassword($username, $password) === false) {
             throw new UnauthorizedHttpException('json', 'Invalid username and/or password.');
         }
 
         $token = $this->jwtAuthenticator->createToken([
-            'username' => $username
+            'username' => $username,
         ]);
 
         return new JsonResponse([
             'token' => $token,
-            'expiry' => time() + $expiry
+            'expiry' => time() + $expiry,
         ]);
     }
 }

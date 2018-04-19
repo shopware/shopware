@@ -6,9 +6,9 @@ use Doctrine\DBAL\Connection;
 use Shopware\Api\Category\Repository\CategoryRepository;
 use Shopware\Api\Context\Repository\ContextRuleRepository;
 use Shopware\Api\Product\Repository\ProductRepository;
-use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Api\Product\Struct\ProductBasicStruct;
 use Shopware\Context\Rule\Container\AndRule;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\ArrayStruct;
 use Shopware\Framework\Struct\Uuid;
@@ -51,6 +51,47 @@ class EntityReaderTest extends KernelTestCase
         parent::tearDown();
     }
 
+    public function testMaxGroupConcat()
+    {
+        $parentId = Uuid::uuid4()->getHex();
+        $categories = [
+            ['id' => $parentId, 'name' => 'master'],
+        ];
+
+        for ($i = 0; $i < 400; ++$i) {
+            $categories[] = [
+                'id' => Uuid::uuid4()->getHex(),
+                'name' => 'test' . $i,
+                'parentId' => $parentId,
+            ];
+        }
+
+        $this->container->get(CategoryRepository::class)
+            ->create($categories, ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
+
+        $mapping = array_map(function (array $category) {
+            return ['id' => $category['id']];
+        }, $categories);
+
+        $id = Uuid::uuid4()->getHex();
+        $product = [
+            'id' => $id,
+            'name' => 'Test product',
+            'price' => ['gross' => 100, 'net' => 99],
+            'categories' => $mapping,
+            'manufacturer' => ['name' => 'Test'],
+            'tax' => ['name' => 'test', 'rate' => 5],
+        ];
+
+        $this->container->get(ProductRepository::class)
+            ->create([$product], ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
+
+        $detail = $this->container->get(ProductRepository::class)
+            ->readDetail([$id], ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
+
+        $this->assertCount(401, $detail->getAllCategories());
+    }
+
     public function testInheritanceExtension()
     {
         $redId = Uuid::uuid4()->getHex();
@@ -80,9 +121,9 @@ class EntityReaderTest extends KernelTestCase
             ],
         ];
 
-        $this->repository->create($products, ApplicationContext::createDefaultContext());
+        $this->repository->create($products, ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
 
-        $products = $this->repository->readBasic([$redId, $greenId], ApplicationContext::createDefaultContext());
+        $products = $this->repository->readBasic([$redId, $greenId], ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
 
         $this->assertTrue($products->has($redId));
         $this->assertTrue($products->has($greenId));
@@ -114,9 +155,9 @@ class EntityReaderTest extends KernelTestCase
                 'id' => $ruleA,
                 'name' => 'test',
                 'payload' => new AndRule(),
-                'priority' => 1
+                'priority' => 1,
             ],
-        ], ApplicationContext::createDefaultContext());
+        ], ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
 
         $parentId = Uuid::uuid4()->getHex();
         $greenId = Uuid::uuid4()->getHex();
@@ -156,9 +197,9 @@ class EntityReaderTest extends KernelTestCase
             ],
         ];
 
-        $this->repository->create($data, ApplicationContext::createDefaultContext());
+        $this->repository->create($data, ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
 
-        $products = $this->repository->readBasic([$redId, $greenId], ApplicationContext::createDefaultContext());
+        $products = $this->repository->readBasic([$redId, $greenId], ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
 
         $this->assertTrue($products->has($redId));
         $this->assertTrue($products->has($greenId));
@@ -207,9 +248,9 @@ class EntityReaderTest extends KernelTestCase
             ],
         ];
 
-        $this->repository->create($products, ApplicationContext::createDefaultContext());
+        $this->repository->create($products, ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
 
-        $products = $this->repository->readBasic([$redId, $greenId], ApplicationContext::createDefaultContext());
+        $products = $this->repository->readBasic([$redId, $greenId], ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
 
         $this->assertTrue($products->has($redId));
         $this->assertTrue($products->has($greenId));

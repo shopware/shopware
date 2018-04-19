@@ -40,7 +40,7 @@ class Traceable extends Bundle
             $full = 'ShopwareTracer\\' . $class;
 
             if (!class_exists($full)) {
-                require_once (string)$file;
+                require_once (string) $file;
             }
         }
     }

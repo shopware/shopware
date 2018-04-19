@@ -71,7 +71,7 @@ class AdministrationSearch
             $results[$definition] = $result;
         }
 
-        $results = $this->applyAuditLog($results, $userId);
+        $results = $this->applyAuditLog($results, $userId, $context);
 
         $flat = $this->createFlatResult($results);
 
@@ -99,7 +99,7 @@ class AdministrationSearch
     /**
      * @param string|EntityDefinition $definition
      * @param string                  $term
-     * @param ApplicationContext             $context
+     * @param ApplicationContext      $context
      *
      * @return SearchResultInterface
      */
@@ -127,7 +127,7 @@ class AdministrationSearch
      *
      * @return array
      */
-    private function applyAuditLog(array $results, string $userId): array
+    private function applyAuditLog(array $results, string $userId, ApplicationContext $context): array
     {
         $criteria = new Criteria();
         $criteria->addFilter(
@@ -144,7 +144,7 @@ class AdministrationSearch
         $criteria->addSorting(new FieldSorting('version_commit_data.ai', 'DESC'));
         $criteria->setLimit(100);
 
-        $changes = $this->changesRepository->search($criteria, ApplicationContext::createDefaultContext());
+        $changes = $this->changesRepository->search($criteria, $context);
 
         foreach ($results as $definition => $entities) {
             $definitionChanges = $changes->filterByEntity($definition);

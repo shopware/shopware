@@ -220,7 +220,7 @@ class CalculatedProduct extends Struct implements DeliverableLineItemInterface, 
         if (!$this->hasExtension($name)) {
             return $this->product->getExtension($name);
         }
+
         return parent::getExtension($name);
     }
-
 }

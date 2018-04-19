@@ -62,6 +62,7 @@ class DatabaseLoader implements LoaderInterface
     {
         $builder = $this->connection->createQueryBuilder();
 
+        //todo@dr no tenant id
         $snippets = $builder->select(['snippet.namespace', 'snippet.name', 'snippet.value'])
                 ->from('snippet', 'snippet')
                 ->where('snippet.locale = :locale')

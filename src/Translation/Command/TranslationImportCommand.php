@@ -3,6 +3,7 @@
 namespace Shopware\Translation\Command;
 
 use Shopware\Framework\Plugin\PluginCollection;
+use Shopware\Framework\Struct\Uuid;
 use Shopware\Translation\Event\ImportAdvanceEvent;
 use Shopware\Translation\Event\ImportFinishEvent;
 use Shopware\Translation\Event\ImportStartEvent;
@@ -73,6 +74,7 @@ class TranslationImportCommand extends ContainerAwareCommand implements EventSub
             ->setDefinition([
                 new InputOption('with-plugins', null, InputOption::VALUE_NONE, 'Search through plugin directories for translation files.'),
                 new InputOption('force', 'f', InputOption::VALUE_NONE, 'Truncate table before importing the translations.'),
+                new InputOption('tenant-id', 't', InputOption::VALUE_REQUIRED, 'Tenant id'),
             ]);
     }
 
@@ -83,12 +85,21 @@ class TranslationImportCommand extends ContainerAwareCommand implements EventSub
     {
         $this->io = new SymfonyStyle($input, $output);
 
+        $tenantId = $input->getOption('tenant-id');
+
+        if (!$tenantId) {
+            throw new \Exception('No tenant id provided');
+        }
+        if (!Uuid::isValid($tenantId)) {
+            throw new \Exception('Invalid uuid provided');
+        }
+
         $kernel = $this->getContainer()->get('kernel');
         $translationBundlePath = $kernel->getBundle('Translation')->getPath();
 
         $folders = [
             $translationBundlePath . '/Resources/translations',
-            $kernel->getProjectDir() . '/translations'
+            $kernel->getProjectDir() . '/translations',
         ];
 
         if ($input->getOption('with-plugins')) {
@@ -104,6 +115,6 @@ class TranslationImportCommand extends ContainerAwareCommand implements EventSub
 
         $truncate = (bool) $input->getOption('force');
 
-        $this->importService->import($folders, $truncate);
+        $this->importService->import($folders, $truncate, $tenantId);
     }
 }

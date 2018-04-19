@@ -31,19 +31,16 @@ use Shopware\DbalIndexing\Event\ProgressAdvancedEvent;
 use Shopware\DbalIndexing\Event\ProgressFinishedEvent;
 use Shopware\DbalIndexing\Event\ProgressStartedEvent;
 use Shopware\Defaults;
+use Shopware\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class BuildCategoryPathCommand extends ContainerAwareCommand implements EventSubscriberInterface
 {
-    /**
-     * @var Connection
-     */
-    private $connection;
-
     /**
      * @var CategoryPathBuilder
      */
@@ -54,10 +51,9 @@ class BuildCategoryPathCommand extends ContainerAwareCommand implements EventSub
      */
     private $io;
 
-    public function __construct(Connection $connection, CategoryPathBuilder $pathBuilder)
+    public function __construct(CategoryPathBuilder $pathBuilder)
     {
         parent::__construct('category:build:path');
-        $this->connection = $connection;
         $this->pathBuilder = $pathBuilder;
     }
 
@@ -103,13 +99,24 @@ class BuildCategoryPathCommand extends ContainerAwareCommand implements EventSub
     {
         $this
             ->setName('category:build:path')
+            ->addOption('tenant-id', 't', InputOption::VALUE_REQUIRED, 'Tenant id')
             ->setDescription('Rebuilds the category path');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->io = new SymfonyStyle($input, $output);
-        $context = ApplicationContext::createDefaultContext();
+
+        $tenantId = $input->getOption('tenant-id');
+
+        if (!$tenantId) {
+            throw new \Exception('No tenant id provided');
+        }
+        if (!Uuid::isValid($tenantId)) {
+            throw new \Exception('Invalid uuid provided');
+        }
+
+        $context = ApplicationContext::createDefaultContext($tenantId);
 
         $this->pathBuilder->update(Defaults::ROOT_CATEGORY, $context);
     }

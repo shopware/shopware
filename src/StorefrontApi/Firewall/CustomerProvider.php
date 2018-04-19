@@ -7,6 +7,7 @@ use Shopware\Api\Customer\Struct\CustomerBasicStruct;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Defaults;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -35,7 +36,8 @@ class CustomerProvider implements UserProviderInterface
         $criteria->addFilter(new TermQuery('customer.email', $email));
         $criteria->setLimit(1);
 
-        $context = ApplicationContext::createDefaultContext();
+        //todo@jb use tenant id of current request or console command
+        $context = ApplicationContext::createDefaultContext(Defaults::TENANT_ID);
         $customerResult = $this->customerRepository->search($criteria, $context);
 
         // pretend it returns an array on success, false if there is no user

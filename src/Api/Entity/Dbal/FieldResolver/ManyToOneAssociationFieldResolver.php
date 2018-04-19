@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Api\Entity\Dbal\FieldResolver;
 
@@ -33,7 +33,6 @@ class ManyToOneAssociationFieldResolver implements FieldResolverInterface
         }
         $query->addState($alias);
 
-
         $this->join($definition, $root, $field, $query, $context, $queryHelper);
 
         if ($definition === $reference) {
@@ -56,11 +55,16 @@ class ManyToOneAssociationFieldResolver implements FieldResolverInterface
         /** @var EntityDefinition|string $definition */
         $reference = $field->getReferenceClass();
         $table = $reference::getEntityName();
-        $alias = $root.'.'.$field->getPropertyName();
+        $alias = $root . '.' . $field->getPropertyName();
 
         $catalogJoinCondition = '';
         if ($definition::isCatalogAware() && $reference::isCatalogAware()) {
             $catalogJoinCondition = ' AND #root#.`catalog_id` = #alias#.`catalog_id`';
+        }
+
+        $tenantJoinCondition = '';
+        if ($definition::isTenantAware() && $reference::isTenantAware()) {
+            $tenantJoinCondition = ' AND #root#.`tenant_id` = #alias#.`tenant_id`';
         }
 
         $versionAware = ($definition::isVersionAware() && $reference::isVersionAware());
@@ -81,7 +85,7 @@ class ManyToOneAssociationFieldResolver implements FieldResolverInterface
                         EntityDefinitionQueryHelper::escape($alias),
                         EntityDefinitionQueryHelper::escape($field->getReferenceField()),
                     ],
-                    '#root#.#source_column# = #alias#.#reference_column#'.$catalogJoinCondition
+                    '#root#.#source_column# = #alias#.#reference_column#' . $catalogJoinCondition . $tenantJoinCondition
                 )
             );
 
@@ -101,9 +105,10 @@ class ManyToOneAssociationFieldResolver implements FieldResolverInterface
                         EntityDefinitionQueryHelper::escape($alias),
                         EntityDefinitionQueryHelper::escape($field->getReferenceField()),
                     ],
-                    '#root#.#source_column# = #alias#.#reference_column# AND #root#.`version_id` = #alias#.`version_id`'.$catalogJoinCondition
+                    '#root#.#source_column# = #alias#.#reference_column# AND #root#.`version_id` = #alias#.`version_id`' . $catalogJoinCondition . $tenantJoinCondition
                 )
             );
+
             return;
         }
 
@@ -119,7 +124,7 @@ class ManyToOneAssociationFieldResolver implements FieldResolverInterface
                     EntityDefinitionQueryHelper::escape($alias),
                     EntityDefinitionQueryHelper::escape($field->getReferenceField()),
                 ],
-                '#root#.#source_column# = #alias#.#reference_column#'.$catalogJoinCondition
+                '#root#.#source_column# = #alias#.#reference_column#' . $catalogJoinCondition . $tenantJoinCondition
             )
         );
     }
@@ -129,7 +134,7 @@ class ManyToOneAssociationFieldResolver implements FieldResolverInterface
         $subRoot = $field->getReferenceClass()::getEntityName();
 
         $versionQuery = new QueryBuilder($query->getConnection());
-        $versionQuery->select(EntityDefinitionQueryHelper::escape($subRoot).'.*');
+        $versionQuery->select(EntityDefinitionQueryHelper::escape($subRoot) . '.*');
         $versionQuery->from(
             EntityDefinitionQueryHelper::escape($subRoot),
             EntityDefinitionQueryHelper::escape($subRoot)

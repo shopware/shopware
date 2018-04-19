@@ -1,70 +1,69 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Api\Application\Repository;
 
+use Shopware\Api\Application\Collection\ApplicationBasicCollection;
+use Shopware\Api\Application\Collection\ApplicationDetailCollection;
+use Shopware\Api\Application\Definition\ApplicationDefinition;
+use Shopware\Api\Application\Event\Application\ApplicationAggregationResultLoadedEvent;
+use Shopware\Api\Application\Event\Application\ApplicationBasicLoadedEvent;
+use Shopware\Api\Application\Event\Application\ApplicationDetailLoadedEvent;
+use Shopware\Api\Application\Event\Application\ApplicationIdSearchResultLoadedEvent;
+use Shopware\Api\Application\Event\Application\ApplicationSearchResultLoadedEvent;
+use Shopware\Api\Application\Struct\ApplicationSearchResult;
+use Shopware\Api\Entity\Read\EntityReaderInterface;
+use Shopware\Api\Entity\RepositoryInterface;
 use Shopware\Api\Entity\Search\AggregatorResult;
-use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntityAggregatorInterface;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
-use Shopware\Api\Entity\Read\EntityReaderInterface;
-use Shopware\Api\Entity\RepositoryInterface;
-use Shopware\Api\Entity\Write\WriteContext;
+use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
+use Shopware\Api\Entity\Write\WriteContext;
 use Shopware\Context\Struct\ApplicationContext;
-use Shopware\Context\Struct\ShopContext;
-use Shopware\Api\Application\Event\Application\ApplicationSearchResultLoadedEvent;
-use Shopware\Api\Application\Event\Application\ApplicationBasicLoadedEvent;
-use Shopware\Api\Application\Event\Application\ApplicationAggregationResultLoadedEvent;
-use Shopware\Api\Application\Event\Application\ApplicationIdSearchResultLoadedEvent;
-use Shopware\Api\Application\Struct\ApplicationSearchResult;
-use Shopware\Api\Application\Definition\ApplicationDefinition;
-use Shopware\Api\Application\Collection\ApplicationBasicCollection;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Shopware\Version\VersionManager;
-use Shopware\Api\Application\Collection\ApplicationDetailCollection;
-use Shopware\Api\Application\Event\Application\ApplicationDetailLoadedEvent;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ApplicationRepository implements RepositoryInterface
 {
-   /**
-    * @var EntityReaderInterface
-    */
-   private $reader;
+    /**
+     * @var EntityReaderInterface
+     */
+    private $reader;
 
-   /**
-    * @var EntitySearcherInterface
-    */
-   private $searcher;
+    /**
+     * @var EntitySearcherInterface
+     */
+    private $searcher;
 
-   /**
-    * @var EntityAggregatorInterface
-    */
-   private $aggregator;
+    /**
+     * @var EntityAggregatorInterface
+     */
+    private $aggregator;
 
-   /**
-    * @var EventDispatcherInterface
-    */
-   private $eventDispatcher;
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
 
-   /**
-    * @var VersionManager
-    */
-   private $versionManager;
+    /**
+     * @var VersionManager
+     */
+    private $versionManager;
 
-   public function __construct(
+    public function __construct(
        EntityReaderInterface $reader,
        VersionManager $versionManager,
        EntitySearcherInterface $searcher,
        EntityAggregatorInterface $aggregator,
        EventDispatcherInterface $eventDispatcher
    ) {
-       $this->reader = $reader;
-       $this->searcher = $searcher;
-       $this->aggregator = $aggregator;
-       $this->eventDispatcher = $eventDispatcher;
-       $this->versionManager = $versionManager;
-   }
+        $this->reader = $reader;
+        $this->searcher = $searcher;
+        $this->aggregator = $aggregator;
+        $this->eventDispatcher = $eventDispatcher;
+        $this->versionManager = $versionManager;
+    }
 
     public function search(Criteria $criteria, ApplicationContext $context): ApplicationSearchResult
     {
@@ -118,17 +117,14 @@ class ApplicationRepository implements RepositoryInterface
 
     public function readDetail(array $ids, ApplicationContext $context): ApplicationDetailCollection
     {
-
         /** @var ApplicationDetailCollection $entities */
         $entities = $this->reader->readDetail(ApplicationDefinition::class, $ids, $context);
 
         $event = new ApplicationDetailLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
-        return $entities;                
-                
+        return $entities;
     }
-
 
     public function update(array $data, ApplicationContext $context): GenericWrittenEvent
     {

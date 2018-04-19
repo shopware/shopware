@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Api\Entity\Dbal\FieldResolver;
 
@@ -20,8 +20,7 @@ class ManyToManyAssociationFieldResolver implements FieldResolverInterface
         ApplicationContext $context,
         EntityDefinitionQueryHelper $queryHelper,
         bool $raw
-    ): void
-    {
+    ): void {
         if (!$field instanceof ManyToManyAssociationField) {
             return;
         }
@@ -45,6 +44,8 @@ class ManyToManyAssociationFieldResolver implements FieldResolverInterface
             $versionJoinCondition = ' AND #root#.version_id = #alias#.' . $versionField;
         }
 
+        $tenantField = EntityDefinitionQueryHelper::escape($definition::getEntityName() . '_tenant_id');
+
         $query->leftJoin(
             EntityDefinitionQueryHelper::escape($root),
             EntityDefinitionQueryHelper::escape($table),
@@ -57,7 +58,8 @@ class ManyToManyAssociationFieldResolver implements FieldResolverInterface
                     EntityDefinitionQueryHelper::escape($mappingAlias),
                     EntityDefinitionQueryHelper::escape($field->getMappingLocalColumn()),
                 ],
-                '#root#.#source_column# = #alias#.#reference_column#' . $versionJoinCondition
+                '#root#.#source_column# = #alias#.#reference_column#' . $versionJoinCondition .
+                ' AND #root#.`tenant_id` = #alias#.' . $tenantField
             )
         );
 
@@ -79,6 +81,11 @@ class ManyToManyAssociationFieldResolver implements FieldResolverInterface
             $catalogJoinCondition = ' AND #root#.catalog_id = #alias#.catalog_id';
         }
 
+        $tenantJoinCondition = '';
+        if ($definition::isTenantAware() && $reference::isTenantAware()) {
+            $tenantJoinCondition = ' AND #root#.tenant_id = #alias#.tenant_id';
+        }
+
         $query->leftJoin(
             EntityDefinitionQueryHelper::escape($mappingAlias),
             EntityDefinitionQueryHelper::escape($table),
@@ -92,7 +99,7 @@ class ManyToManyAssociationFieldResolver implements FieldResolverInterface
                     EntityDefinitionQueryHelper::escape($field->getReferenceField()),
                     EntityDefinitionQueryHelper::escape($root),
                 ],
-                '#mapping#.#source_column# = #alias#.#reference_column# ' . $versionJoinCondition . $catalogJoinCondition
+                '#mapping#.#source_column# = #alias#.#reference_column# ' . $versionJoinCondition . $catalogJoinCondition . $tenantJoinCondition
             )
         );
 

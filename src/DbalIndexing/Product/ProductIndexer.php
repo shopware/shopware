@@ -7,7 +7,6 @@ use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Product\Definition\ProductCategoryDefinition;
 use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Api\Product\Repository\ProductRepository;
-use Shopware\Api\Shop\Repository\ShopRepository;
 use Shopware\Category\Extension\CategoryPathBuilder;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\DbalIndexing\Common\RepositoryIterator;
@@ -39,11 +38,6 @@ class ProductIndexer implements IndexerInterface
      * @var CategoryPathBuilder
      */
     private $pathBuilder;
-
-    /**
-     * @var ShopRepository
-     */
-    private $shopRepository;
 
     /**
      * @var CategoryAssignmentUpdater
@@ -80,7 +74,6 @@ class ProductIndexer implements IndexerInterface
         Connection $connection,
         EventDispatcherInterface $eventDispatcher,
         CategoryPathBuilder $pathBuilder,
-        ShopRepository $shopRepository,
         CategoryAssignmentUpdater $categoryAssignmentUpdater,
         InheritanceJoinIdUpdater $inheritanceJoinIdUpdater,
         ListingPriceUpdater $listingPriceUpdater,
@@ -92,7 +85,6 @@ class ProductIndexer implements IndexerInterface
         $this->connection = $connection;
         $this->eventDispatcher = $eventDispatcher;
         $this->pathBuilder = $pathBuilder;
-        $this->shopRepository = $shopRepository;
         $this->categoryAssignmentUpdater = $categoryAssignmentUpdater;
         $this->inheritanceJoinIdUpdater = $inheritanceJoinIdUpdater;
         $this->listingPriceUpdater = $listingPriceUpdater;
@@ -101,9 +93,9 @@ class ProductIndexer implements IndexerInterface
         $this->eventIdExtractor = $eventIdExtractor;
     }
 
-    public function index(\DateTime $timestamp): void
+    public function index(\DateTime $timestamp, string $tenantId): void
     {
-        $context = ApplicationContext::createDefaultContext();
+        $context = ApplicationContext::createDefaultContext($tenantId);
 
         $this->pathBuilder->update(Defaults::ROOT_CATEGORY, $context);
 
@@ -119,11 +111,11 @@ class ProductIndexer implements IndexerInterface
 
             $this->categoryAssignmentUpdater->update($ids, $context);
 
-            $this->listingPriceUpdater->update($ids);
+            $this->listingPriceUpdater->update($ids, $context);
 
-            $this->variationJsonUpdater->update($ids);
+            $this->variationJsonUpdater->update($ids, $context);
 
-            $this->datasheetJsonUpdater->update($ids);
+            $this->datasheetJsonUpdater->update($ids, $context);
 
             $this->eventDispatcher->dispatch(
                 ProgressAdvancedEvent::NAME,
@@ -146,32 +138,11 @@ class ProductIndexer implements IndexerInterface
 
             $this->categoryAssignmentUpdater->update($ids, $event->getContext());
 
-            $this->listingPriceUpdater->update($ids);
+            $this->listingPriceUpdater->update($ids, $event->getContext());
 
-            $this->variationJsonUpdater->update($ids);
+            $this->variationJsonUpdater->update($ids, $event->getContext());
 
-            $this->datasheetJsonUpdater->update($ids);
+            $this->datasheetJsonUpdater->update($ids, $event->getContext());
         });
-    }
-
-    private function getRefreshedProductIds(GenericWrittenEvent $generic): array
-    {
-        $ids = [];
-
-        $event = $generic->getEventByDefinition(ProductCategoryDefinition::class);
-        if ($event) {
-            foreach ($event->getIds() as $id) {
-                $ids[] = $id['productId'];
-            }
-        }
-
-        $event = $generic->getEventByDefinition(ProductDefinition::class);
-        if ($event) {
-            foreach ($event->getIds() as $id) {
-                $ids[] = $id;
-            }
-        }
-
-        return $ids;
     }
 }

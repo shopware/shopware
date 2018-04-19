@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Api\Test\Entity\Dbal;
 
@@ -9,8 +9,10 @@ use Shopware\Api\Entity\Dbal\FieldAccessorBuilder\JsonObjectFieldAccessorBuilder
 use Shopware\Api\Entity\Dbal\FieldResolver\FieldResolverRegistry;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Field\JsonObjectField;
+use Shopware\Api\Entity\Field\TenantIdField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Defaults;
 
 class EntityDefinitionQueryHelperTest extends TestCase
 {
@@ -27,7 +29,7 @@ class EntityDefinitionQueryHelperTest extends TestCase
             'json_object_test.amount.gross',
             JsonObjectTestDefinition::class,
             JsonObjectTestDefinition::getEntityName(),
-            ApplicationContext::createDefaultContext()
+            ApplicationContext::createDefaultContext(Defaults::TENANT_ID)
         );
     }
 
@@ -36,14 +38,14 @@ class EntityDefinitionQueryHelperTest extends TestCase
         $helper = new EntityDefinitionQueryHelper(
             new FieldResolverRegistry([]),
             new FieldAccessorBuilderRegistry([
-                new JsonObjectFieldAccessorBuilder()
+                new JsonObjectFieldAccessorBuilder(),
             ])
         );
         $accessor = $helper->getFieldAccessor(
             'json_object_test.amount.gross',
             JsonObjectTestDefinition::class,
             JsonObjectTestDefinition::getEntityName(),
-            ApplicationContext::createDefaultContext()
+            ApplicationContext::createDefaultContext(Defaults::TENANT_ID)
         );
 
         self::assertEquals('JSON_UNQUOTE(JSON_EXTRACT(`json_object_test`.`amount`, "$.gross"))', $accessor);
@@ -54,14 +56,14 @@ class EntityDefinitionQueryHelperTest extends TestCase
         $helper = new EntityDefinitionQueryHelper(
             new FieldResolverRegistry([]),
             new FieldAccessorBuilderRegistry([
-                new JsonObjectFieldAccessorBuilder()
+                new JsonObjectFieldAccessorBuilder(),
             ])
         );
         $accessor = $helper->getFieldAccessor(
             'json_object_test.amount.gross.value',
             JsonObjectTestDefinition::class,
             JsonObjectTestDefinition::getEntityName(),
-            ApplicationContext::createDefaultContext()
+            ApplicationContext::createDefaultContext(Defaults::TENANT_ID)
         );
 
         self::assertEquals('JSON_UNQUOTE(JSON_EXTRACT(`json_object_test`.`amount`, "$.gross.value"))', $accessor);
@@ -72,7 +74,7 @@ class EntityDefinitionQueryHelperTest extends TestCase
         $helper = new EntityDefinitionQueryHelper(
             new FieldResolverRegistry([]),
             new FieldAccessorBuilderRegistry([
-                new JsonObjectFieldAccessorBuilder()
+                new JsonObjectFieldAccessorBuilder(),
             ])
         );
         $field = $helper->getField(
@@ -95,7 +97,8 @@ class JsonObjectTestDefinition extends EntityDefinition
     public static function getFields(): FieldCollection
     {
         return new FieldCollection([
-            new JsonObjectField('amount', 'amount')
+            new TenantIdField(),
+            new JsonObjectField('amount', 'amount'),
         ]);
     }
 

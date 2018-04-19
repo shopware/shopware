@@ -15,6 +15,7 @@ use Shopware\Payment\Struct\PaymentTransaction;
 use Shopware\Payment\Token\PaymentTransactionTokenFactory;
 use Shopware\Payment\Token\PaymentTransactionTokenFactoryInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
 class PaymentProcessor
@@ -59,18 +60,18 @@ class PaymentProcessor
     }
 
     /**
-     * @param string      $orderId
-     * @param ApplicationContext $applicationContext
+     * @param string             $orderId
+     * @param ApplicationContext $context
      *
      * @throws InvalidOrderException
      * @throws UnknownPaymentMethodException
      *
      * @return null|RedirectResponse
      */
-    public function process(string $orderId, ApplicationContext $applicationContext): ?RedirectResponse
+    public function process(string $orderId, ApplicationContext $context): ?RedirectResponse
     {
         /** @var OrderDetailStruct $order */
-        $order = $this->orderRepository->readDetail([$orderId], $applicationContext)->first();
+        $order = $this->orderRepository->readDetail([$orderId], $context)->first();
 
         if (!$order) {
             throw new InvalidOrderException($orderId);
@@ -80,7 +81,7 @@ class PaymentProcessor
         $transactions = $order->getTransactions()->filterByOrderStateId(Defaults::ORDER_TRANSACTION_OPEN);
 
         foreach ($transactions as $transaction) {
-            $token = $this->tokenFactory->generateToken($transaction);
+            $token = $this->tokenFactory->generateToken($transaction, $context);
 
             $returnUrl = $this->assembleReturnUrl($token);
 
@@ -92,9 +93,9 @@ class PaymentProcessor
                 $returnUrl
             );
 
-            $handler = $this->getPaymentHandlerById($transaction->getPaymentMethodId(), $applicationContext);
+            $handler = $this->getPaymentHandlerById($transaction->getPaymentMethodId(), $context);
 
-            $response = $handler->pay($paymentTransaction, $applicationContext);
+            $response = $handler->pay($paymentTransaction, $context);
             if ($response) {
                 return $response;
             }
@@ -120,7 +121,7 @@ class PaymentProcessor
         return $this->router->generate(
             'checkout_finalize_transaction',
             ['_sw_payment_token' => $token],
-            RouterInterface::ABSOLUTE_URL
+            UrlGeneratorInterface::ABSOLUTE_URL
         );
     }
 }

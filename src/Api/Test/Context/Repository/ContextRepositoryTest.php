@@ -8,6 +8,7 @@ use Shopware\Api\Entity\RepositoryInterface;
 use Shopware\Context\Rule\Container\AndRule;
 use Shopware\Context\Rule\Container\OrRule;
 use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Defaults;
 use Shopware\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -40,7 +41,7 @@ class ContextRepositoryTest extends KernelTestCase
         $this->container = self::$kernel->getContainer();
         $this->repository = $this->container->get(ContextRuleRepository::class);
         $this->connection = $this->container->get(Connection::class);
-        $this->context = ApplicationContext::createDefaultContext();
+        $this->context = ApplicationContext::createDefaultContext(Defaults::TENANT_ID);
         $this->connection->beginTransaction();
     }
 

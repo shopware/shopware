@@ -3,7 +3,6 @@
 namespace Shopware\Api\Category\Event\Category;
 
 use Shopware\Api\Category\Collection\CategoryBasicCollection;
-use Shopware\Api\Seo\Event\SeoUrl\SeoUrlBasicLoadedEvent;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;

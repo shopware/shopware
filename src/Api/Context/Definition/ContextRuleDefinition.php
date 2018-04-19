@@ -14,6 +14,7 @@ use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\IntField;
 use Shopware\Api\Entity\Field\JsonObjectField;
 use Shopware\Api\Entity\Field\StringField;
+use Shopware\Api\Entity\Field\TenantIdField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
@@ -48,6 +49,7 @@ class ContextRuleDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
+            new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new StringField('name', 'name'))->setFlags(new Required()),
             (new IntField('priority', 'priority'))->setFlags(new Required()),

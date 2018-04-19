@@ -11,6 +11,7 @@ use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\PriceField;
 use Shopware\Api\Entity\Field\ReferenceVersionField;
+use Shopware\Api\Entity\Field\TenantIdField;
 use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
@@ -52,6 +53,7 @@ class ProductServiceDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
+            new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
             (new FkField('product_id', 'productId', ProductDefinition::class))->setFlags(new Required()),

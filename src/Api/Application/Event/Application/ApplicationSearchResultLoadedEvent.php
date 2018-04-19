@@ -1,10 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Api\Application\Event\Application;
 
+use Shopware\Api\Application\Struct\ApplicationSearchResult;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
-use Shopware\Api\Application\Struct\ApplicationSearchResult;
 
 class ApplicationSearchResultLoadedEvent extends NestedEvent
 {

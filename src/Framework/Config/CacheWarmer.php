@@ -71,6 +71,7 @@ class CacheWarmer implements CacheWarmerInterface
     {
         $builder = $this->connection->createQueryBuilder();
 
+        //todo@dr no tenant id here
         return $builder->select(['shop.*'])
                 ->from('shop', 'shop')
                 ->execute()

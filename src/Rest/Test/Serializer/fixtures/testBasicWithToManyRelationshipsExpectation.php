@@ -19,6 +19,7 @@ return [
             'versionId' => null,
             'parentVersionId' => null,
             'catalogId' => null,
+            'tenantId' => null,
         ],
         'links' => [
             'self' => '/api/media-album/c83a7721-270a-4add-82fd-e60b1dd0c47e',
@@ -67,6 +68,7 @@ return [
                 'mediaAlbumVersionId' => null,
                 'userVersionId' => null,
                 'catalogId' => null,
+                'tenantId' => null,
             ],
             'links' => [
                 'self' => '/api/media/548faa1f-7846-436c-8594-4f4aea792d96',

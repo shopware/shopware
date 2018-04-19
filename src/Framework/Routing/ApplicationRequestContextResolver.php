@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Framework\Routing;
 
@@ -68,12 +68,13 @@ class ApplicationRequestContextResolver implements RequestContextResolverInterfa
 
         $contextToken = $master->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
         $applicationId = $application->getApplicationId();
+        $tenantId = $master->headers->get(PlatformRequest::HEADER_TENANT_ID);
 
         //sub requests can use the context of the master request
         if ($master->attributes->has(PlatformRequest::ATTRIBUTE_STOREFRONT_CONTEXT_OBJECT)) {
             $context = $master->attributes->get(PlatformRequest::ATTRIBUTE_STOREFRONT_CONTEXT_OBJECT);
         } else {
-            $context = $this->contextService->getStorefrontContext($applicationId, $contextToken);
+            $context = $this->contextService->getStorefrontContext($tenantId, $applicationId, $contextToken);
         }
 
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context->getApplicationContext());

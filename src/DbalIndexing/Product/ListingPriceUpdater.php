@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Api\Context\Struct\ContextPriceStruct;
 use Shopware\Api\Entity\Field\ContextPricesJsonField;
 use Shopware\Api\Product\Struct\PriceStruct;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Struct\Uuid;
 
 class ListingPriceUpdater
@@ -20,9 +21,9 @@ class ListingPriceUpdater
         $this->connection = $connection;
     }
 
-    public function update(array $ids): void
+    public function update(array $ids, ApplicationContext $context): void
     {
-        $prices = $this->fetchPrices($ids);
+        $prices = $this->fetchPrices($ids, $context);
 
         $field = new ContextPricesJsonField('tmp', 'tmp');
 
@@ -38,13 +39,17 @@ class ListingPriceUpdater
             $listingPrices = $field->convertToStorage($listingPrices);
 
             $this->connection->executeUpdate(
-                'UPDATE product SET listing_prices = :price WHERE id = :id',
-                ['price' => json_encode($listingPrices), 'id' => Uuid::fromStringToBytes($id)]
+                'UPDATE product SET listing_prices = :price WHERE id = :id AND tenant_id = :tenant',
+                [
+                    'price' => json_encode($listingPrices),
+                    'id' => Uuid::fromStringToBytes($id),
+                    'tenant' => Uuid::fromHexToBytes($context->getTenantId())
+                ]
             );
         }
     }
 
-    private function fetchPrices(array $ids): array
+    private function fetchPrices(array $ids, ApplicationContext $context): array
     {
         $query = $this->connection->createQueryBuilder();
         $query->select([
@@ -57,15 +62,17 @@ class ListingPriceUpdater
         ]);
 
         $query->from('product', 'product');
-        $query->innerJoin('product', 'product_context_price', 'price', 'price.product_id = product.id');
+        $query->innerJoin('product', 'product_context_price', 'price', 'price.product_id = product.id AND product.tenant_id = price.tenant_id');
         $query->andWhere('product.id IN (:ids) OR product.parent_id IN (:ids)');
         $query->andWhere('price.quantity_end IS NULL');
+        $query->andWhere('price.tenant_id = :tenant');
 
         $ids = array_map(function ($id) {
             return Uuid::fromStringToBytes($id);
         }, $ids);
 
         $query->setParameter('ids', $ids, Connection::PARAM_STR_ARRAY);
+        $query->setParameter('tenant', Uuid::fromHexToBytes($context->getTenantId()));
 
         return $query->execute()->fetchAll(\PDO::FETCH_GROUP);
     }

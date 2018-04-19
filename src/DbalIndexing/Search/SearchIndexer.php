@@ -80,7 +80,7 @@ class SearchIndexer implements IndexerInterface
         $this->catalogRepository = $catalogRepository;
     }
 
-    public function index(\DateTime $timestamp): void
+    public function index(\DateTime $timestamp, string $tenantId): void
     {
         $this->indexTableOperator->createTable(self::TABLE, $timestamp);
         $this->indexTableOperator->createTable(self::DOCUMENT_TABLE, $timestamp);
@@ -88,20 +88,21 @@ class SearchIndexer implements IndexerInterface
         $table = $this->indexTableOperator->getIndexName(self::TABLE, $timestamp);
         $documentTable = $this->indexTableOperator->getIndexName(self::DOCUMENT_TABLE, $timestamp);
 
-        $this->connection->executeUpdate('ALTER TABLE `' . $table . '` ADD PRIMARY KEY `language_keyword` (`keyword`, `language_id`, `version_id`);');
-        $this->connection->executeUpdate('ALTER TABLE `' . $table . '` ADD INDEX `keyword` (`keyword`, `language_id`);');
-        $this->connection->executeUpdate('ALTER TABLE `' . $table . '` ADD FOREIGN KEY (`language_id`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE');
+        $this->connection->executeUpdate('ALTER TABLE `' . $table . '` ADD PRIMARY KEY `language_keyword` (`keyword`, `language_id`, `version_id`, `tenant_id`, `language_tenant_id`);');
+        $this->connection->executeUpdate('ALTER TABLE `' . $table . '` ADD INDEX `keyword` (`keyword`, `language_id`, `language_tenant_id`, `tenant_id`);');
+        $this->connection->executeUpdate('ALTER TABLE `' . $table . '` ADD FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE');
 
-        $this->connection->executeUpdate('ALTER TABLE `' . $documentTable . '` ADD PRIMARY KEY `product_shop_keyword` (`id`, `version_id`);');
-        $this->connection->executeUpdate('ALTER TABLE `' . $documentTable . '` ADD UNIQUE KEY (`language_id`, `keyword`, `product_id`, `ranking`, `version_id`);');
-        $this->connection->executeUpdate('ALTER TABLE `' . $documentTable . '` ADD FOREIGN KEY (`product_id`, `product_version_id`) REFERENCES `product` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE');
-        $this->connection->executeUpdate('ALTER TABLE `' . $documentTable . '` ADD FOREIGN KEY (`language_id`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE');
+        $this->connection->executeUpdate('ALTER TABLE `' . $documentTable . '` ADD PRIMARY KEY `product_shop_keyword` (`id`, `version_id`, `tenant_id`);');
+        $this->connection->executeUpdate('ALTER TABLE `' . $documentTable . '` ADD UNIQUE KEY (`language_id`, `keyword`, `product_id`, `ranking`, `version_id`, `tenant_id`);');
+        $this->connection->executeUpdate('ALTER TABLE `' . $documentTable . '` ADD FOREIGN KEY (`product_id`, `product_version_id`, `product_tenant_id`) REFERENCES `product` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE');
+        $this->connection->executeUpdate('ALTER TABLE `' . $documentTable . '` ADD FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE');
 
-        $languages = $this->languageRepository->search(new Criteria(), ApplicationContext::createDefaultContext());
-        $catalogIds = $this->catalogRepository->searchIds(new Criteria(), ApplicationContext::createDefaultContext());
+        $languages = $this->languageRepository->search(new Criteria(), ApplicationContext::createDefaultContext($tenantId));
+        $catalogIds = $this->catalogRepository->searchIds(new Criteria(), ApplicationContext::createDefaultContext($tenantId));
 
         foreach ($languages as $language) {
             $context = new ApplicationContext(
+                $tenantId,
                 Defaults::APPLICATION,
                 $catalogIds->getIds(),
                 [],
@@ -113,8 +114,18 @@ class SearchIndexer implements IndexerInterface
             $this->indexContext($context, $timestamp);
         }
 
-        $this->indexTableOperator->renameTable(self::TABLE, $timestamp);
-        $this->indexTableOperator->renameTable(self::DOCUMENT_TABLE, $timestamp);
+        $this->connection->transactional(function() use ($table, $documentTable, $tenantId) {
+            $tenantId = Uuid::fromStringToBytes($tenantId);
+
+            $this->connection->executeUpdate('DELETE FROM ' . self::DOCUMENT_TABLE . ' WHERE tenant_id = :tenant', ['tenant' => $tenantId]);
+            $this->connection->executeUpdate('DELETE FROM ' . self::TABLE . ' WHERE tenant_id = :tenant', ['tenant' => $tenantId]);
+
+            $this->connection->executeUpdate('REPLACE INTO ' . self::DOCUMENT_TABLE . ' SELECT * FROM ' . $documentTable);
+            $this->connection->executeUpdate('REPLACE INTO ' . self::TABLE . ' SELECT * FROM ' . $table);
+
+            $this->connection->executeUpdate('DROP TABLE ' . $table);
+            $this->connection->executeUpdate('DROP TABLE ' . $documentTable);
+        });
     }
 
     public function refresh(GenericWrittenEvent $event): void
@@ -187,16 +198,19 @@ class SearchIndexer implements IndexerInterface
         array $keywords,
         string $table,
         string $documentTable
-    ) {
+    ): void {
         $languageId = Uuid::fromStringToBytes($context->getLanguageId());
         $productId = Uuid::fromStringToBytes($productId);
         $versionId = Uuid::fromStringToBytes($context->getVersionId());
+        $tenantId = Uuid::fromStringToBytes($context->getTenantId());
 
         foreach ($keywords as $keyword => $ranking) {
-            $reversed = $this->stringReverse($keyword);
+            $reversed = static::stringReverse($keyword);
 
             $queue->addInsert($table, [
+                'tenant_id' => $tenantId,
                 'language_id' => $languageId,
+                'language_tenant_id' => $tenantId,
                 'version_id' => $versionId,
                 'keyword' => $keyword,
                 'reversed' => $reversed,
@@ -204,10 +218,13 @@ class SearchIndexer implements IndexerInterface
 
             $queue->addInsert($documentTable, [
                 'id' => Uuid::uuid4()->getBytes(),
+                'tenant_id' => $tenantId,
                 'version_id' => $versionId,
                 'product_version_id' => $versionId,
                 'product_id' => $productId,
+                'product_tenant_id' => $tenantId,
                 'language_id' => $languageId,
+                'language_tenant_id' => $tenantId,
                 'keyword' => $keyword,
                 'ranking' => $ranking,
             ]);

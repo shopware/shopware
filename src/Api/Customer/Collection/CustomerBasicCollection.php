@@ -6,7 +6,6 @@ use Shopware\Api\Application\Collection\ApplicationBasicCollection;
 use Shopware\Api\Customer\Struct\CustomerBasicStruct;
 use Shopware\Api\Entity\EntityCollection;
 use Shopware\Api\Payment\Collection\PaymentMethodBasicCollection;
-use Shopware\Api\Shop\Collection\ShopBasicCollection;
 
 class CustomerBasicCollection extends EntityCollection
 {

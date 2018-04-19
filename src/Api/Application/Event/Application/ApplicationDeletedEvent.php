@@ -1,10 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Api\Application\Event\Application;
 
+use Shopware\Api\Application\Definition\ApplicationDefinition;
 use Shopware\Api\Entity\Write\DeletedEvent;
 use Shopware\Api\Entity\Write\WrittenEvent;
-use Shopware\Api\Application\Definition\ApplicationDefinition;
 
 class ApplicationDeletedEvent extends WrittenEvent implements DeletedEvent
 {

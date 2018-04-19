@@ -1,11 +1,7 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Framework\Routing;
 
-use Shopware\Framework\Application\ApplicationInfo;
-use Shopware\Framework\Application\ApplicationResolverInterface;
-use Shopware\Framework\Struct\Uuid;
-use Shopware\StorefrontApi\Context\StorefrontContextServiceInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -36,8 +32,8 @@ class ApplicationSubscriber implements EventSubscriberInterface
     {
         return [
             KernelEvents::REQUEST => [
-                ['resolveContext', 5]
-            ]
+                ['resolveContext', 5],
+            ],
         ];
     }
 

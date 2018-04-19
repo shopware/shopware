@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Api\Entity\Dbal\FieldAccessorBuilder;
 
@@ -24,6 +24,5 @@ class JsonObjectFieldAccessorBuilder implements FieldAccessorBuilderInterface
             $field->getPropertyName(),
             $accessor
         );
-
     }
 }

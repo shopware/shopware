@@ -18,7 +18,7 @@ $kernel->boot();
 function createWriteContext(): \Shopware\Api\Entity\Write\WriteContext
 {
     return \Shopware\Api\Entity\Write\WriteContext::createFromApplicationContext(
-        \Shopware\Context\Struct\ApplicationContext::createDefaultContext()
+        \Shopware\Context\Struct\ApplicationContext::createDefaultContext(\Shopware\Defaults::TENANT_ID)
     );
 }
 

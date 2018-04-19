@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Rest\Firewall;
 
@@ -39,7 +39,7 @@ class TokenAuthenticator extends AbstractGuardAuthenticator
      *  B) For an API token authentication system, you return a 401 response
      *      return new Response('Auth header required', 401);
      *
-     * @param Request $request The request that resulted in an AuthenticationException
+     * @param Request                 $request       The request that resulted in an AuthenticationException
      * @param AuthenticationException $authException The exception that started the authentication process
      *
      * @return Response
@@ -47,7 +47,7 @@ class TokenAuthenticator extends AbstractGuardAuthenticator
     public function start(Request $request, AuthenticationException $authException = null)
     {
         if ($request->headers->has(PlatformRequest::HEADER_ACCESS_KEY) === false) {
-            throw new UnauthorizedHttpException('header', 'Header "'. PlatformRequest::HEADER_ACCESS_KEY .'" is required.');
+            throw new UnauthorizedHttpException('header', 'Header "' . PlatformRequest::HEADER_ACCESS_KEY . '" is required.');
         }
 
         throw new UnauthorizedHttpException('header', $authException->getMessageKey());
@@ -86,14 +86,14 @@ class TokenAuthenticator extends AbstractGuardAuthenticator
      *
      * @param Request $request
      *
-     * @return mixed Any non-null value
-     *
      * @throws \UnexpectedValueException If null is returned
+     *
+     * @return mixed Any non-null value
      */
     public function getCredentials(Request $request)
     {
         return [
-            'access_key' => $request->headers->get(PlatformRequest::HEADER_ACCESS_KEY)
+            'access_key' => $request->headers->get(PlatformRequest::HEADER_ACCESS_KEY),
         ];
     }
 
@@ -105,7 +105,7 @@ class TokenAuthenticator extends AbstractGuardAuthenticator
      * You may throw an AuthenticationException if you wish. If you return
      * null, then a UsernameNotFoundException is thrown for you.
      *
-     * @param mixed $credentials
+     * @param mixed                 $credentials
      * @param UserProviderInterface $userProvider
      *
      * @throws AuthenticationException
@@ -114,6 +114,7 @@ class TokenAuthenticator extends AbstractGuardAuthenticator
      */
     public function getUser($credentials, UserProviderInterface $userProvider)
     {
+        //todo@dr no tenant id
         $builder = $this->connection->createQueryBuilder();
         $user = $builder->select([
                 'user.id',
@@ -144,12 +145,12 @@ class TokenAuthenticator extends AbstractGuardAuthenticator
      *
      * The *credentials* are the return value from getCredentials()
      *
-     * @param mixed $credentials
+     * @param mixed         $credentials
      * @param UserInterface $user
      *
-     * @return bool
-     *
      * @throws AuthenticationException
+     *
+     * @return bool
      */
     public function checkCredentials($credentials, UserInterface $user)
     {
@@ -165,7 +166,7 @@ class TokenAuthenticator extends AbstractGuardAuthenticator
      * If you return null, the request will continue, but the user will
      * not be authenticated. This is probably not what you want to do.
      *
-     * @param Request $request
+     * @param Request                 $request
      * @param AuthenticationException $exception
      *
      * @return Response|null
@@ -184,9 +185,9 @@ class TokenAuthenticator extends AbstractGuardAuthenticator
      * If you return null, the current request will continue, and the user
      * will be authenticated. This makes sense, for example, with an API.
      *
-     * @param Request $request
+     * @param Request        $request
      * @param TokenInterface $token
-     * @param string $providerKey The provider (i.e. firewall) key
+     * @param string         $providerKey The provider (i.e. firewall) key
      *
      * @return Response|null
      */

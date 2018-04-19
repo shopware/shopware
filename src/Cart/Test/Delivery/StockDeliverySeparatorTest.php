@@ -29,7 +29,6 @@ use Shopware\Api\Country\Struct\CountryBasicStruct;
 use Shopware\Api\Country\Struct\CountryStateBasicStruct;
 use Shopware\Api\Customer\Struct\CustomerAddressBasicStruct;
 use Shopware\Api\Product\Struct\ProductBasicStruct;
-use Shopware\Api\Shipping\Struct\ShippingMethodBasicStruct;
 use Shopware\Cart\Delivery\StockDeliverySeparator;
 use Shopware\Cart\Delivery\Struct\Delivery;
 use Shopware\Cart\Delivery\Struct\DeliveryCollection;
@@ -238,7 +237,6 @@ class StockDeliverySeparatorTest extends TestCase
 
     public function testNoneDeliverableItemBeIgnored(): void
     {
-
         $location = self::createShippingLocation();
         $context = Generator::createContext(null, null, null, null, null, null, $location->getAreaId(), $location->getCountry(), $location->getState());
 

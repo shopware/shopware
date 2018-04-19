@@ -4,7 +4,6 @@ namespace Shopware\Framework\Routing;
 
 use Shopware\Context\Struct\StorefrontContext;
 use Shopware\PlatformRequest;
-use Shopware\StorefrontApi\Context\ContextSubscriber;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Controller\ArgumentValueResolverInterface;

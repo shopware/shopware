@@ -1,8 +1,7 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Rest\Firewall;
 
-use Shopware\Framework\Struct\JsonSerializableTrait;
 use Shopware\Framework\Struct\Uuid;
 use Symfony\Component\Security\Core\User\UserInterface;
 

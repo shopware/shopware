@@ -8,7 +8,6 @@ use Shopware\Api\Customer\Collection\CustomerBasicCollection;
 use Shopware\Api\Entity\EntityCollection;
 use Shopware\Api\Order\Struct\OrderBasicStruct;
 use Shopware\Api\Payment\Collection\PaymentMethodBasicCollection;
-use Shopware\Api\Shop\Collection\ShopBasicCollection;
 
 class OrderBasicCollection extends EntityCollection
 {

@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\StringField;
+use Shopware\Api\Entity\Field\TenantIdField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Search\Query\MatchQuery;
@@ -105,6 +106,7 @@ class TestDefinition extends EntityDefinition
     public static function getFields(): FieldCollection
     {
         return new FieldCollection([
+            new TenantIdField(),
             (new StringField('name', 'name'))->setFlags(new SearchRanking(100)),
             (new StringField('description', 'description'))->setFlags(new SearchRanking(200)),
             new StringField('long_description', 'longDescription'),
@@ -153,6 +155,7 @@ class NestedDefinition extends EntityDefinition
     public static function getFields(): FieldCollection
     {
         return new FieldCollection([
+            new TenantIdField(),
             (new StringField('name', 'name'))->setFlags(new SearchRanking(100)),
         ]);
     }
@@ -198,6 +201,7 @@ class OnlyTranslatedFieldDefinition extends EntityDefinition
     public static function getFields(): FieldCollection
     {
         return new FieldCollection([
+            new TenantIdField(),
             new TranslatedField(new StringField('name', 'name')),
         ]);
     }

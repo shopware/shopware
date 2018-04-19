@@ -40,6 +40,8 @@ use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Cart\Test\Common\Generator;
 use Shopware\CartBridge\Cart\CartPersister;
+use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Defaults;
 use Shopware\Framework\Serializer\StructNormalizer;
 use Symfony\Component\Serializer\Encoder\ChainDecoder;
 use Symfony\Component\Serializer\Encoder\ChainEncoder;
@@ -94,7 +96,7 @@ class CartPersisterTest extends TestCase
 
         $e = null;
         try {
-            $persister->load('not_existing_token', 'shopware');
+            $persister->load('not_existing_token', 'shopware', Generator::createContext());
         } catch (\Exception $e) {
         }
 
@@ -119,8 +121,7 @@ class CartPersisterTest extends TestCase
             ));
 
         $persister = new CartPersister($connection, $this->serializer);
-
-        $cart = $persister->load('existing', 'shopware');
+        $cart = $persister->load('existing', 'shopware', Generator::createContext());
 
         $this->assertEquals(
             new Cart('shopware', 'existing', new LineItemCollection(), new ErrorCollection()),
@@ -141,6 +142,7 @@ class CartPersisterTest extends TestCase
             new CartPrice(0, 0, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS),
             new DeliveryCollection()
         );
+
         $persister->save($calc, Generator::createContext());
     }
 

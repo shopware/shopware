@@ -37,7 +37,6 @@ use Shopware\Api\Language\Struct\LanguageBasicStruct;
 use Shopware\Api\Locale\Struct\LocaleBasicStruct;
 use Shopware\Api\Payment\Struct\PaymentMethodBasicStruct;
 use Shopware\Api\Shipping\Struct\ShippingMethodBasicStruct;
-use Shopware\Api\Shop\Struct\ShopDetailStruct;
 use Shopware\Api\Tax\Collection\TaxBasicCollection;
 use Shopware\Api\Tax\Struct\TaxBasicStruct;
 use Shopware\Cart\Delivery\Struct\ShippingLocation;
@@ -139,6 +138,7 @@ class Generator extends TestCase
         $customer = (new CustomerBasicStruct())->assign(['id' => Uuid::uuid4()->getHex()]);
 
         return new StorefrontContext(
+            Defaults::TENANT_ID,
             Uuid::uuid4()->toString(),
             $application,
             $language,

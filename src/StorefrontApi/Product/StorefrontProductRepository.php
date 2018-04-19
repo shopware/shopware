@@ -117,11 +117,11 @@ class StorefrontProductRepository
 
             $this->calculatePrices($context, $detail);
 
-            $detail->getServices()->sort(function(ProductServiceBasicStruct $a, ProductServiceBasicStruct $b) {
+            $detail->getServices()->sort(function (ProductServiceBasicStruct $a, ProductServiceBasicStruct $b) {
                 return $a->getOption()->getGroupId() <=> $b->getOption()->getGroupId();
             });
 
-            $detail->getDatasheet()->sort(function(ConfigurationGroupOptionBasicStruct $a, ConfigurationGroupOptionBasicStruct $b) {
+            $detail->getDatasheet()->sort(function (ConfigurationGroupOptionBasicStruct $a, ConfigurationGroupOptionBasicStruct $b) {
                 return $a->getGroupId() <=> $b->getGroupId();
             });
 

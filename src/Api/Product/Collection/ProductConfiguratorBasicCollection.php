@@ -89,12 +89,13 @@ class ProductConfiguratorBasicCollection extends EntityCollection
                 return $element;
             }
         }
+
         return null;
     }
 
     public function sortByGroup(): void
     {
-        $this->sort(function(ProductConfiguratorBasicStruct $a, ProductConfiguratorBasicStruct $b) {
+        $this->sort(function (ProductConfiguratorBasicStruct $a, ProductConfiguratorBasicStruct $b) {
             $a = $a->getOption()->getGroup();
             $b = $b->getOption()->getGroup();
 

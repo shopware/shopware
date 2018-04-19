@@ -7,6 +7,7 @@ use Shopware\Framework\Doctrine\DatabaseConnector;
 use Shopware\Framework\Framework;
 use Shopware\Framework\Plugin\Plugin;
 use Shopware\Framework\Plugin\PluginCollection;
+use Shopware\Rest\Controller\ApiController;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
@@ -15,7 +16,6 @@ use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpKernel\Kernel as HttpKernel;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollectionBuilder;
-use Shopware\Rest\Controller\ApiController;
 
 class Kernel extends HttpKernel
 {
@@ -142,50 +142,6 @@ class Kernel extends HttpKernel
         $this->addApiRoutes($routes);
     }
 
-    private function addApiRoutes(RouteCollectionBuilder $routes): void
-    {
-        $class = ApiController::class;
-        $uuidRegex = '.*\/[0-9a-f]{32}\/?$';
-
-        // detail routes
-        $route = new Route('/api/{path}');
-        $route->setMethods(['GET']);
-        $route->setDefault('_controller', $class . '::detail');
-        $route->addRequirements(['path' => $uuidRegex]);
-        $routes->addRoute($route, 'api_controller.detail');
-
-        $route = new Route('/api/{path}');
-        $route->setMethods(['PATCH']);
-        $route->setDefault('_controller', $class . '::update');
-        $route->addRequirements(['path' => $uuidRegex]);
-        $routes->addRoute($route, 'api_controller.update');
-
-        $route = new Route('/api/{path}');
-        $route->setMethods(['DELETE']);
-        $route->setDefault('_controller', $class . '::delete');
-        $route->addRequirements(['path' => $uuidRegex]);
-        $routes->addRoute($route, 'api_controller.delete');
-
-        // list routes
-        $route = new Route('/api/{path}');
-        $route->setMethods(['GET']);
-        $route->setDefault('_controller', $class . ':list');
-        $route->addRequirements(['path' => '.*']);
-        $routes->addRoute($route, 'api_controller.list');
-
-        $route = new Route('/api/search/{path}');
-        $route->setMethods(['POST']);
-        $route->setDefault('_controller', $class . '::search');
-        $route->addRequirements(['path' => '.*']);
-        $routes->addRoute($route, 'api_controller.search');
-
-        $route = new Route('/api/{path}');
-        $route->setMethods(['POST']);
-        $route->setDefault('_controller', $class . '::create');
-        $route->addRequirements(['path' => '.*']);
-        $routes->addRoute($route, 'api_controller.create');
-    }
-
     /**
      * {@inheritdoc}
      */
@@ -271,6 +227,50 @@ class Kernel extends HttpKernel
 
             self::$plugins->add($plugin);
         }
+    }
+
+    private function addApiRoutes(RouteCollectionBuilder $routes): void
+    {
+        $class = ApiController::class;
+        $uuidRegex = '.*\/[0-9a-f]{32}\/?$';
+
+        // detail routes
+        $route = new Route('/api/{path}');
+        $route->setMethods(['GET']);
+        $route->setDefault('_controller', $class . '::detail');
+        $route->addRequirements(['path' => $uuidRegex]);
+        $routes->addRoute($route, 'api_controller.detail');
+
+        $route = new Route('/api/{path}');
+        $route->setMethods(['PATCH']);
+        $route->setDefault('_controller', $class . '::update');
+        $route->addRequirements(['path' => $uuidRegex]);
+        $routes->addRoute($route, 'api_controller.update');
+
+        $route = new Route('/api/{path}');
+        $route->setMethods(['DELETE']);
+        $route->setDefault('_controller', $class . '::delete');
+        $route->addRequirements(['path' => $uuidRegex]);
+        $routes->addRoute($route, 'api_controller.delete');
+
+        // list routes
+        $route = new Route('/api/{path}');
+        $route->setMethods(['GET']);
+        $route->setDefault('_controller', $class . ':list');
+        $route->addRequirements(['path' => '.*']);
+        $routes->addRoute($route, 'api_controller.list');
+
+        $route = new Route('/api/search/{path}');
+        $route->setMethods(['POST']);
+        $route->setDefault('_controller', $class . '::search');
+        $route->addRequirements(['path' => '.*']);
+        $routes->addRoute($route, 'api_controller.search');
+
+        $route = new Route('/api/{path}');
+        $route->setMethods(['POST']);
+        $route->setDefault('_controller', $class . '::create');
+        $route->addRequirements(['path' => '.*']);
+        $routes->addRoute($route, 'api_controller.create');
     }
 
     private function initializePluginSystem(): void

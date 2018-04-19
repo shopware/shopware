@@ -3,7 +3,6 @@
 namespace Shopware\Api\Snippet\Collection;
 
 use Shopware\Api\Application\Collection\ApplicationBasicCollection;
-use Shopware\Api\Shop\Collection\ShopBasicCollection;
 use Shopware\Api\Snippet\Struct\SnippetDetailStruct;
 
 class SnippetDetailCollection extends SnippetBasicCollection

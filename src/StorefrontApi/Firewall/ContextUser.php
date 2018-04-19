@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\StorefrontApi\Firewall;
 
@@ -97,7 +97,6 @@ class ContextUser implements UserInterface
      */
     public function getUsername()
     {
-
     }
 
     /**

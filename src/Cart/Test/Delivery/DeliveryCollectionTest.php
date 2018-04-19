@@ -131,5 +131,4 @@ class DefaultShippingMethod extends ShippingMethodBasicStruct
 {
     protected $minDeliveryTime = 1;
     protected $maxDeliveryTime = 1;
-
 }

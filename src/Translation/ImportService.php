@@ -38,7 +38,7 @@ class ImportService implements ImportServiceInterface
         $this->logger = $logger;
     }
 
-    public function import(array $paths, bool $truncateBeforeImport): void
+    public function import(array $paths, bool $truncateBeforeImport, string $tenantId): void
     {
         $this->logger->debug('Starting translation import.', ['paths' => $paths, 'truncateBeforeImport' => true]);
 
@@ -56,13 +56,13 @@ class ImportService implements ImportServiceInterface
         $this->event->dispatch(ImportStartEvent::EVENT_NAME, new ImportStartEvent($iniFilesCount, $truncateBeforeImport));
 
         foreach ($iniFiles as $file) {
-            $this->importFile($file);
+            $this->importFile($file, $tenantId);
         }
 
         $this->event->dispatch(ImportFinishEvent::EVENT_NAME, new ImportFinishEvent());
     }
 
-    public function importFile(SplFileInfo $file): void
+    public function importFile(SplFileInfo $file, string $tenantId): void
     {
         $this->logger->debug('Processing translation file.', ['path' => $file->getPathname()]);
         $this->event->dispatch(ImportAdvanceEvent::EVENT_NAME, new ImportAdvanceEvent($file));
@@ -78,15 +78,19 @@ class ImportService implements ImportServiceInterface
         $namespace = $this->getNamespaceByFile($file);
         $today = date('Y-m-d H:i:s');
 
-        $this->connection->transactional(function () use ($content, $namespace, $today) {
+        $tenantId = hex2bin($tenantId);
+
+        $this->connection->transactional(function () use ($content, $namespace, $today, $tenantId) {
             $shopId = Uuid::fromStringToBytes(Defaults::APPLICATION);
 
             foreach ($content as $locale => $translations) {
                 foreach ($translations as $name => $value) {
                     $snippet = [
                         'id' => Uuid::uuid4()->getBytes(),
+                        'tenant_id' => $tenantId,
                         'namespace' => $namespace,
                         'application_id' => $shopId,
+                        'application_tenant_id' => $tenantId,
                         'locale' => $locale,
                         'name' => $name,
                         'value' => $value,

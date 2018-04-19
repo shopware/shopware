@@ -3,6 +3,7 @@
 namespace Shopware\StorefrontApi\Firewall;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Defaults;
 use Shopware\Framework\Struct\Uuid;
 use Shopware\StorefrontApi\Context\StorefrontContextServiceInterface;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -30,8 +31,10 @@ class ContextUserProvider implements UserProviderInterface
 
     /**
      * @param ApplicationToken $token
-     * @return ContextUser|UserInterface
+     *
      * @throws \Doctrine\DBAL\DBALException
+     *
+     * @return ContextUser|UserInterface
      */
     public function loadUserByUsername($token)
     {
@@ -46,7 +49,8 @@ class ContextUserProvider implements UserProviderInterface
             );
         }
 
-        $context = $this->storefrontContextService->getStorefrontContext($token->getApplicationId(), $token->getContextId());
+        //todo@jb use real tenant id
+        $context = $this->storefrontContextService->getStorefrontContext(Defaults::TENANT_ID, $token->getApplicationId(), $token->getContextId());
 
         return new ContextUser($token->getApplicationId(), $context);
     }

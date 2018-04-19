@@ -79,8 +79,7 @@ class Delivery extends Struct
         $this->endDeliveryDate = new DeliveryDate(
             $end->getEarliest()->add(new \DateInterval('P' . $this->shippingMethod->getMinDeliveryTime() . 'D')),
             $end->getLatest()->add(new \DateInterval('P' . $this->shippingMethod->getMaxDeliveryTime() . 'D'))
-        );;
-
+        );
     }
 
     public function getPositions(): DeliveryPositionCollection

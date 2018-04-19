@@ -46,6 +46,7 @@ class UserCreateCommand extends Command
         $this->setName('rest:user:create')
             ->addArgument('username', InputArgument::REQUIRED, 'Username for the user')
             ->addOption('password', 'p', InputOption::VALUE_REQUIRED, 'Password for the user')
+            ->addOption('tenant-id', 't', InputOption::VALUE_REQUIRED, 'Tenant id')
         ;
     }
 
@@ -55,6 +56,15 @@ class UserCreateCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $io = new SymfonyStyle($input, $output);
+
+        $tenantId = $input->getOption('tenant-id');
+
+        if (!$tenantId) {
+            throw new \Exception('No tenant id provided');
+        }
+        if (!Uuid::isValid($tenantId)) {
+            throw new \Exception('Invalid uuid provided');
+        }
 
         $username = $input->getArgument('username');
         $password = $input->getOption('password');
@@ -67,39 +77,39 @@ class UserCreateCommand extends Command
             $password = $io->askQuestion($passwordQuestion);
         }
 
-        if ($this->userExists($username)) {
+        if ($this->userExists($username, $tenantId)) {
             $io->error(sprintf('User with username "%s" already exists.', $username));
             exit(1);
         }
 
-        $accessKey = $this->createUser($username, $password);
+        $accessKey = $this->createUser($username, $password, $tenantId);
 
         $io->success(sprintf('User "%s" successfully created.', $username));
         $io->table(
             ['Key', 'Value'],
             [
                 ['Username', $username],
-                ['Access key', $accessKey]
+                ['Access key', $accessKey],
             ]
         );
     }
 
-    private function userExists(string $username): bool
+    private function userExists(string $username, string $tenantId): bool
     {
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('user.username', $username));
 
-        $result = $this->userRepository->searchIds($criteria, ApplicationContext::createDefaultContext());
+        $result = $this->userRepository->searchIds($criteria, ApplicationContext::createDefaultContext($tenantId));
 
         return $result->getTotal() > 0;
     }
 
-    private function createUser(string $username, string $password): string
+    private function createUser(string $username, string $password, string $tenantId): string
     {
         $password = password_hash($password, PASSWORD_BCRYPT);
         $accessKey = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode(Random::getAlphanumericString(32)));
 
-        $context = ApplicationContext::createDefaultContext();
+        $context = ApplicationContext::createDefaultContext($tenantId);
 
         $this->userRepository->create([
             [
@@ -108,10 +118,10 @@ class UserCreateCommand extends Command
                 'email' => 'admin@example.com',
                 'username' => $username,
                 'password' => $password,
-                'localeId' => '7b52d9dd-2b06-40ec-90be-9f57edf29be7',
-                'roleId' => '7b52d9dd-2b06-40ec-90be-9f57edf29be7',
+                'localeId' => '7b52d9dd2b0640ec90be9f57edf29be7',
+                'roleId' => '7b52d9dd2b0640ec90be9f57edf29be7',
                 'active' => true,
-                'apiKey' => $accessKey
+                'apiKey' => $accessKey,
             ],
         ], $context);
 

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Rest\Firewall;
 
@@ -9,7 +9,6 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 class RestUserProvider implements UserProviderInterface
 {
-
     /**
      * Loads the user for the given username.
      *
@@ -18,9 +17,9 @@ class RestUserProvider implements UserProviderInterface
      *
      * @param string $username The username
      *
-     * @return UserInterface
-     *
      * @throws UsernameNotFoundException if the user is not found
+     *
+     * @return UserInterface
      */
     public function loadUserByUsername($username)
     {
@@ -35,9 +34,9 @@ class RestUserProvider implements UserProviderInterface
      * object can just be merged into some internal array of users / identity
      * map.
      *
-     * @return UserInterface
-     *
      * @throws UnsupportedUserException if the user is not supported
+     *
+     * @return UserInterface
      */
     public function refreshUser(UserInterface $user)
     {

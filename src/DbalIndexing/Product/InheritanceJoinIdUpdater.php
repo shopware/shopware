@@ -27,14 +27,15 @@ class InheritanceJoinIdUpdater
     public function update(array $ids, ApplicationContext $context)
     {
         $version = Uuid::fromStringToBytes($context->getVersionId());
+        $tenantId = Uuid::fromStringToBytes($context->getTenantId());
 
         if (empty($ids)) {
-            $this->updateAllJoinIds($version);
+            $this->updateAllJoinIds($version, $tenantId);
 
             return;
         }
 
-        $this->updatePartialJoinIds($ids, $version);
+        $this->updatePartialJoinIds($ids, $version, $tenantId);
     }
 
     public function updateByEvent(GenericWrittenEvent $event)
@@ -77,18 +78,14 @@ class InheritanceJoinIdUpdater
             WHERE product_media.id IN (:ids)
             AND product.version_id = product_media.version_id
             AND product.version_id = :version
+            AND product_media.tenant_id = :tenant
             AND product_media.product_id = product.id',
-            ['ids' => $bytes, 'version' => $version],
-            ['ids' => Connection::PARAM_STR_ARRAY, 'version' => \PDO::PARAM_STR]
+            ['ids' => $bytes, 'version' => $version, 'tenant' => Uuid::fromHexToBytes($context->getTenantId())],
+            ['ids' => Connection::PARAM_STR_ARRAY, 'version' => \PDO::PARAM_STR, 'tenant' => \PDO::PARAM_STR]
         );
     }
 
-    /**
-     * @param $version
-     *
-     * @throws \Doctrine\DBAL\DBALException
-     */
-    private function updateAllJoinIds($version): void
+    private function updateAllJoinIds(string $version, string $tenantId): void
     {
         $this->connection->executeUpdate(
             'UPDATE product SET 
@@ -98,6 +95,7 @@ class InheritanceJoinIdUpdater
                         FROM product_category 
                         WHERE product_category.product_id = product.id 
                         AND product.version_id = product_category.product_version_id 
+                        AND product.tenant_id = product_category.product_tenant_id
                         LIMIT 1
                       ), 
                       product.parent_id
@@ -108,7 +106,8 @@ class InheritanceJoinIdUpdater
                         SELECT product_datasheet.product_id 
                         FROM product_datasheet
                         WHERE product_datasheet.product_id = product.id 
-                        AND product.version_id = product_datasheet.product_version_id 
+                        AND product.version_id = product_datasheet.product_version_id
+                        AND product_datasheet.product_tenant_id = product.tenant_id
                         LIMIT 1
                       ), 
                       product.parent_id
@@ -120,6 +119,7 @@ class InheritanceJoinIdUpdater
                         FROM product_media 
                         WHERE product_media.product_id = product.id 
                         AND product.version_id = product_media.version_id 
+                        AND product.tenant_id = product_media.tenant_id 
                         LIMIT 1
                       ), 
                       product.parent_id
@@ -131,6 +131,7 @@ class InheritanceJoinIdUpdater
                         FROM product_service 
                         WHERE product_service.product_id = product.id 
                         AND product.version_id = product_service.version_id 
+                        AND product.tenant_id = product_service.tenant_id 
                         LIMIT 1
                       ), 
                       product.parent_id
@@ -142,13 +143,15 @@ class InheritanceJoinIdUpdater
                         FROM product_context_price 
                         WHERE product_context_price.product_id = product.id 
                         AND product.version_id = product_context_price.version_id 
+                        AND product.tenant_id = product_context_price.tenant_id 
                         LIMIT 1
                       ), 
                       product.parent_id
                     )
                     
-                WHERE product.version_id = :version',
-            ['version' => $version]
+                WHERE product.version_id = :version
+                AND product.tenant_id = :tenant',
+            ['version' => $version, 'tenant' => $tenantId]
         );
 
         $this->connection->executeUpdate(
@@ -159,8 +162,10 @@ class InheritanceJoinIdUpdater
                     variant.unit_join_id         = IFNULL(variant.unit_id, parent.unit_id)
                  WHERE variant.parent_id = parent.id
                  AND variant.version_id = parent.version_id
-                 AND variant.version_id = :version',
-            ['version' => $version]
+                 AND variant.tenant_id = parent.tenant_id
+                 AND variant.version_id = :version
+                 AND variant.tenant_id = :tenant',
+            ['version' => $version, 'tenant' => $tenantId]
         );
 
         $this->connection->executeUpdate(
@@ -170,18 +175,13 @@ class InheritanceJoinIdUpdater
                     variant.manufacturer_join_id = variant.product_manufacturer_id,
                     variant.unit_join_id = variant.unit_id
                  WHERE variant.parent_id IS NULL 
-                 AND variant.version_id = :version',
-            ['version' => $version]
+                 AND variant.version_id = :version
+                 AND variant.tenant_id = :tenant',
+            ['version' => $version, 'tenant' => $tenantId]
         );
     }
 
-    /**
-     * @param array $ids
-     * @param $version
-     *
-     * @throws \Doctrine\DBAL\DBALException
-     */
-    private function updatePartialJoinIds(array $ids, $version): void
+    private function updatePartialJoinIds(array $ids, string $version, string $tenantId): void
     {
         $bytes = array_map(function ($id) {
             return Uuid::fromStringToBytes($id);
@@ -195,6 +195,7 @@ class InheritanceJoinIdUpdater
                     FROM product_category 
                     WHERE product_category.product_id = product.id 
                     AND product.version_id = product_category.product_version_id 
+                    AND product.tenant_id = product_category.product_tenant_id 
                     LIMIT 1
                    ), 
                    product.parent_id
@@ -206,6 +207,7 @@ class InheritanceJoinIdUpdater
                     FROM product_datasheet
                     WHERE product_datasheet.product_id = product.id 
                     AND product.version_id = product_datasheet.product_version_id 
+                    AND product.tenant_id = product_datasheet.product_tenant_id
                     LIMIT 1
                   ), 
                   product.parent_id
@@ -217,6 +219,7 @@ class InheritanceJoinIdUpdater
                     FROM product_media 
                     WHERE product_media.product_id = product.id 
                     AND product.version_id = product_media.version_id 
+                    AND product.tenant_id = product_media.tenant_id 
                     LIMIT 1
                   ), 
                   product.parent_id
@@ -228,6 +231,7 @@ class InheritanceJoinIdUpdater
                     FROM product_service 
                     WHERE product_service.product_id = product.id 
                     AND product.version_id = product_service.version_id 
+                    AND product.tenant_id = product_service.tenant_id 
                     LIMIT 1
                   ), 
                   product.parent_id
@@ -239,14 +243,16 @@ class InheritanceJoinIdUpdater
                     FROM product_context_price 
                     WHERE product_context_price.product_id = product.id 
                     AND product.version_id = product_context_price.version_id 
+                    AND product.tenant_id = product_context_price.tenant_id 
                     LIMIT 1
                   ), 
                   product.parent_id
                 )
                 WHERE product.version_id = :version
+                AND product.tenant_id = :tenant
                 AND product.id IN (:ids)',
-            ['ids' => $bytes, 'version' => $version],
-            ['ids' => Connection::PARAM_STR_ARRAY, 'version' => \PDO::PARAM_STR]
+            ['ids' => $bytes, 'version' => $version, 'tenant' => $tenantId],
+            ['ids' => Connection::PARAM_STR_ARRAY, 'version' => \PDO::PARAM_STR, 'tenant' => \PDO::PARAM_STR]
         );
 
         $this->connection->executeUpdate(
@@ -258,9 +264,12 @@ class InheritanceJoinIdUpdater
              WHERE (variant.parent_id = parent.id)
              AND variant.id IN (:ids)
              AND variant.version_id = parent.version_id
-             AND variant.version_id = :version',
-            ['ids' => $bytes, 'version' => $version],
-            ['ids' => Connection::PARAM_STR_ARRAY, 'version' => \PDO::PARAM_STR]
+             AND variant.tenant_id = parent.tenant_id
+             AND variant.version_id = :version
+             AND variant.tenant_id = :tenant
+             ',
+            ['ids' => $bytes, 'version' => $version, 'tenant' => $tenantId],
+            ['ids' => Connection::PARAM_STR_ARRAY, 'version' => \PDO::PARAM_STR, 'tenant' => \PDO::PARAM_STR]
         );
 
         $this->connection->executeUpdate(
@@ -271,9 +280,10 @@ class InheritanceJoinIdUpdater
                 variant.unit_join_id = variant.unit_id
              WHERE variant.parent_id IS NULL
              AND variant.version_id = :version 
+             AND variant.tenant_id = :tenant 
              AND variant.id IN (:ids)',
-            ['ids' => $bytes, 'version' => $version],
-            ['ids' => Connection::PARAM_STR_ARRAY, 'version' => \PDO::PARAM_STR]
+            ['ids' => $bytes, 'version' => $version, 'tenant' => $tenantId],
+            ['ids' => Connection::PARAM_STR_ARRAY, 'version' => \PDO::PARAM_STR, 'tenant' => \PDO::PARAM_STR]
         );
     }
 }

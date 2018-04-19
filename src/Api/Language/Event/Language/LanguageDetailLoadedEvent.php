@@ -3,7 +3,6 @@
 namespace Shopware\Api\Language\Event\Language;
 
 use Shopware\Api\Language\Collection\LanguageDetailCollection;
-use Shopware\Api\Locale\Event\Locale\LocaleBasicLoadedEvent;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;

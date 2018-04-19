@@ -224,7 +224,7 @@ class VersionManager
         $commit = [
             'versionId' => Defaults::LIVE_VERSION,
             'data' => $newData,
-            'userId' => $this->getUserId(),
+            'userId' => $this->getUserId($applicationContext),
             'isMerge' => true,
             'message' => 'merge commit ' . (new \DateTime())->format(\DateTime::ATOM),
         ];
@@ -367,7 +367,7 @@ class VersionManager
 
     private function writeAuditLog(array $writtenEvents, WriteContext $writeContext, string $action, ?string $versionId = null): void
     {
-        $userId = $this->getUserId();
+        $userId = $this->getUserId($writeContext->getApplicationContext());
 
         $userId = $userId ? Uuid::fromStringToBytes($userId) : null;
 
@@ -377,12 +377,16 @@ class VersionManager
 
         $date = (new \DateTime())->format('Y-m-d H:i:s');
 
+        $tenantId = Uuid::fromStringToBytes($writeContext->getApplicationContext()->getTenantId());
+
         $insert = new InsertCommand(
             VersionCommitDefinition::class,
             [
                 'id' => $commitId->getBytes(),
+                'tenant_id' => $tenantId,
                 'user_id' => $userId,
                 'version_id' => Uuid::fromStringToBytes($versionId),
+                'version_tenant_id' => $tenantId,
                 'created_at' => $date,
             ],
             ['id' => $commitId->getBytes()]
@@ -390,8 +394,8 @@ class VersionManager
 
         $commands = [$insert];
 
-        /*
-         * @var string|EntityDefinition
+        /**
+         * @var string|EntityDefinition $definition
          * @var array                   $item
          */
         foreach ($writtenEvents as $definition => $items) {
@@ -414,7 +418,9 @@ class VersionManager
                     VersionCommitDataDefinition::class,
                     [
                         'id' => $id,
+                        'tenant_id' => $tenantId,
                         'version_commit_id' => $commitId->getBytes(),
+                        'version_commit_tenant_id' => $tenantId,
                         'entity_name' => $definition::getEntityName(),
                         'entity_id' => json_encode($primary),
                         'payload' => json_encode($payload),
@@ -434,7 +440,7 @@ class VersionManager
         $this->entityWriteGateway->execute($commands);
     }
 
-    private function getUserId(): ?string
+    private function getUserId(ApplicationContext $context): ?string
     {
         $token = $this->tokenStorage->getToken();
         if (!$token) {
@@ -457,7 +463,7 @@ class VersionManager
         $criteria->setLimit(1);
         $criteria->addFilter(new TermQuery(UserDefinition::getEntityName() . '.username', $name));
 
-        $users = $this->entitySearcher->search(UserDefinition::class, $criteria, ApplicationContext::createDefaultContext());
+        $users = $this->entitySearcher->search(UserDefinition::class, $criteria, $context);
         $ids = $users->getIds();
 
         $id = array_shift($ids);

@@ -34,11 +34,6 @@ class UserBasicStruct extends Entity
     /**
      * @var string
      */
-    protected $roleId;
-
-    /**
-     * @var string
-     */
     protected $encoder;
 
     /**
@@ -139,16 +134,6 @@ class UserBasicStruct extends Entity
     public function setEmail(string $email): void
     {
         $this->email = $email;
-    }
-
-    public function getRoleId(): string
-    {
-        return $this->roleId;
-    }
-
-    public function setRoleId(string $roleId): void
-    {
-        $this->roleId = $roleId;
     }
 
     public function getEncoder(): string

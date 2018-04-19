@@ -4,7 +4,6 @@ namespace Shopware\Api\Product\Collection;
 
 use Shopware\Api\Entity\EntityCollection;
 use Shopware\Api\Product\Struct\ProductBasicStruct;
-use Shopware\Api\Seo\Collection\SeoUrlBasicCollection;
 use Shopware\Api\Tax\Collection\TaxBasicCollection;
 use Shopware\Api\Unit\Collection\UnitBasicCollection;
 
@@ -81,20 +80,6 @@ class ProductBasicCollection extends EntityCollection
         });
     }
 
-    public function getPriceGroupIds(): array
-    {
-        return $this->fmap(function (ProductBasicStruct $product) {
-            return $product->getPriceGroupId();
-        });
-    }
-
-    public function filterByPriceGroupId(string $id): self
-    {
-        return $this->filter(function (ProductBasicStruct $product) use ($id) {
-            return $product->getPriceGroupId() === $id;
-        });
-    }
-
     public function getTaxes(): TaxBasicCollection
     {
         return new TaxBasicCollection(
@@ -153,9 +138,10 @@ class ProductBasicCollection extends EntityCollection
 
     public function filterByVariationIds(array $optionIds): self
     {
-        return $this->filter(function(ProductBasicStruct $product) use ($optionIds) {
+        return $this->filter(function (ProductBasicStruct $product) use ($optionIds) {
             $ids = $product->getVariationIds();
             $same = array_intersect($ids, $optionIds);
+
             return count($same) === count($optionIds);
         });
     }

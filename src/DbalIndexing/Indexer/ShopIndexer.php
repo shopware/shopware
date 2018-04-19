@@ -16,10 +16,10 @@ class ShopIndexer implements IndexerInterface
         $this->indexer = $indexer;
     }
 
-    public function index(\DateTime $timestamp): void
+    public function index(\DateTime $timestamp, string $tenantId): void
     {
         foreach ($this->indexer as $indexer) {
-            $indexer->index($timestamp);
+            $indexer->index($timestamp, $tenantId);
         }
     }
 

@@ -249,7 +249,7 @@ class JsonApiType implements ResponseTypeInterface
                 $error['trace'] = $innerException->getTraceAsString();
             }
 
-            $errors[]= $error;
+            $errors[] = $error;
         }
 
         return $errors;

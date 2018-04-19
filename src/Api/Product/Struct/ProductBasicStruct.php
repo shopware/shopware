@@ -61,7 +61,6 @@ class ProductBasicStruct extends Entity
      */
     protected $stock;
 
-
     /**
      * @var int
      */
@@ -76,7 +75,6 @@ class ProductBasicStruct extends Entity
      * @var int
      */
     protected $restockTime;
-
 
     /**
      * @var bool|null
@@ -187,11 +185,6 @@ class ProductBasicStruct extends Entity
      * @var \DateTime|null
      */
     protected $updatedAt;
-
-    /**
-     * @var string|null
-     */
-    protected $priceGroupId;
 
     /**
      * @var array|null
@@ -583,16 +576,6 @@ class ProductBasicStruct extends Entity
         $this->updatedAt = $updatedAt;
     }
 
-    public function getPriceGroupId(): ?string
-    {
-        return $this->priceGroupId;
-    }
-
-    public function setPriceGroupId(?string $priceGroupId): void
-    {
-        $this->priceGroupId = $priceGroupId;
-    }
-
     public function getCategoryTree(): ?array
     {
         return $this->categoryTree;
@@ -733,7 +716,6 @@ class ProductBasicStruct extends Entity
         $this->minDeliveryTime = $minDeliveryTime;
     }
 
-
     public function getRestockTime(): int
     {
         return $this->restockTime;
@@ -764,7 +746,7 @@ class ProductBasicStruct extends Entity
             return new PriceDefinitionCollection();
         }
 
-        /** @var ProductContextPriceBasicCollection $prices */
+        /* @var ProductContextPriceBasicCollection $prices */
         $prices->sortByQuantity();
 
         $definitions = $prices->map(function (ProductContextPriceBasicStruct $rule) use ($taxRules) {
@@ -840,8 +822,8 @@ class ProductBasicStruct extends Entity
             (new \DateTime())
                 ->add(new \DateInterval('P' . $this->getMinDeliveryTime() . 'D')),
             (new \DateTime())
-                ->add(new \DateInterval('P' . $this->getMinDeliveryTime()  .'D'))
-                ->add(new \DateInterval('P' . $this->getMaxDeliveryTime() .'D'))
+                ->add(new \DateInterval('P' . $this->getMinDeliveryTime() . 'D'))
+                ->add(new \DateInterval('P' . $this->getMaxDeliveryTime() . 'D'))
         );
     }
 
@@ -857,6 +839,7 @@ class ProductBasicStruct extends Entity
         if (!$this->getReleaseDate()) {
             return true;
         }
+
         return $this->releaseDate < new \DateTime();
     }
 

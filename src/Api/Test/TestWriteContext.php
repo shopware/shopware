@@ -14,7 +14,7 @@ class TestWriteContext extends WriteContext
     public static function create(): WriteContext
     {
         return WriteContext::createFromApplicationContext(
-            ApplicationContext::createDefaultContext()
+            ApplicationContext::createDefaultContext(Defaults::TENANT_ID)
         );
     }
 }

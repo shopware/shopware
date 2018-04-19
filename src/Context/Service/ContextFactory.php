@@ -148,11 +148,12 @@ class ContextFactory implements ContextFactoryInterface
     }
 
     public function create(
+        string $tenantId,
         string $token,
         string $applicationId,
         array $options = []
     ): StorefrontContext {
-        $applicationContext = $this->getApplicationContext($applicationId);
+        $applicationContext = $this->getApplicationContext($applicationId, $tenantId);
 
         $application = $this->applicationRepository->readBasic([$applicationContext->getApplicationId()], $applicationContext)
             ->get($applicationContext->getApplicationId());
@@ -214,6 +215,7 @@ class ContextFactory implements ContextFactoryInterface
         $delivery = $this->getShippingMethod($options, $applicationContext, $application);
 
         $context = new StorefrontContext(
+            $tenantId,
             $token,
             $application,
             $language,
@@ -265,7 +267,7 @@ class ContextFactory implements ContextFactoryInterface
         return $this->shippingMethodRepository->readBasic([$id], $context)->get($id);
     }
 
-    private function getApplicationContext(string $applicationId): ApplicationContext
+    private function getApplicationContext(string $applicationId, string $tenantId): ApplicationContext
     {
         $query = $this->connection->createQueryBuilder();
         $query->select([
@@ -274,17 +276,20 @@ class ContextFactory implements ContextFactoryInterface
             'application.currency_id as shop_currency_id',
             'application.catalog_ids as shop_catalog_ids',
             'currency.factor as shop_currency_factor',
-            'language.parent_id as shop_language_parent_id'
+            'language.parent_id as shop_language_parent_id',
         ]);
         $query->from('application', 'application');
         $query->innerJoin('application', 'currency', 'currency', 'application.currency_id = currency.id');
         $query->innerJoin('application', 'language', 'language', 'application.language_id = language.id');
-        $query->where('application.id = :id');
+        $query->andWhere('application.id = :id');
+        $query->andWhere('application.tenant_id = :tenant');
         $query->setParameter('id', Uuid::fromHexToBytes($applicationId));
+        $query->setParameter('tenant', Uuid::fromHexToBytes($tenantId));
 
         $data = $query->execute()->fetch(\PDO::FETCH_ASSOC);
 
         return new ApplicationContext(
+            $tenantId,
             Uuid::fromBytesToHex($data['shop_id']),
             json_decode($data['shop_catalog_ids'], true),
             [],
@@ -305,7 +310,7 @@ class ContextFactory implements ContextFactoryInterface
             return $customer;
         }
 
-        if (false === array_key_exists(StorefrontContextService::BILLING_ADDRESS_ID, $options) && false === array_key_exists(StorefrontContextService::SHIPPING_ADDRESS_ID, $options)) {
+        if (array_key_exists(StorefrontContextService::BILLING_ADDRESS_ID, $options) === false && array_key_exists(StorefrontContextService::SHIPPING_ADDRESS_ID, $options) === false) {
             return $customer;
         }
 

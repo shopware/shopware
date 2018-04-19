@@ -301,6 +301,9 @@ class EntityHydrator
 
                 $structs = [];
                 $array = json_decode($value, true);
+                if (!is_array($array)) {
+                    return null;
+                }
                 foreach ($array as $item) {
                     $structs[] = $this->serializer->deserialize(json_encode($item), '', 'json');
                 }

@@ -21,7 +21,6 @@ use Shopware\Cart\Tax\TaxDetector;
 use Shopware\CartBridge\Service\StoreFrontCartService;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Context\Struct\StorefrontContext;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
 class ContextRuleLoader
@@ -105,7 +104,8 @@ class ContextRuleLoader
         try {
             $calculated = $this->cartPersister->loadCalculated(
                 (string) $cartToken,
-                StoreFrontCartService::CART_NAME
+                StoreFrontCartService::CART_NAME,
+                $context
             );
         } catch (CartTokenNotFoundException $e) {
             $calculated = new CalculatedCart(

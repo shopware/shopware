@@ -12,7 +12,6 @@ use Shopware\Api\Order\Event\OrderLineItem\OrderLineItemBasicLoadedEvent;
 use Shopware\Api\Order\Event\OrderState\OrderStateBasicLoadedEvent;
 use Shopware\Api\Order\Event\OrderTransaction\OrderTransactionBasicLoadedEvent;
 use Shopware\Api\Payment\Event\PaymentMethod\PaymentMethodBasicLoadedEvent;
-use Shopware\Api\Shop\Event\Shop\ShopBasicLoadedEvent;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;

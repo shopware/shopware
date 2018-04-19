@@ -28,8 +28,10 @@ use Shopware\DbalIndexing\Event\ProgressAdvancedEvent;
 use Shopware\DbalIndexing\Event\ProgressFinishedEvent;
 use Shopware\DbalIndexing\Event\ProgressStartedEvent;
 use Shopware\DbalIndexing\Indexer\IndexerInterface;
+use Shopware\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -94,6 +96,7 @@ class RefreshIndexCommand extends ContainerAwareCommand implements EventSubscrib
     {
         $this
             ->setName('dbal:refresh:index')
+            ->addOption('tenant-id', 't', InputOption::VALUE_REQUIRED, 'Tenant id')
             ->setDescription('Refreshs the shop indices');
     }
 
@@ -101,6 +104,15 @@ class RefreshIndexCommand extends ContainerAwareCommand implements EventSubscrib
     {
         $this->io = new SymfonyStyle($input, $output);
 
-        $this->indexer->index(new \DateTime());
+        $tenantId = $input->getOption('tenant-id');
+
+        if (!$tenantId) {
+            throw new \Exception('No tenant id provided');
+        }
+        if (!Uuid::isValid($tenantId)) {
+            throw new \Exception('Invalid uuid provided');
+        }
+
+        $this->indexer->index(new \DateTime(), $tenantId);
     }
 }

@@ -1,44 +1,33 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Api\Application\Definition;
 
+use Shopware\Api\Application\Collection\ApplicationBasicCollection;
+use Shopware\Api\Application\Collection\ApplicationDetailCollection;
+use Shopware\Api\Application\Event\Application\ApplicationDeletedEvent;
+use Shopware\Api\Application\Event\Application\ApplicationWrittenEvent;
+use Shopware\Api\Application\Repository\ApplicationRepository;
+use Shopware\Api\Application\Struct\ApplicationBasicStruct;
+use Shopware\Api\Application\Struct\ApplicationDetailStruct;
+use Shopware\Api\Country\Definition\CountryDefinition;
+use Shopware\Api\Currency\Definition\CurrencyDefinition;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\EntityExtensionInterface;
-use Shopware\Api\Entity\Field\JsonArrayField;
-use Shopware\Api\Entity\FieldCollection;
-use Shopware\Api\Application\Repository\ApplicationRepository;
-use Shopware\Api\Application\Collection\ApplicationBasicCollection;
-use Shopware\Api\Application\Struct\ApplicationBasicStruct;
-use Shopware\Api\Application\Event\Application\ApplicationWrittenEvent;
-use Shopware\Api\Application\Event\Application\ApplicationDeletedEvent;
-use Shopware\Api\Entity\Write\Flag\CascadeDelete;
-use Shopware\Api\Entity\Write\Flag\RestrictDelete;
-use Shopware\Api\Entity\Write\Flag\WriteOnly;
-
-use Shopware\Api\Entity\Field\IdField;
-use Shopware\Api\Entity\Write\Flag\PrimaryKey;
-use Shopware\Api\Entity\Write\Flag\Required;
-use Shopware\Api\Entity\Field\FkField;
-use Shopware\Api\Language\Definition\LanguageDefinition;
-use Shopware\Api\Currency\Definition\CurrencyDefinition;
-use Shopware\Api\Payment\Definition\PaymentMethodDefinition;
-use Shopware\Api\Shipping\Definition\ShippingMethodDefinition;
-use Shopware\Api\Country\Definition\CountryDefinition;
-use Shopware\Api\Entity\Field\StringField;
-use Shopware\Api\Entity\Field\LongTextField;
 use Shopware\Api\Entity\Field\BoolField;
 use Shopware\Api\Entity\Field\DateField;
+use Shopware\Api\Entity\Field\FkField;
+use Shopware\Api\Entity\Field\IdField;
+use Shopware\Api\Entity\Field\JsonArrayField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
-use Shopware\Api\Entity\Field\OneToManyAssociationField;
-use Shopware\Api\Customer\Definition\CustomerDefinition;
-use Shopware\Api\Order\Definition\OrderDefinition;
-use Shopware\Api\Product\Definition\ProductSeoCategoryDefinition;
-use Shopware\Api\Seo\Definition\SeoUrlDefinition;
-use Shopware\Api\Snippet\Definition\SnippetDefinition;
-
-use Shopware\Api\Application\Collection\ApplicationDetailCollection;
-use Shopware\Api\Application\Struct\ApplicationDetailStruct;            
-            
+use Shopware\Api\Entity\Field\ReferenceVersionField;
+use Shopware\Api\Entity\Field\StringField;
+use Shopware\Api\Entity\Field\TenantIdField;
+use Shopware\Api\Entity\FieldCollection;
+use Shopware\Api\Entity\Write\Flag\PrimaryKey;
+use Shopware\Api\Entity\Write\Flag\Required;
+use Shopware\Api\Language\Definition\LanguageDefinition;
+use Shopware\Api\Payment\Definition\PaymentMethodDefinition;
+use Shopware\Api\Shipping\Definition\ShippingMethodDefinition;
 
 class ApplicationDefinition extends EntityDefinition
 {
@@ -69,12 +58,17 @@ class ApplicationDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
+            new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('language_id', 'languageId', LanguageDefinition::class))->setFlags(new Required()),
             (new FkField('currency_id', 'currencyId', CurrencyDefinition::class))->setFlags(new Required()),
+            new ReferenceVersionField(CurrencyDefinition::class),
             (new FkField('payment_method_id', 'paymentMethodId', PaymentMethodDefinition::class))->setFlags(new Required()),
+            new ReferenceVersionField(PaymentMethodDefinition::class),
             (new FkField('shipping_method_id', 'shippingMethodId', ShippingMethodDefinition::class))->setFlags(new Required()),
+            new ReferenceVersionField(ShippingMethodDefinition::class),
             (new FkField('country_id', 'countryId', CountryDefinition::class))->setFlags(new Required()),
+            new ReferenceVersionField(CountryDefinition::class),
             (new StringField('type', 'type'))->setFlags(new Required()),
             (new StringField('name', 'name'))->setFlags(new Required()),
             (new StringField('access_key', 'accessKey'))->setFlags(new Required()),
@@ -131,15 +125,13 @@ class ApplicationDefinition extends EntityDefinition
         return null;
     }
 
-
     public static function getDetailStructClass(): string
     {
         return ApplicationDetailStruct::class;
     }
-    
+
     public static function getDetailCollectionClass(): string
     {
         return ApplicationDetailCollection::class;
     }
-
 }

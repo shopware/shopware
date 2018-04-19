@@ -9,7 +9,6 @@ use Shopware\Api\Order\Collection\OrderBasicCollection;
 use Shopware\Api\Order\Event\OrderAddress\OrderAddressBasicLoadedEvent;
 use Shopware\Api\Order\Event\OrderState\OrderStateBasicLoadedEvent;
 use Shopware\Api\Payment\Event\PaymentMethod\PaymentMethodBasicLoadedEvent;
-use Shopware\Api\Shop\Event\Shop\ShopBasicLoadedEvent;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;

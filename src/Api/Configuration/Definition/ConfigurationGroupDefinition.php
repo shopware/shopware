@@ -16,6 +16,7 @@ use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\IntField;
 use Shopware\Api\Entity\Field\OneToManyAssociationField;
 use Shopware\Api\Entity\Field\StringField;
+use Shopware\Api\Entity\Field\TenantIdField;
 use Shopware\Api\Entity\Field\TranslatedField;
 use Shopware\Api\Entity\Field\TranslationsAssociationField;
 use Shopware\Api\Entity\Field\VersionField;
@@ -53,6 +54,7 @@ class ConfigurationGroupDefinition extends EntityDefinition
         }
 
         self::$fields = new FieldCollection([
+            new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
             (new TranslatedField(new StringField('name', 'name')))->setFlags(new Required()),

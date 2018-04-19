@@ -17,7 +17,7 @@ class ProductControllerTest extends ApiTestCase
     protected function setUp()
     {
         parent::setUp();
-        
+
         $this->productRepository = self::$kernel->getContainer()->get(ProductRepository::class);
     }
 
@@ -34,7 +34,7 @@ class ProductControllerTest extends ApiTestCase
                 'manufacturer' => ['id' => $manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $taxId, 'rate' => 17, 'name' => 'with id'],
             ],
-        ], ApplicationContext::createDefaultContext());
+        ], ApplicationContext::createDefaultContext(\Shopware\Defaults::TENANT_ID));
 
         $this->storefrontApiClient->request('GET', '/storefront-api/product');
 

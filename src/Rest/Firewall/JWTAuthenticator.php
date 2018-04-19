@@ -77,7 +77,7 @@ class JWTAuthenticator extends AbstractGuardAuthenticator
             return false;
         }
 
-        $authorizationHeader = $request->headers->get('Authorization');
+        $authorizationHeader = (string) $request->headers->get('Authorization');
         $headerParts = explode(' ', $authorizationHeader);
 
         if (!(count($headerParts) === 2 && $headerParts[0] === 'Bearer')) {

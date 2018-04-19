@@ -44,6 +44,7 @@ class ApiTestCase extends WebTestCase
         $apiClient->setServerParameters([
             'CONTENT_TYPE' => 'application/json',
             'HTTP_ACCEPT' => ['application/vnd.api+json,application/json'],
+            'HTTP_X_SW_TENANT_ID' => Defaults::TENANT_ID
         ]);
         $this->authorizeClient($apiClient);
 
@@ -53,6 +54,7 @@ class ApiTestCase extends WebTestCase
             'HTTP_Accept' => 'application/json',
             'HTTP_X_SW_APPLICATION_TOKEN' => 'TzhovH7sgws8n9UjgEdDEzNkA6xURua8',
             'HTTP_X_SW_CONTEXT_TOKEN' => Uuid::uuid4()->getHex(),
+            'HTTP_X_SW_TENANT_ID' => Defaults::TENANT_ID
         ]);
 
         $this->apiClient = $apiClient;

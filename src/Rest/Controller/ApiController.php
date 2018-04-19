@@ -11,6 +11,7 @@ use Shopware\Api\Entity\Field\ManyToManyAssociationField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\OneToManyAssociationField;
 use Shopware\Api\Entity\Field\ReferenceVersionField;
+use Shopware\Api\Entity\Field\TenantIdField;
 use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\RepositoryInterface;
@@ -665,7 +666,7 @@ class ApiController extends Controller
 
         $payload = [];
         $fields = $definition::getPrimaryKeys()->filter(function (Field $field) {
-            return !$field instanceof VersionField && !$field instanceof ReferenceVersionField;
+            return !$field instanceof VersionField && !$field instanceof ReferenceVersionField && !$field instanceof TenantIdField;
         });
 
         try {

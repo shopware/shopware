@@ -11,7 +11,8 @@ State.register('customer', {
     state() {
         return {
             original: {},
-            draft: {}
+            draft: {},
+            editMode: false
         };
     },
 
@@ -66,6 +67,38 @@ State.register('customer', {
                     customers,
                     total
                 };
+            });
+        },
+
+        /**
+         * Get a customer by id.
+         * If the customer does not exist in the state object, it will be loaded via the API.
+         *
+         * @type action
+         * @memberOf module:app/state/customer
+         * @param {Function} commit
+         * @param {Object} state
+         * @param {String} id
+         * @param {Boolean} [localCopy=false]
+         * @returns {Promise<T>|String}
+         */
+        getCustomerById({ commit, state }, id, localCopy = false) {
+            const customer = state.draft[id];
+
+            if (typeof customer !== 'undefined' && customer.isDetail) {
+                return (localCopy === true) ? deepCopyObject(customer) : customer;
+            }
+
+            const providerContainer = Shopware.Application.getContainer('service');
+            const customerService = providerContainer.customerService;
+
+            return customerService.getById(id).then((response) => {
+                const loadedCustomer = response.data;
+                loadedCustomer.isDetail = true;
+
+                commit('initCustomer', loadedCustomer);
+
+                return (localCopy === true) ? deepCopyObject(state.draft[id]) : state.draft[id];
             });
         },
 
@@ -181,6 +214,27 @@ State.register('customer', {
             customer.isLoaded = true;
             state.original[customer.id] = Object.assign(state.original[customer.id] || {}, originalCustomer);
             state.draft[customer.id] = Object.assign(state.draft[customer.id] || {}, draftCustomer);
+        },
+
+        /**
+         * Updates a customer in the state.
+         *
+         * @type mutation
+         * @memberOf module:app/state/product
+         * @param {Object} state
+         * @param {Object} customer
+         * @returns {void}
+         */
+        setCustomer(state, customer) {
+            if (!customer.id) {
+                return;
+            }
+
+            Object.assign(state.draft[customer.id], customer);
+        },
+
+        setEditMode(state, editMode) {
+            state.editMode = editMode;
         },
 
         /**

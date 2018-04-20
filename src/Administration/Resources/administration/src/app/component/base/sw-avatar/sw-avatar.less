@@ -1,10 +1,24 @@
 @import "~less/variables";
 
+@sw-avatar-color-fallback: @color-light-gray;
+@sw-avatar-color-initials: @color-white;
+
+
 .sw-avatar {
     display: inline-block;
     width: 40px;
     height: 40px;
     border-radius: 100%;
-    background: @color-light-gray no-repeat center center;
+    background: @sw-avatar-color-fallback no-repeat center center;
     background-size: cover;
+    text-align: center;
+    cursor: default;
+
+    .sw-avatar__initials {
+        font-weight: bold;
+        color: @sw-avatar-color-initials;
+        font-size: 2.0em;
+        line-height: 2.5em;
+        user-select: none;
+    }
 }

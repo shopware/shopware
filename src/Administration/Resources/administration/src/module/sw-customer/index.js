@@ -1,5 +1,7 @@
 import { Module } from 'src/core/shopware';
 import './page/sw-customer-list';
+import './page/sw-customer-detail';
+import './page/view/sw-customer-detail-base';
 
 Module.register('sw-customer', {
     type: 'core',

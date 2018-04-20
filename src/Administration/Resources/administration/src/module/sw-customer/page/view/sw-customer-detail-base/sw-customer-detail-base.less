@@ -1,0 +1,59 @@
+@import "~less/variables";
+
+.sw-customer-detail-base {
+    .sw-customer-detail-base__account-info-headline {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    .sw-customer-detail-base__account-info-item {
+        font-size: 14px;
+        margin-bottom: 8px;
+    }
+
+    .sw-customer-detail-base__account-actions {
+        .sw-button {
+            margin-bottom: 15px;
+
+            &:last-of-type {
+                margin-bottom: 0;
+            }
+        }
+    }
+
+    // Todo: Remove card-coded module color
+    .sw-avatar {
+        background-color: #f88962;
+    }
+
+    .sw-card {
+        color: @color-gutenberg;
+    }
+
+    .sw-table__cell {
+        padding: 15px;
+        border-bottom: 1px solid @color-steam-cloud;
+        font-size: 14px;
+    }
+
+    .sw-table__cell-label {
+        font-weight: 600;
+    }
+
+    // Todo: Move to card and remove negative margin
+    .sw-card__section {
+        background-color: @color-light-gray;
+        border-top: 1px solid @color-steam-cloud;
+        margin: 30px -30px -30px -30px;
+        padding: 30px;
+    }
+
+    .customer-fade-enter-active, .customer-fade-leave-active {
+        transition: opacity .2s;
+    }
+
+    .customer-fade-enter, .customer-fade-leave-to {
+        opacity: 0;
+    }
+}

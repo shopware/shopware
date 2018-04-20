@@ -14,6 +14,18 @@ Component.register('sw-avatar', {
         size: {
             type: String,
             required: false
+        },
+        user: {
+            type: Object,
+            required: false,
+            default() {
+                return {};
+            }
+        },
+        isLoading: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
@@ -25,6 +37,19 @@ Component.register('sw-avatar', {
                 width: size,
                 height: size
             };
+        },
+
+        userInitials() {
+            const user = this.user;
+
+            if (!user.firstName || !user.lastName) {
+                return '';
+            }
+
+            const firstNameLetter = user.firstName.substring(0, 1);
+            const lastNameLetter = user.lastName.substring(0, 1);
+
+            return `${firstNameLetter} ${lastNameLetter}`;
         },
 
         avatarImage() {

@@ -24,6 +24,8 @@
     outline: none;
     font-weight: 600;
     font-family: @sw-button-font-family;
+    white-space: nowrap;
+    text-overflow: ellipsis;
     vertical-align: middle;
     text-decoration: none;
     cursor: pointer;
@@ -46,6 +48,7 @@
         background: darken(@sw-button-default-color-background, 5%);
         border-color: darken(@sw-button-default-color-border, 10%);
         color: lighten(@sw-button-default-color-text, 20%);
+        pointer-events: none;
         cursor: default;
     }
 

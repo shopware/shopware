@@ -135,19 +135,19 @@ class CustomerRepositoryTest extends KernelTestCase
         $this->assertCount(4, $result->getIds());
 
         $this->assertEquals(
-            $result->getDataFieldOfId($recordA, 'score'),
-            $result->getDataFieldOfId($recordB, 'score')
+            $result->getDataFieldOfId($recordA, '_score'),
+            $result->getDataFieldOfId($recordB, '_score')
         );
 
         $this->assertEquals(
-            $result->getDataFieldOfId($recordC, 'score'),
-            $result->getDataFieldOfId($recordD, 'score')
+            $result->getDataFieldOfId($recordC, '_score'),
+            $result->getDataFieldOfId($recordD, '_score')
         );
 
         $this->assertTrue(
-            $result->getDataFieldOfId($recordC, 'score')
+            $result->getDataFieldOfId($recordC, '_score')
             >
-            $result->getDataFieldOfId($recordA, 'score')
+            $result->getDataFieldOfId($recordA, '_score')
         );
     }
 }

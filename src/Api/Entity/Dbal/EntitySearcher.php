@@ -72,6 +72,9 @@ class EntitySearcher implements EntitySearcherInterface
 
         //join association and translated fields
         foreach ($fields as $fieldName) {
+            if ($fieldName === '_score') {
+                continue;
+            }
             $this->queryHelper->resolveAccessor($fieldName, $definition, $table, $query, $context);
         }
 
@@ -128,10 +131,10 @@ class EntitySearcher implements EntitySearcherInterface
         $query->addState(EntityDefinitionQueryHelper::HAS_TO_MANY_JOIN);
 
         $select = 'SUM(' . implode(' + ', $queries->getWheres()) . ')';
-        $query->addSelect($select . ' as score');
+        $query->addSelect($select . ' as _score');
 
         if (empty($criteria->getSortings())) {
-            $query->addOrderBy('score', 'DESC');
+            $query->addOrderBy('_score', 'DESC');
         }
 
         $minScore = array_map(function (ScoreQuery $query) {
@@ -140,7 +143,7 @@ class EntitySearcher implements EntitySearcherInterface
 
         $minScore = min($minScore);
 
-        $query->andHaving('score >= :_minScore');
+        $query->andHaving('_score >= :_minScore');
         $query->setParameter('_minScore', $minScore);
 
         foreach ($queries->getParameters() as $key => $value) {
@@ -166,6 +169,11 @@ class EntitySearcher implements EntitySearcherInterface
     {
         /* @var string|EntityDefinition $definition */
         foreach ($criteria->getSortings() as $sorting) {
+            if ($sorting->getField() === '_score') {
+                $query->addOrderBy('_score', $sorting->getDirection());
+                continue;
+            }
+
             $query->addOrderBy(
                 $this->queryHelper->getFieldAccessor(
                     $sorting->getField(),
@@ -210,6 +218,10 @@ class EntitySearcher implements EntitySearcherInterface
 
         // each order by column has to be inside the group by statement (sql_mode=only_full_group_by)
         foreach ($criteria->getSortings() as $sorting) {
+            if ($sorting->getField() === '_score') {
+                continue;
+            }
+
             $fields[] = $this->queryHelper->getFieldAccessor(
                 $sorting->getField(),
                 $definition,

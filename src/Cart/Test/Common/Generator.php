@@ -25,7 +25,6 @@
 namespace Shopware\Cart\Test\Common;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Api\Application\Struct\ApplicationBasicStruct;
 use Shopware\Api\Country\Struct\CountryAreaBasicStruct;
 use Shopware\Api\Country\Struct\CountryBasicStruct;
 use Shopware\Api\Country\Struct\CountryStateBasicStruct;
@@ -33,13 +32,14 @@ use Shopware\Api\Currency\Struct\CurrencyBasicStruct;
 use Shopware\Api\Customer\Struct\CustomerAddressBasicStruct;
 use Shopware\Api\Customer\Struct\CustomerBasicStruct;
 use Shopware\Api\Customer\Struct\CustomerGroupBasicStruct;
-use Shopware\Api\Language\Struct\LanguageBasicStruct;
-use Shopware\Api\Locale\Struct\LocaleBasicStruct;
 use Shopware\Api\Payment\Struct\PaymentMethodBasicStruct;
 use Shopware\Api\Shipping\Struct\ShippingMethodBasicStruct;
+use Shopware\Api\Shop\Struct\ShopDetailStruct;
 use Shopware\Api\Tax\Collection\TaxBasicCollection;
 use Shopware\Api\Tax\Struct\TaxBasicStruct;
+use Shopware\Cart\Delivery\DeliveryCalculator;
 use Shopware\Cart\Delivery\Struct\ShippingLocation;
+use Shopware\Cart\Tax\TaxAmountCalculator;
 use Shopware\Cart\Tax\TaxDetector;
 use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Defaults;
@@ -48,31 +48,36 @@ use Shopware\Framework\Struct\Uuid;
 class Generator extends TestCase
 {
     public static function createContext(
-        $currentCustomerGroup = null,
-        $fallbackCustomerGroup = null,
-        $application = null,
-        $currency = null,
+        ?CustomerGroupBasicStruct $currentCustomerGroup = null,
+        ?CustomerGroupBasicStruct $fallbackCustomerGroup = null,
+        ?ShopDetailStruct $shop = null,
+        ?CurrencyBasicStruct $currency = null,
         $priceGroupDiscounts = null,
-        $taxes = null,
-        $area = null,
-        $country = null,
-        $state = null,
-        $shipping = null,
-        $language = null,
-        $fallbackLanguage = null
+        ?TaxBasicCollection $taxes = null,
+        ?CountryAreaBasicStruct $area = null,
+        ?CountryBasicStruct $country = null,
+        ?CountryStateBasicStruct $state = null,
+        ?CustomerAddressBasicStruct $shipping = null,
+        array $contextRuleIds = []
     ) {
-        if ($application === null) {
-            $application = new ApplicationBasicStruct();
-            $application->setId('ffa32a50e2d04cf38389a53f8d6cd594');
+        if ($shop === null) {
+            $shop = new ShopDetailStruct();
+            $shop->setId('FFA32A50E2D04CF38389A53F8D6CD594');
+            $shop->setIsDefault(true);
+            $shop->setFallbackTranslationId(null);
+            $shop->setTaxCalculationType(TaxAmountCalculator::CALCULATION_HORIZONTAL);
+            $shop->setCatalogIds(['FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF']);
         }
 
         $currency = $currency ?: (new CurrencyBasicStruct())->assign([
-            'id' => '4c8eba11-bd35-46d7-86af-bed481a6e665',
+            'id' => '4c8eba11bd3546d786afbed481a6e665',
+            'factor' => 1
         ]);
 
         if (!$currentCustomerGroup) {
             $currentCustomerGroup = new CustomerGroupBasicStruct();
             $currentCustomerGroup->setId(Defaults::FALLBACK_CUSTOMER_GROUP);
+            $currentCustomerGroup->setDisplayGross(true);
         }
 
         if (!$fallbackCustomerGroup) {
@@ -82,7 +87,7 @@ class Generator extends TestCase
 
         if (!$taxes) {
             $tax = new TaxBasicStruct();
-            $tax->setId('49260353-68e3-4d9f-a695-e017d7a231b9');
+            $tax->setId('4926035368e34d9fa695e017d7a231b9');
             $tax->setName('test');
             $tax->setRate(19.0);
 
@@ -91,17 +96,19 @@ class Generator extends TestCase
 
         if (!$area) {
             $area = new CountryAreaBasicStruct();
-            $area->setId('5cff02b1-0297-41a4-891c-430bcd9e3603');
+            $area->setId('5cff02b1029741a4891c430bcd9e3603');
         }
 
         if (!$country) {
             $country = new CountryBasicStruct();
-            $country->setId('5cff02b1-0297-41a4-891c-430bcd9e3603');
+            $country->setId('5cff02b1029741a4891c430bcd9e3603');
             $country->setAreaId($area->getId());
+            $country->setTaxFree(false);
+            $country->setName('Germany');
         }
         if (!$state) {
             $state = new CountryStateBasicStruct();
-            $state->setId('bd5e2dcf-547e-4df6-bb1f-f58a554bc69e');
+            $state->setId('bd5e2dcf547e4df6bb1ff58a554bc69e');
             $state->setCountryId($country->getId());
         }
 
@@ -111,38 +118,21 @@ class Generator extends TestCase
             $shipping->setCountryState($state);
         }
 
-        if (!$language) {
-            $locale = new LocaleBasicStruct();
-            $locale->setCode('en_GB');
+        $paymentMethod = (new PaymentMethodBasicStruct())->assign(['id' => '19d144ffe15f4772860d59fca7f207c1']);
+        $shippingMethod = new ShippingMethodBasicStruct();
+        $shippingMethod->setId('8beeb66e9dda46b18891a059257a590e');
+        $shippingMethod->setCalculation(DeliveryCalculator::CALCULATION_BY_PRICE);
+        $shippingMethod->setMinDeliveryTime(1);
+        $shippingMethod->setMaxDeliveryTime(2);
 
-            $language = new LanguageBasicStruct();
-            $language->setLocale($locale);
-            $language->setName('Language 1');
-        }
+        $customer = new CustomerBasicStruct();
+        $customer->setId(Uuid::uuid4()->getHex());
+        $customer->setGroup($currentCustomerGroup);
 
-        if (!$fallbackLanguage) {
-            $locale = new LocaleBasicStruct();
-            $locale->setCode('en_GB');
-
-            $fallbackLanguage = new LanguageBasicStruct();
-            $fallbackLanguage->setLocale($locale);
-            $fallbackLanguage->setName('Fallback Language 1');
-        }
-
-        $paymentMethod = (new PaymentMethodBasicStruct())->assign(['id' => '19d144ff-e15f-4772-860d-59fca7f207c1']);
-        $shippingMethod = (new ShippingMethodBasicStruct())->assign([
-            'id' => '8beeb66e9dda46b18891a059257a590e',
-            'minDeliveryTime' => 1,
-            'maxDeliveryTime' => 2,
-        ]);
-        $customer = (new CustomerBasicStruct())->assign(['id' => Uuid::uuid4()->getHex()]);
 
         return new StorefrontContext(
-            Defaults::TENANT_ID,
             Uuid::uuid4()->toString(),
-            $application,
-            $language,
-            $fallbackLanguage,
+            $shop,
             $currency,
             $currentCustomerGroup,
             $fallbackCustomerGroup,
@@ -151,7 +141,7 @@ class Generator extends TestCase
             $shippingMethod,
             ShippingLocation::createFromAddress($shipping),
             $customer,
-            []
+            $contextRuleIds
         );
     }
 

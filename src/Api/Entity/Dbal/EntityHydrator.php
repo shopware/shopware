@@ -311,6 +311,9 @@ class EntityHydrator
                 return $structs;
 
             case $field instanceof JsonObjectField:
+                if ($value === null) {
+                    return null;
+                }
                 if ($field->is(Serialized::class)) {
                     return $this->serializer->deserialize($value, '', 'json');
                 }

@@ -32,13 +32,20 @@
             <tag name="cart.processor" priority="800"/>
         </service>
 
-        <service class="Shopware\CartBridge\Order\MinimumOrderAmountProcessor" id="Shopware\CartBridge\Order\MinimumOrderAmountProcessor">
-            <argument type="service" id="Shopware\Cart\Price\AbsolutePriceCalculator"/>
+        <service class="Shopware\CartBridge\Modifier\ContextCartModifierProcessor" id="Shopware\CartBridge\Modifier\ContextCartModifierProcessor">
+            <argument id="Shopware\Api\Context\Repository\ContextCartModifierRepository" type="service"/>
+            <argument id="Shopware\Cart\Price\AbsolutePriceCalculator" type="service"/>
+            <argument id="Shopware\Cart\Price\PercentagePriceCalculator" type="service"/>
             <tag name="cart.processor" priority="700"/>
         </service>
 
-        <service class="Shopware\CartBridge\Payment\PaymentSurchargeProcessor" id="Shopware\CartBridge\Payment\PaymentSurchargeProcessor">
+        <service class="Shopware\CartBridge\Order\MinimumOrderAmountProcessor" id="Shopware\CartBridge\Order\MinimumOrderAmountProcessor">
+            <argument type="service" id="Shopware\Cart\Price\AbsolutePriceCalculator"/>
             <tag name="cart.processor" priority="600"/>
+        </service>
+
+        <service class="Shopware\CartBridge\Payment\PaymentSurchargeProcessor" id="Shopware\CartBridge\Payment\PaymentSurchargeProcessor">
+            <tag name="cart.processor" priority="500"/>
             <argument type="service" id="Shopware\Cart\Price\PercentagePriceCalculator"/>
             <argument type="service" id="Shopware\Cart\Price\AbsolutePriceCalculator"/>
         </service>
@@ -52,6 +59,11 @@
 
         <service id="Shopware\CartBridge\Voucher\VoucherCartCollector" class="Shopware\CartBridge\Voucher\VoucherCartCollector" >
             <argument id="Shopware\CartBridge\Voucher\VoucherGateway" type="service"/>
+            <tag name="cart.collector"/>
+        </service>
+
+        <service class="Shopware\CartBridge\Modifier\ContextCartModifierCollector" id="Shopware\CartBridge\Modifier\ContextCartModifierCollector">
+            <argument id="Shopware\Api\Context\Repository\ContextCartModifierRepository" type="service"/>
             <tag name="cart.collector"/>
         </service>
 

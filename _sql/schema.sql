@@ -1981,6 +1981,20 @@ CREATE TABLE `context_rule` (
   PRIMARY KEY (`id`, `tenant_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+DROP TABLE IF EXISTS `context_cart_modifier`;
+CREATE TABLE `context_cart_modifier` (
+  `id` BINARY(16) NOT NULL,
+  `name` VARCHAR(500) NOT NULL,
+  `context_rule_id` BINARY(16) NOT NULL,
+  `rule` LONGTEXT NULL DEFAULT NULL,
+  `absolute` FLOAT,
+  `percental` FLOAT,
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+   PRIMARY KEY (`id`),
+   CONSTRAINT `fk_context_cart_modifier.context_rule_id` FOREIGN KEY (`context_rule_id`) REFERENCES `context_rule` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 DROP TABLE IF EXISTS `version`;
 CREATE TABLE `version` (
   `id` binary(16) NOT NULL,

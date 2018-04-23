@@ -21,7 +21,7 @@ class SyncControllerTest extends ApiTestCase
     protected function setUp()
     {
         parent::setUp();
-        
+
         $this->connection = $this->getContainer()->get(Connection::class);
     }
 

@@ -3,7 +3,7 @@
 namespace Shopware\Api\Context\Event\ContextCartModifierTranslation;
 
 use Shopware\Api\Entity\Search\IdSearchResult;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class ContextCartModifierTranslationIdSearchResultLoadedEvent extends NestedEvent
@@ -25,7 +25,7 @@ class ContextCartModifierTranslationIdSearchResultLoadedEvent extends NestedEven
         return self::NAME;
     }
 
-    public function getContext(): ShopContext
+    public function getContext(): ApplicationContext
     {
         return $this->result->getContext();
     }

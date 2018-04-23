@@ -23,6 +23,11 @@ class ContextCartModifierBasicStruct extends Entity
     protected $contextRuleId;
 
     /**
+     * @var ContextRuleBasicStruct
+     */
+    protected $contextRule;
+
+    /**
      * @var string
      */
     protected $type;
@@ -60,6 +65,16 @@ class ContextCartModifierBasicStruct extends Entity
     public function setContextRuleId(string $contextRuleId): void
     {
         $this->contextRuleId = $contextRuleId;
+    }
+
+    public function getContextRule(): ContextRuleBasicStruct
+    {
+        return $this->contextRule;
+    }
+
+    public function setContextRule(ContextRuleBasicStruct $contextRule): void
+    {
+        $this->contextRule = $contextRule;
     }
 
     public function getType(): string

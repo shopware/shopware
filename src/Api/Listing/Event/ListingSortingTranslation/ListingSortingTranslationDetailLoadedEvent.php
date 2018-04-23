@@ -2,9 +2,9 @@
 
 namespace Shopware\Api\Listing\Event\ListingSortingTranslation;
 
+use Shopware\Api\Language\Event\Language\LanguageBasicLoadedEvent;
 use Shopware\Api\Listing\Collection\ListingSortingTranslationDetailCollection;
 use Shopware\Api\Listing\Event\ListingSorting\ListingSortingBasicLoadedEvent;
-use Shopware\Api\Shop\Event\Shop\ShopBasicLoadedEvent;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
@@ -51,7 +51,7 @@ class ListingSortingTranslationDetailLoadedEvent extends NestedEvent
             $events[] = new ListingSortingBasicLoadedEvent($this->listingSortingTranslations->getListingSortings(), $this->context);
         }
         if ($this->listingSortingTranslations->getLanguages()->count() > 0) {
-            $events[] = new ShopBasicLoadedEvent($this->listingSortingTranslations->getLanguages(), $this->context);
+            $events[] = new LanguageBasicLoadedEvent($this->listingSortingTranslations->getLanguages(), $this->context);
         }
 
         return new NestedEventCollection($events);

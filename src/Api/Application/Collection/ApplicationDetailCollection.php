@@ -4,8 +4,6 @@ namespace Shopware\Api\Application\Collection;
 
 use Shopware\Api\Application\Struct\ApplicationDetailStruct;
 use Shopware\Api\Country\Collection\CountryBasicCollection;
-use Shopware\Api\Currency\Collection\CurrencyBasicCollection;
-use Shopware\Api\Language\Collection\LanguageBasicCollection;
 use Shopware\Api\Payment\Collection\PaymentMethodBasicCollection;
 use Shopware\Api\Shipping\Collection\ShippingMethodBasicCollection;
 
@@ -15,8 +13,6 @@ class ApplicationDetailCollection extends ApplicationBasicCollection
      * @var ApplicationDetailStruct[]
      */
     protected $elements = [];
-
-
 
     public function getPaymentMethods(): PaymentMethodBasicCollection
     {

@@ -24,13 +24,13 @@
 
 namespace Shopware\Context\Rule\CalculatedCart;
 
-use Shopware\Context\Exception\InvalidMatchContext;
 use Shopware\Context\Exception\UnsupportedOperatorException;
 use Shopware\Context\MatchContext\CartRuleMatchContext;
 use Shopware\Context\MatchContext\RuleMatchContext;
 use Shopware\Context\Rule\Match;
+use Shopware\Context\Rule\Rule;
 
-class OrderAmountRule extends \Shopware\Context\Rule\Rule
+class OrderAmountRule extends Rule
 {
     /**
      * @var float
@@ -50,7 +50,6 @@ class OrderAmountRule extends \Shopware\Context\Rule\Rule
 
     /**
      * @throws UnsupportedOperatorException
-     * @throws InvalidMatchContext
      */
     public function match(
         RuleMatchContext $matchContext
@@ -61,21 +60,35 @@ class OrderAmountRule extends \Shopware\Context\Rule\Rule
                 ['Invalid Match Context. CartRuleMatchContext expected']
             );
         }
-        $calculatedCart = $matchContext->getCalculatedCart();
+        $cartAmount = $matchContext->getCalculatedCart()->getPrice()->getTotalPrice();
 
         switch ($this->operator) {
             case self::OPERATOR_GTE:
 
                 return new Match(
-                    $calculatedCart->getPrice()->getTotalPrice() >= $this->amount,
+                    $cartAmount >= $this->amount,
                     ['Total price too low']
                 );
 
             case self::OPERATOR_LTE:
 
                 return new Match(
-                    $calculatedCart->getPrice()->getTotalPrice() <= $this->amount,
+                    $cartAmount <= $this->amount,
                     ['Total price too high']
+                );
+
+            case self::OPERATOR_EQ:
+
+                return new Match(
+                    $cartAmount == $this->amount,
+                    ['Total price is not equal']
+                );
+
+            case self::OPERATOR_NEQ:
+
+                return new Match(
+                    $cartAmount != $this->amount,
+                    ['Total price is equal']
                 );
 
             default:

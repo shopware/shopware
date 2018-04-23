@@ -3,13 +3,12 @@
 namespace Shopware\Context\Rule\CalculatedLineItem;
 
 use Shopware\CartBridge\Product\Struct\CalculatedProduct;
-use Shopware\Context\Exception\InvalidMatchContext;
 use Shopware\Context\MatchContext\CalculatedLineItemMatchContext;
 use Shopware\Context\MatchContext\RuleMatchContext;
 use Shopware\Context\Rule\Match;
 use Shopware\Context\Rule\Rule;
 
-class ManufacturerRule extends Rule
+class ProductOfManufacturerRule extends Rule
 {
     /**
      * @var string
@@ -21,11 +20,6 @@ class ManufacturerRule extends Rule
         $this->id = $id;
     }
 
-    /**
-     * Validate the current rule and returns a reason object which contains defines if the rule match and if not why not
-     *
-     * @throws InvalidMatchContext
-     */
     public function match(
         RuleMatchContext $matchContext
     ): Match {

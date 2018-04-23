@@ -2,14 +2,13 @@
 
 namespace Shopware\Context\Rule\CalculatedLineItem;
 
-use Shopware\Context\Exception\InvalidMatchContext;
 use Shopware\Context\Exception\UnsupportedOperatorException;
 use Shopware\Context\MatchContext\CalculatedLineItemMatchContext;
 use Shopware\Context\MatchContext\RuleMatchContext;
 use Shopware\Context\Rule\Match;
 use Shopware\Context\Rule\Rule;
 
-class UnitPriceRule extends Rule
+class LineItemUnitPriceRule extends Rule
 {
     /**
      * @var float
@@ -21,17 +20,14 @@ class UnitPriceRule extends Rule
      */
     protected $operator;
 
-    public function __construct(float $amount, string $operator)
+    public function __construct(float $amount, string $operator = self::OPERATOR_EQ)
     {
         $this->amount = $amount;
         $this->operator = $operator;
     }
 
     /**
-     * Validate the current rule and returns a reason object which contains defines if the rule match and if not why not
-     *
      * @throws UnsupportedOperatorException
-     * @throws InvalidMatchContext
      */
     public function match(
         RuleMatchContext $matchContext
@@ -43,20 +39,34 @@ class UnitPriceRule extends Rule
             );
         }
 
-        $calculatedLineItem = $matchContext->getCalculatedLineItem();
+        $unitPrice = $matchContext->getCalculatedLineItem()->getPrice()->getUnitPrice();
         switch ($this->operator) {
             case self::OPERATOR_GTE:
 
                 return new Match(
-                    $calculatedLineItem->getPrice()->getUnitPrice() >= $this->amount,
+                    $unitPrice >= $this->amount,
                     ['LineItem unit price too low']
                 );
 
             case self::OPERATOR_LTE:
 
                 return new Match(
-                    $calculatedLineItem->getPrice()->getUnitPrice() <= $this->amount,
+                    $unitPrice <= $this->amount,
                     ['LineItem unit price too high']
+                );
+
+            case self::OPERATOR_EQ:
+
+                return new Match(
+                    $unitPrice == $this->amount,
+                    ['LineItem unit price is not equal']
+                );
+
+            case self::OPERATOR_NEQ:
+
+                return new Match(
+                    $unitPrice != $this->amount,
+                    ['LineItem unit price is equal']
                 );
 
             default:

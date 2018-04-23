@@ -13,7 +13,7 @@ use Shopware\Cart\Price\AbsolutePriceCalculator;
 use Shopware\Cart\Price\PercentagePriceCalculator;
 use Shopware\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Cart\Price\Struct\CalculatedPriceCollection;
-use Shopware\CartBridge\Exception\UnsupportedModifierType;
+use Shopware\CartBridge\Exception\UnsupportedModifierTypeException;
 use Shopware\Context\MatchContext\CalculatedLineItemMatchContext;
 use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
@@ -52,7 +52,7 @@ class ContextCartModifierProcessor implements CartProcessorInterface
     }
 
     /**
-     * @throws UnsupportedModifierType
+     * @throws UnsupportedModifierTypeException
      */
     public function process(
         Cart $cart,
@@ -69,27 +69,29 @@ class ContextCartModifierProcessor implements CartProcessorInterface
 
         /** @var ContextCartModifierBasicStruct $modifier */
         foreach ($contextCartModifiers->getElements() as $modifier) {
-            if (!in_array($modifier->getContextRuleId(), $context->getContextRulesIds(), true)) {
+            if (!in_array($modifier->getContextRuleId(), $context->getContextRuleIds(), true)) {
                 continue;
             }
 
             $price = $this->calculate($modifier, $calculatedCart, $context);
-            if ($price) {
-                $calculatedLineItem = new CalculatedLineItem(
-                    $modifier->getId(),
-                    $price,
-                    1,
-                    self::TYPE,
-                    $modifier->getName()
-                );
-
-                $calculatedCart->getCalculatedLineItems()->add($calculatedLineItem);
+            if (!$price || $price->getTotalPrice() == 0) {
+                continue;
             }
+
+            $calculatedLineItem = new CalculatedLineItem(
+                $modifier->getId(),
+                $price,
+                1,
+                self::TYPE,
+                $modifier->getName()
+            );
+
+            $calculatedCart->getCalculatedLineItems()->add($calculatedLineItem);
         }
     }
 
     /**
-     * @throws UnsupportedModifierType
+     * @throws UnsupportedModifierTypeException
      */
     private function calculate(
         ContextCartModifierBasicStruct $modifier,
@@ -102,7 +104,7 @@ class ContextCartModifierProcessor implements CartProcessorInterface
                 new CalculatedLineItemMatchContext($calculatedLineItem, $context)
             );
 
-            if ($match->matches()) {
+            if (!$match->matches()) {
                 continue;
             }
             $prices->add($calculatedLineItem->getPrice());
@@ -122,7 +124,7 @@ class ContextCartModifierProcessor implements CartProcessorInterface
                     $context
                 );
             default:
-                throw new UnsupportedModifierType($modifier->getType(), self::class);
+                throw new UnsupportedModifierTypeException($modifier->getType(), self::class);
         }
     }
 }

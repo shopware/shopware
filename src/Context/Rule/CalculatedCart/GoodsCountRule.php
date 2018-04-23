@@ -25,7 +25,6 @@
 namespace Shopware\Context\Rule\CalculatedCart;
 
 use Shopware\Cart\LineItem\GoodsInterface;
-use Shopware\Context\Exception\InvalidMatchContext;
 use Shopware\Context\Exception\UnsupportedOperatorException;
 use Shopware\Context\MatchContext\CartRuleMatchContext;
 use Shopware\Context\MatchContext\RuleMatchContext;
@@ -44,7 +43,7 @@ class GoodsCountRule extends Rule
      */
     protected $operator;
 
-    public function __construct(int $count, string $operator)
+    public function __construct(int $count, string $operator = self::OPERATOR_EQ)
     {
         $this->count = $count;
         $this->operator = $operator;
@@ -52,7 +51,6 @@ class GoodsCountRule extends Rule
 
     /**
      * @throws UnsupportedOperatorException
-     * @throws InvalidMatchContext
      */
     public function match(
         RuleMatchContext $matchContext
@@ -78,7 +76,20 @@ class GoodsCountRule extends Rule
 
                 return new Match(
                     $goods->count() <= $this->count,
-                    ['Good count too less']
+                    ['GoodsInterface count too less']
+                );
+
+            case self::OPERATOR_EQ:
+
+                return new Match(
+                    $goods->count() == $this->count,
+                    ['GoodsInterface count not equal']
+                );
+
+            case self::OPERATOR_NEQ:
+                return new Match(
+                    $goods->count() != $this->count,
+                    ['GoodsInterface count equal']
                 );
 
             default:

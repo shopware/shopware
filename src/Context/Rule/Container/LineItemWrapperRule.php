@@ -1,14 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Context\Rule\CalculatedCart;
+namespace Shopware\Context\Rule\Container;
 
 use Shopware\Context\MatchContext\CalculatedLineItemMatchContext;
 use Shopware\Context\MatchContext\CartRuleMatchContext;
 use Shopware\Context\MatchContext\RuleMatchContext;
-use Shopware\Context\Rule\Container\Container;
 use Shopware\Context\Rule\Match;
+use Shopware\Context\Rule\Rule;
 
-class LineItemWrapperRule
+class LineItemWrapperRule extends Rule
 {
     /**
      * @var Container

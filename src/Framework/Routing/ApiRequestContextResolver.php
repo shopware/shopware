@@ -2,7 +2,6 @@
 
 namespace Shopware\Framework\Routing;
 
-use Doctrine\DBAL\Connection;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 use Shopware\PlatformRequest;

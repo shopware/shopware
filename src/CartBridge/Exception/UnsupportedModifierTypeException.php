@@ -2,7 +2,7 @@
 
 namespace Shopware\CartBridge\Exception;
 
-class UnsupportedModifierType extends \Exception
+class UnsupportedModifierTypeException extends \Exception
 {
     public const CODE = 5000;
 

@@ -27,7 +27,7 @@ namespace Shopware\Cart\Test\Validator\Container;
 use PHPUnit\Framework\TestCase;
 use Shopware\Cart\Test\Common\FalseRule;
 use Shopware\Cart\Test\Common\TrueRule;
-use Shopware\Context\MatchContext\DefaultMatchContext;
+use Shopware\Context\MatchContext\StorefrontMatchContext;
 use Shopware\Context\Rule\Container\XorRule;
 use Shopware\Context\Rule\Match;
 use Shopware\Context\Struct\StorefrontContext;
@@ -45,7 +45,7 @@ class XorRuleTest extends TestCase
         $this->assertEquals(
             new Match(true),
             $rule->match(
-                new DefaultMatchContext(
+                new StorefrontMatchContext(
                     $this->createMock(StorefrontContext::class)
                 )
             )
@@ -62,7 +62,7 @@ class XorRuleTest extends TestCase
         $this->assertEquals(
             new Match(false),
             $rule->match(
-                new DefaultMatchContext(
+                new StorefrontMatchContext(
                     $this->createMock(StorefrontContext::class)
                 )
             )
@@ -80,7 +80,7 @@ class XorRuleTest extends TestCase
         $this->assertEquals(
             new Match(false),
             $rule->match(
-                new DefaultMatchContext(
+                new StorefrontMatchContext(
                     $this->createMock(StorefrontContext::class)
                 )
             )

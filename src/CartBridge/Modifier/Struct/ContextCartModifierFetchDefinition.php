@@ -9,21 +9,21 @@ class ContextCartModifierFetchDefinition extends Struct
     /**
      * @var string[]
      */
-    protected $ids;
+    protected $contextRuleIds;
 
     /**
-     * @param string[] $ids
+     * @param string[] $contextRuleIds
      */
-    public function __construct(array $ids)
+    public function __construct(array $contextRuleIds)
     {
-        $this->ids = $ids;
+        $this->contextRuleIds = $contextRuleIds;
     }
 
     /**
      * @return string[]
      */
-    public function getIds(): array
+    public function getContextRuleIds(): array
     {
-        return $this->ids;
+        return $this->contextRuleIds;
     }
 }

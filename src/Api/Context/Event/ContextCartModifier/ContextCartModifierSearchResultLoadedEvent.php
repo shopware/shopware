@@ -3,7 +3,7 @@
 namespace Shopware\Api\Context\Event\ContextCartModifier;
 
 use Shopware\Api\Context\Struct\ContextCartModifierSearchResult;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class ContextCartModifierSearchResultLoadedEvent extends NestedEvent
@@ -25,7 +25,7 @@ class ContextCartModifierSearchResultLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ShopContext
+    public function getContext(): ApplicationContext
     {
         return $this->result->getContext();
     }

@@ -24,7 +24,7 @@
 
 namespace Shopware\Context\Exception;
 
-class InvalidMatchContext extends \Exception
+class InvalidMatchContextException extends \Exception
 {
     public const CODE = 200004;
 

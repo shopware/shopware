@@ -192,7 +192,7 @@ class EntityDefinitionQueryHelper
         if ($definition::isTenantAware()) {
             $query->andWhere(self::escape($table) . '.`tenant_id` = :tenant');
             $query->setParameter('tenant', Uuid::fromHexToBytes($context->getTenantId()));
-        };
+        }
 
         return $query;
     }

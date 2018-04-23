@@ -2,20 +2,22 @@
 
 namespace Shopware\Api\Context\Struct;
 
+use Shopware\Api\Context\Collection\ContextCartModifierTranslationBasicCollection;
+
 class ContextCartModifierDetailStruct extends ContextCartModifierBasicStruct
 {
     /**
-     * @var ContextRuleBasicStruct
+     * @var ContextCartModifierTranslationBasicCollection
      */
-    protected $contextRule;
+    protected $translations;
 
-    public function getContextRule(): ContextRuleBasicStruct
+    public function getTranslations(): ContextCartModifierTranslationBasicCollection
     {
-        return $this->contextRule;
+        return $this->translations;
     }
 
-    public function setContextRule(ContextRuleBasicStruct $contextRule): void
+    public function setTranslations(ContextCartModifierTranslationBasicCollection $translations): void
     {
-        $this->contextRule = $contextRule;
+        $this->translations = $translations;
     }
 }

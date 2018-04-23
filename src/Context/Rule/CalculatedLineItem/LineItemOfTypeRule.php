@@ -2,13 +2,12 @@
 
 namespace Shopware\Context\Rule\CalculatedLineItem;
 
-use Shopware\Context\Exception\InvalidMatchContext;
 use Shopware\Context\MatchContext\CalculatedLineItemMatchContext;
 use Shopware\Context\MatchContext\RuleMatchContext;
 use Shopware\Context\Rule\Match;
 use Shopware\Context\Rule\Rule;
 
-class ItemTypeRule extends Rule
+class LineItemOfTypeRule extends Rule
 {
     /**
      * @var string
@@ -20,11 +19,6 @@ class ItemTypeRule extends Rule
         $this->type = $type;
     }
 
-    /**
-     * Validate the current rule and returns a reason object which contains defines if the rule match and if not why not
-     *
-     * @throws InvalidMatchContext
-     */
     public function match(
         RuleMatchContext $matchContext
     ): Match {

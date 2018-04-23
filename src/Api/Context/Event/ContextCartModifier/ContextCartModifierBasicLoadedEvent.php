@@ -3,7 +3,7 @@
 namespace Shopware\Api\Context\Event\ContextCartModifier;
 
 use Shopware\Api\Context\Collection\ContextCartModifierBasicCollection;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class ContextCartModifierBasicLoadedEvent extends NestedEvent
@@ -11,7 +11,7 @@ class ContextCartModifierBasicLoadedEvent extends NestedEvent
     public const NAME = 'context_cart_modifier.basic.loaded';
 
     /**
-     * @var ShopContext
+     * @var ApplicationContext
      */
     protected $context;
 
@@ -20,7 +20,7 @@ class ContextCartModifierBasicLoadedEvent extends NestedEvent
      */
     protected $contextCartModifiers;
 
-    public function __construct(ContextCartModifierBasicCollection $contextCartModifiers, ShopContext $context)
+    public function __construct(ContextCartModifierBasicCollection $contextCartModifiers, ApplicationContext $context)
     {
         $this->context = $context;
         $this->contextCartModifiers = $contextCartModifiers;
@@ -31,7 +31,7 @@ class ContextCartModifierBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ShopContext
+    public function getContext(): ApplicationContext
     {
         return $this->context;
     }

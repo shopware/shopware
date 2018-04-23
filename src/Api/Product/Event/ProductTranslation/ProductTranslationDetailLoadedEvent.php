@@ -2,9 +2,9 @@
 
 namespace Shopware\Api\Product\Event\ProductTranslation;
 
+use Shopware\Api\Language\Event\Language\LanguageBasicLoadedEvent;
 use Shopware\Api\Product\Collection\ProductTranslationDetailCollection;
 use Shopware\Api\Product\Event\Product\ProductBasicLoadedEvent;
-use Shopware\Api\Shop\Event\Shop\ShopBasicLoadedEvent;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
@@ -51,7 +51,7 @@ class ProductTranslationDetailLoadedEvent extends NestedEvent
             $events[] = new ProductBasicLoadedEvent($this->productTranslations->getProducts(), $this->context);
         }
         if ($this->productTranslations->getLanguages()->count() > 0) {
-            $events[] = new ShopBasicLoadedEvent($this->productTranslations->getLanguages(), $this->context);
+            $events[] = new LanguageBasicLoadedEvent($this->productTranslations->getLanguages(), $this->context);
         }
 
         return new NestedEventCollection($events);

@@ -24,7 +24,6 @@
 
 namespace Shopware\Context\Rule\CalculatedCart;
 
-use Shopware\Context\Exception\InvalidMatchContext;
 use Shopware\Context\Exception\UnsupportedOperatorException;
 use Shopware\Context\MatchContext\CartRuleMatchContext;
 use Shopware\Context\MatchContext\RuleMatchContext;
@@ -51,7 +50,6 @@ class GoodsPriceRule extends Rule
 
     /**
      * @throws UnsupportedOperatorException
-     * @throws InvalidMatchContext
      */
     public function match(
         RuleMatchContext $matchContext
@@ -63,20 +61,35 @@ class GoodsPriceRule extends Rule
             );
         }
         $goods = $matchContext->getCalculatedCart()->getCalculatedLineItems()->filterGoods();
+        $goodsAmount = $goods->getPrices()->sum()->getTotalPrice();
 
         switch ($this->operator) {
             case self::OPERATOR_GTE:
 
                 return new Match(
-                    $goods->getPrices()->sum()->getTotalPrice() >= $this->amount,
+                    $goodsAmount >= $this->amount,
                     ['GoodsInterface price too low']
                 );
 
             case self::OPERATOR_LTE:
 
                 return new Match(
-                    $goods->getPrices()->sum()->getTotalPrice() <= $this->amount,
+                    $goodsAmount <= $this->amount,
                     ['GoodsInterface price too high']
+                );
+
+            case self::OPERATOR_EQ:
+
+                return new Match(
+                    $goodsAmount == $this->amount,
+                    ['GoodsInterface price is not equal']
+                );
+
+            case self::OPERATOR_NEQ:
+
+                return new Match(
+                    $goodsAmount != $this->amount,
+                    ['GoodsInterface price is equal']
                 );
 
             default:

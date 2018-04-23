@@ -121,7 +121,7 @@ class CategoryAssignmentIndexer implements IndexerInterface
                     'id' => $productId,
                     'tree' => $json,
                     'version' => $versionId,
-                    'tenant' => $tenantId
+                    'tenant' => $tenantId,
                 ]
             );
 

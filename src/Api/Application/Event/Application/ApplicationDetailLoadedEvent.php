@@ -7,7 +7,6 @@ use Shopware\Api\Country\Event\Country\CountryBasicLoadedEvent;
 use Shopware\Api\Payment\Event\PaymentMethod\PaymentMethodBasicLoadedEvent;
 use Shopware\Api\Shipping\Event\ShippingMethod\ShippingMethodBasicLoadedEvent;
 use Shopware\Context\Struct\ApplicationContext;
-use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 
@@ -25,7 +24,7 @@ class ApplicationDetailLoadedEvent extends NestedEvent
      */
     protected $applications;
 
-    public function __construct(ApplicationDetailCollection $applications, ShopContext $context)
+    public function __construct(ApplicationDetailCollection $applications, ApplicationContext $context)
     {
         $this->context = $context;
         $this->applications = $applications;

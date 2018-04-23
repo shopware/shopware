@@ -13,12 +13,15 @@ use Shopware\Api\Entity\Field\DateField;
 use Shopware\Api\Entity\Field\IdField;
 use Shopware\Api\Entity\Field\IntField;
 use Shopware\Api\Entity\Field\JsonObjectField;
+use Shopware\Api\Entity\Field\OneToManyAssociationField;
 use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\Field\TenantIdField;
 use Shopware\Api\Entity\FieldCollection;
+use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Entity\Write\Flag\Serialized;
+use Shopware\Api\Entity\Write\Flag\WriteOnly;
 
 class ContextRuleDefinition extends EntityDefinition
 {
@@ -56,6 +59,8 @@ class ContextRuleDefinition extends EntityDefinition
             (new JsonObjectField('payload', 'payload'))->setFlags(new Required(), new Serialized()),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
+
+            (new OneToManyAssociationField('contextCartModifers', ContextCartModifierDefinition::class, 'context_rule_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
         ]);
 
         foreach (self::$extensions as $extension) {

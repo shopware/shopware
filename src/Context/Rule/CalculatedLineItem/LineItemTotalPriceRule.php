@@ -2,14 +2,13 @@
 
 namespace Shopware\Context\Rule\CalculatedLineItem;
 
-use Shopware\Context\Exception\InvalidMatchContext;
 use Shopware\Context\Exception\UnsupportedOperatorException;
 use Shopware\Context\MatchContext\CalculatedLineItemMatchContext;
 use Shopware\Context\MatchContext\RuleMatchContext;
 use Shopware\Context\Rule\Match;
 use Shopware\Context\Rule\Rule;
 
-class TotalPriceRule extends Rule
+class LineItemTotalPriceRule extends Rule
 {
     /**
      * @var float
@@ -21,17 +20,14 @@ class TotalPriceRule extends Rule
      */
     protected $operator;
 
-    public function __construct(float $amount, string $operator)
+    public function __construct(float $amount, string $operator = self::OPERATOR_EQ)
     {
         $this->amount = $amount;
         $this->operator = $operator;
     }
 
     /**
-     * Validate the current rule and returns a reason object which contains defines if the rule match and if not why not
-     *
      * @throws UnsupportedOperatorException
-     * @throws InvalidMatchContext
      */
     public function match(
         RuleMatchContext $matchContext

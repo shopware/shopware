@@ -25,12 +25,12 @@
 namespace Shopware\Context\Rule\CalculatedCart;
 
 use Shopware\Cart\LineItem\CalculatedLineItemInterface;
-use Shopware\Context\Exception\InvalidMatchContext;
 use Shopware\Context\MatchContext\CartRuleMatchContext;
 use Shopware\Context\MatchContext\RuleMatchContext;
 use Shopware\Context\Rule\Match;
+use Shopware\Context\Rule\Rule;
 
-class LineItemsInCartRule extends \Shopware\Context\Rule\Rule
+class LineItemsInCartRule extends Rule
 {
     /**
      * @var string[]
@@ -45,9 +45,6 @@ class LineItemsInCartRule extends \Shopware\Context\Rule\Rule
         $this->identifiers = $identifiers;
     }
 
-    /**
-     * @throws InvalidMatchContext
-     */
     public function match(
         RuleMatchContext $matchContext
     ): Match {

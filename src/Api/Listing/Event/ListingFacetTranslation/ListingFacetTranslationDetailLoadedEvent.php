@@ -2,9 +2,9 @@
 
 namespace Shopware\Api\Listing\Event\ListingFacetTranslation;
 
+use Shopware\Api\Language\Event\Language\LanguageBasicLoadedEvent;
 use Shopware\Api\Listing\Collection\ListingFacetTranslationDetailCollection;
 use Shopware\Api\Listing\Event\ListingFacet\ListingFacetBasicLoadedEvent;
-use Shopware\Api\Shop\Event\Shop\ShopBasicLoadedEvent;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
@@ -51,7 +51,7 @@ class ListingFacetTranslationDetailLoadedEvent extends NestedEvent
             $events[] = new ListingFacetBasicLoadedEvent($this->listingFacetTranslations->getListingFacets(), $this->context);
         }
         if ($this->listingFacetTranslations->getLanguages()->count() > 0) {
-            $events[] = new ShopBasicLoadedEvent($this->listingFacetTranslations->getLanguages(), $this->context);
+            $events[] = new LanguageBasicLoadedEvent($this->listingFacetTranslations->getLanguages(), $this->context);
         }
 
         return new NestedEventCollection($events);

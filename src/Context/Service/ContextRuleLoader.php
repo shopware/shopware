@@ -122,7 +122,7 @@ class ContextRuleLoader
 
         $valid = false;
 
-        $context->setContextRulesIds($rules->getIds());
+        $context->setContextRuleIds($rules->getIds());
 
         //first collect additional data for cart processors outside the loop to prevent duplicate database access
         $processorData = $this->cartCollector->collect($calculated->getCart(), $context);
@@ -138,7 +138,7 @@ class ContextRuleLoader
             $rules = $rules->filterMatchingRules($calculated, $context);
 
             //place rules into context for further usages
-            $context->setContextRulesIds($rules->getIds());
+            $context->setContextRuleIds($rules->getIds());
 
             //recalculate cart for new context rules
             $newCart = $this->cartProcessor->process($calculated->getCart(), $context, $processorData);

@@ -28,7 +28,7 @@ class ContextCartModifierCollector implements CartCollectorInterface
         Cart $cart,
         StorefrontContext $context
     ): void {
-        $contextRuleIds = $context->getContextRulesIds();
+        $contextRuleIds = $context->getContextRuleIds();
 
         if (!$contextRuleIds) {
             return;
@@ -51,12 +51,12 @@ class ContextCartModifierCollector implements CartCollectorInterface
         $ids = [];
         /** @var ContextCartModifierFetchDefinition[] $definitions */
         foreach ($definitions as $definition) {
-            $ids = array_merge($ids, $definition->getIds());
+            $ids = array_merge($ids, $definition->getContextRuleIds());
         }
 
         $criteria = new Criteria();
         $criteria->addFilter(new TermsQuery('context_cart_modifier.contextRuleId', $ids));
-        $contextCartModifiers = $this->repository->search($criteria, $context->getShopContext());
+        $contextCartModifiers = $this->repository->search($criteria, $context->getApplicationContext());
 
         $dataCollection->add($contextCartModifiers, ContextCartModifierProcessor::TYPE);
     }

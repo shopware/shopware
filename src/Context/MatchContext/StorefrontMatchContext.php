@@ -4,7 +4,7 @@ namespace Shopware\Context\MatchContext;
 
 use Shopware\Context\Struct\StorefrontContext;
 
-class DefaultMatchContext extends RuleMatchContext
+class StorefrontMatchContext extends RuleMatchContext
 {
     /**
      * @var StorefrontContext

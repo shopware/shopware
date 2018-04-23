@@ -1,27 +1,30 @@
 <?php declare(strict_types=1);
+
 use Shopware\Api\Context\Repository\ContextCartModifierRepository;
 use Shopware\Api\Context\Repository\ContextRuleRepository;
 use Shopware\Api\Product\Repository\ProductRepository;
 use Shopware\Cart\Cart\CircularCartCalculation;
+use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Cart\Struct\Cart;
 use Shopware\Cart\Error\ErrorCollection;
 use Shopware\Cart\LineItem\CalculatedLineItem;
 use Shopware\Cart\LineItem\LineItem;
 use Shopware\Cart\LineItem\LineItemCollection;
+use Shopware\Cart\Tax\Struct\PercentageTaxRule;
 use Shopware\Cart\Test\Common\Generator;
 use Shopware\CartBridge\Modifier\ContextCartModifierProcessor;
 use Shopware\CartBridge\Product\ProductProcessor;
+use Shopware\Context\Rule\CalculatedCart\GoodsCountRule;
 use Shopware\Context\Rule\CalculatedCart\GoodsPriceRule;
-use Shopware\Context\Rule\CalculatedCart\OrderAmountRule;
-use Shopware\Context\Rule\CalculatedLineItem\IdRule;
-use Shopware\Context\Rule\CalculatedLineItem\ItemTypeRule;
-use Shopware\Context\Rule\CalculatedLineItem\ManufacturerRule;
-use Shopware\Context\Rule\CalculatedLineItem\QuantityRule;
-use Shopware\Context\Rule\CalculatedLineItem\TotalPriceRule;
+use Shopware\Context\Rule\CalculatedLineItem\LineItemOfTypeRule;
+use Shopware\Context\Rule\CalculatedLineItem\LineItemTotalPriceRule;
+use Shopware\Context\Rule\CalculatedLineItem\LineItemWithQuantityRule;
+use Shopware\Context\Rule\CalculatedLineItem\ProductOfManufacturerRule;
 use Shopware\Context\Rule\Container\AndRule;
 use Shopware\Context\Rule\Rule;
-use Shopware\Context\Struct\ShopContext;
+use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Context\Struct\StorefrontContext;
+use Shopware\Defaults;
 use Shopware\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
@@ -43,7 +46,7 @@ class ContextCartModifierTest extends KernelTestCase
     public static $productRepository;
 
     /**
-     * @var ShopContext
+     * @var ApplicationContext
      */
     public static $context;
 
@@ -58,117 +61,380 @@ class ContextCartModifierTest extends KernelTestCase
         self::$contextCartModifierRepository = self::$kernel->getContainer()->get(ContextCartModifierRepository::class);
         self::$contextRuleRepository = self::$kernel->getContainer()->get(ContextRuleRepository::class);
         self::$productRepository = self::$kernel->getContainer()->get(ProductRepository::class);
-        self::$context = ShopContext::createDefaultContext();
+        self::$context = ApplicationContext::createDefaultContext(Defaults::TENANT_ID);
         self::$calculation = self::$kernel->getContainer()->get(CircularCartCalculation::class);
     }
 
-    public function testAbsoluteSurcharge()
+    public function testAbsoluteSurchargeMatch()
     {
         $productA = $this->createProduct('Product A', 10, 11.9, 19);
         $productB = $this->createProduct('Product B', 20, 23.8, 19);
 
-        $rules = [
-            new GoodsPriceRule(60, OrderAmountRule::OPERATOR_LTE),
-            new GoodsPriceRule(25, OrderAmountRule::OPERATOR_GTE),
-        ];
-        $contextRuleId = $this->createContextRule($rules, 'Test rule');
+        $contextRuleId = $this->createContextRule([
+            new GoodsPriceRule(25, Rule::OPERATOR_GTE),
+            new GoodsPriceRule(60, Rule::OPERATOR_LTE),
+        ]);
 
         $modifierId = $this->createContextCartModifier(
-            'Test modifier (absolute)',
             $contextRuleId,
-            null,
             ContextCartModifierProcessor::ABSOLUTE_MODIFIER,
             2
         );
 
-        $lineItems = new LineItemCollection([
-            new LineItem(
-                $productA,
-                ProductProcessor::TYPE_PRODUCT,
-                3,
-                ['id' => $productA]
-            ),
-            new LineItem(
-                $productB,
-                ProductProcessor::TYPE_PRODUCT,
-                1,
-                ['id' => $productB]
-            ),
-        ]);
-
-        $cart = new Cart('test', 'test', $lineItems, new ErrorCollection());
-        $context = $this->createContext($contextRuleId);
-        $calculatedCart = self::$calculation->calculate($cart, $context);
+        $calculatedCart = $this->calculate(
+            [
+                [$productA, 3],
+                [$productB, 1],
+            ]
+        );
 
         $this->removeContextCartModifier($modifierId);
 
         $lineItem = $calculatedCart->getCalculatedLineItems()->get($modifierId);
 
-        $this->assertEquals(52, $calculatedCart->getPrice()->getTotalPrice());
+        $this->markTestIncomplete('Should work after Ticket NEXT-286 is done.');
+
+        $this->assertEquals(61.5, $calculatedCart->getPrice()->getTotalPrice());
+        $this->assertEquals(51.68, $calculatedCart->getPrice()->getNetPrice());
         $this->assertInstanceOf(CalculatedLineItem::class, $lineItem);
         $this->assertEquals(2, $lineItem->getPrice()->getTotalPrice());
         $this->assertEquals(1, $lineItem->getQuantity());
         $this->assertEquals(ContextCartModifierProcessor::TYPE, $lineItem->getType());
+
+        $this->assertArrayHasKey(19, $calculatedCart->getPrice()->getCalculatedTaxes());
+        $tax = $calculatedCart->getPrice()->getCalculatedTaxes()->get(19);
+        $this->assertEquals(9.82, $tax->getTax());
+        $this->assertEquals(61.5, $tax->getPrice());
+        $this->assertEquals(19, $tax->getTaxRate());
+
+        $this->assertArrayHasKey(19, $calculatedCart->getPrice()->getTaxRules());
+        /** @var PercentageTaxRule $taxRule */
+        $taxRule = $calculatedCart->getPrice()->getTaxRules()->get(19);
+        $this->assertInstanceOf(PercentageTaxRule::class, $taxRule);
+        $this->assertEquals(19, $taxRule->getRate());
+        $this->assertEquals(100, $taxRule->getPercentage());
     }
 
-    public function testPercentalSurcharge()
+    public function testAbsoluteSurchargeWithNoMatch()
+    {
+        $productA = $this->createProduct('Product A', 10, 11.9, 19);
+        $productB = $this->createProduct('Product B', 20, 23.8, 19);
+
+        $contextRuleId = $this->createContextRule([
+            new GoodsPriceRule(100, Rule::OPERATOR_GTE),
+            new GoodsPriceRule(200, Rule::OPERATOR_LTE),
+        ]);
+
+        $modifierId = $this->createContextCartModifier(
+            $contextRuleId,
+            ContextCartModifierProcessor::ABSOLUTE_MODIFIER,
+            2
+        );
+
+        $calculatedCart = $this->calculate(
+            [
+                [$productA, 3],
+                [$productB, 1],
+            ]
+        );
+
+        $this->removeContextCartModifier($modifierId);
+
+        $lineItem = $calculatedCart->getCalculatedLineItems()->get($modifierId);
+
+        $this->markTestIncomplete('Should work after Ticket NEXT-286 is done.');
+
+        $this->assertEquals(59.5, $calculatedCart->getPrice()->getTotalPrice());
+        $this->assertEquals(50, $calculatedCart->getPrice()->getNetPrice());
+
+        $this->assertArrayHasKey(19, $calculatedCart->getPrice()->getCalculatedTaxes());
+        $tax = $calculatedCart->getPrice()->getCalculatedTaxes()->get(19);
+        $this->assertEquals(9.5, $tax->getTax());
+        $this->assertEquals(59.5, $tax->getPrice());
+        $this->assertEquals(19, $tax->getTaxRate());
+
+        $this->assertArrayHasKey(19, $calculatedCart->getPrice()->getTaxRules());
+        /** @var PercentageTaxRule $taxRule */
+        $taxRule = $calculatedCart->getPrice()->getTaxRules()->get(19);
+        $this->assertInstanceOf(PercentageTaxRule::class, $taxRule);
+        $this->assertEquals(19, $taxRule->getRate());
+        $this->assertEquals(100, $taxRule->getPercentage());
+        $this->assertNull($lineItem);
+    }
+
+    public function testAbsoluteSurchargeWithNetPricesMatch()
+    {
+        $productA = $this->createProduct('Product A', 10, 11.9, 19);
+        $productB = $this->createProduct('Product B', 20, 23.8, 19);
+
+        $contextRuleId = $this->createContextRule([
+            new GoodsPriceRule(10, Rule::OPERATOR_GTE),
+            new GoodsPriceRule(100, Rule::OPERATOR_LTE),
+        ]);
+
+        $modifierId = $this->createContextCartModifier(
+            $contextRuleId,
+            ContextCartModifierProcessor::ABSOLUTE_MODIFIER,
+            2
+        );
+
+        $calculatedCart = $this->calculate(
+            [
+                [$productA, 3],
+                [$productB, 1],
+            ],
+            false,
+            false
+        );
+
+        $this->removeContextCartModifier($modifierId);
+
+        $lineItem = $calculatedCart->getCalculatedLineItems()->get($modifierId);
+
+        $this->markTestIncomplete('Should work after Ticket NEXT-286 is done.');
+
+        $this->assertEquals(61.88, $calculatedCart->getPrice()->getTotalPrice());
+        $this->assertEquals(52, $calculatedCart->getPrice()->getNetPrice());
+
+        $this->assertArrayHasKey(19, $calculatedCart->getPrice()->getCalculatedTaxes());
+        $tax = $calculatedCart->getPrice()->getCalculatedTaxes()->get(19);
+        $this->assertEquals(9.88, $tax->getTax());
+        $this->assertEquals(52, $tax->getPrice());
+        $this->assertEquals(19, $tax->getTaxRate());
+
+        $this->assertArrayHasKey(19, $calculatedCart->getPrice()->getTaxRules());
+        /** @var PercentageTaxRule $taxRule */
+        $taxRule = $calculatedCart->getPrice()->getTaxRules()->get(19);
+        $this->assertInstanceOf(PercentageTaxRule::class, $taxRule);
+        $this->assertEquals(19, $taxRule->getRate());
+        $this->assertEquals(100, $taxRule->getPercentage());
+
+        $this->assertInstanceOf(CalculatedLineItem::class, $lineItem);
+        $this->assertEquals(2, $lineItem->getPrice()->getTotalPrice());
+        $this->assertEquals(1, $lineItem->getQuantity());
+        $this->assertEquals(ContextCartModifierProcessor::TYPE, $lineItem->getType());
+
+        $taxRule = $lineItem->getPrice()->getTaxRules()->get(19);
+        $this->assertInstanceOf(PercentageTaxRule::class, $taxRule);
+        $this->assertEquals(19, $taxRule->getRate());
+        $this->assertEquals(100, $taxRule->getPercentage());
+        $this->assertCount(1, $lineItem->getPrice()->getTaxRules()->getElements());
+    }
+
+    public function testPercentalDiscountMatch()
+    {
+        $productA = $this->createProduct('Product A', 10, 11.9, 19);
+        $productB = $this->createProduct('Product B', 20, 23.8, 19);
+        $manufacturerA = $this->getManufacturersOfProduct($productA);
+
+        $contextRuleId = $this->createContextRule([
+            new GoodsPriceRule(25, Rule::OPERATOR_GTE),
+            new GoodsPriceRule(60, Rule::OPERATOR_LTE),
+        ]);
+
+        $rules = [
+            new LineItemWithQuantityRule($productA, 3),
+            new LineItemOfTypeRule(ProductProcessor::TYPE_PRODUCT),
+            new LineItemTotalPriceRule(35.7, Rule::OPERATOR_EQ),
+            new ProductOfManufacturerRule($manufacturerA),
+        ];
+
+        $modifierId = $this->createContextCartModifier(
+            $contextRuleId,
+            ContextCartModifierProcessor::PERCENTAL_MODIFIER,
+            -20,
+            new AndRule($rules)
+        );
+
+        $calculatedCart = $this->calculate(
+            [
+                [$productA, 3],
+                [$productB, 1],
+            ]
+        );
+
+        $this->removeContextCartModifier($modifierId);
+
+        $lineItem = $calculatedCart->getCalculatedLineItems()->get($modifierId);
+
+        $this->markTestIncomplete('Should work after Ticket NEXT-286 is done.');
+
+        $this->assertEquals(52.36, $calculatedCart->getPrice()->getTotalPrice());
+        $this->assertInstanceOf(CalculatedLineItem::class, $lineItem);
+        $this->assertEquals(-7.14, $lineItem->getPrice()->getTotalPrice());
+        $this->assertEquals(1, $lineItem->getQuantity());
+        $this->assertEquals(ContextCartModifierProcessor::TYPE, $lineItem->getType());
+
+        $this->assertArrayHasKey(19, $lineItem->getPrice()->getCalculatedTaxes());
+        $tax = $lineItem->getPrice()->getCalculatedTaxes()->get(19);
+        $this->assertEquals(19, $tax->getTaxRate());
+        $this->assertEquals(-1.14, $tax->getTax());
+        $this->assertEquals(-7.14, $tax->getPrice());
+        $this->assertCount(1, $lineItem->getPrice()->getCalculatedTaxes()->getElements());
+
+        $this->assertArrayHasKey(19, $lineItem->getPrice()->getTaxRules());
+        /** @var PercentageTaxRule $taxRule */
+        $taxRule = $lineItem->getPrice()->getTaxRules()->get(19);
+        $this->assertInstanceOf(PercentageTaxRule::class, $taxRule);
+        $this->assertEquals(19, $taxRule->getRate());
+        $this->assertEquals(100, $taxRule->getPercentage());
+        $this->assertCount(1, $lineItem->getPrice()->getTaxRules()->getElements());
+    }
+
+    public function testPercentalDiscountWithNoMatch()
     {
         $productA = $this->createProduct('Product A', 10, 11.9, 19);
         $productB = $this->createProduct('Product B', 20, 23.8, 19);
         $manufacturerA = $this->getManufacturersOfProduct($productA);
 
         $rules = [
-            new GoodsPriceRule(45, OrderAmountRule::OPERATOR_LTE),
-            new GoodsPriceRule(25, OrderAmountRule::OPERATOR_GTE),
+            new GoodsCountRule(2, Rule::OPERATOR_NEQ),
         ];
         $contextRuleId = $this->createContextRule($rules, 'Test rule');
 
         $rules = [
-            new QuantityRule(3, Rule::OPERATOR_EQ),
-            new ItemTypeRule(ProductProcessor::TYPE_PRODUCT),
-            new TotalPriceRule(30, Rule::OPERATOR_EQ),
-            new IdRule($productA),
-            new ManufacturerRule($manufacturerA),
+            new LineItemWithQuantityRule($productA, 3),
+            new LineItemOfTypeRule(ProductProcessor::TYPE_PRODUCT),
+            new LineItemTotalPriceRule(30, Rule::OPERATOR_EQ),
+            new ProductOfManufacturerRule($manufacturerA),
         ];
+
         $modifierId = $this->createContextCartModifier(
-            'Test modifier (percental)',
             $contextRuleId,
-            new AndRule($rules),
             ContextCartModifierProcessor::PERCENTAL_MODIFIER,
-            -20
+            -20,
+            new AndRule($rules)
         );
 
-        $lineItems = new LineItemCollection([
-            new LineItem(
-                $productA,
-                ProductProcessor::TYPE_PRODUCT,
-                3,
-                ['id' => $productA]
-            ),
-            new LineItem(
-                $productB,
-                ProductProcessor::TYPE_PRODUCT,
-                1,
-                ['id' => $productB]
-            ),
-        ]);
-
-        $cart = new Cart('test', 'test', $lineItems, new ErrorCollection());
-
-        $context = $this->createContext($contextRuleId);
-        $calculatedCart = self::$calculation->calculate($cart, $context);
+        $calculatedCart = $this->calculate(
+            [
+                [$productA, 3],
+                [$productB, 1],
+            ]
+        );
         $this->removeContextCartModifier($modifierId);
 
         $lineItem = $calculatedCart->getCalculatedLineItems()->get($modifierId);
 
-        $this->assertEquals(46, $calculatedCart->getPrice()->getTotalPrice());
-        $this->assertInstanceOf(CalculatedLineItem::class, $lineItem);
-        $this->assertEquals(-4, $lineItem->getPrice()->getTotalPrice());
-        $this->assertEquals(1, $lineItem->getQuantity());
-        $this->assertEquals(ContextCartModifierProcessor::TYPE, $lineItem->getType());
+        $this->markTestIncomplete('Should work after Ticket NEXT-286 is done.');
+
+        $this->assertEquals(59.5, $calculatedCart->getPrice()->getTotalPrice());
+        $this->assertNull($lineItem);
     }
 
-    private function createContextRule(array $rules, string $name, int $priority = 1): string
+    public function testPercentalDiscountTaxFreeMatch()
+    {
+        $productA = $this->createProduct('Product A', 10, 11.9, 19);
+        $productB = $this->createProduct('Product B', 20, 23.8, 19);
+        $manufacturerA = $this->getManufacturersOfProduct($productA);
+
+        $contextRuleId = $this->createContextRule([
+            new GoodsPriceRule(25, Rule::OPERATOR_GTE),
+            new GoodsPriceRule(60, Rule::OPERATOR_LTE),
+        ]);
+
+        $rules = [
+            new LineItemWithQuantityRule($productA, 3),
+            new LineItemOfTypeRule(ProductProcessor::TYPE_PRODUCT),
+            new LineItemTotalPriceRule(35.7, Rule::OPERATOR_EQ),
+            new ProductOfManufacturerRule($manufacturerA),
+        ];
+
+        $modifierId = $this->createContextCartModifier(
+            $contextRuleId,
+            ContextCartModifierProcessor::PERCENTAL_MODIFIER,
+            -20,
+            new AndRule($rules)
+        );
+
+        $calculatedCart = $this->calculate(
+            [
+                [$productA, 3],
+                [$productB, 1],
+            ],
+            true
+        );
+
+        $this->removeContextCartModifier($modifierId);
+
+        $lineItem = $calculatedCart->getCalculatedLineItems()->get($modifierId);
+
+        $this->markTestIncomplete('Should work after Ticket NEXT-286 is done.');
+
+        $this->assertEquals(52.36, $calculatedCart->getPrice()->getTotalPrice());
+        $this->assertInstanceOf(CalculatedLineItem::class, $lineItem);
+        $this->assertEquals(-7.14, $lineItem->getPrice()->getTotalPrice());
+        $this->assertEquals(1, $lineItem->getQuantity());
+        $this->assertEquals(ContextCartModifierProcessor::TYPE, $lineItem->getType());
+        $this->assertEmpty($lineItem->getPrice()->getCalculatedTaxes()->getElements());
+    }
+
+    public function testPercentalDiscountWithDifferentTaxRatesMatch()
+    {
+        $productA = $this->createProduct('Product A', 10, 11.9, 19);
+        $productB = $this->createProduct('Product B', 20, 23.8, 7);
+
+        $contextRuleId = $this->createContextRule([
+            new GoodsPriceRule(5, Rule::OPERATOR_GTE),
+            new GoodsPriceRule(60, Rule::OPERATOR_LTE),
+        ]);
+
+        $modifierId = $this->createContextCartModifier(
+            $contextRuleId,
+            ContextCartModifierProcessor::PERCENTAL_MODIFIER,
+            -20
+        );
+
+        $calculatedCart = $this->calculate(
+            [
+                [$productA, 3],
+                [$productB, 1],
+            ]
+        );
+
+        $this->removeContextCartModifier($modifierId);
+
+        $lineItem = $calculatedCart->getCalculatedLineItems()->get($modifierId);
+
+        $this->markTestIncomplete('Should work after Ticket NEXT-286 is done.');
+
+        $this->assertEquals(47.6, $calculatedCart->getPrice()->getTotalPrice());
+        $this->assertInstanceOf(CalculatedLineItem::class, $lineItem);
+        $this->assertEquals(-11.9, $lineItem->getPrice()->getTotalPrice());
+        $this->assertEquals(1, $lineItem->getQuantity());
+        $this->assertEquals(ContextCartModifierProcessor::TYPE, $lineItem->getType());
+
+        $this->assertCount(2, $lineItem->getPrice()->getCalculatedTaxes()->getElements());
+        $this->assertCount(2, $lineItem->getPrice()->getTaxRules()->getElements());
+
+        $this->assertArrayHasKey(19, $lineItem->getPrice()->getCalculatedTaxes());
+        $tax = $lineItem->getPrice()->getCalculatedTaxes()->get(19);
+        $this->assertEquals(19, $tax->getTaxRate());
+        $this->assertEquals(-1.14, $tax->getTax());
+        $this->assertEquals(-7.14, $tax->getPrice());
+
+        $this->assertArrayHasKey(19, $lineItem->getPrice()->getTaxRules());
+        /** @var PercentageTaxRule $taxRule */
+        $taxRule = $lineItem->getPrice()->getTaxRules()->get(19);
+        $this->assertInstanceOf(PercentageTaxRule::class, $taxRule);
+        $this->assertEquals(19, $taxRule->getRate());
+        $this->assertEquals(60, $taxRule->getPercentage());
+
+        $this->assertArrayHasKey(7, $lineItem->getPrice()->getCalculatedTaxes());
+        $tax = $lineItem->getPrice()->getCalculatedTaxes()->get(7);
+        $this->assertEquals(7, $tax->getTaxRate());
+        $this->assertEquals(-0.31, $tax->getTax());
+        $this->assertEquals(-4.76, $tax->getPrice());
+
+        $this->assertArrayHasKey(7, $lineItem->getPrice()->getTaxRules());
+        /** @var PercentageTaxRule $taxRule */
+        $taxRule = $lineItem->getPrice()->getTaxRules()->get(7);
+        $this->assertInstanceOf(PercentageTaxRule::class, $taxRule);
+        $this->assertEquals(7, $taxRule->getRate());
+        $this->assertEquals(40, $taxRule->getPercentage());
+    }
+
+    private function createContextRule(array $rules, string $name = 'Test rule', int $priority = 1): string
     {
         $id = Uuid::uuid4()->getHex();
         $data = [
@@ -177,22 +443,22 @@ class ContextCartModifierTest extends KernelTestCase
             'priority' => $priority,
             'payload' => new AndRule($rules),
         ];
-        self::$contextRuleRepository->upsert([$data], ShopContext::createDefaultContext());
+        $context = ApplicationContext::createDefaultContext(Defaults::TENANT_ID);
+        self::$contextRuleRepository->upsert([$data], $context);
 
         return $id;
     }
 
     private function createContextCartModifier(
-        string $name,
         string $contextRuleId,
-        ?Rule $rule,
         string $type,
-        float $amount
+        float $amount,
+        ?Rule $rule = null
     ): string {
         $id = Uuid::uuid4()->getHex();
         $data = [
             'id' => $id,
-            'name' => $name,
+            'name' => sprintf('Test modifier (%s)', $type),
             'contextRuleId' => $contextRuleId,
             'type' => $type,
             'amount' => $amount,
@@ -200,7 +466,7 @@ class ContextCartModifierTest extends KernelTestCase
         ];
         $data = array_filter($data);
 
-        self::$contextCartModifierRepository->upsert([$data], ShopContext::createDefaultContext());
+        self::$contextCartModifierRepository->upsert([$data], ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
 
         return $id;
     }
@@ -212,8 +478,8 @@ class ContextCartModifierTest extends KernelTestCase
 
     private function createProduct(
         string $name,
-        float $grossPrice,
         float $netPrice,
+        float $grossPrice,
         float $taxRate
     ): string {
         $id = Uuid::uuid4()->getHex();
@@ -237,11 +503,39 @@ class ContextCartModifierTest extends KernelTestCase
         return $product->getManufacturer()->getId();
     }
 
-    private function createContext(string $contextRuleId): StorefrontContext
-    {
+    private function createContext(
+        bool $taxFree,
+        bool $displayGross
+    ): StorefrontContext {
         $context = Generator::createContext();
-        $context->setContextRulesIds([$contextRuleId]);
+
+        $context->getCurrentCustomerGroup()->setDisplayGross($displayGross);
+        $context->getShippingLocation()->getCountry()->setTaxFree($taxFree);
 
         return $context;
+    }
+
+    private function calculate(
+        array $products,
+        bool $taxFree = false,
+        bool $displayGross = true
+    ): CalculatedCart {
+        $lineItems = [];
+
+        foreach ($products as $product) {
+            $lineItems[] = new LineItem(
+                $product[0],
+                ProductProcessor::TYPE_PRODUCT,
+                $product[1],
+                ['id' => $product[0]]
+            );
+        }
+
+        $collection = new LineItemCollection($lineItems);
+
+        $cart = new Cart('test', 'test', $collection, new ErrorCollection());
+        $context = $this->createContext($taxFree, $displayGross);
+
+        return self::$calculation->calculate($cart, $context);
     }
 }

@@ -60,10 +60,6 @@ class MediaBasicStruct extends Entity
      * @var MediaAlbumBasicStruct
      */
     protected $album;
-    /**
-     * @var string|null
-     */
-    protected $url;
 
     public function getAlbumId(): string
     {
@@ -173,15 +169,5 @@ class MediaBasicStruct extends Entity
     public function setAlbum(MediaAlbumBasicStruct $album): void
     {
         $this->album = $album;
-    }
-
-    public function getUrl(): ?string
-    {
-        return $this->url;
-    }
-
-    public function setUrl(?string $url)
-    {
-        $this->url = $url;
     }
 }

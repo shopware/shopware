@@ -3,8 +3,10 @@
 namespace Shopware\Framework\Command;
 
 use Bezhanov\Faker\Provider\Commerce;
+use bheller\ImagesGenerator\ImagesGeneratorProvider;
 use Faker\Factory;
 use Faker\Generator;
+use League\Flysystem\FilesystemInterface;
 use Shopware\Api\Category\Repository\CategoryRepository;
 use Shopware\Api\Configuration\Definition\ConfigurationGroupDefinition;
 use Shopware\Api\Context\Definition\ContextRuleDefinition;
@@ -13,6 +15,8 @@ use Shopware\Api\Customer\Definition\CustomerDefinition;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\WriteContext;
+use Shopware\Api\Media\Repository\MediaAlbumRepository;
+use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Api\Product\Definition\ProductManufacturerDefinition;
 use Shopware\Api\Product\Repository\ProductRepository;
 use Shopware\Context\Rule\Container\AndRule;
@@ -31,6 +35,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Finder\Finder;
 
 class DemodataCommand extends ContainerAwareCommand
 {
@@ -79,20 +85,43 @@ class DemodataCommand extends ContainerAwareCommand
      */
     private $tenantId;
 
+    /**
+     * @var ContainerInterface
+     */
+    private $container;
+
+    /**
+     * @var MediaAlbumRepository
+     */
+    private $albumRepository;
+    /**
+     * @var FilesystemInterface
+     */
+    private $filesystem;
+
+    /**
+     * Images to be deleted after generating data
+     *
+     * @var string[]
+     */
+    private $tmpImages = [];
+
     public function __construct(
         ?string $name = null,
         EntityWriterInterface $writer,
         VariantGenerator $variantGenerator,
-        ProductRepository $productRepository,
-        ContextRuleRepository $contextRuleRepository,
-        CategoryRepository $categoryRepository
+        FilesystemInterface $filesystem,
+        ContainerInterface $container
     ) {
         parent::__construct($name);
         $this->writer = $writer;
-        $this->variantGenerator = $variantGenerator;
-        $this->productRepository = $productRepository;
-        $this->contextRuleRepository = $contextRuleRepository;
-        $this->categoryRepository = $categoryRepository;
+        $this->filesystem = $filesystem;
+
+        $this->variantGenerator =  $variantGenerator;
+        $this->productRepository = $container->get(ProductRepository::class);
+        $this->contextRuleRepository = $container->get(ContextRuleRepository::class);
+        $this->categoryRepository = $container->get(CategoryRepository::class);
+        $this->albumRepository = $container->get(MediaAlbumRepository::class);
     }
 
     protected function configure()
@@ -126,6 +155,7 @@ class DemodataCommand extends ContainerAwareCommand
         $this->io = new SymfonyStyle($input, $output);
         $this->faker = Factory::create('de_DE');
         $this->faker->addProvider(new Commerce($this->faker));
+        $this->faker->addProvider(new ImagesGeneratorProvider($this->faker));
 
         $this->io->title('Demodata Generator');
 
@@ -145,6 +175,8 @@ class DemodataCommand extends ContainerAwareCommand
             $contextRuleIds,
             $input->getOption('products')
         );
+
+        $this->cleanupImages();
 
         $this->io->newLine();
 
@@ -307,6 +339,10 @@ class DemodataCommand extends ContainerAwareCommand
     {
         $payload = [];
 
+        $albumId = Uuid::uuid4()->getHex();
+        $this->io->section('Creating default media album.');
+        $this->albumRepository->create([['id' => $albumId, 'name' => 'Products']], ApplicationContext::createDefaultContext($this->tenantId));
+
         $this->io->section(sprintf('Generating %d products...', $count));
         $this->io->progressStart($count);
 
@@ -316,6 +352,24 @@ class DemodataCommand extends ContainerAwareCommand
 
         for ($i = 0; $i < $count; ++$i) {
             $product = $this->createSimpleProduct($categories, $manufacturer, $contextRules);
+
+            $imagePath = $this->getRandomImage($product['name']);
+            $product['media'] = [
+                [
+                    'isCover' => true,
+                    'media' => [
+                        'fileName' => $product['id'] . '.' . pathinfo($imagePath, PATHINFO_EXTENSION),
+                        'mimeType' => mime_content_type($imagePath),
+                        'fileSize' => filesize($imagePath),
+                        'albumId' => $albumId,
+                        'name' => 'Product image of ' . $product['name'],
+                    ]
+                ]
+            ];
+
+            $mediaFile = fopen($imagePath, 'rb');
+            $this->filesystem->writeStream($product['id'] . '.' . pathinfo($imagePath, PATHINFO_EXTENSION), $mediaFile);
+            fclose($mediaFile);
 
             $hasServices = random_int(1, 100) <= 5;
             if ($hasServices) {
@@ -336,7 +390,36 @@ class DemodataCommand extends ContainerAwareCommand
 
                 $this->productRepository->upsert([$product], ApplicationContext::createDefaultContext($this->tenantId));
 
-                $this->variantGenerator->generate($product['id'], ApplicationContext::createDefaultContext($this->tenantId));
+                $variantEvent = $this->variantGenerator->generate($product['id'], ApplicationContext::createDefaultContext($this->tenantId));
+                $productEvents = $variantEvent->getEventByDefinition(ProductDefinition::class);
+                $variantProductIds = $productEvents->getIds();
+
+                $variantImagePayload = [];
+                foreach ($variantProductIds as $y => $variantProductId) {
+                    $imagePath = $this->getRandomImage($product['name'] . ' #' . $y);
+
+                    $variantImagePayload[] = [
+                        'id' => $variantProductId,
+                        'media' => [
+                            [
+                                'isCover' => true,
+                                'media' => [
+                                    'fileName' => $variantProductId . '.' . pathinfo($imagePath, PATHINFO_EXTENSION),
+                                    'mimeType' => mime_content_type($imagePath),
+                                    'fileSize' => filesize($imagePath),
+                                    'albumId' => $albumId,
+                                    'name' => 'Product image of ' . $product['name'],
+                                ]
+                            ]
+                        ]
+                    ];
+
+                    $mediaFile = fopen($imagePath, 'rb');
+                    $this->filesystem->writeStream($variantProductId . '.' . pathinfo($imagePath, PATHINFO_EXTENSION), $mediaFile);
+                    fclose($mediaFile);
+                }
+
+                $this->productRepository->update($variantImagePayload, ApplicationContext::createDefaultContext($this->tenantId));
 
                 continue;
             }
@@ -634,5 +717,33 @@ class DemodataCommand extends ContainerAwareCommand
                 'optionId' => $optionId,
             ];
         }, $optionIds);
+    }
+
+    private function getRandomImage(?string $text): string
+    {
+        $images = (new Finder())
+            ->files()
+            ->in($this->getContainer()->getParameter('kernel.project_dir') . '/build/media')
+            ->name('/\.(jpg|png)$/')
+            ->getIterator();
+
+        $images = array_values(iterator_to_array($images));
+
+        if (count($images)) {
+            return $images[random_int(0, \count($images) - 1)]->getPathname();
+        }
+
+        if (!$text) {
+            $text = $this->faker->word;
+        }
+
+        return $this->tmpImages[] = $this->faker->imageGenerator(null, $this->faker->numberBetween(600, 800), $this->faker->numberBetween(400, 600), 'jpg', true, $text, '#d8dde6', '#333333');
+    }
+
+    private function cleanupImages()
+    {
+        foreach ($this->tmpImages as $image) {
+            unlink($image);
+        }
     }
 }

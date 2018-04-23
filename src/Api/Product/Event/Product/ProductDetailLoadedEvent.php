@@ -5,6 +5,7 @@ namespace Shopware\Api\Product\Event\Product;
 use Shopware\Api\Category\Event\Category\CategoryBasicLoadedEvent;
 use Shopware\Api\Configuration\Event\ConfigurationGroupOption\ConfigurationGroupOptionBasicLoadedEvent;
 use Shopware\Api\Product\Collection\ProductDetailCollection;
+use Shopware\Api\Product\Collection\ProductMediaBasicCollection;
 use Shopware\Api\Product\Event\ProductConfigurator\ProductConfiguratorBasicLoadedEvent;
 use Shopware\Api\Product\Event\ProductManufacturer\ProductManufacturerBasicLoadedEvent;
 use Shopware\Api\Product\Event\ProductMedia\ProductMediaBasicLoadedEvent;
@@ -56,6 +57,12 @@ class ProductDetailLoadedEvent extends NestedEvent
     public function getEvents(): ?NestedEventCollection
     {
         $events = [];
+
+        $media = new ProductMediaBasicCollection(array_merge(
+            $this->products->getMedia()->getElements(),
+            $this->products->getCovers()->getElements()
+        ));
+
         if ($this->products->getParents()->count() > 0) {
             $events[] = new ProductBasicLoadedEvent($this->products->getParents(), $this->context);
         }
@@ -71,8 +78,8 @@ class ProductDetailLoadedEvent extends NestedEvent
         if ($this->products->getChildren()->count() > 0) {
             $events[] = new ProductBasicLoadedEvent($this->products->getChildren(), $this->context);
         }
-        if ($this->products->getMedia()->count() > 0) {
-            $events[] = new ProductMediaBasicLoadedEvent($this->products->getMedia(), $this->context);
+        if ($media->count() > 0) {
+            $events[] = new ProductMediaBasicLoadedEvent($media, $this->context);
         }
         if ($this->products->getSearchKeywords()->count() > 0) {
             $events[] = new ProductSearchKeywordBasicLoadedEvent($this->products->getSearchKeywords(), $this->context);

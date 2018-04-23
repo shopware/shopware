@@ -12,12 +12,6 @@ use Shopware\Context\Struct\ApplicationContext;
 
 interface StorefrontProductBasicInterface
 {
-    public function getCover(): ?ProductMediaBasicStruct;
-
-    public function getMedia(): ProductMediaBasicCollection;
-
-    public function setMedia(ProductMediaBasicCollection $media): void;
-
     public function isAvailable(): bool;
 
     public function getCalculatedListingPrice(): CalculatedPrice;

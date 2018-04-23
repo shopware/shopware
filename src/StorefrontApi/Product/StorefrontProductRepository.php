@@ -5,14 +5,9 @@ namespace Shopware\StorefrontApi\Product;
 use Shopware\Api\Configuration\Struct\ConfigurationGroupOptionBasicStruct;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\IdSearchResult;
-use Shopware\Api\Entity\Search\Query\TermsQuery;
-use Shopware\Api\Entity\Search\Sorting\FieldSorting;
 use Shopware\Api\Product\Collection\ProductBasicCollection;
 use Shopware\Api\Product\Collection\ProductDetailCollection;
-use Shopware\Api\Product\Collection\ProductMediaBasicCollection;
-use Shopware\Api\Product\Repository\ProductMediaRepository;
 use Shopware\Api\Product\Repository\ProductRepository;
-use Shopware\Api\Product\Struct\ProductMediaSearchResult;
 use Shopware\Api\Product\Struct\ProductSearchResult;
 use Shopware\Api\Product\Struct\ProductServiceBasicStruct;
 use Shopware\Cart\Price\PriceCalculator;
@@ -30,19 +25,10 @@ class StorefrontProductRepository
      */
     private $priceCalculator;
 
-    /**
-     * @var ProductMediaRepository
-     */
-    private $productMediaRepository;
-
-    public function __construct(
-        ProductRepository $repository,
-        PriceCalculator $priceCalculator,
-        ProductMediaRepository $productMediaRepository
-    ) {
+    public function __construct(ProductRepository $repository, PriceCalculator $priceCalculator)
+    {
         $this->repository = $repository;
         $this->priceCalculator = $priceCalculator;
-        $this->productMediaRepository = $productMediaRepository;
     }
 
     public function read(array $ids, StorefrontContext $context): ProductBasicCollection
@@ -76,21 +62,8 @@ class StorefrontProductRepository
         return $this->repository->searchIds($criteria, $context->getApplicationContext());
     }
 
-    private function fetchMedia(array $ids, StorefrontContext $context): ProductMediaSearchResult
-    {
-        /** @var ProductMediaSearchResult $media */
-        $criteria = new Criteria();
-        $criteria->addFilter(new TermsQuery('product_media.productId', $ids));
-        $criteria->addSorting(new FieldSorting('product_media.isCover', FieldSorting::DESCENDING));
-        $criteria->addSorting(new FieldSorting('product_media.position'));
-
-        return $this->productMediaRepository->search($criteria, $context->getApplicationContext());
-    }
-
     private function loadListProducts(ProductBasicCollection $products, StorefrontContext $context): ProductBasicCollection
     {
-        $media = $this->fetchMedia($products->getIds(), $context);
-
         $listingProducts = new ProductBasicCollection();
 
         foreach ($products as $base) {
@@ -99,9 +72,6 @@ class StorefrontProductRepository
             $listingProducts->add($product);
 
             $this->calculatePrices($context, $product);
-
-            $productMedia = $media->filterByProductId($product->getId())->getElements();
-            $product->setMedia(new ProductMediaBasicCollection($productMedia));
         }
 
         return $listingProducts;

@@ -132,19 +132,23 @@
         </service>
 
         <service class="Shopware\Api\Entity\Dbal\FieldResolver\ManyToOneAssociationFieldResolver" id="Shopware\Api\Entity\Dbal\FieldResolver\ManyToOneAssociationFieldResolver">
-            <tag name="shopware.entity.field_resolver" priority="100" />
+            <tag name="shopware.entity.field_resolver" priority="-50" />
         </service>
 
         <service class="Shopware\Api\Entity\Dbal\FieldResolver\OneToManyAssociationFieldResolver" id="Shopware\Api\Entity\Dbal\FieldResolver\OneToManyAssociationFieldResolver">
-            <tag name="shopware.entity.field_resolver" priority="100" />
+            <tag name="shopware.entity.field_resolver" priority="-50" />
         </service>
 
         <service class="Shopware\Api\Entity\Dbal\FieldResolver\ManyToManyAssociationFieldResolver" id="Shopware\Api\Entity\Dbal\FieldResolver\ManyToManyAssociationFieldResolver">
-            <tag name="shopware.entity.field_resolver" priority="100" />
+            <tag name="shopware.entity.field_resolver" priority="-50" />
         </service>
 
         <service class="Shopware\Api\Entity\Dbal\FieldResolver\TranslationFieldResolver" id="Shopware\Api\Entity\Dbal\FieldResolver\TranslationFieldResolver">
-            <tag name="shopware.entity.field_resolver"  priority="100" />
+            <tag name="shopware.entity.field_resolver"  priority="-50" />
+        </service>
+
+        <service class="Shopware\Api\Entity\Dbal\FieldResolver\ProductCoverFieldResolver" id="Shopware\Api\Entity\Dbal\FieldResolver\ProductCoverFieldResolver">
+            <tag name="shopware.entity.field_resolver" />
         </service>
 
         <service class="Shopware\Api\Entity\Dbal\FieldAccessorBuilder\FieldAccessorBuilderRegistry" id="Shopware\Api\Entity\Dbal\FieldAccessorBuilder\FieldAccessorBuilderRegistry">
@@ -152,19 +156,19 @@
         </service>
 
         <service class="Shopware\Api\Entity\Dbal\FieldAccessorBuilder\ContextPriceFieldAccessorBuilder" id="Shopware\Api\Entity\Dbal\FieldAccessorBuilder\ContextPriceFieldAccessorBuilder">
-            <tag name="shopware.entity.field_accessor_builder" priority="100" />
-        </service>
-
-        <service class="Shopware\Api\Entity\Dbal\FieldAccessorBuilder\PriceFieldAccessorBuilder" id="Shopware\Api\Entity\Dbal\FieldAccessorBuilder\PriceFieldAccessorBuilder">
-            <tag name="shopware.entity.field_accessor_builder" priority="50" />
-        </service>
-
-        <service class="Shopware\Api\Entity\Dbal\FieldAccessorBuilder\JsonObjectFieldAccessorBuilder" id="Shopware\Api\Entity\Dbal\FieldAccessorBuilder\JsonObjectFieldAccessorBuilder">
             <tag name="shopware.entity.field_accessor_builder" priority="-50" />
         </service>
 
-        <service class="Shopware\Api\Entity\Dbal\FieldAccessorBuilder\StandardFieldAccessorBuilder" id="Shopware\Api\Entity\Dbal\FieldAccessorBuilder\StandardFieldAccessorBuilder">
+        <service class="Shopware\Api\Entity\Dbal\FieldAccessorBuilder\PriceFieldAccessorBuilder" id="Shopware\Api\Entity\Dbal\FieldAccessorBuilder\PriceFieldAccessorBuilder">
             <tag name="shopware.entity.field_accessor_builder" priority="-100" />
+        </service>
+
+        <service class="Shopware\Api\Entity\Dbal\FieldAccessorBuilder\JsonObjectFieldAccessorBuilder" id="Shopware\Api\Entity\Dbal\FieldAccessorBuilder\JsonObjectFieldAccessorBuilder">
+            <tag name="shopware.entity.field_accessor_builder" priority="-150" />
+        </service>
+
+        <service class="Shopware\Api\Entity\Dbal\FieldAccessorBuilder\StandardFieldAccessorBuilder" id="Shopware\Api\Entity\Dbal\FieldAccessorBuilder\StandardFieldAccessorBuilder">
+            <tag name="shopware.entity.field_accessor_builder" priority="-200" />
         </service>
     </services>
 </container>

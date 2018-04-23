@@ -261,6 +261,11 @@ class ProductBasicStruct extends Entity
      */
     protected $listingPrices;
 
+    /**
+     * @var ProductMediaBasicStruct|null
+     */
+    protected $cover;
+
     public function __construct()
     {
         $this->contextPrices = new ProductContextPriceBasicCollection();
@@ -861,5 +866,15 @@ class ProductBasicStruct extends Entity
     public function setDatasheetIds(?array $datasheetIds): void
     {
         $this->datasheetIds = $datasheetIds;
+    }
+
+    public function getCover(): ?ProductMediaBasicStruct
+    {
+        return $this->cover;
+    }
+
+    public function setCover(?ProductMediaBasicStruct $cover): void
+    {
+        $this->cover = $cover;
     }
 }

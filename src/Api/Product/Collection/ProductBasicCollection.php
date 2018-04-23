@@ -4,6 +4,7 @@ namespace Shopware\Api\Product\Collection;
 
 use Shopware\Api\Entity\EntityCollection;
 use Shopware\Api\Product\Struct\ProductBasicStruct;
+use Shopware\Api\Product\Struct\ProductMediaBasicStruct;
 use Shopware\Api\Tax\Collection\TaxBasicCollection;
 use Shopware\Api\Unit\Collection\UnitBasicCollection;
 
@@ -144,6 +145,13 @@ class ProductBasicCollection extends EntityCollection
 
             return count($same) === count($optionIds);
         });
+    }
+
+    public function getCovers(): ProductMediaBasicCollection
+    {
+        return new ProductMediaBasicCollection($this->fmap(function (ProductBasicStruct $product) {
+            return $product->getCover();
+        }));
     }
 
     protected function getExpectedClass(): string

@@ -57,6 +57,7 @@
     "voku/stop-words": "^2.0"
   },
   "require-dev": {
+    "bheller/images-generator": "^1.0",
     "fzaninotto/faker": "^1.7",
     "mbezhanov/faker-provider-collection": "^1.0",
     "phpunit/phpunit": "^7.0",

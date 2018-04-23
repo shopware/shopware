@@ -2,6 +2,9 @@
     "aws/aws-sdk-php": {
         "version": "3.52.23"
     },
+    "bheller/images-generator": {
+        "version": "dev-master"
+    },
     "doctrine/annotations": {
         "version": "1.0",
         "recipe": {

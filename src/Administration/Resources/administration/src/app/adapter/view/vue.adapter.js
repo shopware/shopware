@@ -5,6 +5,7 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 import VueX from 'vuex';
 import { sync } from 'vuex-router-sync';
+import VueI18n from 'vue-i18n';
 import storeDefinition from 'src/app/store';
 import { warn } from 'src/core/service/utils/debug.utils';
 
@@ -26,7 +27,7 @@ const vueComponents = {};
  * @param directiveFactory
  * @returns {VueAdapter}
  */
-export default function VueAdapter(context, componentFactory, stateFactory, filterFactory, directiveFactory) {
+export default function VueAdapter(context, componentFactory, stateFactory, filterFactory, directiveFactory, localeFactory) {
     return {
         createInstance,
         initComponents,
@@ -53,6 +54,8 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
         initFilters();
         initInheritance();
 
+        const i18n = initLocales();
+
         const store = initState(router);
         const components = getComponents();
 
@@ -61,10 +64,11 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
 
         return new Vue({
             el: renderElement,
+            template: '<sw-admin />',
             router,
             store,
+            i18n,
             components,
-            template: '<sw-admin />',
             provide() {
                 return providers;
             }
@@ -142,6 +146,7 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
     function initPlugins() {
         Vue.use(VueRouter);
         Vue.use(VueX);
+        Vue.use(VueI18n);
     }
 
     /**
@@ -199,6 +204,24 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
         });
 
         return true;
+    }
+
+    function initLocales() {
+        const registry = localeFactory.getLocaleRegistry();
+        const messages = {};
+
+        registry.forEach((localeMessages, key) => {
+            messages[key] = localeMessages;
+        });
+
+        const currentLocale = localeFactory.getLastKnownLocale();
+        localeFactory.setLocale(currentLocale);
+
+        return new VueI18n({
+            locale: currentLocale,
+            fallbackLocale: 'en-UK',
+            messages
+        });
     }
 
     /**

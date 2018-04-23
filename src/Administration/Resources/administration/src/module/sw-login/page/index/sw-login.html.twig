@@ -7,11 +7,11 @@
                         {% block sw_login_image_headlines %}
                             <div class="sw-login__image-headlines">
                                 {% block sw_login_headline %}
-                                    <div class="sw-login__headline">Hallo!</div>
+                                    <div class="sw-login__headline">{{ $tc('sw-login.index.headlineMain') }}</div>
                                 {% endblock %}
 
                                 {% block sw_login_sub_headline %}
-                                    <div class="sw-login__sub-headline">Willkommen zurück.</div>
+                                    <div class="sw-login__sub-headline">{{ $tc('sw-login.index.subheadlineMain') }}</div>
                                 {% endblock %}
                             </div>
                         {% endblock %}
@@ -19,7 +19,7 @@
                 {% endblock %}
 
                 {% block sw_login_form %}
-                    <div class="sw-login__form">
+                    <form class="sw-login__form" @submit.prevent="loginUserWithPassword">
                         {% block sw_login_badge %}
                             <div class="sw-login__badge">
                                 {% block sw_login_badge_image %}
@@ -34,20 +34,24 @@
                         {% endblock %}
 
                         {% block sw_login_form_headline %}
-                            <h2 class="sw-login__form-headline">Melde Dich in Deinem Shopware Shop an.</h2>
+                            <h2 class="sw-login__form-headline">{{ $tc('sw-login.index.headlineForm') }}</h2>
                         {% endblock %}
 
                         {% block sw_login_user_field %}
                             <sw-field :class="{ 'has--error' : errorTitle.length && errorMessage.length }"
                                       v-model="username"
-                                      label="Benutzername">
+                                      name="username"
+                                      :label="$tc('sw-login.index.labelUsername')"
+                                      :placeholder="$tc('sw-login.index.placeholderUsername')">
                             </sw-field>
                         {% endblock %}
 
                         {% block sw_login_password_field %}
                             <sw-field :class="{ 'has--error' : errorTitle.length && errorMessage.length }"
                                       v-model="password"
-                                      label="Passwort"
+                                      name="password"
+                                      :label="$tc('sw-login.index.labelPassword')"
+                                      :placeholder="$tc('sw-login.index.placeholderPassword')"
                                       type="password">
                             </sw-field>
                         {% endblock %}
@@ -55,7 +59,7 @@
                         {% block sw_login_submit %}
                             <div class="sw-login__submit">
                                 {% block sw_login_submit_button %}
-                                    <sw-button variant="primary" @click="loginUserWithPassword">Anmelden</sw-button>
+                                    <sw-button variant="primary" @click="loginUserWithPassword">{{ $tc('sw-login.index.buttonLogin') }}</sw-button>
                                 {% endblock %}
                             </div>
                         {% endblock %}
@@ -63,7 +67,7 @@
                         {% block sw_login_loader %}
                             <sw-loader v-if="isLoading"></sw-loader>
                         {% endblock %}
-                    </div>
+                    </form>
                 {% endblock %}
             </div>
         {% endblock %}

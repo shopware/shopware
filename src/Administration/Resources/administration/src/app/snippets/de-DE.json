@@ -1,0 +1,168 @@
+{
+  "global": {
+    "sw-admin-menu": {
+      "linkChangeLanguage": "Sprache wechseln",
+      "linkLogout": "Abmelden",
+      "linkMinimizeMenu": "Menü minimieren",
+      "textShopwareAdmin": "Shopware Administration",
+      "textProjectName": "Admin Prototype"
+    },
+    "sw-field": {
+      "titleShowPassword": "Passwort anzeigen",
+      "titleHidePassword": "Passwort verbergen"
+    },
+    "sw-price-field": {
+      "labelPriceGross": "Preis (Brutto)",
+      "labelPriceNet": "Preis (Netto)"
+    },
+    "sw-grid-row": {
+      "buttonInlineEditCancel": "Abbrechen",
+      "buttonInlineEditSave": "Änderungen speichern"
+    },
+    "sw-pagination": {
+      "labelItemsPerPage": "Einträge pro Seite:"
+    }
+  },
+  "sw-login": {
+    "index": {
+      "headlineMain": "Hallo",
+      "subheadlineMain": "Willkommen zurück!",
+      "headlineForm": "Melde dich in Deinen Shopware Shop an",
+      "labelUsername": "Benutzername",
+      "labelPassword": "Passwort",
+      "placeholderUsername": "Gebe deinen Benutzernamen ein...",
+      "placeholderPassword": "Gebe dein Passwort ein...",
+      "buttonLogin": "Anmelden"
+    }
+  },
+  "sw-customer": {
+    "general": {
+      "mainMenuItemList": "Kunden"
+    },
+    "list": {
+      "textCustomers": "Kunden",
+      "textCustomersTotal": "Kein Kunde | Ein Kunde | {count} Kunden",
+      "buttonAddCustomer": "Kunde anlegen",
+      "columnCustomerNumber": "Kd. Nr.",
+      "columnFirstName": "Vorname",
+      "columnLastName": "Nachname",
+      "columnStreet": "Straße",
+      "columnZip": "PLZ",
+      "columnCity": "Stadt",
+      "columnEmail": "E-Mail",
+      "columnLastLogin": "Zuletzt eingeloggt",
+      "columnActions": "Aktion(en)",
+      "contextMenuEdit": "Kunde bearbeiten",
+      "contextMenuDuplicate": "Kunde duplizieren",
+      "contextMenuDelete": "Kunde löschen"
+    }
+  },
+  "sw-product": {
+    "general": {
+      "mainMenuItemList": "Produkte",
+      "mainMenuItemAdd": "Produkt anlegen"
+    },
+    "basicForm": {
+      "labelTitle": "Titel",
+      "labelDescription": "Beschreibung",
+      "labelProductNumber": "Artikelnummer",
+      "labelManufacturer": "Hersteller",
+      "placeholderTitle": "Gebe deinen Artikel-Namen ein...",
+      "placeholderDescription": "Gebe deine Artikel-Beschreibung ein...",
+      "placeholderProductNumber": "Gebe deine Produkt-Nummer ein...",
+      "placeholderManufacturer": "Gebe deinen Produkt-Hersteller ein..."
+    },
+    "categoryForm": {
+      "labelCatalog": "Katalog",
+      "labelCategory": "Kategorie",
+      "placeholderCatalog": "Wähle einen Produkt-Katalog aus...",
+      "placeholderCategory": "Wähle deine Produkt-Kategorien aus...",
+      "optionDefaultCatalog": "Standard Katalog"
+    },
+    "priceForm": {
+      "labelTaxRate": "Steuersatz",
+      "labelPriceGross": "Einkaufspreis (Brutto)",
+      "labelUnit": "Maßeinheit",
+      "labelPurchaseUnit": "Inhalt",
+      "labelReferenceUnit": "Grundeinheit",
+      "labelPackUnit": "Verpackungseinheit",
+      "placeholderTaxRate": "Wähle einen Steuersatz aus...",
+      "placeholderPriceGross": "Gebe den Einkaufspreis (Brutto) ein...",
+      "placeholderUnit": "Wählen...",
+      "placeholderPurchaseUnit": "Inhalt...",
+      "placeholderReferenceUnit": "Grundeinheit...",
+      "placeholderPackUnit": "Karton, Flasche...",
+      "optionLitre": "Liter",
+      "optionKilogram": "KG",
+      "optionMetre": "Meter"
+    },
+    "settingsForm": {
+      "labelCreatedAt": "Erstelldatum",
+      "labelReleaseDate": "Erscheinungsdatum",
+      "labelWidth": "Breite",
+      "labelHeight": "Höhe",
+      "labelLength": "Länge",
+      "labelWeight": "Gewicht",
+      "labelMinPurchase": "Mindestabnahme",
+      "labelMaxPurchase": "Maximalabnahme",
+      "labelEan": "EAN",
+      "labelPseudoSales": "Pseudo-Verkäufe",
+      "labelShippingFree": "Versandkostenfrei",
+      "labelMarkAsTopseller": "Produkt hervorheben",
+      "placeholderCreatedAt": "Gebe ein Erstelldatum ein...",
+      "placeholderReleaseDate": "Gebe ein Einstellungsdatum ein...",
+      "placeholderWidth": "500mm...",
+      "placeholderHeight": "200mm...",
+      "placeholderLength": "100mm...",
+      "placeholderWeight": "0,4kg...",
+      "placeholderMinPurchase": "Mindestabnahme...",
+      "placeholderMaxPurchase": "Maximalabnahme...",
+      "placeholderEan": "Gebe die EAN Nummer ein...",
+      "placeholderPseudoSales": "Gebe die Pseudo-Verkäufe ein..."
+    },
+    "detailBase": {
+      "cardTitleProductInfo": "Produkt Informationen",
+      "cardTitleAssignment": "Zuordnung",
+      "cardTitlePrices": "Preise",
+      "cardTitleSettings": "Einstellungen",
+      "linkAdvancedPrices": "Erweitere Preisansicht öffnen"
+    },
+    "contextPrices": {
+      "cardTitlePriceRule": "Neue Preisregel",
+      "placeholderContextRule": "Bitte wählen...",
+      "placeholderQuantityEnd": "unendlich",
+      "buttonPriceRuleDelete": "Preisregel löschen",
+      "buttonPriceRuleDuplicate": "Preisregel duplizieren",
+      "buttonPriceRuleCurrencyAdd": "Währung hinzufügen",
+      "buttonCreateAdditionalPriceRule": "Weitere Preisregel hinzufügen",
+      "textCurrencyDefault": "(Standard)",
+      "textPriceRuleForCurrency": "Preisregel für Währung",
+      "columnQuantityStart": "Menge von",
+      "columnQuantityEnd": "Menge bis",
+      "columnPrice": "Preis (Brutto / Netto)",
+      "contextMenuDuplicate": "Duplizieren",
+      "contextMenuDelete": "Löschen"
+    },
+    "list": {
+      "textProductOverview": "Produktüberblick",
+      "textTotalProducts": "Keine Produkte | ein Produkt | {count} Produkte",
+      "buttonCreateProduct": "Produkt anlegen",
+      "columnName": "Name",
+      "columnManufacturer": "Hersteller",
+      "columnActive": "Aktiv",
+      "columnPrice": "Preis",
+      "columnInStock": "Lager",
+      "columnActions": "Aktion(en)",
+      "contextMenuEdit": "Produkt editieren",
+      "contextMenuDelete": "Produkt löschen",
+      "contextMenuDuplicate": "Produkt duplizieren"
+    },
+    "detail": {
+      "textHeadline": "Neues Produkt",
+      "buttonCancel": "Abbrechen",
+      "buttonSave": "Produkt speichern",
+      "tabGeneral": "Allgemein",
+      "tabAdvancedPrices": "Erweiterte Preise"
+    }
+  }
+}

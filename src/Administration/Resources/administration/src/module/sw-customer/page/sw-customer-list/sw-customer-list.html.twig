@@ -3,7 +3,7 @@
         {% block sw_customer_list_smart_bar_header %}
             <template slot="smart-bar-header">
                 {% block sw_customer_list_smart_bar_header_slot %}
-                    <h2>Kunden <span v-if="!isLoading">({{ totalCustomers }} Kunden)</span></h2>
+                    <h2>{{ $tc('sw-customer.list.textCustomers') }} <span v-if="!isLoading">({{ $tc('sw-customer.list.textCustomersTotal', totalCustomers, { count: totalCustomers }) }})</span></h2>
                 {% endblock %}
             </template>
         {% endblock %}
@@ -11,7 +11,9 @@
         {% block sw_customer_list_smart_bar_actions %}
             <template slot="smart-bar-actions">
                 {% block sw_customer_list_smart_bar_actions_slot %}
-                    <sw-button variant="primary" disabled>Kunden anlegen</sw-button>
+                    <sw-button variant="primary" disabled>
+                        {{ $tc('sw-customer.list.buttonAddCustomer') }}
+                    </sw-button>
                 {% endblock %}
             </template>
         {% endblock %}
@@ -35,7 +37,7 @@
 
                                         {% block sw_customer_list_grid_columns_customer_number %}
                                             <sw-grid-column flex="minmax(80px, 100px)"
-                                                            label="Kd. Nr."
+                                                            :label="$tc('sw-customer.list.columnCustomerNumber')"
                                                             dataIndex="number"
                                                             sortable
                                                             editable
@@ -52,7 +54,7 @@
 
                                         {% block sw_customer_list_grid_columns_first_name %}
                                             <sw-grid-column flex="minmax(100px, 1fr)"
-                                                            label="Vorname"
+                                                            :label="$tc('sw-customer.list.columnFirstName')"
                                                             dataIndex="firstName"
                                                             sortable
                                                             editable>
@@ -68,7 +70,7 @@
 
                                         {% block sw_customer_list_grid_columns_last_name %}
                                             <sw-grid-column flex="minmax(100px, 1fr)"
-                                                            label="Nachname"
+                                                            :label="$tc('sw-customer.list.columnLastName')"
                                                             dataIndex="lastName"
                                                             sortable
                                                             editable>
@@ -84,7 +86,7 @@
 
                                         {% block sw_customer_list_grid_columns_street %}
                                             <sw-grid-column flex="minmax(100px, 1fr)"
-                                                            label="Straße"
+                                                            :label="$tc('sw-customer.list.columnStreet')"
                                                             dataIndex="defaultBillingAddress.street"
                                                             sortable
                                                             editable>
@@ -100,7 +102,7 @@
 
                                         {% block sw_customer_list_grid_columns_zipcode %}
                                             <sw-grid-column flex="minmax(80px, 100px)"
-                                                            label="PLZ"
+                                                            :label="$tc('sw-customer.list.columnZip')"
                                                             dataIndex="defaultBillingAddress.zipcode"
                                                             sortable
                                                             editable>
@@ -116,7 +118,7 @@
 
                                         {% block sw_customer_list_grid_columns_city %}
                                             <sw-grid-column flex="minmax(100px, 1fr)"
-                                                            label="Stadt"
+                                                            :label="$tc('sw-customer.list.columnCity')"
                                                             dataIndex="defaultBillingAddress.city"
                                                             sortable
                                                             editable>
@@ -132,7 +134,7 @@
 
                                         {% block sw_customer_list_grid_columns_email %}
                                             <sw-grid-column flex="minmax(250px, 1fr)"
-                                                            label="E-Mail"
+                                                            :label="$tc('sw-customer.list.columnEmail')"
                                                             dataIndex="email"
                                                             sortable
                                                             editable>
@@ -148,7 +150,7 @@
 
                                         {% block sw_customer_list_grid_columns_last_login %}
                                             <sw-grid-column flex="minmax(100px, 1fr)"
-                                                            label="Zuletzt eingeloggt"
+                                                            :label="$tc('sw-customer.list.columnLastLogin')"
                                                             dataIndex="lastLogin"
                                                             sortable>
                                                 {% block sw_customer_list_grid_columns_last_login_label %}
@@ -158,24 +160,26 @@
                                         {% endblock %}
 
                                         {% block sw_customer_list_grid_columns_actions %}
-                                            <sw-grid-column flex="minmax(100px, 110px)" label="Aktionen" align="center">
+                                            <sw-grid-column flex="minmax(100px, 120px)"
+                                                            :label="$tc('sw-customer.list.columnActions')"
+                                                            align="center">
                                                 {% block sw_customer_list_grid_columns_actions_context_button %}
                                                     <sw-context-button>
                                                         {% block sw_customer_list_grid_columns_actions_edit %}
                                                             <sw-context-menu-item icon="small-pencil-paper" :disabled="true">
-                                                                Kunde bearbeiten
+                                                                {{ $tc('sw-customer.list.contextMenuEdit') }}
                                                             </sw-context-menu-item>
                                                         {% endblock %}
 
                                                         {% block sw_customer_list_grid_columns_actions_delete %}
                                                             <sw-context-menu-item icon="small-default-x-line-medium" :disabled="true">
-                                                                Kunde löschen
+                                                                {{ $tc('sw-customer.list.contextMenuDelete') }}
                                                             </sw-context-menu-item>
                                                         {% endblock %}
 
                                                         {% block sw_customer_list_grid_columns_actions_duplicate %}
                                                             <sw-context-menu-item icon="small-copy" :disabled="true">
-                                                                Kunde duplizieren
+                                                                {{ $tc('sw-customer.list.contextMenuDuplicate') }}
                                                             </sw-context-menu-item>
                                                         {% endblock %}
                                                     </sw-context-button>

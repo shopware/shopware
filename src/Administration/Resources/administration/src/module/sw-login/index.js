@@ -1,9 +1,9 @@
 import { Module } from 'src/core/shopware';
-import './page/sw-login';
+import './page/index';
 
 Module.register('sw-login', {
     type: 'core',
-    name: 'Core Login Module',
+    name: 'moduleNames.login',
     description: 'Enter description here...',
     version: '1.0.0',
     targetVersion: '1.0.0',

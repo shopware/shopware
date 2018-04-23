@@ -15,7 +15,8 @@ export default function initializeView(container) {
         factoryContainer.component,
         factoryContainer.state,
         factoryContainer.filter,
-        factoryContainer.directive
+        factoryContainer.directive,
+        factoryContainer.locale
     );
     const viewFactory = ViewFactory(adapter);
 

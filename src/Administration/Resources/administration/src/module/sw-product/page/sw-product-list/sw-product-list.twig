@@ -2,13 +2,15 @@
     <sw-page class="sw-product-list">
         <template slot="smart-bar-header">
             {% block sw_product_list_smart_bar_header %}
-                <h2>Produktübersicht <span v-if="!isLoading">({{ totalProducts }} Produkte)</span></h2>
+                <h2>{{ $tc('sw-product.list.textProductOverview') }} <span v-if="!isLoading">({{ $tc('sw-product.list.textTotalProducts', totalProducts, { count: totalProducts }) }})</span></h2>
             {% endblock %}
         </template>
 
         <template slot="smart-bar-actions">
             {% block sw_product_list_smart_bar_actions %}
-                <sw-button :link="'sw.product.create'" variant="primary">Produkt anlegen</sw-button>
+                <sw-button :link="'sw.product.create'" variant="primary">
+                    {{ $tc('sw-product.list.buttonCreateProduct') }}
+                </sw-button>
             {% endblock %}
         </template>
 
@@ -32,7 +34,7 @@
 
                                         {% block sw_product_list_grid_columns_name %}
                                             <sw-grid-column flex="minmax(200px, 1fr)"
-                                                            label="Name"
+                                                            :label="$tc('sw-product.list.columnName')"
                                                             dataIndex="name"
                                                             sortable
                                                             editable>
@@ -46,7 +48,7 @@
 
                                         {% block sw_product_list_grid_columns_manufacturer %}
                                             <sw-grid-column flex="minmax(200px, 1fr)"
-                                                            label="Hersteller"
+                                                            :label="$tc('sw-product.list.columnManufacturer')"
                                                             dataIndex="manufacturer.name"
                                                             sortable
                                                             editable>
@@ -60,7 +62,7 @@
 
                                         {% block sw_product_list_grid_columns_active %}
                                             <sw-grid-column flex="minmax(80px, 95px)"
-                                                            label="Aktiv"
+                                                            :label="$tc('sw-product.list.columnActive')"
                                                             dataIndex="active"
                                                             align="center"
                                                             sortable
@@ -76,7 +78,7 @@
 
                                         {% block sw_product_list_grid_columns_price %}
                                             <sw-grid-column flex="minmax(95px, 105px)"
-                                                            label="Preis"
+                                                            :label="$tc('sw-product.list.columnPrice')"
                                                             sortable
                                                             dataIndex="price"
                                                             align="right">
@@ -86,7 +88,7 @@
 
                                         {% block sw_product_list_grid_columns_stock %}
                                             <sw-grid-column flex="minmax(95px, 150px)"
-                                                            label="Lager"
+                                                            :label="$tc('sw-product.list.columnInStock')"
                                                             sortable
                                                             dataIndex="stock"
                                                             align="right">
@@ -96,7 +98,9 @@
                                         {% endblock %}
 
                                         {% block sw_product_list_grid_columns_actions %}
-                                            <sw-grid-column flex="minmax(100px, 110px)" label="Aktionen" align="center">
+                                            <sw-grid-column flex="minmax(100px, 120px)"
+                                                            :label="$tc('sw-product.list.columnActions')"
+                                                            align="center">
                                                 <sw-context-button>
 
                                                     {% block sw_product_list_grid_columns_actions_edit %}
@@ -104,20 +108,20 @@
                                                             <router-link :to="{
                                                                     name: 'sw.product.detail',
                                                                     params: { id: item.id } }">
-                                                                Produkt editieren
+                                                                {{ $tc('sw-product.list.contextMenuEdit') }}
                                                             </router-link>
                                                         </sw-context-menu-item>
                                                     {% endblock %}
 
                                                     {% block sw_product_list_grid_columns_actions_delete %}
                                                         <sw-context-menu-item icon="small-default-x-line-medium" :disabled="true">
-                                                            Produkt löschen
+                                                            {{ $tc('sw-product.list.contextMenuDelete') }}
                                                         </sw-context-menu-item>
                                                     {% endblock %}
 
                                                     {% block sw_product_list_grid_columns_actions_duplicate %}
                                                         <sw-context-menu-item icon="small-copy" :disabled="true">
-                                                            Produkt duplizieren
+                                                            {{ $tc('sw-product.list.contextMenuDuplicate') }}
                                                         </sw-context-menu-item>
                                                     {% endblock %}
                                                 </sw-context-button>

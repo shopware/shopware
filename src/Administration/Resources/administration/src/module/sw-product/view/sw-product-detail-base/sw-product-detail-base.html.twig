@@ -2,7 +2,7 @@
     <div class="sw-product-detail-base">
 
         {% block sw_product_detail_base_basic_info_card %}
-            <sw-card title="Produkt Informationen" :isLoading="isLoading">
+            <sw-card :title="$tc('sw-product.detailBase.cardTitleProductInfo')" :isLoading="isLoading">
                 {% block sw_product_detail_base_basic_info_form %}
                     <sw-product-basic-form :product="product" :manufacturers="manufacturers"></sw-product-basic-form>
                 {% endblock %}
@@ -10,7 +10,7 @@
         {% endblock %}
 
         {% block sw_product_detail_base_category_card %}
-            <sw-card title="Zuordnung" :isLoading="isLoading">
+            <sw-card :title="$tc('sw-product.detailBase.cardTitleAssignment')" :isLoading="isLoading">
                 {% block sw_product_detail_base_category_form %}
                     <sw-product-category-form :product="product"></sw-product-category-form>
                 {% endblock %}
@@ -18,21 +18,21 @@
         {% endblock %}
 
         {% block sw_product_detail_base_price_card %}
-            <sw-card title="Preise" :isLoading="isLoading">
+            <sw-card :title="$tc('sw-product.detailBase.cardTitlePrices')" :isLoading="isLoading">
                 {% block sw_product_detail_base_price_form %}
                     <sw-product-price-form :product="product" :taxRates="taxes" :currencies="currencies"></sw-product-price-form>
                 {% endblock %}
 
                 <sw-container grid="1fr" justify="end">
                     <router-link :to="{ name: 'sw.product.detail.prices', params: { id: $route.params.id } }" class="sw-card__quick-link">
-                        Erweiterte Preisansicht öffnen <sw-icon name="default-arrow-simple-right" small></sw-icon>
+                        {{ $tc('sw-product.detailBase.linkAdvancedPrices') }} <sw-icon name="default-arrow-simple-right" small></sw-icon>
                     </router-link>
                 </sw-container>
             </sw-card>
         {% endblock %}
 
         {% block sw_product_detail_base_settings_card %}
-            <sw-card title="Einstellungen" :isLoading="isLoading">
+            <sw-card :title="$tc('sw-product.detailBase.cardTitleSettings')" :isLoading="isLoading">
                 {% block sw_product_detail_base_settings_form %}
                     <sw-product-settings-form :product="product"></sw-product-settings-form>
                 {% endblock %}

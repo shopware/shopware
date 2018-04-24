@@ -3,7 +3,7 @@ import './page/sw-customer-list';
 
 Module.register('sw-customer', {
     type: 'core',
-    name: 'Customer',
+    name: 'moduleNames.customers',
     description: 'The module for managing customers.',
     version: '1.0.0',
     targetVersion: '1.0.0',
@@ -38,7 +38,7 @@ Module.register('sw-customer', {
 
     navigation: [{
         path: 'sw.customer.index',
-        label: 'Kunden',
+        label: 'sw-customer.general.mainMenuItemList',
         color: '#F88962',
         icon: 'default-avatar-multiple'
     }]

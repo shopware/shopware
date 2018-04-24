@@ -71,12 +71,12 @@ Module.register('sw-product', {
 
     navigation: [{
         path: 'sw.product.index',
-        label: 'Produkte',
+        label: 'sw-product.general.mainMenuItemList',
         color: '#57D9A3',
         icon: 'default-symbol-products'
     }, {
         path: 'sw.product.create',
-        label: 'Produkt anlegen',
+        label: 'sw-product.general.mainMenuItemAdd',
         parent: 'sw.product.index',
         color: '#57D9A3'
     }]

@@ -176,7 +176,7 @@
 
                         {% block sw_field_toggle_password_visibility %}
                             <span @click="onTogglePasswordVisibility"
-                                  :title="showPassword ? 'Passwort verbergen' : 'Passwort anzeigen'"
+                                  :title="showPassword ? $tc('global.sw-field.titleHidePassword') : $tc('global.sw-field.titleShowPassword')"
                                   class="sw-field__toggle-password-visibility">
                                 {% block sw_field_hide_password_icon %}
                                     <sw-icon v-if="showPassword" name="default-eye-crossed" small></sw-icon>

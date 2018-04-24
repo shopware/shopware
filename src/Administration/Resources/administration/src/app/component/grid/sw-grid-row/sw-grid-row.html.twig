@@ -4,8 +4,12 @@
             <div class="sw-grid-row__actions">
                 <slot name="actions">
                     {% block sw_grid_row_slot_actions %}
-                        <sw-button @click="onInlineEditCancel">Cancel</sw-button>
-                        <sw-button variant="primary" @click="onInlineEditFinish">Save changes</sw-button>
+                        <sw-button @click="onInlineEditCancel">
+                            {{ $tc('global.sw-grid-row.buttonInlineEditCancel') }}
+                        </sw-button>
+                        <sw-button variant="primary" @click="onInlineEditFinish">
+                            {{ $tc('global.sw-grid-row.buttonInlineEditSave') }}
+                        </sw-button>
                     {% endblock %}
                 </slot>
             </div>

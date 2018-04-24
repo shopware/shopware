@@ -15,6 +15,7 @@ const StateFactory = require('src/core/factory/state.factory').default;
 const MixinFactory = require('src/core/factory/mixin.factory').default;
 const FilterFactory = require('src/core/factory/filter.factory').default;
 const DirectiveFactory = require('src/core/factory/directive.factory').default;
+const LocaleFactory = require('src/core/factory/locale.factory').default;
 
 const utils = require('src/core/service/util.service').default;
 const ApplicationBootstrapper = require('src/core/application').default;
@@ -49,6 +50,9 @@ application
     })
     .addFactory('directive', () => {
         return DirectiveFactory;
+    })
+    .addFactory('locale', () => {
+        return LocaleFactory;
     });
 
 module.exports = {
@@ -130,6 +134,16 @@ module.exports = {
     Directive: {
         register: DirectiveFactory.registerDirective,
         getByName: DirectiveFactory.getDirectiveByName
+    },
+
+    /**
+     * @memberOf module:Shopware
+     * @type {Object}
+     */
+    Locale: {
+        register: LocaleFactory.register,
+        extend: LocaleFactory.extend,
+        getByName: LocaleFactory.getLocaleByName
     },
 
     /**

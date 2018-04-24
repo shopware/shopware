@@ -8,3 +8,4 @@ import './manufacturer.state';
 import './tax.state';
 import './currency.state';
 import './context-rule.state';
+import './locale.state';

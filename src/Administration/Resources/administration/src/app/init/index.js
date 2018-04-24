@@ -8,6 +8,7 @@ import initView from 'src/app/init/view.init';
 import initRouter from 'src/app/init/router.init';
 import initFilter from 'src/app/init/filter.init';
 import initDirectives from 'src/app/init/directive.init';
+import initLocale from 'src/app/init/locale.init';
 
 export default {
     contextService: initContext,
@@ -19,5 +20,6 @@ export default {
     coreModuleRoutes: initCoreModules,
     view: initView,
     router: initRouter,
-    entity: initEntity
+    entity: initEntity,
+    locale: initLocale
 };

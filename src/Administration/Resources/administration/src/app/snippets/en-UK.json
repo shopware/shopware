@@ -1,0 +1,168 @@
+{
+  "global": {
+    "sw-admin-menu": {
+      "linkChangeLanguage": "Change language",
+      "linkLogout": "Logout",
+      "linkMinimizeMenu": "Minimize menu",
+      "textShopwareAdmin": "Shopware administration",
+      "textProjectName": "Admin prototype"
+    },
+    "sw-field": {
+      "titleShowPassword": "Show password",
+      "titleHidePassword": "Hide password"
+    },
+    "sw-price-field": {
+      "labelPriceGross": "Price (Gross)",
+      "labelPriceNet": "Price (Net)"
+    },
+    "sw-grid-row": {
+      "buttonInlineEditCancel": "Cancel",
+      "buttonInlineEditSave": "Save changes"
+    },
+    "sw-pagination": {
+      "labelItemsPerPage": "Items per page:"
+    }
+  },
+  "sw-login": {
+    "index": {
+      "headlineMain": "Hello",
+      "subheadlineMain": "Welcome back!",
+      "headlineForm": "Log in to your Shopware store",
+      "labelUsername": "Username",
+      "labelPassword": "Password",
+      "placeholderUsername": "Enter your username...",
+      "placeholderPassword": "Enter your password...",
+      "buttonLogin": "Log in"
+    }
+  },
+  "sw-customer": {
+    "general": {
+      "mainMenuItemList": "Customers"
+    },
+    "list": {
+      "textCustomers": "Customers",
+      "textCustomersTotal": "No customer | One customer | {count} customers",
+      "buttonAddCustomer": "Add customer",
+      "columnCustomerNumber": "#",
+      "columnFirstName": "First name",
+      "columnLastName": "Last name",
+      "columnStreet": "Street",
+      "columnZip": "Zip code",
+      "columnCity": "City",
+      "columnEmail": "e-mail",
+      "columnLastLogin": "Last login",
+      "columnActions": "Action(s)",
+      "contextMenuEdit": "Edit customer",
+      "contextMenuDelete": "Delete customer",
+      "contextMenuDuplicate": "Duplicate customer"
+    }
+  },
+  "sw-product": {
+    "general": {
+      "mainMenuItemList": "Products",
+      "mainMenuItemAdd": "Add new product"
+    },
+    "basicForm": {
+      "labelTitle": "Title",
+      "labelDescription": "Description",
+      "labelProductNumber": "Product number",
+      "labelManufacturer": "Manufacturer",
+      "placeholderTitle": "Enter product title...",
+      "placeholderDescription": "Enter product description...",
+      "placeholderProductNumber": "Enter product number...",
+      "placeholderManufacturer": "Enter product manufacturer..."
+    },
+    "categoryForm": {
+      "labelCatalog": "Catalog",
+      "labelCategory": "Category",
+      "placeholderCatalog": "Select product catalog...",
+      "placeholderCategory": "Select product categories...",
+      "optionDefaultCatalog": "Default catalog"
+    },
+    "priceForm": {
+      "labelTaxRate": "Tax rate",
+      "labelPriceGross": "Price (Gross)",
+      "labelUnit": "Unit of measurement",
+      "labelPurchaseUnit": "Purchase unit",
+      "labelReferenceUnit": "Reference unit",
+      "labelPackUnit": "Packaging unit",
+      "placeholderTaxRate": "Select tax rate...",
+      "placeholderPriceGross": "Enter price (gross)...",
+      "placeholderUnit": "Select...",
+      "placeholderPurchaseUnit": "Purchase unit...",
+      "placeholderReferenceUnit": "Reference unit...",
+      "placeholderPackUnit": "Box, bottle...",
+      "optionLitre": "Litre",
+      "optionKilogram": "KG",
+      "optionMetre": "Metre"
+    },
+    "settingsForm": {
+      "labelCreatedAt": "Date of creation",
+      "labelReleaseDate": "Release date",
+      "labelWidth": "Width",
+      "labelHeight": "Height",
+      "labelLength": "Length",
+      "labelWeight": "Mass",
+      "labelMinPurchase": "Min. order quantity",
+      "labelMaxPurchase": "Max. order quantity",
+      "labelEan": "EAN",
+      "labelPseudoSales": "Pseudo sales",
+      "labelShippingFree": "Free shipping",
+      "labelMarkAsTopseller": "Promote product",
+      "placeholderCreatedAt": "Enter date of creation...",
+      "placeholderReleaseDate": "Enter release date...",
+      "placeholderWidth": "500mm...",
+      "placeholderHeight": "200mm...",
+      "placeholderLength": "100mm...",
+      "placeholderWeight": "0,4kg...",
+      "placeholderMinPurchase": "Minimum purchase...",
+      "placeholderMaxPurchase": "Maximum purchase...",
+      "placeholderEan": "Enter EAN number...",
+      "placeholderPseudoSales": "Enter pseudo sales..."
+    },
+    "detailBase": {
+      "cardTitleProductInfo": "Product information",
+      "cardTitleAssignment": "Assignment",
+      "cardTitlePrices": "Prices",
+      "cardTitleSettings": "Settings",
+      "linkAdvancedPrices": "Use advanced pricing"
+    },
+    "contextPrices": {
+      "cardTitlePriceRule": "New price rule",
+      "placeholderContextRule": "Please select...",
+      "placeholderQuantityEnd": "infinite",
+      "buttonPriceRuleDelete": "Delete price rule",
+      "buttonPriceRuleDuplicate": "Duplicate price rule",
+      "buttonPriceRuleCurrencyAdd": "Add currency",
+      "buttonAddAdditionalPriceRule": "Add additional price rule",
+      "textCurrencyDefault": "(Default)",
+      "textPriceRuleForCurrency": "Price rule for currency",
+      "columnQuantityStart": "Starting from",
+      "columnQuantityEnd": "Ending at",
+      "columnPrice": "Price (Gross / Net)",
+      "contextMenuDuplicate": "Duplicate",
+      "contextMenuDelete": "Delete"
+    },
+    "list": {
+      "textProductOverview": "Product overview",
+      "textTotalProducts": "No products | one product | {count} products",
+      "buttonAddProduct": "Add product",
+      "columnName": "Name",
+      "columnManufacturer": "Manufacturer",
+      "columnActive": "Active",
+      "columnPrice": "Price",
+      "columnInStock": "In Stock",
+      "columnActions": "Action(s)",
+      "contextMenuEdit": "Edit product",
+      "contextMenuDelete": "Delete product",
+      "contextMenuDuplicate": "Duplicate product"
+    },
+    "detail": {
+      "textHeadline": "New product",
+      "buttonCancel": "Cancel",
+      "buttonSave": "Save product",
+      "tabGeneral": "General",
+      "tabAdvancedPrices": "Advanced pricing"
+    }
+  }
+}

@@ -40,6 +40,12 @@ export const Directive = {
     getByName: Shopware.Directive.getByName
 };
 
+export const Locale = {
+    register: Shopware.Locale.register,
+    getByName: Shopware.Locale.getByName,
+    extend: Shopware.Locale.extend
+};
+
 export const Entity = {
     addDefinition: Shopware.Entity.addDefinition,
     getDefinition: Shopware.Entity.getDefinition,
@@ -56,5 +62,7 @@ export default {
     State,
     Mixin,
     Entity,
-    Filter
+    Filter,
+    Directive,
+    Locale
 };

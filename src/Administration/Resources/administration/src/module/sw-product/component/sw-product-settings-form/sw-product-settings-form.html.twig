@@ -7,7 +7,8 @@
                 {% block sw_product_settings_form_create_date_field %}
                     <sw-field type="datetime"
                               name="createdAt"
-                              label="Einstelldatum"
+                              :label="$tc('sw-product.settingsForm.labelCreatedAt')"
+                              :placeholder="$tc('sw-product.settingsForm.placeholderCreatedAt')"
                               v-model="product.createdAt">
                         <sw-icon name="default-calendar-full" slot="suffix"></sw-icon>
                     </sw-field>
@@ -16,7 +17,8 @@
                 {% block sw_product_settings_form_release_date_field %}
                     <sw-field type="datetime"
                               name="releaseDate"
-                              label="Erscheinungsdatum"
+                              :label="$tc('sw-product.settingsForm.labelReleaseDate')"
+                              :placeholder="$tc('sw-product.settingsForm.placeholderReleaseDate')"
                               v-model="product.releaseDate">
                         <sw-icon name="default-calendar-full" slot="suffix"></sw-icon>
                     </sw-field>
@@ -27,7 +29,8 @@
                 {% block sw_product_settings_form_width_field %}
                     <sw-field type="number"
                               name="width"
-                              label="Breite"
+                              :label="$tc('sw-product.settingsForm.labelWidth')"
+                              :placeholder="$tc('sw-product.settingsForm.placeholderWidth')"
                               suffix="mm"
                               step="0.01"
                               v-model="product.width">
@@ -37,7 +40,8 @@
                 {% block sw_product_settings_form_height_field %}
                     <sw-field type="number"
                               name="height"
-                              label="Höhe"
+                              :label="$tc('sw-product.settingsForm.labelHeight')"
+                              :placeholder="$tc('sw-product.settingsForm.placeholderHeight')"
                               suffix="mm"
                               step="0.01"
                               v-model="product.height">
@@ -47,7 +51,8 @@
                 {% block sw_product_settings_form_length_field %}
                     <sw-field type="number"
                               name="length"
-                              label="Länge"
+                              :label="$tc('sw-product.settingsForm.labelLength')"
+                              :placeholder="$tc('sw-product.settingsForm.placeholderLength')"
                               suffix="mm"
                               step="0.01"
                               v-model="product.length">
@@ -57,7 +62,8 @@
                 {% block sw_product_settings_form_weight_field %}
                     <sw-field type="number"
                               name="weight"
-                              label="Gewicht"
+                              :label="$tc('sw-product.settingsForm.labelWeight')"
+                              :placeholder="$tc('sw-product.settingsForm.placeholderWeight')"
                               suffix="kg"
                               step="0.01"
                               v-model="product.weight">
@@ -71,7 +77,8 @@
                     {% block sw_product_settings_form_min_purchase_field %}
                         <sw-field type="number"
                                   name="minPurchase"
-                                  label="Mindestabnahme"
+                                  :label="$tc('sw-product.settingsForm.labelMinPurchase')"
+                                  :placeholder="$tc('sw-product.settingsForm.placeholderMinPurchase')"
                                   v-model="product.minPurchase">
                         </sw-field>
                     {% endblock %}
@@ -79,7 +86,8 @@
                     {% block sw_product_settings_form_max_purchase_field %}
                         <sw-field type="number"
                                   name="maxPurchase"
-                                  label="Maximalabnahme"
+                                  :label="$tc('sw-product.settingsForm.labelMaxPurchase')"
+                                  :placeholder="$tc('sw-product.settingsForm.placeholderMaxPurchase')"
                                   v-model="product.maxPurchase">
                         </sw-field>
                     {% endblock %}
@@ -88,7 +96,8 @@
                 {% block sw_product_settings_form_ean_field %}
                     <sw-field type="text"
                               name="ean"
-                              label="EAN"
+                              :label="$tc('sw-product.settingsForm.labelEan')"
+                              :placeholder="$tc('sw-product.settingsForm.placeholderEan')"
                               v-model="product.ean">
                     </sw-field>
                 {% endblock %}
@@ -98,7 +107,8 @@
                 {% block sw_product_settings_form_pseudo_sales_field %}
                     <sw-field type="number"
                               name="pseudoSales"
-                              label="Pseudo-Verkäufe"
+                              :label="$tc('sw-product.settingsForm.labelPseudoSales')"
+                              :placeholder="$tc('sw-product.settingsForm.placeholderPseudoSales')"
                               v-model="product.pseudoSales">
                     </sw-field>
                 {% endblock %}
@@ -107,7 +117,7 @@
                     {% block sw_product_settings_form_shipping_free_field %}
                         <sw-field type="checkbox"
                                   name="shippingFree"
-                                  label="Versandkostenfrei"
+                                  :label="$tc('sw-product.settingsForm.labelShippingFree')"
                                   v-model="product.shippingFree">
                         </sw-field>
                     {% endblock %}
@@ -115,7 +125,7 @@
                     {% block sw_product_settings_form_mark_as_topseller_field %}
                         <sw-field type="checkbox"
                                   name="markAsTopseller"
-                                  label="Produkt hervorheben"
+                                  :label="$tc('sw-product.settingsForm.labelMarkAsTopseller')"
                                   v-model="product.markAsTopseller">
                         </sw-field>
                     {% endblock %}

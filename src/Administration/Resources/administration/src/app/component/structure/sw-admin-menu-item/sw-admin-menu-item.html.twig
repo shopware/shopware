@@ -18,7 +18,7 @@
 
                 {% block sw_admin_menu_item_text %}
                     <span :class="collapsibleText ? 'collapsible-text' : ''">
-                        {{ entry.label }}
+                        {{ $tc(entry.label) }}
                     </span>
                 {% endblock %}
 

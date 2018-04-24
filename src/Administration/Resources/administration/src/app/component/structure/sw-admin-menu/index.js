@@ -70,6 +70,14 @@ Component.register('sw-admin-menu', {
             this.flyoutEntries = [];
         },
 
+        onChangeLanguage() {
+            const lastLocale = this.$root.$i18n.locale;
+            const newLocale = (lastLocale === 'de-DE' ? 'en-UK' : 'de-DE');
+
+            this.$root.$i18n.locale = newLocale;
+            this.$store.commit('locale/setLocale', newLocale);
+        },
+
         onToggleSidebar() {
             this.isExpanded = !this.isExpanded;
 

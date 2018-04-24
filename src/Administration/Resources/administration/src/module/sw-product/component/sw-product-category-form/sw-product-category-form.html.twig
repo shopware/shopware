@@ -5,16 +5,19 @@
             {% block sw_product_category_form_catalog_field %}
                 <sw-field type="select"
                           name="catalogId"
-                          label="Katalog"
+                          :label="$tc('sw-product.categoryForm.labelCatalog')"
+                          :placeholder="$tc('sw-product.categoryForm.placeholderCatalog')"
                           v-model="product.catalogId">
-                    <option slot="options" value="ffffffffffffffffffffffffffffffff">Standard Katalog</option>
+                    <option slot="options" value="ffffffffffffffffffffffffffffffff">
+                        {{ $tc('sw-product.categoryForm.optionDefaultCatalog') }}
+                    </option>
                 </sw-field>
             {% endblock %}
 
             {% block sw_product_category_form_category_field %}
-                <sw-multi-select label="Kategorie"
-                                 id="categories"
-                                 placeholder="Your product categories..."
+                <sw-multi-select id="categories"
+                                 :label="$tc('sw-product.categoryForm.labelCategory')"
+                                 :placeholder="$tc('sw-product.categoryForm.placeholderCategory')"
                                  :serviceProvider="categoryService"
                                  :values="productCategoryIds"
                                  v-model="product.categories">

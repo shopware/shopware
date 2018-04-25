@@ -1,5 +1,6 @@
 # Data inheritance
 
+## InheritanceAware
 The Shopware ORM allows to define a data inheritance inside a single entity.
 It requires the following configurations:
 * `Shopware\Api\Entity\EntityDefinition::getParentPropertyName` returns the property name of the parent association
@@ -42,6 +43,7 @@ class HumanDefinition extends EntityDefinition
 }
 ``` 
 
+## Simple field inheritance
 Now we create a parent and a child in the storage:
 
 ```
@@ -104,4 +106,44 @@ $criteria->addFilter(new TermQuery('human.lastName', 'Family name'));
 $result = $repo->search($criteria, ShopContext::createDefaultContext());
 
 var_dump($result->getTotal());  //dumps "2"
+```
+
+## Association Inheritance
+The ORM also allows to configure inherited associations.
+
+```
+<?php
+
+namespace Test;
+
+class HumanDefinition extends EntityDefinition
+{
+    public static function getFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            //...
+                        
+            (new OneToManyAssociationField('pets', PetDefinition::class, 'human_id', false))->setFlags(new CascadeDelete(), new Inherited())
+        ]);
+    }
+}
+```
+
+The above `pets` associations defines that each human can have many pets. The inherited flag defines, if a `child` human do not have own defined pets, the ORM will read the `pets` of the `parent`.
+To support such associations the sql database table requires a field named `pets`. This field is used for the ORM and can't be written by API or other tools. 
+
+```
+CREATE TABLE `human` (
+  `id` binary(16) NOT NULL,
+  `parent_id` binary(16) NULL DEFAULT NULL,
+  `name` varchar(100),
+  `last_name` varchar(100),
+  
+  #association property
+  `pets` binary(16) NULL,   
+  
+  PRIMARY KEY (`id`),
+  CONSTRAINT `fk_product.parent_id` FOREIGN KEY (`parent_id`) REFERENCES `human` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```

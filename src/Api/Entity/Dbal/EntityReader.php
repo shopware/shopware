@@ -23,6 +23,7 @@ use Shopware\Api\Entity\Write\Flag\Deferred;
 use Shopware\Api\Entity\Write\Flag\DelayedLoad;
 use Shopware\Api\Entity\Write\Flag\Extension;
 use Shopware\Api\Entity\Write\Flag\Inherited;
+use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Struct\ArrayStruct;
 use Shopware\Framework\Struct\Struct;
@@ -205,6 +206,15 @@ class EntityReader implements EntityReaderInterface
             //self references can not be resolved, otherwise we get an endless loop
             if ($field instanceof AssociationInterface && $field->getReferenceClass() === $definition) {
                 continue;
+            }
+
+            /** @var Field $field */
+            if ($field instanceof AssociationInterface && $field->is(Inherited::class)) {
+                $query->addSelect(
+                    EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getPropertyName())
+                    . ' as ' .
+                    EntityDefinitionQueryHelper::escape('_' . $root . '.' . $field->getPropertyName(). '.inherited')
+                );
             }
 
             //many to one associations can be directly fetched in same query
@@ -448,32 +458,32 @@ class EntityReader implements EntityReaderInterface
 
         $tenantField = $definition::getEntityName() . '_tenant_id';
 
+        $source = EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getLocalField());
+        if ($field->is(Inherited::class)) {
+            $source = EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getPropertyName());
+        }
+
+        $parameters = [
+            '#alias#' => EntityDefinitionQueryHelper::escape($root . '.' . $field->getPropertyName() . '.mapping'),
+            '#mapping_reference_column#' => EntityDefinitionQueryHelper::escape($field->getMappingReferenceColumn()),
+            '#mapping_table#' => EntityDefinitionQueryHelper::escape($mapping::getEntityName()),
+            '#mapping_local_column#' => EntityDefinitionQueryHelper::escape($field->getMappingLocalColumn()),
+            '#root#' => EntityDefinitionQueryHelper::escape($root),
+            '#source#' => $source,
+            '#property#' => EntityDefinitionQueryHelper::escape($root . '.' . $field->getPropertyName()),
+        ];
+
         $query->addSelect(
             str_replace(
-                [
-                    '#alias#',
-                    '#mapping_reference_column#',
-                    '#mapping_table#',
-                    '#mapping_local_column#',
-                    '#root#',
-                    '#source_column#',
-                    '#property#',
-                ],
-                [
-                    EntityDefinitionQueryHelper::escape($root . '.' . $field->getPropertyName() . '.mapping'),
-                    EntityDefinitionQueryHelper::escape($field->getMappingReferenceColumn()),
-                    EntityDefinitionQueryHelper::escape($mapping::getEntityName()),
-                    EntityDefinitionQueryHelper::escape($field->getMappingLocalColumn()),
-                    EntityDefinitionQueryHelper::escape($root),
-                    EntityDefinitionQueryHelper::escape($field->getLocalField()),
-                    EntityDefinitionQueryHelper::escape($root . '.' . $field->getPropertyName()),
-                ],
+                array_keys($parameters),
+                array_values($parameters),
                 '(SELECT GROUP_CONCAT(HEX(#alias#.#mapping_reference_column#) SEPARATOR \'||\')
                   FROM #mapping_table# #alias#
-                  WHERE #alias#.#mapping_local_column# = #root#.#source_column# AND #root#.tenant_id = #alias#. ' . $tenantField . '
-                  ' . $versionCondition . '
-                  ' . $catalogCondition . '
-                  ) as #property#'
+                  WHERE #alias#.#mapping_local_column# = #source#' .
+                  $versionCondition .
+                  ' AND #root#.tenant_id = #alias#.' . $tenantField .
+                  $catalogCondition .
+                  ' ) as #property#'
             )
         );
     }
@@ -534,37 +544,27 @@ class EntityReader implements EntityReaderInterface
     private function removeInheritance(string $definition, $details): void
     {
         /** @var string|EntityDefinition $definition */
-        $inherited = $definition::getFields()->filterInstance(AssociationInterface::class)->filterByFlag(
-            Inherited::class
-        );
+        $inherited = $definition::getFields()
+            ->filterInstance(AssociationInterface::class)
+            ->filterByFlag(Inherited::class);
 
+        /** @var ArrayStruct $detail */
         foreach ($details as $detail) {
+            /** @var ArrayStruct $extension */
+            $extension = $detail->getExtension('inherited');
+
+            if (!$extension) {
+                continue;
+            }
+
             foreach ($inherited as $association) {
-                if ($association instanceof ManyToOneAssociationField) {
-                    $joinField = $association->getJoinField();
-                    $idField = $association->getStorageName();
-                } else {
-                    if ($association instanceof ManyToManyAssociationField) {
-                        $joinField = $association->getLocalField();
-                        $idField = 'id';
-                    } else {
-                        if ($association instanceof OneToManyAssociationField) {
-                            $joinField = $association->getLocalField();
-                            $idField = 'id';
-                        }
-                    }
+                if (!$extension->offsetExists($association->getPropertyName())) {
+                    continue;
                 }
-
-                $join = $definition::getFields()->getByStorageName($joinField);
-                $id = $definition::getFields()->getByStorageName($idField);
-
-                /** @var ArrayStruct $detail */
-                $idValue = $detail->get($id->getPropertyName());
-                $joinValue = $detail->get($join->getPropertyName());
-
-                if ($idValue !== $joinValue) {
-                    $detail->offsetUnset($association->getPropertyName());
+                if (!$extension->get($association->getPropertyName())) {
+                    continue;
                 }
+                $detail->offsetUnset($association->getPropertyName());
             }
         }
     }

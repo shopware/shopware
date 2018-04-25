@@ -144,6 +144,11 @@ abstract class EntityDefinition
         return null;
     }
 
+    public static function isInheritanceAware(): bool
+    {
+        return static::getFields()->get('parent') instanceof ManyToOneAssociationField;
+    }
+
     public static function isVersionAware(): bool
     {
         return static::getFields()->has('versionId');

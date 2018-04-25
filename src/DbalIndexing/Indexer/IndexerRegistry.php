@@ -3,8 +3,9 @@
 namespace Shopware\DbalIndexing\Indexer;
 
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class ShopIndexer implements IndexerInterface
+class IndexerRegistry implements IndexerInterface, EventSubscriberInterface
 {
     /**
      * @var IndexerInterface[]
@@ -14,6 +15,13 @@ class ShopIndexer implements IndexerInterface
     public function __construct(iterable $indexer)
     {
         $this->indexer = $indexer;
+    }
+
+    public static function getSubscribedEvents()
+    {
+        return [
+            GenericWrittenEvent::NAME => 'refresh',
+        ];
     }
 
     public function index(\DateTime $timestamp, string $tenantId): void

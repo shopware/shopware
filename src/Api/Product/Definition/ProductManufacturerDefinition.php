@@ -79,7 +79,7 @@ class ProductManufacturerDefinition extends EntityDefinition
             new TranslatedField(new StringField('meta_description', 'metaDescription')),
             new TranslatedField(new StringField('meta_keywords', 'metaKeywords')),
             new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, false),
-            (new OneToManyAssociationField('products', ProductDefinition::class, 'manufacturer_join_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
+            (new OneToManyAssociationField('products', ProductDefinition::class, 'manufacturer', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
             (new TranslationsAssociationField('translations', ProductManufacturerTranslationDefinition::class, 'product_manufacturer_id', false, 'id'))->setFlags(new CascadeDelete(), new Required()),
         ]);
 

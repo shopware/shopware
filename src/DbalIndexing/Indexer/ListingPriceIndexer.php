@@ -1,28 +1,96 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\DbalIndexing\Product;
+namespace Shopware\DbalIndexing\Indexer;
 
+use Shopware\Api\Entity\Write\GenericWrittenEvent;
+use Shopware\Api\Product\Repository\ProductRepository;
+use Shopware\Context\Struct\ApplicationContext;
+use Shopware\DbalIndexing\Common\EventIdExtractor;
+use Shopware\DbalIndexing\Common\RepositoryIterator;
+use Shopware\DbalIndexing\Event\ProgressAdvancedEvent;
+use Shopware\DbalIndexing\Event\ProgressFinishedEvent;
+use Shopware\DbalIndexing\Event\ProgressStartedEvent;
+use Shopware\DbalIndexing\Indexer\IndexerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Doctrine\DBAL\Connection;
 use Shopware\Api\Context\Struct\ContextPriceStruct;
 use Shopware\Api\Entity\Field\ContextPricesJsonField;
 use Shopware\Api\Product\Struct\PriceStruct;
-use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Struct\Uuid;
 
-class ListingPriceUpdater
+class ListingPriceIndexer implements IndexerInterface
 {
+    /**
+     * @var ProductRepository
+     */
+    private $productRepository;
+
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    /**
+     * @var EventIdExtractor
+     */
+    private $eventIdExtractor;
+
     /**
      * @var Connection
      */
     private $connection;
 
-    public function __construct(Connection $connection)
-    {
+    public function __construct(
+        ProductRepository $productRepository,
+        EventDispatcherInterface $eventDispatcher,
+        EventIdExtractor $eventIdExtractor,
+        Connection $connection
+    ) {
+        $this->productRepository = $productRepository;
+        $this->eventDispatcher = $eventDispatcher;
+        $this->eventIdExtractor = $eventIdExtractor;
         $this->connection = $connection;
     }
 
-    public function update(array $ids, ApplicationContext $context): void
+    public function index(\DateTime $timestamp, string $tenantId): void
     {
+        $context = ApplicationContext::createDefaultContext($tenantId);
+
+        $iterator = new RepositoryIterator($this->productRepository, $context);
+
+        $this->eventDispatcher->dispatch(
+            ProgressStartedEvent::NAME,
+            new ProgressStartedEvent('Start indexing listing prices', $iterator->getTotal())
+        );
+
+        while ($ids = $iterator->fetchIds()) {
+            $this->update($ids, $context);
+
+            $this->eventDispatcher->dispatch(
+                ProgressAdvancedEvent::NAME,
+                new ProgressAdvancedEvent(count($ids))
+            );
+        }
+
+        $this->eventDispatcher->dispatch(
+            ProgressFinishedEvent::NAME,
+            new ProgressFinishedEvent('Finished indexing listing prices')
+        );
+    }
+
+    public function refresh(GenericWrittenEvent $event): void
+    {
+        $ids = $this->eventIdExtractor->getProductIds($event);
+
+        $this->update($ids, $event->getContext());
+    }
+
+    private function update(array $ids, ApplicationContext $context): void
+    {
+        if (empty($ids)) {
+            return;
+        }
+
         $prices = $this->fetchPrices($ids, $context);
 
         $field = new ContextPricesJsonField('tmp', 'tmp');

@@ -81,8 +81,8 @@ class AdministrationSearch
 
             /** @var ArrayStruct $scoreA */
             /** @var ArrayStruct $scoreB */
-            $scoreA = $scoreA ? $scoreA->get('score') : 0;
-            $scoreB = $scoreB ? $scoreB->get('score') : 0;
+            $scoreA = $scoreA ? $scoreA->get('_score') : 0;
+            $scoreB = $scoreB ? $scoreB->get('_score') : 0;
 
             return (float) $scoreB <=> (float) $scoreA;
         });
@@ -168,7 +168,7 @@ class AdministrationSearch
 
                 /** @var ArrayStruct $extension */
                 $extension = $entity->getExtension('search');
-                $extension->set('score', (float) $extension->get('score') * $score);
+                $extension->set('_score', (float) $extension->get('_score') * $score);
             }
         }
 

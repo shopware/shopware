@@ -840,15 +840,15 @@ class ProductRepositoryTest extends KernelTestCase
 
         $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromStringToBytes($parentId)]);
         $this->assertContains($parentCategory, json_decode($row['category_tree'], true));
-        $this->assertEquals($parentId, Uuid::fromBytesToHex($row['category_join_id']));
+        $this->assertEquals($parentId, Uuid::fromBytesToHex($row['categories']));
 
         $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromStringToBytes($redId)]);
-        $this->assertNull($row['category_tree']);
-        $this->assertEquals($parentId, Uuid::fromBytesToHex($row['category_join_id']));
+        $this->assertContains($parentCategory, json_decode($row['category_tree'], true));
+        $this->assertEquals($parentId, Uuid::fromBytesToHex($row['categories']));
 
         $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromStringToBytes($greenId)]);
         $this->assertContains($greenCategory, json_decode($row['category_tree'], true));
-        $this->assertEquals($greenId, Uuid::fromBytesToHex($row['category_join_id']));
+        $this->assertEquals($greenId, Uuid::fromBytesToHex($row['categories']));
     }
 
     public function testSearchByInheritedName()

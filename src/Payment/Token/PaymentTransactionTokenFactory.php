@@ -41,9 +41,9 @@ class PaymentTransactionTokenFactory implements PaymentTransactionTokenFactoryIn
                 'payment_method_id' => Uuid::fromStringToBytes($transaction->getPaymentMethodId()),
                 'payment_method_tenant_id' => $tenantId,
                 'payment_method_version_id' => $versionId,
-                'transaction_id' => Uuid::fromStringToBytes($transaction->getId()),
-                'transaction_tenant_id' => $tenantId,
-                'transaction_version_id' => $versionId,
+                'order_transaction_id' => Uuid::fromStringToBytes($transaction->getId()),
+                'order_transaction_tenant_id' => $tenantId,
+                'order_transaction_version_id' => $versionId,
                 'expires' => $expires->format('Y-m-d H:i:s'),
             ]
         );
@@ -70,7 +70,7 @@ class PaymentTransactionTokenFactory implements PaymentTransactionTokenFactoryIn
             $row['id'],
             $row['token'],
             Uuid::fromBytesToHex($row['payment_method_id']),
-            Uuid::fromBytesToHex($row['transaction_id']),
+            Uuid::fromBytesToHex($row['order_transaction_id']),
             new \DateTime($row['expires'])
         );
 

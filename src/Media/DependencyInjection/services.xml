@@ -9,7 +9,6 @@
         <service class="Shopware\Media\Extension\UrlExtension" id="Shopware\Media\Extension\UrlExtension">
             <argument id="Shopware\Media\UrlGenerator" type="service"/>
             <tag name="kernel.event_subscriber"/>
-            <tag name="shopware.entity.extension"/>
         </service>
 
         <service class="Shopware\Media\Extension\ThumbnailExtension" id="Shopware\Media\Extension\ThumbnailExtension">

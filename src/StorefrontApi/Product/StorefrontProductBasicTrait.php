@@ -10,11 +10,6 @@ use Shopware\Cart\Price\Struct\CalculatedPriceCollection;
 trait StorefrontProductBasicTrait
 {
     /**
-     * @var ProductMediaBasicCollection
-     */
-    protected $media;
-
-    /**
      * @var CalculatedPrice
      */
     protected $calculatedListingPrice;
@@ -28,25 +23,6 @@ trait StorefrontProductBasicTrait
      * @var CalculatedPrice
      */
     protected $calculatedPrice;
-
-    public function getCover(): ?ProductMediaBasicStruct
-    {
-        return $this->media->filter(
-            function (ProductMediaBasicStruct $media) {
-                return $media->getIsCover();
-            }
-        )->first();
-    }
-
-    public function getMedia(): ProductMediaBasicCollection
-    {
-        return $this->media;
-    }
-
-    public function setMedia(ProductMediaBasicCollection $media): void
-    {
-        $this->media = $media;
-    }
 
     public function isAvailable(): bool
     {

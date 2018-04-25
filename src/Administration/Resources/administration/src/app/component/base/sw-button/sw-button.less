@@ -10,6 +10,7 @@
 @sw-button-transition:               all 0.15s ease-out;
 @sw-button-border-radius:            @border-radius-default;
 @sw-button-font-family:              @font-family-default;
+@sw-button-default-disabled-color:   @color-light-gray;
 
 .sw-button {
     border: 1px solid @sw-button-default-color-border;
@@ -45,9 +46,8 @@
 
     &:disabled,
     &.sw-button--disabled {
-        background: darken(@sw-button-default-color-background, 5%);
-        border-color: darken(@sw-button-default-color-border, 10%);
-        color: lighten(@sw-button-default-color-text, 20%);
+        background-color: @sw-button-default-disabled-color;
+        color: lighten(@sw-button-default-color-text, 25%);
         pointer-events: none;
         cursor: default;
     }

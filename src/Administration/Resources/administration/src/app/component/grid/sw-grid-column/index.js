@@ -52,7 +52,8 @@ Component.register('sw-grid-column', {
                 flex: this.flex,
                 sortable: this.sortable,
                 dataIndex: this.dataIndex,
-                align: this.align
+                align: this.align,
+                editable: this.editable
             });
         }
     }

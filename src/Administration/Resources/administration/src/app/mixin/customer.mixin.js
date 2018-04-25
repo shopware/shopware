@@ -83,7 +83,7 @@ Mixin.register('customer', {
         },
 
         createEmptyCustomer(customerId) {
-            return this.$store.dispatch('customer/createEmptyCroduct', customerId).then(() => {
+            return this.$store.dispatch('customer/createEmptyCustomer', customerId).then(() => {
                 this.isLoaded = true;
                 this.customer = this.customerState;
             });
@@ -94,7 +94,6 @@ Mixin.register('customer', {
 
             return this.$store.dispatch('customer/saveCustomer', this.customer).then((customer) => {
                 this.isLoading = false;
-
                 if (this.$route.name.includes('sw.customer.create')) {
                     this.$router.push({ name: 'sw.customer.detail', params: { id: customer.id } });
                 }

@@ -1,8 +1,8 @@
 import { Component } from 'src/core/shopware';
-import template from './sw-customer-detail-base.html.twig';
-import './sw-customer-detail-base.less';
+import template from './sw-customer-base-info.html.twig';
+import './sw-customer-base-info.less';
 
-Component.register('sw-customer-detail-base', {
+Component.register('sw-customer-base-info', {
     template,
 
     props: {
@@ -15,18 +15,17 @@ Component.register('sw-customer-detail-base', {
             type: Boolean,
             required: true,
             default: false
+        },
+        customerName: {
+            type: String,
+            required: true,
+            default: ''
         }
     },
 
     methods: {
         onEditCustomer() {
-            this.$store.commit('customer/setEditMode', true);
-        }
-    },
-
-    computed: {
-        editMode() {
-            return this.$store.state.customer.editMode;
+            this.$emit('activateCustomerEditMode');
         }
     }
 });

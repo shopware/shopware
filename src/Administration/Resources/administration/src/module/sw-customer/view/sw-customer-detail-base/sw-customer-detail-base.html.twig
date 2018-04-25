@@ -1,0 +1,27 @@
+{% block sw_customer_detail_base %}
+    <div class="sw-customer-detail-base">
+        {% block sw_customer_detail_base_transition %}
+            <transition name="customer-fade" mode="out-in">
+                {% block sw_customer_detail_base_form_card %}
+                    <sw-card title="Account" v-if="editMode" :isLoading="isLoading" key="edit">
+                        {% block sw_customer_detail_base_form %}
+                            <sw-customer-base-form :customer="customer"></sw-customer-base-form>
+                        {% endblock %}
+                    </sw-card>
+                {% endblock %}
+
+                {% block sw_customer_detail_base_info_card %}
+                    <sw-card title="Account" v-else class="sw-customer-detail-base__info" key="view" :isLoading="isLoading">
+                        {% block sw_customer_detail_base_info %}
+                            <sw-customer-base-info @activateCustomerEditMode="onActivateCustomerEditMode"
+                                                   :customerName="customerName"
+                                                   :customer="customer"
+                                                   :isLoading="isLoading">
+                            </sw-customer-base-info>
+                        {% endblock %}
+                    </sw-card>
+                {% endblock %}
+            </transition>
+        {% endblock %}
+    </div>
+{% endblock %}

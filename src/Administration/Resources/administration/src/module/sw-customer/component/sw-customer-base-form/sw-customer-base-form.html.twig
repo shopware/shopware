@@ -1,0 +1,92 @@
+{% block sw_customer_base_form %}
+    <div class="sw-customer-base-form">
+        <sw-container grid="1fr 1fr" gap="30px">
+            {% block sw_customer_base_form_first_salutation_field %}
+                <sw-field type="text"
+                          label="Anrede"
+                          name="salutation"
+                          required
+                          v-model="customer.salutation">
+                </sw-field>
+            {% endblock %}
+
+            {% block sw_customer_base_form_first_name_field %}
+                <sw-field type="text"
+                          label="Vorname"
+                          name="firstName"
+                          required
+                          v-model="customer.firstName">
+                </sw-field>
+            {% endblock %}
+
+            {% block sw_customer_base_form_last_name_field %}
+                <sw-field type="text"
+                          label="Nachname"
+                          name="lastName"
+                          v-model="customer.lastName">
+                </sw-field>
+            {% endblock %}
+
+            {% block sw_customer_base_form_email_field %}
+                <sw-field type="email"
+                          label="Email"
+                          name="email"
+                          v-model="customer.email">
+                </sw-field>
+            {% endblock %}
+
+            {% block sw_customer_base_form_phone_field %}
+                <sw-field type="text"
+                          label="Telefonnummer"
+                          name="phone"
+                          disabled>
+                </sw-field>
+            {% endblock %}
+
+            {% block sw_customer_base_form_company_field %}
+                <sw-field type="text"
+                          label="Firma"
+                          name="company"
+                          disabled>
+                </sw-field>
+            {% endblock %}
+
+            {% block sw_customer_base_form_customer_group_field %}
+                <sw-field type="text"
+                          label="Kundengruppe"
+                          name="customerGroup"
+                          v-model="customer.group.name"
+                          disabled>
+                </sw-field>
+            {% endblock %}
+
+            {% block sw_customer_base_form_shop_field %}
+                <sw-field type="text"
+                          label="Shop"
+                          name="shop"
+                          v-model="customer.shop.host"
+                          disabled>
+                </sw-field>
+            {% endblock %}
+
+            {% block sw_customer_base_form_customer_number_field %}
+                <sw-field type="text"
+                          label="Kundennummer"
+                          name="number"
+                          v-model="customer.number">
+                </sw-field>
+            {% endblock %}
+
+            {% block sw_customer_base_form_birthday_field %}
+                <sw-field type="date"
+                          label="Geburtsdatum"
+                          name="birthday"
+                          v-model="customer.birthday">
+                    {% block sw_customer_base_form_birthday_field_icon %}
+                        <sw-icon name="default-calendar-full" small slot="suffix"></sw-icon>
+                    {% endblock %}
+                </sw-field>
+            {% endblock %}
+        </sw-container>
+    </div>
+{% endblock %}

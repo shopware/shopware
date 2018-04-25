@@ -143,6 +143,8 @@ class ApiService {
         const params = Object.assign({ _response: 'detail' }, additionalParams);
         const headers = this.getBasicHeaders(additionalHeaders);
 
+        console.log('API service create');
+
         return this.httpClient
             .post(this.getApiBasePath(), payload, {
                 params,

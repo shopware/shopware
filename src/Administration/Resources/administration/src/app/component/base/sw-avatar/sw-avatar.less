@@ -1,24 +1,18 @@
 @import "~less/variables";
 
-@sw-avatar-color-fallback: @color-light-gray;
+@sw-avatar-color-fallback: darken(@color-light-gray, 10%);
 @sw-avatar-color-initials: @color-white;
-
+@sw-avatar-size-default:   40px;
 
 .sw-avatar {
     display: inline-block;
-    width: 40px;
-    height: 40px;
+    width: @sw-avatar-size-default;
+    height: @sw-avatar-size-default;
     border-radius: 100%;
     background: @sw-avatar-color-fallback no-repeat center center;
     background-size: cover;
     text-align: center;
-    cursor: default;
-
-    .sw-avatar__initials {
-        font-weight: bold;
-        color: @sw-avatar-color-initials;
-        font-size: 2.0em;
-        line-height: 2.5em;
-        user-select: none;
-    }
+    font-weight: 600;
+    color: @sw-avatar-color-initials;
+    user-select: none;
 }

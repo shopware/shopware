@@ -1,7 +1,10 @@
 import { Module } from 'src/core/shopware';
 import './page/sw-customer-list';
 import './page/sw-customer-detail';
-import './page/view/sw-customer-detail-base';
+import './page/sw-customer-create';
+import './view/sw-customer-detail-base';
+import './component/sw-customer-base-form';
+import './component/sw-customer-base-info';
 
 Module.register('sw-customer', {
     type: 'core',
@@ -18,6 +21,23 @@ Module.register('sw-customer', {
                 default: 'sw-customer-list'
             },
             path: 'index/:offset?/:limit?/:sortBy?/:sortDirection?/:term?/:filters?'
+        },
+
+        create: {
+            component: 'sw-customer-create',
+            path: 'create/:edit?',
+            redirect: {
+                name: 'sw.customer.create.base'
+            },
+            children: {
+                base: {
+                    component: 'sw-customer-detail-base',
+                    path: 'base',
+                    meta: {
+                        parentPath: 'sw.customer.index'
+                    }
+                }
+            }
         },
 
         detail: {

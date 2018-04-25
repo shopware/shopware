@@ -5,8 +5,20 @@ import './sw-avatar.less';
 Component.register('sw-avatar', {
     template,
 
+    data() {
+        return {
+            fontSize: 16,
+            lineHeight: 16
+        };
+    },
+
     props: {
         image: {
+            type: String,
+            required: false,
+            default: ''
+        },
+        color: {
             type: String,
             required: false,
             default: ''
@@ -19,13 +31,24 @@ Component.register('sw-avatar', {
             type: Object,
             required: false,
             default() {
-                return {};
+                return {
+                    firstName: '',
+                    lastName: ''
+                };
             }
-        },
-        isLoading: {
-            type: Boolean,
-            required: false,
-            default: false
+        }
+    },
+
+    mounted() {
+        this.generateAvatarInitialsSize();
+    },
+
+    methods: {
+        generateAvatarInitialsSize() {
+            const avatarSize = this.$refs.swAvatar.offsetHeight;
+
+            this.fontSize = Math.round(avatarSize * 0.4);
+            this.lineHeight = Math.round(avatarSize * 0.98);
         }
     },
 
@@ -39,22 +62,35 @@ Component.register('sw-avatar', {
             };
         },
 
-        userInitials() {
+        avatarInitials() {
             const user = this.user;
 
-            if (!user.firstName || !user.lastName) {
+            if (!user.firstName && !user.lastName) {
                 return '';
             }
 
-            const firstNameLetter = user.firstName.substring(0, 1);
-            const lastNameLetter = user.lastName.substring(0, 1);
+            const firstNameLetter = user.firstName ? user.firstName.substring(0, 1) : '';
+            const lastNameLetter = user.lastName ? user.lastName.substring(0, 1) : '';
 
             return `${firstNameLetter} ${lastNameLetter}`;
+        },
+
+        avatarInitialsSize() {
+            return {
+                'font-size': `${this.fontSize}px`,
+                'line-height': `${this.lineHeight}px`
+            };
         },
 
         avatarImage() {
             return {
                 'background-image': `url(${this.image})`
+            };
+        },
+
+        avatarColor() {
+            return {
+                'background-color': this.color
             };
         }
     }

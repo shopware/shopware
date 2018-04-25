@@ -1,5 +1,5 @@
 import { State } from 'src/core/shopware';
-import { types } from 'src/core/service/util.service';
+import utils, { types } from 'src/core/service/util.service';
 import { deepCopyObject, getAssociatedDeletions, getObjectChangeSet } from 'src/core/service/utils/object.utils';
 
 /**
@@ -103,6 +103,39 @@ State.register('customer', {
         },
 
         /**
+         * Create an empty customer object with all possible properties from the entity definition.
+         * The object can be used in the data binding for creating a new customer.
+         * It will be marked with a `ìsNew` property.
+         *
+         * @type action
+         * @memberOf module:app/state/customer
+         * @param {Function} commit
+         * @param {Object} state
+         * @param {String|null} [customerId=null]
+         * @returns {String|null}
+         */
+        createEmptyCustomer({ commit, state }, customerId = null) {
+            if (customerId === null) {
+                customerId = utils.createId();
+            }
+
+            if (typeof state.draft[customerId] !== 'undefined') {
+                return state.draft[customerId];
+            }
+
+            const customer = Shopware.Entity.getRawEntityObject('customer', true);
+
+            customer.id = customerId;
+            customer.isDetail = true;
+            customer.isNew = true;
+            console.log('le customer', customer);
+
+            commit('initCustomer', customer);
+
+            return customerId;
+        },
+
+        /**
          * Saves the given customer to the server by sending a changeset.
          *
          * @type action
@@ -110,9 +143,11 @@ State.register('customer', {
          * @param {Function} commit
          * @param {Object} state
          * @param {Object} customer
-         * @return {Promise}
+         * @return {Promise<T>}
          */
         saveCustomer({ commit, state }, customer) {
+            console.log(customer.id);
+
             if (!customer.id) {
                 return Promise.reject();
             }
@@ -122,6 +157,26 @@ State.register('customer', {
 
             const changeset = getObjectChangeSet(state.original[customer.id], customer, 'customer');
             const deletions = getAssociatedDeletions(state.original[customer.id], customer, 'customer');
+
+            // @Todo: Just a test
+            changeset.defaultShippingAddress = {
+                id: utils.createId(),
+                firstName: 'foo',
+                lastName: 'foo',
+                city: 'foo',
+                street: 'foo',
+                zipcode: '2312',
+                salutation: 'foo',
+                country: {
+                    name: 'foo'
+                }
+            };
+            changeset.defaultShippingAddressId = changeset.defaultShippingAddress.id;
+            changeset.defaultBillingAddressId = changeset.defaultShippingAddress.id;
+            changeset.shopId = utils.createId();
+            changeset.defaultPaymentMethodId = utils.createId();
+            changeset.groupId = utils.createId();
+            changeset.password = 'shopware';
 
             const deletionCue = [];
 
@@ -135,6 +190,7 @@ State.register('customer', {
                                         resolve(response);
                                     })
                                     .catch((response) => {
+                                        console.log('YAAAAAAAAAAAAAAAAAAAAAAAAAAAAY4');
                                         reject(response);
                                     });
                             }));
@@ -157,13 +213,7 @@ State.register('customer', {
                             return newCustomer;
                         })
                         .catch((exception) => {
-                            if (exception.response.data && exception.response.data.errors) {
-                                exception.response.data.errors.forEach((error) => {
-                                    commit('addCustomerError', error);
-                                });
-                            }
-
-                            return exception;
+                            return Promise.reject(exception);
                         });
                 }
 
@@ -179,7 +229,7 @@ State.register('customer', {
                             });
                         }
 
-                        return exception;
+                        return Promise.reject(exception);
                     });
             }).catch((deleteException) => {
                 if (deleteException.response.data && deleteException.response.data.errors) {
@@ -188,7 +238,7 @@ State.register('customer', {
                     });
                 }
 
-                return deleteException;
+                return Promise.reject(deleteException);
             });
         }
     },
@@ -220,7 +270,7 @@ State.register('customer', {
          * Updates a customer in the state.
          *
          * @type mutation
-         * @memberOf module:app/state/product
+         * @memberOf module:app/state/customer
          * @param {Object} state
          * @param {Object} customer
          * @returns {void}
@@ -231,10 +281,6 @@ State.register('customer', {
             }
 
             Object.assign(state.draft[customer.id], customer);
-        },
-
-        setEditMode(state, editMode) {
-            state.editMode = editMode;
         },
 
         /**

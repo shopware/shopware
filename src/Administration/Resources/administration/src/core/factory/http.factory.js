@@ -24,11 +24,6 @@ export default function createHTTPClient(context) {
  */
 function createClient(context) {
     return Axios.create({
-        baseURL: context.apiPath,
-        headers: {
-            common: {
-                'Accept-Language': 'en-UK'
-            }
-        }
+        baseURL: context.apiPath
     });
 }

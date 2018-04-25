@@ -1,17 +1,22 @@
 {% block sw_customer_detail %}
     <sw-page class="sw-customer-detail">
-
         {% block sw_customer_detail_header %}
             <template slot="smart-bar-header">
-                <h2 v-if="customer.firstName || customer.lastName">{{ customer.firstName + ' ' + customer.lastName }}</h2>
+                <h2 v-if="customerName">{{ customerName }}</h2>
                 <h2 v-else>Neuer Kunde</h2>
             </template>
         {% endblock %}
 
         {% block sw_customer_detail_actions %}
             <template slot="smart-bar-actions">
+                {% block sw_customer_detail_actions_abort_editing %}
+                    <sw-button v-if="customerEditMode" :disabled="isLoading" @click.prevent="onDisableCustomerEditMode">
+                        Abbrechen
+                    </sw-button>
+                {% endblock %}
+
                 {% block sw_customer_detail_actions_abort %}
-                    <sw-button :disabled="isLoading" link="sw.customer.index" @click.prevent="onAbort">
+                    <sw-button v-else :disabled="isLoading" link="sw.customer.index">
                         Abbrechen
                     </sw-button>
                 {% endblock %}
@@ -28,12 +33,18 @@
             <sw-card-view slot="content">
                 {% block sw_customer_detail_content_tabs %}
                     <sw-tabs class="sw-customer-detail-page__tabs">
-                        <sw-tabs-item :route="{ name: 'sw.customer.detail.base', params: { id: $route.params.id } }" title="Allgemein">Allgemein</sw-tabs-item>
+                        <sw-tabs-item :route="{ name: 'sw.customer.detail.base', params: { id: $route.params.id } }" title="Allgemein">
+                            Allgemein
+                        </sw-tabs-item>
                     </sw-tabs>
                 {% endblock %}
 
                 {% block sw_customer_detail_content_view %}
-                    <router-view :customer="customer" :isLoading="isLoading">
+                    <router-view :customer="customer"
+                                 :customerName="customerName"
+                                 :isLoading="isLoading"
+                                 :customerEditMode="customerEditMode"
+                                 @activateCustomerEditMode="onActivateCustomerEditMode">
                     </router-view>
                 {% endblock %}
             </sw-card-view>

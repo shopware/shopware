@@ -24,7 +24,6 @@ $media1->setMimeType('image/jpg');
 $media1->setFileSize(18921);
 $media1->setCreatedAt(date_create_from_format(\DateTime::ATOM, '2012-08-15T00:00:00+00:00'));
 $media1->setUpdatedAt(date_create_from_format(\DateTime::ATOM, '2017-11-21T11:25:34+00:00'));
-$media1->setUrl('http://shopware.next/media/13/9c/a6/Lagerkorn-50klein.jpg');
 $media1->setName('Lagerkorn-5,0klein');
 
 $media2 = new \Shopware\Api\Media\Struct\MediaBasicStruct();
@@ -36,7 +35,6 @@ $media2->setMimeType('image/jpg');
 $media2->setFileSize(155633);
 $media2->setCreatedAt(date_create_from_format(\DateTime::ATOM, '2012-08-17T00:00:00+00:00'));
 $media2->setUpdatedAt(date_create_from_format(\DateTime::ATOM, '2017-11-21T11:25:34+00:00'));
-$media2->setUrl('http://shopware.next/media/63/4d/5a/Jasmine-Lotus-Cover.jpg');
 $media2->setName('Jasmine-Lotus-Cover');
 
 $mediaCollection->add($media1);

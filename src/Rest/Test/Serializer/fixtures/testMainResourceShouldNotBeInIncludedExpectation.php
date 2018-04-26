@@ -62,7 +62,6 @@ return [
                 'createdAt' => '2012-08-15T00:00:00+00:00',
                 'updatedAt' => '2017-11-21T11:25:34+00:00',
                 'description' => null,
-                'url' => 'http://shopware.next/media/13/9c/a6/Lagerkorn-50klein.jpg',
                 'versionId' => null,
                 'mediaAlbumVersionId' => null,
                 'userVersionId' => null,

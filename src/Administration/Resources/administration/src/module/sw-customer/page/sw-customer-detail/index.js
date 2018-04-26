@@ -36,13 +36,17 @@ Component.register('sw-customer-detail', {
 
     methods: {
         onSave() {
+            const customerName = this.customerName;
+            const titleSaveSuccess = this.$tc('sw-customer.detail.titleSaveSuccess');
+            const messageSaveSuccess = this.$tc('sw-customer.detail.messageSaveSuccess', customerName, {
+                name: customerName
+            });
+
             this.saveCustomer().then(() => {
                 this.customerEditMode = false;
                 this.createNotificationSuccess({
-                    title: this.$tc('sw-customer.detail.titleSaveSuccess'),
-                    message: this.$tc('sw-customer.detail.messageSaveSuccess', this.customerName, {
-                        name: this.customerName
-                    })
+                    title: titleSaveSuccess,
+                    message: messageSaveSuccess
                 });
             });
         },

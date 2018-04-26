@@ -31,7 +31,7 @@ class ProductCoverFieldResolver implements FieldResolverInterface
 
         $mapping = [
             '#root#' => EntityDefinitionQueryHelper::escape($root),
-            '#source_column#' => EntityDefinitionQueryHelper::escape($field->getJoinField()),
+            '#source_column#' => EntityDefinitionQueryHelper::escape($field->getStorageName()),
             '#alias#' => EntityDefinitionQueryHelper::escape($alias),
             '#reference_column#' => EntityDefinitionQueryHelper::escape($field->getReferenceField())
         ];

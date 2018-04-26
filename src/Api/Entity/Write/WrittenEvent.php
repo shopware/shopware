@@ -2,6 +2,7 @@
 
 namespace Shopware\Api\Entity\Write;
 
+use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
@@ -46,6 +47,9 @@ abstract class WrittenEvent extends NestedEvent
         $this->payload = $payload;
     }
 
+    /**
+     * @return string|EntityDefinition
+     */
     abstract public function getDefinition(): string;
 
     public function getContext(): ApplicationContext

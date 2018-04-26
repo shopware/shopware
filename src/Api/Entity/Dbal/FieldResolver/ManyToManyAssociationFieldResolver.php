@@ -8,6 +8,8 @@ use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Field\Field;
 use Shopware\Api\Entity\Field\ManyToManyAssociationField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
+use Shopware\Api\Entity\Write\Flag\CascadeDelete;
+use Shopware\Api\Entity\Write\Flag\Inherited;
 use Shopware\Context\Struct\ApplicationContext;
 
 class ManyToManyAssociationFieldResolver implements FieldResolverInterface
@@ -39,26 +41,34 @@ class ManyToManyAssociationFieldResolver implements FieldResolverInterface
 
         $versionJoinCondition = '';
         /** @var string|EntityDefinition $definition */
-        if ($definition::isVersionAware() && $mapping::isVersionAware() && $field->is(CascadeDelete::class)) {
+        if ($definition::isVersionAware() && $field->is(CascadeDelete::class)) {
             $versionField = $definition::getEntityName() . '_version_id';
             $versionJoinCondition = ' AND #root#.version_id = #alias#.' . $versionField;
         }
 
         $tenantField = EntityDefinitionQueryHelper::escape($definition::getEntityName() . '_tenant_id');
 
+        $source = EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getLocalField());
+        if ($field->is(Inherited::class)) {
+            $source = EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getPropertyName());
+        }
+
+        $parameters = [
+            '#root#' => EntityDefinitionQueryHelper::escape($root),
+            '#source#' => $source,
+            '#alias#' => EntityDefinitionQueryHelper::escape($mappingAlias),
+            '#reference_column#' => EntityDefinitionQueryHelper::escape($field->getMappingLocalColumn()),
+        ];
+
         $query->leftJoin(
             EntityDefinitionQueryHelper::escape($root),
             EntityDefinitionQueryHelper::escape($table),
             EntityDefinitionQueryHelper::escape($mappingAlias),
             str_replace(
-                ['#root#', '#source_column#', '#alias#', '#reference_column#'],
-                [
-                    EntityDefinitionQueryHelper::escape($root),
-                    EntityDefinitionQueryHelper::escape('id'),
-                    EntityDefinitionQueryHelper::escape($mappingAlias),
-                    EntityDefinitionQueryHelper::escape($field->getMappingLocalColumn()),
-                ],
-                '#root#.#source_column# = #alias#.#reference_column#' . $versionJoinCondition .
+                array_keys($parameters),
+                array_values($parameters),
+                '#source# = #alias#.#reference_column#' .
+                $versionJoinCondition .
                 ' AND #root#.`tenant_id` = #alias#.' . $tenantField
             )
         );
@@ -73,7 +83,7 @@ class ManyToManyAssociationFieldResolver implements FieldResolverInterface
         /* @var string|EntityDefinition $definition */
         if ($reference::isVersionAware()) {
             $versionField = $reference::getEntityName() . '_version_id';
-            $versionJoinCondition = 'AND #alias#.version_id = #mapping#.' . $versionField;
+            $versionJoinCondition = ' AND #alias#.version_id = #mapping#.' . $versionField;
         }
 
         $catalogJoinCondition = '';
@@ -86,20 +96,25 @@ class ManyToManyAssociationFieldResolver implements FieldResolverInterface
             $tenantJoinCondition = ' AND #root#.tenant_id = #alias#.tenant_id';
         }
 
+        $parameters = [
+            '#mapping#' => EntityDefinitionQueryHelper::escape($mappingAlias),
+            '#source_column#' => EntityDefinitionQueryHelper::escape($field->getMappingReferenceColumn()),
+            '#alias#' => EntityDefinitionQueryHelper::escape($alias),
+            '#reference_column#' => EntityDefinitionQueryHelper::escape($field->getReferenceField()),
+            '#root#' => EntityDefinitionQueryHelper::escape($root),
+        ];
+
         $query->leftJoin(
             EntityDefinitionQueryHelper::escape($mappingAlias),
             EntityDefinitionQueryHelper::escape($table),
             EntityDefinitionQueryHelper::escape($alias),
             str_replace(
-                ['#mapping#', '#source_column#', '#alias#', '#reference_column#', '#root#'],
-                [
-                    EntityDefinitionQueryHelper::escape($mappingAlias),
-                    EntityDefinitionQueryHelper::escape($field->getMappingReferenceColumn()),
-                    EntityDefinitionQueryHelper::escape($alias),
-                    EntityDefinitionQueryHelper::escape($field->getReferenceField()),
-                    EntityDefinitionQueryHelper::escape($root),
-                ],
-                '#mapping#.#source_column# = #alias#.#reference_column# ' . $versionJoinCondition . $catalogJoinCondition . $tenantJoinCondition
+                array_keys($parameters),
+                array_values($parameters),
+                '#mapping#.#source_column# = #alias#.#reference_column# ' .
+                $versionJoinCondition .
+                $catalogJoinCondition .
+                $tenantJoinCondition
             )
         );
 

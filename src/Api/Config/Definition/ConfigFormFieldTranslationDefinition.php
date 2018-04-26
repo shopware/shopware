@@ -57,7 +57,7 @@ class ConfigFormFieldTranslationDefinition extends EntityDefinition
             new VersionField(),
 
             (new FkField('config_form_field_id', 'configFormFieldId', ConfigFormFieldDefinition::class))->setFlags(new Required()),
-            (new ReferenceVersionField(ConfigFormFieldDefinition::class))->setFlags(new Required()),
+            (new ReferenceVersionField(ConfigFormFieldDefinition::class))->setFlags(new PrimaryKey(), new Required()),
 
             (new FkField('locale_id', 'localeId', LocaleDefinition::class))->setFlags(new Required()),
             (new ReferenceVersionField(LocaleDefinition::class))->setFlags(new Required()),

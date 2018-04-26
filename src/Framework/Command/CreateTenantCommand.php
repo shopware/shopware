@@ -171,7 +171,7 @@ class CreateTenantCommand extends ContainerAwareCommand
         $this->importTable(
             $tenantId,
             'country_translation',
-            ['country_id', 'version_id', 'language_id', 'name'],
+            ['country_id', 'country_version_id', 'language_id', 'name'],
             ['country_tenant_id', 'language_tenant_id'],
             [
                 [hex2bin('ffe61e1c99154f9597014a310ab5482d'), hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('ffffffffffffffffffffffffffffffff'), 'Griechenland'],
@@ -228,7 +228,7 @@ class CreateTenantCommand extends ContainerAwareCommand
         $this->importTable(
             $tenantId,
             'country_area_translation',
-            ['country_area_id', 'version_id', 'language_id', 'name'],
+            ['country_area_id', 'country_area_version_id', 'language_id', 'name'],
             ['country_area_tenant_id', 'language_tenant_id'],
             [
                 [hex2bin('5cff02b1029741a4891c430bcd9e3603'), hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('ffffffffffffffffffffffffffffffff'), 'deutschland'],
@@ -318,7 +318,7 @@ class CreateTenantCommand extends ContainerAwareCommand
         $this->importTable(
             $tenantId,
             'country_state_translation',
-            ['country_state_id', 'version_id',  'language_id', 'name'],
+            ['country_state_id', 'country_state_version_id',  'language_id', 'name'],
             ['country_state_tenant_id', 'language_tenant_id'],
             [
                 [hex2bin('7adc050dffa94b89ae4c834ecc456ee6'), hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('ffffffffffffffffffffffffffffffff'), 'Hamburg'],
@@ -406,7 +406,7 @@ class CreateTenantCommand extends ContainerAwareCommand
         $this->importTable(
             $tenantId,
             'order_state_translation',
-            ['description', 'version_id', 'order_state_id', 'language_id'],
+            ['description', 'order_state_version_id', 'order_state_id', 'language_id'],
             ['order_state_tenant_id', 'language_tenant_id'],
             [
                 ['Offen', hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('1194A493806742C9B85E61F1F2CF9BE8'), hex2bin('ffffffffffffffffffffffffffffffff')]
@@ -431,7 +431,7 @@ class CreateTenantCommand extends ContainerAwareCommand
         $this->importTable(
             $tenantId,
             'order_transaction_state_translation',
-            ['order_transaction_state_id', 'version_id', 'language_id', 'language_version_id', 'description'],
+            ['order_transaction_state_id', 'order_transaction_state_version_id', 'language_id', 'language_version_id', 'description'],
             ['order_transaction_state_tenant_id', 'language_tenant_id'],
             [
                 [hex2bin('099E79DBFA9F43E4876B172FF58359F2'), hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('FFA32A50E2D04CF38389A53F8D6CD594'), hex2bin('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'), 'Open'],
@@ -457,7 +457,7 @@ class CreateTenantCommand extends ContainerAwareCommand
         $this->importTable(
             $tenantId,
             'currency_translation',
-            ['currency_id', 'version_id', 'language_id', 'short_name', 'name'],
+            ['currency_id', 'currency_version_id', 'language_id', 'short_name', 'name'],
             ['currency_tenant_id', 'language_tenant_id'],
             [
                 [hex2bin('4c8eba11bd3546d786afbed481a6e665'), hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('ffffffffffffffffffffffffffffffff'), 'EUR', 'Euro'],
@@ -482,7 +482,7 @@ class CreateTenantCommand extends ContainerAwareCommand
         $this->importTable(
             $tenantId,
             'customer_group_translation',
-            ['customer_group_id', 'version_id', 'language_id', 'name'],
+            ['customer_group_id', 'customer_group_version_id', 'language_id', 'name'],
             ['customer_group_tenant_id', 'language_tenant_id'],
             [
                 [hex2bin('3294e6f6372b415fac7371cbc191548f'), hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('ffffffffffffffffffffffffffffffff'), 'Shopkunden'],
@@ -759,7 +759,7 @@ class CreateTenantCommand extends ContainerAwareCommand
         $this->importTable(
             $tenantId,
             'locale_translation',
-            ['locale_id', 'version_id', 'language_id', 'name', 'territory'],
+            ['locale_id', 'locale_version_id', 'language_id', 'name', 'territory'],
             ['locale_tenant_id', 'language_tenant_id'],
             [
                 [hex2bin('7b52d9dd2b0640ec90be9f57edf29be7'), hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('ffffffffffffffffffffffffffffffff'), 'Deutsch', 'Deutschland'],
@@ -1063,7 +1063,7 @@ class CreateTenantCommand extends ContainerAwareCommand
         $this->importTable(
             $tenantId,
             'category_translation',
-            ['category_id', 'catalog_id', 'version_id', 'language_id', 'name', 'path_names', 'meta_keywords', 'meta_title', 'meta_description', 'cms_headline', 'cms_description'],
+            ['category_id', 'catalog_id', 'category_version_id', 'language_id', 'name', 'path_names', 'meta_keywords', 'meta_title', 'meta_description', 'cms_headline', 'cms_description'],
             ['category_tenant_id', 'language_tenant_id', 'catalog_tenant_id'],
             [
                 [hex2bin('57f4ecb1162843e69dabc4a6a7b66eab'), hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('ffffffffffffffffffffffffffffffff'),hex2bin('ffffffffffffffffffffffffffffffff'), 'Root', NULL, NULL, NULL, NULL, NULL, NULL],
@@ -1091,7 +1091,7 @@ class CreateTenantCommand extends ContainerAwareCommand
         $this->importTable(
             $tenantId,
             'payment_method_translation',
-            ['payment_method_id', 'version_id', 'language_id', 'name', 'additional_description'],
+            ['payment_method_id', 'payment_method_version_id', 'language_id', 'name', 'additional_description'],
             ['payment_method_tenant_id', 'language_tenant_id'],
             [
                 [hex2bin('e84976ace9ab4928a3dcc387b66dbaa6'), hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('ffffffffffffffffffffffffffffffff'), 'Debit', 'Additional text'],
@@ -1117,7 +1117,7 @@ class CreateTenantCommand extends ContainerAwareCommand
         $this->importTable(
             $tenantId,
             'shipping_method_translation',
-            ['shipping_method_id', 'version_id', 'language_id', 'name', 'description', 'comment'],
+            ['shipping_method_id', 'shipping_method_version_id', 'language_id', 'name', 'description', 'comment'],
             ['shipping_method_tenant_id', 'language_tenant_id'],
             [
                  [hex2bin('417beeb2dddf45d1b90188fd211343c3'), hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('ffffffffffffffffffffffffffffffff'), 'Standard Versand', '', '']
@@ -1155,7 +1155,7 @@ class CreateTenantCommand extends ContainerAwareCommand
         $this->importTable(
             $tenantId,
             'listing_sorting_translation',
-            ['listing_sorting_id', 'language_id', 'version_id', 'label'],
+            ['listing_sorting_id', 'language_id', 'listing_sorting_version_id', 'label'],
             ['listing_sorting_tenant_id', 'language_tenant_id'],
             [
                 [hex2bin('361D52E6A9894467B4FEAF5E5A799383'), hex2bin('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'), hex2bin('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'), 'Cheapest price'],

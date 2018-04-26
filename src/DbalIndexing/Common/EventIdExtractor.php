@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\DbalIndexing\Product;
+namespace Shopware\DbalIndexing\Common;
 
 use Shopware\Api\Category\Definition\CategoryDefinition;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;

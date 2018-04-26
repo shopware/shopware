@@ -20,6 +20,7 @@ use Shopware\Api\Entity\Search\AggregatorResult;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntityAggregatorInterface;
 use Shopware\Api\Entity\Search\Parser\SqlQueryParser;
+use Shopware\Api\Entity\Write\Flag\Inherited;
 use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Struct\Uuid;
@@ -116,16 +117,16 @@ class EntityAggregator implements EntityAggregatorInterface
     private function fetchAggregation(string $definition, QueryBuilder $query, Aggregation $aggregation, ApplicationContext $context)
     {
         /** @var EntityDefinition|string $definition */
-        $field = $this->queryHelper->getFieldAccessor(
+        $accessor = $this->queryHelper->getFieldAccessor(
             $aggregation->getField(),
             $definition,
             $definition::getEntityName(),
             $context
         );
-
+        
         if ($aggregation instanceof EntityAggregation) {
-            $query->select([$field]);
-            $query->groupBy($field);
+            $query->select([$accessor]);
+            $query->groupBy($accessor);
 
             $ids = $query->execute()->fetchAll(\PDO::FETCH_COLUMN);
             $ids = array_filter($ids);
@@ -139,10 +140,10 @@ class EntityAggregator implements EntityAggregatorInterface
 
         if ($aggregation instanceof ValueCountAggregation) {
             $query->select([
-                $field . ' as `key`',
-                'COUNT(' . $field . ')' . ' as `count`',
+                $accessor . ' as `key`',
+                'COUNT(' . $accessor . ')' . ' as `count`',
             ]);
-            $query->groupBy($field);
+            $query->groupBy($accessor);
 
             return $query->execute()->fetchAll(\PDO::FETCH_ASSOC);
         }
@@ -150,19 +151,19 @@ class EntityAggregator implements EntityAggregatorInterface
         if ($aggregation instanceof StatsAggregation) {
             $select = [];
             if ($aggregation->fetchCount()) {
-                $select[] = 'COUNT(' . $field . ')' . ' as `count`';
+                $select[] = 'COUNT(' . $accessor . ')' . ' as `count`';
             }
             if ($aggregation->fetchAvg()) {
-                $select[] = 'AVG(' . $field . ')' . ' as `avg`';
+                $select[] = 'AVG(' . $accessor . ')' . ' as `avg`';
             }
             if ($aggregation->fetchSum()) {
-                $select[] = 'SUM(' . $field . ')' . ' as `sum`';
+                $select[] = 'SUM(' . $accessor . ')' . ' as `sum`';
             }
             if ($aggregation->fetchMin()) {
-                $select[] = 'MIN(' . $field . ')' . ' as `min`';
+                $select[] = 'MIN(' . $accessor . ')' . ' as `min`';
             }
             if ($aggregation->fetchMax()) {
-                $select[] = 'MAX(' . $field . ')' . ' as `max`';
+                $select[] = 'MAX(' . $accessor . ')' . ' as `max`';
             }
 
             if (empty($select)) {
@@ -176,43 +177,43 @@ class EntityAggregator implements EntityAggregatorInterface
 
         if ($aggregation instanceof StatsAggregation) {
             $query->select([
-                'COUNT(' . $field . ')' . ' as `count`',
-                'AVG(' . $field . ')' . ' as `avg`',
-                'SUM(' . $field . ')' . ' as `sum`',
-                'MIN(' . $field . ')' . ' as `min`',
-                'MAX(' . $field . ')' . ' as `max`',
+                'COUNT(' . $accessor . ')' . ' as `count`',
+                'AVG(' . $accessor . ')' . ' as `avg`',
+                'SUM(' . $accessor . ')' . ' as `sum`',
+                'MIN(' . $accessor . ')' . ' as `min`',
+                'MAX(' . $accessor . ')' . ' as `max`',
             ]);
 
             return $query->execute()->fetch(\PDO::FETCH_ASSOC);
         }
 
         if ($aggregation instanceof CardinalityAggregation) {
-            $query->select([$field]);
-            $query->groupBy($field);
+            $query->select([$accessor]);
+            $query->groupBy($accessor);
 
             return $query->execute()->fetchAll(\PDO::FETCH_COLUMN);
         }
 
         if ($aggregation instanceof AvgAggregation) {
-            $query->select('AVG(' . $field . ')');
+            $query->select('AVG(' . $accessor . ')');
 
             return $query->execute()->fetch(\PDO::FETCH_COLUMN);
         }
 
         if ($aggregation instanceof MaxAggregation) {
-            $query->select('MAX(' . $field . ')');
+            $query->select('MAX(' . $accessor . ')');
 
             return $query->execute()->fetch(\PDO::FETCH_COLUMN);
         }
 
         if ($aggregation instanceof MinAggregation) {
-            $query->select('MIN(' . $field . ')');
+            $query->select('MIN(' . $accessor . ')');
 
             return $query->execute()->fetch(\PDO::FETCH_COLUMN);
         }
 
         if ($aggregation instanceof SumAggregation) {
-            $query->select('SUM(' . $field . ')');
+            $query->select('SUM(' . $accessor . ')');
 
             return $query->execute()->fetch(\PDO::FETCH_COLUMN);
         }

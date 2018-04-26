@@ -117,7 +117,7 @@ class StorefrontContext extends Struct
     /**
      * @var ApplicationContext
      */
-    private $context;
+    protected $context;
 
     /**
      * @var LanguageBasicStruct

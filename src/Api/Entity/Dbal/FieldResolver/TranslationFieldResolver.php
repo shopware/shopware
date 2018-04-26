@@ -56,20 +56,22 @@ class TranslationFieldResolver implements FieldResolverInterface
 
         $versionJoin = '';
         if ($definition::isVersionAware()) {
-            $versionJoin = ' AND #alias#.`version_id` = #root#.`version_id`';
+            $versionJoin = ' AND #alias#.`#entity#_version_id` = #root#.`version_id`';
         }
+
+        $parameters = [
+            '#alias#' => EntityDefinitionQueryHelper::escape($alias),
+            '#entity#' => $definition::getEntityName(),
+            '#root#' => EntityDefinitionQueryHelper::escape($root),
+        ];
 
         $query->leftJoin(
             EntityDefinitionQueryHelper::escape($root),
             EntityDefinitionQueryHelper::escape($table),
             EntityDefinitionQueryHelper::escape($alias),
             str_replace(
-                ['#alias#', '#entity#', '#root#'],
-                [
-                    EntityDefinitionQueryHelper::escape($alias),
-                    $definition::getEntityName(),
-                    EntityDefinitionQueryHelper::escape($root),
-                ],
+                array_keys($parameters),
+                array_values($parameters),
                 '#alias#.#entity#_id = #root#.id AND #alias#.language_id = :languageId' . $versionJoin .
                 ' AND #alias#.#entity#_tenant_id = #root#.tenant_id'
             )
@@ -81,17 +83,19 @@ class TranslationFieldResolver implements FieldResolverInterface
 
         $alias = $root . '.translation.fallback';
 
+        $parameters = [
+            '#alias#' => EntityDefinitionQueryHelper::escape($alias),
+            '#entity#' => $definition::getEntityName(),
+            '#root#' => EntityDefinitionQueryHelper::escape($root),
+        ];
+
         $query->leftJoin(
             EntityDefinitionQueryHelper::escape($root),
             EntityDefinitionQueryHelper::escape($table),
             EntityDefinitionQueryHelper::escape($alias),
             str_replace(
-                ['#alias#', '#entity#', '#root#'],
-                [
-                    EntityDefinitionQueryHelper::escape($alias),
-                    $definition::getEntityName(),
-                    EntityDefinitionQueryHelper::escape($root),
-                ],
+                array_keys($parameters),
+                array_values($parameters),
                 '#alias#.`#entity#_id` = #root#.`id` AND #alias#.`language_id` = :fallbackLanguageId' . $versionJoin .
                 ' AND #alias#.#entity#_tenant_id = #root#.tenant_id'
             )

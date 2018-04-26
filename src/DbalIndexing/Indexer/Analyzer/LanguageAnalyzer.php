@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\DbalIndexing\Search;
+namespace Shopware\DbalIndexing\Indexer\Analyzer;
 
 use Shopware\Api\Entity\Search\Term\SearchFilterInterface;
 use Shopware\Api\Entity\Search\Term\TokenizerInterface;

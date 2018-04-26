@@ -90,7 +90,7 @@ class TokenFactoryTest extends KernelTestCase
 
         $token = $this->connection->fetchAssoc('SELECT * FROM payment_token WHERE token = ?;', [$tokenIdentifier]);
 
-        self::assertEquals($transactionId, Uuid::fromBytesToHex($token['transaction_id']));
+        self::assertEquals($transactionId, Uuid::fromBytesToHex($token['order_transaction_id']));
         self::assertEquals($tokenIdentifier, $token['token']);
         self::assertGreaterThan(new \DateTime(), new \DateTime($token['expires']));
     }

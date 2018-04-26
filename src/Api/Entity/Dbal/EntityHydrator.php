@@ -325,26 +325,22 @@ class EntityHydrator
         }
     }
 
-    private function isInherited(string $definition, array $row, AssociationInterface $association)
+    private function isInherited(string $definition, array $row, AssociationInterface $association): bool
     {
         /* @var string|EntityDefinition $definition */
+        $idField = 'id';
         if ($association instanceof ManyToOneAssociationField) {
-            $joinField = $association->getJoinField();
             $idField = $association->getStorageName();
-        } elseif ($association instanceof ManyToManyAssociationField) {
-            $joinField = $association->getLocalField();
-            $idField = 'id';
-        } else {
-            /** @var OneToManyAssociationField $association */
-            $joinField = $association->getLocalField();
-            $idField = 'id';
         }
 
-        $joinField = $definition::getFields()->getByStorageName($joinField);
         $idField = $definition::getFields()->getByStorageName($idField);
 
-        $joinField = $definition::getEntityName() . '.' . $joinField->getPropertyName();
+        $joinField = '_' . $definition::getEntityName() . '.' . $association->getPropertyName() . '.inherited';
         $idField = $definition::getEntityName() . '.' . $idField->getPropertyName();
+
+        if (!array_key_exists($joinField, $row)) {
+            return false;
+        }
 
         $idValue = $row[$idField];
         $joinValue = $row[$joinField];

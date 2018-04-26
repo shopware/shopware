@@ -72,7 +72,7 @@ class CategoryPathBuilder implements EventSubscriberInterface
 
         $this->eventDispatcher->dispatch(
             ProgressStartedEvent::NAME,
-            new ProgressStartedEvent('Start building category inheritance', $count)
+            new ProgressStartedEvent('Start building category paths', $count)
         );
 
         $parents = $this->loadParents($parentId, $context);
@@ -81,7 +81,7 @@ class CategoryPathBuilder implements EventSubscriberInterface
 
         $this->eventDispatcher->dispatch(
             ProgressFinishedEvent::NAME,
-            new ProgressFinishedEvent('Finished building category inheritance')
+            new ProgressFinishedEvent('Finished building category paths')
         );
     }
 
@@ -102,7 +102,7 @@ class CategoryPathBuilder implements EventSubscriberInterface
         $categories = $this->repository->search($criteria, $context);
 
         $pathUpdate = $this->connection->prepare('UPDATE category SET path = :path, level = :level WHERE id = :id AND version_id = :version AND tenant_id = :tenant');
-        $nameUpdate = $this->connection->prepare('UPDATE category_translation SET path_names = :names WHERE category_id = :id AND version_id = :version AND category_tenant_id = :tenant');
+        $nameUpdate = $this->connection->prepare('UPDATE category_translation SET path_names = :names WHERE category_id = :id AND category_version_id = :version AND category_tenant_id = :tenant');
 
         $version = Uuid::fromStringToBytes($context->getVersionId());
         $tenantId = Uuid::fromHexToBytes($context->getTenantId());

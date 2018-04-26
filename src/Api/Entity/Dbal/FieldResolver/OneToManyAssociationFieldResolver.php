@@ -8,6 +8,7 @@ use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Field\Field;
 use Shopware\Api\Entity\Field\OneToManyAssociationField;
 use Shopware\Api\Entity\Write\Flag\CascadeDelete;
+use Shopware\Api\Entity\Write\Flag\Inherited;
 use Shopware\Context\Struct\ApplicationContext;
 
 class OneToManyAssociationFieldResolver implements FieldResolverInterface
@@ -54,19 +55,28 @@ class OneToManyAssociationFieldResolver implements FieldResolverInterface
             $tenantJoinCondition = ' AND #root#.tenant_id = #alias#.tenant_id';
         }
 
+        $source = EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getLocalField());
+        if ($field->is(Inherited::class)) {
+            $source = EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getPropertyName());
+        }
+        $parameters = [
+            '#source#' => $source,
+            '#alias#' => EntityDefinitionQueryHelper::escape($alias),
+            '#reference_column#' => EntityDefinitionQueryHelper::escape($field->getReferenceField()),
+            '#root#' => EntityDefinitionQueryHelper::escape($root)
+        ];
+
         $query->leftJoin(
             EntityDefinitionQueryHelper::escape($root),
             EntityDefinitionQueryHelper::escape($table),
             EntityDefinitionQueryHelper::escape($alias),
             str_replace(
-                ['#root#', '#source_column#', '#alias#', '#reference_column#'],
-                [
-                    EntityDefinitionQueryHelper::escape($root),
-                    EntityDefinitionQueryHelper::escape($field->getLocalField()),
-                    EntityDefinitionQueryHelper::escape($alias),
-                    EntityDefinitionQueryHelper::escape($field->getReferenceField()),
-                ],
-                '#root#.#source_column# = #alias#.#reference_column#' . $versionJoin . $catalogJoinCondition . $tenantJoinCondition
+                array_keys($parameters),
+                array_values($parameters),
+                '#source# = #alias#.#reference_column#' .
+                $versionJoin .
+                $catalogJoinCondition .
+                $tenantJoinCondition
             )
         );
 

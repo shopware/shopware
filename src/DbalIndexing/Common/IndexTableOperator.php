@@ -25,15 +25,6 @@ class IndexTableOperator
         return $table . '_' . $timestamp->getTimestamp();
     }
 
-    public function renameTable(string $table, \DateTime $timestamp): void
-    {
-        $this->connection->transactional(function () use ($timestamp, $table) {
-            $name = $this->getIndexName($table, $timestamp);
-            $this->connection->executeUpdate('DROP TABLE ' . $table);
-            $this->connection->executeUpdate('ALTER TABLE ' . $name . ' RENAME TO ' . $table);
-        });
-    }
-
     public function createTable(string $table, \DateTime $timestamp): void
     {
         $name = $this->getIndexName($table, $timestamp);

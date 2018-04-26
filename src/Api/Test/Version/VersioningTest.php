@@ -143,7 +143,7 @@ class VersioningTest extends KernelTestCase
             'taxAreaRuleId' => $ruleId,
             'name' => 'required',
             'languageId' => Defaults::LANGUAGE,
-            'versionId' => Defaults::LIVE_VERSION,
+            'taxAreaRuleVersionId' => Defaults::LIVE_VERSION,
         ];
         $payload = json_decode($changes[0]['payload'], true);
         unset($payload['createdAt']);
@@ -556,7 +556,7 @@ class VersioningTest extends KernelTestCase
         $this->assertCount(2, $changes);
 
         $product = $this->connection->fetchAssoc(
-            'SELECT * FROM product_translation WHERE product_id = :id AND version_id = :version AND language_id = :language',
+            'SELECT * FROM product_translation WHERE product_id = :id AND product_version_id = :version AND language_id = :language',
             [
                 'id' => $productId->getBytes(),
                 'version' => Uuid::fromString($variantVersionId)->getBytes(),

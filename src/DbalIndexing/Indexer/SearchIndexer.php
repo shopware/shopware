@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\DbalIndexing\Search;
+namespace Shopware\DbalIndexing\Indexer;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Api\Catalog\Repository\CatalogRepository;
@@ -16,7 +16,7 @@ use Shopware\DbalIndexing\Common\RepositoryIterator;
 use Shopware\DbalIndexing\Event\ProgressAdvancedEvent;
 use Shopware\DbalIndexing\Event\ProgressFinishedEvent;
 use Shopware\DbalIndexing\Event\ProgressStartedEvent;
-use Shopware\DbalIndexing\Indexer\IndexerInterface;
+use Shopware\DbalIndexing\Indexer\Analyzer\SearchAnalyzerRegistry;
 use Shopware\Defaults;
 use Shopware\Framework\Doctrine\MultiInsertQueryQueue;
 use Shopware\Framework\Struct\Uuid;

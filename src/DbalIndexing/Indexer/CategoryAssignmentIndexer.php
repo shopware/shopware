@@ -1,26 +1,99 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\DbalIndexing\Product;
+namespace Shopware\DbalIndexing\Indexer;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Api\Entity\Write\GenericWrittenEvent;
+use Shopware\Api\Product\Repository\ProductRepository;
+use Shopware\Category\Extension\CategoryPathBuilder;
 use Shopware\Context\Struct\ApplicationContext;
+use Shopware\DbalIndexing\Common\EventIdExtractor;
+use Shopware\DbalIndexing\Common\RepositoryIterator;
+use Shopware\DbalIndexing\Event\ProgressAdvancedEvent;
+use Shopware\DbalIndexing\Event\ProgressFinishedEvent;
+use Shopware\DbalIndexing\Event\ProgressStartedEvent;
+use Shopware\DbalIndexing\Indexer\IndexerInterface;
 use Shopware\Defaults;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Shopware\Framework\Doctrine\MultiInsertQueryQueue;
 use Shopware\Framework\Struct\Uuid;
 
-class CategoryAssignmentUpdater
+class CategoryAssignmentIndexer implements IndexerInterface
 {
+    /**
+     * @var ProductRepository
+     */
+    private $productRepository;
+
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    /**
+     * @var CategoryPathBuilder
+     */
+    private $pathBuilder;
+
+    /**
+     * @var EventIdExtractor
+     */
+    private $eventIdExtractor;
+
     /**
      * @var Connection
      */
     private $connection;
 
-    public function __construct(Connection $connection)
-    {
+    public function __construct(
+        ProductRepository $productRepository,
+        Connection $connection,
+        EventDispatcherInterface $eventDispatcher,
+        CategoryPathBuilder $pathBuilder,
+        EventIdExtractor $eventIdExtractor
+    ) {
+        $this->productRepository = $productRepository;
+        $this->eventDispatcher = $eventDispatcher;
+        $this->pathBuilder = $pathBuilder;
+        $this->eventIdExtractor = $eventIdExtractor;
         $this->connection = $connection;
     }
 
-    public function update(array $ids, ApplicationContext $context): void
+    public function index(\DateTime $timestamp, string $tenantId): void
+    {
+        $context = ApplicationContext::createDefaultContext($tenantId);
+
+        $this->pathBuilder->update(Defaults::ROOT_CATEGORY, $context);
+
+        $iterator = new RepositoryIterator($this->productRepository, $context);
+
+        $this->eventDispatcher->dispatch(
+            ProgressStartedEvent::NAME,
+            new ProgressStartedEvent('Start building product category assignment', $iterator->getTotal())
+        );
+
+        while ($ids = $iterator->fetchIds()) {
+            $this->update($ids, $context);
+
+            $this->eventDispatcher->dispatch(
+                ProgressAdvancedEvent::NAME,
+                new ProgressAdvancedEvent(count($ids))
+            );
+        }
+
+        $this->eventDispatcher->dispatch(
+            ProgressFinishedEvent::NAME,
+            new ProgressFinishedEvent('Finish building product category assignment')
+        );
+    }
+
+    public function refresh(GenericWrittenEvent $event): void
+    {
+        $ids = $this->eventIdExtractor->getProductIds($event);
+        $this->update($ids, $event->getContext());
+    }
+
+    private function update(array $ids, ApplicationContext $context): void
     {
         if (empty($ids)) {
             return;
@@ -86,7 +159,7 @@ class CategoryAssignmentUpdater
             "GROUP_CONCAT(HEX(category.id) SEPARATOR '||') as ids",
         ]);
         $query->from('product');
-        $query->leftJoin('product', 'product_category', 'mapping', 'mapping.product_id = product.id AND product.version_id = mapping.product_version_id AND product.tenant_id = mapping.product_tenant_id');
+        $query->leftJoin('product', 'product_category', 'mapping', 'mapping.product_id = product.categories AND product.version_id = mapping.product_version_id AND product.tenant_id = mapping.product_tenant_id');
         $query->leftJoin('mapping', 'category', 'category', 'category.id = mapping.category_id AND category.version_id = :live AND category.tenant_id = product.tenant_id');
         $query->addGroupBy('product.id');
 
@@ -126,4 +199,5 @@ class CategoryAssignmentUpdater
 
         return array_keys(array_flip(array_filter($categoryIds)));
     }
+
 }

@@ -9,76 +9,77 @@
             <argument id="Doctrine\DBAL\Connection" type="service"/>
         </service>
 
-        <service class="Shopware\DbalIndexing\Search\SearchIndexer" id="Shopware\DbalIndexing\Search\SearchIndexer">
-            <tag name="shopware.dbal_indexing.indexer"/>
-            <argument id="Doctrine\DBAL\Connection" type="service"/>
-            <argument type="service" id="Shopware\Api\Product\Repository\ProductRepository"/>
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\DbalIndexing\Search\SearchAnalyzerRegistry"/>
-            <argument type="service" id="Shopware\DbalIndexing\Common\IndexTableOperator"/>
-            <argument type="service" id="Shopware\Api\Language\Repository\LanguageRepository"/>
-            <argument type="service" id="Shopware\Api\Catalog\Repository\CatalogRepository"/>
-        </service>
-
-        <service class="Shopware\DbalIndexing\Search\SearchAnalyzerRegistry" id="Shopware\DbalIndexing\Search\SearchAnalyzerRegistry">
+        <service class="Shopware\DbalIndexing\Indexer\Analyzer\SearchAnalyzerRegistry" id="Shopware\DbalIndexing\Indexer\Analyzer\SearchAnalyzerRegistry">
             <argument type="tagged" tag="shopware.search_analyzer"/>
         </service>
 
-        <service class="Shopware\DbalIndexing\Indexer\ShopIndexer" id="Shopware\DbalIndexing\Indexer\ShopIndexer">
+        <service class="Shopware\DbalIndexing\Indexer\IndexerRegistry" id="Shopware\DbalIndexing\Indexer\IndexerRegistry">
             <argument type="tagged" tag="shopware.dbal_indexing.indexer"/>
-        </service>
-
-        <service class="Shopware\DbalIndexing\Product\ProductIndexer" id="Shopware\DbalIndexing\Product\ProductIndexer">
-            <tag name="shopware.dbal_indexing.indexer" priority="100"/>
-            <argument type="service" id="Shopware\Api\Product\Repository\ProductRepository"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Category\Extension\CategoryPathBuilder"/>
-            <argument type="service" id="Shopware\DbalIndexing\Product\CategoryAssignmentUpdater"/>
-            <argument type="service" id="Shopware\DbalIndexing\Product\InheritanceJoinIdUpdater"/>
-            <argument type="service" id="Shopware\DbalIndexing\Product\ListingPriceUpdater"/>
-            <argument type="service" id="Shopware\DbalIndexing\Product\VariationJsonUpdater"/>
-            <argument type="service" id="Shopware\DbalIndexing\Product\DatasheetJsonUpdater"/>
-            <argument type="service" id="Shopware\DbalIndexing\Product\EventIdExtractor"/>
-        </service>
-
-        <service class="Shopware\DbalIndexing\Product\DatasheetJsonUpdater" id="Shopware\DbalIndexing\Product\DatasheetJsonUpdater">
-            <argument id="Doctrine\DBAL\Connection" type="service"/>
-        </service>
-
-        <service class="Shopware\DbalIndexing\Product\VariationJsonUpdater" id="Shopware\DbalIndexing\Product\VariationJsonUpdater">
-            <argument id="Doctrine\DBAL\Connection" type="service"/>
-        </service>
-
-        <service class="Shopware\DbalIndexing\Product\ListingPriceUpdater" id="Shopware\DbalIndexing\Product\ListingPriceUpdater">
-            <argument id="Doctrine\DBAL\Connection" type="service"/>
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service class="Shopware\DbalIndexing\Command\RefreshIndexCommand" id="Shopware\DbalIndexing\Command\RefreshIndexCommand">
-            <argument type="service" id="Shopware\DbalIndexing\Indexer\ShopIndexer"/>
+            <argument type="service" id="Shopware\DbalIndexing\Indexer\IndexerRegistry"/>
             <tag name="kernel.event_subscriber"/>
             <tag name="console.command"/>
         </service>
 
-        <service class="Shopware\DbalIndexing\Event\EventSubscriber" id="Shopware\DbalIndexing\Event\EventSubscriber">
-            <argument id="Shopware\DbalIndexing\Indexer\ShopIndexer" type="service"/>
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
-        <service class="Shopware\DbalIndexing\Search\LanguageAnalyzer" id="Shopware\DbalIndexing\Search\LanguageAnalyzer">
+        <service class="Shopware\DbalIndexing\Indexer\Analyzer\LanguageAnalyzer" id="Shopware\DbalIndexing\Indexer\Analyzer\LanguageAnalyzer">
             <argument id="Shopware\Api\Entity\Search\Term\Tokenizer" type="service"/>
             <argument id="Shopware\Api\Entity\Search\Term\StopWordFilter" type="service"/>
             <tag name="shopware.search_analyzer" />
         </service>
 
-        <service class="Shopware\DbalIndexing\Product\CategoryAssignmentUpdater" id="Shopware\DbalIndexing\Product\CategoryAssignmentUpdater">
-            <argument id="Doctrine\DBAL\Connection" type="service"/>
+        <service class="Shopware\DbalIndexing\Common\EventIdExtractor" id="Shopware\DbalIndexing\Common\EventIdExtractor"/>
+
+        <service class="Shopware\DbalIndexing\Indexer\InheritanceIndexer" id="Shopware\DbalIndexing\Indexer\InheritanceIndexer">
+            <tag name="shopware.dbal_indexing.indexer" priority="1500"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
-        <service class="Shopware\DbalIndexing\Product\InheritanceJoinIdUpdater" id="Shopware\DbalIndexing\Product\InheritanceJoinIdUpdater">
+        <service class="Shopware\DbalIndexing\Indexer\CategoryAssignmentIndexer" id="Shopware\DbalIndexing\Indexer\CategoryAssignmentIndexer">
+            <argument id="Shopware\Api\Product\Repository\ProductRepository" type="service"/>
             <argument id="Doctrine\DBAL\Connection" type="service"/>
+            <argument id="event_dispatcher" type="service"/>
+            <argument id="Shopware\Category\Extension\CategoryPathBuilder" type="service"/>
+            <argument id="Shopware\DbalIndexing\Common\EventIdExtractor" type="service"/>
+            <tag name="shopware.dbal_indexing.indexer" priority="1000"/>
         </service>
 
-        <service class="Shopware\DbalIndexing\Product\EventIdExtractor" id="Shopware\DbalIndexing\Product\EventIdExtractor"/>
+        <service class="Shopware\DbalIndexing\Indexer\VariationJsonIndexer" id="Shopware\DbalIndexing\Indexer\VariationJsonIndexer">
+            <argument id="Shopware\Api\Product\Repository\ProductRepository" type="service"/>
+            <argument id="event_dispatcher" type="service"/>
+            <argument id="Shopware\DbalIndexing\Common\EventIdExtractor" type="service"/>
+            <argument id="Doctrine\DBAL\Connection" type="service"/>
+            <tag name="shopware.dbal_indexing.indexer" priority="900"/>
+        </service>
+
+        <service class="Shopware\DbalIndexing\Indexer\DatasheetJsonIndexer" id="Shopware\DbalIndexing\Indexer\DatasheetJsonIndexer">
+            <argument id="Shopware\Api\Product\Repository\ProductRepository" type="service"/>
+            <argument id="Doctrine\DBAL\Connection" type="service"/>
+            <argument id="event_dispatcher" type="service"/>
+            <argument id="Shopware\DbalIndexing\Common\EventIdExtractor" type="service"/>
+            <tag name="shopware.dbal_indexing.indexer" priority="400"/>
+        </service>
+
+        <service class="Shopware\DbalIndexing\Indexer\ListingPriceIndexer" id="Shopware\DbalIndexing\Indexer\ListingPriceIndexer">
+            <argument id="Shopware\Api\Product\Repository\ProductRepository" type="service"/>
+            <argument id="event_dispatcher" type="service"/>
+            <argument id="Shopware\DbalIndexing\Common\EventIdExtractor" type="service"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="shopware.dbal_indexing.indexer" priority="300"/>
+        </service>
+
+        <service class="Shopware\DbalIndexing\Indexer\SearchIndexer" id="Shopware\DbalIndexing\Indexer\SearchIndexer">
+            <argument id="Doctrine\DBAL\Connection" type="service"/>
+            <argument type="service" id="Shopware\Api\Product\Repository\ProductRepository"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\DbalIndexing\Indexer\Analyzer\SearchAnalyzerRegistry"/>
+            <argument type="service" id="Shopware\DbalIndexing\Common\IndexTableOperator"/>
+            <argument type="service" id="Shopware\Api\Language\Repository\LanguageRepository"/>
+            <argument type="service" id="Shopware\Api\Catalog\Repository\CatalogRepository"/>
+            <tag name="shopware.dbal_indexing.indexer" priority="200"/>
+        </service>
+
     </services>
 </container>

@@ -52,7 +52,7 @@ class PriceActionController extends Controller
     }
 
     /**
-     * @Route("/api/price/actions/calculate", name="api.price.actions.calculate")
+     * @Route("/api/v1/price/actions/calculate", name="api.price.actions.calculate")
      * @Method({"POST"})
      *
      * @param Request     $request

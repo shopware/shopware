@@ -14,7 +14,6 @@
         <service class="Shopware\Media\Extension\ThumbnailExtension" id="Shopware\Media\Extension\ThumbnailExtension">
             <argument id="Shopware\Media\UrlGenerator" type="service"/>
             <tag name="kernel.event_subscriber"/>
-            <!--<tag name="shopware.entity.extension"/>-->
         </service>
 
         <!-- ProductMedia Extension -->

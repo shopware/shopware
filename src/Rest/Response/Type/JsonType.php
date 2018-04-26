@@ -40,7 +40,7 @@ class JsonType implements ResponseTypeInterface
         $headers = [];
         if ($setLocationHeader) {
             /* @var string|EntityDefinition $definition */
-            $headers['Location'] = $this->getBaseUrl($context) . '/api/' . $this->camelCaseToSnailCase($definition::getEntityName()) . '/' . $entity->getId();
+            $headers['Location'] = $this->getBaseUrl($context) . '/api/v' . $context->getVersion() . '/' . $this->camelCaseToSnailCase($definition::getEntityName()) . '/' . $entity->getId();
         }
 
         $decoded = $this->serializer->normalize($entity);
@@ -83,7 +83,7 @@ class JsonType implements ResponseTypeInterface
     {
         /** @var string|EntityDefinition $definition */
         $headers = [
-            'Location' => $this->getBaseUrl($context) . '/api/' . $this->camelCaseToSnailCase($definition::getEntityName()) . '/' . $id,
+            'Location' => $this->getBaseUrl($context) . '/api/v' . $context->getVersion() . '/' . $this->camelCaseToSnailCase($definition::getEntityName()) . '/' . $id,
         ];
 
         return new Response(null, Response::HTTP_NO_CONTENT, $headers);

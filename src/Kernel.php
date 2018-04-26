@@ -235,41 +235,41 @@ class Kernel extends HttpKernel
         $uuidRegex = '.*\/[0-9a-f]{32}\/?$';
 
         // detail routes
-        $route = new Route('/api/{path}');
+        $route = new Route('/api/v{version}/{path}');
         $route->setMethods(['GET']);
         $route->setDefault('_controller', $class . '::detail');
-        $route->addRequirements(['path' => $uuidRegex]);
+        $route->addRequirements(['path' => $uuidRegex, 'version' => '\d+']);
         $routes->addRoute($route, 'api_controller.detail');
 
-        $route = new Route('/api/{path}');
+        $route = new Route('/api/v{version}/{path}');
         $route->setMethods(['PATCH']);
         $route->setDefault('_controller', $class . '::update');
-        $route->addRequirements(['path' => $uuidRegex]);
+        $route->addRequirements(['path' => $uuidRegex, 'version' => '\d+']);
         $routes->addRoute($route, 'api_controller.update');
 
-        $route = new Route('/api/{path}');
+        $route = new Route('/api/v{version}/{path}');
         $route->setMethods(['DELETE']);
         $route->setDefault('_controller', $class . '::delete');
-        $route->addRequirements(['path' => $uuidRegex]);
+        $route->addRequirements(['path' => $uuidRegex, 'version' => '\d+']);
         $routes->addRoute($route, 'api_controller.delete');
 
         // list routes
-        $route = new Route('/api/{path}');
+        $route = new Route('/api/v{version}/{path}');
         $route->setMethods(['GET']);
         $route->setDefault('_controller', $class . ':list');
-        $route->addRequirements(['path' => '.*']);
+        $route->addRequirements(['path' => '.*', 'version' => '\d+']);
         $routes->addRoute($route, 'api_controller.list');
 
-        $route = new Route('/api/search/{path}');
+        $route = new Route('/api/v{version}/search/{path}');
         $route->setMethods(['POST']);
         $route->setDefault('_controller', $class . '::search');
-        $route->addRequirements(['path' => '.*']);
+        $route->addRequirements(['path' => '.*', 'version' => '\d+']);
         $routes->addRoute($route, 'api_controller.search');
 
-        $route = new Route('/api/{path}');
+        $route = new Route('/api/v{version}/{path}');
         $route->setMethods(['POST']);
         $route->setDefault('_controller', $class . '::create');
-        $route->addRequirements(['path' => '.*']);
+        $route->addRequirements(['path' => '.*', 'version' => '\d+']);
         $routes->addRoute($route, 'api_controller.create');
     }
 

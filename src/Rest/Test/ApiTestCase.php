@@ -5,6 +5,7 @@ namespace Shopware\Rest\Test;
 use Doctrine\DBAL\Connection;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\Uuid;
+use Shopware\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DependencyInjection\Container;
@@ -44,7 +45,7 @@ class ApiTestCase extends WebTestCase
         $apiClient->setServerParameters([
             'CONTENT_TYPE' => 'application/json',
             'HTTP_ACCEPT' => ['application/vnd.api+json,application/json'],
-            'HTTP_X_SW_TENANT_ID' => Defaults::TENANT_ID
+            'HTTP_X_SW_TENANT_ID' => Defaults::TENANT_ID,
         ]);
         $this->authorizeClient($apiClient);
 
@@ -104,18 +105,18 @@ class ApiTestCase extends WebTestCase
 
         $authPayload = json_encode(['username' => $username, 'password' => $password]);
 
-        $client->request('POST', '/api/auth', [], [], [], $authPayload);
+        $client->request('POST', '/api/v1/auth', [], [], [], $authPayload);
 
         $data = json_decode($client->getResponse()->getContent(), true);
 
-        self::assertArrayHasKey('token', $data, 'No token returned from API: ' . print_r($data, true));
+        self::assertArrayHasKey('token', $data, 'No token returned from API: ' . ($data['errors'][0]['detail'] ?? 'unknown error'));
 
         $client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['token']));
     }
 
     public function assertEntityExists(...$params): void
     {
-        $url = '/api/' . implode('/', $params);
+        $url = '/api/v' . PlatformRequest::API_VERSION . '/' . implode('/', $params);
 
         $this->apiClient->request('GET', $url);
 
@@ -124,7 +125,7 @@ class ApiTestCase extends WebTestCase
 
     public function assertEntityNotExists(...$params): void
     {
-        $url = '/api/' . implode('/', $params);
+        $url = '/api/v' . PlatformRequest::API_VERSION . '/' . implode('/', $params);
 
         $this->apiClient->request('GET', $url);
 

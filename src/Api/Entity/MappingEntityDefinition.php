@@ -2,21 +2,24 @@
 
 namespace Shopware\Api\Entity;
 
+use Shopware\Api\Entity\Exception\MappingEntityRepositoryException;
+use Shopware\Api\Entity\Exception\MappingEntityStructException;
+
 abstract class MappingEntityDefinition extends EntityDefinition
 {
     public static function getRepositoryClass(): string
     {
-        throw new \RuntimeException('Mapping table do not have own repositories');
+        throw new MappingEntityRepositoryException();
     }
 
     public static function getBasicCollectionClass(): string
     {
-        throw new \RuntimeException('Mapping table do not have own collection classes');
+        throw new MappingEntityStructException();
     }
 
     public static function getBasicStructClass(): string
     {
-        throw new \RuntimeException('Mapping table do not have own struct classes');
+        throw new MappingEntityStructException();
     }
 
     public static function getTranslationDefinitionClass(): ?string

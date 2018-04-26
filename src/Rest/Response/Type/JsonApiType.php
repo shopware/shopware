@@ -45,7 +45,7 @@ class JsonApiType implements ResponseTypeInterface
 
         if ($setLocationHeader) {
             /* @var string|EntityDefinition $definition */
-            $headers['Location'] = $baseUrl . '/api/' . $this->camelCaseToSnailCase($definition::getEntityName()) . '/' . $entity->getId();
+            $headers['Location'] = $baseUrl . '/api/v' . $context->getVersion() . '/' . $this->camelCaseToSnailCase($definition::getEntityName()) . '/' . $entity->getId();
         }
 
         $rootNode = [
@@ -58,7 +58,7 @@ class JsonApiType implements ResponseTypeInterface
             $entity,
             'jsonapi',
             [
-                'uri' => $baseUrl . '/api',
+                'uri' => $baseUrl . '/api/v' . $context->getVersion(),
                 'data' => $rootNode,
                 'definition' => $definition,
                 'basic' => false,
@@ -90,7 +90,7 @@ class JsonApiType implements ResponseTypeInterface
             $searchResult,
             'jsonapi',
             [
-                'uri' => $baseUrl . '/api',
+                'uri' => $baseUrl . '/api/v' . $context->getVersion(),
                 'data' => $rootNode,
                 'definition' => $definition,
                 'basic' => true,
@@ -113,7 +113,7 @@ class JsonApiType implements ResponseTypeInterface
     {
         /** @var string|EntityDefinition $definition */
         $headers = [
-            'Location' => $this->getBaseUrl($context) . '/api/' . $this->camelCaseToSnailCase($definition::getEntityName()) . '/' . $id,
+            'Location' => $this->getBaseUrl($context) . '/api/v' . $context->getVersion() . '/' . $this->camelCaseToSnailCase($definition::getEntityName()) . '/' . $id,
         ];
 
         return new Response(null, Response::HTTP_NO_CONTENT, $headers);

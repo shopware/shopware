@@ -63,16 +63,6 @@ return [
                 'updatedAt' => '2017-11-21T11:25:34+00:00',
                 'description' => null,
                 'url' => 'http://shopware.next/media/13/9c/a6/Lagerkorn-50klein.jpg',
-                'thumbnails' => [
-                    [
-                        'width' => 600,
-                        'height' => 800,
-                        'fileName' => 'Lagerkorn-50klein_original.jpg',
-                        'url' => 'http://shopware.next/media/13/9c/a6/Lagerkorn-50klein_original.jpg',
-                        'highDpi' => true,
-                        'extensions' => [],
-                    ],
-                ],
                 'versionId' => null,
                 'mediaAlbumVersionId' => null,
                 'userVersionId' => null,

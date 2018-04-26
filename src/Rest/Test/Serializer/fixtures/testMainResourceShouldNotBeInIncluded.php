@@ -27,16 +27,6 @@ $media->setUpdatedAt(date_create_from_format(\DateTime::ATOM, '2017-11-21T11:25:
 $media->setUrl('http://shopware.next/media/13/9c/a6/Lagerkorn-50klein.jpg');
 $media->setName('Lagerkorn-5,0klein');
 
-$thumbnail = new \Shopware\Media\Struct\ThumbnailStruct();
-$thumbnail->setUrl('http://shopware.next/media/13/9c/a6/Lagerkorn-50klein_original.jpg');
-$thumbnail->setFileName('Lagerkorn-50klein_original.jpg');
-$thumbnail->setHeight(800);
-$thumbnail->setWidth(600);
-$thumbnail->setHighDpi(true);
-
-$thumbnailCollection = new \Shopware\Framework\Struct\StructCollection([$thumbnail]);
-$media->addExtension('thumbnails', $thumbnailCollection);
-
 $mediaCollection->add($media);
 $album->setMedia($mediaCollection);
 

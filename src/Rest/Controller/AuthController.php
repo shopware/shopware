@@ -25,7 +25,7 @@ class AuthController extends Controller
     /**
      * Dummy route for JWT authentication
      *
-     * @Route("/api/auth", name="api_auth")
+     * @Route("/api/v1/auth", name="api_auth")
      */
     public function auth(Request $request)
     {

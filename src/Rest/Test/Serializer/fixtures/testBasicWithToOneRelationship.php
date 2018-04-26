@@ -26,7 +26,4 @@ $media->setUpdatedAt(date_create_from_format(\DateTime::ATOM, '2017-11-21T11:25:
 $media->setUrl('http://shopware.next/media/c2/98/8f/teaser5040640f2861b.jpg');
 $media->setAlbum($album);
 
-$thumbnailCollection = new \Shopware\Framework\Struct\StructCollection();
-$media->addExtension('thumbnails', $thumbnailCollection);
-
 return $media;

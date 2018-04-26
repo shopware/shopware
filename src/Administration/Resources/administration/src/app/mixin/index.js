@@ -8,3 +8,6 @@ import './currency-list.mixin';
 import './context-rule-list.mixin';
 import './validation.mixin';
 import './notification.mixin';
+import './application-list.mixin';
+import './customer-group-list.mixin';
+import './payment-method-list.mixin';

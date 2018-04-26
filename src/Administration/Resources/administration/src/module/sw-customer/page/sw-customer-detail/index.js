@@ -13,7 +13,10 @@ Component.register('sw-customer-detail', {
 
     mixins: [
         Mixin.getByName('notification'),
-        Mixin.getByName('customer')
+        Mixin.getByName('customer'),
+        Mixin.getByName('applicationList'),
+        Mixin.getByName('customerGroupList'),
+        Mixin.getByName('paymentMethodList')
     ],
 
     beforeRouteLeave(to, from, next) {
@@ -31,16 +34,17 @@ Component.register('sw-customer-detail', {
         }
     },
 
-    updated() {
-        if (this.$route.params.edit) {
-            this.customerEditMode = true;
-        }
-    },
-
     methods: {
         onSave() {
-            this.saveCustomer();
-            this.customerEditMode = false;
+            this.saveCustomer().then(() => {
+                this.customerEditMode = false;
+                this.createNotificationSuccess({
+                    title: this.$tc('sw-customer.detail.titleSaveSuccess'),
+                    message: this.$tc('sw-customer.detail.messageSaveSuccess', this.customerName, {
+                        name: this.customerName
+                    })
+                });
+            });
         },
 
         onDisableCustomerEditMode() {
@@ -65,6 +69,10 @@ Component.register('sw-customer-detail', {
             const lastName = customer.lastName ? customer.lastName : '';
 
             return `${salutation} ${firstName} ${lastName}`;
+        },
+
+        isCreateCustomer() {
+            return this.$route.name.includes('sw.customer.create');
         }
     }
 });

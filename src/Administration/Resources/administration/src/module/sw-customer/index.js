@@ -25,7 +25,7 @@ Module.register('sw-customer', {
 
         create: {
             component: 'sw-customer-create',
-            path: 'create/:edit?',
+            path: 'create',
             redirect: {
                 name: 'sw.customer.create.base'
             },
@@ -63,5 +63,10 @@ Module.register('sw-customer', {
         label: 'sw-customer.general.mainMenuItemList',
         color: '#F88962',
         icon: 'default-avatar-multiple'
+    }, {
+        path: 'sw.customer.create',
+        label: 'sw-customer.general.mainMenuItemAdd',
+        parent: 'sw.customer.index',
+        color: '#F88962'
     }]
 });

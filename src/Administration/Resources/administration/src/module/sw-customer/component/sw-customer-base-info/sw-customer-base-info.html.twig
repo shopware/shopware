@@ -16,14 +16,14 @@
 
                         {% block sw_customer_base_info_contact_email %}
                             <div v-if="customer.email" class="sw-customer-detail-base__contact-item">
-                                Email: {{ customer.email }}
+                                {{ $tc('sw-customer.baseInfo.contactEmail') }}: {{ customer.email }}
                             </div>
                         {% endblock %}
 
                         {% block sw_customer_base_info_customer_active_field %}
                             <sw-field class="sw-customer-base-info__active-field"
                                       type="checkbox"
-                                      label="Konto ist aktiv"
+                                      :label="$tc('sw-customer.baseInfo.labelAccountActiveField')"
                                       name="active"
                                       v-model="customer.active">
                             </sw-field>
@@ -34,11 +34,15 @@
                 {% block sw_customer_base_info_actions %}
                     <div class="sw-customer-base-info__actions">
                         {% block sw_customer_base_info_actions_edit %}
-                            <sw-button size="small" block @click="onEditCustomer">Kunde bearbeiten</sw-button>
+                            <sw-button size="small" block @click="onEditCustomer">
+                                {{ $tc('sw-customer.baseInfo.buttonEdit') }}
+                            </sw-button>
                         {% endblock %}
 
                         {% block sw_customer_base_info_actions_change_password %}
-                            <sw-button size="small" block disabled>Passwort ändern</sw-button>
+                            <sw-button size="small" block disabled>
+                                {{ $tc('sw-customer.baseInfo.buttonChangePassword') }}
+                            </sw-button>
                         {% endblock %}
                     </div>
                 {% endblock %}
@@ -52,43 +56,47 @@
                         {% block sw_customer_base_info_data_table %}
                             <sw-table columns="1fr 1fr">
                                 {% block sw_customer_base_info_data_customer_number %}
-                                    <div class="sw-table__cell">Kundennummer</div>
+                                    <div class="sw-table__cell">{{ $tc('sw-customer.baseInfo.labelCustomerNumber') }}</div>
                                     <div class="sw-table__cell">{{ customer.number }}</div>
                                 {% endblock %}
 
                                 {% block sw_customer_base_info_data_customer_group %}
-                                    <div class="sw-table__cell">Kundengruppe</div>
+                                    <div class="sw-table__cell">{{ $tc('sw-customer.baseInfo.labelCustomerGroup') }}</div>
                                     <div class="sw-table__cell">{{ customer.group.name }}</div>
                                 {% endblock %}
 
                                 {% block sw_customer_base_info_data_birthday %}
-                                    <div class="sw-table__cell">Geburtsdatum</div>
-                                    <div class="sw-table__cell">{{ customer.birthday ? customer.birthday : 'keine Angabe' }}</div>
+                                    <div class="sw-table__cell">{{ $tc('sw-customer.baseInfo.labelBirthday') }}</div>
+                                    <div class="sw-table__cell">
+                                        {{ customer.birthday ? customer.birthday : $tc('sw-customer.baseInfo.emptyTextBirthday') }}
+                                    </div>
                                 {% endblock %}
 
                                 {% block sw_customer_base_info_data_last_login %}
-                                    <div class="sw-table__cell">Letzter Login</div>
-                                    <div class="sw-table__cell">{{ customer.lastLogin ? customer.lastLogin : 'noch kein Login' }}</div>
+                                    <div class="sw-table__cell">{{ $tc('sw-customer.baseInfo.labelLastLogin') }}</div>
+                                    <div class="sw-table__cell">
+                                        {{ customer.lastLogin ? customer.lastLogin : $tc('sw-customer.baseInfo.emptyTextLogin') }}
+                                    </div>
                                 {% endblock %}
                             </sw-table>
                             <sw-table columns="1fr 1fr">
                                 {% block sw_customer_base_info_data_language %}
-                                    <div class="sw-table__cell">Sprache</div>
+                                    <div class="sw-table__cell">{{ $tc('sw-customer.baseInfo.labelLanguage') }}</div>
                                     <div class="sw-table__cell">Deutsch</div>
                                 {% endblock %}
 
                                 {% block sw_customer_base_info_data_orders %}
-                                    <div class="sw-table__cell">Anzahl bestellungen</div>
+                                    <div class="sw-table__cell">{{ $tc('sw-customer.baseInfo.labelOrders') }}</div>
                                     <div class="sw-table__cell">{{ customer.orders.length }}</div>
                                 {% endblock %}
 
                                 {% block sw_customer_base_info_data_turnover %}
-                                    <div class="sw-table__cell">Umsatz</div>
+                                    <div class="sw-table__cell">{{ $tc('sw-customer.baseInfo.labelTurnover') }}</div>
                                     <div class="sw-table__cell">0</div>
                                 {% endblock %}
 
                                 {% block sw_customer_base_info_data_payment_failures %}
-                                    <div class="sw-table__cell">Zahlungsausfälle</div>
+                                    <div class="sw-table__cell">{{ $tc('sw-customer.baseInfo.labelPaymentFailures') }}</div>
                                     <div class="sw-table__cell">0</div>
                                 {% endblock %}
                             </sw-table>

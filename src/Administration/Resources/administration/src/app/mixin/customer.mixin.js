@@ -97,8 +97,13 @@ Mixin.register('customer', {
                 if (this.$route.name.includes('sw.customer.create')) {
                     this.$router.push({ name: 'sw.customer.detail', params: { id: customer.id } });
                 }
-            }).catch(() => {
+
+                return Promise.resolve();
+            }).catch((exception) => {
                 this.isLoading = false;
+                this.customer = Object.assign({}, this.customer);
+
+                return Promise.reject(exception);
             });
         },
 

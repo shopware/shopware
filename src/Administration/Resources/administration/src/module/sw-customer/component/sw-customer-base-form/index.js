@@ -9,6 +9,27 @@ Component.register('sw-customer-base-form', {
             type: Object,
             required: true,
             default: {}
+        },
+        applications: {
+            type: Array,
+            required: true,
+            default() {
+                return [];
+            }
+        },
+        customerGroups: {
+            type: Array,
+            required: true,
+            default() {
+                return [];
+            }
+        },
+        paymentMethods: {
+            type: Array,
+            required: true,
+            default() {
+                return [];
+            }
         }
     }
 });

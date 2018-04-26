@@ -3,27 +3,29 @@
         {% block sw_customer_detail_header %}
             <template slot="smart-bar-header">
                 <h2 v-if="customerName">{{ customerName }}</h2>
-                <h2 v-else>Neuer Kunde</h2>
+                <h2 v-else>{{ $tc('sw-customer.detail.headlineNewCustomer') }}</h2>
             </template>
         {% endblock %}
 
         {% block sw_customer_detail_actions %}
             <template slot="smart-bar-actions">
-                {% block sw_customer_detail_actions_abort_editing %}
-                    <sw-button v-if="customerEditMode" :disabled="isLoading" @click.prevent="onDisableCustomerEditMode">
-                        Abbrechen
+                {% block sw_customer_detail_actions_cancel_editing %}
+                    <sw-button v-if="customerEditMode && !isCreateCustomer"
+                               :disabled="isLoading"
+                               @click.prevent="onDisableCustomerEditMode">
+                        {{ $tc('sw-customer.detail.buttonCancel') }}
                     </sw-button>
                 {% endblock %}
 
-                {% block sw_customer_detail_actions_abort %}
+                {% block sw_customer_detail_actions_cancel %}
                     <sw-button v-else :disabled="isLoading" link="sw.customer.index">
-                        Abbrechen
+                        {{ $tc('sw-customer.detail.buttonCancel') }}
                     </sw-button>
                 {% endblock %}
 
                 {% block sw_customer_detail_actions_save %}
                     <sw-button variant="primary" :disabled="isLoading" @click.prevent="onSave">
-                        Speichern
+                        {{ $tc('sw-customer.detail.buttonSave') }}
                     </sw-button>
                 {% endblock %}
             </template>
@@ -33,8 +35,9 @@
             <sw-card-view slot="content">
                 {% block sw_customer_detail_content_tabs %}
                     <sw-tabs class="sw-customer-detail-page__tabs">
-                        <sw-tabs-item :route="{ name: 'sw.customer.detail.base', params: { id: $route.params.id } }" title="Allgemein">
-                            Allgemein
+                        <sw-tabs-item :route="{ name: 'sw.customer.detail.base', params: { id: $route.params.id } }"
+                                      :title="$tc('sw-customer.detail.tabGeneral')">
+                            {{ $tc('sw-customer.detail.tabGeneral') }}
                         </sw-tabs-item>
                     </sw-tabs>
                 {% endblock %}
@@ -42,6 +45,9 @@
                 {% block sw_customer_detail_content_view %}
                     <router-view :customer="customer"
                                  :customerName="customerName"
+                                 :applications="applications"
+                                 :customerGroups="customerGroups"
+                                 :paymentMethods="paymentMethods"
                                  :isLoading="isLoading"
                                  :customerEditMode="customerEditMode"
                                  @activateCustomerEditMode="onActivateCustomerEditMode">

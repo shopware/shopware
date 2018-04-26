@@ -25,6 +25,27 @@ Component.register('sw-customer-detail-base', {
             type: String,
             required: true,
             default: ''
+        },
+        applications: {
+            type: Array,
+            required: true,
+            default() {
+                return [];
+            }
+        },
+        customerGroups: {
+            type: Array,
+            required: true,
+            default() {
+                return [];
+            }
+        },
+        paymentMethods: {
+            type: Array,
+            required: true,
+            default() {
+                return [];
+            }
         }
     },
 

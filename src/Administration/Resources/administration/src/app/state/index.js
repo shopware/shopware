@@ -9,3 +9,6 @@ import './tax.state';
 import './currency.state';
 import './context-rule.state';
 import './locale.state';
+import './application.state';
+import './customer-group.state';
+import './payment-method.state';

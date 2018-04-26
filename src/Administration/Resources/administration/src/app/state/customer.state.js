@@ -11,8 +11,7 @@ State.register('customer', {
     state() {
         return {
             original: {},
-            draft: {},
-            editMode: false
+            draft: {}
         };
     },
 
@@ -128,9 +127,40 @@ State.register('customer', {
             customer.id = customerId;
             customer.isDetail = true;
             customer.isNew = true;
-            console.log('le customer', customer);
 
             commit('initCustomer', customer);
+
+            state.draft[customerId].defaultShippingAddress = {
+                id: utils.createId(),
+                firstName: 'First name',
+                lastName: 'Last name',
+                city: 'City',
+                street: 'Street',
+                zipcode: '12345',
+                salutation: 'Salutation',
+                country: {
+                    name: 'Country name'
+                }
+            };
+
+            state.draft[customerId].defaultBillingAddress = {
+                id: utils.createId(),
+                firstName: 'First name',
+                lastName: 'Last name',
+                city: 'City',
+                street: 'Street',
+                zipcode: '12345',
+                salutation: 'Salutation',
+                country: {
+                    name: 'Country name'
+                }
+            };
+
+            state.draft[customerId].defaultShippingAddressId = state.draft[customerId].defaultShippingAddress.id;
+            state.draft[customerId].defaultBillingAddressId = state.draft[customerId].defaultBillingAddress.id;
+
+            // @Todo: Remove when password workflow is defined.
+            state.draft[customerId].password = 'shopware';
 
             return customerId;
         },
@@ -146,8 +176,6 @@ State.register('customer', {
          * @return {Promise<T>}
          */
         saveCustomer({ commit, state }, customer) {
-            console.log(customer.id);
-
             if (!customer.id) {
                 return Promise.reject();
             }
@@ -157,26 +185,6 @@ State.register('customer', {
 
             const changeset = getObjectChangeSet(state.original[customer.id], customer, 'customer');
             const deletions = getAssociatedDeletions(state.original[customer.id], customer, 'customer');
-
-            // @Todo: Just a test
-            changeset.defaultShippingAddress = {
-                id: utils.createId(),
-                firstName: 'foo',
-                lastName: 'foo',
-                city: 'foo',
-                street: 'foo',
-                zipcode: '2312',
-                salutation: 'foo',
-                country: {
-                    name: 'foo'
-                }
-            };
-            changeset.defaultShippingAddressId = changeset.defaultShippingAddress.id;
-            changeset.defaultBillingAddressId = changeset.defaultShippingAddress.id;
-            changeset.shopId = utils.createId();
-            changeset.defaultPaymentMethodId = utils.createId();
-            changeset.groupId = utils.createId();
-            changeset.password = 'shopware';
 
             const deletionCue = [];
 
@@ -190,7 +198,6 @@ State.register('customer', {
                                         resolve(response);
                                     })
                                     .catch((response) => {
-                                        console.log('YAAAAAAAAAAAAAAAAAAAAAAAAAAAAY4');
                                         reject(response);
                                     });
                             }));

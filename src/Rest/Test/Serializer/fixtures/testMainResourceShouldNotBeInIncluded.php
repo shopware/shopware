@@ -24,7 +24,6 @@ $media->setMimeType('image/jpg');
 $media->setFileSize(18921);
 $media->setCreatedAt(date_create_from_format(\DateTime::ATOM, '2012-08-15T00:00:00+00:00'));
 $media->setUpdatedAt(date_create_from_format(\DateTime::ATOM, '2017-11-21T11:25:34+00:00'));
-$media->setUrl('http://shopware.next/media/13/9c/a6/Lagerkorn-50klein.jpg');
 $media->setName('Lagerkorn-5,0klein');
 
 $mediaCollection->add($media);

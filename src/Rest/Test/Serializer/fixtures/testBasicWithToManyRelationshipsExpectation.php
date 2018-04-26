@@ -62,7 +62,6 @@ return [
                 'updatedAt' => '2017-11-21T11:25:34+00:00',
                 'name' => '2',
                 'description' => null,
-                'url' => 'http://shopware.next/media/c2/98/8f/teaser5040640f2861b.jpg',
                 'versionId' => null,
                 'mediaAlbumVersionId' => null,
                 'userVersionId' => null,

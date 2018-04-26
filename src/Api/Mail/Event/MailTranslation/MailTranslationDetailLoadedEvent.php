@@ -2,9 +2,9 @@
 
 namespace Shopware\Api\Mail\Event\MailTranslation;
 
+use Shopware\Api\Language\Event\Language\LanguageBasicLoadedEvent;
 use Shopware\Api\Mail\Collection\MailTranslationDetailCollection;
 use Shopware\Api\Mail\Event\Mail\MailBasicLoadedEvent;
-use Shopware\Api\Shop\Event\Shop\ShopBasicLoadedEvent;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
@@ -51,7 +51,7 @@ class MailTranslationDetailLoadedEvent extends NestedEvent
             $events[] = new MailBasicLoadedEvent($this->mailTranslations->getMails(), $this->context);
         }
         if ($this->mailTranslations->getLanguages()->count() > 0) {
-            $events[] = new ShopBasicLoadedEvent($this->mailTranslations->getLanguages(), $this->context);
+            $events[] = new LanguageBasicLoadedEvent($this->mailTranslations->getLanguages(), $this->context);
         }
 
         return new NestedEventCollection($events);

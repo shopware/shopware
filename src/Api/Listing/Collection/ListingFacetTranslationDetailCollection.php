@@ -2,8 +2,8 @@
 
 namespace Shopware\Api\Listing\Collection;
 
+use Shopware\Api\Language\Collection\LanguageBasicCollection;
 use Shopware\Api\Listing\Struct\ListingFacetTranslationDetailStruct;
-use Shopware\Api\Shop\Collection\ShopBasicCollection;
 
 class ListingFacetTranslationDetailCollection extends ListingFacetTranslationBasicCollection
 {
@@ -21,9 +21,9 @@ class ListingFacetTranslationDetailCollection extends ListingFacetTranslationBas
         );
     }
 
-    public function getLanguages(): ShopBasicCollection
+    public function getLanguages(): LanguageBasicCollection
     {
-        return new ShopBasicCollection(
+        return new LanguageBasicCollection(
             $this->fmap(function (ListingFacetTranslationDetailStruct $listingFacetTranslation) {
                 return $listingFacetTranslation->getLanguage();
             })

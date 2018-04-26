@@ -28,16 +28,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Cart\LineItem\CalculatedLineItem;
 use Shopware\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Cart\LineItem\GoodsInterface;
-use Shopware\Cart\LineItem\LineItem;
 use Shopware\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Cart\Price\Struct\CalculatedPriceCollection;
 use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Cart\Test\Common\ConfiguredLineItem;
-use Shopware\CartBridge\Product\ProductProcessor;
-use Shopware\CartBridge\Voucher\Struct\CalculatedVoucher;
-use Shopware\CartBridge\Voucher\VoucherProcessor;
-use Shopware\Context\Rule\Container\AndRule;
 
 class CalculatedLineItemCollectionTest extends TestCase
 {
@@ -78,19 +72,19 @@ class CalculatedLineItemCollectionTest extends TestCase
     public function testFilterReturnsNewCollectionWithCorrectItems(): void
     {
         $collection = new CalculatedLineItemCollection([
-            new CalculatedVoucher(
-                'Code1',
-                new LineItem('1', ProductProcessor::TYPE_PRODUCT, 1),
+            new CustomLineItem(
+                'Item1',
                 new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
-                'voucher',
-                new AndRule()
+                1,
+                'Test',
+                'test_line_item'
             ),
-            new CalculatedVoucher(
-                'Code1',
-                new LineItem('2', ProductProcessor::TYPE_PRODUCT, 1),
+            new CustomLineItem(
+                'Item2',
                 new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
-                'voucher',
-                new AndRule()
+                1,
+                'Test',
+                'test_line_item'
             ),
             self::createLineItem('A', 3),
             self::createLineItem('B', 3),
@@ -110,22 +104,22 @@ class CalculatedLineItemCollectionTest extends TestCase
 
         static::assertEquals(
             new CalculatedLineItemCollection([
-                new CalculatedVoucher(
-                    'Code1',
-                    new LineItem('1', ProductProcessor::TYPE_PRODUCT, 1),
+                new CustomLineItem(
+                    'Item1',
                     new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
-                    'voucher',
-                    new AndRule()
+                    1,
+                    'Test',
+                    'test_line_item'
                 ),
-                new CalculatedVoucher(
-                    'Code1',
-                    new LineItem('2', ProductProcessor::TYPE_PRODUCT, 1),
+                new CustomLineItem(
+                    'Item2',
                     new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
-                    'voucher',
-                    new AndRule()
+                    1,
+                    'Test',
+                    'test_line_item'
                 ),
             ]),
-            $collection->filterInstance(CalculatedVoucher::class)
+            $collection->filterInstance(CustomLineItem::class)
         );
     }
 
@@ -279,19 +273,19 @@ class CalculatedLineItemCollectionTest extends TestCase
     public function testGetPricesCollectionOfMultipleItems(): void
     {
         $collection = new CalculatedLineItemCollection([
-            new CalculatedVoucher(
+            new CustomLineItem(
                 'Code1',
-                new LineItem('1', VoucherProcessor::TYPE_VOUCHER, 1),
                 new CalculatedPrice(200, 200, new CalculatedTaxCollection(), new TaxRuleCollection()),
-                'voucher',
-                new AndRule()
+                1,
+                'custom_line_item',
+                'test'
             ),
-            new CalculatedVoucher(
-                'Code1',
-                new LineItem('2', VoucherProcessor::TYPE_VOUCHER, 1),
+            new CustomLineItem(
+                'Code2',
                 new CalculatedPrice(300, 300, new CalculatedTaxCollection(), new TaxRuleCollection()),
-                'voucher',
-                new AndRule()
+                1,
+                'custom_line_item',
+                'test'
             ),
         ]);
 

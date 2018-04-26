@@ -43,6 +43,7 @@ class DeliverableLineItem extends CalculatedLineItem implements DeliverableLineI
         string $identifier,
         CalculatedPrice $price,
         int $quantity,
+        string $label,
         string $type,
         int $stock,
         int $weight,
@@ -51,7 +52,7 @@ class DeliverableLineItem extends CalculatedLineItem implements DeliverableLineI
         ?LineItemInterface $lineItem = null,
         ?Rule $rule = null
     ) {
-        parent::__construct($identifier, $price, $quantity, $type, $lineItem, $rule);
+        parent::__construct($identifier, $price, $quantity, $type, $label, $lineItem, $rule);
         $this->stock = $stock;
         $this->weight = $weight;
         $this->inStockDeliveryDate = $inStockDeliveryDate;

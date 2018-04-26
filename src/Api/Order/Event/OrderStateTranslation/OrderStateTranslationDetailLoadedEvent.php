@@ -2,9 +2,9 @@
 
 namespace Shopware\Api\Order\Event\OrderStateTranslation;
 
+use Shopware\Api\Language\Event\Language\LanguageBasicLoadedEvent;
 use Shopware\Api\Order\Collection\OrderStateTranslationDetailCollection;
 use Shopware\Api\Order\Event\OrderState\OrderStateBasicLoadedEvent;
-use Shopware\Api\Shop\Event\Shop\ShopBasicLoadedEvent;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
@@ -51,7 +51,7 @@ class OrderStateTranslationDetailLoadedEvent extends NestedEvent
             $events[] = new OrderStateBasicLoadedEvent($this->orderStateTranslations->getOrderStates(), $this->context);
         }
         if ($this->orderStateTranslations->getLanguages()->count() > 0) {
-            $events[] = new ShopBasicLoadedEvent($this->orderStateTranslations->getLanguages(), $this->context);
+            $events[] = new LanguageBasicLoadedEvent($this->orderStateTranslations->getLanguages(), $this->context);
         }
 
         return new NestedEventCollection($events);

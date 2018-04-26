@@ -132,13 +132,13 @@ class CategoryPathBuilder implements EventSubscriberInterface
                 'id' => $id,
                 'level' => $parent->getLevel() + 1,
                 'version' => $version,
-                'tenant' => $tenantId
+                'tenant' => $tenantId,
             ]);
             $nameUpdate->execute([
                 'names' => '|' . $names . '|',
                 'id' => $id,
                 'version' => $version,
-                'tenant' => $tenantId
+                'tenant' => $tenantId,
             ]);
         }
 

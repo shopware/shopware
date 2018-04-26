@@ -4,7 +4,7 @@ namespace Shopware\Api\Currency\Event\CurrencyTranslation;
 
 use Shopware\Api\Currency\Collection\CurrencyTranslationDetailCollection;
 use Shopware\Api\Currency\Event\Currency\CurrencyBasicLoadedEvent;
-use Shopware\Api\Shop\Event\Shop\ShopBasicLoadedEvent;
+use Shopware\Api\Language\Event\Language\LanguageBasicLoadedEvent;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
@@ -51,7 +51,7 @@ class CurrencyTranslationDetailLoadedEvent extends NestedEvent
             $events[] = new CurrencyBasicLoadedEvent($this->currencyTranslations->getCurrencies(), $this->context);
         }
         if ($this->currencyTranslations->getLanguages()->count() > 0) {
-            $events[] = new ShopBasicLoadedEvent($this->currencyTranslations->getLanguages(), $this->context);
+            $events[] = new LanguageBasicLoadedEvent($this->currencyTranslations->getLanguages(), $this->context);
         }
 
         return new NestedEventCollection($events);

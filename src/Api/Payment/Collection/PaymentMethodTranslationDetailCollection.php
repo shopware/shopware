@@ -2,8 +2,8 @@
 
 namespace Shopware\Api\Payment\Collection;
 
+use Shopware\Api\Language\Collection\LanguageBasicCollection;
 use Shopware\Api\Payment\Struct\PaymentMethodTranslationDetailStruct;
-use Shopware\Api\Shop\Collection\ShopBasicCollection;
 
 class PaymentMethodTranslationDetailCollection extends PaymentMethodTranslationBasicCollection
 {
@@ -21,9 +21,9 @@ class PaymentMethodTranslationDetailCollection extends PaymentMethodTranslationB
         );
     }
 
-    public function getLanguages(): ShopBasicCollection
+    public function getLanguages(): LanguageBasicCollection
     {
-        return new ShopBasicCollection(
+        return new LanguageBasicCollection(
             $this->fmap(function (PaymentMethodTranslationDetailStruct $paymentMethodTranslation) {
                 return $paymentMethodTranslation->getLanguage();
             })

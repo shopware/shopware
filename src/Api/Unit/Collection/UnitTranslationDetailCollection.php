@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Unit\Collection;
 
-use Shopware\Api\Shop\Collection\ShopBasicCollection;
+use Shopware\Api\Language\Collection\LanguageBasicCollection;
 use Shopware\Api\Unit\Struct\UnitTranslationDetailStruct;
 
 class UnitTranslationDetailCollection extends UnitTranslationBasicCollection
@@ -21,9 +21,9 @@ class UnitTranslationDetailCollection extends UnitTranslationBasicCollection
         );
     }
 
-    public function getLanguages(): ShopBasicCollection
+    public function getLanguages(): LanguageBasicCollection
     {
-        return new ShopBasicCollection(
+        return new LanguageBasicCollection(
             $this->fmap(function (UnitTranslationDetailStruct $unitTranslation) {
                 return $unitTranslation->getLanguage();
             })

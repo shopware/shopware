@@ -4,7 +4,7 @@ namespace Shopware\Api\Customer\Event\CustomerGroupTranslation;
 
 use Shopware\Api\Customer\Collection\CustomerGroupTranslationDetailCollection;
 use Shopware\Api\Customer\Event\CustomerGroup\CustomerGroupBasicLoadedEvent;
-use Shopware\Api\Shop\Event\Shop\ShopBasicLoadedEvent;
+use Shopware\Api\Language\Event\Language\LanguageBasicLoadedEvent;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
@@ -51,7 +51,7 @@ class CustomerGroupTranslationDetailLoadedEvent extends NestedEvent
             $events[] = new CustomerGroupBasicLoadedEvent($this->customerGroupTranslations->getCustomerGroups(), $this->context);
         }
         if ($this->customerGroupTranslations->getLanguages()->count() > 0) {
-            $events[] = new ShopBasicLoadedEvent($this->customerGroupTranslations->getLanguages(), $this->context);
+            $events[] = new LanguageBasicLoadedEvent($this->customerGroupTranslations->getLanguages(), $this->context);
         }
 
         return new NestedEventCollection($events);

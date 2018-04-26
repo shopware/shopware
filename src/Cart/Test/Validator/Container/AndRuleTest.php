@@ -28,6 +28,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Test\Common\FalseRule;
 use Shopware\Cart\Test\Common\TrueRule;
+use Shopware\Context\MatchContext\CartRuleMatchContext;
+use Shopware\Context\MatchContext\StorefrontMatchContext;
 use Shopware\Context\Rule\Container\AndRule;
 use Shopware\Context\Rule\Match;
 use Shopware\Context\Struct\StorefrontContext;
@@ -44,8 +46,9 @@ class AndRuleTest extends TestCase
         $this->assertEquals(
             new Match(true),
             $rule->match(
-                $this->createMock(CalculatedCart::class),
-                $this->createMock(StorefrontContext::class)
+                new StorefrontMatchContext(
+                    $this->createMock(StorefrontContext::class)
+                )
             )
         );
     }
@@ -60,8 +63,10 @@ class AndRuleTest extends TestCase
         $this->assertEquals(
             new Match(false, []),
             $rule->match(
-                $this->createMock(CalculatedCart::class),
-                $this->createMock(StorefrontContext::class)
+                new CartRuleMatchContext(
+                    $this->createMock(CalculatedCart::class),
+                    $this->createMock(StorefrontContext::class)
+                )
             )
         );
     }

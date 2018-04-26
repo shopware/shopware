@@ -2,8 +2,8 @@
 
 namespace Shopware\Api\Product\Collection;
 
+use Shopware\Api\Language\Collection\LanguageBasicCollection;
 use Shopware\Api\Product\Struct\ProductManufacturerTranslationDetailStruct;
-use Shopware\Api\Shop\Collection\ShopBasicCollection;
 
 class ProductManufacturerTranslationDetailCollection extends ProductManufacturerTranslationBasicCollection
 {
@@ -21,9 +21,9 @@ class ProductManufacturerTranslationDetailCollection extends ProductManufacturer
         );
     }
 
-    public function getLanguages(): ShopBasicCollection
+    public function getLanguages(): LanguageBasicCollection
     {
-        return new ShopBasicCollection(
+        return new LanguageBasicCollection(
             $this->fmap(function (ProductManufacturerTranslationDetailStruct $productManufacturerTranslation) {
                 return $productManufacturerTranslation->getLanguage();
             })

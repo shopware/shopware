@@ -68,6 +68,7 @@ class ParentField extends FkField
         if ($value === null) {
             yield $this->storageName => null;
             yield $this->tenantIdField => null;
+
             return;
         }
 

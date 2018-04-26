@@ -150,6 +150,11 @@ class CalculatedProduct extends Struct implements DeliverableLineItemInterface, 
         return true;
     }
 
+    public function getProduct(): ProductBasicStruct
+    {
+        return $this->product;
+    }
+
     public function getStock(): int
     {
         return $this->product->getStock() ?? 0;

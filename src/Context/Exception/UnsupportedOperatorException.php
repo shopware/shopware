@@ -38,11 +38,7 @@ class UnsupportedOperatorException extends \Exception
      */
     protected $class;
 
-    /**
-     * @param string $operator
-     * @param string $class
-     */
-    public function __construct($operator, $class)
+    public function __construct(string $operator, string $class)
     {
         $this->operator = $operator;
         $this->class = $class;

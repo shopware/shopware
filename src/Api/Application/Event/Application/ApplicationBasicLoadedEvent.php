@@ -53,6 +53,7 @@ class ApplicationBasicLoadedEvent extends NestedEvent
         if ($this->applications->getCurrencies()->count() > 0) {
             $events[] = new CurrencyBasicLoadedEvent($this->applications->getCurrencies(), $this->context);
         }
+
         return new NestedEventCollection($events);
     }
 }

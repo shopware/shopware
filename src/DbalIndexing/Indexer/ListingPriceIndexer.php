@@ -111,7 +111,7 @@ class ListingPriceIndexer implements IndexerInterface
                 [
                     'price' => json_encode($listingPrices),
                     'id' => Uuid::fromStringToBytes($id),
-                    'tenant' => Uuid::fromHexToBytes($context->getTenantId())
+                    'tenant' => Uuid::fromHexToBytes($context->getTenantId()),
                 ]
             );
         }

@@ -26,9 +26,8 @@ declare(strict_types=1);
 
 namespace Shopware\Context\Rule\Container;
 
-use Shopware\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Context\MatchContext\RuleMatchContext;
 use Shopware\Context\Rule\Match;
-use Shopware\Context\Struct\StorefrontContext;
 
 /**
  * OrRule returns true, if at least one child rule is true
@@ -36,15 +35,14 @@ use Shopware\Context\Struct\StorefrontContext;
 class OrRule extends Container
 {
     public function match(
-        CalculatedCart $calculatedCart,
-        StorefrontContext $context
+        RuleMatchContext $matchContext
     ): Match {
         $messages = [];
 
         $valid = false;
 
         foreach ($this->rules as $rule) {
-            $match = $rule->match($calculatedCart, $context);
+            $match = $rule->match($matchContext);
             if ($match->matches()) {
                 $valid = true;
             }

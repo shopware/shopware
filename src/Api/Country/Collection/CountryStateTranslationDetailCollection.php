@@ -3,7 +3,7 @@
 namespace Shopware\Api\Country\Collection;
 
 use Shopware\Api\Country\Struct\CountryStateTranslationDetailStruct;
-use Shopware\Api\Shop\Collection\ShopBasicCollection;
+use Shopware\Api\Language\Collection\LanguageBasicCollection;
 
 class CountryStateTranslationDetailCollection extends CountryStateTranslationBasicCollection
 {
@@ -21,9 +21,9 @@ class CountryStateTranslationDetailCollection extends CountryStateTranslationBas
         );
     }
 
-    public function getLanguages(): ShopBasicCollection
+    public function getLanguages(): LanguageBasicCollection
     {
-        return new ShopBasicCollection(
+        return new LanguageBasicCollection(
             $this->fmap(function (CountryStateTranslationDetailStruct $countryStateTranslation) {
                 return $countryStateTranslation->getLanguage();
             })

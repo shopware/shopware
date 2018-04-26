@@ -64,7 +64,7 @@ class VersioningTest extends KernelTestCase
             'id' => $uuid,
             'name' => 'foo tax',
             'rate' => 20,
-            'tenantId' => Defaults::TENANT_ID
+            'tenantId' => Defaults::TENANT_ID,
         ];
 
         $this->taxRepository->create([$taxData], $context);

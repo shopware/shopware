@@ -2,9 +2,9 @@
 
 namespace Shopware\Api\Media\Event\MediaTranslation;
 
+use Shopware\Api\Language\Event\Language\LanguageBasicLoadedEvent;
 use Shopware\Api\Media\Collection\MediaTranslationDetailCollection;
 use Shopware\Api\Media\Event\Media\MediaBasicLoadedEvent;
-use Shopware\Api\Shop\Event\Shop\ShopBasicLoadedEvent;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
@@ -51,7 +51,7 @@ class MediaTranslationDetailLoadedEvent extends NestedEvent
             $events[] = new MediaBasicLoadedEvent($this->mediaTranslations->getMedia(), $this->context);
         }
         if ($this->mediaTranslations->getLanguages()->count() > 0) {
-            $events[] = new ShopBasicLoadedEvent($this->mediaTranslations->getLanguages(), $this->context);
+            $events[] = new LanguageBasicLoadedEvent($this->mediaTranslations->getLanguages(), $this->context);
         }
 
         return new NestedEventCollection($events);

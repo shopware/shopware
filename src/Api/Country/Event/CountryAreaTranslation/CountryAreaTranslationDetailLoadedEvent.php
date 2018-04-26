@@ -4,7 +4,7 @@ namespace Shopware\Api\Country\Event\CountryAreaTranslation;
 
 use Shopware\Api\Country\Collection\CountryAreaTranslationDetailCollection;
 use Shopware\Api\Country\Event\CountryArea\CountryAreaBasicLoadedEvent;
-use Shopware\Api\Shop\Event\Shop\ShopBasicLoadedEvent;
+use Shopware\Api\Language\Event\Language\LanguageBasicLoadedEvent;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
@@ -51,7 +51,7 @@ class CountryAreaTranslationDetailLoadedEvent extends NestedEvent
             $events[] = new CountryAreaBasicLoadedEvent($this->countryAreaTranslations->getCountryAreas(), $this->context);
         }
         if ($this->countryAreaTranslations->getLanguages()->count() > 0) {
-            $events[] = new ShopBasicLoadedEvent($this->countryAreaTranslations->getLanguages(), $this->context);
+            $events[] = new LanguageBasicLoadedEvent($this->countryAreaTranslations->getLanguages(), $this->context);
         }
 
         return new NestedEventCollection($events);

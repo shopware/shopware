@@ -36,11 +36,29 @@ use Shopware\Api\Customer\Struct\CustomerGroupBasicStruct;
 use Shopware\Api\Language\Struct\LanguageBasicStruct;
 use Shopware\Api\Locale\Struct\LocaleBasicStruct;
 use Shopware\Api\Payment\Struct\PaymentMethodBasicStruct;
+use Shopware\Api\Product\Struct\ProductBasicStruct;
 use Shopware\Api\Shipping\Struct\ShippingMethodBasicStruct;
 use Shopware\Api\Tax\Collection\TaxBasicCollection;
 use Shopware\Api\Tax\Struct\TaxBasicStruct;
+use Shopware\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Cart\Cart\Struct\Cart;
+use Shopware\Cart\Delivery\DeliveryCalculator;
+use Shopware\Cart\Delivery\Struct\DeliveryCollection;
+use Shopware\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Cart\Delivery\Struct\ShippingLocation;
+use Shopware\Cart\Error\ErrorCollection;
+use Shopware\Cart\LineItem\CalculatedLineItemCollection;
+use Shopware\Cart\LineItem\LineItem;
+use Shopware\Cart\LineItem\LineItemCollection;
+use Shopware\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Cart\Price\Struct\CartPrice;
+use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Cart\Tax\TaxAmountCalculator;
 use Shopware\Cart\Tax\TaxDetector;
+use Shopware\Cart\Test\Cart\TestLineItem;
+use Shopware\CartBridge\Product\ProductProcessor;
+use Shopware\CartBridge\Product\Struct\CalculatedProduct;
 use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\Uuid;
@@ -64,20 +82,27 @@ class Generator extends TestCase
         if ($application === null) {
             $application = new ApplicationBasicStruct();
             $application->setId('ffa32a50e2d04cf38389a53f8d6cd594');
+            $application->setTaxCalculationType(TaxAmountCalculator::CALCULATION_HORIZONTAL);
+            $application->setCatalogIds([Defaults::CATALOG]);
         }
 
         $currency = $currency ?: (new CurrencyBasicStruct())->assign([
             'id' => '4c8eba11-bd35-46d7-86af-bed481a6e665',
+            'factor' => 1,
         ]);
+
+        $currency->setFactor(1);
 
         if (!$currentCustomerGroup) {
             $currentCustomerGroup = new CustomerGroupBasicStruct();
             $currentCustomerGroup->setId(Defaults::FALLBACK_CUSTOMER_GROUP);
+            $currentCustomerGroup->setDisplayGross(true);
         }
 
         if (!$fallbackCustomerGroup) {
             $fallbackCustomerGroup = new CustomerGroupBasicStruct();
             $fallbackCustomerGroup->setId(Defaults::FALLBACK_CUSTOMER_GROUP);
+            $currentCustomerGroup->setDisplayGross(true);
         }
 
         if (!$taxes) {
@@ -98,6 +123,8 @@ class Generator extends TestCase
             $country = new CountryBasicStruct();
             $country->setId('5cff02b1-0297-41a4-891c-430bcd9e3603');
             $country->setAreaId($area->getId());
+            $country->setTaxFree(false);
+            $country->setName('Germany');
         }
         if (!$state) {
             $state = new CountryStateBasicStruct();
@@ -116,6 +143,7 @@ class Generator extends TestCase
             $locale->setCode('en_GB');
 
             $language = new LanguageBasicStruct();
+            $language->setId(Defaults::LANGUAGE);
             $language->setLocale($locale);
             $language->setName('Language 1');
         }
@@ -130,12 +158,15 @@ class Generator extends TestCase
         }
 
         $paymentMethod = (new PaymentMethodBasicStruct())->assign(['id' => '19d144ff-e15f-4772-860d-59fca7f207c1']);
-        $shippingMethod = (new ShippingMethodBasicStruct())->assign([
-            'id' => '8beeb66e9dda46b18891a059257a590e',
-            'minDeliveryTime' => 1,
-            'maxDeliveryTime' => 2,
-        ]);
+        $shippingMethod = new ShippingMethodBasicStruct();
+        $shippingMethod->setId('8beeb66e9dda46b18891a059257a590e');
+        $shippingMethod->setCalculation(DeliveryCalculator::CALCULATION_BY_PRICE);
+        $shippingMethod->setMinDeliveryTime(1);
+        $shippingMethod->setMaxDeliveryTime(2);
+
         $customer = (new CustomerBasicStruct())->assign(['id' => Uuid::uuid4()->getHex()]);
+        $customer->setId(Uuid::uuid4()->getHex());
+        $customer->setGroup($currentCustomerGroup);
 
         return new StorefrontContext(
             Defaults::TENANT_ID,
@@ -189,6 +220,38 @@ class Generator extends TestCase
             ->will(static::returnValue($priceDefinitions));
 
         return $mock;
+    }
+
+    public static function createCalculatedCart(): CalculatedCart
+    {
+        return new CalculatedCart(
+            new Cart('test', 'test', new LineItemCollection(), new ErrorCollection()),
+            new CalculatedLineItemCollection([
+                self::createCalculatedProduct('A', 10, 27),
+                new TestLineItem('B', null, 5),
+            ]),
+            new CartPrice(275, 275, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS),
+            new DeliveryCollection()
+        );
+    }
+
+    public static function createCalculatedProduct(
+        string $identifier,
+        float $price,
+        int $quantity,
+        ?ProductBasicStruct $productBasicStruct = null
+    ): CalculatedProduct {
+        $product = $productBasicStruct ?? new ProductBasicStruct();
+
+        return new CalculatedProduct(
+            new LineItem($identifier, ProductProcessor::TYPE_PRODUCT, $quantity),
+            new CalculatedPrice($price, $price * $quantity, new CalculatedTaxCollection(), new TaxRuleCollection(), $quantity),
+            $identifier,
+            $quantity,
+            new DeliveryDate(new \DateTime(), new \DateTime()),
+            new DeliveryDate(new \DateTime(), new \DateTime()),
+            $product
+        );
     }
 
     private function createTaxDetector($useGross, $isNetDelivery)

@@ -40,8 +40,6 @@ use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Cart\Test\Common\Generator;
 use Shopware\CartBridge\Cart\CartPersister;
-use Shopware\Context\Struct\ApplicationContext;
-use Shopware\Defaults;
 use Shopware\Framework\Serializer\StructNormalizer;
 use Symfony\Component\Serializer\Encoder\ChainDecoder;
 use Symfony\Component\Serializer\Encoder\ChainEncoder;

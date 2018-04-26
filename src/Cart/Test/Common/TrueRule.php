@@ -24,16 +24,14 @@
 
 namespace Shopware\Cart\Test\Common;
 
-use Shopware\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Context\MatchContext\RuleMatchContext;
 use Shopware\Context\Rule\Match;
 use Shopware\Context\Rule\Rule;
-use Shopware\Context\Struct\StorefrontContext;
 
 class TrueRule extends Rule
 {
     public function match(
-        CalculatedCart $calculatedCart,
-        StorefrontContext $context
+        RuleMatchContext $matchContext
     ): Match {
         return new Match(true);
     }

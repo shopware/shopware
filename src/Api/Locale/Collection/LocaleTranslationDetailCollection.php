@@ -2,8 +2,8 @@
 
 namespace Shopware\Api\Locale\Collection;
 
+use Shopware\Api\Language\Collection\LanguageBasicCollection;
 use Shopware\Api\Locale\Struct\LocaleTranslationDetailStruct;
-use Shopware\Api\Shop\Collection\ShopBasicCollection;
 
 class LocaleTranslationDetailCollection extends LocaleTranslationBasicCollection
 {
@@ -21,9 +21,9 @@ class LocaleTranslationDetailCollection extends LocaleTranslationBasicCollection
         );
     }
 
-    public function getLanguages(): ShopBasicCollection
+    public function getLanguages(): LanguageBasicCollection
     {
-        return new ShopBasicCollection(
+        return new LanguageBasicCollection(
             $this->fmap(function (LocaleTranslationDetailStruct $localeTranslation) {
                 return $localeTranslation->getLanguage();
             })

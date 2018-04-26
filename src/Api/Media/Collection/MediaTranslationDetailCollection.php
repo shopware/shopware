@@ -2,8 +2,8 @@
 
 namespace Shopware\Api\Media\Collection;
 
+use Shopware\Api\Language\Collection\LanguageBasicCollection;
 use Shopware\Api\Media\Struct\MediaTranslationDetailStruct;
-use Shopware\Api\Shop\Collection\ShopBasicCollection;
 
 class MediaTranslationDetailCollection extends MediaTranslationBasicCollection
 {
@@ -21,9 +21,9 @@ class MediaTranslationDetailCollection extends MediaTranslationBasicCollection
         );
     }
 
-    public function getLanguages(): ShopBasicCollection
+    public function getLanguages(): LanguageBasicCollection
     {
-        return new ShopBasicCollection(
+        return new LanguageBasicCollection(
             $this->fmap(function (MediaTranslationDetailStruct $mediaTranslation) {
                 return $mediaTranslation->getLanguage();
             })

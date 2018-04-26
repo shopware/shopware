@@ -114,7 +114,7 @@ class SearchIndexer implements IndexerInterface
             $this->indexContext($context, $timestamp);
         }
 
-        $this->connection->transactional(function() use ($table, $documentTable, $tenantId) {
+        $this->connection->transactional(function () use ($table, $documentTable, $tenantId) {
             $tenantId = Uuid::fromStringToBytes($tenantId);
 
             $this->connection->executeUpdate('DELETE FROM ' . self::DOCUMENT_TABLE . ' WHERE tenant_id = :tenant', ['tenant' => $tenantId]);

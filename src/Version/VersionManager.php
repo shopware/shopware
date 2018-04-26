@@ -394,8 +394,8 @@ class VersionManager
 
         $commands = [$insert];
 
-        /**
-         * @var string|EntityDefinition $definition
+        /*
+         * @var string|EntityDefinition
          * @var array                   $item
          */
         foreach ($writtenEvents as $definition => $items) {

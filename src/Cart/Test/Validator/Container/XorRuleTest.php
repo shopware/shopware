@@ -25,13 +25,12 @@
 namespace Shopware\Cart\Test\Validator\Container;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Test\Common\FalseRule;
 use Shopware\Cart\Test\Common\TrueRule;
+use Shopware\Context\MatchContext\StorefrontMatchContext;
 use Shopware\Context\Rule\Container\XorRule;
 use Shopware\Context\Rule\Match;
 use Shopware\Context\Struct\StorefrontContext;
-use Shopware\Framework\Struct\StructCollection;
 
 class XorRuleTest extends TestCase
 {
@@ -46,9 +45,9 @@ class XorRuleTest extends TestCase
         $this->assertEquals(
             new Match(true),
             $rule->match(
-                $this->createMock(CalculatedCart::class),
-                $this->createMock(StorefrontContext::class),
-                new StructCollection()
+                new StorefrontMatchContext(
+                    $this->createMock(StorefrontContext::class)
+                )
             )
         );
     }
@@ -63,9 +62,9 @@ class XorRuleTest extends TestCase
         $this->assertEquals(
             new Match(false),
             $rule->match(
-                $this->createMock(CalculatedCart::class),
-                $this->createMock(StorefrontContext::class),
-                new StructCollection()
+                new StorefrontMatchContext(
+                    $this->createMock(StorefrontContext::class)
+                )
             )
         );
     }
@@ -81,9 +80,9 @@ class XorRuleTest extends TestCase
         $this->assertEquals(
             new Match(false),
             $rule->match(
-                $this->createMock(CalculatedCart::class),
-                $this->createMock(StorefrontContext::class),
-                new StructCollection()
+                new StorefrontMatchContext(
+                    $this->createMock(StorefrontContext::class)
+                )
             )
         );
     }

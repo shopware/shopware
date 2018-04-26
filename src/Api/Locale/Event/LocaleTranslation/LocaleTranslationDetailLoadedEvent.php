@@ -2,9 +2,9 @@
 
 namespace Shopware\Api\Locale\Event\LocaleTranslation;
 
+use Shopware\Api\Language\Event\Language\LanguageBasicLoadedEvent;
 use Shopware\Api\Locale\Collection\LocaleTranslationDetailCollection;
 use Shopware\Api\Locale\Event\Locale\LocaleBasicLoadedEvent;
-use Shopware\Api\Shop\Event\Shop\ShopBasicLoadedEvent;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
@@ -51,7 +51,7 @@ class LocaleTranslationDetailLoadedEvent extends NestedEvent
             $events[] = new LocaleBasicLoadedEvent($this->localeTranslations->getLocales(), $this->context);
         }
         if ($this->localeTranslations->getLanguages()->count() > 0) {
-            $events[] = new ShopBasicLoadedEvent($this->localeTranslations->getLanguages(), $this->context);
+            $events[] = new LanguageBasicLoadedEvent($this->localeTranslations->getLanguages(), $this->context);
         }
 
         return new NestedEventCollection($events);

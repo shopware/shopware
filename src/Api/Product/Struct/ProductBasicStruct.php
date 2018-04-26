@@ -800,6 +800,7 @@ class ProductBasicStruct extends Entity
 
     public function getPriceDefinitionForQuantity(ApplicationContext $context, int $quantity): PriceDefinition
     {
+        // TODO@DR consider tax state of application context (NEXT-286)
         $taxRules = $this->getTaxRuleCollection();
 
         $prices = $this->getContextPrices()->getPriceRulesForContext($context);

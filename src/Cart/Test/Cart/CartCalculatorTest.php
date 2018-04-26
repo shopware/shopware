@@ -35,7 +35,6 @@ use Shopware\Cart\Price\Struct\CartPrice;
 use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\CartBridge\Product\ProductProcessor;
-use Shopware\CartBridge\Voucher\VoucherProcessor;
 use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
@@ -46,18 +45,15 @@ class CartCalculatorTest extends TestCase
         $price = new CartPrice(0, 0, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS);
 
         $generator = $this->createMock(AmountCalculator::class);
-        $generator->expects($this->exactly(3))
+        $generator->expects($this->exactly(2))
             ->method('calculateAmount')
             ->will($this->returnValue($price));
 
         $productProcessor = $this->createMock(ProductProcessor::class);
         $productProcessor->expects($this->once())->method('process');
 
-        $voucherProcessor = $this->createMock(VoucherProcessor::class);
-        $voucherProcessor->expects($this->once())->method('process');
-
         $calculator = new CartProcessor(
-            [$productProcessor, $voucherProcessor],
+            [$productProcessor],
             $generator
         );
 

@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Tax\Collection;
 
-use Shopware\Api\Shop\Collection\ShopBasicCollection;
+use Shopware\Api\Language\Collection\LanguageBasicCollection;
 use Shopware\Api\Tax\Struct\TaxAreaRuleTranslationDetailStruct;
 
 class TaxAreaRuleTranslationDetailCollection extends TaxAreaRuleTranslationBasicCollection
@@ -21,9 +21,9 @@ class TaxAreaRuleTranslationDetailCollection extends TaxAreaRuleTranslationBasic
         );
     }
 
-    public function getLanguages(): ShopBasicCollection
+    public function getLanguages(): LanguageBasicCollection
     {
-        return new ShopBasicCollection(
+        return new LanguageBasicCollection(
             $this->fmap(function (TaxAreaRuleTranslationDetailStruct $taxAreaRuleTranslation) {
                 return $taxAreaRuleTranslation->getLanguage();
             })

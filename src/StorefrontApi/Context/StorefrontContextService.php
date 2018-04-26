@@ -28,8 +28,6 @@ use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Context\Service\ContextFactoryInterface;
 use Shopware\Context\Service\ContextRuleLoader;
-use Shopware\Context\Struct\CheckoutScope;
-use Shopware\Context\Struct\CustomerScope;
 use Shopware\Context\Struct\StorefrontContext;
 use Symfony\Component\Serializer\SerializerInterface;
 
@@ -127,7 +125,7 @@ class StorefrontContextService implements StorefrontContextServiceInterface
         $context = $this->factory->create($tenantId, $token, $applicationId, $parameters);
 
         $rules = $this->contextRuleLoader->loadMatchingRules($context, $token);
-        $context->setContextRulesIds($rules->getIds());
+        $context->setContextRuleIds($rules->getIds());
         $context->lockRules();
 
         $this->context[$key] = $context;
@@ -161,7 +159,7 @@ class StorefrontContextService implements StorefrontContextServiceInterface
         $context->setTaxState($cacheContext->getTaxState());
 
         $rules = $this->contextRuleLoader->loadMatchingRules($context, $token);
-        $context->setContextRulesIds($rules->getIds());
+        $context->setContextRuleIds($rules->getIds());
         $context->lockRules();
 
         $this->context[$key] = $context;

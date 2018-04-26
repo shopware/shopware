@@ -24,7 +24,6 @@
 
 namespace Shopware\Category\Command;
 
-use Doctrine\DBAL\Connection;
 use Shopware\Category\Extension\CategoryPathBuilder;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\DbalIndexing\Event\ProgressAdvancedEvent;

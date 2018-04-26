@@ -115,11 +115,6 @@ class StorefrontContext extends Struct
     protected $taxState = CartPrice::TAX_STATE_GROSS;
 
     /**
-     * @var ApplicationContext
-     */
-    protected $context;
-
-    /**
      * @var LanguageBasicStruct
      */
     protected $language;
@@ -128,6 +123,11 @@ class StorefrontContext extends Struct
      * @var null|LanguageBasicStruct
      */
     protected $fallbackLanguage;
+
+    /**
+     * @var ApplicationContext
+     */
+    private $context;
 
     /**
      * @var string
@@ -230,12 +230,12 @@ class StorefrontContext extends Struct
         );
     }
 
-    public function getContextRulesIds(): array
+    public function getContextRuleIds(): array
     {
         return $this->contextRulesIds;
     }
 
-    public function setContextRulesIds(array $ruleIds): void
+    public function setContextRuleIds(array $ruleIds): void
     {
         if ($this->rulesLocked) {
             throw new ContextRulesLockedException();

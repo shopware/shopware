@@ -2,8 +2,8 @@
 
 namespace Shopware\Api\Mail\Collection;
 
+use Shopware\Api\Language\Collection\LanguageBasicCollection;
 use Shopware\Api\Mail\Struct\MailTranslationDetailStruct;
-use Shopware\Api\Shop\Collection\ShopBasicCollection;
 
 class MailTranslationDetailCollection extends MailTranslationBasicCollection
 {
@@ -21,9 +21,9 @@ class MailTranslationDetailCollection extends MailTranslationBasicCollection
         );
     }
 
-    public function getLanguages(): ShopBasicCollection
+    public function getLanguages(): LanguageBasicCollection
     {
-        return new ShopBasicCollection(
+        return new LanguageBasicCollection(
             $this->fmap(function (MailTranslationDetailStruct $mailTranslation) {
                 return $mailTranslation->getLanguage();
             })

@@ -1,0 +1,58 @@
+{% block sw_customer_detail %}
+    <sw-page class="sw-customer-detail">
+        {% block sw_customer_detail_header %}
+            <template slot="smart-bar-header">
+                <h2>{{ customerName }}</h2>
+            </template>
+        {% endblock %}
+
+        {% block sw_customer_detail_actions %}
+            <template slot="smart-bar-actions">
+                {% block sw_customer_detail_actions_cancel_editing %}
+                    <sw-button v-if="customerEditMode && !isCreateCustomer"
+                               :disabled="isLoading"
+                               @click.prevent="onDisableCustomerEditMode">
+                        {{ $tc('sw-customer.detail.buttonCancel') }}
+                    </sw-button>
+                {% endblock %}
+
+                {% block sw_customer_detail_actions_cancel %}
+                    <sw-button v-else :disabled="isLoading" link="sw.customer.index">
+                        {{ $tc('sw-customer.detail.buttonCancel') }}
+                    </sw-button>
+                {% endblock %}
+
+                {% block sw_customer_detail_actions_save %}
+                    <sw-button variant="primary" :disabled="isLoading" @click.prevent="onSave">
+                        {{ $tc('sw-customer.detail.buttonSave') }}
+                    </sw-button>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_customer_detail_content %}
+            <sw-card-view slot="content">
+                {% block sw_customer_detail_content_tabs %}
+                    <sw-tabs class="sw-customer-detail-page__tabs">
+                        <sw-tabs-item :route="{ name: 'sw.customer.detail.base', params: { id: $route.params.id } }"
+                                      :title="$tc('sw-customer.detail.tabGeneral')">
+                            {{ $tc('sw-customer.detail.tabGeneral') }}
+                        </sw-tabs-item>
+                    </sw-tabs>
+                {% endblock %}
+
+                {% block sw_customer_detail_content_view %}
+                    <router-view :customer="customer"
+                                 :customerName="customerName"
+                                 :applications="applications"
+                                 :customerGroups="customerGroups"
+                                 :paymentMethods="paymentMethods"
+                                 :isLoading="isLoading"
+                                 :customerEditMode="customerEditMode"
+                                 @activateCustomerEditMode="onActivateCustomerEditMode">
+                    </router-view>
+                {% endblock %}
+            </sw-card-view>
+        {% endblock %}
+    </sw-page>
+{% endblock %}

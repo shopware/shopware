@@ -1,0 +1,114 @@
+{% block sw_customer_base_form %}
+    <div class="sw-customer-base-form">
+        <sw-container grid="1fr 1fr" gap="30px">
+            {% block sw_customer_base_form_first_salutation_field %}
+                <sw-field type="text"
+                          :label="$tc('sw-customer.baseForm.labelSalutation')"
+                          name="salutation"
+                          v-model="customer.salutation">
+                </sw-field>
+            {% endblock %}
+
+            {% block sw_customer_base_form_first_name_field %}
+                <sw-field type="text"
+                          :label="$tc('sw-customer.baseForm.labelFirstName')"
+                          name="firstName"
+                          v-model="customer.firstName">
+                </sw-field>
+            {% endblock %}
+
+            {% block sw_customer_base_form_last_name_field %}
+                <sw-field type="text"
+                          :label="$tc('sw-customer.baseForm.labelLastName')"
+                          name="lastName"
+                          v-model="customer.lastName">
+                </sw-field>
+            {% endblock %}
+
+            {% block sw_customer_base_form_email_field %}
+                <sw-field type="email"
+                          :label="$tc('sw-customer.baseForm.labelEmail')"
+                          name="email"
+                          v-model="customer.email">
+                </sw-field>
+            {% endblock %}
+
+            {% block sw_customer_base_form_phone_field %}
+                <sw-field type="text"
+                          :label="$tc('sw-customer.baseForm.labelPhoneNumber')"
+                          name="phone"
+                          disabled>
+                </sw-field>
+            {% endblock %}
+
+            {% block sw_customer_base_form_company_field %}
+                <sw-field type="text"
+                          :label="$tc('sw-customer.baseForm.labelCompany')"
+                          name="company"
+                          disabled>
+                </sw-field>
+            {% endblock %}
+
+            {% block sw_customer_base_form_customer_group_field %}
+                <sw-field type="select"
+                          :label="$tc('sw-customer.baseForm.labelCustomerGroup')"
+                          :placeholder="$tc('sw-customer.baseForm.placeholderCustomerGroup')"
+                          name="customerGroup"
+                          v-model="customer.groupId">
+                    {% block sw_customer_base_form_customer_group_field_options %}
+                        <option slot="options" v-for="customerGroup in customerGroups" :key="customerGroup.id" :value="customerGroup.id">
+                            {{ customerGroup.name }}
+                        </option>
+                    {% endblock %}
+                </sw-field>
+            {% endblock %}
+
+            {% block sw_customer_base_form_shop_field %}
+                <sw-field type="select"
+                          :label="$tc('sw-customer.baseForm.labelApplication')"
+                          :placeholder="$tc('sw-customer.baseForm.placeholderApplication')"
+                          name="customerApplication"
+                          v-model="customer.applicationId">
+                    {% block sw_customer_base_form_shop_field_options %}
+                        <option slot="options" v-for="application in applications" :key="application.id" :value="application.id">
+                            {{ application.name }}
+                        </option>
+                    {% endblock %}
+                </sw-field>
+            {% endblock %}
+
+            {% block sw_customer_base_form_payment_method_field %}
+                <sw-field type="select"
+                          :label="$tc('sw-customer.baseForm.labelPaymentMethod')"
+                          :placeholder="$tc('sw-customer.baseForm.placeholderPaymentMethod')"
+                          name="paymentMethod"
+                          v-model="customer.defaultPaymentMethodId">
+                    {% block sw_customer_base_form_payment_method_field_options %}
+                        <option slot="options" v-for="paymentMethod in paymentMethods" :key="paymentMethod.id" :value="paymentMethod.id">
+                            {{ paymentMethod.name }}
+                        </option>
+                    {% endblock %}
+                </sw-field>
+            {% endblock %}
+
+            {% block sw_customer_base_form_customer_number_field %}
+                <sw-field type="text"
+                          :label="$tc('sw-customer.baseForm.labelCustomerNumber')"
+                          name="number"
+                          v-model="customer.number">
+                </sw-field>
+            {% endblock %}
+
+            {% block sw_customer_base_form_birthday_field %}
+                <sw-field type="date"
+                          :label="$tc('sw-customer.baseForm.labelBirthday')"
+                          name="birthday"
+                          v-model="customer.birthday">
+                    {% block sw_customer_base_form_birthday_field_icon %}
+                        <sw-icon name="default-calendar-full" small slot="suffix"></sw-icon>
+                    {% endblock %}
+                </sw-field>
+            {% endblock %}
+        </sw-container>
+    </div>
+{% endblock %}

@@ -1,5 +1,5 @@
 import { State } from 'src/core/shopware';
-import { types } from 'src/core/service/util.service';
+import utils, { types } from 'src/core/service/util.service';
 import { deepCopyObject, getAssociatedDeletions, getObjectChangeSet } from 'src/core/service/utils/object.utils';
 
 /**
@@ -70,6 +70,102 @@ State.register('customer', {
         },
 
         /**
+         * Get a customer by id.
+         * If the customer does not exist in the state object, it will be loaded via the API.
+         *
+         * @type action
+         * @memberOf module:app/state/customer
+         * @param {Function} commit
+         * @param {Object} state
+         * @param {String} id
+         * @param {Boolean} [localCopy=false]
+         * @returns {Promise<T>|String}
+         */
+        getCustomerById({ commit, state }, id, localCopy = false) {
+            const customer = state.draft[id];
+
+            if (typeof customer !== 'undefined' && customer.isDetail) {
+                return (localCopy === true) ? deepCopyObject(customer) : customer;
+            }
+
+            const providerContainer = Shopware.Application.getContainer('service');
+            const customerService = providerContainer.customerService;
+
+            return customerService.getById(id).then((response) => {
+                const loadedCustomer = response.data;
+                loadedCustomer.isDetail = true;
+
+                commit('initCustomer', loadedCustomer);
+
+                return (localCopy === true) ? deepCopyObject(state.draft[id]) : state.draft[id];
+            });
+        },
+
+        /**
+         * Create an empty customer object with all possible properties from the entity definition.
+         * The object can be used in the data binding for creating a new customer.
+         * It will be marked with a `ìsNew` property.
+         *
+         * @type action
+         * @memberOf module:app/state/customer
+         * @param {Function} commit
+         * @param {Object} state
+         * @param {String|null} [customerId=null]
+         * @returns {String|null}
+         */
+        createEmptyCustomer({ commit, state }, customerId = null) {
+            if (customerId === null) {
+                customerId = utils.createId();
+            }
+
+            if (typeof state.draft[customerId] !== 'undefined') {
+                return state.draft[customerId];
+            }
+
+            const customer = Shopware.Entity.getRawEntityObject('customer', true);
+
+            customer.id = customerId;
+            customer.isDetail = true;
+            customer.isNew = true;
+
+            commit('initCustomer', customer);
+
+            state.draft[customerId].defaultShippingAddress = {
+                id: utils.createId(),
+                firstName: 'First name',
+                lastName: 'Last name',
+                city: 'City',
+                street: 'Street',
+                zipcode: '12345',
+                salutation: 'Salutation',
+                country: {
+                    name: 'Country name'
+                }
+            };
+
+            state.draft[customerId].defaultBillingAddress = {
+                id: utils.createId(),
+                firstName: 'First name',
+                lastName: 'Last name',
+                city: 'City',
+                street: 'Street',
+                zipcode: '12345',
+                salutation: 'Salutation',
+                country: {
+                    name: 'Country name'
+                }
+            };
+
+            state.draft[customerId].defaultShippingAddressId = state.draft[customerId].defaultShippingAddress.id;
+            state.draft[customerId].defaultBillingAddressId = state.draft[customerId].defaultBillingAddress.id;
+
+            // @Todo: Remove when password workflow is defined.
+            state.draft[customerId].password = 'shopware';
+
+            return customerId;
+        },
+
+        /**
          * Saves the given customer to the server by sending a changeset.
          *
          * @type action
@@ -77,7 +173,7 @@ State.register('customer', {
          * @param {Function} commit
          * @param {Object} state
          * @param {Object} customer
-         * @return {Promise}
+         * @return {Promise<T>}
          */
         saveCustomer({ commit, state }, customer) {
             if (!customer.id) {
@@ -130,7 +226,7 @@ State.register('customer', {
                                 });
                             }
 
-                            return exception;
+                            return Promise.reject(exception);
                         });
                 }
 
@@ -146,7 +242,7 @@ State.register('customer', {
                             });
                         }
 
-                        return exception;
+                        return Promise.reject(exception);
                     });
             }).catch((deleteException) => {
                 if (deleteException.response.data && deleteException.response.data.errors) {
@@ -155,7 +251,7 @@ State.register('customer', {
                     });
                 }
 
-                return deleteException;
+                return Promise.reject(deleteException);
             });
         }
     },
@@ -181,6 +277,23 @@ State.register('customer', {
             customer.isLoaded = true;
             state.original[customer.id] = Object.assign(state.original[customer.id] || {}, originalCustomer);
             state.draft[customer.id] = Object.assign(state.draft[customer.id] || {}, draftCustomer);
+        },
+
+        /**
+         * Updates a customer in the state.
+         *
+         * @type mutation
+         * @memberOf module:app/state/customer
+         * @param {Object} state
+         * @param {Object} customer
+         * @returns {void}
+         */
+        setCustomer(state, customer) {
+            if (!customer.id) {
+                return;
+            }
+
+            Object.assign(state.draft[customer.id], customer);
         },
 
         /**

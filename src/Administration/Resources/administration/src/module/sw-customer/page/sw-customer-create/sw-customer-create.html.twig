@@ -1,0 +1,15 @@
+{% block sw_customer_detail_header %}
+    <template slot="smart-bar-header">
+        <h2 v-if="customerName">{{ customerName }}</h2>
+        <h2 v-else>{{ $tc('sw-customer.detail.headlineNewCustomer') }}</h2>
+    </template>
+{% endblock %}
+
+{% block sw_customer_detail_content_tabs %}
+    <sw-tabs class="sw-customer-detail-page__tabs">
+        <sw-tabs-item :route="{ name: 'sw.customer.create', params: { id: $route.params.id } }"
+                      :title="$tc('sw-customer.detail.tabGeneral')">
+            {{ $tc('sw-customer.detail.tabGeneral') }}
+        </sw-tabs-item>
+    </sw-tabs>
+{% endblock %}

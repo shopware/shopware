@@ -44,8 +44,17 @@ Component.register('sw-grid-row', {
 
     methods: {
         onInlineEditStart() {
-            // Inline editing is enabled, we don't have to re-enable it again
-            if (this.isEditingActive) {
+            let isInlineEditingConfigured = false;
+
+            // If inline editing is already enabled, or no column has
+            // the property "editable" we don't have to enable it.
+            this.columns.forEach((column) => {
+                if (column.editable || isInlineEditingConfigured) {
+                    isInlineEditingConfigured = true;
+                }
+            });
+
+            if (this.isEditingActive || !isInlineEditingConfigured) {
                 return;
             }
 

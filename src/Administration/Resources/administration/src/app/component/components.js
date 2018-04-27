@@ -8,6 +8,7 @@ import './base/sw-sidebar';
 import './base/sw-sidebar-item';
 import './base/sw-tabs';
 import './base/sw-tabs-item';
+import './base/sw-table';
 
 import './grid/sw-grid';
 import './grid/sw-grid-column';

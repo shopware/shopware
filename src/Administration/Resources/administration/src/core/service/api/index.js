@@ -15,6 +15,7 @@ import CurrencyApiService from 'src/core/service/api/currency.api.service';
 import TaxApiService from 'src/core/service/api/tax.api.service';
 import ContextRuleApiService from 'src/core/service/api/context-rule.api.service';
 import MediaApiService from 'src/core/service/api/media.api.service';
+import ApplicationApiService from 'src/core/service/api/application.api.service';
 
 export default {
     shopService: ShopApiService,
@@ -33,5 +34,6 @@ export default {
     currencyService: CurrencyApiService,
     taxService: TaxApiService,
     contextRuleService: ContextRuleApiService,
-    mediaService: MediaApiService
+    mediaService: MediaApiService,
+    applicationService: ApplicationApiService
 };

@@ -37,7 +37,8 @@
   },
   "sw-customer": {
     "general": {
-      "mainMenuItemList": "Customers"
+      "mainMenuItemList": "Customers",
+      "mainMenuItemAdd": "Add new customer"
     },
     "list": {
       "textCustomers": "Customers",
@@ -55,6 +56,49 @@
       "contextMenuEdit": "Edit customer",
       "contextMenuDelete": "Delete customer",
       "contextMenuDuplicate": "Duplicate customer"
+    },
+    "baseForm": {
+      "labelSalutation": "Salutation",
+      "labelFirstName": "First name",
+      "labelLastName": "Last name",
+      "labelEmail": "e-mail",
+      "labelPhoneNumber": "Phone number",
+      "labelCompany": "Company",
+      "labelCustomerGroup": "Customer group",
+      "labelApplication": "Application",
+      "labelPaymentMethod": "Payment method",
+      "labelCustomerNumber": "Customer number",
+      "labelBirthday": "Date of birth",
+      "placeholderCustomerGroup": "Please select a customer group...",
+      "placeholderApplication": "Please select an application...",
+      "placeholderPaymentMethod": "lease select a payment method..."
+    },
+    "baseInfo": {
+      "contactEmail": "e-mail",
+      "labelAccountActiveField": "Account is active",
+      "buttonEdit": "Edit customer",
+      "buttonChangePassword" : "Change password",
+      "labelCustomerNumber": "Customer number",
+      "labelCustomerGroup": "Customer group",
+      "labelBirthday": "Date of birth",
+      "labelLastLogin": "Last login",
+      "labelLanguage": "Language",
+      "labelOrders": "Orders",
+      "labelTurnover": "Turnover",
+      "labelPaymentFailures": "Payment failures",
+      "emptyTextLogin": "No login yet",
+      "emptyTextBirthday": "No information"
+    },
+    "detailBase": {
+      "labelAccountCard": "Account"
+    },
+    "detail": {
+      "buttonSave": "Save",
+      "buttonCancel": "Cancel",
+      "headlineNewCustomer": "New customer",
+      "tabGeneral": "General",
+      "titleSaveSuccess": "Customer",
+      "messageSaveSuccess": "The customer {name} has been saved successfully."
     }
   },
   "sw-product": {

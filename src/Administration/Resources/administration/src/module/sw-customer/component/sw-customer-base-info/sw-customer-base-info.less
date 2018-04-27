@@ -1,0 +1,53 @@
+@import "~less/variables";
+
+@sw-customer-base-info-color-border:          @color-steam-cloud;
+@sw-customer-base-info-data-color-background: @color-light-gray;
+@sw-customer-base-info-color-text:            @color-gutenberg;
+
+.sw-customer-base-info {
+    .sw-customer-base-info__overview {
+        padding: 30px;
+        border-bottom: 1px solid @sw-customer-base-info-color-border;
+    }
+
+    .sw-customer-base-info__data {
+        padding: 30px;
+        background-color: @sw-customer-base-info-data-color-background;
+
+        .sw-table__cell:nth-child(odd) {
+            font-weight: 600;
+        }
+    }
+
+    .sw-customer-base-info__actions {
+        .sw-button:not(:last-of-type) {
+            margin-bottom: 15px;
+        }
+    }
+
+    .sw-customer-detail-base__contact-name {
+        margin-bottom: 8px;
+        font-size: 16px;
+        font-weight: 600;
+    }
+
+    .sw-customer-detail-base__contact-item {
+        margin-bottom: 8px;
+        font-size: 14px;
+    }
+
+    .sw-field.sw-customer-base-info__active-field {
+        grid-template-columns: 16px 140px 1fr;
+        grid-gap: 10px;
+        margin: 0;
+
+        .sw-field__input {
+            order: 1;
+        }
+
+        label {
+            color: @sw-customer-base-info-color-text;
+            order: 2;
+        }
+    }
+}

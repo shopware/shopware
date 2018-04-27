@@ -37,7 +37,8 @@
   },
   "sw-customer": {
     "general": {
-      "mainMenuItemList": "Kunden"
+      "mainMenuItemList": "Kunden",
+      "mainMenuItemAdd": "Kunde anlegen"
     },
     "list": {
       "textCustomers": "Kunden",
@@ -55,6 +56,49 @@
       "contextMenuEdit": "Kunde bearbeiten",
       "contextMenuDuplicate": "Kunde duplizieren",
       "contextMenuDelete": "Kunde löschen"
+    },
+    "baseForm": {
+      "labelSalutation": "Anrede",
+      "labelFirstName": "Vorname",
+      "labelLastName": "Nachname",
+      "labelEmail": "Email",
+      "labelPhoneNumber": "Telefonnummer",
+      "labelCompany": "Firma",
+      "labelCustomerGroup": "Kundengruppe",
+      "labelApplication": "Applikation",
+      "labelPaymentMethod": "Zahlungsart",
+      "labelCustomerNumber": "Kundennummer",
+      "labelBirthday": "Geburtsdatum",
+      "placeholderCustomerGroup": "Bitte wähle eine Kundengruppe aus...",
+      "placeholderApplication": "Bitte wähle eine Applikation aus...",
+      "placeholderPaymentMethod": "Bitte wähle eine Zahlungsart aus..."
+    },
+    "baseInfo": {
+      "contactEmail": "E-Mail",
+      "labelAccountActiveField": "Konto ist aktiv",
+      "buttonEdit": "Kunde bearbeiten",
+      "buttonChangePassword" : "Password ändern",
+      "labelCustomerNumber": "Kundennummer",
+      "labelCustomerGroup": "Kundengruppe",
+      "labelBirthday": "Geburtsdatum",
+      "labelLastLogin": "Letzter Login",
+      "labelLanguage": "Sprache",
+      "labelOrders": "Bestellungen",
+      "labelTurnover": "Umsatz",
+      "labelPaymentFailures": "Zahlungsausfälle",
+      "emptyTextLogin": "noch kein Login",
+      "emptyTextBirthday": "keine Angabe"
+    },
+    "detailBase": {
+      "labelAccountCard": "Konto"
+    },
+    "detail": {
+      "buttonSave": "Speichern",
+      "buttonCancel": "Abbrechen",
+      "headlineNewCustomer": "Neuer Kunde",
+      "tabGeneral": "Allgemein",
+      "titleSaveSuccess": "Kunden",
+      "messageSaveSuccess": "Der Kunde {name} wurde erfolgreich gespeichert."
     }
   },
   "sw-product": {
@@ -146,7 +190,7 @@
     "list": {
       "textProductOverview": "Produktüberblick",
       "textTotalProducts": "Keine Produkte | ein Produkt | {count} Produkte",
-      "buttonCreateProduct": "Produkt anlegen",
+      "buttonAddProduct": "Produkt anlegen",
       "columnName": "Name",
       "columnManufacturer": "Hersteller",
       "columnActive": "Aktiv",

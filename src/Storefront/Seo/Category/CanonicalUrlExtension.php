@@ -7,8 +7,6 @@ use Shopware\Api\Category\Event\Category\CategoryBasicLoadedEvent;
 use Shopware\Api\Category\Struct\CategoryBasicStruct;
 use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\FieldCollection;
-use Shopware\Api\Entity\Write\Flag\Extension;
-use Shopware\Api\Entity\Write\Flag\ReadOnly;
 use Shopware\Storefront\Api\Entity\Field\CanonicalUrlAssociationField;
 use Shopware\Storefront\Api\Seo\Collection\SeoUrlBasicCollection;
 use Shopware\Storefront\Api\Seo\Event\SeoUrl\SeoUrlBasicLoadedEvent;

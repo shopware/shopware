@@ -196,7 +196,6 @@ class AccountController extends StorefrontController
             );
 
             $this->storefrontContextService->refresh($context->getTenantId(), $context->getApplication()->getId(), $context->getToken());
-
         } catch (CustomerNotFoundException | BadCredentialsException $exception) {
             return $this->redirectToRoute('account_login');
         }

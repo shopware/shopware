@@ -48,7 +48,6 @@ class CustomerAuthenticationSubscriber implements EventSubscriberInterface
         $this->contextPersister->save(
             $contextKey,
             [StorefrontContextService::CUSTOMER_ID => $customerId]
-
         );
     }
 }

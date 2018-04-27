@@ -4,8 +4,6 @@ namespace Shopware\Storefront\Seo\Product;
 
 use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\FieldCollection;
-use Shopware\Api\Entity\Write\Flag\Extension;
-use Shopware\Api\Entity\Write\Flag\ReadOnly;
 use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Api\Product\Event\Product\ProductBasicLoadedEvent;
 use Shopware\Api\Product\Struct\ProductBasicStruct;

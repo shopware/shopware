@@ -32,7 +32,7 @@ class CanonicalUrlAssociationFieldResolver implements FieldResolverInterface
         if ($query->hasState($alias)) {
             return;
         }
-        
+
         $query->addState($alias);
 
         $key = 'route' . $field->getRouteName();

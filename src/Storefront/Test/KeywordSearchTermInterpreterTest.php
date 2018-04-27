@@ -132,7 +132,7 @@ class KeywordSearchTermInterpreterTest extends KernelTestCase
                 'reversed' => implode('', array_reverse($ar[0])),
                 'version_id' => $versionId,
                 'language_id' => $languageId,
-                'language_tenant_id' => $tenantId
+                'language_tenant_id' => $tenantId,
             ]);
         }
     }

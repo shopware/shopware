@@ -149,7 +149,7 @@ class CheckoutController extends StorefrontController
     /**
      * @Route("/checkout/confirm", name="checkout_confirm", options={"seo"="false"})
      *
-     * @param Request $request
+     * @param Request           $request
      * @param StorefrontContext $context
      *
      * @return RedirectResponse|Response

@@ -3,7 +3,6 @@
 namespace Shopware\Storefront\Page\Account;
 
 use Shopware\Api\Country\Repository\CountryRepository;
-use Shopware\Api\Country\Repository\CountryStateRepository;
 use Shopware\Api\Customer\Repository\CustomerAddressRepository;
 use Shopware\Api\Customer\Repository\CustomerRepository;
 use Shopware\Api\Customer\Struct\CustomerAddressBasicStruct;
@@ -14,12 +13,7 @@ use Shopware\CartBridge\Exception\NotLoggedInCustomerException;
 use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\Uuid;
 use Shopware\Storefront\Exception\CustomerNotFoundException;
-use Shopware\StorefrontApi\Context\StorefrontContextPersister;
 use Shopware\StorefrontApi\Exception\AddressNotFoundHttpException;
-use Shopware\StorefrontApi\Firewall\CustomerUser;
-use Symfony\Component\Security\Core\Authentication\AuthenticationManagerInterface;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 
 class AccountService
@@ -68,6 +62,16 @@ class AccountService
         }
 
         return $customer;
+    }
+
+    /**
+     * @throws NotLoggedInCustomerException
+     */
+    public function getCustomerByContext(StorefrontContext $context): CustomerBasicStruct
+    {
+        $this->validateCustomer($context);
+
+        return $context->getCustomer();
     }
 
     public function changeProfile(array $data, StorefrontContext $context)
@@ -214,7 +218,7 @@ class AccountService
         $this->customerRepository->update([$data], $context->getApplicationContext());
     }
 
-    public function createNewCustomer(array $formData, StorefrontContext $context)
+    public function createNewCustomer(array $formData, StorefrontContext $context): string
     {
         $customerId = Uuid::uuid4()->toString();
         $billingAddressId = Uuid::uuid4()->toString();
@@ -242,7 +246,7 @@ class AccountService
             'countryStateId' => $billing['country_state'] ?? null,
         ]);
 
-        if (array_key_exists('shippingAddress', $billing) && $billing['shippingAddress'] === '1') {
+        if ($shipping) {
             $shippingAddressId = Uuid::uuid4()->toString();
             $addresses[] = array_filter([
                 'id' => $shippingAddressId,
@@ -254,6 +258,10 @@ class AccountService
                 'street' => $shipping['street'],
                 'zipcode' => $shipping['zipcode'],
                 'city' => $shipping['city'],
+                'phoneNumber' => $shipping['phone'] ?? null,
+                'vatId' => $shipping['vatId'] ?? null,
+                'additionalAddressLine1' => $shipping['additionalAddressLine1'] ?? null,
+                'additionalAddressLine2' => $shipping['additionalAddressLine2'] ?? null,
                 'countryStateId' => $shipping['country_state'] ?? null,
             ]);
         }
@@ -286,6 +294,8 @@ class AccountService
 
         $data = array_filter($data);
         $this->customerRepository->create([$data], $context->getApplicationContext());
+
+        return $customerId;
     }
 
     /**

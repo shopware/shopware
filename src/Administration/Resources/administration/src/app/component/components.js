@@ -9,6 +9,8 @@ import './base/sw-sidebar-item';
 import './base/sw-tabs';
 import './base/sw-tabs-item';
 import './base/sw-table';
+import './base/sw-modal';
+import './base/sw-address';
 
 import './grid/sw-grid';
 import './grid/sw-grid-column';

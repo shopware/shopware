@@ -1,7 +1,7 @@
 {% block sw_customer_detail_base %}
     <div class="sw-customer-detail-base">
         {% block sw_customer_detail_base_transition %}
-            <transition name="customer-fade" mode="out-in">
+            <transition-group name="sw-customer-fade" mode="out-in">
                 {% block sw_customer_detail_base_form_card %}
                     <sw-card :title="$tc('sw-customer.detailBase.labelAccountCard')"
                              v-if="editMode"
@@ -17,22 +17,35 @@
                     </sw-card>
                 {% endblock %}
 
-                {% block sw_customer_detail_base_info_card %}
-                    <sw-card :title="$tc('sw-customer.detailBase.labelAccountCard')"
-                             v-else
-                             class="sw-customer-detail-base__info"
-                             key="view"
-                             :isLoading="isLoading">
-                        {% block sw_customer_detail_base_info %}
-                            <sw-customer-base-info @activateCustomerEditMode="onActivateCustomerEditMode"
-                                                   :customerName="customerName"
-                                                   :customer="customer"
-                                                   :isLoading="isLoading">
-                            </sw-customer-base-info>
+                {% block sw_customer_detail_base_info_holder %}
+                    <div v-else key="info" class="sw-customer-detail-base__info-holder">
+                        {% block sw_customer_detail_base_info_card %}
+                            <sw-card :title="$tc('sw-customer.detailBase.labelAccountCard')"
+                                     class="sw-customer-detail-base__info"
+                                     :isLoading="isLoading">
+                                {% block sw_customer_detail_base_info %}
+                                    <sw-customer-base-info @activateCustomerEditMode="onActivateCustomerEditMode"
+                                                           :customerName="customerName"
+                                                           :customer="customer"
+                                                           :isLoading="isLoading">
+                                    </sw-customer-base-info>
+                                {% endblock %}
+                            </sw-card>
                         {% endblock %}
-                    </sw-card>
+
+                        {% block sw_customer_detail_base_default_addresses_card %}
+                            <sw-card :title="$tc('sw-customer.detailBase.labelAddressesCard')"
+                                     v-if="customer.defaultShippingAddress || customer.defaultBillingAddress"
+                                     class="sw-customer-detail-base__default-addresses"
+                                     :isLoading="isLoading">
+                                {% block sw_customer_detail_base_default_addresses %}
+                                    <sw-customer-default-addresses :customer="customer"></sw-customer-default-addresses>
+                                {% endblock %}
+                            </sw-card>
+                        {% endblock %}
+                    </div>
                 {% endblock %}
-            </transition>
+            </transition-group>
         {% endblock %}
     </div>
 {% endblock %}

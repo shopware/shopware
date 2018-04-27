@@ -1,5 +1,9 @@
 /* global require */
 import { configure } from '@storybook/vue';
+import Vue from 'vue';
+import VueI18n from 'vue-i18n'
+
+Vue.use(VueI18n);
 
 /** Import global styles */
 import 'src/app/assets/less/all.less';
@@ -18,6 +22,8 @@ function loadStories() {
     require('../stories/sw-loader/index');
     require('../stories/sw-pagination/index');
     require('../stories/sw-sidebar/index');
+    require('../stories/sw-modal/index');
+    require('../stories/sw-address/index');
 }
 
 configure(loadStories, module);

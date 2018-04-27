@@ -1,0 +1,71 @@
+{% block sw_customer_default_addresses %}
+    <sw-container class="sw-customer-default-addresses" grid="50% 50%">
+
+        {% block sw_customer_default_addresses_shipping %}
+            <div v-if="customer.defaultShippingAddress"
+                 class="sw-customer-default-addresses__shipping">
+
+                {% block sw_customer_default_addresses_shipping_title %}
+                    <h3 class="sw-customer-default-addresses__title">
+
+                        {% block sw_customer_default_addresses_shipping_title_text %}
+                            <span class="sw-customer-default-addresses__title-text">
+                                {{ $tc('sw-customer.detailBase.titleDefaultShippingAddress') }}
+                            </span>
+                        {% endblock %}
+
+                        {% block sw_customer_default_addresses_shipping_title_edit %}
+                            <button class="sw-customer-default-addresses__edit"
+                                    :title="$tc('sw-customer.detailBase.buttonTitleEditAddress')"
+                                    :aria-label="$tc('sw-customer.detailBase.buttonTitleEditAddress')"
+                                    disabled>
+                                {% block sw_customer_default_addresses_shipping_title_edit_icon %}
+                                    <sw-icon name="small-pencil" small></sw-icon>
+                                {% endblock %}
+                            </button>
+                        {% endblock %}
+
+                    </h3>
+                {% endblock %}
+
+                {% block sw_customer_default_addresses_shipping_postal %}
+                    <sw-address :address="customer.defaultShippingAddress"></sw-address>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block sw_customer_default_addresses_billing %}
+            <div v-if="customer.defaultBillingAddress"
+                 class="sw-customer-default-addresses__billing">
+
+                {% block sw_customer_default_addresses_billing_title %}
+                    <h3 class="sw-customer-default-addresses__title">
+
+                        {% block sw_customer_default_addresses_billing_title_text %}
+                            <span class="sw-customer-default-addresses__title-text">
+                                {{ $tc('sw-customer.detailBase.titleDefaultBillingAddress') }}
+                            </span>
+                        {% endblock %}
+
+                        {% block sw_customer_default_addresses_billing_title_edit %}
+                            <button class="sw-customer-default-addresses__edit"
+                                    :title="$tc('sw-customer.detailBase.buttonTitleEditAddress')"
+                                    :aria-label="$tc('sw-customer.detailBase.buttonTitleEditAddress')"
+                                    disabled>
+                                {% block sw_customer_default_addresses_billing_title_edit_icon %}
+                                    <sw-icon name="small-pencil" small></sw-icon>
+                                {% endblock %}
+                            </button>
+                        {% endblock %}
+
+                    </h3>
+                {% endblock %}
+
+                {% block sw_customer_default_addresses_billing_postal %}
+                    <sw-address :address="customer.defaultBillingAddress"></sw-address>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+    </sw-container>
+{% endblock %}

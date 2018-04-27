@@ -1,0 +1,56 @@
+{% block sw_modal %}
+    <transition name="sw-modal-fade">
+        {% block sw_modal_element %}
+            <div class="sw-modal" :class="modalClasses" @click.prevent="closeModal">
+                {% block sw_modal_dialog %}
+                    <div class="sw-modal__dialog"
+                         role="dialog"
+                         aria-labelledby="modalTitleEl"
+                         tabindex="-1"
+                         @click.stop>
+                        {% block sw_modal_header %}
+                            <header class="sw-modal__header">
+                                <slot name="modal-header">
+                                    {% block sw_modal_slot_header %}
+                                        {% block sw_modal_close %}
+                                            <h4 class="sw-modal__title" id="modalTitleEl">
+                                                {{ title }}
+                                            </h4>
+                                        {% endblock %}
+
+                                        {% block sw_modal_close_button %}
+                                            <button class="sw-modal__close"
+                                                    :title="$tc('global.sw-modal.labelClose')"
+                                                    :aria-label="$tc('global.sw-modal.labelClose')"
+                                                    @click.prevent="closeModal">
+                                                {% block sw_modal_close_icon %}
+                                                    <sw-icon name="small-default-x-line-medium" small></sw-icon>
+                                                {% endblock %}
+                                            </button>
+                                        {% endblock %}
+                                    {% endblock %}
+                                </slot>
+                            </header>
+                        {% endblock %}
+
+                        {% block sw_modal_body %}
+                            <div class="sw-modal__body">
+                                <slot>
+                                    {% block sw_modal_slot_default %}{% endblock %}
+                                </slot>
+                            </div>
+                        {% endblock %}
+
+                        {% block sw_modal_footer %}
+                            <footer v-if="hasFooterSlot" class="sw-modal__footer">
+                                <slot name="modal-footer">
+                                    {% block sw_modal_slot_footer %}{% endblock %}
+                                </slot>
+                            </footer>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </transition>
+{% endblock %}

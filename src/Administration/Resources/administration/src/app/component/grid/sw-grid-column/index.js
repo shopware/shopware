@@ -10,6 +10,10 @@ Component.register('sw-grid-column', {
             type: String,
             required: true
         },
+        iconLabel: {
+            type: String,
+            required: false
+        },
         align: {
             type: String,
             default: 'left'
@@ -49,6 +53,7 @@ Component.register('sw-grid-column', {
 
             this.$parent.columns.push({
                 label: this.label,
+                iconLabel: this.iconLabel,
                 flex: this.flex,
                 sortable: this.sortable,
                 dataIndex: this.dataIndex,

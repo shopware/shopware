@@ -11,3 +11,4 @@ import './notification.mixin';
 import './application-list.mixin';
 import './customer-group-list.mixin';
 import './payment-method-list.mixin';
+import './country-list.mixin';

@@ -1,0 +1,224 @@
+{% block sw_customer_detail_addresses %}
+    <div class="sw-customer-detail-addresses">
+        {% block sw_customer_detail_addresses %}
+            <sw-card :isLoading="isLoading">
+
+                {% block sw_customer_detail_addresses_add_button %}
+                    <div class="sw-customer-detail-addresses__toolbar">
+                        {% block sw_customer_detail_addresses_add_button %}
+                            <sw-button @click="onCreateNewAddress">
+                                <sw-icon name="small-default-plus-circle" small></sw-icon>
+                                {{ $tc('sw-customer.detailAddresses.buttonAddAddress') }}
+                            </sw-button>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+
+                {% block sw_customer_detail_addresses_add_modal %}
+                    <sw-modal v-if="currentAddress"
+                              @closeModal="onCloseAddressModal"
+                              :title="$tc('sw-customer.detailAddresses.modalTitleAddress')">
+
+                        {% block sw_customer_detail_addresses_add_modal_address_form %}
+                            <sw-customer-address-form :address="currentAddress"
+                                                      :countries="countries">
+                            </sw-customer-address-form>
+                        {% endblock %}
+
+                        {% block sw_customer_detail_addresses_add_modal_footer %}
+                            <template slot="modal-footer">
+                                {% block sw_customer_detail_addresses_add_modal_cancel %}
+                                    <sw-button size="small" @click="onCloseAddressModal">
+                                        {{ $tc('sw-customer.detailAddresses.buttonCancel') }}
+                                    </sw-button>
+                                {% endblock %}
+
+                                {% block sw_customer_detail_addresses_add_modal_apply %}
+                                    <sw-button variant="primary" size="small" @click="onSaveAddress">
+                                        {{ $tc('sw-customer.detailAddresses.buttonApply') }}
+                                    </sw-button>
+                                {% endblock %}
+                            </template>
+                        {% endblock %}
+                    </sw-modal>
+                {% endblock %}
+
+                {% block sw_customer_detail_addresses_grid %}
+                    <sw-grid :items="customer.addresses">
+                        {% block sw_customer_detail_addresses_grid_slots %}
+                            <template slot="columns" slot-scope="{ item }">
+
+                                {% block sw_customer_detail_addresses_grid_columns_default_shipping_address %}
+                                    <sw-grid-column flex="minmax(65px, 65px)"
+                                                    :label="$tc('sw-customer.detailAddresses.columnDefaultShippingAddress')"
+                                                    iconLabel="default-shopping-cart"
+                                                    dataIndex="defaultShippingAddress"
+                                                    align="center"
+                                                    truncate>
+                                        {% block sw_customer_detail_addresses_grid_columns_default_shipping_address_radio %}
+                                            <sw-field type="radio"
+                                                      v-model="customer.defaultShippingAddressId"
+                                                      name="defaultShippingAddress"
+                                                      :options="[{ value: item.id }]">
+                                            </sw-field>
+                                        {% endblock %}
+                                    </sw-grid-column>
+                                {% endblock %}
+
+                                {% block sw_customer_detail_addresses_grid_columns_default_billing_address %}
+                                    <sw-grid-column flex="minmax(65px, 65px)"
+                                                    :label="$tc('sw-customer.detailAddresses.columnDefaultBillingAddress')"
+                                                    iconLabel="default-documentation-file"
+                                                    dataIndex="defaultBillingAddress"
+                                                    align="center"
+                                                    truncate>
+                                        {% block sw_customer_detail_addresses_grid_columns_default_billing_address_radio %}
+                                            <sw-field type="radio"
+                                                      v-model="customer.defaultBillingAddressId"
+                                                      name="defaultBillingAddress"
+                                                      :options="[{ value: item.id }]">
+                                            </sw-field>
+                                        {% endblock %}
+                                    </sw-grid-column>
+                                {% endblock %}
+
+                                {% block sw_customer_detail_addresses_grid_columns_company %}
+                                    <sw-grid-column flex="minmax(120px, 1fr)"
+                                                    :label="$tc('sw-customer.detailAddresses.columnCompany')"
+                                                    dataIndex="company"
+                                                    truncate>
+                                        {% block sw_customer_detail_addresses_grid_columns_company_label %}
+                                            {{ item.company }}
+                                        {% endblock %}
+                                    </sw-grid-column>
+                                {% endblock %}
+
+                                {% block sw_customer_detail_addresses_grid_columns_first_name %}
+                                    <sw-grid-column flex="minmax(120px, 1fr)"
+                                                    :label="$tc('sw-customer.detailAddresses.columnFirstName')"
+                                                    dataIndex="firstName"
+                                                    truncate>
+                                        {% block sw_customer_detail_addresses_grid_columns_first_name_label %}
+                                            {{ item.firstName }}
+                                        {% endblock %}
+                                    </sw-grid-column>
+                                {% endblock %}
+
+                                {% block sw_customer_detail_addresses_grid_columns_last_name %}
+                                    <sw-grid-column flex="minmax(120px, 1fr)"
+                                                    :label="$tc('sw-customer.detailAddresses.columnLastName')"
+                                                    dataIndex="lastName"
+                                                    truncate>
+                                        {% block sw_customer_detail_addresses_grid_columns_last_name_label %}
+                                            {{ item.lastName }}
+                                        {% endblock %}
+                                    </sw-grid-column>
+                                {% endblock %}
+
+                                {% block sw_customer_detail_addresses_grid_columns_street %}
+                                    <sw-grid-column flex="minmax(120px, 1fr)"
+                                                    :label="$tc('sw-customer.detailAddresses.columnStreet')"
+                                                    dataIndex="street"
+                                                    truncate>
+                                        {% block sw_customer_detail_addresses_grid_columns_street_label %}
+                                            {{ item.street }}
+                                        {% endblock %}
+                                    </sw-grid-column>
+                                {% endblock %}
+
+                                {% block sw_customer_detail_addresses_grid_columns_zipcode %}
+                                    <sw-grid-column flex="minmax(80px, 100px)"
+                                                    :label="$tc('sw-customer.detailAddresses.columnZipCode')"
+                                                    dataIndex="zipcode"
+                                                    truncate>
+                                        {% block sw_customer_detail_addresses_grid_columns_zipcode_label %}
+                                            {{ item.zipcode }}
+                                        {% endblock %}
+                                    </sw-grid-column>
+                                {% endblock %}
+
+                                {% block sw_customer_detail_addresses_grid_columns_city %}
+                                    <sw-grid-column flex="minmax(120px, 1fr)"
+                                                    :label="$tc('sw-customer.detailAddresses.columnCity')"
+                                                    dataIndex="city"
+                                                    truncate>
+                                        {% block sw_customer_detail_addresses_grid_columns_city_label %}
+                                            {{ item.city }}
+                                        {% endblock %}
+                                    </sw-grid-column>
+                                {% endblock %}
+
+                                {% block sw_customer_detail_addresses_grid_columns_actions %}
+                                    <sw-grid-column flex="minmax(100px, 120px)"
+                                                    :label="$tc('sw-customer.detailAddresses.columnActions')"
+                                                    dataIndex="actions"
+                                                    align="center"
+                                                    truncate>
+                                        {% block sw_customer_detail_addresses_grid_columns_actions_menu %}
+                                            <sw-context-button>
+
+                                                {% block sw_customer_detail_addresses_grid_columns_actions_edit %}
+                                                    <sw-context-menu-item icon="small-pencil-paper"
+                                                                          @click="onEditAddress(item.id)">
+                                                        {{ $tc('sw-customer.detailAddresses.contextMenuEdit') }}
+                                                    </sw-context-menu-item>
+                                                {% endblock %}
+
+                                                {% block sw_customer_detail_addresses_grid_columns_actions_delete %}
+                                                    <sw-context-menu-item icon="small-trash"
+                                                                          @click="onDeleteAddress(item.id)"
+                                                                          :disabled="customer.defaultBillingAddressId === item.id || customer.defaultShippingAddressId === item.id">
+                                                        {{ $tc('sw-customer.detailAddresses.contextMenuDelete') }}
+                                                    </sw-context-menu-item>
+                                                {% endblock %}
+
+                                            </sw-context-button>
+                                        {% endblock %}
+                                    </sw-grid-column>
+                                {% endblock %}
+
+                                {% block sw_customer_detail_addresses_delete_modal %}
+                                    <sw-modal v-if="showDeleteAddressModal === item.id"
+                                              @closeModal="onCloseDeleteAddressModal"
+                                              :title="$tc('sw-customer.detailAddresses.modalTitleDeleteAddress')"
+                                              size="small">
+                                        {% block sw_customer_detail_addresses_delete_modal_confirm_delete_text %}
+                                            <p class="sw-customer-detail-addresses__confirm-delete-text">
+                                                {{ $tc('sw-customer.detailAddresses.textDeleteAddressConfirm') }}
+                                            </p>
+                                        {% endblock %}
+
+                                        {% block sw_customer_detail_addresses_delete_modal_address_item %}
+                                            <sw-address :address="item"></sw-address>
+                                        {% endblock %}
+
+                                        {% block sw_customer_detail_addresses_delete_modal_footer %}
+                                            <template slot="modal-footer">
+                                                {% block sw_customer_detail_addresses_delete_modal_cancel %}
+                                                    <sw-button @click="onCloseDeleteAddressModal"
+                                                               size="small">
+                                                        {{ $tc('sw-customer.detailAddresses.buttonCancel') }}
+                                                    </sw-button>
+                                                {% endblock %}
+
+                                                {% block sw_customer_detail_addresses_delete_modal_confirm %}
+                                                    <sw-button @click="onConfirmDeleteAddress(item.id)"
+                                                               variant="primary"
+                                                               size="small">
+                                                        {{ $tc('sw-customer.detailAddresses.buttonDelete') }}
+                                                    </sw-button>
+                                                {% endblock %}
+                                            </template>
+                                        {% endblock %}
+                                    </sw-modal>
+                                {% endblock %}
+
+                            </template>
+                        {% endblock %}
+                    </sw-grid>
+                {% endblock %}
+
+            </sw-card>
+        {% endblock %}
+    </div>
+{% endblock %}

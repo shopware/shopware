@@ -88,14 +88,9 @@
                                             <sw-grid-column flex="minmax(100px, 1fr)"
                                                             :label="$tc('sw-customer.list.columnStreet')"
                                                             dataIndex="defaultBillingAddress.street"
-                                                            sortable
-                                                            editable>
+                                                            sortable>
                                                 {% block sw_customer_list_grid_columns_street_label %}
                                                     {{ item.defaultBillingAddress.street }}
-                                                {% endblock %}
-
-                                                {% block sw_customer_list_grid_columns_street_editor %}
-                                                    <sw-field type="text" v-model="item.defaultBillingAddress.street" slot="inline-edit"></sw-field>
                                                 {% endblock %}
                                             </sw-grid-column>
                                         {% endblock %}
@@ -104,14 +99,9 @@
                                             <sw-grid-column flex="minmax(80px, 100px)"
                                                             :label="$tc('sw-customer.list.columnZip')"
                                                             dataIndex="defaultBillingAddress.zipcode"
-                                                            sortable
-                                                            editable>
+                                                            sortable>
                                                 {% block sw_customer_list_grid_columns_zipcode_label %}
                                                     {{ item.defaultBillingAddress.zipcode }}
-                                                {% endblock %}
-
-                                                {% block sw_customer_list_grid_columns_zipcode_editor %}
-                                                    <sw-field type="text" v-model="item.defaultBillingAddress.zipcode" slot="inline-edit"></sw-field>
                                                 {% endblock %}
                                             </sw-grid-column>
                                         {% endblock %}
@@ -120,14 +110,9 @@
                                             <sw-grid-column flex="minmax(100px, 1fr)"
                                                             :label="$tc('sw-customer.list.columnCity')"
                                                             dataIndex="defaultBillingAddress.city"
-                                                            sortable
-                                                            editable>
+                                                            sortable>
                                                 {% block sw_customer_list_grid_columns_city_label %}
                                                     {{ item.defaultBillingAddress.city }}
-                                                {% endblock %}
-
-                                                {% block sw_customer_list_grid_columns_city_editor %}
-                                                    <sw-field type="text" v-model="item.defaultBillingAddress.city" slot="inline-edit"></sw-field>
                                                 {% endblock %}
                                             </sw-grid-column>
                                         {% endblock %}
@@ -165,11 +150,21 @@
                                                             align="center">
                                                 {% block sw_customer_list_grid_columns_actions_context_button %}
                                                     <sw-context-button>
+                                                        {% block sw_customer_list_grid_columns_actions_view %}
+                                                            <sw-context-menu-item icon="default-eye-open">
+                                                                <router-link :to="{
+                                                                        name: 'sw.customer.detail',
+                                                                        params: { id: item.id } }">
+                                                                    {{ $tc('sw-customer.list.contextMenuView') }}
+                                                                </router-link>
+                                                            </sw-context-menu-item>
+                                                        {% endblock %}
+
                                                         {% block sw_customer_list_grid_columns_actions_edit %}
                                                             <sw-context-menu-item icon="small-pencil-paper">
                                                                 <router-link :to="{
-                                                                    name: 'sw.customer.detail',
-                                                                    params: { id: item.id } }">
+                                                                        name: 'sw.customer.detail.base',
+                                                                        params: { id: item.id, edit: 'edit' }}">
                                                                     {{ $tc('sw-customer.list.contextMenuEdit') }}
                                                                 </router-link>
                                                             </sw-context-menu-item>

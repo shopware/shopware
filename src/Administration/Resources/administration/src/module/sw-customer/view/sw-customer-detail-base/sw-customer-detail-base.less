@@ -1,15 +1,20 @@
 @import "~less/variables";
 
 .sw-customer-detail-base {
-    .sw-customer-detail-base__info .sw-card__content {
+    .sw-customer-detail-base__info .sw-card__content,
+    .sw-customer-detail-base__default-addresses .sw-card__content {
         padding: 0;
     }
 
-    .customer-fade-enter-active, .customer-fade-leave-active {
+    // Vue.js Transitions
+    .sw-customer-fade-enter-active,
+    .sw-customer-fade-leave-active {
         transition: opacity .2s ease-in-out;
     }
 
-    .customer-fade-enter, .customer-fade-leave-to {
+    // Vue.js Transitions
+    .sw-customer-fade-enter,
+    .sw-customer-fade-leave-to {
         opacity: 0;
     }
 }

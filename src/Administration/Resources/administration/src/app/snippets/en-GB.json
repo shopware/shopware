@@ -21,6 +21,9 @@
     },
     "sw-pagination": {
       "labelItemsPerPage": "Items per page:"
+    },
+    "sw-modal": {
+      "labelClose": "Close"
     }
   },
   "sw-login": {
@@ -53,9 +56,10 @@
       "columnEmail": "e-mail",
       "columnLastLogin": "Last login",
       "columnActions": "Action(s)",
-      "contextMenuEdit": "Edit customer",
+      "contextMenuView": "View customer",
       "contextMenuDelete": "Delete customer",
-      "contextMenuDuplicate": "Duplicate customer"
+      "contextMenuDuplicate": "Duplicate customer",
+      "contextMenuEdit": "Edit customer"
     },
     "baseForm": {
       "labelSalutation": "Salutation",
@@ -90,13 +94,58 @@
       "emptyTextBirthday": "No information"
     },
     "detailBase": {
-      "labelAccountCard": "Account"
+      "labelAccountCard": "Account",
+      "labelAddressesCard": "Addresses",
+      "titleDefaultShippingAddress": "Default shipping address",
+      "titleDefaultBillingAddress": "Default billing address",
+      "buttonAddAddress": "Add address",
+      "buttonTitleEditAddress": "Edit address",
+      "buttonSave": "Save"
+    },
+    "detailAddresses": {
+      "buttonAddAddress": "Add address",
+      "buttonAdd": "Add",
+      "buttonCancel": "Cancel",
+      "buttonApply": "Apply",
+      "buttonDelete": "Delete",
+      "modalTitleAddress": "Address",
+      "modalTitleEditAddress": "Edit address",
+      "modalTitleDeleteAddress": "Delete address",
+      "textDeleteAddressConfirm": "Do you really want to delete this address?",
+      "columnDefaultShippingAddress": "Default shipping address",
+      "columnDefaultBillingAddress": "Default billing address",
+      "columnCompany": "Company",
+      "columnFirstName": "First name",
+      "columnLastName": "Last name",
+      "columnStreet": "Street",
+      "columnZipCode": "Zip code",
+      "columnCity": "City",
+      "columnActions": "Actions",
+      "contextMenuEdit": "Edit address",
+      "contextMenuDelete": "Delete address"
+    },
+    "addressForm": {
+      "labelCompany": "Company",
+      "labelDepartment": "Department",
+      "labelSalutation": "Salutation",
+      "labelTitle": "Title",
+      "labelFirstName": "First name",
+      "labelLastName": "Last name",
+      "labelZipcode": "Zipcode",
+      "labelStreet": "Street",
+      "labelCity": "City",
+      "labelCountry": "Country",
+      "labelAdditionalAddressLine1": "Additional address line 1",
+      "labelAdditionalAddressLine2": "Additional address line 2",
+      "labelPhoneNumber": "Phone number",
+      "labelVatId": "VAT-ID"
     },
     "detail": {
       "buttonSave": "Save",
       "buttonCancel": "Cancel",
       "headlineNewCustomer": "New customer",
       "tabGeneral": "General",
+      "tabAddresses": "Addresses",
       "titleSaveSuccess": "Customer",
       "messageSaveSuccess": "The customer {name} has been saved successfully."
     }

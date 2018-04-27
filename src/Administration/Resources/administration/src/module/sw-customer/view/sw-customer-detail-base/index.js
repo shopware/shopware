@@ -46,6 +46,13 @@ Component.register('sw-customer-detail-base', {
             default() {
                 return [];
             }
+        },
+        countries: {
+            type: Array,
+            required: true,
+            default() {
+                return [];
+            }
         }
     },
 

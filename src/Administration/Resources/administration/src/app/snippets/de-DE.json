@@ -21,6 +21,9 @@
     },
     "sw-pagination": {
       "labelItemsPerPage": "Einträge pro Seite:"
+    },
+    "sw-modal": {
+      "labelClose": "Schließen"
     }
   },
   "sw-login": {
@@ -53,9 +56,10 @@
       "columnEmail": "E-Mail",
       "columnLastLogin": "Zuletzt eingeloggt",
       "columnActions": "Aktion(en)",
-      "contextMenuEdit": "Kunde bearbeiten",
+      "contextMenuView": "Kunde anzeigen",
       "contextMenuDuplicate": "Kunde duplizieren",
-      "contextMenuDelete": "Kunde löschen"
+      "contextMenuDelete": "Kunde löschen",
+      "contextMenuEdit": "Kunde bearbeiten"
     },
     "baseForm": {
       "labelSalutation": "Anrede",
@@ -90,13 +94,58 @@
       "emptyTextBirthday": "keine Angabe"
     },
     "detailBase": {
-      "labelAccountCard": "Konto"
+      "labelAccountCard": "Konto",
+      "labelAddressesCard": "Adressen",
+      "titleDefaultShippingAddress": "Standard Lieferadresse",
+      "titleDefaultBillingAddress": "Standard Rechnungsadresse",
+      "buttonAddAddress": "Adresse anlegen",
+      "buttonTitleEditAddress": "Adresse bearbeiten",
+      "buttonSave": "Speichern"
+    },
+    "detailAddresses": {
+      "buttonAddAddress": "Adresse anlegen",
+      "buttonAdd": "Anlegen",
+      "buttonCancel": "Abbrechen",
+      "buttonApply": "Übernehmen",
+      "buttonDelete": "Löschen",
+      "modalTitleAddress": "Adresse",
+      "modalTitleEditAddress": "Adresse bearbeiten",
+      "modalTitleDeleteAddress": "Adresse löschen",
+      "textDeleteAddressConfirm": "Möchten Sie diese Adresse wirklich löschen?",
+      "columnDefaultShippingAddress": "Standard Lieferadresse",
+      "columnDefaultBillingAddress": "Standard Rechnungsadresse",
+      "columnCompany": "Firma",
+      "columnFirstName": "Vorname",
+      "columnLastName": "Nachname",
+      "columnStreet": "Straße",
+      "columnZipCode": "PLZ",
+      "columnCity": "Stadt",
+      "columnActions": "Aktionen",
+      "contextMenuEdit": "Adresse bearbeiten",
+      "contextMenuDelete": "Adresse löschen"
+    },
+    "addressForm": {
+      "labelCompany": "Firma",
+      "labelDepartment": "Abteilung",
+      "labelSalutation": "Anrede",
+      "labelTitle": "Titel",
+      "labelFirstName": "Vorname",
+      "labelLastName": "Nachname",
+      "labelZipcode": "PLZ",
+      "labelStreet": "Straße",
+      "labelCity": "Stadt",
+      "labelCountry": "Land",
+      "labelAdditionalAddressLine1": "Adresszusatz 1",
+      "labelAdditionalAddressLine2": "Adresszusatz 2",
+      "labelPhoneNumber": "Telefonnummer",
+      "labelVatId": "USt-ID"
     },
     "detail": {
       "buttonSave": "Speichern",
       "buttonCancel": "Abbrechen",
       "headlineNewCustomer": "Neuer Kunde",
       "tabGeneral": "Allgemein",
+      "tabAddresses": "Adressen",
       "titleSaveSuccess": "Kunden",
       "messageSaveSuccess": "Der Kunde {name} wurde erfolgreich gespeichert."
     }

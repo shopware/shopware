@@ -49,15 +49,15 @@ Component.register('sw-customer-detail-base', {
         }
     },
 
-    methods: {
-        onActivateCustomerEditMode() {
-            this.$emit('activateCustomerEditMode');
-        }
-    },
-
     computed: {
         editMode() {
             return this.customerEditMode;
+        }
+    },
+
+    methods: {
+        onActivateCustomerEditMode() {
+            this.$emit('activateCustomerEditMode');
         }
     }
 });

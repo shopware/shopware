@@ -220,6 +220,12 @@ State.register('customer', {
                             return newCustomer;
                         })
                         .catch((exception) => {
+                            if (exception.response.data && exception.response.data.errors) {
+                                exception.response.data.errors.forEach((error) => {
+                                    commit('addCustomerError', error);
+                                });
+                            }
+
                             return Promise.reject(exception);
                         });
                 }

@@ -2,8 +2,7 @@
     <sw-page class="sw-customer-detail">
         {% block sw_customer_detail_header %}
             <template slot="smart-bar-header">
-                <h2 v-if="customerName">{{ customerName }}</h2>
-                <h2 v-else>{{ $tc('sw-customer.detail.headlineNewCustomer') }}</h2>
+                <h2>{{ customerName }}</h2>
             </template>
         {% endblock %}
 

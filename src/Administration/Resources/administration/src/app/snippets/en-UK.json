@@ -65,13 +65,13 @@
       "labelPhoneNumber": "Phone number",
       "labelCompany": "Company",
       "labelCustomerGroup": "Customer group",
-      "placeholderCustomerGroup": "Please select a customer group",
       "labelApplication": "Application",
-      "placeholderApplication": "Please select an application",
       "labelPaymentMethod": "Payment method",
-      "placeholderPaymentMethod": "lease select a payment method",
       "labelCustomerNumber": "Customer number",
-      "labelBirthday": "Date of birth"
+      "labelBirthday": "Date of birth",
+      "placeholderCustomerGroup": "Please select a customer group...",
+      "placeholderApplication": "Please select an application...",
+      "placeholderPaymentMethod": "lease select a payment method..."
     },
     "baseInfo": {
       "contactEmail": "e-mail",

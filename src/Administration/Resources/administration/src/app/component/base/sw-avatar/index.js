@@ -5,13 +5,6 @@ import './sw-avatar.less';
 Component.register('sw-avatar', {
     template,
 
-    data() {
-        return {
-            fontSize: 16,
-            lineHeight: 16
-        };
-    },
-
     props: {
         image: {
             type: String,
@@ -39,17 +32,11 @@ Component.register('sw-avatar', {
         }
     },
 
-    mounted() {
-        this.generateAvatarInitialsSize();
-    },
-
-    methods: {
-        generateAvatarInitialsSize() {
-            const avatarSize = this.$refs.swAvatar.offsetHeight;
-
-            this.fontSize = Math.round(avatarSize * 0.4);
-            this.lineHeight = Math.round(avatarSize * 0.98);
-        }
+    data() {
+        return {
+            fontSize: 16,
+            lineHeight: 16
+        };
     },
 
     computed: {
@@ -69,8 +56,8 @@ Component.register('sw-avatar', {
                 return '';
             }
 
-            const firstNameLetter = user.firstName ? user.firstName.substring(0, 1) : '';
-            const lastNameLetter = user.lastName ? user.lastName.substring(0, 1) : '';
+            const firstNameLetter = user.firstName ? user.firstName[0] : '';
+            const lastNameLetter = user.lastName ? user.lastName[0] : '';
 
             return `${firstNameLetter} ${lastNameLetter}`;
         },
@@ -92,6 +79,23 @@ Component.register('sw-avatar', {
             return {
                 'background-color': this.color
             };
+        }
+    },
+
+    mounted() {
+        this.mountedComponent();
+    },
+
+    methods: {
+        mountedComponent() {
+            this.generateAvatarInitialsSize();
+        },
+
+        generateAvatarInitialsSize() {
+            const avatarSize = this.$refs.swAvatar.offsetHeight;
+
+            this.fontSize = Math.round(avatarSize * 0.4);
+            this.lineHeight = Math.round(avatarSize * 0.98);
         }
     }
 });

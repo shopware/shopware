@@ -65,16 +65,16 @@
       "labelPhoneNumber": "Telefonnummer",
       "labelCompany": "Firma",
       "labelCustomerGroup": "Kundengruppe",
-      "placeholderCustomerGroup": "Bitte wähle eine Kundengruppe aus",
       "labelApplication": "Applikation",
-      "placeholderApplication": "Bitte wähle eine Applikation aus",
       "labelPaymentMethod": "Zahlungsart",
-      "placeholderPaymentMethod": "Bitte wähle eine Zahlungsart aus",
       "labelCustomerNumber": "Kundennummer",
-      "labelBirthday": "Geburtsdatum"
+      "labelBirthday": "Geburtsdatum",
+      "placeholderCustomerGroup": "Bitte wähle eine Kundengruppe aus...",
+      "placeholderApplication": "Bitte wähle eine Applikation aus...",
+      "placeholderPaymentMethod": "Bitte wähle eine Zahlungsart aus..."
     },
     "baseInfo": {
-      "contactEmail": "Email",
+      "contactEmail": "E-Mail",
       "labelAccountActiveField": "Konto ist aktiv",
       "buttonEdit": "Kunde bearbeiten",
       "buttonChangePassword" : "Password ändern",
@@ -98,7 +98,7 @@
       "headlineNewCustomer": "Neuer Kunde",
       "tabGeneral": "Allgemein",
       "titleSaveSuccess": "Kunden",
-      "messageSaveSuccess": "Der Kunde {name} wurde erfolgreich gepeichert."
+      "messageSaveSuccess": "Der Kunde {name} wurde erfolgreich gespeichert."
     }
   },
   "sw-product": {

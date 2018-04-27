@@ -38,9 +38,7 @@ Component.register('sw-customer-detail', {
         onSave() {
             const customerName = this.customerName;
             const titleSaveSuccess = this.$tc('sw-customer.detail.titleSaveSuccess');
-            const messageSaveSuccess = this.$tc('sw-customer.detail.messageSaveSuccess', customerName, {
-                name: customerName
-            });
+            const messageSaveSuccess = this.$tc('sw-customer.detail.messageSaveSuccess', 0, { name: customerName });
 
             this.saveCustomer().then(() => {
                 this.customerEditMode = false;

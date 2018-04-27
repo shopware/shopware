@@ -39,7 +39,7 @@ class Navigation
      */
     protected $activeCategory;
 
-    public function __construct(CategoryBasicStruct $activeCategory, array $tree)
+    public function __construct(?CategoryBasicStruct $activeCategory, array $tree)
     {
         $this->tree = $tree;
         $this->activeCategory = $activeCategory;
@@ -47,11 +47,15 @@ class Navigation
 
     public function isCategorySelected(CategoryBasicStruct $category): bool
     {
+        if (!$this->activeCategory) {
+            return false;
+        }
+
         if ($category->getId() === $this->activeCategory->getId()) {
             return true;
         }
 
-        return in_array($category->getId(), $this->activeCategory->getPathArray(), true);
+        return \in_array($category->getId(), $this->activeCategory->getPathArray(), true);
     }
 
     public function getTree(): array
@@ -64,12 +68,12 @@ class Navigation
         $this->tree = $tree;
     }
 
-    public function getActiveCategory(): CategoryBasicStruct
+    public function getActiveCategory(): ?CategoryBasicStruct
     {
         return $this->activeCategory;
     }
 
-    public function setActiveCategory(CategoryBasicStruct $activeCategory): void
+    public function setActiveCategory(?CategoryBasicStruct $activeCategory): void
     {
         $this->activeCategory = $activeCategory;
     }

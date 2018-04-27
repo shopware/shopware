@@ -56,12 +56,12 @@ class ListingPageStruct extends Struct
     protected $productBoxLayout;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $navigationId;
 
     public function __construct(
-        string $navigationId,
+        ?string $navigationId,
         ProductSearchResult $products,
         Criteria $criteria,
         int $currentPage = 1,
@@ -173,12 +173,12 @@ class ListingPageStruct extends Struct
         $this->productBoxLayout = $productBoxLayout;
     }
 
-    public function getNavigationId(): string
+    public function getNavigationId(): ?string
     {
         return $this->navigationId;
     }
 
-    public function setNavigationId(string $navigationId): void
+    public function setNavigationId(?string $navigationId): void
     {
         $this->navigationId = $navigationId;
     }

@@ -4,8 +4,6 @@ namespace Shopware\Storefront\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Context\Struct\StorefrontContext;
-use Shopware\Defaults;
-use Shopware\Framework\Config\ConfigServiceInterface;
 use Shopware\Storefront\Page\Search\SearchPageLoader;
 use Shopware\Storefront\Page\Search\SearchPageRequest;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,18 +12,12 @@ use Symfony\Component\HttpFoundation\Response;
 class SearchController extends StorefrontController
 {
     /**
-     * @var ConfigServiceInterface
-     */
-    private $configService;
-
-    /**
      * @var SearchPageLoader
      */
     private $searchPageLoader;
 
-    public function __construct(ConfigServiceInterface $configService, SearchPageLoader $searchPageLoader)
+    public function __construct(SearchPageLoader $searchPageLoader)
     {
-        $this->configService = $configService;
         $this->searchPageLoader = $searchPageLoader;
     }
 
@@ -34,18 +26,16 @@ class SearchController extends StorefrontController
      *
      * @return Response
      */
-    public function index(StorefrontContext $context, SearchPageRequest $request): Response
+    public function index(StorefrontContext $context, SearchPageRequest $searchPageRequest): Response
     {
-        $request->setNavigationId(Defaults::ROOT_CATEGORY);
-
-        $listing = $this->searchPageLoader->load($request, $context);
+        $listing = $this->searchPageLoader->load($searchPageRequest, $context);
 
         return $this->renderStorefront(
             '@Storefront/frontend/search/index.html.twig',
             [
                 'listing' => $listing,
                 'productBoxLayout' => $listing->getProductBoxLayout(),
-                'searchTerm' => $request->getSearchTerm(),
+                'searchTerm' => $searchPageRequest->getSearchTerm(),
             ]
         );
     }
@@ -54,11 +44,11 @@ class SearchController extends StorefrontController
      * @Route("/suggestSearch", name="search_ajax")
      *
      * @param StorefrontContext $context
-     * @param Request           $request
+     * @param SearchPageRequest $searchPageRequest
      *
      * @return Response
      */
-    public function ajax(StorefrontContext $context, Request $request): Response
+    public function ajax(StorefrontContext $context, Request $request, SearchPageRequest $searchPageRequest): Response
     {
         $searchTerm = $request->get('search');
 
@@ -69,7 +59,7 @@ class SearchController extends StorefrontController
         return $this->renderStorefront(
             '@Storefront/frontend/search/ajax.html.twig',
             [
-                'listing' => $this->searchPageLoader->load($request, $context),
+                'listing' => $this->searchPageLoader->load($searchPageRequest, $context),
                 'searchTerm' => $searchTerm,
             ]
         );

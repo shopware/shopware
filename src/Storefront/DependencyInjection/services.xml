@@ -144,7 +144,6 @@
         </service>
 
         <service class="Shopware\Storefront\Controller\SearchController" public="true" id="Shopware\Storefront\Controller\SearchController">
-            <argument id="Shopware\Framework\Config\ConfigService" type="service"/>
             <argument id="Shopware\Storefront\Page\Search\SearchPageLoader" type="service"/>
         </service>
 

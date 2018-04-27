@@ -59,7 +59,7 @@ class SearchPageLoader
 
         $layout = $config['searchProductBoxLayout'] ?? 'basic';
 
-        $page = new SearchPageStruct(Defaults::ROOT_CATEGORY, $products, $criteria);
+        $page = new SearchPageStruct(null, $products, $criteria);
         $page->setProductBoxLayout($layout);
 
         $this->eventDispatcher->dispatch(

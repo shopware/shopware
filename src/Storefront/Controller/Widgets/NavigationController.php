@@ -58,7 +58,7 @@ class NavigationController extends StorefrontController
 
         $navigationId = $this->getNavigationId($request);
 
-        $navigation = $this->get(NavigationService::class)->load($navigationId, $context);
+        $navigation = $this->get(NavigationService::class)->load($navigationId, $context->getApplicationContext());
 
         return $this->render('@Storefront/widgets/navigation/navigation.html.twig', [
             'navigation' => $navigation,
@@ -83,24 +83,22 @@ class NavigationController extends StorefrontController
 
         $navigationId = $this->getNavigationId($request);
 
-        $navigation = $this->get(NavigationService::class)->load($navigationId, $context);
+        $navigation = $this->get(NavigationService::class)->load($navigationId, $context->getApplicationContext());
 
         return $this->render('@Storefront/widgets/navigation/sidebar.html.twig', [
             'navigation' => $navigation,
         ]);
     }
 
-    private function getNavigationId(Request $request)
+    private function getNavigationId(Request $request): ?string
     {
         $route = $request->attributes->get('_route');
 
         switch ($route) {
             case ListingPageSeoUrlIndexer::ROUTE_NAME:
                 return $request->attributes->get('_route_params')['id'];
-
-            case DetailPageSeoUrlIndexer::ROUTE_NAME:
-            default:
-                return Defaults::ROOT_CATEGORY;
         }
+
+        return null;
     }
 }

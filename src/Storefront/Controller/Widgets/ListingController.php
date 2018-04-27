@@ -114,8 +114,6 @@ class ListingController extends StorefrontController
      */
     public function searchAction(SearchPageRequest $request, StorefrontContext $context)
     {
-        $request->setNavigationId(Defaults::ROOT_CATEGORY);
-
         $page = $this->searchPageLoader->load($request, $context);
 
         $template = $this->renderStorefront('@Storefront/frontend/listing/listing_ajax.html.twig', [

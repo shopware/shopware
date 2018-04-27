@@ -16,12 +16,15 @@ use Shopware\Api\Tax\Definition\TaxAreaRuleTranslationDefinition;
 use Shopware\Api\Tax\Definition\TaxDefinition;
 use Shopware\Api\Tax\Repository\TaxRepository;
 use Shopware\Api\Tax\Struct\TaxDetailStruct;
+use Shopware\Api\Test\Traits\CategoryTrait;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class VersioningTest extends KernelTestCase
 {
+    use CategoryTrait;
+
     /**
      * @var TaxRepository
      */
@@ -59,7 +62,7 @@ class VersioningTest extends KernelTestCase
     public function testVersionChangeOnInsert(): void
     {
         $uuid = Uuid::uuid4()->getHex();
-        $context = ApplicationContext:: createDefaultContext(\Shopware\Defaults::TENANT_ID);
+        $context = ApplicationContext::createDefaultContext(Defaults::TENANT_ID);
         $taxData = [
             'id' => $uuid,
             'name' => 'foo tax',
@@ -86,7 +89,7 @@ class VersioningTest extends KernelTestCase
         $uuid = Uuid::uuid4()->getHex();
         $ruleId = Uuid::uuid4()->getHex();
 
-        $context = ApplicationContext:: createDefaultContext(\Shopware\Defaults::TENANT_ID);
+        $context = ApplicationContext::createDefaultContext(Defaults::TENANT_ID);
         $taxData = [
             'id' => $uuid,
             'name' => 'foo tax',
@@ -154,7 +157,7 @@ class VersioningTest extends KernelTestCase
     public function testCreateNewVersion(): void
     {
         $uuid = Uuid::uuid4();
-        $context = ApplicationContext:: createDefaultContext(\Shopware\Defaults::TENANT_ID);
+        $context = ApplicationContext::createDefaultContext(Defaults::TENANT_ID);
         $taxData = [
             'id' => $uuid->getHex(),
             'name' => 'foo tax',
@@ -189,7 +192,7 @@ class VersioningTest extends KernelTestCase
     {
         $uuid = Uuid::uuid4();
         $ruleId = Uuid::uuid4();
-        $context = ApplicationContext:: createDefaultContext(\Shopware\Defaults::TENANT_ID);
+        $context = ApplicationContext::createDefaultContext(Defaults::TENANT_ID);
 
         $taxData = [
             'id' => $uuid->getHex(),
@@ -245,7 +248,7 @@ class VersioningTest extends KernelTestCase
     public function testMergeVersions(): void
     {
         $uuid = Uuid::uuid4();
-        $context = ApplicationContext:: createDefaultContext(\Shopware\Defaults::TENANT_ID);
+        $context = ApplicationContext::createDefaultContext(Defaults::TENANT_ID);
         $taxData = ['id' => $uuid->getHex(), 'name' => 'foo tax', 'rate' => 20];
         $this->taxRepository->create([$taxData], $context);
 
@@ -301,7 +304,7 @@ class VersioningTest extends KernelTestCase
     public function testReadConsiderVersion(): void
     {
         $uuid = Uuid::uuid4();
-        $liveVersionContext = ApplicationContext:: createDefaultContext(\Shopware\Defaults::TENANT_ID);
+        $liveVersionContext = ApplicationContext::createDefaultContext(Defaults::TENANT_ID);
         $taxData = ['id' => $uuid->getHex(), 'name' => 'foo tax', 'rate' => 20];
         $this->taxRepository->create([$taxData], $liveVersionContext);
 
@@ -362,7 +365,7 @@ class VersioningTest extends KernelTestCase
     public function testSearcherConsidersVersionFallback(): void
     {
         $uuid = Uuid::uuid4();
-        $liveVersionContext = ApplicationContext:: createDefaultContext(\Shopware\Defaults::TENANT_ID);
+        $liveVersionContext = ApplicationContext::createDefaultContext(Defaults::TENANT_ID);
         $taxData = ['id' => $uuid->getHex(), 'name' => 'foo tax', 'rate' => 5];
         $this->taxRepository->create([$taxData], $liveVersionContext);
 
@@ -408,7 +411,7 @@ class VersioningTest extends KernelTestCase
     public function testOneToManyVersioning(): void
     {
         $uuid = Uuid::uuid4();
-        $liveVersionContext = ApplicationContext:: createDefaultContext(\Shopware\Defaults::TENANT_ID);
+        $liveVersionContext = ApplicationContext::createDefaultContext(Defaults::TENANT_ID);
         $taxData = [
             'id' => $uuid->getHex(),
             'name' => 'foo tax',
@@ -518,7 +521,7 @@ class VersioningTest extends KernelTestCase
                 'parentId' => $productId->getHex(),
             ],
         ];
-        $liveContext = ApplicationContext:: createDefaultContext(\Shopware\Defaults::TENANT_ID);
+        $liveContext = ApplicationContext::createDefaultContext(Defaults::TENANT_ID);
         $this->productRepository->create($products, $liveContext);
 
         $variantVersionId = $this->productRepository->createVersion($variantId->getHex(), $liveContext);
@@ -586,7 +589,7 @@ class VersioningTest extends KernelTestCase
     {
         $id = Uuid::uuid4();
 
-        $liveContext = ApplicationContext:: createDefaultContext(\Shopware\Defaults::TENANT_ID);
+        $liveContext = ApplicationContext::createDefaultContext(Defaults::TENANT_ID);
 
         $this->taxRepository->create([['id' => $id->getHex(), 'name' => 'test', 'rate' => 15]], $liveContext);
 
@@ -620,14 +623,12 @@ class VersioningTest extends KernelTestCase
 
     public function testCampaign(): void
     {
+        $liveContext = ApplicationContext::createDefaultContext(Defaults::TENANT_ID);
+
+        $parentCategoryId = $this->createCategory($liveContext);
+
         $product1 = Uuid::uuid4();
         $product2 = Uuid::uuid4();
-
-        $parentCategory = $this->connection->fetchColumn(
-            'SELECT id FROM category WHERE parent_id = :main',
-            ['main' => Uuid::fromString(Defaults::ROOT_CATEGORY)->getBytes()]
-        );
-        $parentCategory = Uuid::fromBytes($parentCategory);
 
         $category = Uuid::uuid4()->getHex();
         $versionId = Uuid::uuid4()->getHex();
@@ -640,7 +641,7 @@ class VersioningTest extends KernelTestCase
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'rate' => 19],
                 'categories' => [
-                    ['id' => $category, 'parentId' => $parentCategory->getHex(), 'name' => 'TEST cat'],
+                    ['id' => $category, 'parentId' => $parentCategoryId, 'name' => 'TEST cat'],
                 ],
             ], [
                 'id' => $product2->getHex(),
@@ -654,7 +655,6 @@ class VersioningTest extends KernelTestCase
             ],
         ];
 
-        $liveContext = ApplicationContext:: createDefaultContext(\Shopware\Defaults::TENANT_ID);
         $this->productRepository->create($products, $liveContext);
 
         $this->productRepository->createVersion($product1->getHex(), $liveContext, 'Campaign', $versionId);

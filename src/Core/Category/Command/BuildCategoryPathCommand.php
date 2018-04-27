@@ -24,6 +24,9 @@
 
 namespace Shopware\Category\Command;
 
+use Shopware\Api\Category\Repository\CategoryRepository;
+use Shopware\Api\Entity\Search\Criteria;
+use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Category\Extension\CategoryPathBuilder;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\DbalIndexing\Event\ProgressAdvancedEvent;
@@ -117,6 +120,15 @@ class BuildCategoryPathCommand extends ContainerAwareCommand implements EventSub
 
         $context = ApplicationContext::createDefaultContext($tenantId);
 
-        $this->pathBuilder->update(Defaults::ROOT_CATEGORY, $context);
+        $categoryRepository = $this->getContainer()->get(CategoryRepository::class);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new TermQuery('category.parentId', null));
+
+        $categoryResult = $categoryRepository->searchIds($criteria, $context);
+
+        foreach ($categoryResult->getIds() as $categoryId) {
+            $this->pathBuilder->update($categoryId, $context);
+        }
     }
 }

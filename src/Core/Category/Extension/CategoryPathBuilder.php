@@ -116,7 +116,7 @@ class CategoryPathBuilder implements EventSubscriberInterface
                     if ($parent->getLevel() === 0) {
                         return null;
                     }
-                    if ($parent->getParentId() === Defaults::ROOT_CATEGORY) {
+                    if ($parent->getParentId() === null) {
                         return null;
                     }
 

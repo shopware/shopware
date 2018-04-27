@@ -168,7 +168,7 @@ class ApplicationContext extends Struct
         return $this->tenantId;
     }
 
-    public function createWithVersionId(string $versionId)
+    public function createWithVersionId(string $versionId): self
     {
         return new self(
             $this->tenantId,
@@ -179,6 +179,21 @@ class ApplicationContext extends Struct
             $this->languageId,
             $this->fallbackLanguageId,
             $versionId,
+            $this->currencyFactor
+        );
+    }
+
+    public function createWithCatalogIds(array $catalogIds): self
+    {
+        return new self(
+            $this->tenantId,
+            $this->applicationId,
+            $catalogIds,
+            $this->contextRules,
+            $this->currencyId,
+            $this->languageId,
+            $this->fallbackLanguageId,
+            $this->versionId,
             $this->currencyFactor
         );
     }

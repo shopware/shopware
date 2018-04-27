@@ -198,7 +198,6 @@ class DemodataCommand extends ContainerAwareCommand
                 'id' => Uuid::uuid4()->getHex(),
                 'catalogId' => Defaults::CATALOG,
                 'name' => $this->randomDepartment(),
-                'parentId' => Defaults::ROOT_CATEGORY,
             ];
         }
 

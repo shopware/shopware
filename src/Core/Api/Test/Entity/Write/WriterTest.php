@@ -351,7 +351,7 @@ class WriterTest extends KernelTestCase
                     'inStock' => 15,
                     'isMain' => true,
                     'categories' => [
-                        ['id' => Defaults::ROOT_CATEGORY],
+                        ['name' => 'Some category'],
                     ],
                     'price' => 10,
                 ],

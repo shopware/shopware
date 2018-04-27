@@ -31,4 +31,9 @@ class TreeItem
     {
         return $this->children;
     }
+
+    public function addChildren(TreeItem ...$items): void
+    {
+        $this->children = array_merge($this->children, $items);
+    }
 }

@@ -3,6 +3,9 @@
 namespace Shopware\DbalIndexing\Indexer;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Api\Category\Repository\CategoryRepository;
+use Shopware\Api\Entity\Search\Criteria;
+use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Product\Repository\ProductRepository;
 use Shopware\Category\Extension\CategoryPathBuilder;
@@ -45,25 +48,39 @@ class CategoryAssignmentIndexer implements IndexerInterface
      */
     private $connection;
 
+    /**
+     * @var CategoryRepository
+     */
+    private $categoryRepository;
+
     public function __construct(
         ProductRepository $productRepository,
         Connection $connection,
         EventDispatcherInterface $eventDispatcher,
         CategoryPathBuilder $pathBuilder,
-        EventIdExtractor $eventIdExtractor
+        EventIdExtractor $eventIdExtractor,
+        CategoryRepository $categoryRepository
     ) {
         $this->productRepository = $productRepository;
         $this->eventDispatcher = $eventDispatcher;
         $this->pathBuilder = $pathBuilder;
         $this->eventIdExtractor = $eventIdExtractor;
         $this->connection = $connection;
+        $this->categoryRepository = $categoryRepository;
     }
 
     public function index(\DateTime $timestamp, string $tenantId): void
     {
         $context = ApplicationContext::createDefaultContext($tenantId);
 
-        $this->pathBuilder->update(Defaults::ROOT_CATEGORY, $context);
+        $criteria = new Criteria();
+        $criteria->addFilter(new TermQuery('category.parentId', null));
+
+        $categoryResult = $this->categoryRepository->searchIds($criteria, $context);
+
+        foreach ($categoryResult->getIds() as $categoryId) {
+            $this->pathBuilder->update($categoryId, $context);
+        }
 
         $iterator = new RepositoryIterator($this->productRepository, $context);
 

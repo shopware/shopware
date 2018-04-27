@@ -43,6 +43,7 @@
             <argument id="event_dispatcher" type="service"/>
             <argument id="Shopware\Category\Extension\CategoryPathBuilder" type="service"/>
             <argument id="Shopware\DbalIndexing\Common\EventIdExtractor" type="service"/>
+            <argument id="Shopware\Api\Category\Repository\CategoryRepository" type="service"/>
             <tag name="shopware.dbal_indexing.indexer" priority="1000"/>
         </service>
 

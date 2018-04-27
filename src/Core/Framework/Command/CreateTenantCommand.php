@@ -57,7 +57,6 @@ class CreateTenantCommand extends ContainerAwareCommand
         $this->importLocale($bytes);
         $this->importShop($bytes);
         $this->importShopTemplate($bytes);
-        $this->importCategory($bytes);
         $this->importPaymentMethod($bytes);
         $this->importShippingMethod($bytes);
         $this->importTax($bytes);
@@ -93,7 +92,7 @@ class CreateTenantCommand extends ContainerAwareCommand
             ['id', 'type', 'name', 'configuration', 'access_key', 'secret_access_key', 'catalog_ids', 'currency_ids', 'language_ids', 'tax_calculation_type', 'language_id', 'currency_id', 'payment_method_id', 'shipping_method_id', 'country_id', 'currency_version_id', 'payment_method_version_id', 'shipping_method_version_id', 'country_version_id'],
             ['tenant_id', 'language_tenant_id', 'currency_tenant_id', 'payment_method_tenant_id', 'shipping_method_tenant_id', 'country_tenant_id'],
             [
-                [hex2bin('ffffffffffffffffffffffffffffffff'), 'api', 'Default endpoint', null, 'TzhovH7sgws8n9UjgEdDEzNkA6xURua8', 'eZvM4Mumq/h1#88q6U4wvCi-AkTY', '["ffffffffffffffffffffffffffffffff"]', '["4c8eba11bd3546d786afbed481a6e665","2824ea63db6741109e2378ddcc9cec84"]', '["ffffffffffffffffffffffffffffffff"]', 'vertical', hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('4c8eba11bd3546d786afbed481a6e665'), hex2bin('77573b9cf7914cb5a9519945bff1d95b'), hex2bin('417beeb2dddf45d1b90188fd211343c3'), hex2bin('bd5e2dcf547e4df6bb1ff58a554bc69e'), hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('ffffffffffffffffffffffffffffffff')],
+                [hex2bin('ffffffffffffffffffffffffffffffff'), 'api', 'Default endpoint', NULL, 'TzhovH7sgws8n9UjgEdDEzNkA6xURua8', 'eZvM4Mumq/h1#88q6U4wvCi-AkTY', '["ffffffffffffffffffffffffffffffff"]', '["4c8eba11bd3546d786afbed481a6e665","2824ea63db6741109e2378ddcc9cec84"]', '["ffffffffffffffffffffffffffffffff"]', 'vertical', hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('4c8eba11bd3546d786afbed481a6e665'), hex2bin('77573b9cf7914cb5a9519945bff1d95b'), hex2bin('417beeb2dddf45d1b90188fd211343c3'), hex2bin('bd5e2dcf547e4df6bb1ff58a554bc69e'), hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('ffffffffffffffffffffffffffffffff')],
             ]
         );
     }
@@ -1043,31 +1042,6 @@ class CreateTenantCommand extends ContainerAwareCommand
             ['tenant_id', 'parent_tenant_id'],
             [
                 [hex2bin('60f80cfdf49847d38b3047c41c0a2d1c'), hex2bin('ffffffffffffffffffffffffffffffff'), 'Responsive', '__theme_name__', '__theme_description__', '__author__', '__license__', 1, 1, 3, 1, null, null, '2017-12-14 15:26:04', null],
-            ]
-        );
-    }
-
-    private function importCategory(string $tenantId)
-    {
-        $this->importTable(
-            $tenantId,
-            'category',
-            ['id', 'catalog_id', 'version_id', 'parent_version_id', 'parent_id', 'path', 'position', 'level', 'template', 'active', 'is_blog', 'external', 'hide_filter', 'hide_top', 'media_id', 'product_box_layout', 'product_stream_id', 'hide_sortings', 'sorting_ids', 'facet_ids', 'created_at', 'updated_at'],
-            ['tenant_id', 'catalog_tenant_id', 'parent_tenant_id', 'media_tenant_id', 'product_stream_tenant_id'],
-            [
-                [hex2bin('57f4ecb1162843e69dabc4a6a7b66eab'), hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('ffffffffffffffffffffffffffffffff'), null, null, 0, 0, null, 1, 0, null, 0, 0, null, null, null, 0, null, null, '2012-07-30 15:24:59', '2017-12-14 15:41:13'],
-                [hex2bin('a1abd0ee0aa64fcdaef725b8b84e5943'), hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('57f4ecb1162843e69dabc4a6a7b66eab'), null, 0, 0, null, 1, 0, '', 0, 0, null, null, null, 0, null, null, '2012-07-30 15:24:59', '2017-12-14 15:41:13'],
-            ]
-        );
-
-        $this->importTable(
-            $tenantId,
-            'category_translation',
-            ['category_id', 'catalog_id', 'category_version_id', 'language_id', 'name', 'path_names', 'meta_keywords', 'meta_title', 'meta_description', 'cms_headline', 'cms_description'],
-            ['category_tenant_id', 'language_tenant_id', 'catalog_tenant_id'],
-            [
-                [hex2bin('57f4ecb1162843e69dabc4a6a7b66eab'), hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('ffffffffffffffffffffffffffffffff'), 'Root', null, null, null, null, null, null],
-                [hex2bin('a1abd0ee0aa64fcdaef725b8b84e5943'), hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('ffffffffffffffffffffffffffffffff'), 'Main', null, null, null, '', '', ''],
             ]
         );
     }

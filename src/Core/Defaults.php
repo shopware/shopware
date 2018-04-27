@@ -12,8 +12,6 @@ final class Defaults
 
     public const FALLBACK_CUSTOMER_GROUP = '3294e6f6372b415fac7371cbc191548f';
 
-    public const ROOT_CATEGORY = '57f4ecb1162843e69dabc4a6a7b66eab';
-
     public const ORDER_STATE_OPEN = '1194a493806742c9b85e61f1f2cf9be8';
 
     public const LIVE_VERSION = 'ffffffffffffffffffffffffffffffff';

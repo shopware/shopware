@@ -1,0 +1,67 @@
+{% sw_extends '@Storefront/frontend/index/index.html.twig' %}
+
+{% block frontend_index_header %}
+    {% sw_include '@Storefront/frontend/listing/header.html.twig' %}
+{% endblock %}
+
+{% block frontend_index_content_left %}
+    {# @var page \Shopware\Storefront\Page\Listing\ListingPageStruct #}
+    {% set countCtrlUrl = url('widgets_listing_list', { 'categoryId': listing.navigationId }) %}
+
+    {% sw_include '@Storefront/frontend/listing/sidebar.html.twig' %}
+{% endblock %}
+
+{# Main content #}
+{% block frontend_index_content %}
+    {# Define all necessary template variables for the listing #}
+    {% set emotionViewports = {0: 'xl', 1: 'l', 2: 'm', 3: 's', 4: 'xs'} %}
+
+    {# Count of available product pages #}
+    {% set pages = listing.pageCount %}
+
+    {# Layout for the product boxes #}
+    {% set productBoxLayout = 'basic' %}
+
+    {% if navigation.activeCategory.productBoxLayout != null and navigation.activeCategory.productBoxLayout != 'extend' %}
+        {% set productBoxLayout = navigation.activeCategory.productBoxLayout %}
+    {% endif %}
+
+    {% set baseParameters = { categoryId: listing.navigationId } %}
+
+    {# @var page \Shopware\Storefront\Page\Listing\ListingPageStruct #}
+    {% set countCtrlUrl = url('widgets_listing_list', { 'categoryId' : listing.navigationId }) %}
+
+    <div class="content listing--content">
+
+        {# Banner #}
+        {% block frontend_listing_index_banner %}
+            {% if hasEmotion == false %}
+                {% sw_include '@Storefront/frontend/listing/banner.html.twig' %}
+            {% endif %}
+        {%  endblock %}
+
+        {# Category headline #}
+        {% block frontend_listing_index_text %}
+            {% if hasEmotion == false %}
+                {% sw_include '@Storefront/frontend/listing/text.html.twig' %}
+            {% endif %}
+        {%  endblock %}
+
+        {# Topseller #}
+        {% block frontend_listing_index_topseller %}
+            {% set topSellerActive = config.topSellerActive %}
+            {% set topSellerActive = true %}
+            {% if hasEmotion == false and topSellerActive %}
+                {{ render(controller('Storefront:Widgets/Listing:topSeller')) }}
+            {% endif %}
+        {% endblock %}
+
+        {# Listing #}
+        {% block frontend_listing_index_listing %}
+            {% sw_include '@Storefront/frontend/listing/listing.html.twig' %}
+        {% endblock %}
+    </div>
+{% endblock %}
+
+{# Sidebar right #}
+{% block frontend_index_content_right %}{% endblock %}

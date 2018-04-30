@@ -16,19 +16,12 @@ Thumbs.db
 # Composer
 /composer.phar
 /vendor/*
-!/vendor/.htaccess
 /composer.lock
-
-# User installed plugins
-/custom/plugins/*
 
 # Caches/Proxies
 .php_cs
 .php_cs.cache
-/tests/Shopware/TempFiles/*
-/var/cache/*
-!/var/cache/.htaccess
-!/var/cache/clear_cache.sh
+/var/*
 /var/bootstrap.php.cache
 /var/config_administration_plugins.json
 /var/jwt/public.pem

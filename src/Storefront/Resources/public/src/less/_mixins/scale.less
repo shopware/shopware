@@ -1,0 +1,21 @@
+/*
+Scale mixin
+===============================
+The mixins provides you a cross-browser compatible method to set a transformation which scales the element.
+Keep in mind that you can not mix different transformations.
+
+Please refer to <http://caniuse.com/transforms2d> to see the browser support table of the feature.
+
+######Example:
+`.scale([value]);`
+
+`@param {String} scale-value The scale value, you want to set`
+*/
+
+.scale(@scale-value) {
+	-webkit-transform: scale(@scale-value);
+	-moz-transform: scale(@scale-value);
+	-ms-transform: scale(@scale-value);
+	-o-transform: scale(@scale-value);
+	transform: scale(@scale-value);
+}

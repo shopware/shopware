@@ -1,0 +1,87 @@
+{
+  "name": "shopware/core",
+  "type": "library",
+  "minimum-stability": "dev",
+  "description": "Shopware platform is the core for all Shopware ecommerce products.",
+  "keywords": ["shopware", "shop"],
+  "homepage": "http://www.shopware.com",
+  "license": [
+    "AGPL-3.0",
+    "proprietary"
+  ],
+  "autoload": {
+    "psr-4": {
+      "Shopware\\": "src/"
+    }
+  },
+  "require": {
+    "php": ">=7.2.0",
+    "doctrine/doctrine-bundle": "^1.8",
+    "doctrine/doctrine-cache-bundle": "^1.3",
+    "egulias/email-validator": "~2.1",
+    "firebase/php-jwt": "^5.0",
+    "league/flysystem": "^1.0",
+    "league/flysystem-aws-s3-v3": "^1.0",
+    "ramsey/uuid": "^3.7",
+    "sensio/framework-extra-bundle": "^5.1",
+    "superbalist/flysystem-google-storage": "^5.0",
+    "symfony/asset": "^4.0",
+    "symfony/config": "^4.0",
+    "symfony/console": "^4.0",
+    "symfony/debug-pack": "^1.0",
+    "symfony/dependency-injection": "^4.0",
+    "symfony/dotenv": "^4.0",
+    "symfony/flex": "^1.0",
+    "symfony/http-foundation": "^4.0",
+    "symfony/http-kernel": "^4.0",
+    "symfony/monolog-bundle": "^3.2",
+    "symfony/options-resolver": "^4.0",
+    "symfony/routing": "^4.0",
+    "symfony/security-bundle": "^4.0",
+    "symfony/serializer-pack": "^1.0",
+    "symfony/swiftmailer-bundle": "^3.2",
+    "symfony/translation": "^4.0",
+    "symfony/twig-bundle": "^4.0",
+    "symfony/validator": "^4.0",
+    "symfony/yaml": "^4.0",
+    "twig/extensions": "^1.5",
+    "twig/twig": "^2.4",
+    "voku/stop-words": "^2.0"
+  },
+  "require-dev": {
+    "bheller/images-generator": "^1.0",
+    "fzaninotto/faker": "^1.7",
+    "mbezhanov/faker-provider-collection": "^1.0",
+    "phpunit/phpunit": "^7.0",
+    "symfony/browser-kit": "^4.0",
+    "symfony/phpunit-bridge": "^4.0",
+    "symfony/var-dumper": "^4.0"
+  },
+  "conflicts": {
+    "symfony/symfony": "*"
+  },
+  "config": {
+    "preferred-install": {
+      "*": "dist"
+    },
+    "sort-packages": true
+  },
+  "scripts": {
+    "auto-scripts": {
+      "cache:clear": "symfony-cmd",
+      "assets:install --symlink --relative %PUBLIC_DIR%": "symfony-cmd"
+    },
+    "post-install-cmd": [
+      "@auto-scripts"
+    ],
+    "post-update-cmd": [
+      "@auto-scripts"
+    ]
+  },
+  "extra": {
+    "symfony": {
+      "id": "01C8DASE0Z4QQC3MT9KQYSTVX5",
+      "allow-contrib": false
+    }
+  }
+}

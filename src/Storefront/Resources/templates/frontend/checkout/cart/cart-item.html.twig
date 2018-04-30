@@ -1,0 +1,211 @@
+{% set TYPE_PRODUCT = 'product' %}
+{% set TYPE_VOUCHER = 'voucher' %}
+{% set TYPE_DISCOUNT = 'discount' %}
+{% trans_default_domain 'frontend/checkout/cart_item' %}
+
+{% block frontend_checkout_cart_item %}
+    <div class="table--tr block-group row--product{% if isLast %} is--last-row{% endif %}">
+
+        {% if calculatedLineItem.extensions.canonicalUrl %}
+            {% set detailUrl = calculatedLineItem.extensions.canonicalUrl.url %}
+        {% else %}
+            {% if calculatedLineItem.id %}
+                {% set detailUrl = url('detail_page', { 'id': calculatedLineItem.id }) %}
+            {% endif %}
+        {% endif %}
+
+        {# Item information column #}
+        {% block frontend_checkout_cart_item_name %}
+
+            <div class="column--product" style="padding-left: {{ depth * 50 }}px;">
+
+                {# Item image #}
+                {% block frontend_checkout_cart_item_image %}
+                    <div class="panel--td column--image">
+                        <div class="table--media">
+
+                            {% block frontend_checkout_cart_item_image_container %}
+                                <div class="table--media-outer">
+
+                                    {% block frontend_checkout_cart_item_image_container_outer %}
+                                        <div class="table--media-inner">
+
+                                            {% block frontend_checkout_cart_item_image_container_inner %}
+
+                                                {% set image = calculatedLineItem.cover %}
+                                                {% set desc = calculatedLineItem.name|striptags|escape %}
+
+                                                {% if image %}
+                                                    <a href="{{ detailUrl }}" title="{{ desc }}" class="table--media-link">
+                                                        <img src="{{ image.media.extensions.links.url }}" alt="{{ desc }}" title="{{ desc|truncate(160) }}" />
+                                                    </a>
+                                                {% endif %}
+
+                                            {% endblock %}
+
+                                        </div>
+                                    {% endblock %}
+
+                                </div>
+                            {% endblock %}
+
+                        </div>
+                    </div>
+                {% endblock %}
+
+                {# Product information #}
+                {% block frontend_checkout_cart_item_details %}
+                    <div class="panel--td table--content">
+
+                        {# Product name #}
+                        {% block frontend_checkout_cart_item_details_title %}
+
+                            {% if detailUrl %}
+                                <a class="content--title" href="{{ detailUrl }}" title="{{ calculatedLineItem.label|striptags|escape }}">
+                                    {{ calculatedLineItem.label|striptags|truncate(60) }}
+                                </a>
+                            {% else %}
+                                <span class="content--title">{{ calculatedLineItem.label|striptags|truncate(60) }}</span>
+                            {% endif %}
+
+                        {% endblock %}
+
+                        {# Product SKU number #}
+                        {% block frontend_checkout_cart_item_details_sku %}
+                            {% if calculatedLineItem.identifier %}
+                                <p class="content--sku content">
+                                    {% trans %}CartItemInfoId{% endtrans %}
+                                    {{ calculatedLineItem.identifier }}
+                                </p>
+                            {% endif %}
+                        {% endblock %}
+
+                        {# Product delivery information #}
+                        {% block frontend_checkout_cart_item_delivery_informations %}
+                            {% if shopware.config.basketshippinginfo and calculatedLineItem.deliveryInformation %}
+                                {#{% sw_include '@Storefront/frontend/checkout/cart/items/delivery-information.html.twig' with {'product' : calculatedLineItem} %}#}
+                            {% endif %}
+                        {% endblock %}
+
+                        {# Additional product information #}
+                        {% block frontend_checkout_cart_item_details_inline %}{% endblock %}
+
+                    </div>
+                {% endblock %}
+
+            </div>
+        {% endblock %}
+
+        {# Product quantity #}
+        {% block frontend_checkout_cart_item_quantity %}
+            <div class="panel--td column--quantity is--align-right">
+
+                {# Label #}
+                {% block frontend_checkout_cart_item_quantity_label %}
+                    <div class="column--label quantity--label">
+                        {% trans from 'frontend/checkout/cart_header' %}CartColumnQuantity{% endtrans %}
+                    </div>
+                {% endblock %}
+
+                {% block frontend_checkout_cart_item_quantity_selection %}
+
+                    {#
+                        TODO: Implement template logic, that enables or disables quantity selection depending on line item
+                        TODO: availability and purchase steps in order to prevent explicit type switches
+                        #}
+                    {% if depth > 0 %}
+                        {{ calculatedLineItem.quantity }}
+                    {% elseif not calculatedLineItem.lastStock or (calculatedLineItem.lastStock and calculatedLineItem.stock > 0) %}
+                        {% if calculatedLineItem.lineItem %}
+                            <form name="cart_product_change_quantity" class="select-field" method="post" action="{{ path('cart_set_line_item_quantity') }}">
+                                <select name="quantity" data-auto-submit="true">
+                                    {% set minPurchase = calculatedLineItem.variant.minPurchase ?? 1 %}
+                                    {# TODO CONFIG AUSLESEN #}
+                                    {% set maxPurchase = calculatedLineItem.variant.maxPurchase ?? 25 %}
+                                    {% set purchaseSteps = calculatedLineItem.variant.purchaseSteps ?? 1 %}
+                                    {% for quantity in range(minPurchase, maxPurchase, purchaseSteps) %}
+                                        <option value="{{ quantity }}" {% if quantity==calculatedLineItem.quantity %}selected="selected"{% endif %}>
+                                            {{ quantity }}
+                                        </option>
+                                        {/section}
+                                    {% endfor %}
+                                </select>
+                                <input type="hidden" name="identifier" value="{{ calculatedLineItem.identifier }}" />
+
+                                {% block frontend_checkout_cart_item_quantity_target %}
+                                    <input type="hidden" name="target" value="checkout_cart" />
+                                {% endblock %}
+                            </form>
+                        {% endif %}
+                    {% else %}
+                        {% trans %}CartColumnQuantityEmpty{% endtrans %}
+                    {% endif %}
+
+                {% endblock %}
+
+            </div>
+        {% endblock %}
+
+        {# Product unit price #}
+        {% block frontend_checkout_cart_item_price %}
+            <div class="panel--td column--unit-price is--align-right">
+                {# TODO: Which conditions have to be met to have the unit price label displayed or hidden? #}
+                {% block frontend_checkout_cart_item_unit_price_label %}
+                    <div class="column--label unit-price--label">
+                        {% trans from 'frontend/checkout/cart_header' %}CartColumnPrice{% endtrans %}
+                    </div>
+                {% endblock %}
+                {{ calculatedLineItem.price.unitPrice|localizedcurrency(context.currency.shortName) }}
+                {% block frontend_checkout_cart_tax_symbol %}
+                    {% trans from 'frontend/listing/box_article' %}Star{% endtrans %}
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {# Product tax rate #}
+        {% block frontend_checkout_cart_item_tax_price %}{% endblock %}
+
+        {# Accumulated product price #}
+        {% block frontend_checkout_cart_item_total_sum %}
+            <div class="panel--td column--total-price is--align-right">
+                {% block frontend_checkout_cart_item_total_price_label %}
+                    <div class="column--label total-price--label">
+                        {% trans from 'frontend/checkout/cart_header' %}CartColumnTotal{% endtrans %}
+                    </div>
+                {% endblock %}
+
+                {{ calculatedLineItem.price.totalPrice|localizedcurrency(context.currency.shortName) }}
+                {{ block('frontend_checkout_cart_tax_symbol') }}
+            </div>
+        {% endblock %}
+
+        {# Remove product from basket #}
+        {% block frontend_checkout_cart_item_delete_article %}
+            {% if depth == 0 and calculatedLineItem.lineItem %}
+                <div class="panel--td column--actions right">
+                    {% block frontnend_checkout_cart_item_delete_form %}
+                        <form action="{{ path('cart_delete_line_item') }}" method="post">
+                            <button type="submit" class="btn is--small column--actions-link"
+                                    title="{% trans %}CartItemLinkDelete{% endtrans %}">
+                                <i class="icon--cross"></i>
+                            </button>
+                            <input type="hidden" name="identifier" value="{{ calculatedLineItem.identifier }}" />
+                            {#<input type="hidden" name="target" value="{{ 'cart_index' }}" />#}
+                        </form>
+                    {% endblock %}
+                </div>
+            {% endif %}
+        {% endblock %}
+    </div>
+{% endblock %}
+
+{% if calculatedLineItem.children %}
+    {% for child in calculatedLineItem.children %}
+        {% sw_include 'frontend/checkout/cart/cart-item.html.twig' with
+            {
+                'calculatedLineItem': child,
+                'depth': depth + 1
+            }
+        %}
+    {% endfor %}
+{% endif %}

@@ -1,4 +1,0 @@
-    public function getPathArray(): array
-    {
-        return array_filter(explode('|', (string) $this->path));
-    }

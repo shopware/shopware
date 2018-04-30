@@ -1,0 +1,30 @@
+{% block frontend_listing_filter_facet_boolean %}
+    <div class="filter-panel filter--value facet--{{ facet.facetName }}"
+         data-filter-type="value"
+         data-facet-name="{{ facet.facetName }}"
+         data-field-name="{{ facet.fieldName }}">
+
+        {% block frontend_listing_filter_facet_boolean_flyout %}
+            <div class="filter-panel--flyout">
+
+                {% block frontend_listing_filter_facet_boolean_title %}
+                    <label class="filter-panel--title" for="{{ facet.fieldName }}">
+                        {{ facet.label }}
+                    </label>
+                {% endblock %}
+
+                {% block frontend_listing_filter_facet_boolean_checkbox %}
+                    <span class="filter-panel--input">
+                        <input type="checkbox"
+                               id="{{ facet.fieldName }}"
+                               name="{{ facet.fieldName }}"
+                               value="1"
+                               {% if facet.active == true %}checked="checked" {% endif %}/>
+
+                        <span class="input--state">&nbsp;</span>
+                    </span>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

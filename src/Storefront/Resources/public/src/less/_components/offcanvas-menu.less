@@ -1,0 +1,211 @@
+/*
+Off-canvas menu
+=======================================
+The off-canvas menu is the default shopping cart menu in Shopware.
+
+It is an expanding menu that displays the shopping cart at the right side of the screen.
+
+It can be enabled/disabled inside the Shopware 5 backend.
+
+The functionality is provided by the `jquery.off-canvas-menu.js` file.
+*/
+
+// Is used for the necessary styling of an off-canvas menu
+.off-canvas {
+    .transition(all 0.45s cubic-bezier(.3,0,.15,1));
+    .transform-style(preserve-3d);
+    .unitize-width(280);
+    background: #fff;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    display: none;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    z-index: @zindex-offcanvas;
+
+    &.is--left {
+        .transform(translateX(-100%));
+        left: 0;
+    }
+
+    &.is--right {
+        .transform(translateX(100%));
+        right: 0;
+    }
+
+    &.is--active {
+        display: block;
+    }
+
+    &.is--open {
+        .transform(translateX(0));
+    }
+
+    &.is--full-screen {
+        width: 100%;
+    }
+
+    &.no--transitions {
+        .transition(none);
+    }
+
+    .buttons--off-canvas {
+        display: block;
+    }
+
+    .close--off-canvas {
+        .unitize-padding(2, 10);
+        .unitize(line-height, 38);
+        .secondary-gradient();
+        .clearfix();
+        display: block;
+        color: #fff;
+        font-weight: bold;
+        cursor: pointer;
+
+        .icon--arrow-left {
+            .unitize-margin(0, 10, 0, 0);
+            .unitize(font-size, 11);
+        }
+    }
+
+    .link--go-main {
+        .unitize(font-size, 16);
+        .unitize-padding(10, 10);
+        .unitize-height(42);
+        font-weight: 700;
+        display: block;
+        width: 100%;
+
+        .icon--menu {
+            .unitize(font-size, 20);
+            .unitize(margin-right, 10);
+            float: left;
+        }
+    }
+
+    .sidebar--navigation .navigation--link {
+        .unitize-padding(2, 10);
+        .unitize(line-height, 38);
+
+        .is--icon-right {
+            margin-top: 0;
+        }
+
+        .is--icon-left {
+            .unitize-margin(0, 10, 0, 0);
+            float: left;
+        }
+    }
+}
+
+.buttons--off-canvas {
+    display: none;
+}
+
+.page-wrap {
+    .transition(left 400ms cubic-bezier(.16,.04,.14,1));
+    position: relative;
+    left: 0;
+}
+
+.navigation--smartphone {
+	.navigation--entry {
+		.unitize-padding(12, 10, 12, 10);
+		background: #fff;
+	}
+	.navigation--link {
+		display: block;
+	}
+
+	.entry--close-off-canvas {
+        .unitize-padding(2, 10);
+        .unitize(line-height, 38);
+		.secondary-gradient();
+
+		.navigation--link {
+			.clearfix();
+            .unitize(font-size, 14);
+			color: @gray-light;
+			font-weight: bold;
+
+			&:active {
+				color: @gray;
+			}
+		}
+		.icon--arrow-right {
+			.unitize-margin(12, 0, 0, 0);
+            .unitize(font-size, 11);
+            float: right;
+		}
+	}
+}
+
+.navigation--headline,
+.sidebar--navigation {
+	.unitize-margin(0, 10, 0, 10);
+}
+.navigation--headline {
+	.unitize-margin(16, 10, 6, 10);
+    .unitize(line-height, 26);
+    color: @text-color-dark;
+    font-weight: 700;
+	font-size: 1em;
+}
+.sidebar--navigation {
+	.border-radius();
+	background: #fff;
+	border: 1px solid @border-color;
+
+	.navigation--entry {
+		border-bottom: 1px solid @border-color;
+
+		&:last-child {
+			border-bottom: 0 none;
+		}
+	}
+	.navigation--link {
+		color: @text-color;
+        overflow: hidden;
+        text-overflow: ellipsis;
+	}
+}
+
+@media screen and(min-width: @tabletViewportWidth) {
+
+    // Reset the styles of the standard off-canvas elements on higher screen sizes
+    .off-canvas {
+        .translate(0, 0);
+        .transition(none);
+        display: block;
+        background: transparent;
+        position: relative;
+        width: auto;
+        height: auto;
+        top: 0;
+        left: 0;
+        z-index: @zindex-offcanvas-higher-viewport;
+
+        .sidebar--navigation .navigation--link {
+            .unitize-padding(10, 10);
+            line-height: inherit;
+        }
+
+        .account--menu .navigation--link {
+            .unitize-padding(5, 0);
+            line-height: inherit;
+        }
+    }
+
+    .sidebar-main {
+        .entry--close-off-canvas {
+            display: none;
+        }
+
+        .icon--arrow-right,
+        .icon--arrow-left {
+            display: none;
+        }
+    }
+}

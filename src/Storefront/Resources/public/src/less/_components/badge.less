@@ -1,0 +1,51 @@
+/*
+Counter Badges
+==========================================
+######Creates a badge to display counts.
+
+The `span` can be modified with 3 different color schemes.
+
+Options: `is--primary`, `is--secondary`, `is--minimal`
+
+
+```
+<p><span class="badge is--primary">1</span> Primary Badge</p>
+<p><span class="badge is--secondary">2</span> Secondary Badge</p>
+<p><span class="badge is--minimal">3</span> Minimal Badge</p>
+```
+*/
+
+.badge {
+    .unitize-padding(0, 5);
+    .unitize-margin(0, 5);
+    .unitize-height(20, 16);
+    .unitize-min-width(10, 16);
+    .unitize(line-height, 20);
+    .unitize(font-size, 12);
+    .border-radius(50px);
+    .box-sizing(content-box);
+    display: inline-block;
+    white-space: nowrap;
+    z-index: @zindex-badge;
+    font-weight: @font-bold-weight;
+    text-align: center;
+    background: #fff;
+    color: @brand-primary;
+    border: 1px solid @border-color;
+
+    &.is--primary {
+        .primary-gradient();
+        color: #fff;
+        border-color: #fff;
+    }
+
+    &.is--secondary {
+        .secondary-gradient();
+        color: #fff;
+        border-color: #fff;
+    }
+
+    &.is--minimal {
+        border: 0 none;
+    }
+}

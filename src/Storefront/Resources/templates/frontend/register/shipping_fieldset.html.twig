@@ -1,0 +1,224 @@
+{% trans_default_domain 'frontend/register/shipping_fieldset' %}
+
+<div class="panel register--shipping is--hidden">
+    <h2 class="panel--title is--underline">{% trans %}RegisterShippingHeadline{% endtrans %}</h2>
+    <div class="panel--body is--wide">
+        {# Salutation #}
+        {# TODO #}
+        {% set salutations = {'Herr': 'Herr', 'Frau': 'Frau'} %}
+
+        {% block frontend_register_shipping_fieldset_input_salutation %}
+            <div class="register--salutation field--select select-field">
+                <select name="register[shipping][salutation]" id="salutation2" class="normal is--required{% if error_flags.salutation %} has--error{% endif %}">
+                    <option value=""
+                            disabled="disabled"
+                            {% if form_data.salutation is empty %}
+                                selected="selected"
+                            {% endif %}>
+                        {% trans %}RegisterShippingPlaceholderSalutation{% endtrans %}
+                    </option>
+                    {% for key, salutation in salutations %}
+                        <option value="{{ key }}"{% if form_data.salutation == key %} selected="selected"{% endif %}>
+                            {{ salutation }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        {% endblock %}
+
+        {# Company #}
+        {% block frontend_register_shipping_fieldset_input_company %}
+            <div class="register--companyname">
+                <input autocomplete="section-shipping shipping organization"
+                       name="register[shipping][company]"
+                       type="text"
+                       placeholder="{% trans %}RegisterShippingPlaceholderCompany{% endtrans %}"
+                       id="company2" value="{{ form_data.company|escape }}"
+                       class="register--field{% if error_flags.company %} has--error{% endif %}" />
+            </div>
+        {% endblock %}
+
+        {# Department #}
+        {% block frontend_register_shipping_fieldset_input_department %}
+            <div class="register--department">
+                <input autocomplete="section-shipping shipping organization-title"
+                       name="register[shipping][department]"
+                       type="text"
+                       placeholder="{% trans %}RegisterShippingPlaceholderDepartment{% endtrans %}"
+                       id="department2" value="{{ form_data.department|escape }}"
+                       class="register--field {% if error_flags.department %} has--error{% endif %}" />
+            </div>
+        {% endblock %}
+
+        {# Firstname #}
+        {% block frontend_register_shipping_fieldset_input_firstname %}
+            <div class="register--firstname">
+                <input autocomplete="section-shipping shipping given-name"
+                       name="register[shipping][firstname]"
+                       type="text"
+                       required="required"
+                       aria-required="true"
+                       placeholder="{% trans %}RegisterShippingPlaceholderFirstname{% endtrans %}"
+                       id="firstname2"
+                       value="{{ form_data.firstname|escape }}"
+                       class="register--field is--required{% if error_flags.firstname %} has--error{% endif %}" />
+            </div>
+        {% endblock %}
+
+        {# Lastname #}
+        {% block frontend_register_shipping_fieldset_input_lastname %}
+            <div class="register--lastname">
+                <input autocomplete="section-shipping shipping family-name"
+                       name="register[shipping][lastname]"
+                       type="text"
+                       required="required"
+                       aria-required="true"
+                       placeholder="{% trans %}RegisterShippingPlaceholderLastname{% endtrans %}"
+                       id="lastname2"
+                       value="{{ form_data.lastname|escape }}"
+                       class="register--field is--required{% if error_flags.lastname %} has--error{% endif %}" />
+            </div>
+        {% endblock %}
+
+        {# Street #}
+        {% block frontend_register_shipping_fieldset_input_street %}
+            <div class="register--street">
+                <input autocomplete="section-shipping shipping street-address"
+                       name="register[shipping][street]"
+                       type="text"
+                       required="required"
+                       aria-required="true"
+                       placeholder="{% trans %}RegisterShippingPlaceholderStreet{% endtrans %}"
+                       id="street2"
+                       value="{{ form_data.street|escape }}"
+                       class="register--field register--field-street is--required{% if error_flags.street %} has--error{% endif %}" />
+            </div>
+        {% endblock %}
+
+
+        {# Additional Address Line 1 #}
+        {% block frontend_register_shipping_fieldset_input_addition_address_line1 %}
+            {% if shopware.config.showAdditionAddressLine1 %}
+                <div class="register--additional-line1">
+                    <input autocomplete="section-shipping shipping address-line2"
+                           name="register[shipping][additionalAddressLine1]"
+                           type="text"{% if shopware.config.requireAdditionAddressLine2 %} required="required" aria-required="true"{% endif %}
+                           placeholder="{% trans %}RegisterLabelAdditionalAddressLine1{% endtrans %}{% if shopware.config.requireAdditionAddressLine1 %}{% trans from 'frontend/register/index' %}RequiredField{% endtrans %}{% endif %}"
+                           id="additionalAddressLine21"
+                           value="{{ form_data.additionalAddressLine1|escape }}"
+                           class="register--field{% if shopware.config.requireAdditionAddressLine1 %} is--required{% endif %}{% if error_flags.additionalAddressLine1 and shopware.config.requireAdditionAddressLine1 %} has--error{% endif %}" />
+                </div>
+            {% endif %}
+        {% endblock %}
+
+
+        {# Additional Address Line 2 #}
+        {% block frontend_register_shipping_fieldset_input_addition_address_line2 %}
+            {% if shopware.config.showAdditionAddressLine2 %}
+                <div class="register--additional-line2">
+                    <input autocomplete="section-shipping shipping address-line3"
+                           name="register[shipping][additionalAddressLine2]"
+                           type="text"{% if shopware.config.requireAdditionAddressLine2 %} required="required" aria-required="true"{% endif %}
+                           placeholder="{% trans %}RegisterLabelAdditionalAddressLine2{% endtrans %}{% if shopware.config.requireAdditionAddressLine2 %}{% trans from 'frontend/register/index' %}RequiredField{% endtrans %}{% endif %}"
+                           id="additionalAddressLine22"
+                           value="{{ form_data.additionalAddressLine2|escape }}"
+                           class="register--field{% if shopware.config.requireAdditionAddressLine2 %} is--required{% endif %}{% if error_flags.additionalAddressLine2 and shopware.config.requireAdditionAddressLine2 %} has--error{% endif %}" />
+                </div>
+            {% endif %}
+        {% endblock %}
+
+        {# Zip + City #}
+        {% block frontend_register_shipping_fieldset_input_zip_and_city %}
+            <div class="register--zip-city">
+                {% if shopware.config.showZipBeforeCity %}
+                    <input autocomplete="section-shipping shipping postal-code"
+                           name="register[shipping][zipcode]"
+                           type="text"
+                           required="required"
+                           aria-required="true"
+                           placeholder="{% trans %}RegisterShippingPlaceholderZipcode{% endtrans %}"
+                           id="zipcode2"
+                           value="{{ form_data.zipcode|escape }}"
+                           class="register--field register--spacer register--field-zipcode is--required{% if error_flags.zipcode %} has--error{% endif %}" />
+
+                    <input autocomplete="section-shipping shipping address-level2"
+                           name="register[shipping][city]"
+                           type="text"
+                           required="required"
+                           aria-required="true"
+                           placeholder="{% trans %}RegisterShippingPlaceholderCity{% endtrans %}"
+                           id="city2"
+                           value="{{ form_data.city|escape }}"
+                           size="25"
+                           class="register--field register--field-city is--required{% if error_flags.city %} has--error{% endif %}" />
+                {% else %}
+                    <input autocomplete="section-shipping shipping address-level2"
+                           name="register[shipping][city]"
+                           type="text"
+                           required="required"
+                           aria-required="true"
+                           placeholder="{% trans %}RegisterShippingPlaceholderCity{% endtrans %}"
+                           id="city2"
+                           value="{{ form_data.city|escape }}"
+                           size="25"
+                           class="register--field register--spacer register--field-city is--required{% if error_flags.city %} has--error{% endif %}" />
+
+                    <input autocomplete="section-shipping shipping postal-code"
+                           name="register[shipping][zipcode]"
+                           type="text"
+                           required="required"
+                           aria-required="true"
+                           placeholder="{% trans %}RegisterShippingPlaceholderZipcode{% endtrans %}"
+                           id="zipcode2"
+                           value="{{ form_data.zipcode|escape }}"
+                           class="register--field register--field-zipcode is--required{% if error_flags.zipcode %} has--error{% endif %}" />
+                {% endif %}
+            </div>
+        {% endblock %}
+
+        {# Country and state fields #}
+        {% block frontend_register_shipping_fieldset_input_country %}
+            <div class="register--shipping-country field--select select-field">
+                <select name="register[shipping][country]"
+                        data-address-type="shipping"
+                        id="country_shipping"
+                        required="required"
+                        aria-required="true"
+                        class="select--country is--required{% if error_flags.country %} has--error{% endif %}">
+
+                    <option value=""
+                            disabled="disabled"
+                            selected="selected">
+                        {% trans %}RegisterShippingPlaceholderCountry{% endtrans %}
+                    </option>
+
+                    {% for country in countryList %}
+                        <option value="{{ country.id }}"{% if country.id == form_data.country %} selected="selected"{% endif %}>
+                            {{ country.name }}
+                        </option>
+                    {% endfor %}
+
+                </select>
+            </div>
+        {% endblock %}
+
+        {# Country state #}
+        {% block frontend_register_shipping_fieldset_input_country_states %}
+            <div class="country-area-state-selection">
+                {% for country in countryList %}
+                    {% set states = country.extensions.states.elements %}
+                    {% if states %}
+                        <div data-country-id="{{ country.id }}" data-address-type="shipping" class="register--state-selection field--select select-field{% if country.id != form_data.country %} is--hidden{% endif %}">
+                            <select name="register[shipping][country_state]"{% if country.id != form_data.country %} disabled="disabled"{% endif %}{% if country.forceStateInRegistration %} required="required" aria-required="true"{% endif %} class="select--state{% if error_flags.stateID %} has--error{% endif %}">
+                                <option value="" selected="selected">{% trans %}RegisterShippingLabelState{% endtrans %}</option>
+                                {% for state in states %}
+                                    <option value="{{ state.id }}" {% if state.id == form_data[state.id] %}selected="selected"{% endif %}>{{ state.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% endblock %}
+    </div>
+</div>

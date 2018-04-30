@@ -1,0 +1,396 @@
+/*
+Register
+==========================================
+Contains the styles of the registration process form and its components.
+
+The user can see the registration steps, advantages and required information.
+*/
+
+.register--content {
+    .unitize-margin(10, 0);
+    .clearfix();
+    width: 100%;
+    display: none;
+
+    &.is--collapsed {
+        display: block;
+    }
+
+    .alert {
+        .unitize-margin(20, 18, 20, 18, 16);
+    }
+
+    .register--check {
+        .unitize(padding-bottom, 8);
+    }
+
+    .register--action {
+        .unitize-margin(20, 20);
+
+        .register--submit {
+            width: 100%;
+            text-align: center;
+        }
+    }
+
+    .register--required-info {
+        .unitize-margin(0, 26, 16);
+        .unitize(font-size, 14);
+    }
+
+    .select-field {
+        .unitize(margin-bottom, 10);
+        max-width: 100%;
+    }
+
+    .register--field {
+        .unitize(margin-bottom, 10);
+        width: 100%;
+    }
+
+    .register--customertype {
+        display: block;
+    }
+
+    .register--zip-city {
+        .register--field-zipcode {
+            width: 28%;
+            float: left;
+        }
+
+        .register--field-city {
+            .clearfix();
+            width: 70%;
+            float: left;
+        }
+
+        .register--spacer {
+            margin-right: 2%;
+        }
+
+    }
+
+    .birthday--label {
+        .clearfix();
+        .unitize-margin(0, 0, 5, 0);
+        display: block;
+        font-weight: bold;
+    }
+
+    .register--password-description {
+        .unitize(padding-bottom, 20);
+    }
+
+    .register--birthdate {
+
+        .select-field {
+            .unitize(margin-bottom, 15);
+            max-width: 100%;
+            float: left;
+        }
+
+        .register--birthyear,
+        .register--birthyear.select-field {
+            .unitize(margin-right, 0);
+        }
+
+    }
+
+    .register--privacy {
+        .unitize-padding(20, 20);
+        .unitize-margin(0, 20, 20);
+        .unitize(font-size, 14);
+        border: 1px solid @border-color;
+
+        input[type="checkbox"] {
+            .unitize-margin(0, 10, 0, 0);
+        }
+    }
+
+    // Personal information fieldset
+    .register--personal {
+        .unitize(padding-bottom, 10);
+        .clearfix();
+    }
+}
+
+    // Register Login
+.register--login {
+    .clearfix();
+
+    .register--new-customer {
+        .unitize-margin(20, 0);
+
+        .new-customer-btn {
+            display: block;
+            width: 100%;
+            text-align: center;
+            position: relative;
+
+            &:after {
+                .unitize-width(16);
+                .unitize-height(16);
+                .unitize(line-height, 16);
+                .unitize(margin-top, -8);
+                .unitize(font-size, 6);
+                .unitize(right, 10);
+                position: absolute;
+                font-family: @sw-icon-fontname;
+                font-weight: normal;
+                content: @sw-icon-arrow-down;
+                color: inherit;
+                top: 50%;
+            }
+
+            &.is--active:after {
+                content: @sw-icon-arrow-up;
+            }
+        }
+    }
+
+    .register--login-field {
+        .unitize(margin-bottom, 10);
+        width: 100%;
+    }
+
+    .register--login-description {
+        .unitize(padding-bottom, 20);
+    }
+
+    .register--login-lostpassword {
+        .unitize(padding-bottom, 20);
+    }
+
+    .register--login-btn {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+    // Register Advantages
+.register--advantages {
+    display: none;
+}
+
+.password--success {
+    .unitize-margin(10, 0, 20, 0);
+}
+
+    // Register Steps
+.steps--container {
+    background: transparent;
+}
+
+.steps--content {
+    .unitize(padding-top, 16);
+    display: table;
+    border-top: 1px solid @border-color;
+    width: 100%;
+
+    .steps--list {
+        .clearfix();
+        display: table-row;
+    }
+
+    .steps--entry {
+        .unitize-padding(0, 10);
+        display: table-cell;
+        list-style: none;
+        vertical-align: top;
+        text-align: center;
+    }
+
+    .steps--spacer {
+        display: none;
+        vertical-align: middle;
+    }
+
+    .steps--entry .icon {
+        .secondary-gradient();
+        .border-radius(22px);
+        .unitize-padding(10, 16);
+        .unitize-width(46, 16);
+        .unitize(font-size, 20);
+        display: inline-block;
+        text-align: center;
+        color: #fff;
+        font-weight: bold;
+    }
+
+    .is--active .icon {
+        .primary-gradient();
+        color: #fff;
+    }
+
+    // Text
+    .steps--entry .text {
+        .unitize-margin(0, 0, 0, 10);
+        .unitize-height(52);
+        position: relative;
+        top: -2px;
+        display: none;
+        vertical-align: middle;
+
+        &::after {
+            content: '';
+            height: 100%;
+        }
+    }
+
+    .is--active .text {
+        color: @brand-primary;
+        display: inline-block;
+        font-weight: bold;
+    }
+
+    .steps--entry .text--inner, .steps--entry .text::after {
+        display: inline-block;
+        vertical-align: middle;
+    }
+
+}
+
+.account--change-payment {
+    .payment--method {
+        .unitize-padding(10, 0, 10, 0);
+    }
+
+    .payment--selection-input {
+        .unitize-width(40);
+        float: left;
+        text-align: center;
+    }
+
+    .payment--selection-label,
+    .payment--description,
+    .payment--content {
+        .unitize-padding(0, 0, 0, 40);
+        width: 100%;
+    }
+
+    .payment--content input {
+        max-width: 100%;
+    }
+}
+
+@media screen and (min-width: @tabletViewportWidth) {
+
+    // General Register Form
+    .register--content {
+        .unitize(margin-top, 50);
+        width: 64%;
+        float: right;
+        display: block;
+
+        .select-field {
+            .unitize(margin-bottom, 15);
+
+            .register--birthday {
+                margin-right: 2%;
+            }
+        }
+
+        .register--field {
+            .unitize(margin-bottom, 15);
+        }
+
+        .register--check {
+            .unitize(padding-bottom, 8);
+        }
+
+        .select-field {
+            .unitize(max-width, 290);
+        }
+
+        .register--birthdate {
+            .select-field {
+                width: 32%;
+                margin-right: 2%;
+            }
+        }
+
+        .register--action {
+            text-align: right;
+
+            .register--submit {
+                width: 35%;
+            }
+        }
+    }
+
+    // Register Steps
+    .steps--content {
+        .unitize-padding(30, 0, 24, 0, 16);
+        background: transparent;
+        border: none;
+
+        .steps--spacer {
+            .unitize-width(80);
+            display: table-cell;
+            text-align: center;
+        }
+
+        .steps--entry {
+            .text {
+                .unitize-margin(0, 10, 0, 10);
+                display: inline-block;
+                font-weight: bold;
+            }
+        }
+    }
+
+    // Register Login
+    .register--login {
+        .unitize(margin-top, 50);
+        width: 34%;
+        float: left;
+
+        .register--new-customer {
+            display: none;
+        }
+
+        .register--login-field {
+            .unitize(margin-bottom, 15);
+        }
+
+        .register--login-btn {
+            width: auto;
+            text-align: left;
+        }
+    }
+
+    // Register advantages
+    .register--advantages {
+        .clearfix();
+        display: block;
+        width: 34%;
+        float: left;
+
+        .panel--title {
+            .unitize-margin(0, 0, 10, 0, 16);
+        }
+    }
+}
+
+@media screen and (min-width: @desktopViewportWidth) {
+
+    // Register Steps
+    .steps--content {
+
+        .steps--entry {
+            &.step--payment {
+                width: 30%;
+            }
+
+            .text {
+                .unitize-margin(0, 0, 0, 10);
+                width: 70%;
+                text-align: left;
+            }
+        }
+
+        .steps--spacer {
+            width: 15%
+        }
+    }
+}

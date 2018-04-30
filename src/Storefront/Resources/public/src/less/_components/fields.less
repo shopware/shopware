@@ -1,0 +1,249 @@
+/*
+Input Types
+==========================================
+Defines the basic styling of the Shopware input element types.
+
+It contains the different states of the input fields.
+```
+<div>
+    <input type="text" placeholder="Text Input">
+</div>
+
+<div>
+    <input type="password" placeholder="Password Input">
+</div>
+
+<div class="textarea">
+    <textarea placeholder="Textarea"></textarea>
+</div>
+```
+*/
+
+textarea,
+input[type="text"],
+input[type="search"],
+input[type="password"],
+input[type="number"],
+input[type="email"],
+input[type="tel"] {
+    .appearance(none);
+    .border-radius();
+    .box-sizing();
+	.unitize(line-height, 19);
+    .unitize(@input-font-size, 16, font-size);
+    .unitize-width(290);
+    .unitize-padding(10, 10, 9, 10);
+    .box-shadow(inset 0 1px 1px @gray-dark);
+    background: @input-bg;
+    border: 1px solid @input-border;
+    border-top-color: darken(@input-border, 5%);
+    color: lighten(@text-color, 15%);
+    text-align: left;
+
+    &:focus {
+        .box-shadow(0 0 0 transparent);
+        outline: none;
+        border-color: @input-focus-border;
+        background: @input-focus-bg;
+        color: @input-focus-color;
+    }
+
+    &.has--error {
+        color: @input-error-color;
+        background: @input-error-bg;
+        border-color: @input-error-border;
+    }
+
+    // Input field spacing
+    &.input--field {
+        .unitize(margin-bottom, 10);
+        width: 100%;
+
+        &.input--field-zipcode {
+            width: 30%;
+            float: left;
+        }
+
+        &.input--field-city {
+            width: 68%;
+            float: left;
+        }
+
+        &.input--spacer {
+            margin-right: 2%;
+        }
+    }
+
+    &.is--small {
+        .unitize(height, 34);
+    }
+
+    &.is--medium {
+        .unitize(height, 38);
+    }
+
+    &.is--large {
+        .unitize(height, 42);
+    }
+}
+
+textarea {
+    resize: vertical;
+}
+
+label {
+    .unitize(@label-font-size, 16, font-size);
+    color: @label-color;
+}
+
+label.has--error {
+    color: @highlight-error;
+    background: @input-error-bg;
+}
+/*
+Selectfield
+==========================================
+Creates a styled combobox selection for the basic select element.
+
+```
+<div class="select-field">
+    <select>
+        <option selected="selected" disabled="disabled" value="">Disabled Option</option>
+        <option>Option 1</option>
+        <option>Option 2</option>
+    </select>
+</div>
+```
+*/
+.select-field,
+.js--fancy-select {
+    .unitize(max-width, 290);
+    .unitize-height(42);
+    width: 100%;
+    display: inline-block;
+    position: relative;
+    overflow: hidden;
+
+    &:hover {
+        color: @brand-primary;
+    }
+
+    select {
+        .appearance(none);
+        .unitize-padding(0, 40, 0, 10);
+        .unitize(line-height, 40);
+        .border-radius();
+        .white-gradient();
+        height: 100%;
+        width: 100%;
+        display: block;
+        cursor: pointer;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        text-align: left;
+        border: 1px solid @btn-default-border-color;
+
+        option {
+            .unitize-padding(4, 8);
+            color: @text-color-dark;
+            background: #fff;
+        }
+
+        &::-ms-expand {
+            display: none;
+        }
+
+        &:hover {
+            color: @brand-primary;
+            border-color: @brand-primary;
+            background: #fff;
+        }
+
+        &:focus {
+            outline: none;
+            color: @brand-primary;
+            border-color: @brand-primary;
+        }
+
+        &:disabled {
+            .opacity(.5);
+            cursor: not-allowed;
+        }
+
+        &.has--error {
+            color: @input-error-color;
+            border-color: @input-error-border;
+            background: @input-error-bg;
+        }
+    }
+
+    &:after {
+        .unitize-width(30);
+        .unitize-height(40);
+        .unitize(top, 1);
+        .user-select(none);
+        line-height: 40px;
+        max-height: 100%;
+        display: block;
+        content: @sw-icon-arrow-down;
+        position: absolute;
+        right: 0;
+        font-size: 5px;
+        border-left: 1px solid @border-color;
+        text-align: center;
+        font-family: 'shopware';
+        pointer-events: none;
+
+        &:hover {
+            color: @brand-primary;
+        }
+    }
+
+    // State disabled
+    &.is--disabled {
+        select,
+        &:after {
+            .opacity(.5);
+            cursor: not-allowed;
+        }
+    }
+
+    // Error state
+    &.has--error {
+        select {
+            color: @input-error-color;
+            border-color: @input-error-border;
+            background: @input-error-bg;
+        }
+
+        &:after {
+            color: @input-error-color;
+            border-color: @input-error-border;
+        }
+    }
+}
+
+@media screen and (min-width: @tabletViewportWidth) {
+
+    /* Standard input fields. */
+    .input--field {
+        .unitize(margin-bottom, 15);
+
+        .input--field-zipcode {
+            margin-right: 2%;
+            width: 20%;
+        }
+        .input--field-city {
+            width: 78%;
+        }
+    }
+}
+
+@media screen and (min-width: @desktopViewportWidth) {
+
+    // Input field styling
+    .input--field {
+        .unitize(margin-bottom, 15);
+    }
+}

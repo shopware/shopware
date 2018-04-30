@@ -1,0 +1,48 @@
+/*
+Gradient mixin
+====================================================
+The mixins provides you a cross-browser compatible method to set a linear gradient which goes from top to bottom.
+
+Please refer to <http://caniuse.com/css-gradients> to see the browser support table of the feature.
+
+Shopware 5 also provides gradient mixins based on the basic color variables that can be changed in the backend theme configuration tool.
+######Basic gradients:
+`.primary-gradient();`<br/>
+`.secondary-gradient();`<br/>
+`.white-gradient();`<br/>
+
+######Linear Gradient Example:
+`.linear-gradient([startcolor-value], [endcolor-value]);`
+
+`@param {String} start The start color of the gradient`<br/>
+`@param {String} end The end color of the gradient`
+*/
+
+.linear-gradient(@start, @end) {
+    background-color: @start;
+    background-image: -ms-linear-gradient(top, @start, @end);
+    background-image: linear-gradient(to bottom, @start 0%, @end 100%);
+}
+.linear-gradient-horizontal(@start, @end) {
+    background-image: -ms-linear-gradient(left, @start, @end);
+    background-image: linear-gradient(to right, @start 0%, @end 100%);
+}
+.linear-gradient-multi(@firstPos, @firstColor, @secondPos, @secondColor, @thirdPos, @thirdColor, @startFrom: top, @endTo: bottom) {
+    background-image: -ms-linear-gradient(@startFrom, @firstColor @firstPos,@secondColor @secondPos,@thirdColor @thirdPos);
+    background-image: linear-gradient(to @endTo, @firstColor @firstPos,@secondColor @secondPos,@thirdColor @thirdPos);
+}
+
+/*
+Responsive Theme
+ */
+.primary-gradient() {
+    .linear-gradient(@brand-primary-light, @brand-primary);
+}
+
+.secondary-gradient() {
+    .linear-gradient(@brand-secondary, @brand-secondary-dark);
+}
+
+.white-gradient() {
+    .linear-gradient(#fff, @gray-light);
+}

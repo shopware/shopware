@@ -1,0 +1,36 @@
+<ul class="breadcrumb--list" role="menu" itemscope itemtype="http://schema.org/BreadcrumbList">
+
+    {# Prefix for the breadcrumb e.g. the configured shop name #}
+    {% block frontend_index_breadcrumb_prefix %}{% endblock %}
+
+    {% block frontend_index_breadcrumb_content %}
+        {% for breadcrum in sBreadcrum %}
+            {% block frontend_index_breadcrumb_entry %}
+                <li class="breadcrumb--entry{% if loop.last %} is--active{% endif %}" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+                    {% if breadcrumb.name %}
+                        {% block frontend_index_breadcrumb_entry_inner %}
+                            {% if breadcrumb.link %}
+                                <a class="breadcrumb--link" href="{{ breadcrumb.link }}" title="{{ breadcrumb.name|escape }}" itemprop="item">
+                                    <link itemprop="url" href="{{ breadcrumb.link }}" />
+                                    <span class="breadcrumb--title" itemprop="name">{{ breadcrumb.name }}</span>
+                                </a>
+                            {% else %}
+                                <span class="breadcrumb--link" itemprop="item">
+                                    <span class="breadcrumb--title" itemprop="name">{{ breadcrumb.name }}</span>
+                                </span>
+                            {% endif %}
+                            <meta itemprop="position" content="{{ loop.index }}" />
+                        {% endblock %}
+                    {% endif %}
+                </li>
+                {% if not loop.last %}
+                    <li class="breadcrumb--separator">
+                        <i class="icon--arrow-right"></i>
+                    </li>
+                {% endif %}
+            {% endblock %}
+        {% endfor %}
+    {% endblock %}
+
+    {% block frontend_index_breadcrumb_suffix %}{% endblock %}
+</ul>

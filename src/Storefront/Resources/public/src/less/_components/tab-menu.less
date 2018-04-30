@@ -1,0 +1,95 @@
+/*
+Tab-menu
+==========================================
+The Shopware tab-menu allows the creation of multiple tabs filled with content that the user can swtich between.
+
+The functionality is provided by the `jquery.tab-menu.js` file.
+
+    <div class="tab-menu--product js--tab-menu">
+    
+        <div class="tab--navigation">
+            <a href="#" class="tab--link is--active" title="Tab-1">First Tab</a>
+            <a href="#" class="tab--link" title="Tab-2">Second Tab</a>
+        </div>
+    
+        <div class="tab--container-list">
+            <div class="tab--container is--active">
+            </div>
+            <div class="tab--container">
+            </div>
+        </div>
+    
+    </div>
+*/
+
+.js--tab-menu {
+    .tab--navigation {
+        list-style: none;
+    }
+
+    .tab--link {
+        .unitize-padding(10, 15);
+        .unitize-margin(0, 5, 0, 0);
+        .unitize(line-height, 24);
+        .unitize(font-size, 14);
+        .white-gradient();
+        .border-radius-multi(3px, 3px, 0, 0);
+        .unitize(top, 1);
+        display: none;
+        position: relative;
+        font-weight: bold;
+        text-align: center;
+        color: @text-color;
+        border: 1px solid @border-color;
+        white-space: nowrap;
+
+        &:hover {
+            color: @link-color;
+            background: #fff;
+        }
+
+        &:focus {
+            outline: none;
+        }
+
+        &.is--active {
+            color: @text-color-dark;
+            border-bottom-color: #fff;
+            background: #fff;
+
+            &:hover {
+                color: @text-color-dark;
+            }
+        }
+
+        &.has--content {
+            display: inline-block;
+        }
+    }
+
+    // Different styling when tab navigation is scrollable
+    &.js--menu-scroller {
+        .tab--navigation { overflow: hidden; }
+        .tab--navigation .js--menu-scroller--item { top: 0; }
+
+        .js--menu-scroller--arrow {
+            .unitize(line-height, 46);
+            .unitize-height(46);
+            .border-radius();
+            border: 1px solid @btn-default-border-color;
+
+            &:hover {
+                border-color: @btn-default-hover-border-color;
+            }
+        }
+    }
+
+    .tab--container-list .tab--container {
+        border: 1px solid @panel-border;
+        display: none;
+
+        &.has--content.is--active {
+            display: block;
+        }
+    }
+}

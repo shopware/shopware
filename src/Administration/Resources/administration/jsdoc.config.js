@@ -12,7 +12,7 @@ module.exports = {
         }
     },
     opts: {
-        destination: '../../../../build/artifacts/jsdoc',
+        destination: '../../../../../../../build/artifacts/jsdoc',
         encoding: 'utf8',
         private: true,
         recurse: true,

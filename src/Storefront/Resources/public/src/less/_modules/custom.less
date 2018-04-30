@@ -1,0 +1,56 @@
+/*
+Custom pages
+==============================================
+Defines the layout for the custom pages.
+
+The styling defines the basic layout of the Shopware 5 custom pages that can be created and customized for multiple purposes.
+*/
+
+
+.custom-page--content {
+    .unitize(margin-top, 10);
+
+
+    .custom-page--tab-headline {
+        .unitize(margin-top, 0);
+        .unitize(font-size, 24);
+    }
+
+    .content--custom.panel--body {
+        .unitize(padding, 20);
+    }
+
+    .is--active-parent {
+        display: block;
+    }
+}
+
+.ajax-modal--custom {
+    .unitize-padding(8, 8);
+}
+
+@media screen and (min-width: @tabletViewportWidth) {
+    .custom-page--content {
+        .unitize(margin-top, 30);
+
+        .custom-page--tab-headline {
+            .unitize(margin-top, 10);
+        }
+    }
+
+    .ajax-modal--custom {
+        .unitize-padding(10, 10);
+    }
+
+}
+
+@media screen and (min-width: @desktopViewportWidth) {
+
+    .ajax-modal--custom {
+        .unitize-padding(20, 20);
+    }
+
+    .custom-page--content {
+        .unitize(margin-top, 45);
+    }
+}

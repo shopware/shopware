@@ -1,0 +1,51 @@
+/*
+Image-zoom
+====================================================
+Defines the styles for the Shopware 5 image-zoom element.
+
+It displays a magnifying glass when hovering the article images on the product detail page.
+
+The functionality is provided by the `jquery.image-zoom.js` file.
+*/
+
+.js--img-zoom--container {
+    position: relative;
+    top: 0;
+    left: 0;
+}
+
+.js--img-zoom--lens {
+    .border-radius();
+    display: none;
+    background: rgba(255, 255, 255, 0.4);
+    border: 1px solid @border-color;
+    position: absolute;
+    top: 0;
+    left: 0;
+    cursor: pointer;
+}
+
+.js--img-zoom--flyout {
+    .unitize-width(460);
+    .unitize-height(340);
+    .unitize(-490, 16, right);
+    .border-radius();
+    display: none;
+    position: absolute;
+    top: 0;
+    z-index: @zindex-image-zoom-flyout;
+    overflow: hidden;
+    background: #FFFFFF;
+    border: 1px solid @border-color;
+}
+
+.js--img-zoom--title {
+    .unitize-padding(5, 20);
+    .unitize(font-size, 14);
+    .unitize(line-height, 16);
+    .secondary-gradient();
+    color: #fff;
+    font-weight: bold;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.5);
+}

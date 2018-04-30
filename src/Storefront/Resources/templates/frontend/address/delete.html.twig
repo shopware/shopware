@@ -1,0 +1,104 @@
+{% sw_extends 'frontend/address/index.html.twig' %}
+{% trans_default_domain 'frontend/address/index' %}
+
+{# Breadcrumb #}
+{% block frontend_index_start %}
+    {{ parent() }}
+    {#{$sBreadcrumb[] = ["name"=>"{s name="AddressesDeleteTitle"}Delete address{/s}", "link"=>{url}]}#}
+{% endblock %}
+
+{# Main content #}
+{% block frontend_index_content %}
+    <div class="account--address account--content address--delete">
+
+        {# Addresses headline #}
+        {% block frontend_address_headline %}
+            <div class="account--welcome">
+                <h1 class="panel--title">
+                    {% trans %}AddressesDeleteTitle{% endtrans %}
+                </h1>
+            </div>
+        {% endblock %}
+
+        {% block frontend_address_content %}
+            {% block frontend_address_delete_notice %}
+                <p>
+                    {% trans %}AddressesDeleteNotice{% endtrans %}
+                    <br/>
+                    {% trans %}AddressesDeleteConfirmText{% endtrans %}
+                </p>
+            {% endblock %}
+
+            {% block frontend_address_delete_content %}
+                <div class="panel has--border is--rounded block address--box">
+
+                    <div class="panel--body is--wide address--item-body">
+                        {% block frontend_address_delete_content_inner %}
+                            {% if address.company %}
+                                <p>
+                                    <span class="address--company">
+                                        {{ adress.company|escape('html') }}
+                                    </span>
+                                    {% if address.department %} -
+                                        <span class="address--department">
+                                            {{ address.department|escape('html')}}
+                                        </span>
+                                    {% endif %}
+                                </p>
+                            {% endif %}
+                            {# TODO support salutation #}
+                            {#<span class="address--salutation">{$address.salutation|salutation}</span>#}
+                            <span class="address--salutation">{{ address.salutation}}</span>
+                            {% if shopware.config.displayprofiletitle %}
+                                <span class="address--title">{{ address.title|escape('html')}}</span><br/>
+                            {% endif %}
+                            <span class="address--firstname">{{ address.firstname|escape('html') }}</span>
+                            <span class="address--lastname">{{ address.lastname|escape('html') }}</span><br />
+                            <span class="address--street">{{ address.street|escape('html')}}</span><br />
+                            {% if address.additionalAddressLine1 %}
+                                <span class="address--additional-one">{{ address.additionalAddressLine1|escape('html') }}</span><br />
+                            {% endif %}
+                            {% if address.additionalAddressLine2 %}
+                                <span class="address--additional-two">{{ address.additionalAddressLine2|escape('html') }}</span><br />
+                            {% endif %}
+                            {% if shopware.config.showZipBeforeCity %}
+                                <span class="address--zipcode">{{ address.zipcode|escape('html') }}</span>
+                                <span class="address--city">{{ address.city|escape('html') }}</span>
+                            {% else %}
+                                <span class="address--city">{{ address.city|escape('html') }}</span>
+                                <span class="address--zipcode">{{ address.zipcode|escape('html') }}</span>
+                            {% endif %}<br />
+                            {% if address.state.name %}
+                                <span class="address--statename">{{ address.state.name|escape('html') }}</span><br />
+                            {% endif %}
+                            {{ address.country.name|escape('html') }}
+                        {% endblock %}
+                    </div>
+
+                </div>
+        {% endblock %}
+        {% block frontend_address_delete_actions %}
+                <div class="address--delete-actions">
+                    <form action="{{ path('address_delete') }}" method="post">
+                        {% block frontend_address_delete_actions_cancel %}
+                            <a href="{{ path('address_index') }}"
+                               title="{% trans %}AddressesDeleteCancelText{% endtrans %}"
+                               class="btn  is--secondary">
+                                {% trans %}AddressesDeleteCancelText{% endtrans %}
+                            </a>
+                        {% endblock %}
+
+                        {% block frontend_address_delete_actions_confirm %}
+                            <button type="submit"
+                                    title="{% trans %}AddressesDeleteButtonText{% endtrans %}"
+                                    class="btn is--primary is--right">
+                                {% trans %}AddressesDeleteButtonText{% endtrans %}
+                            </button>
+                        {% endblock %}
+                        <input type="hidden" name="addressId" value="{{ address.id }}" />
+                    </form>
+                </div>
+            {% endblock %}
+        {% endblock %}
+    </div>
+{% endblock %}

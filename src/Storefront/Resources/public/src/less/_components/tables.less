@@ -1,0 +1,55 @@
+/*
+Table
+=========================
+Defines the basic table styles.
+```
+<table>
+ <th>
+    <tr>
+        <th>Heading</th>
+        <th>Heading</th>
+        <th>Heading</th>
+        <th>Heading</th>
+    </tr>
+ </th>
+ <tb>
+    <tr>
+        <td>Table Content</td>
+        <td>Table Content</td>
+        <td>Table Content</td>
+        <td>Table Content</td>
+    </tr>
+    <tr>
+        <td>Table Content</td>
+        <td>Table Content</td>
+        <td>Table Content</td>
+        <td>Table Content</td>
+    </tr>
+ </tb>
+</table>
+```
+*/
+
+table {
+    border-collapse: separate;
+    border-spacing: 1px;
+
+    th,
+    thead td {
+        background: @table-header-bg;
+        color: @table-header-color;
+        font-weight: @font-bold-weight;
+        text-align: center;
+    }
+
+    td {
+        .unitize-padding(5, 10, 5, 10);
+        background: @table-row-bg;
+        color: @table-row-color;
+        border: 1px solid @table-row-bg;
+    }
+
+    tr:nth-child(even) td {
+        background: @table-row-highlight-bg;
+    }
+}

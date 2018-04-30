@@ -1,0 +1,20 @@
+/*
+Touch callout mixin
+===========================================
+Disables the default callout shown when you touch and hold a touch target.
+
+######Support:
+- iOS 2.0<br/>
+- Android 4.1<br/>
+
+######Example:
+`.touch-callout([value]);`
+
+`@param: {String} type: The type you want to set (Default: none)`
+*/
+
+.touch-callout(@type: none) {
+    -webkit-touch-callout: @type;
+    -moz-touch-callout: @type;
+    touch-callout: @type;
+}

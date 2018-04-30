@@ -1,0 +1,22 @@
+/*
+Transform origin mixin
+======================================
+The mixins provides you a cross-browser compatible method to set the transform origin position.
+
+Please refer to <http://caniuse.com/transforms2d> to see the browser support table of the feature.
+
+######Example:
+`.transform-origin([x-value],[y-value],[z-value]);`
+
+`@param: x: Sets the origin position on the x axis (Default: 50%)`<br/>
+`@param: y: Sets the origin position on the y axis (Default: 50%)`<br/>
+`@param: z: Sets the origin position on the z axis (Default: 0)`
+*/
+
+.transform-origin(@x: 50%, @y: 50%, @z: 0) {
+	-webkit-transform-origin: @x @y @z;
+	-moz-transform-origin: @x @y @z;
+	-o-transform-origin: @x @y @z;
+	-ms-transform-origin: @x @y; // IE9 does not support z parameter.
+	transform-origin: @x @y @z;
+}

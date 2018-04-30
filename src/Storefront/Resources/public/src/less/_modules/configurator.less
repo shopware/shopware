@@ -1,0 +1,99 @@
+/*
+Configurator
+==========================================
+Defines the styles for the product configuration options element.
+
+The configurator element allows the user to choose from different article variations on the Shopware product detail page and configure his product.
+*/
+.configurator--variant {
+
+    .variant--group {
+        .unitize-margin(0, 0, 10, 0);
+        .clearfix();
+    }
+
+    .variant--name {
+        .unitize-margin(0, 0, 5, 0);
+        font-weight: bold;
+    }
+
+    .variant--option {
+        .unitize-height(50);
+        .unitize(line-height, 40);
+        .unitize(margin-bottom, 10);
+        overflow: hidden;
+        display: block;
+        width: 23%;
+        margin-right: 2%;
+        position: relative;
+        float: left;
+    }
+
+    .option--input {
+        .opacity(0);
+        display: block;
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0; left: 0;
+        z-index: @zindex-configurator-option-input;
+        cursor: pointer;
+
+        /**
+         * Checkbox/Radio Hack
+         * Changes the styling of the next label element
+         * based on the state of the radio element.
+         */
+        &:hover ~ label {
+            color: @brand-primary;
+            border-color: @brand-primary;
+
+            &.is--disabled {
+                color: @text-color;
+                border-color: @border-color;
+            }
+        }
+
+        &:checked ~ label {
+            color: @brand-primary;
+            border-color: @brand-primary;
+        }
+
+        &:disabled ~ label {
+            .opacity(0.5);
+        }
+
+        &:disabled {
+            cursor: not-allowed;
+        }
+    }
+
+    .option--label {
+        .unitize-padding(5, 5);
+        .unitize(line-height, 40);
+        .border-radius();
+        display: block;
+        width: 100%;
+        height: 100%;
+        position: relative;
+        z-index: @zindex-configurator-option-label;
+        border: 1px solid @border-color;
+        font-weight: bold;
+        text-align: center;
+        overflow: hidden;
+
+        &.is--disabled img {
+            opacity: 0.3;
+        }
+
+        .image--media {
+            .unitize(line-height, 50);
+            vertical-align: middle;
+            text-align: center;
+        }
+
+        img {
+            margin: 0 auto;
+        }
+    }
+}

@@ -6,7 +6,7 @@ const webpackConfig = require('../../build/webpack.test.conf');
 const process = require('process');
 const path = require('path');
 
-const artifactsPath = path.join(__dirname, '../../../../../../build/artifacts');
+const artifactsPath = path.join(__dirname, '../../../../../../../../../build/artifacts');
 
 module.exports = function (config) {
     config.set({

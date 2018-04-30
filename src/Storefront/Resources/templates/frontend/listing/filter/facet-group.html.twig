@@ -1,0 +1,5 @@
+{% if facet.label %}
+    <h3 class="filter--set-title">{{ facet.label }}</h3>
+{% endif %}
+{% set facets = facet.facetResults %}
+{% sw_include '@Storefront/frontend/listing/actions/action-filter-facets.html.twig' %}

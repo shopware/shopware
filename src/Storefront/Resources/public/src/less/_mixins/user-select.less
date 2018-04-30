@@ -1,0 +1,20 @@
+/*
+User-select mixin
+===============================
+The mixins provides you a cross-browser compatible method to set a user selection mode.
+
+Please refer to <http://caniuse.com/user-select-none> to see the browser support table of the feature.
+
+######Example:
+`.user-select([value]);`
+
+`@param: {String} type: The type you want to set (Default: none)`
+*/
+
+.user-select(@type: none) {
+	-webkit-user-select: @type;
+	-moz-user-select: @type;
+	-ms-user-select: @type;
+	-o-user-select: @type;
+	user-select: @type;
+}

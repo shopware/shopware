@@ -1,0 +1,18 @@
+/*
+Tab highlighting mixin
+===========================
+Sets the color of the highlighting when a link was clicked / tapped.
+
+Please refer to <http://www.browsersupport.net/CSS/-webkit-tap-highlight-color> to see the browser support table of the feature.
+
+######Example:
+`.tap-highlight-color([color-value]);`
+
+`@param: {String} color: The color you want to set (Default: rgba(0, 0, 0, 0))`
+*/
+
+.tap-highlight-color(@color: rgba(0, 0, 0, 0)) {
+    -webkit-tap-highlight-color: @color;
+    -moz-tap-highlight-color: @color;
+    tap-highlight-color: @color;
+}

@@ -1,0 +1,21 @@
+/*
+Clearfix mixin
+================================
+The clearfix mixin allows the easy integration of the floating-solution method.
+
+The clearfix resolves the problem that occurs when two floating elements are nested inside a parent element, then sometimes the parent elements height disappears.
+
+Add the `.clearfix` class to the parent element.
+
+######Example:
+`.clearfix();`
+
+*/
+
+.clearfix() {
+    &:after {
+        content: "";
+        display: table;
+        clear: both;
+    }
+}

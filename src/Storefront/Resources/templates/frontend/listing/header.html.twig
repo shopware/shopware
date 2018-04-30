@@ -1,0 +1,96 @@
+{% sw_extends '@Storefront/frontend/index/header.html.twig' %}
+
+{# Keywords #}
+{% block frontend_index_header_meta_keywords %}
+    {% if navigation.activeCategory.metaKeywords %}
+        {{ navigation.activeCategory.metaKeywords }}
+    {% endif %}
+{% endblock %}
+
+{% block frontend_index_header_meta_tags_opengraph %}
+
+    {% set description %}
+        {% trans from 'frontend/index/header' %}IndexMetaDescriptionStandard{% endtrans %}
+    {% endset %}
+    {% if navigation.activeCategory.cmsDescription %}
+        {% set description %}
+            {{ navigation.activeCategory.cmsDescription|trim|striptags|truncate(240, true) }}
+        {% endset %}
+    {% elseif navigation.activeCategory.metaDescription %}
+        {% set description %}
+            {{ navigation.activeCategory.metaDescription|trim|striptags }}
+        {% endset %}
+    {% endif %}
+
+    <meta property="og:type" content="product" />
+    <meta property="og:site_name" content="{{ shopware.config.shopName }}" />
+    <meta property="og:title" content="{{ navigation.activeCategory.name }}" />
+    <meta property="og:description" content="{{ description }}" />
+
+    <meta name="twitter:card" content="product" />
+    <meta name="twitter:site" content="{{ shopware.config.shopName }}" />
+    <meta name="twitter:title" content="{{ navigation.activeCategory.name }}" />
+    <meta name="twitter:description" content="{{ description }}" />
+
+    {# Images #}
+    {% if navigation.activeCategory.media.fileName %}
+        {% set metaImage = "{{ navigation.activeCategory.media.fileName }}" %}
+    {% else %}
+        {% set break = false %}
+        {% for product in products if not break %}
+            {% if loop.first %}
+                {% set metaImage = product.image.source %}
+                {% set break = true %}
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+
+    <meta property="og:image" content="{{ metaImage }}" />
+    <meta name="twitter:image" content="{{ metaImage }}" />
+{% endblock %}
+
+{# Description #}
+{% block frontend_index_header_meta_description %}{% if navigation.activeCategory.metaDescription %}{{ navigation.activeCategory.metaDescription|striptags }}{% else %}{% trans from 'frontend/index/header' %}IndexMetaDescriptionStandard{% endtrans %}{% endif %}{% endblock %}
+
+{# Canonical link #}
+{% block frontend_index_header_canonical %}
+    {# Count of available product pages #}
+    {% set pages = 1 %}
+
+    {% if criteria %}
+        {#{%  set pages = ceil(numberOfProducts / criteria->getLimit()) %}#}
+    {% endif %}
+
+    {% if shopware.config.seoIndexPaginationLinks and showListing and pages > 1 %}
+        {# Previous rel tag #}
+        {% if page > 1 %}
+            {#{% set category.canonicalParams.page = page - 1 %}#}
+            {#<link rel="prev" href="{url params = $sCategoryContent.canonicalParams}">#}
+        {% endif %}
+
+        {# Next rel tag #}
+        {% if pages >= page + 1 %}
+            {#{% set category.canonicalParams.page = page + 1 %}#}
+            {#<link rel="next" href="{url params = $sCategoryContent.canonicalParams}">#}
+        {% endif %}
+    {% elseif shopware.config.seoIndexPaginationLinks or showListing == false %}
+        {#<link rel="canonical" href="{url params = $sCategoryContent.canonicalParams}" />#}
+    {% endif %}
+{% endblock %}
+
+{# Title #}
+{% block frontend_index_header_title %}
+    {#{strip}#}
+    {% if navigation.activeCategory.metaTitle %}
+        {{ navigation.activeCategory.metaTitle }} | {{ shopware.config.shopName }}
+    {% elseif navigation.activeCategory.name %}
+        {{ navigation.activeCategory.name }} | {{ shopware.config.shopName }}
+    {% else %}
+        {{ parent() }}
+    {% endif %}
+    {#{/strip}#}
+{% endblock %}
+
+{# RSS and Atom feeds #}
+{% block frontend_index_header_feeds %}
+{% endblock %}

@@ -1,0 +1,78 @@
+{#{namespace name="frontend/checkout/cart"}#}
+
+<footer class="table--footer block-group">
+
+    {# Benefits #}
+    {% block frontend_checkout_footer_benefits %}
+        <div class="footer--benefit block">
+            {% block frontend_checkout_footer_headline_benefit %}
+                <h4 class="benefit--headline">
+                    {% trans from 'frontend/checkout/cart' %}CheckoutFooterBenefitHeadlineForYou{% endtrans %}
+                </h4>
+            {% endblock %}
+
+            {% block frontend_checkout_footer_benefits_list %}
+                <ul class="list--unordered is--checked benefit--list">
+
+                    {% block frontend_checkout_footer_benefits_list_entry_1 %}
+                        <li class="list--entry">
+                            {% trans from 'frontend/register/index' %}RegisterInfoAdvantagesEntry1{% endtrans %}
+                        </li>
+                    {% endblock %}
+
+                    {% block frontend_checkout_footer_benefits_list_entry_2 %}
+                        <li class="list--entry">
+                            {% trans from 'frontend/register/index' %}RegisterInfoAdvantagesEntry2{% endtrans %}
+                        </li>
+                    {% endblock %}
+
+                    {% block frontend_checkout_footer_benefits_list_entry_3 %}
+                        <li class="list--entry">
+                            {% trans from 'frontend/register/index' %}RegisterInfoAdvantagesEntry3{% endtrans %}
+                        </li>
+                    {% endblock %}
+
+                    {% block frontend_checkout_footer_benefits_list_entry_4 %}
+                        <li class="list--entry">
+                            {% trans from 'frontend/register/index' %}RegisterInfoAdvantagesEntry4{% endtrans %}
+                        </li>
+                    {% endblock %}
+                </ul>
+            {% endblock %}
+        </div>
+    {% endblock %}
+
+    {# Supported dispatch services #}
+    {% block frontend_checkout_footer_dispatch %}
+        <div class="footer--benefit block">
+            {% block frontend_checkout_footer_headline_dispatch %}
+                <h4 class="benefit--headline">
+                    {% trans from 'frontend/checkout/cart' %}CheckoutFooterBenefitHeadlineDispatch{% endtrans %}
+                </h4>
+            {% endblock %}
+
+            {% block frontend_checkout_footer_text_dispatch %}
+                <p class="benefit--text">
+                    {% trans from 'frontend/checkout/cart' %}CheckoutFooterBenefitTextDispatch{% endtrans %}
+                </p>
+            {% endblock %}
+        </div>
+    {% endblock %}
+
+    {# Supported payment services #}
+    {% block frontend_checkout_footer_payment %}
+        <div class="footer--benefit is--last block">
+            {% block frontend_checkout_footer_headline_payment %}
+                <h4 class="benefit--headline">
+                    {% trans from 'frontend/checkout/cart' %}CheckoutFooterBenefitHeadlinePayment{% endtrans %}
+                </h4>
+            {% endblock %}
+
+            {% block frontend_checkout_footer_text_payment %}
+                <p class="benefit--text">
+                    {% trans from 'frontend/checkout/cart' %}CheckoutFooterBenefitTextPayment{% endtrans %}
+                </p>
+            {% endblock %}
+        </div>
+    {% endblock %}
+</footer>

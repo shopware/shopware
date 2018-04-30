@@ -1,0 +1,10 @@
+{
+  "name": "shopware/administration",
+  "type": "library",
+  "autoload": {
+    "psr-4": { "Shopware\\Administration\\": "" },
+    "exclude-from-classmap": [
+      "/Test/"
+    ]
+  }
+}

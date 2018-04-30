@@ -1,0 +1,36 @@
+<div class="page-wrap--cookie-permission is--hidden"
+     data-cookie-permission="true"
+     data-urlPrefix="{url controller=index action=index}"
+     {% if shopware.context.shopId %}data-shopId="{{ shopware.context.shopId }}"{% endif %}>
+
+    {% block cookie_permission_container %}
+        <div class="cookie-permission--container">
+            {% block cookie_permission_content %}
+                <div class="cookie-permission--content">
+                    {% block cookie_permission_content_text %}
+                        {% trans from 'frontend/cookiepermission/index' %}cookiePermission/text{% endtrans %}
+                    {% endblock %}
+
+                    {% block cookie_permission_content_link %}
+                        {$privacyLink = {config name="data_privacy_statement_link"}}
+                        {% if shopware.config.data_privacy_statement_link %}
+                            <a title="{{ snippet('cookiePermission/linkText', 'frontend/cookiepermission/index')|escape }}"
+                               class="cookie-permission--privacy-link"
+                               href="{{ shopware.config.data_privacy_statement_link }}">
+                                {{ snippet('cookiePermission/linkText', 'frontend/cookiepermission/index') }}
+                            </a>
+                        {% endif %}
+                    {% endblock %}
+                </div>
+            {% endblock %}
+
+            {% block cookie_permission_accept_button %}
+                <div class="cookie-permission--button">
+                    <a href="#" class="cookie-permission--accept-button btn is--primary is--large is--center">
+                        {{ snippet('cookiePermission/buttonText', 'frontend/cookiepermission/index') }}
+                    </a>
+                </div>
+            {% endblock %}
+        </div>
+    {% endblock %}
+</div>

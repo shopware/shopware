@@ -1,0 +1,285 @@
+{% trans_default_domain 'frontend/register/personal_fieldset' %}
+
+<div class="panel register--personal">
+    <h2 class="panel--title is--underline">
+        {% if fieldset_title and fieldset_title is not empty %}
+            {{ fieldset_title}}
+        {% else %}
+            {% trans %}RegisterPersonalMarketingHeadline{% endtrans %}
+        {% endif %}
+    </h2>
+    <div class="panel--body is--wide">
+        {# Customer type #}
+        {% block frontend_register_personal_fieldset_customer_type %}
+            {#{if $form_data.sValidation}#}
+                {#<input type="hidden" name="register[personal][sValidation]" value="{$form_data.sValidation|escape}" />#}
+            {#{else}#}
+                <div class="register--customertype">
+                {% if shopware.config.showCompanySelectField %}
+                    <div class="select-field">
+                        <select id="register_personal_customer_type"
+                                name="register[personal][customer_type]"
+                                required="required"
+                                aria-required="true"
+                                class="is--required{% if error_flags.customer_type %} has--error{% endif %}">
+
+                            <option value="" disabled="disabled" {% if form_data.customer_type == '' %} selected="selected"{% endif %}>
+                                {% trans %}RegisterPersonalLabelType{% endtrans %}
+                                {% trans from 'frontend/register/index' %}RequiredField{% endtrans %}
+                            </option>
+
+                            <option value="private" {% if form_data.customer_type == 'private' or (not form_data.company and context.customer) %} selected="selected"{% endif %}>
+                                {% trans %}RegisterPersonalLabelPrivate{% endtrans %}
+                            </option>
+
+                            <option value="business"{% if form_data.customer_type == 'business' or form_data.company%} selected="selected"{% endif %}>
+                                {% trans %}RegisterPersonalLabelPrivate{% endtrans %}
+                            </option>
+                        </select>
+                    </div>
+                {% else %}
+                    {# Always register as a private customer#}
+                    <div class="select-field is--hidden">
+                        <select id="register_personal_customer_type" name="register[personal][customer_type]">
+                            <option value="private" selected="selected">
+                                {% trans %}RegisterPersonalLabelPrivate{% endtrans %}
+                            </option>
+                        </select>
+                    </div>
+                {% endif %}
+                </div>
+            {#{% endif %}#}
+        {% endblock %}
+
+        {# Salutation #}
+        {% block frontend_register_personal_fieldset_salutation %}
+
+            {# TODO #}
+            {% set salutations = {'Herr': 'Herr', 'Frau': 'Frau'} %}
+
+            <div class="register--salutation field--select select-field">
+                <select name="register[personal][salutation]"
+                        id="salutation"
+                        required="required"
+                        aria-required="true"
+                        class="is--required{% if error_flags.salutation %} has--error{% endif %}">
+
+                    <option value=""
+                            disabled="disabled"
+                            {% if form_data.salutation == '' %} selected="selected"{% endif %}>
+                        {% trans %}RegisterPlaceholderSalutation{% endtrans %}
+                        {% trans from 'frontend/register/index' %}RequiredField{% endtrans %}
+                    </option>
+
+                    {% for salutation, label in salutations %}
+                        <option value="{{ salutation }}"{% if form_data.salutation == salutation %}
+                                selected="selected"{% endif %}>
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        {% endblock %}
+
+        {# Title #}
+        {% block frontend_register_personal_fieldset_input_title %}
+            {% if shopware.config.displayprofiletitle %}
+                <div class="register--title">
+                    <input autocomplete="section-personal title"
+                           name="register[personal][title]"
+                           type="text"
+                           placeholder="{% trans %}RegisterPlaceholderTitle{% endtrans %}"
+                           id="title"
+                           value="{{ form_data.title|escape }}"
+                           class="register--field{% if error_flags.title %} has--error{% endif %}" />
+                </div>
+            {% endif %}
+        {% endblock %}
+
+        {# Firstname #}
+        {% block frontend_register_personal_fieldset_input_firstname %}
+            <div class="register--firstname">
+                <input autocomplete="section-personal given-name"
+                       name="register[personal][firstname]"
+                       type="text"
+                       required="required"
+                       aria-required="true"
+                       placeholder="{% trans %}RegisterPlaceholderFirstname{% endtrans %}{% trans from 'frontend/register/index' %}RequiredField{% endtrans %}"
+                       id="firstname"
+                       value="{{ form_data.firstname|escape }}"
+                       class="register--field is--required{% if error_flags.firstname %} has--error{% endif %}" />
+            </div>
+        {% endblock %}
+
+        {# Lastname #}
+        {% block frontend_register_personal_fieldset_input_lastname %}
+            <div class="register--lastname">
+                <input autocomplete="section-personal family-name"
+                       name="register[personal][lastname]"
+                       type="text"
+                       required="required"
+                       aria-required="true"
+                       placeholder="{% trans %}RegisterPlaceholderLastname{% endtrans %}{% trans from 'frontend/register/index' %}RequiredField{% endtrans %}"
+                       id="lastname" value="{{ form_data.lastname|escape }}"
+                       class="register--field is--required{% if error_flags.lastname %} has--error{% endif %}" />
+            </div>
+        {% endblock %}
+
+        {# Skip login #}
+        {#{if !$update}#}
+            {% block frontend_register_personal_fieldset_skip_login %}
+                {% if (showNoAccount or form_data.accountmode) and form_data.sValidation and not shopware.config.NoAccountDisable %}
+                    <div class="register--check">
+                        <input type="checkbox"
+                               value="1"
+                               id="register_personal_skipLogin"
+                               name="register[personal][accountmode]"
+                               class="register--checkbox chkbox" {% if form_data.accountmode or accountmode %}checked="checked" {% endif %}/>
+
+                        <label for="register_personal_skipLogin" class="chklabel is--bold">
+                            {% trans %}RegisterLabelNoAccount{% endtrans %}
+                        </label>
+                    </div>
+                {% else %}
+                    <input type="hidden"
+                           value="0"
+                           id="register_personal_skipLogin"
+                           name="register[personal][accountmode]"
+                           class="register--checkbox chkbox" {% if form_data.accountmode or accountmode %}checked="checked" {% endif %}/>
+                {% endif %}
+            {% endblock %}
+
+            {# E-Mail #}
+            {% block frontend_register_personal_fieldset_input_mail %}
+                <div class="register--email">
+                    <input autocomplete="section-personal email"
+                           name="register[personal][email]"
+                           type="email"
+                           required="required"
+                           aria-required="true"
+                           placeholder="{% trans %}RegisterPlaceholderMail{% endtrans %}{% trans from 'frontend/register/index' %}RequiredField{% endtrans %}"
+                           id="register_personal_email"
+                           value="{{ form_data.email|escape }}"
+                           class="register--field email is--required{% if error_flags.email %} has--error{% endif %}" />
+                </div>
+
+                {% if shopware.config.doubleEmailValidation %}
+                    <div class="register--emailconfirm">
+                        <input autocomplete="section-personal email"
+                               name="register[personal][emailConfirmation]"
+                               type="email"
+                               required="required"
+                               aria-required="true"
+                               placeholder="{% trans %}RegisterPlaceholderMailConfirmation{% endtrans %}{% trans from 'frontend/register/index' %}RequiredField{% endtrans %}"
+                               id="register_personal_emailConfirmation"
+                               value="{$form_data.emailConfirmation|escape}"
+                               class="register--field emailConfirmation is--required{% if error_flags.emailConfirmation %} has--error{% endif %}" />
+                    </div>
+                {% endif %}
+            {% endblock %}
+        {#{% endif %}#}
+
+        {#{if !$update}#}
+            <div class="register--account-information">
+                {# Password #}
+                {% block frontend_register_personal_fieldset_input_password %}
+                    <div class="register--password">
+                        <input name="register[personal][password]"
+                               type="password"
+                               autocomplete="new-password"
+                               required="required"
+                               aria-required="true"
+                               placeholder="{% trans %}RegisterPlaceholderPassword{% endtrans %}{% trans from 'frontend/register/index' %}RequiredField{% endtrans %}"
+                               id="register_personal_password"
+                               class="register--field password is--required{% if error_flags.password %} has--error{% endif %}" />
+                    </div>
+                {% endblock %}
+
+                {# Password confirmation #}
+                {% block frontend_register_personal_fieldset_input_password_confirm %}
+                    {% if shopware.config.doublePasswordValidation %}
+                        <div class="register--passwordconfirm">
+                            <input name="register[personal][passwordConfirmation]"
+                                   type="password"
+                                   autocomplete="new-password"
+                                   aria-required="true"
+                                   placeholder="{% trans %}RegisterPlaceholderPasswordRepeat{% endtrans %}{% trans from 'frontend/register/index' %}RequiredField{% endtrans %}"
+                                   id="register_personal_passwordConfirmation"
+                                   class="register--field passwordConfirmation is--required{% if error_flags.passwordConfirmation %} has--error{% endif %}" />
+                        </div>
+                    {% endif %}
+                {% endblock %}
+
+                {# Password description #}
+                {% block frontend_register_personal_fieldset_password_description %}
+                    <div class="register--password-description">
+                        {% trans %}RegisterInfoPassword{% endtrans %} {{ shopware.config.passwordRequirements }} {% trans %}RegisterInfoPasswordCharacters{% endtrans %}<br />
+                        {% trans %}RegisterInfoPassword2{% endtrans %}
+                    </div>
+                {% endblock %}
+            </div>
+        {#{% endif %}#}
+
+        {# Birthday #}
+        {% if shopware.config.showBirthdayField %}
+            {% block frontend_register_personal_fieldset_birthday %}
+                <div class="register--birthdate">
+                    <label for="register_personal_birthdate" class="birthday--label">
+                        {% trans %}RegisterPlaceholderBirthday{% endtrans %}
+                        {% if shopware.config.requireBirthdayField %}
+                            {% trans from 'frontend/register/index' %}RequiredField{% endtrans %}
+                        {% endif %}
+                    </label>
+
+                    <div class="register--birthday field--select select-field">
+                        <select id="register_personal_birthdate"
+                                name="register[personal][birthday][day]"
+                                {% if shopware.config.requireBirthdayField %}
+                                    required="required"
+                                    aria-required="true"
+                                {% endif %}
+                                class="{% if shopware.config.requireBirthdayField %}is--required{% endif %}{% if error_flags.birthday and shopware.config.requireBirthdayField %} has--error{% endif %}">
+                            <option{% if shopware.config.requireBirthdayField and form_data.birthday.day%} disabled="disabled"{% endif %} value="">
+                                {% trans from 'frontend/register/personal_fieldset' %}RegisterBirthdaySelectDay{% endtrans %}
+                            </option>
+
+                            {% for day in 1..31 %}
+                                <option value="{{ day }}" {% if day == form_data.birthday.day %}selected{% endif %}>{{ day }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="register--birthmonth field--select select-field">
+                        <select name="register[personal][birthday][month]"
+                                {% if shopware.config.requireBirthdayField %} required="required" aria-required="true"{% endif %}
+                                class="{% if shopware.config.requireBirthdayField %}is--required{% endif %}{% if error_flags.birthmonth and shopware.config.requireBirthdayField %} has--error{% endif %}">
+                            <option{% if shopware.config.requireBirthdayField and form_data.birthday.month %} disabled="disabled"{% endif %} value="">
+                                {% trans from 'frontend/register/personal_fieldset' %}RegisterBirthdaySelectMonth{% endtrans %}
+                            </option>
+
+                            {% for month in 1..12 %}
+                                <option value="{{ month }}" {% if month == form_data.birthday.month %}selected{% endif %}>{{ month}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="register--birthyear field--select select-field">
+                        <select name="register[personal][birthday][year]"
+                                {% if shopware.config.requireBirthdayField %}
+                                    required="required" aria-required="true"
+                                {% endif %}
+                                class="{% if shopware.config.requireBirthdayField %}is--required{% endif %}{% if error_flags.birthyear and shopware.config.requireBirthdayField %} has--error{% endif %}">
+                            <option{% if shopware.config.requireBirthdayField and form_data.birthday.year %} disabled="disabled"{% endif %} value="">
+                                {% trans %}RegisterBirthdaySelectYear{% endtrans %}
+                            </option>
+
+                            {% for year  in 'now'|date('Y')..'now - 120 years'|date('Y') %}
+                                <option value="{{ year }}" {% if year == form_data.birthday.year %}selected{% endif %}>{{ year }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            {% endblock %}
+        {% endif %}
+    </div>
+</div>

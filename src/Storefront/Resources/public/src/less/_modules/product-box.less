@@ -1,0 +1,627 @@
+/*
+Product-box
+===============================
+Defines the element styles of the Shopware product boxes.
+
+Shopware provides 3 product box types:<br/>
+`box-basic`<br/>
+`box-minimal`<br/>
+`box-image`
+
+```
+<div class="product--box">
+    <div class="box--content is--rounded">
+        <div class="product--info">
+
+            <a href="" class="product--image">
+                <!-- Article images -->
+            </a>
+
+            <div class="product--rating-container">
+                <!-- Product rating stars -->
+            </div>
+
+            <a href="" class="product--title" title="">
+                Product title
+            </a>
+
+            <div class="product--description">
+                Dux texo propino, hic tres, casus Ubertas, pax Alumnus catena, ut,
+                acer tero an, per edo in is arx Arma querul.
+            </div>
+
+            <div class="product--price-info">
+                <div class="price--unit">
+                </div>
+                <div class="product--price">
+                    <span class="price--default is--nowrap">
+                        35,00 €
+                    </span>
+                </div>
+            </div>
+
+            <div class="product--btn-container"">
+                <!-- Product buy button
+            </div>
+
+            <div class="product--actions">
+                <!-- Product action links e.g. product compare
+            </div>
+
+        </div>
+    </div>
+</div>
+```
+*/
+
+.image--left(@imageWidth: 180) {
+    .product--image {
+        height: 100%;
+        margin: 0;
+        position: absolute;
+        top: 0; left: 0;
+
+        & when (ispercentage(@imageWidth)) {
+            width: @imageWidth;
+        }
+
+        & when not (ispercentage(@imageWidth)) {
+            .unitize-width(@imageWidth);
+        }
+    }
+    .product--info {
+        position: relative;
+
+        & when (ispercentage(@imageWidth)) {
+            padding-left: @imageWidth + 2;
+        }
+
+        & when not (ispercentage(@imageWidth)) {
+            .unitize-padding(0, 0, 0, @imageWidth + 20);
+        }
+    }
+}
+
+    //  Special mixin for positioning the product image at the top of the product box
+.image--top(@imageHeight: 180) {
+    .product--image {
+        .unitize-margin(0, 0, 5, 0);
+        width: auto;
+        position: relative;
+
+        & when (ispercentage(@imageHeight)) {
+            height: @imageHeight;
+        }
+
+        & when not (ispercentage(@imageHeight)) {
+            .unitize-height(@imageHeight);
+        }
+    }
+    .product--info {
+        padding: 0;
+    }
+}
+
+    //  Product box
+.product--box {
+    .clearfix();
+    display: block;
+    width: 100%;
+    padding: 2% 0 0 2%;
+    float: left;
+
+    .box--content {
+        .unitize-padding(10, 10);
+        height: 100%;
+        border: 1px solid @border-color;
+        position: relative;
+    }
+
+    .product--image {
+        .unitize-height(180);
+        .unitize-margin(0, 0, 5, 0);
+        display: block;
+        text-align: center;
+
+        .image--element {
+            height: 100%;
+            width: 100%;
+            display: block;
+            margin: 0 auto;
+            position: relative;
+
+            img {
+                position: absolute;
+                top: 0; bottom: 0;
+                left: 0; right: 0;
+                margin: auto;
+                display: inline-block;
+                vertical-align: middle;
+                z-index: @zindex-product-box-image-element;
+            }
+        }
+    }
+
+    .product--rating-container {
+        .unitize-height(25);
+        display: block;
+    }
+
+    .product--title {
+        .unitize-height(40);
+        .unitize-margin(0, 0, 5, 0);
+        .unitize(font-size, 16);
+        .unitize(line-height, 20);
+        display: block;
+        width: 100%;
+        color: @text-color-dark;
+        font-weight: bold;
+        overflow: hidden;
+
+        &:hover {
+            color: @link-color;
+        }
+    }
+
+    .product--description {
+        .unitize-height(72);
+        .unitize-margin(0, 0, 10, 0);
+        .unitize(font-size, 14);
+        .unitize(line-height, 18);
+        display: block;
+        width: 100%;
+        overflow: hidden;
+    }
+
+    .product--price-info {
+        .unitize-height(40);
+
+        .price--unit {
+            .unitize-height(20);
+            .unitize(font-size, 11);
+            .unitize(line-height, 16);
+            display: block;
+            overflow: hidden;
+        }
+    }
+
+    .product--price {
+        .unitize-height(20);
+
+        .price--default {
+            .unitize(font-size, 18);
+            .unitize(line-height, 20);
+            display: inline-block;
+            color: @text-color-dark;
+            font-weight: bold;
+
+            &.is--discount {
+                color: @badge-discount-bg;
+            }
+        }
+
+        .price--pseudo {
+            .unitize(font-size, 12);
+            .unitize(line-height, 20);
+        }
+
+        .price--discount {
+            .unitize(font-size, 12);
+            .unitize(line-height, 20);
+            display: inline-block;
+            text-decoration: line-through;
+            vertical-align: baseline;
+        }
+    }
+
+    .buybox--form {
+        .unitize-height(42);
+        .unitize(margin-top, 7);
+
+        i.icon--basket {
+            display: none;
+        }
+    }
+
+    .product--detail-btn {
+        .unitize-height(42);
+        .unitize(margin-top, 7);
+    }
+
+    .product--actions {
+        .unitize-margin(15, 0, 0, 0);
+        .unitize(font-size, 14);
+        .unitize(line-height, 24);
+
+        form {
+            display: inline-block;
+        }
+    }
+
+    .product--action {
+        .clear-form-button();
+        .unitize-margin(0, 20, 0, 0);
+        .unitize(font-size, 14);
+        .unitize(line-height, 24);
+        display: inline-block;
+        color: @text-color;
+        word-break: keep-all;
+        white-space: nowrap;
+
+        [class^="icon--"] {
+            .unitize-margin(0, 5, 0, 0);
+            .unitize(font-size, 12);
+        }
+
+        &:hover {
+            color: @link-color;
+        }
+    }
+
+    .action--compare {
+        display: none;
+    }
+
+    .action--note {
+
+        &:focus {
+            outline: none;
+        }
+
+        &.js--is-saved {
+            color: @highlight-success;
+        }
+    }
+
+/*
+Product Badges
+==========================================
+Creates a corner product badge on a product-box.
+```
+<div class="product--box">
+    <div class="product--badges">
+        <div class="product--badge badge--discount">
+            <i class="icon--percent2"></i>
+        </div>
+    </div>
+</div>
+
+```
+*/
+    .product--badges {
+        .unitize(top, 20);
+        .unitize(left, -1);
+        position: absolute;
+        z-index: @zindex-product-box-product-badge;
+
+        .product--badge {
+            .unitize-padding(3, 10);
+            .unitize-margin(0, 0, 5, 0);
+            .unitize(font-size, 14);
+            .unitize(line-height, 16);
+            .border-radius-multi(0, 3px, 3px, 0);
+            display: block;
+            float: left;
+            position: relative;
+            text-align: center;
+            font-weight: bold;
+            clear: both;
+        }
+
+        // Discount Badge
+        .badge--discount {
+            color: @badge-discount-color;
+            background: @badge-discount-bg;
+        }
+
+        // Recommendation Badge
+        .badge--recommend {
+            color: @badge-recommendation-color;
+            background: @badge-recommendation-bg;
+        }
+
+        // Newcomer Badge
+        .badge--newcomer {
+            color: @badge-newcomer-color;
+            background: @badge-newcomer-bg;
+        }
+
+        // ESD Badge
+        .badge--esd {
+            background: @badge-download-bg;
+            color: @badge-download-color;
+        }
+    }
+}
+
+.box--minimal {
+    width: 50%;
+
+    .product--image {
+        .unitize-height(120);
+    }
+
+    .product--price-info {
+        .unitize-height(70);
+
+        .price--unit {
+            .unitize-height(30);
+            .unitize(font-size, 10);
+            .unitize(line-height, 14);
+            display: block;
+        }
+    }
+
+    .product--price-outer {
+        .unitize-height(40);
+        position: relative;
+    }
+
+    .product--price {
+        .unitize(line-height, 20);
+        position: absolute;
+        bottom: 0; left: 0;
+        height: auto;
+
+        .price--default {
+            .unitize(font-size, 16);
+            .unitize(line-height, 20);
+            .unitize-margin(0, 5, 0, 0);
+            vertical-align: bottom;
+            float: left;
+        }
+
+        .price--pseudo,
+        .price--discount {
+            .unitize(font-size, 10);
+            .unitize(line-height, 14);
+        }
+    }
+
+    .buybox--form {
+        .buy-btn--cart-text {
+            display: none;
+        }
+
+        i.icon--basket {
+            .unitize(left, 2);
+            .unitize(top, 1);
+            .unitize(font-size, 14);
+            display: inline-block;
+            position: relative;
+        }
+    }
+}
+
+.box--image {
+    .image--top(200);
+}
+
+.box--slider {
+    display: block;
+    padding: 0;
+    position: relative;
+    text-align: center;
+    float: none;
+
+    &:hover .product--title {
+        color: @brand-primary;
+    }
+
+    .box--content {
+        border: 0 none;
+        padding: 0;
+    }
+
+    .product--price-info {
+        height: auto;
+
+        .price--unit {
+            .unitize-height(14);
+            .unitize(font-size, 10);
+        }
+
+        .price--default {
+            .unitize(font-size, 14);
+        }
+
+        .is--discount {
+            font-weight: bold;
+        }
+    }
+
+    .product--image {
+        .unitize-height(140);
+        .user-select(none);
+        .touch-callout(none);
+        .tap-highlight-color(rgba(0, 0, 0, 0));
+        .unitize(margin-bottom, 10);
+        display: block;
+        text-align: center;
+        position: relative;
+    }
+
+    .image--element {
+        height: 100%;
+        width: 100%;
+        display: block;
+        margin: 0 auto;
+        position: relative;
+
+        img {
+            .user-select(none);
+            .touch-callout(none);
+            .tap-highlight-color(rgba(0, 0, 0, 0));
+            position: absolute;
+            top: 0; bottom: 0;
+            left: 0; right: 0;
+            margin: auto;
+            display: inline-block;
+            vertical-align: middle;
+            z-index: @zindex-product-box-image-element;
+        }
+    }
+
+    .product--title {
+        .unitize(font-size, 14);
+        .unitize(height, 40);
+        .user-select(none);
+        .touch-callout(none);
+        .tap-highlight-color(rgba(0, 0, 0, 0));
+        display: block;
+        color: @text-color;
+        font-weight: normal;
+        white-space: normal;
+    }
+}
+
+.box--list {
+    .buybox--form {
+        .unitize(max-width, 280);
+    }
+
+    .product--detail-btn {
+        .unitize(max-width, 280);
+    }
+}
+
+@media screen and(min-width: @phoneLandscapeViewportWidth) {
+
+    .box--basic {
+        .image--left(160);
+    }
+
+    .box--minimal {
+        width: 33.3%;
+    }
+
+    .box--image {
+        .image--left(50%);
+
+        .product--price-info {
+            .unitize-height(60);
+
+            .price--unit {
+                .unitize-height(40);
+            }
+        }
+    }
+
+    .box--list {
+        .image--left(180);
+    }
+}
+
+@media screen and(min-width: @tabletViewportWidth) {
+
+    .product--box {
+        .action--compare {
+            display: inline-block;
+        }
+    }
+
+    .box--basic {
+        .image--left(160);
+    }
+
+    .box--image {
+        .image--top(240);
+
+        .product--price-info {
+            .unitize-height(40);
+
+            .price--unit {
+                .unitize-height(20);
+            }
+        }
+    }
+
+    .is--ctl-search,
+    .is--ctl-listing.is--no-sidebar {
+        .box--basic {
+            .image--top(180);
+            width: 50%;
+        }
+
+        .box--minimal {
+            width: 25%;
+
+            .product--image {
+                .unitize-height(180);
+            }
+        }
+
+        .box--image {
+            width: 50%;
+        }
+    }
+}
+
+@media screen and(min-width: @tabletLandscapeViewportWidth) {
+
+    .box--basic {
+        .image--top(180);
+        width: 50%;
+    }
+
+    .box--minimal {
+        width: 25%;
+    }
+
+    .box--image {
+        .image--top(280);
+        width: 50%;
+    }
+
+    .is--ctl-search,
+    .is--ctl-listing.is--no-sidebar {
+        .box--basic {
+            .image--left(170);
+        }
+
+        .box--minimal {
+            width: 20%;
+        }
+
+        .box--image {
+            width: 33.3%;
+        }
+    }
+}
+
+@media screen and(min-width: @desktopViewportWidth) {
+
+    .box--basic {
+        .image--left(170);
+
+        .box--content {
+            .unitize-padding(20, 10);
+        }
+    }
+
+    .box--minimal {
+        width: 25%;
+
+        .buybox--form {
+            .buy-btn--cart-text {
+                display: inline-block;
+            }
+
+            i.icon--basket {
+                display: none;
+            }
+        }
+    }
+
+    .box--image {
+        .image--top(300);
+    }
+
+    .is--ctl-search,
+    .is--ctl-listing.is--no-sidebar {
+
+        .box--minimal {
+            width: 20%;
+        }
+    }
+}

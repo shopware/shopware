@@ -1,0 +1,5 @@
+{% block frontend_common_product_slider_items %}
+    {% for product in products %}
+        {% sw_include '@Storefront/frontend/_includes/product_slider_item.html.twig' %}
+    {% endfor %}
+{% endblock %}

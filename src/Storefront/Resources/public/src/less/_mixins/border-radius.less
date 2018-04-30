@@ -1,0 +1,37 @@
+/*
+Border-radius mixin
+=============================================
+The mixins provides you a cross-browser compatible method to set a border-radius.
+
+Please refer to <http://caniuse.com/border-radius> to see the browser support table of the feature.
+
+######Syntax:
+`@param {String} radius The radius you want to set`<br/>
+
+######Example:
+Same border-radius for all edges: <br/>
+`.border-radius([pixel-value]);`<br/>
+
+Different border-radius:<br/>
+`.border-radius-multi([pixel-value-leftTop], [pixel-value-rightTop], [pixel-value-rightBottom], [pixel-value-leftBottom]);`<br/>
+
+Resetting border radius:<br/>
+`.reset-border-radius();`
+*/
+
+.border-radius(@radius: 3px) {
+	border-radius: @radius;
+	// Prevent the background color leaks out
+	background-clip: padding-box;
+}
+.border-radius-multi(@leftTop: 0, @rightTop:0, @rightBottom: 0, @leftBottom: 0) {
+	border-top-left-radius: @leftTop;
+	border-top-right-radius:  @rightTop;
+	border-bottom-right-radius: @rightBottom;
+	border-bottom-left-radius: @leftBottom;
+	// Prevent the background color leaks out
+	background-clip: padding-box;
+}
+.reset-border-radius() {
+    border-radius: 0;
+}

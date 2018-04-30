@@ -1,0 +1,58 @@
+{% block frontend_register_payment %}
+    <div class="panel register--payment">
+
+        {% block frontend_register_payment_headline %}
+            <h2 class="panel--title is--underline">
+                {% trans from 'frontend/register/payment_fieldset' %}RegisterPaymentHeadline{% endtrans %}
+            </h2>
+        {% endblock %}
+
+        {% block frontend_register_payment_fieldset %}
+            <div class="panel--body is--wide">
+                {% for paymentMethod in paymentMethods %}
+                    {% block frontend_register_payment_method %}
+                        <div class="payment--method panel--tr">
+
+                            {% block frontend_register_payment_fieldset_input %}
+                                <div class="payment--selection-input">
+                                    {% block frontend_register_payment_fieldset_input_radio %}
+                                        <input type="radio"
+                                               name="register[payment]"
+                                               value="{{ paymentMethod.id }}"
+                                               {# or (formData and not paymentMethod.index0) #}
+                                               id="payment_mean{{ paymentMethod.id }}"{% if paymentMethod.id == context.paymentMethod.id %} checked="checked"{% endif %} />
+                                    {% endblock %}
+                                </div>
+                                <div class="payment--selection-label">
+                                    {% block frontend_register_payment_fieldset_input_label %}
+                                        <label for="payment_mean{{ paymentMethod.id }}" class="is--strong">
+                                            {{ paymentMethod.name }}
+                                        </label>
+                                    {% endblock %}
+                                </div>
+                            {% endblock %}
+
+                            {% block frontend_register_payment_fieldset_description %}
+                                <div class="payment--description panel--td">
+                                    {{ paymentMethod.additionalDescription }}
+                                </div>
+                            {% endblock %}
+
+                            {% block frontend_register_payment_fieldset_template %}
+                                <div class="payment_logo_{$payment_mean.name}"></div>
+                                    {% if paymentMethod.template is not empty %}
+                                        {# TODO fix sw_include and use it instead! #}
+                                        <div class="payment--content{% if paymentMethod.id != formData.payment %} is--hidden{% endif %}">
+                                            {% include paymentMethod.template ignore missing %}
+                                        </div>
+                                    {% endif %}
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+
+                {% endfor %}
+            </div>
+        {% endblock %}
+
+    </div>
+{% endblock %}

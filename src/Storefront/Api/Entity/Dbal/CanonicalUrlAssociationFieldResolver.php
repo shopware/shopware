@@ -1,0 +1,62 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Storefront\Api\Entity\Dbal;
+
+use Shopware\Api\Entity\Dbal\EntityDefinitionQueryHelper;
+use Shopware\Api\Entity\Dbal\FieldResolver\FieldResolverInterface;
+use Shopware\Api\Entity\Dbal\QueryBuilder;
+use Shopware\Api\Entity\Field\Field;
+use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Framework\Struct\Uuid;
+use Shopware\Storefront\Api\Entity\Field\CanonicalUrlAssociationField;
+use Shopware\Storefront\Api\Seo\Definition\SeoUrlDefinition;
+
+class CanonicalUrlAssociationFieldResolver implements FieldResolverInterface
+{
+    public function resolve(
+        string $definition,
+        string $root,
+        Field $field,
+        QueryBuilder $query,
+        ApplicationContext $context,
+        EntityDefinitionQueryHelper $queryHelper,
+        bool $raw
+    ): void {
+        if (!$field instanceof CanonicalUrlAssociationField) {
+            return;
+        }
+
+        $table = SeoUrlDefinition::getEntityName();
+        $alias = $root . '.' . $field->getPropertyName();
+
+        if ($query->hasState($alias)) {
+            return;
+        }
+        
+        $query->addState($alias);
+
+        $key = 'route' . $field->getRouteName();
+
+        $parameters = [
+            '#root#' => EntityDefinitionQueryHelper::escape($root),
+            '#source_column#' => EntityDefinitionQueryHelper::escape($field->getStorageName()),
+            '#alias#' => EntityDefinitionQueryHelper::escape($alias),
+            '#reference_column#' => EntityDefinitionQueryHelper::escape($field->getReferenceField()),
+        ];
+        $query->leftJoin(
+            EntityDefinitionQueryHelper::escape($root),
+            EntityDefinitionQueryHelper::escape($table),
+            EntityDefinitionQueryHelper::escape($alias),
+            str_replace(
+                array_keys($parameters),
+                array_values($parameters),
+                '#alias#.application_id = :applicationId
+                 AND #root#.#source_column# = #alias#.#reference_column# 
+                 AND #alias#.name = :' . $key . '
+                 AND #alias#.is_canonical = 1'
+            )
+        );
+        $query->setParameter($key, $field->getRouteName());
+        $query->setParameter('applicationId', Uuid::fromStringToBytes($context->getApplicationId()));
+    }
+}

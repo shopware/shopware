@@ -1,0 +1,42 @@
+<div class="table--header block-group">
+    {% block frontend_checkout_cart_header_field_labels %}
+
+        {# Product name and information #}
+        {% block frontend_checkout_cart_header_name %}
+        <div class="panel--th column--product block">
+            {% trans from 'frontend/checkout/cart_header' %}CartColumnName{% endtrans %}
+        </div>
+        {% endblock %}
+
+        {# Product quantity #}
+        {% block frontend_checkout_cart_header_quantity %}
+        <div class="panel--th column--quantity block is--align-right">
+            {% trans from 'frontend/checkout/cart_header' %}CartColumnQuantity{% endtrans %}
+        </div>
+        {% endblock %}
+
+        {# Unit price #}
+        {% block frontend_checkout_cart_header_price %}
+        <div class="panel--th column--unit-price block is--align-right">
+            {% trans from 'frontend/checkout/cart_header' %}CartColumnPrice{% endtrans %}
+        </div>
+        {% endblock %}
+
+        {# Product tax rate #}
+        {% block frontend_checkout_cart_header_tax %}{% endblock %}
+
+        {# Accumulated product price #}
+        {% block frontend_checkout_cart_header_total %}
+        <div class="panel--th column--total-price block is--align-right">
+            {% trans from 'frontend/checkout/cart_header' %}CartColumnTotal{% endtrans %}
+        </div>
+        {% endblock %}
+
+        {# Action column #}
+        {% block frontend_checkout_cart_header_actions %}
+        <div class="panel--th column--actions block">
+            &nbsp;
+        </div>
+        {% endblock %}
+    {% endblock %}
+</div>

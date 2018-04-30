@@ -1,0 +1,225 @@
+{% trans_default_domain 'frontend/register/billing_fieldset' %}
+
+<div class="panel register--company is--hidden">
+    <h2 class="panel--title is--underline">
+        {% trans %}RegisterHeaderCompany{% endtrans %}
+    </h2>
+    <div class="panel--body is--wide">
+
+        {% trans from 'frontend/register/index' %}RequiredField{% endtrans %}
+
+        {# Company #}
+        {% block frontend_register_billing_fieldset_input_company %}
+            <div class="register--companyname">
+                <input autocomplete="section-billing billing organization"
+                       name="register[billing][company]"
+                       type="text"
+                       required="required"
+                       aria-required="true"
+                       placeholder="{% trans %}RegisterPlaceholderCompany{% endtrans %}{% trans from 'frontend/register/index' %}RequiredField{% endtrans %}"
+                       id="register_billing_company"
+                       value="{{ form_data.company|escape }}"
+                       class="register--field is--required{% if error_flags.company %} has--error{% endif %}" />
+            </div>
+        {% endblock %}
+
+        {# Department #}
+        {% block frontend_register_billing_fieldset_input_department %}
+            <div class="register--department">
+                <input autocomplete="section-billing billing organization-title"
+                       name="register[billing][department]"
+                       type="text"
+                       placeholder="{% trans %}RegisterLabelDepartment{% endtrans %}"
+                       id="register_billing_department"
+                       value="{{ form_data.department|escape }}"
+                       class="register--field" />
+            </div>
+        {% endblock %}
+
+        {# VAT Id #}
+        {% block frontend_register_billing_fieldset_input_vatId %}
+            <div class="register--vatId">
+                <input name="register[billing][vatId]"
+                       type="text" {% if shopware.config.vatCheckRequired %} required="required" aria-required="true"{% endif %}
+                       placeholder="{% trans %}RegisterLabelTaxId{% endtrans %}{% if shopware.config.vatcheckrequired %}{% trans from 'frontend/register/index' %}RequiredField{% endtrans %}{% endif %}"
+                       id="register_billing_vatid"
+                       value="{{ form_data.vatId|escape }}"
+                        {% if shopware.config.vatcheckrequired %} required="required" aria-required="true"{% endif %}
+                       class="register--field{% if error_flags.vatId %} has--error{% endif %}{% if shopware.config.vatcheckrequired %} is--required{% endif %}"/>
+            </div>
+        {% endblock %}
+
+    </div>
+</div>
+
+<div class="panel register--address">
+    <h2 class="panel--title is--underline">{% trans %}RegisterBillingHeadline{% endtrans %}</h2>
+    <div class="panel--body is--wide">
+
+        {# Street #}
+        {% block frontend_register_billing_fieldset_input_street %}
+            <div class="register--street">
+                <input autocomplete="section-billing billing street-address"
+                       name="register[billing][street]"
+                       type="text"
+                       required="required"
+                       aria-required="true"
+                       placeholder="{% trans %}RegisterBillingPlaceholderStreet{% endtrans %}{% trans from 'frontend/register/index' %}RequiredField{% endtrans %}"
+                       id="street"
+                       value="{{ form_data.street|escape }}"
+                       class="register--field register--field-street is--required{% if error_flags.street %} has--error{% endif %}" />
+            </div>
+        {% endblock %}
+
+        {# Additional Address Line 1 #}
+        {% block frontend_register_billing_fieldset_input_addition_address_line1 %}
+            {% if shopware.config.showAdditionAddressLine1 %}
+                <div class="register--additional-line1">
+                    <input autocomplete="section-billing billing address-line2"
+                           name="register[billing][additionalAddressLine1]"
+                           type="text"{% if shopware.config.requireAdditionAddressLine1 %} required="required" aria-required="true"{% endif %}
+                           placeholder="{% trans %}RegisterLabelAdditionalAddressLine1{% endtrans %}{% if shopware.config.requireAdditionAddressLine1 %}{% trans from 'frontend/register/index' %}RequiredField{% endtrans %}{% endif %}"
+                           id="additionalAddressLine1"
+                           value="{{ form_data.additionalAddressLine1|escape }}"
+                           class="register--field{% if shopware.config.requireAdditionAddressLine1 %} is--required{% endif %}{% if error_flags.additionalAddressLine1 and shopware.config.requireAdditionAddressLine1 %} has--error{% endif %}" />
+                </div>
+            {% endif %}
+        {% endblock %}
+
+        {# Additional Address Line 2 #}
+        {% block frontend_register_billing_fieldset_input_addition_address_line2 %}
+            {% if shopware.config.showAdditionAddressLine2 %}
+                <div class="register--additional-field2">
+                    <input autocomplete="section-billing billing address-line3"
+                           name="register[billing][additionalAddressLine2]"
+                           type="text"{% if shopware.config.requireAdditionAddressLine2 %} required="required" aria-required="true"{% endif %}
+                           placeholder="{% trans %}RegisterLabelAdditionalAddressLine2{% endtrans %}{% if shopware.config.requireAdditionAddressLine2 %}{% trans from 'frontend/register/index' %}RequiredField{% endtrans %}{% endif %}"
+                           id="additionalAddressLine2"
+                           value="{{ form_data.additionalAddressLine2|escape }}"
+                           class="register--field{% if shopware.config.requireAdditionAddressLine2 %} is--required{% endif %}{% if error_flags.additionalAddressLine2 and shopware.config.requireAdditionAddressLine2 %} has--error{% endif %}" />
+                </div>
+            {% endif %}
+        {% endblock %}
+
+        {# Zip + City #}
+        {% block frontend_register_billing_fieldset_input_zip_and_city %}
+            <div class="register--zip-city">
+                {% if shopware.config.showZipBeforeCity %}
+                    <input autocomplete="section-billing billing postal-code"
+                           name="register[billing][zipcode]"
+                           type="text"
+                           required="required"
+                           aria-required="true"
+                           placeholder="{% trans %}RegisterBillingPlaceholderZipcode{% endtrans %}{% trans from 'frontend/register/index' %}RequiredField{% endtrans %}"
+                           id="zipcode"
+                           value="{{ form_data.zipcode|escape }}"
+                           class="register--field register--spacer register--field-zipcode is--required{% if error_flags.zipcode %} has--error{% endif %}" />
+
+                    <input autocomplete="section-billing billing address-level2"
+                           name="register[billing][city]"
+                           type="text"
+                           required="required"
+                           aria-required="true"
+                           placeholder="{% trans %}RegisterBillingPlaceholderCity{% endtrans %}{% trans from 'frontend/register/index' %}RequiredField{% endtrans %}"
+                           id="city"
+                           value="{{ form_data.city|escape }}"
+                           size="25"
+                           class="register--field register--field-city is--required{% if error_flags.city %} has--error{% endif %}" />
+                {% else %}
+                    <input autocomplete="section-billing billing address-level2"
+                           name="register[billing][city]"
+                           type="text"
+                           required="required"
+                           aria-required="true"
+                           placeholder="{% trans %}RegisterBillingPlaceholderCity{% endtrans %}{% trans from 'frontend/register/index' %}RequiredField{% endtrans %}"
+                           id="city"
+                           value="{{ form_data.city|escape }}"
+                           size="25"
+                           class="register--field register--spacer register--field-city is--required{% if error_flags.city %} has--error{% endif %}" />
+
+                    <input autocomplete="section-billing billing postal-code"
+                           name="register[billing][zipcode]"
+                           type="text"
+                           required="required"
+                           aria-required="true"
+                           placeholder="{% trans %}RegisterBillingPlaceholderZipcode{% endtrans %}{% trans from 'frontend/register/index' %}RequiredField{% endtrans %}"
+                           id="zipcode"
+                           value="{{ form_data.zipcode|escape }}"
+                           class="register--field register--field-zipcode is--required{% if error_flags.zipcode %} has--error{% endif %}" />
+                {% endif %}
+            </div>
+        {% endblock %}
+
+        {# Country #}
+        {% block frontend_register_billing_fieldset_input_country %}
+            <div class="register--country field--select select-field">
+                <select name="register[billing][country]"
+                        data-address-type="billing"
+                        id="country"
+                        required="required"
+                        aria-required="true"
+                        class="select--country is--required{% if error_flags.country %} has--error{% endif %}">
+
+                    <option disabled="disabled"
+                            value=""
+                            selected="selected">
+                        {% trans %}RegisterBillingPlaceholderCountry{% endtrans %}
+                        {% trans from 'frontend/register/index' %}RequiredField{% endtrans %}
+                    </option>
+
+                    {% for country in countryList %}
+                        <option value="{{ country.id }}" {% if country.id == form_data.country %}selected="selected"{% endif %} {% if country.states %}stateSelector="country_{{ country.id }}_states"{% endif %}>
+                            {{ country.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        {% endblock %}
+
+        {# Country state #}
+        {% block frontend_register_billing_fieldset_input_country_states %}
+            <div class="country-area-state-selection">
+                {% for country in countryList %}
+                    {% set states = country.extensions.states.elements %}
+                    {% if states %}
+                        <div data-country-id="{{ country.id }}" data-address-type="billing" class="register--state-selection field--select select-field{% if country.id != form_data.country %} is--hidden{% endif %}">
+                            <select {% if country.id != form_data.country %}disabled="disabled"{% endif %} name="register[billing][country_state]"{% if country.forceStateInRegistration %} required="required" aria-required="true"{% endif %} class="select--state {% if error_flags.state %} has--error{% endif %}">
+                                <option value="" selected="selected">{% trans %}RegisterBillingLabelState{% endtrans %}</option>
+                                {% for state in states %}
+                                    <option value="{{ state.id }}" {% if state.id == form_data.state %}selected="selected"{% endif %}>
+                                        {{ state.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% endblock %}
+
+        {# Phone #}
+        {% block frontend_register_personal_fieldset_input_phone %}
+            {% if shopware.config.showPhoneNumberField %}
+                <div class="register--phone">
+                    <input autocomplete="section-personal tel"
+                           name="register[billing][phone]"
+                           type="tel"{% if shopware.config.requirePhoneField %} required="required" aria-required="true"{% endif %}
+                           placeholder="{% trans %}RegisterPlaceholderPhone{% endtrans %}{% if shopware.config.requirePhoneField %}{% trans from 'frontend/register/index' %}RequiredField{% endtrans %}{% endif %}"
+                           id="phone"
+                           value="{{ form_data.phone|escape }}"
+                           class="register--field{% if shopware.config.requirePhoneField %} is--required{% endif %}{% if error_flags.phone and shopware.config.requirePhoneField %} has--error{% endif %}" />
+                </div>
+            {% endif %}
+        {% endblock %}
+
+        {# Alternative #}
+        {% block frontend_register_billing_fieldset_different_shipping %}
+            {% if not update %}
+                <div class="register--alt-shipping">
+                    <input name="register[billing][shippingAddress]" type="checkbox" id="register_billing_shippingAddress" value="1" {% if form_data.shippingAddress %}checked="checked"{% endif %} />
+                    <label for="register_billing_shippingAddress">{% trans %}RegisterBillingLabelShipping{% endtrans %}</label>
+                </div>
+            {% endif %}
+        {% endblock %}
+    </div>
+</div>

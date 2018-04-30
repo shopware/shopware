@@ -1,0 +1,240 @@
+/*
+Buttons
+===================================================================
+######Basic button layout
+
+Creates a basic button. Button type classes can be added by using multiple classes on the `.btn` element.
+
+Adding the class `is--disabled` changes the element to a disabled button.
+```
+<button class="btn">
+    Basic button
+</button>
+
+<button class="btn is--disabled">
+    Disabled button
+</button>
+```
+*/
+
+.btn {
+    .unitize-padding(2, 10);
+    .unitize(line-height, 32);
+    .border-radius(3px);
+    .appearance();
+    .unitize(@btn-font-size, 16, font-size);
+    .linear-gradient(@btn-default-top-bg, @btn-default-bottom-bg);
+    -webkit-font-smoothing: inherit;
+    display: inline-block;
+    position: relative;
+    font-weight: bold;
+    text-decoration: none;
+    text-align: left;
+    cursor: pointer;
+    border: 1px solid @btn-default-border-color;
+    color: @btn-default-text-color;
+
+    /** Button icon font size */
+    [class^="icon--"] {
+        .unitize(@btn-icon-size, 16, font-size);
+    }
+
+    /** Larger icon */
+    .is--large {
+        @largeFontSize: @btn-font-size + 2;
+        .unitize(@largeFontSize, 16, font-size);
+    }
+
+/*
+######Icon alignment
+
+To work properly the button needs the class `is--icon-left` or `is--icon-right` and an `icon` inside it.
+```
+<button class="btn is--icon-left">
+    <i class="icon--account"></i>
+    Icon left
+</button>
+
+<button class="btn is--icon-right">
+    <i class="icon--account"></i>
+    Icon right
+</button>
+```
+*/
+    &.is--icon-right {
+        .unitize(padding-right, 36);
+
+        [class^="icon--"] {
+            .unitize-height(16);
+            .unitize(line-height, 32);
+            .unitize-margin(-16, 0, 0, 0);
+            .unitize(right, 12);
+            font-weight: normal;
+            display: block;
+            position: absolute;
+            top: 50%;
+        }
+    }
+
+    &.is--icon-left {
+        .unitize(padding-left, 36);
+
+        [class^="icon--"] {
+            .unitize-height(16);
+            .unitize(line-height, 32);
+            .unitize-margin(-16, 0, 0, 0);
+            .unitize(left, 12);
+            font-weight: normal;
+            display: block;
+            position: absolute;
+            top: 50%;
+        }
+    }
+
+    &:disabled,
+    &:disabled:hover,
+    &.is--disabled,
+    &.is--disabled:hover {
+        .opacity(0.5);
+        .linear-gradient(@btn-default-top-bg, @btn-default-bottom-bg);
+        border: 1px solid @btn-default-border-color;
+        color: @btn-default-text-color;
+        cursor: not-allowed;
+    }
+
+    &:hover {
+        background: @btn-default-hover-bg;
+        color: @btn-default-hover-text-color;
+        border-color: @btn-default-hover-border-color;
+    }
+
+    &:focus {
+        outline: none;
+    }
+
+/*
+######Button size class
+Adding a button-size class creates a larger or smaller button or changes the button properies.
+
+Options: `is--large`, `is--small`, `is--full`, `is--center`
+```
+<button class="btn is--large">
+    Large button
+</button>
+
+<button class="btn is--small">
+    Small button
+</button>
+```
+*/
+
+    /** State: Small button */
+    &.is--small {
+        .unitize(line-height, 28);
+    }
+
+    /** State: Medium button */
+    &.is--medium {
+        .unitize(line-height, 32);
+        .unitize(height, 38);
+    }
+
+    /** State: Large button */
+    &.is--large {
+        .unitize(line-height, 36);
+        .unitize(height, 42);
+    }
+
+    /** State: Button with 100% width */
+    &.is--full {
+        display: block;
+    }
+
+    /** State: Button with text align center */
+    &.is--center {
+        text-align: center;
+    }
+}
+
+/*
+######Button type class
+
+Options: `is--primary`, `is--secondary`
+```
+<button class="btn is--primary">
+    Primary
+</button>
+
+<button class="btn is--secondary">
+    Secondary
+</button>
+```
+*/
+.is--primary {
+    .unitize-padding(2, 12);
+    .unitize(line-height, 34);
+    .linear-gradient(@btn-primary-top-bg, @btn-primary-bottom-bg);
+    border: 0 none;
+    color: @btn-primary-text-color;
+
+    &:hover {
+        background: @btn-primary-hover-bg;
+        color: @btn-primary-hover-text-color;
+    }
+
+    /** State: Small button */
+    &.is--small {
+        .unitize(line-height, 30);
+    }
+
+    /** State: Large button */
+    &.is--large {
+        .unitize(line-height, 38);
+    }
+}
+
+.is--secondary {
+    .unitize-padding(2, 12);
+    .unitize(line-height, 34);
+    .linear-gradient(@btn-secondary-top-bg, @btn-secondary-bottom-bg);
+    border: 0 none;
+    color: @btn-secondary-text-color;
+
+    &:hover {
+        background: @btn-secondary-hover-bg;
+        color: @btn-secondary-hover-text-color;
+    }
+
+    /** State: Small button */
+    &.is--small {
+        .unitize(line-height, 30);
+    }
+
+    /** State: Large button */
+    &.is--large {
+        .unitize(line-height, 38);
+    }
+}
+
+.is--link {
+    .unitize-padding(2, 12);
+    .unitize(line-height, 34);
+
+    border: 0 none;
+    background: transparent;
+    color: @brand-secondary;
+
+    &:hover {
+        color: @brand-primary;
+    }
+
+    /** State: Small button */
+    &.is--small {
+        .unitize(line-height, 30);
+    }
+
+    /** State: Large button */
+    &.is--large {
+        .unitize(line-height, 38);
+    }
+}

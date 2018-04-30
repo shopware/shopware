@@ -1,0 +1,5 @@
+{% block frontend_register_error_messages %}
+    {% if error %}
+        {% sw_include "frontend/_includes/messages.html.twig" with {"type": "error", "content": error.messageKey|trans(error.messageData, 'security'), "visible": true, "iconCls": "icon--cross"} %}
+    {% endif %}
+{% endblock %}

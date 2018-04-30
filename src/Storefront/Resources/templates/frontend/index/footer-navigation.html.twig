@@ -1,0 +1,127 @@
+{# Service hotline #}
+{% block frontend_index_footer_column_service_hotline %}
+    <div class="footer--column column--hotline is--first block">
+        {% block frontend_index_footer_column_service_hotline_headline %}
+            <div class="column--headline">{% trans from 'frontend/index/menu_footer' %}sFooterServiceHotlineHead{% endtrans%}</div>
+        {% endblock %}
+
+        {% block frontend_index_footer_column_service_hotline_content %}
+            <div class="column--content">
+                <p class="column--desc">{% trans from 'frontend/index/menu_footer' %}sFooterServiceHotline{% endtrans %}</p>
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}
+
+{% block frontend_index_footer_column_service_menu %}
+    <div class="footer--column column--menu block">
+        {% block frontend_index_footer_column_service_menu_headline %}
+            <div class="column--headline">{% trans from 'frontend/index/menu_footer' %}sFooterShopNavi1{% endtrans %}</div>
+        {% endblock %}
+
+        {% block frontend_index_footer_column_service_menu_content %}
+            <nav class="column--navigation column--content">
+                <ul class="navigation--list" role="menu">
+                    {% block frontend_index_footer_column_service_menu_before %}{% endblock %}
+                    {% for item in shopware.menu.gBottom %}
+
+                        {% block frontend_index_footer_column_service_menu_entry %}
+                            <li class="navigation--entry" role="menuitem">
+                                <a class="navigation--link" href="{% if item.link %}{{ item.link }}{% else %}{url controller='custom' sCustom=$item.id title=$item.description}{% endif %}" title="{{ item.description|escape }}"{% if item.target %} target="{{ item.target }}"{% endif %}>
+                                    {{ item.description }}
+                                </a>
+
+                                {# Sub categories #}
+                                {% if item.childrenCount > 0 %}
+                                    <ul class="navigation--list is--level1" role="menu">
+                                        {% for subItem in item.subPages %}
+                                            <li class="navigation--entry" role="menuitem">
+                                                <a class="navigation--link" href="{% if subItem.link %}{{ subItem.link }}{% else %}{url controller='custom' sCustom=$subItem.id title=$subItem.description}{% endif %}" title="{{ subItem.description|escape }}"{% if subItem.target %} target="{{ subItem.target }}"{% endif %}>
+                                                    {{ subItem.description }}
+                                                </a>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                {% endif %}
+                            </li>
+                        {% endblock %}
+                    {% endfor %}
+
+                    {% block frontend_index_footer_column_service_menu_after %}{% endblock %}
+                </ul>
+            </nav>
+        {% endblock %}
+    </div>
+{% endblock %}
+
+{% block frontend_index_footer_column_information_menu %}
+    <div class="footer--column column--menu block">
+        {% block frontend_index_footer_column_information_menu_headline %}
+            <div class="column--headline">{% trans from 'frontend/index/menu_footer' %}sFooterShopNavi2{% endtrans %}</div>
+        {% endblock %}
+
+        {% block frontend_index_footer_column_information_menu_content %}
+            <nav class="column--navigation column--content">
+                <ul class="navigation--list" role="menu">
+                    {% block frontend_index_footer_column_information_menu_before %}{% endblock %}
+                        {% for item in shopware.menu.gBottom2 %}
+
+                            {% block frontend_index_footer_column_information_menu_entry %}
+                                <li class="navigation--entry" role="menuitem">
+                                    <a class="navigation--link" href="{% if item.link %}{{ item.link }}{% else %}{url controller='custom' sCustom=$item.id title=$item.description}{% endif %}" title="{{ item.description|escape }}"{% if item.target %} target="{{ item.target }}"{% endif %}>
+                                        {{ item.description }}
+                                    </a>
+
+                                    {# Sub categories #}
+                                    {% if item.childrenCount > 0 %}
+                                        <ul class="navigation--list is--level1" role="menu">
+                                            {% for subItem in item.subPages %}
+                                                <li class="navigation--entry" role="menuitem">
+                                                    <a class="navigation--link" href="{% if subItem.link %}{{ subItem.link }}{% else %}{url controller='custom' sCustom=$subItem.id title=$subItem.description}{% endif %}" title="{{ subItem.description|escape }}"{% if subItem.target %} target="{{ subItem.target }}"{% endif %}>
+                                                        {{ subItem.description }}
+                                                    </a>
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    {% endif %}
+                                </li>
+                            {% endblock %}
+                        {% endfor %}
+                    {% block frontend_index_footer_column_information_menu_after %}{% endblock %}
+                </ul>
+            </nav>
+        {% endblock %}
+    </div>
+{% endblock %}
+
+{% block frontend_index_footer_column_newsletter %}
+    <div class="footer--column column--newsletter is--last block">
+        {% block frontend_index_footer_column_newsletter_headline %}
+            <div class="column--headline">{% trans from 'frontend/index/menu_footer' %}sFooterNewsletterHead{% endtrans %}</div>
+        {% endblock %}
+
+        {% block frontend_index_footer_column_newsletter_content %}
+            <div class="column--content">
+                <p class="column--desc">
+                    {% trans from 'frontend/index/menu_footer' %}sFooterNewsletter{% endtrans %}
+                </p>
+
+                {% block frontend_index_footer_column_newsletter_form %}
+                    <form class="newsletter--form" action="{url controller='newsletter'}" method="post">
+                        <input type="hidden" value="1" name="subscribeToNewsletter" />
+
+                        {% block frontend_index_footer_column_newsletter_form_field %}
+                            <input type="email" name="newsletter" class="newsletter--field" placeholder="{% trans from 'frontend/index/menu_footer' %}IndexFooterNewsletterValue{% endtrans %}" />
+                        {% endblock %}
+
+                        {% block frontend_index_footer_column_newsletter_form_submit %}
+                            <button type="submit" class="newsletter--button btn">
+                                <i class="icon--mail"></i> <span class="button--text">{% trans from 'frontend/index/menu_footer' %}IndexFooterNewsletterSubmit{% endtrans %}</span>
+                            </button>
+                        {% endblock %}
+                    </form>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

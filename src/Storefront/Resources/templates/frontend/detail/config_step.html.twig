@@ -1,0 +1,74 @@
+{% block frontend_detail_configurator_error %}
+    {% if page.error and page.error.notAvailableVariant %}
+        {#{include file="frontend/_includes/messages.tpl" type="error" content="{s name='VariantAreNotAvailable'}{/s}"}#}
+    {% endif %}
+{% endblock %}
+
+{# @var product \Shopware\StorefrontApi\Product\ProductBasicStruct #}
+{# @var page \Shopware\Storefront\Page\Detail\DetailPageStruct #}
+{% set url = path('detail_page', { id: product.id }) %}
+
+<form method="post" action="{{ url }}" class="configurator--form selection--form">
+    {% set groups = page.configurator.groupedOptions %}
+    {# @var group \Shopware\Api\Configuration\Struct\ConfigurationGroupDetailStruct #}
+    {% for group in groups %}
+        {% block frontend_detail_group_name %}
+            <p class="configurator--label">{{ group.name }}:</p>
+        {% endblock %}
+
+        {% block frontend_detail_group_description %}
+            {% if group.description %}
+                <p class="configurator--description">{$sConfigurator.groupdescription}</p>
+            {% endif %}
+        {% endblock %}
+
+        {% set disabled = false %}
+
+        {% block frontend_detail_group_selection %}
+            <div class="field--select select-field{% if disabled %} is--disabled{% endif %}">
+                {% if shopware.theme.ajaxVariantSwitch %}
+                    {% set ajaxSwitch = 'data-ajax-select-variants=true' %}
+                {% else %}
+                    {% set ajaxSwitch = 'data-auto-submit="true"' %}
+                {% endif %}
+
+                <select{% if disabled %} disabled="disabled"{% endif %} name="group[{{ group.id }}]" {{ ajaxSwitch }}>
+
+                    {% set selected = false %}
+
+                    {% for option in group.options %}
+                        {% set config = page.configurator.byOptionId(option.id) %}
+                        {% if config.selected %}
+                            {% set selected = true %}
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if not selected %}
+                        <option value="" selected="selected">
+                            {% trans from 'frontend/detail/config_step' %}DetailConfigValueSelect{% endtrans %}
+                        </option>
+                    {% endif %}
+
+                    {# @var option \Shopware\Api\Configuration\Struct\ConfigurationGroupOptionBasicStruct #}
+                    {% for option in group.options %}
+                        {% set config = page.configurator.byOptionId(option.id) %}
+
+                        <option {% if config.selected %}selected="selected"{% endif %} value="{{ option.id }}">
+                            {{ option.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        {% endblock %}
+    {% endfor %}
+
+    {% block frontend_detail_configurator_noscript_action %}
+        <noscript>
+            <input name="recalc" type="submit" value="{% trans from 'frontend/detail/config_step' %}DetailConfigActionSubmit{% endtrans %}" />
+        </noscript>
+    {% endblock %}
+</form>
+
+{% block frontend_detail_configurator_step_reset %}
+    {% sw_include '@Storefront/frontend/detail/config_reset.html.twig' %}
+{% endblock %}

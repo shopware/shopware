@@ -1,0 +1,47 @@
+{# Small product badges on the left #}
+{% block frontend_listing_box_article_badges %}
+    <div class="product--badges">
+
+        {# Discount badge #}
+        {% block frontend_listing_box_article_discount %}
+            {% if product.has_pseudoprice %}
+                <div class="product--badge badge--discount">
+                    <i class="icon--percent2"></i>
+                </div>
+            {% endif %}
+        {% endblock %}
+
+        {# Highlight badge #}
+        {% block frontend_listing_box_article_hint %}
+            {% if product.highlight %}
+                <div class="product--badge badge--recommend">
+                    {% trans from 'frontend/listing/box_article' %}ListingBoxTip{% endtrans %}
+                </div>
+            {% endif %}
+        {% endblock %}
+
+        {# Newcomer badge #}
+        {% block frontend_listing_box_article_new %}
+            {% if product.isNew %}
+                <div class="product--badge badge--newcomer">
+                    {% trans from 'frontend/listing/box_article' %}ListingBoxNew{% endtrans %}
+                </div>
+            {% endif %}
+        {% endblock %}
+
+        {# ESD product badge #}
+        {% block frontend_listing_box_article_esd %}
+            {% if product.esd %}
+                <div class="product--badge badge--esd">
+                    <i class="icon--download"></i>
+                </div>
+            {% endif %}
+        {% endblock %}
+    </div>
+{% endblock %}
+
+
+
+
+
+

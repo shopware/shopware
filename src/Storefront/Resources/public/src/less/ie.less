@@ -1,0 +1,42 @@
+/*
+Internet Explorer fixes
+====================================
+The `ie.less` contains the required specific internet explorer fixes.
+
+More precise designations are commented inside the document.
+*/
+
+    // HTML5 required fields fix
+.forms--inner-form {
+    textarea:required,
+    input:required {
+		outline: none;
+    }
+}
+
+    /*
+    * Fixing the IE rem-based line-height issue on :after and :before elements
+    * http://bit.ly/1ybSEei
+    */
+.checkbox {
+	.checkbox--state {
+		&:checked ~ .checkbox--state {
+			&:before { line-height: 12px; }
+		}
+	}
+
+	&.is--active,
+	a:hover & {
+		.checkbox--state {
+			&:before { line-height: 12px; }
+		}
+	}
+}
+
+.filter-panel--checkbox {
+	input[type="checkbox"] {
+		&:checked ~ .checkbox--state {
+			&:before { line-height: 12px; }
+		}
+	}
+}

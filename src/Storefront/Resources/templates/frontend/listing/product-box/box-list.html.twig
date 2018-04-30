@@ -1,0 +1,8 @@
+{% sw_extends '@Storefront/frontend/listing/product-box/box-basic.html.twig' %}
+
+{# Product description #}
+{% block frontend_listing_box_article_description %}
+    <div class="product--description">
+        {{ product.descriptionLong|striptags|truncate(380, true)}}
+    </div>
+{% endblock %}

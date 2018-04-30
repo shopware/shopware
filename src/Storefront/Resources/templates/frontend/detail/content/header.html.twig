@@ -1,0 +1,16 @@
+{% block frontend_detail_index_header %}
+    <header class="product--header">
+        {% block frontend_detail_index_header_inner %}
+            <div class="product--info">
+                {% block frontend_detail_index_product_info %}
+                    {# Product name #}
+                    {% block frontend_detail_index_name %}
+                        <h1 class="product--title" itemprop="name">
+                            {{ product.name }}
+                        </h1>
+                    {% endblock %}
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </header>
+{% endblock %}

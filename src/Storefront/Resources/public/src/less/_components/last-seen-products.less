@@ -1,0 +1,59 @@
+/*
+Last-seen products element
+=======================================================
+The Last-seen products element fetches the recently viewed articles of the user and displays them inside a slider-element.
+
+The slider contains a title element and a product box with the article-image and price.
+*/
+
+.last-seen-products {
+    .clearfix();
+    .unitize-margin(10, 0, 0, 0);
+    clear: both;
+
+    .last-seen-products--title {
+        .unitize-padding(10, 0);
+        border-bottom: 1px solid @panel-border;
+        .unitize(font-size, 16);
+        display: block;
+        font-weight: bold;
+        color: @text-color-dark;
+    }
+}
+
+.last-seen-products--slider {
+    .border-radius(3px);
+    height: auto;
+
+    .product--box .product--title {
+        text-align: center;
+        margin: 0;
+        padding: 0;
+    }
+}
+
+.last-seen-products--slider,
+.last-seen-products--container {
+    position: relative;
+    overflow: hidden;
+}
+
+.last-seen-products--container {
+    .unitize-padding(10, 0);
+}
+
+.last-seen-products-item--image {
+    .unitize(line-height, 120);
+    display: block;
+}
+
+.last-seen-products--item {
+    .unitize-padding(10, 10);
+}
+
+@media screen and(min-width: @tabletViewportWidth) {
+
+    .last-seen-products {
+        .unitize-margin(30, 0, 0, 0);
+    }
+}

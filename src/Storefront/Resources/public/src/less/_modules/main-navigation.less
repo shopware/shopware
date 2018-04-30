@@ -1,0 +1,64 @@
+/*
+Main navigation
+==========================================
+Contains the styles of the main navigation of the Shopware storefront.
+
+The main navigation is positioned above the content section.
+
+It contains the viewport specific styles inside media queries.
+*/
+
+.navigation-main {
+	background: #fff;
+    display: none;
+}
+
+@media screen and (min-width: @tabletViewportWidth) {
+	.navigation-main {
+        border-bottom: 1px solid @brand-primary;
+		display: block;
+		position: relative;
+
+		.navigation--list {
+			.clearfix();
+            .unitize-padding(0, 10);
+            margin: 0;
+            position: relative;
+            white-space: nowrap;
+		}
+
+		.navigation--entry {
+            display: inline-block;
+            -ms-touch-action: none;
+		}
+
+		.navigation--link {
+            .transition(none 0);
+			.unitize-padding(8, 14);
+            .unitize(font-size, 16);
+			.border-radius-multi(3px, 3px, 0, 0);
+			margin: 0;
+			display: block;
+			cursor: pointer;
+			color: @text-color;
+
+			&:hover { color: @brand-primary; }
+		}
+
+		.is--active .navigation--link {
+			.primary-gradient();
+			font-weight: 600;
+			color: #fff;
+
+            &:hover { color: #fff; }
+		}
+	}
+}
+
+@media screen and (min-width: @desktopViewportWidth) {
+	.navigation-main {
+        .navigation--list {
+            padding: 0;
+        }
+	}
+}

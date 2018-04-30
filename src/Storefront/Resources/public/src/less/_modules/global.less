@@ -1,0 +1,215 @@
+/*
+Global
+==========================================
+Defines the global styles of Shopware.
+
+It contains the global modifier classes that help working with the Shopware elements and the typographic styles.
+
+######Global modifier classes
+Add a `is--` class to an element to easily change the properties.
+
+`.is--rounded` - changes the border-radius to 3pxgi<br/>
+`.is--block` - sets element to display: block<br/>
+`.is--inline` - sets element to display: inline<br/>
+`.is--inline-block` - sets element to display: inline-block<br/>
+`.is--hidden` - sets element to display: none<br/>
+`.is--invisible` - sets element to  visibility: none<br/>
+
+`.is--align-left` - sets element to text-align: left;<br/>
+`.is--align-right` - sets element to text-align: right<br/>
+`.is--align-center` - sets element to text-align: center<br/>
+`.is--underline` - sets element to text-decoration: underline<br/>
+`.is--line-through` - sets element to text-decoration: line-through<br/>
+`.is--uppercase` - sets element to text-transform: uppercase<br/>
+`.is--strong` - sets element to font-weight: 600<br/>
+`.is--bold` - sets element to font-weight: bold<br/>
+`.is--italic` - sets element to font-style: italic<br/>
+`.is--nowrap` - sets element to white-space: nowrap<br/>
+
+`.is--dark` - changes color to @text-color-dark<br/>
+`.is--light` - changes color to darken(@gray-dark, 20%)<br/>
+`.is--soft` - changes color to @gray-dark<br/>
+*/
+
+* {
+    .box-sizing();
+}
+
+    // Fix the body for off-canvas handling
+html {
+    width: 100%;
+    height: 100%;
+
+    &.no--scroll {
+        position: relative;
+        overflow: hidden;
+
+        body {
+            overflow: hidden;
+        }
+    }
+}
+
+body {
+    .unitize(@font-size-base, 16, font-size);
+    font-family: @font-base-stack;
+    font-weight: @font-base-weight;
+    color: @text-color;
+    background: @body-bg;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+}
+
+    // All images should be responsive by default
+img {
+    display: block;
+    max-width: 100%;
+    max-height: 100%;
+    height: auto;
+}
+
+a {
+    color: @link-color;
+    text-decoration: none;
+}
+
+ul {
+    margin: 0;
+    padding: 0;
+}
+
+    // Star rating
+.product--rating {
+    i[class^=icon] { color: @rating-star-color; }
+    i.icon--star-empty { color: @border-color; }
+}
+
+    // Font
+h1, h2, h3, h4, h5, h6 {
+    .unitize(line-height, 26);
+    .unitize-margin(28, 0, 10, 0);
+    font-family: @font-headline-stack;
+    font-weight: @font-bold-weight;
+    color: @text-color-dark;
+}
+
+h1 {
+    .unitize(@font-size-h1, 16, font-size);
+    .unitize(line-height, 28);
+    .unitize-margin(34, 0, 20, 0);
+    color: @text-color-dark;
+}
+
+h2 {
+    .unitize(@font-size-h2, 16, font-size);
+}
+
+h3 {
+    .unitize(@font-size-h3, 16, font-size);
+}
+
+h4 {
+    .unitize(@font-size-h4, 16, font-size);
+}
+
+h5 {
+    .unitize(@font-size-h5, 16, font-size);
+}
+
+h6 {
+    .unitize(@font-size-h6, 16, font-size);
+}
+
+p {
+    .unitize(@font-size-base, 16, font-size);
+    .unitize(line-height, 24);
+    .unitize-margin(0, 0, 20, 0);
+}
+
+blockquote {
+    .unitize-padding(10, 10);
+    .border-radius();
+    .box-shadow(inset 0 0 3px 0 rgba(0, 0, 0, 0.2));
+    background: @gray;
+    text-align: left;
+    margin: 0;
+}
+
+    // Hide ajax loader by default
+.ajax-loader { display: none }
+
+    // Global Modifier
+.is--rounded { .border-radius(); }
+
+.is--block { display: block !important; }
+.is--inline { display: inline !important; }
+.is--inline-block { display: inline-block !important; }
+.is--hidden { display: none !important; }
+.is--invisible { visibility: hidden !important; }
+
+.is--align-left { text-align: left !important; }
+.is--align-right { text-align: right !important; }
+.is--align-center { text-align: center !important; }
+.is--underline { text-decoration: underline !important; }
+.is--line-through { text-decoration: line-through !important; }
+.is--uppercase { text-transform: uppercase !important; }
+.is--strong { font-weight: 600 !important; }
+.is--bold { font-weight: bold !important; }
+.is--italic { font-style: italic; }
+.is--nowrap { white-space: nowrap !important; }
+
+.is--dark { color: @text-color-dark !important; }
+.is--light { color: darken(@gray-dark, 20%) !important; }
+.is--soft { color: @gray-dark !important; }
+
+.is--fluid { width: 100% !important; }
+
+.left { float: left; }
+.right { float: right; }
+
+::-moz-placeholder { color: @input-placeholder-color; }
+::-webkit-input-placeholder { color: @input-placeholder-color; }
+:-ms-input-placeholder { color: @input-placeholder-color; }
+
+.page-wrap {
+    .unitize-min-width(320, 16);
+}
+
+.content-main,
+.content--wrapper {
+	.clearfix();
+}
+
+.content-main--inner {
+	.unitize-padding(0, 10, 16);
+	.clearfix();
+}
+
+.content {
+	width: 100%;
+	float: left;
+}
+
+@media screen and(min-width: @tabletViewportWidth) {
+    .content-main {
+        .box-shadow(0 0 4px 1px @border-color);
+        .unitize(min-height, 750);
+    }
+
+    .content-main--inner {
+        .unitize-padding(0, 30, 16);
+        width: 100%;
+    }
+}
+
+@media screen and (min-width: @desktopViewportWidth) {
+    .content-main {
+        .unitize(margin-top, 20);
+        .unitize(margin-bottom, 45);
+        .unitize(min-height, 700);
+    }
+    
+    .content-main--inner {
+        .unitize-padding(0, 50, 50, 50);
+    }
+}

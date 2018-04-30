@@ -1,0 +1,11 @@
+{% sw_extends '@Storefront/frontend/index/index.html.twig' %}
+
+{# Custom header #}
+{% block frontend_index_header %}
+    {% sw_include '@Storefront/frontend/detail/header.html.twig' %}
+{% endblock %}
+
+{# Main content #}
+{% block frontend_index_content %}
+    {% sw_include '@Storefront/frontend/detail/content.html.twig' %}
+{% endblock %}

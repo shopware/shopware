@@ -1,0 +1,3 @@
+{% block frontend_checkout_ajax_amount %}
+    {{ amount|localizedcurrency(context.currency.shortName)  }} {% trans from 'frontend/listing/box_article' %}Star{% endtrans %}
+{% endblock %}

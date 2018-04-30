@@ -1,0 +1,604 @@
+/*
+Sidebar
+==============================================
+Defines the styling of the storefront sidebar navigation and its components.
+
+The sidebar is displayed inside the off-canvas menu on small devices.
+
+```
+<ul class="sidebar--navigation">
+    <li class="navigation--entry is--active has--sub-categories has--sub-children">
+        <a class="navigation--link is--active has--sub-categories">
+            Sidebar Head
+        </a>
+        <ul class="sidebar--navigation is--level1">
+            <li class="navigation--entry has--sub-children" role="menuitem">
+                <a class="navigation--link">
+                    Navigation entry
+                </a>
+                <a class="navigation--link">
+                    Navigation entry
+                </a>
+                <a class="navigation--link">
+                    Navigation entry
+                </a>
+            </li>
+        </ul>
+    </li>
+</ul>
+```
+*/
+
+body > .sidebar-main {
+	.clearfix();
+    .unitize(padding-bottom, 20);
+    border-right: @border-color;
+}
+
+.sidebar-main.off-canvas {
+    background: @gray;
+}
+
+.mobile--switches {
+    .unitize-padding(6, 10);
+    .unitize-height(43);
+    .clearfix();
+    display: block;
+
+    .navigation--entry {
+        .unitize(margin-right, 20);
+        float: left;
+    }
+
+    .field--select,
+    .navigation--entry {
+        .unitize-height(30);
+    }
+
+    .field--select {
+        position: relative;
+    }
+
+    .select-field {
+        .unitize-height(30);
+
+        select {
+            .reset-border-radius();
+            .unitize-padding(0, 18, 0, 0);
+            .unitize(line-height, 28);
+            .unitize(font-size, 16);
+            background: none;
+            border: 0 none;
+        }
+
+        &:after {
+            .unitize-height(25);
+            .unitize(line-height, 28);
+            width: auto;
+            border: 0 none;
+        }
+    }
+
+    // Language switcher
+    .top-bar--language {
+        .select-field {
+            .unitize-width(32);
+
+            select {
+                text-indent: -9999px;
+            }
+        }
+
+        .language--flag {
+            .unitize(-6, 16, margin-top);
+            position: absolute;
+            z-index: @zindex-header-language-flag;
+            top: 50%; left: 0;
+            pointer-events: none;
+        }
+    }
+}
+
+    // Landingpage banner
+.campaign--box {
+    display: none;
+}
+
+.sidebar--navigation {
+    .reset-border-radius();
+    margin: 0;
+    border-left: 0 none;
+    border-right: 0 none;
+
+    .navigation--entry {
+        position: relative;
+    }
+
+    .navigation--link {
+        .unitize-padding(10, 20, 10, 20);
+        width: 100%;
+        height: 100%;
+        display: block;
+
+        .is--icon-right {
+            .unitize(margin-top, 5);
+            .unitize(font-size, 10);
+            display: inline-block;
+            float: right;
+        }
+
+        &:hover {
+            color: @brand-primary;
+        }
+    }
+
+    &.show--active-items .navigation--link.is--active {
+        color: @brand-primary;
+        font-weight: 600;
+    }
+}
+
+.offcanvas--overlay {
+    .unitize(width, 280);
+    .unitize(top, 42);
+    background: @gray;
+    position: absolute;
+    overflow-x: hidden;
+    overflow-y: auto;
+    left: 0;
+    padding: 0;
+    z-index: @zindex-sidebar-offcanvas-overlay;
+    bottom: 0;
+
+    &.background {
+        z-index: @zindex-sidebar-offcanvas-overlay-background;
+    }
+
+    .overlay--headline {
+        .unitize(margin-bottom, 10);
+        border-bottom: 1px solid @border-color;
+        width: 100%;
+        background: #fff;
+    }
+
+    .overlay--category {
+        .unitize-margin(16, 10, 6, 10);
+        .unitize(line-height, 26);
+
+        .category--headline {
+            .unitize(font-size, 14);
+            color: @text-color-dark;
+            margin: 0;
+            padding: 0;
+            font-weight: 700;
+        }
+    }
+
+    .is--icon-left {
+        .unitize(margin-top, 5);
+        .unitize(margin-right, 5);
+        .unitize(font-size, 10);
+        display: inline-block;
+    }
+
+    .is--icon-right {
+        .unitize(margin-top, 5);
+        .unitize(font-size, 10);
+        display: inline-block;
+        float: right;
+    }
+
+    .is--back-button {
+        font-weight: bold;
+    }
+
+    .is--display-button {
+        color: @brand-primary;
+        font-weight: bold;
+    }
+}
+
+.has--cssanimations {
+    .sidebar--ajax-loader {
+        .unitize(top, 12);
+        .unitize(right, 15);
+        position: absolute;
+        display: none;
+
+        &::before {
+            .unitize-width(16);
+            .unitize-height(16);
+            .border-radius(100%);
+            .animation(keyframe--spin 1s linear infinite);
+            display: block;
+            content: "";
+            border: 2px solid @border-color;
+            border-top: 2px solid darken(@border-color, 50%);
+        }
+    }
+}
+
+.sidebar--ajax-loader {
+    .unitize(top, 12);
+    .unitize(right, 15);
+    position: absolute;
+    display: none;
+
+    &::before {
+        .unitize-width(16);
+        .unitize-height(16);
+        .border-radius(100%);
+        .animation(keyframe--spin 1s linear infinite);
+        display: block;
+        content: "";
+        border: 2px solid @border-color;
+        border-top: 2px solid darken(@border-color, 50%);
+    }
+}
+
+.listing--sidebar {
+    overflow: hidden;
+    width: 0;
+    height: 0;
+}
+
+.listing--sidebar .sidebar-filter {
+
+    .off-canvas.is--open.is--ajax-reload {
+        overflow: hidden;
+
+        .filter--container {
+            overflow: auto;
+            position: absolute;
+            top: 43px;
+            width: 100%;
+            bottom: 0;
+            left: 0;
+            right: 0;
+        }
+
+        .filter--close-btn {
+            position: absolute;
+            width: 100%;
+            z-index: 10;
+        }
+    }
+
+    .action--filter-options {
+        .border-radius();
+        border: 1px solid @border-color;
+    }
+
+    .filter--active {
+        max-width: 100%;
+    }
+
+    .filter--container {
+        .unitize-padding(10, 10);
+        margin: 0;
+
+        .filter-panel {
+            .unitize-margin(0, 0, 10, 0);
+            float: none;
+            width: auto;
+        }
+    }
+
+    .filter--actions {
+        width: auto;
+        padding: 0;
+        margin: 0;
+
+        &.filter--actions-top {
+            margin: 0;
+        }
+
+        .filter--btn-apply {
+            width: 100%;
+        }
+    }
+
+    #filter {
+        display: block;
+        padding: 0;
+    }
+}
+
+@media screen and (min-width: @tabletViewportWidth) {
+
+    .listing--sidebar {
+        .unitize-width(230);
+        height: auto;
+        display: block;
+        float: left;
+
+        & + .content--wrapper {
+            .unitize(margin-left, 260);
+        }
+
+        .is--no-sidebar & {
+            display: none;
+
+            & + .content--wrapper {
+                margin: 0;
+            }
+        }
+    }
+
+    .offcanvas--overlay {
+        display: none;
+    }
+
+    .sidebar-main {
+    	.unitize-width(230);
+        .unitize-margin(0, 0);
+		.unitize(padding-top, 30);
+        display: none;
+        float: left;
+
+		.is--ctl-listing &,
+        .is--ctl-forms &,
+        .is--ctl-tellafriend &,
+        .is--ctl-newsletter &,
+        .is--ctl-sitemap &,
+        .is--ctl-custom &,
+        .is--ctl-note.is--user &,
+        .is--ctl-address &,
+		.is--ctl-account.is--user & {
+			display: block;
+
+			& + .content--wrapper {
+				.unitize(margin-left, 260);
+			}
+		}
+
+		.is--ctl-blog &,
+		.is--ctl-note &,
+		.is--ctl-index &,
+		.is--ctl-detail &,
+		.is--ctl-search &,
+		.is--ctl-checkout &,
+        .is--ctl-register &,
+		.is--ctl-campaign &,
+		.is--ctl-account.is--act-logout &,
+		.is--ctl-account.is--act-password &,
+        .is--ctl-account.is--act-resetPassword &,
+		.is--ctl-listing.is--no-sidebar & {
+			display: none;
+
+			& + .content--wrapper {
+				margin: 0;
+			}
+		}
+
+		.is--ctl-note &,
+        .is--ctl-address &,
+		.is--ctl-account & {
+			.categories--headline,
+			.categories--navigation,
+			.shop-sites--container {
+				display: none;
+			}
+		}
+
+        .mobile--switches,
+		.filter--container,
+        .navigation--smartphone {
+            display: none;
+        }
+
+        .sidebar--categories-wrapper {
+            display: block;
+        }
+    }
+
+    .navigation--headline {
+        .unitize-margin(20, 10, 10, 10);
+    }
+
+	.campaign--box {
+		.unitize-margin(0, 0, 20, 0);
+		display: block;
+	}
+
+	.categories--headline {
+        display: none;
+    }
+
+    // Top rounded corners of the first active category in the sidebar
+    .categories--navigation.is--level0 {
+        .navigation--entry:first-child {
+            .navigation--link.is--active {
+                .border-radius-multi(3px, 3px, 0, 0);
+            }
+        }
+    }
+
+    .categories--navigation.is--level1 {
+        .navigation--entry:first-child {
+            .navigation--link.is--active {
+                .reset-border-radius();
+            }
+        }
+    }
+
+    .sidebar--categories-navigation {
+        .unitize(margin-bottom, 20);
+    }
+
+    .sidebar--navigation {
+        .border-radius();
+        border: 1px solid @border-color;
+
+        .navigation--entry {
+            .unitize-padding(0, 0);
+            .unitize-margin(0, 10);
+        }
+
+        // Indent sub-categories 10 pixels
+        ul.sidebar--navigation {
+            .reset-border-radius();
+
+            .navigation--entry {
+                .unitize-margin(0, 0, 0, 10);
+            }
+        }
+
+        .navigation--link {
+            .unitize-padding(10, 10);
+            display: block;
+
+            &:hover {
+                color: @brand-primary;
+            }
+
+            &.is--active {
+                color: @brand-primary;
+                font-weight: bold;
+            }
+
+            .is--icon-right {
+                display: none;
+            }
+        }
+
+        .is--level1 {
+            .unitize(margin-bottom, 10);
+            border: 0 none;
+
+            .navigation--entry {
+                .unitize-margin(0, 0);
+                border: 0 none;
+            }
+
+            .navigation--link {
+                .unitize-padding(5, 10);
+
+                &.is--active {
+                    font-weight: 600;
+                    text-shadow: none;
+                    color: @brand-primary;
+                    background: transparent;
+                    border: 0 none;
+                }
+            }
+        }
+
+        .is--level2 {
+            .unitize(font-size, 12);
+        }
+
+        .navigation--level-high {
+            border: 0 none;
+        }
+    }
+
+    .shop-sites--container {
+        .unitize-padding(15, 10);
+        .unitize(margin-bottom, 20);
+        border: 1px solid @border-color;
+
+        .shop-sites--headline {
+            .unitize(10 ,15, padding-bottom);
+            .unitize(font-size, 16);
+            margin-top: 0;
+            border-bottom: 1px solid @border-color;
+            color: @text-color-dark;
+            font-weight: bold;
+        }
+
+        .shop-sites--navigation,
+        .navigation--entry {
+            border: 0 none;
+
+            .navigation--link {
+                .unitize-padding(5, 10);
+            }
+        }
+    }
+
+    .sidebar-filter {
+
+        .filter--active-container {
+            margin: 0;
+            padding: 0;
+        }
+
+        .is--instant-filter .filter--facet-container .filter-panel {
+            &:last-child {
+                margin-bottom: 0;
+            }
+        }
+
+        .filter--facet-container,
+        .filter--actions-bottom,
+        .filter--active-container{
+            display: block;
+        }
+
+        .filter--facet-container {
+            padding: 0;
+        }
+    }
+
+    .listing--sidebar .sidebar-filter {
+
+        //remove overlay of collapsed panel
+        .filter-panel.is--collapsed {
+            height: auto;
+
+            .filter-panel--flyout {
+                position: relative;
+            }
+        }
+    }
+
+    .listing--sidebar + .search--results {
+        .unitize(margin-left, 260);
+
+        & .listing--wrapper {
+            float: left;
+        }
+    }
+}
+
+@media screen and (min-width: @tabletViewportWidth) {
+
+    .is--ctl-forms,
+    .is--ctl-custom {
+        .sidebar-main {
+            .sidebar--categories-navigation {
+                display: none;
+            }
+
+            .shop-sites--container {
+                display: block;
+            }
+        }
+    }
+
+    //Don't display shop sites sidebar on tablet and desktop
+    .sidebar-main {
+        .shop-sites--container {
+            display: none;
+        }
+
+        &.off-canvas {
+            background: transparent;
+        }
+    }
+}
+
+@media screen and (min-width: @desktopViewportWidth) {
+    .sidebar-main {
+        .unitize(padding-top, 45);
+        display: block;
+
+        &.off-canvas {
+            position: relative;
+            top: 0;
+            left: 0;
+            z-index: @zindex-sidebar-offcanvas-higher-viewport;
+        }
+    }
+}

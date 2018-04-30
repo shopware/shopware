@@ -1,0 +1,111 @@
+{% block frontend_detail_data %}
+    {# @var product \Shopware\StorefrontApi\Product\ProductBasicStruct #}
+    {% set price = product.calculatedPrice %}
+
+    {% if product.calculatedContextPrices.count > 1 %}
+        {% sw_include '@Storefront/frontend/detail/block_price.html.twig' %}
+    {% else %}
+        <div class="product--price price--default{% if product.pseudoPrice %} price--discount{% endif %}">
+            {% block frontend_detail_data_price_configurator %}
+
+                {% if price %}
+                    {% block frontend_detail_data_price_default %}
+                        <span class="price--content content--default">
+                            <meta itemprop="price" content="{{ price.totalPrice|localizedcurrency(context.currency.shortName) }}">
+                            {{ price.totalPrice|localizedcurrency(context.currency.shortName) }}{% trans from 'frontend/listing/box_article' %}Star{% endtrans %}
+                        </span>
+                    {% endblock %}
+                {% endif %}
+            {% endblock %}
+
+            {% block frontend_detail_data_pseudo_price %}
+                {% if price.pseudoPrice %}
+
+                    {% block frontend_detail_data_pseudo_price_discount_icon%}
+                        <span class="price--discount-icon">
+                            <i class="icon--percent2"></i>
+                        </span>
+                    {% endblock %}
+
+                    {% block frontend_detail_data_pseudo_price_discount_content %}
+                        <span class="content--discount">
+
+                            {% block frontend_detail_data_pseudo_price_discount_before %}
+                                {% trans from 'frontend/detail/data' %}priceDiscountLabel{% endtrans %}
+                            {% endblock %}
+
+                            <span class="price--line-through">
+                                {{ price.pseudoPrice|localizedcurrency(context.currency.shortName) }}
+                                {% trans from 'frontend/listing/box_article' %}Star{% endtrans %}
+                            </span>
+
+                            {% block frontend_detail_data_pseudo_price_discount_after %}
+                                {% trans from 'frontend/detail/data' %}priceDiscountInfo{% endtrans %}
+                            {% endblock %}
+
+                            {% block frontend_detail_data_pseudo_price_discount_content_percentage %}
+                                {% if price.pseudoDiscount %}
+                                    <span class="price--discount-percentage">
+                                        ({{ price.pseudoDiscount }}%
+                                        {% trans from 'frontend/detail/data' %}DetailDataInfoSavePercent{% endtrans %})
+                                    </span>
+                                {% endif %}
+                            {% endblock %}
+                        </span>
+                    {% endblock %}
+                {% endif %}
+            {% endblock %}
+        </div>
+    {% endif %}
+
+    {% if product.purchaseUnit %}
+        {% block frontend_detail_data_price %}
+            <div class='product--price price--unit'>
+
+                {% block frontend_detail_data_price_unit_label %}
+                    <span class="price--label label--purchase-unit">
+                        {% trans from 'frontend/detail/data' %}DetailDataInfoContent{% endtrans %}
+                    </span>
+                {% endblock %}
+
+                {% block frontend_detail_data_price_unit_content %}
+                    {{ product.purchaseUnit }} {{ product.unit.name }}
+                {% endblock %}
+
+                {% if product.purchaseUnit and product.purchaseUnit != product.referenceUnit %}
+                    {% block frontend_detail_data_price_unit_reference_content %}
+                        ({{ price.referencePrice|localizedcurrency(context.currency.shortName) }} {% trans from 'frontend/listing/box_article' %}Star{% endtrans %}
+                        / {{ product.referenceUnit }} {{ product.unit.name }})
+                    {% endblock %}
+                {% endif %}
+            </div>
+        {% endblock %}
+    {% endif %}
+
+    {# Tax information #}
+    {% block frontend_detail_data_tax %}
+        <p class="product--tax" data-content="" data-modalbox="true" data-targetSelector="a" data-mode="ajax">
+            {# @var context \Shopware\Context\Struct\StorefrontContext #}
+            {% if context.taxState == 'gross' %}
+                {% trans from 'frontend/detail/data' %}TaxInclusive{% endtrans %}
+            {% else %}
+                {% trans from 'frontend/detail/data' %}TaxExclusive{% endtrans %}
+            {% endif %}
+            {% trans from 'frontend/detail/data' %}DetailDataPriceInfo{% endtrans %}
+        </p>
+    {% endblock %}
+
+    {# @var page \Shopware\Storefront\Page\Detail\DetailPageStruct #}
+    {% if product.calculatedContextPrices and (page.configurator.count <= 0 or product.priceGroupId) %}
+        {% for price in product.calculatedContextPrices %}
+            {% if price.quantity == 1 %}
+                <input id="price_{{ product.id }}" type="hidden" value="{{ price.totalPrice }}">
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+
+    {% block frontend_detail_data_delivery %}
+        {#{% sw_include '@Storefront/frontend/plugins/index/delivery_informations.html.twig' with { product: product } %}#}
+    {% endblock %}
+
+{% endblock %}

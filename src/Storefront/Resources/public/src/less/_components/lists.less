@@ -1,0 +1,74 @@
+/*
+Lists
+===============================
+Example of the default styling for an unordered list.
+
+The `ul` element has to have the `list--unordered` class assigned in order to work properly.
+
+In addition there are 8 list style types Shopware 5 provides that you can choose from.
+
+**Example:**<br/>
+`<ul class="list--unordered is--checked">`
+
+```
+<ul class="list--unordered">
+    <li>Default list</li>
+</ul>
+
+<ul class="list--unordered is--checked">
+    <li>is--checked</li>
+</ul>
+
+<ul class="list--unordered is--disc">
+    <li>is--disc</li>
+</ul>
+
+<ul class="list--unordered is--arrow-right">
+    <li>is--arrow-right</li>
+</ul>
+
+<ul class="list--unordered is--star">
+    <li>is--star</li>
+</ul>
+
+<ul class="list--unordered is--cross">
+    <li>is--cross</li>
+</ul>
+
+<ul class="list--unordered is--tag">
+    <li>is--tag</li>
+</ul>
+
+<ul class="list--unordered is--plus">
+    <li>is--plus</li>
+</ul>
+```
+*/
+
+.list--unordered {
+    .unitize(padding-left, 20);
+    list-style-type: none;
+
+    // Default styling for unordered lists
+    li {
+        .icon-element();
+        .unitize(line-height, 24)
+    }
+
+    // Other list icons
+    &.is--disc li { .icon-element(@sw-icon-cd); }
+    &.is--checked li { .icon-element(@sw-icon-check); }
+    &.is--arrow-right li { .icon-element(@sw-icon-arrow-right, 10); }
+    &.is--star li { .icon-element(@sw-icon-star, 10); }
+    &.is--cross li { .icon-element(@sw-icon-cross); }
+    &.is--tag li { .icon-element(@sw-icon-tag); }
+    &.is--plus li { .icon-element(@sw-icon-plus); }
+}
+
+.list--unstyled { list-style: none }
+
+.list--inline {
+    list-style: none;
+
+    li { display: inline }
+}

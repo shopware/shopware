@@ -1,0 +1,218 @@
+/*
+Note
+==============================================
+Contains the styling of the note page inside Shopware 5.
+
+The users can add an article to their note list if they are interested in the product and the product will be saved inside the list if the user is logged in inside their account.
+
+The articles are displayed inside a slim product box with an article thumbnail and the general item information.
+
+The styling also contains the viewport specific styles inside media queries.
+*/
+
+.note--content {
+	.unitize-margin(20, 0);
+}
+
+.note--overview .panel--td {
+    padding: 0;
+}
+
+.note--item {
+    .unitize-padding(20, 0);
+    position: relative;
+}
+
+.note--info,
+.note--sale {
+    width: 80%;
+}
+
+.note--image-container {
+    .unitize-width(75);
+    .unitize-margin(0, 20, 20, 0);
+    display: table-row;
+    float: left;
+}
+
+.note--image-link {
+    .unitize-width(75);
+    .unitize-height(75);
+    .unitize-padding(5, 5);
+    .unitize(line-height, 65);
+    .border-radius();
+    display: table-cell;
+    text-align: center;
+    vertical-align: middle;
+    border: 1px solid @border-color;
+}
+
+.note--image {
+    .unitize-max-width(65);
+    .unitize-max-height(65);
+    margin: 0 auto;
+}
+
+.note--title {
+    .unitize-margin(0, 0, 5, 95);
+    .unitize(font-size, 18);
+    display: block;
+    font-weight: 700;
+    color: @text-color-dark;
+
+    &:hover {
+        color: @brand-primary;
+    }
+}
+
+.note--rating {
+    .unitize-margin(0, 0, 10, 95);
+
+    [class^="icon--"] {
+        color: @rating-star-color;
+    }
+}
+
+.note--supplier {
+    display: none;
+}
+
+.note--ordernumber,
+.note--date,
+.note--overview .product--rating {
+    .unitize-margin(0, 0, 0, 95);
+    display: block;
+}
+
+.note--delivery {
+    .unitize-margin(0, 0, 0, 95);
+
+    .delivery--status-icon {
+        display: none;
+    }
+
+    .delivery--text-available {
+        display: block;
+    }
+}
+
+.note--compare {
+    .unitize-margin(10, 0, 0, 95);
+    display: none;
+
+    .compare--link {
+        .clear-form-button();
+        color: @text-color;
+
+        &:hover { color: @link-color; }
+    }
+
+    [class^="icon--"] {
+        .unitize-margin(0, 5, 0, 0);
+        .unitize(font-size, 12);
+    }
+}
+
+.note--price-unit {
+    .unitize-margin(5, 0, 0, 95);
+    .unitize(font-size, 12);
+    .unitize(line-height, 18);
+    display: block;
+}
+
+.note--price {
+    .unitize(font-size, 18);
+    .unitize-margin(15, 0, 0, 95);
+    color: @text-color-dark;
+    font-weight: bold;
+}
+
+.note--delete {
+    .unitize-width(40);
+    .unitize-height(40);
+    .unitize(font-size, 10);
+    .unitize(line-height, 38);
+    .linear-gradient(@btn-default-top-bg, @btn-default-bottom-bg);
+    .border-radius();
+    .unitize(top, 20);
+    right: 0;
+    left: auto;
+    display: block;
+    position: absolute;
+    border: 1px solid @btn-default-border-color;
+    text-align: center;
+    font-weight: normal;
+    color: @text-color;
+
+    &:hover {
+        color: @btn-default-hover-text-color;
+        border-color: @btn-default-hover-border-color;
+    }
+}
+
+@media screen and(min-width: @tabletViewportWidth) {
+    .note--overview .panel--table {
+        .unitize-padding(0, 20);
+        border: 1px solid @border-color;
+    }
+
+    .note--compare { display: block; }
+}
+
+@media screen and(min-width: @tabletLandscapeViewportWidth) {
+    .note--info {
+        .unitize(padding-right, 20);
+        width: 70%;
+    }
+
+    .note--sale {
+        .unitize(padding-right, 55);
+        width: 30%;
+    }
+
+    .note--zoom {
+        .unitize(font-size, 12);
+        display: block;
+        color: @text-color;
+        text-align: center;
+
+        &:hover {
+            color: @brand-primary;
+        }
+    }
+
+    .note--title {
+        .unitize-margin(0, 0, 5, 105);
+    }
+
+    .note--supplier,
+    .note--ordernumber,
+    .note--date,
+    .note--overview .product--rating {
+        .unitize-margin(0, 0, 0, 105);
+        display: block;
+    }
+
+    .note--delivery {
+        .unitize-margin(0, 0, 0, 105);
+    }
+
+    .note--compare {
+        .unitize-margin(5, 0, 0, 0);
+    }
+
+    .note--price {
+        margin: 0;
+    }
+
+    .note--price-unit {
+        .unitize(padding-right, 50);
+        .unitize-margin(5, 0, 0, 0);
+    }
+}
+
+@media screen and(min-width: @desktopViewportWidth) {
+    .note--content {
+        .unitize-margin(45, 0, 0, 0);
+    }
+}

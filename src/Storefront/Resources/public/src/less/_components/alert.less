@@ -1,0 +1,156 @@
+/*
+Alerts
+===================================================================
+######Displays an alert box for status messages to the user.
+
+Alerts always have to have the `.alert` class assigned, and in addition one of four color schemes.
+
+Options: `is--success`, `is--info`, `is--warning`, `is--error`.
+```
+<p class="alert is--success">Success message</p>
+<p class="alert is--info">Info message</p>
+<p class="alert is--warning">Warning message</p>
+<p class="alert is--error">Error message</p>
+```
+*/
+
+.alert {
+    .unitize(font-size, 14);
+    .unitize(line-height, 24);
+    .clearfix();
+    position: relative;
+    overflow: hidden;
+
+    &.is--success {
+        color: darken(@highlight-success, 15%);
+        background: desaturate(lighten(@highlight-success, 42%),20%);
+
+        .alert--icon {
+            background: @highlight-success;
+        }
+    }
+
+    &.is--info {
+        color: darken(@highlight-info, 15%);
+        background: desaturate(lighten(@highlight-info, 36%),20%);
+
+        .alert--icon {
+            background: @highlight-info;
+        }
+    }
+
+    &.is--warning {
+        color: darken(@highlight-notice, 14%);
+        background: desaturate(lighten(@highlight-notice, 42%),10%);
+
+        .alert--icon {
+            background: @highlight-notice;
+        }
+    }
+
+    &.is--error {
+        color: @highlight-error;
+        background: desaturate(lighten(@highlight-error, 38%), 20%);
+
+        .alert--icon {
+            background: @highlight-error;
+        }
+    }
+
+    &.no--cookies {
+        position: fixed;
+        z-index: 99999;
+        top: 0;
+        left: 0;
+        right: 0;
+
+        a.close--alert {
+            float: right;
+
+            &:hover {
+                cursor: pointer;
+                text-decoration: underline;
+            }
+        }
+    }
+
+/*
+######With an Icon inside of the box.</h6>
+```
+<div class="alert is--success is--rounded">
+    <div class="alert--icon">
+    <i class="icon--element icon--check"></i>
+    </div>
+    <div class="alert--content">
+    Success message with Icon
+    </div>
+</div>
+
+<div class="alert is--warning is--rounded">
+    <div class="alert--icon">
+    <i class="icon--element icon--warning"></i>
+    </div>
+    <div class="alert--content">
+    Warning message with Icon
+    </div>
+</div>
+```
+*/
+    .icon--element {
+        position: absolute;
+        top: 50%; left: 0;
+        width: 15%;
+        margin-top: -9px;
+    }
+
+    // Layout
+    .alert--icon,
+    .alert--content {
+        .unitize-padding(10, 10);
+        float: left;
+
+        p { .unitize(margin-bottom, 0) }
+    }
+
+    // Icon column
+    .alert--icon {
+        .unitize(font-size, 18);
+        .unitize(line-height, 26);
+        width: 15%;
+        text-align: center;
+        font-weight: bold;
+        color: #fff;
+
+        // Simple faux column technique
+        padding-bottom: 9999em;
+        margin-bottom: -9999em;
+
+    }
+    .alert--content {
+        width: 85%;
+
+        &.is--strong {
+            font-weight: bold;
+        }
+    }
+
+    // List styling
+    .alert--list {
+        list-style: none;
+    }
+
+    .list--entry {
+        display: block;
+    }
+}
+
+@media screen and (min-width: @tabletViewportWidth) {
+    .alert {
+        .alert--icon, .icon--element {
+            width: 8%
+        }
+        .alert--content {
+            width: 92%;
+        }
+    }
+}

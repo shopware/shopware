@@ -1,0 +1,44 @@
+/*
+Topseller
+=========================
+
+The topseller element is a modified product slider that is used to display a selection of best selling articles inside a slim slider element.
+
+*/
+.topseller {
+    .clearfix();
+    .unitize-margin(0, 0 , 20, 0);
+
+    .topseller--content {
+        .unitize-padding(0, 10);
+    }
+
+    .product-slider--arrow {
+        &.arrow--next {
+            .unitize(-1, 16, right);
+        }
+
+        &.arrow--prev {
+            .unitize(-1, 16, left);
+        }
+    }
+}
+
+.topseller--product {
+    text-align: center;
+
+    &:hover {
+        .badge {
+            .primary-gradient();
+            color: #fff;
+            text-shadow: 0 1px 1px #AD1200;
+        }
+        .product--title {
+            color: @brand-primary;
+        }
+    }
+}
+
+.topseller--number {
+    .unitize-margin(10, 0, 5, 0);
+}

@@ -1,0 +1,87 @@
+{% block address_template %}
+
+    {% block address_template_company %}
+        {% if address.company %}
+            <p>
+                <span class="address--company">{{ address.company }}</span>
+                {% if address.department %}
+                    - <span class="address--department">{{ address.department }}</span>
+                {% endif %}
+            </p>
+        {% endif %}
+    {% endblock %}
+
+
+    <p>
+        {# Salutation #}
+        {% block address_template_salutation %}
+            <span class="address--salutation">{{ address.salutation }}</span>
+        {% endblock %}
+
+        {# Title #}
+        {% block address_template_title %}
+            {% if shopware.config.displayprofiletitle %}
+                <span class="address--title">{{ address.title }}</span><br/>
+            {% endif %}
+        {% endblock %}
+
+        {# Firstname and lastname #}
+        {% block address_template_name %}
+            {% block address_template_firstname %}
+                <span class="address--firstname">{{ address.firstName }}</span>
+            {% endblock %}
+            {% block address_template_lastname %}
+                <span class="address--lastname">{{ address.lastName }}</span><br />
+            {% endblock %}
+        {% endblock %}
+
+        {# Street #}
+        {% block address_template_street %}
+            <span class="address--street">{{ address.street }}</span><br />
+        {% endblock %}
+
+        {# Additional address line #}
+        {% block address_template_aditional_address_line %}
+            {% if address.additionalAddressLine1 %}
+                <span class="address--additional-one">{{ address.additionalAddressLine1 }}</span><br />
+            {% endif %}
+        {% endblock %}
+
+        {# Additional address line 2 #}
+        {% block address_template_aditional_address_line2 %}
+            {% if address.additionalAddressLine2 %}
+                <span class="address--additional-two">{{ address.additionalAddressLine2 }}</span><br />
+            {% endif %}
+        {% endblock %}
+
+        {# City and zipcode #}
+        {% block address_template_zipcode_city %}
+            {% if shopware.config.showZipBeforeCity %}
+                {% block address_template_zipcode %}
+                    <span class="address--zipcode">{{ address.zipcode }}</span>
+                {% endblock %}
+
+                {% block address_template_city %}
+                    <span class="address--city">{{ address.city }}</span>
+                {% endblock %}
+
+            {% else %}
+                {{ block('address_template_city') }}
+                {{ block('address_template_zipcode') }}
+            {% endif %}<br />
+        {% endblock %}
+
+        {# State #}
+        {% block address_template_state %}
+            {% if address.state %}
+                <span class="address--statename">{{ address.state.name }}</span><br />
+            {% endif %}
+        {% endblock %}
+
+        {# Country #}
+        {% block address_template_country %}
+            <span class="address--countryname">{{ address.country.name }}</span>
+        {% endblock %}
+
+    </p>
+{% endblock %}

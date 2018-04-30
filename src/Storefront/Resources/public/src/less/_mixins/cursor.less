@@ -1,0 +1,22 @@
+/*
+Grabbing cursor
+==================================
+This mixin provides you a cross-browser compatible method to set the cursor grabbing behavior.
+
+######Example:
+`.cursorGrab();`<br/>
+`.cursorGrabbing();`<br/>
+
+*/
+
+.cursorGrab() {
+	cursor: -moz-grab;
+	cursor: -webkit-grab;
+	cursor: grab;
+}
+
+.cursorGrabbing() {
+	cursor: -moz-grabbing;
+	cursor: -webkit-grabbing;
+	cursor: grabbing;
+}

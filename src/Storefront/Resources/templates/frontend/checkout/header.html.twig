@@ -1,0 +1,45 @@
+<header class="header-main">
+
+    {# Hide top bar navigation #}
+    {% block frontend_index_top_bar_container %} {% endblock %}
+
+    <div class="container header--navigation">
+
+        {# Logo container #}
+        {% block frontend_index_logo_container %}
+            <div class="logo-main block-group" role="banner">
+
+                {# Main shop logo #}
+                {% block frontend_index_logo %}
+                    <div class="logo--shop block">
+                        <a class="logo--link" href="{{ path('homepage') }}" title="{{ shopware.config.shopName|escape }} - {% trans from 'frontend/index/index' %}IndexLinkDefault{% endtrans %}">
+                            <picture>
+                                {#<source srcset="{link file=$theme.desktopLogo}" media="(min-width: 78.75em)">#}
+                                {#<source srcset="{link file=$theme.tabletLandscapeLogo}" media="(min-width: 64em)">#}
+                                {#<source srcset="{link file=$theme.tabletLogo}" media="(min-width: 48em)">#}
+
+                                {#<img srcset="{link file=$theme.mobileLogo}" alt="{"{config name=shopName}"|escapeHtml} - {"{s name='IndexLinkDefault' namespace="frontend/index/index"}{/s}"|escape}" />#}
+                            </picture>
+                        </a>
+                    </div>
+                {% endblock %}
+
+                {# Support Info #}
+                {% block frontend_index_logo_supportinfo %}
+                    <div class="logo--supportinfo block">
+                        {% trans from 'frontend/register/index' %}RegisterSupportInfo{% endtrans %}
+                    </div>
+                {% endblock %}
+
+                {# Trusted Shops #}
+                {% block frontend_index_logo_trusted_shops %}{% endblock %}
+            </div>
+        {% endblock %}
+
+        {# Hide Shop navigation #}
+        {% block frontend_index_shop_navigation %}{% endblock %}
+    </div>
+</header>
+
+{# Hide Maincategories navigation top #}
+{% block frontend_index_navigation_categories_top %}{% endblock %}

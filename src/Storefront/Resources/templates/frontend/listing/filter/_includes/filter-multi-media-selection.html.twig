@@ -1,0 +1,15 @@
+{% sw_extends '@Storefront/frontend/listing/filter/_includes/filter-multi-selection.html.twig' %}
+
+{% block frontend_listing_filter_facet_multi_selection_input %}
+    {% set name = "__" ~ facet.fieldName ~ "__" ~ option.id %}"
+    {% if singleSelection %}
+        {% set name = facet.fieldName %}
+    {% endif %}
+
+    <input type="{{ inputType }}"
+       id="'__' ~ {{ facet.fieldName }} ~ '__' ~ {{ option.id }}"
+       name="{{ name }}"
+       title="{{ option.label }}"
+       value="{{ option.id }}"
+       {% if option.active == true %}checked="checked" {% endif %}/>
+{% endblock %}

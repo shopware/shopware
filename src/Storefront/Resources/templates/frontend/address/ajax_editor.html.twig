@@ -1,0 +1,22 @@
+{% block frontend_address_editor_modal %}
+    <div data-register="true" class="panel">
+        {% block frontend_address_editor_modal_title %}
+            <div class="panel--title is--underline">
+                {% if formData.id %}
+                    {% trans from 'frontend/address/index' %}AddressesTitleEdit{% endtrans %}
+                {% else %}
+                    {% trans from 'frontend/address/index' %}AddressesTitleCreate{% endtrans %}
+                {% endif %}
+            </div>
+        {% endblock %}
+        {% block frontend_address_editor_modal_body %}
+            <div class="panel--body address-editor--body">
+                {% block frontend_address_editor_modal_form %}
+                    <form name="frmAddresses" method="post" action="{{ path('address_ajax_save' ) }}">
+                        {% sw_include '@Storefront/frontend/address/ajax_form.html.twig' %}
+                    </form>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

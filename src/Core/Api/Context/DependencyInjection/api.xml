@@ -23,7 +23,7 @@
 
 
         <service class="Shopware\Api\Context\Definition\ContextCartModifierDefinition" id="Shopware\Api\Context\Definition\ContextCartModifierDefinition" >
-            <tag name="shopware.entity.definition" entity="context_rule" />
+            <tag name="shopware.entity.definition" entity="context_cart_modifier" />
         </service>
         <service class="Shopware\Api\Context\Repository\ContextCartModifierRepository" id="Shopware\Api\Context\Repository\ContextCartModifierRepository.v1" public="true">
             <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>

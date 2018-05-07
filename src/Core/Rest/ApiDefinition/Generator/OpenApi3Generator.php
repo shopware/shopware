@@ -94,11 +94,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 continue;
             }
 
-            if (preg_match('/^version/', $definition::getEntityName())) {
-                continue;
-            }
-
-            if (strpos($definition::getEntityName(), 'audit_log') === 0) {
+            if (0 === strpos($definition::getEntityName(), 'version')) {
                 continue;
             }
 
@@ -139,10 +135,6 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 
         foreach ($elements as $definition) {
             if (preg_match('/_translation$/', $definition::getEntityName())) {
-                continue;
-            }
-
-            if (strpos($definition::getEntityName(), 'audit_log') === 0) {
                 continue;
             }
 
@@ -288,7 +280,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 
         /** @var Field $field */
         foreach ($definition::getFields() as $field) {
-            if ($field->getPropertyName() === 'translations' || $field->getPropertyName() === 'id') {
+            if ($field->getPropertyName() === 'translations' || $field->getPropertyName() === 'id' || preg_match('#translations$#i', $field->getPropertyName())) {
                 continue;
             }
 
@@ -628,7 +620,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         $associationEntityName = $field->getReferenceClass()::getEntityName();
 
         if ($field instanceof ManyToManyAssociationField) {
-            $associationEntityName = $field->getReferenceClass()::getEntityName();
+            $associationEntityName = $field->getReferenceDefinition()::getEntityName();
         }
 
         return [

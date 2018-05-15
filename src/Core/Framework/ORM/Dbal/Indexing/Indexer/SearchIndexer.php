@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\DbalIndexing\Indexer;
+namespace Shopware\Framework\ORM\Dbal\Indexing\Indexer;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Content\Catalog\Repository\CatalogRepository;
@@ -11,12 +11,12 @@ use Shopware\Content\Product\Definition\ProductDefinition;
 use Shopware\Content\Product\Repository\ProductRepository;
 use Shopware\Content\Product\Struct\ProductSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\DbalIndexing\Common\IndexTableOperator;
-use Shopware\DbalIndexing\Common\RepositoryIterator;
-use Shopware\DbalIndexing\Event\ProgressAdvancedEvent;
-use Shopware\DbalIndexing\Event\ProgressFinishedEvent;
-use Shopware\DbalIndexing\Event\ProgressStartedEvent;
-use Shopware\DbalIndexing\Indexer\Analyzer\SearchAnalyzerRegistry;
+use Shopware\Framework\ORM\Dbal\Indexing\Common\IndexTableOperator;
+use Shopware\Framework\ORM\Dbal\Indexing\Common\RepositoryIterator;
+use Shopware\Framework\ORM\Dbal\Indexing\Event\ProgressAdvancedEvent;
+use Shopware\Framework\ORM\Dbal\Indexing\Event\ProgressFinishedEvent;
+use Shopware\Framework\ORM\Dbal\Indexing\Event\ProgressStartedEvent;
+use Shopware\Framework\ORM\Dbal\Indexing\Indexer\Analyzer\SearchAnalyzerRegistry;
 use Shopware\Defaults;
 use Shopware\Framework\Doctrine\MultiInsertQueryQueue;
 use Shopware\Framework\Struct\Uuid;

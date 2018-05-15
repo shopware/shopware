@@ -22,12 +22,12 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\DbalIndexing\Command;
+namespace Shopware\Framework\ORM\Dbal\Indexing\Command;
 
-use Shopware\DbalIndexing\Event\ProgressAdvancedEvent;
-use Shopware\DbalIndexing\Event\ProgressFinishedEvent;
-use Shopware\DbalIndexing\Event\ProgressStartedEvent;
-use Shopware\DbalIndexing\Indexer\IndexerInterface;
+use Shopware\Framework\ORM\Dbal\Indexing\Event\ProgressAdvancedEvent;
+use Shopware\Framework\ORM\Dbal\Indexing\Event\ProgressFinishedEvent;
+use Shopware\Framework\ORM\Dbal\Indexing\Event\ProgressStartedEvent;
+use Shopware\Framework\ORM\Dbal\Indexing\Indexer\IndexerInterface;
 use Shopware\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;

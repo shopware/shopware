@@ -50,7 +50,7 @@
             <argument id="Shopware\Content\Product\Repository\ProductRepository" type="service"/>
             <argument id="Shopware\Application\Application\Repository\ApplicationRepository" type="service"/>
             <argument id="event_dispatcher" type="service"/>
-            <argument type="service" id="Shopware\DbalIndexing\Common\EventIdExtractor"/>
+            <argument type="service" id="Shopware\Framework\ORM\Dbal\Indexing\Common\EventIdExtractor"/>
             <tag name="shopware.dbal_indexing.indexer"/>
         </service>
 
@@ -61,7 +61,7 @@
             <argument id="Shopware\Content\Category\Repository\CategoryRepository" type="service"/>
             <argument id="Shopware\Application\Application\Repository\ApplicationRepository" type="service"/>
             <argument id="event_dispatcher" type="service"/>
-            <argument type="service" id="Shopware\DbalIndexing\Common\EventIdExtractor"/>
+            <argument type="service" id="Shopware\Framework\ORM\Dbal\Indexing\Common\EventIdExtractor"/>
             <tag name="shopware.dbal_indexing.indexer"/>
         </service>
 

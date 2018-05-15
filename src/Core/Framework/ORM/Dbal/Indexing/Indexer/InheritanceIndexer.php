@@ -1,6 +1,6 @@
 <?php
 
-namespace Shopware\DbalIndexing\Indexer;
+namespace Shopware\Framework\ORM\Dbal\Indexing\Indexer;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Framework\ORM\Dbal\EntityDefinitionQueryHelper;

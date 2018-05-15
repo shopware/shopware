@@ -1,17 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\DbalIndexing\Indexer;
+namespace Shopware\Framework\ORM\Dbal\Indexing\Indexer;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Content\Product\Repository\ProductRepository;
 use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\DbalIndexing\Common\EventIdExtractor;
-use Shopware\DbalIndexing\Common\RepositoryIterator;
-use Shopware\DbalIndexing\Event\ProgressAdvancedEvent;
-use Shopware\DbalIndexing\Event\ProgressFinishedEvent;
-use Shopware\DbalIndexing\Event\ProgressStartedEvent;
-use Shopware\DbalIndexing\Indexer\IndexerInterface;
+use Shopware\Framework\ORM\Dbal\Indexing\Common\EventIdExtractor;
+use Shopware\Framework\ORM\Dbal\Indexing\Common\RepositoryIterator;
+use Shopware\Framework\ORM\Dbal\Indexing\Event\ProgressAdvancedEvent;
+use Shopware\Framework\ORM\Dbal\Indexing\Event\ProgressFinishedEvent;
+use Shopware\Framework\ORM\Dbal\Indexing\Event\ProgressStartedEvent;
+use Shopware\Framework\ORM\Dbal\Indexing\Indexer\IndexerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Shopware\Framework\Struct\Uuid;
 

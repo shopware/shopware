@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\DbalIndexing\Event;
+namespace Shopware\Framework\ORM\Dbal\Indexing\Event;
 
 use Symfony\Component\EventDispatcher\Event;
 

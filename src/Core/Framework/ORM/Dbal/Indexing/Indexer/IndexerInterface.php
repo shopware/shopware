@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\DbalIndexing\Indexer;
+namespace Shopware\Framework\ORM\Dbal\Indexing\Indexer;
 
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 

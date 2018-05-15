@@ -24,7 +24,7 @@ use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Entity\Write\Flag\RestrictDelete;
 use Shopware\Api\Entity\Write\Flag\SearchRanking;
 use Shopware\Api\Entity\Write\Flag\WriteOnly;
-use Shopware\Api\Media\Definition\MediaDefinition;
+use Shopware\Content\Media\Definition\MediaDefinition;
 use Shopware\Api\Product\Collection\ProductManufacturerBasicCollection;
 use Shopware\Api\Product\Collection\ProductManufacturerDetailCollection;
 use Shopware\Api\Product\Event\ProductManufacturer\ProductManufacturerDeletedEvent;

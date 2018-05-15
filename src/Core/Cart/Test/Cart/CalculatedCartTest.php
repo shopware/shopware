@@ -25,7 +25,7 @@
 namespace Shopware\Cart\Test\Cart;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Api\Media\Struct\MediaBasicStruct;
+use Shopware\Content\Media\Struct\MediaBasicStruct;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Cart\Struct\Cart;
 use Shopware\Cart\Delivery\Struct\DeliveryCollection;

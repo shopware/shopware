@@ -3,7 +3,7 @@
 namespace Shopware\Api\Product\Collection;
 
 use Shopware\Api\Entity\EntityCollection;
-use Shopware\Api\Media\Collection\MediaBasicCollection;
+use Shopware\Content\Media\Collection\MediaBasicCollection;
 use Shopware\Api\Product\Struct\ProductMediaBasicStruct;
 
 class ProductMediaBasicCollection extends EntityCollection

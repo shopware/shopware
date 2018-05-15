@@ -17,7 +17,7 @@ use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
-use Shopware\Api\Media\Definition\MediaDefinition;
+use Shopware\Content\Media\Definition\MediaDefinition;
 use Shopware\Api\Product\Collection\ProductMediaBasicCollection;
 use Shopware\Api\Product\Collection\ProductMediaDetailCollection;
 use Shopware\Api\Product\Event\ProductMedia\ProductMediaDeletedEvent;

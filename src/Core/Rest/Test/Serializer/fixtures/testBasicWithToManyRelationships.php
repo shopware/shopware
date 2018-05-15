@@ -3,7 +3,7 @@
 $albumId = 'c83a7721-270a-4add-82fd-e60b1dd0c47e';
 $thumbnailCollection = new \Shopware\Framework\Struct\StructCollection();
 
-$album = new \Shopware\Api\Media\Struct\MediaAlbumDetailStruct();
+$album = new \Shopware\Content\Media\Struct\MediaAlbumDetailStruct();
 $album->setId($albumId);
 $album->setName('Manufacturer');
 $album->setPosition(12);
@@ -15,7 +15,7 @@ $album->setThumbnailHighDpi(true);
 $album->setThumbnailHighDpiQuality(60);
 $album->setIcon('sprite-blue-folder');
 
-$media = new \Shopware\Api\Media\Struct\MediaBasicStruct();
+$media = new \Shopware\Content\Media\Struct\MediaBasicStruct();
 $media->setId('548faa1f-7846-436c-8594-4f4aea792d96');
 $media->setAlbumId($albumId);
 $media->setFileName('teaser.jpg');
@@ -27,7 +27,7 @@ $media->setUpdatedAt(date_create_from_format(\DateTime::ATOM, '2017-11-21T11:25:
 $media->setAlbum(clone $album);
 $media->addExtension('thumbnails', $thumbnailCollection);
 
-$mediaCollection = new \Shopware\Api\Media\Collection\MediaBasicCollection([$media]);
+$mediaCollection = new \Shopware\Content\Media\Collection\MediaBasicCollection([$media]);
 $album->setMedia($mediaCollection);
 
 return $album;

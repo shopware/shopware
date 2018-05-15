@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Product\Struct;
 
-use Shopware\Api\Media\Struct\MediaBasicStruct;
+use Shopware\Content\Media\Struct\MediaBasicStruct;
 use Shopware\Api\Product\Collection\ProductManufacturerTranslationBasicCollection;
 
 class ProductManufacturerDetailStruct extends ProductManufacturerBasicStruct

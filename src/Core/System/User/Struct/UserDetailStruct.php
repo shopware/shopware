@@ -3,7 +3,7 @@
 namespace Shopware\System\User\Struct;
 
 use Shopware\System\Locale\Struct\LocaleBasicStruct;
-use Shopware\Api\Media\Collection\MediaBasicCollection;
+use Shopware\Content\Media\Collection\MediaBasicCollection;
 
 class UserDetailStruct extends UserBasicStruct
 {

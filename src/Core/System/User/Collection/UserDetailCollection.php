@@ -3,7 +3,7 @@
 namespace Shopware\System\User\Collection;
 
 use Shopware\System\Locale\Collection\LocaleBasicCollection;
-use Shopware\Api\Media\Collection\MediaBasicCollection;
+use Shopware\Content\Media\Collection\MediaBasicCollection;
 use Shopware\System\User\Struct\UserDetailStruct;
 
 class UserDetailCollection extends UserBasicCollection

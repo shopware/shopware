@@ -27,7 +27,7 @@ use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Entity\Write\Flag\WriteOnly;
-use Shopware\Api\Media\Definition\MediaDefinition;
+use Shopware\Content\Media\Definition\MediaDefinition;
 use Shopware\Api\Product\Definition\ProductConfiguratorDefinition;
 use Shopware\Api\Product\Definition\ProductDatasheetDefinition;
 use Shopware\Api\Product\Definition\ProductDefinition;

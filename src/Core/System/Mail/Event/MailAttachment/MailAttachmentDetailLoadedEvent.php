@@ -4,7 +4,7 @@ namespace Shopware\System\Mail\Event\MailAttachment;
 
 use Shopware\System\Mail\Collection\MailAttachmentDetailCollection;
 use Shopware\System\Mail\Event\Mail\MailBasicLoadedEvent;
-use Shopware\Api\Media\Event\Media\MediaBasicLoadedEvent;
+use Shopware\Content\Media\Event\Media\MediaBasicLoadedEvent;
 use Shopware\Api\Shop\Event\Shop\ShopBasicLoadedEvent;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;

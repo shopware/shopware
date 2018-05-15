@@ -2,7 +2,7 @@
 
 namespace Shopware\Media\Extension;
 
-use Shopware\Api\Media\Event\Media\MediaBasicLoadedEvent;
+use Shopware\Content\Media\Event\Media\MediaBasicLoadedEvent;
 use Shopware\Framework\Struct\ArrayStruct;
 use Shopware\Media\UrlGeneratorInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;

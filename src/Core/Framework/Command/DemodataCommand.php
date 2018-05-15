@@ -15,7 +15,7 @@ use Shopware\Api\Customer\Definition\CustomerDefinition;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\WriteContext;
-use Shopware\Api\Media\Repository\MediaAlbumRepository;
+use Shopware\Content\Media\Repository\MediaAlbumRepository;
 use Shopware\Api\Product\Definition\ProductDefinition;
 use Shopware\Api\Product\Definition\ProductManufacturerDefinition;
 use Shopware\Api\Product\Repository\ProductRepository;

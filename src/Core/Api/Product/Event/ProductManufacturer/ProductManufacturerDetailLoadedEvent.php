@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Product\Event\ProductManufacturer;
 
-use Shopware\Api\Media\Event\Media\MediaBasicLoadedEvent;
+use Shopware\Content\Media\Event\Media\MediaBasicLoadedEvent;
 use Shopware\Api\Product\Collection\ProductManufacturerDetailCollection;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;

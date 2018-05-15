@@ -2,7 +2,7 @@
 
 namespace Shopware\Cart\Test\LineItem;
 
-use Shopware\Api\Media\Struct\MediaBasicStruct;
+use Shopware\Content\Media\Struct\MediaBasicStruct;
 use Shopware\Cart\LineItem\CalculatedLineItemInterface;
 use Shopware\Cart\LineItem\LineItemInterface;
 use Shopware\Cart\Price\Struct\CalculatedPrice;

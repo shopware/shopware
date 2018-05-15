@@ -3,7 +3,7 @@
 namespace Shopware\Content\Category\Collection;
 
 use Shopware\Content\Category\Struct\CategoryDetailStruct;
-use Shopware\Api\Media\Collection\MediaBasicCollection;
+use Shopware\Content\Media\Collection\MediaBasicCollection;
 use Shopware\Api\Product\Collection\ProductStreamBasicCollection;
 
 class CategoryDetailCollection extends CategoryBasicCollection

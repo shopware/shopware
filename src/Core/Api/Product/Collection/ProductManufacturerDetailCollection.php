@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Product\Collection;
 
-use Shopware\Api\Media\Collection\MediaBasicCollection;
+use Shopware\Content\Media\Collection\MediaBasicCollection;
 use Shopware\Api\Product\Struct\ProductManufacturerDetailStruct;
 
 class ProductManufacturerDetailCollection extends ProductManufacturerBasicCollection

@@ -2,7 +2,7 @@
 
 namespace Shopware\Cart\LineItem;
 
-use Shopware\Api\Media\Struct\MediaBasicStruct;
+use Shopware\Content\Media\Struct\MediaBasicStruct;
 use Shopware\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Context\Rule\Rule;
 use Shopware\Context\Rule\Validatable;

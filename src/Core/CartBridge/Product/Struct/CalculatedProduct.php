@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace Shopware\CartBridge\Product\Struct;
 
-use Shopware\Api\Media\Struct\MediaBasicStruct;
+use Shopware\Content\Media\Struct\MediaBasicStruct;
 use Shopware\Api\Product\Struct\ProductBasicStruct;
 use Shopware\Cart\Delivery\Struct\Delivery;
 use Shopware\Cart\Delivery\Struct\DeliveryDate;

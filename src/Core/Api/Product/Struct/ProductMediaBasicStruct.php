@@ -3,7 +3,7 @@
 namespace Shopware\Api\Product\Struct;
 
 use Shopware\Api\Entity\Entity;
-use Shopware\Api\Media\Struct\MediaBasicStruct;
+use Shopware\Content\Media\Struct\MediaBasicStruct;
 
 class ProductMediaBasicStruct extends Entity
 {

@@ -3,10 +3,10 @@
 namespace Shopware\Rest\Test\Serializer;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Api\Media\Definition\MediaAlbumDefinition;
-use Shopware\Api\Media\Definition\MediaDefinition;
-use Shopware\Api\Media\Struct\MediaAlbumBasicStruct;
-use Shopware\Api\Media\Struct\MediaAlbumDetailStruct;
+use Shopware\Content\Media\Definition\MediaAlbumDefinition;
+use Shopware\Content\Media\Definition\MediaDefinition;
+use Shopware\Content\Media\Struct\MediaAlbumBasicStruct;
+use Shopware\Content\Media\Struct\MediaAlbumDetailStruct;
 use Shopware\Framework\Serializer\StructDecoder;
 use Shopware\Framework\Serializer\StructNormalizer;
 use Shopware\Media\Extension\ThumbnailExtension;

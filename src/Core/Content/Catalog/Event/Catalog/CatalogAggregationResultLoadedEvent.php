@@ -1,21 +1,21 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api\Catalog\Event\Catalog;
+namespace Shopware\Content\Catalog\Event\Catalog;
 
-use Shopware\Api\Entity\Search\IdSearchResult;
+use Shopware\Api\Entity\Search\AggregatorResult;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
-class CatalogIdSearchResultLoadedEvent extends NestedEvent
+class CatalogAggregationResultLoadedEvent extends NestedEvent
 {
-    public const NAME = 'catalog.id.search.result.loaded';
+    public const NAME = 'catalog.aggregation.result.loaded';
 
     /**
-     * @var IdSearchResult
+     * @var AggregatorResult
      */
     protected $result;
 
-    public function __construct(IdSearchResult $result)
+    public function __construct(AggregatorResult $result)
     {
         $this->result = $result;
     }
@@ -30,7 +30,7 @@ class CatalogIdSearchResultLoadedEvent extends NestedEvent
         return $this->result->getContext();
     }
 
-    public function getResult(): IdSearchResult
+    public function getResult(): AggregatorResult
     {
         return $this->result;
     }

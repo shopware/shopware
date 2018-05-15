@@ -24,7 +24,7 @@
 
 namespace Shopware\Api\Entity\Field;
 
-use Shopware\Api\Catalog\Definition\CatalogDefinition;
+use Shopware\Content\Catalog\Definition\CatalogDefinition;
 use Shopware\Api\Entity\Write\DataStack\KeyValuePair;
 use Shopware\Api\Entity\Write\EntityExistence;
 use Shopware\Api\Entity\Write\FieldException\InvalidFieldException;

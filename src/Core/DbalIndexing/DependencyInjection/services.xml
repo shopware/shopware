@@ -78,7 +78,7 @@
             <argument type="service" id="Shopware\DbalIndexing\Indexer\Analyzer\SearchAnalyzerRegistry"/>
             <argument type="service" id="Shopware\DbalIndexing\Common\IndexTableOperator"/>
             <argument type="service" id="Shopware\Api\Language\Repository\LanguageRepository"/>
-            <argument type="service" id="Shopware\Api\Catalog\Repository\CatalogRepository"/>
+            <argument type="service" id="Shopware\Content\Catalog\Repository\CatalogRepository"/>
             <tag name="shopware.dbal_indexing.indexer" priority="200"/>
         </service>
 

@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api\Catalog\Struct;
+namespace Shopware\Content\Catalog\Struct;
 
-use Shopware\Api\Catalog\Collection\CatalogBasicCollection;
+use Shopware\Content\Catalog\Collection\CatalogBasicCollection;
 use Shopware\Api\Entity\Search\SearchResultInterface;
 use Shopware\Api\Entity\Search\SearchResultTrait;
 

@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api\Catalog\Event\Catalog;
+namespace Shopware\Content\Catalog\Event\Catalog;
 
-use Shopware\Api\Catalog\Collection\CatalogBasicCollection;
+use Shopware\Content\Catalog\Collection\CatalogBasicCollection;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 

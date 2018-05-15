@@ -1,14 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api\Catalog\Repository;
+namespace Shopware\Content\Catalog\Repository;
 
-use Shopware\Api\Catalog\Collection\CatalogBasicCollection;
-use Shopware\Api\Catalog\Definition\CatalogDefinition;
-use Shopware\Api\Catalog\Event\Catalog\CatalogAggregationResultLoadedEvent;
-use Shopware\Api\Catalog\Event\Catalog\CatalogBasicLoadedEvent;
-use Shopware\Api\Catalog\Event\Catalog\CatalogIdSearchResultLoadedEvent;
-use Shopware\Api\Catalog\Event\Catalog\CatalogSearchResultLoadedEvent;
-use Shopware\Api\Catalog\Struct\CatalogSearchResult;
+use Shopware\Content\Catalog\Collection\CatalogBasicCollection;
+use Shopware\Content\Catalog\Definition\CatalogDefinition;
+use Shopware\Content\Catalog\Event\Catalog\CatalogAggregationResultLoadedEvent;
+use Shopware\Content\Catalog\Event\Catalog\CatalogBasicLoadedEvent;
+use Shopware\Content\Catalog\Event\Catalog\CatalogIdSearchResultLoadedEvent;
+use Shopware\Content\Catalog\Event\Catalog\CatalogSearchResultLoadedEvent;
+use Shopware\Content\Catalog\Struct\CatalogSearchResult;
 use Shopware\Api\Entity\Read\EntityReaderInterface;
 use Shopware\Api\Entity\RepositoryInterface;
 use Shopware\Api\Entity\Search\AggregatorResult;

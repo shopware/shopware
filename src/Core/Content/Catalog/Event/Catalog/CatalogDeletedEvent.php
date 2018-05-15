@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api\Catalog\Event\Catalog;
+namespace Shopware\Content\Catalog\Event\Catalog;
 
-use Shopware\Api\Catalog\Definition\CatalogDefinition;
+use Shopware\Content\Catalog\Definition\CatalogDefinition;
 use Shopware\Api\Entity\Write\DeletedEvent;
 use Shopware\Api\Entity\Write\WrittenEvent;
 

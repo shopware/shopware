@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api\Catalog\Collection;
+namespace Shopware\Content\Catalog\Collection;
 
-use Shopware\Api\Catalog\Struct\CatalogBasicStruct;
+use Shopware\Content\Catalog\Struct\CatalogBasicStruct;
 use Shopware\Api\Entity\EntityCollection;
 
 class CatalogBasicCollection extends EntityCollection

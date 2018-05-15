@@ -3,7 +3,7 @@
 namespace Shopware\Api\Test\Catalog;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Api\Catalog\Repository\CatalogRepository;
+use Shopware\Content\Catalog\Repository\CatalogRepository;
 use Shopware\Api\Category\Repository\CategoryRepository;
 use Shopware\Api\Category\Struct\CategoryBasicStruct;
 use Shopware\Api\Entity\Search\Criteria;

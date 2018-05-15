@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Test\Traits;
 
-use Shopware\Api\Catalog\Repository\CatalogRepository;
+use Shopware\Content\Catalog\Repository\CatalogRepository;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Struct\Uuid;
 

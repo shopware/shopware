@@ -189,7 +189,7 @@ class ApiController extends Controller
             /*
              * Example
              * Route:           /api/product/SW1/prices
-             * $definition:     \Shopware\Product\Definition\ProductPriceDefinition
+             * $definition:     \Shopware\Content\Product\Definition\ProductPriceDefinition
              */
 
             //get foreign key definition of reference
@@ -208,7 +208,7 @@ class ApiController extends Controller
             /*
              * Example
              * Route:           /api/product/SW1/manufacturer
-             * $definition:     \Shopware\Product\Definition\ProductManufacturerDefinition
+             * $definition:     \Shopware\Content\Product\Definition\ProductManufacturerDefinition
              */
 
             //get inverse association to filter to parent value

@@ -6,7 +6,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Content\Product\Definition\ProductDefinition;
 use Shopware\Context\Struct\ApplicationContext;
-use Shopware\Product\Service\VariantGenerator;
+use Shopware\Content\Product\Service\VariantGenerator;
 use Shopware\Rest\Context\RestContext;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -31,8 +31,8 @@ class ProductActionController extends Controller
      * @param string             $productId
      * @param ApplicationContext $context
      *
-     * @throws \Shopware\Product\Exception\NoConfiguratorFoundException
-     * @throws \Shopware\Product\Exception\ProductNotFoundException
+     * @throws \Shopware\Content\Product\Exception\NoConfiguratorFoundException
+     * @throws \Shopware\Content\Product\Exception\ProductNotFoundException
      *
      * @return JsonResponse
      */

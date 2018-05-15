@@ -7,7 +7,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Framework\ORM\Search\SearchCriteriaBuilder;
 use Shopware\Content\Product\Definition\ProductDefinition;
 use Shopware\Context\Struct\StorefrontContext;
-use Shopware\Product\Exception\ProductNotFoundException;
+use Shopware\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Rest\Context\RestContext;
 use Shopware\Rest\Response\ResponseFactory;
 use Shopware\StorefrontApi\Firewall\ContextUser;

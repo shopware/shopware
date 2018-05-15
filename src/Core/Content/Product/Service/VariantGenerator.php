@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Product\Service;
+namespace Shopware\Content\Product\Service;
 
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Query\TermQuery;
@@ -11,8 +11,8 @@ use Shopware\Content\Product\Repository\ProductRepository;
 use Shopware\Content\Product\Struct\ProductBasicStruct;
 use Shopware\Content\Product\Struct\ProductConfiguratorBasicStruct;
 use Shopware\Context\Struct\ApplicationContext;
-use Shopware\Product\Exception\NoConfiguratorFoundException;
-use Shopware\Product\Exception\ProductNotFoundException;
+use Shopware\Content\Product\Exception\NoConfiguratorFoundException;
+use Shopware\Content\Product\Exception\ProductNotFoundException;
 
 class VariantGenerator
 {

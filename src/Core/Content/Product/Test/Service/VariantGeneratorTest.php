@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Product\Test\Service;
+namespace Shopware\Content\Product\Test\Service;
 
 use Doctrine\DBAL\Connection;
 use Psr\Container\ContainerInterface;
@@ -12,7 +12,7 @@ use Shopware\Content\Product\Struct\PriceStruct;
 use Shopware\Content\Product\Struct\ProductDetailStruct;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Struct\Uuid;
-use Shopware\Product\Service\VariantGenerator;
+use Shopware\Content\Product\Service\VariantGenerator;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class VariantGeneratorTest extends KernelTestCase

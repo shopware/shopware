@@ -29,7 +29,7 @@ use Shopware\Context\Rule\Context\IsNewCustomerRule;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\Uuid;
-use Shopware\Product\Service\VariantGenerator;
+use Shopware\Content\Product\Service\VariantGenerator;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;

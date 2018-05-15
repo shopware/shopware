@@ -138,6 +138,10 @@
         <service class="Shopware\Content\Product\Definition\ProductCategoryTreeDefinition" id="Shopware\Content\Product\Definition\ProductCategoryTreeDefinition" >
             <tag name="shopware.entity.definition" entity="product_category_tree" />
         </service>
+        <service class="Shopware\Content\Product\Service\VariantGenerator" id="Shopware\Content\Product\Service\VariantGenerator" public="true">
+            <argument id="Shopware\Content\Product\Repository\ProductRepository" type="service"/>
+            <argument id="Shopware\Content\Product\Repository\ProductConfiguratorRepository" type="service"/>
+        </service>
     </services>
 </container>                
                 

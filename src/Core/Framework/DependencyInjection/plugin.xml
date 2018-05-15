@@ -6,13 +6,12 @@
 
     <services>
         <!-- Versioning -->
-        <service alias="Shopware\Api\Plugin\Repository\PluginRepository.v1" id="Shopware\Api\Plugin\Repository\PluginRepository" public="true"/>
+        <service alias="Shopware\Framework\Plugin\Repository\PluginRepository.v1" id="Shopware\Framework\Plugin\Repository\PluginRepository" public="true"/>
 
-
-         <service class="Shopware\Api\Plugin\Definition\PluginDefinition" id="Shopware\Api\Plugin\Definition\PluginDefinition" >
+        <service class="Shopware\Framework\Plugin\Definition\PluginDefinition" id="Shopware\Framework\Plugin\Definition\PluginDefinition" >
             <tag name="shopware.entity.definition" entity="plugin" />
         </service>
-        <service class="Shopware\Api\Plugin\Repository\PluginRepository" id="Shopware\Api\Plugin\Repository\PluginRepository.v1" public="true">
+        <service class="Shopware\Framework\Plugin\Repository\PluginRepository" id="Shopware\Framework\Plugin\Repository\PluginRepository.v1" public="true">
           <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
           <argument id="Shopware\Version\VersionManager" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>

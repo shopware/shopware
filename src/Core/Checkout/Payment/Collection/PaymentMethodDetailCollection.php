@@ -3,7 +3,7 @@
 namespace Shopware\Checkout\Payment\Collection;
 
 use Shopware\Checkout\Payment\Struct\PaymentMethodDetailStruct;
-use Shopware\Api\Plugin\Collection\PluginBasicCollection;
+use Shopware\Framework\Plugin\Collection\PluginBasicCollection;
 
 class PaymentMethodDetailCollection extends PaymentMethodBasicCollection
 {

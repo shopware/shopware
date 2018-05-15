@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api\Plugin\Struct;
+namespace Shopware\Framework\Plugin\Struct;
 
 use Shopware\System\Config\Collection\ConfigFormBasicCollection;
 use Shopware\Checkout\Payment\Collection\PaymentMethodBasicCollection;

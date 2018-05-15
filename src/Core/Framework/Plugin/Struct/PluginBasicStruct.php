@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api\Plugin\Struct;
+namespace Shopware\Framework\Plugin\Struct;
 
 use Shopware\Framework\ORM\Entity;
 

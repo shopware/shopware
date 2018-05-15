@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api\Plugin\Repository;
+namespace Shopware\Framework\Plugin\Repository;
 
 use Shopware\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Framework\ORM\RepositoryInterface;
@@ -11,15 +11,15 @@ use Shopware\Framework\ORM\Search\EntitySearcherInterface;
 use Shopware\Framework\ORM\Search\IdSearchResult;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\Api\Plugin\Collection\PluginBasicCollection;
-use Shopware\Api\Plugin\Collection\PluginDetailCollection;
-use Shopware\Api\Plugin\Definition\PluginDefinition;
-use Shopware\Api\Plugin\Event\Plugin\PluginAggregationResultLoadedEvent;
-use Shopware\Api\Plugin\Event\Plugin\PluginBasicLoadedEvent;
-use Shopware\Api\Plugin\Event\Plugin\PluginDetailLoadedEvent;
-use Shopware\Api\Plugin\Event\Plugin\PluginIdSearchResultLoadedEvent;
-use Shopware\Api\Plugin\Event\Plugin\PluginSearchResultLoadedEvent;
-use Shopware\Api\Plugin\Struct\PluginSearchResult;
+use Shopware\Framework\Plugin\Collection\PluginBasicCollection;
+use Shopware\Framework\Plugin\Collection\PluginDetailCollection;
+use Shopware\Framework\Plugin\Definition\PluginDefinition;
+use Shopware\Framework\Plugin\Event\Plugin\PluginAggregationResultLoadedEvent;
+use Shopware\Framework\Plugin\Event\Plugin\PluginBasicLoadedEvent;
+use Shopware\Framework\Plugin\Event\Plugin\PluginDetailLoadedEvent;
+use Shopware\Framework\Plugin\Event\Plugin\PluginIdSearchResultLoadedEvent;
+use Shopware\Framework\Plugin\Event\Plugin\PluginSearchResultLoadedEvent;
+use Shopware\Framework\Plugin\Struct\PluginSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Version\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;

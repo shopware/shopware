@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Shop\Event\ShopTemplate;
 
-use Shopware\Api\Plugin\Event\Plugin\PluginBasicLoadedEvent;
+use Shopware\Framework\Plugin\Event\Plugin\PluginBasicLoadedEvent;
 use Shopware\Api\Shop\Collection\ShopTemplateDetailCollection;
 use Shopware\Api\Shop\Event\ShopTemplateConfigForm\ShopTemplateConfigFormBasicLoadedEvent;
 use Shopware\Api\Shop\Event\ShopTemplateConfigFormField\ShopTemplateConfigFormFieldBasicLoadedEvent;

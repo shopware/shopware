@@ -29,7 +29,7 @@ use Shopware\Framework\ORM\Write\Flag\CascadeDelete;
 use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Framework\ORM\Write\Flag\SearchRanking;
-use Shopware\Api\Plugin\Definition\PluginDefinition;
+use Shopware\Framework\Plugin\Definition\PluginDefinition;
 
 class ConfigFormDefinition extends EntityDefinition
 {

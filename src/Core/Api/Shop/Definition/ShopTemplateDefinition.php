@@ -22,7 +22,7 @@ use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Framework\ORM\Write\Flag\WriteOnly;
-use Shopware\Api\Plugin\Definition\PluginDefinition;
+use Shopware\Framework\Plugin\Definition\PluginDefinition;
 use Shopware\Api\Shop\Collection\ShopTemplateBasicCollection;
 use Shopware\Api\Shop\Collection\ShopTemplateDetailCollection;
 use Shopware\Api\Shop\Event\ShopTemplate\ShopTemplateDeletedEvent;

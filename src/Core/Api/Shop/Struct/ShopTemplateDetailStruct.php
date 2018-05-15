@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Shop\Struct;
 
-use Shopware\Api\Plugin\Struct\PluginBasicStruct;
+use Shopware\Framework\Plugin\Struct\PluginBasicStruct;
 use Shopware\Api\Shop\Collection\ShopTemplateConfigFormBasicCollection;
 use Shopware\Api\Shop\Collection\ShopTemplateConfigFormFieldBasicCollection;
 use Shopware\Api\Shop\Collection\ShopTemplateConfigPresetBasicCollection;

@@ -36,7 +36,7 @@ use Shopware\Checkout\Payment\Event\PaymentMethod\PaymentMethodWrittenEvent;
 use Shopware\Checkout\Payment\Repository\PaymentMethodRepository;
 use Shopware\Checkout\Payment\Struct\PaymentMethodBasicStruct;
 use Shopware\Checkout\Payment\Struct\PaymentMethodDetailStruct;
-use Shopware\Api\Plugin\Definition\PluginDefinition;
+use Shopware\Framework\Plugin\Definition\PluginDefinition;
 use Shopware\Api\Shop\Definition\ShopDefinition;
 
 class PaymentMethodDefinition extends EntityDefinition

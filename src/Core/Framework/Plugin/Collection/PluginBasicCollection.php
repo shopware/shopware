@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api\Plugin\Collection;
+namespace Shopware\Framework\Plugin\Collection;
 
 use Shopware\Framework\ORM\EntityCollection;
-use Shopware\Api\Plugin\Struct\PluginBasicStruct;
+use Shopware\Framework\Plugin\Struct\PluginBasicStruct;
 
 class PluginBasicCollection extends EntityCollection
 {

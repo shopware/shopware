@@ -5,7 +5,7 @@ namespace Shopware\System\Config\Struct;
 use Shopware\System\Config\Collection\ConfigFormBasicCollection;
 use Shopware\System\Config\Collection\ConfigFormFieldBasicCollection;
 use Shopware\System\Config\Collection\ConfigFormTranslationBasicCollection;
-use Shopware\Api\Plugin\Struct\PluginBasicStruct;
+use Shopware\Framework\Plugin\Struct\PluginBasicStruct;
 
 class ConfigFormDetailStruct extends ConfigFormBasicStruct
 {

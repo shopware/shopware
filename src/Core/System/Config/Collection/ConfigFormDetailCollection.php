@@ -3,7 +3,7 @@
 namespace Shopware\System\Config\Collection;
 
 use Shopware\System\Config\Struct\ConfigFormDetailStruct;
-use Shopware\Api\Plugin\Collection\PluginBasicCollection;
+use Shopware\Framework\Plugin\Collection\PluginBasicCollection;
 
 class ConfigFormDetailCollection extends ConfigFormBasicCollection
 {

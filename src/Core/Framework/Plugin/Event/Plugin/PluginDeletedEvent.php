@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api\Plugin\Event\Plugin;
+namespace Shopware\Framework\Plugin\Event\Plugin;
 
 use Shopware\Framework\ORM\Write\DeletedEvent;
 use Shopware\Framework\ORM\Write\WrittenEvent;
-use Shopware\Api\Plugin\Definition\PluginDefinition;
+use Shopware\Framework\Plugin\Definition\PluginDefinition;
 
 class PluginDeletedEvent extends WrittenEvent implements DeletedEvent
 {

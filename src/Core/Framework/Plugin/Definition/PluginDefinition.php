@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api\Plugin\Definition;
+namespace Shopware\Framework\Plugin\Definition;
 
 use Shopware\System\Config\Definition\ConfigFormDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
@@ -18,13 +18,13 @@ use Shopware\Framework\ORM\Write\Flag\CascadeDelete;
 use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Checkout\Payment\Definition\PaymentMethodDefinition;
-use Shopware\Api\Plugin\Collection\PluginBasicCollection;
-use Shopware\Api\Plugin\Collection\PluginDetailCollection;
-use Shopware\Api\Plugin\Event\Plugin\PluginDeletedEvent;
-use Shopware\Api\Plugin\Event\Plugin\PluginWrittenEvent;
-use Shopware\Api\Plugin\Repository\PluginRepository;
-use Shopware\Api\Plugin\Struct\PluginBasicStruct;
-use Shopware\Api\Plugin\Struct\PluginDetailStruct;
+use Shopware\Framework\Plugin\Collection\PluginBasicCollection;
+use Shopware\Framework\Plugin\Collection\PluginDetailCollection;
+use Shopware\Framework\Plugin\Event\Plugin\PluginDeletedEvent;
+use Shopware\Framework\Plugin\Event\Plugin\PluginWrittenEvent;
+use Shopware\Framework\Plugin\Repository\PluginRepository;
+use Shopware\Framework\Plugin\Struct\PluginBasicStruct;
+use Shopware\Framework\Plugin\Struct\PluginDetailStruct;
 use Shopware\Api\Shop\Definition\ShopTemplateDefinition;
 
 class PluginDefinition extends EntityDefinition

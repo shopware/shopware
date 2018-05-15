@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Shop\Collection;
 
-use Shopware\Api\Plugin\Collection\PluginBasicCollection;
+use Shopware\Framework\Plugin\Collection\PluginBasicCollection;
 use Shopware\Api\Shop\Struct\ShopTemplateDetailStruct;
 
 class ShopTemplateDetailCollection extends ShopTemplateBasicCollection

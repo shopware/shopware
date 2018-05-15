@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api\Plugin\Event\Plugin;
+namespace Shopware\Framework\Plugin\Event\Plugin;
 
-use Shopware\Api\Plugin\Collection\PluginBasicCollection;
+use Shopware\Framework\Plugin\Collection\PluginBasicCollection;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 

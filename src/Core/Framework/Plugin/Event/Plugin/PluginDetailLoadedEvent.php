@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api\Plugin\Event\Plugin;
+namespace Shopware\Framework\Plugin\Event\Plugin;
 
 use Shopware\System\Config\Event\ConfigForm\ConfigFormBasicLoadedEvent;
 use Shopware\Checkout\Payment\Event\PaymentMethod\PaymentMethodBasicLoadedEvent;
-use Shopware\Api\Plugin\Collection\PluginDetailCollection;
+use Shopware\Framework\Plugin\Collection\PluginDetailCollection;
 use Shopware\Api\Shop\Event\ShopTemplate\ShopTemplateBasicLoadedEvent;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;

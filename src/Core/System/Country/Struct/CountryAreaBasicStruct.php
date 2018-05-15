@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Country\Struct;
 
-use Shopware\Api\Entity\Entity;
+use Shopware\Framework\ORM\Entity;
 
 class CountryAreaBasicStruct extends Entity
 {

@@ -2,8 +2,8 @@
 
 namespace Shopware\Application\Language\Struct;
 
-use Shopware\Api\Entity\Search\SearchResultInterface;
-use Shopware\Api\Entity\Search\SearchResultTrait;
+use Shopware\Framework\ORM\Search\SearchResultInterface;
+use Shopware\Framework\ORM\Search\SearchResultTrait;
 use Shopware\Application\Language\Collection\LanguageBasicCollection;
 
 class LanguageSearchResult extends LanguageBasicCollection implements SearchResultInterface

@@ -34,7 +34,7 @@ use Shopware\Checkout\Customer\Repository\CustomerAddressRepository;
 use Shopware\Checkout\Customer\Repository\CustomerGroupRepository;
 use Shopware\Checkout\Customer\Repository\CustomerRepository;
 use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
-use Shopware\Api\Entity\Search\Criteria;
+use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Application\Language\Repository\LanguageRepository;
 use Shopware\Checkout\Payment\Repository\PaymentMethodRepository;
 use Shopware\Checkout\Payment\Struct\PaymentMethodBasicStruct;

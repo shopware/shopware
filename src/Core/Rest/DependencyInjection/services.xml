@@ -19,7 +19,7 @@
         <service class="Shopware\Rest\Context\RestContextValueResolver" id="Shopware\Rest\Context\RestContextValueResolver">
             <tag name="controller.argument_value_resolver" priority="1000"/>
             <argument type="service" id="security.token_storage"/>
-            <argument type="service" id="Shopware\Api\Entity\Dbal\EntitySearcher"/>
+            <argument type="service" id="Shopware\Framework\ORM\Dbal\EntitySearcher"/>
         </service>
 
         <service class="Shopware\Rest\Command\UserCreateCommand" id="Shopware\Rest\Command\UserCreateCommand">
@@ -29,15 +29,15 @@
         </service>
 
         <service class="Shopware\Rest\Controller\ApiController" id="Shopware\Rest\Controller\ApiController" public="true">
-            <argument id="Shopware\Api\Entity\DefinitionRegistry" type="service"/>
+            <argument id="Shopware\Framework\ORM\DefinitionRegistry" type="service"/>
             <argument id="serializer" type="service"/>
             <argument id="Shopware\Rest\Response\ResponseFactory" type="service"/>
-            <argument id="Shopware\Api\Entity\Write\EntityWriter" type="service"/>
-            <argument type="service" id="Shopware\Api\Entity\Search\SearchCriteriaBuilder"/>
+            <argument id="Shopware\Framework\ORM\Write\EntityWriter" type="service"/>
+            <argument type="service" id="Shopware\Framework\ORM\Search\SearchCriteriaBuilder"/>
         </service>
 
         <service class="Shopware\Rest\Controller\SyncController" public="true" id="Shopware\Rest\Controller\SyncController" >
-            <argument type="service" id="Shopware\Api\Entity\DefinitionRegistry"/>
+            <argument type="service" id="Shopware\Framework\ORM\DefinitionRegistry"/>
             <argument type="service" id="service_container"/>
             <argument type="service" id="serializer"/>
         </service>
@@ -75,7 +75,7 @@
         </service>
 
         <service class="Shopware\Rest\ApiDefinition\Generator\OpenApi3Generator" id="Shopware\Rest\ApiDefinition\Generator\OpenApi3Generator">
-            <argument type="service" id="Shopware\Api\Entity\DefinitionRegistry" />
+            <argument type="service" id="Shopware\Framework\ORM\DefinitionRegistry" />
             <tag name="shopware.rest.definition_generator" />
         </service>
 

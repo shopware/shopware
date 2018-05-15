@@ -2,8 +2,8 @@
 
 namespace Shopware\System\Listing\Event\ListingFacetTranslation;
 
-use Shopware\Api\Entity\Write\DeletedEvent;
-use Shopware\Api\Entity\Write\WrittenEvent;
+use Shopware\Framework\ORM\Write\DeletedEvent;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 use Shopware\System\Listing\Definition\ListingFacetTranslationDefinition;
 
 class ListingFacetTranslationDeletedEvent extends WrittenEvent implements DeletedEvent

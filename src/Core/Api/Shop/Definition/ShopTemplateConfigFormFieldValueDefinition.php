@@ -2,19 +2,19 @@
 
 namespace Shopware\Api\Shop\Definition;
 
-use Shopware\Api\Entity\EntityDefinition;
-use Shopware\Api\Entity\EntityExtensionInterface;
-use Shopware\Api\Entity\Field\DateField;
-use Shopware\Api\Entity\Field\FkField;
-use Shopware\Api\Entity\Field\IdField;
-use Shopware\Api\Entity\Field\LongTextField;
-use Shopware\Api\Entity\Field\ManyToOneAssociationField;
-use Shopware\Api\Entity\Field\ReferenceVersionField;
-use Shopware\Api\Entity\Field\TenantIdField;
-use Shopware\Api\Entity\Field\VersionField;
-use Shopware\Api\Entity\FieldCollection;
-use Shopware\Api\Entity\Write\Flag\PrimaryKey;
-use Shopware\Api\Entity\Write\Flag\Required;
+use Shopware\Framework\ORM\EntityDefinition;
+use Shopware\Framework\ORM\EntityExtensionInterface;
+use Shopware\Framework\ORM\Field\DateField;
+use Shopware\Framework\ORM\Field\FkField;
+use Shopware\Framework\ORM\Field\IdField;
+use Shopware\Framework\ORM\Field\LongTextField;
+use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Framework\ORM\Field\ReferenceVersionField;
+use Shopware\Framework\ORM\Field\TenantIdField;
+use Shopware\Framework\ORM\Field\VersionField;
+use Shopware\Framework\ORM\FieldCollection;
+use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
+use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Api\Shop\Collection\ShopTemplateConfigFormFieldValueBasicCollection;
 use Shopware\Api\Shop\Collection\ShopTemplateConfigFormFieldValueDetailCollection;
 use Shopware\Api\Shop\Event\ShopTemplateConfigFormFieldValue\ShopTemplateConfigFormFieldValueDeletedEvent;

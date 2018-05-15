@@ -2,7 +2,7 @@
 
 namespace Shopware\Application\Language\Struct;
 
-use Shopware\Api\Entity\Entity;
+use Shopware\Framework\ORM\Entity;
 use Shopware\System\Locale\Struct\LocaleBasicStruct;
 
 class LanguageBasicStruct extends Entity

@@ -2,9 +2,9 @@
 
 namespace Shopware\Storefront\Subscriber;
 
-use Shopware\Api\Entity\Search\Query\ScoreQuery;
-use Shopware\Api\Entity\Search\Query\TermQuery;
-use Shopware\Api\Entity\Search\Query\TermsQuery;
+use Shopware\Framework\ORM\Search\Query\ScoreQuery;
+use Shopware\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Framework\ORM\Search\Query\TermsQuery;
 use Shopware\Defaults;
 use Shopware\Storefront\Event\ListingEvents;
 use Shopware\Storefront\Event\PageCriteriaCreatedEvent;

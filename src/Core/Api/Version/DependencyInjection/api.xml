@@ -14,30 +14,30 @@
             <tag name="shopware.entity.definition" entity="version" />
         </service>
         <service class="Shopware\Api\Version\Repository\VersionRepository" id="Shopware\Api\Version\Repository\VersionRepository.v1" public="true">
-          <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
           <argument id="Shopware\Version\VersionManager" type="service"/>
-          <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
-          <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>
          <service class="Shopware\Api\Version\Definition\VersionCommitDefinition" id="Shopware\Api\Version\Definition\VersionCommitDefinition" >
             <tag name="shopware.entity.definition" entity="version_commit" />
         </service>
         <service class="Shopware\Api\Version\Repository\VersionCommitRepository" id="Shopware\Api\Version\Repository\VersionCommitRepository.v1" public="true">
-          <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
           <argument id="Shopware\Version\VersionManager" type="service"/>
-          <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
-          <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>
          <service class="Shopware\Api\Version\Definition\VersionCommitDataDefinition" id="Shopware\Api\Version\Definition\VersionCommitDataDefinition" >
             <tag name="shopware.entity.definition" entity="version_commit_data" />
         </service>
         <service class="Shopware\Api\Version\Repository\VersionCommitDataRepository" id="Shopware\Api\Version\Repository\VersionCommitDataRepository.v1" public="true">
-          <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
           <argument id="Shopware\Version\VersionManager" type="service"/>
-          <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
-          <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>
     </services>

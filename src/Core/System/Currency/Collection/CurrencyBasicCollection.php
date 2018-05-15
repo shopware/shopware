@@ -3,7 +3,7 @@
 namespace Shopware\System\Currency\Collection;
 
 use Shopware\System\Currency\Struct\CurrencyBasicStruct;
-use Shopware\Api\Entity\EntityCollection;
+use Shopware\Framework\ORM\EntityCollection;
 
 class CurrencyBasicCollection extends EntityCollection
 {

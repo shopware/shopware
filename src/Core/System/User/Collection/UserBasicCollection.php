@@ -2,7 +2,7 @@
 
 namespace Shopware\System\User\Collection;
 
-use Shopware\Api\Entity\EntityCollection;
+use Shopware\Framework\ORM\EntityCollection;
 use Shopware\System\User\Struct\UserBasicStruct;
 
 class UserBasicCollection extends EntityCollection

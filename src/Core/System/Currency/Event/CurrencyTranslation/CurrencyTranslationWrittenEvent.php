@@ -3,7 +3,7 @@
 namespace Shopware\System\Currency\Event\CurrencyTranslation;
 
 use Shopware\System\Currency\Definition\CurrencyTranslationDefinition;
-use Shopware\Api\Entity\Write\WrittenEvent;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 
 class CurrencyTranslationWrittenEvent extends WrittenEvent
 {

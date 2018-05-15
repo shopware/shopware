@@ -3,7 +3,7 @@
 namespace Shopware\Checkout\Customer\Event\CustomerGroupTranslation;
 
 use Shopware\Checkout\Customer\Definition\CustomerGroupTranslationDefinition;
-use Shopware\Api\Entity\Write\WrittenEvent;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 
 class CustomerGroupTranslationWrittenEvent extends WrittenEvent
 {

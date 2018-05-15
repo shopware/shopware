@@ -4,9 +4,9 @@ namespace Shopware\Storefront\Navigation;
 
 use Shopware\Content\Category\Repository\CategoryRepository;
 use Shopware\Content\Category\Struct\CategoryBasicStruct;
-use Shopware\Api\Entity\Search\Criteria;
-use Shopware\Api\Entity\Search\Query\TermQuery;
-use Shopware\Api\Entity\Search\Query\TermsQuery;
+use Shopware\Framework\ORM\Search\Criteria;
+use Shopware\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Framework\ORM\Search\Query\TermsQuery;
 use Shopware\Category\Tree\TreeBuilder;
 use Shopware\Context\Struct\ApplicationContext;
 

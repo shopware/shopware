@@ -5,7 +5,7 @@ namespace Shopware\Context\Service;
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Application\Context\Collection\ContextRuleBasicCollection;
 use Shopware\Application\Context\Repository\ContextRuleRepository;
-use Shopware\Api\Entity\Search\Criteria;
+use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Cart\Cart\CartCollector;
 use Shopware\Cart\Cart\CartPersisterInterface;
 use Shopware\Cart\Cart\CartProcessor;

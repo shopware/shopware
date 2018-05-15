@@ -4,9 +4,9 @@ namespace Shopware\Api\Test\Version;
 
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
-use Shopware\Api\Entity\Search\Criteria;
-use Shopware\Api\Entity\Search\Query\RangeQuery;
-use Shopware\Api\Entity\Search\Query\TermQuery;
+use Shopware\Framework\ORM\Search\Criteria;
+use Shopware\Framework\ORM\Search\Query\RangeQuery;
+use Shopware\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Content\Product\Definition\ProductDefinition;
 use Shopware\Content\Product\Definition\ProductTranslationDefinition;
 use Shopware\Content\Product\Repository\ProductRepository;

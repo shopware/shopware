@@ -2,8 +2,8 @@
 
 namespace Shopware\System\Listing\Struct;
 
-use Shopware\Api\Entity\Search\SearchResultInterface;
-use Shopware\Api\Entity\Search\SearchResultTrait;
+use Shopware\Framework\ORM\Search\SearchResultInterface;
+use Shopware\Framework\ORM\Search\SearchResultTrait;
 use Shopware\System\Listing\Collection\ListingFacetTranslationBasicCollection;
 
 class ListingFacetTranslationSearchResult extends ListingFacetTranslationBasicCollection implements SearchResultInterface

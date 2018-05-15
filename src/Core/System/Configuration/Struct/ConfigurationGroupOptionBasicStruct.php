@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Configuration\Struct;
 
-use Shopware\Api\Entity\Entity;
+use Shopware\Framework\ORM\Entity;
 
 class ConfigurationGroupOptionBasicStruct extends Entity
 {

@@ -3,7 +3,7 @@
 namespace Shopware\System\Configuration\Collection;
 
 use Shopware\System\Configuration\Struct\ConfigurationGroupOptionTranslationBasicStruct;
-use Shopware\Api\Entity\EntityCollection;
+use Shopware\Framework\ORM\EntityCollection;
 
 class ConfigurationGroupOptionTranslationBasicCollection extends EntityCollection
 {

@@ -2,8 +2,8 @@
 
 namespace Shopware\Storefront\Seo\Product;
 
-use Shopware\Api\Entity\EntityExtensionInterface;
-use Shopware\Api\Entity\FieldCollection;
+use Shopware\Framework\ORM\EntityExtensionInterface;
+use Shopware\Framework\ORM\FieldCollection;
 use Shopware\Content\Product\Definition\ProductDefinition;
 use Shopware\Content\Product\Event\Product\ProductBasicLoadedEvent;
 use Shopware\Content\Product\Struct\ProductBasicStruct;

@@ -4,7 +4,7 @@ namespace Shopware\StorefrontApi\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Api\Entity\Search\SearchCriteriaBuilder;
+use Shopware\Framework\ORM\Search\SearchCriteriaBuilder;
 use Shopware\Content\Product\Definition\ProductDefinition;
 use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Product\Exception\ProductNotFoundException;

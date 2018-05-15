@@ -25,9 +25,12 @@ declare(strict_types=1);
 
 namespace Shopware\Framework;
 
+use Shopware\Framework\DependencyInjection\CompilerPass\DefinitionRegistryCompilerPass;
 use Shopware\Framework\DependencyInjection\ExtensionCompilerPass;
 use Shopware\Framework\DependencyInjection\FrameworkExtension;
 use Shopware\Framework\Doctrine\BridgeDatabaseCompilerPass;
+use Shopware\Framework\ORM\EntityDefinition;
+use Shopware\Framework\ORM\ExtensionRegistry;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
@@ -59,8 +62,22 @@ class Framework extends Bundle
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
         $loader->load('services.xml');
+        $loader->load('orm.xml');
 
         $container->addCompilerPass(new BridgeDatabaseCompilerPass());
         $container->addCompilerPass(new ExtensionCompilerPass());
+        $container->addCompilerPass(new DefinitionRegistryCompilerPass());
+    }
+
+    public function boot()
+    {
+        parent::boot();
+
+        $registry = $this->container->get(ExtensionRegistry::class);
+        foreach ($registry->getExtensions() as $extension) {
+            /** @var EntityDefinition $definition */
+            $definition = $extension->getDefinitionClass();
+            $definition::addExtension($extension);
+        }
     }
 }

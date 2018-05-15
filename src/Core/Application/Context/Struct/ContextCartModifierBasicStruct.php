@@ -2,7 +2,7 @@
 
 namespace Shopware\Application\Context\Struct;
 
-use Shopware\Api\Entity\Entity;
+use Shopware\Framework\ORM\Entity;
 use Shopware\Context\Rule\Rule;
 
 class ContextCartModifierBasicStruct extends Entity

@@ -3,7 +3,7 @@
 namespace Shopware\System\Config\Event\ConfigFormFieldValue;
 
 use Shopware\System\Config\Definition\ConfigFormFieldValueDefinition;
-use Shopware\Api\Entity\Write\WrittenEvent;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 
 class ConfigFormFieldValueWrittenEvent extends WrittenEvent
 {

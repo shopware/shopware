@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Shipping\Struct;
 
-use Shopware\Api\Entity\Entity;
+use Shopware\Framework\ORM\Entity;
 use Shopware\Checkout\Shipping\Collection\ShippingMethodPriceBasicCollection;
 
 class ShippingMethodBasicStruct extends Entity

@@ -2,8 +2,8 @@
 
 namespace Shopware\Content\Product\Event\ProductConfigurator;
 
-use Shopware\Api\Entity\Write\DeletedEvent;
-use Shopware\Api\Entity\Write\WrittenEvent;
+use Shopware\Framework\ORM\Write\DeletedEvent;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 use Shopware\Content\Product\Definition\ProductConfiguratorDefinition;
 
 class ProductConfiguratorDeletedEvent extends WrittenEvent implements DeletedEvent

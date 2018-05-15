@@ -21,70 +21,70 @@
             <tag name="shopware.entity.definition" entity="order" />
         </service>
         <service class="Shopware\Checkout\Order\Repository\OrderRepository" id="Shopware\Checkout\Order\Repository\OrderRepository.v1" public="true">
-          <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
           <argument id="Shopware\Version\VersionManager" type="service"/>
-          <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
-          <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>
          <service class="Shopware\Checkout\Order\Definition\OrderAddressDefinition" id="Shopware\Checkout\Order\Definition\OrderAddressDefinition" >
             <tag name="shopware.entity.definition" entity="order_address" />
         </service>
         <service class="Shopware\Checkout\Order\Repository\OrderAddressRepository" id="Shopware\Checkout\Order\Repository\OrderAddressRepository.v1" public="true">
-          <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
           <argument id="Shopware\Version\VersionManager" type="service"/>
-          <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
-          <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>
          <service class="Shopware\Checkout\Order\Definition\OrderDeliveryDefinition" id="Shopware\Checkout\Order\Definition\OrderDeliveryDefinition" >
             <tag name="shopware.entity.definition" entity="order_delivery" />
         </service>
         <service class="Shopware\Checkout\Order\Repository\OrderDeliveryRepository" id="Shopware\Checkout\Order\Repository\OrderDeliveryRepository.v1" public="true">
-          <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
           <argument id="Shopware\Version\VersionManager" type="service"/>
-          <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
-          <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>
          <service class="Shopware\Checkout\Order\Definition\OrderDeliveryPositionDefinition" id="Shopware\Checkout\Order\Definition\OrderDeliveryPositionDefinition" >
             <tag name="shopware.entity.definition" entity="order_delivery_position" />
         </service>
         <service class="Shopware\Checkout\Order\Repository\OrderDeliveryPositionRepository" id="Shopware\Checkout\Order\Repository\OrderDeliveryPositionRepository.v1" public="true">
-          <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
           <argument id="Shopware\Version\VersionManager" type="service"/>
-          <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
-          <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>
          <service class="Shopware\Checkout\Order\Definition\OrderLineItemDefinition" id="Shopware\Checkout\Order\Definition\OrderLineItemDefinition" >
             <tag name="shopware.entity.definition" entity="order_line_item" />
         </service>
         <service class="Shopware\Checkout\Order\Repository\OrderLineItemRepository" id="Shopware\Checkout\Order\Repository\OrderLineItemRepository.v1" public="true">
-          <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
           <argument id="Shopware\Version\VersionManager" type="service"/>
-          <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
-          <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>
          <service class="Shopware\Checkout\Order\Definition\OrderStateDefinition" id="Shopware\Checkout\Order\Definition\OrderStateDefinition" >
             <tag name="shopware.entity.definition" entity="order_state" />
         </service>
         <service class="Shopware\Checkout\Order\Repository\OrderStateRepository" id="Shopware\Checkout\Order\Repository\OrderStateRepository.v1" public="true">
-          <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
           <argument id="Shopware\Version\VersionManager" type="service"/>
-          <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
-          <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>
          <service class="Shopware\Checkout\Order\Definition\OrderStateTranslationDefinition" id="Shopware\Checkout\Order\Definition\OrderStateTranslationDefinition" >
             <tag name="shopware.entity.definition" entity="order_state_translation" />
         </service>
         <service class="Shopware\Checkout\Order\Repository\OrderStateTranslationRepository" id="Shopware\Checkout\Order\Repository\OrderStateTranslationRepository.v1" public="true">
-          <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
           <argument id="Shopware\Version\VersionManager" type="service"/>
-          <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
-          <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>
 
@@ -93,10 +93,10 @@
         </service>
 
         <service class="Shopware\Checkout\Order\Repository\OrderTransactionRepository" id="Shopware\Checkout\Order\Repository\OrderTransactionRepository.v1" public="true">
-            <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+            <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
             <argument id="Shopware\Version\VersionManager" type="service"/>
-            <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
-            <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
+            <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
+            <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
             <argument id="event_dispatcher" type="service"/>
         </service>
 
@@ -104,20 +104,20 @@
             <tag name="shopware.entity.definition" entity="order_transaction_state" />
         </service>
         <service class="Shopware\Checkout\Order\Repository\OrderTransactionStateRepository" id="Shopware\Checkout\Order\Repository\OrderTransactionStateRepository.v1" public="true">
-            <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+            <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
             <argument id="Shopware\Version\VersionManager" type="service"/>
-            <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
-            <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
+            <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
+            <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
             <argument id="event_dispatcher" type="service"/>
         </service>
         <service class="Shopware\Checkout\Order\Definition\OrderTransactionStateTranslationDefinition" id="Shopware\Checkout\Order\Definition\OrderTransactionStateTranslationDefinition" >
             <tag name="shopware.entity.definition" entity="order_transaction_state_translation" />
         </service>
         <service class="Shopware\Checkout\Order\Repository\OrderTransactionStateTranslationRepository" id="Shopware\Checkout\Order\Repository\OrderTransactionStateTranslationRepository.v1" public="true">
-            <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+            <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
             <argument id="Shopware\Version\VersionManager" type="service"/>
-            <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
-            <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
+            <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
+            <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
             <argument id="event_dispatcher" type="service"/>
         </service>
     </services>

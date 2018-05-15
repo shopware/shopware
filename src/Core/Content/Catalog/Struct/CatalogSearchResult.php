@@ -3,8 +3,8 @@
 namespace Shopware\Content\Catalog\Struct;
 
 use Shopware\Content\Catalog\Collection\CatalogBasicCollection;
-use Shopware\Api\Entity\Search\SearchResultInterface;
-use Shopware\Api\Entity\Search\SearchResultTrait;
+use Shopware\Framework\ORM\Search\SearchResultInterface;
+use Shopware\Framework\ORM\Search\SearchResultTrait;
 
 class CatalogSearchResult extends CatalogBasicCollection implements SearchResultInterface
 {

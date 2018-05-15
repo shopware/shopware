@@ -2,7 +2,7 @@
 
 namespace Shopware\Rest\Exception;
 
-use Shopware\Api\Entity\Write\FieldException\WriteStackException;
+use Shopware\Framework\ORM\Write\FieldException\WriteStackException;
 use Shopware\Framework\ShopwareException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 

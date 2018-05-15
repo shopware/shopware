@@ -3,7 +3,7 @@
 namespace Shopware\Api\Shop\Struct;
 
 use Shopware\System\Currency\Struct\CurrencyBasicStruct;
-use Shopware\Api\Entity\Entity;
+use Shopware\Framework\ORM\Entity;
 use Shopware\System\Locale\Struct\LocaleBasicStruct;
 
 class ShopBasicStruct extends Entity

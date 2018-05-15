@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Mail\Event\Mail;
 
-use Shopware\Api\Entity\Write\WrittenEvent;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 use Shopware\System\Mail\Definition\MailDefinition;
 
 class MailWrittenEvent extends WrittenEvent

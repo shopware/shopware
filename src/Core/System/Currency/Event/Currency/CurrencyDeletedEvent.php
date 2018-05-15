@@ -3,8 +3,8 @@
 namespace Shopware\System\Currency\Event\Currency;
 
 use Shopware\System\Currency\Definition\CurrencyDefinition;
-use Shopware\Api\Entity\Write\DeletedEvent;
-use Shopware\Api\Entity\Write\WrittenEvent;
+use Shopware\Framework\ORM\Write\DeletedEvent;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 
 class CurrencyDeletedEvent extends WrittenEvent implements DeletedEvent
 {

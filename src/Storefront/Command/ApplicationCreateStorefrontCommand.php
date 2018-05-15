@@ -4,7 +4,7 @@ namespace Shopware\Storefront\Command;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Application\Application\Repository\ApplicationRepository;
-use Shopware\Api\Entity\Write\FieldException\WriteStackException;
+use Shopware\Framework\ORM\Write\FieldException\WriteStackException;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\Uuid;

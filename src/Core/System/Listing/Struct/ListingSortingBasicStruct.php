@@ -2,8 +2,8 @@
 
 namespace Shopware\System\Listing\Struct;
 
-use Shopware\Api\Entity\Entity;
-use Shopware\Api\Entity\Search\Sorting\FieldSorting;
+use Shopware\Framework\ORM\Entity;
+use Shopware\Framework\ORM\Search\Sorting\FieldSorting;
 
 class ListingSortingBasicStruct extends Entity
 {

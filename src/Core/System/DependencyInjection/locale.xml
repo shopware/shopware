@@ -13,20 +13,20 @@
             <tag name="shopware.entity.definition" entity="locale" />
         </service>
         <service class="Shopware\System\Locale\Repository\LocaleRepository" id="Shopware\System\Locale\Repository\LocaleRepository.v1" public="true">
-          <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
           <argument id="Shopware\Version\VersionManager" type="service"/>
-          <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
-          <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>
          <service class="Shopware\System\Locale\Definition\LocaleTranslationDefinition" id="Shopware\System\Locale\Definition\LocaleTranslationDefinition" >
             <tag name="shopware.entity.definition" entity="locale_translation" />
         </service>
         <service class="Shopware\System\Locale\Repository\LocaleTranslationRepository" id="Shopware\System\Locale\Repository\LocaleTranslationRepository.v1" public="true">
-          <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
           <argument id="Shopware\Version\VersionManager" type="service"/>
-          <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
-          <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>
     </services>

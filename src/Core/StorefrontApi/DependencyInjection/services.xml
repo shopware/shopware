@@ -28,7 +28,7 @@
         <service class="Shopware\StorefrontApi\Controller\ProductController" id="Shopware\StorefrontApi\Controller\ProductController" public="true">
             <argument id="Shopware\StorefrontApi\Product\StorefrontProductRepository" type="service"/>
             <argument type="service" id="Shopware\Rest\Response\ResponseFactory"/>
-            <argument type="service" id="Shopware\Api\Entity\Search\SearchCriteriaBuilder"/>
+            <argument type="service" id="Shopware\Framework\ORM\Search\SearchCriteriaBuilder"/>
         </service>
 
         <service class="Shopware\StorefrontApi\Controller\CheckoutController" id="Shopware\StorefrontApi\Controller\CheckoutController" public="true">
@@ -60,7 +60,7 @@
 
         <service class="Shopware\StorefrontApi\Search\KeywordSearchTermInterpreter" id="Shopware\StorefrontApi\Search\KeywordSearchTermInterpreter">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="Shopware\Api\Entity\Search\Term\Tokenizer"/>
+            <argument type="service" id="Shopware\Framework\ORM\Search\Term\Tokenizer"/>
             <argument type="service" id="logger"/>
         </service>
 

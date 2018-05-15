@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Mail\Event\MailAttachment;
 
-use Shopware\Api\Entity\Write\WrittenEvent;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 use Shopware\System\Mail\Definition\MailAttachmentDefinition;
 
 class MailAttachmentWrittenEvent extends WrittenEvent

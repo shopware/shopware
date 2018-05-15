@@ -3,11 +3,11 @@
 namespace Shopware\Api\Test\Product\Repository;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Api\Entity\Entity;
-use Shopware\Api\Entity\Search\Criteria;
-use Shopware\Api\Entity\Search\Term\EntityScoreQueryBuilder;
-use Shopware\Api\Entity\Search\Term\SearchPattern;
-use Shopware\Api\Entity\Search\Term\SearchTerm;
+use Shopware\Framework\ORM\Entity;
+use Shopware\Framework\ORM\Search\Criteria;
+use Shopware\Framework\ORM\Search\Term\EntityScoreQueryBuilder;
+use Shopware\Framework\ORM\Search\Term\SearchPattern;
+use Shopware\Framework\ORM\Search\Term\SearchTerm;
 use Shopware\Content\Product\Definition\ProductDefinition;
 use Shopware\Content\Product\Repository\ProductRepository;
 use Shopware\Context\Struct\ApplicationContext;

@@ -2,8 +2,8 @@
 
 namespace Shopware\System\Tax\Struct;
 
-use Shopware\Api\Entity\Search\SearchResultInterface;
-use Shopware\Api\Entity\Search\SearchResultTrait;
+use Shopware\Framework\ORM\Search\SearchResultInterface;
+use Shopware\Framework\ORM\Search\SearchResultTrait;
 use Shopware\System\Tax\Collection\TaxAreaRuleTranslationBasicCollection;
 
 class TaxAreaRuleTranslationSearchResult extends TaxAreaRuleTranslationBasicCollection implements SearchResultInterface

@@ -1,0 +1,174 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+
+        <service class="Shopware\Framework\ORM\Dbal\EntityDefinitionQueryHelper" id="Shopware\Framework\ORM\Dbal\EntityDefinitionQueryHelper" >
+            <argument type="service" id="Shopware\Framework\ORM\Dbal\FieldResolver\FieldResolverRegistry"/>
+            <argument type="service" id="Shopware\Framework\ORM\Dbal\FieldAccessorBuilder\FieldAccessorBuilderRegistry"/>
+        </service>
+
+        <service class="Shopware\Framework\ORM\Dbal\EntityHydrator" id="Shopware\Framework\ORM\Dbal\EntityHydrator">
+            <argument type="service" id="serializer"/>
+        </service>
+
+        <service class="Shopware\Framework\ORM\Search\Term\Tokenizer" id="Shopware\Framework\ORM\Search\Term\Tokenizer"/>
+
+        <service class="Shopware\Framework\ORM\Search\Term\StopWordFilter" id="Shopware\Framework\ORM\Search\Term\StopWordFilter"/>
+
+        <service class="Shopware\Framework\ORM\Search\Term\SearchTermInterpreter" id="Shopware\Framework\ORM\Search\Term\SearchTermInterpreter" public="true">
+            <argument id="Shopware\Framework\ORM\Search\Term\Tokenizer" type="service"/>
+        </service>
+
+        <service class="Shopware\Framework\ORM\Search\Term\EntityScoreQueryBuilder" id="Shopware\Framework\ORM\Search\Term\EntityScoreQueryBuilder" public="true"/>
+
+        <service class="Shopware\Framework\ORM\Search\SearchCriteriaBuilder" id="Shopware\Framework\ORM\Search\SearchCriteriaBuilder">
+            <argument id="Shopware\Framework\ORM\Search\Term\SearchTermInterpreter" type="service"/>
+            <argument id="Shopware\Framework\ORM\Search\Term\EntityScoreQueryBuilder" type="service"/>
+        </service>
+
+        <service class="Shopware\Framework\ORM\ExtensionRegistry" id="Shopware\Framework\ORM\ExtensionRegistry" public="true">
+            <argument type="tagged" tag="shopware.entity.extension" />
+        </service>
+
+        <service class="Shopware\Framework\ORM\DefinitionRegistry" id="Shopware\Framework\ORM\DefinitionRegistry">
+            <argument type="collection" />
+        </service>
+
+        <service class="Shopware\Framework\ORM\Dbal\EntityReader" id="Shopware\Framework\ORM\Dbal\EntityReader">
+            <argument id="Doctrine\DBAL\Connection" type="service"/>
+            <argument type="service" id="Shopware\Framework\ORM\Dbal\EntitySearcher"/>
+            <argument type="service" id="Shopware\Framework\ORM\Dbal\EntityHydrator"/>
+            <argument type="service" id="Shopware\Framework\ORM\Dbal\EntityDefinitionQueryHelper"/>
+        </service>
+
+        <service class="Shopware\Framework\ORM\Dbal\EntityAggregator" id="Shopware\Framework\ORM\Dbal\EntityAggregator">
+            <argument id="Doctrine\DBAL\Connection" type="service"/>
+            <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
+            <tag name="shopware.traceable" label="entity.aggregator" />
+            <argument type="service" id="Shopware\Framework\ORM\Search\Parser\SqlQueryParser"/>
+            <argument type="service" id="Shopware\Framework\ORM\Dbal\EntityDefinitionQueryHelper"/>
+        </service>
+
+        <service class="Shopware\Framework\ORM\Dbal\EntitySearcher" id="Shopware\Framework\ORM\Dbal\EntitySearcher" >
+            <argument id="Doctrine\DBAL\Connection" type="service"/>
+            <argument type="service" id="Shopware\Framework\ORM\Search\Parser\SqlQueryParser"/>
+            <argument type="service" id="Shopware\Framework\ORM\Dbal\EntityDefinitionQueryHelper"/>
+        </service>
+
+        <service class="Shopware\Framework\ORM\Write\EntityWriter" id="Shopware\Framework\ORM\Write\EntityWriter" public="true">
+            <argument type="service" id="Shopware\Framework\ORM\Write\WriteCommandExtractor"/>
+            <argument type="service" id="Shopware\Framework\ORM\Write\FieldAware\DefaultExtender"/>
+            <argument type="service" id="Shopware\Framework\ORM\Dbal\EntityForeignKeyResolver"/>
+            <argument id="Shopware\Framework\ORM\Dbal\EntityWriteGateway" type="service"/>
+            <tag name="shopware.traceable" label="entity.writer" />
+        </service>
+
+        <service class="Shopware\Framework\ORM\Write\WriteCommandExtractor" id="Shopware\Framework\ORM\Write\WriteCommandExtractor">
+            <argument id="Shopware\Framework\ORM\Dbal\EntityWriteGateway" type="service"/>
+        </service>
+
+        <service class="Shopware\Framework\ORM\Dbal\EntityWriteGateway" id="Shopware\Framework\ORM\Dbal\EntityWriteGateway">
+            <argument id="Doctrine\DBAL\Connection" type="service"/>
+            <tag name="shopware.traceable" label="entity.write-gateway" />
+        </service>
+
+        <service id="Shopware\Framework\ORM\Write\Validation\ConstraintBuilder" class="Shopware\Framework\ORM\Write\Validation\ConstraintBuilder"/>
+
+        <service class="Shopware\Framework\ORM\Write\FieldAware\DefaultExtender" id="Shopware\Framework\ORM\Write\FieldAware\DefaultExtender">
+            <argument id="validator" type="service"/>
+            <argument id="Shopware\Framework\ORM\Write\Validation\ConstraintBuilder" type="service"/>
+            <argument id="Shopware\Framework\ORM\Write\IdGenerator\GeneratorRegistry" type="service"/>
+            <argument id="Shopware\Framework\ORM\Write\Filter\FilterRegistry" type="service"/>
+            <argument id="Shopware\Framework\ORM\Write\ValueTransformer\ValueTransformerRegistry" type="service"/>
+        </service>
+
+        <service class="Shopware\Framework\ORM\Search\Parser\SqlQueryParser" id="Shopware\Framework\ORM\Search\Parser\SqlQueryParser">
+            <argument type="service" id="Shopware\Framework\ORM\Dbal\EntityDefinitionQueryHelper"/>
+        </service>
+
+        <!-- Value transformer -->
+        <service class="Shopware\Framework\ORM\Write\ValueTransformer\ValueTransformerRegistry" id="Shopware\Framework\ORM\Write\ValueTransformer\ValueTransformerRegistry">
+            <argument type="tagged" tag="shopware.api.entity.write.value_transformer" />
+        </service>
+
+        <service class="Shopware\Framework\ORM\Write\ValueTransformer\ValueTransformerDate" id="Shopware\Framework\ORM\Write\ValueTransformer\ValueTransformerDate">
+            <tag name="shopware.api.entity.write.value_transformer"/>
+        </service>
+
+        <service class="Shopware\Framework\ORM\Write\ValueTransformer\ValueTransformerBoolean" id="Shopware\Framework\ORM\Write\ValueTransformer\ValueTransformerBoolean">
+            <tag name="shopware.api.entity.write.value_transformer"/>
+        </service>
+
+        <!-- Filter -->
+        <service class="Shopware\Framework\ORM\Write\Filter\FilterRegistry" id="Shopware\Framework\ORM\Write\Filter\FilterRegistry">
+            <argument type="tagged" tag="shopware.api.entity.write.filter" />
+        </service>
+
+        <service class="Shopware\Framework\ORM\Write\Filter\HtmlFilter" id="Shopware\Framework\ORM\Write\Filter\HtmlFilter">
+            <tag name="shopware.api.entity.write.filter"/>
+        </service>
+
+        <!-- ID GENERATOR -->
+        <service class="Shopware\Framework\ORM\Write\IdGenerator\GeneratorRegistry" id="Shopware\Framework\ORM\Write\IdGenerator\GeneratorRegistry">
+            <argument type="tagged" tag="shopware.api.entity.write.id_generator" />
+        </service>
+
+
+        <service class="Shopware\Framework\ORM\Write\IdGenerator\RamseyGenerator" id="Shopware\Framework\ORM\Write\IdGenerator\RamseyGenerator">
+            <tag name="shopware.api.entity.write.id_generator"/>
+        </service>
+
+        <service class="Shopware\Framework\ORM\Dbal\EntityForeignKeyResolver" id="Shopware\Framework\ORM\Dbal\EntityForeignKeyResolver">
+            <argument id="Doctrine\DBAL\Connection" type="service"/>
+            <argument type="service" id="Shopware\Framework\ORM\Dbal\EntityDefinitionQueryHelper"/>
+        </service>
+
+        <service class="Shopware\Framework\ORM\Dbal\FieldResolver\FieldResolverRegistry" id="Shopware\Framework\ORM\Dbal\FieldResolver\FieldResolverRegistry">
+            <argument type="tagged" tag="shopware.entity.field_resolver" />
+        </service>
+
+        <service class="Shopware\Framework\ORM\Dbal\FieldResolver\ManyToOneAssociationFieldResolver" id="Shopware\Framework\ORM\Dbal\FieldResolver\ManyToOneAssociationFieldResolver">
+            <tag name="shopware.entity.field_resolver" priority="-50" />
+        </service>
+
+        <service class="Shopware\Framework\ORM\Dbal\FieldResolver\OneToManyAssociationFieldResolver" id="Shopware\Framework\ORM\Dbal\FieldResolver\OneToManyAssociationFieldResolver">
+            <tag name="shopware.entity.field_resolver" priority="-50" />
+        </service>
+
+        <service class="Shopware\Framework\ORM\Dbal\FieldResolver\ManyToManyAssociationFieldResolver" id="Shopware\Framework\ORM\Dbal\FieldResolver\ManyToManyAssociationFieldResolver">
+            <tag name="shopware.entity.field_resolver" priority="-50" />
+        </service>
+
+        <service class="Shopware\Framework\ORM\Dbal\FieldResolver\TranslationFieldResolver" id="Shopware\Framework\ORM\Dbal\FieldResolver\TranslationFieldResolver">
+            <tag name="shopware.entity.field_resolver"  priority="-50" />
+        </service>
+
+        <service class="Shopware\Framework\ORM\Dbal\FieldResolver\ProductCoverFieldResolver" id="Shopware\Framework\ORM\Dbal\FieldResolver\ProductCoverFieldResolver">
+            <tag name="shopware.entity.field_resolver" />
+        </service>
+
+        <service class="Shopware\Framework\ORM\Dbal\FieldAccessorBuilder\FieldAccessorBuilderRegistry" id="Shopware\Framework\ORM\Dbal\FieldAccessorBuilder\FieldAccessorBuilderRegistry">
+            <argument type="tagged" tag="shopware.entity.field_accessor_builder" />
+        </service>
+
+        <service class="Shopware\Framework\ORM\Dbal\FieldAccessorBuilder\ContextPriceFieldAccessorBuilder" id="Shopware\Framework\ORM\Dbal\FieldAccessorBuilder\ContextPriceFieldAccessorBuilder">
+            <tag name="shopware.entity.field_accessor_builder" priority="-50" />
+        </service>
+
+        <service class="Shopware\Framework\ORM\Dbal\FieldAccessorBuilder\PriceFieldAccessorBuilder" id="Shopware\Framework\ORM\Dbal\FieldAccessorBuilder\PriceFieldAccessorBuilder">
+            <tag name="shopware.entity.field_accessor_builder" priority="-100" />
+        </service>
+
+        <service class="Shopware\Framework\ORM\Dbal\FieldAccessorBuilder\JsonObjectFieldAccessorBuilder" id="Shopware\Framework\ORM\Dbal\FieldAccessorBuilder\JsonObjectFieldAccessorBuilder">
+            <tag name="shopware.entity.field_accessor_builder" priority="-150" />
+        </service>
+
+        <service class="Shopware\Framework\ORM\Dbal\FieldAccessorBuilder\StandardFieldAccessorBuilder" id="Shopware\Framework\ORM\Dbal\FieldAccessorBuilder\StandardFieldAccessorBuilder">
+            <tag name="shopware.entity.field_accessor_builder" priority="-200" />
+        </service>
+    </services>
+</container>

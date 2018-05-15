@@ -3,7 +3,7 @@
 namespace Shopware\Rest\Test\Controller;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Api\Entity\Search\Criteria;
+use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\Struct\Uuid;
 use Shopware\PlatformRequest;
 use Shopware\Rest\Test\ApiTestCase;

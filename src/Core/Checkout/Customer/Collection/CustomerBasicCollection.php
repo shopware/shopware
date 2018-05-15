@@ -4,7 +4,7 @@ namespace Shopware\Checkout\Customer\Collection;
 
 use Shopware\Application\Application\Collection\ApplicationBasicCollection;
 use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
-use Shopware\Api\Entity\EntityCollection;
+use Shopware\Framework\ORM\EntityCollection;
 use Shopware\Checkout\Payment\Collection\PaymentMethodBasicCollection;
 
 class CustomerBasicCollection extends EntityCollection

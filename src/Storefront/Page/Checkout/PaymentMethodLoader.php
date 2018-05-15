@@ -2,8 +2,8 @@
 
 namespace Shopware\Storefront\Page\Checkout;
 
-use Shopware\Api\Entity\Search\Criteria;
-use Shopware\Api\Entity\Search\Query\TermQuery;
+use Shopware\Framework\ORM\Search\Criteria;
+use Shopware\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Checkout\Payment\Collection\PaymentMethodBasicCollection;
 use Shopware\Checkout\Payment\Repository\PaymentMethodRepository;
 use Shopware\Context\Struct\ApplicationContext;

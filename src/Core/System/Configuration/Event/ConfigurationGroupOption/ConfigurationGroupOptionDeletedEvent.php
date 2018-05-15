@@ -3,8 +3,8 @@
 namespace Shopware\System\Configuration\Event\ConfigurationGroupOption;
 
 use Shopware\System\Configuration\Definition\ConfigurationGroupOptionDefinition;
-use Shopware\Api\Entity\Write\DeletedEvent;
-use Shopware\Api\Entity\Write\WrittenEvent;
+use Shopware\Framework\ORM\Write\DeletedEvent;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 
 class ConfigurationGroupOptionDeletedEvent extends WrittenEvent implements DeletedEvent
 {

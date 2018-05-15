@@ -2,7 +2,7 @@
 
 namespace Shopware\DbalIndexing\Indexer;
 
-use Shopware\Api\Entity\Write\GenericWrittenEvent;
+use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Content\Product\Repository\ProductRepository;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\DbalIndexing\Common\EventIdExtractor;
@@ -14,7 +14,7 @@ use Shopware\DbalIndexing\Indexer\IndexerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Doctrine\DBAL\Connection;
 use Shopware\Application\Context\Struct\ContextPriceStruct;
-use Shopware\Api\Entity\Field\ContextPricesJsonField;
+use Shopware\Framework\ORM\Field\ContextPricesJsonField;
 use Shopware\Content\Product\Struct\PriceStruct;
 use Shopware\Framework\Struct\Uuid;
 

@@ -2,7 +2,7 @@
 
 namespace Shopware\Content\Product\Collection;
 
-use Shopware\Api\Entity\EntityCollection;
+use Shopware\Framework\ORM\EntityCollection;
 use Shopware\Content\Media\Collection\MediaBasicCollection;
 use Shopware\Content\Product\Struct\ProductMediaBasicStruct;
 

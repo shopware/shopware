@@ -25,8 +25,8 @@
         </service>
 
         <service class="Shopware\DbalIndexing\Indexer\Analyzer\LanguageAnalyzer" id="Shopware\DbalIndexing\Indexer\Analyzer\LanguageAnalyzer">
-            <argument id="Shopware\Api\Entity\Search\Term\Tokenizer" type="service"/>
-            <argument id="Shopware\Api\Entity\Search\Term\StopWordFilter" type="service"/>
+            <argument id="Shopware\Framework\ORM\Search\Term\Tokenizer" type="service"/>
+            <argument id="Shopware\Framework\ORM\Search\Term\StopWordFilter" type="service"/>
             <tag name="shopware.search_analyzer" />
         </service>
 

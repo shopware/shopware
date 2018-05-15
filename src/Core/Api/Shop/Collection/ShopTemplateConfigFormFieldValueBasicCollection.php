@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Shop\Collection;
 
-use Shopware\Api\Entity\EntityCollection;
+use Shopware\Framework\ORM\EntityCollection;
 use Shopware\Api\Shop\Struct\ShopTemplateConfigFormFieldValueBasicStruct;
 
 class ShopTemplateConfigFormFieldValueBasicCollection extends EntityCollection

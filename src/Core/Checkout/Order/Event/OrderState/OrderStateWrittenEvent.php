@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Order\Event\OrderState;
 
-use Shopware\Api\Entity\Write\WrittenEvent;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 use Shopware\Checkout\Order\Definition\OrderStateDefinition;
 
 class OrderStateWrittenEvent extends WrittenEvent

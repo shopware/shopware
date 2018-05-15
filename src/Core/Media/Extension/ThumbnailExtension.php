@@ -2,12 +2,12 @@
 
 namespace Shopware\Media\Extension;
 
-use Shopware\Api\Entity\EntityExtensionInterface;
-use Shopware\Api\Entity\Field\StructCollectionField;
-use Shopware\Api\Entity\FieldCollection;
-use Shopware\Api\Entity\Write\Flag\Deferred;
-use Shopware\Api\Entity\Write\Flag\Extension;
-use Shopware\Api\Entity\Write\Flag\ReadOnly;
+use Shopware\Framework\ORM\EntityExtensionInterface;
+use Shopware\Framework\ORM\Field\StructCollectionField;
+use Shopware\Framework\ORM\FieldCollection;
+use Shopware\Framework\ORM\Write\Flag\Deferred;
+use Shopware\Framework\ORM\Write\Flag\Extension;
+use Shopware\Framework\ORM\Write\Flag\ReadOnly;
 use Shopware\Content\Media\Definition\MediaDefinition;
 use Shopware\Content\Media\Event\Media\MediaBasicLoadedEvent;
 use Shopware\Content\Media\Struct\MediaBasicStruct;

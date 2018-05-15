@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Log\Struct;
 
-use Shopware\Api\Entity\Entity;
+use Shopware\Framework\ORM\Entity;
 
 class LogBasicStruct extends Entity
 {

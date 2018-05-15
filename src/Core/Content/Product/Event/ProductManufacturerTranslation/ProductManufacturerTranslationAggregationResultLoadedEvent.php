@@ -2,7 +2,7 @@
 
 namespace Shopware\Content\Product\Event\ProductManufacturerTranslation;
 
-use Shopware\Api\Entity\Search\AggregatorResult;
+use Shopware\Framework\ORM\Search\AggregatorResult;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 

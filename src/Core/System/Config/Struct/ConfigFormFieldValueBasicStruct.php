@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Config\Struct;
 
-use Shopware\Api\Entity\Entity;
+use Shopware\Framework\ORM\Entity;
 
 class ConfigFormFieldValueBasicStruct extends Entity
 {

@@ -2,10 +2,10 @@
 
 namespace Shopware\Traceable\Dbal;
 
-use Shopware\Api\Entity\EntityDefinition;
-use Shopware\Api\Entity\Search\Criteria;
-use Shopware\Api\Entity\Search\EntitySearcherInterface;
-use Shopware\Api\Entity\Search\IdSearchResult;
+use Shopware\Framework\ORM\EntityDefinition;
+use Shopware\Framework\ORM\Search\Criteria;
+use Shopware\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Framework\ORM\Search\IdSearchResult;
 use Shopware\Context\Struct\ApplicationContext;
 use Symfony\Component\Stopwatch\Stopwatch;
 

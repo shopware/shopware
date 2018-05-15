@@ -3,7 +3,7 @@
 namespace Shopware\System\Config\Collection;
 
 use Shopware\System\Config\Struct\ConfigFormBasicStruct;
-use Shopware\Api\Entity\EntityCollection;
+use Shopware\Framework\ORM\EntityCollection;
 
 class ConfigFormBasicCollection extends EntityCollection
 {

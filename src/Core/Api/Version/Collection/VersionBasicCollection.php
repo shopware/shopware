@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Version\Collection;
 
-use Shopware\Api\Entity\EntityCollection;
+use Shopware\Framework\ORM\EntityCollection;
 use Shopware\Api\Version\Struct\VersionBasicStruct;
 
 class VersionBasicCollection extends EntityCollection

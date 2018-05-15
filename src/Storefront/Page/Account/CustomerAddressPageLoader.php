@@ -3,8 +3,8 @@
 namespace Shopware\Storefront\Page\Account;
 
 use Shopware\Checkout\Customer\Repository\CustomerAddressRepository;
-use Shopware\Api\Entity\Search\Criteria;
-use Shopware\Api\Entity\Search\Query\TermQuery;
+use Shopware\Framework\ORM\Search\Criteria;
+use Shopware\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Context\Struct\StorefrontContext;
 
 class CustomerAddressPageLoader

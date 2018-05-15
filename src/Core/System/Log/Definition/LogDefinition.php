@@ -2,17 +2,17 @@
 
 namespace Shopware\System\Log\Definition;
 
-use Shopware\Api\Entity\EntityDefinition;
-use Shopware\Api\Entity\EntityExtensionInterface;
-use Shopware\Api\Entity\Field\DateField;
-use Shopware\Api\Entity\Field\IdField;
-use Shopware\Api\Entity\Field\LongTextField;
-use Shopware\Api\Entity\Field\StringField;
-use Shopware\Api\Entity\Field\TenantIdField;
-use Shopware\Api\Entity\Field\VersionField;
-use Shopware\Api\Entity\FieldCollection;
-use Shopware\Api\Entity\Write\Flag\PrimaryKey;
-use Shopware\Api\Entity\Write\Flag\Required;
+use Shopware\Framework\ORM\EntityDefinition;
+use Shopware\Framework\ORM\EntityExtensionInterface;
+use Shopware\Framework\ORM\Field\DateField;
+use Shopware\Framework\ORM\Field\IdField;
+use Shopware\Framework\ORM\Field\LongTextField;
+use Shopware\Framework\ORM\Field\StringField;
+use Shopware\Framework\ORM\Field\TenantIdField;
+use Shopware\Framework\ORM\Field\VersionField;
+use Shopware\Framework\ORM\FieldCollection;
+use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
+use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\System\Log\Collection\LogBasicCollection;
 use Shopware\System\Log\Event\Log\LogDeletedEvent;
 use Shopware\System\Log\Event\Log\LogWrittenEvent;

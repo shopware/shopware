@@ -4,7 +4,7 @@ namespace Shopware\Checkout\Customer\Struct;
 
 use Shopware\System\Country\Struct\CountryBasicStruct;
 use Shopware\System\Country\Struct\CountryStateBasicStruct;
-use Shopware\Api\Entity\Entity;
+use Shopware\Framework\ORM\Entity;
 
 class CustomerAddressBasicStruct extends Entity
 {

@@ -3,8 +3,8 @@
 namespace Shopware\System\Config\Event\ConfigFormField;
 
 use Shopware\System\Config\Definition\ConfigFormFieldDefinition;
-use Shopware\Api\Entity\Write\DeletedEvent;
-use Shopware\Api\Entity\Write\WrittenEvent;
+use Shopware\Framework\ORM\Write\DeletedEvent;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 
 class ConfigFormFieldDeletedEvent extends WrittenEvent implements DeletedEvent
 {

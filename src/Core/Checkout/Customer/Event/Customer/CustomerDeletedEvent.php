@@ -3,8 +3,8 @@
 namespace Shopware\Checkout\Customer\Event\Customer;
 
 use Shopware\Checkout\Customer\Definition\CustomerDefinition;
-use Shopware\Api\Entity\Write\DeletedEvent;
-use Shopware\Api\Entity\Write\WrittenEvent;
+use Shopware\Framework\ORM\Write\DeletedEvent;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 
 class CustomerDeletedEvent extends WrittenEvent implements DeletedEvent
 {

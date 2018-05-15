@@ -3,7 +3,7 @@
 namespace Shopware\System\Configuration\Event\ConfigurationGroupOptionTranslation;
 
 use Shopware\System\Configuration\Definition\ConfigurationGroupOptionTranslationDefinition;
-use Shopware\Api\Entity\Write\WrittenEvent;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 
 class ConfigurationGroupOptionTranslationWrittenEvent extends WrittenEvent
 {

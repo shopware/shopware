@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Log\Collection;
 
-use Shopware\Api\Entity\EntityCollection;
+use Shopware\Framework\ORM\EntityCollection;
 use Shopware\System\Log\Struct\LogBasicStruct;
 
 class LogBasicCollection extends EntityCollection

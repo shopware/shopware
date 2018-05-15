@@ -15,8 +15,8 @@
                  id="Shopware\Administration\Search\AdministrationSearch"
                  public="true">
             <argument id="service_container" type="service"/>
-            <argument id="Shopware\Api\Entity\Search\Term\SearchTermInterpreter" type="service"/>
-            <argument id="Shopware\Api\Entity\Search\Term\EntityScoreQueryBuilder" type="service"/>
+            <argument id="Shopware\Framework\ORM\Search\Term\SearchTermInterpreter" type="service"/>
+            <argument id="Shopware\Framework\ORM\Search\Term\EntityScoreQueryBuilder" type="service"/>
             <argument id="Shopware\Api\Version\Repository\VersionCommitDataRepository" type="service"/>
         </service>
 

@@ -5,7 +5,7 @@ namespace Shopware\Checkout\Order\Struct;
 use Shopware\Application\Application\Struct\ApplicationBasicStruct;
 use Shopware\System\Currency\Struct\CurrencyBasicStruct;
 use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
-use Shopware\Api\Entity\Entity;
+use Shopware\Framework\ORM\Entity;
 use Shopware\Checkout\Payment\Struct\PaymentMethodBasicStruct;
 
 class OrderBasicStruct extends Entity

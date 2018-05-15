@@ -2,8 +2,8 @@
 
 namespace Shopware\Api;
 
-use Shopware\Api\DependencyInjection\CompilerPass\DefinitionRegistryCompilerPass;
-use Shopware\Api\Entity\EntityDefinition;
+use Shopware\Framework\DependencyInjection\CompilerPass\DefinitionRegistryCompilerPass;
+use Shopware\Framework\ORM\EntityDefinition;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -22,24 +22,8 @@ class Api extends Bundle
     {
         parent::build($container);
 
-        $container->addCompilerPass(new DefinitionRegistryCompilerPass());
-
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__));
-        $loader->load('./DependencyInjection/services.xml');
-
         $this->loadEntities($loader);
-    }
-
-    public function boot()
-    {
-        parent::boot();
-
-        $registry = $this->container->get(Entity\ExtensionRegistry::class);
-        foreach ($registry->getExtensions() as $extension) {
-            /** @var EntityDefinition $definition */
-            $definition = $extension->getDefinitionClass();
-            $definition::addExtension($extension);
-        }
     }
 
     private function loadEntities(XmlFileLoader $loader): void

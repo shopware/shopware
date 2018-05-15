@@ -2,8 +2,8 @@
 
 namespace Shopware\Api\Version\Collection;
 
-use Shopware\Api\Entity\EntityCollection;
-use Shopware\Api\Entity\EntityDefinition;
+use Shopware\Framework\ORM\EntityCollection;
+use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Api\Version\Struct\VersionCommitDataBasicStruct;
 
 class VersionCommitDataBasicCollection extends EntityCollection

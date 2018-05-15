@@ -2,8 +2,8 @@
 
 namespace Shopware\System\Locale\Struct;
 
-use Shopware\Api\Entity\Search\SearchResultInterface;
-use Shopware\Api\Entity\Search\SearchResultTrait;
+use Shopware\Framework\ORM\Search\SearchResultInterface;
+use Shopware\Framework\ORM\Search\SearchResultTrait;
 use Shopware\System\Locale\Collection\LocaleBasicCollection;
 
 class LocaleSearchResult extends LocaleBasicCollection implements SearchResultInterface

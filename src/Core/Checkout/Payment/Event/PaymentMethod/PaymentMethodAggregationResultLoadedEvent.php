@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Payment\Event\PaymentMethod;
 
-use Shopware\Api\Entity\Search\AggregatorResult;
+use Shopware\Framework\ORM\Search\AggregatorResult;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 

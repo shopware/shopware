@@ -3,7 +3,7 @@
 namespace Shopware\Content\Product\Collection;
 
 use Shopware\System\Configuration\Collection\ConfigurationGroupOptionBasicCollection;
-use Shopware\Api\Entity\EntityCollection;
+use Shopware\Framework\ORM\EntityCollection;
 use Shopware\Content\Product\Struct\ProductServiceBasicStruct;
 use Shopware\System\Tax\Collection\TaxBasicCollection;
 

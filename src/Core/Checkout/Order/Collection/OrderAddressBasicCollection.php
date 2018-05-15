@@ -4,7 +4,7 @@ namespace Shopware\Checkout\Order\Collection;
 
 use Shopware\System\Country\Collection\CountryBasicCollection;
 use Shopware\System\Country\Collection\CountryStateBasicCollection;
-use Shopware\Api\Entity\EntityCollection;
+use Shopware\Framework\ORM\EntityCollection;
 use Shopware\Checkout\Order\Struct\OrderAddressBasicStruct;
 
 class OrderAddressBasicCollection extends EntityCollection

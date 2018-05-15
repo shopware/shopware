@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Payment\Event\PaymentMethod;
 
-use Shopware\Api\Entity\Write\WrittenEvent;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 use Shopware\Checkout\Payment\Definition\PaymentMethodDefinition;
 
 class PaymentMethodWrittenEvent extends WrittenEvent

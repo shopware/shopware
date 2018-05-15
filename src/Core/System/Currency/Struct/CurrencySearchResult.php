@@ -3,8 +3,8 @@
 namespace Shopware\System\Currency\Struct;
 
 use Shopware\System\Currency\Collection\CurrencyBasicCollection;
-use Shopware\Api\Entity\Search\SearchResultInterface;
-use Shopware\Api\Entity\Search\SearchResultTrait;
+use Shopware\Framework\ORM\Search\SearchResultInterface;
+use Shopware\Framework\ORM\Search\SearchResultTrait;
 
 class CurrencySearchResult extends CurrencyBasicCollection implements SearchResultInterface
 {

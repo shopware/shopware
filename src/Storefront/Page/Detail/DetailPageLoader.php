@@ -2,9 +2,9 @@
 
 namespace Shopware\Storefront\Page\Detail;
 
-use Shopware\Api\Entity\Search\Criteria;
-use Shopware\Api\Entity\Search\Query\NestedQuery;
-use Shopware\Api\Entity\Search\Query\TermQuery;
+use Shopware\Framework\ORM\Search\Criteria;
+use Shopware\Framework\ORM\Search\Query\NestedQuery;
+use Shopware\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Content\Product\Collection\ProductConfiguratorBasicCollection;
 use Shopware\Content\Product\Repository\ProductConfiguratorRepository;
 use Shopware\Context\Struct\StorefrontContext;

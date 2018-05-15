@@ -3,7 +3,7 @@
 namespace Shopware\Api\Shop\Collection;
 
 use Shopware\System\Currency\Collection\CurrencyBasicCollection;
-use Shopware\Api\Entity\EntityCollection;
+use Shopware\Framework\ORM\EntityCollection;
 use Shopware\System\Locale\Collection\LocaleBasicCollection;
 use Shopware\Api\Shop\Struct\ShopBasicStruct;
 

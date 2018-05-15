@@ -3,7 +3,7 @@
 namespace Shopware\Content\Category\Collection;
 
 use Shopware\Content\Category\Struct\CategoryBasicStruct;
-use Shopware\Api\Entity\EntityCollection;
+use Shopware\Framework\ORM\EntityCollection;
 
 class CategoryBasicCollection extends EntityCollection
 {

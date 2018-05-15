@@ -4,7 +4,7 @@ namespace Shopware\System\Configuration\Collection;
 
 use Shopware\System\Configuration\Struct\ConfigurationGroupDetailStruct;
 use Shopware\System\Configuration\Struct\ConfigurationGroupOptionBasicStruct;
-use Shopware\Api\Entity\EntityCollection;
+use Shopware\Framework\ORM\EntityCollection;
 
 class ConfigurationGroupOptionBasicCollection extends EntityCollection
 {

@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Unit\Struct;
 
-use Shopware\Api\Entity\Entity;
+use Shopware\Framework\ORM\Entity;
 
 class UnitBasicStruct extends Entity
 {

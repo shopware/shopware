@@ -3,7 +3,7 @@
 namespace Shopware\Checkout\Customer\Struct;
 
 use Shopware\Application\Application\Struct\ApplicationBasicStruct;
-use Shopware\Api\Entity\Entity;
+use Shopware\Framework\ORM\Entity;
 use Shopware\Checkout\Payment\Struct\PaymentMethodBasicStruct;
 
 class CustomerBasicStruct extends Entity

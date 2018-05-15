@@ -2,8 +2,8 @@
 
 namespace Shopware\System\Log\Event\Log;
 
-use Shopware\Api\Entity\Write\DeletedEvent;
-use Shopware\Api\Entity\Write\WrittenEvent;
+use Shopware\Framework\ORM\Write\DeletedEvent;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 use Shopware\System\Log\Definition\LogDefinition;
 
 class LogDeletedEvent extends WrittenEvent implements DeletedEvent

@@ -2,8 +2,8 @@
 
 namespace Shopware\Api\Version\Event\VersionCommitData;
 
-use Shopware\Api\Entity\Write\DeletedEvent;
-use Shopware\Api\Entity\Write\WrittenEvent;
+use Shopware\Framework\ORM\Write\DeletedEvent;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 use Shopware\Api\Version\Definition\VersionCommitDataDefinition;
 
 class VersionCommitDataDeletedEvent extends WrittenEvent implements DeletedEvent

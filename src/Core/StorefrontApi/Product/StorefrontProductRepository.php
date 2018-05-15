@@ -3,8 +3,8 @@
 namespace Shopware\StorefrontApi\Product;
 
 use Shopware\System\Configuration\Struct\ConfigurationGroupOptionBasicStruct;
-use Shopware\Api\Entity\Search\Criteria;
-use Shopware\Api\Entity\Search\IdSearchResult;
+use Shopware\Framework\ORM\Search\Criteria;
+use Shopware\Framework\ORM\Search\IdSearchResult;
 use Shopware\Content\Product\Collection\ProductBasicCollection;
 use Shopware\Content\Product\Collection\ProductDetailCollection;
 use Shopware\Content\Product\Repository\ProductRepository;

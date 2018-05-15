@@ -3,8 +3,8 @@
 namespace Shopware\System\Country\Struct;
 
 use Shopware\System\Country\Collection\CountryAreaBasicCollection;
-use Shopware\Api\Entity\Search\SearchResultInterface;
-use Shopware\Api\Entity\Search\SearchResultTrait;
+use Shopware\Framework\ORM\Search\SearchResultInterface;
+use Shopware\Framework\ORM\Search\SearchResultTrait;
 
 class CountryAreaSearchResult extends CountryAreaBasicCollection implements SearchResultInterface
 {

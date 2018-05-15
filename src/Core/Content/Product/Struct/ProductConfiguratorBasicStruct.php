@@ -3,7 +3,7 @@
 namespace Shopware\Content\Product\Struct;
 
 use Shopware\System\Configuration\Struct\ConfigurationGroupOptionBasicStruct;
-use Shopware\Api\Entity\Entity;
+use Shopware\Framework\ORM\Entity;
 
 class ProductConfiguratorBasicStruct extends Entity
 {

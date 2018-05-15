@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Order\Event\OrderTransactionStateTranslation;
 
-use Shopware\Api\Entity\Search\IdSearchResult;
+use Shopware\Framework\ORM\Search\IdSearchResult;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 

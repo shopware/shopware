@@ -3,14 +3,14 @@
 namespace Shopware\Api\Test\Entity\Dbal;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Api\Entity\Dbal\EntityDefinitionQueryHelper;
-use Shopware\Api\Entity\Dbal\FieldAccessorBuilder\FieldAccessorBuilderRegistry;
-use Shopware\Api\Entity\Dbal\FieldAccessorBuilder\JsonObjectFieldAccessorBuilder;
-use Shopware\Api\Entity\Dbal\FieldResolver\FieldResolverRegistry;
-use Shopware\Api\Entity\EntityDefinition;
-use Shopware\Api\Entity\Field\JsonObjectField;
-use Shopware\Api\Entity\Field\TenantIdField;
-use Shopware\Api\Entity\FieldCollection;
+use Shopware\Framework\ORM\Dbal\EntityDefinitionQueryHelper;
+use Shopware\Framework\ORM\Dbal\FieldAccessorBuilder\FieldAccessorBuilderRegistry;
+use Shopware\Framework\ORM\Dbal\FieldAccessorBuilder\JsonObjectFieldAccessorBuilder;
+use Shopware\Framework\ORM\Dbal\FieldResolver\FieldResolverRegistry;
+use Shopware\Framework\ORM\EntityDefinition;
+use Shopware\Framework\ORM\Field\JsonObjectField;
+use Shopware\Framework\ORM\Field\TenantIdField;
+use Shopware\Framework\ORM\FieldCollection;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 

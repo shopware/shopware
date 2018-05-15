@@ -6,12 +6,12 @@
 
     <services>
         <service class="Shopware\Version\VersionManager" id="Shopware\Version\VersionManager">
-            <argument type="service" id="Shopware\Api\Entity\Write\EntityWriter"/>
-            <argument type="service" id="Shopware\Api\Entity\Dbal\EntityReader"/>
-            <argument type="service" id="Shopware\Api\Entity\Dbal\EntitySearcher"/>
-            <argument type="service" id="Shopware\Api\Entity\DefinitionRegistry"/>
+            <argument type="service" id="Shopware\Framework\ORM\Write\EntityWriter"/>
+            <argument type="service" id="Shopware\Framework\ORM\Dbal\EntityReader"/>
+            <argument type="service" id="Shopware\Framework\ORM\Dbal\EntitySearcher"/>
+            <argument type="service" id="Shopware\Framework\ORM\DefinitionRegistry"/>
             <argument type="service" id="security.token_storage"/>
-            <argument type="service" id="Shopware\Api\Entity\Dbal\EntityWriteGateway"/>
+            <argument type="service" id="Shopware\Framework\ORM\Dbal\EntityWriteGateway"/>
         </service>
     </services>
 </container>                

@@ -13,10 +13,10 @@
             <tag name="shopware.entity.definition" entity="plugin" />
         </service>
         <service class="Shopware\Api\Plugin\Repository\PluginRepository" id="Shopware\Api\Plugin\Repository\PluginRepository.v1" public="true">
-          <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
           <argument id="Shopware\Version\VersionManager" type="service"/>
-          <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
-          <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>
     </services>

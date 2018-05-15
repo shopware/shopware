@@ -2,9 +2,9 @@
 
 namespace Shopware\Storefront\Page\Account;
 
-use Shopware\Api\Entity\Search\Criteria;
-use Shopware\Api\Entity\Search\Query\TermQuery;
-use Shopware\Api\Entity\Search\Sorting\FieldSorting;
+use Shopware\Framework\ORM\Search\Criteria;
+use Shopware\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Framework\ORM\Search\Sorting\FieldSorting;
 use Shopware\Checkout\Order\Repository\OrderRepository;
 use Shopware\Checkout\Order\Struct\OrderSearchResult;
 use Shopware\Context\Struct\StorefrontContext;

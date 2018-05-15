@@ -4,10 +4,10 @@ namespace Shopware\Rest\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Api\Entity\DefinitionRegistry;
-use Shopware\Api\Entity\RepositoryInterface;
-use Shopware\Api\Entity\Write\FieldException\WriteStackException;
-use Shopware\Api\Entity\Write\WrittenEvent;
+use Shopware\Framework\ORM\DefinitionRegistry;
+use Shopware\Framework\ORM\RepositoryInterface;
+use Shopware\Framework\ORM\Write\FieldException\WriteStackException;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 use Shopware\Rest\Context\RestContext;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\DependencyInjection\ContainerInterface;

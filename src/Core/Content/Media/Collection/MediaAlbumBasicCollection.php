@@ -2,7 +2,7 @@
 
 namespace Shopware\Content\Media\Collection;
 
-use Shopware\Api\Entity\EntityCollection;
+use Shopware\Framework\ORM\EntityCollection;
 use Shopware\Content\Media\Struct\MediaAlbumBasicStruct;
 
 class MediaAlbumBasicCollection extends EntityCollection

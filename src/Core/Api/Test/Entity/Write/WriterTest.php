@@ -4,10 +4,10 @@ namespace Shopware\Api\Test\Entity\Write;
 
 use Doctrine\DBAL\Connection;
 use Shopware\System\Country\Definition\CountryAreaDefinition;
-use Shopware\Api\Entity\Write\EntityWriter;
-use Shopware\Api\Entity\Write\EntityWriterInterface;
-use Shopware\Api\Entity\Write\FieldException\WriteStackException;
-use Shopware\Api\Entity\Write\WriteContext;
+use Shopware\Framework\ORM\Write\EntityWriter;
+use Shopware\Framework\ORM\Write\EntityWriterInterface;
+use Shopware\Framework\ORM\Write\FieldException\WriteStackException;
+use Shopware\Framework\ORM\Write\WriteContext;
 use Shopware\Application\Language\Repository\LanguageRepository;
 use Shopware\System\Locale\Repository\LocaleRepository;
 use Shopware\Content\Product\Definition\ProductCategoryDefinition;

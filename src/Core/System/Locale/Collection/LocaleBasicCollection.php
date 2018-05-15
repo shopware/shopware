@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Locale\Collection;
 
-use Shopware\Api\Entity\EntityCollection;
+use Shopware\Framework\ORM\EntityCollection;
 use Shopware\System\Locale\Struct\LocaleBasicStruct;
 
 class LocaleBasicCollection extends EntityCollection

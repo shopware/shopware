@@ -3,7 +3,7 @@
 namespace Shopware\Checkout\Customer\Collection;
 
 use Shopware\Checkout\Customer\Struct\CustomerGroupBasicStruct;
-use Shopware\Api\Entity\EntityCollection;
+use Shopware\Framework\ORM\EntityCollection;
 
 class CustomerGroupBasicCollection extends EntityCollection
 {

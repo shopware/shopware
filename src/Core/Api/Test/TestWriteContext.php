@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Test;
 
-use Shopware\Api\Entity\Write\WriteContext;
+use Shopware\Framework\ORM\Write\WriteContext;
 use Shopware\Context\Struct\ApplicationContext;
 
 class TestWriteContext extends WriteContext

@@ -2,19 +2,19 @@
 
 namespace Shopware\Content\Product\Definition;
 
-use Shopware\Api\Entity\EntityDefinition;
-use Shopware\Api\Entity\EntityExtensionInterface;
-use Shopware\Api\Entity\Field\CatalogField;
-use Shopware\Api\Entity\Field\FkField;
-use Shopware\Api\Entity\Field\LongTextField;
-use Shopware\Api\Entity\Field\LongTextWithHtmlField;
-use Shopware\Api\Entity\Field\ManyToOneAssociationField;
-use Shopware\Api\Entity\Field\ReferenceVersionField;
-use Shopware\Api\Entity\Field\StringField;
-use Shopware\Api\Entity\Field\VersionField;
-use Shopware\Api\Entity\FieldCollection;
-use Shopware\Api\Entity\Write\Flag\PrimaryKey;
-use Shopware\Api\Entity\Write\Flag\Required;
+use Shopware\Framework\ORM\EntityDefinition;
+use Shopware\Framework\ORM\EntityExtensionInterface;
+use Shopware\Framework\ORM\Field\CatalogField;
+use Shopware\Framework\ORM\Field\FkField;
+use Shopware\Framework\ORM\Field\LongTextField;
+use Shopware\Framework\ORM\Field\LongTextWithHtmlField;
+use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Framework\ORM\Field\ReferenceVersionField;
+use Shopware\Framework\ORM\Field\StringField;
+use Shopware\Framework\ORM\Field\VersionField;
+use Shopware\Framework\ORM\FieldCollection;
+use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
+use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Application\Language\Definition\LanguageDefinition;
 use Shopware\Content\Product\Collection\ProductTranslationBasicCollection;
 use Shopware\Content\Product\Collection\ProductTranslationDetailCollection;

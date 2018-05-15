@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Payment\Struct;
 
-use Shopware\Api\Entity\Entity;
+use Shopware\Framework\ORM\Entity;
 
 class PaymentMethodBasicStruct extends Entity
 {

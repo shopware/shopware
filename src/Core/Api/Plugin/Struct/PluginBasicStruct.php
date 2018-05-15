@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Plugin\Struct;
 
-use Shopware\Api\Entity\Entity;
+use Shopware\Framework\ORM\Entity;
 
 class PluginBasicStruct extends Entity
 {

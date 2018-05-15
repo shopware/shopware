@@ -3,8 +3,8 @@
 namespace Shopware\System\Config\Event\ConfigFormTranslation;
 
 use Shopware\System\Config\Definition\ConfigFormTranslationDefinition;
-use Shopware\Api\Entity\Write\DeletedEvent;
-use Shopware\Api\Entity\Write\WrittenEvent;
+use Shopware\Framework\ORM\Write\DeletedEvent;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 
 class ConfigFormTranslationDeletedEvent extends WrittenEvent implements DeletedEvent
 {

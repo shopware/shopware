@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Snippet\Event\Snippet;
 
-use Shopware\Api\Entity\Search\AggregatorResult;
+use Shopware\Framework\ORM\Search\AggregatorResult;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 

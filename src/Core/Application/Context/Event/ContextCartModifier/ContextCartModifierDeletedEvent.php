@@ -3,8 +3,8 @@
 namespace Shopware\Application\Context\Event\ContextCartModifier;
 
 use Shopware\Application\Context\Definition\ContextCartModifierDefinition;
-use Shopware\Api\Entity\Write\DeletedEvent;
-use Shopware\Api\Entity\Write\WrittenEvent;
+use Shopware\Framework\ORM\Write\DeletedEvent;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 
 class ContextCartModifierDeletedEvent extends WrittenEvent implements DeletedEvent
 {

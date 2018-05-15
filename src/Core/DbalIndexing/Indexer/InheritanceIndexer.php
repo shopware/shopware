@@ -3,18 +3,18 @@
 namespace Shopware\DbalIndexing\Indexer;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Api\Entity\Dbal\EntityDefinitionQueryHelper;
-use Shopware\Api\Entity\EntityDefinition;
-use Shopware\Api\Entity\Field\AssociationInterface;
-use Shopware\Api\Entity\Field\Field;
-use Shopware\Api\Entity\Field\ManyToManyAssociationField;
-use Shopware\Api\Entity\Field\ManyToOneAssociationField;
-use Shopware\Api\Entity\Field\OneToManyAssociationField;
-use Shopware\Api\Entity\Field\TranslationsAssociationField;
-use Shopware\Api\Entity\FieldCollection;
-use Shopware\Api\Entity\Write\Flag\Inherited;
-use Shopware\Api\Entity\Write\GenericWrittenEvent;
-use Shopware\Api\Entity\Write\WrittenEvent;
+use Shopware\Framework\ORM\Dbal\EntityDefinitionQueryHelper;
+use Shopware\Framework\ORM\EntityDefinition;
+use Shopware\Framework\ORM\Field\AssociationInterface;
+use Shopware\Framework\ORM\Field\Field;
+use Shopware\Framework\ORM\Field\ManyToManyAssociationField;
+use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Framework\ORM\Field\OneToManyAssociationField;
+use Shopware\Framework\ORM\Field\TranslationsAssociationField;
+use Shopware\Framework\ORM\FieldCollection;
+use Shopware\Framework\ORM\Write\Flag\Inherited;
+use Shopware\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Struct\Uuid;
 

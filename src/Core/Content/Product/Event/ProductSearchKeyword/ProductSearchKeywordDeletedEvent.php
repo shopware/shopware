@@ -2,8 +2,8 @@
 
 namespace Shopware\Content\Product\Event\ProductSearchKeyword;
 
-use Shopware\Api\Entity\Write\DeletedEvent;
-use Shopware\Api\Entity\Write\WrittenEvent;
+use Shopware\Framework\ORM\Write\DeletedEvent;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 use Shopware\Content\Product\Definition\ProductSearchKeywordDefinition;
 
 class ProductSearchKeywordDeletedEvent extends WrittenEvent implements DeletedEvent

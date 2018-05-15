@@ -2,7 +2,7 @@
 
 namespace Shopware\DbalIndexing\Indexer;
 
-use Shopware\Api\Entity\Write\GenericWrittenEvent;
+use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class IndexerRegistry implements IndexerInterface, EventSubscriberInterface

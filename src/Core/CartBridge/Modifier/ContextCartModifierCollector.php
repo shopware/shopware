@@ -3,8 +3,8 @@
 namespace Shopware\CartBridge\Modifier;
 
 use Shopware\Application\Context\Repository\ContextCartModifierRepository;
-use Shopware\Api\Entity\Search\Criteria;
-use Shopware\Api\Entity\Search\Query\TermsQuery;
+use Shopware\Framework\ORM\Search\Criteria;
+use Shopware\Framework\ORM\Search\Query\TermsQuery;
 use Shopware\Cart\Cart\CartCollectorInterface;
 use Shopware\Cart\Cart\Struct\Cart;
 use Shopware\CartBridge\Modifier\Struct\ContextCartModifierFetchDefinition;

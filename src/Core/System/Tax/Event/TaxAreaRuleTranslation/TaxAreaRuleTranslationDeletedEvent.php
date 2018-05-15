@@ -2,8 +2,8 @@
 
 namespace Shopware\System\Tax\Event\TaxAreaRuleTranslation;
 
-use Shopware\Api\Entity\Write\DeletedEvent;
-use Shopware\Api\Entity\Write\WrittenEvent;
+use Shopware\Framework\ORM\Write\DeletedEvent;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 use Shopware\System\Tax\Definition\TaxAreaRuleTranslationDefinition;
 
 class TaxAreaRuleTranslationDeletedEvent extends WrittenEvent implements DeletedEvent

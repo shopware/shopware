@@ -3,7 +3,7 @@
 namespace Shopware\Framework\Test\Writer;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Api\Entity\Write\Command\WriteCommandQueue;
+use Shopware\Framework\ORM\Write\Command\WriteCommandQueue;
 
 class WriteQueryQueueTest extends TestCase
 {

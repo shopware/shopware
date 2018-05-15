@@ -3,7 +3,7 @@
 namespace Shopware\System\Config\Event\ConfigFormFieldTranslation;
 
 use Shopware\System\Config\Definition\ConfigFormFieldTranslationDefinition;
-use Shopware\Api\Entity\Write\WrittenEvent;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 
 class ConfigFormFieldTranslationWrittenEvent extends WrittenEvent
 {

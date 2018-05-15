@@ -3,7 +3,7 @@
 namespace Shopware\System\Configuration\Event\ConfigurationGroup;
 
 use Shopware\System\Configuration\Definition\ConfigurationGroupDefinition;
-use Shopware\Api\Entity\Write\WrittenEvent;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 
 class ConfigurationGroupWrittenEvent extends WrittenEvent
 {

@@ -3,7 +3,7 @@
 namespace Shopware\System\Country\Event\CountryStateTranslation;
 
 use Shopware\System\Country\Definition\CountryStateTranslationDefinition;
-use Shopware\Api\Entity\Write\WrittenEvent;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 
 class CountryStateTranslationWrittenEvent extends WrittenEvent
 {

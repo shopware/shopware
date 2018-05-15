@@ -2,8 +2,8 @@
 
 namespace Shopware\Content\Media\Struct;
 
-use Shopware\Api\Entity\Search\SearchResultInterface;
-use Shopware\Api\Entity\Search\SearchResultTrait;
+use Shopware\Framework\ORM\Search\SearchResultInterface;
+use Shopware\Framework\ORM\Search\SearchResultTrait;
 use Shopware\Content\Media\Collection\MediaAlbumBasicCollection;
 
 class MediaAlbumSearchResult extends MediaAlbumBasicCollection implements SearchResultInterface

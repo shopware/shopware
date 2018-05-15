@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Snippet\Struct;
 
-use Shopware\Api\Entity\Entity;
+use Shopware\Framework\ORM\Entity;
 
 class SnippetBasicStruct extends Entity
 {

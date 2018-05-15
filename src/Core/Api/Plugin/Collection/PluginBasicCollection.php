@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Plugin\Collection;
 
-use Shopware\Api\Entity\EntityCollection;
+use Shopware\Framework\ORM\EntityCollection;
 use Shopware\Api\Plugin\Struct\PluginBasicStruct;
 
 class PluginBasicCollection extends EntityCollection

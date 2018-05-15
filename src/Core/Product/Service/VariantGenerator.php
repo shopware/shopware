@@ -2,9 +2,9 @@
 
 namespace Shopware\Product\Service;
 
-use Shopware\Api\Entity\Search\Criteria;
-use Shopware\Api\Entity\Search\Query\TermQuery;
-use Shopware\Api\Entity\Write\GenericWrittenEvent;
+use Shopware\Framework\ORM\Search\Criteria;
+use Shopware\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Content\Product\Collection\ProductConfiguratorBasicCollection;
 use Shopware\Content\Product\Repository\ProductConfiguratorRepository;
 use Shopware\Content\Product\Repository\ProductRepository;

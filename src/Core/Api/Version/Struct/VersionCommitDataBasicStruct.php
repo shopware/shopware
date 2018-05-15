@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Version\Struct;
 
-use Shopware\Api\Entity\Entity;
+use Shopware\Framework\ORM\Entity;
 
 class VersionCommitDataBasicStruct extends Entity
 {

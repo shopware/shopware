@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Mail\Event\MailTranslation;
 
-use Shopware\Api\Entity\Write\WrittenEvent;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 use Shopware\System\Mail\Definition\MailTranslationDefinition;
 
 class MailTranslationWrittenEvent extends WrittenEvent

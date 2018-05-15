@@ -2,7 +2,7 @@
 
 namespace Shopware\Content\Catalog\Struct;
 
-use Shopware\Api\Entity\Entity;
+use Shopware\Framework\ORM\Entity;
 
 class CatalogBasicStruct extends Entity
 {

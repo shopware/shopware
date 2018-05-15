@@ -2,15 +2,15 @@
 
 namespace Shopware\Api\Version\Repository;
 
-use Shopware\Api\Entity\Read\EntityReaderInterface;
-use Shopware\Api\Entity\RepositoryInterface;
-use Shopware\Api\Entity\Search\AggregatorResult;
-use Shopware\Api\Entity\Search\Criteria;
-use Shopware\Api\Entity\Search\EntityAggregatorInterface;
-use Shopware\Api\Entity\Search\EntitySearcherInterface;
-use Shopware\Api\Entity\Search\IdSearchResult;
-use Shopware\Api\Entity\Write\GenericWrittenEvent;
-use Shopware\Api\Entity\Write\WriteContext;
+use Shopware\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Framework\ORM\RepositoryInterface;
+use Shopware\Framework\ORM\Search\AggregatorResult;
+use Shopware\Framework\ORM\Search\Criteria;
+use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
+use Shopware\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Framework\ORM\Search\IdSearchResult;
+use Shopware\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Framework\ORM\Write\WriteContext;
 use Shopware\Api\Version\Collection\VersionBasicCollection;
 use Shopware\Api\Version\Definition\VersionDefinition;
 use Shopware\Api\Version\Event\Version\VersionAggregationResultLoadedEvent;

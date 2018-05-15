@@ -2,8 +2,8 @@
 
 namespace Shopware\System\Unit\Event\Unit;
 
-use Shopware\Api\Entity\Write\DeletedEvent;
-use Shopware\Api\Entity\Write\WrittenEvent;
+use Shopware\Framework\ORM\Write\DeletedEvent;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 use Shopware\System\Unit\Definition\UnitDefinition;
 
 class UnitDeletedEvent extends WrittenEvent implements DeletedEvent

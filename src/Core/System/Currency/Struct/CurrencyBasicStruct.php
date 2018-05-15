@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Currency\Struct;
 
-use Shopware\Api\Entity\Entity;
+use Shopware\Framework\ORM\Entity;
 
 class CurrencyBasicStruct extends Entity
 {

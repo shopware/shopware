@@ -2,7 +2,7 @@
 
 namespace Shopware\Application\Language\Event\Language;
 
-use Shopware\Api\Entity\Write\WrittenEvent;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 use Shopware\Application\Language\Definition\LanguageDefinition;
 
 class LanguageWrittenEvent extends WrittenEvent

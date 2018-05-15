@@ -2,10 +2,10 @@
 
 namespace Shopware\Rest\Response\Type;
 
-use Shopware\Api\Entity\Entity;
-use Shopware\Api\Entity\EntityDefinition;
-use Shopware\Api\Entity\Search\SearchResultInterface;
-use Shopware\Api\Entity\Write\FieldException\InvalidFieldException;
+use Shopware\Framework\ORM\Entity;
+use Shopware\Framework\ORM\EntityDefinition;
+use Shopware\Framework\ORM\Search\SearchResultInterface;
+use Shopware\Framework\ORM\Write\FieldException\InvalidFieldException;
 use Shopware\Rest\Context\RestContext;
 use Shopware\Rest\Exception\WriteStackHttpException;
 use Shopware\Rest\Response\JsonApiResponse;

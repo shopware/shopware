@@ -4,8 +4,8 @@ namespace Shopware\DbalIndexing\Indexer;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Content\Catalog\Repository\CatalogRepository;
-use Shopware\Api\Entity\Search\Criteria;
-use Shopware\Api\Entity\Write\GenericWrittenEvent;
+use Shopware\Framework\ORM\Search\Criteria;
+use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Application\Language\Repository\LanguageRepository;
 use Shopware\Content\Product\Definition\ProductDefinition;
 use Shopware\Content\Product\Repository\ProductRepository;

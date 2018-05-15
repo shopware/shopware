@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Country\Event\CountryArea;
 
-use Shopware\Api\Entity\Search\AggregatorResult;
+use Shopware\Framework\ORM\Search\AggregatorResult;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 

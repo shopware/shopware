@@ -3,8 +3,8 @@
 namespace Shopware\System\Country\Event\CountryTranslation;
 
 use Shopware\System\Country\Definition\CountryTranslationDefinition;
-use Shopware\Api\Entity\Write\DeletedEvent;
-use Shopware\Api\Entity\Write\WrittenEvent;
+use Shopware\Framework\ORM\Write\DeletedEvent;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 
 class CountryTranslationDeletedEvent extends WrittenEvent implements DeletedEvent
 {

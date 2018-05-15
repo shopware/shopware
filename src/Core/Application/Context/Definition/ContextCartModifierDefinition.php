@@ -9,23 +9,23 @@ use Shopware\Application\Context\Event\ContextCartModifier\ContextCartModifierWr
 use Shopware\Application\Context\Repository\ContextCartModifierRepository;
 use Shopware\Application\Context\Struct\ContextCartModifierBasicStruct;
 use Shopware\Application\Context\Struct\ContextCartModifierDetailStruct;
-use Shopware\Api\Entity\EntityDefinition;
-use Shopware\Api\Entity\EntityExtensionInterface;
-use Shopware\Api\Entity\Field\DateField;
-use Shopware\Api\Entity\Field\FkField;
-use Shopware\Api\Entity\Field\FloatField;
-use Shopware\Api\Entity\Field\IdField;
-use Shopware\Api\Entity\Field\JsonObjectField;
-use Shopware\Api\Entity\Field\ManyToOneAssociationField;
-use Shopware\Api\Entity\Field\StringField;
-use Shopware\Api\Entity\Field\TenantIdField;
-use Shopware\Api\Entity\Field\TranslatedField;
-use Shopware\Api\Entity\Field\TranslationsAssociationField;
-use Shopware\Api\Entity\FieldCollection;
-use Shopware\Api\Entity\Write\Flag\CascadeDelete;
-use Shopware\Api\Entity\Write\Flag\PrimaryKey;
-use Shopware\Api\Entity\Write\Flag\Required;
-use Shopware\Api\Entity\Write\Flag\Serialized;
+use Shopware\Framework\ORM\EntityDefinition;
+use Shopware\Framework\ORM\EntityExtensionInterface;
+use Shopware\Framework\ORM\Field\DateField;
+use Shopware\Framework\ORM\Field\FkField;
+use Shopware\Framework\ORM\Field\FloatField;
+use Shopware\Framework\ORM\Field\IdField;
+use Shopware\Framework\ORM\Field\JsonObjectField;
+use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Framework\ORM\Field\StringField;
+use Shopware\Framework\ORM\Field\TenantIdField;
+use Shopware\Framework\ORM\Field\TranslatedField;
+use Shopware\Framework\ORM\Field\TranslationsAssociationField;
+use Shopware\Framework\ORM\FieldCollection;
+use Shopware\Framework\ORM\Write\Flag\CascadeDelete;
+use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
+use Shopware\Framework\ORM\Write\Flag\Required;
+use Shopware\Framework\ORM\Write\Flag\Serialized;
 
 class ContextCartModifierDefinition extends EntityDefinition
 {

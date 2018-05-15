@@ -2,8 +2,8 @@
 
 namespace Shopware\System\Mail\Event\Mail;
 
-use Shopware\Api\Entity\Write\DeletedEvent;
-use Shopware\Api\Entity\Write\WrittenEvent;
+use Shopware\Framework\ORM\Write\DeletedEvent;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 use Shopware\System\Mail\Definition\MailDefinition;
 
 class MailDeletedEvent extends WrittenEvent implements DeletedEvent

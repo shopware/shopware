@@ -2,10 +2,10 @@
 
 namespace Shopware\Storefront\Subscriber;
 
-use Shopware\Api\Entity\Search\Aggregation\AggregationResult;
-use Shopware\Api\Entity\Search\Aggregation\StatsAggregation;
-use Shopware\Api\Entity\Search\Query\NestedQuery;
-use Shopware\Api\Entity\Search\Query\RangeQuery;
+use Shopware\Framework\ORM\Search\Aggregation\AggregationResult;
+use Shopware\Framework\ORM\Search\Aggregation\StatsAggregation;
+use Shopware\Framework\ORM\Search\Query\NestedQuery;
+use Shopware\Framework\ORM\Search\Query\RangeQuery;
 use Shopware\Storefront\Event\ListingEvents;
 use Shopware\Storefront\Event\ListingPageLoadedEvent;
 use Shopware\Storefront\Event\PageCriteriaCreatedEvent;

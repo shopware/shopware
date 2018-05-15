@@ -5,7 +5,7 @@ namespace Shopware\Checkout\Order\Collection;
 use Shopware\Application\Application\Collection\ApplicationBasicCollection;
 use Shopware\System\Currency\Collection\CurrencyBasicCollection;
 use Shopware\Checkout\Customer\Collection\CustomerBasicCollection;
-use Shopware\Api\Entity\EntityCollection;
+use Shopware\Framework\ORM\EntityCollection;
 use Shopware\Checkout\Order\Struct\OrderBasicStruct;
 use Shopware\Checkout\Payment\Collection\PaymentMethodBasicCollection;
 

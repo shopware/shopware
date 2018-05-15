@@ -26,7 +26,7 @@ namespace Shopware\Storefront\Controller\Widgets;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Api\Entity\Search\Criteria;
+use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Defaults;
 use Shopware\Storefront\Controller\StorefrontController;

@@ -2,7 +2,7 @@
 
 namespace Shopware\Content\Media\Struct;
 
-use Shopware\Api\Entity\Entity;
+use Shopware\Framework\ORM\Entity;
 
 class MediaAlbumBasicStruct extends Entity
 {

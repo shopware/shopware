@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Customer\Event\Customer;
 
-use Shopware\Api\Entity\Search\AggregatorResult;
+use Shopware\Framework\ORM\Search\AggregatorResult;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 

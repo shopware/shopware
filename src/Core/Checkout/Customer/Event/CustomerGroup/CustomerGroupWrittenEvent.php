@@ -3,7 +3,7 @@
 namespace Shopware\Checkout\Customer\Event\CustomerGroup;
 
 use Shopware\Checkout\Customer\Definition\CustomerGroupDefinition;
-use Shopware\Api\Entity\Write\WrittenEvent;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 
 class CustomerGroupWrittenEvent extends WrittenEvent
 {

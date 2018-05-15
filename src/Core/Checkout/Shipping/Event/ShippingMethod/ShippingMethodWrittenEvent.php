@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Shipping\Event\ShippingMethod;
 
-use Shopware\Api\Entity\Write\WrittenEvent;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 use Shopware\Checkout\Shipping\Definition\ShippingMethodDefinition;
 
 class ShippingMethodWrittenEvent extends WrittenEvent

@@ -3,7 +3,7 @@
 namespace Shopware\Application\Context\Collection;
 
 use Shopware\Application\Context\Struct\ContextCartModifierTranslationBasicStruct;
-use Shopware\Api\Entity\EntityCollection;
+use Shopware\Framework\ORM\EntityCollection;
 
 class ContextCartModifierTranslationBasicCollection extends EntityCollection
 {

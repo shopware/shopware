@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Listing\Collection;
 
-use Shopware\Api\Entity\EntityCollection;
+use Shopware\Framework\ORM\EntityCollection;
 use Shopware\System\Listing\Struct\ListingSortingTranslationBasicStruct;
 
 class ListingSortingTranslationBasicCollection extends EntityCollection

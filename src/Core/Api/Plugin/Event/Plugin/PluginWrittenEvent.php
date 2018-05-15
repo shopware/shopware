@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Plugin\Event\Plugin;
 
-use Shopware\Api\Entity\Write\WrittenEvent;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 use Shopware\Api\Plugin\Definition\PluginDefinition;
 
 class PluginWrittenEvent extends WrittenEvent

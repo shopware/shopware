@@ -3,7 +3,7 @@
 namespace Shopware\Application\Context\Event\ContextRule;
 
 use Shopware\Application\Context\Definition\ContextRuleDefinition;
-use Shopware\Api\Entity\Write\WrittenEvent;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 
 class ContextRuleWrittenEvent extends WrittenEvent
 {

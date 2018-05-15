@@ -3,14 +3,14 @@
 namespace Shopware\Content\Product\Definition;
 
 use Shopware\Content\Category\Definition\CategoryDefinition;
-use Shopware\Api\Entity\Field\DateField;
-use Shopware\Api\Entity\Field\FkField;
-use Shopware\Api\Entity\Field\ManyToOneAssociationField;
-use Shopware\Api\Entity\Field\ReferenceVersionField;
-use Shopware\Api\Entity\FieldCollection;
-use Shopware\Api\Entity\MappingEntityDefinition;
-use Shopware\Api\Entity\Write\Flag\PrimaryKey;
-use Shopware\Api\Entity\Write\Flag\Required;
+use Shopware\Framework\ORM\Field\DateField;
+use Shopware\Framework\ORM\Field\FkField;
+use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Framework\ORM\Field\ReferenceVersionField;
+use Shopware\Framework\ORM\FieldCollection;
+use Shopware\Framework\ORM\MappingEntityDefinition;
+use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
+use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Content\Product\Event\ProductCategory\ProductCategoryDeletedEvent;
 use Shopware\Content\Product\Event\ProductCategory\ProductCategoryWrittenEvent;
 

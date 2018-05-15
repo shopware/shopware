@@ -4,7 +4,7 @@ namespace Shopware\Storefront\Test;
 
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
-use Shopware\Api\Entity\Search\Term\SearchTerm;
+use Shopware\Framework\ORM\Search\Term\SearchTerm;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 use Shopware\Storefront\Page\Search\KeywordSearchTermInterpreter;

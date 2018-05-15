@@ -2,8 +2,8 @@
 
 namespace Shopware\Api\Shop\Event\ShopTemplate;
 
-use Shopware\Api\Entity\Write\DeletedEvent;
-use Shopware\Api\Entity\Write\WrittenEvent;
+use Shopware\Framework\ORM\Write\DeletedEvent;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 use Shopware\Api\Shop\Definition\ShopTemplateDefinition;
 
 class ShopTemplateDeletedEvent extends WrittenEvent implements DeletedEvent

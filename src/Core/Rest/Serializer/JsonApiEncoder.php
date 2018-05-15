@@ -2,15 +2,15 @@
 
 namespace Shopware\Rest\Serializer;
 
-use Shopware\Api\Entity\EntityDefinition;
-use Shopware\Api\Entity\Field\Field;
-use Shopware\Api\Entity\Field\FkField;
-use Shopware\Api\Entity\Field\ManyToManyAssociationField;
-use Shopware\Api\Entity\Field\ManyToOneAssociationField;
-use Shopware\Api\Entity\Field\OneToManyAssociationField;
-use Shopware\Api\Entity\FieldCollection;
-use Shopware\Api\Entity\Write\Flag\Extension;
-use Shopware\Api\Entity\Write\Flag\Required;
+use Shopware\Framework\ORM\EntityDefinition;
+use Shopware\Framework\ORM\Field\Field;
+use Shopware\Framework\ORM\Field\FkField;
+use Shopware\Framework\ORM\Field\ManyToManyAssociationField;
+use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Framework\ORM\Field\OneToManyAssociationField;
+use Shopware\Framework\ORM\FieldCollection;
+use Shopware\Framework\ORM\Write\Flag\Extension;
+use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Framework\Serializer\StructDecoder;
 use Shopware\Rest\Exception\MissingDataException;
 use Shopware\Rest\Exception\MissingValueException;

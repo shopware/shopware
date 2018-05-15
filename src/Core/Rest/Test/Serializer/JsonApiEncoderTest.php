@@ -69,7 +69,7 @@ class JsonApiEncoderTest extends TestCase
     public function testEncodeWithoutDefinition(): void
     {
         $this->expectException(BadMethodCallException::class);
-        $this->expectExceptionMessage('The context key "definition" is required and must be an instance of Shopware\Api\Entity\EntityDefinition.');
+        $this->expectExceptionMessage('The context key "definition" is required and must be an instance of Shopware\Framework\ORM\EntityDefinition.');
 
         $this->encoder->encode([], 'jsonapi', ['uri' => '/api']);
     }

@@ -2,7 +2,7 @@
 
 namespace Shopware\Content\Product\Struct;
 
-use Shopware\Api\Entity\Entity;
+use Shopware\Framework\ORM\Entity;
 use Shopware\System\Listing\Struct\ListingSortingBasicStruct;
 
 class ProductStreamBasicStruct extends Entity

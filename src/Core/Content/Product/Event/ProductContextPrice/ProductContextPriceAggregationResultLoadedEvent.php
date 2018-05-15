@@ -2,7 +2,7 @@
 
 namespace Shopware\Content\Product\Event\ProductContextPrice;
 
-use Shopware\Api\Entity\Search\AggregatorResult;
+use Shopware\Framework\ORM\Search\AggregatorResult;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 

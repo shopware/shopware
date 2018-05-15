@@ -2,8 +2,8 @@
 
 namespace Shopware\Rest\Test;
 
-use Shopware\Api\Entity\DefinitionRegistry;
-use Shopware\Api\Entity\Exception\MappingEntityRepositoryException;
+use Shopware\Framework\ORM\DefinitionRegistry;
+use Shopware\Framework\ORM\Exception\MappingEntityRepositoryException;
 use Shopware\Defaults;
 use Shopware\PlatformRequest;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;

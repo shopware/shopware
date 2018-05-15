@@ -6,7 +6,7 @@ use Shopware\System\Country\Collection\CountryBasicCollection;
 use Shopware\System\Country\Collection\CountryStateBasicCollection;
 use Shopware\Checkout\Customer\Struct\CustomerAddressBasicStruct;
 use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
-use Shopware\Api\Entity\EntityCollection;
+use Shopware\Framework\ORM\EntityCollection;
 
 class CustomerAddressBasicCollection extends EntityCollection
 {

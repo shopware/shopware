@@ -5,7 +5,7 @@ namespace Shopware\Content\Product\Collection;
 use Shopware\System\Configuration\Collection\ConfigurationGroupDetailCollection;
 use Shopware\System\Configuration\Collection\ConfigurationGroupOptionBasicCollection;
 use Shopware\System\Configuration\Struct\ConfigurationGroupDetailStruct;
-use Shopware\Api\Entity\EntityCollection;
+use Shopware\Framework\ORM\EntityCollection;
 use Shopware\Content\Product\Struct\ProductConfiguratorBasicStruct;
 
 class ProductConfiguratorBasicCollection extends EntityCollection

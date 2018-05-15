@@ -3,8 +3,8 @@
 namespace Shopware\Application\Context\Event\ContextRule;
 
 use Shopware\Application\Context\Definition\ContextRuleDefinition;
-use Shopware\Api\Entity\Write\DeletedEvent;
-use Shopware\Api\Entity\Write\WrittenEvent;
+use Shopware\Framework\ORM\Write\DeletedEvent;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 
 class ContextRuleDeletedEvent extends WrittenEvent implements DeletedEvent
 {

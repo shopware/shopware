@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Mail\Collection;
 
-use Shopware\Api\Entity\EntityCollection;
+use Shopware\Framework\ORM\EntityCollection;
 use Shopware\System\Mail\Struct\MailTranslationBasicStruct;
 
 class MailTranslationBasicCollection extends EntityCollection

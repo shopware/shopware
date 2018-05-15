@@ -24,7 +24,7 @@
 
 namespace Shopware\Cart\Order;
 
-use Shopware\Api\Entity\Write\GenericWrittenEvent;
+use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Context\Struct\StorefrontContext;
 

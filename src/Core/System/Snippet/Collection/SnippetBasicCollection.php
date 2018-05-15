@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Snippet\Collection;
 
-use Shopware\Api\Entity\EntityCollection;
+use Shopware\Framework\ORM\EntityCollection;
 use Shopware\System\Snippet\Struct\SnippetBasicStruct;
 
 class SnippetBasicCollection extends EntityCollection

@@ -3,7 +3,7 @@
 namespace Shopware\Application\Context\Collection;
 
 use Shopware\Application\Context\Struct\ContextRuleBasicStruct;
-use Shopware\Api\Entity\EntityCollection;
+use Shopware\Framework\ORM\EntityCollection;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Context\MatchContext\CartRuleMatchContext;
 use Shopware\Context\Struct\StorefrontContext;

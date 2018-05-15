@@ -2,8 +2,8 @@
 
 namespace Shopware\Checkout\Order\Event\OrderStateTranslation;
 
-use Shopware\Api\Entity\Write\DeletedEvent;
-use Shopware\Api\Entity\Write\WrittenEvent;
+use Shopware\Framework\ORM\Write\DeletedEvent;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 use Shopware\Checkout\Order\Definition\OrderStateTranslationDefinition;
 
 class OrderStateTranslationDeletedEvent extends WrittenEvent implements DeletedEvent

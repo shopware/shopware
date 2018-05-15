@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Mail\Struct;
 
-use Shopware\Api\Entity\Entity;
+use Shopware\Framework\ORM\Entity;
 
 class MailTranslationBasicStruct extends Entity
 {

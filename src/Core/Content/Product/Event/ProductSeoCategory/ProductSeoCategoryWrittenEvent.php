@@ -2,7 +2,7 @@
 
 namespace Shopware\Content\Product\Event\ProductSeoCategory;
 
-use Shopware\Api\Entity\Write\WrittenEvent;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 use Shopware\Content\Product\Definition\ProductSeoCategoryDefinition;
 
 class ProductSeoCategoryWrittenEvent extends WrittenEvent

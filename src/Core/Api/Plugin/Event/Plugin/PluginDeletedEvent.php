@@ -2,8 +2,8 @@
 
 namespace Shopware\Api\Plugin\Event\Plugin;
 
-use Shopware\Api\Entity\Write\DeletedEvent;
-use Shopware\Api\Entity\Write\WrittenEvent;
+use Shopware\Framework\ORM\Write\DeletedEvent;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 use Shopware\Api\Plugin\Definition\PluginDefinition;
 
 class PluginDeletedEvent extends WrittenEvent implements DeletedEvent

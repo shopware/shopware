@@ -2,8 +2,8 @@
 
 namespace Shopware\Checkout\Order\Event\OrderDeliveryPosition;
 
-use Shopware\Api\Entity\Write\DeletedEvent;
-use Shopware\Api\Entity\Write\WrittenEvent;
+use Shopware\Framework\ORM\Write\DeletedEvent;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 use Shopware\Checkout\Order\Definition\OrderDeliveryPositionDefinition;
 
 class OrderDeliveryPositionDeletedEvent extends WrittenEvent implements DeletedEvent

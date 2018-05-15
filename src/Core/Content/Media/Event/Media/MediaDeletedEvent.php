@@ -2,8 +2,8 @@
 
 namespace Shopware\Content\Media\Event\Media;
 
-use Shopware\Api\Entity\Write\DeletedEvent;
-use Shopware\Api\Entity\Write\WrittenEvent;
+use Shopware\Framework\ORM\Write\DeletedEvent;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 use Shopware\Content\Media\Definition\MediaDefinition;
 
 class MediaDeletedEvent extends WrittenEvent implements DeletedEvent

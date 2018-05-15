@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Tax\Struct;
 
-use Shopware\Api\Entity\Entity;
+use Shopware\Framework\ORM\Entity;
 
 class TaxAreaRuleTranslationBasicStruct extends Entity
 {

@@ -4,7 +4,7 @@ namespace Shopware\Content\Product\Struct;
 
 use Shopware\System\Configuration\Struct\ConfigurationGroupOptionBasicStruct;
 use Shopware\Application\Context\Collection\ContextPriceCollection;
-use Shopware\Api\Entity\Entity;
+use Shopware\Framework\ORM\Entity;
 use Shopware\System\Tax\Struct\TaxBasicStruct;
 use Shopware\Cart\Price\Struct\PriceDefinition;
 use Shopware\Cart\Tax\Struct\PercentageTaxRule;

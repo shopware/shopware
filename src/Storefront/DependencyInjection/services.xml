@@ -104,7 +104,7 @@
         </service>
 
         <service class="Shopware\Storefront\Controller\Widgets\IndexController" public="true" id="Shopware\Storefront\Controller\Widgets\IndexController">
-            <argument type="service" id="Shopware\Api\Currency\Repository\CurrencyRepository"/>
+            <argument type="service" id="Shopware\System\Currency\Repository\CurrencyRepository"/>
             <argument type="service" id="Shopware\Api\Language\Repository\LanguageRepository"/>
         </service>
 

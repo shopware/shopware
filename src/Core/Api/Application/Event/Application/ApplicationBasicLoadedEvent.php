@@ -3,7 +3,7 @@
 namespace Shopware\Api\Application\Event\Application;
 
 use Shopware\Api\Application\Collection\ApplicationBasicCollection;
-use Shopware\Api\Currency\Event\Currency\CurrencyBasicLoadedEvent;
+use Shopware\System\Currency\Event\Currency\CurrencyBasicLoadedEvent;
 use Shopware\Api\Language\Event\Language\LanguageBasicLoadedEvent;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;

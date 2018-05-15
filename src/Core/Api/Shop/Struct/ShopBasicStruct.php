@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Shop\Struct;
 
-use Shopware\Api\Currency\Struct\CurrencyBasicStruct;
+use Shopware\System\Currency\Struct\CurrencyBasicStruct;
 use Shopware\Api\Entity\Entity;
 use Shopware\Api\Locale\Struct\LocaleBasicStruct;
 

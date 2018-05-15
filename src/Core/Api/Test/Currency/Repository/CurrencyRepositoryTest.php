@@ -3,8 +3,8 @@
 namespace Shopware\Api\Test\Currency\Repository;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Api\Currency\Definition\CurrencyDefinition;
-use Shopware\Api\Currency\Repository\CurrencyRepository;
+use Shopware\System\Currency\Definition\CurrencyDefinition;
+use Shopware\System\Currency\Repository\CurrencyRepository;
 use Shopware\Api\Entity\RepositoryInterface;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Term\EntityScoreQueryBuilder;

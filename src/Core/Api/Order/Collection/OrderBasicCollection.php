@@ -3,7 +3,7 @@
 namespace Shopware\Api\Order\Collection;
 
 use Shopware\Api\Application\Collection\ApplicationBasicCollection;
-use Shopware\Api\Currency\Collection\CurrencyBasicCollection;
+use Shopware\System\Currency\Collection\CurrencyBasicCollection;
 use Shopware\Api\Customer\Collection\CustomerBasicCollection;
 use Shopware\Api\Entity\EntityCollection;
 use Shopware\Api\Order\Struct\OrderBasicStruct;

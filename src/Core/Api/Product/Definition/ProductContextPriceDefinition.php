@@ -3,7 +3,7 @@
 namespace Shopware\Api\Product\Definition;
 
 use Shopware\Api\Context\Definition\ContextRuleDefinition;
-use Shopware\Api\Currency\Definition\CurrencyDefinition;
+use Shopware\System\Currency\Definition\CurrencyDefinition;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\Field\DateField;

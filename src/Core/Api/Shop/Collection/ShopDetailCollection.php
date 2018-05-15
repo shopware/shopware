@@ -4,7 +4,7 @@ namespace Shopware\Api\Shop\Collection;
 
 use Shopware\Api\Category\Collection\CategoryBasicCollection;
 use Shopware\System\Country\Collection\CountryBasicCollection;
-use Shopware\Api\Currency\Collection\CurrencyBasicCollection;
+use Shopware\System\Currency\Collection\CurrencyBasicCollection;
 use Shopware\Api\Customer\Collection\CustomerGroupBasicCollection;
 use Shopware\Api\Payment\Collection\PaymentMethodBasicCollection;
 use Shopware\Api\Shipping\Collection\ShippingMethodBasicCollection;

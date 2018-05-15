@@ -3,7 +3,7 @@
 namespace Shopware\Api\Product\Event\ProductContextPrice;
 
 use Shopware\Api\Context\Event\ContextRule\ContextRuleBasicLoadedEvent;
-use Shopware\Api\Currency\Event\Currency\CurrencyBasicLoadedEvent;
+use Shopware\System\Currency\Event\Currency\CurrencyBasicLoadedEvent;
 use Shopware\Api\Product\Collection\ProductContextPriceDetailCollection;
 use Shopware\Api\Product\Event\Product\ProductBasicLoadedEvent;
 use Shopware\Context\Struct\ApplicationContext;

@@ -25,7 +25,7 @@
 namespace Shopware\Context\Struct;
 
 use Shopware\Api\Application\Struct\ApplicationBasicStruct;
-use Shopware\Api\Currency\Struct\CurrencyBasicStruct;
+use Shopware\System\Currency\Struct\CurrencyBasicStruct;
 use Shopware\Api\Customer\Struct\CustomerBasicStruct;
 use Shopware\Api\Customer\Struct\CustomerGroupBasicStruct;
 use Shopware\Api\Language\Struct\LanguageBasicStruct;

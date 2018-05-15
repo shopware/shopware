@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Shop\Event\Shop;
 
-use Shopware\Api\Currency\Event\Currency\CurrencyBasicLoadedEvent;
+use Shopware\System\Currency\Event\Currency\CurrencyBasicLoadedEvent;
 use Shopware\Api\Locale\Event\Locale\LocaleBasicLoadedEvent;
 use Shopware\Api\Shop\Collection\ShopBasicCollection;
 use Shopware\Context\Struct\ApplicationContext;

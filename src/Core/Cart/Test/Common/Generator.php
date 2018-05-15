@@ -29,7 +29,7 @@ use Shopware\Api\Application\Struct\ApplicationBasicStruct;
 use Shopware\System\Country\Struct\CountryAreaBasicStruct;
 use Shopware\System\Country\Struct\CountryBasicStruct;
 use Shopware\System\Country\Struct\CountryStateBasicStruct;
-use Shopware\Api\Currency\Struct\CurrencyBasicStruct;
+use Shopware\System\Currency\Struct\CurrencyBasicStruct;
 use Shopware\Api\Customer\Struct\CustomerAddressBasicStruct;
 use Shopware\Api\Customer\Struct\CustomerBasicStruct;
 use Shopware\Api\Customer\Struct\CustomerGroupBasicStruct;

@@ -3,7 +3,7 @@
 namespace Shopware\Api\Product\Struct;
 
 use Shopware\Api\Context\Struct\ContextRuleBasicStruct;
-use Shopware\Api\Currency\Struct\CurrencyBasicStruct;
+use Shopware\System\Currency\Struct\CurrencyBasicStruct;
 
 class ProductContextPriceDetailStruct extends ProductContextPriceBasicStruct
 {

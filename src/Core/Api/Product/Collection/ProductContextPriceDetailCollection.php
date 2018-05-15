@@ -3,7 +3,7 @@
 namespace Shopware\Api\Product\Collection;
 
 use Shopware\Api\Context\Collection\ContextRuleBasicCollection;
-use Shopware\Api\Currency\Collection\CurrencyBasicCollection;
+use Shopware\System\Currency\Collection\CurrencyBasicCollection;
 use Shopware\Api\Product\Struct\ProductContextPriceDetailStruct;
 
 class ProductContextPriceDetailCollection extends ProductContextPriceBasicCollection

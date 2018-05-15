@@ -5,7 +5,7 @@ namespace Shopware\Api\Shop\Definition;
 use Shopware\Api\Category\Definition\CategoryDefinition;
 use Shopware\System\Config\Definition\ConfigFormFieldValueDefinition;
 use Shopware\System\Country\Definition\CountryDefinition;
-use Shopware\Api\Currency\Definition\CurrencyDefinition;
+use Shopware\System\Currency\Definition\CurrencyDefinition;
 use Shopware\Api\Customer\Definition\CustomerDefinition;
 use Shopware\Api\Customer\Definition\CustomerGroupDefinition;
 use Shopware\Api\Entity\EntityDefinition;

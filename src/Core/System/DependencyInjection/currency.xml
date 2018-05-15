@@ -1,0 +1,34 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <!-- Versioning -->
+        <service alias="Shopware\System\Currency\Repository\CurrencyRepository.v1" id="Shopware\System\Currency\Repository\CurrencyRepository" public="true"/>
+        <service alias="Shopware\System\Currency\Repository\CurrencyTranslationRepository.v1" id="Shopware\System\Currency\Repository\CurrencyTranslationRepository" public="true"/>
+
+        <service class="Shopware\System\Currency\Definition\CurrencyDefinition" id="Shopware\System\Currency\Definition\CurrencyDefinition" >
+            <tag name="shopware.entity.definition" entity="currency" />
+        </service>
+        <service class="Shopware\System\Currency\Repository\CurrencyRepository" id="Shopware\System\Currency\Repository\CurrencyRepository.v1" public="true">
+          <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Version\VersionManager" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+         <service class="Shopware\System\Currency\Definition\CurrencyTranslationDefinition" id="Shopware\System\Currency\Definition\CurrencyTranslationDefinition" >
+            <tag name="shopware.entity.definition" entity="currency_translation" />
+        </service>
+        <service class="Shopware\System\Currency\Repository\CurrencyTranslationRepository" id="Shopware\System\Currency\Repository\CurrencyTranslationRepository.v1" public="true">
+          <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Version\VersionManager" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+    </services>
+</container>                
+                

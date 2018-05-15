@@ -6,7 +6,7 @@ use Shopware\Api\Category\Definition\CategoryTranslationDefinition;
 use Shopware\System\Country\Definition\CountryAreaTranslationDefinition;
 use Shopware\System\Country\Definition\CountryStateTranslationDefinition;
 use Shopware\System\Country\Definition\CountryTranslationDefinition;
-use Shopware\Api\Currency\Definition\CurrencyTranslationDefinition;
+use Shopware\System\Currency\Definition\CurrencyTranslationDefinition;
 use Shopware\Api\Customer\Definition\CustomerGroupTranslationDefinition;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\EntityExtensionInterface;

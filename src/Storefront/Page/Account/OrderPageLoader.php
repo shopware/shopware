@@ -5,8 +5,8 @@ namespace Shopware\Storefront\Page\Account;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\Entity\Search\Sorting\FieldSorting;
-use Shopware\Api\Order\Repository\OrderRepository;
-use Shopware\Api\Order\Struct\OrderSearchResult;
+use Shopware\Checkout\Order\Repository\OrderRepository;
+use Shopware\Checkout\Order\Struct\OrderSearchResult;
 use Shopware\Context\Struct\StorefrontContext;
 use Symfony\Component\HttpFoundation\Request;
 

@@ -2,7 +2,7 @@
 
 namespace Shopware\Payment\Token;
 
-use Shopware\Api\Order\Struct\OrderTransactionBasicStruct;
+use Shopware\Checkout\Order\Struct\OrderTransactionBasicStruct;
 use Shopware\Context\Struct\ApplicationContext;
 
 interface PaymentTransactionTokenFactoryInterface

@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace Shopware\CartBridge\Service;
 
-use Shopware\Api\Order\Definition\OrderDefinition;
+use Shopware\Checkout\Order\Definition\OrderDefinition;
 use Shopware\Cart\Cart\CartPersisterInterface;
 use Shopware\Cart\Cart\CircularCartCalculation;
 use Shopware\Cart\Cart\Struct\CalculatedCart;

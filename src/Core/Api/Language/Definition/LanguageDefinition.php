@@ -39,7 +39,7 @@ use Shopware\System\Locale\Definition\LocaleTranslationDefinition;
 use Shopware\System\Mail\Definition\MailTranslationDefinition;
 use Shopware\Content\Media\Definition\MediaAlbumTranslationDefinition;
 use Shopware\Content\Media\Definition\MediaTranslationDefinition;
-use Shopware\Api\Order\Definition\OrderStateTranslationDefinition;
+use Shopware\Checkout\Order\Definition\OrderStateTranslationDefinition;
 use Shopware\Api\Payment\Definition\PaymentMethodTranslationDefinition;
 use Shopware\Content\Product\Definition\ProductManufacturerTranslationDefinition;
 use Shopware\Content\Product\Definition\ProductTranslationDefinition;

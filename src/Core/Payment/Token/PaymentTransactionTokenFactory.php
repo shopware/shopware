@@ -4,7 +4,7 @@ namespace Shopware\Payment\Token;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
-use Shopware\Api\Order\Struct\OrderTransactionBasicStruct;
+use Shopware\Checkout\Order\Struct\OrderTransactionBasicStruct;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Struct\Uuid;
 use Shopware\Framework\Util\Random;

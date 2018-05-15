@@ -3,7 +3,7 @@
 namespace Shopware\System\Mail\Collection;
 
 use Shopware\System\Mail\Struct\MailDetailStruct;
-use Shopware\Api\Order\Collection\OrderStateBasicCollection;
+use Shopware\Checkout\Order\Collection\OrderStateBasicCollection;
 
 class MailDetailCollection extends MailBasicCollection
 {

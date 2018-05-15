@@ -40,5 +40,6 @@ class Checkout extends Bundle
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
         $loader->load('customer.xml');
+        $loader->load('order.xml');
     }
 }

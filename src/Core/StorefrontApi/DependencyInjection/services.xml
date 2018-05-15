@@ -35,7 +35,7 @@
             <argument id="Shopware\Cart\Cart\CircularCartCalculation" type="service"/>
             <argument id="Shopware\CartBridge\Cart\CartPersister" type="service"/>
             <argument id="Shopware\CartBridge\Order\OrderPersister" type="service"/>
-            <argument type="service" id="Shopware\Api\Order\Repository\OrderRepository"/>
+            <argument type="service" id="Shopware\Checkout\Order\Repository\OrderRepository"/>
             <argument type="service" id="serializer"/>
             <argument type="service" id="Shopware\StorefrontApi\Context\StorefrontContextPersister"/>
         </service>

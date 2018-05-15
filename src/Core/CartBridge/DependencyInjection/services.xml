@@ -65,7 +65,7 @@
         </service>
 
         <service class="Shopware\CartBridge\Order\OrderPersister" id="Shopware\CartBridge\Order\OrderPersister">
-            <argument id="Shopware\Api\Order\Repository\OrderRepository" type="service"/>
+            <argument id="Shopware\Checkout\Order\Repository\OrderRepository" type="service"/>
             <argument id="Shopware\Cart\Tax\TaxDetector" type="service"/>
         </service>
 

@@ -2,7 +2,7 @@
 
 namespace Shopware\Payment\Struct;
 
-use Shopware\Api\Order\Struct\OrderDetailStruct;
+use Shopware\Checkout\Order\Struct\OrderDetailStruct;
 use Shopware\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Framework\Struct\Struct;
 

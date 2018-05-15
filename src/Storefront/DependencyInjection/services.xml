@@ -40,7 +40,7 @@
         </service>
 
         <service class="Shopware\Storefront\Page\Account\OrderPageLoader" id="Shopware\Storefront\Page\Account\OrderPageLoader">
-            <argument id="Shopware\Api\Order\Repository\OrderRepository" type="service"/>
+            <argument id="Shopware\Checkout\Order\Repository\OrderRepository" type="service"/>
         </service>
 
         <service class="Shopware\Storefront\DbalIndexing\SeoUrl\DetailPageSeoUrlIndexer" id="Shopware\Storefront\DbalIndexing\SeoUrl\DetailPageSeoUrlIndexer">
@@ -134,7 +134,7 @@
 
         <service class="Shopware\Storefront\Controller\CheckoutController" id="Shopware\Storefront\Controller\CheckoutController" public="true">
             <argument type="service" id="Shopware\CartBridge\Service\StoreFrontCartService"/>
-            <argument type="service" id="Shopware\Api\Order\Repository\OrderRepository"/>
+            <argument type="service" id="Shopware\Checkout\Order\Repository\OrderRepository"/>
             <argument type="service" id="Shopware\Storefront\Page\Checkout\PaymentMethodLoader"/>
             <argument type="service" id="Shopware\Payment\PaymentProcessor"/>
             <argument type="service" id="Shopware\Payment\Token\PaymentTransactionTokenFactory"/>

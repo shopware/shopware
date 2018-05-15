@@ -4,7 +4,7 @@ namespace Shopware\System\Mail\Struct;
 
 use Shopware\System\Mail\Collection\MailAttachmentBasicCollection;
 use Shopware\System\Mail\Collection\MailTranslationBasicCollection;
-use Shopware\Api\Order\Struct\OrderStateBasicStruct;
+use Shopware\Checkout\Order\Struct\OrderStateBasicStruct;
 
 class MailDetailStruct extends MailBasicStruct
 {

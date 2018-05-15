@@ -13,7 +13,7 @@ use Shopware\Api\Entity\Search\SearchResultInterface;
 use Shopware\Api\Entity\Search\Sorting\FieldSorting;
 use Shopware\Api\Entity\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Api\Entity\Search\Term\SearchTermInterpreter;
-use Shopware\Api\Order\Definition\OrderDefinition;
+use Shopware\Checkout\Order\Definition\OrderDefinition;
 use Shopware\Content\Product\Definition\ProductDefinition;
 use Shopware\Api\Version\Repository\VersionCommitDataRepository;
 use Shopware\Context\Struct\ApplicationContext;

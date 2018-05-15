@@ -3,7 +3,7 @@
 namespace Shopware\Checkout\Customer\Collection;
 
 use Shopware\Checkout\Customer\Struct\CustomerDetailStruct;
-use Shopware\Api\Order\Collection\OrderBasicCollection;
+use Shopware\Checkout\Order\Collection\OrderBasicCollection;
 
 class CustomerDetailCollection extends CustomerBasicCollection
 {

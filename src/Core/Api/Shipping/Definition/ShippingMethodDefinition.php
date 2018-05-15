@@ -24,7 +24,7 @@ use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Entity\Write\Flag\RestrictDelete;
 use Shopware\Api\Entity\Write\Flag\SearchRanking;
 use Shopware\Api\Entity\Write\Flag\WriteOnly;
-use Shopware\Api\Order\Definition\OrderDeliveryDefinition;
+use Shopware\Checkout\Order\Definition\OrderDeliveryDefinition;
 use Shopware\Api\Shipping\Collection\ShippingMethodBasicCollection;
 use Shopware\Api\Shipping\Collection\ShippingMethodDetailCollection;
 use Shopware\Api\Shipping\Event\ShippingMethod\ShippingMethodDeletedEvent;

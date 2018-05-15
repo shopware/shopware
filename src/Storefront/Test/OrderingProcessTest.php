@@ -8,7 +8,7 @@ use Shopware\Checkout\Customer\Definition\CustomerDefinition;
 use Shopware\Api\Entity\Write\EntityWriter;
 use Shopware\Api\Entity\Write\EntityWriterInterface;
 use Shopware\Api\Entity\Write\WriteContext;
-use Shopware\Api\Order\Repository\OrderRepository;
+use Shopware\Checkout\Order\Repository\OrderRepository;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 use Shopware\PlatformRequest;

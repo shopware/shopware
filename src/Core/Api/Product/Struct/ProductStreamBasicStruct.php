@@ -3,7 +3,7 @@
 namespace Shopware\Api\Product\Struct;
 
 use Shopware\Api\Entity\Entity;
-use Shopware\Api\Listing\Struct\ListingSortingBasicStruct;
+use Shopware\System\Listing\Struct\ListingSortingBasicStruct;
 
 class ProductStreamBasicStruct extends Entity
 {

@@ -3,7 +3,7 @@
 namespace Shopware\Api\Product\Collection;
 
 use Shopware\Api\Entity\EntityCollection;
-use Shopware\Api\Listing\Collection\ListingSortingBasicCollection;
+use Shopware\System\Listing\Collection\ListingSortingBasicCollection;
 use Shopware\Api\Product\Struct\ProductStreamBasicStruct;
 
 class ProductStreamBasicCollection extends EntityCollection

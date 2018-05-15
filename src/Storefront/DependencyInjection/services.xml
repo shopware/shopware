@@ -154,7 +154,7 @@
         </service>
 
         <service class="Shopware\Storefront\Subscriber\SortingSubscriber" id="Shopware\Storefront\Subscriber\SortingSubscriber">
-            <argument id="Shopware\Api\Listing\Repository\ListingSortingRepository" type="service"/>
+            <argument id="Shopware\System\Listing\Repository\ListingSortingRepository" type="service"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 

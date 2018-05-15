@@ -3,7 +3,7 @@
 namespace Shopware\Storefront\Page\Listing;
 
 use Shopware\Api\Entity\Search\Criteria;
-use Shopware\Api\Listing\Collection\ListingSortingBasicCollection;
+use Shopware\System\Listing\Collection\ListingSortingBasicCollection;
 use Shopware\Api\Product\Struct\ProductSearchResult;
 use Shopware\Framework\Struct\Struct;
 use Shopware\Storefront\Page\Listing\AggregationView\AggregationViewCollection;

@@ -2,7 +2,7 @@
 
 namespace Shopware\StorefrontApi\Test\Firewall;
 
-use Shopware\Rest\Test\ApiTestCase;
+use Shopware\Framework\Test\Api\ApiTestCase;
 
 class ApplicationAuthenticatorTest extends ApiTestCase
 {

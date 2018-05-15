@@ -27,7 +27,7 @@
 
         <service class="Shopware\StorefrontApi\Controller\ProductController" id="Shopware\StorefrontApi\Controller\ProductController" public="true">
             <argument id="Shopware\StorefrontApi\Product\StorefrontProductRepository" type="service"/>
-            <argument type="service" id="Shopware\Rest\Response\ResponseFactory"/>
+            <argument type="service" id="Shopware\Framework\Api\Response\ResponseFactory"/>
             <argument type="service" id="Shopware\Framework\ORM\Search\SearchCriteriaBuilder"/>
         </service>
 

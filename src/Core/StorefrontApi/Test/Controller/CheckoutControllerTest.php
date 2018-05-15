@@ -10,7 +10,7 @@ use Shopware\Checkout\CartBridge\Product\ProductProcessor;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 use Shopware\PlatformRequest;
-use Shopware\Rest\Test\ApiTestCase;
+use Shopware\Framework\Test\Api\ApiTestCase;
 use Symfony\Bundle\FrameworkBundle\Client;
 
 class CheckoutControllerTest extends ApiTestCase

@@ -64,6 +64,7 @@ class Framework extends Bundle
         $loader->load('services.xml');
         $loader->load('orm.xml');
         $loader->load('filesystem.xml');
+        $loader->load('api.xml');
 
         $container->addCompilerPass(new BridgeDatabaseCompilerPass());
         $container->addCompilerPass(new ExtensionCompilerPass());

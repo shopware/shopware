@@ -19,7 +19,7 @@ use Shopware\Checkout\CartBridge\Service\StoreFrontCartService;
 use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\Uuid;
 use Shopware\PlatformRequest;
-use Shopware\Rest\Response\Type\JsonType;
+use Shopware\Framework\Api\Response\Type\JsonType;
 use Shopware\StorefrontApi\Context\StorefrontContextPersister;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;

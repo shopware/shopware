@@ -5,7 +5,7 @@ namespace Shopware\StorefrontApi\Test\Controller;
 use Ramsey\Uuid\Uuid;
 use Shopware\Content\Product\Repository\ProductRepository;
 use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Rest\Test\ApiTestCase;
+use Shopware\Framework\Test\Api\ApiTestCase;
 
 class ProductControllerTest extends ApiTestCase
 {

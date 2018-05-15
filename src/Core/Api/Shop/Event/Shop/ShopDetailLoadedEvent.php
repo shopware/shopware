@@ -8,7 +8,7 @@ use Shopware\System\Currency\Event\Currency\CurrencyBasicLoadedEvent;
 use Shopware\Checkout\Customer\Event\CustomerGroup\CustomerGroupBasicLoadedEvent;
 use Shopware\System\Locale\Event\Locale\LocaleBasicLoadedEvent;
 use Shopware\Checkout\Payment\Event\PaymentMethod\PaymentMethodBasicLoadedEvent;
-use Shopware\Api\Shipping\Event\ShippingMethod\ShippingMethodBasicLoadedEvent;
+use Shopware\Checkout\Shipping\Event\ShippingMethod\ShippingMethodBasicLoadedEvent;
 use Shopware\Api\Shop\Collection\ShopDetailCollection;
 use Shopware\Api\Shop\Event\ShopTemplate\ShopTemplateBasicLoadedEvent;
 use Shopware\Context\Struct\ApplicationContext;

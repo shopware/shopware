@@ -4,7 +4,7 @@ namespace Shopware\Api\Application\Struct;
 
 use Shopware\System\Country\Struct\CountryBasicStruct;
 use Shopware\Checkout\Payment\Struct\PaymentMethodBasicStruct;
-use Shopware\Api\Shipping\Struct\ShippingMethodBasicStruct;
+use Shopware\Checkout\Shipping\Struct\ShippingMethodBasicStruct;
 
 class ApplicationDetailStruct extends ApplicationBasicStruct
 {

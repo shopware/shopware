@@ -5,7 +5,7 @@ namespace Shopware\Checkout\Order\Event\OrderDelivery;
 use Shopware\Checkout\Order\Collection\OrderDeliveryBasicCollection;
 use Shopware\Checkout\Order\Event\OrderAddress\OrderAddressBasicLoadedEvent;
 use Shopware\Checkout\Order\Event\OrderState\OrderStateBasicLoadedEvent;
-use Shopware\Api\Shipping\Event\ShippingMethod\ShippingMethodBasicLoadedEvent;
+use Shopware\Checkout\Shipping\Event\ShippingMethod\ShippingMethodBasicLoadedEvent;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;

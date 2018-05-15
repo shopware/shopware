@@ -43,7 +43,7 @@ use Shopware\Checkout\Order\Definition\OrderStateTranslationDefinition;
 use Shopware\Checkout\Payment\Definition\PaymentMethodTranslationDefinition;
 use Shopware\Content\Product\Definition\ProductManufacturerTranslationDefinition;
 use Shopware\Content\Product\Definition\ProductTranslationDefinition;
-use Shopware\Api\Shipping\Definition\ShippingMethodTranslationDefinition;
+use Shopware\Checkout\Shipping\Definition\ShippingMethodTranslationDefinition;
 use Shopware\System\Tax\Definition\TaxAreaRuleTranslationDefinition;
 use Shopware\System\Unit\Definition\UnitTranslationDefinition;
 

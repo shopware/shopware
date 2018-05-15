@@ -1,0 +1,45 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <!-- Versioning -->
+        <service alias="Shopware\Checkout\Shipping\Repository\ShippingMethodRepository.v1" id="Shopware\Checkout\Shipping\Repository\ShippingMethodRepository" public="true"/>
+        <service alias="Shopware\Checkout\Shipping\Repository\ShippingMethodPriceRepository.v1" id="Shopware\Checkout\Shipping\Repository\ShippingMethodPriceRepository" public="true"/>
+        <service alias="Shopware\Checkout\Shipping\Repository\ShippingMethodTranslationRepository.v1" id="Shopware\Checkout\Shipping\Repository\ShippingMethodTranslationRepository" public="true"/>
+
+         <service class="Shopware\Checkout\Shipping\Definition\ShippingMethodDefinition" id="Shopware\Checkout\Shipping\Definition\ShippingMethodDefinition" >
+            <tag name="shopware.entity.definition" entity="shipping_method" />
+        </service>
+        <service class="Shopware\Checkout\Shipping\Repository\ShippingMethodRepository" id="Shopware\Checkout\Shipping\Repository\ShippingMethodRepository.v1" public="true">
+          <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Version\VersionManager" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+         <service class="Shopware\Checkout\Shipping\Definition\ShippingMethodPriceDefinition" id="Shopware\Checkout\Shipping\Definition\ShippingMethodPriceDefinition" >
+            <tag name="shopware.entity.definition" entity="shipping_method_price" />
+        </service>
+        <service class="Shopware\Checkout\Shipping\Repository\ShippingMethodPriceRepository" id="Shopware\Checkout\Shipping\Repository\ShippingMethodPriceRepository.v1" public="true">
+          <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Version\VersionManager" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+         <service class="Shopware\Checkout\Shipping\Definition\ShippingMethodTranslationDefinition" id="Shopware\Checkout\Shipping\Definition\ShippingMethodTranslationDefinition" >
+            <tag name="shopware.entity.definition" entity="shipping_method_translation" />
+        </service>
+        <service class="Shopware\Checkout\Shipping\Repository\ShippingMethodTranslationRepository" id="Shopware\Checkout\Shipping\Repository\ShippingMethodTranslationRepository.v1" public="true">
+          <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Version\VersionManager" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+    </services>
+</container>                
+                

@@ -48,7 +48,7 @@
 
         <service class="Shopware\StorefrontApi\Controller\ContextController" id="Shopware\StorefrontApi\Controller\ContextController" public="true">
             <argument id="Shopware\Checkout\Payment\Repository\PaymentMethodRepository" type="service"/>
-            <argument id="Shopware\Api\Shipping\Repository\ShippingMethodRepository" type="service"/>
+            <argument id="Shopware\Checkout\Shipping\Repository\ShippingMethodRepository" type="service"/>
             <argument id="Shopware\Checkout\Customer\Repository\CustomerAddressRepository" type="service"/>
             <argument id="Shopware\StorefrontApi\Context\StorefrontContextPersister" type="service"/>
             <argument type="service" id="serializer"/>

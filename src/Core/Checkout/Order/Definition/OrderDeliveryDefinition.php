@@ -26,7 +26,7 @@ use Shopware\Checkout\Order\Event\OrderDelivery\OrderDeliveryWrittenEvent;
 use Shopware\Checkout\Order\Repository\OrderDeliveryRepository;
 use Shopware\Checkout\Order\Struct\OrderDeliveryBasicStruct;
 use Shopware\Checkout\Order\Struct\OrderDeliveryDetailStruct;
-use Shopware\Api\Shipping\Definition\ShippingMethodDefinition;
+use Shopware\Checkout\Shipping\Definition\ShippingMethodDefinition;
 
 class OrderDeliveryDefinition extends EntityDefinition
 {

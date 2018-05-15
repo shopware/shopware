@@ -5,7 +5,7 @@ namespace Shopware\Api\Application\Event\Application;
 use Shopware\Api\Application\Collection\ApplicationDetailCollection;
 use Shopware\System\Country\Event\Country\CountryBasicLoadedEvent;
 use Shopware\Checkout\Payment\Event\PaymentMethod\PaymentMethodBasicLoadedEvent;
-use Shopware\Api\Shipping\Event\ShippingMethod\ShippingMethodBasicLoadedEvent;
+use Shopware\Checkout\Shipping\Event\ShippingMethod\ShippingMethodBasicLoadedEvent;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;

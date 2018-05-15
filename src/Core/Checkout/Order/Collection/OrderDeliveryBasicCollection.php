@@ -4,7 +4,7 @@ namespace Shopware\Checkout\Order\Collection;
 
 use Shopware\Api\Entity\EntityCollection;
 use Shopware\Checkout\Order\Struct\OrderDeliveryBasicStruct;
-use Shopware\Api\Shipping\Collection\ShippingMethodBasicCollection;
+use Shopware\Checkout\Shipping\Collection\ShippingMethodBasicCollection;
 
 class OrderDeliveryBasicCollection extends EntityCollection
 {

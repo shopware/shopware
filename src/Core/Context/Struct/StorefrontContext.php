@@ -30,7 +30,7 @@ use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
 use Shopware\Checkout\Customer\Struct\CustomerGroupBasicStruct;
 use Shopware\Api\Language\Struct\LanguageBasicStruct;
 use Shopware\Checkout\Payment\Struct\PaymentMethodBasicStruct;
-use Shopware\Api\Shipping\Struct\ShippingMethodBasicStruct;
+use Shopware\Checkout\Shipping\Struct\ShippingMethodBasicStruct;
 use Shopware\System\Tax\Collection\TaxBasicCollection;
 use Shopware\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Cart\Price\Struct\CartPrice;

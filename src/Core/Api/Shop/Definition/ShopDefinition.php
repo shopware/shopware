@@ -36,7 +36,7 @@ use Shopware\System\Mail\Definition\MailAttachmentDefinition;
 use Shopware\Checkout\Order\Definition\OrderDefinition;
 use Shopware\Checkout\Payment\Definition\PaymentMethodDefinition;
 use Shopware\Content\Product\Definition\ProductSeoCategoryDefinition;
-use Shopware\Api\Shipping\Definition\ShippingMethodDefinition;
+use Shopware\Checkout\Shipping\Definition\ShippingMethodDefinition;
 use Shopware\Api\Shop\Collection\ShopBasicCollection;
 use Shopware\Api\Shop\Collection\ShopDetailCollection;
 use Shopware\Api\Shop\Event\Shop\ShopDeletedEvent;

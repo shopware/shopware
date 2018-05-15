@@ -37,7 +37,7 @@ use Shopware\Api\Language\Struct\LanguageBasicStruct;
 use Shopware\System\Locale\Struct\LocaleBasicStruct;
 use Shopware\Checkout\Payment\Struct\PaymentMethodBasicStruct;
 use Shopware\Content\Product\Struct\ProductBasicStruct;
-use Shopware\Api\Shipping\Struct\ShippingMethodBasicStruct;
+use Shopware\Checkout\Shipping\Struct\ShippingMethodBasicStruct;
 use Shopware\System\Tax\Collection\TaxBasicCollection;
 use Shopware\System\Tax\Struct\TaxBasicStruct;
 use Shopware\Cart\Cart\Struct\CalculatedCart;

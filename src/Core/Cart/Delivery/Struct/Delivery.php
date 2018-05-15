@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace Shopware\Cart\Delivery\Struct;
 
-use Shopware\Api\Shipping\Struct\ShippingMethodBasicStruct;
+use Shopware\Checkout\Shipping\Struct\ShippingMethodBasicStruct;
 use Shopware\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Framework\Struct\Struct;
 

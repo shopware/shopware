@@ -26,7 +26,7 @@ declare(strict_types=1);
 namespace Shopware\Cart\Delivery;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Api\Shipping\Struct\ShippingMethodBasicStruct;
+use Shopware\Checkout\Shipping\Struct\ShippingMethodBasicStruct;
 use Shopware\Cart\Delivery\Struct\Delivery;
 use Shopware\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Cart\Price\PriceCalculator;

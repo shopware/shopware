@@ -5,7 +5,7 @@ namespace Shopware\Api\Application\Collection;
 use Shopware\Api\Application\Struct\ApplicationDetailStruct;
 use Shopware\System\Country\Collection\CountryBasicCollection;
 use Shopware\Checkout\Payment\Collection\PaymentMethodBasicCollection;
-use Shopware\Api\Shipping\Collection\ShippingMethodBasicCollection;
+use Shopware\Checkout\Shipping\Collection\ShippingMethodBasicCollection;
 
 class ApplicationDetailCollection extends ApplicationBasicCollection
 {

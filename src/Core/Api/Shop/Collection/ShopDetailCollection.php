@@ -7,7 +7,7 @@ use Shopware\System\Country\Collection\CountryBasicCollection;
 use Shopware\System\Currency\Collection\CurrencyBasicCollection;
 use Shopware\Checkout\Customer\Collection\CustomerGroupBasicCollection;
 use Shopware\Checkout\Payment\Collection\PaymentMethodBasicCollection;
-use Shopware\Api\Shipping\Collection\ShippingMethodBasicCollection;
+use Shopware\Checkout\Shipping\Collection\ShippingMethodBasicCollection;
 use Shopware\Api\Shop\Struct\ShopDetailStruct;
 
 class ShopDetailCollection extends ShopBasicCollection

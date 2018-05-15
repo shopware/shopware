@@ -27,7 +27,7 @@ use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Language\Definition\LanguageDefinition;
 use Shopware\Checkout\Payment\Definition\PaymentMethodDefinition;
-use Shopware\Api\Shipping\Definition\ShippingMethodDefinition;
+use Shopware\Checkout\Shipping\Definition\ShippingMethodDefinition;
 
 class ApplicationDefinition extends EntityDefinition
 {

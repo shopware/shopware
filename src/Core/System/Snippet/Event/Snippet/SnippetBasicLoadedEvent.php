@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api\Snippet\Event\Snippet;
+namespace Shopware\System\Snippet\Event\Snippet;
 
-use Shopware\Api\Snippet\Collection\SnippetBasicCollection;
+use Shopware\System\Snippet\Collection\SnippetBasicCollection;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 

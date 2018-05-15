@@ -6,12 +6,12 @@
 
     <services>
         <!-- Versioning -->
-        <service alias="Shopware\Api\Snippet\Repository\SnippetRepository.v1" id="Shopware\Api\Snippet\Repository\SnippetRepository" public="true"/>
+        <service alias="Shopware\System\Snippet\Repository\SnippetRepository.v1" id="Shopware\System\Snippet\Repository\SnippetRepository" public="true"/>
 
-        <service class="Shopware\Api\Snippet\Definition\SnippetDefinition" id="shopware.snippet.snippet_definition" >
+        <service class="Shopware\System\Snippet\Definition\SnippetDefinition" id="shopware.snippet.snippet_definition" >
             <tag name="shopware.entity.definition" entity="snippet" />
         </service>
-        <service class="Shopware\Api\Snippet\Repository\SnippetRepository" id="Shopware\Api\Snippet\Repository\SnippetRepository.v1" public="true">
+        <service class="Shopware\System\Snippet\Repository\SnippetRepository" id="Shopware\System\Snippet\Repository\SnippetRepository.v1" public="true">
           <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
           <argument id="Shopware\Version\VersionManager" type="service"/>
           <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api\Snippet\Repository;
+namespace Shopware\System\Snippet\Repository;
 
 use Shopware\Api\Entity\Read\EntityReaderInterface;
 use Shopware\Api\Entity\RepositoryInterface;
@@ -11,15 +11,15 @@ use Shopware\Api\Entity\Search\EntitySearcherInterface;
 use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Entity\Write\WriteContext;
-use Shopware\Api\Snippet\Collection\SnippetBasicCollection;
-use Shopware\Api\Snippet\Collection\SnippetDetailCollection;
-use Shopware\Api\Snippet\Definition\SnippetDefinition;
-use Shopware\Api\Snippet\Event\Snippet\SnippetAggregationResultLoadedEvent;
-use Shopware\Api\Snippet\Event\Snippet\SnippetBasicLoadedEvent;
-use Shopware\Api\Snippet\Event\Snippet\SnippetDetailLoadedEvent;
-use Shopware\Api\Snippet\Event\Snippet\SnippetIdSearchResultLoadedEvent;
-use Shopware\Api\Snippet\Event\Snippet\SnippetSearchResultLoadedEvent;
-use Shopware\Api\Snippet\Struct\SnippetSearchResult;
+use Shopware\System\Snippet\Collection\SnippetBasicCollection;
+use Shopware\System\Snippet\Collection\SnippetDetailCollection;
+use Shopware\System\Snippet\Definition\SnippetDefinition;
+use Shopware\System\Snippet\Event\Snippet\SnippetAggregationResultLoadedEvent;
+use Shopware\System\Snippet\Event\Snippet\SnippetBasicLoadedEvent;
+use Shopware\System\Snippet\Event\Snippet\SnippetDetailLoadedEvent;
+use Shopware\System\Snippet\Event\Snippet\SnippetIdSearchResultLoadedEvent;
+use Shopware\System\Snippet\Event\Snippet\SnippetSearchResultLoadedEvent;
+use Shopware\System\Snippet\Struct\SnippetSearchResult;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Version\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;

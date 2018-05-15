@@ -44,7 +44,7 @@ use Shopware\Api\Shop\Event\Shop\ShopWrittenEvent;
 use Shopware\Api\Shop\Repository\ShopRepository;
 use Shopware\Api\Shop\Struct\ShopBasicStruct;
 use Shopware\Api\Shop\Struct\ShopDetailStruct;
-use Shopware\Api\Snippet\Definition\SnippetDefinition;
+use Shopware\System\Snippet\Definition\SnippetDefinition;
 
 class ShopDefinition extends EntityDefinition
 {

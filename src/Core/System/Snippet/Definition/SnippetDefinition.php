@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api\Snippet\Definition;
+namespace Shopware\System\Snippet\Definition;
 
 use Shopware\Api\Application\Definition\ApplicationDefinition;
 use Shopware\Api\Entity\EntityDefinition;
@@ -17,13 +17,13 @@ use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Entity\Write\Flag\SearchRanking;
-use Shopware\Api\Snippet\Collection\SnippetBasicCollection;
-use Shopware\Api\Snippet\Collection\SnippetDetailCollection;
-use Shopware\Api\Snippet\Event\Snippet\SnippetDeletedEvent;
-use Shopware\Api\Snippet\Event\Snippet\SnippetWrittenEvent;
-use Shopware\Api\Snippet\Repository\SnippetRepository;
-use Shopware\Api\Snippet\Struct\SnippetBasicStruct;
-use Shopware\Api\Snippet\Struct\SnippetDetailStruct;
+use Shopware\System\Snippet\Collection\SnippetBasicCollection;
+use Shopware\System\Snippet\Collection\SnippetDetailCollection;
+use Shopware\System\Snippet\Event\Snippet\SnippetDeletedEvent;
+use Shopware\System\Snippet\Event\Snippet\SnippetWrittenEvent;
+use Shopware\System\Snippet\Repository\SnippetRepository;
+use Shopware\System\Snippet\Struct\SnippetBasicStruct;
+use Shopware\System\Snippet\Struct\SnippetDetailStruct;
 
 class SnippetDefinition extends EntityDefinition
 {

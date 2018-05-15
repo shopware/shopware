@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api\Snippet\Struct;
+namespace Shopware\System\Snippet\Struct;
 
 use Shopware\Api\Application\Struct\ApplicationBasicStruct;
 

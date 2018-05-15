@@ -1,21 +1,21 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api\Snippet\Event\Snippet;
+namespace Shopware\System\Snippet\Event\Snippet;
 
-use Shopware\Api\Snippet\Struct\SnippetSearchResult;
+use Shopware\Api\Entity\Search\AggregatorResult;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
-class SnippetSearchResultLoadedEvent extends NestedEvent
+class SnippetAggregationResultLoadedEvent extends NestedEvent
 {
-    public const NAME = 'snippet.search.result.loaded';
+    public const NAME = 'snippet.aggregation.result.loaded';
 
     /**
-     * @var SnippetSearchResult
+     * @var AggregatorResult
      */
     protected $result;
 
-    public function __construct(SnippetSearchResult $result)
+    public function __construct(AggregatorResult $result)
     {
         $this->result = $result;
     }
@@ -28,5 +28,10 @@ class SnippetSearchResultLoadedEvent extends NestedEvent
     public function getContext(): ApplicationContext
     {
         return $this->result->getContext();
+    }
+
+    public function getResult(): AggregatorResult
+    {
+        return $this->result;
     }
 }

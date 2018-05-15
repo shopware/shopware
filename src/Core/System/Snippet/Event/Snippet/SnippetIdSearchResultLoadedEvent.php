@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api\Snippet\Event\Snippet;
+namespace Shopware\System\Snippet\Event\Snippet;
 
 use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Context\Struct\ApplicationContext;

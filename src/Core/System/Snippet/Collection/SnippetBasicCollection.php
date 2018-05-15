@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api\Snippet\Collection;
+namespace Shopware\System\Snippet\Collection;
 
 use Shopware\Api\Entity\EntityCollection;
-use Shopware\Api\Snippet\Struct\SnippetBasicStruct;
+use Shopware\System\Snippet\Struct\SnippetBasicStruct;
 
 class SnippetBasicCollection extends EntityCollection
 {

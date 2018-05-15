@@ -47,5 +47,6 @@ class System extends Bundle
         $loader->load('listing.xml');
         $loader->load('log.xml');
         $loader->load('mail.xml');
+        $loader->load('snippet.xml');
     }
 }

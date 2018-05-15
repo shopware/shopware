@@ -43,5 +43,6 @@ class System extends Bundle
         $loader->load('configuration.xml');
         $loader->load('country.xml');
         $loader->load('currency.xml');
+        $loader->load('locale.xml');
     }
 }

@@ -4,7 +4,7 @@ namespace Shopware\Api\Language\Collection;
 
 use Shopware\Api\Entity\EntityCollection;
 use Shopware\Api\Language\Struct\LanguageBasicStruct;
-use Shopware\Api\Locale\Collection\LocaleBasicCollection;
+use Shopware\System\Locale\Collection\LocaleBasicCollection;
 
 class LanguageBasicCollection extends EntityCollection
 {

@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\User\Collection;
 
-use Shopware\Api\Locale\Collection\LocaleBasicCollection;
+use Shopware\System\Locale\Collection\LocaleBasicCollection;
 use Shopware\Api\Media\Collection\MediaBasicCollection;
 use Shopware\Api\User\Struct\UserDetailStruct;
 

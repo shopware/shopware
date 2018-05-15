@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\User\Event\User;
 
-use Shopware\Api\Locale\Event\Locale\LocaleBasicLoadedEvent;
+use Shopware\System\Locale\Event\Locale\LocaleBasicLoadedEvent;
 use Shopware\Api\Media\Event\Media\MediaBasicLoadedEvent;
 use Shopware\Api\User\Collection\UserDetailCollection;
 use Shopware\Context\Struct\ApplicationContext;

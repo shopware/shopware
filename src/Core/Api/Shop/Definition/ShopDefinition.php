@@ -31,7 +31,7 @@ use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Entity\Write\Flag\RestrictDelete;
 use Shopware\Api\Entity\Write\Flag\SearchRanking;
 use Shopware\Api\Entity\Write\Flag\WriteOnly;
-use Shopware\Api\Locale\Definition\LocaleDefinition;
+use Shopware\System\Locale\Definition\LocaleDefinition;
 use Shopware\Api\Mail\Definition\MailAttachmentDefinition;
 use Shopware\Api\Order\Definition\OrderDefinition;
 use Shopware\Api\Payment\Definition\PaymentMethodDefinition;

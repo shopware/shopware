@@ -34,7 +34,7 @@ use Shopware\Api\Customer\Struct\CustomerAddressBasicStruct;
 use Shopware\Api\Customer\Struct\CustomerBasicStruct;
 use Shopware\Api\Customer\Struct\CustomerGroupBasicStruct;
 use Shopware\Api\Language\Struct\LanguageBasicStruct;
-use Shopware\Api\Locale\Struct\LocaleBasicStruct;
+use Shopware\System\Locale\Struct\LocaleBasicStruct;
 use Shopware\Api\Payment\Struct\PaymentMethodBasicStruct;
 use Shopware\Api\Product\Struct\ProductBasicStruct;
 use Shopware\Api\Shipping\Struct\ShippingMethodBasicStruct;

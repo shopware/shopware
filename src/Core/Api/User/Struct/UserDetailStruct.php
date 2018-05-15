@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\User\Struct;
 
-use Shopware\Api\Locale\Struct\LocaleBasicStruct;
+use Shopware\System\Locale\Struct\LocaleBasicStruct;
 use Shopware\Api\Media\Collection\MediaBasicCollection;
 
 class UserDetailStruct extends UserBasicStruct

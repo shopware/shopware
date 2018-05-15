@@ -4,7 +4,7 @@ namespace Shopware\Api\Shop\Collection;
 
 use Shopware\System\Currency\Collection\CurrencyBasicCollection;
 use Shopware\Api\Entity\EntityCollection;
-use Shopware\Api\Locale\Collection\LocaleBasicCollection;
+use Shopware\System\Locale\Collection\LocaleBasicCollection;
 use Shopware\Api\Shop\Struct\ShopBasicStruct;
 
 class ShopBasicCollection extends EntityCollection

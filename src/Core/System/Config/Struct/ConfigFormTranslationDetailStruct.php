@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Config\Struct;
 
-use Shopware\Api\Locale\Struct\LocaleBasicStruct;
+use Shopware\System\Locale\Struct\LocaleBasicStruct;
 
 class ConfigFormTranslationDetailStruct extends ConfigFormTranslationBasicStruct
 {

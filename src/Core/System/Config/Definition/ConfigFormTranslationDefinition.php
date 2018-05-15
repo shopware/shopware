@@ -21,7 +21,7 @@ use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
-use Shopware\Api\Locale\Definition\LocaleDefinition;
+use Shopware\System\Locale\Definition\LocaleDefinition;
 
 class ConfigFormTranslationDefinition extends EntityDefinition
 {

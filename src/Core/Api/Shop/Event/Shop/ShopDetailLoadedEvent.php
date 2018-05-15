@@ -6,7 +6,7 @@ use Shopware\Api\Category\Event\Category\CategoryBasicLoadedEvent;
 use Shopware\System\Country\Event\Country\CountryBasicLoadedEvent;
 use Shopware\System\Currency\Event\Currency\CurrencyBasicLoadedEvent;
 use Shopware\Api\Customer\Event\CustomerGroup\CustomerGroupBasicLoadedEvent;
-use Shopware\Api\Locale\Event\Locale\LocaleBasicLoadedEvent;
+use Shopware\System\Locale\Event\Locale\LocaleBasicLoadedEvent;
 use Shopware\Api\Payment\Event\PaymentMethod\PaymentMethodBasicLoadedEvent;
 use Shopware\Api\Shipping\Event\ShippingMethod\ShippingMethodBasicLoadedEvent;
 use Shopware\Api\Shop\Collection\ShopDetailCollection;

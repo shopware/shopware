@@ -3,7 +3,7 @@
 namespace Shopware\System\Config\Collection;
 
 use Shopware\System\Config\Struct\ConfigFormTranslationDetailStruct;
-use Shopware\Api\Locale\Collection\LocaleBasicCollection;
+use Shopware\System\Locale\Collection\LocaleBasicCollection;
 
 class ConfigFormTranslationDetailCollection extends ConfigFormTranslationBasicCollection
 {

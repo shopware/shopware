@@ -1,14 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Translation\Command;
+namespace Shopware\Framework\Translation\Command;
 
 use Shopware\Framework\Plugin\PluginCollection;
 use Shopware\Framework\Struct\Uuid;
-use Shopware\Translation\Event\ImportAdvanceEvent;
-use Shopware\Translation\Event\ImportFinishEvent;
-use Shopware\Translation\Event\ImportStartEvent;
-use Shopware\Translation\ImportService;
-use Shopware\Translation\Translation;
+use Shopware\Framework\Translation\Event\ImportAdvanceEvent;
+use Shopware\Framework\Translation\Event\ImportFinishEvent;
+use Shopware\Framework\Translation\Event\ImportStartEvent;
+use Shopware\Framework\Translation\ImportService;
+use Shopware\Framework\Translation\Translation;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;

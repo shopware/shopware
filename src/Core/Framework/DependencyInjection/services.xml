@@ -157,5 +157,25 @@
             <argument type="service" id="security.token_storage"/>
         </service>
 
+        <service class="Shopware\Framework\Translation\ImportService" id="Shopware\Framework\Translation\ImportService">
+            <argument type="service" id="Doctrine\DBAL\Connection" />
+            <argument type="service" id="event_dispatcher" />
+            <argument type="service" id="logger" />
+        </service>
+
+        <service class="Shopware\Framework\Translation\Command\TranslationImportCommand" id="Shopware\Framework\Translation\Command\TranslationImportCommand">
+            <tag name="kernel.event_subscriber" />
+            <tag name="console.command" />
+
+            <argument type="service" id="Shopware\Framework\Translation\ImportService" />
+        </service>
+
+        <!-- Translation / Snippet -->
+        <service class="Shopware\Framework\Translation\DatabaseLoader" id="Shopware\Framework\Translation\DatabaseLoader">
+            <tag name="translation.loader" alias="database" />
+
+            <argument type="service" id="Doctrine\DBAL\Connection" />
+        </service>
+
     </services>
 </container>

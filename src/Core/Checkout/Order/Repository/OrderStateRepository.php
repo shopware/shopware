@@ -21,7 +21,7 @@ use Shopware\Checkout\Order\Event\OrderState\OrderStateIdSearchResultLoadedEvent
 use Shopware\Checkout\Order\Event\OrderState\OrderStateSearchResultLoadedEvent;
 use Shopware\Checkout\Order\Struct\OrderStateSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Version\VersionManager;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class OrderStateRepository implements RepositoryInterface

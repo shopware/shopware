@@ -19,7 +19,7 @@
 
         <service class="Shopware\Content\Category\Repository\CategoryRepository" id="Shopware\Content\Category\Repository\CategoryRepository.v1" public="true">
           <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
-          <argument id="Shopware\Version\VersionManager" type="service"/>
+          <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
@@ -27,7 +27,7 @@
 
         <service class="Shopware\Content\Category\Repository\CategoryTranslationRepository" id="Shopware\Content\Category\Repository\CategoryTranslationRepository.v1" public="true">
           <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
-          <argument id="Shopware\Version\VersionManager" type="service"/>
+          <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>

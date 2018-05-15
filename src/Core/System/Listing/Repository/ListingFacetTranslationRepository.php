@@ -21,7 +21,7 @@ use Shopware\System\Listing\Event\ListingFacetTranslation\ListingFacetTranslatio
 use Shopware\System\Listing\Event\ListingFacetTranslation\ListingFacetTranslationSearchResultLoadedEvent;
 use Shopware\System\Listing\Struct\ListingFacetTranslationSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Version\VersionManager;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ListingFacetTranslationRepository implements RepositoryInterface
@@ -47,7 +47,7 @@ class ListingFacetTranslationRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var VersionManager
+     * @var \Shopware\Framework\ORM\Version\Service\VersionManager
      */
     private $versionManager;
 

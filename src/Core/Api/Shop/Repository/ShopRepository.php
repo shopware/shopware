@@ -21,7 +21,7 @@ use Shopware\Api\Shop\Event\Shop\ShopIdSearchResultLoadedEvent;
 use Shopware\Api\Shop\Event\Shop\ShopSearchResultLoadedEvent;
 use Shopware\Api\Shop\Struct\ShopSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Version\VersionManager;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ShopRepository implements RepositoryInterface
@@ -47,7 +47,7 @@ class ShopRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var VersionManager
+     * @var \Shopware\Framework\ORM\Version\Service\VersionManager
      */
     private $versionManager;
 

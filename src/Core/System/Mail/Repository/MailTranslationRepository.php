@@ -21,7 +21,7 @@ use Shopware\System\Mail\Event\MailTranslation\MailTranslationIdSearchResultLoad
 use Shopware\System\Mail\Event\MailTranslation\MailTranslationSearchResultLoadedEvent;
 use Shopware\System\Mail\Struct\MailTranslationSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Version\VersionManager;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class MailTranslationRepository implements RepositoryInterface

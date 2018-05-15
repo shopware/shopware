@@ -21,7 +21,7 @@ use Shopware\Checkout\Shipping\Event\ShippingMethodPrice\ShippingMethodPriceIdSe
 use Shopware\Checkout\Shipping\Event\ShippingMethodPrice\ShippingMethodPriceSearchResultLoadedEvent;
 use Shopware\Checkout\Shipping\Struct\ShippingMethodPriceSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Version\VersionManager;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ShippingMethodPriceRepository implements RepositoryInterface
@@ -47,7 +47,7 @@ class ShippingMethodPriceRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var VersionManager
+     * @var \Shopware\Framework\ORM\Version\Service\VersionManager
      */
     private $versionManager;
 

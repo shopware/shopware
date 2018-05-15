@@ -21,7 +21,7 @@ use Shopware\System\Unit\Event\UnitTranslation\UnitTranslationIdSearchResultLoad
 use Shopware\System\Unit\Event\UnitTranslation\UnitTranslationSearchResultLoadedEvent;
 use Shopware\System\Unit\Struct\UnitTranslationSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Version\VersionManager;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class UnitTranslationRepository implements RepositoryInterface
@@ -47,7 +47,7 @@ class UnitTranslationRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var VersionManager
+     * @var \Shopware\Framework\ORM\Version\Service\VersionManager
      */
     private $versionManager;
 

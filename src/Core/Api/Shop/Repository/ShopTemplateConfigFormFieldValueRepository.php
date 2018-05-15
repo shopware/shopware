@@ -21,7 +21,7 @@ use Shopware\Api\Shop\Event\ShopTemplateConfigFormFieldValue\ShopTemplateConfigF
 use Shopware\Api\Shop\Event\ShopTemplateConfigFormFieldValue\ShopTemplateConfigFormFieldValueSearchResultLoadedEvent;
 use Shopware\Api\Shop\Struct\ShopTemplateConfigFormFieldValueSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Version\VersionManager;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ShopTemplateConfigFormFieldValueRepository implements RepositoryInterface

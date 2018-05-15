@@ -181,7 +181,7 @@
         </service>
         <service class="Shopware\Framework\ORM\Version\Repository\VersionRepository" id="Shopware\Framework\ORM\Version\Repository\VersionRepository.v1" public="true">
             <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
-            <argument id="Shopware\Version\VersionManager" type="service"/>
+            <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
             <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
             <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
             <argument id="event_dispatcher" type="service"/>
@@ -191,7 +191,7 @@
         </service>
         <service class="Shopware\Framework\ORM\Version\Repository\VersionCommitRepository" id="Shopware\Framework\ORM\Version\Repository\VersionCommitRepository.v1" public="true">
             <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
-            <argument id="Shopware\Version\VersionManager" type="service"/>
+            <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
             <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
             <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
             <argument id="event_dispatcher" type="service"/>
@@ -201,7 +201,7 @@
         </service>
         <service class="Shopware\Framework\ORM\Version\Repository\VersionCommitDataRepository" id="Shopware\Framework\ORM\Version\Repository\VersionCommitDataRepository.v1" public="true">
             <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
-            <argument id="Shopware\Version\VersionManager" type="service"/>
+            <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
             <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
             <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
             <argument id="event_dispatcher" type="service"/>
@@ -284,5 +284,13 @@
             <tag name="shopware.dbal_indexing.indexer" priority="200"/>
         </service>
 
+        <service class="Shopware\Framework\ORM\Version\Service\VersionManager" id="Shopware\Framework\ORM\Version\Service\VersionManager">
+            <argument type="service" id="Shopware\Framework\ORM\Write\EntityWriter"/>
+            <argument type="service" id="Shopware\Framework\ORM\Dbal\EntityReader"/>
+            <argument type="service" id="Shopware\Framework\ORM\Dbal\EntitySearcher"/>
+            <argument type="service" id="Shopware\Framework\ORM\DefinitionRegistry"/>
+            <argument type="service" id="security.token_storage"/>
+            <argument type="service" id="Shopware\Framework\ORM\Dbal\EntityWriteGateway"/>
+        </service>
     </services>
 </container>

@@ -21,7 +21,7 @@ use Shopware\Content\Product\Event\ProductManufacturer\ProductManufacturerIdSear
 use Shopware\Content\Product\Event\ProductManufacturer\ProductManufacturerSearchResultLoadedEvent;
 use Shopware\Content\Product\Struct\ProductManufacturerSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Version\VersionManager;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductManufacturerRepository implements RepositoryInterface

@@ -21,7 +21,7 @@ use Shopware\System\Tax\Event\TaxAreaRuleTranslation\TaxAreaRuleTranslationIdSea
 use Shopware\System\Tax\Event\TaxAreaRuleTranslation\TaxAreaRuleTranslationSearchResultLoadedEvent;
 use Shopware\System\Tax\Struct\TaxAreaRuleTranslationSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Version\VersionManager;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class TaxAreaRuleTranslationRepository implements RepositoryInterface
@@ -47,7 +47,7 @@ class TaxAreaRuleTranslationRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var VersionManager
+     * @var \Shopware\Framework\ORM\Version\Service\VersionManager
      */
     private $versionManager;
 

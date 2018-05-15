@@ -21,7 +21,7 @@ use Shopware\Application\Language\Event\Language\LanguageIdSearchResultLoadedEve
 use Shopware\Application\Language\Event\Language\LanguageSearchResultLoadedEvent;
 use Shopware\Application\Language\Struct\LanguageSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Version\VersionManager;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class LanguageRepository implements RepositoryInterface

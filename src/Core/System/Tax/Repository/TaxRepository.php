@@ -21,7 +21,7 @@ use Shopware\System\Tax\Event\Tax\TaxIdSearchResultLoadedEvent;
 use Shopware\System\Tax\Event\Tax\TaxSearchResultLoadedEvent;
 use Shopware\System\Tax\Struct\TaxSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Version\VersionManager;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class TaxRepository implements RepositoryInterface

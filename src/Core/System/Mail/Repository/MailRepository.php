@@ -21,7 +21,7 @@ use Shopware\System\Mail\Event\Mail\MailIdSearchResultLoadedEvent;
 use Shopware\System\Mail\Event\Mail\MailSearchResultLoadedEvent;
 use Shopware\System\Mail\Struct\MailSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Version\VersionManager;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class MailRepository implements RepositoryInterface
@@ -47,7 +47,7 @@ class MailRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var VersionManager
+     * @var \Shopware\Framework\ORM\Version\Service\VersionManager
      */
     private $versionManager;
 

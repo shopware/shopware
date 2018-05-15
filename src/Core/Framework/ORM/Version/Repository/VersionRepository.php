@@ -19,7 +19,7 @@ use Shopware\Framework\ORM\Version\Event\Version\VersionIdSearchResultLoadedEven
 use Shopware\Framework\ORM\Version\Event\Version\VersionSearchResultLoadedEvent;
 use Shopware\Framework\ORM\Version\Struct\VersionSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Version\VersionManager;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class VersionRepository implements RepositoryInterface
@@ -45,7 +45,7 @@ class VersionRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var VersionManager
+     * @var \Shopware\Framework\ORM\Version\Service\VersionManager
      */
     private $versionManager;
 

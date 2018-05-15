@@ -21,7 +21,7 @@ use Shopware\System\Unit\Event\Unit\UnitIdSearchResultLoadedEvent;
 use Shopware\System\Unit\Event\Unit\UnitSearchResultLoadedEvent;
 use Shopware\System\Unit\Struct\UnitSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Version\VersionManager;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class UnitRepository implements RepositoryInterface

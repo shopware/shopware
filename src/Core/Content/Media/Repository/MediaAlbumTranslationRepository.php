@@ -21,7 +21,7 @@ use Shopware\Content\Media\Event\MediaAlbumTranslation\MediaAlbumTranslationIdSe
 use Shopware\Content\Media\Event\MediaAlbumTranslation\MediaAlbumTranslationSearchResultLoadedEvent;
 use Shopware\Content\Media\Struct\MediaAlbumTranslationSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Version\VersionManager;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class MediaAlbumTranslationRepository implements RepositoryInterface

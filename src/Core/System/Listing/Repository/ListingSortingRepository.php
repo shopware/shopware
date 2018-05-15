@@ -21,7 +21,7 @@ use Shopware\System\Listing\Event\ListingSorting\ListingSortingIdSearchResultLoa
 use Shopware\System\Listing\Event\ListingSorting\ListingSortingSearchResultLoadedEvent;
 use Shopware\System\Listing\Struct\ListingSortingSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Version\VersionManager;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ListingSortingRepository implements RepositoryInterface
@@ -47,7 +47,7 @@ class ListingSortingRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var VersionManager
+     * @var \Shopware\Framework\ORM\Version\Service\VersionManager
      */
     private $versionManager;
 

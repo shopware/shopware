@@ -21,7 +21,7 @@ use Shopware\Content\Product\Event\ProductMedia\ProductMediaIdSearchResultLoaded
 use Shopware\Content\Product\Event\ProductMedia\ProductMediaSearchResultLoadedEvent;
 use Shopware\Content\Product\Struct\ProductMediaSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Version\VersionManager;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductMediaRepository implements RepositoryInterface

@@ -21,7 +21,7 @@ use Shopware\Checkout\Order\Event\OrderDelivery\OrderDeliveryIdSearchResultLoade
 use Shopware\Checkout\Order\Event\OrderDelivery\OrderDeliverySearchResultLoadedEvent;
 use Shopware\Checkout\Order\Struct\OrderDeliverySearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Version\VersionManager;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class OrderDeliveryRepository implements RepositoryInterface

@@ -21,7 +21,7 @@ use Shopware\Checkout\Order\Event\OrderTransaction\OrderTransactionIdSearchResul
 use Shopware\Checkout\Order\Event\OrderTransaction\OrderTransactionSearchResultLoadedEvent;
 use Shopware\Checkout\Order\Struct\OrderTransactionSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Version\VersionManager;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class OrderTransactionRepository implements RepositoryInterface
@@ -47,7 +47,7 @@ class OrderTransactionRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var VersionManager
+     * @var \Shopware\Framework\ORM\Version\Service\VersionManager
      */
     private $versionManager;
 

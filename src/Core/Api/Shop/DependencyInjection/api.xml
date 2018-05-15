@@ -10,7 +10,7 @@
         </service>
         <service alias="Shopware\Api\Shop\Repository\ShopRepository.v1" id="Shopware\Api\Shop\Repository\ShopRepository" public="true"/><service class="Shopware\Api\Shop\Repository\ShopRepository" id="Shopware\Api\Shop\Repository\ShopRepository.v1" public="true">
           <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
-          <argument id="Shopware\Version\VersionManager" type="service"/>
+          <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
@@ -20,7 +20,7 @@
         </service>
         <service alias="Shopware\Api\Shop\Repository\ShopTemplateRepository.v1" id="Shopware\Api\Shop\Repository\ShopTemplateRepository" public="true"/><service class="Shopware\Api\Shop\Repository\ShopTemplateRepository" id="Shopware\Api\Shop\Repository\ShopTemplateRepository.v1" public="true">
           <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
-          <argument id="Shopware\Version\VersionManager" type="service"/>
+          <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
@@ -30,7 +30,7 @@
         </service>
         <service alias="Shopware\Api\Shop\Repository\ShopTemplateConfigFormRepository.v1" id="Shopware\Api\Shop\Repository\ShopTemplateConfigFormRepository" public="true"/><service class="Shopware\Api\Shop\Repository\ShopTemplateConfigFormRepository" id="Shopware\Api\Shop\Repository\ShopTemplateConfigFormRepository.v1" public="true">
           <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
-          <argument id="Shopware\Version\VersionManager" type="service"/>
+          <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
@@ -40,7 +40,7 @@
         </service>
         <service alias="Shopware\Api\Shop\Repository\ShopTemplateConfigFormFieldRepository.v1" id="Shopware\Api\Shop\Repository\ShopTemplateConfigFormFieldRepository" public="true"/><service class="Shopware\Api\Shop\Repository\ShopTemplateConfigFormFieldRepository" id="Shopware\Api\Shop\Repository\ShopTemplateConfigFormFieldRepository.v1" public="true">
           <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
-          <argument id="Shopware\Version\VersionManager" type="service"/>
+          <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
@@ -50,7 +50,7 @@
         </service>
         <service alias="Shopware\Api\Shop\Repository\ShopTemplateConfigFormFieldValueRepository.v1" id="Shopware\Api\Shop\Repository\ShopTemplateConfigFormFieldValueRepository" public="true"/><service class="Shopware\Api\Shop\Repository\ShopTemplateConfigFormFieldValueRepository" id="Shopware\Api\Shop\Repository\ShopTemplateConfigFormFieldValueRepository.v1" public="true">
           <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
-          <argument id="Shopware\Version\VersionManager" type="service"/>
+          <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
@@ -60,7 +60,7 @@
         </service>
         <service alias="Shopware\Api\Shop\Repository\ShopTemplateConfigPresetRepository.v1" id="Shopware\Api\Shop\Repository\ShopTemplateConfigPresetRepository" public="true"/><service class="Shopware\Api\Shop\Repository\ShopTemplateConfigPresetRepository" id="Shopware\Api\Shop\Repository\ShopTemplateConfigPresetRepository.v1" public="true">
           <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
-          <argument id="Shopware\Version\VersionManager" type="service"/>
+          <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>

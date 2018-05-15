@@ -15,7 +15,7 @@
         </service>
         <service class="Shopware\System\Mail\Repository\MailRepository" id="Shopware\System\Mail\Repository\MailRepository.v1" public="true">
             <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
-            <argument id="Shopware\Version\VersionManager" type="service"/>
+            <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
             <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
             <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
             <argument id="event_dispatcher" type="service"/>
@@ -25,7 +25,7 @@
         </service>
         <service class="Shopware\System\Mail\Repository\MailAttachmentRepository" id="Shopware\System\Mail\Repository\MailAttachmentRepository.v1" public="true">
             <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
-            <argument id="Shopware\Version\VersionManager" type="service"/>
+            <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
             <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
             <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
             <argument id="event_dispatcher" type="service"/>
@@ -35,7 +35,7 @@
         </service>
         <service class="Shopware\System\Mail\Repository\MailTranslationRepository" id="Shopware\System\Mail\Repository\MailTranslationRepository.v1" public="true">
             <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
-            <argument id="Shopware\Version\VersionManager" type="service"/>
+            <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
             <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
             <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
             <argument id="event_dispatcher" type="service"/>

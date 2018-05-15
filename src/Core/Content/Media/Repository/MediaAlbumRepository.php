@@ -21,7 +21,7 @@ use Shopware\Content\Media\Event\MediaAlbum\MediaAlbumIdSearchResultLoadedEvent;
 use Shopware\Content\Media\Event\MediaAlbum\MediaAlbumSearchResultLoadedEvent;
 use Shopware\Content\Media\Struct\MediaAlbumSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Version\VersionManager;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class MediaAlbumRepository implements RepositoryInterface

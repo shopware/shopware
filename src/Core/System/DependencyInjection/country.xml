@@ -18,7 +18,7 @@
         </service>
         <service class="Shopware\System\Country\Repository\CountryRepository" id="Shopware\System\Country\Repository\CountryRepository.v1" public="true">
           <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
-          <argument id="Shopware\Version\VersionManager" type="service"/>
+          <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
@@ -28,7 +28,7 @@
         </service>
         <service class="Shopware\System\Country\Repository\CountryAreaRepository" id="Shopware\System\Country\Repository\CountryAreaRepository.v1" public="true">
           <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
-          <argument id="Shopware\Version\VersionManager" type="service"/>
+          <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
@@ -38,7 +38,7 @@
         </service>
         <service class="Shopware\System\Country\Repository\CountryAreaTranslationRepository" id="Shopware\System\Country\Repository\CountryAreaTranslationRepository.v1" public="true">
           <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
-          <argument id="Shopware\Version\VersionManager" type="service"/>
+          <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
@@ -48,7 +48,7 @@
         </service>
         <service class="Shopware\System\Country\Repository\CountryStateRepository" id="Shopware\System\Country\Repository\CountryStateRepository.v1" public="true">
           <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
-          <argument id="Shopware\Version\VersionManager" type="service"/>
+          <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
@@ -58,7 +58,7 @@
         </service>
         <service class="Shopware\System\Country\Repository\CountryStateTranslationRepository" id="Shopware\System\Country\Repository\CountryStateTranslationRepository.v1" public="true">
           <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
-          <argument id="Shopware\Version\VersionManager" type="service"/>
+          <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
@@ -68,7 +68,7 @@
         </service>
         <service class="Shopware\System\Country\Repository\CountryTranslationRepository" id="Shopware\System\Country\Repository\CountryTranslationRepository.v1" public="true">
           <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
-          <argument id="Shopware\Version\VersionManager" type="service"/>
+          <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>

@@ -21,7 +21,7 @@ use Shopware\System\User\Event\User\UserIdSearchResultLoadedEvent;
 use Shopware\System\User\Event\User\UserSearchResultLoadedEvent;
 use Shopware\System\User\Struct\UserSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Version\VersionManager;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class UserRepository implements RepositoryInterface

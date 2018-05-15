@@ -21,7 +21,7 @@ use Shopware\System\Tax\Event\TaxAreaRule\TaxAreaRuleIdSearchResultLoadedEvent;
 use Shopware\System\Tax\Event\TaxAreaRule\TaxAreaRuleSearchResultLoadedEvent;
 use Shopware\System\Tax\Struct\TaxAreaRuleSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Version\VersionManager;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class TaxAreaRuleRepository implements RepositoryInterface
@@ -47,7 +47,7 @@ class TaxAreaRuleRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var VersionManager
+     * @var \Shopware\Framework\ORM\Version\Service\VersionManager
      */
     private $versionManager;
 

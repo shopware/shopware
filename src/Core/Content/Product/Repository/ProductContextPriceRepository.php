@@ -21,7 +21,7 @@ use Shopware\Api\Product\Event\ProductContextPrice\ProductContextPriceIdSearchRe
 use Shopware\Content\Product\Event\ProductContextPrice\ProductContextPriceSearchResultLoadedEvent;
 use Shopware\Content\Product\Struct\ProductContextPriceSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Version\VersionManager;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductContextPriceRepository implements RepositoryInterface

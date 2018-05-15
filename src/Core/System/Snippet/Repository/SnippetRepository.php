@@ -21,7 +21,7 @@ use Shopware\System\Snippet\Event\Snippet\SnippetIdSearchResultLoadedEvent;
 use Shopware\System\Snippet\Event\Snippet\SnippetSearchResultLoadedEvent;
 use Shopware\System\Snippet\Struct\SnippetSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Version\VersionManager;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class SnippetRepository implements RepositoryInterface

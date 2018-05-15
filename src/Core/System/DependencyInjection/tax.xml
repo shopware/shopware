@@ -16,7 +16,7 @@
         </service>
         <service class="Shopware\System\Tax\Repository\TaxRepository" id="Shopware\System\Tax\Repository\TaxRepository.v1" public="true">
           <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
-          <argument id="Shopware\Version\VersionManager" type="service"/>
+          <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
@@ -26,7 +26,7 @@
         </service>
         <service class="Shopware\System\Tax\Repository\TaxAreaRuleRepository" id="Shopware\System\Tax\Repository\TaxAreaRuleRepository.v1" public="true">
           <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
-          <argument id="Shopware\Version\VersionManager" type="service"/>
+          <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
@@ -36,7 +36,7 @@
         </service>
         <service class="Shopware\System\Tax\Repository\TaxAreaRuleTranslationRepository" id="Shopware\System\Tax\Repository\TaxAreaRuleTranslationRepository.v1" public="true">
           <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
-          <argument id="Shopware\Version\VersionManager" type="service"/>
+          <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>

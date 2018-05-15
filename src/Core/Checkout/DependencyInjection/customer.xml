@@ -17,7 +17,7 @@
         </service>
         <service class="Shopware\Checkout\Customer\Repository\CustomerRepository" id="Shopware\Checkout\Customer\Repository\CustomerRepository.v1" public="true">
             <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
-            <argument id="Shopware\Version\VersionManager" type="service"/>
+            <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
             <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
             <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
             <argument id="event_dispatcher" type="service"/>
@@ -27,7 +27,7 @@
         </service>
         <service class="Shopware\Checkout\Customer\Repository\CustomerAddressRepository" id="Shopware\Checkout\Customer\Repository\CustomerAddressRepository.v1" public="true">
             <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
-            <argument id="Shopware\Version\VersionManager" type="service"/>
+            <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
             <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
             <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
             <argument id="event_dispatcher" type="service"/>
@@ -37,7 +37,7 @@
         </service>
         <service class="Shopware\Checkout\Customer\Repository\CustomerGroupRepository" id="Shopware\Checkout\Customer\Repository\CustomerGroupRepository.v1" public="true">
             <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
-            <argument id="Shopware\Version\VersionManager" type="service"/>
+            <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
             <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
             <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
             <argument id="event_dispatcher" type="service"/>
@@ -47,7 +47,7 @@
         </service>
         <service class="Shopware\Checkout\Customer\Repository\CustomerGroupDiscountRepository" id="Shopware\Checkout\Customer\Repository\CustomerGroupDiscountRepository.v1" public="true">
             <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
-            <argument id="Shopware\Version\VersionManager" type="service"/>
+            <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
             <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
             <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
             <argument id="event_dispatcher" type="service"/>
@@ -57,7 +57,7 @@
         </service>
         <service class="Shopware\Checkout\Customer\Repository\CustomerGroupTranslationRepository" id="Shopware\Checkout\Customer\Repository\CustomerGroupTranslationRepository.v1" public="true">
             <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
-            <argument id="Shopware\Version\VersionManager" type="service"/>
+            <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
             <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
             <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
             <argument id="event_dispatcher" type="service"/>

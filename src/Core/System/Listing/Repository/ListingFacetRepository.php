@@ -21,7 +21,7 @@ use Shopware\System\Listing\Event\ListingFacet\ListingFacetIdSearchResultLoadedE
 use Shopware\System\Listing\Event\ListingFacet\ListingFacetSearchResultLoadedEvent;
 use Shopware\System\Listing\Struct\ListingFacetSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Version\VersionManager;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ListingFacetRepository implements RepositoryInterface
@@ -47,7 +47,7 @@ class ListingFacetRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var VersionManager
+     * @var \Shopware\Framework\ORM\Version\Service\VersionManager
      */
     private $versionManager;
 

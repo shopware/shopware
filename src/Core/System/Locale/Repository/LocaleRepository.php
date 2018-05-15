@@ -21,7 +21,7 @@ use Shopware\System\Locale\Event\Locale\LocaleIdSearchResultLoadedEvent;
 use Shopware\System\Locale\Event\Locale\LocaleSearchResultLoadedEvent;
 use Shopware\System\Locale\Struct\LocaleSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Version\VersionManager;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class LocaleRepository implements RepositoryInterface
@@ -47,7 +47,7 @@ class LocaleRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var VersionManager
+     * @var \Shopware\Framework\ORM\Version\Service\VersionManager
      */
     private $versionManager;
 

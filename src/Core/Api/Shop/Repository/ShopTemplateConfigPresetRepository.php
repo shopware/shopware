@@ -21,7 +21,7 @@ use Shopware\Api\Shop\Event\ShopTemplateConfigPreset\ShopTemplateConfigPresetIdS
 use Shopware\Api\Shop\Event\ShopTemplateConfigPreset\ShopTemplateConfigPresetSearchResultLoadedEvent;
 use Shopware\Api\Shop\Struct\ShopTemplateConfigPresetSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Version\VersionManager;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ShopTemplateConfigPresetRepository implements RepositoryInterface

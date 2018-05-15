@@ -21,7 +21,7 @@ use Shopware\Checkout\Order\Event\OrderDeliveryPosition\OrderDeliveryPositionIdS
 use Shopware\Checkout\Order\Event\OrderDeliveryPosition\OrderDeliveryPositionSearchResultLoadedEvent;
 use Shopware\Checkout\Order\Struct\OrderDeliveryPositionSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Version\VersionManager;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class OrderDeliveryPositionRepository implements RepositoryInterface

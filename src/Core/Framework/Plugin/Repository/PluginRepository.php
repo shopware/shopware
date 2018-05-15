@@ -21,7 +21,7 @@ use Shopware\Framework\Plugin\Event\Plugin\PluginIdSearchResultLoadedEvent;
 use Shopware\Framework\Plugin\Event\Plugin\PluginSearchResultLoadedEvent;
 use Shopware\Framework\Plugin\Struct\PluginSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Version\VersionManager;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class PluginRepository implements RepositoryInterface
@@ -47,7 +47,7 @@ class PluginRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var VersionManager
+     * @var \Shopware\Framework\ORM\Version\Service\VersionManager
      */
     private $versionManager;
 

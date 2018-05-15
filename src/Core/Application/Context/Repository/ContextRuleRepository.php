@@ -21,7 +21,7 @@ use Shopware\Framework\ORM\Search\IdSearchResult;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
 use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Version\VersionManager;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ContextRuleRepository implements RepositoryInterface
@@ -47,7 +47,7 @@ class ContextRuleRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var VersionManager
+     * @var \Shopware\Framework\ORM\Version\Service\VersionManager
      */
     private $versionManager;
 

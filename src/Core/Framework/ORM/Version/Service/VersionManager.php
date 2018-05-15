@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Version;
+namespace Shopware\Framework\ORM\Version\Service;
 
 use Shopware\Framework\ORM\DefinitionRegistry;
 use Shopware\Framework\ORM\Entity;

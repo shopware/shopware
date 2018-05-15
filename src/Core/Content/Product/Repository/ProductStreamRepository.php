@@ -21,7 +21,7 @@ use Shopware\Content\Product\Event\ProductStream\ProductStreamIdSearchResultLoad
 use Shopware\Content\Product\Event\ProductStream\ProductStreamSearchResultLoadedEvent;
 use Shopware\Content\Product\Struct\ProductStreamSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Version\VersionManager;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductStreamRepository implements RepositoryInterface

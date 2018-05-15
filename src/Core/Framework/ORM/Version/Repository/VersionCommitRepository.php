@@ -21,7 +21,7 @@ use Shopware\Framework\ORM\Version\Event\VersionCommit\VersionCommitIdSearchResu
 use Shopware\Framework\ORM\Version\Event\VersionCommit\VersionCommitSearchResultLoadedEvent;
 use Shopware\Framework\ORM\Version\Struct\VersionCommitSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Version\VersionManager;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class VersionCommitRepository implements RepositoryInterface
@@ -47,7 +47,7 @@ class VersionCommitRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var VersionManager
+     * @var \Shopware\Framework\ORM\Version\Service\VersionManager
      */
     private $versionManager;
 

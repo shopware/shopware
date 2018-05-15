@@ -21,7 +21,7 @@ use Shopware\Storefront\Api\Seo\Event\SeoUrl\SeoUrlDetailLoadedEvent;
 use Shopware\Storefront\Api\Seo\Event\SeoUrl\SeoUrlIdSearchResultLoadedEvent;
 use Shopware\Storefront\Api\Seo\Event\SeoUrl\SeoUrlSearchResultLoadedEvent;
 use Shopware\Storefront\Api\Seo\Struct\SeoUrlSearchResult;
-use Shopware\Version\VersionManager;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class SeoUrlRepository implements RepositoryInterface
@@ -47,7 +47,7 @@ class SeoUrlRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var VersionManager
+     * @var \Shopware\Framework\ORM\Version\Service\VersionManager
      */
     private $versionManager;
 

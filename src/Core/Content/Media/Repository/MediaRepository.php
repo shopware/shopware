@@ -21,7 +21,7 @@ use Shopware\Content\Media\Event\Media\MediaIdSearchResultLoadedEvent;
 use Shopware\Content\Media\Event\Media\MediaSearchResultLoadedEvent;
 use Shopware\Content\Media\Struct\MediaSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Version\VersionManager;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class MediaRepository implements RepositoryInterface
@@ -47,7 +47,7 @@ class MediaRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var VersionManager
+     * @var \Shopware\Framework\ORM\Version\Service\VersionManager
      */
     private $versionManager;
 

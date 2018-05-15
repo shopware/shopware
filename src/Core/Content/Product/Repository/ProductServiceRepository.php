@@ -21,7 +21,7 @@ use Shopware\Content\Product\Event\ProductService\ProductServiceIdSearchResultLo
 use Shopware\Content\Product\Event\ProductService\ProductServiceSearchResultLoadedEvent;
 use Shopware\Content\Product\Struct\ProductServiceSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Version\VersionManager;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductServiceRepository implements RepositoryInterface

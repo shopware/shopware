@@ -21,7 +21,7 @@ use Shopware\Content\Media\Event\MediaTranslation\MediaTranslationIdSearchResult
 use Shopware\Content\Media\Event\MediaTranslation\MediaTranslationSearchResultLoadedEvent;
 use Shopware\Content\Media\Struct\MediaTranslationSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Version\VersionManager;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class MediaTranslationRepository implements RepositoryInterface
@@ -47,7 +47,7 @@ class MediaTranslationRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var VersionManager
+     * @var \Shopware\Framework\ORM\Version\Service\VersionManager
      */
     private $versionManager;
 

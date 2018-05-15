@@ -21,7 +21,7 @@ use Shopware\System\Locale\Event\LocaleTranslation\LocaleTranslationIdSearchResu
 use Shopware\System\Locale\Event\LocaleTranslation\LocaleTranslationSearchResultLoadedEvent;
 use Shopware\System\Locale\Struct\LocaleTranslationSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Version\VersionManager;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class LocaleTranslationRepository implements RepositoryInterface

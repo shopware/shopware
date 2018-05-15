@@ -21,7 +21,7 @@ use Shopware\Checkout\Payment\Event\PaymentMethodTranslation\PaymentMethodTransl
 use Shopware\Checkout\Payment\Event\PaymentMethodTranslation\PaymentMethodTranslationSearchResultLoadedEvent;
 use Shopware\Checkout\Payment\Struct\PaymentMethodTranslationSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Version\VersionManager;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class PaymentMethodTranslationRepository implements RepositoryInterface

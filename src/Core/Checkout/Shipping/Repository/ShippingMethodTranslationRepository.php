@@ -21,7 +21,7 @@ use Shopware\Checkout\Shipping\Event\ShippingMethodTranslation\ShippingMethodTra
 use Shopware\Checkout\Shipping\Event\ShippingMethodTranslation\ShippingMethodTranslationSearchResultLoadedEvent;
 use Shopware\Checkout\Shipping\Struct\ShippingMethodTranslationSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Version\VersionManager;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ShippingMethodTranslationRepository implements RepositoryInterface
@@ -47,7 +47,7 @@ class ShippingMethodTranslationRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var VersionManager
+     * @var \Shopware\Framework\ORM\Version\Service\VersionManager
      */
     private $versionManager;
 

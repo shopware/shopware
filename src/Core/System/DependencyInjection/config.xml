@@ -18,7 +18,7 @@
 
         <service class="Shopware\System\Config\Repository\ConfigFormRepository" id="Shopware\System\Config\Repository\ConfigFormRepository.v1" public="true">
           <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
-          <argument id="Shopware\Version\VersionManager" type="service"/>
+          <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
@@ -29,7 +29,7 @@
 
         <service class="Shopware\System\Config\Repository\ConfigFormFieldRepository" id="Shopware\System\Config\Repository\ConfigFormFieldRepository.v1" public="true">
           <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
-          <argument id="Shopware\Version\VersionManager" type="service"/>
+          <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
@@ -40,7 +40,7 @@
 
         <service class="Shopware\System\Config\Repository\ConfigFormFieldTranslationRepository" id="Shopware\System\Config\Repository\ConfigFormFieldTranslationRepository.v1" public="true">
           <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
-          <argument id="Shopware\Version\VersionManager" type="service"/>
+          <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
@@ -52,7 +52,7 @@
 
         <service class="Shopware\System\Config\Repository\ConfigFormFieldValueRepository" id="Shopware\System\Config\Repository\ConfigFormFieldValueRepository.v1" public="true">
           <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
-          <argument id="Shopware\Version\VersionManager" type="service"/>
+          <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
@@ -64,7 +64,7 @@
 
         <service class="Shopware\System\Config\Repository\ConfigFormTranslationRepository" id="Shopware\System\Config\Repository\ConfigFormTranslationRepository.v1" public="true">
           <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
-          <argument id="Shopware\Version\VersionManager" type="service"/>
+          <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>

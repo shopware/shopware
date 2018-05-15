@@ -19,7 +19,7 @@ use Shopware\Checkout\Order\Event\OrderTransactionStateTranslation\OrderTransact
 use Shopware\Checkout\Order\Event\OrderTransactionStateTranslation\OrderTransactionStateTranslationSearchResultLoadedEvent;
 use Shopware\Checkout\Order\Struct\OrderTransactionStateTranslationSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Version\VersionManager;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class OrderTransactionStateTranslationRepository implements RepositoryInterface

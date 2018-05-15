@@ -19,7 +19,7 @@ use Shopware\System\Log\Event\Log\LogIdSearchResultLoadedEvent;
 use Shopware\System\Log\Event\Log\LogSearchResultLoadedEvent;
 use Shopware\System\Log\Struct\LogSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Version\VersionManager;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class LogRepository implements RepositoryInterface

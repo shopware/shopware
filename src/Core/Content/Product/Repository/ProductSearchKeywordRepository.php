@@ -21,7 +21,7 @@ use Shopware\Content\Product\Event\ProductSearchKeyword\ProductSearchKeywordIdSe
 use Shopware\Content\Product\Event\ProductSearchKeyword\ProductSearchKeywordSearchResultLoadedEvent;
 use Shopware\Content\Product\Struct\ProductSearchKeywordSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Version\VersionManager;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductSearchKeywordRepository implements RepositoryInterface

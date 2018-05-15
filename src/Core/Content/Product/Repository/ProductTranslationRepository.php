@@ -21,7 +21,7 @@ use Shopware\Content\Product\Event\ProductTranslation\ProductTranslationIdSearch
 use Shopware\Content\Product\Event\ProductTranslation\ProductTranslationSearchResultLoadedEvent;
 use Shopware\Content\Product\Struct\ProductTranslationSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Version\VersionManager;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductTranslationRepository implements RepositoryInterface
@@ -47,7 +47,7 @@ class ProductTranslationRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var VersionManager
+     * @var \Shopware\Framework\ORM\Version\Service\VersionManager
      */
     private $versionManager;
 

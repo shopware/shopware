@@ -21,7 +21,7 @@ use Shopware\Content\Product\Event\ProductConfigurator\ProductConfiguratorIdSear
 use Shopware\Content\Product\Event\ProductConfigurator\ProductConfiguratorSearchResultLoadedEvent;
 use Shopware\Content\Product\Struct\ProductConfiguratorSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Version\VersionManager;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductConfiguratorRepository implements RepositoryInterface
@@ -47,7 +47,7 @@ class ProductConfiguratorRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var VersionManager
+     * @var \Shopware\Framework\ORM\Version\Service\VersionManager
      */
     private $versionManager;
 

@@ -21,7 +21,7 @@ use Shopware\Checkout\Order\Event\OrderAddress\OrderAddressIdSearchResultLoadedE
 use Shopware\Checkout\Order\Event\OrderAddress\OrderAddressSearchResultLoadedEvent;
 use Shopware\Checkout\Order\Struct\OrderAddressSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Version\VersionManager;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class OrderAddressRepository implements RepositoryInterface

@@ -7,7 +7,7 @@ use Shopware\Content\Category\Struct\CategoryBasicStruct;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Framework\ORM\Search\Query\TermsQuery;
-use Shopware\Category\Tree\TreeBuilder;
+use Shopware\Content\Category\Tree\TreeBuilder;
 use Shopware\Context\Struct\ApplicationContext;
 
 class NavigationService

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Category\Tree;
+namespace Shopware\Content\Category\Tree;
 
 use Shopware\Content\Category\Collection\CategoryBasicCollection;
 use Shopware\Content\Category\Struct\CategoryBasicStruct;

@@ -8,7 +8,7 @@ use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Content\Product\Repository\ProductRepository;
-use Shopware\Category\Extension\CategoryPathBuilder;
+use Shopware\Content\Category\Extension\CategoryPathBuilder;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\DbalIndexing\Common\EventIdExtractor;
 use Shopware\DbalIndexing\Common\RepositoryIterator;

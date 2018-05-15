@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Category\Extension;
+namespace Shopware\Content\Category\Extension;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Content\Category\Collection\CategoryBasicCollection;

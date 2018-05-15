@@ -32,6 +32,19 @@
           <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>
+
+        <service class="Shopware\Content\Category\Extension\CategoryPathBuilder" id="Shopware\Content\Category\Extension\CategoryPathBuilder">
+            <argument id="Shopware\Content\Category\Repository\CategoryRepository" type="service"/>
+            <argument id="Doctrine\DBAL\Connection" type="service"/>
+            <argument type="service" id="event_dispatcher"/>
+            <tag name="kernel.event_subscriber" />
+        </service>
+
+        <service class="Shopware\Content\Category\Command\BuildCategoryPathCommand" id="Shopware\Content\Category\Command\BuildCategoryPathCommand">
+            <argument type="service" id="Shopware\Content\Category\Extension\CategoryPathBuilder"/>
+            <tag name="console.command"/>
+            <tag name="kernel.event_subscriber" />
+        </service>
     </services>
 </container>                
                 

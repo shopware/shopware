@@ -22,12 +22,12 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Category\Command;
+namespace Shopware\Content\Category\Command;
 
 use Shopware\Content\Category\Repository\CategoryRepository;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Query\TermQuery;
-use Shopware\Category\Extension\CategoryPathBuilder;
+use Shopware\Content\Category\Extension\CategoryPathBuilder;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\DbalIndexing\Event\ProgressAdvancedEvent;
 use Shopware\DbalIndexing\Event\ProgressFinishedEvent;

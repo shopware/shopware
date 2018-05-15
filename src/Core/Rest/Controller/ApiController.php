@@ -164,7 +164,7 @@ class ApiController extends Controller
             /*
              * Example:
              * route:           /api/product/SW1/categories
-             * $definition:     \Shopware\Category\Definition\CategoryDefinition
+             * $definition:     \Shopware\Content\Category\Definition\CategoryDefinition
              */
             $definition = $association->getReferenceDefinition();
 

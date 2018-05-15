@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api\User\Struct;
+namespace Shopware\System\User\Struct;
 
 use Shopware\Api\Entity\Entity;
 

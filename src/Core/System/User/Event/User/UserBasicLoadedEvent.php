@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api\User\Event\User;
+namespace Shopware\System\User\Event\User;
 
-use Shopware\Api\User\Collection\UserBasicCollection;
+use Shopware\System\User\Collection\UserBasicCollection;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 

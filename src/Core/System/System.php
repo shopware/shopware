@@ -50,5 +50,6 @@ class System extends Bundle
         $loader->load('snippet.xml');
         $loader->load('tax.xml');
         $loader->load('unit.xml');
+        $loader->load('user.xml');
     }
 }

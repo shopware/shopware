@@ -3,7 +3,7 @@
 namespace Shopware\Api\Media\Struct;
 
 use Shopware\Api\Media\Collection\MediaTranslationBasicCollection;
-use Shopware\Api\User\Struct\UserBasicStruct;
+use Shopware\System\User\Struct\UserBasicStruct;
 
 class MediaDetailStruct extends MediaBasicStruct
 {

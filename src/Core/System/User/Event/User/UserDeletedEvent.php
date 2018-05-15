@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api\User\Event\User;
+namespace Shopware\System\User\Event\User;
 
 use Shopware\Api\Entity\Write\DeletedEvent;
 use Shopware\Api\Entity\Write\WrittenEvent;
-use Shopware\Api\User\Definition\UserDefinition;
+use Shopware\System\User\Definition\UserDefinition;
 
 class UserDeletedEvent extends WrittenEvent implements DeletedEvent
 {

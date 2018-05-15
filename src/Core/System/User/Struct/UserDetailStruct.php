@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api\User\Struct;
+namespace Shopware\System\User\Struct;
 
 use Shopware\System\Locale\Struct\LocaleBasicStruct;
 use Shopware\Api\Media\Collection\MediaBasicCollection;

@@ -5,7 +5,7 @@ namespace Shopware\Rest\Context;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntitySearcherInterface;
 use Shopware\Api\Entity\Search\Query\TermQuery;
-use Shopware\Api\User\Definition\UserDefinition;
+use Shopware\System\User\Definition\UserDefinition;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;

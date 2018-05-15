@@ -23,7 +23,7 @@
         </service>
 
         <service class="Shopware\Rest\Command\UserCreateCommand" id="Shopware\Rest\Command\UserCreateCommand">
-            <argument id="Shopware\Api\User\Repository\UserRepository" type="service"/>
+            <argument id="Shopware\System\User\Repository\UserRepository" type="service"/>
             <argument id="security.encoder_factory.generic" type="service"/>
             <tag name="console.command"/>
         </service>

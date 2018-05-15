@@ -4,7 +4,7 @@ namespace Shopware\Rest\Command;
 
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\TermQuery;
-use Shopware\Api\User\Repository\UserRepository;
+use Shopware\System\User\Repository\UserRepository;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Struct\Uuid;
 use Shopware\Framework\Util\Random;

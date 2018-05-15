@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api\User\Repository;
+namespace Shopware\System\User\Repository;
 
 use Shopware\Api\Entity\Read\EntityReaderInterface;
 use Shopware\Api\Entity\RepositoryInterface;
@@ -11,15 +11,15 @@ use Shopware\Api\Entity\Search\EntitySearcherInterface;
 use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Entity\Write\WriteContext;
-use Shopware\Api\User\Collection\UserBasicCollection;
-use Shopware\Api\User\Collection\UserDetailCollection;
-use Shopware\Api\User\Definition\UserDefinition;
-use Shopware\Api\User\Event\User\UserAggregationResultLoadedEvent;
-use Shopware\Api\User\Event\User\UserBasicLoadedEvent;
-use Shopware\Api\User\Event\User\UserDetailLoadedEvent;
-use Shopware\Api\User\Event\User\UserIdSearchResultLoadedEvent;
-use Shopware\Api\User\Event\User\UserSearchResultLoadedEvent;
-use Shopware\Api\User\Struct\UserSearchResult;
+use Shopware\System\User\Collection\UserBasicCollection;
+use Shopware\System\User\Collection\UserDetailCollection;
+use Shopware\System\User\Definition\UserDefinition;
+use Shopware\System\User\Event\User\UserAggregationResultLoadedEvent;
+use Shopware\System\User\Event\User\UserBasicLoadedEvent;
+use Shopware\System\User\Event\User\UserDetailLoadedEvent;
+use Shopware\System\User\Event\User\UserIdSearchResultLoadedEvent;
+use Shopware\System\User\Event\User\UserSearchResultLoadedEvent;
+use Shopware\System\User\Struct\UserSearchResult;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Version\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;

@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api\User\Event\User;
+namespace Shopware\System\User\Event\User;
 
 use Shopware\System\Locale\Event\Locale\LocaleBasicLoadedEvent;
 use Shopware\Api\Media\Event\Media\MediaBasicLoadedEvent;
-use Shopware\Api\User\Collection\UserDetailCollection;
+use Shopware\System\User\Collection\UserDetailCollection;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;

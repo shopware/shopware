@@ -6,12 +6,12 @@
 
     <services>
         <!-- Versioning -->
-        <service alias="Shopware\Api\User\Repository\UserRepository.v1" id="Shopware\Api\User\Repository\UserRepository" public="true"/>
+        <service alias="Shopware\System\User\Repository\UserRepository.v1" id="Shopware\System\User\Repository\UserRepository" public="true"/>
 
-        <service class="Shopware\Api\User\Definition\UserDefinition" id="shopware.user.user_definition" >
+        <service class="Shopware\System\User\Definition\UserDefinition" id="shopware.user.user_definition" >
             <tag name="shopware.entity.definition" entity="user" />
         </service>
-        <service class="Shopware\Api\User\Repository\UserRepository" id="Shopware\Api\User\Repository\UserRepository.v1" public="true">
+        <service class="Shopware\System\User\Repository\UserRepository" id="Shopware\System\User\Repository\UserRepository.v1" public="true">
           <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
           <argument id="Shopware\Version\VersionManager" type="service"/>
           <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>

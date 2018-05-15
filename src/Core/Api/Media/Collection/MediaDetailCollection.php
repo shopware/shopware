@@ -3,7 +3,7 @@
 namespace Shopware\Api\Media\Collection;
 
 use Shopware\Api\Media\Struct\MediaDetailStruct;
-use Shopware\Api\User\Collection\UserBasicCollection;
+use Shopware\System\User\Collection\UserBasicCollection;
 
 class MediaDetailCollection extends MediaBasicCollection
 {

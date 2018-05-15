@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api\Application\Event\Application;
+namespace Shopware\Application\Application\Event\Application;
 
-use Shopware\Api\Application\Collection\ApplicationBasicCollection;
+use Shopware\Application\Application\Collection\ApplicationBasicCollection;
 use Shopware\System\Currency\Event\Currency\CurrencyBasicLoadedEvent;
 use Shopware\Api\Language\Event\Language\LanguageBasicLoadedEvent;
 use Shopware\Context\Struct\ApplicationContext;

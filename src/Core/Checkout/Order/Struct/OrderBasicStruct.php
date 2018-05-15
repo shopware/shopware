@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Order\Struct;
 
-use Shopware\Api\Application\Struct\ApplicationBasicStruct;
+use Shopware\Application\Application\Struct\ApplicationBasicStruct;
 use Shopware\System\Currency\Struct\CurrencyBasicStruct;
 use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
 use Shopware\Api\Entity\Entity;

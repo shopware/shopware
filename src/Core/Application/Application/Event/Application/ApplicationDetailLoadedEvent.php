@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api\Application\Event\Application;
+namespace Shopware\Application\Application\Event\Application;
 
-use Shopware\Api\Application\Collection\ApplicationDetailCollection;
+use Shopware\Application\Application\Collection\ApplicationDetailCollection;
 use Shopware\System\Country\Event\Country\CountryBasicLoadedEvent;
 use Shopware\Checkout\Payment\Event\PaymentMethod\PaymentMethodBasicLoadedEvent;
 use Shopware\Checkout\Shipping\Event\ShippingMethod\ShippingMethodBasicLoadedEvent;

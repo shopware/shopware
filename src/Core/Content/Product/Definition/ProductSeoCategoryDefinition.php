@@ -2,7 +2,7 @@
 
 namespace Shopware\Content\Product\Definition;
 
-use Shopware\Api\Application\Definition\ApplicationDefinition;
+use Shopware\Application\Application\Definition\ApplicationDefinition;
 use Shopware\Content\Category\Definition\CategoryDefinition;
 use Shopware\Api\Entity\Field\DateField;
 use Shopware\Api\Entity\Field\FkField;

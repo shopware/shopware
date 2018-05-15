@@ -1,16 +1,16 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api\Application\Repository;
+namespace Shopware\Application\Application\Repository;
 
-use Shopware\Api\Application\Collection\ApplicationBasicCollection;
-use Shopware\Api\Application\Collection\ApplicationDetailCollection;
-use Shopware\Api\Application\Definition\ApplicationDefinition;
-use Shopware\Api\Application\Event\Application\ApplicationAggregationResultLoadedEvent;
-use Shopware\Api\Application\Event\Application\ApplicationBasicLoadedEvent;
-use Shopware\Api\Application\Event\Application\ApplicationDetailLoadedEvent;
-use Shopware\Api\Application\Event\Application\ApplicationIdSearchResultLoadedEvent;
-use Shopware\Api\Application\Event\Application\ApplicationSearchResultLoadedEvent;
-use Shopware\Api\Application\Struct\ApplicationSearchResult;
+use Shopware\Application\Application\Collection\ApplicationBasicCollection;
+use Shopware\Application\Application\Collection\ApplicationDetailCollection;
+use Shopware\Application\Application\Definition\ApplicationDefinition;
+use Shopware\Application\Application\Event\Application\ApplicationAggregationResultLoadedEvent;
+use Shopware\Application\Application\Event\Application\ApplicationBasicLoadedEvent;
+use Shopware\Application\Application\Event\Application\ApplicationDetailLoadedEvent;
+use Shopware\Application\Application\Event\Application\ApplicationIdSearchResultLoadedEvent;
+use Shopware\Application\Application\Event\Application\ApplicationSearchResultLoadedEvent;
+use Shopware\Application\Application\Struct\ApplicationSearchResult;
 use Shopware\Api\Entity\Read\EntityReaderInterface;
 use Shopware\Api\Entity\RepositoryInterface;
 use Shopware\Api\Entity\Search\AggregatorResult;

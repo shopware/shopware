@@ -25,8 +25,8 @@
 namespace Shopware\Context\Service;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Api\Application\Repository\ApplicationRepository;
-use Shopware\Api\Application\Struct\ApplicationBasicStruct;
+use Shopware\Application\Application\Repository\ApplicationRepository;
+use Shopware\Application\Application\Struct\ApplicationBasicStruct;
 use Shopware\System\Country\Repository\CountryRepository;
 use Shopware\System\Country\Repository\CountryStateRepository;
 use Shopware\System\Currency\Repository\CurrencyRepository;

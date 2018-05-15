@@ -25,7 +25,7 @@
 namespace Shopware\Cart\Test\Tax;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Api\Application\Struct\ApplicationBasicStruct;
+use Shopware\Application\Application\Struct\ApplicationBasicStruct;
 use Shopware\Cart\Price\PriceRounding;
 use Shopware\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Cart\Price\Struct\CalculatedPriceCollection;

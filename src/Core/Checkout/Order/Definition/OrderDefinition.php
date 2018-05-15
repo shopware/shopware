@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Order\Definition;
 
-use Shopware\Api\Application\Definition\ApplicationDefinition;
+use Shopware\Application\Application\Definition\ApplicationDefinition;
 use Shopware\System\Currency\Definition\CurrencyDefinition;
 use Shopware\Checkout\Customer\Definition\CustomerDefinition;
 use Shopware\Api\Entity\EntityDefinition;

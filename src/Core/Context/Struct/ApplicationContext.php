@@ -24,7 +24,7 @@
 
 namespace Shopware\Context\Struct;
 
-use Shopware\Api\Application\Struct\ApplicationBasicStruct;
+use Shopware\Application\Application\Struct\ApplicationBasicStruct;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\Struct;
 

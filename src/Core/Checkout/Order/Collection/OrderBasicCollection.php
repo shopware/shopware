@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Order\Collection;
 
-use Shopware\Api\Application\Collection\ApplicationBasicCollection;
+use Shopware\Application\Application\Collection\ApplicationBasicCollection;
 use Shopware\System\Currency\Collection\CurrencyBasicCollection;
 use Shopware\Checkout\Customer\Collection\CustomerBasicCollection;
 use Shopware\Api\Entity\EntityCollection;

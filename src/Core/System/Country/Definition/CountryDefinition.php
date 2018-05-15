@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Country\Definition;
 
-use Shopware\Api\Application\Definition\ApplicationDefinition;
+use Shopware\Application\Application\Definition\ApplicationDefinition;
 use Shopware\System\Country\Collection\CountryBasicCollection;
 use Shopware\System\Country\Collection\CountryDetailCollection;
 use Shopware\System\Country\Event\Country\CountryDeletedEvent;

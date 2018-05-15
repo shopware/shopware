@@ -6,7 +6,7 @@
 
     <services>
         <service class="Shopware\Context\Service\ContextFactory" id="Shopware\Context\Service\ContextFactory">
-            <argument type="service" id="Shopware\Api\Application\Repository\ApplicationRepository"/>
+            <argument type="service" id="Shopware\Application\Application\Repository\ApplicationRepository"/>
             <argument type="service" id="Shopware\System\Currency\Repository\CurrencyRepository"/>
             <argument type="service" id="Shopware\Checkout\Customer\Repository\CustomerRepository"/>
             <argument type="service" id="Shopware\Checkout\Customer\Repository\CustomerGroupRepository"/>

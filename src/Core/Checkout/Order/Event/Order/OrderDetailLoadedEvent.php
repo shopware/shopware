@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Order\Event\Order;
 
-use Shopware\Api\Application\Event\Application\ApplicationBasicLoadedEvent;
+use Shopware\Application\Application\Event\Application\ApplicationBasicLoadedEvent;
 use Shopware\System\Currency\Event\Currency\CurrencyBasicLoadedEvent;
 use Shopware\Checkout\Customer\Event\Customer\CustomerBasicLoadedEvent;
 use Shopware\Checkout\Order\Collection\OrderDetailCollection;

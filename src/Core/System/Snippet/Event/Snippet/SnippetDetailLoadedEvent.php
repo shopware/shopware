@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Snippet\Event\Snippet;
 
-use Shopware\Api\Application\Event\Application\ApplicationBasicLoadedEvent;
+use Shopware\Application\Application\Event\Application\ApplicationBasicLoadedEvent;
 use Shopware\System\Snippet\Collection\SnippetDetailCollection;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;

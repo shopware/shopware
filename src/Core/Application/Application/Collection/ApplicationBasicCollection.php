@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api\Application\Collection;
+namespace Shopware\Application\Application\Collection;
 
-use Shopware\Api\Application\Struct\ApplicationBasicStruct;
+use Shopware\Application\Application\Struct\ApplicationBasicStruct;
 use Shopware\System\Currency\Collection\CurrencyBasicCollection;
 use Shopware\Api\Entity\EntityCollection;
 use Shopware\Api\Language\Collection\LanguageBasicCollection;

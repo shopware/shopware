@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Snippet\Struct;
 
-use Shopware\Api\Application\Struct\ApplicationBasicStruct;
+use Shopware\Application\Application\Struct\ApplicationBasicStruct;
 
 class SnippetDetailStruct extends SnippetBasicStruct
 {

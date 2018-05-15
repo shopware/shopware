@@ -6,13 +6,13 @@
 
     <services>
         <!-- Versioning -->
-        <service alias="Shopware\Api\Application\Repository\ApplicationRepository.v1" id="Shopware\Api\Application\Repository\ApplicationRepository" public="true" />
+        <service alias="Shopware\Application\Application\Repository\ApplicationRepository.v1" id="Shopware\Application\Application\Repository\ApplicationRepository" public="true" />
 
-         <service class="Shopware\Api\Application\Definition\ApplicationDefinition" id="Shopware\Api\Application\Definition\ApplicationDefinition" >
+         <service class="Shopware\Application\Application\Definition\ApplicationDefinition" id="Shopware\Application\Application\Definition\ApplicationDefinition" >
             <tag name="shopware.entity.definition" entity="application" />
         </service>
 
-        <service class="Shopware\Api\Application\Repository\ApplicationRepository" id="Shopware\Api\Application\Repository\ApplicationRepository.v1" public="true">
+        <service class="Shopware\Application\Application\Repository\ApplicationRepository" id="Shopware\Application\Application\Repository\ApplicationRepository.v1" public="true">
           <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
           <argument id="Shopware\Version\VersionManager" type="service"/>
           <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>

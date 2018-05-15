@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api\Application\Event\Application;
+namespace Shopware\Application\Application\Event\Application;
 
-use Shopware\Api\Application\Struct\ApplicationSearchResult;
+use Shopware\Application\Application\Struct\ApplicationSearchResult;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api\Application\Struct;
+namespace Shopware\Application\Application\Struct;
 
 use Shopware\System\Country\Struct\CountryBasicStruct;
 use Shopware\Checkout\Payment\Struct\PaymentMethodBasicStruct;

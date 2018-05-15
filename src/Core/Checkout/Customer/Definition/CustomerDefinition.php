@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Customer\Definition;
 
-use Shopware\Api\Application\Definition\ApplicationDefinition;
+use Shopware\Application\Application\Definition\ApplicationDefinition;
 use Shopware\Checkout\Customer\Collection\CustomerBasicCollection;
 use Shopware\Checkout\Customer\Collection\CustomerDetailCollection;
 use Shopware\Checkout\Customer\Event\Customer\CustomerDeletedEvent;

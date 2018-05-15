@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api\Application\Collection;
+namespace Shopware\Application\Application\Collection;
 
-use Shopware\Api\Application\Struct\ApplicationDetailStruct;
+use Shopware\Application\Application\Struct\ApplicationDetailStruct;
 use Shopware\System\Country\Collection\CountryBasicCollection;
 use Shopware\Checkout\Payment\Collection\PaymentMethodBasicCollection;
 use Shopware\Checkout\Shipping\Collection\ShippingMethodBasicCollection;

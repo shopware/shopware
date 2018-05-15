@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Customer\Struct;
 
-use Shopware\Api\Application\Struct\ApplicationBasicStruct;
+use Shopware\Application\Application\Struct\ApplicationBasicStruct;
 use Shopware\Api\Entity\Entity;
 use Shopware\Checkout\Payment\Struct\PaymentMethodBasicStruct;
 

@@ -25,7 +25,7 @@
 namespace Shopware\Cart\Test\Common;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Api\Application\Struct\ApplicationBasicStruct;
+use Shopware\Application\Application\Struct\ApplicationBasicStruct;
 use Shopware\System\Country\Struct\CountryAreaBasicStruct;
 use Shopware\System\Country\Struct\CountryBasicStruct;
 use Shopware\System\Country\Struct\CountryStateBasicStruct;

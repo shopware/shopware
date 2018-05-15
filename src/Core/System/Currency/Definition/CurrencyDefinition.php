@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Currency\Definition;
 
-use Shopware\Api\Application\Definition\ApplicationDefinition;
+use Shopware\Application\Application\Definition\ApplicationDefinition;
 use Shopware\System\Currency\Collection\CurrencyBasicCollection;
 use Shopware\System\Currency\Collection\CurrencyDetailCollection;
 use Shopware\System\Currency\Event\Currency\CurrencyDeletedEvent;

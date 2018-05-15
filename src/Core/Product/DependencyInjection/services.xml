@@ -6,8 +6,8 @@
 
     <services>
         <service class="Shopware\Product\Service\VariantGenerator" id="Shopware\Product\Service\VariantGenerator" public="true">
-            <argument id="Shopware\Api\Product\Repository\ProductRepository" type="service"/>
-            <argument id="Shopware\Api\Product\Repository\ProductConfiguratorRepository" type="service"/>
+            <argument id="Shopware\Content\Product\Repository\ProductRepository" type="service"/>
+            <argument id="Shopware\Content\Product\Repository\ProductConfiguratorRepository" type="service"/>
         </service>
     </services>
 </container>

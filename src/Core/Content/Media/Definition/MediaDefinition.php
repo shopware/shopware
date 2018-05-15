@@ -34,8 +34,8 @@ use Shopware\Content\Media\Event\Media\MediaWrittenEvent;
 use Shopware\Content\Media\Repository\MediaRepository;
 use Shopware\Content\Media\Struct\MediaBasicStruct;
 use Shopware\Content\Media\Struct\MediaDetailStruct;
-use Shopware\Api\Product\Definition\ProductManufacturerDefinition;
-use Shopware\Api\Product\Definition\ProductMediaDefinition;
+use Shopware\Content\Product\Definition\ProductManufacturerDefinition;
+use Shopware\Content\Product\Definition\ProductMediaDefinition;
 use Shopware\System\User\Definition\UserDefinition;
 
 class MediaDefinition extends EntityDefinition

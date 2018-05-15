@@ -4,7 +4,7 @@ namespace Shopware\Rest\Test\Controller;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Content\Category\Definition\CategoryDefinition;
-use Shopware\Api\Product\Definition\ProductDefinition;
+use Shopware\Content\Product\Definition\ProductDefinition;
 use Shopware\Framework\Struct\Uuid;
 use Shopware\PlatformRequest;
 use Shopware\Rest\Controller\SyncController;

@@ -2,7 +2,7 @@
 
 use Shopware\Api\Context\Repository\ContextCartModifierRepository;
 use Shopware\Api\Context\Repository\ContextRuleRepository;
-use Shopware\Api\Product\Repository\ProductRepository;
+use Shopware\Content\Product\Repository\ProductRepository;
 use Shopware\Cart\Cart\CircularCartCalculation;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Cart\Struct\Cart;

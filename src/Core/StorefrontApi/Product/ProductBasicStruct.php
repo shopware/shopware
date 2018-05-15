@@ -2,7 +2,7 @@
 
 namespace Shopware\StorefrontApi\Product;
 
-use Shopware\Api\Product\Struct\ProductBasicStruct as ApiBasicStruct;
+use Shopware\Content\Product\Struct\ProductBasicStruct as ApiBasicStruct;
 
 class ProductBasicStruct extends ApiBasicStruct implements StorefrontProductBasicInterface
 {

@@ -25,8 +25,8 @@ declare(strict_types=1);
 
 namespace Shopware\CartBridge\Product;
 
-use Shopware\Api\Product\Struct\ProductBasicStruct;
-use Shopware\Api\Product\Struct\ProductServiceBasicStruct;
+use Shopware\Content\Product\Struct\ProductBasicStruct;
+use Shopware\Content\Product\Struct\ProductServiceBasicStruct;
 use Shopware\Cart\LineItem\CalculatedLineItem;
 use Shopware\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Cart\LineItem\LineItemCollection;

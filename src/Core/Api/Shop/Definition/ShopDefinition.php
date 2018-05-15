@@ -35,7 +35,7 @@ use Shopware\System\Locale\Definition\LocaleDefinition;
 use Shopware\System\Mail\Definition\MailAttachmentDefinition;
 use Shopware\Api\Order\Definition\OrderDefinition;
 use Shopware\Api\Payment\Definition\PaymentMethodDefinition;
-use Shopware\Api\Product\Definition\ProductSeoCategoryDefinition;
+use Shopware\Content\Product\Definition\ProductSeoCategoryDefinition;
 use Shopware\Api\Shipping\Definition\ShippingMethodDefinition;
 use Shopware\Api\Shop\Collection\ShopBasicCollection;
 use Shopware\Api\Shop\Collection\ShopDetailCollection;

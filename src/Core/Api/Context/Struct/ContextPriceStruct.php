@@ -3,7 +3,7 @@
 namespace Shopware\Api\Context\Struct;
 
 use Shopware\Api\Entity\Entity;
-use Shopware\Api\Product\Struct\PriceStruct;
+use Shopware\Content\Product\Struct\PriceStruct;
 
 class ContextPriceStruct extends Entity
 {

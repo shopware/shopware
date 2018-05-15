@@ -38,7 +38,7 @@
         </service>
 
         <service class="Shopware\DbalIndexing\Indexer\CategoryAssignmentIndexer" id="Shopware\DbalIndexing\Indexer\CategoryAssignmentIndexer">
-            <argument id="Shopware\Api\Product\Repository\ProductRepository" type="service"/>
+            <argument id="Shopware\Content\Product\Repository\ProductRepository" type="service"/>
             <argument id="Doctrine\DBAL\Connection" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument id="Shopware\Category\Extension\CategoryPathBuilder" type="service"/>
@@ -48,7 +48,7 @@
         </service>
 
         <service class="Shopware\DbalIndexing\Indexer\VariationJsonIndexer" id="Shopware\DbalIndexing\Indexer\VariationJsonIndexer">
-            <argument id="Shopware\Api\Product\Repository\ProductRepository" type="service"/>
+            <argument id="Shopware\Content\Product\Repository\ProductRepository" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument id="Shopware\DbalIndexing\Common\EventIdExtractor" type="service"/>
             <argument id="Doctrine\DBAL\Connection" type="service"/>
@@ -56,7 +56,7 @@
         </service>
 
         <service class="Shopware\DbalIndexing\Indexer\DatasheetJsonIndexer" id="Shopware\DbalIndexing\Indexer\DatasheetJsonIndexer">
-            <argument id="Shopware\Api\Product\Repository\ProductRepository" type="service"/>
+            <argument id="Shopware\Content\Product\Repository\ProductRepository" type="service"/>
             <argument id="Doctrine\DBAL\Connection" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument id="Shopware\DbalIndexing\Common\EventIdExtractor" type="service"/>
@@ -64,7 +64,7 @@
         </service>
 
         <service class="Shopware\DbalIndexing\Indexer\ListingPriceIndexer" id="Shopware\DbalIndexing\Indexer\ListingPriceIndexer">
-            <argument id="Shopware\Api\Product\Repository\ProductRepository" type="service"/>
+            <argument id="Shopware\Content\Product\Repository\ProductRepository" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument id="Shopware\DbalIndexing\Common\EventIdExtractor" type="service"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
@@ -73,7 +73,7 @@
 
         <service class="Shopware\DbalIndexing\Indexer\SearchIndexer" id="Shopware\DbalIndexing\Indexer\SearchIndexer">
             <argument id="Doctrine\DBAL\Connection" type="service"/>
-            <argument type="service" id="Shopware\Api\Product\Repository\ProductRepository"/>
+            <argument type="service" id="Shopware\Content\Product\Repository\ProductRepository"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\DbalIndexing\Indexer\Analyzer\SearchAnalyzerRegistry"/>
             <argument type="service" id="Shopware\DbalIndexing\Common\IndexTableOperator"/>

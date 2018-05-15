@@ -28,11 +28,11 @@ use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Entity\Write\Flag\WriteOnly;
 use Shopware\Content\Media\Definition\MediaDefinition;
-use Shopware\Api\Product\Definition\ProductConfiguratorDefinition;
-use Shopware\Api\Product\Definition\ProductDatasheetDefinition;
-use Shopware\Api\Product\Definition\ProductDefinition;
-use Shopware\Api\Product\Definition\ProductServiceDefinition;
-use Shopware\Api\Product\Definition\ProductVariationDefinition;
+use Shopware\Content\Product\Definition\ProductConfiguratorDefinition;
+use Shopware\Content\Product\Definition\ProductDatasheetDefinition;
+use Shopware\Content\Product\Definition\ProductDefinition;
+use Shopware\Content\Product\Definition\ProductServiceDefinition;
+use Shopware\Content\Product\Definition\ProductVariationDefinition;
 
 class ConfigurationGroupOptionDefinition extends EntityDefinition
 {

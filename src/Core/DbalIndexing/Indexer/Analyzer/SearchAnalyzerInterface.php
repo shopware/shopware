@@ -2,7 +2,7 @@
 
 namespace Shopware\DbalIndexing\Indexer\Analyzer;
 
-use Shopware\Api\Product\Struct\ProductBasicStruct;
+use Shopware\Content\Product\Struct\ProductBasicStruct;
 use Shopware\Context\Struct\ApplicationContext;
 
 interface SearchAnalyzerInterface

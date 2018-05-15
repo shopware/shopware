@@ -4,9 +4,9 @@ namespace Shopware\Storefront\Seo\Product;
 
 use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\FieldCollection;
-use Shopware\Api\Product\Definition\ProductDefinition;
-use Shopware\Api\Product\Event\Product\ProductBasicLoadedEvent;
-use Shopware\Api\Product\Struct\ProductBasicStruct;
+use Shopware\Content\Product\Definition\ProductDefinition;
+use Shopware\Content\Product\Event\Product\ProductBasicLoadedEvent;
+use Shopware\Content\Product\Struct\ProductBasicStruct;
 use Shopware\Storefront\Api\Entity\Field\CanonicalUrlAssociationField;
 use Shopware\Storefront\Api\Seo\Collection\SeoUrlBasicCollection;
 use Shopware\Storefront\Api\Seo\Event\SeoUrl\SeoUrlBasicLoadedEvent;

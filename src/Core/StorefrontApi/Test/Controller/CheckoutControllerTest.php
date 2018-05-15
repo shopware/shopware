@@ -5,7 +5,7 @@ namespace Shopware\StorefrontApi\Test\Controller;
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
 use Shopware\Api\Customer\Repository\CustomerRepository;
-use Shopware\Api\Product\Repository\ProductRepository;
+use Shopware\Content\Product\Repository\ProductRepository;
 use Shopware\CartBridge\Product\ProductProcessor;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Defaults;

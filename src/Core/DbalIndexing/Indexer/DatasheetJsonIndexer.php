@@ -4,7 +4,7 @@ namespace Shopware\DbalIndexing\Indexer;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
-use Shopware\Api\Product\Repository\ProductRepository;
+use Shopware\Content\Product\Repository\ProductRepository;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\DbalIndexing\Common\EventIdExtractor;
 use Shopware\DbalIndexing\Common\RepositoryIterator;

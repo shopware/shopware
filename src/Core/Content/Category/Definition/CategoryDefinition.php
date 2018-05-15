@@ -35,10 +35,10 @@ use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Entity\Write\Flag\SearchRanking;
 use Shopware\Api\Entity\Write\Flag\WriteOnly;
 use Shopware\Content\Media\Definition\MediaDefinition;
-use Shopware\Api\Product\Definition\ProductCategoryDefinition;
-use Shopware\Api\Product\Definition\ProductDefinition;
-use Shopware\Api\Product\Definition\ProductSeoCategoryDefinition;
-use Shopware\Api\Product\Definition\ProductStreamDefinition;
+use Shopware\Content\Product\Definition\ProductCategoryDefinition;
+use Shopware\Content\Product\Definition\ProductDefinition;
+use Shopware\Content\Product\Definition\ProductSeoCategoryDefinition;
+use Shopware\Content\Product\Definition\ProductStreamDefinition;
 
 class CategoryDefinition extends EntityDefinition
 {

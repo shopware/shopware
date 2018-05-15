@@ -9,7 +9,7 @@ use Shopware\Content\Category\Struct\CategoryBasicStruct;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\Entity\Write\FieldException\WriteStackException;
-use Shopware\Api\Product\Repository\ProductRepository;
+use Shopware\Content\Product\Repository\ProductRepository;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\Uuid;

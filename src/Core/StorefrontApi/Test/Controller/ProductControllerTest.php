@@ -3,7 +3,7 @@
 namespace Shopware\StorefrontApi\Test\Controller;
 
 use Ramsey\Uuid\Uuid;
-use Shopware\Api\Product\Repository\ProductRepository;
+use Shopware\Content\Product\Repository\ProductRepository;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Rest\Test\ApiTestCase;
 

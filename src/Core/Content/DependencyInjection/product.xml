@@ -1,0 +1,143 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <!-- Versioning -->
+        <service alias="Shopware\Content\Product\Repository\ProductRepository.v1" id="Shopware\Content\Product\Repository\ProductRepository" public="true"/>
+        <service alias="Shopware\Content\Product\Repository\ProductConfiguratorRepository.v1" id="Shopware\Content\Product\Repository\ProductConfiguratorRepository" public="true" />
+        <service alias="Shopware\Content\Product\Repository\ProductContextPriceRepository.v1" id="Shopware\Content\Product\Repository\ProductContextPriceRepository" public="true" />
+        <service alias="Shopware\Content\Product\Repository\ProductManufacturerRepository.v1" id="Shopware\Content\Product\Repository\ProductManufacturerRepository" public="true"/>
+        <service alias="Shopware\Content\Product\Repository\ProductManufacturerTranslationRepository.v1" id="Shopware\Content\Product\Repository\ProductManufacturerTranslationRepository" public="true"/>
+        <service alias="Shopware\Content\Product\Repository\ProductMediaRepository.v1" id="Shopware\Content\Product\Repository\ProductMediaRepository" public="true"/>
+        <service alias="Shopware\Content\Product\Repository\ProductSearchKeywordRepository.v1" id="Shopware\Content\Product\Repository\ProductSearchKeywordRepository" public="true"/>
+        <service alias="Shopware\Content\Product\Repository\ProductServiceRepository.v1" id="Shopware\Content\Product\Repository\ProductServiceRepository" public="true" />
+        <service alias="Shopware\Content\Product\Repository\ProductStreamRepository.v1" id="Shopware\Content\Product\Repository\ProductStreamRepository" public="true"/>
+        <service alias="Shopware\Content\Product\Repository\ProductTranslationRepository.v1" id="Shopware\Content\Product\Repository\ProductTranslationRepository" public="true"/>
+
+         <service class="Shopware\Content\Product\Definition\ProductDefinition" id="Shopware\Content\Product\Definition\ProductDefinition" >
+            <tag name="shopware.entity.definition" entity="product" />
+        </service>
+        <service class="Shopware\Content\Product\Repository\ProductRepository" id="Shopware\Content\Product\Repository\ProductRepository.v1" public="true">
+          <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Version\VersionManager" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+         <service class="Shopware\Content\Product\Definition\ProductCategoryDefinition" id="Shopware\Content\Product\Definition\ProductCategoryDefinition" >
+            <tag name="shopware.entity.definition" entity="product_category" />
+        </service>
+         <service class="Shopware\Content\Product\Definition\ProductConfiguratorDefinition" id="Shopware\Content\Product\Definition\ProductConfiguratorDefinition" >
+            <tag name="shopware.entity.definition" entity="product_configurator" />
+        </service>
+        <service class="Shopware\Content\Product\Repository\ProductConfiguratorRepository" id="Shopware\Content\Product\Repository\ProductConfiguratorRepository.v1" public="true">
+          <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Version\VersionManager" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+         <service class="Shopware\Content\Product\Definition\ProductContextPriceDefinition" id="Shopware\Content\Product\Definition\ProductContextPriceDefinition" >
+            <tag name="shopware.entity.definition" entity="product_context_price" />
+        </service>
+        <service class="Shopware\Content\Product\Repository\ProductContextPriceRepository" id="Shopware\Content\Product\Repository\ProductContextPriceRepository.v1" public="true">
+          <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Version\VersionManager" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+         <service class="Shopware\Content\Product\Definition\ProductDatasheetDefinition" id="Shopware\Content\Product\Definition\ProductDatasheetDefinition" >
+            <tag name="shopware.entity.definition" entity="product_datasheet" />
+        </service>
+         <service class="Shopware\Content\Product\Definition\ProductManufacturerDefinition" id="Shopware\Content\Product\Definition\ProductManufacturerDefinition" >
+            <tag name="shopware.entity.definition" entity="product_manufacturer" />
+        </service>
+        <service class="Shopware\Content\Product\Repository\ProductManufacturerRepository" id="Shopware\Content\Product\Repository\ProductManufacturerRepository.v1" public="true">
+          <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Version\VersionManager" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+         <service class="Shopware\Content\Product\Definition\ProductManufacturerTranslationDefinition" id="Shopware\Content\Product\Definition\ProductManufacturerTranslationDefinition" >
+            <tag name="shopware.entity.definition" entity="product_manufacturer_translation" />
+        </service>
+        <service class="Shopware\Content\Product\Repository\ProductManufacturerTranslationRepository" id="Shopware\Content\Product\Repository\ProductManufacturerTranslationRepository.v1" public="true">
+          <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Version\VersionManager" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+         <service class="Shopware\Content\Product\Definition\ProductMediaDefinition" id="Shopware\Content\Product\Definition\ProductMediaDefinition" >
+            <tag name="shopware.entity.definition" entity="product_media" />
+        </service>
+        <service class="Shopware\Content\Product\Repository\ProductMediaRepository" id="Shopware\Content\Product\Repository\ProductMediaRepository.v1" public="true">
+          <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Version\VersionManager" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+         <service class="Shopware\Content\Product\Definition\ProductSearchKeywordDefinition" id="Shopware\Content\Product\Definition\ProductSearchKeywordDefinition" >
+            <tag name="shopware.entity.definition" entity="product_search_keyword" />
+        </service>
+        <service class="Shopware\Content\Product\Repository\ProductSearchKeywordRepository" id="Shopware\Content\Product\Repository\ProductSearchKeywordRepository.v1" public="true">
+          <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Version\VersionManager" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+         <service class="Shopware\Content\Product\Definition\ProductSeoCategoryDefinition" id="Shopware\Content\Product\Definition\ProductSeoCategoryDefinition" >
+            <tag name="shopware.entity.definition" entity="product_seo_category" />
+        </service>
+         <service class="Shopware\Content\Product\Definition\ProductServiceDefinition" id="Shopware\Content\Product\Definition\ProductServiceDefinition" >
+            <tag name="shopware.entity.definition" entity="product_service" />
+        </service>
+        <service class="Shopware\Content\Product\Repository\ProductServiceRepository" id="Shopware\Content\Product\Repository\ProductServiceRepository.v1" public="true">
+          <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Version\VersionManager" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+         <service class="Shopware\Content\Product\Definition\ProductStreamDefinition" id="Shopware\Content\Product\Definition\ProductStreamDefinition" >
+            <tag name="shopware.entity.definition" entity="product_stream" />
+        </service>
+        <service class="Shopware\Content\Product\Repository\ProductStreamRepository" id="Shopware\Content\Product\Repository\ProductStreamRepository.v1" public="true">
+          <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Version\VersionManager" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+         <service class="Shopware\Content\Product\Definition\ProductStreamAssignmentDefinition" id="Shopware\Content\Product\Definition\ProductStreamAssignmentDefinition" >
+            <tag name="shopware.entity.definition" entity="product_stream_assignment" />
+        </service>
+         <service class="Shopware\Content\Product\Definition\ProductStreamTabDefinition" id="Shopware\Content\Product\Definition\ProductStreamTabDefinition" >
+            <tag name="shopware.entity.definition" entity="product_stream_tab" />
+        </service>
+         <service class="Shopware\Content\Product\Definition\ProductTranslationDefinition" id="Shopware\Content\Product\Definition\ProductTranslationDefinition" >
+            <tag name="shopware.entity.definition" entity="product_translation" />
+        </service>
+        <service class="Shopware\Content\Product\Repository\ProductTranslationRepository" id="Shopware\Content\Product\Repository\ProductTranslationRepository.v1" public="true">
+          <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Version\VersionManager" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+         <service class="Shopware\Content\Product\Definition\ProductVariationDefinition" id="Shopware\Content\Product\Definition\ProductVariationDefinition" >
+            <tag name="shopware.entity.definition" entity="product_variation" />
+        </service>
+        <service class="Shopware\Content\Product\Definition\ProductCategoryTreeDefinition" id="Shopware\Content\Product\Definition\ProductCategoryTreeDefinition" >
+            <tag name="shopware.entity.definition" entity="product_category_tree" />
+        </service>
+    </services>
+</container>                
+                

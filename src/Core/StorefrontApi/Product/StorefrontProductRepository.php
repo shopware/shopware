@@ -5,11 +5,11 @@ namespace Shopware\StorefrontApi\Product;
 use Shopware\System\Configuration\Struct\ConfigurationGroupOptionBasicStruct;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\IdSearchResult;
-use Shopware\Api\Product\Collection\ProductBasicCollection;
-use Shopware\Api\Product\Collection\ProductDetailCollection;
-use Shopware\Api\Product\Repository\ProductRepository;
-use Shopware\Api\Product\Struct\ProductSearchResult;
-use Shopware\Api\Product\Struct\ProductServiceBasicStruct;
+use Shopware\Content\Product\Collection\ProductBasicCollection;
+use Shopware\Content\Product\Collection\ProductDetailCollection;
+use Shopware\Content\Product\Repository\ProductRepository;
+use Shopware\Content\Product\Struct\ProductSearchResult;
+use Shopware\Content\Product\Struct\ProductServiceBasicStruct;
 use Shopware\Cart\Price\PriceCalculator;
 use Shopware\Context\Struct\StorefrontContext;
 

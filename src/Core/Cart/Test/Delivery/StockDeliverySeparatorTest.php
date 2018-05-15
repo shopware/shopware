@@ -28,7 +28,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\System\Country\Struct\CountryBasicStruct;
 use Shopware\System\Country\Struct\CountryStateBasicStruct;
 use Shopware\Api\Customer\Struct\CustomerAddressBasicStruct;
-use Shopware\Api\Product\Struct\ProductBasicStruct;
+use Shopware\Content\Product\Struct\ProductBasicStruct;
 use Shopware\Cart\Delivery\StockDeliverySeparator;
 use Shopware\Cart\Delivery\Struct\Delivery;
 use Shopware\Cart\Delivery\Struct\DeliveryCollection;

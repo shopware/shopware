@@ -4,7 +4,7 @@ namespace Shopware\Rest\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Api\Product\Definition\ProductDefinition;
+use Shopware\Content\Product\Definition\ProductDefinition;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Product\Service\VariantGenerator;
 use Shopware\Rest\Context\RestContext;

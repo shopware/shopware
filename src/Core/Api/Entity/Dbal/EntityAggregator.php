@@ -21,7 +21,7 @@ use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\EntityAggregatorInterface;
 use Shopware\Api\Entity\Search\Parser\SqlQueryParser;
 use Shopware\Api\Entity\Write\Flag\Inherited;
-use Shopware\Api\Product\Definition\ProductDefinition;
+use Shopware\Content\Product\Definition\ProductDefinition;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Struct\Uuid;
 

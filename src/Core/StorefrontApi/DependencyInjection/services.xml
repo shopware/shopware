@@ -6,7 +6,7 @@
 
     <services>
         <service class="Shopware\StorefrontApi\Product\StorefrontProductRepository" id="Shopware\StorefrontApi\Product\StorefrontProductRepository">
-            <argument type="service" id="Shopware\Api\Product\Repository\ProductRepository"/>
+            <argument type="service" id="Shopware\Content\Product\Repository\ProductRepository"/>
             <argument type="service" id="Shopware\Cart\Price\PriceCalculator"/>
             <tag name="shopware.traceable" label="product.storefront-repository" />
         </service>

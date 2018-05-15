@@ -25,12 +25,12 @@ use Shopware\Content\Media\Definition\MediaAlbumDefinition;
 use Shopware\Content\Media\Definition\MediaAlbumTranslationDefinition;
 use Shopware\Content\Media\Definition\MediaDefinition;
 use Shopware\Content\Media\Definition\MediaTranslationDefinition;
-use Shopware\Api\Product\Definition\ProductDefinition;
-use Shopware\Api\Product\Definition\ProductManufacturerDefinition;
-use Shopware\Api\Product\Definition\ProductManufacturerTranslationDefinition;
-use Shopware\Api\Product\Definition\ProductMediaDefinition;
-use Shopware\Api\Product\Definition\ProductStreamDefinition;
-use Shopware\Api\Product\Definition\ProductTranslationDefinition;
+use Shopware\Content\Product\Definition\ProductDefinition;
+use Shopware\Content\Product\Definition\ProductManufacturerDefinition;
+use Shopware\Content\Product\Definition\ProductManufacturerTranslationDefinition;
+use Shopware\Content\Product\Definition\ProductMediaDefinition;
+use Shopware\Content\Product\Definition\ProductStreamDefinition;
+use Shopware\Content\Product\Definition\ProductTranslationDefinition;
 
 class CatalogDefinition extends EntityDefinition
 {

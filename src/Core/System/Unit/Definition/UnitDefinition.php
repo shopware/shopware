@@ -19,7 +19,7 @@ use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Entity\Write\Flag\RestrictDelete;
 use Shopware\Api\Entity\Write\Flag\SearchRanking;
 use Shopware\Api\Entity\Write\Flag\WriteOnly;
-use Shopware\Api\Product\Definition\ProductDefinition;
+use Shopware\Content\Product\Definition\ProductDefinition;
 use Shopware\System\Unit\Collection\UnitBasicCollection;
 use Shopware\System\Unit\Collection\UnitDetailCollection;
 use Shopware\System\Unit\Event\Unit\UnitDeletedEvent;

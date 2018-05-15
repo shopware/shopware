@@ -2,8 +2,8 @@
 
 namespace Shopware\Storefront\Page\Detail;
 
-use Shopware\Api\Product\Collection\ProductConfiguratorBasicCollection;
-use Shopware\Api\Product\Struct\ProductBasicStruct;
+use Shopware\Content\Product\Collection\ProductConfiguratorBasicCollection;
+use Shopware\Content\Product\Struct\ProductBasicStruct;
 use Shopware\Framework\Struct\Struct;
 
 class DetailPageStruct extends Struct

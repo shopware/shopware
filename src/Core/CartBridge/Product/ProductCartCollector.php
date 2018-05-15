@@ -25,9 +25,9 @@ declare(strict_types=1);
 
 namespace Shopware\CartBridge\Product;
 
-use Shopware\Api\Product\Collection\ProductBasicCollection;
-use Shopware\Api\Product\Collection\ProductServiceBasicCollection;
-use Shopware\Api\Product\Repository\ProductServiceRepository;
+use Shopware\Content\Product\Collection\ProductBasicCollection;
+use Shopware\Content\Product\Collection\ProductServiceBasicCollection;
+use Shopware\Content\Product\Repository\ProductServiceRepository;
 use Shopware\Cart\Cart\CartCollectorInterface;
 use Shopware\Cart\Cart\Struct\Cart;
 use Shopware\CartBridge\Product\Struct\ProductFetchDefinition;

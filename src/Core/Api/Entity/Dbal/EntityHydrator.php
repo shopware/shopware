@@ -30,7 +30,7 @@ use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\Extension;
 use Shopware\Api\Entity\Write\Flag\Inherited;
 use Shopware\Api\Entity\Write\Flag\Serialized;
-use Shopware\Api\Product\Struct\PriceStruct;
+use Shopware\Content\Product\Struct\PriceStruct;
 use Shopware\Framework\Struct\ArrayStruct;
 use Shopware\Framework\Struct\Uuid;
 use Symfony\Component\Serializer\SerializerInterface;

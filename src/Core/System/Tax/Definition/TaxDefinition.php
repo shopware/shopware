@@ -18,7 +18,7 @@ use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Entity\Write\Flag\RestrictDelete;
 use Shopware\Api\Entity\Write\Flag\SearchRanking;
 use Shopware\Api\Entity\Write\Flag\WriteOnly;
-use Shopware\Api\Product\Definition\ProductDefinition;
+use Shopware\Content\Product\Definition\ProductDefinition;
 use Shopware\System\Tax\Collection\TaxBasicCollection;
 use Shopware\System\Tax\Collection\TaxDetailCollection;
 use Shopware\System\Tax\Event\Tax\TaxDeletedEvent;

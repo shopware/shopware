@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace Shopware\CartBridge\Product;
 
-use Shopware\Api\Product\Collection\ProductBasicCollection;
+use Shopware\Content\Product\Collection\ProductBasicCollection;
 use Shopware\Context\Struct\StorefrontContext;
 
 interface ProductGatewayInterface

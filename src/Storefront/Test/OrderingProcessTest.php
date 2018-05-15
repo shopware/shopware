@@ -226,7 +226,7 @@ class OrderingProcessTest extends ApiTestCase
 
     private function getOrderIdByResponse(Response $response): string
     {
-        $location = $response->headers->get('Location');
+        $location = $response->headers->get('location');
         $query = parse_url($location, PHP_URL_QUERY);
         $parsedQuery = [];
         parse_str($query, $parsedQuery);

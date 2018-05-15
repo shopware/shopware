@@ -5,13 +5,14 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
+        <!-- Versioning -->
         <service alias="Shopware\Storefront\Api\Seo\Repository\SeoUrlRepository.v1" id="Shopware\Storefront\Api\Seo\Repository\SeoUrlRepository" public="true"/>
 
         <service class="Shopware\Storefront\Api\Seo\Definition\SeoUrlDefinition" id="shopware.seo.seo_url_definition" >
             <tag name="shopware.entity.definition" entity="seo_url" />
         </service>
 
-        <service class="Shopware\Storefront\Api\Seo\Repository\SeoUrlRepository" id="Shopware\Storefront\Api\Seo\Repository\SeoUrlRepository" public="true">
+        <service class="Shopware\Storefront\Api\Seo\Repository\SeoUrlRepository" id="Shopware\Storefront\Api\Seo\Repository\SeoUrlRepository.v1" public="true">
           <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
           <argument id="Shopware\Version\VersionManager" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>

@@ -2,6 +2,7 @@
 
 namespace Shopware\Framework\Translation\Command;
 
+use Shopware\Framework\Framework;
 use Shopware\Framework\Plugin\PluginCollection;
 use Shopware\Framework\Struct\Uuid;
 use Shopware\Framework\Translation\Event\ImportAdvanceEvent;
@@ -94,10 +95,7 @@ class TranslationImportCommand extends ContainerAwareCommand implements EventSub
             throw new \Exception('Invalid uuid provided');
         }
 
-        $kernel = $this->getContainer()->get('kernel');
-        $translationBundlePath = $kernel->getBundle('Translation')->getPath();
-
-        $folders = [$translationBundlePath . '/Resources/translations'];
+        $folders = [__DIR__ . '/../../Resources/translations'];
 
         if ($input->getOption('with-plugins')) {
             foreach ($this->getContainer()->get(PluginCollection::class)->getActivePlugins() as $plugin) {

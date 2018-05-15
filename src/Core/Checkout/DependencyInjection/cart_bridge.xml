@@ -1,0 +1,82 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+
+        <!--calculations-->
+        <service class="Shopware\Checkout\CartBridge\Product\ProductCalculator" id="Shopware\Checkout\CartBridge\Product\ProductCalculator">
+            <argument id="Shopware\Checkout\Cart\Price\PriceCalculator" type="service"/>
+        </service>
+
+        <!--cart processors-->
+        <service class="Shopware\Checkout\CartBridge\Product\ProductProcessor" id="Shopware\Checkout\CartBridge\Product\ProductProcessor">
+            <argument type="service" id="Shopware\Checkout\CartBridge\Product\ProductCalculator" />
+            <tag name="cart.processor" priority="1000" />
+        </service>
+
+        <service class="Shopware\Checkout\CartBridge\CustomerGroup\CustomerGroupDiscountProcessor" id="Shopware\Checkout\CartBridge\CustomerGroup\CustomerGroupDiscountProcessor">
+            <argument id="Shopware\Checkout\Cart\Price\PercentagePriceCalculator" type="service"/>
+            <tag name="cart.processor" priority="800"/>
+        </service>
+
+        <service class="Shopware\Checkout\CartBridge\Modifier\ContextCartModifierProcessor" id="Shopware\Checkout\CartBridge\Modifier\ContextCartModifierProcessor">
+            <argument id="Shopware\Application\Context\Repository\ContextCartModifierRepository" type="service"/>
+            <argument id="Shopware\Checkout\Cart\Price\AbsolutePriceCalculator" type="service"/>
+            <argument id="Shopware\Checkout\Cart\Price\PercentagePriceCalculator" type="service"/>
+            <tag name="cart.processor" priority="700"/>
+        </service>
+
+        <service class="Shopware\Checkout\CartBridge\Order\MinimumOrderAmountProcessor" id="Shopware\Checkout\CartBridge\Order\MinimumOrderAmountProcessor">
+            <argument type="service" id="Shopware\Checkout\Cart\Price\AbsolutePriceCalculator"/>
+            <tag name="cart.processor" priority="600"/>
+        </service>
+
+        <service class="Shopware\Checkout\CartBridge\Payment\PaymentSurchargeProcessor" id="Shopware\Checkout\CartBridge\Payment\PaymentSurchargeProcessor">
+            <tag name="cart.processor" priority="500"/>
+            <argument type="service" id="Shopware\Checkout\Cart\Price\PercentagePriceCalculator"/>
+            <argument type="service" id="Shopware\Checkout\Cart\Price\AbsolutePriceCalculator"/>
+        </service>
+
+        <!--cart line item data collectors-->
+        <service class="Shopware\Checkout\CartBridge\Product\ProductCartCollector" id="Shopware\Checkout\CartBridge\Product\ProductCartCollector">
+            <argument id="Shopware\Checkout\CartBridge\Product\ProductGateway" type="service"/>
+            <tag name="cart.collector" priority="1000" />
+            <argument type="service" id="Shopware\Content\Product\Repository\ProductServiceRepository"/>
+        </service>
+
+        <service class="Shopware\Checkout\CartBridge\Modifier\ContextCartModifierCollector" id="Shopware\Checkout\CartBridge\Modifier\ContextCartModifierCollector">
+            <argument id="Shopware\Application\Context\Repository\ContextCartModifierRepository" type="service"/>
+            <tag name="cart.collector"/>
+        </service>
+
+        <!--interface implementations of cart bundle-->
+
+        <service id="Shopware\Checkout\CartBridge\Product\ProductGateway" class="Shopware\Checkout\CartBridge\Product\ProductGateway" >
+            <argument type="service" id="Shopware\Content\Product\Repository\ProductRepository"/>
+        </service>
+
+        <service class="Shopware\Checkout\CartBridge\Service\StoreFrontCartService" id="Shopware\Checkout\CartBridge\Service\StoreFrontCartService">
+            <argument type="service" id="Shopware\Checkout\Cart\Cart\CircularCartCalculation" />
+            <argument type="service" id="Shopware\Checkout\CartBridge\Cart\CartPersister" />
+            <argument type="service" id="Shopware\Checkout\CartBridge\Order\OrderPersister" />
+        </service>
+
+        <service class="Shopware\Checkout\CartBridge\Order\OrderPersister" id="Shopware\Checkout\CartBridge\Order\OrderPersister">
+            <argument id="Shopware\Checkout\Order\Repository\OrderRepository" type="service"/>
+            <argument id="Shopware\Checkout\Cart\Tax\TaxDetector" type="service"/>
+        </service>
+
+        <service class="Shopware\Checkout\CartBridge\Cart\CartPersister" id="Shopware\Checkout\CartBridge\Cart\CartPersister">
+            <argument type="service" id="Doctrine\DBAL\Connection" />
+            <argument type="service" id="serializer" />
+        </service>
+
+        <service class="Shopware\Checkout\CartBridge\CustomerGroup\CustomerGroupDiscountCartCollector" id="Shopware\Checkout\CartBridge\CustomerGroup\CustomerGroupDiscountCartCollector">
+            <tag name="cart.collector" priority="-1000"/>
+            <argument type="service" id="Shopware\Checkout\Customer\Repository\CustomerGroupDiscountRepository"/>
+        </service>
+    </services>
+</container>

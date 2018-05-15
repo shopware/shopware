@@ -10,7 +10,7 @@ use Shopware\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Checkout\Order\Repository\OrderRepository;
 use Shopware\Checkout\Order\Struct\OrderBasicStruct;
 use Shopware\Checkout\Payment\Repository\PaymentMethodRepository;
-use Shopware\CartBridge\Service\StoreFrontCartService;
+use Shopware\Checkout\CartBridge\Service\StoreFrontCartService;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\Uuid;

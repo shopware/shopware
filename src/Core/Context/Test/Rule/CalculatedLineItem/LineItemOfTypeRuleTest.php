@@ -26,7 +26,7 @@ namespace Shopware\Context\Test\Rule\CalculatedLineItem;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Checkout\Cart\Test\Common\Generator;
-use Shopware\CartBridge\Product\ProductProcessor;
+use Shopware\Checkout\CartBridge\Product\ProductProcessor;
 use Shopware\Context\MatchContext\CalculatedLineItemMatchContext;
 use Shopware\Context\Rule\CalculatedLineItem\LineItemOfTypeRule;
 use Shopware\Context\Struct\StorefrontContext;

@@ -369,7 +369,7 @@ class AccountController extends StorefrontController
      * @Route("/account/address/save", name="address_save", options={"seo"="false"})
      * @Method({"POST"})
      *
-     * @throws \Shopware\CartBridge\Exception\NotLoggedInCustomerException
+     * @throws \Shopware\Checkout\CartBridge\Exception\NotLoggedInCustomerException
      */
     public function addressSave(Request $request, StorefrontContext $context): Response
     {
@@ -432,7 +432,7 @@ class AccountController extends StorefrontController
      * @Route("/account/address/delete", name="address_delete", options={"seo"="false"})
      * @Method({"POST"})
      *
-     * @throws \Shopware\CartBridge\Exception\NotLoggedInCustomerException
+     * @throws \Shopware\Checkout\CartBridge\Exception\NotLoggedInCustomerException
      */
     public function addressDelete(Request $request, StorefrontContext $context): Response
     {
@@ -448,7 +448,7 @@ class AccountController extends StorefrontController
      * @Route("/account/address/setDefaultBillingAddress", name="address_set_default_billing", options={"seo"="false"})
      * @Method({"POST"})
      *
-     * @throws \Shopware\CartBridge\Exception\NotLoggedInCustomerException
+     * @throws \Shopware\Checkout\CartBridge\Exception\NotLoggedInCustomerException
      */
     public function addressSetDefaultBillingAddress(Request $request, StorefrontContext $context): Response
     {
@@ -465,7 +465,7 @@ class AccountController extends StorefrontController
      * @Route("/account/address/setDefaultShippingAddress", name="address_set_default_shipping", options={"seo"="false"})
      * @Method({"POST"})
      *
-     * @throws \Shopware\CartBridge\Exception\NotLoggedInCustomerException
+     * @throws \Shopware\Checkout\CartBridge\Exception\NotLoggedInCustomerException
      */
     public function addressSetDefaultShippingAddress(Request $request, StorefrontContext $context): Response
     {
@@ -482,7 +482,7 @@ class AccountController extends StorefrontController
      * @Route("/account/address/ajaxSelection", name="address_ajax_selection", options={"seo"="false"})
      * @Method({"GET"})
      *
-     * @throws \Shopware\CartBridge\Exception\NotLoggedInCustomerException
+     * @throws \Shopware\Checkout\CartBridge\Exception\NotLoggedInCustomerException
      */
     public function addressAjaxSelection(Request $request, StorefrontContext $context): Response
     {
@@ -533,7 +533,7 @@ class AccountController extends StorefrontController
      * @Route("/account/address/ajaxSave", name="address_ajax_save", options={"seo"="false"})
      * @Method("POST")
      *
-     * @throws \Shopware\CartBridge\Exception\NotLoggedInCustomerException
+     * @throws \Shopware\Checkout\CartBridge\Exception\NotLoggedInCustomerException
      */
     public function addressAjaxSave(Request $request, StorefrontContext $context): Response
     {

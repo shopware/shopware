@@ -38,7 +38,7 @@ $product->getPrice();
 *Example to get the calculated product*
 
 ## View cart
-The outer layer is the `\Shopware\CartBridge\View\ViewCart`. We introduced this layer to populate the rather abstract representation of the calculated cart with view-relevant data (e.g. images, description, link to a detail page depending on the type of line item), which is not required for the calculation.
+The outer layer is the `\Shopware\Checkout\CartBridge\View\ViewCart`. We introduced this layer to populate the rather abstract representation of the calculated cart with view-relevant data (e.g. images, description, link to a detail page depending on the type of line item), which is not required for the calculation.
 
 ```php
 $transformer = $this->get('shopware.cart.view.cart_transformer');

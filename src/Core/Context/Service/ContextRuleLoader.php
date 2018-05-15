@@ -18,7 +18,7 @@ use Shopware\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Checkout\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Checkout\Cart\Tax\TaxDetector;
-use Shopware\CartBridge\Service\StoreFrontCartService;
+use Shopware\Checkout\CartBridge\Service\StoreFrontCartService;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Context\Struct\StorefrontContext;
 use Symfony\Component\Serializer\SerializerInterface;

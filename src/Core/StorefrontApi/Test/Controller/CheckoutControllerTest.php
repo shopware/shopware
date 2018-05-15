@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
 use Shopware\Checkout\Customer\Repository\CustomerRepository;
 use Shopware\Content\Product\Repository\ProductRepository;
-use Shopware\CartBridge\Product\ProductProcessor;
+use Shopware\Checkout\CartBridge\Product\ProductProcessor;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 use Shopware\PlatformRequest;

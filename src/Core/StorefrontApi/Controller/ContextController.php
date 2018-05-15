@@ -9,7 +9,7 @@ use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Checkout\Payment\Repository\PaymentMethodRepository;
 use Shopware\Checkout\Shipping\Repository\ShippingMethodRepository;
-use Shopware\CartBridge\Exception\NotLoggedInCustomerException;
+use Shopware\Checkout\CartBridge\Exception\NotLoggedInCustomerException;
 use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Application\ApplicationResolver;
 use Shopware\StorefrontApi\Context\StorefrontContextPersister;

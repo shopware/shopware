@@ -2,7 +2,7 @@
 
 namespace Shopware\Context\Rule\CalculatedLineItem;
 
-use Shopware\CartBridge\Product\Struct\CalculatedProduct;
+use Shopware\Checkout\CartBridge\Product\Struct\CalculatedProduct;
 use Shopware\Context\MatchContext\CalculatedLineItemMatchContext;
 use Shopware\Context\MatchContext\RuleMatchContext;
 use Shopware\Context\Rule\Match;

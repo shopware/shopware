@@ -22,7 +22,7 @@
         </service>
 
         <service class="Shopware\Context\Service\ContextRuleLoader" id="Shopware\Context\Service\ContextRuleLoader">
-            <argument id="Shopware\CartBridge\Cart\CartPersister" type="service"/>
+            <argument id="Shopware\Checkout\CartBridge\Cart\CartPersister" type="service"/>
             <argument id="Shopware\Checkout\Cart\Tax\TaxDetector" type="service"/>
             <argument id="Shopware\Checkout\Cart\Cart\CartCollector" type="service"/>
             <argument id="Shopware\Checkout\Cart\Cart\CartProcessor" type="service"/>
@@ -30,7 +30,7 @@
             <argument id="shopware.cache" type="service"/>
             <argument id="Shopware\Application\Context\Repository\ContextRuleRepository" type="service"/>
             <argument id="serializer" type="service"/>
-            <argument type="service" id="Shopware\CartBridge\Service\StoreFrontCartService"/>
+            <argument type="service" id="Shopware\Checkout\CartBridge\Service\StoreFrontCartService"/>
         </service>
     </services>
 </container>

@@ -6,7 +6,7 @@ use Shopware\Api\Product\Collection\ProductBasicCollection;
 use Shopware\Api\Product\Event\ProductContextPrice\ProductContextPriceBasicLoadedEvent;
 use Shopware\Api\Product\Event\ProductManufacturer\ProductManufacturerBasicLoadedEvent;
 use Shopware\Api\Product\Event\ProductMedia\ProductMediaBasicLoadedEvent;
-use Shopware\Api\Tax\Event\Tax\TaxBasicLoadedEvent;
+use Shopware\System\Tax\Event\Tax\TaxBasicLoadedEvent;
 use Shopware\Api\Unit\Event\Unit\UnitBasicLoadedEvent;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;

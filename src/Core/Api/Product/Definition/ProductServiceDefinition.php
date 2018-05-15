@@ -22,7 +22,7 @@ use Shopware\Api\Product\Event\ProductService\ProductServiceDeletedEvent;
 use Shopware\Api\Product\Event\ProductService\ProductServiceWrittenEvent;
 use Shopware\Api\Product\Repository\ProductServiceRepository;
 use Shopware\Api\Product\Struct\ProductServiceBasicStruct;
-use Shopware\Api\Tax\Definition\TaxDefinition;
+use Shopware\System\Tax\Definition\TaxDefinition;
 
 class ProductServiceDefinition extends EntityDefinition
 {

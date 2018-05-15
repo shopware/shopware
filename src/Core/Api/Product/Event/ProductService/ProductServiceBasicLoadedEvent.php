@@ -4,7 +4,7 @@ namespace Shopware\Api\Product\Event\ProductService;
 
 use Shopware\System\Configuration\Event\ConfigurationGroupOption\ConfigurationGroupOptionBasicLoadedEvent;
 use Shopware\Api\Product\Collection\ProductServiceBasicCollection;
-use Shopware\Api\Tax\Event\Tax\TaxBasicLoadedEvent;
+use Shopware\System\Tax\Event\Tax\TaxBasicLoadedEvent;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;

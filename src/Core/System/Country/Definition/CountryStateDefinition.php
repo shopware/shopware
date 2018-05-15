@@ -33,7 +33,7 @@ use Shopware\Api\Entity\Write\Flag\RestrictDelete;
 use Shopware\Api\Entity\Write\Flag\SearchRanking;
 use Shopware\Api\Entity\Write\Flag\WriteOnly;
 use Shopware\Api\Order\Definition\OrderAddressDefinition;
-use Shopware\Api\Tax\Definition\TaxAreaRuleDefinition;
+use Shopware\System\Tax\Definition\TaxAreaRuleDefinition;
 
 class CountryStateDefinition extends EntityDefinition
 {

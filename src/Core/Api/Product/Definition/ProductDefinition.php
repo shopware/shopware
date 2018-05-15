@@ -44,7 +44,7 @@ use Shopware\Api\Product\Event\Product\ProductWrittenEvent;
 use Shopware\Api\Product\Repository\ProductRepository;
 use Shopware\Api\Product\Struct\ProductBasicStruct;
 use Shopware\Api\Product\Struct\ProductDetailStruct;
-use Shopware\Api\Tax\Definition\TaxDefinition;
+use Shopware\System\Tax\Definition\TaxDefinition;
 use Shopware\Api\Unit\Definition\UnitDefinition;
 
 class ProductDefinition extends EntityDefinition

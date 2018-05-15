@@ -48,5 +48,6 @@ class System extends Bundle
         $loader->load('log.xml');
         $loader->load('mail.xml');
         $loader->load('snippet.xml');
+        $loader->load('tax.xml');
     }
 }

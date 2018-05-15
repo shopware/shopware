@@ -5,7 +5,7 @@ namespace Shopware\Api\Product\Collection;
 use Shopware\System\Configuration\Collection\ConfigurationGroupOptionBasicCollection;
 use Shopware\Api\Entity\EntityCollection;
 use Shopware\Api\Product\Struct\ProductServiceBasicStruct;
-use Shopware\Api\Tax\Collection\TaxBasicCollection;
+use Shopware\System\Tax\Collection\TaxBasicCollection;
 
 class ProductServiceBasicCollection extends EntityCollection
 {

@@ -31,7 +31,7 @@ use Shopware\Api\Customer\Struct\CustomerGroupBasicStruct;
 use Shopware\Api\Language\Struct\LanguageBasicStruct;
 use Shopware\Api\Payment\Struct\PaymentMethodBasicStruct;
 use Shopware\Api\Shipping\Struct\ShippingMethodBasicStruct;
-use Shopware\Api\Tax\Collection\TaxBasicCollection;
+use Shopware\System\Tax\Collection\TaxBasicCollection;
 use Shopware\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Cart\Price\Struct\CartPrice;
 use Shopware\Context\Exception\ContextRulesLockedException;

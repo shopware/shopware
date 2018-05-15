@@ -5,7 +5,7 @@ namespace Shopware\Api\Product\Struct;
 use Shopware\Api\Context\Collection\ContextPriceCollection;
 use Shopware\Api\Entity\Entity;
 use Shopware\Api\Product\Collection\ProductContextPriceBasicCollection;
-use Shopware\Api\Tax\Struct\TaxBasicStruct;
+use Shopware\System\Tax\Struct\TaxBasicStruct;
 use Shopware\Api\Unit\Struct\UnitBasicStruct;
 use Shopware\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Cart\Price\Struct\PriceDefinition;

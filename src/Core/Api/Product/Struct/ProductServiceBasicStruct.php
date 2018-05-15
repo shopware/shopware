@@ -5,7 +5,7 @@ namespace Shopware\Api\Product\Struct;
 use Shopware\System\Configuration\Struct\ConfigurationGroupOptionBasicStruct;
 use Shopware\Api\Context\Collection\ContextPriceCollection;
 use Shopware\Api\Entity\Entity;
-use Shopware\Api\Tax\Struct\TaxBasicStruct;
+use Shopware\System\Tax\Struct\TaxBasicStruct;
 use Shopware\Cart\Price\Struct\PriceDefinition;
 use Shopware\Cart\Tax\Struct\PercentageTaxRule;
 use Shopware\Cart\Tax\Struct\TaxRuleCollection;

@@ -26,7 +26,7 @@ use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Entity\Write\Flag\SearchRanking;
 use Shopware\Api\Entity\Write\Flag\WriteOnly;
-use Shopware\Api\Tax\Definition\TaxAreaRuleDefinition;
+use Shopware\System\Tax\Definition\TaxAreaRuleDefinition;
 
 class CountryAreaDefinition extends EntityDefinition
 {

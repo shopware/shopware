@@ -4,7 +4,7 @@ namespace Shopware\Rest\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Api\Tax\Repository\TaxRepository;
+use Shopware\System\Tax\Repository\TaxRepository;
 use Shopware\Cart\Price\GrossPriceCalculator;
 use Shopware\Cart\Price\NetPriceCalculator;
 use Shopware\Cart\Price\Struct\PriceDefinition;

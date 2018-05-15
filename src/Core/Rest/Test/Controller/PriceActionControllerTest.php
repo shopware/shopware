@@ -2,7 +2,7 @@
 
 namespace Shopware\Rest\Test\Controller;
 
-use Shopware\Api\Tax\Repository\TaxRepository;
+use Shopware\System\Tax\Repository\TaxRepository;
 use Shopware\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;

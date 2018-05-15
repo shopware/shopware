@@ -5,7 +5,7 @@ namespace Shopware\Api\Product\Collection;
 use Shopware\Api\Entity\EntityCollection;
 use Shopware\Api\Product\Struct\ProductBasicStruct;
 use Shopware\Api\Product\Struct\ProductMediaBasicStruct;
-use Shopware\Api\Tax\Collection\TaxBasicCollection;
+use Shopware\System\Tax\Collection\TaxBasicCollection;
 use Shopware\Api\Unit\Collection\UnitBasicCollection;
 
 class ProductBasicCollection extends EntityCollection

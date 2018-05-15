@@ -13,7 +13,7 @@ use Shopware\Api\Product\Event\ProductSearchKeyword\ProductSearchKeywordBasicLoa
 use Shopware\Api\Product\Event\ProductService\ProductServiceBasicLoadedEvent;
 use Shopware\Api\Product\Event\ProductStream\ProductStreamBasicLoadedEvent;
 use Shopware\Api\Product\Event\ProductTranslation\ProductTranslationBasicLoadedEvent;
-use Shopware\Api\Tax\Event\Tax\TaxBasicLoadedEvent;
+use Shopware\System\Tax\Event\Tax\TaxBasicLoadedEvent;
 use Shopware\Api\Unit\Event\Unit\UnitBasicLoadedEvent;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;

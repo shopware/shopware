@@ -31,7 +31,7 @@ use Shopware\Checkout\Order\Event\Order\OrderWrittenEvent;
 use Shopware\Checkout\Order\Repository\OrderRepository;
 use Shopware\Checkout\Order\Struct\OrderBasicStruct;
 use Shopware\Checkout\Order\Struct\OrderDetailStruct;
-use Shopware\Api\Payment\Definition\PaymentMethodDefinition;
+use Shopware\Checkout\Payment\Definition\PaymentMethodDefinition;
 
 class OrderDefinition extends EntityDefinition
 {

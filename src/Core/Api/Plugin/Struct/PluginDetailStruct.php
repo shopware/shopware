@@ -3,7 +3,7 @@
 namespace Shopware\Api\Plugin\Struct;
 
 use Shopware\System\Config\Collection\ConfigFormBasicCollection;
-use Shopware\Api\Payment\Collection\PaymentMethodBasicCollection;
+use Shopware\Checkout\Payment\Collection\PaymentMethodBasicCollection;
 use Shopware\Api\Shop\Collection\ShopTemplateBasicCollection;
 
 class PluginDetailStruct extends PluginBasicStruct

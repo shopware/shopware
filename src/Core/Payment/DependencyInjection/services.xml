@@ -8,7 +8,7 @@
         <service class="Shopware\Payment\PaymentProcessor" id="Shopware\Payment\PaymentProcessor">
             <argument type="service" id="Shopware\Payment\Token\PaymentTransactionTokenFactory"/>
             <argument type="service" id="Shopware\Checkout\Order\Repository\OrderRepository"/>
-            <argument type="service" id="Shopware\Api\Payment\Repository\PaymentMethodRepository"/>
+            <argument type="service" id="Shopware\Checkout\Payment\Repository\PaymentMethodRepository"/>
             <argument type="service" id="router.default"/>
             <argument type="service" id="Shopware\Payment\PaymentHandlerRegistry"/>
         </service>

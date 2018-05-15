@@ -13,7 +13,7 @@
             <argument type="service" id="Shopware\System\Country\Repository\CountryRepository"/>
             <argument type="service" id="Shopware\System\Tax\Repository\TaxRepository"/>
             <argument type="service" id="Shopware\Checkout\Customer\Repository\CustomerAddressRepository"/>
-            <argument type="service" id="Shopware\Api\Payment\Repository\PaymentMethodRepository"/>
+            <argument type="service" id="Shopware\Checkout\Payment\Repository\PaymentMethodRepository"/>
             <argument type="service" id="Shopware\Api\Shipping\Repository\ShippingMethodRepository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\System\Country\Repository\CountryStateRepository"/>

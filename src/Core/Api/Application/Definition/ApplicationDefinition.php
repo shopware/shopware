@@ -26,7 +26,7 @@ use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Language\Definition\LanguageDefinition;
-use Shopware\Api\Payment\Definition\PaymentMethodDefinition;
+use Shopware\Checkout\Payment\Definition\PaymentMethodDefinition;
 use Shopware\Api\Shipping\Definition\ShippingMethodDefinition;
 
 class ApplicationDefinition extends EntityDefinition

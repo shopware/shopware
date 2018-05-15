@@ -7,7 +7,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Checkout\Customer\Repository\CustomerAddressRepository;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\TermQuery;
-use Shopware\Api\Payment\Repository\PaymentMethodRepository;
+use Shopware\Checkout\Payment\Repository\PaymentMethodRepository;
 use Shopware\Api\Shipping\Repository\ShippingMethodRepository;
 use Shopware\CartBridge\Exception\NotLoggedInCustomerException;
 use Shopware\Context\Struct\StorefrontContext;

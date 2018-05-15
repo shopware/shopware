@@ -31,7 +31,7 @@ use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Entity\Write\Flag\RestrictDelete;
 use Shopware\Api\Entity\Write\Flag\SearchRanking;
 use Shopware\Checkout\Order\Definition\OrderDefinition;
-use Shopware\Api\Payment\Definition\PaymentMethodDefinition;
+use Shopware\Checkout\Payment\Definition\PaymentMethodDefinition;
 
 class CustomerDefinition extends EntityDefinition
 {

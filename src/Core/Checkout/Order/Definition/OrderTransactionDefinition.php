@@ -27,7 +27,7 @@ use Shopware\Checkout\Order\Event\OrderTransaction\OrderTransactionWrittenEvent;
 use Shopware\Checkout\Order\Repository\OrderTransactionRepository;
 use Shopware\Checkout\Order\Struct\OrderTransactionBasicStruct;
 use Shopware\Checkout\Order\Struct\OrderTransactionDetailStruct;
-use Shopware\Api\Payment\Definition\PaymentMethodDefinition;
+use Shopware\Checkout\Payment\Definition\PaymentMethodDefinition;
 
 class OrderTransactionDefinition extends EntityDefinition
 {

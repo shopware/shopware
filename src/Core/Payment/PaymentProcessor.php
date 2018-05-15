@@ -5,7 +5,7 @@ namespace Shopware\Payment;
 use Shopware\Checkout\Order\Collection\OrderTransactionBasicCollection;
 use Shopware\Checkout\Order\Repository\OrderRepository;
 use Shopware\Checkout\Order\Struct\OrderDetailStruct;
-use Shopware\Api\Payment\Repository\PaymentMethodRepository;
+use Shopware\Checkout\Payment\Repository\PaymentMethodRepository;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 use Shopware\Payment\Exception\InvalidOrderException;

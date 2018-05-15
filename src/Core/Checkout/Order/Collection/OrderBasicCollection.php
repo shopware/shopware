@@ -7,7 +7,7 @@ use Shopware\System\Currency\Collection\CurrencyBasicCollection;
 use Shopware\Checkout\Customer\Collection\CustomerBasicCollection;
 use Shopware\Api\Entity\EntityCollection;
 use Shopware\Checkout\Order\Struct\OrderBasicStruct;
-use Shopware\Api\Payment\Collection\PaymentMethodBasicCollection;
+use Shopware\Checkout\Payment\Collection\PaymentMethodBasicCollection;
 
 class OrderBasicCollection extends EntityCollection
 {

@@ -3,7 +3,7 @@
 namespace Shopware\Checkout\Order\Collection;
 
 use Shopware\Checkout\Order\Struct\OrderTransactionDetailStruct;
-use Shopware\Api\Payment\Collection\PaymentMethodBasicCollection;
+use Shopware\Checkout\Payment\Collection\PaymentMethodBasicCollection;
 
 class OrderTransactionDetailCollection extends OrderTransactionBasicCollection
 {

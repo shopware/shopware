@@ -3,7 +3,7 @@
 namespace Shopware\Api\Plugin\Collection;
 
 use Shopware\System\Config\Collection\ConfigFormBasicCollection;
-use Shopware\Api\Payment\Collection\PaymentMethodBasicCollection;
+use Shopware\Checkout\Payment\Collection\PaymentMethodBasicCollection;
 use Shopware\Api\Plugin\Struct\PluginDetailStruct;
 use Shopware\Api\Shop\Collection\ShopTemplateBasicCollection;
 

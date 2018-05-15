@@ -3,7 +3,7 @@
 namespace Shopware\Api\Application\Struct;
 
 use Shopware\System\Country\Struct\CountryBasicStruct;
-use Shopware\Api\Payment\Struct\PaymentMethodBasicStruct;
+use Shopware\Checkout\Payment\Struct\PaymentMethodBasicStruct;
 use Shopware\Api\Shipping\Struct\ShippingMethodBasicStruct;
 
 class ApplicationDetailStruct extends ApplicationBasicStruct

@@ -66,7 +66,7 @@
         </service>
 
         <service id="Shopware\Storefront\Page\Checkout\PaymentMethodLoader">
-            <argument id="Shopware\Api\Payment\Repository\PaymentMethodRepository" type="service"/>
+            <argument id="Shopware\Checkout\Payment\Repository\PaymentMethodRepository" type="service"/>
         </service>
 
         <service class="Shopware\Storefront\Page\Detail\DetailPageLoader" id="Shopware\Storefront\Page\Detail\DetailPageLoader">
@@ -138,7 +138,7 @@
             <argument type="service" id="Shopware\Storefront\Page\Checkout\PaymentMethodLoader"/>
             <argument type="service" id="Shopware\Payment\PaymentProcessor"/>
             <argument type="service" id="Shopware\Payment\Token\PaymentTransactionTokenFactory"/>
-            <argument type="service" id="Shopware\Api\Payment\Repository\PaymentMethodRepository"/>
+            <argument type="service" id="Shopware\Checkout\Payment\Repository\PaymentMethodRepository"/>
             <argument type="service" id="Shopware\StorefrontApi\Context\StorefrontContextPersister"/>
             <argument type="service" id="serializer"/>
         </service>

@@ -17,7 +17,7 @@ use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
-use Shopware\Api\Payment\Definition\PaymentMethodDefinition;
+use Shopware\Checkout\Payment\Definition\PaymentMethodDefinition;
 use Shopware\Api\Plugin\Collection\PluginBasicCollection;
 use Shopware\Api\Plugin\Collection\PluginDetailCollection;
 use Shopware\Api\Plugin\Event\Plugin\PluginDeletedEvent;

@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Order\Struct;
 
-use Shopware\Api\Payment\Struct\PaymentMethodBasicStruct;
+use Shopware\Checkout\Payment\Struct\PaymentMethodBasicStruct;
 
 class OrderTransactionDetailStruct extends OrderTransactionBasicStruct
 {

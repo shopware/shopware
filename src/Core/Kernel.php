@@ -2,7 +2,7 @@
 
 namespace Shopware;
 
-use Shopware\Framework\DependencyInjection\TestingCompilerPass;
+use Shopware\Framework\DependencyInjection\CompilerPass\TestingCompilerPass;
 use Shopware\Framework\Doctrine\DatabaseConnector;
 use Shopware\Framework\Framework;
 use Shopware\Framework\Plugin\Plugin;

@@ -26,7 +26,7 @@ declare(strict_types=1);
 namespace Shopware\Framework;
 
 use Shopware\Framework\DependencyInjection\CompilerPass\DefinitionRegistryCompilerPass;
-use Shopware\Framework\DependencyInjection\ExtensionCompilerPass;
+use Shopware\Framework\DependencyInjection\CompilerPass\ExtensionCompilerPass;
 use Shopware\Framework\DependencyInjection\FrameworkExtension;
 use Shopware\Framework\Doctrine\BridgeDatabaseCompilerPass;
 use Shopware\Framework\ORM\EntityDefinition;

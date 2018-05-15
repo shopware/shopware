@@ -2,7 +2,7 @@
 
 namespace Shopware\Context\MatchContext;
 
-use Shopware\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Context\Struct\StorefrontContext;
 
 class CartRuleMatchContext extends RuleMatchContext

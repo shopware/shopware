@@ -2,12 +2,12 @@
 
 namespace Shopware\Traceable\Cart;
 
-use Shopware\Cart\Cart\CartProcessorInterface;
-use Shopware\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Cart\Cart\Struct\Cart;
-use Shopware\Cart\Delivery\Struct\Delivery;
-use Shopware\Cart\Delivery\Struct\DeliveryPosition;
-use Shopware\Cart\LineItem\CalculatedLineItemInterface;
+use Shopware\Checkout\Cart\Cart\CartProcessorInterface;
+use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Checkout\Cart\Cart\Struct\Cart;
+use Shopware\Checkout\Cart\Delivery\Struct\Delivery;
+use Shopware\Checkout\Cart\Delivery\Struct\DeliveryPosition;
+use Shopware\Checkout\Cart\LineItem\CalculatedLineItemInterface;
 use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 

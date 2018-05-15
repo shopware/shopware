@@ -3,8 +3,8 @@
 namespace Shopware\Storefront\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Shopware\Cart\Exception\LineItemNotFoundException;
-use Shopware\Cart\LineItem\LineItem;
+use Shopware\Checkout\Cart\Exception\LineItemNotFoundException;
+use Shopware\Checkout\Cart\LineItem\LineItem;
 use Shopware\CartBridge\Product\ProductProcessor;
 use Shopware\CartBridge\Service\StoreFrontCartService;
 use Shopware\CartBridge\Voucher\VoucherProcessor;

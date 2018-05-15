@@ -3,11 +3,11 @@
 namespace Shopware\Rest\Test\Controller;
 
 use Shopware\System\Tax\Repository\TaxRepository;
-use Shopware\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Cart\Tax\Struct\CalculatedTax;
-use Shopware\Cart\Tax\Struct\CalculatedTaxCollection;
-use Shopware\Cart\Tax\Struct\PercentageTaxRule;
-use Shopware\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Checkout\Cart\Tax\Struct\CalculatedTax;
+use Shopware\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Checkout\Cart\Tax\Struct\PercentageTaxRule;
+use Shopware\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Struct\Uuid;
 use Shopware\PlatformRequest;

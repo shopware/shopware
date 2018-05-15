@@ -8,7 +8,7 @@
 
         <!--calculations-->
         <service class="Shopware\CartBridge\Product\ProductCalculator" id="Shopware\CartBridge\Product\ProductCalculator">
-            <argument id="Shopware\Cart\Price\PriceCalculator" type="service"/>
+            <argument id="Shopware\Checkout\Cart\Price\PriceCalculator" type="service"/>
         </service>
 
         <!--cart processors-->
@@ -18,26 +18,26 @@
         </service>
 
         <service class="Shopware\CartBridge\CustomerGroup\CustomerGroupDiscountProcessor" id="Shopware\CartBridge\CustomerGroup\CustomerGroupDiscountProcessor">
-            <argument id="Shopware\Cart\Price\PercentagePriceCalculator" type="service"/>
+            <argument id="Shopware\Checkout\Cart\Price\PercentagePriceCalculator" type="service"/>
             <tag name="cart.processor" priority="800"/>
         </service>
 
         <service class="Shopware\CartBridge\Modifier\ContextCartModifierProcessor" id="Shopware\CartBridge\Modifier\ContextCartModifierProcessor">
             <argument id="Shopware\Application\Context\Repository\ContextCartModifierRepository" type="service"/>
-            <argument id="Shopware\Cart\Price\AbsolutePriceCalculator" type="service"/>
-            <argument id="Shopware\Cart\Price\PercentagePriceCalculator" type="service"/>
+            <argument id="Shopware\Checkout\Cart\Price\AbsolutePriceCalculator" type="service"/>
+            <argument id="Shopware\Checkout\Cart\Price\PercentagePriceCalculator" type="service"/>
             <tag name="cart.processor" priority="700"/>
         </service>
 
         <service class="Shopware\CartBridge\Order\MinimumOrderAmountProcessor" id="Shopware\CartBridge\Order\MinimumOrderAmountProcessor">
-            <argument type="service" id="Shopware\Cart\Price\AbsolutePriceCalculator"/>
+            <argument type="service" id="Shopware\Checkout\Cart\Price\AbsolutePriceCalculator"/>
             <tag name="cart.processor" priority="600"/>
         </service>
 
         <service class="Shopware\CartBridge\Payment\PaymentSurchargeProcessor" id="Shopware\CartBridge\Payment\PaymentSurchargeProcessor">
             <tag name="cart.processor" priority="500"/>
-            <argument type="service" id="Shopware\Cart\Price\PercentagePriceCalculator"/>
-            <argument type="service" id="Shopware\Cart\Price\AbsolutePriceCalculator"/>
+            <argument type="service" id="Shopware\Checkout\Cart\Price\PercentagePriceCalculator"/>
+            <argument type="service" id="Shopware\Checkout\Cart\Price\AbsolutePriceCalculator"/>
         </service>
 
         <!--cart line item data collectors-->
@@ -59,14 +59,14 @@
         </service>
 
         <service class="Shopware\CartBridge\Service\StoreFrontCartService" id="Shopware\CartBridge\Service\StoreFrontCartService">
-            <argument type="service" id="Shopware\Cart\Cart\CircularCartCalculation" />
+            <argument type="service" id="Shopware\Checkout\Cart\Cart\CircularCartCalculation" />
             <argument type="service" id="Shopware\CartBridge\Cart\CartPersister" />
             <argument type="service" id="Shopware\CartBridge\Order\OrderPersister" />
         </service>
 
         <service class="Shopware\CartBridge\Order\OrderPersister" id="Shopware\CartBridge\Order\OrderPersister">
             <argument id="Shopware\Checkout\Order\Repository\OrderRepository" type="service"/>
-            <argument id="Shopware\Cart\Tax\TaxDetector" type="service"/>
+            <argument id="Shopware\Checkout\Cart\Tax\TaxDetector" type="service"/>
         </service>
 
         <service class="Shopware\CartBridge\Cart\CartPersister" id="Shopware\CartBridge\Cart\CartPersister">

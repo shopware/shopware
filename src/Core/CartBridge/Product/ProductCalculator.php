@@ -27,12 +27,12 @@ namespace Shopware\CartBridge\Product;
 
 use Shopware\Content\Product\Struct\ProductBasicStruct;
 use Shopware\Content\Product\Struct\ProductServiceBasicStruct;
-use Shopware\Cart\LineItem\CalculatedLineItem;
-use Shopware\Cart\LineItem\CalculatedLineItemCollection;
-use Shopware\Cart\LineItem\LineItemCollection;
-use Shopware\Cart\LineItem\LineItemInterface;
-use Shopware\Cart\Price\PriceCalculator;
-use Shopware\Cart\Price\Struct\PriceDefinition;
+use Shopware\Checkout\Cart\LineItem\CalculatedLineItem;
+use Shopware\Checkout\Cart\LineItem\CalculatedLineItemCollection;
+use Shopware\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Checkout\Cart\LineItem\LineItemInterface;
+use Shopware\Checkout\Cart\Price\PriceCalculator;
+use Shopware\Checkout\Cart\Price\Struct\PriceDefinition;
 use Shopware\CartBridge\Product\Struct\CalculatedProduct;
 use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;

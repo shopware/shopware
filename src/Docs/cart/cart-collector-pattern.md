@@ -11,12 +11,12 @@ In order to prevent duplicate data queries to the storage, we defined the collec
 Collectors get cart access before the calculation loop starts. This pattern is implemented in the CartProcessor:
 https://github.com/shopware/shopware/blob/labs/src/Cart/Cart/CartProcessor.php#L72
 
-Each collector has to implement the `\Shopware\Cart\Cart\CartCollectorInterface` which expects the following functions to be implemented:
+Each collector has to implement the `\Shopware\Checkout\Cart\Cart\CartCollectorInterface` which expects the following functions to be implemented:
 
 ```php
 <?php
 
-namespace Shopware\Cart\Cart;
+namespace Shopware\Checkout\Cart\Cart;
 use Shopware\Context\Struct\ShopContext;
 use Shopware\Framework\Struct\StructCollection;
 

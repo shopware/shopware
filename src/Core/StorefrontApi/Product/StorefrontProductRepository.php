@@ -10,7 +10,7 @@ use Shopware\Content\Product\Collection\ProductDetailCollection;
 use Shopware\Content\Product\Repository\ProductRepository;
 use Shopware\Content\Product\Struct\ProductSearchResult;
 use Shopware\Content\Product\Struct\ProductServiceBasicStruct;
-use Shopware\Cart\Price\PriceCalculator;
+use Shopware\Checkout\Cart\Price\PriceCalculator;
 use Shopware\Context\Struct\StorefrontContext;
 
 class StorefrontProductRepository

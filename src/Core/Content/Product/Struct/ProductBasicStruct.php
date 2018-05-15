@@ -7,11 +7,11 @@ use Shopware\Framework\ORM\Entity;
 use Shopware\Content\Product\Collection\ProductContextPriceBasicCollection;
 use Shopware\System\Tax\Struct\TaxBasicStruct;
 use Shopware\System\Unit\Struct\UnitBasicStruct;
-use Shopware\Cart\Delivery\Struct\DeliveryDate;
-use Shopware\Cart\Price\Struct\PriceDefinition;
-use Shopware\Cart\Price\Struct\PriceDefinitionCollection;
-use Shopware\Cart\Tax\Struct\PercentageTaxRule;
-use Shopware\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Checkout\Cart\Delivery\Struct\DeliveryDate;
+use Shopware\Checkout\Cart\Price\Struct\PriceDefinition;
+use Shopware\Checkout\Cart\Price\Struct\PriceDefinitionCollection;
+use Shopware\Checkout\Cart\Tax\Struct\PercentageTaxRule;
+use Shopware\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Context\Struct\ApplicationContext;
 
 class ProductBasicStruct extends Entity

@@ -93,8 +93,8 @@
         <service class="Shopware\Rest\Controller\PriceActionController" id="Shopware\Rest\Controller\PriceActionController" public="true">
             <argument type="service" id="serializer"/>
             <argument type="service" id="Shopware\System\Tax\Repository\TaxRepository"/>
-            <argument type="service" id="Shopware\Cart\Price\NetPriceCalculator"/>
-            <argument type="service" id="Shopware\Cart\Price\GrossPriceCalculator"/>
+            <argument type="service" id="Shopware\Checkout\Cart\Price\NetPriceCalculator"/>
+            <argument type="service" id="Shopware\Checkout\Cart\Price\GrossPriceCalculator"/>
         </service>
 
         <service class="Shopware\Rest\Controller\AuthController" id="Shopware\Rest\Controller\AuthController" public="true">

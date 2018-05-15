@@ -27,15 +27,15 @@ namespace Shopware\CartBridge\Product\Struct;
 
 use Shopware\Content\Media\Struct\MediaBasicStruct;
 use Shopware\Content\Product\Struct\ProductBasicStruct;
-use Shopware\Cart\Delivery\Struct\Delivery;
-use Shopware\Cart\Delivery\Struct\DeliveryDate;
-use Shopware\Cart\LineItem\CalculatedLineItemCollection;
-use Shopware\Cart\LineItem\CalculatedLineItemInterface;
-use Shopware\Cart\LineItem\DeliverableLineItemInterface;
-use Shopware\Cart\LineItem\GoodsInterface;
-use Shopware\Cart\LineItem\LineItemInterface;
-use Shopware\Cart\LineItem\NestedInterface;
-use Shopware\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Checkout\Cart\Delivery\Struct\Delivery;
+use Shopware\Checkout\Cart\Delivery\Struct\DeliveryDate;
+use Shopware\Checkout\Cart\LineItem\CalculatedLineItemCollection;
+use Shopware\Checkout\Cart\LineItem\CalculatedLineItemInterface;
+use Shopware\Checkout\Cart\LineItem\DeliverableLineItemInterface;
+use Shopware\Checkout\Cart\LineItem\GoodsInterface;
+use Shopware\Checkout\Cart\LineItem\LineItemInterface;
+use Shopware\Checkout\Cart\LineItem\NestedInterface;
+use Shopware\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Context\Rule\Rule;
 use Shopware\Context\Rule\Validatable;
 use Shopware\Framework\Struct\Struct;
@@ -78,12 +78,12 @@ class CalculatedProduct extends Struct implements DeliverableLineItemInterface, 
     protected $cover;
 
     /**
-     * @var \Shopware\Cart\Delivery\Struct\DeliveryDate
+     * @var \Shopware\Checkout\Cart\Delivery\Struct\DeliveryDate
      */
     protected $inStockDeliveryDate;
 
     /**
-     * @var \Shopware\Cart\Delivery\Struct\DeliveryDate
+     * @var \Shopware\Checkout\Cart\Delivery\Struct\DeliveryDate
      */
     protected $outOfStockDeliveryDate;
 

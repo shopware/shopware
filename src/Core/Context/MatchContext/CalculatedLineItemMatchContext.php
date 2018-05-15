@@ -2,7 +2,7 @@
 
 namespace Shopware\Context\MatchContext;
 
-use Shopware\Cart\LineItem\CalculatedLineItemInterface;
+use Shopware\Checkout\Cart\LineItem\CalculatedLineItemInterface;
 use Shopware\Context\Struct\StorefrontContext;
 
 class CalculatedLineItemMatchContext extends RuleMatchContext

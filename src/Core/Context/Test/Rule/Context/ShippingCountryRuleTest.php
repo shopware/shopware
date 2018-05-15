@@ -26,8 +26,8 @@ namespace Shopware\Context\Test\Rule\Context;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\System\Country\Struct\CountryBasicStruct;
-use Shopware\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Cart\Delivery\Struct\ShippingLocation;
+use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Context\Exception\UnsupportedOperatorException;
 use Shopware\Context\MatchContext\CartRuleMatchContext;
 use Shopware\Context\Rule\Context\ShippingCountryRule;

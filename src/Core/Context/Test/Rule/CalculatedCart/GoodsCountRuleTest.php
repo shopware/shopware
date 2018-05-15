@@ -25,7 +25,7 @@
 namespace Shopware\Context\Test\Rule\CalculatedCart;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Cart\Test\Common\Generator;
+use Shopware\Checkout\Cart\Test\Common\Generator;
 use Shopware\Context\MatchContext\CartRuleMatchContext;
 use Shopware\Context\Rule\CalculatedCart\GoodsCountRule;
 use Shopware\Context\Rule\Rule;

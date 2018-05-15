@@ -2,7 +2,7 @@
 
 namespace Shopware\Traceable\DependencyInjection;
 
-use Shopware\Cart\Cart\CircularCartCalculation;
+use Shopware\Checkout\Cart\Cart\CircularCartCalculation;
 use Shopware\Traceable\Cart\CartCollectorTracer;
 use Shopware\Traceable\Cart\CircularCartCalculationTracer;
 use Shopware\Traceable\Cart\ProcessorTracer;
@@ -30,12 +30,12 @@ class CartTracerCompilerPass implements CompilerPassInterface
         $definition = new Definition(
             CircularCartCalculationTracer::class,
             [
-                new Reference('Shopware\Cart\Cart\CircularCartCalculation.tracer.inner'),
+                new Reference('Shopware\Checkout\Cart\Cart\CircularCartCalculation.tracer.inner'),
                 new Reference(TracedCartActions::class),
             ]
         );
         $definition->setDecoratedService(CircularCartCalculation::class);
-        $container->setDefinition('Shopware\Cart\Cart\CircularCartCalculation.tracer', $definition);
+        $container->setDefinition('Shopware\Checkout\Cart\Cart\CircularCartCalculation.tracer', $definition);
     }
 
     protected function decorateService(ContainerBuilder $container, string $serviceId, string $class): void

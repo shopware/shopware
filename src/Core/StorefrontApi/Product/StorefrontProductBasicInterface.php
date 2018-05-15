@@ -4,10 +4,10 @@ namespace Shopware\StorefrontApi\Product;
 
 use Shopware\Content\Product\Collection\ProductMediaBasicCollection;
 use Shopware\Content\Product\Struct\ProductMediaBasicStruct;
-use Shopware\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Cart\Price\Struct\CalculatedPriceCollection;
-use Shopware\Cart\Price\Struct\PriceDefinition;
-use Shopware\Cart\Price\Struct\PriceDefinitionCollection;
+use Shopware\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
+use Shopware\Checkout\Cart\Price\Struct\PriceDefinition;
+use Shopware\Checkout\Cart\Price\Struct\PriceDefinitionCollection;
 use Shopware\Context\Struct\ApplicationContext;
 
 interface StorefrontProductBasicInterface

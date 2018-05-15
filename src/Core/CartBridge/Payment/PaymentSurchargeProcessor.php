@@ -2,12 +2,12 @@
 
 namespace Shopware\CartBridge\Payment;
 
-use Shopware\Cart\Cart\CartProcessorInterface;
-use Shopware\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Cart\Cart\Struct\Cart;
-use Shopware\Cart\LineItem\CalculatedLineItem;
-use Shopware\Cart\Price\AbsolutePriceCalculator;
-use Shopware\Cart\Price\PercentagePriceCalculator;
+use Shopware\Checkout\Cart\Cart\CartProcessorInterface;
+use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Checkout\Cart\Cart\Struct\Cart;
+use Shopware\Checkout\Cart\LineItem\CalculatedLineItem;
+use Shopware\Checkout\Cart\Price\AbsolutePriceCalculator;
+use Shopware\Checkout\Cart\Price\PercentagePriceCalculator;
 use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 

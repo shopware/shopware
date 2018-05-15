@@ -7,7 +7,7 @@ An entire simple rule might look like this:
 ```php
 <?php declare(strict_types=1);
 
-use Shopware\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Context\Rule\Match;
 use Shopware\Context\Rule\Rule;
 use Shopware\Context\Struct\StorefrontContext;

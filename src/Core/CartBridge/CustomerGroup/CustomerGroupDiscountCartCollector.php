@@ -30,8 +30,8 @@ use Shopware\Checkout\Customer\Repository\CustomerGroupDiscountRepository;
 use Shopware\Checkout\Customer\Struct\CustomerGroupDiscountBasicStruct;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Query\TermQuery;
-use Shopware\Cart\Cart\CartCollectorInterface;
-use Shopware\Cart\Cart\Struct\Cart;
+use Shopware\Checkout\Cart\Cart\CartCollectorInterface;
+use Shopware\Checkout\Cart\Cart\Struct\Cart;
 use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 

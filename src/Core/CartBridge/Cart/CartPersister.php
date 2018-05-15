@@ -26,10 +26,10 @@ declare(strict_types=1);
 namespace Shopware\CartBridge\Cart;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Cart\Cart\CartPersisterInterface;
-use Shopware\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Cart\Cart\Struct\Cart;
-use Shopware\Cart\Exception\CartTokenNotFoundException;
+use Shopware\Checkout\Cart\Cart\CartPersisterInterface;
+use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Checkout\Cart\Cart\Struct\Cart;
+use Shopware\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\Uuid;

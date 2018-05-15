@@ -26,14 +26,14 @@ declare(strict_types=1);
 namespace Shopware\CartBridge\Service;
 
 use Shopware\Checkout\Order\Definition\OrderDefinition;
-use Shopware\Cart\Cart\CartPersisterInterface;
-use Shopware\Cart\Cart\CircularCartCalculation;
-use Shopware\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Cart\Cart\Struct\Cart;
-use Shopware\Cart\Exception\LineItemNotFoundException;
-use Shopware\Cart\LineItem\LineItemCollection;
-use Shopware\Cart\LineItem\LineItemInterface;
-use Shopware\Cart\Order\OrderPersisterInterface;
+use Shopware\Checkout\Cart\Cart\CartPersisterInterface;
+use Shopware\Checkout\Cart\Cart\CircularCartCalculation;
+use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Checkout\Cart\Cart\Struct\Cart;
+use Shopware\Checkout\Cart\Exception\LineItemNotFoundException;
+use Shopware\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Checkout\Cart\LineItem\LineItemInterface;
+use Shopware\Checkout\Cart\Order\OrderPersisterInterface;
 use Shopware\Context\Struct\StorefrontContext;
 
 class StoreFrontCartService

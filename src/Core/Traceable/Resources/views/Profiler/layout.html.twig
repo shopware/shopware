@@ -3,7 +3,7 @@
 {% macro render_cart(lineItems, currencyShortName, indentation='') %}
     {% set spacer = '----' %}
     {% import _self as macros %}
-    {# @var calculated \Shopware\Cart\LineItem\CalculatedLineItemInterface #}
+    {# @var calculated \Shopware\Checkout\Cart\LineItem\CalculatedLineItemInterface #}
     {% for calculated in lineItems %}
         <tr>
             <td>
@@ -24,7 +24,7 @@
             </td>
             <td>
                 {% for tax in calculated.price.calculatedTaxes %}
-                    {# @var tax \Shopware\Cart\Tax\Struct\CalculatedTax #}
+                    {# @var tax \Shopware\Checkout\Cart\Tax\Struct\CalculatedTax #}
                     {{ tax.taxRate }}% => {{ tax.tax|localizedcurrency(currencyShortName) }}
                 {% endfor %}
             </td>
@@ -42,10 +42,10 @@
         <span class="sf-toolbar-info-piece-additional-detail">line items</span>
     {% endset %}
 
-    {# @var calculatedCart \Shopware\Cart\Cart\Struct\CalculatedCart #}
+    {# @var calculatedCart \Shopware\Checkout\Cart\Cart\Struct\CalculatedCart #}
     {% set calculatedCart = collector.calculatedCart %}
 
-    {# @var cart \Shopware\Cart\Cart\Struct\Cart #}
+    {# @var cart \Shopware\Checkout\Cart\Cart\Struct\Cart #}
     {% set cart = collector.cart %}
 
     {% set lineItemsCount = calculatedCart.calculatedLineItems.flatElements|length %}
@@ -114,10 +114,10 @@
 {% endblock %}
 
 {% block panel %}
-    {# @var calculatedCart \Shopware\Cart\Cart\Struct\CalculatedCart #}
+    {# @var calculatedCart \Shopware\Checkout\Cart\Cart\Struct\CalculatedCart #}
     {% set calculatedCart = collector.calculatedCart %}
 
-    {# @var cart \Shopware\Cart\Cart\Struct\Cart #}
+    {# @var cart \Shopware\Checkout\Cart\Cart\Struct\Cart #}
     {% set cart = collector.cart %}
 
     {% set currencyName = collector.context.currency.shortName %}
@@ -135,7 +135,7 @@
         </tr>
 
         {% for item in cart.lineItems %}
-            {# @var item \Shopware\Cart\LineItem\LineItemInterface #}
+            {# @var item \Shopware\Checkout\Cart\LineItem\LineItemInterface #}
             <tr>
                 <td>{{ item.identifier }}</td>
                 <td>{{ item.type }}</td>
@@ -190,7 +190,7 @@
 
     {% for delivery in calculatedCart.deliveries %}
 
-        {# @var delivery \Shopware\Cart\Delivery\Struct\Delivery#}
+        {# @var delivery \Shopware\Checkout\Cart\Delivery\Struct\Delivery#}
         <table>
             <tr>
                 <td>Delivery Date</td>
@@ -228,7 +228,7 @@
                 <td><strong>Price of position</strong></td>
             </tr>
             {% for position in delivery.positions %}
-                {# @var position \Shopware\Cart\Delivery\Struct\DeliveryPosition #}
+                {# @var position \Shopware\Checkout\Cart\Delivery\Struct\DeliveryPosition #}
                 <tr>
                     <td>{{ position.calculatedLineItem.identifier }}</td>
                     <td>{{ position.quantity }}</td>

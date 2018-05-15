@@ -20,8 +20,8 @@ Currently the following processors are registered.
 | 1000 | cart.product.processor | Shopware\CartBridge\Product\ProductProcessor  |  handle products which added to the cart by customer  |
 | 800 | cart.voucher.processor | Shopware\CartBridge\Voucher\VoucherProcessor | handle vouchers which added to the cart by customer |
 | 600 | dynamic |  |  |
-| 400 | cart.delivery.separator_processor | Shopware\Cart\Delivery\DeliverySeparatorProcessor  | separates the different deliverable line items into deliveries |
-| 200 | cart.delivery.calculator_processor | Shopware\Cart\Delivery\DeliveryCalculatorProcessor | calculates all deliveries which were created |
+| 400 | cart.delivery.separator_processor | Shopware\Checkout\Cart\Delivery\DeliverySeparatorProcessor  | separates the different deliverable line items into deliveries |
+| 200 | cart.delivery.calculator_processor | Shopware\Checkout\Cart\Delivery\DeliveryCalculatorProcessor | calculates all deliveries which were created |
 
 ## How a processor (should) work
 A processor should only handle simple tasks like the filtering of its dedicated line items or deliveries of a cart. Further logic and calculation (delivery seperation, line item calculation) should be encapsulated in seperate services.

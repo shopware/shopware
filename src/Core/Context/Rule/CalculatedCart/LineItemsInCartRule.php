@@ -24,7 +24,7 @@
 
 namespace Shopware\Context\Rule\CalculatedCart;
 
-use Shopware\Cart\LineItem\CalculatedLineItemInterface;
+use Shopware\Checkout\Cart\LineItem\CalculatedLineItemInterface;
 use Shopware\Context\MatchContext\CartRuleMatchContext;
 use Shopware\Context\MatchContext\RuleMatchContext;
 use Shopware\Context\Rule\Match;

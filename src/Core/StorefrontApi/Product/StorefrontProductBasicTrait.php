@@ -4,8 +4,8 @@ namespace Shopware\StorefrontApi\Product;
 
 use Shopware\Content\Product\Collection\ProductMediaBasicCollection;
 use Shopware\Content\Product\Struct\ProductMediaBasicStruct;
-use Shopware\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Cart\Price\Struct\CalculatedPriceCollection;
+use Shopware\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
 
 trait StorefrontProductBasicTrait
 {

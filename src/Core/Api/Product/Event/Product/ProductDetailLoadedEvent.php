@@ -14,7 +14,7 @@ use Shopware\Api\Product\Event\ProductService\ProductServiceBasicLoadedEvent;
 use Shopware\Api\Product\Event\ProductStream\ProductStreamBasicLoadedEvent;
 use Shopware\Api\Product\Event\ProductTranslation\ProductTranslationBasicLoadedEvent;
 use Shopware\System\Tax\Event\Tax\TaxBasicLoadedEvent;
-use Shopware\Api\Unit\Event\Unit\UnitBasicLoadedEvent;
+use Shopware\System\Unit\Event\Unit\UnitBasicLoadedEvent;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;

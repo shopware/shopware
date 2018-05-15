@@ -45,7 +45,7 @@ use Shopware\Api\Product\Definition\ProductManufacturerTranslationDefinition;
 use Shopware\Api\Product\Definition\ProductTranslationDefinition;
 use Shopware\Api\Shipping\Definition\ShippingMethodTranslationDefinition;
 use Shopware\System\Tax\Definition\TaxAreaRuleTranslationDefinition;
-use Shopware\Api\Unit\Definition\UnitTranslationDefinition;
+use Shopware\System\Unit\Definition\UnitTranslationDefinition;
 
 class LanguageDefinition extends EntityDefinition
 {

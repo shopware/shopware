@@ -6,7 +6,7 @@ use Shopware\Api\Context\Collection\ContextPriceCollection;
 use Shopware\Api\Entity\Entity;
 use Shopware\Api\Product\Collection\ProductContextPriceBasicCollection;
 use Shopware\System\Tax\Struct\TaxBasicStruct;
-use Shopware\Api\Unit\Struct\UnitBasicStruct;
+use Shopware\System\Unit\Struct\UnitBasicStruct;
 use Shopware\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Cart\Price\Struct\PriceDefinition;
 use Shopware\Cart\Price\Struct\PriceDefinitionCollection;

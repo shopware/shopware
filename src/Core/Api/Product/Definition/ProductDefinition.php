@@ -45,7 +45,7 @@ use Shopware\Api\Product\Repository\ProductRepository;
 use Shopware\Api\Product\Struct\ProductBasicStruct;
 use Shopware\Api\Product\Struct\ProductDetailStruct;
 use Shopware\System\Tax\Definition\TaxDefinition;
-use Shopware\Api\Unit\Definition\UnitDefinition;
+use Shopware\System\Unit\Definition\UnitDefinition;
 
 class ProductDefinition extends EntityDefinition
 {

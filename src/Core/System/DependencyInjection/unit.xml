@@ -1,0 +1,34 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <!-- Versioning -->
+        <service alias="Shopware\System\Unit\Repository\UnitRepository.v1" id="Shopware\System\Unit\Repository\UnitRepository" public="true"/>
+        <service alias="Shopware\System\Unit\Repository\UnitTranslationRepository.v1" id="Shopware\System\Unit\Repository\UnitTranslationRepository" public="true"/>
+
+        <service class="Shopware\System\Unit\Definition\UnitDefinition" id="Shopware\System\Unit\Definition\UnitDefinition" >
+            <tag name="shopware.entity.definition" entity="unit" />
+        </service>
+        <service class="Shopware\System\Unit\Repository\UnitRepository" id="Shopware\System\Unit\Repository\UnitRepository.v1" public="true">
+          <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Version\VersionManager" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+         <service class="Shopware\System\Unit\Definition\UnitTranslationDefinition" id="Shopware\System\Unit\Definition\UnitTranslationDefinition" >
+            <tag name="shopware.entity.definition" entity="unit_translation" />
+        </service>
+        <service class="Shopware\System\Unit\Repository\UnitTranslationRepository" id="Shopware\System\Unit\Repository\UnitTranslationRepository.v1" public="true">
+          <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Version\VersionManager" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+    </services>
+</container>                
+                

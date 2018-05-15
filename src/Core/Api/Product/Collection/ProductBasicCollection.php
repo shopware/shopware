@@ -6,7 +6,7 @@ use Shopware\Api\Entity\EntityCollection;
 use Shopware\Api\Product\Struct\ProductBasicStruct;
 use Shopware\Api\Product\Struct\ProductMediaBasicStruct;
 use Shopware\System\Tax\Collection\TaxBasicCollection;
-use Shopware\Api\Unit\Collection\UnitBasicCollection;
+use Shopware\System\Unit\Collection\UnitBasicCollection;
 
 class ProductBasicCollection extends EntityCollection
 {

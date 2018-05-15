@@ -15,7 +15,7 @@ use Shopware\Checkout\Customer\Definition\CustomerDefinition;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Write\EntityWriterInterface;
 use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\Content\Media\Repository\MediaAlbumRepository;
+use Shopware\Content\Media\Aggregate\MediaAlbum\MediaAlbumRepository;
 use Shopware\Content\Product\ProductDefinition;
 use Shopware\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Content\Product\ProductRepository;

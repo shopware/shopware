@@ -9,7 +9,7 @@ use Shopware\Defaults;
 use Shopware\System\Config\Service\ConfigServiceInterface;
 use Shopware\Storefront\Event\ListingPageLoadedEvent;
 use Shopware\Storefront\Event\PageCriteriaCreatedEvent;
-use Shopware\StorefrontApi\Product\StorefrontProductRepository;
+use Shopware\Content\Product\StorefrontProductRepository;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class SearchPageLoader

@@ -17,7 +17,18 @@
         <service alias="Shopware\Content\Product\Aggregate\ProductStream\ProductStreamRepository.v1" id="Shopware\Content\Product\Aggregate\ProductStream\ProductStreamRepository" public="true"/>
         <service alias="Shopware\Content\Product\Aggregate\ProductTranslation\ProductTranslationRepository.v1" id="Shopware\Content\Product\Aggregate\ProductTranslation\ProductTranslationRepository" public="true"/>
 
-         <service class="Shopware\Content\Product\ProductDefinition" id="Shopware\Content\Product\ProductDefinition" >
+        <service class="Shopware\Content\Product\StorefrontProductRepository" id="Shopware\Content\Product\StorefrontProductRepository">
+            <argument type="service" id="Shopware\Content\Product\ProductRepository"/>
+            <argument type="service" id="Shopware\Checkout\Cart\Price\PriceCalculator"/>
+            <tag name="shopware.traceable" label="product.storefront-repository" />
+        </service>
+        <service class="Shopware\Content\Product\StorefrontProductController" id="Shopware\Content\Product\StorefrontProductController" public="true">
+            <argument id="Shopware\Content\Product\StorefrontProductRepository" type="service"/>
+            <argument type="service" id="Shopware\Framework\Api\Response\ResponseFactory"/>
+            <argument type="service" id="Shopware\Framework\ORM\Search\SearchCriteriaBuilder"/>
+        </service>
+
+        <service class="Shopware\Content\Product\ProductDefinition" id="Shopware\Content\Product\ProductDefinition" >
             <tag name="shopware.entity.definition" entity="product" />
         </service>
         <service class="Shopware\Content\Product\ProductRepository" id="Shopware\Content\Product\ProductRepository.v1" public="true">

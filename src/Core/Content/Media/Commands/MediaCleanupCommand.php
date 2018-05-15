@@ -27,7 +27,7 @@ namespace Shopware\Content\Media\Commands;
 use Doctrine\ORM\AbstractQuery;
 use Doctrine\ORM\ORMException;
 use Shopware\Components\Model\ModelManager;
-use Shopware\Content\Media\GarbageCollector\GarbageCollector;
+use Shopware\Content\Media\Util\GarbageCollector\GarbageCollector;
 use Shopware\Models\Media\Media;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -38,12 +38,12 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class MediaCleanupCommand extends Command
 {
     /**
-     * @var \Shopware\Content\Media\GarbageCollector\GarbageCollector
+     * @var \Shopware\Content\Media\Util\GarbageCollector\GarbageCollector
      */
     private $garbageCollector;
 
     /**
-     * @param \Shopware\Content\Media\GarbageCollector\GarbageCollector $garbageCollector
+     * @param \Shopware\Content\Media\Util\GarbageCollector\GarbageCollector $garbageCollector
      */
     public function __construct(GarbageCollector $garbageCollector)
     {

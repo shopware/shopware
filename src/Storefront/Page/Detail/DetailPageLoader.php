@@ -8,15 +8,15 @@ use Shopware\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Content\Product\Aggregate\ProductConfigurator\Collection\ProductConfiguratorBasicCollection;
 use Shopware\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorRepository;
 use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\StorefrontApi\Product\ProductBasicStruct;
-use Shopware\StorefrontApi\Product\ProductDetailStruct;
-use Shopware\StorefrontApi\Product\StorefrontProductRepository;
+use Shopware\Content\Product\Struct\StorefrontProductBasicStruct;
+use Shopware\Content\Product\Struct\StorefrontProductDetailStruct;
+use Shopware\Content\Product\StorefrontProductRepository;
 use Symfony\Component\HttpFoundation\Request;
 
 class DetailPageLoader
 {
     /**
-     * @var StorefrontProductRepository
+     * @var \Shopware\Content\Product\StorefrontProductRepository
      */
     private $productRepository;
 
@@ -45,7 +45,7 @@ class DetailPageLoader
             throw new \RuntimeException('Product was not found.');
         }
 
-        /** @var ProductBasicStruct $product */
+        /** @var \Shopware\Content\Product\Struct\StorefrontProductBasicStruct $product */
         $product = $collection->get($productId);
 
         $page = new DetailPageStruct($product);
@@ -94,7 +94,7 @@ class DetailPageLoader
         return $productId;
     }
 
-    private function loadConfigurator(ProductDetailStruct $product, StorefrontContext $context): ProductConfiguratorBasicCollection
+    private function loadConfigurator(StorefrontProductDetailStruct $product, StorefrontContext $context): ProductConfiguratorBasicCollection
     {
         $containerId = $product->getParentId() ?? $product->getId();
 

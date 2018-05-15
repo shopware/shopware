@@ -20,7 +20,7 @@ use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\System\Locale\Definition\LocaleDefinition;
-use Shopware\Content\Media\Definition\MediaDefinition;
+use Shopware\Content\Media\MediaDefinition;
 use Shopware\System\User\Collection\UserBasicCollection;
 use Shopware\System\User\Collection\UserDetailCollection;
 use Shopware\System\User\Event\User\UserDeletedEvent;
@@ -79,7 +79,7 @@ class UserDefinition extends EntityDefinition
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
             new ManyToOneAssociationField('locale', 'locale_id', LocaleDefinition::class, false),
-            new OneToManyAssociationField('media', MediaDefinition::class, 'user_id', false, 'id'),
+            new OneToManyAssociationField('media', \Shopware\Content\Media\MediaDefinition::class, 'user_id', false, 'id'),
         ]);
 
         foreach (self::$extensions as $extension) {

@@ -34,7 +34,7 @@ use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Framework\ORM\Write\Flag\WriteOnly;
-use Shopware\Content\Media\Definition\MediaDefinition;
+use Shopware\Content\Media\MediaDefinition;
 use Shopware\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Content\Product\ProductDefinition;
 use Shopware\Content\Product\Aggregate\ProductSeoCategory\ProductSeoCategoryDefinition;
@@ -78,8 +78,8 @@ class CategoryDefinition extends EntityDefinition
             new ParentField(self::class),
             new ReferenceVersionField(self::class, 'parent_version_id'),
 
-            new FkField('media_id', 'mediaId', MediaDefinition::class),
-            new ReferenceVersionField(MediaDefinition::class),
+            new FkField('media_id', 'mediaId', \Shopware\Content\Media\MediaDefinition::class),
+            new ReferenceVersionField(\Shopware\Content\Media\MediaDefinition::class),
 
             new FkField('product_stream_id', 'productStreamId', ProductStreamDefinition::class),
             new ReferenceVersionField(\Shopware\Content\Product\Aggregate\ProductStream\ProductStreamDefinition::class),
@@ -107,7 +107,7 @@ class CategoryDefinition extends EntityDefinition
             new TranslatedField(new StringField('cms_headline', 'cmsHeadline')),
             new TranslatedField(new LongTextField('cms_description', 'cmsDescription')),
             new ManyToOneAssociationField('parent', 'parent_id', self::class, false),
-            new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, false),
+            new ManyToOneAssociationField('media', 'media_id', \Shopware\Content\Media\MediaDefinition::class, false),
             new ManyToOneAssociationField('productStream', 'product_stream_id', \Shopware\Content\Product\Aggregate\ProductStream\ProductStreamDefinition::class, false),
             (new ChildrenAssociationField(self::class))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField('translations', CategoryTranslationDefinition::class, 'category_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),

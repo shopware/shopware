@@ -2,6 +2,7 @@
 
 namespace Shopware\Content\Media\Struct;
 
+use Shopware\Content\Media\Aggregate\MediaAlbum\Struct\MediaAlbumBasicStruct;
 use Shopware\Framework\ORM\Entity;
 
 class MediaBasicStruct extends Entity

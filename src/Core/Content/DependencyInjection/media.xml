@@ -11,40 +11,40 @@
         <service alias="Shopware\Content\Media\Repository\MediaAlbumTranslationRepository.v1" id="Shopware\Content\Media\Repository\MediaAlbumTranslationRepository" public="true"/>
         <service alias="Shopware\Content\Media\Repository\MediaTranslationRepository.v1" id="Shopware\Content\Media\Repository\MediaTranslationRepository" public="true"/>
 
-         <service class="Shopware\Content\Media\Definition\MediaDefinition" id="Shopware\Content\Media\Definition\MediaDefinition" >
+         <service class="Shopware\Content\Media\Definition\MediaDefinition" id="Shopware\Content\Media\MediaDefinition" >
             <tag name="shopware.entity.definition" entity="media" />
         </service>
-        <service class="Shopware\Content\Media\Repository\MediaRepository" id="Shopware\Content\Media\Repository\MediaRepository.v1" public="true">
+        <service class="Shopware\Content\Media\Repository\MediaRepository" id="Shopware\Content\Media\MediaRepository.v1" public="true">
           <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
           <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>
-         <service class="Shopware\Content\Media\Definition\MediaAlbumDefinition" id="Shopware\Content\Media\Definition\MediaAlbumDefinition" >
+         <service class="Shopware\Content\Media\Definition\MediaAlbumDefinition" id="Shopware\Content\Media\Aggregate\MediaAlbum\MediaAlbumDefinition" >
             <tag name="shopware.entity.definition" entity="media_album" />
         </service>
-        <service class="Shopware\Content\Media\Repository\MediaAlbumRepository" id="Shopware\Content\Media\Repository\MediaAlbumRepository.v1" public="true">
+        <service class="Shopware\Content\Media\Repository\MediaAlbumRepository" id="Shopware\Content\Media\Aggregate\MediaAlbum\MediaAlbumRepository.v1" public="true">
           <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
           <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>
-         <service class="Shopware\Content\Media\Definition\MediaAlbumTranslationDefinition" id="Shopware\Content\Media\Definition\MediaAlbumTranslationDefinition" >
+         <service class="Shopware\Content\Media\Definition\MediaAlbumTranslationDefinition" id="Shopware\Content\Media\Aggregate\MediaAlbumTranslation\MediaAlbumTranslationDefinition" >
             <tag name="shopware.entity.definition" entity="media_album_translation" />
         </service>
-        <service class="Shopware\Content\Media\Repository\MediaAlbumTranslationRepository" id="Shopware\Content\Media\Repository\MediaAlbumTranslationRepository.v1" public="true">
+        <service class="Shopware\Content\Media\Repository\MediaAlbumTranslationRepository" id="Shopware\Content\Media\Aggregate\MediaAlbumTranslation\MediaAlbumTranslationRepository.v1" public="true">
           <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
           <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>
-         <service class="Shopware\Content\Media\Definition\MediaTranslationDefinition" id="Shopware\Content\Media\Definition\MediaTranslationDefinition" >
+         <service class="Shopware\Content\Media\Definition\MediaTranslationDefinition" id="Shopware\Content\Media\Aggregate\MediaTranslation\MediaTranslationDefinition" >
             <tag name="shopware.entity.definition" entity="media_translation" />
         </service>
-        <service class="Shopware\Content\Media\Repository\MediaTranslationRepository" id="Shopware\Content\Media\Repository\MediaTranslationRepository.v1" public="true">
+        <service class="Shopware\Content\Media\Repository\MediaTranslationRepository" id="Shopware\Content\Media\Aggregate\MediaTranslation\MediaTranslationRepository.v1" public="true">
           <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
           <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
@@ -65,12 +65,12 @@
 
         <!-- ProductMedia Extension -->
 
-        <service class="Shopware\Content\Media\GarbageCollector\GarbageCollectorFactory" id="Shopware\Content\Media\GarbageCollector\GarbageCollectorFactory">
+        <service class="Shopware\Content\Media\GarbageCollector\GarbageCollectorFactory" id="Shopware\Content\Media\Util\GarbageCollector\GarbageCollectorFactory">
             <argument type="service" id="Doctrine\DBAL\Connection" />
             <argument type="service" id="Shopware\Content\Media\Strategy\StrategyInterface" />
         </service>
 
-        <service class="Shopware\Content\Media\GarbageCollector\GarbageCollector" id="Shopware\Content\Media\GarbageCollector\GarbageCollector">
+        <service class="Shopware\Content\Media\GarbageCollector\GarbageCollector" id="Shopware\Content\Media\Util\GarbageCollector\GarbageCollector">
             <factory service="Shopware\Content\Media\GarbageCollector\GarbageCollectorFactory" method="factory" />
         </service>
 
@@ -79,28 +79,28 @@
             <argument>media</argument>
         </service>
 
-        <service class="Shopware\Content\Media\Strategy\StrategyFilesystem" id="Shopware\Content\Media\Strategy\StrategyFilesystem">
+        <service class="Shopware\Content\Media\Strategy\StrategyFilesystem" id="Shopware\Content\Media\Util\Strategy\StrategyFilesystem">
             <argument type="service" id="Shopware\Framework\Filesystem\PrefixFilesystem" />
             <argument type="service" id="Shopware\Content\Media\Strategy\StrategyInterface" />
         </service>
 
-        <service class="Shopware\Content\Media\UrlGenerator" id="Shopware\Content\Media\UrlGenerator">
+        <service class="Shopware\Content\Media\UrlGenerator" id="Shopware\Content\Media\Util\UrlGenerator">
             <argument type="service" id="Shopware\Content\Media\Strategy\StrategyInterface" />
             <argument type="service" id="request_stack" />
             <argument>%shopware.cdn.url%</argument>
         </service>
 
-        <service class="Shopware\Content\Media\MediaReplaceService" id="Shopware\Content\Media\MediaReplaceService">
+        <service class="Shopware\Content\Media\MediaReplaceService" id="Shopware\Content\Media\Util\MediaReplaceService">
             <argument type="service" id="Shopware\Content\Media\Strategy\StrategyFilesystem" />
             <!--<argument type="service" id="thumbnail_manager"/>-->
             <!--<argument type="service" id="models" />-->
         </service>
 
-        <service class="Shopware\Content\Media\Strategy\StrategyFactory" id="Shopware\Content\Media\Strategy\StrategyFactory">
-            <argument type="tagged" tag="Shopware\Content\Media\Strategy\StrategyInterface" />
+        <service class="Shopware\Content\Media\Strategy\StrategyFactory" id="Shopware\Content\Media\Util\Strategy\StrategyFactory">
+            <argument type="tagged" tag="Shopware\Content\Media\Util\Strategy\StrategyInterface" />
         </service>
 
-        <service class="Shopware\Content\Media\Strategy\StrategyInterface" id="Shopware\Content\Media\Strategy\StrategyInterface">
+        <service class="Shopware\Content\Media\Strategy\StrategyInterface" id="Shopware\Content\Media\Util\Strategy\StrategyInterface">
             <factory service="Shopware\Content\Media\Strategy\StrategyFactory" method="factory" />
             <argument>%shopware.cdn.strategy%</argument>
         </service>
@@ -126,42 +126,42 @@
         </service>
 
         <!-- Strategies -->
-        <service class="Shopware\Content\Media\Strategy\Md5Strategy" id="Shopware\Content\Media\Strategy\StrategyInterface.md5">
+        <service class="Shopware\Content\Media\Strategy\Md5Strategy" id="Shopware\Content\Media\Util\Strategy\StrategyInterface.md5">
             <tag name="Shopware\Content\Media\Strategy\StrategyInterface" />
         </service>
 
-        <service class="Shopware\Content\Media\Strategy\PlainStrategy" id="Shopware\Content\Media\Strategy\StrategyInterface.plain">
+        <service class="Shopware\Content\Media\Strategy\PlainStrategy" id="Shopware\Content\Media\Util\Strategy\StrategyInterface.plain">
             <tag name="Shopware\Content\Media\Strategy\StrategyInterface" />
         </service>
 
         <!-- Optimizer -->
-        <service class="Shopware\Content\Media\Optimizer\OptimizerService" id="Shopware\Content\Media\Optimizer\OptimizerService">
+        <service class="Shopware\Content\Media\Optimizer\OptimizerService" id="Shopware\Content\Media\Util\Optimizer\OptimizerService">
             <argument type="tagged" tag="shopware.media.optimizer" />
             <argument type="service" id="Shopware\Content\Media\Strategy\StrategyFilesystem" />
         </service>
 
-        <service id="Shopware\Content\Media\Optimizer\CacheOptimizerService" class="Shopware\Content\Media\Optimizer\CacheOptimizerService"
-                 decorates="Shopware\Content\Media\Optimizer\OptimizerService" public="false">
+        <service id="Shopware\Content\Media\Util\Optimizer\CacheOptimizerService" class="Shopware\Content\Media\Optimizer\CacheOptimizerService"
+                 decorates="Shopware\Content\Media\Util\Optimizer\OptimizerService" public="false">
             <argument type="service" id="Shopware\Content\Media\Optimizer\CacheOptimizerService.inner" />
         </service>
 
-        <service class="Shopware\Content\Media\Optimizer\JpegoptimOptimizer" id="Shopware\Content\Media\Optimizer\JpegoptimOptimizer">
+        <service class="Shopware\Content\Media\Optimizer\JpegoptimOptimizer" id="Shopware\Content\Media\Util\Optimizer\JpegoptimOptimizer">
             <tag name="shopware.media.optimizer" priority="100" />
         </service>
 
-        <service class="Shopware\Content\Media\Optimizer\JpegtranOptimizer" id="Shopware\Content\Media\Optimizer\JpegtranOptimizer">
+        <service class="Shopware\Content\Media\Optimizer\JpegtranOptimizer" id="Shopware\Content\Media\Util\Optimizer\JpegtranOptimizer">
             <tag name="shopware.media.optimizer" priority="90" />
         </service>
 
-        <service class="Shopware\Content\Media\Optimizer\PngoutOptimizer" id="Shopware\Content\Media\Optimizer\PngoutOptimizer">
+        <service class="Shopware\Content\Media\Optimizer\PngoutOptimizer" id="Shopware\Content\Media\Util\Optimizer\PngoutOptimizer">
             <tag name="shopware.media.optimizer" priority="100" />
         </service>
 
-        <service class="Shopware\Content\Media\Optimizer\OptipngOptimizer" id="Shopware\Content\Media\Optimizer\OptipngOptimizer">
+        <service class="Shopware\Content\Media\Optimizer\OptipngOptimizer" id="Shopware\Content\Media\Util\Optimizer\OptipngOptimizer">
             <tag name="shopware.media.optimizer" priority="90" />
         </service>
 
-        <service class="Shopware\Content\Media\Optimizer\PngcrushOptimizer" id="Shopware\Content\Media\Optimizer\PngcrushOptimizer">
+        <service class="Shopware\Content\Media\Optimizer\PngcrushOptimizer" id="Shopware\Content\Media\Util\Optimizer\PngcrushOptimizer">
             <tag name="shopware.media.optimizer" priority="80" />
         </service>
     </services>

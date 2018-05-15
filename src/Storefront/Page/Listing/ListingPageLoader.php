@@ -8,13 +8,13 @@ use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Storefront\Event\ListingEvents;
 use Shopware\Storefront\Event\ListingPageLoadedEvent;
 use Shopware\Storefront\Event\PageCriteriaCreatedEvent;
-use Shopware\StorefrontApi\Product\StorefrontProductRepository;
+use Shopware\Content\Product\StorefrontProductRepository;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ListingPageLoader
 {
     /**
-     * @var StorefrontProductRepository
+     * @var \Shopware\Content\Product\StorefrontProductRepository
      */
     private $productRepository;
 

@@ -2,6 +2,7 @@
 
 namespace Shopware\Content\Media\Collection;
 
+use Shopware\Content\Media\Aggregate\MediaTranslation\Collection\MediaTranslationBasicCollection;
 use Shopware\Content\Media\Struct\MediaDetailStruct;
 use Shopware\System\User\Collection\UserBasicCollection;
 

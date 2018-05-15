@@ -70,18 +70,18 @@
         </service>
 
         <service class="Shopware\Storefront\Page\Detail\DetailPageLoader" id="Shopware\Storefront\Page\Detail\DetailPageLoader">
-            <argument id="Shopware\StorefrontApi\Product\StorefrontProductRepository" type="service"/>
+            <argument id="Shopware\Content\Product\StorefrontProductRepository" type="service"/>
             <argument type="service" id="Shopware\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorRepository"/>
         </service>
 
         <service class="Shopware\Storefront\Page\Listing\ListingPageLoader" id="Shopware\Storefront\Page\Listing\ListingPageLoader">
-            <argument id="Shopware\StorefrontApi\Product\StorefrontProductRepository" type="service"/>
+            <argument id="Shopware\Content\Product\StorefrontProductRepository" type="service"/>
             <argument type="service" id="event_dispatcher" />
         </service>
 
         <service class="Shopware\Storefront\Page\Search\SearchPageLoader" id="Shopware\Storefront\Page\Search\SearchPageLoader">
             <argument type="service" id="Shopware\System\Config\Service\ConfigService" />
-            <argument id="Shopware\StorefrontApi\Product\StorefrontProductRepository" type="service"/>
+            <argument id="Shopware\Content\Product\StorefrontProductRepository" type="service"/>
             <argument type="service" id="event_dispatcher" />
         </service>
 
@@ -148,7 +148,7 @@
         </service>
 
         <service class="Shopware\Storefront\Controller\Widgets\ListingController" id="Shopware\Storefront\Controller\Widgets\ListingController" public="true">
-            <argument id="Shopware\StorefrontApi\Product\StorefrontProductRepository" type="service"/>
+            <argument id="Shopware\Content\Product\StorefrontProductRepository" type="service"/>
             <argument type="service" id="Shopware\Storefront\Page\Listing\ListingPageLoader"/>
             <argument type="service" id="Shopware\Storefront\Page\Search\SearchPageLoader"/>
         </service>

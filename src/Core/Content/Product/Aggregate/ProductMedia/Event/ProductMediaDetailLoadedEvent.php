@@ -2,7 +2,7 @@
 
 namespace Shopware\Content\Product\Aggregate\ProductMedia\Event;
 
-use Shopware\Content\Media\Event\Media\MediaBasicLoadedEvent;
+use Shopware\Content\Media\Event\MediaBasicLoadedEvent;
 use Shopware\Content\Product\Aggregate\ProductMedia\Collection\ProductMediaDetailCollection;
 use Shopware\Content\Product\Event\ProductBasicLoadedEvent;
 use Shopware\Application\Context\Struct\ApplicationContext;

@@ -8,12 +8,12 @@ use Shopware\Framework\ORM\FieldCollection;
 use Shopware\Framework\ORM\Write\Flag\Deferred;
 use Shopware\Framework\ORM\Write\Flag\Extension;
 use Shopware\Framework\ORM\Write\Flag\ReadOnly;
-use Shopware\Content\Media\Definition\MediaDefinition;
-use Shopware\Content\Media\Event\Media\MediaBasicLoadedEvent;
+use Shopware\Content\Media\MediaDefinition;
+use Shopware\Content\Media\Event\MediaBasicLoadedEvent;
 use Shopware\Content\Media\Struct\MediaBasicStruct;
 use Shopware\Framework\Struct\StructCollection;
 use Shopware\Content\Media\Struct\ThumbnailStruct;
-use Shopware\Content\Media\UrlGeneratorInterface;
+use Shopware\Content\Media\Util\UrlGeneratorInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class ThumbnailExtension implements EventSubscriberInterface

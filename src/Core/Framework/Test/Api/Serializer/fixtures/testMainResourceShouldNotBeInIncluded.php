@@ -3,7 +3,7 @@
 $albumId = 'f343a3c1-19cf-42a7-841a-a0ac5094908c';
 $mediaCollection = new \Shopware\Content\Media\Collection\MediaBasicCollection();
 
-$album = new \Shopware\Content\Media\Struct\MediaAlbumDetailStruct();
+$album = new \Shopware\Content\Media\Aggregate\MediaAlbum\Struct\MediaAlbumDetailStruct();
 $album->setId($albumId);
 $album->setName('Manufacturer');
 $album->setPosition(12);

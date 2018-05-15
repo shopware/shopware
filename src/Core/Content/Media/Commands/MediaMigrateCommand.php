@@ -27,9 +27,9 @@ namespace Shopware\Content\Media\Commands;
 use Shopware\Content\Media\Event\MigrateAdvanceEvent;
 use Shopware\Content\Media\Event\MigrateFinishEvent;
 use Shopware\Content\Media\Event\MigrateStartEvent;
-use Shopware\Content\Media\MediaMigration;
-use Shopware\Content\Media\Strategy\StrategyFactory;
-use Shopware\Content\Media\Strategy\StrategyFilesystem;
+use Shopware\Content\Media\Util\MediaMigration;
+use Shopware\Content\Media\Util\Strategy\StrategyFactory;
+use Shopware\Content\Media\Util\Strategy\StrategyFilesystem;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -43,12 +43,12 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class MediaMigrateCommand extends Command implements EventSubscriberInterface
 {
     /**
-     * @var \Shopware\Content\Media\Strategy\StrategyFilesystem
+     * @var \Shopware\Content\Media\Util\Strategy\StrategyFilesystem
      */
     private $filesystem;
 
     /**
-     * @var \Shopware\Content\Media\Strategy\StrategyFactory
+     * @var \Shopware\Content\Media\Util\Strategy\StrategyFactory
      */
     private $strategyFactory;
 

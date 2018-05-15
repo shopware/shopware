@@ -22,7 +22,7 @@ use Shopware\System\Mail\Event\MailAttachment\MailAttachmentWrittenEvent;
 use Shopware\System\Mail\Repository\MailAttachmentRepository;
 use Shopware\System\Mail\Struct\MailAttachmentBasicStruct;
 use Shopware\System\Mail\Struct\MailAttachmentDetailStruct;
-use Shopware\Content\Media\Definition\MediaDefinition;
+use Shopware\Content\Media\MediaDefinition;
 
 class MailAttachmentDefinition extends EntityDefinition
 {

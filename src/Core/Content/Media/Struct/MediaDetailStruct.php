@@ -2,7 +2,7 @@
 
 namespace Shopware\Content\Media\Struct;
 
-use Shopware\Content\Media\Collection\MediaTranslationBasicCollection;
+use Shopware\Content\Media\Aggregate\MediaTranslation\Collection\MediaTranslationBasicCollection;
 use Shopware\System\User\Struct\UserBasicStruct;
 
 class MediaDetailStruct extends MediaBasicStruct
@@ -13,7 +13,7 @@ class MediaDetailStruct extends MediaBasicStruct
     protected $user;
 
     /**
-     * @var MediaTranslationBasicCollection
+     * @var \Shopware\Content\Media\Aggregate\MediaTranslation\Collection\MediaTranslationBasicCollection
      */
     protected $translations;
 

@@ -26,7 +26,7 @@ use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Framework\ORM\Write\Flag\WriteOnly;
-use Shopware\Content\Media\Definition\MediaDefinition;
+use Shopware\Content\Media\MediaDefinition;
 use Shopware\Content\Product\Aggregate\ProductManufacturer\Collection\ProductManufacturerBasicCollection;
 use Shopware\Content\Product\Aggregate\ProductManufacturer\Collection\ProductManufacturerDetailCollection;
 use Shopware\Content\Product\Aggregate\ProductManufacturer\Event\ProductManufacturerDeletedEvent;

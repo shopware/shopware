@@ -25,7 +25,7 @@
 namespace Shopware\Content\Media\Commands;
 
 use Shopware\Content\Media\Exception\OptimizerNotFoundException;
-use Shopware\Content\Media\Optimizer\OptimizerServiceInterface;
+use Shopware\Content\Media\Util\Optimizer\OptimizerServiceInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;

@@ -34,7 +34,7 @@ use Shopware\Storefront\Page\Listing\ListingPageLoader;
 use Shopware\Storefront\Page\Listing\ListingPageRequest;
 use Shopware\Storefront\Page\Search\SearchPageLoader;
 use Shopware\Storefront\Page\Search\SearchPageRequest;
-use Shopware\StorefrontApi\Product\StorefrontProductRepository;
+use Shopware\Content\Product\StorefrontProductRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**

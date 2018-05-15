@@ -2,9 +2,9 @@
 
 namespace Shopware\Content\Media\Extension;
 
-use Shopware\Content\Media\Event\Media\MediaBasicLoadedEvent;
+use Shopware\Content\Media\Event\MediaBasicLoadedEvent;
 use Shopware\Framework\Struct\ArrayStruct;
-use Shopware\Content\Media\UrlGeneratorInterface;
+use Shopware\Content\Media\Util\UrlGeneratorInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class UrlExtension implements EventSubscriberInterface

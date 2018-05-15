@@ -17,7 +17,7 @@
             <argument id="service_container" type="service"/>
             <argument id="Shopware\Framework\ORM\Search\Term\SearchTermInterpreter" type="service"/>
             <argument id="Shopware\Framework\ORM\Search\Term\EntityScoreQueryBuilder" type="service"/>
-            <argument id="Shopware\Api\Version\Repository\VersionCommitDataRepository" type="service"/>
+            <argument id="Shopware\Framework\ORM\Version\Repository\VersionCommitDataRepository" type="service"/>
         </service>
 
         <service class="Shopware\Administration\Controller\AdministrationController"

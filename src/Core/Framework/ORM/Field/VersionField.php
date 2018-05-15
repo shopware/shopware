@@ -28,7 +28,7 @@ use Shopware\Framework\ORM\Write\DataStack\KeyValuePair;
 use Shopware\Framework\ORM\Write\EntityExistence;
 use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\Api\Version\Definition\VersionDefinition;
+use Shopware\Framework\ORM\Version\Definition\VersionDefinition;
 use Shopware\Framework\Struct\Uuid;
 
 class VersionField extends FkField

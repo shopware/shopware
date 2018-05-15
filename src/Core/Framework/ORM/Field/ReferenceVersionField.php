@@ -28,7 +28,7 @@ use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\Write\DataStack\KeyValuePair;
 use Shopware\Framework\ORM\Write\EntityExistence;
 use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\Api\Version\Definition\VersionDefinition;
+use Shopware\Framework\ORM\Version\Definition\VersionDefinition;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\Uuid;
 

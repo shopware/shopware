@@ -2,8 +2,8 @@
 
 namespace Shopware\Api\Order\Collection;
 
-use Shopware\Api\Country\Collection\CountryBasicCollection;
-use Shopware\Api\Country\Collection\CountryStateBasicCollection;
+use Shopware\System\Country\Collection\CountryBasicCollection;
+use Shopware\System\Country\Collection\CountryStateBasicCollection;
 use Shopware\Api\Entity\EntityCollection;
 use Shopware\Api\Order\Struct\OrderAddressBasicStruct;
 

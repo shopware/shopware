@@ -10,13 +10,13 @@
             <argument type="service" id="Shopware\Api\Currency\Repository\CurrencyRepository"/>
             <argument type="service" id="Shopware\Api\Customer\Repository\CustomerRepository"/>
             <argument type="service" id="Shopware\Api\Customer\Repository\CustomerGroupRepository"/>
-            <argument type="service" id="Shopware\Api\Country\Repository\CountryRepository"/>
+            <argument type="service" id="Shopware\System\Country\Repository\CountryRepository"/>
             <argument type="service" id="Shopware\Api\Tax\Repository\TaxRepository"/>
             <argument type="service" id="Shopware\Api\Customer\Repository\CustomerAddressRepository"/>
             <argument type="service" id="Shopware\Api\Payment\Repository\PaymentMethodRepository"/>
             <argument type="service" id="Shopware\Api\Shipping\Repository\ShippingMethodRepository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="Shopware\Api\Country\Repository\CountryStateRepository"/>
+            <argument type="service" id="Shopware\System\Country\Repository\CountryStateRepository"/>
             <argument type="service" id="Shopware\Api\Language\Repository\LanguageRepository"/>
             <argument type="service" id="Shopware\Cart\Tax\TaxDetector"/>
         </service>

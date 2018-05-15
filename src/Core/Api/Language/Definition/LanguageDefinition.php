@@ -3,9 +3,9 @@
 namespace Shopware\Api\Language\Definition;
 
 use Shopware\Api\Category\Definition\CategoryTranslationDefinition;
-use Shopware\Api\Country\Definition\CountryAreaTranslationDefinition;
-use Shopware\Api\Country\Definition\CountryStateTranslationDefinition;
-use Shopware\Api\Country\Definition\CountryTranslationDefinition;
+use Shopware\System\Country\Definition\CountryAreaTranslationDefinition;
+use Shopware\System\Country\Definition\CountryStateTranslationDefinition;
+use Shopware\System\Country\Definition\CountryTranslationDefinition;
 use Shopware\Api\Currency\Definition\CurrencyTranslationDefinition;
 use Shopware\Api\Customer\Definition\CustomerGroupTranslationDefinition;
 use Shopware\Api\Entity\EntityDefinition;

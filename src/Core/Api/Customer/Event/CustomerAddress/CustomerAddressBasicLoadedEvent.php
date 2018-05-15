@@ -2,8 +2,8 @@
 
 namespace Shopware\Api\Customer\Event\CustomerAddress;
 
-use Shopware\Api\Country\Event\Country\CountryBasicLoadedEvent;
-use Shopware\Api\Country\Event\CountryState\CountryStateBasicLoadedEvent;
+use Shopware\System\Country\Event\Country\CountryBasicLoadedEvent;
+use Shopware\System\Country\Event\CountryState\CountryStateBasicLoadedEvent;
 use Shopware\Api\Customer\Collection\CustomerAddressBasicCollection;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;

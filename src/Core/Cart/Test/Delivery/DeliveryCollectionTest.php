@@ -25,7 +25,7 @@
 namespace Shopware\Cart\Test\Delivery;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Api\Country\Struct\CountryBasicStruct;
+use Shopware\System\Country\Struct\CountryBasicStruct;
 use Shopware\Api\Shipping\Struct\ShippingMethodBasicStruct;
 use Shopware\Cart\Delivery\Struct\Delivery;
 use Shopware\Cart\Delivery\Struct\DeliveryCollection;

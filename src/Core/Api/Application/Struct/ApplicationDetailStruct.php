@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Application\Struct;
 
-use Shopware\Api\Country\Struct\CountryBasicStruct;
+use Shopware\System\Country\Struct\CountryBasicStruct;
 use Shopware\Api\Payment\Struct\PaymentMethodBasicStruct;
 use Shopware\Api\Shipping\Struct\ShippingMethodBasicStruct;
 

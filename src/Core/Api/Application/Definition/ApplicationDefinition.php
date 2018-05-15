@@ -9,7 +9,7 @@ use Shopware\Api\Application\Event\Application\ApplicationWrittenEvent;
 use Shopware\Api\Application\Repository\ApplicationRepository;
 use Shopware\Api\Application\Struct\ApplicationBasicStruct;
 use Shopware\Api\Application\Struct\ApplicationDetailStruct;
-use Shopware\Api\Country\Definition\CountryDefinition;
+use Shopware\System\Country\Definition\CountryDefinition;
 use Shopware\Api\Currency\Definition\CurrencyDefinition;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\EntityExtensionInterface;

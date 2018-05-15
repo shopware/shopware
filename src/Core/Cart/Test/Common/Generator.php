@@ -26,9 +26,9 @@ namespace Shopware\Cart\Test\Common;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Api\Application\Struct\ApplicationBasicStruct;
-use Shopware\Api\Country\Struct\CountryAreaBasicStruct;
-use Shopware\Api\Country\Struct\CountryBasicStruct;
-use Shopware\Api\Country\Struct\CountryStateBasicStruct;
+use Shopware\System\Country\Struct\CountryAreaBasicStruct;
+use Shopware\System\Country\Struct\CountryBasicStruct;
+use Shopware\System\Country\Struct\CountryStateBasicStruct;
 use Shopware\Api\Currency\Struct\CurrencyBasicStruct;
 use Shopware\Api\Customer\Struct\CustomerAddressBasicStruct;
 use Shopware\Api\Customer\Struct\CustomerBasicStruct;

@@ -3,7 +3,7 @@
 namespace Shopware\Api\Application\Collection;
 
 use Shopware\Api\Application\Struct\ApplicationDetailStruct;
-use Shopware\Api\Country\Collection\CountryBasicCollection;
+use Shopware\System\Country\Collection\CountryBasicCollection;
 use Shopware\Api\Payment\Collection\PaymentMethodBasicCollection;
 use Shopware\Api\Shipping\Collection\ShippingMethodBasicCollection;
 

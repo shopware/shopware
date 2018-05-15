@@ -2,8 +2,8 @@
 
 namespace Shopware\Api\Customer\Definition;
 
-use Shopware\Api\Country\Definition\CountryDefinition;
-use Shopware\Api\Country\Definition\CountryStateDefinition;
+use Shopware\System\Country\Definition\CountryDefinition;
+use Shopware\System\Country\Definition\CountryStateDefinition;
 use Shopware\Api\Customer\Collection\CustomerAddressBasicCollection;
 use Shopware\Api\Customer\Collection\CustomerAddressDetailCollection;
 use Shopware\Api\Customer\Event\CustomerAddress\CustomerAddressDeletedEvent;

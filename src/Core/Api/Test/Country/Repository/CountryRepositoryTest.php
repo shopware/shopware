@@ -3,8 +3,8 @@
 namespace Shopware\Api\Test\Country\Repository;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Api\Country\Definition\CountryDefinition;
-use Shopware\Api\Country\Repository\CountryRepository;
+use Shopware\System\Country\Definition\CountryDefinition;
+use Shopware\System\Country\Repository\CountryRepository;
 use Shopware\Api\Entity\RepositoryInterface;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Term\EntityScoreQueryBuilder;

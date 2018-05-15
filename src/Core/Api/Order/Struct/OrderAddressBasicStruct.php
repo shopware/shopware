@@ -2,8 +2,8 @@
 
 namespace Shopware\Api\Order\Struct;
 
-use Shopware\Api\Country\Struct\CountryBasicStruct;
-use Shopware\Api\Country\Struct\CountryStateBasicStruct;
+use Shopware\System\Country\Struct\CountryBasicStruct;
+use Shopware\System\Country\Struct\CountryStateBasicStruct;
 use Shopware\Api\Entity\Entity;
 
 class OrderAddressBasicStruct extends Entity

@@ -25,8 +25,8 @@ declare(strict_types=1);
 
 namespace Shopware\Cart\Delivery\Struct;
 
-use Shopware\Api\Country\Struct\CountryBasicStruct;
-use Shopware\Api\Country\Struct\CountryStateBasicStruct;
+use Shopware\System\Country\Struct\CountryBasicStruct;
+use Shopware\System\Country\Struct\CountryStateBasicStruct;
 use Shopware\Api\Customer\Struct\CustomerAddressBasicStruct;
 use Shopware\Framework\Struct\Struct;
 

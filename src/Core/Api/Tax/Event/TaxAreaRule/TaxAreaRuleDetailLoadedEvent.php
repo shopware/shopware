@@ -2,9 +2,9 @@
 
 namespace Shopware\Api\Tax\Event\TaxAreaRule;
 
-use Shopware\Api\Country\Event\Country\CountryBasicLoadedEvent;
-use Shopware\Api\Country\Event\CountryArea\CountryAreaBasicLoadedEvent;
-use Shopware\Api\Country\Event\CountryState\CountryStateBasicLoadedEvent;
+use Shopware\System\Country\Event\Country\CountryBasicLoadedEvent;
+use Shopware\System\Country\Event\CountryArea\CountryAreaBasicLoadedEvent;
+use Shopware\System\Country\Event\CountryState\CountryStateBasicLoadedEvent;
 use Shopware\Api\Customer\Event\CustomerGroup\CustomerGroupBasicLoadedEvent;
 use Shopware\Api\Tax\Collection\TaxAreaRuleDetailCollection;
 use Shopware\Api\Tax\Event\Tax\TaxBasicLoadedEvent;

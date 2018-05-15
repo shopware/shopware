@@ -2,9 +2,9 @@
 
 namespace Shopware\Api\Tax\Struct;
 
-use Shopware\Api\Country\Struct\CountryAreaBasicStruct;
-use Shopware\Api\Country\Struct\CountryBasicStruct;
-use Shopware\Api\Country\Struct\CountryStateBasicStruct;
+use Shopware\System\Country\Struct\CountryAreaBasicStruct;
+use Shopware\System\Country\Struct\CountryBasicStruct;
+use Shopware\System\Country\Struct\CountryStateBasicStruct;
 use Shopware\Api\Customer\Struct\CustomerGroupBasicStruct;
 use Shopware\Api\Tax\Collection\TaxAreaRuleTranslationBasicCollection;
 

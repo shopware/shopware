@@ -2,8 +2,8 @@
 
 namespace Shopware\Api\Order\Event\OrderAddress;
 
-use Shopware\Api\Country\Event\Country\CountryBasicLoadedEvent;
-use Shopware\Api\Country\Event\CountryState\CountryStateBasicLoadedEvent;
+use Shopware\System\Country\Event\Country\CountryBasicLoadedEvent;
+use Shopware\System\Country\Event\CountryState\CountryStateBasicLoadedEvent;
 use Shopware\Api\Order\Collection\OrderAddressDetailCollection;
 use Shopware\Api\Order\Event\Order\OrderBasicLoadedEvent;
 use Shopware\Api\Order\Event\OrderDelivery\OrderDeliveryBasicLoadedEvent;

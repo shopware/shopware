@@ -2,8 +2,8 @@
 
 namespace Shopware\Api\Order\Definition;
 
-use Shopware\Api\Country\Definition\CountryDefinition;
-use Shopware\Api\Country\Definition\CountryStateDefinition;
+use Shopware\System\Country\Definition\CountryDefinition;
+use Shopware\System\Country\Definition\CountryStateDefinition;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\Field\DateField;

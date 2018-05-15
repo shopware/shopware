@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Page\Account;
 
-use Shopware\Api\Country\Repository\CountryRepository;
+use Shopware\System\Country\Repository\CountryRepository;
 use Shopware\Api\Customer\Repository\CustomerAddressRepository;
 use Shopware\Api\Customer\Repository\CustomerRepository;
 use Shopware\Api\Customer\Struct\CustomerAddressBasicStruct;

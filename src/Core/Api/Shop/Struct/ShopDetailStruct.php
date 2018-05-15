@@ -3,7 +3,7 @@
 namespace Shopware\Api\Shop\Struct;
 
 use Shopware\Api\Category\Struct\CategoryBasicStruct;
-use Shopware\Api\Country\Struct\CountryBasicStruct;
+use Shopware\System\Country\Struct\CountryBasicStruct;
 use Shopware\Api\Currency\Collection\CurrencyBasicCollection;
 use Shopware\Api\Customer\Struct\CustomerGroupBasicStruct;
 use Shopware\Api\Payment\Struct\PaymentMethodBasicStruct;

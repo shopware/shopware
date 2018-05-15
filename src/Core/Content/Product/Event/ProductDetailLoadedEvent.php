@@ -2,7 +2,7 @@
 
 namespace Shopware\Content\Product\Event;
 
-use Shopware\Content\Category\Event\Category\CategoryBasicLoadedEvent;
+use Shopware\Content\Category\Event\CategoryBasicLoadedEvent;
 use Shopware\System\Configuration\Event\ConfigurationGroupOption\ConfigurationGroupOptionBasicLoadedEvent;
 use Shopware\Content\Product\Collection\ProductDetailCollection;
 use Shopware\Content\Product\Aggregate\ProductMedia\Collection\ProductMediaBasicCollection;

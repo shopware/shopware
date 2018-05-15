@@ -6,18 +6,18 @@
 
     <services>
         <!-- Versioning -->
-        <service alias="Shopware\Content\Category\Repository\CategoryRepository.v1" id="Shopware\Content\Category\Repository\CategoryRepository" public="true" />
-        <service alias="Shopware\Content\Category\Repository\CategoryTranslationRepository.v1" id="Shopware\Content\Category\Repository\CategoryTranslationRepository" public="true" />
+        <service alias="Shopware\Content\Category\CategoryRepository.v1" id="Shopware\Content\Category\CategoryRepository" public="true" />
+        <service alias="Shopware\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationRepository.v1" id="Shopware\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationRepository" public="true" />
 
-         <service class="Shopware\Content\Category\Definition\CategoryDefinition" id="Shopware\Content\Category\Definition\CategoryDefinition" >
+         <service class="Shopware\Content\Category\CategoryDefinition" id="Shopware\Content\Category\CategoryDefinition" >
             <tag name="shopware.entity.definition" entity="category" />
         </service>
 
-         <service class="Shopware\Content\Category\Definition\CategoryTranslationDefinition" id="Shopware\Content\Category\Definition\CategoryTranslationDefinition" >
+         <service class="Shopware\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition" id="Shopware\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition" >
             <tag name="shopware.entity.definition" entity="category_translation" />
         </service>
 
-        <service class="Shopware\Content\Category\Repository\CategoryRepository" id="Shopware\Content\Category\Repository\CategoryRepository.v1" public="true">
+        <service class="Shopware\Content\Category\CategoryRepository" id="Shopware\Content\Category\CategoryRepository.v1" public="true">
           <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
           <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
@@ -25,7 +25,7 @@
           <argument id="event_dispatcher" type="service"/>
         </service>
 
-        <service class="Shopware\Content\Category\Repository\CategoryTranslationRepository" id="Shopware\Content\Category\Repository\CategoryTranslationRepository.v1" public="true">
+        <service class="Shopware\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationRepository" id="Shopware\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationRepository.v1" public="true">
           <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
           <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
@@ -33,7 +33,7 @@
           <argument id="event_dispatcher" type="service"/>
         </service>
 
-        <service class="Shopware\Content\Category\Extension\CategoryPathBuilder" id="Shopware\Content\Category\Extension\CategoryPathBuilder">
+        <service class="Shopware\Content\Category\Util\CategoryPathBuilder" id="Shopware\Content\Category\Util\CategoryPathBuilder">
             <argument id="Shopware\Content\Category\Repository\CategoryRepository" type="service"/>
             <argument id="Doctrine\DBAL\Connection" type="service"/>
             <argument type="service" id="event_dispatcher"/>
@@ -41,7 +41,7 @@
         </service>
 
         <service class="Shopware\Content\Category\Command\BuildCategoryPathCommand" id="Shopware\Content\Category\Command\BuildCategoryPathCommand">
-            <argument type="service" id="Shopware\Content\Category\Extension\CategoryPathBuilder"/>
+            <argument type="service" id="Shopware\Content\Category\Util\CategoryPathBuilder"/>
             <tag name="console.command"/>
             <tag name="kernel.event_subscriber" />
         </service>

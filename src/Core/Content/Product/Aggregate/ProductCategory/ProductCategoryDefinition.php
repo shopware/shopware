@@ -2,7 +2,7 @@
 
 namespace Shopware\Content\Product\Aggregate\ProductCategory;
 
-use Shopware\Content\Category\Definition\CategoryDefinition;
+use Shopware\Content\Category\CategoryDefinition;
 use Shopware\Content\Product\ProductDefinition;
 use Shopware\Framework\ORM\Field\DateField;
 use Shopware\Framework\ORM\Field\FkField;

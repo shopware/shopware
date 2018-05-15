@@ -2,7 +2,7 @@
 
 namespace Shopware\Content\Product;
 
-use Shopware\Content\Category\Definition\CategoryDefinition;
+use Shopware\Content\Category\CategoryDefinition;
 use Shopware\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Content\Product\Aggregate\ProductCategoryTree\ProductCategoryTreeDefinition;
 use Shopware\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorDefinition;

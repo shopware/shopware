@@ -5,7 +5,7 @@ namespace Shopware\Storefront\DbalIndexing\SeoUrl;
 use Cocur\Slugify\SlugifyInterface;
 use Doctrine\DBAL\Connection;
 use Shopware\Application\Application\Repository\ApplicationRepository;
-use Shopware\Content\Category\Repository\CategoryRepository;
+use Shopware\Content\Category\CategoryRepository;
 use Shopware\Content\Category\Struct\CategorySearchResult;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;

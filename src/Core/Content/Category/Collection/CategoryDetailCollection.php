@@ -2,6 +2,7 @@
 
 namespace Shopware\Content\Category\Collection;
 
+use Shopware\Content\Category\Aggregate\CategoryTranslation\Collection\CategoryTranslationBasicCollection;
 use Shopware\Content\Category\Struct\CategoryDetailStruct;
 use Shopware\Content\Media\Collection\MediaBasicCollection;
 use Shopware\Content\Product\Aggregate\ProductStream\Collection\ProductStreamBasicCollection;

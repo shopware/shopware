@@ -4,7 +4,7 @@ namespace Shopware\Content\Test\Catalog;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Content\Catalog\Repository\CatalogRepository;
-use Shopware\Content\Category\Repository\CategoryRepository;
+use Shopware\Content\Category\CategoryRepository;
 use Shopware\Content\Category\Struct\CategoryBasicStruct;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Query\TermQuery;
@@ -18,7 +18,7 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 class CatalogTest extends KernelTestCase
 {
     /**
-     * @var CategoryRepository
+     * @var \Shopware\Content\Category\CategoryRepository
      */
     private $categoryRepository;
 

@@ -2,7 +2,7 @@
 
 namespace Shopware\Content\Media;
 
-use Shopware\Content\Category\Definition\CategoryDefinition;
+use Shopware\Content\Category\CategoryDefinition;
 use Shopware\Content\Media\Aggregate\MediaAlbum\MediaAlbumDefinition;
 use Shopware\Content\Media\Aggregate\MediaTranslation\MediaTranslationDefinition;
 use Shopware\Framework\ORM\EntityDefinition;

@@ -3,12 +3,12 @@
 namespace Shopware\Framework\ORM\Dbal\Indexing\Indexer;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Content\Category\Repository\CategoryRepository;
+use Shopware\Content\Category\CategoryRepository;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Content\Product\ProductRepository;
-use Shopware\Content\Category\Extension\CategoryPathBuilder;
+use Shopware\Content\Category\Util\CategoryPathBuilder;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\ORM\Dbal\Indexing\Common\EventIdExtractor;
 use Shopware\Framework\ORM\Dbal\Indexing\Common\RepositoryIterator;
@@ -34,7 +34,7 @@ class CategoryAssignmentIndexer implements IndexerInterface
     private $eventDispatcher;
 
     /**
-     * @var CategoryPathBuilder
+     * @var \Shopware\Content\Category\Util\CategoryPathBuilder
      */
     private $pathBuilder;
 
@@ -49,7 +49,7 @@ class CategoryAssignmentIndexer implements IndexerInterface
     private $connection;
 
     /**
-     * @var CategoryRepository
+     * @var \Shopware\Content\Category\CategoryRepository
      */
     private $categoryRepository;
 

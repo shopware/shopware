@@ -2,7 +2,7 @@
 
 namespace Shopware\Content\Product\Aggregate\ProductStream;
 
-use Shopware\Content\Category\Definition\CategoryDefinition;
+use Shopware\Content\Category\CategoryDefinition;
 use Shopware\Content\Product\Aggregate\ProductStreamAssignment\ProductStreamAssignmentDefinition;
 use Shopware\Content\Product\Aggregate\ProductStreamTab\ProductStreamTabDefinition;
 use Shopware\Content\Product\ProductDefinition;

@@ -24,10 +24,10 @@
 
 namespace Shopware\Content\Category\Command;
 
-use Shopware\Content\Category\Repository\CategoryRepository;
+use Shopware\Content\Category\CategoryRepository;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Query\TermQuery;
-use Shopware\Content\Category\Extension\CategoryPathBuilder;
+use Shopware\Content\Category\Util\CategoryPathBuilder;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\ORM\Dbal\Indexing\Event\ProgressAdvancedEvent;
 use Shopware\Framework\ORM\Dbal\Indexing\Event\ProgressFinishedEvent;

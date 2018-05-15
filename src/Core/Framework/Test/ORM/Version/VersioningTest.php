@@ -4,7 +4,7 @@ namespace Shopware\Framework\Test\ORM\Version;
 
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
-use Shopware\Content\Category\Repository\CategoryRepository;
+use Shopware\Content\Category\CategoryRepository;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Query\RangeQuery;
 use Shopware\Framework\ORM\Search\Query\TermQuery;

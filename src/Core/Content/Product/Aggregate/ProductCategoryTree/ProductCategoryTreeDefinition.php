@@ -2,7 +2,7 @@
 
 namespace Shopware\Content\Product\Aggregate\ProductCategoryTree;
 
-use Shopware\Content\Category\Definition\CategoryDefinition;
+use Shopware\Content\Category\CategoryDefinition;
 use Shopware\Content\Product\ProductDefinition;
 use Shopware\Framework\ORM\Field\FkField;
 use Shopware\Framework\ORM\Field\ManyToOneAssociationField;

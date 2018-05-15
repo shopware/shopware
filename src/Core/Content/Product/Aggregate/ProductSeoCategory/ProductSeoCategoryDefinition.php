@@ -3,7 +3,7 @@
 namespace Shopware\Content\Product\Aggregate\ProductSeoCategory;
 
 use Shopware\Application\Application\Definition\ApplicationDefinition;
-use Shopware\Content\Category\Definition\CategoryDefinition;
+use Shopware\Content\Category\CategoryDefinition;
 use Shopware\Content\Product\ProductDefinition;
 use Shopware\Framework\ORM\Field\DateField;
 use Shopware\Framework\ORM\Field\FkField;

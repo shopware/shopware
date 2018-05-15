@@ -3,7 +3,7 @@
 namespace Shopware\Framework\Test\Api\Controller;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Content\Category\Definition\CategoryDefinition;
+use Shopware\Content\Category\CategoryDefinition;
 use Shopware\Content\Product\ProductDefinition;
 use Shopware\Framework\Struct\Uuid;
 use Shopware\PlatformRequest;

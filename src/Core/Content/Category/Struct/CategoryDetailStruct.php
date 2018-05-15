@@ -3,7 +3,7 @@
 namespace Shopware\Content\Category\Struct;
 
 use Shopware\Content\Category\Collection\CategoryBasicCollection;
-use Shopware\Content\Category\Collection\CategoryTranslationBasicCollection;
+use Shopware\Content\Category\Aggregate\CategoryTranslation\Collection\CategoryTranslationBasicCollection;
 
 class CategoryDetailStruct extends CategoryBasicStruct
 {

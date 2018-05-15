@@ -2,8 +2,8 @@
 
 namespace Shopware\Storefront\Seo\Category;
 
-use Shopware\Content\Category\Definition\CategoryDefinition;
-use Shopware\Content\Category\Event\Category\CategoryBasicLoadedEvent;
+use Shopware\Content\Category\CategoryDefinition;
+use Shopware\Content\Category\Event\CategoryBasicLoadedEvent;
 use Shopware\Content\Category\Struct\CategoryBasicStruct;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\FieldCollection;

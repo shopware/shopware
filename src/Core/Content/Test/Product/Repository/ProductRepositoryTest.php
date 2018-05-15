@@ -3,7 +3,7 @@
 namespace Shopware\Content\Test\Product\Repository;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Content\Category\Repository\CategoryRepository;
+use Shopware\Content\Category\CategoryRepository;
 use Shopware\Application\Context\Repository\ContextRuleRepository;
 use Shopware\Application\Context\Struct\ContextPriceStruct;
 use Shopware\Framework\ORM\RepositoryInterface;

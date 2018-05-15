@@ -7,8 +7,8 @@ use Shopware\Content\Catalog\Event\Catalog\CatalogDeletedEvent;
 use Shopware\Content\Catalog\Event\Catalog\CatalogWrittenEvent;
 use Shopware\Content\Catalog\Repository\CatalogRepository;
 use Shopware\Content\Catalog\Struct\CatalogBasicStruct;
-use Shopware\Content\Category\Definition\CategoryDefinition;
-use Shopware\Content\Category\Definition\CategoryTranslationDefinition;
+use Shopware\Content\Category\CategoryDefinition;
+use Shopware\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\DateField;
@@ -66,8 +66,8 @@ class CatalogDefinition extends EntityDefinition
             (new StringField('name', 'name'))->setFlags(new Required()),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            (new OneToManyAssociationField('categories', CategoryDefinition::class, 'catalog_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
-            (new OneToManyAssociationField('categoryTranslations', CategoryTranslationDefinition::class, 'catalog_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
+            (new OneToManyAssociationField('categories', \Shopware\Content\Category\CategoryDefinition::class, 'catalog_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
+            (new OneToManyAssociationField('categoryTranslations', \Shopware\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition::class, 'catalog_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
             (new OneToManyAssociationField('media', MediaDefinition::class, 'catalog_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
             (new OneToManyAssociationField('mediaAlbum', MediaAlbumDefinition::class, 'catalog_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
             (new OneToManyAssociationField('mediaAlbumTranslations', \Shopware\Content\Media\Aggregate\MediaAlbumTranslation\MediaAlbumTranslationDefinition::class, 'catalog_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),

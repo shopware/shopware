@@ -3,10 +3,10 @@
 namespace Shopware\Category\Extension;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Api\Category\Collection\CategoryBasicCollection;
-use Shopware\Api\Category\Event\Category\CategoryWrittenEvent;
-use Shopware\Api\Category\Repository\CategoryRepository;
-use Shopware\Api\Category\Struct\CategoryBasicStruct;
+use Shopware\Content\Category\Collection\CategoryBasicCollection;
+use Shopware\Content\Category\Event\Category\CategoryWrittenEvent;
+use Shopware\Content\Category\Repository\CategoryRepository;
+use Shopware\Content\Category\Struct\CategoryBasicStruct;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Context\Struct\ApplicationContext;

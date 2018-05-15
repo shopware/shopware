@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Product\Definition;
 
-use Shopware\Api\Category\Definition\CategoryDefinition;
+use Shopware\Content\Category\Definition\CategoryDefinition;
 use Shopware\System\Configuration\Definition\ConfigurationGroupOptionDefinition;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\EntityExtensionInterface;

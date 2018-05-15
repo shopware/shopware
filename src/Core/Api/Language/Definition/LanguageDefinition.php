@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Language\Definition;
 
-use Shopware\Api\Category\Definition\CategoryTranslationDefinition;
+use Shopware\Content\Category\Definition\CategoryTranslationDefinition;
 use Shopware\System\Country\Definition\CountryAreaTranslationDefinition;
 use Shopware\System\Country\Definition\CountryStateTranslationDefinition;
 use Shopware\System\Country\Definition\CountryTranslationDefinition;

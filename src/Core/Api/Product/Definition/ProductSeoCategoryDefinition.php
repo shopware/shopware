@@ -3,7 +3,7 @@
 namespace Shopware\Api\Product\Definition;
 
 use Shopware\Api\Application\Definition\ApplicationDefinition;
-use Shopware\Api\Category\Definition\CategoryDefinition;
+use Shopware\Content\Category\Definition\CategoryDefinition;
 use Shopware\Api\Entity\Field\DateField;
 use Shopware\Api\Entity\Field\FkField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;

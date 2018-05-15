@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Shop\Collection;
 
-use Shopware\Api\Category\Collection\CategoryBasicCollection;
+use Shopware\Content\Category\Collection\CategoryBasicCollection;
 use Shopware\System\Country\Collection\CountryBasicCollection;
 use Shopware\System\Currency\Collection\CurrencyBasicCollection;
 use Shopware\Api\Customer\Collection\CustomerGroupBasicCollection;

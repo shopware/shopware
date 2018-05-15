@@ -3,7 +3,7 @@
 namespace Shopware\DbalIndexing\Indexer;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Api\Category\Repository\CategoryRepository;
+use Shopware\Content\Category\Repository\CategoryRepository;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;

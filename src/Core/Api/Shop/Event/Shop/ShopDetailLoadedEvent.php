@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Shop\Event\Shop;
 
-use Shopware\Api\Category\Event\Category\CategoryBasicLoadedEvent;
+use Shopware\Content\Category\Event\Category\CategoryBasicLoadedEvent;
 use Shopware\System\Country\Event\Country\CountryBasicLoadedEvent;
 use Shopware\System\Currency\Event\Currency\CurrencyBasicLoadedEvent;
 use Shopware\Api\Customer\Event\CustomerGroup\CustomerGroupBasicLoadedEvent;

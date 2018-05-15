@@ -24,7 +24,7 @@
 
 namespace Shopware\Category\Command;
 
-use Shopware\Api\Category\Repository\CategoryRepository;
+use Shopware\Content\Category\Repository\CategoryRepository;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Category\Extension\CategoryPathBuilder;

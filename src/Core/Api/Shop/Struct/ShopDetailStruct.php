@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Shop\Struct;
 
-use Shopware\Api\Category\Struct\CategoryBasicStruct;
+use Shopware\Content\Category\Struct\CategoryBasicStruct;
 use Shopware\System\Country\Struct\CountryBasicStruct;
 use Shopware\System\Currency\Collection\CurrencyBasicCollection;
 use Shopware\Api\Customer\Struct\CustomerGroupBasicStruct;

@@ -7,7 +7,7 @@ use bheller\ImagesGenerator\ImagesGeneratorProvider;
 use Faker\Factory;
 use Faker\Generator;
 use League\Flysystem\FilesystemInterface;
-use Shopware\Api\Category\Repository\CategoryRepository;
+use Shopware\Content\Category\Repository\CategoryRepository;
 use Shopware\System\Configuration\Definition\ConfigurationGroupDefinition;
 use Shopware\Api\Context\Definition\ContextRuleDefinition;
 use Shopware\Api\Context\Repository\ContextRuleRepository;

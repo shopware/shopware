@@ -4,8 +4,8 @@ namespace Shopware\Api\Test\Catalog;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Content\Catalog\Repository\CatalogRepository;
-use Shopware\Api\Category\Repository\CategoryRepository;
-use Shopware\Api\Category\Struct\CategoryBasicStruct;
+use Shopware\Content\Category\Repository\CategoryRepository;
+use Shopware\Content\Category\Struct\CategoryBasicStruct;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\Entity\Write\FieldException\WriteStackException;

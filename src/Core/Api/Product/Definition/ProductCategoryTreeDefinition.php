@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Product\Definition;
 
-use Shopware\Api\Category\Definition\CategoryDefinition;
+use Shopware\Content\Category\Definition\CategoryDefinition;
 use Shopware\Api\Entity\Field\FkField;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
 use Shopware\Api\Entity\Field\ReferenceVersionField;

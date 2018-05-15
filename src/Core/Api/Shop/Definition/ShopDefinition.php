@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Shop\Definition;
 
-use Shopware\Api\Category\Definition\CategoryDefinition;
+use Shopware\Content\Category\Definition\CategoryDefinition;
 use Shopware\System\Config\Definition\ConfigFormFieldValueDefinition;
 use Shopware\System\Country\Definition\CountryDefinition;
 use Shopware\System\Currency\Definition\CurrencyDefinition;

@@ -2,9 +2,9 @@
 
 namespace Shopware\Storefront\Seo\Category;
 
-use Shopware\Api\Category\Definition\CategoryDefinition;
-use Shopware\Api\Category\Event\Category\CategoryBasicLoadedEvent;
-use Shopware\Api\Category\Struct\CategoryBasicStruct;
+use Shopware\Content\Category\Definition\CategoryDefinition;
+use Shopware\Content\Category\Event\Category\CategoryBasicLoadedEvent;
+use Shopware\Content\Category\Struct\CategoryBasicStruct;
 use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Storefront\Api\Entity\Field\CanonicalUrlAssociationField;

@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Product\Collection;
 
-use Shopware\Api\Category\Collection\CategoryBasicCollection;
+use Shopware\Content\Category\Collection\CategoryBasicCollection;
 use Shopware\System\Configuration\Collection\ConfigurationGroupOptionBasicCollection;
 use Shopware\Api\Product\Struct\ProductDetailStruct;
 

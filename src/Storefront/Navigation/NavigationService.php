@@ -2,8 +2,8 @@
 
 namespace Shopware\Storefront\Navigation;
 
-use Shopware\Api\Category\Repository\CategoryRepository;
-use Shopware\Api\Category\Struct\CategoryBasicStruct;
+use Shopware\Content\Category\Repository\CategoryRepository;
+use Shopware\Content\Category\Struct\CategoryBasicStruct;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\Entity\Search\Query\TermsQuery;

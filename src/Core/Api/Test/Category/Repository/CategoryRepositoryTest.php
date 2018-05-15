@@ -3,9 +3,9 @@
 namespace Shopware\Api\Test\Category\Repository;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Api\Category\Definition\CategoryDefinition;
-use Shopware\Api\Category\Event\Category\CategoryDeletedEvent;
-use Shopware\Api\Category\Repository\CategoryRepository;
+use Shopware\Content\Category\Definition\CategoryDefinition;
+use Shopware\Content\Category\Event\Category\CategoryDeletedEvent;
+use Shopware\Content\Category\Repository\CategoryRepository;
 use Shopware\Api\Entity\RepositoryInterface;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\TermQuery;

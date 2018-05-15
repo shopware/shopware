@@ -243,9 +243,9 @@
             <argument id="Shopware\Content\Product\ProductRepository" type="service"/>
             <argument id="Doctrine\DBAL\Connection" type="service"/>
             <argument id="event_dispatcher" type="service"/>
-            <argument id="Shopware\Content\Category\Extension\CategoryPathBuilder" type="service"/>
+            <argument id="Shopware\Content\Category\Util\CategoryPathBuilder" type="service"/>
             <argument id="Shopware\Framework\ORM\Dbal\Indexing\Common\EventIdExtractor" type="service"/>
-            <argument id="Shopware\Content\Category\Repository\CategoryRepository" type="service"/>
+            <argument id="Shopware\Content\Category\CategoryRepository" type="service"/>
             <tag name="shopware.dbal_indexing.indexer" priority="1000"/>
         </service>
 
@@ -280,7 +280,7 @@
             <argument type="service" id="Shopware\Framework\ORM\Dbal\Indexing\Indexer\Analyzer\SearchAnalyzerRegistry"/>
             <argument type="service" id="Shopware\Framework\ORM\Dbal\Indexing\Common\IndexTableOperator"/>
             <argument type="service" id="Shopware\Application\Language\Repository\LanguageRepository"/>
-            <argument type="service" id="Shopware\Content\Catalog\Repository\CatalogRepository"/>
+            <argument type="service" id="Shopware\Content\Catalog\CatalogRepository"/>
             <tag name="shopware.dbal_indexing.indexer" priority="200"/>
         </service>
 

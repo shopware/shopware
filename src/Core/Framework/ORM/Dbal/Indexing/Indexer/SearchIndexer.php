@@ -3,7 +3,7 @@
 namespace Shopware\Framework\ORM\Dbal\Indexing\Indexer;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Content\Catalog\Repository\CatalogRepository;
+use Shopware\Content\Catalog\CatalogRepository;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Application\Language\Repository\LanguageRepository;
@@ -58,7 +58,7 @@ class SearchIndexer implements IndexerInterface
     private $languageRepository;
 
     /**
-     * @var CatalogRepository
+     * @var \Shopware\Content\Catalog\CatalogRepository
      */
     private $catalogRepository;
 

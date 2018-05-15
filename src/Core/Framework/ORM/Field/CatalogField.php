@@ -24,7 +24,7 @@
 
 namespace Shopware\Framework\ORM\Field;
 
-use Shopware\Content\Catalog\Definition\CatalogDefinition;
+use Shopware\Content\Catalog\CatalogDefinition;
 use Shopware\Framework\ORM\Write\DataStack\KeyValuePair;
 use Shopware\Framework\ORM\Write\EntityExistence;
 use Shopware\Framework\ORM\Write\FieldException\InvalidFieldException;

@@ -6,13 +6,13 @@
 
     <services>
         <!-- Versioning -->
-        <service alias="Shopware\Content\Catalog\Repository\CatalogRepository.v1" id="Shopware\Content\Catalog\Repository\CatalogRepository" public="true" />
+        <service alias="Shopware\Content\Catalog\CatalogRepository.v1" id="Shopware\Content\Catalog\CatalogRepository" public="true" />
 
-        <service class="Shopware\Content\Catalog\Definition\CatalogDefinition" id="Shopware\Content\Catalog\Definition\CatalogDefinition">
+        <service class="Shopware\Content\Catalog\CatalogDefinition" id="Shopware\Content\Catalog\CatalogDefinition">
             <tag name="shopware.entity.definition" entity="catalog"/>
         </service>
 
-        <service class="Shopware\Content\Catalog\Repository\CatalogRepository" id="Shopware\Content\Catalog\Repository\CatalogRepository.v1" public="true">
+        <service class="Shopware\Content\Catalog\CatalogRepository" id="Shopware\Content\Catalog\CatalogRepository.v1" public="true">
             <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
             <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
             <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>

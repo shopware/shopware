@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Catalog\Event\Catalog;
+namespace Shopware\Content\Catalog\Event;
 
 use Shopware\Content\Catalog\Collection\CatalogBasicCollection;
 use Shopware\Application\Context\Struct\ApplicationContext;

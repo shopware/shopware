@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Catalog\Event\Catalog;
+namespace Shopware\Content\Catalog\Event;
 
 use Shopware\Framework\ORM\Search\AggregatorResult;
 use Shopware\Application\Context\Struct\ApplicationContext;

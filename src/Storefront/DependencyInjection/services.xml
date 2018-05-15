@@ -32,7 +32,7 @@
         </service>
 
         <service class="Shopware\Storefront\Navigation\NavigationService" id="Shopware\Storefront\Navigation\NavigationService" public="true">
-            <argument type="service" id="Shopware\Content\Category\Repository\CategoryRepository"/>
+            <argument type="service" id="Shopware\Content\Category\CategoryRepository"/>
         </service>
 
         <service class="Shopware\Storefront\Page\Account\CustomerAddressPageLoader" id="Shopware\Storefront\Page\Account\CustomerAddressPageLoader">
@@ -58,7 +58,7 @@
             <argument id="Doctrine\DBAL\Connection" type="service"/>
             <argument id="slugify" type="service"/>
             <argument id="router" type="service"/>
-            <argument id="Shopware\Content\Category\Repository\CategoryRepository" type="service"/>
+            <argument id="Shopware\Content\Category\CategoryRepository" type="service"/>
             <argument id="Shopware\Application\Application\Repository\ApplicationRepository" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument type="service" id="Shopware\Framework\ORM\Dbal\Indexing\Common\EventIdExtractor"/>

@@ -1,21 +1,21 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Catalog\Event\Catalog;
+namespace Shopware\Content\Catalog\Event;
 
-use Shopware\Content\Catalog\Struct\CatalogSearchResult;
+use Shopware\Framework\ORM\Search\IdSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
-class CatalogSearchResultLoadedEvent extends NestedEvent
+class CatalogIdSearchResultLoadedEvent extends NestedEvent
 {
-    public const NAME = 'catalog.search.result.loaded';
+    public const NAME = 'catalog.id.search.result.loaded';
 
     /**
-     * @var CatalogSearchResult
+     * @var IdSearchResult
      */
     protected $result;
 
-    public function __construct(CatalogSearchResult $result)
+    public function __construct(IdSearchResult $result)
     {
         $this->result = $result;
     }
@@ -28,5 +28,10 @@ class CatalogSearchResultLoadedEvent extends NestedEvent
     public function getContext(): ApplicationContext
     {
         return $this->result->getContext();
+    }
+
+    public function getResult(): IdSearchResult
+    {
+        return $this->result;
     }
 }

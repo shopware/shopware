@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Catalog\Repository;
+namespace Shopware\Content\Catalog;
 
 use Shopware\Content\Catalog\Collection\CatalogBasicCollection;
-use Shopware\Content\Catalog\Definition\CatalogDefinition;
-use Shopware\Content\Catalog\Event\Catalog\CatalogAggregationResultLoadedEvent;
-use Shopware\Content\Catalog\Event\Catalog\CatalogBasicLoadedEvent;
-use Shopware\Content\Catalog\Event\Catalog\CatalogIdSearchResultLoadedEvent;
-use Shopware\Content\Catalog\Event\Catalog\CatalogSearchResultLoadedEvent;
+use Shopware\Content\Catalog\CatalogDefinition;
+use Shopware\Content\Catalog\Event\CatalogAggregationResultLoadedEvent;
+use Shopware\Content\Catalog\Event\CatalogBasicLoadedEvent;
+use Shopware\Content\Catalog\Event\CatalogIdSearchResultLoadedEvent;
+use Shopware\Content\Catalog\Event\CatalogSearchResultLoadedEvent;
 use Shopware\Content\Catalog\Struct\CatalogSearchResult;
 use Shopware\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Framework\ORM\RepositoryInterface;

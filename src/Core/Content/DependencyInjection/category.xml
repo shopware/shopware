@@ -34,7 +34,7 @@
         </service>
 
         <service class="Shopware\Content\Category\Util\CategoryPathBuilder" id="Shopware\Content\Category\Util\CategoryPathBuilder">
-            <argument id="Shopware\Content\Category\Repository\CategoryRepository" type="service"/>
+            <argument id="Shopware\Content\Category\CategoryRepository" type="service"/>
             <argument id="Doctrine\DBAL\Connection" type="service"/>
             <argument type="service" id="event_dispatcher"/>
             <tag name="kernel.event_subscriber" />

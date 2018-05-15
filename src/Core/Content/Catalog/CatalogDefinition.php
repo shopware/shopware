@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Catalog\Definition;
+namespace Shopware\Content\Catalog;
 
 use Shopware\Content\Catalog\Collection\CatalogBasicCollection;
-use Shopware\Content\Catalog\Event\Catalog\CatalogDeletedEvent;
-use Shopware\Content\Catalog\Event\Catalog\CatalogWrittenEvent;
-use Shopware\Content\Catalog\Repository\CatalogRepository;
+use Shopware\Content\Catalog\Event\CatalogDeletedEvent;
+use Shopware\Content\Catalog\Event\CatalogWrittenEvent;
+use Shopware\Content\Catalog\CatalogRepository;
 use Shopware\Content\Catalog\Struct\CatalogBasicStruct;
 use Shopware\Content\Category\CategoryDefinition;
 use Shopware\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;

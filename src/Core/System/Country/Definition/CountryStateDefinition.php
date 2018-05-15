@@ -9,7 +9,7 @@ use Shopware\System\Country\Event\CountryState\CountryStateWrittenEvent;
 use Shopware\System\Country\Repository\CountryStateRepository;
 use Shopware\System\Country\Struct\CountryStateBasicStruct;
 use Shopware\System\Country\Struct\CountryStateDetailStruct;
-use Shopware\Api\Customer\Definition\CustomerAddressDefinition;
+use Shopware\Checkout\Customer\Definition\CustomerAddressDefinition;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\Field\BoolField;

@@ -4,7 +4,7 @@ namespace Shopware\Payment\Test;
 
 use Doctrine\DBAL\Connection;
 use Psr\Container\ContainerInterface;
-use Shopware\Api\Customer\Repository\CustomerRepository;
+use Shopware\Checkout\Customer\Repository\CustomerRepository;
 use Shopware\Api\Order\Repository\OrderRepository;
 use Shopware\Api\Order\Repository\OrderTransactionRepository;
 use Shopware\Cart\Price\Struct\CalculatedPrice;

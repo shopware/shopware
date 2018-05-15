@@ -27,7 +27,7 @@ namespace Shopware\Context\Test\Rule\Context;
 use PHPUnit\Framework\TestCase;
 use Shopware\System\Country\Struct\CountryBasicStruct;
 use Shopware\System\Country\Struct\CountryStateBasicStruct;
-use Shopware\Api\Customer\Struct\CustomerAddressBasicStruct;
+use Shopware\Checkout\Customer\Struct\CustomerAddressBasicStruct;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Context\MatchContext\CartRuleMatchContext;

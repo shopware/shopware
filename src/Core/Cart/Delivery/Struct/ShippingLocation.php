@@ -27,7 +27,7 @@ namespace Shopware\Cart\Delivery\Struct;
 
 use Shopware\System\Country\Struct\CountryBasicStruct;
 use Shopware\System\Country\Struct\CountryStateBasicStruct;
-use Shopware\Api\Customer\Struct\CustomerAddressBasicStruct;
+use Shopware\Checkout\Customer\Struct\CustomerAddressBasicStruct;
 use Shopware\Framework\Struct\Struct;
 
 class ShippingLocation extends Struct

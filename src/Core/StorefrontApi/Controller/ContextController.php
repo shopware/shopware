@@ -4,7 +4,7 @@ namespace Shopware\StorefrontApi\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Api\Customer\Repository\CustomerAddressRepository;
+use Shopware\Checkout\Customer\Repository\CustomerAddressRepository;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Api\Payment\Repository\PaymentMethodRepository;

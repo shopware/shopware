@@ -24,7 +24,7 @@
 
 namespace Shopware\CartBridge\Order;
 
-use Shopware\Api\Customer\Struct\CustomerAddressBasicStruct;
+use Shopware\Checkout\Customer\Struct\CustomerAddressBasicStruct;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Order\Repository\OrderRepository;
 use Shopware\Cart\Cart\Struct\CalculatedCart;

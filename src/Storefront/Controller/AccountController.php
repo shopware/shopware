@@ -4,7 +4,7 @@ namespace Shopware\Storefront\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Api\Customer\Struct\CustomerAddressBasicStruct;
+use Shopware\Checkout\Customer\Struct\CustomerAddressBasicStruct;
 use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\Uuid;
 use Shopware\Payment\Exception\UnknownPaymentMethodException;

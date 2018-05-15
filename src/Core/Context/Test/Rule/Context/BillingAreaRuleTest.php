@@ -26,8 +26,8 @@ namespace Shopware\Context\Test\Rule\Context;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\System\Country\Struct\CountryBasicStruct;
-use Shopware\Api\Customer\Struct\CustomerAddressBasicStruct;
-use Shopware\Api\Customer\Struct\CustomerBasicStruct;
+use Shopware\Checkout\Customer\Struct\CustomerAddressBasicStruct;
+use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Context\MatchContext\CartRuleMatchContext;
 use Shopware\Context\Rule\Context\BillingAreaRule;

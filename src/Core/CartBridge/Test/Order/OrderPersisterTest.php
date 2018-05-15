@@ -26,8 +26,8 @@ namespace Shopware\CartBridge\Test\Order;
 
 use Faker\Factory;
 use PHPUnit\Framework\TestCase;
-use Shopware\Api\Customer\Struct\CustomerAddressBasicStruct;
-use Shopware\Api\Customer\Struct\CustomerBasicStruct;
+use Shopware\Checkout\Customer\Struct\CustomerAddressBasicStruct;
+use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
 use Shopware\Api\Order\Repository\OrderRepository;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Cart\Struct\Cart;

@@ -25,9 +25,9 @@ declare(strict_types=1);
 
 namespace Shopware\CartBridge\CustomerGroup;
 
-use Shopware\Api\Customer\Collection\CustomerGroupDiscountBasicCollection;
-use Shopware\Api\Customer\Repository\CustomerGroupDiscountRepository;
-use Shopware\Api\Customer\Struct\CustomerGroupDiscountBasicStruct;
+use Shopware\Checkout\Customer\Collection\CustomerGroupDiscountBasicCollection;
+use Shopware\Checkout\Customer\Repository\CustomerGroupDiscountRepository;
+use Shopware\Checkout\Customer\Struct\CustomerGroupDiscountBasicStruct;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\Cart\Cart\CartCollectorInterface;

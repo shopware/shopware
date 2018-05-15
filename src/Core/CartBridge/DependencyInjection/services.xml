@@ -76,7 +76,7 @@
 
         <service class="Shopware\CartBridge\CustomerGroup\CustomerGroupDiscountCartCollector" id="Shopware\CartBridge\CustomerGroup\CustomerGroupDiscountCartCollector">
             <tag name="cart.collector" priority="-1000"/>
-            <argument type="service" id="Shopware\Api\Customer\Repository\CustomerGroupDiscountRepository"/>
+            <argument type="service" id="Shopware\Checkout\Customer\Repository\CustomerGroupDiscountRepository"/>
         </service>
     </services>
 </container>

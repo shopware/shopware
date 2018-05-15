@@ -5,7 +5,7 @@ namespace Shopware\System\Tax\Struct;
 use Shopware\System\Country\Struct\CountryAreaBasicStruct;
 use Shopware\System\Country\Struct\CountryBasicStruct;
 use Shopware\System\Country\Struct\CountryStateBasicStruct;
-use Shopware\Api\Customer\Struct\CustomerGroupBasicStruct;
+use Shopware\Checkout\Customer\Struct\CustomerGroupBasicStruct;
 use Shopware\System\Tax\Collection\TaxAreaRuleTranslationBasicCollection;
 
 class TaxAreaRuleDetailStruct extends TaxAreaRuleBasicStruct

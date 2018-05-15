@@ -4,7 +4,7 @@ namespace Shopware\Api\Order\Struct;
 
 use Shopware\Api\Application\Struct\ApplicationBasicStruct;
 use Shopware\System\Currency\Struct\CurrencyBasicStruct;
-use Shopware\Api\Customer\Struct\CustomerBasicStruct;
+use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
 use Shopware\Api\Entity\Entity;
 use Shopware\Api\Payment\Struct\PaymentMethodBasicStruct;
 

@@ -5,7 +5,7 @@ namespace Shopware\System\Tax\Definition;
 use Shopware\System\Country\Definition\CountryAreaDefinition;
 use Shopware\System\Country\Definition\CountryDefinition;
 use Shopware\System\Country\Definition\CountryStateDefinition;
-use Shopware\Api\Customer\Definition\CustomerGroupDefinition;
+use Shopware\Checkout\Customer\Definition\CustomerGroupDefinition;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\Field\BoolField;

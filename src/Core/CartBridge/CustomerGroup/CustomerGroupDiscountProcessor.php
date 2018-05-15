@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace Shopware\CartBridge\CustomerGroup;
 
-use Shopware\Api\Customer\Collection\CustomerGroupDiscountBasicCollection;
+use Shopware\Checkout\Customer\Collection\CustomerGroupDiscountBasicCollection;
 use Shopware\Cart\Cart\CartProcessorInterface;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Cart\Struct\Cart;

@@ -5,7 +5,7 @@ namespace Shopware\System\Tax\Collection;
 use Shopware\System\Country\Collection\CountryAreaBasicCollection;
 use Shopware\System\Country\Collection\CountryBasicCollection;
 use Shopware\System\Country\Collection\CountryStateBasicCollection;
-use Shopware\Api\Customer\Collection\CustomerGroupBasicCollection;
+use Shopware\Checkout\Customer\Collection\CustomerGroupBasicCollection;
 use Shopware\System\Tax\Struct\TaxAreaRuleDetailStruct;
 
 class TaxAreaRuleDetailCollection extends TaxAreaRuleBasicCollection

@@ -5,7 +5,7 @@ namespace Shopware\Api\Shop\Event\Shop;
 use Shopware\Content\Category\Event\Category\CategoryBasicLoadedEvent;
 use Shopware\System\Country\Event\Country\CountryBasicLoadedEvent;
 use Shopware\System\Currency\Event\Currency\CurrencyBasicLoadedEvent;
-use Shopware\Api\Customer\Event\CustomerGroup\CustomerGroupBasicLoadedEvent;
+use Shopware\Checkout\Customer\Event\CustomerGroup\CustomerGroupBasicLoadedEvent;
 use Shopware\System\Locale\Event\Locale\LocaleBasicLoadedEvent;
 use Shopware\Api\Payment\Event\PaymentMethod\PaymentMethodBasicLoadedEvent;
 use Shopware\Api\Shipping\Event\ShippingMethod\ShippingMethodBasicLoadedEvent;

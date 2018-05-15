@@ -3,10 +3,10 @@
 namespace Shopware\Storefront\Page\Account;
 
 use Shopware\System\Country\Repository\CountryRepository;
-use Shopware\Api\Customer\Repository\CustomerAddressRepository;
-use Shopware\Api\Customer\Repository\CustomerRepository;
-use Shopware\Api\Customer\Struct\CustomerAddressBasicStruct;
-use Shopware\Api\Customer\Struct\CustomerBasicStruct;
+use Shopware\Checkout\Customer\Repository\CustomerAddressRepository;
+use Shopware\Checkout\Customer\Repository\CustomerRepository;
+use Shopware\Checkout\Customer\Struct\CustomerAddressBasicStruct;
+use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\TermQuery;
 use Shopware\CartBridge\Exception\NotLoggedInCustomerException;

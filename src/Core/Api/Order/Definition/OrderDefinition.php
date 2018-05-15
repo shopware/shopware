@@ -4,7 +4,7 @@ namespace Shopware\Api\Order\Definition;
 
 use Shopware\Api\Application\Definition\ApplicationDefinition;
 use Shopware\System\Currency\Definition\CurrencyDefinition;
-use Shopware\Api\Customer\Definition\CustomerDefinition;
+use Shopware\Checkout\Customer\Definition\CustomerDefinition;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\Field\BoolField;

@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Traceable\DataCollector;
+namespace Shopware\Profiling\DataCollector;
 
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Checkout\Cart\Cart\Struct\Cart;
 use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\Traceable\Cart\TracedCartActions;
+use Shopware\Profiling\Cart\TracedCartActions;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\DataCollector\DataCollector;

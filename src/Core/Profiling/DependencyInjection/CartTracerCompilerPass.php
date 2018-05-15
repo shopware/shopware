@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Traceable\DependencyInjection;
+namespace Shopware\Profiling\DependencyInjection;
 
 use Shopware\Checkout\Cart\Cart\CircularCartCalculation;
-use Shopware\Traceable\Cart\CartCollectorTracer;
-use Shopware\Traceable\Cart\CircularCartCalculationTracer;
-use Shopware\Traceable\Cart\ProcessorTracer;
-use Shopware\Traceable\Cart\TracedCartActions;
+use Shopware\Profiling\Cart\CartCollectorTracer;
+use Shopware\Profiling\Cart\CircularCartCalculationTracer;
+use Shopware\Profiling\Cart\ProcessorTracer;
+use Shopware\Profiling\Cart\TracedCartActions;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;

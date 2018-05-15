@@ -6,14 +6,14 @@
 
     <services>
         <service id="Shopware\Traceable\DataCollector\CartCollector" public="false">
-            <tag name="data_collector" template="@Traceable/Profiler/layout.html.twig" id="cart"/>
+            <tag name="data_collector" template="@Profiling/Profiler/layout.html.twig" id="cart"/>
             <argument type="service" id="Shopware\Traceable\Cart\TracedCartActions"/>
         </service>
 
-        <service class="Shopware\Traceable\Cart\TracedCartActions" id="Shopware\Traceable\Cart\TracedCartActions"/>
+        <service class="Shopware\Traceable\Cart\TracedCartActions" id="Shopware\Profiling\Cart\TracedCartActions"/>
 
         <service class="Shopware\Traceable\Dbal\TraceableEntityReader"
-                 id="Shopware\Traceable\Dbal\TraceableEntityReader"
+                 id="Shopware\Profiling\Dbal\TraceableEntityReader"
                  decorates="Shopware\Framework\ORM\Dbal\EntityReader">
 
             <argument id="Shopware\Traceable\Dbal\TraceableEntityReader.inner" type="service"/>
@@ -21,7 +21,7 @@
         </service>
 
         <service class="Shopware\Traceable\Dbal\TraceableEntitySearcher"
-                 id="Shopware\Traceable\Dbal\TraceableEntitySearcher"
+                 id="Shopware\Profiling\Dbal\TraceableEntitySearcher"
                  decorates="Shopware\Framework\ORM\Dbal\EntitySearcher">
 
             <argument id="Shopware\Traceable\Dbal\TraceableEntitySearcher.inner" type="service"/>

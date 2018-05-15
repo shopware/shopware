@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Traceable\Cart;
+namespace Shopware\Profiling\Cart;
 
 use Shopware\Checkout\Cart\Cart\CartCollectorInterface;
 use Shopware\Checkout\Cart\Cart\Struct\Cart;

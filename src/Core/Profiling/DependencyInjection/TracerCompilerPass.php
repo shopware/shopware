@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Traceable\DependencyInjection;
+namespace Shopware\Profiling\DependencyInjection;
 
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;

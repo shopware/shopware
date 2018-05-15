@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Traceable;
+namespace Shopware\Profiling;
 
-use Shopware\Traceable\DependencyInjection\CartTracerCompilerPass;
-use Shopware\Traceable\DependencyInjection\TracerCompilerPass;
+use Shopware\Profiling\DependencyInjection\CartTracerCompilerPass;
+use Shopware\Profiling\DependencyInjection\TracerCompilerPass;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -12,9 +12,9 @@ use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
-class Traceable extends Bundle
+class Profiling extends Bundle
 {
-    protected $name = 'Traceable';
+    protected $name = 'Profiling';
 
     /**
      * @var ContainerInterface

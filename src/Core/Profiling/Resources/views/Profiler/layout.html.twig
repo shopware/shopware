@@ -102,7 +102,7 @@
     {# Use to extend the default styles instead of overriding them. #}
     {{ parent() }}
     <style>
-        {{ include('@Traceable/Profiler/styles.css.twig', { 'position': position, 'floatable': true }) }}
+        {{ include('@Profiling/Profiler/styles.css.twig', { 'position': position, 'floatable': true }) }}
     </style>
 {% endblock %}
 

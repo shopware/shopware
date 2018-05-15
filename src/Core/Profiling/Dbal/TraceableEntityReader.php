@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Traceable\Dbal;
+namespace Shopware\Profiling\Dbal;
 
 use Shopware\Framework\ORM\EntityCollection;
 use Shopware\Framework\ORM\EntityDefinition;

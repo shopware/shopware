@@ -23,7 +23,6 @@ use Shopware\System\Mail\Repository\MailAttachmentRepository;
 use Shopware\System\Mail\Struct\MailAttachmentBasicStruct;
 use Shopware\System\Mail\Struct\MailAttachmentDetailStruct;
 use Shopware\Content\Media\Definition\MediaDefinition;
-use Shopware\Api\Shop\Definition\ShopDefinition;
 
 class MailAttachmentDefinition extends EntityDefinition
 {
@@ -61,13 +60,10 @@ class MailAttachmentDefinition extends EntityDefinition
             (new ReferenceVersionField(MailDefinition::class))->setFlags(new Required()),
             (new FkField('media_id', 'mediaId', MediaDefinition::class))->setFlags(new Required()),
             (new ReferenceVersionField(MediaDefinition::class))->setFlags(new Required()),
-            new FkField('shop_id', 'shopId', ShopDefinition::class),
-            new ReferenceVersionField(ShopDefinition::class),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
             new ManyToOneAssociationField('mail', 'mail_id', MailDefinition::class, false),
-            (new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, false))->setFlags(new SearchRanking(1)),
-            new ManyToOneAssociationField('shop', 'shop_id', ShopDefinition::class, false),
+            (new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, false))->setFlags(new SearchRanking(1))
         ]);
 
         foreach (self::$extensions as $extension) {

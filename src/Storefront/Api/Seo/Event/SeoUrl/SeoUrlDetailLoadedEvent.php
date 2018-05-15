@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Api\Seo\Event\SeoUrl;
 
-use Shopware\Api\Shop\Event\Shop\ShopBasicLoadedEvent;
+use Shopware\Application\Application\Event\Application\ApplicationBasicLoadedEvent;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
@@ -46,8 +46,8 @@ class SeoUrlDetailLoadedEvent extends NestedEvent
     public function getEvents(): ?NestedEventCollection
     {
         $events = [];
-        if ($this->seoUrls->getShops()->count() > 0) {
-            $events[] = new ShopBasicLoadedEvent($this->seoUrls->getShops(), $this->context);
+        if ($this->seoUrls->getApplications()->count() > 0) {
+            $events[] = new ApplicationBasicLoadedEvent($this->seoUrls->getApplications(), $this->context);
         }
 
         return new NestedEventCollection($events);

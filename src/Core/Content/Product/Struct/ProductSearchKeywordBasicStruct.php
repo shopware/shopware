@@ -14,7 +14,7 @@ class ProductSearchKeywordBasicStruct extends Entity
     /**
      * @var string
      */
-    protected $shopId;
+    protected $languageId;
 
     /**
      * @var string
@@ -36,14 +36,14 @@ class ProductSearchKeywordBasicStruct extends Entity
         $this->keyword = $keyword;
     }
 
-    public function getShopId(): string
+    public function getLanguageId(): string
     {
-        return $this->shopId;
+        return $this->languageId;
     }
 
-    public function setShopId(string $shopId): void
+    public function setLanguageId(string $languageId): void
     {
-        $this->shopId = $shopId;
+        $this->languageId = $languageId;
     }
 
     public function getProductId(): string

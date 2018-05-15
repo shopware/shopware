@@ -271,12 +271,12 @@ class ContextFactory implements ContextFactoryInterface
     {
         $query = $this->connection->createQueryBuilder();
         $query->select([
-            'application.id as shop_id',
-            'application.language_id as shop_language_id',
-            'application.currency_id as shop_currency_id',
-            'application.catalog_ids as shop_catalog_ids',
-            'currency.factor as shop_currency_factor',
-            'language.parent_id as shop_language_parent_id',
+            'application.id as application_id',
+            'application.language_id as application_language_id',
+            'application.currency_id as application_currency_id',
+            'application.catalog_ids as application_catalog_ids',
+            'currency.factor as application_currency_factor',
+            'language.parent_id as application_language_parent_id',
         ]);
         $query->from('application', 'application');
         $query->innerJoin('application', 'currency', 'currency', 'application.currency_id = currency.id');
@@ -290,14 +290,14 @@ class ContextFactory implements ContextFactoryInterface
 
         return new ApplicationContext(
             $tenantId,
-            Uuid::fromBytesToHex($data['shop_id']),
-            json_decode($data['shop_catalog_ids'], true),
+            Uuid::fromBytesToHex($data['application_id']),
+            json_decode($data['application_catalog_ids'], true),
             [],
-            Uuid::fromBytesToHex($data['shop_currency_id']),
-            Uuid::fromBytesToHex($data['shop_language_id']),
-            $data['shop_language_parent_id'] ? Uuid::fromBytesToHex($data['shop_language_parent_id']) : null,
+            Uuid::fromBytesToHex($data['application_currency_id']),
+            Uuid::fromBytesToHex($data['application_language_id']),
+            $data['application_language_parent_id'] ? Uuid::fromBytesToHex($data['application_language_parent_id']) : null,
             Defaults::LIVE_VERSION,
-            (float) $data['shop_currency_factor']
+            (float) $data['application_currency_factor']
         );
     }
 

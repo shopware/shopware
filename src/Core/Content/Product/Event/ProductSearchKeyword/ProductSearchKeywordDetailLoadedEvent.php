@@ -2,9 +2,9 @@
 
 namespace Shopware\Content\Product\Event\ProductSearchKeyword;
 
+use Shopware\Application\Language\Event\Language\LanguageBasicLoadedEvent;
 use Shopware\Content\Product\Collection\ProductSearchKeywordDetailCollection;
 use Shopware\Content\Product\Event\Product\ProductBasicLoadedEvent;
-use Shopware\Api\Shop\Event\Shop\ShopBasicLoadedEvent;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
@@ -47,8 +47,8 @@ class ProductSearchKeywordDetailLoadedEvent extends NestedEvent
     public function getEvents(): ?NestedEventCollection
     {
         $events = [];
-        if ($this->productSearchKeywords->getShops()->count() > 0) {
-            $events[] = new ShopBasicLoadedEvent($this->productSearchKeywords->getShops(), $this->context);
+        if ($this->productSearchKeywords->getLanguages()->count() > 0) {
+            $events[] = new LanguageBasicLoadedEvent($this->productSearchKeywords->getLanguages(), $this->context);
         }
         if ($this->productSearchKeywords->getProducts()->count() > 0) {
             $events[] = new ProductBasicLoadedEvent($this->productSearchKeywords->getProducts(), $this->context);

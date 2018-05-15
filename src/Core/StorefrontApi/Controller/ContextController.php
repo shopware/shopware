@@ -4,14 +4,14 @@ namespace Shopware\StorefrontApi\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Checkout\Customer\Repository\CustomerAddressRepository;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Checkout\Payment\Repository\PaymentMethodRepository;
 use Shopware\Checkout\Shipping\Repository\ShippingMethodRepository;
 use Shopware\Checkout\CartBridge\Exception\NotLoggedInCustomerException;
+use Shopware\Checkout\Customer\Repository\CustomerAddressRepository;
 use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\Framework\Application\ApplicationResolver;
+use Shopware\PlatformRequest;
 use Shopware\StorefrontApi\Context\StorefrontContextPersister;
 use Shopware\StorefrontApi\Exception\AddressNotFoundHttpException;
 use Shopware\StorefrontApi\Exception\PaymentMethodNotFoundHttpException;
@@ -87,7 +87,7 @@ class ContextController extends Controller
         $this->contextPersister->save($context->getToken(), $update);
 
         return new JsonResponse([
-            ApplicationResolver::CONTEXT_HEADER => $context->getToken(),
+            PlatformRequest::HEADER_CONTEXT_TOKEN => $context->getToken(),
         ]);
     }
 

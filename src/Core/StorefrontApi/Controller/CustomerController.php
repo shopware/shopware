@@ -4,16 +4,16 @@ namespace Shopware\StorefrontApi\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\PlatformRequest;
-use Shopware\StorefrontApi\Context\StorefrontContextPersister;
-use Shopware\StorefrontApi\Firewall\ContextUser;
-use Shopware\StorefrontApi\Firewall\CustomerProvider;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Serializer\Serializer;
+use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\PlatformRequest;
+use Shopware\StorefrontApi\Context\StorefrontContextPersister;
+use Shopware\StorefrontApi\Firewall\ContextUser;
+use Shopware\StorefrontApi\Firewall\CustomerProvider;
 
 class CustomerController extends Controller
 {

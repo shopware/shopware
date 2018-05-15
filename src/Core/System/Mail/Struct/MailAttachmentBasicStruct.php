@@ -17,11 +17,6 @@ class MailAttachmentBasicStruct extends Entity
     protected $mediaId;
 
     /**
-     * @var string|null
-     */
-    protected $shopId;
-
-    /**
      * @var \DateTime|null
      */
     protected $createdAt;
@@ -49,16 +44,6 @@ class MailAttachmentBasicStruct extends Entity
     public function setMediaId(string $mediaId): void
     {
         $this->mediaId = $mediaId;
-    }
-
-    public function getShopId(): ?string
-    {
-        return $this->shopId;
-    }
-
-    public function setShopId(?string $shopId): void
-    {
-        $this->shopId = $shopId;
     }
 
     public function getCreatedAt(): ?\DateTime

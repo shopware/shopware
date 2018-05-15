@@ -74,7 +74,6 @@
         <service class="Shopware\System\Config\Service\CacheWarmer" id="Shopware\System\Config\Service\CacheWarmer">
             <tag name="kernel.cache_warmer" />
 
-            <argument type="service" id="Doctrine\DBAL\Connection" />
             <argument type="service" id="Shopware\System\Config\Service\ConfigService" />
         </service>
 

@@ -162,7 +162,7 @@ class SearchIndexer implements IndexerInterface
         $this->eventDispatcher->dispatch(
             ProgressStartedEvent::NAME,
             new ProgressStartedEvent(
-                sprintf('Start analyzing search keywords for shop %s', $context->getApplicationId()),
+                sprintf('Start analyzing search keywords for application %s', $context->getApplicationId()),
                 $iterator->getTotal()
             )
         );
@@ -187,7 +187,7 @@ class SearchIndexer implements IndexerInterface
 
         $this->eventDispatcher->dispatch(
             ProgressFinishedEvent::NAME,
-            new ProgressFinishedEvent(sprintf('Finished analyzing search keywords for shop id %s', $context->getApplicationId()))
+            new ProgressFinishedEvent(sprintf('Finished analyzing search keywords for application id %s', $context->getApplicationId()))
         );
     }
 

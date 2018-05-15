@@ -22,17 +22,17 @@ class ProductSearchKeywordBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getShopIds(): array
+    public function getLanguageIds(): array
     {
         return $this->fmap(function (ProductSearchKeywordBasicStruct $productSearchKeyword) {
-            return $productSearchKeyword->getShopId();
+            return $productSearchKeyword->getLanguageId();
         });
     }
 
-    public function filterByShopId(string $id): self
+    public function filterByLanguageId(string $id): self
     {
         return $this->filter(function (ProductSearchKeywordBasicStruct $productSearchKeyword) use ($id) {
-            return $productSearchKeyword->getShopId() === $id;
+            return $productSearchKeyword->getLanguageId() === $id;
         });
     }
 

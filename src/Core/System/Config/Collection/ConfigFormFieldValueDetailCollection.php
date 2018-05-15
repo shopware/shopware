@@ -3,7 +3,6 @@
 namespace Shopware\System\Config\Collection;
 
 use Shopware\System\Config\Struct\ConfigFormFieldValueDetailStruct;
-use Shopware\Api\Shop\Collection\ShopBasicCollection;
 
 class ConfigFormFieldValueDetailCollection extends ConfigFormFieldValueBasicCollection
 {
@@ -17,15 +16,6 @@ class ConfigFormFieldValueDetailCollection extends ConfigFormFieldValueBasicColl
         return new ConfigFormFieldBasicCollection(
             $this->fmap(function (ConfigFormFieldValueDetailStruct $configFormFieldValue) {
                 return $configFormFieldValue->getConfigFormField();
-            })
-        );
-    }
-
-    public function getShops(): ShopBasicCollection
-    {
-        return new ShopBasicCollection(
-            $this->fmap(function (ConfigFormFieldValueDetailStruct $configFormFieldValue) {
-                return $configFormFieldValue->getShop();
             })
         );
     }

@@ -5,7 +5,6 @@ namespace Shopware\Framework\Plugin\Event\Plugin;
 use Shopware\System\Config\Event\ConfigForm\ConfigFormBasicLoadedEvent;
 use Shopware\Checkout\Payment\Event\PaymentMethod\PaymentMethodBasicLoadedEvent;
 use Shopware\Framework\Plugin\Collection\PluginDetailCollection;
-use Shopware\Api\Shop\Event\ShopTemplate\ShopTemplateBasicLoadedEvent;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
@@ -53,9 +52,6 @@ class PluginDetailLoadedEvent extends NestedEvent
         }
         if ($this->plugins->getPaymentMethods()->count() > 0) {
             $events[] = new PaymentMethodBasicLoadedEvent($this->plugins->getPaymentMethods(), $this->context);
-        }
-        if ($this->plugins->getShopTemplates()->count() > 0) {
-            $events[] = new ShopTemplateBasicLoadedEvent($this->plugins->getShopTemplates(), $this->context);
         }
 
         return new NestedEventCollection($events);

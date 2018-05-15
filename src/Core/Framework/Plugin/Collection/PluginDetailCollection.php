@@ -5,7 +5,6 @@ namespace Shopware\Framework\Plugin\Collection;
 use Shopware\System\Config\Collection\ConfigFormBasicCollection;
 use Shopware\Checkout\Payment\Collection\PaymentMethodBasicCollection;
 use Shopware\Framework\Plugin\Struct\PluginDetailStruct;
-use Shopware\Api\Shop\Collection\ShopTemplateBasicCollection;
 
 class PluginDetailCollection extends PluginBasicCollection
 {
@@ -53,28 +52,6 @@ class PluginDetailCollection extends PluginBasicCollection
         $collection = new PaymentMethodBasicCollection();
         foreach ($this->elements as $element) {
             $collection->fill($element->getPaymentMethods()->getElements());
-        }
-
-        return $collection;
-    }
-
-    public function getShopTemplateIds(): array
-    {
-        $ids = [];
-        foreach ($this->elements as $element) {
-            foreach ($element->getShopTemplates()->getIds() as $id) {
-                $ids[] = $id;
-            }
-        }
-
-        return $ids;
-    }
-
-    public function getShopTemplates(): ShopTemplateBasicCollection
-    {
-        $collection = new ShopTemplateBasicCollection();
-        foreach ($this->elements as $element) {
-            $collection->fill($element->getShopTemplates()->getElements());
         }
 
         return $collection;

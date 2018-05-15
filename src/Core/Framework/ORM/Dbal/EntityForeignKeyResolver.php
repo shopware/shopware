@@ -44,7 +44,7 @@ class EntityForeignKeyResolver
      *      [
      *          'pk' => '43c6baad-7561-40d8-aabb-bca533a8284f'
      *          restrictions => [
-     *              'Shopware\Api\Shop\Definition\ShopDefinition' => [
+     *              'Shopware\Content\Product\Definition\ProductDefinition' => [
      *                  '1ffd7ea9-58c6-4355-8256-927aae8efb07',
      *                  '1ffd7ea9-58c6-4355-8256-927aae8efb07'
      *              ]
@@ -71,7 +71,7 @@ class EntityForeignKeyResolver
      *      [
      *          'pk' => '43c6baad-7561-40d8-aabb-bca533a8284f'
      *          restrictions => [
-     *              'Shopware\Api\Shop\Definition\ShopDefinition' => [
+     *              'Shopware\Content\Product\Definition\ProductDefinition' => [
      *                  '1ffd7ea9-58c6-4355-8256-927aae8efb07',
      *                  '1ffd7ea9-58c6-4355-8256-927aae8efb07'
      *              ]

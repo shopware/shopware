@@ -93,7 +93,7 @@ class DetailPageSeoUrlIndexer implements IndexerInterface
             $this->eventDispatcher->dispatch(
                 ProgressStartedEvent::NAME,
                 new ProgressStartedEvent(
-                    sprintf('Start indexing detail page seo urls for shop %s', $application->getName()),
+                    sprintf('Start indexing detail page seo urls for application %s', $application->getName()),
                     $iterator->getTotal()
                 )
             );
@@ -110,7 +110,7 @@ class DetailPageSeoUrlIndexer implements IndexerInterface
 
             $this->eventDispatcher->dispatch(
                 ProgressFinishedEvent::NAME,
-                new ProgressFinishedEvent(sprintf('Finished indexing detail page seo urls for shop %s', $application->getName()))
+                new ProgressFinishedEvent(sprintf('Finished indexing detail page seo urls for application %s', $application->getName()))
             );
         }
     }
@@ -126,7 +126,7 @@ class DetailPageSeoUrlIndexer implements IndexerInterface
         $this->updateProducts($ids, $event->getContext());
     }
 
-    private function fetchCanonicals(array $productIds, string $shopId, string $tenantId): array
+    private function fetchCanonicals(array $productIds, string $applicationId, string $tenantId): array
     {
         $productIds = array_map(function ($id) {
             return Uuid::fromStringToBytes($id);
@@ -143,13 +143,13 @@ class DetailPageSeoUrlIndexer implements IndexerInterface
 
         $query->andWhere('seo_url.name = :name');
         $query->andWhere('seo_url.tenant_id = :tenant');
-        $query->andWhere('seo_url.application_id = :shop');
+        $query->andWhere('seo_url.application_id = :application');
         $query->andWhere('seo_url.is_canonical = 1');
         $query->andWhere('seo_url.foreign_key IN (:ids)');
 
         $query->setParameter('ids', $productIds, Connection::PARAM_STR_ARRAY);
         $query->setParameter('name', self::ROUTE_NAME);
-        $query->setParameter('shop', Uuid::fromStringToBytes($shopId));
+        $query->setParameter('application', Uuid::fromStringToBytes($applicationId));
         $query->setParameter('tenant', Uuid::fromStringToBytes($tenantId));
 
         return $query->execute()->fetchAll(\PDO::FETCH_GROUP | \PDO::FETCH_UNIQUE);

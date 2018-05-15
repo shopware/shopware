@@ -34,7 +34,6 @@ use Shopware\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Framework\ORM\Write\Flag\WriteOnly;
 use Shopware\Checkout\Order\Definition\OrderAddressDefinition;
-use Shopware\Api\Shop\Definition\ShopDefinition;
 use Shopware\System\Tax\Definition\TaxAreaRuleDefinition;
 
 class CountryDefinition extends EntityDefinition
@@ -91,7 +90,6 @@ class CountryDefinition extends EntityDefinition
             (new TranslationsAssociationField('translations', CountryTranslationDefinition::class, 'country_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
             (new OneToManyAssociationField('customerAddresses', CustomerAddressDefinition::class, 'country_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
             (new OneToManyAssociationField('orderAddresses', OrderAddressDefinition::class, 'country_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
-            (new OneToManyAssociationField('shops', ShopDefinition::class, 'country_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
             (new OneToManyAssociationField('taxAreaRules', TaxAreaRuleDefinition::class, 'country_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
         ]);
 

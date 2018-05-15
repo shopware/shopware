@@ -91,7 +91,7 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
             $this->eventDispatcher->dispatch(
                 ProgressStartedEvent::NAME,
                 new ProgressStartedEvent(
-                    sprintf('Start indexing listing page seo urls for shop %s', $application->getName()),
+                    sprintf('Start indexing listing page seo urls for application %s', $application->getName()),
                     $iterator->getTotal()
                 )
             );
@@ -108,7 +108,7 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
 
             $this->eventDispatcher->dispatch(
                 ProgressFinishedEvent::NAME,
-                new ProgressFinishedEvent(sprintf('Finished indexing listing page seo urls for shop %s', $application->getName()))
+                new ProgressFinishedEvent(sprintf('Finished indexing listing page seo urls for application %s', $application->getName()))
             );
         }
     }
@@ -120,7 +120,7 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
         $this->updateCategories($ids, $event->getContext());
     }
 
-    private function fetchCanonicals(array $categoryIds, string $shopId, string $tenantId): array
+    private function fetchCanonicals(array $categoryIds, string $applicationId, string $tenantId): array
     {
         $categoryIds = array_map(function ($id) {
             return Uuid::fromStringToBytes($id);
@@ -136,14 +136,14 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
         $query->from('seo_url', 'seo_url');
 
         $query->andWhere('seo_url.name = :name');
-        $query->andWhere('seo_url.application_id = :shop');
+        $query->andWhere('seo_url.application_id = :application');
         $query->andWhere('seo_url.is_canonical = 1');
         $query->andWhere('seo_url.tenant_id = :tenant');
         $query->andWhere('seo_url.foreign_key IN (:ids)');
 
         $query->setParameter('ids', $categoryIds, Connection::PARAM_STR_ARRAY);
         $query->setParameter('name', self::ROUTE_NAME);
-        $query->setParameter('shop', Uuid::fromStringToBytes($shopId));
+        $query->setParameter('application', Uuid::fromStringToBytes($applicationId));
         $query->setParameter('tenant', Uuid::fromStringToBytes($tenantId));
 
         return $query->execute()->fetchAll(\PDO::FETCH_GROUP | \PDO::FETCH_UNIQUE);

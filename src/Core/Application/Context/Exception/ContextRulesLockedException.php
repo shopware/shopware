@@ -10,6 +10,6 @@ class ContextRulesLockedException extends \RuntimeException
 
     public function __construct(Throwable $previous = null)
     {
-        parent::__construct('Context rules in shop context already locked.', self::CODE, $previous);
+        parent::__construct('Context rules in application context already locked.', self::CODE, $previous);
     }
 }

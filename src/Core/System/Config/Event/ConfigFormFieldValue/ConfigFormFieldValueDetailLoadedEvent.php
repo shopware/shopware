@@ -4,7 +4,6 @@ namespace Shopware\System\Config\Event\ConfigFormFieldValue;
 
 use Shopware\System\Config\Collection\ConfigFormFieldValueDetailCollection;
 use Shopware\System\Config\Event\ConfigFormField\ConfigFormFieldBasicLoadedEvent;
-use Shopware\Api\Shop\Event\Shop\ShopBasicLoadedEvent;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
@@ -49,9 +48,6 @@ class ConfigFormFieldValueDetailLoadedEvent extends NestedEvent
         $events = [];
         if ($this->configFormFieldValues->getConfigFormFields()->count() > 0) {
             $events[] = new ConfigFormFieldBasicLoadedEvent($this->configFormFieldValues->getConfigFormFields(), $this->context);
-        }
-        if ($this->configFormFieldValues->getShops()->count() > 0) {
-            $events[] = new ShopBasicLoadedEvent($this->configFormFieldValues->getShops(), $this->context);
         }
 
         return new NestedEventCollection($events);

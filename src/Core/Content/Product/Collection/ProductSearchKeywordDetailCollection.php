@@ -2,8 +2,8 @@
 
 namespace Shopware\Content\Product\Collection;
 
+use Shopware\Application\Language\Collection\LanguageBasicCollection;
 use Shopware\Content\Product\Struct\ProductSearchKeywordDetailStruct;
-use Shopware\Api\Shop\Collection\ShopBasicCollection;
 
 class ProductSearchKeywordDetailCollection extends ProductSearchKeywordBasicCollection
 {
@@ -12,11 +12,11 @@ class ProductSearchKeywordDetailCollection extends ProductSearchKeywordBasicColl
      */
     protected $elements = [];
 
-    public function getShops(): ShopBasicCollection
+    public function getLanguages(): LanguageBasicCollection
     {
-        return new ShopBasicCollection(
+        return new LanguageBasicCollection(
             $this->fmap(function (ProductSearchKeywordDetailStruct $productSearchKeyword) {
-                return $productSearchKeyword->getShop();
+                return $productSearchKeyword->getLanguage();
             })
         );
     }

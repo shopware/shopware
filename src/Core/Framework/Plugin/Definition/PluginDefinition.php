@@ -25,7 +25,6 @@ use Shopware\Framework\Plugin\Event\Plugin\PluginWrittenEvent;
 use Shopware\Framework\Plugin\Repository\PluginRepository;
 use Shopware\Framework\Plugin\Struct\PluginBasicStruct;
 use Shopware\Framework\Plugin\Struct\PluginDetailStruct;
-use Shopware\Api\Shop\Definition\ShopTemplateDefinition;
 
 class PluginDefinition extends EntityDefinition
 {
@@ -86,7 +85,6 @@ class PluginDefinition extends EntityDefinition
             new DateField('updated_at', 'updatedAt'),
             (new OneToManyAssociationField('configForms', ConfigFormDefinition::class, 'plugin_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new OneToManyAssociationField('paymentMethods', PaymentMethodDefinition::class, 'plugin_id', false, 'id'))->setFlags(new CascadeDelete()),
-            (new OneToManyAssociationField('shopTemplates', ShopTemplateDefinition::class, 'plugin_id', false, 'id'))->setFlags(new CascadeDelete()),
         ]);
 
         foreach (self::$extensions as $extension) {

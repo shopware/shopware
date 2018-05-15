@@ -5,7 +5,6 @@ namespace Shopware\System\Mail\Event\MailAttachment;
 use Shopware\System\Mail\Collection\MailAttachmentDetailCollection;
 use Shopware\System\Mail\Event\Mail\MailBasicLoadedEvent;
 use Shopware\Content\Media\Event\Media\MediaBasicLoadedEvent;
-use Shopware\Api\Shop\Event\Shop\ShopBasicLoadedEvent;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
@@ -53,9 +52,6 @@ class MailAttachmentDetailLoadedEvent extends NestedEvent
         }
         if ($this->mailAttachments->getMedia()->count() > 0) {
             $events[] = new MediaBasicLoadedEvent($this->mailAttachments->getMedia(), $this->context);
-        }
-        if ($this->mailAttachments->getShops()->count() > 0) {
-            $events[] = new ShopBasicLoadedEvent($this->mailAttachments->getShops(), $this->context);
         }
 
         return new NestedEventCollection($events);

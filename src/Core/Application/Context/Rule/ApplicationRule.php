@@ -24,6 +24,8 @@
 
 namespace Shopware\Application\Context\Rule;
 
+use Shopware\Application\Context\MatchContext\RuleMatchContext;
+use Shopware\Application\Context\MatchContext\StorefrontMatchContext;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Application\Context\Exception\UnsupportedOperatorException;
 use Shopware\Application\Context\Struct\StorefrontContext;
@@ -33,34 +35,40 @@ class ApplicationRule extends Rule
     /**
      * @var int[]
      */
-    protected $shopIds;
+    protected $applicationIds;
 
     /**
      * @var string
      */
     protected $operator;
 
-    public function __construct(array $shopIds, string $operator)
+    public function __construct(array $applicationIds, string $operator)
     {
-        $this->shopIds = $shopIds;
+        $this->applicationIds = $applicationIds;
         $this->operator = $operator;
     }
 
-    public function match(CalculatedCart $calculatedCart, StorefrontContext $context): Match
+    public function match(RuleMatchContext $matchContext): Match
     {
+        if (!$matchContext instanceof StorefrontMatchContext) {
+            return new Match(false);
+        }
+
+        $context = $matchContext->getContext();
+
         switch ($this->operator) {
             case self::OPERATOR_EQ:
 
                 return new Match(
-                    in_array($context->getApplication()->getId(), $this->shopIds, true),
-                    ['Shop not matched']
+                    in_array($context->getApplication()->getId(), $this->applicationIds, true),
+                    ['Application not matched']
                 );
 
             case self::OPERATOR_NEQ:
 
                 return new Match(
-                    !in_array($context->getApplication()->getId(), $this->shopIds, true),
-                    ['Shop not matched']
+                    !in_array($context->getApplication()->getId(), $this->applicationIds, true),
+                    ['Application not matched']
                 );
 
             default:

@@ -12,11 +12,6 @@ class ConfigFormFieldValueBasicStruct extends Entity
     protected $configFormFieldId;
 
     /**
-     * @var string|null
-     */
-    protected $shopId;
-
-    /**
      * @var string
      */
     protected $value;
@@ -39,16 +34,6 @@ class ConfigFormFieldValueBasicStruct extends Entity
     public function setConfigFormFieldId(string $configFormFieldId): void
     {
         $this->configFormFieldId = $configFormFieldId;
-    }
-
-    public function getShopId(): ?string
-    {
-        return $this->shopId;
-    }
-
-    public function setShopId(?string $shopId): void
-    {
-        $this->shopId = $shopId;
     }
 
     public function getValue(): string

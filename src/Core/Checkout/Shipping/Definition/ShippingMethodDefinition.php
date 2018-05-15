@@ -32,7 +32,6 @@ use Shopware\Checkout\Shipping\Event\ShippingMethod\ShippingMethodWrittenEvent;
 use Shopware\Checkout\Shipping\Repository\ShippingMethodRepository;
 use Shopware\Checkout\Shipping\Struct\ShippingMethodBasicStruct;
 use Shopware\Checkout\Shipping\Struct\ShippingMethodDetailStruct;
-use Shopware\Api\Shop\Definition\ShopDefinition;
 
 class ShippingMethodDefinition extends EntityDefinition
 {
@@ -98,7 +97,6 @@ class ShippingMethodDefinition extends EntityDefinition
             (new OneToManyAssociationField('orderDeliveries', OrderDeliveryDefinition::class, 'shipping_method_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
             (new OneToManyAssociationField('prices', ShippingMethodPriceDefinition::class, 'shipping_method_id', true, 'id'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField('translations', ShippingMethodTranslationDefinition::class, 'shipping_method_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
-            (new OneToManyAssociationField('shops', ShopDefinition::class, 'shipping_method_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
         ]);
 
         foreach (self::$extensions as $extension) {

@@ -42,7 +42,7 @@ class ConfigService implements ConfigServiceInterface
         $this->connection = $connection;
     }
 
-    public function getByShop(string $shopId, ?string $parentId): array
+    public function get(): array
     {
         //todo@dr no tenant id available
         $builder = $this->connection->createQueryBuilder();
@@ -52,13 +52,10 @@ class ConfigService implements ConfigServiceInterface
                 'COALESCE(currentShop.value, parentShop.value, fallbackShop.value, e.value) as value',
             ])
             ->from('config_form_field', 'e')
-            ->leftJoin('e', 'config_form_field_value', 'currentShop', 'currentShop.config_form_field_id = e.id AND currentShop.shop_id = :currentShopId')
-            ->leftJoin('e', 'config_form_field_value', 'parentShop', 'parentShop.config_form_field_id = e.id AND parentShop.shop_id = :parentShopId')
-            ->leftJoin('e', 'config_form_field_value', 'fallbackShop', 'fallbackShop.config_form_field_id = e.id AND fallbackShop.shop_id = :fallbackShopId')
+            ->leftJoin('e', 'config_form_field_value', 'currentShop', 'currentShop.config_form_field_id = e.id')
+            ->leftJoin('e', 'config_form_field_value', 'parentShop', 'parentShop.config_form_field_id = e.id')
+            ->leftJoin('e', 'config_form_field_value', 'fallbackShop', 'fallbackShop.config_form_field_id = e.id')
             ->leftJoin('e', 'config_form', 'forms', 'forms.id = e.config_form_id')
-            ->setParameter('fallbackShopId', Uuid::fromStringToBytes(Defaults::APPLICATION))
-            ->setParameter('currentShopId', Uuid::fromStringToBytes($shopId))
-            ->setParameter('parentShopId', $parentId ? Uuid::fromStringToBytes($parentId) : Uuid::fromStringToBytes(Defaults::APPLICATION))
         ;
 
         $data = $builder->execute()->fetchAll(\PDO::FETCH_KEY_PAIR);

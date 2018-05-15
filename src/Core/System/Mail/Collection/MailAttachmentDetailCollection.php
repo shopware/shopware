@@ -4,7 +4,6 @@ namespace Shopware\System\Mail\Collection;
 
 use Shopware\System\Mail\Struct\MailAttachmentDetailStruct;
 use Shopware\Content\Media\Collection\MediaBasicCollection;
-use Shopware\Api\Shop\Collection\ShopBasicCollection;
 
 class MailAttachmentDetailCollection extends MailAttachmentBasicCollection
 {

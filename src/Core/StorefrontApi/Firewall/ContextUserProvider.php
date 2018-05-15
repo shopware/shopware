@@ -39,7 +39,7 @@ class ContextUserProvider implements UserProviderInterface
     public function loadUserByUsername($token)
     {
         $foundRows = $this->connection->executeQuery(
-            'SELECT id FROM shop WHERE id = :id',
+            'SELECT id FROM application WHERE id = :id',
             ['id' => Uuid::fromStringToBytes($token->getApplicationId())]
         )->rowCount();
 

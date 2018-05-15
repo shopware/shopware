@@ -50,20 +50,6 @@ class MailAttachmentBasicCollection extends EntityCollection
         });
     }
 
-    public function getShopIds(): array
-    {
-        return $this->fmap(function (MailAttachmentBasicStruct $mailAttachment) {
-            return $mailAttachment->getShopId();
-        });
-    }
-
-    public function filterByShopId(string $id): self
-    {
-        return $this->filter(function (MailAttachmentBasicStruct $mailAttachment) use ($id) {
-            return $mailAttachment->getShopId() === $id;
-        });
-    }
-
     protected function getExpectedClass(): string
     {
         return MailAttachmentBasicStruct::class;

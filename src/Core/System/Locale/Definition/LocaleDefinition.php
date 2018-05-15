@@ -27,7 +27,6 @@ use Shopware\System\Locale\Event\Locale\LocaleWrittenEvent;
 use Shopware\System\Locale\Repository\LocaleRepository;
 use Shopware\System\Locale\Struct\LocaleBasicStruct;
 use Shopware\System\Locale\Struct\LocaleDetailStruct;
-use Shopware\Api\Shop\Definition\ShopDefinition;
 use Shopware\System\User\Definition\UserDefinition;
 
 class LocaleDefinition extends EntityDefinition
@@ -67,10 +66,9 @@ class LocaleDefinition extends EntityDefinition
             new TranslatedField(new StringField('territory', 'territory')),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            new OneToManyAssociationField('applications', ApplicationDefinition::class, 'fallback_locale_id', false, 'id'),
+            new OneToManyAssociationField('fallbackApplications', ApplicationDefinition::class, 'fallback_locale_id', false, 'id'),
             (new OneToManyAssociationField('applications', ApplicationDefinition::class, 'locale_id', false, 'id'))->setFlags(new RestrictDelete()),
             (new TranslationsAssociationField('translations', LocaleTranslationDefinition::class, 'locale_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
-            (new OneToManyAssociationField('shops', ShopDefinition::class, 'locale_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
             (new OneToManyAssociationField('users', UserDefinition::class, 'locale_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
         ]);
 

@@ -41,7 +41,7 @@ class SearchPageLoader
 
     public function load(SearchPageRequest $request, StorefrontContext $context): SearchPageStruct
     {
-        $config = $this->configService->getByShop($context->getApplication()->getId(), null);
+        $config = $this->configService->get($context->getApplication()->getId(), null);
 
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('product.active', 1));

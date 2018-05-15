@@ -29,7 +29,6 @@ use Shopware\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Framework\ORM\Write\Flag\WriteOnly;
 use Shopware\Checkout\Shipping\Definition\ShippingMethodDefinition;
-use Shopware\Api\Shop\Definition\ShopDefinition;
 use Shopware\System\Tax\Definition\TaxAreaRuleDefinition;
 
 class CustomerGroupDefinition extends EntityDefinition
@@ -77,7 +76,6 @@ class CustomerGroupDefinition extends EntityDefinition
             (new OneToManyAssociationField('discounts', CustomerGroupDiscountDefinition::class, 'customer_group_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField('translations', CustomerGroupTranslationDefinition::class, 'customer_group_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
             (new OneToManyAssociationField('shippingMethods', ShippingMethodDefinition::class, 'customer_group_id', false, 'id'))->setFlags(new WriteOnly()),
-            (new OneToManyAssociationField('shops', ShopDefinition::class, 'customer_group_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
             (new OneToManyAssociationField('taxAreaRules', TaxAreaRuleDefinition::class, 'customer_group_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
         ]);
 

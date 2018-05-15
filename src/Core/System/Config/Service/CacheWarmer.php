@@ -25,25 +25,17 @@ declare(strict_types=1);
 
 namespace Shopware\System\Config\Service;
 
-use Doctrine\DBAL\Connection;
-use Shopware\Framework\Struct\Uuid;
 use Symfony\Component\HttpKernel\CacheWarmer\CacheWarmerInterface;
 
 class CacheWarmer implements CacheWarmerInterface
 {
     /**
-     * @var Connection
-     */
-    private $connection;
-
-    /**
      * @var ConfigServiceInterface
      */
     private $configService;
 
-    public function __construct(Connection $connection, ConfigServiceInterface $configService)
+    public function __construct(ConfigServiceInterface $configService)
     {
-        $this->connection = $connection;
         $this->configService = $configService;
     }
 
@@ -57,24 +49,6 @@ class CacheWarmer implements CacheWarmerInterface
      */
     public function warmUp($cacheDir): void
     {
-        $shops = $this->getShops();
-
-        foreach ($shops as $shop) {
-            $this->configService->getByShop(
-                Uuid::fromBytesToHex($shop['id']),
-                null
-            );
-        }
-    }
-
-    private function getShops(): array
-    {
-        $builder = $this->connection->createQueryBuilder();
-
-        //todo@dr no tenant id here
-        return $builder->select(['shop.*'])
-                ->from('shop', 'shop')
-                ->execute()
-                ->fetchAll();
+        $this->configService->get();
     }
 }

@@ -4,7 +4,6 @@ namespace Shopware\Framework\Plugin\Struct;
 
 use Shopware\System\Config\Collection\ConfigFormBasicCollection;
 use Shopware\Checkout\Payment\Collection\PaymentMethodBasicCollection;
-use Shopware\Api\Shop\Collection\ShopTemplateBasicCollection;
 
 class PluginDetailStruct extends PluginBasicStruct
 {
@@ -17,11 +16,6 @@ class PluginDetailStruct extends PluginBasicStruct
      * @var PaymentMethodBasicCollection
      */
     protected $paymentMethods;
-
-    /**
-     * @var ShopTemplateBasicCollection
-     */
-    protected $shopTemplates;
 
     public function __construct()
     {
@@ -50,15 +44,5 @@ class PluginDetailStruct extends PluginBasicStruct
     public function setPaymentMethods(PaymentMethodBasicCollection $paymentMethods): void
     {
         $this->paymentMethods = $paymentMethods;
-    }
-
-    public function getShopTemplates(): ShopTemplateBasicCollection
-    {
-        return $this->shopTemplates;
-    }
-
-    public function setShopTemplates(ShopTemplateBasicCollection $shopTemplates): void
-    {
-        $this->shopTemplates = $shopTemplates;
     }
 }

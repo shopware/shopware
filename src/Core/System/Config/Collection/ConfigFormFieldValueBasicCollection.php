@@ -36,20 +36,6 @@ class ConfigFormFieldValueBasicCollection extends EntityCollection
         });
     }
 
-    public function getShopIds(): array
-    {
-        return $this->fmap(function (ConfigFormFieldValueBasicStruct $configFormFieldValue) {
-            return $configFormFieldValue->getShopId();
-        });
-    }
-
-    public function filterByShopId(string $id): self
-    {
-        return $this->filter(function (ConfigFormFieldValueBasicStruct $configFormFieldValue) use ($id) {
-            return $configFormFieldValue->getShopId() === $id;
-        });
-    }
-
     protected function getExpectedClass(): string
     {
         return ConfigFormFieldValueBasicStruct::class;

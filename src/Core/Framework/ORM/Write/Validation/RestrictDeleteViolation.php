@@ -16,7 +16,7 @@ class RestrictDeleteViolation
      * Each value represents a single restricted identity
      *
      * Example:
-     *      [Shopware\Api\Shop\Definition\ShopDefinition] => Array
+     *      [Shopware\Checkout\Cart\Price\Struct\PriceDefinition] => Array
      *          (
      *              [0] => c708bb9d-c2c3-4243-b9fb-1fd6a676f2fb
      *              [1] => c708bb9d-c2c3-4243-b9fb-1fd6a676f2fb

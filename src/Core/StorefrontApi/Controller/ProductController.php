@@ -4,17 +4,17 @@ namespace Shopware\StorefrontApi\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Framework\ORM\Search\SearchCriteriaBuilder;
-use Shopware\Content\Product\Definition\ProductDefinition;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Content\Product\Definition\ProductDefinition;
 use Shopware\Content\Product\Exception\ProductNotFoundException;
+use Shopware\Framework\ORM\Search\SearchCriteriaBuilder;
 use Shopware\Framework\Api\Context\RestContext;
 use Shopware\Framework\Api\Response\ResponseFactory;
 use Shopware\StorefrontApi\Firewall\ContextUser;
 use Shopware\StorefrontApi\Product\StorefrontProductRepository;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 
 class ProductController extends Controller
 {

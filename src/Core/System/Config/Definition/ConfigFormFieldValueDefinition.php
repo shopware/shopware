@@ -22,7 +22,6 @@ use Shopware\Framework\ORM\Field\VersionField;
 use Shopware\Framework\ORM\FieldCollection;
 use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\Api\Shop\Definition\ShopDefinition;
 
 class ConfigFormFieldValueDefinition extends EntityDefinition
 {
@@ -60,14 +59,10 @@ class ConfigFormFieldValueDefinition extends EntityDefinition
             (new FkField('config_form_field_id', 'configFormFieldId', ConfigFormFieldDefinition::class))->setFlags(new Required()),
             (new ReferenceVersionField(ConfigFormFieldDefinition::class))->setFlags(new Required()),
 
-            new FkField('shop_id', 'shopId', ShopDefinition::class),
-            new ReferenceVersionField(ShopDefinition::class),
-
             (new LongTextField('value', 'value'))->setFlags(new Required()),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            new ManyToOneAssociationField('configFormField', 'config_form_field_id', ConfigFormFieldDefinition::class, false),
-            new ManyToOneAssociationField('shop', 'shop_id', ShopDefinition::class, false),
+            new ManyToOneAssociationField('configFormField', 'config_form_field_id', ConfigFormFieldDefinition::class, false)
         ]);
 
         foreach (self::$extensions as $extension) {

@@ -2,28 +2,28 @@
 
 namespace Shopware\Content\Product\Struct;
 
-use Shopware\Api\Shop\Struct\ShopBasicStruct;
+use Shopware\Application\Language\Struct\LanguageBasicStruct;
 
 class ProductSearchKeywordDetailStruct extends ProductSearchKeywordBasicStruct
 {
     /**
-     * @var ShopBasicStruct
+     * @var LanguageBasicStruct
      */
-    protected $shop;
+    protected $language;
 
     /**
      * @var ProductBasicStruct
      */
     protected $product;
 
-    public function getShop(): ShopBasicStruct
+    public function getLanguage(): LanguageBasicStruct
     {
-        return $this->shop;
+        return $this->language;
     }
 
-    public function setShop(ShopBasicStruct $shop): void
+    public function setLanguage(LanguageBasicStruct $language): void
     {
-        $this->shop = $shop;
+        $this->language = $language;
     }
 
     public function getProduct(): ProductBasicStruct

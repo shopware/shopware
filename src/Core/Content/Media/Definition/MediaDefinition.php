@@ -34,8 +34,8 @@ use Shopware\Content\Media\Event\Media\MediaWrittenEvent;
 use Shopware\Content\Media\Repository\MediaRepository;
 use Shopware\Content\Media\Struct\MediaBasicStruct;
 use Shopware\Content\Media\Struct\MediaDetailStruct;
-use Shopware\Content\Product\Definition\ProductManufacturerDefinition;
-use Shopware\Content\Product\Definition\ProductMediaDefinition;
+use Shopware\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
+use Shopware\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition;
 use Shopware\System\User\Definition\UserDefinition;
 
 class MediaDefinition extends EntityDefinition
@@ -92,8 +92,8 @@ class MediaDefinition extends EntityDefinition
 
             (new OneToManyAssociationField('categories', CategoryDefinition::class, 'media_id', false, 'id'))->setFlags(new WriteOnly()),
             (new OneToManyAssociationField('mailAttachments', MailAttachmentDefinition::class, 'media_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
-            (new OneToManyAssociationField('productManufacturers', ProductManufacturerDefinition::class, 'media_id', false, 'id'))->setFlags(new WriteOnly()),
-            (new OneToManyAssociationField('productMedia', ProductMediaDefinition::class, 'media_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
+            (new OneToManyAssociationField('productManufacturers', \Shopware\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition::class, 'media_id', false, 'id'))->setFlags(new WriteOnly()),
+            (new OneToManyAssociationField('productMedia', \Shopware\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition::class, 'media_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
             (new TranslationsAssociationField('translations', MediaTranslationDefinition::class, 'media_id', false, 'id'))->setFlags(new Required(), new CascadeDelete(), new WriteOnly()),
         ]);
 

@@ -4,8 +4,8 @@ namespace Shopware\Framework\ORM\Dbal\Indexing\Common;
 
 use Shopware\Content\Category\Definition\CategoryDefinition;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Content\Product\Definition\ProductCategoryDefinition;
-use Shopware\Content\Product\Definition\ProductDefinition;
+use Shopware\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
+use Shopware\Content\Product\ProductDefinition;
 
 class EventIdExtractor
 {

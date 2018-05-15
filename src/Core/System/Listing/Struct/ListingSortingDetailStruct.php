@@ -3,7 +3,7 @@
 namespace Shopware\System\Listing\Struct;
 
 use Shopware\System\Listing\Collection\ListingSortingTranslationBasicCollection;
-use Shopware\Content\Product\Collection\ProductStreamBasicCollection;
+use Shopware\Content\Product\Aggregate\ProductStream\Collection\ProductStreamBasicCollection;
 
 class ListingSortingDetailStruct extends ListingSortingBasicStruct
 {

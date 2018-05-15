@@ -26,8 +26,8 @@ declare(strict_types=1);
 namespace Shopware\Checkout\CartBridge\Product;
 
 use Shopware\Content\Product\Collection\ProductBasicCollection;
-use Shopware\Content\Product\Collection\ProductServiceBasicCollection;
-use Shopware\Content\Product\Repository\ProductServiceRepository;
+use Shopware\Content\Product\Aggregate\ProductService\Collection\ProductServiceBasicCollection;
+use Shopware\Content\Product\Aggregate\ProductService\ProductServiceRepository;
 use Shopware\Checkout\Cart\Cart\CartCollectorInterface;
 use Shopware\Checkout\Cart\Cart\Struct\Cart;
 use Shopware\Checkout\CartBridge\Product\Struct\ProductFetchDefinition;

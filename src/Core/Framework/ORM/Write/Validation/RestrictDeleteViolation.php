@@ -21,7 +21,7 @@ class RestrictDeleteViolation
      *              [0] => c708bb9d-c2c3-4243-b9fb-1fd6a676f2fb
      *              [1] => c708bb9d-c2c3-4243-b9fb-1fd6a676f2fb
      *          )
-     *      [Shopware\Content\Product\Definition\ProductDefinition] => Array
+     *      [Shopware\Content\Product\ProductDefinition] => Array
      *          (
      *              [0] => c708bb9d-c2c3-4243-b9fb-1fd6a676f2fb
      *              [1] => c708bb9d-c2c3-4243-b9fb-1fd6a676f2fb

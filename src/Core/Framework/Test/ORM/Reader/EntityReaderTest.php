@@ -5,7 +5,7 @@ namespace Shopware\Framework\Test\ORM\Reader;
 use Doctrine\DBAL\Connection;
 use Shopware\Content\Category\Repository\CategoryRepository;
 use Shopware\Application\Context\Repository\ContextRuleRepository;
-use Shopware\Content\Product\Repository\ProductRepository;
+use Shopware\Content\Product\ProductRepository;
 use Shopware\Content\Product\Struct\ProductBasicStruct;
 use Shopware\Application\Context\Rule\Container\AndRule;
 use Shopware\Application\Context\Struct\ApplicationContext;

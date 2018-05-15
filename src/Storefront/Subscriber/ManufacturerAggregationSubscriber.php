@@ -9,9 +9,9 @@ use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Query\NestedQuery;
 use Shopware\Framework\ORM\Search\Query\Query;
 use Shopware\Framework\ORM\Search\Query\TermsQuery;
-use Shopware\Content\Product\Collection\ProductManufacturerBasicCollection;
-use Shopware\Content\Product\Definition\ProductManufacturerDefinition;
-use Shopware\Content\Product\Repository\ProductManufacturerRepository;
+use Shopware\Content\Product\Aggregate\ProductManufacturer\Collection\ProductManufacturerBasicCollection;
+use Shopware\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
+use Shopware\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerRepository;
 use Shopware\Storefront\Event\ListingEvents;
 use Shopware\Storefront\Event\ListingPageLoadedEvent;
 use Shopware\Storefront\Event\PageCriteriaCreatedEvent;
@@ -29,7 +29,7 @@ class ManufacturerAggregationSubscriber implements EventSubscriberInterface
     public const AGGREGATION_NAME = 'manufacturer';
 
     /**
-     * @var ProductManufacturerRepository
+     * @var \Shopware\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerRepository
      */
     private $manufacturerRepository;
 

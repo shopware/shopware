@@ -208,7 +208,7 @@ class ApiController extends Controller
             /*
              * Example
              * Route:           /api/product/SW1/manufacturer
-             * $definition:     \Shopware\Content\Product\Definition\ProductManufacturerDefinition
+             * $definition:     \Shopware\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition
              */
 
             //get inverse association to filter to parent value

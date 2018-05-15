@@ -8,9 +8,9 @@ use Shopware\Content\Category\Repository\CategoryRepository;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Query\RangeQuery;
 use Shopware\Framework\ORM\Search\Query\TermQuery;
-use Shopware\Content\Product\Definition\ProductDefinition;
-use Shopware\Content\Product\Definition\ProductTranslationDefinition;
-use Shopware\Content\Product\Repository\ProductRepository;
+use Shopware\Content\Product\ProductDefinition;
+use Shopware\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
+use Shopware\Content\Product\ProductRepository;
 use Shopware\Content\Product\Struct\PriceStruct;
 use Shopware\System\Tax\Definition\TaxAreaRuleDefinition;
 use Shopware\System\Tax\Definition\TaxAreaRuleTranslationDefinition;
@@ -34,7 +34,7 @@ class VersioningTest extends KernelTestCase
     private $connection;
 
     /**
-     * @var ProductRepository
+     * @var \Shopware\Content\Product\ProductRepository
      */
     private $productRepository;
 

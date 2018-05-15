@@ -6,7 +6,7 @@ use Shopware\Framework\ORM\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Framework\ORM\Dbal\QueryBuilder;
 use Shopware\Framework\ORM\Field\Field;
 use Shopware\Framework\ORM\Field\ProductCoverField;
-use Shopware\Content\Product\Definition\ProductMediaDefinition;
+use Shopware\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition;
 use Shopware\Application\Context\Struct\ApplicationContext;
 
 class ProductCoverFieldResolver implements FieldResolverInterface

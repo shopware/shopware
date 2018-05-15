@@ -4,7 +4,7 @@ namespace Shopware\Application\Test\Context;
 
 use Shopware\Application\Context\Repository\ContextCartModifierRepository;
 use Shopware\Application\Context\Repository\ContextRuleRepository;
-use Shopware\Content\Product\Repository\ProductRepository;
+use Shopware\Content\Product\ProductRepository;
 use Shopware\Checkout\Cart\Cart\CircularCartCalculation;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Checkout\Cart\Cart\Struct\Cart;
@@ -43,7 +43,7 @@ class ContextCartModifierTest extends KernelTestCase
     public static $contextRuleRepository;
 
     /**
-     * @var ProductRepository
+     * @var \Shopware\Content\Product\ProductRepository
      */
     public static $productRepository;
 

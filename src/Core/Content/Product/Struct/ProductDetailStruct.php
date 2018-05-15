@@ -5,12 +5,12 @@ namespace Shopware\Content\Product\Struct;
 use Shopware\Content\Category\Collection\CategoryBasicCollection;
 use Shopware\System\Configuration\Collection\ConfigurationGroupOptionBasicCollection;
 use Shopware\Content\Product\Collection\ProductBasicCollection;
-use Shopware\Content\Product\Collection\ProductConfiguratorBasicCollection;
-use Shopware\Content\Product\Collection\ProductMediaBasicCollection;
-use Shopware\Content\Product\Collection\ProductSearchKeywordBasicCollection;
-use Shopware\Content\Product\Collection\ProductServiceBasicCollection;
-use Shopware\Content\Product\Collection\ProductStreamBasicCollection;
-use Shopware\Content\Product\Collection\ProductTranslationBasicCollection;
+use Shopware\Content\Product\Aggregate\ProductConfigurator\Collection\ProductConfiguratorBasicCollection;
+use Shopware\Content\Product\Aggregate\ProductMedia\Collection\ProductMediaBasicCollection;
+use Shopware\Content\Product\Aggregate\ProductSearchKeyword\Collection\ProductSearchKeywordBasicCollection;
+use Shopware\Content\Product\Aggregate\ProductService\Collection\ProductServiceBasicCollection;
+use Shopware\Content\Product\Aggregate\ProductStream\Collection\ProductStreamBasicCollection;
+use Shopware\Content\Product\Aggregate\ProductTranslation\Collection\ProductTranslationBasicCollection;
 
 class ProductDetailStruct extends ProductBasicStruct
 {
@@ -25,7 +25,7 @@ class ProductDetailStruct extends ProductBasicStruct
     protected $children;
 
     /**
-     * @var ProductMediaBasicCollection
+     * @var \Shopware\Content\Product\Aggregate\ProductMedia\Collection\ProductMediaBasicCollection
      */
     protected $media;
 
@@ -35,7 +35,7 @@ class ProductDetailStruct extends ProductBasicStruct
     protected $searchKeywords;
 
     /**
-     * @var ProductTranslationBasicCollection
+     * @var \Shopware\Content\Product\Aggregate\ProductTranslation\Collection\ProductTranslationBasicCollection
      */
     protected $translations;
 
@@ -50,12 +50,12 @@ class ProductDetailStruct extends ProductBasicStruct
     protected $seoCategories;
 
     /**
-     * @var ProductStreamBasicCollection
+     * @var \Shopware\Content\Product\Aggregate\ProductStream\Collection\ProductStreamBasicCollection
      */
     protected $tabs;
 
     /**
-     * @var ProductStreamBasicCollection
+     * @var \Shopware\Content\Product\Aggregate\ProductStream\Collection\ProductStreamBasicCollection
      */
     protected $streams;
 

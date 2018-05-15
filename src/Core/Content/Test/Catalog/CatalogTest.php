@@ -9,7 +9,7 @@ use Shopware\Content\Category\Struct\CategoryBasicStruct;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Framework\ORM\Write\FieldException\WriteStackException;
-use Shopware\Content\Product\Repository\ProductRepository;
+use Shopware\Content\Product\ProductRepository;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\Uuid;
@@ -33,7 +33,7 @@ class CatalogTest extends KernelTestCase
     private $catalogRepository;
 
     /**
-     * @var ProductRepository
+     * @var \Shopware\Content\Product\ProductRepository
      */
     private $productRepository;
 

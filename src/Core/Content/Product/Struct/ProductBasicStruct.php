@@ -3,8 +3,11 @@
 namespace Shopware\Content\Product\Struct;
 
 use Shopware\Application\Context\Collection\ContextPriceCollection;
+use Shopware\Content\Product\Aggregate\ProductContextPrice\Struct\ProductContextPriceBasicStruct;
+use Shopware\Content\Product\Aggregate\ProductManufacturer\Struct\ProductManufacturerBasicStruct;
+use Shopware\Content\Product\Aggregate\ProductMedia\Struct\ProductMediaBasicStruct;
 use Shopware\Framework\ORM\Entity;
-use Shopware\Content\Product\Collection\ProductContextPriceBasicCollection;
+use Shopware\Content\Product\Aggregate\ProductContextPrice\Collection\ProductContextPriceBasicCollection;
 use Shopware\System\Tax\Struct\TaxBasicStruct;
 use Shopware\System\Unit\Struct\UnitBasicStruct;
 use Shopware\Checkout\Cart\Delivery\Struct\DeliveryDate;

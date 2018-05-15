@@ -2,7 +2,7 @@
 
 namespace Shopware\Framework\Test\Api\Controller;
 
-use Shopware\Content\Product\Repository\ProductRepository;
+use Shopware\Content\Product\ProductRepository;
 use Shopware\Content\Product\Struct\PriceStruct;
 use Shopware\Content\Product\Struct\ProductDetailStruct;
 use Shopware\Application\Context\Struct\ApplicationContext;

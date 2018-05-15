@@ -44,7 +44,7 @@
         <service class="Shopware\Checkout\CartBridge\Product\ProductCartCollector" id="Shopware\Checkout\CartBridge\Product\ProductCartCollector">
             <argument id="Shopware\Checkout\CartBridge\Product\ProductGateway" type="service"/>
             <tag name="cart.collector" priority="1000" />
-            <argument type="service" id="Shopware\Content\Product\Repository\ProductServiceRepository"/>
+            <argument type="service" id="Shopware\Content\Product\Aggregate\ProductService\ProductServiceRepository"/>
         </service>
 
         <service class="Shopware\Checkout\CartBridge\Modifier\ContextCartModifierCollector" id="Shopware\Checkout\CartBridge\Modifier\ContextCartModifierCollector">
@@ -55,7 +55,7 @@
         <!--interface implementations of cart bundle-->
 
         <service id="Shopware\Checkout\CartBridge\Product\ProductGateway" class="Shopware\Checkout\CartBridge\Product\ProductGateway" >
-            <argument type="service" id="Shopware\Content\Product\Repository\ProductRepository"/>
+            <argument type="service" id="Shopware\Content\Product\ProductRepository"/>
         </service>
 
         <service class="Shopware\Checkout\CartBridge\Service\StoreFrontCartService" id="Shopware\Checkout\CartBridge\Service\StoreFrontCartService">

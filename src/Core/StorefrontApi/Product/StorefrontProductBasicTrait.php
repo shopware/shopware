@@ -2,8 +2,8 @@
 
 namespace Shopware\StorefrontApi\Product;
 
-use Shopware\Content\Product\Collection\ProductMediaBasicCollection;
-use Shopware\Content\Product\Struct\ProductMediaBasicStruct;
+use Shopware\Content\Product\Aggregate\ProductMedia\Collection\ProductMediaBasicCollection;
+use Shopware\Content\Product\Aggregate\ProductMedia\Struct\ProductMediaBasicStruct;
 use Shopware\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
 

@@ -13,16 +13,16 @@ use Shopware\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Framework\ORM\Search\Sorting\FieldSorting;
 use Shopware\Framework\ORM\Write\FieldException\WriteStackException;
 use Shopware\Content\Product\Collection\ProductBasicCollection;
-use Shopware\Content\Product\Event\Product\ProductBasicLoadedEvent;
-use Shopware\Content\Product\Event\Product\ProductWrittenEvent;
-use Shopware\Content\Product\Event\ProductManufacturer\ProductManufacturerBasicLoadedEvent;
-use Shopware\Content\Product\Event\ProductManufacturer\ProductManufacturerWrittenEvent;
-use Shopware\Content\Product\Repository\ProductManufacturerRepository;
-use Shopware\Content\Product\Repository\ProductRepository;
+use Shopware\Content\Product\Event\ProductBasicLoadedEvent;
+use Shopware\Content\Product\Event\ProductWrittenEvent;
+use Shopware\Content\Product\Aggregate\ProductManufacturer\Event\ProductManufacturerBasicLoadedEvent;
+use Shopware\Content\Product\Aggregate\ProductManufacturer\Event\ProductManufacturerWrittenEvent;
+use Shopware\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerRepository;
+use Shopware\Content\Product\ProductRepository;
 use Shopware\Content\Product\Struct\PriceStruct;
 use Shopware\Content\Product\Struct\ProductBasicStruct;
 use Shopware\Content\Product\Struct\ProductDetailStruct;
-use Shopware\Content\Product\Struct\ProductManufacturerBasicStruct;
+use Shopware\Content\Product\Aggregate\ProductManufacturer\Struct\ProductManufacturerBasicStruct;
 use Shopware\System\Tax\Definition\TaxDefinition;
 use Shopware\System\Tax\Event\Tax\TaxWrittenEvent;
 use Shopware\System\Tax\Struct\TaxBasicStruct;
@@ -66,7 +66,7 @@ class ProductRepositoryTest extends KernelTestCase
         self::bootKernel();
         parent::setUp();
         $this->container = self::$kernel->getContainer();
-        $this->repository = $this->container->get(ProductRepository::class);
+        $this->repository = $this->container->get(\Shopware\Content\Product\ProductRepository::class);
         $this->eventDispatcher = $this->container->get('event_dispatcher');
         $this->connection = $this->container->get(Connection::class);
         $this->connection->beginTransaction();
@@ -1040,7 +1040,8 @@ class ProductRepositoryTest extends KernelTestCase
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('product_manufacturer.products.price', $greenPrice['gross']));
 
-        $repository = $this->container->get(ProductManufacturerRepository::class);
+        $repository = $this->container->get(
+            \Shopware\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerRepository::class);
         $result = $repository->searchIds($criteria, ApplicationContext:: createDefaultContext(\Shopware\Defaults::TENANT_ID));
 
         $this->assertEquals(1, $result->getTotal());
@@ -1105,7 +1106,8 @@ class ProductRepositoryTest extends KernelTestCase
             ],
         ];
 
-        $repository = $this->container->get(ProductManufacturerRepository::class);
+        $repository = $this->container->get(
+            \Shopware\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerRepository::class);
 
         $repository->create($manufacturers, ApplicationContext:: createDefaultContext(\Shopware\Defaults::TENANT_ID));
 

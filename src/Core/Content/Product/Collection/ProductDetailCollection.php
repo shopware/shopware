@@ -3,6 +3,12 @@
 namespace Shopware\Content\Product\Collection;
 
 use Shopware\Content\Category\Collection\CategoryBasicCollection;
+use Shopware\Content\Product\Aggregate\ProductConfigurator\Collection\ProductConfiguratorBasicCollection;
+use Shopware\Content\Product\Aggregate\ProductMedia\Collection\ProductMediaBasicCollection;
+use Shopware\Content\Product\Aggregate\ProductSearchKeyword\Collection\ProductSearchKeywordBasicCollection;
+use Shopware\Content\Product\Aggregate\ProductService\Collection\ProductServiceBasicCollection;
+use Shopware\Content\Product\Aggregate\ProductStream\Collection\ProductStreamBasicCollection;
+use Shopware\Content\Product\Aggregate\ProductTranslation\Collection\ProductTranslationBasicCollection;
 use Shopware\System\Configuration\Collection\ConfigurationGroupOptionBasicCollection;
 use Shopware\Content\Product\Struct\ProductDetailStruct;
 

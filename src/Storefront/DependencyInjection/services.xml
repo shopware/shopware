@@ -47,7 +47,7 @@
             <argument id="Doctrine\DBAL\Connection" type="service"/>
             <argument id="slugify" type="service"/>
             <argument id="router" type="service"/>
-            <argument id="Shopware\Content\Product\Repository\ProductRepository" type="service"/>
+            <argument id="Shopware\Content\Product\ProductRepository" type="service"/>
             <argument id="Shopware\Application\Application\Repository\ApplicationRepository" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument type="service" id="Shopware\Framework\ORM\Dbal\Indexing\Common\EventIdExtractor"/>
@@ -71,7 +71,7 @@
 
         <service class="Shopware\Storefront\Page\Detail\DetailPageLoader" id="Shopware\Storefront\Page\Detail\DetailPageLoader">
             <argument id="Shopware\StorefrontApi\Product\StorefrontProductRepository" type="service"/>
-            <argument type="service" id="Shopware\Content\Product\Repository\ProductConfiguratorRepository"/>
+            <argument type="service" id="Shopware\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorRepository"/>
         </service>
 
         <service class="Shopware\Storefront\Page\Listing\ListingPageLoader" id="Shopware\Storefront\Page\Listing\ListingPageLoader">
@@ -167,7 +167,7 @@
         </service>
 
         <service class="Shopware\Storefront\Subscriber\ManufacturerAggregationSubscriber" id="Shopware\Storefront\Subscriber\ManufacturerAggregationSubscriber">
-            <argument id="Shopware\Content\Product\Repository\ProductManufacturerRepository" type="service"/>
+            <argument id="Shopware\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerRepository" type="service"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 

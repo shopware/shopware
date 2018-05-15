@@ -4,7 +4,7 @@ namespace Shopware\Framework\ORM\Dbal\Indexing\Indexer;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Content\Product\Repository\ProductRepository;
+use Shopware\Content\Product\ProductRepository;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\ORM\Dbal\Indexing\Common\EventIdExtractor;
 use Shopware\Framework\ORM\Dbal\Indexing\Common\RepositoryIterator;
@@ -18,7 +18,7 @@ use Shopware\Framework\Struct\Uuid;
 class VariationJsonIndexer implements IndexerInterface
 {
     /**
-     * @var ProductRepository
+     * @var \Shopware\Content\Product\ProductRepository
      */
     private $productRepository;
 

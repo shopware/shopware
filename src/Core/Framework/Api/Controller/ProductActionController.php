@@ -4,9 +4,9 @@ namespace Shopware\Framework\Api\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Content\Product\Definition\ProductDefinition;
+use Shopware\Content\Product\ProductDefinition;
 use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Content\Product\Service\VariantGenerator;
+use Shopware\Content\Product\Util\VariantGenerator;
 use Shopware\Framework\Api\Context\RestContext;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;

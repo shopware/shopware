@@ -29,7 +29,7 @@ use Shopware\System\Listing\Event\ListingSorting\ListingSortingWrittenEvent;
 use Shopware\System\Listing\Repository\ListingSortingRepository;
 use Shopware\System\Listing\Struct\ListingSortingBasicStruct;
 use Shopware\System\Listing\Struct\ListingSortingDetailStruct;
-use Shopware\Content\Product\Definition\ProductStreamDefinition;
+use Shopware\Content\Product\Aggregate\ProductStream\ProductStreamDefinition;
 
 class ListingSortingDefinition extends EntityDefinition
 {

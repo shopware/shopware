@@ -2,7 +2,7 @@
 
 namespace Shopware\Framework\ORM\Field;
 
-use Shopware\Content\Product\Definition\ProductMediaDefinition;
+use Shopware\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition;
 
 class ProductCoverField extends ManyToOneAssociationField
 {

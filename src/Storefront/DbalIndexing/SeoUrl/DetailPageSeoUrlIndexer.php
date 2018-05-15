@@ -7,7 +7,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Application\Application\Repository\ApplicationRepository;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Content\Product\Repository\ProductRepository;
+use Shopware\Content\Product\ProductRepository;
 use Shopware\Content\Product\Struct\ProductSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\ORM\Dbal\Indexing\Common\EventIdExtractor;
@@ -44,7 +44,7 @@ class DetailPageSeoUrlIndexer implements IndexerInterface
     private $router;
 
     /**
-     * @var ProductRepository
+     * @var \Shopware\Content\Product\ProductRepository
      */
     private $productRepository;
 

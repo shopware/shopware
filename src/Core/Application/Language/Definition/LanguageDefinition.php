@@ -41,8 +41,8 @@ use Shopware\Content\Media\Definition\MediaAlbumTranslationDefinition;
 use Shopware\Content\Media\Definition\MediaTranslationDefinition;
 use Shopware\Checkout\Order\Definition\OrderStateTranslationDefinition;
 use Shopware\Checkout\Payment\Definition\PaymentMethodTranslationDefinition;
-use Shopware\Content\Product\Definition\ProductManufacturerTranslationDefinition;
-use Shopware\Content\Product\Definition\ProductTranslationDefinition;
+use Shopware\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition;
+use Shopware\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Checkout\Shipping\Definition\ShippingMethodTranslationDefinition;
 use Shopware\System\Tax\Definition\TaxAreaRuleTranslationDefinition;
 use Shopware\System\Unit\Definition\UnitTranslationDefinition;
@@ -101,7 +101,7 @@ class LanguageDefinition extends EntityDefinition
             (new TranslationsAssociationField('mediaTranslations', MediaTranslationDefinition::class, 'language_id', false, 'id'))->setFlags(new WriteOnly(), new CascadeDelete()),
             (new TranslationsAssociationField('orderStateTranslations', OrderStateTranslationDefinition::class, 'language_id', false, 'id'))->setFlags(new WriteOnly(), new CascadeDelete()),
             (new TranslationsAssociationField('paymentMethodTranslations', PaymentMethodTranslationDefinition::class, 'language_id', false, 'id'))->setFlags(new WriteOnly(), new CascadeDelete()),
-            (new TranslationsAssociationField('productManufacturerTranslations', ProductManufacturerTranslationDefinition::class, 'language_id', false, 'id'))->setFlags(new WriteOnly(), new CascadeDelete()),
+            (new TranslationsAssociationField('productManufacturerTranslations', \Shopware\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition::class, 'language_id', false, 'id'))->setFlags(new WriteOnly(), new CascadeDelete()),
             (new TranslationsAssociationField('productTranslations', ProductTranslationDefinition::class, 'language_id', false, 'id'))->setFlags(new WriteOnly(), new CascadeDelete()),
             (new TranslationsAssociationField('shippingMethodTranslations', ShippingMethodTranslationDefinition::class, 'language_id', false, 'id'))->setFlags(new WriteOnly(), new CascadeDelete()),
             (new TranslationsAssociationField('taxAreaRuleTranslations', TaxAreaRuleTranslationDefinition::class, 'language_id', false, 'id'))->setFlags(new WriteOnly(), new CascadeDelete()),

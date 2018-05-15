@@ -25,12 +25,12 @@ use Shopware\Content\Media\Definition\MediaAlbumDefinition;
 use Shopware\Content\Media\Definition\MediaAlbumTranslationDefinition;
 use Shopware\Content\Media\Definition\MediaDefinition;
 use Shopware\Content\Media\Definition\MediaTranslationDefinition;
-use Shopware\Content\Product\Definition\ProductDefinition;
-use Shopware\Content\Product\Definition\ProductManufacturerDefinition;
-use Shopware\Content\Product\Definition\ProductManufacturerTranslationDefinition;
-use Shopware\Content\Product\Definition\ProductMediaDefinition;
-use Shopware\Content\Product\Definition\ProductStreamDefinition;
-use Shopware\Content\Product\Definition\ProductTranslationDefinition;
+use Shopware\Content\Product\ProductDefinition;
+use Shopware\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
+use Shopware\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition;
+use Shopware\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition;
+use Shopware\Content\Product\Aggregate\ProductStream\ProductStreamDefinition;
+use Shopware\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 
 class CatalogDefinition extends EntityDefinition
 {
@@ -75,7 +75,7 @@ class CatalogDefinition extends EntityDefinition
             (new OneToManyAssociationField('products', ProductDefinition::class, 'catalog_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
             (new OneToManyAssociationField('productManufacturers', ProductManufacturerDefinition::class, 'catalog_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
             (new OneToManyAssociationField('productManufacturerTranslations', ProductManufacturerTranslationDefinition::class, 'catalog_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
-            (new OneToManyAssociationField('productMedia', ProductMediaDefinition::class, 'catalog_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
+            (new OneToManyAssociationField('productMedia', \Shopware\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition::class, 'catalog_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
             (new OneToManyAssociationField('productStreams', ProductStreamDefinition::class, 'catalog_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
             (new OneToManyAssociationField('productTranslations', ProductTranslationDefinition::class, 'catalog_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
         ]);

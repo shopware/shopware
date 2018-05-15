@@ -26,13 +26,13 @@ declare(strict_types=1);
 namespace Shopware\Checkout\CartBridge\Product;
 
 use Shopware\Content\Product\Collection\ProductBasicCollection;
-use Shopware\Content\Product\Repository\ProductRepository;
+use Shopware\Content\Product\ProductRepository;
 use Shopware\Application\Context\Struct\StorefrontContext;
 
 class ProductGateway implements ProductGatewayInterface
 {
     /**
-     * @var ProductRepository
+     * @var \Shopware\Content\Product\ProductRepository
      */
     private $repository;
 

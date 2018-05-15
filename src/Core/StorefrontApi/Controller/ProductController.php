@@ -8,7 +8,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\Content\Product\Definition\ProductDefinition;
+use Shopware\Content\Product\ProductDefinition;
 use Shopware\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Framework\ORM\Search\SearchCriteriaBuilder;
 use Shopware\Framework\Api\Context\RestContext;

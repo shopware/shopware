@@ -4,7 +4,7 @@ namespace Shopware\Content\Category\Collection;
 
 use Shopware\Content\Category\Struct\CategoryDetailStruct;
 use Shopware\Content\Media\Collection\MediaBasicCollection;
-use Shopware\Content\Product\Collection\ProductStreamBasicCollection;
+use Shopware\Content\Product\Aggregate\ProductStream\Collection\ProductStreamBasicCollection;
 
 class CategoryDetailCollection extends CategoryBasicCollection
 {

@@ -26,7 +26,7 @@
                 {% endif %}
 
                 {# Thumbnails #}
-                {# @var media \Shopware\Content\Product\Struct\ProductMediaBasicStruct #}
+                {# @var media \Shopware\Content\Product\Aggregate\ProductMedia\Struct\ProductMediaBasicStruct #}
                 {% for media in product.media[1:] %}
                     {% if media.media.extension('thumbnails') %}
                         {% set thumbnails = media.media.extension('thumbnails') %}

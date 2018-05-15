@@ -2,9 +2,12 @@
 
 namespace Shopware\Content\Product\Collection;
 
+use Shopware\Content\Product\Aggregate\ProductContextPrice\Collection\ProductContextPriceBasicCollection;
+use Shopware\Content\Product\Aggregate\ProductManufacturer\Collection\ProductManufacturerBasicCollection;
+use Shopware\Content\Product\Aggregate\ProductMedia\Collection\ProductMediaBasicCollection;
 use Shopware\Framework\ORM\EntityCollection;
 use Shopware\Content\Product\Struct\ProductBasicStruct;
-use Shopware\Content\Product\Struct\ProductMediaBasicStruct;
+
 use Shopware\System\Tax\Collection\TaxBasicCollection;
 use Shopware\System\Unit\Collection\UnitBasicCollection;
 

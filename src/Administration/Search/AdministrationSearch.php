@@ -14,7 +14,7 @@ use Shopware\Framework\ORM\Search\Sorting\FieldSorting;
 use Shopware\Framework\ORM\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Framework\ORM\Search\Term\SearchTermInterpreter;
 use Shopware\Checkout\Order\Definition\OrderDefinition;
-use Shopware\Content\Product\Definition\ProductDefinition;
+use Shopware\Content\Product\ProductDefinition;
 use Shopware\Framework\ORM\Version\Repository\VersionCommitDataRepository;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Struct\ArrayStruct;

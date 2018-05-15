@@ -26,7 +26,7 @@ declare(strict_types=1);
 namespace Shopware\Checkout\CartBridge\Product;
 
 use Shopware\Content\Product\Struct\ProductBasicStruct;
-use Shopware\Content\Product\Struct\ProductServiceBasicStruct;
+use Shopware\Content\Product\Aggregate\ProductService\Struct\ProductServiceBasicStruct;
 use Shopware\Checkout\Cart\LineItem\CalculatedLineItem;
 use Shopware\Checkout\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Checkout\Cart\LineItem\LineItemCollection;
@@ -104,7 +104,7 @@ class ProductCalculator
                     continue;
                 }
 
-                /** @var ProductServiceBasicStruct $service */
+                /** @var \Shopware\Content\Product\Aggregate\ProductService\Struct\ProductServiceBasicStruct $service */
                 $service = $dataCollection->get($serviceId);
                 if (!$service) {
                     continue;

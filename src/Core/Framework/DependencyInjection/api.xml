@@ -84,7 +84,7 @@
         </service>
 
         <service class="Shopware\Framework\Api\Controller\ProductActionController" id="Shopware\Framework\Api\Controller\ProductActionController" public="true">
-            <argument id="Shopware\Content\Product\Service\VariantGenerator" type="service"/>
+            <argument id="Shopware\Content\Product\Util\VariantGenerator" type="service"/>
             <call method="setContainer">
                 <argument id="service_container" type="service"/>
             </call>

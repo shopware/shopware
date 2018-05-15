@@ -6,13 +6,13 @@ use Doctrine\DBAL\Connection;
 use Psr\Container\ContainerInterface;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Query\TermQuery;
-use Shopware\Content\Product\Definition\ProductDefinition;
-use Shopware\Content\Product\Repository\ProductRepository;
+use Shopware\Content\Product\ProductDefinition;
+use Shopware\Content\Product\ProductRepository;
 use Shopware\Content\Product\Struct\PriceStruct;
 use Shopware\Content\Product\Struct\ProductDetailStruct;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Struct\Uuid;
-use Shopware\Content\Product\Service\VariantGenerator;
+use Shopware\Content\Product\Util\VariantGenerator;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class VariantGeneratorTest extends KernelTestCase
@@ -23,7 +23,7 @@ class VariantGeneratorTest extends KernelTestCase
     private $container;
 
     /**
-     * @var ProductRepository
+     * @var \Shopware\Content\Product\ProductRepository
      */
     private $repository;
 

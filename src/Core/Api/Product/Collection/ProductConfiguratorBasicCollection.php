@@ -2,9 +2,9 @@
 
 namespace Shopware\Api\Product\Collection;
 
-use Shopware\Api\Configuration\Collection\ConfigurationGroupDetailCollection;
-use Shopware\Api\Configuration\Collection\ConfigurationGroupOptionBasicCollection;
-use Shopware\Api\Configuration\Struct\ConfigurationGroupDetailStruct;
+use Shopware\System\Configuration\Collection\ConfigurationGroupDetailCollection;
+use Shopware\System\Configuration\Collection\ConfigurationGroupOptionBasicCollection;
+use Shopware\System\Configuration\Struct\ConfigurationGroupDetailStruct;
 use Shopware\Api\Entity\EntityCollection;
 use Shopware\Api\Product\Struct\ProductConfiguratorBasicStruct;
 

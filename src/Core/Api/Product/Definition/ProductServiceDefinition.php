@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Product\Definition;
 
-use Shopware\Api\Configuration\Definition\ConfigurationGroupOptionDefinition;
+use Shopware\System\Configuration\Definition\ConfigurationGroupOptionDefinition;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\Field\ContextPricesJsonField;

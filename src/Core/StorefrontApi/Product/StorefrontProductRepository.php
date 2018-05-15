@@ -2,7 +2,7 @@
 
 namespace Shopware\StorefrontApi\Product;
 
-use Shopware\Api\Configuration\Struct\ConfigurationGroupOptionBasicStruct;
+use Shopware\System\Configuration\Struct\ConfigurationGroupOptionBasicStruct;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Product\Collection\ProductBasicCollection;

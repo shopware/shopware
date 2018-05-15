@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Product\Struct;
 
-use Shopware\Api\Configuration\Struct\ConfigurationGroupOptionBasicStruct;
+use Shopware\System\Configuration\Struct\ConfigurationGroupOptionBasicStruct;
 use Shopware\Api\Context\Collection\ContextPriceCollection;
 use Shopware\Api\Entity\Entity;
 use Shopware\Api\Tax\Struct\TaxBasicStruct;

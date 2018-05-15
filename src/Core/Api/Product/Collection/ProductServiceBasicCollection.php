@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Product\Collection;
 
-use Shopware\Api\Configuration\Collection\ConfigurationGroupOptionBasicCollection;
+use Shopware\System\Configuration\Collection\ConfigurationGroupOptionBasicCollection;
 use Shopware\Api\Entity\EntityCollection;
 use Shopware\Api\Product\Struct\ProductServiceBasicStruct;
 use Shopware\Api\Tax\Collection\TaxBasicCollection;

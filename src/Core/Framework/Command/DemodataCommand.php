@@ -8,7 +8,7 @@ use Faker\Factory;
 use Faker\Generator;
 use League\Flysystem\FilesystemInterface;
 use Shopware\Api\Category\Repository\CategoryRepository;
-use Shopware\Api\Configuration\Definition\ConfigurationGroupDefinition;
+use Shopware\System\Configuration\Definition\ConfigurationGroupDefinition;
 use Shopware\Api\Context\Definition\ContextRuleDefinition;
 use Shopware\Api\Context\Repository\ContextRuleRepository;
 use Shopware\Api\Customer\Definition\CustomerDefinition;

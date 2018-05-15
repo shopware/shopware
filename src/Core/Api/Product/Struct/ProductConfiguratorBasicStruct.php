@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Product\Struct;
 
-use Shopware\Api\Configuration\Struct\ConfigurationGroupOptionBasicStruct;
+use Shopware\System\Configuration\Struct\ConfigurationGroupOptionBasicStruct;
 use Shopware\Api\Entity\Entity;
 
 class ProductConfiguratorBasicStruct extends Entity

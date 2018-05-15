@@ -2,9 +2,9 @@
 
 namespace Shopware\Storefront\Subscriber;
 
-use Shopware\Api\Configuration\Collection\ConfigurationGroupOptionBasicCollection;
-use Shopware\Api\Configuration\Definition\ConfigurationGroupOptionDefinition;
-use Shopware\Api\Configuration\Struct\ConfigurationGroupDetailStruct;
+use Shopware\System\Configuration\Collection\ConfigurationGroupOptionBasicCollection;
+use Shopware\System\Configuration\Definition\ConfigurationGroupOptionDefinition;
+use Shopware\System\Configuration\Struct\ConfigurationGroupDetailStruct;
 use Shopware\Api\Entity\Search\Aggregation\AggregationResult;
 use Shopware\Api\Entity\Search\Aggregation\EntityAggregation;
 use Shopware\Api\Entity\Search\AggregatorResult;

@@ -3,7 +3,7 @@
 namespace Shopware\Api\Product\Collection;
 
 use Shopware\Api\Category\Collection\CategoryBasicCollection;
-use Shopware\Api\Configuration\Collection\ConfigurationGroupOptionBasicCollection;
+use Shopware\System\Configuration\Collection\ConfigurationGroupOptionBasicCollection;
 use Shopware\Api\Product\Struct\ProductDetailStruct;
 
 class ProductDetailCollection extends ProductBasicCollection

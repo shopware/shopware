@@ -3,7 +3,7 @@
 namespace Shopware\Api\Product\Struct;
 
 use Shopware\Api\Category\Collection\CategoryBasicCollection;
-use Shopware\Api\Configuration\Collection\ConfigurationGroupOptionBasicCollection;
+use Shopware\System\Configuration\Collection\ConfigurationGroupOptionBasicCollection;
 use Shopware\Api\Product\Collection\ProductBasicCollection;
 use Shopware\Api\Product\Collection\ProductConfiguratorBasicCollection;
 use Shopware\Api\Product\Collection\ProductMediaBasicCollection;

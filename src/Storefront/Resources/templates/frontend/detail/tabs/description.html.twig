@@ -39,7 +39,7 @@
 
                     {% set grouped = product.datasheet.groupByConfigurationGroups %}
 
-                    {# @var group \Shopware\Api\Configuration\Struct\ConfigurationGroupDetailStruct #}
+                    {# @var group \Shopware\System\Configuration\Struct\ConfigurationGroupDetailStruct #}
                     {% for group in grouped %}
                         <tr class="product--properties-row">
                             {# Property label #}

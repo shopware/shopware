@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api\Log\Collection;
+namespace Shopware\System\Log\Collection;
 
 use Shopware\Api\Entity\EntityCollection;
-use Shopware\Api\Log\Struct\LogBasicStruct;
+use Shopware\System\Log\Struct\LogBasicStruct;
 
 class LogBasicCollection extends EntityCollection
 {

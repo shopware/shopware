@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api\Log\Repository;
+namespace Shopware\System\Log\Repository;
 
 use Shopware\Api\Entity\Read\EntityReaderInterface;
 use Shopware\Api\Entity\RepositoryInterface;
@@ -11,13 +11,13 @@ use Shopware\Api\Entity\Search\EntitySearcherInterface;
 use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Entity\Write\WriteContext;
-use Shopware\Api\Log\Collection\LogBasicCollection;
-use Shopware\Api\Log\Definition\LogDefinition;
-use Shopware\Api\Log\Event\Log\LogAggregationResultLoadedEvent;
-use Shopware\Api\Log\Event\Log\LogBasicLoadedEvent;
-use Shopware\Api\Log\Event\Log\LogIdSearchResultLoadedEvent;
-use Shopware\Api\Log\Event\Log\LogSearchResultLoadedEvent;
-use Shopware\Api\Log\Struct\LogSearchResult;
+use Shopware\System\Log\Collection\LogBasicCollection;
+use Shopware\System\Log\Definition\LogDefinition;
+use Shopware\System\Log\Event\Log\LogAggregationResultLoadedEvent;
+use Shopware\System\Log\Event\Log\LogBasicLoadedEvent;
+use Shopware\System\Log\Event\Log\LogIdSearchResultLoadedEvent;
+use Shopware\System\Log\Event\Log\LogSearchResultLoadedEvent;
+use Shopware\System\Log\Struct\LogSearchResult;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Version\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;

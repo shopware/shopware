@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api\Log\Event\Log;
+namespace Shopware\System\Log\Event\Log;
 
 use Shopware\Api\Entity\Write\DeletedEvent;
 use Shopware\Api\Entity\Write\WrittenEvent;
-use Shopware\Api\Log\Definition\LogDefinition;
+use Shopware\System\Log\Definition\LogDefinition;
 
 class LogDeletedEvent extends WrittenEvent implements DeletedEvent
 {

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api\Log\Definition;
+namespace Shopware\System\Log\Definition;
 
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\EntityExtensionInterface;
@@ -13,11 +13,11 @@ use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
-use Shopware\Api\Log\Collection\LogBasicCollection;
-use Shopware\Api\Log\Event\Log\LogDeletedEvent;
-use Shopware\Api\Log\Event\Log\LogWrittenEvent;
-use Shopware\Api\Log\Repository\LogRepository;
-use Shopware\Api\Log\Struct\LogBasicStruct;
+use Shopware\System\Log\Collection\LogBasicCollection;
+use Shopware\System\Log\Event\Log\LogDeletedEvent;
+use Shopware\System\Log\Event\Log\LogWrittenEvent;
+use Shopware\System\Log\Repository\LogRepository;
+use Shopware\System\Log\Struct\LogBasicStruct;
 
 class LogDefinition extends EntityDefinition
 {

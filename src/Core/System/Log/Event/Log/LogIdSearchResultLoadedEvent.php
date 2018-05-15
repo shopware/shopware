@@ -1,21 +1,21 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api\Log\Event\Log;
+namespace Shopware\System\Log\Event\Log;
 
-use Shopware\Api\Entity\Search\AggregatorResult;
+use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
-class LogAggregationResultLoadedEvent extends NestedEvent
+class LogIdSearchResultLoadedEvent extends NestedEvent
 {
-    public const NAME = 'log.aggregation.result.loaded';
+    public const NAME = 'log.id.search.result.loaded';
 
     /**
-     * @var AggregatorResult
+     * @var IdSearchResult
      */
     protected $result;
 
-    public function __construct(AggregatorResult $result)
+    public function __construct(IdSearchResult $result)
     {
         $this->result = $result;
     }
@@ -30,7 +30,7 @@ class LogAggregationResultLoadedEvent extends NestedEvent
         return $this->result->getContext();
     }
 
-    public function getResult(): AggregatorResult
+    public function getResult(): IdSearchResult
     {
         return $this->result;
     }

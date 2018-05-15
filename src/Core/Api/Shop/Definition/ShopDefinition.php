@@ -3,7 +3,7 @@
 namespace Shopware\Api\Shop\Definition;
 
 use Shopware\Api\Category\Definition\CategoryDefinition;
-use Shopware\Api\Config\Definition\ConfigFormFieldValueDefinition;
+use Shopware\System\Config\Definition\ConfigFormFieldValueDefinition;
 use Shopware\Api\Country\Definition\CountryDefinition;
 use Shopware\Api\Currency\Definition\CurrencyDefinition;
 use Shopware\Api\Customer\Definition\CustomerDefinition;

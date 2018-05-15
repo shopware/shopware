@@ -1,0 +1,74 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <!-- Versioning -->
+        <service alias="Shopware\System\Config\Repository\ConfigFormRepository.v1" id="Shopware\System\Config\Repository\ConfigFormRepository" public="true" />
+        <service alias="Shopware\System\Config\Repository\ConfigFormFieldRepository.v1" id="Shopware\System\Config\Repository\ConfigFormFieldRepository" public="true" />
+        <service alias="Shopware\System\Config\Repository\ConfigFormFieldTranslationRepository.v1" id="Shopware\System\Config\Repository\ConfigFormFieldTranslationRepository" public="true" />
+        <service alias="Shopware\System\Config\Repository\ConfigFormFieldValueRepository.v1" id="Shopware\System\Config\Repository\ConfigFormFieldValueRepository" public="true" />
+        <service alias="Shopware\System\Config\Repository\ConfigFormTranslationRepository.v1" id="Shopware\System\Config\Repository\ConfigFormTranslationRepository" public="true"/>
+
+        <service class="Shopware\System\Config\Definition\ConfigFormDefinition" id="Shopware\System\Config\Definition\ConfigFormDefinition" >
+            <tag name="shopware.entity.definition" entity="config_form" />
+        </service>
+
+        <service class="Shopware\System\Config\Repository\ConfigFormRepository" id="Shopware\System\Config\Repository\ConfigFormRepository.v1" public="true">
+          <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Version\VersionManager" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+         <service class="Shopware\System\Config\Definition\ConfigFormFieldDefinition" id="Shopware\System\Config\Definition\ConfigFormFieldDefinition" >
+            <tag name="shopware.entity.definition" entity="config_form_field" />
+        </service>
+
+        <service class="Shopware\System\Config\Repository\ConfigFormFieldRepository" id="Shopware\System\Config\Repository\ConfigFormFieldRepository.v1" public="true">
+          <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Version\VersionManager" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+         <service class="Shopware\System\Config\Definition\ConfigFormFieldTranslationDefinition" id="Shopware\System\Config\Definition\ConfigFormFieldTranslationDefinition" >
+            <tag name="shopware.entity.definition" entity="config_form_field_translation" />
+        </service>
+
+        <service class="Shopware\System\Config\Repository\ConfigFormFieldTranslationRepository" id="Shopware\System\Config\Repository\ConfigFormFieldTranslationRepository.v1" public="true">
+          <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Version\VersionManager" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+
+         <service class="Shopware\System\Config\Definition\ConfigFormFieldValueDefinition" id="Shopware\System\Config\Definition\ConfigFormFieldValueDefinition" >
+            <tag name="shopware.entity.definition" entity="config_form_field_value" />
+        </service>
+
+        <service class="Shopware\System\Config\Repository\ConfigFormFieldValueRepository" id="Shopware\System\Config\Repository\ConfigFormFieldValueRepository.v1" public="true">
+          <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Version\VersionManager" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+         <service class="Shopware\System\Config\Definition\ConfigFormTranslationDefinition" id="Shopware\System\Config\Definition\ConfigFormTranslationDefinition" >
+            <tag name="shopware.entity.definition" entity="config_form_translation" />
+        </service>
+
+
+        <service class="Shopware\System\Config\Repository\ConfigFormTranslationRepository" id="Shopware\System\Config\Repository\ConfigFormTranslationRepository.v1" public="true">
+          <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Version\VersionManager" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+    </services>
+</container>                
+                

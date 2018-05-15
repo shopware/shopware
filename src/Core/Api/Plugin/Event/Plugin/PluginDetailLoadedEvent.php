@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Plugin\Event\Plugin;
 
-use Shopware\Api\Config\Event\ConfigForm\ConfigFormBasicLoadedEvent;
+use Shopware\System\Config\Event\ConfigForm\ConfigFormBasicLoadedEvent;
 use Shopware\Api\Payment\Event\PaymentMethod\PaymentMethodBasicLoadedEvent;
 use Shopware\Api\Plugin\Collection\PluginDetailCollection;
 use Shopware\Api\Shop\Event\ShopTemplate\ShopTemplateBasicLoadedEvent;

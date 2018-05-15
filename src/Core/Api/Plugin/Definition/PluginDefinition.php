@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Plugin\Definition;
 
-use Shopware\Api\Config\Definition\ConfigFormDefinition;
+use Shopware\System\Config\Definition\ConfigFormDefinition;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\EntityExtensionInterface;
 use Shopware\Api\Entity\Field\BoolField;

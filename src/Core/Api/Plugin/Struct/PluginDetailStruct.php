@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Plugin\Struct;
 
-use Shopware\Api\Config\Collection\ConfigFormBasicCollection;
+use Shopware\System\Config\Collection\ConfigFormBasicCollection;
 use Shopware\Api\Payment\Collection\PaymentMethodBasicCollection;
 use Shopware\Api\Shop\Collection\ShopTemplateBasicCollection;
 

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Payment\Struct;
+namespace Shopware\Checkout\Payment\Struct;
 
 use Shopware\Checkout\Order\Struct\OrderDetailStruct;
 use Shopware\Checkout\Cart\Price\Struct\CalculatedPrice;

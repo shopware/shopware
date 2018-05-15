@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Payment\Exception;
+namespace Shopware\Checkout\Payment\Exception;
 
 class InvalidTokenException extends \Exception
 {

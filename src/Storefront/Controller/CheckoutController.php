@@ -14,12 +14,12 @@ use Shopware\Checkout\CartBridge\Service\StoreFrontCartService;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\Uuid;
-use Shopware\Payment\Exception\InvalidOrderException;
-use Shopware\Payment\Exception\InvalidTransactionException;
-use Shopware\Payment\Exception\UnknownPaymentMethodException;
-use Shopware\Payment\PaymentHandler\PaymentHandlerInterface;
-use Shopware\Payment\PaymentProcessor;
-use Shopware\Payment\Token\PaymentTransactionTokenFactory;
+use Shopware\Checkout\Payment\Exception\InvalidOrderException;
+use Shopware\Checkout\Payment\Exception\InvalidTransactionException;
+use Shopware\Checkout\Payment\Exception\UnknownPaymentMethodException;
+use Shopware\Checkout\Payment\PaymentHandler\PaymentHandlerInterface;
+use Shopware\Checkout\Payment\PaymentProcessor;
+use Shopware\Checkout\Payment\Token\PaymentTransactionTokenFactory;
 use Shopware\Storefront\Page\Checkout\PaymentMethodLoader;
 use Shopware\StorefrontApi\Context\StorefrontContextPersister;
 use Shopware\StorefrontApi\Context\StorefrontContextService;
@@ -214,8 +214,8 @@ class CheckoutController extends StorefrontController
      *
      * @throws UnknownPaymentMethodException
      * @throws \Doctrine\DBAL\Exception\InvalidArgumentException
-     * @throws \Shopware\Payment\Exception\InvalidTokenException
-     * @throws \Shopware\Payment\Exception\TokenExpiredException
+     * @throws \Shopware\Checkout\Payment\Exception\InvalidTokenException
+     * @throws \Shopware\Checkout\Payment\Exception\TokenExpiredException
      *
      * @return RedirectResponse
      */

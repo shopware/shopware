@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Payment\Token;
+namespace Shopware\Checkout\Payment\Token;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
@@ -8,8 +8,8 @@ use Shopware\Checkout\Order\Struct\OrderTransactionBasicStruct;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Struct\Uuid;
 use Shopware\Framework\Util\Random;
-use Shopware\Payment\Exception\InvalidTokenException;
-use Shopware\Payment\Exception\TokenExpiredException;
+use Shopware\Checkout\Payment\Exception\InvalidTokenException;
+use Shopware\Checkout\Payment\Exception\TokenExpiredException;
 
 class PaymentTransactionTokenFactory implements PaymentTransactionTokenFactoryInterface
 {

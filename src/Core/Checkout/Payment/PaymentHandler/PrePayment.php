@@ -1,15 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Payment\PaymentHandler;
+namespace Shopware\Checkout\Payment\PaymentHandler;
 
 use Shopware\Checkout\Order\Repository\OrderTransactionRepository;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
-use Shopware\Payment\Struct\PaymentTransaction;
+use Shopware\Checkout\Payment\Struct\PaymentTransaction;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 
-class SEPAPayment implements PaymentHandlerInterface
+class PrePayment implements PaymentHandlerInterface
 {
     /**
      * @var OrderTransactionRepository

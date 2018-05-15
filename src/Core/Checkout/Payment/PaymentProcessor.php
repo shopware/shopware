@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Payment;
+namespace Shopware\Checkout\Payment;
 
 use Shopware\Checkout\Order\Collection\OrderTransactionBasicCollection;
 use Shopware\Checkout\Order\Repository\OrderRepository;
@@ -8,12 +8,12 @@ use Shopware\Checkout\Order\Struct\OrderDetailStruct;
 use Shopware\Checkout\Payment\Repository\PaymentMethodRepository;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
-use Shopware\Payment\Exception\InvalidOrderException;
-use Shopware\Payment\Exception\UnknownPaymentMethodException;
-use Shopware\Payment\PaymentHandler\PaymentHandlerInterface;
-use Shopware\Payment\Struct\PaymentTransaction;
-use Shopware\Payment\Token\PaymentTransactionTokenFactory;
-use Shopware\Payment\Token\PaymentTransactionTokenFactoryInterface;
+use Shopware\Checkout\Payment\Exception\InvalidOrderException;
+use Shopware\Checkout\Payment\Exception\UnknownPaymentMethodException;
+use Shopware\Checkout\Payment\PaymentHandler\PaymentHandlerInterface;
+use Shopware\Checkout\Payment\Struct\PaymentTransaction;
+use Shopware\Checkout\Payment\Token\PaymentTransactionTokenFactory;
+use Shopware\Checkout\Payment\Token\PaymentTransactionTokenFactoryInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;

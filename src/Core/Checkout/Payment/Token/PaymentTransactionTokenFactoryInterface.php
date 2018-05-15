@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Payment\Token;
+namespace Shopware\Checkout\Payment\Token;
 
 use Shopware\Checkout\Order\Struct\OrderTransactionBasicStruct;
 use Shopware\Application\Context\Struct\ApplicationContext;

@@ -29,6 +29,46 @@
           <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>
+        <service class="Shopware\Checkout\Payment\PaymentProcessor" id="Shopware\Checkout\Payment\PaymentProcessor">
+            <argument type="service" id="Shopware\Checkout\Payment\Token\PaymentTransactionTokenFactory"/>
+            <argument type="service" id="Shopware\Checkout\Order\Repository\OrderRepository"/>
+            <argument type="service" id="Shopware\Checkout\Payment\Repository\PaymentMethodRepository"/>
+            <argument type="service" id="router.default"/>
+            <argument type="service" id="Shopware\Checkout\Payment\PaymentHandlerRegistry"/>
+        </service>
+
+        <service class="Shopware\Checkout\Payment\Token\PaymentTransactionTokenFactory" id="Shopware\Checkout\Payment\Token\PaymentTransactionTokenFactory" public="true">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <service class="Shopware\Checkout\Payment\PaymentHandlerRegistry" id="Shopware\Checkout\Payment\PaymentHandlerRegistry">
+            <argument type="tagged" tag="payment.method" />
+        </service>
+
+        <service class="Shopware\Checkout\Payment\PaymentHandler\PrePayment" id="Shopware\Checkout\Payment\PaymentHandler\PrePayment">
+            <tag name="payment.method" />
+            <argument type="service" id="Shopware\Checkout\Order\Repository\OrderTransactionRepository"/>
+        </service>
+
+        <service class="Shopware\Checkout\Payment\PaymentHandler\DebitPayment" id="Shopware\Checkout\Payment\PaymentHandler\DebitPayment">
+            <tag name="payment.method" />
+            <argument type="service" id="Shopware\Checkout\Order\Repository\OrderTransactionRepository"/>
+        </service>
+
+        <service class="Shopware\Checkout\Payment\PaymentHandler\CashPayment" id="Shopware\Checkout\Payment\PaymentHandler\CashPayment">
+            <tag name="payment.method" />
+            <argument type="service" id="Shopware\Checkout\Order\Repository\OrderTransactionRepository"/>
+        </service>
+
+        <service class="Shopware\Checkout\Payment\PaymentHandler\InvoicePayment" id="Shopware\Checkout\Payment\PaymentHandler\InvoicePayment">
+            <tag name="payment.method" />
+            <argument type="service" id="Shopware\Checkout\Order\Repository\OrderTransactionRepository"/>
+        </service>
+
+        <service class="Shopware\Checkout\Payment\PaymentHandler\SEPAPayment" id="Shopware\Checkout\Payment\PaymentHandler\SEPAPayment">
+            <tag name="payment.method" />
+            <argument type="service" id="Shopware\Checkout\Order\Repository\OrderTransactionRepository"/>
+        </service>
     </services>
 </container>                
                 

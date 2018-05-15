@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Payment\Test;
+namespace Shopware\Checkout\Test\Payment;
 
 use Doctrine\DBAL\Connection;
 use Psr\Container\ContainerInterface;
@@ -13,7 +13,7 @@ use Shopware\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\Uuid;
-use Shopware\Payment\Token\PaymentTransactionTokenFactory;
+use Shopware\Checkout\Payment\Token\PaymentTransactionTokenFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class TokenFactoryTest extends KernelTestCase
@@ -96,8 +96,8 @@ class TokenFactoryTest extends KernelTestCase
     }
 
     /**
-     * @throws \Shopware\Payment\Exception\InvalidTokenException
-     * @throws \Shopware\Payment\Exception\TokenExpiredException
+     * @throws \Shopware\Checkout\Payment\Exception\InvalidTokenException
+     * @throws \Shopware\Checkout\Payment\Exception\TokenExpiredException
      */
     public function testValidateToken()
     {
@@ -121,7 +121,7 @@ class TokenFactoryTest extends KernelTestCase
 
     /**
      * @throws \Doctrine\DBAL\Exception\InvalidArgumentException
-     * @throws \Shopware\Payment\Exception\InvalidTokenException
+     * @throws \Shopware\Checkout\Payment\Exception\InvalidTokenException
      */
     public function testInvalidateToken()
     {

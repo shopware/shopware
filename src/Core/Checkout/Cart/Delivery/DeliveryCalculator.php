@@ -33,8 +33,8 @@ use Shopware\Checkout\Cart\Price\PriceCalculator;
 use Shopware\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Checkout\Cart\Price\Struct\PriceDefinition;
 use Shopware\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
-use Shopware\Context\Struct\ApplicationContext;
-use Shopware\Context\Struct\StorefrontContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\Uuid;
 
 class DeliveryCalculator

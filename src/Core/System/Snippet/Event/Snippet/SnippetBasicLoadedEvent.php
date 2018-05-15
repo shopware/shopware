@@ -3,7 +3,7 @@
 namespace Shopware\System\Snippet\Event\Snippet;
 
 use Shopware\System\Snippet\Collection\SnippetBasicCollection;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class SnippetBasicLoadedEvent extends NestedEvent

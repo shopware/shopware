@@ -10,7 +10,7 @@ use Shopware\Framework\ORM\Search\Term\SearchPattern;
 use Shopware\Framework\ORM\Search\Term\SearchTerm;
 use Shopware\Content\Product\Definition\ProductDefinition;
 use Shopware\Content\Product\Repository\ProductRepository;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Struct\ArrayStruct;
 use Shopware\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;

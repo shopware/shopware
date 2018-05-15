@@ -3,7 +3,7 @@
 namespace Shopware\System\Config\Event\ConfigFormTranslation;
 
 use Shopware\System\Config\Struct\ConfigFormTranslationSearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class ConfigFormTranslationSearchResultLoadedEvent extends NestedEvent

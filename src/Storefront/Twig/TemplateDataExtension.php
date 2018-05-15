@@ -24,7 +24,7 @@
 
 namespace Shopware\Storefront\Twig;
 
-use Shopware\Context\Struct\StorefrontContext;
+use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Framework\Config\ConfigServiceInterface;
 use Shopware\PlatformRequest;
 use Shopware\Storefront\Theme\ThemeConfigReader;

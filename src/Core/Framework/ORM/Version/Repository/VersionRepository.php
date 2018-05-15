@@ -18,7 +18,7 @@ use Shopware\Framework\ORM\Version\Event\Version\VersionBasicLoadedEvent;
 use Shopware\Framework\ORM\Version\Event\Version\VersionIdSearchResultLoadedEvent;
 use Shopware\Framework\ORM\Version\Event\Version\VersionSearchResultLoadedEvent;
 use Shopware\Framework\ORM\Version\Struct\VersionSearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Version\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 

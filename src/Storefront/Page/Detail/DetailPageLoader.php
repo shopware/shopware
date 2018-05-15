@@ -7,7 +7,7 @@ use Shopware\Framework\ORM\Search\Query\NestedQuery;
 use Shopware\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Content\Product\Collection\ProductConfiguratorBasicCollection;
 use Shopware\Content\Product\Repository\ProductConfiguratorRepository;
-use Shopware\Context\Struct\StorefrontContext;
+use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\StorefrontApi\Product\ProductBasicStruct;
 use Shopware\StorefrontApi\Product\ProductDetailStruct;
 use Shopware\StorefrontApi\Product\StorefrontProductRepository;

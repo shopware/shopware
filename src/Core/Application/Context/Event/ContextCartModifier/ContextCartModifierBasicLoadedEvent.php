@@ -3,7 +3,7 @@
 namespace Shopware\Application\Context\Event\ContextCartModifier;
 
 use Shopware\Application\Context\Collection\ContextCartModifierBasicCollection;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class ContextCartModifierBasicLoadedEvent extends NestedEvent

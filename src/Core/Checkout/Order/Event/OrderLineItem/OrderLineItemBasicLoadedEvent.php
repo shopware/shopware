@@ -3,7 +3,7 @@
 namespace Shopware\Checkout\Order\Event\OrderLineItem;
 
 use Shopware\Checkout\Order\Collection\OrderLineItemBasicCollection;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class OrderLineItemBasicLoadedEvent extends NestedEvent

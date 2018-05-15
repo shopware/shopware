@@ -18,7 +18,7 @@ use Shopware\Checkout\Order\Event\OrderTransactionStateTranslation\OrderTransact
 use Shopware\Checkout\Order\Event\OrderTransactionStateTranslation\OrderTransactionStateTranslationIdSearchResultLoadedEvent;
 use Shopware\Checkout\Order\Event\OrderTransactionStateTranslation\OrderTransactionStateTranslationSearchResultLoadedEvent;
 use Shopware\Checkout\Order\Struct\OrderTransactionStateTranslationSearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Version\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 

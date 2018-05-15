@@ -6,7 +6,7 @@ use Shopware\Checkout\Customer\Repository\CustomerRepository;
 use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Query\TermQuery;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;

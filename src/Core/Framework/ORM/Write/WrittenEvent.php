@@ -3,7 +3,7 @@
 namespace Shopware\Framework\ORM\Write;
 
 use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 

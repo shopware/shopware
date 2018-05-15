@@ -3,7 +3,7 @@
 namespace Shopware\Api\Shop\Event\ShopTemplateConfigPreset;
 
 use Shopware\Api\Shop\Collection\ShopTemplateConfigPresetBasicCollection;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class ShopTemplateConfigPresetBasicLoadedEvent extends NestedEvent

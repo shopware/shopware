@@ -24,7 +24,7 @@
 
 namespace Shopware\StorefrontApi\Context;
 
-use Shopware\Context\Struct\StorefrontContext;
+use Shopware\Application\Context\Struct\StorefrontContext;
 
 /**
  * @category  Shopware

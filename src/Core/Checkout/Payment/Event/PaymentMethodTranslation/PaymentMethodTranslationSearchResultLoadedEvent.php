@@ -3,7 +3,7 @@
 namespace Shopware\Checkout\Payment\Event\PaymentMethodTranslation;
 
 use Shopware\Checkout\Payment\Struct\PaymentMethodTranslationSearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class PaymentMethodTranslationSearchResultLoadedEvent extends NestedEvent

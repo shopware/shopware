@@ -4,7 +4,7 @@ namespace Shopware\System\Tax\Event\Tax;
 
 use Shopware\System\Tax\Collection\TaxDetailCollection;
 use Shopware\System\Tax\Event\TaxAreaRule\TaxAreaRuleBasicLoadedEvent;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 

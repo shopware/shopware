@@ -5,7 +5,7 @@ namespace Shopware\Content\Media\Event\MediaTranslation;
 use Shopware\Application\Language\Event\Language\LanguageBasicLoadedEvent;
 use Shopware\Content\Media\Collection\MediaTranslationDetailCollection;
 use Shopware\Content\Media\Event\Media\MediaBasicLoadedEvent;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 

@@ -20,7 +20,7 @@ use Shopware\Framework\ORM\Version\Event\VersionCommitData\VersionCommitDataDeta
 use Shopware\Framework\ORM\Version\Event\VersionCommitData\VersionCommitDataIdSearchResultLoadedEvent;
 use Shopware\Framework\ORM\Version\Event\VersionCommitData\VersionCommitDataSearchResultLoadedEvent;
 use Shopware\Framework\ORM\Version\Struct\VersionCommitDataSearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Version\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 

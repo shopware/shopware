@@ -4,7 +4,7 @@ namespace Shopware\Api\Shop\Event\ShopTemplateConfigPreset;
 
 use Shopware\Api\Shop\Collection\ShopTemplateConfigPresetDetailCollection;
 use Shopware\Api\Shop\Event\ShopTemplate\ShopTemplateBasicLoadedEvent;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 

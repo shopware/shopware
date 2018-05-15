@@ -17,7 +17,7 @@ use Shopware\System\Tax\Definition\TaxDefinition;
 use Shopware\System\Tax\Repository\TaxRepository;
 use Shopware\System\Tax\Struct\TaxDetailStruct;
 use Shopware\Api\Test\Traits\CategoryTrait;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 

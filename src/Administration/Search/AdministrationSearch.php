@@ -16,7 +16,7 @@ use Shopware\Framework\ORM\Search\Term\SearchTermInterpreter;
 use Shopware\Checkout\Order\Definition\OrderDefinition;
 use Shopware\Content\Product\Definition\ProductDefinition;
 use Shopware\Framework\ORM\Version\Repository\VersionCommitDataRepository;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Struct\ArrayStruct;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 

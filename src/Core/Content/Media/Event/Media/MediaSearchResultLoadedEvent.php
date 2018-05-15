@@ -3,7 +3,7 @@
 namespace Shopware\Content\Media\Event\Media;
 
 use Shopware\Content\Media\Struct\MediaSearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class MediaSearchResultLoadedEvent extends NestedEvent

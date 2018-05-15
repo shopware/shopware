@@ -3,7 +3,7 @@
 namespace Shopware\Content\Media\Event\MediaTranslation;
 
 use Shopware\Content\Media\Collection\MediaTranslationBasicCollection;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class MediaTranslationBasicLoadedEvent extends NestedEvent

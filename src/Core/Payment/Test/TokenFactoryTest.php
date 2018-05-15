@@ -10,7 +10,7 @@ use Shopware\Checkout\Order\Repository\OrderTransactionRepository;
 use Shopware\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\Uuid;
 use Shopware\Payment\Token\PaymentTransactionTokenFactory;

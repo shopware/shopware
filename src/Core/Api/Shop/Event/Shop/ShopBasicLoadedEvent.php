@@ -5,7 +5,7 @@ namespace Shopware\Api\Shop\Event\Shop;
 use Shopware\System\Currency\Event\Currency\CurrencyBasicLoadedEvent;
 use Shopware\System\Locale\Event\Locale\LocaleBasicLoadedEvent;
 use Shopware\Api\Shop\Collection\ShopBasicCollection;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 

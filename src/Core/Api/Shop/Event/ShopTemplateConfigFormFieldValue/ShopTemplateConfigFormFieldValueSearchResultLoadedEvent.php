@@ -3,7 +3,7 @@
 namespace Shopware\Api\Shop\Event\ShopTemplateConfigFormFieldValue;
 
 use Shopware\Api\Shop\Struct\ShopTemplateConfigFormFieldValueSearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class ShopTemplateConfigFormFieldValueSearchResultLoadedEvent extends NestedEvent

@@ -3,7 +3,7 @@
 namespace Shopware\System\Currency\Event\CurrencyTranslation;
 
 use Shopware\System\Currency\Struct\CurrencyTranslationSearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class CurrencyTranslationSearchResultLoadedEvent extends NestedEvent

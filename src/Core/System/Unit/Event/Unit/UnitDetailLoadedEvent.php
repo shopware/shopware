@@ -4,7 +4,7 @@ namespace Shopware\System\Unit\Event\Unit;
 
 use Shopware\System\Unit\Collection\UnitDetailCollection;
 use Shopware\System\Unit\Event\UnitTranslation\UnitTranslationBasicLoadedEvent;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 

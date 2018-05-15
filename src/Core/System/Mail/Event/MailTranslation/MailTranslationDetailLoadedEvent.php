@@ -5,7 +5,7 @@ namespace Shopware\System\Mail\Event\MailTranslation;
 use Shopware\Application\Language\Event\Language\LanguageBasicLoadedEvent;
 use Shopware\System\Mail\Collection\MailTranslationDetailCollection;
 use Shopware\System\Mail\Event\Mail\MailBasicLoadedEvent;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 

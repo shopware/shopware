@@ -2,7 +2,7 @@
 
 namespace Shopware\Framework\ORM\Search\Term;
 
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use voku\helper\StopWords;
 
 class StopWordFilter implements SearchFilterInterface

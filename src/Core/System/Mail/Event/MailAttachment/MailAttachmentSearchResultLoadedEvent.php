@@ -3,7 +3,7 @@
 namespace Shopware\System\Mail\Event\MailAttachment;
 
 use Shopware\System\Mail\Struct\MailAttachmentSearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class MailAttachmentSearchResultLoadedEvent extends NestedEvent

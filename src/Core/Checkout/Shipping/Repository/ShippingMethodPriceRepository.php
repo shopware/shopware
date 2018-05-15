@@ -20,7 +20,7 @@ use Shopware\Checkout\Shipping\Event\ShippingMethodPrice\ShippingMethodPriceDeta
 use Shopware\Checkout\Shipping\Event\ShippingMethodPrice\ShippingMethodPriceIdSearchResultLoadedEvent;
 use Shopware\Checkout\Shipping\Event\ShippingMethodPrice\ShippingMethodPriceSearchResultLoadedEvent;
 use Shopware\Checkout\Shipping\Struct\ShippingMethodPriceSearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Version\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 

@@ -32,7 +32,7 @@ use Shopware\Checkout\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Checkout\Cart\LineItem\CalculatedLineItemInterface;
 use Shopware\Checkout\Cart\Price\AmountCalculator;
 use Shopware\Checkout\Cart\Transaction\Struct\TransactionCollection;
-use Shopware\Context\Struct\StorefrontContext;
+use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class CartProcessor

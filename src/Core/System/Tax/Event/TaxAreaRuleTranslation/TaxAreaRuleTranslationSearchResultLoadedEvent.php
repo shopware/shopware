@@ -3,7 +3,7 @@
 namespace Shopware\System\Tax\Event\TaxAreaRuleTranslation;
 
 use Shopware\System\Tax\Struct\TaxAreaRuleTranslationSearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class TaxAreaRuleTranslationSearchResultLoadedEvent extends NestedEvent

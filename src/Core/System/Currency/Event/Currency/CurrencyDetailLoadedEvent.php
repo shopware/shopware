@@ -4,7 +4,7 @@ namespace Shopware\System\Currency\Event\Currency;
 
 use Shopware\System\Currency\Collection\CurrencyDetailCollection;
 use Shopware\System\Currency\Event\CurrencyTranslation\CurrencyTranslationBasicLoadedEvent;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 

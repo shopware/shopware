@@ -9,7 +9,7 @@ use Shopware\Content\Product\Definition\ProductDefinition;
 use Shopware\Content\Product\Repository\ProductRepository;
 use Shopware\Content\Product\Struct\ProductBasicStruct;
 use Shopware\System\User\Repository\UserRepository;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;

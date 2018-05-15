@@ -6,7 +6,7 @@ use Shopware\Checkout\Order\Collection\OrderTransactionBasicCollection;
 use Shopware\Checkout\Order\Repository\OrderRepository;
 use Shopware\Checkout\Order\Struct\OrderDetailStruct;
 use Shopware\Checkout\Payment\Repository\PaymentMethodRepository;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 use Shopware\Payment\Exception\InvalidOrderException;
 use Shopware\Payment\Exception\UnknownPaymentMethodException;

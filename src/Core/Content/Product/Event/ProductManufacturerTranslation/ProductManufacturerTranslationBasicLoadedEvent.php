@@ -3,7 +3,7 @@
 namespace Shopware\Content\Product\Event\ProductManufacturerTranslation;
 
 use Shopware\Content\Product\Collection\ProductManufacturerTranslationBasicCollection;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class ProductManufacturerTranslationBasicLoadedEvent extends NestedEvent

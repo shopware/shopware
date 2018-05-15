@@ -20,7 +20,7 @@ use Shopware\System\Listing\Event\ListingSortingTranslation\ListingSortingTransl
 use Shopware\System\Listing\Event\ListingSortingTranslation\ListingSortingTranslationIdSearchResultLoadedEvent;
 use Shopware\System\Listing\Event\ListingSortingTranslation\ListingSortingTranslationSearchResultLoadedEvent;
 use Shopware\System\Listing\Struct\ListingSortingTranslationSearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Version\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 

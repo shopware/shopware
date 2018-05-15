@@ -3,7 +3,7 @@
 namespace Shopware\System\Config\Event\ConfigFormFieldTranslation;
 
 use Shopware\System\Config\Collection\ConfigFormFieldTranslationBasicCollection;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class ConfigFormFieldTranslationBasicLoadedEvent extends NestedEvent

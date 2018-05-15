@@ -3,7 +3,7 @@
 namespace Shopware\Application\Language\Event\Language;
 
 use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class LanguageIdSearchResultLoadedEvent extends NestedEvent

@@ -5,7 +5,7 @@ namespace Shopware\Checkout\Customer\Event\CustomerAddress;
 use Shopware\System\Country\Event\Country\CountryBasicLoadedEvent;
 use Shopware\System\Country\Event\CountryState\CountryStateBasicLoadedEvent;
 use Shopware\Checkout\Customer\Collection\CustomerAddressBasicCollection;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 

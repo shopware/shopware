@@ -20,7 +20,7 @@ use Shopware\Api\Shop\Event\ShopTemplateConfigFormFieldValue\ShopTemplateConfigF
 use Shopware\Api\Shop\Event\ShopTemplateConfigFormFieldValue\ShopTemplateConfigFormFieldValueIdSearchResultLoadedEvent;
 use Shopware\Api\Shop\Event\ShopTemplateConfigFormFieldValue\ShopTemplateConfigFormFieldValueSearchResultLoadedEvent;
 use Shopware\Api\Shop\Struct\ShopTemplateConfigFormFieldValueSearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Version\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 

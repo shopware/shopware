@@ -8,7 +8,7 @@ use Shopware\Checkout\Cart\LineItem\LineItem;
 use Shopware\Checkout\CartBridge\Product\ProductProcessor;
 use Shopware\Checkout\CartBridge\Service\StoreFrontCartService;
 use Shopware\Checkout\CartBridge\Voucher\VoucherProcessor;
-use Shopware\Context\Struct\StorefrontContext;
+use Shopware\Application\Context\Struct\StorefrontContext;
 use Symfony\Component\HttpFoundation\AcceptHeader;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;

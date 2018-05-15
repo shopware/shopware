@@ -20,7 +20,7 @@ use Shopware\Content\Media\Event\MediaAlbum\MediaAlbumDetailLoadedEvent;
 use Shopware\Content\Media\Event\MediaAlbum\MediaAlbumIdSearchResultLoadedEvent;
 use Shopware\Content\Media\Event\MediaAlbum\MediaAlbumSearchResultLoadedEvent;
 use Shopware\Content\Media\Struct\MediaAlbumSearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Version\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 

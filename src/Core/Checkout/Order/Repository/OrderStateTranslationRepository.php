@@ -20,7 +20,7 @@ use Shopware\Checkout\Order\Event\OrderStateTranslation\OrderStateTranslationDet
 use Shopware\Checkout\Order\Event\OrderStateTranslation\OrderStateTranslationIdSearchResultLoadedEvent;
 use Shopware\Checkout\Order\Event\OrderStateTranslation\OrderStateTranslationSearchResultLoadedEvent;
 use Shopware\Checkout\Order\Struct\OrderStateTranslationSearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Version\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 

@@ -3,7 +3,7 @@
 namespace Shopware\System\Country\Event\CountryStateTranslation;
 
 use Shopware\System\Country\Collection\CountryStateTranslationBasicCollection;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class CountryStateTranslationBasicLoadedEvent extends NestedEvent

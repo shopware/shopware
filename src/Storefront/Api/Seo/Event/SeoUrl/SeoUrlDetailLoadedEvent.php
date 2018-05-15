@@ -3,7 +3,7 @@
 namespace Shopware\Storefront\Api\Seo\Event\SeoUrl;
 
 use Shopware\Api\Shop\Event\Shop\ShopBasicLoadedEvent;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 use Shopware\Storefront\Api\Seo\Collection\SeoUrlDetailCollection;

@@ -3,7 +3,7 @@
 namespace Shopware\Application\Context\Event\ContextCartModifierTranslation;
 
 use Shopware\Application\Context\Struct\ContextCartModifierTranslationSearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class ContextCartModifierTranslationSearchResultLoadedEvent extends NestedEvent

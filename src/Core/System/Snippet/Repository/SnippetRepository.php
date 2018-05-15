@@ -20,7 +20,7 @@ use Shopware\System\Snippet\Event\Snippet\SnippetDetailLoadedEvent;
 use Shopware\System\Snippet\Event\Snippet\SnippetIdSearchResultLoadedEvent;
 use Shopware\System\Snippet\Event\Snippet\SnippetSearchResultLoadedEvent;
 use Shopware\System\Snippet\Struct\SnippetSearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Version\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 

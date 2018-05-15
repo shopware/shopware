@@ -20,7 +20,7 @@ use Shopware\System\Mail\Event\MailAttachment\MailAttachmentDetailLoadedEvent;
 use Shopware\System\Mail\Event\MailAttachment\MailAttachmentIdSearchResultLoadedEvent;
 use Shopware\System\Mail\Event\MailAttachment\MailAttachmentSearchResultLoadedEvent;
 use Shopware\System\Mail\Struct\MailAttachmentSearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Version\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 

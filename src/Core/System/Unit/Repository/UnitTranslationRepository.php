@@ -20,7 +20,7 @@ use Shopware\System\Unit\Event\UnitTranslation\UnitTranslationDetailLoadedEvent;
 use Shopware\System\Unit\Event\UnitTranslation\UnitTranslationIdSearchResultLoadedEvent;
 use Shopware\System\Unit\Event\UnitTranslation\UnitTranslationSearchResultLoadedEvent;
 use Shopware\System\Unit\Struct\UnitTranslationSearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Version\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 

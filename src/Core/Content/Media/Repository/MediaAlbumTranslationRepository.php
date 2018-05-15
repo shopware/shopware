@@ -20,7 +20,7 @@ use Shopware\Content\Media\Event\MediaAlbumTranslation\MediaAlbumTranslationDeta
 use Shopware\Content\Media\Event\MediaAlbumTranslation\MediaAlbumTranslationIdSearchResultLoadedEvent;
 use Shopware\Content\Media\Event\MediaAlbumTranslation\MediaAlbumTranslationSearchResultLoadedEvent;
 use Shopware\Content\Media\Struct\MediaAlbumTranslationSearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Version\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 

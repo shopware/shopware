@@ -3,7 +3,7 @@
 namespace Shopware\System\Mail\Event\MailTranslation;
 
 use Shopware\Framework\ORM\Search\AggregatorResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class MailTranslationAggregationResultLoadedEvent extends NestedEvent

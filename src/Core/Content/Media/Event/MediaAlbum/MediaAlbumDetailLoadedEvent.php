@@ -5,7 +5,7 @@ namespace Shopware\Content\Media\Event\MediaAlbum;
 use Shopware\Content\Media\Collection\MediaAlbumDetailCollection;
 use Shopware\Content\Media\Event\Media\MediaBasicLoadedEvent;
 use Shopware\Content\Media\Event\MediaAlbumTranslation\MediaAlbumTranslationBasicLoadedEvent;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 

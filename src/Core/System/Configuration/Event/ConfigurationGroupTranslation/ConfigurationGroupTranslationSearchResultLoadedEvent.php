@@ -3,7 +3,7 @@
 namespace Shopware\System\Configuration\Event\ConfigurationGroupTranslation;
 
 use Shopware\System\Configuration\Struct\ConfigurationGroupTranslationSearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class ConfigurationGroupTranslationSearchResultLoadedEvent extends NestedEvent

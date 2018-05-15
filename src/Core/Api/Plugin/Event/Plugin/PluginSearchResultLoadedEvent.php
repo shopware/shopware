@@ -3,7 +3,7 @@
 namespace Shopware\Api\Plugin\Event\Plugin;
 
 use Shopware\Api\Plugin\Struct\PluginSearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class PluginSearchResultLoadedEvent extends NestedEvent

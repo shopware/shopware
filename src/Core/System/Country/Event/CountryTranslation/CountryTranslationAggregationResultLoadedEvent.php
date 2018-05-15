@@ -3,7 +3,7 @@
 namespace Shopware\System\Country\Event\CountryTranslation;
 
 use Shopware\Framework\ORM\Search\AggregatorResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class CountryTranslationAggregationResultLoadedEvent extends NestedEvent

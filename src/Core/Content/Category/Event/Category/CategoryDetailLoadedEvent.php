@@ -6,7 +6,7 @@ use Shopware\Content\Category\Collection\CategoryDetailCollection;
 use Shopware\Content\Category\Event\CategoryTranslation\CategoryTranslationBasicLoadedEvent;
 use Shopware\Content\Media\Event\Media\MediaBasicLoadedEvent;
 use Shopware\Content\Product\Event\ProductStream\ProductStreamBasicLoadedEvent;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 

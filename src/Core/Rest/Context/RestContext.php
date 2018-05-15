@@ -2,7 +2,7 @@
 
 namespace Shopware\Rest\Context;
 
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Symfony\Component\HttpFoundation\Request;
 
 class RestContext

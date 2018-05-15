@@ -3,7 +3,7 @@
 namespace Shopware\Framework\ORM\Version\Event\Version;
 
 use Shopware\Framework\ORM\Search\AggregatorResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class VersionAggregationResultLoadedEvent extends NestedEvent

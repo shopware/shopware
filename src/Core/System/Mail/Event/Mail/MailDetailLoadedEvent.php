@@ -6,7 +6,7 @@ use Shopware\System\Mail\Collection\MailDetailCollection;
 use Shopware\System\Mail\Event\MailAttachment\MailAttachmentBasicLoadedEvent;
 use Shopware\System\Mail\Event\MailTranslation\MailTranslationBasicLoadedEvent;
 use Shopware\Checkout\Order\Event\OrderState\OrderStateBasicLoadedEvent;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 

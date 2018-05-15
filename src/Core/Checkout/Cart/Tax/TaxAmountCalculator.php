@@ -27,7 +27,7 @@ namespace Shopware\Checkout\Cart\Tax;
 
 use Shopware\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
 use Shopware\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
-use Shopware\Context\Struct\StorefrontContext;
+use Shopware\Application\Context\Struct\StorefrontContext;
 
 class TaxAmountCalculator implements TaxAmountCalculatorInterface
 {

@@ -4,7 +4,7 @@ namespace Shopware\Content\Product\Event\ProductConfigurator;
 
 use Shopware\System\Configuration\Event\ConfigurationGroupOption\ConfigurationGroupOptionBasicLoadedEvent;
 use Shopware\Content\Product\Collection\ProductConfiguratorBasicCollection;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 

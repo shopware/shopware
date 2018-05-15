@@ -3,7 +3,7 @@
 namespace Shopware\System\Config\Event\ConfigFormField;
 
 use Shopware\System\Config\Collection\ConfigFormFieldBasicCollection;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class ConfigFormFieldBasicLoadedEvent extends NestedEvent

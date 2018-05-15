@@ -39,7 +39,7 @@ use Shopware\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Checkout\Cart\Price\Struct\PriceDefinition;
 use Shopware\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Context\Struct\StorefrontContext;
+use Shopware\Application\Context\Struct\StorefrontContext;
 
 class StockDeliverySeparator
 {

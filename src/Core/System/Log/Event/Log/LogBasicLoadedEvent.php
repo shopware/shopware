@@ -3,7 +3,7 @@
 namespace Shopware\System\Log\Event\Log;
 
 use Shopware\System\Log\Collection\LogBasicCollection;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class LogBasicLoadedEvent extends NestedEvent

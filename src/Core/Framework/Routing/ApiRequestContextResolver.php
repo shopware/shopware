@@ -2,7 +2,7 @@
 
 namespace Shopware\Framework\Routing;
 
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 use Shopware\PlatformRequest;
 use Shopware\Rest\Firewall\User;

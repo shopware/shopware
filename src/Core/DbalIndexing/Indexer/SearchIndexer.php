@@ -10,7 +10,7 @@ use Shopware\Application\Language\Repository\LanguageRepository;
 use Shopware\Content\Product\Definition\ProductDefinition;
 use Shopware\Content\Product\Repository\ProductRepository;
 use Shopware\Content\Product\Struct\ProductSearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\DbalIndexing\Common\IndexTableOperator;
 use Shopware\DbalIndexing\Common\RepositoryIterator;
 use Shopware\DbalIndexing\Event\ProgressAdvancedEvent;

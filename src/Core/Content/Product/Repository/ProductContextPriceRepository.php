@@ -20,7 +20,7 @@ use Shopware\Api\Product\Event\ProductContextPrice\ProductContextPriceDetailLoad
 use Shopware\Api\Product\Event\ProductContextPrice\ProductContextPriceIdSearchResultLoadedEvent;
 use Shopware\Content\Product\Event\ProductContextPrice\ProductContextPriceSearchResultLoadedEvent;
 use Shopware\Content\Product\Struct\ProductContextPriceSearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Version\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 

@@ -3,7 +3,7 @@
 namespace Shopware\Checkout\Shipping\Event\ShippingMethod;
 
 use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class ShippingMethodIdSearchResultLoadedEvent extends NestedEvent

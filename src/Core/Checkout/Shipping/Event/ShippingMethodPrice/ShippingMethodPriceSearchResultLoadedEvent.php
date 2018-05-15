@@ -3,7 +3,7 @@
 namespace Shopware\Checkout\Shipping\Event\ShippingMethodPrice;
 
 use Shopware\Checkout\Shipping\Struct\ShippingMethodPriceSearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class ShippingMethodPriceSearchResultLoadedEvent extends NestedEvent

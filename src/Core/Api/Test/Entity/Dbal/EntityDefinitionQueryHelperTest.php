@@ -11,7 +11,7 @@ use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\Field\JsonObjectField;
 use Shopware\Framework\ORM\Field\TenantIdField;
 use Shopware\Framework\ORM\FieldCollection;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 
 class EntityDefinitionQueryHelperTest extends TestCase

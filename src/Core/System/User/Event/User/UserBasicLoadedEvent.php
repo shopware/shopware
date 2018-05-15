@@ -3,7 +3,7 @@
 namespace Shopware\System\User\Event\User;
 
 use Shopware\System\User\Collection\UserBasicCollection;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class UserBasicLoadedEvent extends NestedEvent

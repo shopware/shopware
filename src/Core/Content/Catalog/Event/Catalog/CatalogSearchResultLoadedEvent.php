@@ -3,7 +3,7 @@
 namespace Shopware\Content\Catalog\Event\Catalog;
 
 use Shopware\Content\Catalog\Struct\CatalogSearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class CatalogSearchResultLoadedEvent extends NestedEvent

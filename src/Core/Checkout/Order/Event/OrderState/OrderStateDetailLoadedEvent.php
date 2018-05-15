@@ -4,7 +4,7 @@ namespace Shopware\Checkout\Order\Event\OrderState;
 
 use Shopware\Checkout\Order\Collection\OrderStateDetailCollection;
 use Shopware\Checkout\Order\Event\OrderStateTranslation\OrderStateTranslationBasicLoadedEvent;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 

@@ -2,7 +2,7 @@
 
 namespace Shopware\Framework\ORM\Search\Term;
 
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 
 class SearchTermInterpreter
 {

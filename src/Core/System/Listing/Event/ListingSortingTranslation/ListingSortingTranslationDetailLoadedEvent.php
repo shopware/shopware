@@ -5,7 +5,7 @@ namespace Shopware\System\Listing\Event\ListingSortingTranslation;
 use Shopware\Application\Language\Event\Language\LanguageBasicLoadedEvent;
 use Shopware\System\Listing\Collection\ListingSortingTranslationDetailCollection;
 use Shopware\System\Listing\Event\ListingSorting\ListingSortingBasicLoadedEvent;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 

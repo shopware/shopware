@@ -10,7 +10,7 @@ use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Checkout\CartBridge\Exception\NotLoggedInCustomerException;
-use Shopware\Context\Struct\StorefrontContext;
+use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\Uuid;
 use Shopware\Storefront\Exception\CustomerNotFoundException;
 use Shopware\StorefrontApi\Exception\AddressNotFoundHttpException;

@@ -11,7 +11,7 @@ use Shopware\Content\Product\Repository\ProductRepository;
 use Shopware\Content\Product\Struct\ProductSearchResult;
 use Shopware\Content\Product\Struct\ProductServiceBasicStruct;
 use Shopware\Checkout\Cart\Price\PriceCalculator;
-use Shopware\Context\Struct\StorefrontContext;
+use Shopware\Application\Context\Struct\StorefrontContext;
 
 class StorefrontProductRepository
 {

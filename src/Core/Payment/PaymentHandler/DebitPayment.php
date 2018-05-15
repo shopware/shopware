@@ -3,7 +3,7 @@
 namespace Shopware\Payment\PaymentHandler;
 
 use Shopware\Checkout\Order\Repository\OrderTransactionRepository;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 use Shopware\Payment\Struct\PaymentTransaction;
 use Symfony\Component\HttpFoundation\RedirectResponse;

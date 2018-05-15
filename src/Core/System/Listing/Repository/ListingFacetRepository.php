@@ -20,7 +20,7 @@ use Shopware\System\Listing\Event\ListingFacet\ListingFacetDetailLoadedEvent;
 use Shopware\System\Listing\Event\ListingFacet\ListingFacetIdSearchResultLoadedEvent;
 use Shopware\System\Listing\Event\ListingFacet\ListingFacetSearchResultLoadedEvent;
 use Shopware\System\Listing\Struct\ListingFacetSearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Version\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 

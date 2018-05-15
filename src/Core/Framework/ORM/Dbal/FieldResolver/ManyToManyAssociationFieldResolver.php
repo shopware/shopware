@@ -10,7 +10,7 @@ use Shopware\Framework\ORM\Field\ManyToManyAssociationField;
 use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Framework\ORM\Write\Flag\CascadeDelete;
 use Shopware\Framework\ORM\Write\Flag\Inherited;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 
 class ManyToManyAssociationFieldResolver implements FieldResolverInterface
 {

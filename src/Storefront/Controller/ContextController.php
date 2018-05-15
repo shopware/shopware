@@ -8,7 +8,7 @@ use Shopware\System\Currency\Repository\CurrencyRepository;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Application\Language\Repository\LanguageRepository;
-use Shopware\Context\Struct\StorefrontContext;
+use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\StorefrontApi\Context\StorefrontContextPersister;
 use Shopware\StorefrontApi\Context\StorefrontContextService;
 use Symfony\Component\HttpFoundation\RedirectResponse;

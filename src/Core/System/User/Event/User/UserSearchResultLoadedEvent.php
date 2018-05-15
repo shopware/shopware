@@ -3,7 +3,7 @@
 namespace Shopware\System\User\Event\User;
 
 use Shopware\System\User\Struct\UserSearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class UserSearchResultLoadedEvent extends NestedEvent

@@ -9,7 +9,7 @@ use Shopware\Checkout\Customer\Event\CustomerGroup\CustomerGroupBasicLoadedEvent
 use Shopware\System\Tax\Collection\TaxAreaRuleDetailCollection;
 use Shopware\System\Tax\Event\Tax\TaxBasicLoadedEvent;
 use Shopware\System\Tax\Event\TaxAreaRuleTranslation\TaxAreaRuleTranslationBasicLoadedEvent;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 

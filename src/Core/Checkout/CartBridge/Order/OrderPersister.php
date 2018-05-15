@@ -39,7 +39,7 @@ use Shopware\Checkout\CartBridge\Exception\CustomerHasNoActiveBillingAddressExce
 use Shopware\Checkout\CartBridge\Exception\DeliveryWithoutAddressException;
 use Shopware\Checkout\CartBridge\Exception\EmptyCartException;
 use Shopware\Checkout\CartBridge\Exception\NotLoggedInCustomerException;
-use Shopware\Context\Struct\StorefrontContext;
+use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\Uuid;
 

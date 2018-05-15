@@ -32,7 +32,7 @@ use Shopware\Checkout\Cart\Cart\CartCollectorInterface;
 use Shopware\Checkout\Cart\Cart\Struct\Cart;
 use Shopware\Checkout\CartBridge\Product\Struct\ProductFetchDefinition;
 use Shopware\Checkout\CartBridge\Product\Struct\ProductServiceFetchDefinition;
-use Shopware\Context\Struct\StorefrontContext;
+use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class ProductCartCollector implements CartCollectorInterface

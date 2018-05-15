@@ -3,7 +3,7 @@
 namespace Shopware\System\Listing\Event\ListingFacetTranslation;
 
 use Shopware\System\Listing\Collection\ListingFacetTranslationBasicCollection;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class ListingFacetTranslationBasicLoadedEvent extends NestedEvent

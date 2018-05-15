@@ -24,7 +24,7 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Context\Struct\StorefrontContext;
+use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Storefront\Page\Listing\ListingPageLoader;
 use Shopware\Storefront\Page\Listing\ListingPageRequest;
 use Symfony\Component\Routing\Annotation\Route;

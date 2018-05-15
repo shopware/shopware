@@ -3,7 +3,7 @@
 namespace Shopware\Storefront\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Context\Struct\StorefrontContext;
+use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Storefront\Page\Search\SearchPageLoader;
 use Shopware\Storefront\Page\Search\SearchPageRequest;
 use Symfony\Component\HttpFoundation\Request;

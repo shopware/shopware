@@ -5,7 +5,7 @@ namespace Shopware\Checkout\Order\Event\OrderDeliveryPosition;
 use Shopware\Checkout\Order\Collection\OrderDeliveryPositionDetailCollection;
 use Shopware\Checkout\Order\Event\OrderDelivery\OrderDeliveryBasicLoadedEvent;
 use Shopware\Checkout\Order\Event\OrderLineItem\OrderLineItemBasicLoadedEvent;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 

@@ -3,7 +3,7 @@
 namespace Shopware\System\Country\Event\Country;
 
 use Shopware\System\Country\Collection\CountryBasicCollection;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class CountryBasicLoadedEvent extends NestedEvent

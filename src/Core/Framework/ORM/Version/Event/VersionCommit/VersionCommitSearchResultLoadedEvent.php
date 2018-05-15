@@ -3,7 +3,7 @@
 namespace Shopware\Framework\ORM\Version\Event\VersionCommit;
 
 use Shopware\Framework\ORM\Version\Struct\VersionCommitSearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class VersionCommitSearchResultLoadedEvent extends NestedEvent

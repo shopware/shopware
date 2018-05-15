@@ -3,7 +3,7 @@
 namespace Shopware\Checkout\Customer\Event\CustomerGroupDiscount;
 
 use Shopware\Checkout\Customer\Struct\CustomerGroupDiscountSearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class CustomerGroupDiscountSearchResultLoadedEvent extends NestedEvent

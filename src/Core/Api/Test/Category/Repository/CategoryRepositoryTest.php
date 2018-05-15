@@ -12,7 +12,7 @@ use Shopware\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Framework\ORM\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Framework\ORM\Search\Term\SearchTermInterpreter;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;

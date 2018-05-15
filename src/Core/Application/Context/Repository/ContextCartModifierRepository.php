@@ -19,7 +19,7 @@ use Shopware\Framework\ORM\Search\EntitySearcherInterface;
 use Shopware\Framework\ORM\Search\IdSearchResult;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Version\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 

@@ -34,7 +34,7 @@ use Shopware\Checkout\Cart\LineItem\LineItemInterface;
 use Shopware\Checkout\Cart\Price\PriceCalculator;
 use Shopware\Checkout\Cart\Price\Struct\PriceDefinition;
 use Shopware\Checkout\CartBridge\Product\Struct\CalculatedProduct;
-use Shopware\Context\Struct\StorefrontContext;
+use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class ProductCalculator

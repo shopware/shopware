@@ -9,7 +9,7 @@ use Shopware\Content\Category\Repository\CategoryRepository;
 use Shopware\Content\Category\Struct\CategorySearchResult;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\DbalIndexing\Common\EventIdExtractor;
 use Shopware\DbalIndexing\Common\RepositoryIterator;
 use Shopware\DbalIndexing\Event\ProgressAdvancedEvent;

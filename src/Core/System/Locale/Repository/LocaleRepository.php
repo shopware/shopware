@@ -20,7 +20,7 @@ use Shopware\System\Locale\Event\Locale\LocaleDetailLoadedEvent;
 use Shopware\System\Locale\Event\Locale\LocaleIdSearchResultLoadedEvent;
 use Shopware\System\Locale\Event\Locale\LocaleSearchResultLoadedEvent;
 use Shopware\System\Locale\Struct\LocaleSearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Version\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 

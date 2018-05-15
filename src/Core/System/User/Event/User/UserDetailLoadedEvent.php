@@ -5,7 +5,7 @@ namespace Shopware\System\User\Event\User;
 use Shopware\System\Locale\Event\Locale\LocaleBasicLoadedEvent;
 use Shopware\Content\Media\Event\Media\MediaBasicLoadedEvent;
 use Shopware\System\User\Collection\UserDetailCollection;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 

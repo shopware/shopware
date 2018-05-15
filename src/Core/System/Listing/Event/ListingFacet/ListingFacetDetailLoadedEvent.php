@@ -4,7 +4,7 @@ namespace Shopware\System\Listing\Event\ListingFacet;
 
 use Shopware\System\Listing\Collection\ListingFacetDetailCollection;
 use Shopware\System\Listing\Event\ListingFacetTranslation\ListingFacetTranslationBasicLoadedEvent;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 

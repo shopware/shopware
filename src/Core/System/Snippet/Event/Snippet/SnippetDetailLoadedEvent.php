@@ -4,7 +4,7 @@ namespace Shopware\System\Snippet\Event\Snippet;
 
 use Shopware\Application\Application\Event\Application\ApplicationBasicLoadedEvent;
 use Shopware\System\Snippet\Collection\SnippetDetailCollection;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 

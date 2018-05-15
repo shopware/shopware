@@ -32,7 +32,7 @@ use Shopware\Checkout\Cart\Price\Struct\PriceDefinitionCollection;
 use Shopware\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Checkout\Cart\Tax\TaxDetector;
-use Shopware\Context\Struct\StorefrontContext;
+use Shopware\Application\Context\Struct\StorefrontContext;
 
 class PriceCalculator
 {

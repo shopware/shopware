@@ -9,7 +9,7 @@
         <service alias="Shopware\Application\Context\Repository\ContextRuleRepository.v1" id="Shopware\Application\Context\Repository\ContextRuleRepository" public="true" />
         <service alias="Shopware\Application\Context\Repository\ContextCartModifierRepository.v1" id="Shopware\Application\Context\Repository\ContextCartModifierRepository" public="true" />
 
-         <service class="Shopware\Application\Context\Definition\ContextRuleDefinition" id="Shopware\Application\Context\Definition\ContextRuleDefinition" >
+        <service class="Shopware\Application\Context\Definition\ContextRuleDefinition" id="Shopware\Application\Context\Definition\ContextRuleDefinition" >
             <tag name="shopware.entity.definition" entity="context_rule" />
         </service>
 
@@ -21,16 +21,44 @@
           <argument id="event_dispatcher" type="service"/>
         </service>
 
-
         <service class="Shopware\Application\Context\Definition\ContextCartModifierDefinition" id="Shopware\Application\Context\Definition\ContextCartModifierDefinition" >
             <tag name="shopware.entity.definition" entity="context_cart_modifier" />
         </service>
+
         <service class="Shopware\Application\Context\Repository\ContextCartModifierRepository" id="Shopware\Application\Context\Repository\ContextCartModifierRepository.v1" public="true">
             <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
             <argument id="Shopware\Version\VersionManager" type="service"/>
             <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
             <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
             <argument id="event_dispatcher" type="service"/>
+        </service>
+
+        <service class="Shopware\Application\Context\Service\ContextFactory" id="Shopware\Application\Context\Service\ContextFactory">
+            <argument type="service" id="Shopware\Application\Application\Repository\ApplicationRepository"/>
+            <argument type="service" id="Shopware\System\Currency\Repository\CurrencyRepository"/>
+            <argument type="service" id="Shopware\Checkout\Customer\Repository\CustomerRepository"/>
+            <argument type="service" id="Shopware\Checkout\Customer\Repository\CustomerGroupRepository"/>
+            <argument type="service" id="Shopware\System\Country\Repository\CountryRepository"/>
+            <argument type="service" id="Shopware\System\Tax\Repository\TaxRepository"/>
+            <argument type="service" id="Shopware\Checkout\Customer\Repository\CustomerAddressRepository"/>
+            <argument type="service" id="Shopware\Checkout\Payment\Repository\PaymentMethodRepository"/>
+            <argument type="service" id="Shopware\Checkout\Shipping\Repository\ShippingMethodRepository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\System\Country\Repository\CountryStateRepository"/>
+            <argument type="service" id="Shopware\Application\Language\Repository\LanguageRepository"/>
+            <argument type="service" id="Shopware\Checkout\Cart\Tax\TaxDetector"/>
+        </service>
+
+        <service class="Shopware\Application\Context\Service\ContextRuleLoader" id="Shopware\Application\Context\Service\ContextRuleLoader">
+            <argument id="Shopware\Checkout\CartBridge\Cart\CartPersister" type="service"/>
+            <argument id="Shopware\Checkout\Cart\Tax\TaxDetector" type="service"/>
+            <argument id="Shopware\Checkout\Cart\Cart\CartCollector" type="service"/>
+            <argument id="Shopware\Checkout\Cart\Cart\CartProcessor" type="service"/>
+            <argument id="Shopware\Checkout\Cart\Cart\CartValidator" type="service"/>
+            <argument id="shopware.cache" type="service"/>
+            <argument id="Shopware\Application\Context\Repository\ContextRuleRepository" type="service"/>
+            <argument id="serializer" type="service"/>
+            <argument type="service" id="Shopware\Checkout\CartBridge\Service\StoreFrontCartService"/>
         </service>
     </services>
 </container>

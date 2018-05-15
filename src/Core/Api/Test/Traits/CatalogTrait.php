@@ -3,7 +3,7 @@
 namespace Shopware\Api\Test\Traits;
 
 use Shopware\Content\Catalog\Repository\CatalogRepository;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Struct\Uuid;
 
 trait CatalogTrait

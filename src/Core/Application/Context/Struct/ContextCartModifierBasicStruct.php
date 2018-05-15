@@ -3,7 +3,7 @@
 namespace Shopware\Application\Context\Struct;
 
 use Shopware\Framework\ORM\Entity;
-use Shopware\Context\Rule\Rule;
+use Shopware\Application\Context\Rule\Rule;
 
 class ContextCartModifierBasicStruct extends Entity
 {

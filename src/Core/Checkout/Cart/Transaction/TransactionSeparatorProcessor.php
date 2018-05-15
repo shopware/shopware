@@ -7,7 +7,7 @@ use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Checkout\Cart\Cart\Struct\Cart;
 use Shopware\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Checkout\Cart\Transaction\Struct\Transaction;
-use Shopware\Context\Struct\StorefrontContext;
+use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class TransactionSeparatorProcessor implements CartProcessorInterface

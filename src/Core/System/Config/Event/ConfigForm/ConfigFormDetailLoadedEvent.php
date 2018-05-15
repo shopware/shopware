@@ -6,7 +6,7 @@ use Shopware\System\Config\Collection\ConfigFormDetailCollection;
 use Shopware\System\Config\Event\ConfigFormField\ConfigFormFieldBasicLoadedEvent;
 use Shopware\System\Config\Event\ConfigFormTranslation\ConfigFormTranslationBasicLoadedEvent;
 use Shopware\Api\Plugin\Event\Plugin\PluginBasicLoadedEvent;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 

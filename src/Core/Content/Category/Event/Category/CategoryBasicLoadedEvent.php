@@ -3,7 +3,7 @@
 namespace Shopware\Content\Category\Event\Category;
 
 use Shopware\Content\Category\Collection\CategoryBasicCollection;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 

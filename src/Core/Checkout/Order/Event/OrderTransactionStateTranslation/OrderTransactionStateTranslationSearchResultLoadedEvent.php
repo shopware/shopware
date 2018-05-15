@@ -3,7 +3,7 @@
 namespace Shopware\Checkout\Order\Event\OrderTransactionStateTranslation;
 
 use Shopware\Checkout\Order\Struct\OrderTransactionStateTranslationSearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class OrderTransactionStateTranslationSearchResultLoadedEvent extends NestedEvent

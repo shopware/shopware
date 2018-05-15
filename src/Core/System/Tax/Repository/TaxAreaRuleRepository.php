@@ -20,7 +20,7 @@ use Shopware\System\Tax\Event\TaxAreaRule\TaxAreaRuleDetailLoadedEvent;
 use Shopware\System\Tax\Event\TaxAreaRule\TaxAreaRuleIdSearchResultLoadedEvent;
 use Shopware\System\Tax\Event\TaxAreaRule\TaxAreaRuleSearchResultLoadedEvent;
 use Shopware\System\Tax\Struct\TaxAreaRuleSearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Version\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 

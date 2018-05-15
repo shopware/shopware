@@ -14,8 +14,8 @@ use Shopware\Checkout\Cart\Price\PercentagePriceCalculator;
 use Shopware\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
 use Shopware\Checkout\CartBridge\Exception\UnsupportedModifierTypeException;
-use Shopware\Context\MatchContext\CalculatedLineItemMatchContext;
-use Shopware\Context\Struct\StorefrontContext;
+use Shopware\Application\Context\MatchContext\CalculatedLineItemMatchContext;
+use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class ContextCartModifierProcessor implements CartProcessorInterface

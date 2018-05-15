@@ -7,7 +7,7 @@ use Shopware\Framework\ORM\Dbal\QueryBuilder;
 use Shopware\Framework\ORM\Field\Field;
 use Shopware\Framework\ORM\Field\ProductCoverField;
 use Shopware\Content\Product\Definition\ProductMediaDefinition;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 
 class ProductCoverFieldResolver implements FieldResolverInterface
 {

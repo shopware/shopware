@@ -3,7 +3,7 @@
 namespace Shopware\System\Configuration\Event\ConfigurationGroupOption;
 
 use Shopware\System\Configuration\Struct\ConfigurationGroupOptionSearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class ConfigurationGroupOptionSearchResultLoadedEvent extends NestedEvent

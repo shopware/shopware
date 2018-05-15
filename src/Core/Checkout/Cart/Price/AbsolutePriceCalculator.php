@@ -29,7 +29,7 @@ use Shopware\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
 use Shopware\Checkout\Cart\Price\Struct\DerivedCalculatedPrice;
 use Shopware\Checkout\Cart\Price\Struct\PriceDefinition;
 use Shopware\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
-use Shopware\Context\Struct\StorefrontContext;
+use Shopware\Application\Context\Struct\StorefrontContext;
 
 class AbsolutePriceCalculator
 {

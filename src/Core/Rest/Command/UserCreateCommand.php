@@ -5,7 +5,7 @@ namespace Shopware\Rest\Command;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Query\TermQuery;
 use Shopware\System\User\Repository\UserRepository;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Struct\Uuid;
 use Shopware\Framework\Util\Random;
 use Symfony\Component\Console\Command\Command;

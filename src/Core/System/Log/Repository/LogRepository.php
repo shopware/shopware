@@ -18,7 +18,7 @@ use Shopware\System\Log\Event\Log\LogBasicLoadedEvent;
 use Shopware\System\Log\Event\Log\LogIdSearchResultLoadedEvent;
 use Shopware\System\Log\Event\Log\LogSearchResultLoadedEvent;
 use Shopware\System\Log\Struct\LogSearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Version\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 

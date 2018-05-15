@@ -10,7 +10,7 @@ use Shopware\Content\Product\Definition\ProductDefinition;
 use Shopware\Content\Product\Repository\ProductRepository;
 use Shopware\Content\Product\Struct\PriceStruct;
 use Shopware\Content\Product\Struct\ProductDetailStruct;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Struct\Uuid;
 use Shopware\Content\Product\Service\VariantGenerator;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;

@@ -8,7 +8,7 @@ use Shopware\Framework\ORM\Search\Query\TermsQuery;
 use Shopware\Checkout\Cart\Cart\CartCollectorInterface;
 use Shopware\Checkout\Cart\Cart\Struct\Cart;
 use Shopware\Checkout\CartBridge\Modifier\Struct\ContextCartModifierFetchDefinition;
-use Shopware\Context\Struct\StorefrontContext;
+use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class ContextCartModifierCollector implements CartCollectorInterface

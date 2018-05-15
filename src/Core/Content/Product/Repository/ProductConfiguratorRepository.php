@@ -20,7 +20,7 @@ use Shopware\Content\Product\Event\ProductConfigurator\ProductConfiguratorDetail
 use Shopware\Content\Product\Event\ProductConfigurator\ProductConfiguratorIdSearchResultLoadedEvent;
 use Shopware\Content\Product\Event\ProductConfigurator\ProductConfiguratorSearchResultLoadedEvent;
 use Shopware\Content\Product\Struct\ProductConfiguratorSearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Version\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 

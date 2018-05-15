@@ -5,7 +5,7 @@ namespace Shopware\Framework\ORM\Dbal\FieldResolver;
 use Shopware\Framework\ORM\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Framework\ORM\Dbal\QueryBuilder;
 use Shopware\Framework\ORM\Field\Field;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 
 interface FieldResolverInterface
 {

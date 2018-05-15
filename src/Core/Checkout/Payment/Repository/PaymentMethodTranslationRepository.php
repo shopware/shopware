@@ -20,7 +20,7 @@ use Shopware\Checkout\Payment\Event\PaymentMethodTranslation\PaymentMethodTransl
 use Shopware\Checkout\Payment\Event\PaymentMethodTranslation\PaymentMethodTranslationIdSearchResultLoadedEvent;
 use Shopware\Checkout\Payment\Event\PaymentMethodTranslation\PaymentMethodTranslationSearchResultLoadedEvent;
 use Shopware\Checkout\Payment\Struct\PaymentMethodTranslationSearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Version\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 

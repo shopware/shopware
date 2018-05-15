@@ -5,7 +5,7 @@ namespace Shopware\System\Tax\Event\TaxAreaRuleTranslation;
 use Shopware\Application\Language\Event\Language\LanguageBasicLoadedEvent;
 use Shopware\System\Tax\Collection\TaxAreaRuleTranslationDetailCollection;
 use Shopware\System\Tax\Event\TaxAreaRule\TaxAreaRuleBasicLoadedEvent;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 

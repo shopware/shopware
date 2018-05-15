@@ -5,7 +5,7 @@ namespace Shopware\DbalIndexing\Common;
 use Shopware\Framework\ORM\RepositoryInterface;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\SearchResultInterface;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 
 class RepositoryIterator
 {

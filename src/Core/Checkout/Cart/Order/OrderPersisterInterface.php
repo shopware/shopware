@@ -26,7 +26,7 @@ namespace Shopware\Checkout\Cart\Order;
 
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Context\Struct\StorefrontContext;
+use Shopware\Application\Context\Struct\StorefrontContext;
 
 interface OrderPersisterInterface
 {

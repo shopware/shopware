@@ -2,7 +2,7 @@
 
 namespace Shopware\StorefrontApi\Firewall;
 
-use Shopware\Context\Struct\StorefrontContext;
+use Shopware\Application\Context\Struct\StorefrontContext;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 class ContextUser implements UserInterface

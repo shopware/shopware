@@ -7,7 +7,7 @@ use Shopware\System\Country\Event\CountryState\CountryStateBasicLoadedEvent;
 use Shopware\Checkout\Order\Collection\OrderAddressDetailCollection;
 use Shopware\Checkout\Order\Event\Order\OrderBasicLoadedEvent;
 use Shopware\Checkout\Order\Event\OrderDelivery\OrderDeliveryBasicLoadedEvent;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 

@@ -8,7 +8,7 @@ use Shopware\Checkout\Customer\Event\CustomerAddress\CustomerAddressBasicLoadedE
 use Shopware\Checkout\Customer\Event\CustomerGroup\CustomerGroupBasicLoadedEvent;
 use Shopware\Checkout\Order\Event\Order\OrderBasicLoadedEvent;
 use Shopware\Checkout\Payment\Event\PaymentMethod\PaymentMethodBasicLoadedEvent;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 

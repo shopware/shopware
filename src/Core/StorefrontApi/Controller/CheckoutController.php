@@ -16,7 +16,7 @@ use Shopware\Checkout\Cart\LineItem\LineItem;
 use Shopware\Checkout\Cart\Order\OrderPersisterInterface;
 use Shopware\Checkout\CartBridge\Product\ProductProcessor;
 use Shopware\Checkout\CartBridge\Service\StoreFrontCartService;
-use Shopware\Context\Struct\StorefrontContext;
+use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\Uuid;
 use Shopware\PlatformRequest;
 use Shopware\Rest\Response\Type\JsonType;

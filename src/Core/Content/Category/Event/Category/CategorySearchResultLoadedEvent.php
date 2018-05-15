@@ -3,7 +3,7 @@
 namespace Shopware\Content\Category\Event\Category;
 
 use Shopware\Content\Category\Struct\CategorySearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class CategorySearchResultLoadedEvent extends NestedEvent

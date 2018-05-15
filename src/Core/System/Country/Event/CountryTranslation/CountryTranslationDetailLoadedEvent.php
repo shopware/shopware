@@ -5,7 +5,7 @@ namespace Shopware\System\Country\Event\CountryTranslation;
 use Shopware\System\Country\Collection\CountryTranslationDetailCollection;
 use Shopware\System\Country\Event\Country\CountryBasicLoadedEvent;
 use Shopware\Application\Language\Event\Language\LanguageBasicLoadedEvent;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 

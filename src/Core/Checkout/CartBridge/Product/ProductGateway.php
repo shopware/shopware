@@ -27,7 +27,7 @@ namespace Shopware\Checkout\CartBridge\Product;
 
 use Shopware\Content\Product\Collection\ProductBasicCollection;
 use Shopware\Content\Product\Repository\ProductRepository;
-use Shopware\Context\Struct\StorefrontContext;
+use Shopware\Application\Context\Struct\StorefrontContext;
 
 class ProductGateway implements ProductGatewayInterface
 {

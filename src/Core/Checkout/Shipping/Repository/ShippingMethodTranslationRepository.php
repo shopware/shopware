@@ -20,7 +20,7 @@ use Shopware\Checkout\Shipping\Event\ShippingMethodTranslation\ShippingMethodTra
 use Shopware\Checkout\Shipping\Event\ShippingMethodTranslation\ShippingMethodTranslationIdSearchResultLoadedEvent;
 use Shopware\Checkout\Shipping\Event\ShippingMethodTranslation\ShippingMethodTranslationSearchResultLoadedEvent;
 use Shopware\Checkout\Shipping\Struct\ShippingMethodTranslationSearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Version\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 

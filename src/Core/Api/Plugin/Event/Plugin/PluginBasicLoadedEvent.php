@@ -3,7 +3,7 @@
 namespace Shopware\Api\Plugin\Event\Plugin;
 
 use Shopware\Api\Plugin\Collection\PluginBasicCollection;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class PluginBasicLoadedEvent extends NestedEvent

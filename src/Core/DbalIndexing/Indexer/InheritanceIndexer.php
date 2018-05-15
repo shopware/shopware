@@ -15,7 +15,7 @@ use Shopware\Framework\ORM\FieldCollection;
 use Shopware\Framework\ORM\Write\Flag\Inherited;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WrittenEvent;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Struct\Uuid;
 
 class InheritanceIndexer implements IndexerInterface

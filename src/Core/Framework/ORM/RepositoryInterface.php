@@ -6,7 +6,7 @@ use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\IdSearchResult;
 use Shopware\Framework\ORM\Search\SearchResultInterface;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 
 interface RepositoryInterface
 {

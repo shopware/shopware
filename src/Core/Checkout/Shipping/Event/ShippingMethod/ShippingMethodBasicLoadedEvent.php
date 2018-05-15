@@ -4,7 +4,7 @@ namespace Shopware\Checkout\Shipping\Event\ShippingMethod;
 
 use Shopware\Checkout\Shipping\Collection\ShippingMethodBasicCollection;
 use Shopware\Checkout\Shipping\Event\ShippingMethodPrice\ShippingMethodPriceBasicLoadedEvent;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 

@@ -4,7 +4,7 @@ namespace Shopware\Content\Product\Event\ProductStream;
 
 use Shopware\System\Listing\Event\ListingSorting\ListingSortingBasicLoadedEvent;
 use Shopware\Content\Product\Collection\ProductStreamBasicCollection;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 

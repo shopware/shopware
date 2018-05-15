@@ -8,7 +8,7 @@ use Shopware\Checkout\Cart\Cart\Struct\Cart;
 use Shopware\Checkout\Cart\LineItem\CalculatedLineItem;
 use Shopware\Checkout\Cart\Price\AbsolutePriceCalculator;
 use Shopware\Checkout\Cart\Price\PercentagePriceCalculator;
-use Shopware\Context\Struct\StorefrontContext;
+use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class PaymentSurchargeProcessor implements CartProcessorInterface

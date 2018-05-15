@@ -3,7 +3,7 @@
 namespace Shopware\Checkout\Order\Event\OrderAddress;
 
 use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class OrderAddressIdSearchResultLoadedEvent extends NestedEvent

@@ -4,7 +4,7 @@ namespace Shopware\Checkout\Customer\Event\CustomerGroupDiscount;
 
 use Shopware\Checkout\Customer\Collection\CustomerGroupDiscountDetailCollection;
 use Shopware\Checkout\Customer\Event\CustomerGroup\CustomerGroupBasicLoadedEvent;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 

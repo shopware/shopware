@@ -5,7 +5,7 @@ namespace Shopware\Rest\Test\Controller;
 use Shopware\Content\Product\Repository\ProductRepository;
 use Shopware\Content\Product\Struct\PriceStruct;
 use Shopware\Content\Product\Struct\ProductDetailStruct;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Struct\Uuid;
 use Shopware\PlatformRequest;
 use Shopware\Rest\Test\ApiTestCase;

@@ -20,7 +20,7 @@ use Shopware\Checkout\Order\Event\Order\OrderDetailLoadedEvent;
 use Shopware\Checkout\Order\Event\Order\OrderIdSearchResultLoadedEvent;
 use Shopware\Checkout\Order\Event\Order\OrderSearchResultLoadedEvent;
 use Shopware\Checkout\Order\Struct\OrderSearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Version\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 

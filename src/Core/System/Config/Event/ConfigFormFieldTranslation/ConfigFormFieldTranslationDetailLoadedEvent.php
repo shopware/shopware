@@ -5,7 +5,7 @@ namespace Shopware\System\Config\Event\ConfigFormFieldTranslation;
 use Shopware\System\Config\Collection\ConfigFormFieldTranslationDetailCollection;
 use Shopware\System\Config\Event\ConfigFormField\ConfigFormFieldBasicLoadedEvent;
 use Shopware\System\Locale\Event\Locale\LocaleBasicLoadedEvent;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 

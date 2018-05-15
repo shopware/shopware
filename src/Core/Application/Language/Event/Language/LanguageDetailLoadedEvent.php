@@ -3,7 +3,7 @@
 namespace Shopware\Application\Language\Event\Language;
 
 use Shopware\Application\Language\Collection\LanguageDetailCollection;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 

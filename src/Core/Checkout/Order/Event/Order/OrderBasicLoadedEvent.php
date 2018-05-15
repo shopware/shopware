@@ -9,7 +9,7 @@ use Shopware\Checkout\Order\Collection\OrderBasicCollection;
 use Shopware\Checkout\Order\Event\OrderAddress\OrderAddressBasicLoadedEvent;
 use Shopware\Checkout\Order\Event\OrderState\OrderStateBasicLoadedEvent;
 use Shopware\Checkout\Payment\Event\PaymentMethod\PaymentMethodBasicLoadedEvent;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 

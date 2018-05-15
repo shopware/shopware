@@ -3,7 +3,7 @@
 namespace Shopware\System\Listing\Event\ListingSortingTranslation;
 
 use Shopware\System\Listing\Collection\ListingSortingTranslationBasicCollection;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class ListingSortingTranslationBasicLoadedEvent extends NestedEvent

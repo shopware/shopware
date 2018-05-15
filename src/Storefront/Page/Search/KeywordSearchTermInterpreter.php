@@ -7,7 +7,7 @@ use Psr\Log\LoggerInterface;
 use Shopware\Framework\ORM\Search\Term\SearchPattern;
 use Shopware\Framework\ORM\Search\Term\SearchTerm;
 use Shopware\Framework\ORM\Search\Term\TokenizerInterface;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Struct\Uuid;
 
 class KeywordSearchTermInterpreter

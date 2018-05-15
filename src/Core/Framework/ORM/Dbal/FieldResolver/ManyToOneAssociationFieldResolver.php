@@ -8,7 +8,7 @@ use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\Field\Field;
 use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Framework\ORM\Write\Flag\Inherited;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 
 class ManyToOneAssociationFieldResolver implements FieldResolverInterface

@@ -3,7 +3,7 @@
 namespace Shopware\Checkout\Shipping\Event\ShippingMethodTranslation;
 
 use Shopware\Checkout\Shipping\Collection\ShippingMethodTranslationBasicCollection;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class ShippingMethodTranslationBasicLoadedEvent extends NestedEvent

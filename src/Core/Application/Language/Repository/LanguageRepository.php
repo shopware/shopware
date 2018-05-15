@@ -20,7 +20,7 @@ use Shopware\Application\Language\Event\Language\LanguageDetailLoadedEvent;
 use Shopware\Application\Language\Event\Language\LanguageIdSearchResultLoadedEvent;
 use Shopware\Application\Language\Event\Language\LanguageSearchResultLoadedEvent;
 use Shopware\Application\Language\Struct\LanguageSearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Version\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 

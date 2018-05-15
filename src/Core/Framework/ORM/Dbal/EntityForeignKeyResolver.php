@@ -11,7 +11,7 @@ use Shopware\Framework\ORM\Field\OneToManyAssociationField;
 use Shopware\Framework\ORM\FieldCollection;
 use Shopware\Framework\ORM\Write\Flag\CascadeDelete;
 use Shopware\Framework\ORM\Write\Flag\RestrictDelete;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\Uuid;
 

@@ -3,7 +3,7 @@
 namespace Shopware\System\Tax\Event\Tax;
 
 use Shopware\Framework\ORM\Search\AggregatorResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class TaxAggregationResultLoadedEvent extends NestedEvent

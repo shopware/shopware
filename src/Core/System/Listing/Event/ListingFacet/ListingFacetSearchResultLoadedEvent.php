@@ -3,7 +3,7 @@
 namespace Shopware\System\Listing\Event\ListingFacet;
 
 use Shopware\System\Listing\Struct\ListingFacetSearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class ListingFacetSearchResultLoadedEvent extends NestedEvent

@@ -8,7 +8,7 @@ use Shopware\Checkout\Order\Event\OrderAddress\OrderAddressBasicLoadedEvent;
 use Shopware\Checkout\Order\Event\OrderDeliveryPosition\OrderDeliveryPositionBasicLoadedEvent;
 use Shopware\Checkout\Order\Event\OrderState\OrderStateBasicLoadedEvent;
 use Shopware\Checkout\Shipping\Event\ShippingMethod\ShippingMethodBasicLoadedEvent;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 

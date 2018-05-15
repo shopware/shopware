@@ -3,7 +3,7 @@
 namespace Shopware\Api\Shop\Event\ShopTemplateConfigPreset;
 
 use Shopware\Api\Shop\Struct\ShopTemplateConfigPresetSearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class ShopTemplateConfigPresetSearchResultLoadedEvent extends NestedEvent

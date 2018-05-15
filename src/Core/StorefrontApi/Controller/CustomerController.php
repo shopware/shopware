@@ -4,7 +4,7 @@ namespace Shopware\StorefrontApi\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Context\Struct\StorefrontContext;
+use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\PlatformRequest;
 use Shopware\StorefrontApi\Context\StorefrontContextPersister;
 use Shopware\StorefrontApi\Firewall\ContextUser;

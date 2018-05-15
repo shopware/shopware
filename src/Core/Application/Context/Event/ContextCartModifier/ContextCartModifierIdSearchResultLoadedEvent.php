@@ -3,7 +3,7 @@
 namespace Shopware\Application\Context\Event\ContextCartModifier;
 
 use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class ContextCartModifierIdSearchResultLoadedEvent extends NestedEvent

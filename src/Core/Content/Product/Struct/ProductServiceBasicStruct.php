@@ -9,7 +9,7 @@ use Shopware\System\Tax\Struct\TaxBasicStruct;
 use Shopware\Checkout\Cart\Price\Struct\PriceDefinition;
 use Shopware\Checkout\Cart\Tax\Struct\PercentageTaxRule;
 use Shopware\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 
 class ProductServiceBasicStruct extends Entity
 {

@@ -3,7 +3,7 @@
 namespace Shopware\System\Listing\Event\ListingSorting;
 
 use Shopware\System\Listing\Struct\ListingSortingSearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class ListingSortingSearchResultLoadedEvent extends NestedEvent

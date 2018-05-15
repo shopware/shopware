@@ -3,7 +3,7 @@
 namespace Shopware\Checkout\Customer\Event\CustomerAddress;
 
 use Shopware\Checkout\Customer\Struct\CustomerAddressSearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class CustomerAddressSearchResultLoadedEvent extends NestedEvent

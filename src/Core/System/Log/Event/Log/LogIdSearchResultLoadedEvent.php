@@ -3,7 +3,7 @@
 namespace Shopware\System\Log\Event\Log;
 
 use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class LogIdSearchResultLoadedEvent extends NestedEvent

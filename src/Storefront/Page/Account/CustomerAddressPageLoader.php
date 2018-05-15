@@ -5,7 +5,7 @@ namespace Shopware\Storefront\Page\Account;
 use Shopware\Checkout\Customer\Repository\CustomerAddressRepository;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Query\TermQuery;
-use Shopware\Context\Struct\StorefrontContext;
+use Shopware\Application\Context\Struct\StorefrontContext;
 
 class CustomerAddressPageLoader
 {

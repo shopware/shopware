@@ -24,7 +24,7 @@
 
 namespace Shopware\Framework\Event;
 
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Struct\JsonSerializableTrait;
 use Symfony\Component\EventDispatcher\Event;
 

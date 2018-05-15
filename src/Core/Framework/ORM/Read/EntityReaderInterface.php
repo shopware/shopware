@@ -3,7 +3,7 @@
 namespace Shopware\Framework\ORM\Read;
 
 use Shopware\Framework\ORM\EntityCollection;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 
 interface EntityReaderInterface
 {

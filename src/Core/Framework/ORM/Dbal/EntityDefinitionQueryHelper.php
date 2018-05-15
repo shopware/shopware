@@ -12,7 +12,7 @@ use Shopware\Framework\ORM\Field\ManyToManyAssociationField;
 use Shopware\Framework\ORM\Field\TranslatedField;
 use Shopware\Framework\ORM\Write\FieldAware\StorageAware;
 use Shopware\Framework\ORM\Write\Flag\Inherited;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\Uuid;
 

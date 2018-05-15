@@ -4,7 +4,7 @@ namespace Shopware\System\Locale\Event\Locale;
 
 use Shopware\System\Locale\Collection\LocaleDetailCollection;
 use Shopware\System\Locale\Event\LocaleTranslation\LocaleTranslationBasicLoadedEvent;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 

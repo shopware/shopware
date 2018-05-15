@@ -5,7 +5,7 @@ namespace Shopware\Framework\ORM\Dbal\FieldAccessorBuilder;
 use Shopware\Framework\ORM\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Framework\ORM\Field\Field;
 use Shopware\Framework\ORM\Write\FieldAware\StorageAware;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 
 class StandardFieldAccessorBuilder implements FieldAccessorBuilderInterface
 {

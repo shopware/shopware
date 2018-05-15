@@ -10,7 +10,7 @@ use Shopware\Content\Product\Repository\ProductConfiguratorRepository;
 use Shopware\Content\Product\Repository\ProductRepository;
 use Shopware\Content\Product\Struct\ProductBasicStruct;
 use Shopware\Content\Product\Struct\ProductConfiguratorBasicStruct;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Content\Product\Exception\NoConfiguratorFoundException;
 use Shopware\Content\Product\Exception\ProductNotFoundException;
 

@@ -3,7 +3,7 @@
 namespace Shopware\Content\Product\Event\ProductService;
 
 use Shopware\Content\Product\Struct\ProductServiceSearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class ProductServiceSearchResultLoadedEvent extends NestedEvent

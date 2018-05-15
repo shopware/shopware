@@ -7,7 +7,7 @@ use Ramsey\Uuid\Uuid;
 use Shopware\Checkout\Customer\Repository\CustomerRepository;
 use Shopware\Content\Product\Repository\ProductRepository;
 use Shopware\Checkout\CartBridge\Product\ProductProcessor;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 use Shopware\PlatformRequest;
 use Shopware\Rest\Test\ApiTestCase;

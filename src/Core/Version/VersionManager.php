@@ -27,7 +27,7 @@ use Shopware\Framework\ORM\Version\Definition\VersionCommitDataDefinition;
 use Shopware\Framework\ORM\Version\Definition\VersionCommitDefinition;
 use Shopware\Framework\ORM\Version\Definition\VersionDefinition;
 use Shopware\Framework\ORM\Version\Struct\VersionCommitDataBasicStruct;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\Collection;
 use Shopware\Framework\Struct\Struct;

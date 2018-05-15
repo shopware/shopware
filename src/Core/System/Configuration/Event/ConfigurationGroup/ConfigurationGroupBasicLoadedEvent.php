@@ -3,7 +3,7 @@
 namespace Shopware\System\Configuration\Event\ConfigurationGroup;
 
 use Shopware\System\Configuration\Collection\ConfigurationGroupBasicCollection;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class ConfigurationGroupBasicLoadedEvent extends NestedEvent

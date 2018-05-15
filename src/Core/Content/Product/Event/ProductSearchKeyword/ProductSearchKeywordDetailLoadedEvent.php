@@ -5,7 +5,7 @@ namespace Shopware\Content\Product\Event\ProductSearchKeyword;
 use Shopware\Content\Product\Collection\ProductSearchKeywordDetailCollection;
 use Shopware\Content\Product\Event\Product\ProductBasicLoadedEvent;
 use Shopware\Api\Shop\Event\Shop\ShopBasicLoadedEvent;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 

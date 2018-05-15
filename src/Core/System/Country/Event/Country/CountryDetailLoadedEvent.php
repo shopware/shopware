@@ -6,7 +6,7 @@ use Shopware\System\Country\Collection\CountryDetailCollection;
 use Shopware\System\Country\Event\CountryArea\CountryAreaBasicLoadedEvent;
 use Shopware\System\Country\Event\CountryState\CountryStateBasicLoadedEvent;
 use Shopware\System\Country\Event\CountryTranslation\CountryTranslationBasicLoadedEvent;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 

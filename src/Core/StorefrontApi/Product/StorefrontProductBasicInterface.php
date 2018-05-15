@@ -8,7 +8,7 @@ use Shopware\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
 use Shopware\Checkout\Cart\Price\Struct\PriceDefinition;
 use Shopware\Checkout\Cart\Price\Struct\PriceDefinitionCollection;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 
 interface StorefrontProductBasicInterface
 {

@@ -3,7 +3,7 @@
 namespace Shopware\Api\Shop\Event\ShopTemplate;
 
 use Shopware\Api\Shop\Collection\ShopTemplateBasicCollection;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class ShopTemplateBasicLoadedEvent extends NestedEvent

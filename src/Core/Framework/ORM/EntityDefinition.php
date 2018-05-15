@@ -11,7 +11,7 @@ use Shopware\Framework\ORM\Write\EntityExistence;
 use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\ReadOnly;
 use Shopware\Framework\ORM\Write\WrittenEvent;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 
 abstract class EntityDefinition
 {

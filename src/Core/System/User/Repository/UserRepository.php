@@ -20,7 +20,7 @@ use Shopware\System\User\Event\User\UserDetailLoadedEvent;
 use Shopware\System\User\Event\User\UserIdSearchResultLoadedEvent;
 use Shopware\System\User\Event\User\UserSearchResultLoadedEvent;
 use Shopware\System\User\Struct\UserSearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Version\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 

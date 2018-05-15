@@ -3,7 +3,7 @@
 namespace Shopware\Framework\ORM\Version\Event\Version;
 
 use Shopware\Framework\ORM\Version\Collection\VersionBasicCollection;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class VersionBasicLoadedEvent extends NestedEvent

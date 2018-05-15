@@ -3,7 +3,7 @@
 namespace Shopware\Checkout\Order\Event\OrderTransactionState;
 
 use Shopware\Checkout\Order\Collection\OrderTransactionStateBasicCollection;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class OrderTransactionStateBasicLoadedEvent extends NestedEvent

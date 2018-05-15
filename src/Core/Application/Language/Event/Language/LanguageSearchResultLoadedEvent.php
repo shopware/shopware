@@ -3,7 +3,7 @@
 namespace Shopware\Application\Language\Event\Language;
 
 use Shopware\Application\Language\Struct\LanguageSearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class LanguageSearchResultLoadedEvent extends NestedEvent

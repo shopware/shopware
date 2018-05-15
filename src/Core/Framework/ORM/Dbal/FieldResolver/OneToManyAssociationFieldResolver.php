@@ -9,7 +9,7 @@ use Shopware\Framework\ORM\Field\Field;
 use Shopware\Framework\ORM\Field\OneToManyAssociationField;
 use Shopware\Framework\ORM\Write\Flag\CascadeDelete;
 use Shopware\Framework\ORM\Write\Flag\Inherited;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 
 class OneToManyAssociationFieldResolver implements FieldResolverInterface
 {

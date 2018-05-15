@@ -3,7 +3,7 @@
 namespace Shopware\Content\Product\Event\ProductManufacturer;
 
 use Shopware\Content\Product\Collection\ProductManufacturerBasicCollection;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class ProductManufacturerBasicLoadedEvent extends NestedEvent

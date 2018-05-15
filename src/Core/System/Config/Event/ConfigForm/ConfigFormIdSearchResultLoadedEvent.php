@@ -3,7 +3,7 @@
 namespace Shopware\System\Config\Event\ConfigForm;
 
 use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class ConfigFormIdSearchResultLoadedEvent extends NestedEvent

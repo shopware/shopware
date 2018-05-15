@@ -29,7 +29,7 @@ use Shopware\Checkout\Cart\Cart\CartProcessorInterface;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Checkout\Cart\Cart\Struct\Cart;
 use Shopware\Checkout\Cart\LineItem\DeliverableLineItemInterface;
-use Shopware\Context\Struct\StorefrontContext;
+use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class DeliverySeparatorProcessor implements CartProcessorInterface

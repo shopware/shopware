@@ -10,7 +10,7 @@ use Shopware\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Framework\ORM\Search\Sorting\FieldSorting;
 use Shopware\Framework\ORM\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Framework\ORM\Search\Term\SearchTermInterpreter;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 

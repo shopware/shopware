@@ -12,7 +12,7 @@ use Shopware\Application\Language\Repository\LanguageRepository;
 use Shopware\System\Locale\Repository\LocaleRepository;
 use Shopware\Content\Product\Definition\ProductCategoryDefinition;
 use Shopware\Content\Product\Definition\ProductDefinition;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;

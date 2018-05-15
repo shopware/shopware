@@ -5,7 +5,7 @@ namespace Shopware\Api\Shop\Event\ShopTemplateConfigForm;
 use Shopware\Api\Shop\Collection\ShopTemplateConfigFormDetailCollection;
 use Shopware\Api\Shop\Event\ShopTemplate\ShopTemplateBasicLoadedEvent;
 use Shopware\Api\Shop\Event\ShopTemplateConfigFormField\ShopTemplateConfigFormFieldBasicLoadedEvent;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 

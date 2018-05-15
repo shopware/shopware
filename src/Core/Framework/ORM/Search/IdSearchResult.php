@@ -2,7 +2,7 @@
 
 namespace Shopware\Framework\ORM\Search;
 
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Struct\Struct;
 
 class IdSearchResult extends Struct

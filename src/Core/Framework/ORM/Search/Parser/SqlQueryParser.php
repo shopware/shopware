@@ -16,7 +16,7 @@ use Shopware\Framework\ORM\Search\Query\RangeQuery;
 use Shopware\Framework\ORM\Search\Query\ScoreQuery;
 use Shopware\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Framework\ORM\Search\Query\TermsQuery;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Struct\Uuid;
 
 class SqlQueryParser

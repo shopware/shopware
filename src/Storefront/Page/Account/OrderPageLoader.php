@@ -7,7 +7,7 @@ use Shopware\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Framework\ORM\Search\Sorting\FieldSorting;
 use Shopware\Checkout\Order\Repository\OrderRepository;
 use Shopware\Checkout\Order\Struct\OrderSearchResult;
-use Shopware\Context\Struct\StorefrontContext;
+use Shopware\Application\Context\Struct\StorefrontContext;
 use Symfony\Component\HttpFoundation\Request;
 
 class OrderPageLoader

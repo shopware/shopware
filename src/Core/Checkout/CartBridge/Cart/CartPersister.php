@@ -30,7 +30,7 @@ use Shopware\Checkout\Cart\Cart\CartPersisterInterface;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Checkout\Cart\Cart\Struct\Cart;
 use Shopware\Checkout\Cart\Exception\CartTokenNotFoundException;
-use Shopware\Context\Struct\StorefrontContext;
+use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\Uuid;
 use Symfony\Component\Serializer\SerializerInterface;

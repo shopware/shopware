@@ -31,7 +31,7 @@ use Shopware\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Checkout\Cart\Tax\TaxAmountCalculatorInterface;
 use Shopware\Checkout\Cart\Tax\TaxDetector;
-use Shopware\Context\Struct\StorefrontContext;
+use Shopware\Application\Context\Struct\StorefrontContext;
 
 class AmountCalculator
 {
@@ -105,7 +105,7 @@ class AmountCalculator
      *
      * @param CalculatedPriceCollection                  $prices
      * @param CalculatedPriceCollection                  $shippingCosts
-     * @param \Shopware\Context\Struct\StorefrontContext $context
+     * @param \Shopware\Application\Context\Struct\StorefrontContext $context
      *
      * @return CartPrice
      */
@@ -140,7 +140,7 @@ class AmountCalculator
      *
      * @param CalculatedPriceCollection                  $prices
      * @param CalculatedPriceCollection                  $shippingCosts
-     * @param \Shopware\Context\Struct\StorefrontContext $context
+     * @param \Shopware\Application\Context\Struct\StorefrontContext $context
      *
      * @return CartPrice
      */

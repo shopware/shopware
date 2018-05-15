@@ -3,7 +3,7 @@
 namespace Shopware\System\Country\Event\CountryArea;
 
 use Shopware\System\Country\Struct\CountryAreaSearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class CountryAreaSearchResultLoadedEvent extends NestedEvent

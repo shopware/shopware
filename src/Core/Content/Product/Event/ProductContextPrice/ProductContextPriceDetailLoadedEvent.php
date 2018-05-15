@@ -6,7 +6,7 @@ use Shopware\Application\Context\Event\ContextRule\ContextRuleBasicLoadedEvent;
 use Shopware\System\Currency\Event\Currency\CurrencyBasicLoadedEvent;
 use Shopware\Content\Product\Collection\ProductContextPriceDetailCollection;
 use Shopware\Content\Product\Event\Product\ProductBasicLoadedEvent;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 

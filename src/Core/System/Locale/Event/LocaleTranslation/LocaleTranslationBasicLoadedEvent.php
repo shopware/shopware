@@ -3,7 +3,7 @@
 namespace Shopware\System\Locale\Event\LocaleTranslation;
 
 use Shopware\System\Locale\Collection\LocaleTranslationBasicCollection;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class LocaleTranslationBasicLoadedEvent extends NestedEvent

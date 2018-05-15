@@ -3,7 +3,7 @@
 namespace Shopware\Checkout\Customer\Event\CustomerAddress;
 
 use Shopware\Framework\ORM\Search\AggregatorResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class CustomerAddressAggregationResultLoadedEvent extends NestedEvent

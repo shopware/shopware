@@ -3,7 +3,7 @@
 namespace Shopware\Content\Product\Event\ProductContextPrice;
 
 use Shopware\Content\Product\Collection\ProductContextPriceBasicCollection;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class ProductContextPriceBasicLoadedEvent extends NestedEvent

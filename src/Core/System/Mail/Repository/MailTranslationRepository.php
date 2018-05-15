@@ -20,7 +20,7 @@ use Shopware\System\Mail\Event\MailTranslation\MailTranslationDetailLoadedEvent;
 use Shopware\System\Mail\Event\MailTranslation\MailTranslationIdSearchResultLoadedEvent;
 use Shopware\System\Mail\Event\MailTranslation\MailTranslationSearchResultLoadedEvent;
 use Shopware\System\Mail\Struct\MailTranslationSearchResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Version\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 

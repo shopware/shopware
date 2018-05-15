@@ -34,7 +34,7 @@ use Shopware\Checkout\Cart\Exception\LineItemNotFoundException;
 use Shopware\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Checkout\Cart\LineItem\LineItemInterface;
 use Shopware\Checkout\Cart\Order\OrderPersisterInterface;
-use Shopware\Context\Struct\StorefrontContext;
+use Shopware\Application\Context\Struct\StorefrontContext;
 
 class StoreFrontCartService
 {

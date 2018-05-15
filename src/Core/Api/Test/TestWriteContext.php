@@ -3,7 +3,7 @@
 namespace Shopware\Api\Test;
 
 use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 
 class TestWriteContext extends WriteContext
 {

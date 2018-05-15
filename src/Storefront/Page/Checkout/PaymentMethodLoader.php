@@ -6,7 +6,7 @@ use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Checkout\Payment\Collection\PaymentMethodBasicCollection;
 use Shopware\Checkout\Payment\Repository\PaymentMethodRepository;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Symfony\Component\HttpFoundation\Request;
 
 class PaymentMethodLoader

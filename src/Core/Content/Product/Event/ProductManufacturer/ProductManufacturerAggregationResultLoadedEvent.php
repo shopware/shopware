@@ -3,7 +3,7 @@
 namespace Shopware\Content\Product\Event\ProductManufacturer;
 
 use Shopware\Framework\ORM\Search\AggregatorResult;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
 class ProductManufacturerAggregationResultLoadedEvent extends NestedEvent

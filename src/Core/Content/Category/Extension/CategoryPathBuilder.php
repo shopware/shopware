@@ -9,7 +9,7 @@ use Shopware\Content\Category\Repository\CategoryRepository;
 use Shopware\Content\Category\Struct\CategoryBasicStruct;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Query\TermQuery;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\DbalIndexing\Event\ProgressAdvancedEvent;
 use Shopware\DbalIndexing\Event\ProgressFinishedEvent;
 use Shopware\DbalIndexing\Event\ProgressStartedEvent;

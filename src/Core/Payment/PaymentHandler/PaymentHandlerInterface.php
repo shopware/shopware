@@ -2,7 +2,7 @@
 
 namespace Shopware\Payment\PaymentHandler;
 
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Payment\Struct\PaymentTransaction;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;

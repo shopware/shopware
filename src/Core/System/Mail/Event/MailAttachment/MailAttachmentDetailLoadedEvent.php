@@ -6,7 +6,7 @@ use Shopware\System\Mail\Collection\MailAttachmentDetailCollection;
 use Shopware\System\Mail\Event\Mail\MailBasicLoadedEvent;
 use Shopware\Content\Media\Event\Media\MediaBasicLoadedEvent;
 use Shopware\Api\Shop\Event\Shop\ShopBasicLoadedEvent;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 

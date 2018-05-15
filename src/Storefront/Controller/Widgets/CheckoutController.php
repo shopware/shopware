@@ -27,7 +27,7 @@ namespace Shopware\Storefront\Controller\Widgets;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Checkout\CartBridge\Service\StoreFrontCartService;
-use Shopware\Context\Struct\StorefrontContext;
+use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Storefront\Controller\StorefrontController;
 
 /**

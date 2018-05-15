@@ -51,6 +51,119 @@
           <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>
+
+
+        <service class="Shopware\Content\Media\Extension\UrlExtension" id="Shopware\Content\Media\Extension\UrlExtension">
+            <argument id="Shopware\Content\Media\UrlGenerator" type="service"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service class="Shopware\Content\Media\Extension\ThumbnailExtension" id="Shopware\Content\Media\Extension\ThumbnailExtension">
+            <argument id="Shopware\Content\Media\UrlGenerator" type="service"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <!-- ProductMedia Extension -->
+
+        <service class="Shopware\Content\Media\GarbageCollector\GarbageCollectorFactory" id="Shopware\Content\Media\GarbageCollector\GarbageCollectorFactory">
+            <argument type="service" id="Doctrine\DBAL\Connection" />
+            <argument type="service" id="Shopware\Content\Media\Strategy\StrategyInterface" />
+        </service>
+
+        <service class="Shopware\Content\Media\GarbageCollector\GarbageCollector" id="Shopware\Content\Media\GarbageCollector\GarbageCollector">
+            <factory service="Shopware\Content\Media\GarbageCollector\GarbageCollectorFactory" method="factory" />
+        </service>
+
+        <service class="Shopware\Filesystem\PrefixFilesystem" id="Shopware\Filesystem\PrefixFilesystem">
+            <argument type="service" id="shopware.filesystem.public" />
+            <argument>media</argument>
+        </service>
+
+        <service class="Shopware\Content\Media\Strategy\StrategyFilesystem" id="Shopware\Content\Media\Strategy\StrategyFilesystem">
+            <argument type="service" id="Shopware\Filesystem\PrefixFilesystem" />
+            <argument type="service" id="Shopware\Content\Media\Strategy\StrategyInterface" />
+        </service>
+
+        <service class="Shopware\Content\Media\UrlGenerator" id="Shopware\Content\Media\UrlGenerator">
+            <argument type="service" id="Shopware\Content\Media\Strategy\StrategyInterface" />
+            <argument type="service" id="request_stack" />
+            <argument>%shopware.cdn.url%</argument>
+        </service>
+
+        <service class="Shopware\Content\Media\MediaReplaceService" id="Shopware\Content\Media\MediaReplaceService">
+            <argument type="service" id="Shopware\Content\Media\Strategy\StrategyFilesystem" />
+            <!--<argument type="service" id="thumbnail_manager"/>-->
+            <!--<argument type="service" id="models" />-->
+        </service>
+
+        <service class="Shopware\Content\Media\Strategy\StrategyFactory" id="Shopware\Content\Media\Strategy\StrategyFactory">
+            <argument type="tagged" tag="Shopware\Content\Media\Strategy\StrategyInterface" />
+        </service>
+
+        <service class="Shopware\Content\Media\Strategy\StrategyInterface" id="Shopware\Content\Media\Strategy\StrategyInterface">
+            <factory service="Shopware\Content\Media\Strategy\StrategyFactory" method="factory" />
+            <argument>%shopware.cdn.strategy%</argument>
+        </service>
+
+        <!-- Commands -->
+        <service class="Shopware\Content\Media\Commands\MediaMigrateCommand" id="Shopware\Content\Media\Commands\MediaMigrateCommand">
+            <argument type="service" id="Shopware\Content\Media\Strategy\StrategyFilesystem" />
+            <argument type="service" id="Shopware\Content\Media\Strategy\StrategyFactory" />
+            <argument type="service" id="event_dispatcher" />
+            <tag name="console.command" />
+            <tag name="kernel.event_subscriber" />
+        </service>
+
+        <service class="Shopware\Content\Media\Commands\MediaCleanupCommand" id="Shopware\Content\Media\Commands\MediaCleanupCommand">
+            <argument type="service" id="Shopware\Content\Media\GarbageCollector\GarbageCollector" />
+            <tag name="console.command" />
+        </service>
+
+        <service class="Shopware\Content\Media\Commands\MediaOptimizeCommand" id="Shopware\Content\Media\Commands\MediaOptimizeCommand">
+            <argument type="service" id="Shopware\Content\Media\Optimizer\CacheOptimizerService" />
+            <argument>%kernel.project_dir%/web/media</argument>
+            <tag name="console.command" />
+        </service>
+
+        <!-- Strategies -->
+        <service class="Shopware\Content\Media\Strategy\Md5Strategy" id="Shopware\Content\Media\Strategy\StrategyInterface.md5">
+            <tag name="Shopware\Content\Media\Strategy\StrategyInterface" />
+        </service>
+
+        <service class="Shopware\Content\Media\Strategy\PlainStrategy" id="Shopware\Content\Media\Strategy\StrategyInterface.plain">
+            <tag name="Shopware\Content\Media\Strategy\StrategyInterface" />
+        </service>
+
+        <!-- Optimizer -->
+        <service class="Shopware\Content\Media\Optimizer\OptimizerService" id="Shopware\Content\Media\Optimizer\OptimizerService">
+            <argument type="tagged" tag="shopware.media.optimizer" />
+            <argument type="service" id="Shopware\Content\Media\Strategy\StrategyFilesystem" />
+        </service>
+
+        <service id="Shopware\Content\Media\Optimizer\CacheOptimizerService" class="Shopware\Content\Media\Optimizer\CacheOptimizerService"
+                 decorates="Shopware\Content\Media\Optimizer\OptimizerService" public="false">
+            <argument type="service" id="Shopware\Content\Media\Optimizer\CacheOptimizerService.inner" />
+        </service>
+
+        <service class="Shopware\Content\Media\Optimizer\JpegoptimOptimizer" id="Shopware\Content\Media\Optimizer\JpegoptimOptimizer">
+            <tag name="shopware.media.optimizer" priority="100" />
+        </service>
+
+        <service class="Shopware\Content\Media\Optimizer\JpegtranOptimizer" id="Shopware\Content\Media\Optimizer\JpegtranOptimizer">
+            <tag name="shopware.media.optimizer" priority="90" />
+        </service>
+
+        <service class="Shopware\Content\Media\Optimizer\PngoutOptimizer" id="Shopware\Content\Media\Optimizer\PngoutOptimizer">
+            <tag name="shopware.media.optimizer" priority="100" />
+        </service>
+
+        <service class="Shopware\Content\Media\Optimizer\OptipngOptimizer" id="Shopware\Content\Media\Optimizer\OptipngOptimizer">
+            <tag name="shopware.media.optimizer" priority="90" />
+        </service>
+
+        <service class="Shopware\Content\Media\Optimizer\PngcrushOptimizer" id="Shopware\Content\Media\Optimizer\PngcrushOptimizer">
+            <tag name="shopware.media.optimizer" priority="80" />
+        </service>
     </services>
 </container>                
                 

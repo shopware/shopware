@@ -111,7 +111,7 @@
             <argument>framework:demodata</argument>
             <argument type="service" id="Shopware\Framework\ORM\Write\EntityWriter"/>
             <argument type="service" id="Shopware\Content\Product\Service\VariantGenerator"/>
-            <argument type="service" id="Shopware\Media\Strategy\StrategyFilesystem"/>
+            <argument type="service" id="Shopware\Content\Media\Strategy\StrategyFilesystem"/>
             <argument type="service" id="service_container"/>
         </service>
 

@@ -12,7 +12,7 @@
             {# @var cover \Shopware\Content\Product\Struct\ProductMediaBasicStruct #}
             {% set cover = product.cover %}
 
-            {# @var thumbnails \Shopware\Media\Struct\ThumbnailStruct[] #}
+            {# @var thumbnails \Shopware\Content\Media\Struct\ThumbnailStruct[] #}
             {% set thumbnails = cover.media.extension('thumbnails') %}
 
             {% block frontend_detail_product_quick_view_image_link %}

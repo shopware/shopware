@@ -69,6 +69,26 @@
           <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>
+
+        <!-- Config -->
+        <service class="Shopware\System\Config\Service\CacheWarmer" id="Shopware\System\Config\Service\CacheWarmer">
+            <tag name="kernel.cache_warmer" />
+
+            <argument type="service" id="Doctrine\DBAL\Connection" />
+            <argument type="service" id="Shopware\System\Config\Service\ConfigService" />
+        </service>
+
+        <service class="Shopware\System\Config\Service\ConfigService" id="Shopware\System\Config\Service\ConfigService">
+            <argument type="service" id="Doctrine\DBAL\Connection" />
+        </service>
+
+        <service class="Shopware\System\Config\Service\CachedConfigService" decorates="Shopware\System\Config\Service\ConfigService" id="Shopware\System\Config\Service\CachedConfigService">
+            <argument type="service" id="Shopware\System\Config\Service\CachedConfigService.inner" />
+            <argument type="service" id="shopware.cache" />
+        </service>
+
+        <service id="shopware.config" alias="Shopware\System\Config\Service\Config" />
+        <service synthetic="true" id="Shopware\System\Config\Service\Config" class="Shopware\System\Config\Service\Config" />
     </services>
 </container>                
                 

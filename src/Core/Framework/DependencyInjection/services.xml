@@ -31,26 +31,6 @@
         <!-- Cache -->
         <service id="shopware.cache" alias="cache.app" />
 
-        <!-- Config -->
-        <service class="Shopware\Framework\Config\CacheWarmer" id="Shopware\Framework\Config\CacheWarmer">
-            <tag name="kernel.cache_warmer" />
-
-            <argument type="service" id="Doctrine\DBAL\Connection" />
-            <argument type="service" id="Shopware\Framework\Config\ConfigService" />
-        </service>
-
-        <service class="Shopware\Framework\Config\ConfigService" id="Shopware\Framework\Config\ConfigService">
-            <argument type="service" id="Doctrine\DBAL\Connection" />
-        </service>
-
-        <service class="Shopware\Framework\Config\CachedConfigService" decorates="Shopware\Framework\Config\ConfigService" id="Shopware\Framework\Config\CachedConfigService">
-            <argument type="service" id="Shopware\Framework\Config\CachedConfigService.inner" />
-            <argument type="service" id="shopware.cache" />
-        </service>
-
-        <service id="shopware.config" alias="Shopware\Framework\Config\Config" />
-        <service synthetic="true" id="Shopware\Framework\Config\Config" class="Shopware\Framework\Config\Config" />
-
         <service class="Cocur\Slugify\Slugify" public="false" id="slugify">
             <argument>%shopware.slug.config%</argument>
         </service>

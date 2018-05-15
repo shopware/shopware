@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Order\Struct;
 
-use Shopware\Api\Language\Struct\LanguageBasicStruct;
+use Shopware\Application\Language\Struct\LanguageBasicStruct;
 
 class OrderStateTranslationDetailStruct extends OrderStateTranslationBasicStruct
 {

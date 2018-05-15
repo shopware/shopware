@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api\Language\Event\Language;
+namespace Shopware\Application\Language\Event\Language;
 
-use Shopware\Api\Language\Collection\LanguageBasicCollection;
+use Shopware\Application\Language\Collection\LanguageBasicCollection;
 use Shopware\System\Locale\Event\Locale\LocaleBasicLoadedEvent;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;

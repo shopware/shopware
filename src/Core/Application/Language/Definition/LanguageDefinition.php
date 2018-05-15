@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api\Language\Definition;
+namespace Shopware\Application\Language\Definition;
 
 use Shopware\Content\Category\Definition\CategoryTranslationDefinition;
 use Shopware\System\Country\Definition\CountryAreaTranslationDefinition;
@@ -25,13 +25,13 @@ use Shopware\Api\Entity\Write\Flag\CascadeDelete;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Entity\Write\Flag\WriteOnly;
-use Shopware\Api\Language\Collection\LanguageBasicCollection;
-use Shopware\Api\Language\Collection\LanguageDetailCollection;
-use Shopware\Api\Language\Event\Language\LanguageDeletedEvent;
-use Shopware\Api\Language\Event\Language\LanguageWrittenEvent;
-use Shopware\Api\Language\Repository\LanguageRepository;
-use Shopware\Api\Language\Struct\LanguageBasicStruct;
-use Shopware\Api\Language\Struct\LanguageDetailStruct;
+use Shopware\Application\Language\Collection\LanguageBasicCollection;
+use Shopware\Application\Language\Collection\LanguageDetailCollection;
+use Shopware\Application\Language\Event\Language\LanguageDeletedEvent;
+use Shopware\Application\Language\Event\Language\LanguageWrittenEvent;
+use Shopware\Application\Language\Repository\LanguageRepository;
+use Shopware\Application\Language\Struct\LanguageBasicStruct;
+use Shopware\Application\Language\Struct\LanguageDetailStruct;
 use Shopware\System\Listing\Definition\ListingFacetTranslationDefinition;
 use Shopware\System\Listing\Definition\ListingSortingTranslationDefinition;
 use Shopware\System\Locale\Definition\LocaleDefinition;

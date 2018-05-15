@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api\Language\Collection;
+namespace Shopware\Application\Language\Collection;
 
-use Shopware\Api\Language\Struct\LanguageDetailStruct;
+use Shopware\Application\Language\Struct\LanguageDetailStruct;
 
 class LanguageDetailCollection extends LanguageBasicCollection
 {

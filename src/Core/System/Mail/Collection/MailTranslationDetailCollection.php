@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Mail\Collection;
 
-use Shopware\Api\Language\Collection\LanguageBasicCollection;
+use Shopware\Application\Language\Collection\LanguageBasicCollection;
 use Shopware\System\Mail\Struct\MailTranslationDetailStruct;
 
 class MailTranslationDetailCollection extends MailTranslationBasicCollection

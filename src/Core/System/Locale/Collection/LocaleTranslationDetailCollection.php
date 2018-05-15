@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Locale\Collection;
 
-use Shopware\Api\Language\Collection\LanguageBasicCollection;
+use Shopware\Application\Language\Collection\LanguageBasicCollection;
 use Shopware\System\Locale\Struct\LocaleTranslationDetailStruct;
 
 class LocaleTranslationDetailCollection extends LocaleTranslationBasicCollection

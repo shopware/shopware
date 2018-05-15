@@ -25,7 +25,7 @@ use Shopware\Api\Entity\Field\TenantIdField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
-use Shopware\Api\Language\Definition\LanguageDefinition;
+use Shopware\Application\Language\Definition\LanguageDefinition;
 use Shopware\Checkout\Payment\Definition\PaymentMethodDefinition;
 use Shopware\Checkout\Shipping\Definition\ShippingMethodDefinition;
 

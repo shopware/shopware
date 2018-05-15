@@ -27,7 +27,7 @@ namespace Shopware\Api\Entity\Field;
 use Shopware\Api\Entity\Write\DataStack\KeyValuePair;
 use Shopware\Api\Entity\Write\EntityExistence;
 use Shopware\Api\Entity\Write\FieldAware\StorageAware;
-use Shopware\Api\Language\Definition\LanguageDefinition;
+use Shopware\Application\Language\Definition\LanguageDefinition;
 
 class TranslatedField extends Field
 {

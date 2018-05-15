@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Locale\Event\LocaleTranslation;
 
-use Shopware\Api\Language\Event\Language\LanguageBasicLoadedEvent;
+use Shopware\Application\Language\Event\Language\LanguageBasicLoadedEvent;
 use Shopware\System\Locale\Collection\LocaleTranslationDetailCollection;
 use Shopware\System\Locale\Event\Locale\LocaleBasicLoadedEvent;
 use Shopware\Context\Struct\ApplicationContext;

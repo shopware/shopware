@@ -26,7 +26,7 @@ namespace Shopware\Api\Entity\Write;
 
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Field\ManyToOneAssociationField;
-use Shopware\Api\Language\Definition\LanguageDefinition;
+use Shopware\Application\Language\Definition\LanguageDefinition;
 use Shopware\Context\Struct\ApplicationContext;
 
 class WriteContext

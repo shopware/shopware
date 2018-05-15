@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Listing\Struct;
 
-use Shopware\Api\Language\Struct\LanguageBasicStruct;
+use Shopware\Application\Language\Struct\LanguageBasicStruct;
 
 class ListingSortingTranslationDetailStruct extends ListingSortingTranslationBasicStruct
 {

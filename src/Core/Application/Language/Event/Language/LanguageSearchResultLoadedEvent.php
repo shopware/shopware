@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api\Language\Event\Language;
+namespace Shopware\Application\Language\Event\Language;
 
-use Shopware\Api\Language\Struct\LanguageSearchResult;
+use Shopware\Application\Language\Struct\LanguageSearchResult;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 

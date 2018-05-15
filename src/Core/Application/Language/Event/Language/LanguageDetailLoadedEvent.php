@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api\Language\Event\Language;
+namespace Shopware\Application\Language\Event\Language;
 
-use Shopware\Api\Language\Collection\LanguageDetailCollection;
+use Shopware\Application\Language\Collection\LanguageDetailCollection;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;

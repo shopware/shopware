@@ -11,7 +11,7 @@ use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
-use Shopware\Api\Language\Definition\LanguageDefinition;
+use Shopware\Application\Language\Definition\LanguageDefinition;
 use Shopware\System\Listing\Collection\ListingSortingTranslationBasicCollection;
 use Shopware\System\Listing\Collection\ListingSortingTranslationDetailCollection;
 use Shopware\System\Listing\Event\ListingSortingTranslation\ListingSortingTranslationDeletedEvent;

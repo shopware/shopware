@@ -11,7 +11,7 @@ use Shopware\Api\Entity\Field\StringField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
-use Shopware\Api\Language\Definition\LanguageDefinition;
+use Shopware\Application\Language\Definition\LanguageDefinition;
 use Shopware\Checkout\Order\Collection\OrderTransactionStateTranslationBasicCollection;
 use Shopware\Checkout\Order\Event\OrderTransactionStateTranslation\OrderTransactionStateTranslationDeletedEvent;
 use Shopware\Checkout\Order\Event\OrderTransactionStateTranslation\OrderTransactionStateTranslationWrittenEvent;

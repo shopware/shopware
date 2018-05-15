@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Mail\Event\MailTranslation;
 
-use Shopware\Api\Language\Event\Language\LanguageBasicLoadedEvent;
+use Shopware\Application\Language\Event\Language\LanguageBasicLoadedEvent;
 use Shopware\System\Mail\Collection\MailTranslationDetailCollection;
 use Shopware\System\Mail\Event\Mail\MailBasicLoadedEvent;
 use Shopware\Context\Struct\ApplicationContext;

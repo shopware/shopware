@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Tax\Collection;
 
-use Shopware\Api\Language\Collection\LanguageBasicCollection;
+use Shopware\Application\Language\Collection\LanguageBasicCollection;
 use Shopware\System\Tax\Struct\TaxAreaRuleTranslationDetailStruct;
 
 class TaxAreaRuleTranslationDetailCollection extends TaxAreaRuleTranslationBasicCollection

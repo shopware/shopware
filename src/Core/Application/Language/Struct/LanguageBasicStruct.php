@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api\Language\Struct;
+namespace Shopware\Application\Language\Struct;
 
 use Shopware\Api\Entity\Entity;
 use Shopware\System\Locale\Struct\LocaleBasicStruct;

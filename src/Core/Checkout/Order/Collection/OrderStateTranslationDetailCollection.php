@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Order\Collection;
 
-use Shopware\Api\Language\Collection\LanguageBasicCollection;
+use Shopware\Application\Language\Collection\LanguageBasicCollection;
 use Shopware\Checkout\Order\Struct\OrderStateTranslationDetailStruct;
 
 class OrderStateTranslationDetailCollection extends OrderStateTranslationBasicCollection

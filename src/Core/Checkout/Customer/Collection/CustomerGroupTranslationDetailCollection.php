@@ -3,7 +3,7 @@
 namespace Shopware\Checkout\Customer\Collection;
 
 use Shopware\Checkout\Customer\Struct\CustomerGroupTranslationDetailStruct;
-use Shopware\Api\Language\Collection\LanguageBasicCollection;
+use Shopware\Application\Language\Collection\LanguageBasicCollection;
 
 class CustomerGroupTranslationDetailCollection extends CustomerGroupTranslationBasicCollection
 {

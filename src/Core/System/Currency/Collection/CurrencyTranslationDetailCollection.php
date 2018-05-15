@@ -3,7 +3,7 @@
 namespace Shopware\System\Currency\Collection;
 
 use Shopware\System\Currency\Struct\CurrencyTranslationDetailStruct;
-use Shopware\Api\Language\Collection\LanguageBasicCollection;
+use Shopware\Application\Language\Collection\LanguageBasicCollection;
 
 class CurrencyTranslationDetailCollection extends CurrencyTranslationBasicCollection
 {

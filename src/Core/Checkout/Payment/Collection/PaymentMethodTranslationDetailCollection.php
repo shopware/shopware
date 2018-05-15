@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Payment\Collection;
 
-use Shopware\Api\Language\Collection\LanguageBasicCollection;
+use Shopware\Application\Language\Collection\LanguageBasicCollection;
 use Shopware\Checkout\Payment\Struct\PaymentMethodTranslationDetailStruct;
 
 class PaymentMethodTranslationDetailCollection extends PaymentMethodTranslationBasicCollection

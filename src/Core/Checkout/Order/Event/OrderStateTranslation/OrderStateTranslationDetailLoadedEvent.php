@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Order\Event\OrderStateTranslation;
 
-use Shopware\Api\Language\Event\Language\LanguageBasicLoadedEvent;
+use Shopware\Application\Language\Event\Language\LanguageBasicLoadedEvent;
 use Shopware\Checkout\Order\Collection\OrderStateTranslationDetailCollection;
 use Shopware\Checkout\Order\Event\OrderState\OrderStateBasicLoadedEvent;
 use Shopware\Context\Struct\ApplicationContext;

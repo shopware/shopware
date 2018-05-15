@@ -7,7 +7,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\System\Currency\Repository\CurrencyRepository;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\TermQuery;
-use Shopware\Api\Language\Repository\LanguageRepository;
+use Shopware\Application\Language\Repository\LanguageRepository;
 use Shopware\Context\Struct\StorefrontContext;
 use Shopware\StorefrontApi\Context\StorefrontContextPersister;
 use Shopware\StorefrontApi\Context\StorefrontContextService;

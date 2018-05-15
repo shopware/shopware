@@ -4,7 +4,7 @@ namespace Shopware\Application\Application\Struct;
 
 use Shopware\System\Currency\Struct\CurrencyBasicStruct;
 use Shopware\Api\Entity\Entity;
-use Shopware\Api\Language\Struct\LanguageBasicStruct;
+use Shopware\Application\Language\Struct\LanguageBasicStruct;
 
 class ApplicationBasicStruct extends Entity
 {

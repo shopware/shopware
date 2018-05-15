@@ -30,8 +30,8 @@ use Shopware\System\Currency\Collection\CurrencyBasicCollection;
 use Shopware\System\Currency\Repository\CurrencyRepository;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\TermsQuery;
-use Shopware\Api\Language\Collection\LanguageBasicCollection;
-use Shopware\Api\Language\Repository\LanguageRepository;
+use Shopware\Application\Language\Collection\LanguageBasicCollection;
+use Shopware\Application\Language\Repository\LanguageRepository;
 use Shopware\Context\Struct\StorefrontContext;
 use Shopware\Storefront\Controller\StorefrontController;
 

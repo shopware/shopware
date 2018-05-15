@@ -2,7 +2,7 @@
 
 namespace Shopware\Content\Product\Collection;
 
-use Shopware\Api\Language\Collection\LanguageBasicCollection;
+use Shopware\Application\Language\Collection\LanguageBasicCollection;
 use Shopware\Content\Product\Struct\ProductTranslationDetailStruct;
 
 class ProductTranslationDetailCollection extends ProductTranslationBasicCollection

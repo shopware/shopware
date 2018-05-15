@@ -14,7 +14,7 @@ use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
-use Shopware\Api\Language\Definition\LanguageDefinition;
+use Shopware\Application\Language\Definition\LanguageDefinition;
 use Shopware\Content\Product\Collection\ProductManufacturerTranslationBasicCollection;
 use Shopware\Content\Product\Collection\ProductManufacturerTranslationDetailCollection;
 use Shopware\Content\Product\Event\ProductManufacturerTranslation\ProductManufacturerTranslationDeletedEvent;

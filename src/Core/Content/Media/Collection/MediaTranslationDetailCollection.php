@@ -2,7 +2,7 @@
 
 namespace Shopware\Content\Media\Collection;
 
-use Shopware\Api\Language\Collection\LanguageBasicCollection;
+use Shopware\Application\Language\Collection\LanguageBasicCollection;
 use Shopware\Content\Media\Struct\MediaTranslationDetailStruct;
 
 class MediaTranslationDetailCollection extends MediaTranslationBasicCollection

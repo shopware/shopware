@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Mail\Struct;
 
-use Shopware\Api\Language\Struct\LanguageBasicStruct;
+use Shopware\Application\Language\Struct\LanguageBasicStruct;
 
 class MailTranslationDetailStruct extends MailTranslationBasicStruct
 {

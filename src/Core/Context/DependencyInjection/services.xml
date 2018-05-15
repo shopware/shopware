@@ -17,7 +17,7 @@
             <argument type="service" id="Shopware\Checkout\Shipping\Repository\ShippingMethodRepository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\System\Country\Repository\CountryStateRepository"/>
-            <argument type="service" id="Shopware\Api\Language\Repository\LanguageRepository"/>
+            <argument type="service" id="Shopware\Application\Language\Repository\LanguageRepository"/>
             <argument type="service" id="Shopware\Cart\Tax\TaxDetector"/>
         </service>
 

@@ -3,7 +3,7 @@
 namespace Shopware\System\Configuration\Collection;
 
 use Shopware\System\Configuration\Struct\ConfigurationGroupOptionTranslationDetailStruct;
-use Shopware\Api\Language\Collection\LanguageBasicCollection;
+use Shopware\Application\Language\Collection\LanguageBasicCollection;
 
 class ConfigurationGroupOptionTranslationDetailCollection extends ConfigurationGroupOptionTranslationBasicCollection
 {

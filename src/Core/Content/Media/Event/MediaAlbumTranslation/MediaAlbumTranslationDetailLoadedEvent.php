@@ -2,7 +2,7 @@
 
 namespace Shopware\Content\Media\Event\MediaAlbumTranslation;
 
-use Shopware\Api\Language\Event\Language\LanguageBasicLoadedEvent;
+use Shopware\Application\Language\Event\Language\LanguageBasicLoadedEvent;
 use Shopware\Content\Media\Collection\MediaAlbumTranslationDetailCollection;
 use Shopware\Content\Media\Event\MediaAlbum\MediaAlbumBasicLoadedEvent;
 use Shopware\Context\Struct\ApplicationContext;

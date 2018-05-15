@@ -33,7 +33,7 @@ use Shopware\System\Currency\Struct\CurrencyBasicStruct;
 use Shopware\Checkout\Customer\Struct\CustomerAddressBasicStruct;
 use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
 use Shopware\Checkout\Customer\Struct\CustomerGroupBasicStruct;
-use Shopware\Api\Language\Struct\LanguageBasicStruct;
+use Shopware\Application\Language\Struct\LanguageBasicStruct;
 use Shopware\System\Locale\Struct\LocaleBasicStruct;
 use Shopware\Checkout\Payment\Struct\PaymentMethodBasicStruct;
 use Shopware\Content\Product\Struct\ProductBasicStruct;

@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Listing\Collection;
 
-use Shopware\Api\Language\Collection\LanguageBasicCollection;
+use Shopware\Application\Language\Collection\LanguageBasicCollection;
 use Shopware\System\Listing\Struct\ListingFacetTranslationDetailStruct;
 
 class ListingFacetTranslationDetailCollection extends ListingFacetTranslationBasicCollection

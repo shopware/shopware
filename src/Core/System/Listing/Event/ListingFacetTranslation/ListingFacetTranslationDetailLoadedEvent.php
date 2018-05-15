@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Listing\Event\ListingFacetTranslation;
 
-use Shopware\Api\Language\Event\Language\LanguageBasicLoadedEvent;
+use Shopware\Application\Language\Event\Language\LanguageBasicLoadedEvent;
 use Shopware\System\Listing\Collection\ListingFacetTranslationDetailCollection;
 use Shopware\System\Listing\Event\ListingFacet\ListingFacetBasicLoadedEvent;
 use Shopware\Context\Struct\ApplicationContext;

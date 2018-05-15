@@ -3,7 +3,7 @@
 namespace Shopware\System\Country\Collection;
 
 use Shopware\System\Country\Struct\CountryTranslationDetailStruct;
-use Shopware\Api\Language\Collection\LanguageBasicCollection;
+use Shopware\Application\Language\Collection\LanguageBasicCollection;
 
 class CountryTranslationDetailCollection extends CountryTranslationBasicCollection
 {

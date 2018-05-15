@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Shipping\Event\ShippingMethodTranslation;
 
-use Shopware\Api\Language\Event\Language\LanguageBasicLoadedEvent;
+use Shopware\Application\Language\Event\Language\LanguageBasicLoadedEvent;
 use Shopware\Checkout\Shipping\Collection\ShippingMethodTranslationDetailCollection;
 use Shopware\Checkout\Shipping\Event\ShippingMethod\ShippingMethodBasicLoadedEvent;
 use Shopware\Context\Struct\ApplicationContext;

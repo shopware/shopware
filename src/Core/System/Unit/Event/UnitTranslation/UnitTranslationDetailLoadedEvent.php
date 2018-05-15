@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Unit\Event\UnitTranslation;
 
-use Shopware\Api\Language\Event\Language\LanguageBasicLoadedEvent;
+use Shopware\Application\Language\Event\Language\LanguageBasicLoadedEvent;
 use Shopware\System\Unit\Collection\UnitTranslationDetailCollection;
 use Shopware\System\Unit\Event\Unit\UnitBasicLoadedEvent;
 use Shopware\Context\Struct\ApplicationContext;

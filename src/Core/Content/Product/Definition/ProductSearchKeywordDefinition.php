@@ -15,7 +15,7 @@ use Shopware\Api\Entity\Field\VersionField;
 use Shopware\Api\Entity\FieldCollection;
 use Shopware\Api\Entity\Write\Flag\PrimaryKey;
 use Shopware\Api\Entity\Write\Flag\Required;
-use Shopware\Api\Language\Definition\LanguageDefinition;
+use Shopware\Application\Language\Definition\LanguageDefinition;
 use Shopware\Content\Product\Collection\ProductSearchKeywordBasicCollection;
 use Shopware\Content\Product\Collection\ProductSearchKeywordDetailCollection;
 use Shopware\Content\Product\Event\ProductSearchKeyword\ProductSearchKeywordDeletedEvent;

@@ -28,7 +28,7 @@ use Shopware\Application\Application\Struct\ApplicationBasicStruct;
 use Shopware\System\Currency\Struct\CurrencyBasicStruct;
 use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
 use Shopware\Checkout\Customer\Struct\CustomerGroupBasicStruct;
-use Shopware\Api\Language\Struct\LanguageBasicStruct;
+use Shopware\Application\Language\Struct\LanguageBasicStruct;
 use Shopware\Checkout\Payment\Struct\PaymentMethodBasicStruct;
 use Shopware\Checkout\Shipping\Struct\ShippingMethodBasicStruct;
 use Shopware\System\Tax\Collection\TaxBasicCollection;

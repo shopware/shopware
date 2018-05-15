@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Api\Language\Repository;
+namespace Shopware\Application\Language\Repository;
 
 use Shopware\Api\Entity\Read\EntityReaderInterface;
 use Shopware\Api\Entity\RepositoryInterface;
@@ -11,15 +11,15 @@ use Shopware\Api\Entity\Search\EntitySearcherInterface;
 use Shopware\Api\Entity\Search\IdSearchResult;
 use Shopware\Api\Entity\Write\GenericWrittenEvent;
 use Shopware\Api\Entity\Write\WriteContext;
-use Shopware\Api\Language\Collection\LanguageBasicCollection;
-use Shopware\Api\Language\Collection\LanguageDetailCollection;
-use Shopware\Api\Language\Definition\LanguageDefinition;
-use Shopware\Api\Language\Event\Language\LanguageAggregationResultLoadedEvent;
-use Shopware\Api\Language\Event\Language\LanguageBasicLoadedEvent;
-use Shopware\Api\Language\Event\Language\LanguageDetailLoadedEvent;
-use Shopware\Api\Language\Event\Language\LanguageIdSearchResultLoadedEvent;
-use Shopware\Api\Language\Event\Language\LanguageSearchResultLoadedEvent;
-use Shopware\Api\Language\Struct\LanguageSearchResult;
+use Shopware\Application\Language\Collection\LanguageBasicCollection;
+use Shopware\Application\Language\Collection\LanguageDetailCollection;
+use Shopware\Application\Language\Definition\LanguageDefinition;
+use Shopware\Application\Language\Event\Language\LanguageAggregationResultLoadedEvent;
+use Shopware\Application\Language\Event\Language\LanguageBasicLoadedEvent;
+use Shopware\Application\Language\Event\Language\LanguageDetailLoadedEvent;
+use Shopware\Application\Language\Event\Language\LanguageIdSearchResultLoadedEvent;
+use Shopware\Application\Language\Event\Language\LanguageSearchResultLoadedEvent;
+use Shopware\Application\Language\Struct\LanguageSearchResult;
 use Shopware\Context\Struct\ApplicationContext;
 use Shopware\Version\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;

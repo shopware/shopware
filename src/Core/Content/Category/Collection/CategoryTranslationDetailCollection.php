@@ -3,7 +3,7 @@
 namespace Shopware\Content\Category\Collection;
 
 use Shopware\Content\Category\Struct\CategoryTranslationDetailStruct;
-use Shopware\Api\Language\Collection\LanguageBasicCollection;
+use Shopware\Application\Language\Collection\LanguageBasicCollection;
 
 class CategoryTranslationDetailCollection extends CategoryTranslationBasicCollection
 {

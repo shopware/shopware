@@ -24,7 +24,7 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Filesystem\Exception;
+namespace Shopware\Framework\Filesystem\Exception;
 
 class AdapterFactoryNotFoundException extends \Exception
 {

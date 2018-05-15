@@ -1,0 +1,41 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+
+        <!-- Filesystem -->
+        <service class="Shopware\Framework\Filesystem\FilesystemFactory" id="Shopware\Framework\Filesystem\FilesystemFactory">
+            <argument type="tagged" tag="Shopware\Framework\Filesystem\FilesystemFactory"/>
+        </service>
+
+        <service class="League\Flysystem\FilesystemInterface" id="shopware.filesystem.public">
+            <factory service="Shopware\Framework\Filesystem\FilesystemFactory" method="factory" />
+            <argument>%shopware.filesystem.public%</argument>
+        </service>
+
+        <service class="League\Flysystem\FilesystemInterface" id="shopware.filesystem.private">
+            <factory service="Shopware\Framework\Filesystem\FilesystemFactory" method="factory" />
+            <argument>%shopware.filesystem.private%</argument>
+        </service>
+
+        <service class="Shopware\Framework\Filesystem\Adapter\LocalFactory" id="Shopware\Framework\Filesystem\FilesystemFactory.local">
+            <tag name="Shopware\Framework\Filesystem\FilesystemFactory" />
+        </service>
+
+        <service class="Shopware\Framework\Filesystem\Adapter\AwsS3v3Factory" id="Shopware\Framework\Filesystem\FilesystemFactory.amazon_s3">
+            <tag name="Shopware\Framework\Filesystem\FilesystemFactory" />
+        </service>
+
+        <service class="Shopware\Framework\Filesystem\Adapter\GoogleStorageFactory" id="Shopware\Framework\Filesystem\FilesystemFactory.google_storage">
+            <tag name="Shopware\Framework\Filesystem\FilesystemFactory" />
+        </service>
+
+        <service class="Shopware\Framework\Filesystem\Adapter\AzureFactory" id="Shopware\Framework\Filesystem\FilesystemFactory.microsoft_azure">
+            <tag name="Shopware\Framework\Filesystem\FilesystemFactory" />
+        </service>
+
+    </services>
+</container>

@@ -24,45 +24,44 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Filesystem\Adapter;
+namespace Shopware\Framework\Filesystem\Adapter;
 
+use Google\Cloud\Storage\StorageClient;
 use League\Flysystem\AdapterInterface;
-use League\Flysystem\Azure\AzureAdapter;
-use MicrosoftAzure\Storage\Common\ServicesBuilder;
+use Superbalist\Flysystem\GoogleStorage\GoogleStorageAdapter;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class AzureFactory implements AdapterFactoryInterface
+class GoogleStorageFactory implements AdapterFactoryInterface
 {
     public function create(array $config): AdapterInterface
     {
-        $options = $this->resolveAzureOptions($config);
+        $options = $this->resolveStorageConfig($config);
 
-        $endpoint = sprintf(
-            'DefaultEndpointsProtocol=https;AccountName=%s;AccountKey=%s',
-            $options['accountName'],
-            $options['apiKey']
-        );
+        $storageClient = new StorageClient([
+            'projectId' => $options['projectId'],
+            'keyFilePath' => $options['keyFilePath'],
+        ]);
 
-        $blobRestProxy = ServicesBuilder::getInstance()->createBlobService($endpoint);
+        $bucket = $storageClient->bucket($options['bucket']);
 
-        return new AzureAdapter($blobRestProxy, $options['container'], $options['root']);
+        return new GoogleStorageAdapter($storageClient, $bucket, $options['root']);
     }
 
     public function getType(): string
     {
-        return 'microsoft-azure';
+        return 'google-storage';
     }
 
-    private function resolveAzureOptions(array $definition): array
+    private function resolveStorageConfig(array $definition): array
     {
         $options = new OptionsResolver();
 
-        $options->setRequired(['accountName', 'apiKey', 'container']);
+        $options->setRequired(['projectId', 'keyFilePath', 'bucket']);
         $options->setDefined(['root']);
 
-        $options->setAllowedTypes('accountName', 'string');
-        $options->setAllowedTypes('apiKey', 'string');
-        $options->setAllowedTypes('container', 'string');
+        $options->setAllowedTypes('projectId', 'string');
+        $options->setAllowedTypes('keyFilePath', 'string');
+        $options->setAllowedTypes('bucket', 'string');
         $options->setAllowedTypes('root', 'string');
 
         $options->setDefault('root', '');

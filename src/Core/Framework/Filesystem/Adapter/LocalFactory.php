@@ -24,7 +24,7 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Filesystem\Adapter;
+namespace Shopware\Framework\Filesystem\Adapter;
 
 use League\Flysystem\Adapter\Local;
 use League\Flysystem\AdapterInterface;

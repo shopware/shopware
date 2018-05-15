@@ -24,7 +24,7 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Filesystem;
+namespace Shopware\Framework\Filesystem;
 
 use League\Flysystem\FilesystemInterface;
 use League\Flysystem\Handler;

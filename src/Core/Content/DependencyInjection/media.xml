@@ -74,13 +74,13 @@
             <factory service="Shopware\Content\Media\GarbageCollector\GarbageCollectorFactory" method="factory" />
         </service>
 
-        <service class="Shopware\Filesystem\PrefixFilesystem" id="Shopware\Filesystem\PrefixFilesystem">
+        <service class="Shopware\Framework\Filesystem\PrefixFilesystem" id="Shopware\Framework\Filesystem\PrefixFilesystem">
             <argument type="service" id="shopware.filesystem.public" />
             <argument>media</argument>
         </service>
 
         <service class="Shopware\Content\Media\Strategy\StrategyFilesystem" id="Shopware\Content\Media\Strategy\StrategyFilesystem">
-            <argument type="service" id="Shopware\Filesystem\PrefixFilesystem" />
+            <argument type="service" id="Shopware\Framework\Filesystem\PrefixFilesystem" />
             <argument type="service" id="Shopware\Content\Media\Strategy\StrategyInterface" />
         </service>
 

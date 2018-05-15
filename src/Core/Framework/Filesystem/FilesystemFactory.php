@@ -24,14 +24,14 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Filesystem;
+namespace Shopware\Framework\Filesystem;
 
 use League\Flysystem\AdapterInterface;
 use League\Flysystem\Filesystem as LeagueFilesystem;
 use League\Flysystem\FilesystemInterface;
-use Shopware\Filesystem\Adapter\AdapterFactoryInterface;
-use Shopware\Filesystem\Exception\AdapterFactoryNotFoundException;
-use Shopware\Filesystem\Exception\DuplicateFilesystemFactoryException;
+use Shopware\Framework\Filesystem\Adapter\AdapterFactoryInterface;
+use Shopware\Framework\Filesystem\Exception\AdapterFactoryNotFoundException;
+use Shopware\Framework\Filesystem\Exception\DuplicateFilesystemFactoryException;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class FilesystemFactory implements FilesystemFactoryInterface

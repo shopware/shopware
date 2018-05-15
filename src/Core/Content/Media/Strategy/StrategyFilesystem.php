@@ -25,7 +25,7 @@
 namespace Shopware\Content\Media\Strategy;
 
 use League\Flysystem\FilesystemInterface;
-use Shopware\Filesystem\AbstractFilesystem;
+use Shopware\Framework\Filesystem\AbstractFilesystem;
 
 class StrategyFilesystem extends AbstractFilesystem
 {

@@ -24,62 +24,49 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Filesystem\Adapter;
+namespace Shopware\Framework\Filesystem\Adapter;
 
-use Aws\S3\S3Client;
 use League\Flysystem\AdapterInterface;
-use League\Flysystem\AwsS3v3\AwsS3Adapter;
+use League\Flysystem\Azure\AzureAdapter;
+use MicrosoftAzure\Storage\Common\ServicesBuilder;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class AwsS3v3Factory implements AdapterFactoryInterface
+class AzureFactory implements AdapterFactoryInterface
 {
     public function create(array $config): AdapterInterface
     {
-        $options = $this->resolveS3Options($config);
+        $options = $this->resolveAzureOptions($config);
 
-        $client = new S3Client($options);
+        $endpoint = sprintf(
+            'DefaultEndpointsProtocol=https;AccountName=%s;AccountKey=%s',
+            $options['accountName'],
+            $options['apiKey']
+        );
 
-        return new AwsS3Adapter($client, $options['bucket'], $options['root']);
+        $blobRestProxy = ServicesBuilder::getInstance()->createBlobService($endpoint);
+
+        return new AzureAdapter($blobRestProxy, $options['container'], $options['root']);
     }
 
     public function getType(): string
     {
-        return 'amazon-s3';
+        return 'microsoft-azure';
     }
 
-    private function resolveS3Options(array $definition): array
+    private function resolveAzureOptions(array $definition): array
     {
         $options = new OptionsResolver();
 
-        $options->setRequired(['bucket', 'region']);
-        $options->setDefined(['credentials', 'version', 'root']);
+        $options->setRequired(['accountName', 'apiKey', 'container']);
+        $options->setDefined(['root']);
 
-        $options->setAllowedTypes('credentials', 'array');
-        $options->setAllowedTypes('region', 'string');
-        $options->setAllowedTypes('version', 'string');
+        $options->setAllowedTypes('accountName', 'string');
+        $options->setAllowedTypes('apiKey', 'string');
+        $options->setAllowedTypes('container', 'string');
         $options->setAllowedTypes('root', 'string');
 
-        $options->setDefault('version', 'latest');
         $options->setDefault('root', '');
 
-        $config = $options->resolve($definition);
-
-        if (array_key_exists('credentials', $config)) {
-            $config['credentials'] = $this->resolveCredentialsOptions($config['credentials']);
-        }
-
-        return $config;
-    }
-
-    private function resolveCredentialsOptions(array $credentials): array
-    {
-        $options = new OptionsResolver();
-
-        $options->setRequired(['key', 'secret']);
-
-        $options->setAllowedTypes('key', 'string');
-        $options->setAllowedTypes('secret', 'string');
-
-        return $options->resolve($credentials);
+        return $options->resolve($definition);
     }
 }

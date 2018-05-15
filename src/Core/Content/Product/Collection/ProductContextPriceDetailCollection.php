@@ -2,7 +2,7 @@
 
 namespace Shopware\Content\Product\Collection;
 
-use Shopware\Api\Context\Collection\ContextRuleBasicCollection;
+use Shopware\Application\Context\Collection\ContextRuleBasicCollection;
 use Shopware\System\Currency\Collection\CurrencyBasicCollection;
 use Shopware\Content\Product\Struct\ProductContextPriceDetailStruct;
 

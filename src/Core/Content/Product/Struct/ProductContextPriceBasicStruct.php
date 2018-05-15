@@ -2,7 +2,7 @@
 
 namespace Shopware\Content\Product\Struct;
 
-use Shopware\Api\Context\Struct\ContextPriceStruct;
+use Shopware\Application\Context\Struct\ContextPriceStruct;
 
 class ProductContextPriceBasicStruct extends ContextPriceStruct
 {

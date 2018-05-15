@@ -3,7 +3,7 @@
 namespace Shopware\Content\Product\Struct;
 
 use Shopware\System\Configuration\Struct\ConfigurationGroupOptionBasicStruct;
-use Shopware\Api\Context\Collection\ContextPriceCollection;
+use Shopware\Application\Context\Collection\ContextPriceCollection;
 use Shopware\Api\Entity\Entity;
 use Shopware\System\Tax\Struct\TaxBasicStruct;
 use Shopware\Cart\Price\Struct\PriceDefinition;

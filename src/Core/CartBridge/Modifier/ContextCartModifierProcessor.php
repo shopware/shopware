@@ -2,9 +2,9 @@
 
 namespace Shopware\CartBridge\Modifier;
 
-use Shopware\Api\Context\Repository\ContextCartModifierRepository;
-use Shopware\Api\Context\Struct\ContextCartModifierBasicStruct;
-use Shopware\Api\Context\Struct\ContextCartModifierSearchResult;
+use Shopware\Application\Context\Repository\ContextCartModifierRepository;
+use Shopware\Application\Context\Struct\ContextCartModifierBasicStruct;
+use Shopware\Application\Context\Struct\ContextCartModifierSearchResult;
 use Shopware\Cart\Cart\CartProcessorInterface;
 use Shopware\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Cart\Cart\Struct\Cart;

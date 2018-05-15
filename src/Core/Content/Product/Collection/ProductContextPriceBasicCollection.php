@@ -4,7 +4,7 @@ namespace Shopware\Content\Product\Collection;
 
 use Shopware\Content\Product\Struct\ProductContextPriceBasicStruct;
 
-class ProductContextPriceBasicCollection extends \Shopware\Api\Context\Collection\ContextPriceCollection
+class ProductContextPriceBasicCollection extends \Shopware\Application\Context\Collection\ContextPriceCollection
 {
     /**
      * @var ProductContextPriceBasicStruct[]

@@ -2,7 +2,7 @@
 
 namespace Shopware\Api\Entity\Dbal;
 
-use Shopware\Api\Context\Collection\ContextPriceCollection;
+use Shopware\Application\Context\Collection\ContextPriceCollection;
 use Shopware\Api\Entity\Entity;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\Field\AssociationInterface;

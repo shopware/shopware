@@ -3,7 +3,7 @@
 namespace Shopware\Api\Test\Context\Repository;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Api\Context\Repository\ContextRuleRepository;
+use Shopware\Application\Context\Repository\ContextRuleRepository;
 use Shopware\Api\Entity\RepositoryInterface;
 use Shopware\Context\Rule\Container\AndRule;
 use Shopware\Context\Rule\Container\OrRule;

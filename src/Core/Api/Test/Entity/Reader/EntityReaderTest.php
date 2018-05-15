@@ -4,7 +4,7 @@ namespace Shopware\Api\Test\Entity\Reader;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Content\Category\Repository\CategoryRepository;
-use Shopware\Api\Context\Repository\ContextRuleRepository;
+use Shopware\Application\Context\Repository\ContextRuleRepository;
 use Shopware\Content\Product\Repository\ProductRepository;
 use Shopware\Content\Product\Struct\ProductBasicStruct;
 use Shopware\Context\Rule\Container\AndRule;

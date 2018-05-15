@@ -2,7 +2,7 @@
 
 namespace Shopware\CartBridge\Modifier;
 
-use Shopware\Api\Context\Repository\ContextCartModifierRepository;
+use Shopware\Application\Context\Repository\ContextCartModifierRepository;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\Query\TermsQuery;
 use Shopware\Cart\Cart\CartCollectorInterface;

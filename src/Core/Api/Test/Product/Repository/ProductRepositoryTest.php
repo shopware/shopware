@@ -4,8 +4,8 @@ namespace Shopware\Api\Test\Product\Repository;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Content\Category\Repository\CategoryRepository;
-use Shopware\Api\Context\Repository\ContextRuleRepository;
-use Shopware\Api\Context\Struct\ContextPriceStruct;
+use Shopware\Application\Context\Repository\ContextRuleRepository;
+use Shopware\Application\Context\Struct\ContextPriceStruct;
 use Shopware\Api\Entity\RepositoryInterface;
 use Shopware\Api\Entity\Search\Criteria;
 use Shopware\Api\Entity\Search\IdSearchResult;

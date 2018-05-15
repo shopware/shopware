@@ -2,7 +2,7 @@
 
 namespace Shopware\Content\Product\Definition;
 
-use Shopware\Api\Context\Definition\ContextRuleDefinition;
+use Shopware\Application\Context\Definition\ContextRuleDefinition;
 use Shopware\System\Currency\Definition\CurrencyDefinition;
 use Shopware\Api\Entity\EntityDefinition;
 use Shopware\Api\Entity\EntityExtensionInterface;

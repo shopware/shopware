@@ -28,7 +28,7 @@
             <argument id="Shopware\Cart\Cart\CartProcessor" type="service"/>
             <argument id="Shopware\Cart\Cart\CartValidator" type="service"/>
             <argument id="shopware.cache" type="service"/>
-            <argument id="Shopware\Api\Context\Repository\ContextRuleRepository" type="service"/>
+            <argument id="Shopware\Application\Context\Repository\ContextRuleRepository" type="service"/>
             <argument id="serializer" type="service"/>
             <argument type="service" id="Shopware\CartBridge\Service\StoreFrontCartService"/>
         </service>

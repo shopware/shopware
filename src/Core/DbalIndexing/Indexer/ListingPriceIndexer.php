@@ -13,7 +13,7 @@ use Shopware\DbalIndexing\Event\ProgressStartedEvent;
 use Shopware\DbalIndexing\Indexer\IndexerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Doctrine\DBAL\Connection;
-use Shopware\Api\Context\Struct\ContextPriceStruct;
+use Shopware\Application\Context\Struct\ContextPriceStruct;
 use Shopware\Api\Entity\Field\ContextPricesJsonField;
 use Shopware\Content\Product\Struct\PriceStruct;
 use Shopware\Framework\Struct\Uuid;

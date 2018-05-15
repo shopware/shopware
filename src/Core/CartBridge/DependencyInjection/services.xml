@@ -23,7 +23,7 @@
         </service>
 
         <service class="Shopware\CartBridge\Modifier\ContextCartModifierProcessor" id="Shopware\CartBridge\Modifier\ContextCartModifierProcessor">
-            <argument id="Shopware\Api\Context\Repository\ContextCartModifierRepository" type="service"/>
+            <argument id="Shopware\Application\Context\Repository\ContextCartModifierRepository" type="service"/>
             <argument id="Shopware\Cart\Price\AbsolutePriceCalculator" type="service"/>
             <argument id="Shopware\Cart\Price\PercentagePriceCalculator" type="service"/>
             <tag name="cart.processor" priority="700"/>
@@ -48,7 +48,7 @@
         </service>
 
         <service class="Shopware\CartBridge\Modifier\ContextCartModifierCollector" id="Shopware\CartBridge\Modifier\ContextCartModifierCollector">
-            <argument id="Shopware\Api\Context\Repository\ContextCartModifierRepository" type="service"/>
+            <argument id="Shopware\Application\Context\Repository\ContextCartModifierRepository" type="service"/>
             <tag name="cart.collector"/>
         </service>
 

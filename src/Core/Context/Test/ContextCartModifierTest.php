@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
-use Shopware\Api\Context\Repository\ContextCartModifierRepository;
-use Shopware\Api\Context\Repository\ContextRuleRepository;
+use Shopware\Application\Context\Repository\ContextCartModifierRepository;
+use Shopware\Application\Context\Repository\ContextRuleRepository;
 use Shopware\Content\Product\Repository\ProductRepository;
 use Shopware\Cart\Cart\CircularCartCalculation;
 use Shopware\Cart\Cart\Struct\CalculatedCart;

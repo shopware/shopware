@@ -36,7 +36,7 @@ use Shopware\System\Listing\Definition\ListingFacetTranslationDefinition;
 use Shopware\System\Listing\Definition\ListingSortingTranslationDefinition;
 use Shopware\System\Locale\Definition\LocaleDefinition;
 use Shopware\System\Locale\Definition\LocaleTranslationDefinition;
-use Shopware\Api\Mail\Definition\MailTranslationDefinition;
+use Shopware\System\Mail\Definition\MailTranslationDefinition;
 use Shopware\Api\Media\Definition\MediaAlbumTranslationDefinition;
 use Shopware\Api\Media\Definition\MediaTranslationDefinition;
 use Shopware\Api\Order\Definition\OrderStateTranslationDefinition;

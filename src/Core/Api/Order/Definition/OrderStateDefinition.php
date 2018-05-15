@@ -21,7 +21,7 @@ use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Api\Entity\Write\Flag\RestrictDelete;
 use Shopware\Api\Entity\Write\Flag\SearchRanking;
 use Shopware\Api\Entity\Write\Flag\WriteOnly;
-use Shopware\Api\Mail\Definition\MailDefinition;
+use Shopware\System\Mail\Definition\MailDefinition;
 use Shopware\Api\Order\Collection\OrderStateBasicCollection;
 use Shopware\Api\Order\Collection\OrderStateDetailCollection;
 use Shopware\Api\Order\Event\OrderState\OrderStateDeletedEvent;

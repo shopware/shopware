@@ -1,0 +1,44 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <!-- Versioning -->
+        <service alias="Shopware\System\Mail\Repository\MailRepository.v1" id="Shopware\System\Mail\Repository\MailRepository" public="true"/>
+        <service alias="Shopware\System\Mail\Repository\MailAttachmentRepository.v1" id="Shopware\System\Mail\Repository\MailAttachmentRepository" public="true"/>
+        <service alias="Shopware\System\Mail\Repository\MailTranslationRepository.v1" id="Shopware\System\Mail\Repository\MailTranslationRepository" public="true"/>
+
+        <service class="Shopware\System\Mail\Definition\MailDefinition" id="Shopware\System\Mail\Definition\MailDefinition" >
+            <tag name="shopware.entity.definition" entity="mail" />
+        </service>
+        <service class="Shopware\System\Mail\Repository\MailRepository" id="Shopware\System\Mail\Repository\MailRepository.v1" public="true">
+            <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+            <argument id="Shopware\Version\VersionManager" type="service"/>
+            <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
+            <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
+            <argument id="event_dispatcher" type="service"/>
+        </service>
+        <service class="Shopware\System\Mail\Definition\MailAttachmentDefinition" id="Shopware\System\Mail\Definition\MailAttachmentDefinition" >
+            <tag name="shopware.entity.definition" entity="mail_attachment" />
+        </service>
+        <service class="Shopware\System\Mail\Repository\MailAttachmentRepository" id="Shopware\System\Mail\Repository\MailAttachmentRepository.v1" public="true">
+            <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+            <argument id="Shopware\Version\VersionManager" type="service"/>
+            <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
+            <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
+            <argument id="event_dispatcher" type="service"/>
+        </service>
+        <service class="Shopware\System\Mail\Definition\MailTranslationDefinition" id="Shopware\System\Mail\Definition\MailTranslationDefinition" >
+            <tag name="shopware.entity.definition" entity="mail_translation" />
+        </service>
+        <service class="Shopware\System\Mail\Repository\MailTranslationRepository" id="Shopware\System\Mail\Repository\MailTranslationRepository.v1" public="true">
+            <argument id="Shopware\Api\Entity\Dbal\EntityReader" type="service"/>
+            <argument id="Shopware\Version\VersionManager" type="service"/>
+            <argument id="Shopware\Api\Entity\Dbal\EntitySearcher" type="service"/>
+            <argument id="Shopware\Api\Entity\Dbal\EntityAggregator" type="service"/>
+            <argument id="event_dispatcher" type="service"/>
+        </service>
+    </services>
+</container>                

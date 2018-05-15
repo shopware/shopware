@@ -72,6 +72,6 @@ class InfoController extends Controller
      */
     public function infoHtml()
     {
-        return $this->render('@Framework/swagger.html.twig');
+        return $this->render('@Shopware/swagger.html.twig');
     }
 }

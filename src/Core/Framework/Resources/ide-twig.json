@@ -1,7 +1,7 @@
 {
   "namespaces": [
     {
-      "namespace": "Framework",
+      "namespace": "Shopware",
       "path": "views"
     }
   ]

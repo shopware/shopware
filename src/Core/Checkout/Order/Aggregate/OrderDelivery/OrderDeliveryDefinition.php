@@ -30,7 +30,7 @@ use Shopware\Checkout\Order\Aggregate\OrderDelivery\Event\OrderDeliveryWrittenEv
 use Shopware\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryRepository;
 use Shopware\Checkout\Order\Aggregate\OrderDelivery\Struct\OrderDeliveryBasicStruct;
 use Shopware\Checkout\Order\Aggregate\OrderDelivery\Struct\OrderDeliveryDetailStruct;
-use Shopware\Checkout\Shipping\Definition\ShippingMethodDefinition;
+use Shopware\Checkout\Shipping\ShippingMethodDefinition;
 
 class OrderDeliveryDefinition extends EntityDefinition
 {

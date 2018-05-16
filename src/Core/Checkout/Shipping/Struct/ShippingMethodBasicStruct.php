@@ -3,7 +3,7 @@
 namespace Shopware\Checkout\Shipping\Struct;
 
 use Shopware\Framework\ORM\Entity;
-use Shopware\Checkout\Shipping\Collection\ShippingMethodPriceBasicCollection;
+use Shopware\Checkout\Shipping\Aggregate\ShippingMethodPrice\Collection\ShippingMethodPriceBasicCollection;
 
 class ShippingMethodBasicStruct extends Entity
 {
@@ -138,7 +138,7 @@ class ShippingMethodBasicStruct extends Entity
     protected $comment;
 
     /**
-     * @var ShippingMethodPriceBasicCollection
+     * @var \Shopware\Checkout\Shipping\Aggregate\ShippingMethodPrice\Collection\ShippingMethodPriceBasicCollection
      */
     protected $prices;
 

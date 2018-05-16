@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Shipping\Struct;
 
-use Shopware\Checkout\Shipping\Collection\ShippingMethodTranslationBasicCollection;
+use Shopware\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Collection\ShippingMethodTranslationBasicCollection;
 
 class ShippingMethodDetailStruct extends ShippingMethodBasicStruct
 {

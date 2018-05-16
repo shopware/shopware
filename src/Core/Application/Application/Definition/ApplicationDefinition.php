@@ -27,7 +27,7 @@ use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Application\Language\Definition\LanguageDefinition;
 use Shopware\Checkout\Payment\Definition\PaymentMethodDefinition;
-use Shopware\Checkout\Shipping\Definition\ShippingMethodDefinition;
+use Shopware\Checkout\Shipping\ShippingMethodDefinition;
 
 class ApplicationDefinition extends EntityDefinition
 {
@@ -66,7 +66,7 @@ class ApplicationDefinition extends EntityDefinition
             (new FkField('payment_method_id', 'paymentMethodId', PaymentMethodDefinition::class))->setFlags(new Required()),
             new ReferenceVersionField(PaymentMethodDefinition::class),
             (new FkField('shipping_method_id', 'shippingMethodId', ShippingMethodDefinition::class))->setFlags(new Required()),
-            new ReferenceVersionField(ShippingMethodDefinition::class),
+            new ReferenceVersionField(\Shopware\Checkout\Shipping\ShippingMethodDefinition::class),
             (new FkField('country_id', 'countryId', \Shopware\System\Country\CountryDefinition::class))->setFlags(new Required()),
             new ReferenceVersionField(\Shopware\System\Country\CountryDefinition::class),
             (new StringField('type', 'type'))->setFlags(new Required()),

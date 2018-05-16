@@ -55,8 +55,6 @@ class CreateTenantCommand extends ContainerAwareCommand
         $this->importCurrency($bytes);
         $this->importCustomerGroup($bytes);
         $this->importLocale($bytes);
-        $this->importShop($bytes);
-        $this->importShopTemplate($bytes);
         $this->importPaymentMethod($bytes);
         $this->importShippingMethod($bytes);
         $this->importTax($bytes);
@@ -1019,33 +1017,6 @@ class CreateTenantCommand extends ContainerAwareCommand
         );
     }
 
-    private function importShop(string $tenantId)
-    {
-        $this->importTable(
-            $tenantId,
-            'shop',
-            ['id', 'version_id', 'catalog_ids', 'name', 'title', 'position', 'host', 'base_path', 'base_url', 'hosts', 'is_secure', 'customer_scope', 'is_default', 'active', 'tax_calculation_type', 'shop_template_id', 'document_template_id', 'category_id', 'locale_id', 'currency_id', 'customer_group_id', 'fallback_translation_id', 'payment_method_id', 'shipping_method_id', 'country_id', 'created_at', 'updated_at', 'shop_template_version_id', 'document_template_version_id', 'category_version_id', 'locale_version_id', 'currency_version_id', 'customer_group_version_id', 'fallback_translation_version_id', 'payment_method_version_id', 'shipping_method_version_id', 'country_version_id'],
-            ['tenant_id', 'shop_template_tenant_id', 'document_template_tenant_id', 'category_tenant_id', 'locale_tenant_id', 'currency_tenant_id', 'customer_group_tenant_id', 'fallback_translation_tenant_id', 'payment_method_tenant_id', 'shipping_method_tenant_id', 'country_tenant_id'],
-            [
-                [hex2bin('ffa32a50e2d04cf38389a53f8d6cd594'), hex2bin('ffffffffffffffffffffffffffffffff'), '["ffffffffffffffffffffffffffffffff"]', 'Deutsch', null, 0, 'shopware.next', '', '', '', 0, 0, 1, 1, 'vertical', hex2bin('60f80cfdf49847d38b3047c41c0a2d1c'), hex2bin('60f80cfdf49847d38b3047c41c0a2d1c'), hex2bin('a1abd0ee0aa64fcdaef725b8b84e5943'), hex2bin('7b52d9dd2b0640ec90be9f57edf29be7'), hex2bin('4c8eba11bd3546d786afbed481a6e665'), hex2bin('3294e6f6372b415fac7371cbc191548f'), null, hex2bin('77573b9cf7914cb5a9519945bff1d95b'), hex2bin('417beeb2dddf45d1b90188fd211343c3'), hex2bin('bd5e2dcf547e4df6bb1ff58a554bc69e'), '2017-12-14 15:26:04', null, hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('ffffffffffffffffffffffffffffffff')],
-                [hex2bin('2d905256e75149678dd5a32a81b94f1f'), hex2bin('ffffffffffffffffffffffffffffffff'), '["ffffffffffffffffffffffffffffffff"]', 'English', 'English', 0, 'shopware.next.en', '', '', '', 0, 0, 0, 1, 'vertical', hex2bin('60f80cfdf49847d38b3047c41c0a2d1c'), hex2bin('60f80cfdf49847d38b3047c41c0a2d1c'), hex2bin('a1abd0ee0aa64fcdaef725b8b84e5943'), hex2bin('2f3663edb7614308a60188c21c7963d5'), hex2bin('4c8eba11bd3546d786afbed481a6e665'), hex2bin('3294e6f6372b415fac7371cbc191548f'), hex2bin('ffa32a50e2d04cf38389a53f8d6cd594'), hex2bin('77573b9cf7914cb5a9519945bff1d95b'), hex2bin('417beeb2dddf45d1b90188fd211343c3'), hex2bin('bd5e2dcf547e4df6bb1ff58a554bc69e'), '2017-12-14 15:26:04', null, hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('ffffffffffffffffffffffffffffffff')],
-            ]
-        );
-    }
-
-    private function importShopTemplate(string $tenantId)
-    {
-        $this->importTable(
-            $tenantId,
-            'shop_template',
-            ['id', 'version_id', 'template', 'name', 'description', 'author', 'license', 'esi', 'style_support', 'version', 'emotion', 'plugin_id', 'parent_id', 'created_at', 'updated_at'],
-            ['tenant_id', 'parent_tenant_id'],
-            [
-                [hex2bin('60f80cfdf49847d38b3047c41c0a2d1c'), hex2bin('ffffffffffffffffffffffffffffffff'), 'Responsive', '__theme_name__', '__theme_description__', '__author__', '__license__', 1, 1, 3, 1, null, null, '2017-12-14 15:26:04', null],
-            ]
-        );
-    }
-
     private function importPaymentMethod(string $tenantId)
     {
         $this->importTable(
@@ -1054,11 +1025,11 @@ class CreateTenantCommand extends ContainerAwareCommand
             ['id', 'version_id', 'technical_name', 'template', 'class', '`table`', 'hide', 'percentage_surcharge', 'absolute_surcharge', 'surcharge_string', 'position', 'active', 'allow_esd', 'used_iframe', 'hide_prospect', 'action', 'plugin_id', 'source', 'mobile_inactive', 'risk_rules', 'created_at', 'updated_at'],
             ['tenant_id'],
             [
-                [hex2bin('e84976ace9ab4928a3dcc387b66dbaa6'), hex2bin('ffffffffffffffffffffffffffffffff'), 'debit', 'debit.tpl', 'Shopware\\Payment\\PaymentHandler\\DebitPayment', '', 0, -10, null, '', 4, 0, 0, '', 0, '', null, null, 0, null, '2017-12-14 15:45:46', null],
-                [hex2bin('77573b9cf7914cb5a9519945bff1d95b'), hex2bin('ffffffffffffffffffffffffffffffff'), 'cash', 'cash.tpl', 'Shopware\\Payment\\PaymentHandler\\CashPayment', '', 0, null, null, '', 2, 1, 0, '', 0, null, null, null, 0, null, '2017-12-14 15:45:46', null],
-                [hex2bin('19d144ffe15f4772860d59fca7f207c1'), hex2bin('ffffffffffffffffffffffffffffffff'), 'invoice', 'invoice.tpl', 'Shopware\\Payment\\PaymentHandler\\InvoicePayment', '', 0, null, 5, '', 3, 1, 1, '', 0, '', null, null, 0, null, '2017-12-14 15:45:46', null],
-                [hex2bin('47160b00cd064b0188176451f9f3c247'), hex2bin('ffffffffffffffffffffffffffffffff'), 'prepayment', 'prepayment.tpl', 'Shopware\\Payment\\PaymentHandler\\PrePayment', '', 0, null, null, '', 1, 1, 0, '', 0, null, null, null, 0, null, '2017-12-14 15:45:46', null],
-                [hex2bin('a6ddadce4cb441f3976a32505049f037'), hex2bin('ffffffffffffffffffffffffffffffff'), 'sepa', '@Payment/frontend/sepa.html.twig', 'Shopware\\Payment\\PaymentHandler\\SEPAPayment', '', 0, null, null, '', 5, 1, 1, '', 0, '', null, null, 0, null, '2017-12-14 15:45:46', null],
+                [hex2bin('e84976ace9ab4928a3dcc387b66dbaa6'), hex2bin('ffffffffffffffffffffffffffffffff'), 'debit', 'debit.tpl', 'Shopware\\Checkout\\Payment\\Cart\\PaymentHandler\\DebitPayment', '', 0, -10, null, '', 4, 0, 0, '', 0, '', null, null, 0, null, '2017-12-14 15:45:46', null],
+                [hex2bin('77573b9cf7914cb5a9519945bff1d95b'), hex2bin('ffffffffffffffffffffffffffffffff'), 'cash', 'cash.tpl', 'Shopware\\Checkout\\Payment\\Cart\\PaymentHandler\\CashPayment', '', 0, null, null, '', 2, 1, 0, '', 0, null, null, null, 0, null, '2017-12-14 15:45:46', null],
+                [hex2bin('19d144ffe15f4772860d59fca7f207c1'), hex2bin('ffffffffffffffffffffffffffffffff'), 'invoice', 'invoice.tpl', 'Shopware\\Checkout\\Payment\\Cart\\PaymentHandler\\InvoicePayment', '', 0, null, 5, '', 3, 1, 1, '', 0, '', null, null, 0, null, '2017-12-14 15:45:46', null],
+                [hex2bin('47160b00cd064b0188176451f9f3c247'), hex2bin('ffffffffffffffffffffffffffffffff'), 'prepayment', 'prepayment.tpl', 'Shopware\\Checkout\\Payment\\Cart\\PaymentHandler\\PrePayment', '', 0, null, null, '', 1, 1, 0, '', 0, null, null, null, 0, null, '2017-12-14 15:45:46', null],
+                [hex2bin('a6ddadce4cb441f3976a32505049f037'), hex2bin('ffffffffffffffffffffffffffffffff'), 'sepa', '@Checkout/frontend/sepa.html.twig', 'Shopware\\Checkout\\Payment\\Cart\\PaymentHandler\\SEPAPayment', '', 0, null, null, '', 5, 1, 1, '', 0, '', null, null, 0, null, '2017-12-14 15:45:46', null],
             ]
         );
 
@@ -1121,9 +1092,9 @@ class CreateTenantCommand extends ContainerAwareCommand
             ['id', 'version_id', 'active', 'unique_key', 'display_in_categories', 'position', 'payload', 'created_at', 'updated_at'],
             ['tenant_id'],
             [
-                [hex2bin('361D52E6A9894467B4FEAF5E5A799383'), hex2bin('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'), 1, 'cheapest-price', 1, 1, '[{"_class":"Shopware\\\\Api\\\\Entity\\\\Search\\\\Sorting\\\\FieldSorting","field":"product.listingPrices","direction":"ASC","extensions":[]}]', '2018-03-22 15:10:21', null],
-                [hex2bin('4F0B50F58286488FB8D88B43934534E2'), hex2bin('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'), 1, 'highest-price', 1, 1, '[{"_class":"Shopware\\\\Api\\\\Entity\\\\Search\\\\Sorting\\\\FieldSorting","field":"product.listingPrices","direction":"DESC","extensions":[]}]', '2018-03-22 15:10:21', null],
-                [hex2bin('5727B79736A44CB1B1CC904820570DB9'), hex2bin('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'), 1, 'product-name', 1, 1, '[{"_class":"Shopware\\\\Api\\\\Entity\\\\Search\\\\Sorting\\\\FieldSorting","field":"product.name","direction":"ASC","extensions":[]}]', '2018-03-22 15:10:21', null],
+                [hex2bin('361D52E6A9894467B4FEAF5E5A799383'), hex2bin('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'), 1, 'cheapest-price', 1, 1, '[{"_class":"Shopware\\\\Framework\\\\ORM\\\\Search\\\\Sorting\\\\FieldSorting","field":"product.listingPrices","direction":"ASC","extensions":[]}]', '2018-03-22 15:10:21', null],
+                [hex2bin('4F0B50F58286488FB8D88B43934534E2'), hex2bin('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'), 1, 'highest-price', 1, 1, '[{"_class":"Shopware\\\\Framework\\\\ORM\\\\Search\\\\Sorting\\\\FieldSorting","field":"product.listingPrices","direction":"DESC","extensions":[]}]', '2018-03-22 15:10:21', null],
+                [hex2bin('5727B79736A44CB1B1CC904820570DB9'), hex2bin('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'), 1, 'product-name', 1, 1, '[{"_class":"Shopware\\\\Framework\\\\ORM\\\\Search\\\\Sorting\\\\FieldSorting","field":"product.name","direction":"ASC","extensions":[]}]', '2018-03-22 15:10:21', null],
             ]
         );
         $this->importTable(

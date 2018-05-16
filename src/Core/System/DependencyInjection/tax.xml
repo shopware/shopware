@@ -1,0 +1,46 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <!-- Versioning -->
+        <service alias="Shopware\System\Tax\TaxRepository.v1" id="Shopware\System\Tax\TaxRepository" public="true"/>
+        <service alias="Shopware\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleRepository.v1" id="Shopware\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleRepository" public="true"/>
+        <service alias="Shopware\System\Tax\Aggregate\TaxAreaRuleTranslation\TaxAreaRuleTranslationRepository.v1" id="Shopware\System\Tax\Aggregate\TaxAreaRuleTranslation\TaxAreaRuleTranslationRepository" public="true"/>
+
+
+        <service class="Shopware\System\Tax\TaxDefinition" id="Shopware\System\Tax\TaxDefinition" >
+            <tag name="shopware.entity.definition" entity="tax" />
+        </service>
+        <service class="Shopware\System\Tax\TaxRepository" id="Shopware\System\Tax\TaxRepository.v1" public="true">
+          <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+         <service class="Shopware\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleDefinition" id="Shopware\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleDefinition" >
+            <tag name="shopware.entity.definition" entity="tax_area_rule" />
+        </service>
+        <service class="Shopware\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleRepository" id="Shopware\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleRepository.v1" public="true">
+          <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+         <service class="Shopware\System\Tax\Aggregate\TaxAreaRuleTranslation\TaxAreaRuleTranslationDefinition" id="Shopware\System\Tax\Aggregate\TaxAreaRuleTranslation\TaxAreaRuleTranslationDefinition" >
+            <tag name="shopware.entity.definition" entity="tax_area_rule_translation" />
+        </service>
+        <service class="Shopware\System\Tax\Aggregate\TaxAreaRuleTranslation\TaxAreaRuleTranslationRepository" id="Shopware\System\Tax\Aggregate\TaxAreaRuleTranslation\TaxAreaRuleTranslationRepository.v1" public="true">
+          <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+    </services>
+</container>                
+                

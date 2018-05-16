@@ -1,0 +1,34 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <!-- Versioning -->
+        <service alias="Shopware\System\Locale\LocaleRepository.v1" id="Shopware\System\Locale\LocaleRepository" public="true"/>
+        <service alias="Shopware\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationRepository.v1" id="Shopware\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationRepository" public="true"/>
+
+         <service class="Shopware\System\Locale\LocaleDefinition" id="Shopware\System\Locale\LocaleDefinition" >
+            <tag name="shopware.entity.definition" entity="locale" />
+        </service>
+        <service class="Shopware\System\Locale\LocaleRepository" id="Shopware\System\Locale\LocaleRepository.v1" public="true">
+          <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+         <service class="Shopware\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationDefinition" id="Shopware\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationDefinition" >
+            <tag name="shopware.entity.definition" entity="locale_translation" />
+        </service>
+        <service class="Shopware\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationRepository" id="Shopware\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationRepository.v1" public="true">
+          <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+    </services>
+</container>                
+                

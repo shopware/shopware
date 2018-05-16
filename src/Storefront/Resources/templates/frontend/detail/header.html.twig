@@ -10,7 +10,7 @@
 
 {# Meta opengraph tags #}
 {% block frontend_index_header_meta_tags_opengraph %}
-    {# @var product \Shopware\StorefrontApi\Product\ProductBasicStruct #}
+    {# @var product \Shopware\Content\Product\Struct\StorefrontProductBasicStruct #}
 
     {% set product = page.product %}
     <meta property="og:type" content="product" />
@@ -38,7 +38,7 @@
 {# Keywords #}
 {% block frontend_index_header_meta_keywords %}
     {% spaceless %}
-        {# @var product \Shopware\StorefrontApi\Product\ProductBasicStruct #}
+        {# @var product \Shopware\Content\Product\Struct\StorefrontProductBasicStruct #}
         {% if page.product.keywords %}
             {{ page.product.keywords|escape('html') }}
         {% endif %}
@@ -46,7 +46,7 @@
 {% endblock %}
 
 {# Description #}
-{# @var product \Shopware\StorefrontApi\Product\ProductBasicStruct #}
+{# @var product \Shopware\Content\Product\Struct\StorefrontProductBasicStruct #}
 {% block frontend_index_header_meta_description %}
     {% spaceless %}
         {% if page.product.description  %}

@@ -3,12 +3,12 @@
 namespace Shopware\Storefront\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Shopware\Cart\Exception\LineItemNotFoundException;
-use Shopware\Cart\LineItem\LineItem;
-use Shopware\CartBridge\Product\ProductProcessor;
-use Shopware\CartBridge\Service\StoreFrontCartService;
-use Shopware\CartBridge\Voucher\VoucherProcessor;
-use Shopware\Context\Struct\StorefrontContext;
+use Shopware\Checkout\Cart\Exception\LineItemNotFoundException;
+use Shopware\Checkout\Cart\LineItem\LineItem;
+use Shopware\Content\Product\Cart\ProductProcessor;
+use Shopware\Checkout\Cart\StoreFrontCartService;
+use Shopware\Checkout\CartBridge\Voucher\VoucherProcessor;
+use Shopware\Application\Context\Struct\StorefrontContext;
 use Symfony\Component\HttpFoundation\AcceptHeader;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;

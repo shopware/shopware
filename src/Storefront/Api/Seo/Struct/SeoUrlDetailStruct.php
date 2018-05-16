@@ -2,8 +2,7 @@
 
 namespace Shopware\Storefront\Api\Seo\Struct;
 
-use Shopware\Api\Application\Struct\ApplicationBasicStruct;
-use Shopware\Api\Shop\Struct\ShopBasicStruct;
+use Shopware\Application\Application\Struct\ApplicationBasicStruct;
 
 class SeoUrlDetailStruct extends SeoUrlBasicStruct
 {

@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Api\Seo\Collection;
 
-use Shopware\Api\Shop\Collection\ShopBasicCollection;
+use Shopware\Application\Application\Collection\ApplicationBasicCollection;
 use Shopware\Storefront\Api\Seo\Struct\SeoUrlDetailStruct;
 
 class SeoUrlDetailCollection extends SeoUrlBasicCollection
@@ -12,9 +12,9 @@ class SeoUrlDetailCollection extends SeoUrlBasicCollection
      */
     protected $elements = [];
 
-    public function getShops(): ShopBasicCollection
+    public function getApplications(): ApplicationBasicCollection
     {
-        return new ShopBasicCollection(
+        return new ApplicationBasicCollection(
             $this->fmap(function (SeoUrlDetailStruct $seoUrl) {
                 return $seoUrl->getApplication();
             })

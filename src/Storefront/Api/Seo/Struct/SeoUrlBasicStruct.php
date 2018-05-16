@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Api\Seo\Struct;
 
-use Shopware\Api\Entity\Entity;
+use Shopware\Framework\ORM\Entity;
 
 class SeoUrlBasicStruct extends Entity
 {

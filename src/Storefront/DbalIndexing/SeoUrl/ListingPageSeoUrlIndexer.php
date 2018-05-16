@@ -4,18 +4,18 @@ namespace Shopware\Storefront\DbalIndexing\SeoUrl;
 
 use Cocur\Slugify\SlugifyInterface;
 use Doctrine\DBAL\Connection;
-use Shopware\Api\Application\Repository\ApplicationRepository;
-use Shopware\Api\Category\Repository\CategoryRepository;
-use Shopware\Api\Category\Struct\CategorySearchResult;
-use Shopware\Api\Entity\Search\Criteria;
-use Shopware\Api\Entity\Write\GenericWrittenEvent;
-use Shopware\Context\Struct\ApplicationContext;
-use Shopware\DbalIndexing\Common\EventIdExtractor;
-use Shopware\DbalIndexing\Common\RepositoryIterator;
-use Shopware\DbalIndexing\Event\ProgressAdvancedEvent;
-use Shopware\DbalIndexing\Event\ProgressFinishedEvent;
-use Shopware\DbalIndexing\Event\ProgressStartedEvent;
-use Shopware\DbalIndexing\Indexer\IndexerInterface;
+use Shopware\Application\Application\ApplicationRepository;
+use Shopware\Content\Category\CategoryRepository;
+use Shopware\Content\Category\Struct\CategorySearchResult;
+use Shopware\Framework\ORM\Search\Criteria;
+use Shopware\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\ORM\Dbal\Indexing\Common\EventIdExtractor;
+use Shopware\Framework\ORM\Dbal\Indexing\Common\RepositoryIterator;
+use Shopware\Framework\ORM\Dbal\Indexing\Event\ProgressAdvancedEvent;
+use Shopware\Framework\ORM\Dbal\Indexing\Event\ProgressFinishedEvent;
+use Shopware\Framework\ORM\Dbal\Indexing\Event\ProgressStartedEvent;
+use Shopware\Framework\ORM\Dbal\Indexing\Indexer\IndexerInterface;
 use Shopware\Defaults;
 use Shopware\Framework\Doctrine\MultiInsertQueryQueue;
 use Shopware\Framework\Struct\Uuid;
@@ -57,7 +57,7 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
      */
     private $categoryRepository;
     /**
-     * @var \Shopware\DbalIndexing\Common\EventIdExtractor
+     * @var \Shopware\Framework\ORM\Dbal\Indexing\Common\EventIdExtractor
      */
     private $eventIdExtractor;
 
@@ -91,7 +91,7 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
             $this->eventDispatcher->dispatch(
                 ProgressStartedEvent::NAME,
                 new ProgressStartedEvent(
-                    sprintf('Start indexing listing page seo urls for shop %s', $application->getName()),
+                    sprintf('Start indexing listing page seo urls for application %s', $application->getName()),
                     $iterator->getTotal()
                 )
             );
@@ -108,7 +108,7 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
 
             $this->eventDispatcher->dispatch(
                 ProgressFinishedEvent::NAME,
-                new ProgressFinishedEvent(sprintf('Finished indexing listing page seo urls for shop %s', $application->getName()))
+                new ProgressFinishedEvent(sprintf('Finished indexing listing page seo urls for application %s', $application->getName()))
             );
         }
     }
@@ -120,7 +120,7 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
         $this->updateCategories($ids, $event->getContext());
     }
 
-    private function fetchCanonicals(array $categoryIds, string $shopId, string $tenantId): array
+    private function fetchCanonicals(array $categoryIds, string $applicationId, string $tenantId): array
     {
         $categoryIds = array_map(function ($id) {
             return Uuid::fromStringToBytes($id);
@@ -136,14 +136,14 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
         $query->from('seo_url', 'seo_url');
 
         $query->andWhere('seo_url.name = :name');
-        $query->andWhere('seo_url.application_id = :shop');
+        $query->andWhere('seo_url.application_id = :application');
         $query->andWhere('seo_url.is_canonical = 1');
         $query->andWhere('seo_url.tenant_id = :tenant');
         $query->andWhere('seo_url.foreign_key IN (:ids)');
 
         $query->setParameter('ids', $categoryIds, Connection::PARAM_STR_ARRAY);
         $query->setParameter('name', self::ROUTE_NAME);
-        $query->setParameter('shop', Uuid::fromStringToBytes($shopId));
+        $query->setParameter('application', Uuid::fromStringToBytes($applicationId));
         $query->setParameter('tenant', Uuid::fromStringToBytes($tenantId));
 
         return $query->execute()->fetchAll(\PDO::FETCH_GROUP | \PDO::FETCH_UNIQUE);

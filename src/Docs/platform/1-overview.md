@@ -196,10 +196,10 @@ We guarantee, that the core data structure never changes by don't allowing chang
 
 ### Implementation
 
-**Example: Shopware\Product\Extension\ProductExtension**
+**Example: Shopware\Content\Product\Extension\ProductExtension**
 
 ```php
-class MyProductExtension extends \Shopware\Product\Extension\ProductExtension
+class MyProductExtension extends \Shopware\Content\Product\Extension\ProductExtension
 {
     public function productBasicLoaded(...): void;
     public function productDetailLoaded(...): void;

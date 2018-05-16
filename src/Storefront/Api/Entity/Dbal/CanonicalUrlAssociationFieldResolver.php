@@ -2,11 +2,11 @@
 
 namespace Shopware\Storefront\Api\Entity\Dbal;
 
-use Shopware\Api\Entity\Dbal\EntityDefinitionQueryHelper;
-use Shopware\Api\Entity\Dbal\FieldResolver\FieldResolverInterface;
-use Shopware\Api\Entity\Dbal\QueryBuilder;
-use Shopware\Api\Entity\Field\Field;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Framework\ORM\Dbal\EntityDefinitionQueryHelper;
+use Shopware\Framework\ORM\Dbal\FieldResolver\FieldResolverInterface;
+use Shopware\Framework\ORM\Dbal\QueryBuilder;
+use Shopware\Framework\ORM\Field\Field;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Struct\Uuid;
 use Shopware\Storefront\Api\Entity\Field\CanonicalUrlAssociationField;
 use Shopware\Storefront\Api\Seo\Definition\SeoUrlDefinition;

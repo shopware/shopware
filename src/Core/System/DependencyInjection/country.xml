@@ -1,0 +1,78 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <!-- Versioning -->
+        <service alias="Shopware\System\Country\CountryRepository.v1" id="Shopware\System\Country\CountryRepository" public="true"/>
+        <service alias="Shopware\System\Country\Aggregate\CountryArea\CountryAreaRepository.v1" id="Shopware\System\Country\Aggregate\CountryArea\CountryAreaRepository" public="true"/>
+        <service alias="Shopware\System\Country\Aggregate\CountryAreaTranslation\CountryAreaTranslationRepository.v1" id="Shopware\System\Country\Aggregate\CountryAreaTranslation\CountryAreaTranslationRepository" public="true"/>
+        <service alias="Shopware\System\Country\Aggregate\CountryState\CountryStateRepository.v1" id="Shopware\System\Country\Aggregate\CountryState\CountryStateRepository" public="true"/>
+        <service alias="Shopware\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationRepository.v1" id="Shopware\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationRepository" public="true"/>
+        <service alias="Shopware\System\Country\Aggregate\CountryTranslation\CountryTranslationRepository.v1" id="Shopware\System\Country\Aggregate\CountryTranslation\CountryTranslationRepository" public="true"/>
+
+         <service class="Shopware\System\Country\CountryDefinition" id="Shopware\System\Country\CountryDefinition" >
+            <tag name="shopware.entity.definition" entity="country" />
+        </service>
+        <service class="Shopware\System\Country\CountryRepository" id="Shopware\System\Country\CountryRepository.v1" public="true">
+          <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+         <service class="Shopware\System\Country\Aggregate\CountryArea\CountryAreaDefinition" id="Shopware\System\Country\Aggregate\CountryArea\CountryAreaDefinition" >
+            <tag name="shopware.entity.definition" entity="country_area" />
+        </service>
+        <service class="Shopware\System\Country\Aggregate\CountryArea\CountryAreaRepository" id="Shopware\System\Country\Aggregate\CountryArea\CountryAreaRepository.v1" public="true">
+          <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+         <service class="Shopware\System\Country\Aggregate\CountryAreaTranslation\CountryAreaTranslationDefinition" id="Shopware\System\Country\Aggregate\CountryAreaTranslation\CountryAreaTranslationDefinition">
+            <tag name="shopware.entity.definition" entity="country_area_translation" />
+        </service>
+        <service class="Shopware\System\Country\Aggregate\CountryAreaTranslation\CountryAreaTranslationRepository" id="Shopware\System\Country\Aggregate\CountryAreaTranslation\CountryAreaTranslationRepository.v1" public="true">
+          <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+         <service class="Shopware\System\Country\Aggregate\CountryState\CountryStateDefinition" id="Shopware\System\Country\Aggregate\CountryState\CountryStateDefinition" >
+            <tag name="shopware.entity.definition" entity="country_state" />
+        </service>
+        <service class="Shopware\System\Country\Aggregate\CountryState\CountryStateRepository" id="Shopware\System\Country\Aggregate\CountryState\CountryStateRepository.v1" public="true">
+          <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+         <service class="Shopware\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationDefinition" id="Shopware\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationDefinition" >
+            <tag name="shopware.entity.definition" entity="country_state_translation" />
+        </service>
+        <service class="Shopware\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationRepository" id="Shopware\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationRepository.v1" public="true">
+          <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+         <service class="Shopware\System\Country\Aggregate\CountryTranslation\CountryTranslationDefinition" id="Shopware\System\Country\Aggregate\CountryTranslation\CountryTranslationDefinition" >
+            <tag name="shopware.entity.definition" entity="country_translation" />
+        </service>
+        <service class="Shopware\System\Country\Aggregate\CountryTranslation\CountryTranslationRepository" id="Shopware\System\Country\Aggregate\CountryTranslation\CountryTranslationRepository.v1" public="true">
+          <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
+          <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
+          <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
+          <argument id="event_dispatcher" type="service"/>
+        </service>
+    </services>
+</container>                
+                

@@ -4,15 +4,15 @@ namespace Shopware\Storefront\Test;
 
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
-use Shopware\Api\Customer\Definition\CustomerDefinition;
-use Shopware\Api\Entity\Write\EntityWriter;
-use Shopware\Api\Entity\Write\EntityWriterInterface;
-use Shopware\Api\Entity\Write\WriteContext;
-use Shopware\Api\Order\Repository\OrderRepository;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Checkout\Customer\CustomerDefinition;
+use Shopware\Framework\ORM\Write\EntityWriter;
+use Shopware\Framework\ORM\Write\EntityWriterInterface;
+use Shopware\Framework\ORM\Write\WriteContext;
+use Shopware\Checkout\Order\OrderRepository;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 use Shopware\PlatformRequest;
-use Shopware\Rest\Test\ApiTestCase;
+use Shopware\Framework\Test\Api\ApiTestCase;
 use Symfony\Component\HttpFoundation\Response;
 
 class OrderingProcessTest extends ApiTestCase
@@ -226,7 +226,7 @@ class OrderingProcessTest extends ApiTestCase
 
     private function getOrderIdByResponse(Response $response): string
     {
-        $location = $response->headers->get('Location');
+        $location = $response->headers->get('location');
         $query = parse_url($location, PHP_URL_QUERY);
         $parsedQuery = [];
         parse_str($query, $parsedQuery);

@@ -1,7 +1,7 @@
 # Languages
 
 This section describes the language system of the shopware platform.
-Languages are defined in the `Shopware\Api\Language\Definition\LanguageDefinition` entity.
+Languages are defined in the `Shopware\Application\Language\LanguageDefinition` entity.
 Each language requires a name and a locale id on which it is based on.
 The locale id is used for libraries to identify a internationalized localisation.
 

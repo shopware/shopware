@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace Shopware\Framework\Plugin;
 
-use Shopware\Filesystem\PrefixFilesystem;
+use Shopware\Framework\Filesystem\PrefixFilesystem;
 use Shopware\Framework\Plugin\Context\ActivateContext;
 use Shopware\Framework\Plugin\Context\DeactivateContext;
 use Shopware\Framework\Plugin\Context\InstallContext;

@@ -2,19 +2,19 @@
 
 namespace Shopware\Storefront\Api\Seo\Definition;
 
-use Shopware\Api\Application\Definition\ApplicationDefinition;
-use Shopware\Api\Entity\EntityDefinition;
-use Shopware\Api\Entity\EntityExtensionInterface;
-use Shopware\Api\Entity\Field\BoolField;
-use Shopware\Api\Entity\Field\DateField;
-use Shopware\Api\Entity\Field\FkField;
-use Shopware\Api\Entity\Field\IdField;
-use Shopware\Api\Entity\Field\ManyToOneAssociationField;
-use Shopware\Api\Entity\Field\StringField;
-use Shopware\Api\Entity\Field\TenantIdField;
-use Shopware\Api\Entity\FieldCollection;
-use Shopware\Api\Entity\Write\Flag\PrimaryKey;
-use Shopware\Api\Entity\Write\Flag\Required;
+use Shopware\Application\Application\ApplicationDefinition;
+use Shopware\Framework\ORM\EntityDefinition;
+use Shopware\Framework\ORM\EntityExtensionInterface;
+use Shopware\Framework\ORM\Field\BoolField;
+use Shopware\Framework\ORM\Field\DateField;
+use Shopware\Framework\ORM\Field\FkField;
+use Shopware\Framework\ORM\Field\IdField;
+use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Framework\ORM\Field\StringField;
+use Shopware\Framework\ORM\Field\TenantIdField;
+use Shopware\Framework\ORM\FieldCollection;
+use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
+use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Storefront\Api\Seo\Collection\SeoUrlBasicCollection;
 use Shopware\Storefront\Api\Seo\Collection\SeoUrlDetailCollection;
 use Shopware\Storefront\Api\Seo\Event\SeoUrl\SeoUrlDeletedEvent;
@@ -65,7 +65,7 @@ class SeoUrlDefinition extends EntityDefinition
             new BoolField('is_modified', 'isModified'),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            new ManyToOneAssociationField('application', 'application_id', ApplicationDefinition::class, false),
+            new ManyToOneAssociationField('application', 'application_id', \Shopware\Application\Application\ApplicationDefinition::class, false),
         ]);
 
         foreach (self::$extensions as $extension) {

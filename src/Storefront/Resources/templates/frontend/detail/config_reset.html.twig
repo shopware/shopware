@@ -4,7 +4,7 @@
         {% if configurator.user_selected %}
             {% block frontend_detail_configurator_reset_button %}
                 {# @var canonical \Shopware\Api\Seo\Struct\SeoUrlBasicStruct #}
-                {# @var product \Shopware\StorefrontApi\Product\ProductBasicStruct #}
+                {# @var product \Shopware\Content\Product\Struct\StorefrontProductBasicStruct #}
 
                 {% set url = path('detail_page', { id: product.id }) %}
                 {% if product.parentId %}

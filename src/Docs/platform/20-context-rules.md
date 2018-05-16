@@ -7,10 +7,10 @@ An entire simple rule might look like this:
 ```php
 <?php declare(strict_types=1);
 
-use Shopware\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Context\Rule\Match;
-use Shopware\Context\Rule\Rule;
-use Shopware\Context\Struct\StorefrontContext;
+use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Checkout\Rule\Specification\Match;
+use Shopware\Checkout\Rule\Specification\Rule;
+use Shopware\Application\Context\Struct\StorefrontContext;
 
 class TrueRule extends Rule
 {
@@ -53,4 +53,4 @@ Assuming the following scenario exists:
 
 As a result, the database is accessed 100 times each time storefront page is requested.
 
-All matching rules of a request state are stored in the `\Shopware\Context\Struct\StorefrontContext` and the `\Shopware\Context\Struct\ShopContext`.
+All matching rules of a request state are stored in the `\Shopware\Application\Context\Struct\StorefrontContext` and the `\Shopware\Application\Context\Struct\ShopContext`.

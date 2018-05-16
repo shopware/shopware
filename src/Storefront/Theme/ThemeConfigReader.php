@@ -49,11 +49,7 @@ class ThemeConfigReader
         ])
             ->from('shop_template_config_form_field', 'e')
             ->leftJoin('e', 'shop_template_config_form_field_value', 'currentTheme', 'currentTheme.shop_template_config_form_field_id = e.id')
-//            ->leftJoin('e', 's_core_templates_config_values', 'parentTheme', 'parentShop.element_id = e.id AND parentTheme.template_id = :parentThemeId')
             ->setParameter('currentThemeId', 23)
-//            ->setParameter('parentThemeId', 0)
-            //->setParameter('currentThemeId', $theme->getId())
-            //->setParameter('parentShopId', $theme->getParentId())
         ;
 
         $data = $builder->execute()->fetchAll(\PDO::FETCH_KEY_PAIR);

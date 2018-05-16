@@ -2,7 +2,7 @@
 
 'Advanced' prices of a product are based on the **context rule system**.
 If you want to configure graduations or customized (per application, language, country or even customer) prices you have to configure a context rule first.
-After configuring the context rule, you can provide a new record for the `\Shopware\Api\Product\Definition\ProductContextPriceDefinition`:
+After configuring the context rule, you can provide a new record for the `\Shopware\Content\Product\Aggregate\ProductContextPrice\ProductContextPriceDefinition`:
 
 ```json
 {

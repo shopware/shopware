@@ -4,13 +4,13 @@ namespace Shopware\Storefront\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Api\Currency\Repository\CurrencyRepository;
-use Shopware\Api\Entity\Search\Criteria;
-use Shopware\Api\Entity\Search\Query\TermQuery;
-use Shopware\Api\Language\Repository\LanguageRepository;
-use Shopware\Context\Struct\StorefrontContext;
-use Shopware\StorefrontApi\Context\StorefrontContextPersister;
-use Shopware\StorefrontApi\Context\StorefrontContextService;
+use Shopware\System\Currency\CurrencyRepository;
+use Shopware\Framework\ORM\Search\Criteria;
+use Shopware\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Application\Language\LanguageRepository;
+use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Application\Context\Util\StorefrontContextPersister;
+use Shopware\Application\Context\Util\StorefrontContextService;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -33,7 +33,7 @@ class ContextController extends StorefrontController
     private $currencyRepository;
 
     /**
-     * @var LanguageRepository
+     * @var \Shopware\Application\Language\LanguageRepository
      */
     private $languageRepository;
 

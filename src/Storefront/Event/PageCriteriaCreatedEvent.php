@@ -2,9 +2,9 @@
 
 namespace Shopware\Storefront\Event;
 
-use Shopware\Api\Entity\Search\Criteria;
-use Shopware\Context\Struct\ApplicationContext;
-use Shopware\Context\Struct\StorefrontContext;
+use Shopware\Framework\ORM\Search\Criteria;
+use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Storefront\Page\Listing\ListingPageRequest;
 

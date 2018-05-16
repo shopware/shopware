@@ -2,8 +2,8 @@
 
 namespace Shopware\Storefront\Subscriber;
 
-use Shopware\Api\Entity\Search\Criteria;
-use Shopware\Api\Product\Struct\ProductSearchResult;
+use Shopware\Framework\ORM\Search\Criteria;
+use Shopware\Content\Product\Struct\ProductSearchResult;
 use Shopware\Storefront\Event\ListingEvents;
 use Shopware\Storefront\Event\ListingPageLoadedEvent;
 use Shopware\Storefront\Event\PageCriteriaCreatedEvent;

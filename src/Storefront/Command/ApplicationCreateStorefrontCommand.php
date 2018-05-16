@@ -3,9 +3,9 @@
 namespace Shopware\Storefront\Command;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Api\Application\Repository\ApplicationRepository;
-use Shopware\Api\Entity\Write\FieldException\WriteStackException;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Application\Application\ApplicationRepository;
+use Shopware\Framework\ORM\Write\FieldException\WriteStackException;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\Uuid;
 use Shopware\Framework\Util\Random;

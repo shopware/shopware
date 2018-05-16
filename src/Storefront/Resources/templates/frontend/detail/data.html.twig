@@ -1,5 +1,5 @@
 {% block frontend_detail_data %}
-    {# @var product \Shopware\StorefrontApi\Product\ProductBasicStruct #}
+    {# @var product \Shopware\Content\Product\Struct\StorefrontProductBasicStruct #}
     {% set price = product.calculatedPrice %}
 
     {% if product.calculatedContextPrices.count > 1 %}
@@ -85,7 +85,7 @@
     {# Tax information #}
     {% block frontend_detail_data_tax %}
         <p class="product--tax" data-content="" data-modalbox="true" data-targetSelector="a" data-mode="ajax">
-            {# @var context \Shopware\Context\Struct\StorefrontContext #}
+            {# @var context \Shopware\Application\Context\Struct\StorefrontContext #}
             {% if context.taxState == 'gross' %}
                 {% trans from 'frontend/detail/data' %}TaxInclusive{% endtrans %}
             {% else %}

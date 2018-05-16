@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Api\Seo\Collection;
 
-use Shopware\Api\Entity\EntityCollection;
+use Shopware\Framework\ORM\EntityCollection;
 use Shopware\Storefront\Api\Seo\Struct\SeoUrlBasicStruct;
 
 class SeoUrlBasicCollection extends EntityCollection
@@ -22,14 +22,14 @@ class SeoUrlBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getShopIds(): array
+    public function getApplicationIds(): array
     {
         return $this->fmap(function (SeoUrlBasicStruct $seoUrl) {
             return $seoUrl->getApplicationId();
         });
     }
 
-    public function filterByShopId(string $id): SeoUrlBasicCollection
+    public function filterByApplicationId(string $id): SeoUrlBasicCollection
     {
         return $this->filter(function (SeoUrlBasicStruct $seoUrl) use ($id) {
             return $seoUrl->getApplicationId() === $id;

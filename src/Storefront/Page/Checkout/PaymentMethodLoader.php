@@ -2,17 +2,17 @@
 
 namespace Shopware\Storefront\Page\Checkout;
 
-use Shopware\Api\Entity\Search\Criteria;
-use Shopware\Api\Entity\Search\Query\TermQuery;
-use Shopware\Api\Payment\Collection\PaymentMethodBasicCollection;
-use Shopware\Api\Payment\Repository\PaymentMethodRepository;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Framework\ORM\Search\Criteria;
+use Shopware\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Checkout\Payment\Collection\PaymentMethodBasicCollection;
+use Shopware\Checkout\Payment\PaymentMethodRepository;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Symfony\Component\HttpFoundation\Request;
 
 class PaymentMethodLoader
 {
     /**
-     * @var PaymentMethodRepository
+     * @var \Shopware\Checkout\Payment\PaymentMethodRepository
      */
     private $paymentMethodRepository;
 

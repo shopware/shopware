@@ -6,7 +6,7 @@
     {# @var listing \Shopware\Storefront\Page\Listing\ListingPageStruct #}
     {% set facets = listing.aggregations %}
 
-    {# @var criteria \Shopware\Api\Entity\Search\Criteria #}
+    {# @var criteria \Shopware\Framework\ORM\Search\Criteria #}
     {% set criteria = listing.criteria %}
 
     <div class="action--filter-options off-canvas{% if facets|length <= 0 %} is--hidden{% endif %}{% if listingMode != 'full_page_reload' %} is--ajax-reload{% endif %}">

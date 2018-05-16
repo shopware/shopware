@@ -2,16 +2,16 @@
 
 namespace Shopware\Storefront\Api\Seo\Repository;
 
-use Shopware\Api\Entity\Read\EntityReaderInterface;
-use Shopware\Api\Entity\RepositoryInterface;
-use Shopware\Api\Entity\Search\AggregatorResult;
-use Shopware\Api\Entity\Search\Criteria;
-use Shopware\Api\Entity\Search\EntityAggregatorInterface;
-use Shopware\Api\Entity\Search\EntitySearcherInterface;
-use Shopware\Api\Entity\Search\IdSearchResult;
-use Shopware\Api\Entity\Write\GenericWrittenEvent;
-use Shopware\Api\Entity\Write\WriteContext;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Framework\ORM\RepositoryInterface;
+use Shopware\Framework\ORM\Search\AggregatorResult;
+use Shopware\Framework\ORM\Search\Criteria;
+use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
+use Shopware\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Framework\ORM\Search\IdSearchResult;
+use Shopware\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Framework\ORM\Write\WriteContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Storefront\Api\Seo\Collection\SeoUrlBasicCollection;
 use Shopware\Storefront\Api\Seo\Collection\SeoUrlDetailCollection;
 use Shopware\Storefront\Api\Seo\Definition\SeoUrlDefinition;
@@ -21,7 +21,7 @@ use Shopware\Storefront\Api\Seo\Event\SeoUrl\SeoUrlDetailLoadedEvent;
 use Shopware\Storefront\Api\Seo\Event\SeoUrl\SeoUrlIdSearchResultLoadedEvent;
 use Shopware\Storefront\Api\Seo\Event\SeoUrl\SeoUrlSearchResultLoadedEvent;
 use Shopware\Storefront\Api\Seo\Struct\SeoUrlSearchResult;
-use Shopware\Version\VersionManager;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class SeoUrlRepository implements RepositoryInterface
@@ -47,7 +47,7 @@ class SeoUrlRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var VersionManager
+     * @var \Shopware\Framework\ORM\Version\Service\VersionManager
      */
     private $versionManager;
 

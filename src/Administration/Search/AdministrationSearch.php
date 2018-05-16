@@ -2,21 +2,21 @@
 
 namespace Shopware\Administration\Search;
 
-use Shopware\Api\Customer\Definition\CustomerDefinition;
-use Shopware\Api\Entity\Entity;
-use Shopware\Api\Entity\EntityDefinition;
-use Shopware\Api\Entity\RepositoryInterface;
-use Shopware\Api\Entity\Search\Criteria;
-use Shopware\Api\Entity\Search\Query\TermQuery;
-use Shopware\Api\Entity\Search\Query\TermsQuery;
-use Shopware\Api\Entity\Search\SearchResultInterface;
-use Shopware\Api\Entity\Search\Sorting\FieldSorting;
-use Shopware\Api\Entity\Search\Term\EntityScoreQueryBuilder;
-use Shopware\Api\Entity\Search\Term\SearchTermInterpreter;
-use Shopware\Api\Order\Definition\OrderDefinition;
-use Shopware\Api\Product\Definition\ProductDefinition;
-use Shopware\Api\Version\Repository\VersionCommitDataRepository;
-use Shopware\Context\Struct\ApplicationContext;
+use Shopware\Checkout\Customer\CustomerDefinition;
+use Shopware\Framework\ORM\Entity;
+use Shopware\Framework\ORM\EntityDefinition;
+use Shopware\Framework\ORM\RepositoryInterface;
+use Shopware\Framework\ORM\Search\Criteria;
+use Shopware\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Framework\ORM\Search\Query\TermsQuery;
+use Shopware\Framework\ORM\Search\SearchResultInterface;
+use Shopware\Framework\ORM\Search\Sorting\FieldSorting;
+use Shopware\Framework\ORM\Search\Term\EntityScoreQueryBuilder;
+use Shopware\Framework\ORM\Search\Term\SearchTermInterpreter;
+use Shopware\Checkout\Order\OrderDefinition;
+use Shopware\Content\Product\ProductDefinition;
+use Shopware\Framework\ORM\Version\Repository\VersionCommitDataRepository;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Struct\ArrayStruct;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 

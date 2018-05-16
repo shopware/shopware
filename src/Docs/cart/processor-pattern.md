@@ -8,7 +8,7 @@ For example the cart doesn't know at which time a product or voucher has to be c
 Cart processors are registered via the symfony di container tag named `cart.processor`.
 To define the order of the calculation queue, the tag supports the `priority` attribute:
 ```xml
-<service id="cart.product.processor" class="Shopware\CartBridge\Product\ProductProcessor">
+<service id="cart.product.processor" class="Shopware\Content\Product\Cart\ProductProcessor">
     <tag name="cart.processor" priority="1000" />
 </service>
 ```
@@ -17,11 +17,11 @@ Currently the following processors are registered.
 
 | priority | service id | class | task |
 | -------- | ---------- | ----- | ---- |
-| 1000 | cart.product.processor | Shopware\CartBridge\Product\ProductProcessor  |  handle products which added to the cart by customer  |
-| 800 | cart.voucher.processor | Shopware\CartBridge\Voucher\VoucherProcessor | handle vouchers which added to the cart by customer |
+| 1000 | cart.product.processor | Shopware\Content\Product\Cart\ProductProcessor  |  handle products which added to the cart by customer  |
+| 800 | cart.voucher.processor | Shopware\Checkout\CartBridge\Voucher\VoucherProcessor | handle vouchers which added to the cart by customer |
 | 600 | dynamic |  |  |
-| 400 | cart.delivery.separator_processor | Shopware\Cart\Delivery\DeliverySeparatorProcessor  | separates the different deliverable line items into deliveries |
-| 200 | cart.delivery.calculator_processor | Shopware\Cart\Delivery\DeliveryCalculatorProcessor | calculates all deliveries which were created |
+| 400 | cart.delivery.separator_processor | Shopware\Checkout\Cart\Delivery\DeliverySeparatorProcessor  | separates the different deliverable line items into deliveries |
+| 200 | cart.delivery.calculator_processor | Shopware\Checkout\Cart\Delivery\DeliveryCalculatorProcessor | calculates all deliveries which were created |
 
 ## How a processor (should) work
 A processor should only handle simple tasks like the filtering of its dedicated line items or deliveries of a cart. Further logic and calculation (delivery seperation, line item calculation) should be encapsulated in seperate services.

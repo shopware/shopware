@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Page\Account;
 
-use Shopware\Api\Customer\Collection\CustomerAddressBasicCollection;
+use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Collection\CustomerAddressBasicCollection;
 use Shopware\Framework\Struct\Struct;
 
 class CustomerAddressPageStruct extends Struct

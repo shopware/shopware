@@ -26,13 +26,13 @@ namespace Shopware\Storefront\Controller\Widgets;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Api\Currency\Collection\CurrencyBasicCollection;
-use Shopware\Api\Currency\Repository\CurrencyRepository;
-use Shopware\Api\Entity\Search\Criteria;
-use Shopware\Api\Entity\Search\Query\TermsQuery;
-use Shopware\Api\Language\Collection\LanguageBasicCollection;
-use Shopware\Api\Language\Repository\LanguageRepository;
-use Shopware\Context\Struct\StorefrontContext;
+use Shopware\System\Currency\Collection\CurrencyBasicCollection;
+use Shopware\System\Currency\CurrencyRepository;
+use Shopware\Framework\ORM\Search\Criteria;
+use Shopware\Framework\ORM\Search\Query\TermsQuery;
+use Shopware\Application\Language\Collection\LanguageBasicCollection;
+use Shopware\Application\Language\LanguageRepository;
+use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Storefront\Controller\StorefrontController;
 
 class IndexController extends StorefrontController

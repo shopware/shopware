@@ -3,9 +3,9 @@
 namespace Shopware\Storefront\Context;
 
 use Shopware\Storefront\StorefrontRequest;
-use Shopware\StorefrontApi\Context\StorefrontContextPersister;
-use Shopware\StorefrontApi\Context\StorefrontContextService;
-use Shopware\StorefrontApi\Firewall\CustomerUser;
+use Shopware\Application\Context\Util\StorefrontContextPersister;
+use Shopware\Application\Context\Util\StorefrontContextService;
+use Shopware\Framework\Routing\Firewall\CustomerUser;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
 

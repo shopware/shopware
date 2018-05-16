@@ -3,7 +3,7 @@
 ## InheritanceAware
 The Shopware ORM allows to define a data inheritance inside a single entity.
 It requires the following configurations:
-* `Shopware\Api\Entity\EntityDefinition::getParentPropertyName` returns the property name of the parent association
+* `Shopware\Framework\ORM\EntityDefinition::getParentPropertyName` returns the property name of the parent association
 ```
 public static function getParentPropertyName(): string
 {
@@ -18,7 +18,7 @@ new ManyToOneAssociationField('parent', 'parent_id', self::class, false))->setFl
 new OneToManyAssociationField('children', self::class, 'parent_id', false, 'id'))->setFlags(new CascadeDelete(),
 ```
 
-If all requirements are fulfilled, each field (even associations) can be flagged with `Shopware\Api\Entity\Write\Flag\Inherited`.
+If all requirements are fulfilled, each field (even associations) can be flagged with `Shopware\Framework\ORM\Write\Flag\Inherited`.
 In case that a field with this flag is not filled (IS NULL or Association are empty), the ORM uses the parent row to solve the field value.
 
 The following examples shows a simple usage of such an inheritance:

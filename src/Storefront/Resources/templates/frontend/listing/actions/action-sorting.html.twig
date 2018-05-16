@@ -26,7 +26,7 @@
 
                 {# @var listing \Shopware\Storefront\Page\Listing\ListingPageStruct #}
                 {% for sorting in listing.sortings %}
-                    {# @var sorting \Shopware\Api\Listing\Struct\ListingSortingBasicStruct #}
+                    {# @var sorting \Shopware\System\Listing\Struct\ListingSortingBasicStruct #}
                     {% block frontend_listing_actions_sort_field_release %}
                         <option value="{{ sorting.uniqueKey }}"{% if listing.currentSorting == sorting.uniqueKey %} selected="selected"{% endif %}>{{ sorting.label }}</option>
                     {% endblock %}

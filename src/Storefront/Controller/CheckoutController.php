@@ -5,24 +5,24 @@ namespace Shopware\Storefront\Controller;
 use Psr\Container\NotFoundExceptionInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Api\Entity\Search\Criteria;
-use Shopware\Api\Entity\Search\Query\TermQuery;
-use Shopware\Api\Order\Repository\OrderRepository;
-use Shopware\Api\Order\Struct\OrderBasicStruct;
-use Shopware\Api\Payment\Repository\PaymentMethodRepository;
-use Shopware\CartBridge\Service\StoreFrontCartService;
-use Shopware\Context\Struct\ApplicationContext;
-use Shopware\Context\Struct\StorefrontContext;
+use Shopware\Framework\ORM\Search\Criteria;
+use Shopware\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Checkout\Order\OrderRepository;
+use Shopware\Checkout\Order\Struct\OrderBasicStruct;
+use Shopware\Checkout\Payment\PaymentMethodRepository;
+use Shopware\Checkout\Cart\StoreFrontCartService;
+use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\Uuid;
-use Shopware\Payment\Exception\InvalidOrderException;
-use Shopware\Payment\Exception\InvalidTransactionException;
-use Shopware\Payment\Exception\UnknownPaymentMethodException;
-use Shopware\Payment\PaymentHandler\PaymentHandlerInterface;
-use Shopware\Payment\PaymentProcessor;
-use Shopware\Payment\Token\PaymentTransactionTokenFactory;
+use Shopware\Checkout\Payment\Exception\InvalidOrderException;
+use Shopware\Checkout\Payment\Exception\InvalidTransactionException;
+use Shopware\Checkout\Payment\Exception\UnknownPaymentMethodException;
+use Shopware\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerInterface;
+use Shopware\Checkout\Payment\Cart\PaymentTransactionChainProcessor;
+use Shopware\Checkout\Payment\Cart\Token\PaymentTransactionTokenFactory;
 use Shopware\Storefront\Page\Checkout\PaymentMethodLoader;
-use Shopware\StorefrontApi\Context\StorefrontContextPersister;
-use Shopware\StorefrontApi\Context\StorefrontContextService;
+use Shopware\Application\Context\Util\StorefrontContextPersister;
+use Shopware\Application\Context\Util\StorefrontContextService;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -31,7 +31,7 @@ use Symfony\Component\Serializer\Serializer;
 class CheckoutController extends StorefrontController
 {
     /**
-     * @var StoreFrontCartService
+     * @var \Shopware\Checkout\Cart\StoreFrontCartService
      */
     private $cartService;
 
@@ -46,12 +46,12 @@ class CheckoutController extends StorefrontController
     private $paymentMethodLoader;
 
     /**
-     * @var PaymentProcessor
+     * @var \Shopware\Checkout\Payment\Cart\PaymentTransactionChainProcessor
      */
     private $paymentProcessor;
 
     /**
-     * @var PaymentMethodRepository
+     * @var \Shopware\Checkout\Payment\PaymentMethodRepository
      */
     private $paymentMethodRepository;
 
@@ -74,7 +74,7 @@ class CheckoutController extends StorefrontController
         StoreFrontCartService $cartService,
         OrderRepository $orderRepository,
         PaymentMethodLoader $paymentMethodLoader,
-        PaymentProcessor $paymentProcessor,
+        PaymentTransactionChainProcessor $paymentProcessor,
         PaymentTransactionTokenFactory $tokenFactory,
         PaymentMethodRepository $paymentMethodRepository,
         StorefrontContextPersister $contextPersister,
@@ -214,8 +214,8 @@ class CheckoutController extends StorefrontController
      *
      * @throws UnknownPaymentMethodException
      * @throws \Doctrine\DBAL\Exception\InvalidArgumentException
-     * @throws \Shopware\Payment\Exception\InvalidTokenException
-     * @throws \Shopware\Payment\Exception\TokenExpiredException
+     * @throws \Shopware\Checkout\Payment\Exception\InvalidTokenException
+     * @throws \Shopware\Checkout\Payment\Exception\TokenExpiredException
      *
      * @return RedirectResponse
      */

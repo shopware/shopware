@@ -2,13 +2,13 @@
 
 namespace Shopware\Storefront\Subscriber;
 
-use Shopware\Api\Configuration\Collection\ConfigurationGroupOptionBasicCollection;
-use Shopware\Api\Configuration\Definition\ConfigurationGroupOptionDefinition;
-use Shopware\Api\Configuration\Struct\ConfigurationGroupDetailStruct;
-use Shopware\Api\Entity\Search\Aggregation\AggregationResult;
-use Shopware\Api\Entity\Search\Aggregation\EntityAggregation;
-use Shopware\Api\Entity\Search\AggregatorResult;
-use Shopware\Api\Entity\Search\Query\TermsQuery;
+use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionBasicCollection;
+use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
+use Shopware\System\Configuration\Struct\ConfigurationGroupDetailStruct;
+use Shopware\Framework\ORM\Search\Aggregation\AggregationResult;
+use Shopware\Framework\ORM\Search\Aggregation\EntityAggregation;
+use Shopware\Framework\ORM\Search\AggregatorResult;
+use Shopware\Framework\ORM\Search\Query\TermsQuery;
 use Shopware\Framework\Struct\ArrayStruct;
 use Shopware\Storefront\Event\ListingEvents;
 use Shopware\Storefront\Event\ListingPageLoadedEvent;
@@ -109,7 +109,7 @@ class DatasheetAggregationSubscriber implements EventSubscriberInterface
 
         $actives = $filter ? $filter->get('ids') : [];
 
-        /** @var ConfigurationGroupOptionBasicCollection $values */
+        /** @var \Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionBasicCollection $values */
         $values = $aggregation->getResult();
 
         if (!$values || $values->count() <= 0) {

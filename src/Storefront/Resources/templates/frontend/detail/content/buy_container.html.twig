@@ -1,5 +1,5 @@
 {% block frontend_detail_index_buy_container %}
-    {# @var product \Shopware\StorefrontApi\Product\ProductBasicStruct #}
+    {# @var product \Shopware\Content\Product\Struct\StorefrontProductBasicStruct #}
     {# @var page \Shopware\Storefront\Page\Detail\DetailPageStruct #}
     <div class="product--buybox block{% if page.configurator and product.sConfiguratorSettings.type == 2 %} is--wide{% endif %}">
 
@@ -60,7 +60,7 @@
                         {% set lowestPrice = false %}
                         {% set highestPrice = false %}
 
-                        {# @var price \Shopware\Cart\Price\Struct\CalculatedPrice #}
+                        {# @var price \Shopware\Checkout\Cart\Price\Struct\CalculatedPrice #}
                         {% for price in product.calculatedContextPrices %}
                             {% if lowestPrice == false or price.totalPrice < lowestPrice %}
                                 {% set lowestPrice = price.totalPrice %}

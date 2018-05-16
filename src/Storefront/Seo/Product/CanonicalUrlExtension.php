@@ -2,11 +2,11 @@
 
 namespace Shopware\Storefront\Seo\Product;
 
-use Shopware\Api\Entity\EntityExtensionInterface;
-use Shopware\Api\Entity\FieldCollection;
-use Shopware\Api\Product\Definition\ProductDefinition;
-use Shopware\Api\Product\Event\Product\ProductBasicLoadedEvent;
-use Shopware\Api\Product\Struct\ProductBasicStruct;
+use Shopware\Framework\ORM\EntityExtensionInterface;
+use Shopware\Framework\ORM\FieldCollection;
+use Shopware\Content\Product\ProductDefinition;
+use Shopware\Content\Product\Event\ProductBasicLoadedEvent;
+use Shopware\Content\Product\Struct\ProductBasicStruct;
 use Shopware\Storefront\Api\Entity\Field\CanonicalUrlAssociationField;
 use Shopware\Storefront\Api\Seo\Collection\SeoUrlBasicCollection;
 use Shopware\Storefront\Api\Seo\Event\SeoUrl\SeoUrlBasicLoadedEvent;

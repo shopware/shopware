@@ -2,13 +2,13 @@
 
 The cart process allows to split a single cart into different deliveries. The conditions to split deliveries are currently only the stock availability of an line item.
 
-The new cart representation allows the seperation of line items into seperate deliveries. The `\Shopware\Cart\Delivery\DeliverySeparatorProcessor` is concerned with the seperation of deliveries, with respect to stock availabilities and shipping times of the ordered products. The `\Shopware\Cart\Delivery\DeliveryCalculatorProcessor` eventually calculated the shipping costs per delivery.
+The new cart representation allows the seperation of line items into seperate deliveries. The `\Shopware\Checkout\Cart\Delivery\DeliverySeparatorProcessor` is concerned with the seperation of deliveries, with respect to stock availabilities and shipping times of the ordered products. The `\Shopware\Checkout\Cart\Delivery\DeliveryCalculatorProcessor` eventually calculated the shipping costs per delivery.
 
 Each delivery has a determined delivery date which contains an earliest delivery and latest delivery time:
 ```php
 <?php
 
-namespace Shopware\Cart\Delivery;
+namespace Shopware\Checkout\Cart\Delivery;
 
 use Shopware\Framework\Struct\Struct;
 
@@ -32,7 +32,7 @@ In addition to DeliveryDate, a ShippingLocation and a shipping method are define
 ```php
 <?php
 
-namespace Shopware\Cart\Delivery;
+namespace Shopware\Checkout\Cart\Delivery;
 use Shopware\Framework\Struct\Struct;
 use Shopware\ShippingMethod\Struct\ShippingMethodBasicStruct;
 
@@ -70,12 +70,12 @@ class Delivery extends Struct
 }
 ```
 
-All calculated deliveries are referenced in the `\Shopware\Cart\Cart\CalculatedCart`.
+All calculated deliveries are referenced in the `\Shopware\Checkout\Cart\Cart\CalculatedCart`.
 ```php
 <?php
 
-namespace Shopware\Cart\Cart;
-use Shopware\Cart\Delivery\DeliveryCollection;
+namespace Shopware\Checkout\Cart\Cart;
+use Shopware\Checkout\Cart\Delivery\DeliveryCollection;
 use Shopware\Framework\Struct\Struct;
 
 class CalculatedCart extends Struct
@@ -96,7 +96,7 @@ Additionally to the location, date and shipping method the delivery contains a l
 ```php
 <?php
 
-namespace Shopware\Cart\Delivery;
+namespace Shopware\Checkout\Cart\Delivery;
 use Shopware\Framework\Struct\Struct;
 
 class Delivery extends Struct
@@ -114,16 +114,16 @@ class Delivery extends Struct
 ```
 
 Unlike a voucher, most products in a shopping cart are goods that need to be delivered (with few exceptions - esd, ...).
-In order to mark an element for the cart as an deliverable element, it is necessary to implement the interface `\Shopware\Cart\LineItem\DeliverableLineItemInterface`.
+In order to mark an element for the cart as an deliverable element, it is necessary to implement the interface `\Shopware\Checkout\Cart\LineItem\DeliverableLineItemInterface`.
 These interface provides all functions which are required to determine the delivery time and to calculate the shipping costs:
 ```php
 <?php
 declare(strict_types=1);
 
-namespace Shopware\Cart\LineItem;
+namespace Shopware\Checkout\Cart\LineItem;
 
-use Shopware\Cart\Delivery\Delivery;
-use Shopware\Cart\Delivery\DeliveryDate;
+use Shopware\Checkout\Cart\Delivery\Delivery;
+use Shopware\Checkout\Cart\Delivery\DeliveryDate;
 
 interface DeliverableLineItemInterface extends CalculatedLineItemInterface
 {

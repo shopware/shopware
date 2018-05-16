@@ -24,8 +24,8 @@
 
 namespace Shopware\Storefront\Twig;
 
-use Shopware\Context\Struct\StorefrontContext;
-use Shopware\Framework\Config\ConfigServiceInterface;
+use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\System\Config\Util\ConfigServiceInterface;
 use Shopware\PlatformRequest;
 use Shopware\Storefront\Theme\ThemeConfigReader;
 use Symfony\Component\HttpFoundation\Request;
@@ -96,7 +96,7 @@ class TemplateDataExtension extends \Twig_Extension implements \Twig_Extension_G
             'shopware' => [
                 'config' => array_merge(
                     $this->getDefaultConfiguration(),
-                    $this->configService->getByShop($context->getApplication()->getId(), null)
+                    $this->configService->get($context->getApplication()->getId(), null)
                 ),
                 'theme' => $this->getThemeConfig(),
             ],

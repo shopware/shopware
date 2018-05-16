@@ -5,7 +5,7 @@ namespace Shopware\System\Tax\Aggregate\TaxAreaRule\Struct;
 use Shopware\System\Country\Aggregate\CountryArea\Struct\CountryAreaBasicStruct;
 use Shopware\System\Country\Struct\CountryBasicStruct;
 use Shopware\System\Country\Aggregate\CountryState\Struct\CountryStateBasicStruct;
-use Shopware\Checkout\Customer\Struct\CustomerGroupBasicStruct;
+use Shopware\Checkout\Customer\Aggregate\CustomerGroup\Struct\CustomerGroupBasicStruct;
 use Shopware\System\Tax\Aggregate\TaxAreaRule\Struct\TaxAreaRuleBasicStruct;
 use Shopware\System\Tax\Aggregate\TaxAreaRuleTranslation\Collection\TaxAreaRuleTranslationBasicCollection;
 use Shopware\System\Tax\Struct\TaxBasicStruct;
@@ -92,7 +92,7 @@ class TaxAreaRuleDetailStruct extends TaxAreaRuleBasicStruct
         return $this->customerGroup;
     }
 
-    public function setCustomerGroup(CustomerGroupBasicStruct $customerGroup): void
+    public function setCustomerGroup(\Shopware\Checkout\Customer\Aggregate\CustomerGroup\Struct\CustomerGroupBasicStruct $customerGroup): void
     {
         $this->customerGroup = $customerGroup;
     }

@@ -7,7 +7,7 @@ use Shopware\System\Country\Aggregate\CountryAreaTranslation\CountryAreaTranslat
 use Shopware\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationDefinition;
 use Shopware\System\Country\Aggregate\CountryTranslation\CountryTranslationDefinition;
 use Shopware\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationDefinition;
-use Shopware\Checkout\Customer\Definition\CustomerGroupTranslationDefinition;
+use Shopware\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\ChildrenAssociationField;

@@ -13,7 +13,7 @@ use Shopware\System\Country\Event\CountryWrittenEvent;
 use Shopware\System\Country\CountryRepository;
 use Shopware\System\Country\Struct\CountryBasicStruct;
 use Shopware\System\Country\Struct\CountryDetailStruct;
-use Shopware\Checkout\Customer\Definition\CustomerAddressDefinition;
+use Shopware\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\BoolField;

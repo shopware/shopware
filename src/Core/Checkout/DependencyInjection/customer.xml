@@ -6,61 +6,81 @@
 
     <services>
         <!-- Versioning -->
-        <service alias="Shopware\Checkout\Customer\Repository\CustomerRepository.v1" id="Shopware\Checkout\Customer\Repository\CustomerRepository" public="true"/>
-        <service alias="Shopware\Checkout\Customer\Repository\CustomerAddressRepository.v1" id="Shopware\Checkout\Customer\Repository\CustomerAddressRepository" public="true"/>
-        <service alias="Shopware\Checkout\Customer\Repository\CustomerGroupRepository.v1" id="Shopware\Checkout\Customer\Repository\CustomerGroupRepository" public="true"/>
-        <service alias="Shopware\Checkout\Customer\Repository\CustomerGroupDiscountRepository.v1" id="Shopware\Checkout\Customer\Repository\CustomerGroupDiscountRepository" public="true"/>
-        <service alias="Shopware\Checkout\Customer\Repository\CustomerGroupTranslationRepository.v1" id="Shopware\Checkout\Customer\Repository\CustomerGroupTranslationRepository" public="true"/>
+        <service alias="Shopware\Checkout\Customer\CustomerRepository.v1" id="Shopware\Checkout\Customer\CustomerRepository" public="true"/>
+        <service alias="Shopware\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository.v1" id="Shopware\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository" public="true"/>
+        <service alias="Shopware\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupRepository.v1" id="Shopware\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupRepository" public="true"/>
+        <service alias="Shopware\Checkout\Customer\Aggregate\CustomerGroupDiscount\CustomerGroupDiscountRepository.v1" id="Shopware\Checkout\Customer\Aggregate\CustomerGroupDiscount\CustomerGroupDiscountRepository" public="true"/>
+        <service alias="Shopware\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationRepository.v1" id="Shopware\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationRepository" public="true"/>
 
-        <service class="Shopware\Checkout\Customer\Definition\CustomerDefinition" id="Shopware\Checkout\Customer\Definition\CustomerDefinition" >
+        <service class="Shopware\Checkout\Customer\CustomerDefinition" id="Shopware\Checkout\Customer\CustomerDefinition" >
             <tag name="shopware.entity.definition" entity="customer" />
         </service>
-        <service class="Shopware\Checkout\Customer\Repository\CustomerRepository" id="Shopware\Checkout\Customer\Repository\CustomerRepository.v1" public="true">
+
+        <service class="Shopware\Checkout\Customer\CustomerRepository" id="Shopware\Checkout\Customer\CustomerRepository.v1" public="true">
             <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
             <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
             <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
             <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
             <argument id="event_dispatcher" type="service"/>
         </service>
-        <service class="Shopware\Checkout\Customer\Definition\CustomerAddressDefinition" id="Shopware\Checkout\Customer\Definition\CustomerAddressDefinition" >
+
+        <service class="Shopware\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition" id="Shopware\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition" >
             <tag name="shopware.entity.definition" entity="customer_address" />
         </service>
-        <service class="Shopware\Checkout\Customer\Repository\CustomerAddressRepository" id="Shopware\Checkout\Customer\Repository\CustomerAddressRepository.v1" public="true">
+
+        <service class="Shopware\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository" id="Shopware\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository.v1" public="true">
             <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
             <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
             <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
             <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
             <argument id="event_dispatcher" type="service"/>
         </service>
-        <service class="Shopware\Checkout\Customer\Definition\CustomerGroupDefinition" id="Shopware\Checkout\Customer\Definition\CustomerGroupDefinition" >
+
+        <service class="Shopware\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition" id="Shopware\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition" >
             <tag name="shopware.entity.definition" entity="customer_group" />
         </service>
-        <service class="Shopware\Checkout\Customer\Repository\CustomerGroupRepository" id="Shopware\Checkout\Customer\Repository\CustomerGroupRepository.v1" public="true">
+
+        <service class="Shopware\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupRepository" id="Shopware\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupRepository.v1" public="true">
             <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
             <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
             <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
             <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
             <argument id="event_dispatcher" type="service"/>
         </service>
-        <service class="Shopware\Checkout\Customer\Definition\CustomerGroupDiscountDefinition" id="Shopware\Checkout\Customer\Definition\CustomerGroupDiscountDefinition" >
+
+        <service class="Shopware\Checkout\Customer\Aggregate\CustomerGroupDiscount\CustomerGroupDiscountDefinition" id="Shopware\Checkout\Customer\Aggregate\CustomerGroupDiscount\CustomerGroupDiscountDefinition" >
             <tag name="shopware.entity.definition" entity="customer_group_discount" />
         </service>
-        <service class="Shopware\Checkout\Customer\Repository\CustomerGroupDiscountRepository" id="Shopware\Checkout\Customer\Repository\CustomerGroupDiscountRepository.v1" public="true">
+
+        <service class="Shopware\Checkout\Customer\Aggregate\CustomerGroupDiscount\CustomerGroupDiscountRepository" id="Shopware\Checkout\Customer\Aggregate\CustomerGroupDiscount\CustomerGroupDiscountRepository.v1" public="true">
             <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
             <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
             <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
             <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
             <argument id="event_dispatcher" type="service"/>
         </service>
-        <service class="Shopware\Checkout\Customer\Definition\CustomerGroupTranslationDefinition" id="Shopware\Checkout\Customer\Definition\CustomerGroupTranslationDefinition" >
+
+        <service class="Shopware\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationDefinition" id="Shopware\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationDefinition" >
             <tag name="shopware.entity.definition" entity="customer_group_translation" />
         </service>
-        <service class="Shopware\Checkout\Customer\Repository\CustomerGroupTranslationRepository" id="Shopware\Checkout\Customer\Repository\CustomerGroupTranslationRepository.v1" public="true">
+
+        <service class="Shopware\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationRepository" id="Shopware\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationRepository.v1" public="true">
             <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
             <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
             <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
             <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
             <argument id="event_dispatcher" type="service"/>
         </service>
+
+        <service class="Shopware\Checkout\Customer\Cart\CustomerGroupDiscountProcessor" id="Shopware\Checkout\Customer\Cart\CustomerGroupDiscountProcessor">
+            <argument id="Shopware\Checkout\Cart\Price\PercentagePriceCalculator" type="service"/>
+            <tag name="cart.processor" priority="800"/>
+        </service>
+
+        <service class="Shopware\Checkout\Customer\Cart\CustomerGroupDiscountCartCollector" id="Shopware\Checkout\Customer\Cart\CustomerGroupDiscountCartCollector">
+            <tag name="cart.collector" priority="-1000"/>
+            <argument type="service" id="Shopware\Checkout\Customer\Aggregate\CustomerGroupDiscount\CustomerGroupDiscountRepository.v1"/>
+        </service>
+
     </services>
 </container>

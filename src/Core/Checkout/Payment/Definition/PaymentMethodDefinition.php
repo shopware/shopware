@@ -3,7 +3,7 @@
 namespace Shopware\Checkout\Payment\Definition;
 
 use Shopware\Application\Application\Definition\ApplicationDefinition;
-use Shopware\Checkout\Customer\Definition\CustomerDefinition;
+use Shopware\Checkout\Customer\CustomerDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\BoolField;

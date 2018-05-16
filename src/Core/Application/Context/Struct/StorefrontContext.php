@@ -27,7 +27,7 @@ namespace Shopware\Application\Context\Struct;
 use Shopware\Application\Application\Struct\ApplicationBasicStruct;
 use Shopware\System\Currency\Struct\CurrencyBasicStruct;
 use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
-use Shopware\Checkout\Customer\Struct\CustomerGroupBasicStruct;
+use Shopware\Checkout\Customer\Aggregate\CustomerGroup\Struct\CustomerGroupBasicStruct;
 use Shopware\Application\Language\Struct\LanguageBasicStruct;
 use Shopware\Checkout\Payment\Struct\PaymentMethodBasicStruct;
 use Shopware\Checkout\Shipping\Struct\ShippingMethodBasicStruct;
@@ -58,7 +58,7 @@ class StorefrontContext extends Struct
     protected $currentCustomerGroup;
 
     /**
-     * @var CustomerGroupBasicStruct
+     * @var \Shopware\Checkout\Customer\Aggregate\CustomerGroup\Struct\CustomerGroupBasicStruct
      */
     protected $fallbackCustomerGroup;
 

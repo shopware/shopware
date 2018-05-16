@@ -25,7 +25,7 @@
 namespace Shopware\Application\Test\Context\Rule\Context;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Checkout\Customer\Struct\CustomerGroupBasicStruct;
+use Shopware\Checkout\Customer\Aggregate\CustomerGroup\Struct\CustomerGroupBasicStruct;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Application\Context\MatchContext\CartRuleMatchContext;
 use Shopware\Application\Context\Rule\Context\CustomerGroupRule;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Checkout\Customer\Collection;
 
+use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Collection\CustomerAddressBasicCollection;
 use Shopware\Checkout\Customer\Struct\CustomerDetailStruct;
 use Shopware\Checkout\Order\Collection\OrderBasicCollection;
 

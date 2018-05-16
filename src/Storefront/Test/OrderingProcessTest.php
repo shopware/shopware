@@ -4,7 +4,7 @@ namespace Shopware\Storefront\Test;
 
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
-use Shopware\Checkout\Customer\Definition\CustomerDefinition;
+use Shopware\Checkout\Customer\CustomerDefinition;
 use Shopware\Framework\ORM\Write\EntityWriter;
 use Shopware\Framework\ORM\Write\EntityWriterInterface;
 use Shopware\Framework\ORM\Write\WriteContext;

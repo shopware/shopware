@@ -26,7 +26,7 @@ namespace Shopware\Checkout\Test\Cart\Tax;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\System\Country\Struct\CountryBasicStruct;
-use Shopware\Checkout\Customer\Struct\CustomerGroupBasicStruct;
+use Shopware\Checkout\Customer\Aggregate\CustomerGroup\Struct\CustomerGroupBasicStruct;
 use Shopware\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Checkout\Cart\Tax\TaxDetector;
 use Shopware\Application\Context\Struct\StorefrontContext;

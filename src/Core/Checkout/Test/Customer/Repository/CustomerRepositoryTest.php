@@ -3,8 +3,8 @@
 namespace Shopware\Checkout\Test\Customer\Repository;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Checkout\Customer\Definition\CustomerDefinition;
-use Shopware\Checkout\Customer\Repository\CustomerRepository;
+use Shopware\Checkout\Customer\CustomerDefinition;
+use Shopware\Checkout\Customer\CustomerRepository;
 use Shopware\Framework\ORM\RepositoryInterface;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Term\EntityScoreQueryBuilder;

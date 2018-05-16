@@ -36,7 +36,7 @@
         </service>
 
         <service class="Shopware\Storefront\Page\Account\CustomerAddressPageLoader" id="Shopware\Storefront\Page\Account\CustomerAddressPageLoader">
-            <argument id="Shopware\Checkout\Customer\Repository\CustomerAddressRepository" type="service"/>
+            <argument id="Shopware\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository" type="service"/>
         </service>
 
         <service class="Shopware\Storefront\Page\Account\OrderPageLoader" id="Shopware\Storefront\Page\Account\OrderPageLoader">
@@ -87,8 +87,8 @@
 
         <service class="Shopware\Storefront\Page\Account\AccountService" id="Shopware\Storefront\Page\Account\AccountService">
             <argument id="Shopware\System\Country\CountryRepository" type="service"/>
-            <argument id="Shopware\Checkout\Customer\Repository\CustomerAddressRepository" type="service"/>
-            <argument id="Shopware\Checkout\Customer\Repository\CustomerRepository" type="service"/>
+            <argument id="Shopware\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository" type="service"/>
+            <argument id="Shopware\Checkout\Customer\CustomerRepository" type="service"/>
         </service>
 
         <service class="Shopware\Storefront\Controller\AccountController" public="true" id="Shopware\Storefront\Controller\AccountController">

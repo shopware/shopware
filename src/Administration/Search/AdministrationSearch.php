@@ -2,7 +2,7 @@
 
 namespace Shopware\Administration\Search;
 
-use Shopware\Checkout\Customer\Definition\CustomerDefinition;
+use Shopware\Checkout\Customer\CustomerDefinition;
 use Shopware\Framework\ORM\Entity;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\RepositoryInterface;

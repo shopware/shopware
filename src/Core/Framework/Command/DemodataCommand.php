@@ -11,7 +11,7 @@ use Shopware\Content\Category\CategoryRepository;
 use Shopware\System\Configuration\Definition\ConfigurationGroupDefinition;
 use Shopware\Application\Context\Definition\ContextRuleDefinition;
 use Shopware\Application\Context\Repository\ContextRuleRepository;
-use Shopware\Checkout\Customer\Definition\CustomerDefinition;
+use Shopware\Checkout\Customer\CustomerDefinition;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Write\EntityWriterInterface;
 use Shopware\Framework\ORM\Write\WriteContext;

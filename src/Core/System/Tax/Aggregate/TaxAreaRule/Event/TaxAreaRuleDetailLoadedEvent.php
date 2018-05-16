@@ -5,7 +5,7 @@ namespace Shopware\System\Tax\Aggregate\TaxAreaRule\Event;
 use Shopware\System\Country\Event\CountryBasicLoadedEvent;
 use Shopware\System\Country\Aggregate\CountryArea\Event\CountryAreaBasicLoadedEvent;
 use Shopware\System\Country\Aggregate\CountryState\Event\CountryStateBasicLoadedEvent;
-use Shopware\Checkout\Customer\Event\CustomerGroup\CustomerGroupBasicLoadedEvent;
+use Shopware\Checkout\Customer\Aggregate\CustomerGroup\Event\CustomerGroupBasicLoadedEvent;
 use Shopware\System\Tax\Aggregate\TaxAreaRule\Collection\TaxAreaRuleDetailCollection;
 use Shopware\System\Tax\Event\TaxBasicLoadedEvent;
 use Shopware\System\Tax\Aggregate\TaxAreaRuleTranslation\Event\TaxAreaRuleTranslationBasicLoadedEvent;

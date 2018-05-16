@@ -2,7 +2,7 @@
 
 namespace Shopware\StorefrontApi\Firewall;
 
-use Shopware\Checkout\Customer\Repository\CustomerRepository;
+use Shopware\Checkout\Customer\CustomerRepository;
 use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Query\TermQuery;
@@ -16,14 +16,14 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 class CustomerProvider implements UserProviderInterface
 {
     /**
-     * @var CustomerRepository
+     * @var \Shopware\Checkout\Customer\CustomerRepository
      */
     private $customerRepository;
 
     /**
      * CustomerProvider constructor.
      *
-     * @param CustomerRepository $customerRepository
+     * @param \Shopware\Checkout\Customer\CustomerRepository $customerRepository
      */
     public function __construct(CustomerRepository $customerRepository)
     {

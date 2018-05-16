@@ -30,9 +30,9 @@ use Shopware\Application\Application\Struct\ApplicationBasicStruct;
 use Shopware\System\Country\CountryRepository;
 use Shopware\System\Country\Aggregate\CountryState\CountryStateRepository;
 use Shopware\System\Currency\CurrencyRepository;
-use Shopware\Checkout\Customer\Repository\CustomerAddressRepository;
-use Shopware\Checkout\Customer\Repository\CustomerGroupRepository;
-use Shopware\Checkout\Customer\Repository\CustomerRepository;
+use Shopware\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository;
+use Shopware\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupRepository;
+use Shopware\Checkout\Customer\CustomerRepository;
 use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Application\Language\Repository\LanguageRepository;
@@ -63,7 +63,7 @@ class ContextFactory implements ContextFactoryInterface
     private $currencyRepository;
 
     /**
-     * @var CustomerRepository
+     * @var \Shopware\Checkout\Customer\CustomerRepository
      */
     private $customerRepository;
 

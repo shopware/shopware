@@ -2,13 +2,13 @@
 
 namespace Shopware\Checkout\Customer\Struct;
 
-use Shopware\Checkout\Customer\Collection\CustomerAddressBasicCollection;
+use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Collection\CustomerAddressBasicCollection;
 use Shopware\Checkout\Order\Collection\OrderBasicCollection;
 
 class CustomerDetailStruct extends CustomerBasicStruct
 {
     /**
-     * @var CustomerAddressBasicCollection
+     * @var \Shopware\Checkout\Customer\Aggregate\CustomerAddress\Collection\CustomerAddressBasicCollection
      */
     protected $addresses;
 

@@ -27,7 +27,7 @@ namespace Shopware\Checkout\Cart\Delivery\Struct;
 
 use Shopware\System\Country\Struct\CountryBasicStruct;
 use Shopware\System\Country\Aggregate\CountryState\Struct\CountryStateBasicStruct;
-use Shopware\Checkout\Customer\Struct\CustomerAddressBasicStruct;
+use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
 use Shopware\Framework\Struct\Struct;
 
 class ShippingLocation extends Struct
@@ -43,7 +43,7 @@ class ShippingLocation extends Struct
     protected $state;
 
     /**
-     * @var null|CustomerAddressBasicStruct
+     * @var null|\Shopware\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct
      */
     protected $address;
 

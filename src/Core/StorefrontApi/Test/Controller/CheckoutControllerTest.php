@@ -4,7 +4,7 @@ namespace Shopware\StorefrontApi\Test\Controller;
 
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
-use Shopware\Checkout\Customer\Repository\CustomerRepository;
+use Shopware\Checkout\Customer\CustomerRepository;
 use Shopware\Content\Product\ProductRepository;
 use Shopware\Content\Product\Cart\ProductProcessor;
 use Shopware\Application\Context\Struct\ApplicationContext;
@@ -21,7 +21,7 @@ class CheckoutControllerTest extends ApiTestCase
     private $repository;
 
     /**
-     * @var CustomerRepository
+     * @var \Shopware\Checkout\Customer\CustomerRepository
      */
     private $customerRepository;
 

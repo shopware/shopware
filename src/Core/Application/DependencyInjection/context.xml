@@ -36,11 +36,11 @@
         <service class="Shopware\Application\Context\Service\ContextFactory" id="Shopware\Application\Context\Service\ContextFactory">
             <argument type="service" id="Shopware\Application\Application\Repository\ApplicationRepository"/>
             <argument type="service" id="Shopware\System\Currency\CurrencyRepository"/>
-            <argument type="service" id="Shopware\Checkout\Customer\Repository\CustomerRepository"/>
-            <argument type="service" id="Shopware\Checkout\Customer\Repository\CustomerGroupRepository"/>
+            <argument type="service" id="Shopware\Checkout\Customer\CustomerRepository"/>
+            <argument type="service" id="Shopware\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupRepository"/>
             <argument type="service" id="Shopware\System\Country\CountryRepository"/>
             <argument type="service" id="Shopware\System\Tax\TaxRepository"/>
-            <argument type="service" id="Shopware\Checkout\Customer\Repository\CustomerAddressRepository"/>
+            <argument type="service" id="Shopware\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository"/>
             <argument type="service" id="Shopware\Checkout\Payment\Repository\PaymentMethodRepository"/>
             <argument type="service" id="Shopware\Checkout\Shipping\Repository\ShippingMethodRepository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>

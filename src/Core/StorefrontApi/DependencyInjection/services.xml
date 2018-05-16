@@ -39,13 +39,13 @@
         <service class="Shopware\StorefrontApi\Controller\ContextController" id="Shopware\StorefrontApi\Controller\ContextController" public="true">
             <argument id="Shopware\Checkout\Payment\Repository\PaymentMethodRepository" type="service"/>
             <argument id="Shopware\Checkout\Shipping\Repository\ShippingMethodRepository" type="service"/>
-            <argument id="Shopware\Checkout\Customer\Repository\CustomerAddressRepository" type="service"/>
+            <argument id="Shopware\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository" type="service"/>
             <argument id="Shopware\StorefrontApi\Context\StorefrontContextPersister" type="service"/>
             <argument type="service" id="serializer"/>
         </service>
 
         <service class="Shopware\StorefrontApi\Firewall\CustomerProvider" id="Shopware\StorefrontApi\Firewall\CustomerProvider">
-            <argument type="service" id="Shopware\Checkout\Customer\Repository\CustomerRepository"/>
+            <argument type="service" id="Shopware\Checkout\Customer\CustomerRepository"/>
         </service>
 
         <service class="Shopware\StorefrontApi\Search\KeywordSearchTermInterpreter" id="Shopware\StorefrontApi\Search\KeywordSearchTermInterpreter">

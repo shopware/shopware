@@ -3,9 +3,9 @@
 namespace Shopware\Storefront\Page\Account;
 
 use Shopware\System\Country\CountryRepository;
-use Shopware\Checkout\Customer\Repository\CustomerAddressRepository;
-use Shopware\Checkout\Customer\Repository\CustomerRepository;
-use Shopware\Checkout\Customer\Struct\CustomerAddressBasicStruct;
+use Shopware\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository;
+use Shopware\Checkout\Customer\CustomerRepository;
+use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
 use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Query\TermQuery;
@@ -24,12 +24,12 @@ class AccountService
     private $countryRepository;
 
     /**
-     * @var CustomerAddressRepository
+     * @var \Shopware\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository
      */
     private $customerAddressRepository;
 
     /**
-     * @var CustomerRepository
+     * @var \Shopware\Checkout\Customer\CustomerRepository
      */
     private $customerRepository;
 

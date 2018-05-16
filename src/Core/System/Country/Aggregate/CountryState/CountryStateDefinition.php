@@ -11,7 +11,7 @@ use Shopware\System\Country\Aggregate\CountryStateTranslation\CountryStateTransl
 use Shopware\System\Country\Aggregate\CountryState\CountryStateRepository;
 use Shopware\System\Country\Aggregate\CountryState\Struct\CountryStateBasicStruct;
 use Shopware\System\Country\Aggregate\CountryState\Struct\CountryStateDetailStruct;
-use Shopware\Checkout\Customer\Definition\CustomerAddressDefinition;
+use Shopware\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\BoolField;

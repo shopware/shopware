@@ -8,7 +8,7 @@ use Shopware\Administration\Search\AdministrationSearch;
 use Shopware\Content\Product\ProductDefinition;
 use Shopware\Content\Product\ProductRepository;
 use Shopware\Content\Product\Struct\ProductBasicStruct;
-use Shopware\System\User\Repository\UserRepository;
+use Shopware\System\User\UserRepository;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\Uuid;

@@ -39,7 +39,7 @@
             <argument type="service" id="Shopware\Checkout\Customer\Repository\CustomerRepository"/>
             <argument type="service" id="Shopware\Checkout\Customer\Repository\CustomerGroupRepository"/>
             <argument type="service" id="Shopware\System\Country\CountryRepository"/>
-            <argument type="service" id="Shopware\System\Tax\Repository\TaxRepository"/>
+            <argument type="service" id="Shopware\System\Tax\TaxRepository"/>
             <argument type="service" id="Shopware\Checkout\Customer\Repository\CustomerAddressRepository"/>
             <argument type="service" id="Shopware\Checkout\Payment\Repository\PaymentMethodRepository"/>
             <argument type="service" id="Shopware\Checkout\Shipping\Repository\ShippingMethodRepository"/>

@@ -21,7 +21,7 @@ use Shopware\Framework\ORM\Write\EntityWriteGatewayInterface;
 use Shopware\Framework\ORM\Write\EntityWriterInterface;
 use Shopware\Framework\ORM\Write\Flag\CascadeDelete;
 use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\System\User\Definition\UserDefinition;
+use Shopware\System\User\UserDefinition;
 use Shopware\Framework\ORM\Version\Collection\VersionCommitBasicCollection;
 use Shopware\Framework\ORM\Version\Definition\VersionCommitDataDefinition;
 use Shopware\Framework\ORM\Version\Definition\VersionCommitDefinition;

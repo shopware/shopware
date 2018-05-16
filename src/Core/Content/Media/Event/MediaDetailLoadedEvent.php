@@ -4,7 +4,7 @@ namespace Shopware\Content\Media\Event;
 
 use Shopware\Content\Media\Collection\MediaDetailCollection;
 use Shopware\Content\Media\Aggregate\MediaAlbum\Event\MediaAlbumBasicLoadedEvent;
-use Shopware\System\User\Event\User\UserBasicLoadedEvent;
+use Shopware\System\User\Event\UserBasicLoadedEvent;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;

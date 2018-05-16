@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\User\Definition;
+namespace Shopware\System\User;
 
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
@@ -23,9 +23,9 @@ use Shopware\System\Locale\LocaleDefinition;
 use Shopware\Content\Media\MediaDefinition;
 use Shopware\System\User\Collection\UserBasicCollection;
 use Shopware\System\User\Collection\UserDetailCollection;
-use Shopware\System\User\Event\User\UserDeletedEvent;
-use Shopware\System\User\Event\User\UserWrittenEvent;
-use Shopware\System\User\Repository\UserRepository;
+use Shopware\System\User\Event\UserDeletedEvent;
+use Shopware\System\User\Event\UserWrittenEvent;
+use Shopware\System\User\UserRepository;
 use Shopware\System\User\Struct\UserBasicStruct;
 use Shopware\System\User\Struct\UserDetailStruct;
 

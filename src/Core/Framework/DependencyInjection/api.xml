@@ -23,7 +23,7 @@
         </service>
 
         <service class="Shopware\Framework\Api\Command\UserCreateCommand" id="Shopware\Framework\Api\Command\UserCreateCommand">
-            <argument id="Shopware\System\User\Repository\UserRepository" type="service"/>
+            <argument id="Shopware\System\User\UserRepository" type="service"/>
             <argument id="security.encoder_factory.generic" type="service"/>
             <tag name="console.command"/>
         </service>
@@ -92,7 +92,7 @@
 
         <service class="Shopware\Framework\Api\Controller\PriceActionController" id="Shopware\Framework\Api\Controller\PriceActionController" public="true">
             <argument type="service" id="serializer"/>
-            <argument type="service" id="Shopware\System\Tax\Repository\TaxRepository"/>
+            <argument type="service" id="Shopware\System\Tax\TaxRepository"/>
             <argument type="service" id="Shopware\Checkout\Cart\Price\NetPriceCalculator"/>
             <argument type="service" id="Shopware\Checkout\Cart\Price\GrossPriceCalculator"/>
         </service>

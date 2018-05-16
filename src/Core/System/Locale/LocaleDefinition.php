@@ -28,7 +28,7 @@ use Shopware\System\Locale\Event\LocaleWrittenEvent;
 use Shopware\System\Locale\LocaleRepository;
 use Shopware\System\Locale\Struct\LocaleBasicStruct;
 use Shopware\System\Locale\Struct\LocaleDetailStruct;
-use Shopware\System\User\Definition\UserDefinition;
+use Shopware\System\User\UserDefinition;
 
 class LocaleDefinition extends EntityDefinition
 {

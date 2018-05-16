@@ -38,7 +38,7 @@ use Shopware\Content\Media\Struct\MediaBasicStruct;
 use Shopware\Content\Media\Struct\MediaDetailStruct;
 use Shopware\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition;
-use Shopware\System\User\Definition\UserDefinition;
+use Shopware\System\User\UserDefinition;
 
 class MediaDefinition extends EntityDefinition
 {

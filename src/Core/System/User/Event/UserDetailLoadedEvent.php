@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\User\Event\User;
+namespace Shopware\System\User\Event;
 
 use Shopware\System\Locale\Event\LocaleBasicLoadedEvent;
 use Shopware\Content\Media\Event\MediaBasicLoadedEvent;

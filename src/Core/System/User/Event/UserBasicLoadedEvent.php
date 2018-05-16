@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\User\Event\User;
+namespace Shopware\System\User\Event;
 
 use Shopware\System\User\Collection\UserBasicCollection;
 use Shopware\Application\Context\Struct\ApplicationContext;

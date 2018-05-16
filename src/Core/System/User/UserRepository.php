@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\User\Repository;
+namespace Shopware\System\User;
 
 use Shopware\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Framework\ORM\RepositoryInterface;
@@ -13,12 +13,12 @@ use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
 use Shopware\System\User\Collection\UserBasicCollection;
 use Shopware\System\User\Collection\UserDetailCollection;
-use Shopware\System\User\Definition\UserDefinition;
-use Shopware\System\User\Event\User\UserAggregationResultLoadedEvent;
-use Shopware\System\User\Event\User\UserBasicLoadedEvent;
-use Shopware\System\User\Event\User\UserDetailLoadedEvent;
-use Shopware\System\User\Event\User\UserIdSearchResultLoadedEvent;
-use Shopware\System\User\Event\User\UserSearchResultLoadedEvent;
+use Shopware\System\User\UserDefinition;
+use Shopware\System\User\Event\UserAggregationResultLoadedEvent;
+use Shopware\System\User\Event\UserBasicLoadedEvent;
+use Shopware\System\User\Event\UserDetailLoadedEvent;
+use Shopware\System\User\Event\UserIdSearchResultLoadedEvent;
+use Shopware\System\User\Event\UserSearchResultLoadedEvent;
 use Shopware\System\User\Struct\UserSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\ORM\Version\Service\VersionManager;

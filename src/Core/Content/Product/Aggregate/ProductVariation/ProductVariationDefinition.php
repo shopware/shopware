@@ -3,7 +3,7 @@
 namespace Shopware\Content\Product\Aggregate\ProductVariation;
 
 use Shopware\Content\Product\ProductDefinition;
-use Shopware\System\Configuration\Definition\ConfigurationGroupOptionDefinition;
+use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
 use Shopware\Framework\ORM\Field\FkField;
 use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Framework\ORM\Field\ReferenceVersionField;

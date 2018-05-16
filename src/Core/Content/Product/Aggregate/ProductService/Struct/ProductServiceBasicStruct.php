@@ -3,7 +3,7 @@
 namespace Shopware\Content\Product\Aggregate\ProductService\Struct;
 
 use Shopware\Content\Product\Struct\PriceStruct;
-use Shopware\System\Configuration\Struct\ConfigurationGroupOptionBasicStruct;
+use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Struct\ConfigurationGroupOptionBasicStruct;
 use Shopware\Application\Context\Collection\ContextPriceCollection;
 use Shopware\Framework\ORM\Entity;
 use Shopware\System\Tax\Struct\TaxBasicStruct;
@@ -40,7 +40,7 @@ class ProductServiceBasicStruct extends Entity
     protected $contextPrices;
 
     /**
-     * @var ConfigurationGroupOptionBasicStruct
+     * @var \Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Struct\ConfigurationGroupOptionBasicStruct
      */
     protected $option;
 
@@ -109,7 +109,8 @@ class ProductServiceBasicStruct extends Entity
         return $this->option;
     }
 
-    public function setOption(ConfigurationGroupOptionBasicStruct $option): void
+    public function setOption(
+        \Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Struct\ConfigurationGroupOptionBasicStruct $option): void
     {
         $this->option = $option;
     }

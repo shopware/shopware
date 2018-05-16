@@ -2,13 +2,13 @@
 
 namespace Shopware\System\Configuration\Struct;
 
-use Shopware\System\Configuration\Collection\ConfigurationGroupOptionBasicCollection;
-use Shopware\System\Configuration\Collection\ConfigurationGroupTranslationBasicCollection;
+use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionBasicCollection;
+use Shopware\System\Configuration\Aggregate\ConfigurationGroupTranslation\Collection\ConfigurationGroupTranslationBasicCollection;
 
 class ConfigurationGroupDetailStruct extends ConfigurationGroupBasicStruct
 {
     /**
-     * @var ConfigurationGroupOptionBasicCollection
+     * @var \Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionBasicCollection
      */
     protected $options;
 

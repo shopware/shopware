@@ -2,8 +2,8 @@
 
 namespace Shopware\Storefront\Subscriber;
 
-use Shopware\System\Configuration\Collection\ConfigurationGroupOptionBasicCollection;
-use Shopware\System\Configuration\Definition\ConfigurationGroupOptionDefinition;
+use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionBasicCollection;
+use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
 use Shopware\System\Configuration\Struct\ConfigurationGroupDetailStruct;
 use Shopware\Framework\ORM\Search\Aggregation\AggregationResult;
 use Shopware\Framework\ORM\Search\Aggregation\EntityAggregation;
@@ -109,7 +109,7 @@ class DatasheetAggregationSubscriber implements EventSubscriberInterface
 
         $actives = $filter ? $filter->get('ids') : [];
 
-        /** @var ConfigurationGroupOptionBasicCollection $values */
+        /** @var \Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionBasicCollection $values */
         $values = $aggregation->getResult();
 
         if (!$values || $values->count() <= 0) {

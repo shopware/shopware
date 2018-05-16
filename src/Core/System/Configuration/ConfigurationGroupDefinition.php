@@ -4,11 +4,11 @@ namespace Shopware\System\Configuration;
 
 use Shopware\System\Configuration\Collection\ConfigurationGroupBasicCollection;
 use Shopware\System\Configuration\Collection\ConfigurationGroupDetailCollection;
-use Shopware\System\Configuration\Definition\ConfigurationGroupOptionDefinition;
-use Shopware\System\Configuration\Definition\ConfigurationGroupTranslationDefinition;
-use Shopware\System\Configuration\Event\ConfigurationGroup\ConfigurationGroupDeletedEvent;
-use Shopware\System\Configuration\Event\ConfigurationGroup\ConfigurationGroupWrittenEvent;
-use Shopware\System\Configuration\Repository\ConfigurationGroupRepository;
+use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
+use Shopware\System\Configuration\Aggregate\ConfigurationGroupTranslation\ConfigurationGroupTranslationDefinition;
+use Shopware\System\Configuration\Event\ConfigurationGroupDeletedEvent;
+use Shopware\System\Configuration\Event\ConfigurationGroupWrittenEvent;
+use Shopware\System\Configuration\ConfigurationGroupRepository;
 use Shopware\System\Configuration\Struct\ConfigurationGroupBasicStruct;
 use Shopware\System\Configuration\Struct\ConfigurationGroupDetailStruct;
 use Shopware\Framework\ORM\EntityDefinition;
@@ -63,7 +63,7 @@ class ConfigurationGroupDefinition extends EntityDefinition
             new IntField('position', 'position'),
             new BoolField('filterable', 'filterable'),
             new BoolField('comparable', 'comparable'),
-            (new OneToManyAssociationField('options', ConfigurationGroupOptionDefinition::class, 'configuration_group_id', false, 'id'))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('options', Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition::class, 'configuration_group_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField('translations', ConfigurationGroupTranslationDefinition::class, 'configuration_group_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
         ]);
 

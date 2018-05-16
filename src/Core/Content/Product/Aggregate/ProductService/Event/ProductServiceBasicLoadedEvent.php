@@ -2,7 +2,7 @@
 
 namespace Shopware\Content\Product\Aggregate\ProductService\Event;
 
-use Shopware\System\Configuration\Event\ConfigurationGroupOption\ConfigurationGroupOptionBasicLoadedEvent;
+use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Event\ConfigurationGroupOptionBasicLoadedEvent;
 use Shopware\Content\Product\Aggregate\ProductService\Collection\ProductServiceBasicCollection;
 use Shopware\System\Tax\Event\TaxBasicLoadedEvent;
 use Shopware\Application\Context\Struct\ApplicationContext;

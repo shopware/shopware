@@ -3,7 +3,7 @@
 namespace Shopware\Content\Product\Struct;
 
 use Shopware\Content\Category\Collection\CategoryBasicCollection;
-use Shopware\System\Configuration\Collection\ConfigurationGroupOptionBasicCollection;
+use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionBasicCollection;
 use Shopware\Content\Product\Collection\ProductBasicCollection;
 use Shopware\Content\Product\Aggregate\ProductConfigurator\Collection\ProductConfiguratorBasicCollection;
 use Shopware\Content\Product\Aggregate\ProductMedia\Collection\ProductMediaBasicCollection;
@@ -60,12 +60,12 @@ class ProductDetailStruct extends ProductBasicStruct
     protected $streams;
 
     /**
-     * @var ConfigurationGroupOptionBasicCollection
+     * @var \Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionBasicCollection
      */
     protected $datasheet;
 
     /**
-     * @var ConfigurationGroupOptionBasicCollection
+     * @var \Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionBasicCollection
      */
     protected $variations;
 

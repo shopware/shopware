@@ -49,7 +49,7 @@
                         </option>
                     {% endif %}
 
-                    {# @var option \Shopware\System\Configuration\Struct\ConfigurationGroupOptionBasicStruct #}
+                    {# @var option \Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Struct\ConfigurationGroupOptionBasicStruct #}
                     {% for option in group.options %}
                         {% set config = page.configurator.byOptionId(option.id) %}
 

@@ -3,7 +3,7 @@
 namespace Shopware\Content\Product\Aggregate\ProductConfigurator\Struct;
 
 use Shopware\Content\Product\Struct\PriceStruct;
-use Shopware\System\Configuration\Struct\ConfigurationGroupOptionBasicStruct;
+use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Struct\ConfigurationGroupOptionBasicStruct;
 use Shopware\Framework\ORM\Entity;
 
 class ProductConfiguratorBasicStruct extends Entity
@@ -29,7 +29,7 @@ class ProductConfiguratorBasicStruct extends Entity
     protected $prices;
 
     /**
-     * @var ConfigurationGroupOptionBasicStruct
+     * @var \Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Struct\ConfigurationGroupOptionBasicStruct
      */
     protected $option;
 
@@ -78,12 +78,13 @@ class ProductConfiguratorBasicStruct extends Entity
         $this->prices = $prices;
     }
 
-    public function getOption(): ConfigurationGroupOptionBasicStruct
+    public function getOption(): \Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Struct\ConfigurationGroupOptionBasicStruct
     {
         return $this->option;
     }
 
-    public function setOption(ConfigurationGroupOptionBasicStruct $option): void
+    public function setOption(
+        \Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Struct\ConfigurationGroupOptionBasicStruct $option): void
     {
         $this->option = $option;
     }

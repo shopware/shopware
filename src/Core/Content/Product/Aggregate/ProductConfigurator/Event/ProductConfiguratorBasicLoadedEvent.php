@@ -2,7 +2,7 @@
 
 namespace Shopware\Content\Product\Aggregate\ProductConfigurator\Event;
 
-use Shopware\System\Configuration\Event\ConfigurationGroupOption\ConfigurationGroupOptionBasicLoadedEvent;
+use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Event\ConfigurationGroupOptionBasicLoadedEvent;
 use Shopware\Content\Product\Aggregate\ProductConfigurator\Collection\ProductConfiguratorBasicCollection;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;

@@ -18,7 +18,7 @@ use Shopware\Content\Product\Aggregate\ProductStream\ProductStreamDefinition;
 use Shopware\Content\Product\Aggregate\ProductStreamTab\ProductStreamTabDefinition;
 use Shopware\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Content\Product\Aggregate\ProductVariation\ProductVariationDefinition;
-use Shopware\System\Configuration\Definition\ConfigurationGroupOptionDefinition;
+use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\BoolField;

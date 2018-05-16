@@ -5,7 +5,7 @@ namespace Shopware\Content\Product;
 use Shopware\Content\Product\Struct\StorefrontProductBasicInterface;
 use Shopware\Content\Product\Struct\StorefrontProductBasicStruct;
 use Shopware\Content\Product\Struct\StorefrontProductDetailStruct;
-use Shopware\System\Configuration\Struct\ConfigurationGroupOptionBasicStruct;
+use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Struct\ConfigurationGroupOptionBasicStruct;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\IdSearchResult;
 use Shopware\Content\Product\Collection\ProductBasicCollection;

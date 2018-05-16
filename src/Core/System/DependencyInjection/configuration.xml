@@ -6,16 +6,16 @@
 
     <services>
         <!-- Versioning -->
-        <service alias="Shopware\System\Configuration\Repository\ConfigurationGroupRepository.v1" id="Shopware\System\Configuration\Repository\ConfigurationGroupRepository" public="true" />
-        <service alias="Shopware\System\Configuration\Repository\ConfigurationGroupOptionRepository.v1" id="Shopware\System\Configuration\Repository\ConfigurationGroupOptionRepository" public="true" />
-        <service alias="Shopware\System\Configuration\Repository\ConfigurationGroupOptionTranslationRepository.v1" id="Shopware\System\Configuration\Repository\ConfigurationGroupOptionTranslationRepository" public="true" />
-        <service alias="Shopware\System\Configuration\Repository\ConfigurationGroupTranslationRepository.v1" id="Shopware\System\Configuration\Repository\ConfigurationGroupTranslationRepository" public="true" />
+        <service alias="Shopware\System\Configuration\ConfigurationGroupRepository.v1" id="Shopware\System\Configuration\ConfigurationGroupRepository" public="true" />
+        <service alias="Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionRepository.v1" id="Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionRepository" public="true" />
+        <service alias="Shopware\System\Configuration\Aggregate\ConfigurationGroupOptionTranslation\ConfigurationGroupOptionTranslationRepository.v1" id="Shopware\System\Configuration\Aggregate\ConfigurationGroupOptionTranslation\ConfigurationGroupOptionTranslationRepository" public="true" />
+        <service alias="Shopware\System\Configuration\Aggregate\ConfigurationGroupTranslation\ConfigurationGroupTranslationRepository.v1" id="Shopware\System\Configuration\Aggregate\ConfigurationGroupTranslation\ConfigurationGroupTranslationRepository" public="true" />
 
          <service class="Shopware\System\Configuration\ConfigurationGroupDefinition" id="Shopware\System\Configuration\ConfigurationGroupDefinition" >
             <tag name="shopware.entity.definition" entity="configuration_group" />
         </service>
 
-        <service class="Shopware\System\Configuration\Repository\ConfigurationGroupRepository" id="Shopware\System\Configuration\Repository\ConfigurationGroupRepository.v1" public="true">
+        <service class="Shopware\System\Configuration\ConfigurationGroupRepository" id="Shopware\System\Configuration\ConfigurationGroupRepository.v1" public="true">
           <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
           <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
@@ -23,11 +23,11 @@
           <argument id="event_dispatcher" type="service"/>
         </service>
 
-         <service class="Shopware\System\Configuration\Definition\ConfigurationGroupOptionDefinition" id="Shopware\System\Configuration\Definition\ConfigurationGroupOptionDefinition" >
+         <service class="Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition" id="Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition" >
             <tag name="shopware.entity.definition" entity="configuration_group_option" />
         </service>
 
-        <service class="Shopware\System\Configuration\Repository\ConfigurationGroupOptionRepository" id="Shopware\System\Configuration\Repository\ConfigurationGroupOptionRepository.v1" public="true">
+        <service class="Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionRepository" id="Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionRepository.v1" public="true">
           <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
           <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
@@ -35,11 +35,11 @@
           <argument id="event_dispatcher" type="service"/>
         </service>
 
-         <service class="Shopware\System\Configuration\Definition\ConfigurationGroupOptionTranslationDefinition" id="Shopware\System\Configuration\Definition\ConfigurationGroupOptionTranslationDefinition" >
+         <service class="Shopware\System\Configuration\Aggregate\ConfigurationGroupOptionTranslation\ConfigurationGroupOptionTranslationDefinition" id="Shopware\System\Configuration\Aggregate\ConfigurationGroupOptionTranslation\ConfigurationGroupOptionTranslationDefinition" >
             <tag name="shopware.entity.definition" entity="configuration_group_option_translation" />
         </service>
 
-        <service class="Shopware\System\Configuration\Repository\ConfigurationGroupOptionTranslationRepository" id="Shopware\System\Configuration\Repository\ConfigurationGroupOptionTranslationRepository.v1" public="true">
+        <service class="Shopware\System\Configuration\Aggregate\ConfigurationGroupOptionTranslation\ConfigurationGroupOptionTranslationRepository" id="Shopware\System\Configuration\Aggregate\ConfigurationGroupOptionTranslation\ConfigurationGroupOptionTranslationRepository.v1" public="true">
           <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
           <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
@@ -47,11 +47,11 @@
           <argument id="event_dispatcher" type="service"/>
         </service>
 
-         <service class="Shopware\System\Configuration\Definition\ConfigurationGroupTranslationDefinition" id="Shopware\System\Configuration\Definition\ConfigurationGroupTranslationDefinition" >
+         <service class="Shopware\System\Configuration\Aggregate\ConfigurationGroupTranslation\ConfigurationGroupTranslationDefinition" id="Shopware\System\Configuration\Aggregate\ConfigurationGroupTranslation\ConfigurationGroupTranslationDefinition" >
             <tag name="shopware.entity.definition" entity="configuration_group_translation" />
         </service>
 
-        <service class="Shopware\System\Configuration\Repository\ConfigurationGroupTranslationRepository" id="Shopware\System\Configuration\Repository\ConfigurationGroupTranslationRepository.v1" public="true">
+        <service class="Shopware\System\Configuration\Aggregate\ConfigurationGroupTranslation\ConfigurationGroupTranslationRepository" id="Shopware\System\Configuration\Aggregate\ConfigurationGroupTranslation\ConfigurationGroupTranslationRepository.v1" public="true">
           <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
           <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>

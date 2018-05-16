@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\StorefrontApi\Firewall;
+namespace Shopware\Framework\Routing\Firewall;
 
 use Shopware\Framework\Struct\Uuid;
 use Symfony\Component\Security\Core\User\UserInterface;

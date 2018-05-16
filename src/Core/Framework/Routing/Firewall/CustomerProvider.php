@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\StorefrontApi\Firewall;
+namespace Shopware\Framework\Routing\Firewall;
 
 use Shopware\Checkout\Customer\CustomerRepository;
 use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;

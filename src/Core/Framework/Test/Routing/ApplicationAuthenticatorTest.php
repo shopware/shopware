@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\StorefrontApi\Test\Firewall;
+namespace Shopware\Framework\Test\Routing;
 
 use Shopware\Framework\Test\Api\ApiTestCase;
 

@@ -12,8 +12,8 @@ use Symfony\Component\Serializer\Serializer;
 use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\PlatformRequest;
 use Shopware\Application\Context\Util\StorefrontContextPersister;
-use Shopware\StorefrontApi\Firewall\ContextUser;
-use Shopware\StorefrontApi\Firewall\CustomerProvider;
+use Shopware\Framework\Routing\Firewall\ContextUser;
+use Shopware\Framework\Routing\Firewall\CustomerProvider;
 
 class StorefrontCustomerController extends Controller
 {

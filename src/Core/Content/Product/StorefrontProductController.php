@@ -13,7 +13,7 @@ use Shopware\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Framework\ORM\Search\SearchCriteriaBuilder;
 use Shopware\Framework\Api\Context\RestContext;
 use Shopware\Framework\Api\Response\ResponseFactory;
-use Shopware\StorefrontApi\Firewall\ContextUser;
+use Shopware\Framework\Routing\Firewall\ContextUser;
 
 
 class StorefrontProductController extends Controller

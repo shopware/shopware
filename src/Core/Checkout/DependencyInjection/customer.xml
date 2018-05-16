@@ -85,7 +85,7 @@
         <service class="Shopware\Checkout\Customer\StorefrontCustomerController" id="Shopware\Checkout\Customer\StorefrontCustomerController" public="true">
             <argument id="serializer" type="service"/>
             <argument type="service" id="Shopware\Application\Context\Util\StorefrontContextPersister"/>
-            <argument type="service" id="Shopware\StorefrontApi\Firewall\CustomerProvider"/>
+            <argument type="service" id="Shopware\Framework\Routing\Firewall\CustomerProvider"/>
         </service>
 
     </services>

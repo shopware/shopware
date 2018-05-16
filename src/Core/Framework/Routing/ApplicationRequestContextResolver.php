@@ -5,7 +5,7 @@ namespace Shopware\Framework\Routing;
 use Shopware\Framework\Struct\Uuid;
 use Shopware\PlatformRequest;
 use Shopware\Application\Context\Util\StorefrontContextService;
-use Shopware\StorefrontApi\Firewall\Application;
+use Shopware\Framework\Routing\Firewall\Application;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
@@ -43,7 +43,7 @@ class ApplicationRequestContextResolver implements RequestContextResolverInterfa
 
             return;
         }
-        /** @var Application $application */
+        /** @var \Shopware\Framework\Routing\Firewall\Application $application */
         $application = $this->tokenStorage->getToken()->getUser();
 
         if (!$application instanceof Application) {

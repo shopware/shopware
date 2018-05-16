@@ -1,0 +1,68 @@
+paths:
+  - ./src/Core/
+exclude_files:
+  - .*test.*
+  - .*Definition.php
+  - .*Event.php
+
+layers:
+  - name: Application
+    collectors:
+      - type: bool
+        must:
+          - type: className
+            regex: Shopware\\Application\\
+        must_not:
+          - type: className
+            regex: Shopware\\Application\\Context\\Struct\\ApplicationContext
+          - type: className
+            regex: Shopware\\Application\\Context\\Struct\\StorefrontContext
+          - type: className
+            regex: Shopware\\Application\\Language\\Struct\\LanguageBasicStruct
+    collectors:
+      - type: className
+        regex: Shopware\\Application\\
+  - name: Checkout
+    collectors:
+      - type: className
+        regex: Shopware\\Checkout\\
+  - name: Content
+    collectors:
+      - type: className
+        regex: Shopware\\Content\\
+  - name: Framework
+    collectors:
+      - type: className
+        regex: Shopware\\Framework\\
+  - name: Profiling
+    collectors:
+      - type: className
+        regex: Shopware\\Profiling\\
+  - name: System
+    collectors:
+      - type: className
+        regex: Shopware\\System\\
+ruleset:
+  Application:
+    - Framework
+    - Content
+    - Checkout
+  Checkout:
+    - Framework
+    - Content # todo change this
+    - System
+  Content:
+    - Framework
+    - Checkout # todo change this
+    - System
+  Framework:
+  Profiling:
+    - Framework
+    - Application
+    - Checkout
+    - Content
+    - Framework
+    - Profiling
+    - System
+  System:
+    - Framework

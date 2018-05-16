@@ -9,7 +9,7 @@ use Shopware\Application\Application\Event\Application\ApplicationWrittenEvent;
 use Shopware\Application\Application\Repository\ApplicationRepository;
 use Shopware\Application\Application\Struct\ApplicationBasicStruct;
 use Shopware\Application\Application\Struct\ApplicationDetailStruct;
-use Shopware\System\Country\Definition\CountryDefinition;
+use Shopware\System\Country\CountryDefinition;
 use Shopware\System\Currency\Definition\CurrencyDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
@@ -67,8 +67,8 @@ class ApplicationDefinition extends EntityDefinition
             new ReferenceVersionField(PaymentMethodDefinition::class),
             (new FkField('shipping_method_id', 'shippingMethodId', ShippingMethodDefinition::class))->setFlags(new Required()),
             new ReferenceVersionField(ShippingMethodDefinition::class),
-            (new FkField('country_id', 'countryId', CountryDefinition::class))->setFlags(new Required()),
-            new ReferenceVersionField(CountryDefinition::class),
+            (new FkField('country_id', 'countryId', \Shopware\System\Country\CountryDefinition::class))->setFlags(new Required()),
+            new ReferenceVersionField(\Shopware\System\Country\CountryDefinition::class),
             (new StringField('type', 'type'))->setFlags(new Required()),
             (new StringField('name', 'name'))->setFlags(new Required()),
             (new StringField('access_key', 'accessKey'))->setFlags(new Required()),
@@ -85,7 +85,7 @@ class ApplicationDefinition extends EntityDefinition
             new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, true),
             new ManyToOneAssociationField('paymentMethod', 'payment_method_id', PaymentMethodDefinition::class, false),
             new ManyToOneAssociationField('shippingMethod', 'shipping_method_id', ShippingMethodDefinition::class, false),
-            new ManyToOneAssociationField('country', 'country_id', CountryDefinition::class, false),
+            new ManyToOneAssociationField('country', 'country_id', \Shopware\System\Country\CountryDefinition::class, false),
         ]);
 
         foreach (self::$extensions as $extension) {

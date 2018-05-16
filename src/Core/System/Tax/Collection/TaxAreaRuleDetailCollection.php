@@ -2,9 +2,9 @@
 
 namespace Shopware\System\Tax\Collection;
 
-use Shopware\System\Country\Collection\CountryAreaBasicCollection;
+use Shopware\System\Country\Aggregate\CountryArea\Collection\CountryAreaBasicCollection;
 use Shopware\System\Country\Collection\CountryBasicCollection;
-use Shopware\System\Country\Collection\CountryStateBasicCollection;
+use Shopware\System\Country\Aggregate\CountryState\Collection\CountryStateBasicCollection;
 use Shopware\Checkout\Customer\Collection\CustomerGroupBasicCollection;
 use Shopware\System\Tax\Struct\TaxAreaRuleDetailStruct;
 
@@ -17,7 +17,7 @@ class TaxAreaRuleDetailCollection extends TaxAreaRuleBasicCollection
 
     public function getCountryAreas(): CountryAreaBasicCollection
     {
-        return new CountryAreaBasicCollection(
+        return new \Shopware\System\Country\Aggregate\CountryArea\Collection\CountryAreaBasicCollection(
             $this->fmap(function (TaxAreaRuleDetailStruct $taxAreaRule) {
                 return $taxAreaRule->getCountryArea();
             })
@@ -33,9 +33,9 @@ class TaxAreaRuleDetailCollection extends TaxAreaRuleBasicCollection
         );
     }
 
-    public function getCountryStates(): CountryStateBasicCollection
+    public function getCountryStates(): \Shopware\System\Country\Aggregate\CountryState\Collection\CountryStateBasicCollection
     {
-        return new CountryStateBasicCollection(
+        return new \Shopware\System\Country\Aggregate\CountryState\Collection\CountryStateBasicCollection(
             $this->fmap(function (TaxAreaRuleDetailStruct $taxAreaRule) {
                 return $taxAreaRule->getCountryState();
             })

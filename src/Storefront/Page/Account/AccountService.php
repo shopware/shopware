@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Page\Account;
 
-use Shopware\System\Country\Repository\CountryRepository;
+use Shopware\System\Country\CountryRepository;
 use Shopware\Checkout\Customer\Repository\CustomerAddressRepository;
 use Shopware\Checkout\Customer\Repository\CustomerRepository;
 use Shopware\Checkout\Customer\Struct\CustomerAddressBasicStruct;
@@ -19,7 +19,7 @@ use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 class AccountService
 {
     /**
-     * @var CountryRepository
+     * @var \Shopware\System\Country\CountryRepository
      */
     private $countryRepository;
 

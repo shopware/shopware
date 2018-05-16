@@ -38,13 +38,13 @@
             <argument type="service" id="Shopware\System\Currency\Repository\CurrencyRepository"/>
             <argument type="service" id="Shopware\Checkout\Customer\Repository\CustomerRepository"/>
             <argument type="service" id="Shopware\Checkout\Customer\Repository\CustomerGroupRepository"/>
-            <argument type="service" id="Shopware\System\Country\Repository\CountryRepository"/>
+            <argument type="service" id="Shopware\System\Country\CountryRepository"/>
             <argument type="service" id="Shopware\System\Tax\Repository\TaxRepository"/>
             <argument type="service" id="Shopware\Checkout\Customer\Repository\CustomerAddressRepository"/>
             <argument type="service" id="Shopware\Checkout\Payment\Repository\PaymentMethodRepository"/>
             <argument type="service" id="Shopware\Checkout\Shipping\Repository\ShippingMethodRepository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="Shopware\System\Country\Repository\CountryStateRepository"/>
+            <argument type="service" id="Shopware\System\Country\Aggregate\CountryState\CountryStateRepository.v1"/>
             <argument type="service" id="Shopware\Application\Language\Repository\LanguageRepository"/>
             <argument type="service" id="Shopware\Checkout\Cart\Tax\TaxDetector"/>
         </service>

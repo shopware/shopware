@@ -86,7 +86,7 @@
         </service>
 
         <service class="Shopware\Storefront\Page\Account\AccountService" id="Shopware\Storefront\Page\Account\AccountService">
-            <argument id="Shopware\System\Country\Repository\CountryRepository" type="service"/>
+            <argument id="Shopware\System\Country\CountryRepository" type="service"/>
             <argument id="Shopware\Checkout\Customer\Repository\CustomerAddressRepository" type="service"/>
             <argument id="Shopware\Checkout\Customer\Repository\CustomerRepository" type="service"/>
         </service>

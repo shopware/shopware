@@ -2,8 +2,8 @@
 
 namespace Shopware\Checkout\Order\Event\OrderAddress;
 
-use Shopware\System\Country\Event\Country\CountryBasicLoadedEvent;
-use Shopware\System\Country\Event\CountryState\CountryStateBasicLoadedEvent;
+use Shopware\System\Country\Event\CountryBasicLoadedEvent;
+use Shopware\System\Country\Aggregate\CountryState\Event\CountryStateBasicLoadedEvent;
 use Shopware\Checkout\Order\Collection\OrderAddressBasicCollection;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;

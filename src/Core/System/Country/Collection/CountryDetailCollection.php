@@ -2,6 +2,9 @@
 
 namespace Shopware\System\Country\Collection;
 
+use Shopware\System\Country\Aggregate\CountryArea\Collection\CountryAreaBasicCollection;
+use Shopware\System\Country\Aggregate\CountryState\Collection\CountryStateBasicCollection;
+use Shopware\System\Country\Aggregate\CountryTranslation\Collection\CountryTranslationBasicCollection;
 use Shopware\System\Country\Struct\CountryDetailStruct;
 
 class CountryDetailCollection extends CountryBasicCollection

@@ -2,8 +2,9 @@
 
 namespace Shopware\System\Country\Struct;
 
-use Shopware\System\Country\Collection\CountryStateBasicCollection;
-use Shopware\System\Country\Collection\CountryTranslationBasicCollection;
+use Shopware\System\Country\Aggregate\CountryArea\Struct\CountryAreaBasicStruct;
+use Shopware\System\Country\Aggregate\CountryState\Collection\CountryStateBasicCollection;
+use Shopware\System\Country\Aggregate\CountryTranslation\Collection\CountryTranslationBasicCollection;
 
 class CountryDetailStruct extends CountryBasicStruct
 {
@@ -13,12 +14,12 @@ class CountryDetailStruct extends CountryBasicStruct
     protected $area;
 
     /**
-     * @var CountryStateBasicCollection
+     * @var \Shopware\System\Country\Aggregate\CountryState\Collection\CountryStateBasicCollection
      */
     protected $states;
 
     /**
-     * @var CountryTranslationBasicCollection
+     * @var \Shopware\System\Country\Aggregate\CountryTranslation\Collection\CountryTranslationBasicCollection
      */
     protected $translations;
 

@@ -3,9 +3,9 @@
 namespace Shopware\System\Test\Country\Repository;
 
 use Doctrine\DBAL\Connection;
-use Shopware\System\Country\Definition\CountryStateDefinition;
-use Shopware\System\Country\Repository\CountryRepository;
-use Shopware\System\Country\Repository\CountryStateRepository;
+use Shopware\System\Country\Aggregate\CountryState\CountryStateDefinition;
+use Shopware\System\Country\CountryRepository;
+use Shopware\System\Country\Aggregate\CountryState\CountryStateRepository;
 use Shopware\Framework\ORM\RepositoryInterface;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Term\EntityScoreQueryBuilder;
@@ -52,7 +52,7 @@ class CountryStateRepositoryTest extends KernelTestCase
     {
         $country = Uuid::uuid4()->getHex();
 
-        $this->container->get(CountryRepository::class)->create([
+        $this->container->get(\Shopware\System\Country\CountryRepository::class)->create([
             ['id' => $country, 'name' => 'test'],
         ], ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
 

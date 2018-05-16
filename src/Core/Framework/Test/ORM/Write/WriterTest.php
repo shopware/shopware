@@ -3,7 +3,7 @@
 namespace Shopware\Framework\Test\ORM\Write;
 
 use Doctrine\DBAL\Connection;
-use Shopware\System\Country\Definition\CountryAreaDefinition;
+use Shopware\System\Country\Aggregate\CountryArea\CountryAreaDefinition;
 use Shopware\Framework\ORM\Write\EntityWriter;
 use Shopware\Framework\ORM\Write\EntityWriterInterface;
 use Shopware\Framework\ORM\Write\FieldException\WriteStackException;

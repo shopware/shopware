@@ -2,8 +2,8 @@
 
 namespace Shopware\Checkout\Customer\Definition;
 
-use Shopware\System\Country\Definition\CountryDefinition;
-use Shopware\System\Country\Definition\CountryStateDefinition;
+use Shopware\System\Country\CountryDefinition;
+use Shopware\System\Country\Aggregate\CountryState\CountryStateDefinition;
 use Shopware\Checkout\Customer\Collection\CustomerAddressBasicCollection;
 use Shopware\Checkout\Customer\Collection\CustomerAddressDetailCollection;
 use Shopware\Checkout\Customer\Event\CustomerAddress\CustomerAddressDeletedEvent;
@@ -62,10 +62,10 @@ class CustomerAddressDefinition extends EntityDefinition
             (new FkField('customer_id', 'customerId', CustomerDefinition::class))->setFlags(new Required()),
             (new ReferenceVersionField(CustomerDefinition::class))->setFlags(new Required()),
 
-            (new FkField('country_id', 'countryId', CountryDefinition::class))->setFlags(new Required()),
-            (new ReferenceVersionField(CountryDefinition::class))->setFlags(new Required()),
+            (new FkField('country_id', 'countryId', \Shopware\System\Country\CountryDefinition::class))->setFlags(new Required()),
+            (new ReferenceVersionField(\Shopware\System\Country\CountryDefinition::class))->setFlags(new Required()),
 
-            new FkField('country_state_id', 'countryStateId', CountryStateDefinition::class),
+            new FkField('country_state_id', 'countryStateId', \Shopware\System\Country\Aggregate\CountryState\CountryStateDefinition::class),
             new ReferenceVersionField(CountryStateDefinition::class),
 
             (new StringField('salutation', 'salutation'))->setFlags(new Required()),

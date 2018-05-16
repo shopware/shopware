@@ -3,7 +3,7 @@
 namespace Shopware\Checkout\Customer\Collection;
 
 use Shopware\System\Country\Collection\CountryBasicCollection;
-use Shopware\System\Country\Collection\CountryStateBasicCollection;
+use Shopware\System\Country\Aggregate\CountryState\Collection\CountryStateBasicCollection;
 use Shopware\Checkout\Customer\Struct\CustomerAddressBasicStruct;
 use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
 use Shopware\Framework\ORM\EntityCollection;
@@ -90,7 +90,7 @@ class CustomerAddressBasicCollection extends EntityCollection
         );
     }
 
-    public function getCountryStates(): CountryStateBasicCollection
+    public function getCountryStates(): \Shopware\System\Country\Aggregate\CountryState\Collection\CountryStateBasicCollection
     {
         return new CountryStateBasicCollection(
             $this->fmap(function (CustomerAddressBasicStruct $customerAddress) {

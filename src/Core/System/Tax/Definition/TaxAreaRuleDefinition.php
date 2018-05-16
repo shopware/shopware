@@ -2,9 +2,9 @@
 
 namespace Shopware\System\Tax\Definition;
 
-use Shopware\System\Country\Definition\CountryAreaDefinition;
-use Shopware\System\Country\Definition\CountryDefinition;
-use Shopware\System\Country\Definition\CountryStateDefinition;
+use Shopware\System\Country\Aggregate\CountryArea\CountryAreaDefinition;
+use Shopware\System\Country\CountryDefinition;
+use Shopware\System\Country\Aggregate\CountryState\CountryStateDefinition;
 use Shopware\Checkout\Customer\Definition\CustomerGroupDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
@@ -69,11 +69,11 @@ class TaxAreaRuleDefinition extends EntityDefinition
             (new FkField('tax_id', 'taxId', TaxDefinition::class))->setFlags(new Required()),
             (new ReferenceVersionField(TaxDefinition::class))->setFlags(new Required()),
 
-            new FkField('country_area_id', 'countryAreaId', CountryAreaDefinition::class),
-            new ReferenceVersionField(CountryAreaDefinition::class),
+            new FkField('country_area_id', 'countryAreaId', \Shopware\System\Country\Aggregate\CountryArea\CountryAreaDefinition::class),
+            new ReferenceVersionField(\Shopware\System\Country\Aggregate\CountryArea\CountryAreaDefinition::class),
 
             new FkField('country_id', 'countryId', CountryDefinition::class),
-            new ReferenceVersionField(CountryDefinition::class),
+            new ReferenceVersionField(\Shopware\System\Country\CountryDefinition::class),
 
             new FkField('country_state_id', 'countryStateId', CountryStateDefinition::class),
             new ReferenceVersionField(CountryStateDefinition::class),
@@ -86,8 +86,8 @@ class TaxAreaRuleDefinition extends EntityDefinition
             new BoolField('active', 'active'),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            new ManyToOneAssociationField('countryArea', 'country_area_id', CountryAreaDefinition::class, false),
-            new ManyToOneAssociationField('country', 'country_id', CountryDefinition::class, false),
+            new ManyToOneAssociationField('countryArea', 'country_area_id', \Shopware\System\Country\Aggregate\CountryArea\CountryAreaDefinition::class, false),
+            new ManyToOneAssociationField('country', 'country_id', \Shopware\System\Country\CountryDefinition::class, false),
             new ManyToOneAssociationField('countryState', 'country_state_id', CountryStateDefinition::class, false),
             new ManyToOneAssociationField('tax', 'tax_id', TaxDefinition::class, false),
             new ManyToOneAssociationField('customerGroup', 'customer_group_id', CustomerGroupDefinition::class, false),

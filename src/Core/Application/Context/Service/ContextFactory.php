@@ -27,8 +27,8 @@ namespace Shopware\Application\Context\Service;
 use Doctrine\DBAL\Connection;
 use Shopware\Application\Application\Repository\ApplicationRepository;
 use Shopware\Application\Application\Struct\ApplicationBasicStruct;
-use Shopware\System\Country\Repository\CountryRepository;
-use Shopware\System\Country\Repository\CountryStateRepository;
+use Shopware\System\Country\CountryRepository;
+use Shopware\System\Country\Aggregate\CountryState\CountryStateRepository;
 use Shopware\System\Currency\Repository\CurrencyRepository;
 use Shopware\Checkout\Customer\Repository\CustomerAddressRepository;
 use Shopware\Checkout\Customer\Repository\CustomerGroupRepository;
@@ -73,7 +73,7 @@ class ContextFactory implements ContextFactoryInterface
     private $customerGroupRepository;
 
     /**
-     * @var CountryRepository
+     * @var \Shopware\System\Country\CountryRepository
      */
     private $countryRepository;
 
@@ -103,7 +103,7 @@ class ContextFactory implements ContextFactoryInterface
     private $connection;
 
     /**
-     * @var CountryStateRepository
+     * @var \Shopware\System\Country\Aggregate\CountryState\CountryStateRepository
      */
     private $countryStateRepository;
 

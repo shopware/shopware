@@ -2,9 +2,9 @@
 
 namespace Shopware\System\Tax\Struct;
 
-use Shopware\System\Country\Struct\CountryAreaBasicStruct;
+use Shopware\System\Country\Aggregate\CountryArea\Struct\CountryAreaBasicStruct;
 use Shopware\System\Country\Struct\CountryBasicStruct;
-use Shopware\System\Country\Struct\CountryStateBasicStruct;
+use Shopware\System\Country\Aggregate\CountryState\Struct\CountryStateBasicStruct;
 use Shopware\Checkout\Customer\Struct\CustomerGroupBasicStruct;
 use Shopware\System\Tax\Collection\TaxAreaRuleTranslationBasicCollection;
 
@@ -65,12 +65,12 @@ class TaxAreaRuleDetailStruct extends TaxAreaRuleBasicStruct
         $this->country = $country;
     }
 
-    public function getCountryState(): ?CountryStateBasicStruct
+    public function getCountryState(): ?\Shopware\System\Country\Aggregate\CountryState\Struct\CountryStateBasicStruct
     {
         return $this->countryState;
     }
 
-    public function setCountryState(?CountryStateBasicStruct $countryState): void
+    public function setCountryState(?\Shopware\System\Country\Aggregate\CountryState\Struct\CountryStateBasicStruct $countryState): void
     {
         $this->countryState = $countryState;
     }

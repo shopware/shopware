@@ -3,7 +3,7 @@
 namespace Shopware\Application\Application\Event\Application;
 
 use Shopware\Application\Application\Collection\ApplicationDetailCollection;
-use Shopware\System\Country\Event\Country\CountryBasicLoadedEvent;
+use Shopware\System\Country\Event\CountryBasicLoadedEvent;
 use Shopware\Checkout\Payment\Event\PaymentMethod\PaymentMethodBasicLoadedEvent;
 use Shopware\Checkout\Shipping\Event\ShippingMethod\ShippingMethodBasicLoadedEvent;
 use Shopware\Application\Context\Struct\ApplicationContext;

@@ -2,8 +2,8 @@
 
 namespace Shopware\Checkout\Order\Definition;
 
-use Shopware\System\Country\Definition\CountryDefinition;
-use Shopware\System\Country\Definition\CountryStateDefinition;
+use Shopware\System\Country\CountryDefinition;
+use Shopware\System\Country\Aggregate\CountryState\CountryStateDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\DateField;
@@ -61,11 +61,11 @@ class OrderAddressDefinition extends EntityDefinition
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
 
-            (new FkField('country_id', 'countryId', CountryDefinition::class))->setFlags(new Required()),
-            (new ReferenceVersionField(CountryDefinition::class))->setFlags(new Required()),
+            (new FkField('country_id', 'countryId', \Shopware\System\Country\CountryDefinition::class))->setFlags(new Required()),
+            (new ReferenceVersionField(\Shopware\System\Country\CountryDefinition::class))->setFlags(new Required()),
 
-            new FkField('country_state_id', 'countryStateId', CountryStateDefinition::class),
-            new ReferenceVersionField(CountryStateDefinition::class),
+            new FkField('country_state_id', 'countryStateId', \Shopware\System\Country\Aggregate\CountryState\CountryStateDefinition::class),
+            new ReferenceVersionField(\Shopware\System\Country\Aggregate\CountryState\CountryStateDefinition::class),
 
             (new StringField('salutation', 'salutation'))->setFlags(new Required()),
             (new StringField('first_name', 'firstName'))->setFlags(new Required(), new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
@@ -82,8 +82,8 @@ class OrderAddressDefinition extends EntityDefinition
             (new StringField('additional_address_line2', 'additionalAddressLine2'))->setFlags(new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            (new ManyToOneAssociationField('country', 'country_id', CountryDefinition::class, true))->setFlags(new SearchRanking(self::ASSOCIATION_SEARCH_RANKING)),
-            (new ManyToOneAssociationField('countryState', 'country_state_id', CountryStateDefinition::class, true))->setFlags(new SearchRanking(self::ASSOCIATION_SEARCH_RANKING)),
+            (new ManyToOneAssociationField('country', 'country_id', \Shopware\System\Country\CountryDefinition::class, true))->setFlags(new SearchRanking(self::ASSOCIATION_SEARCH_RANKING)),
+            (new ManyToOneAssociationField('countryState', 'country_state_id', \Shopware\System\Country\Aggregate\CountryState\CountryStateDefinition::class, true))->setFlags(new SearchRanking(self::ASSOCIATION_SEARCH_RANKING)),
             (new OneToManyAssociationField('orders', OrderDefinition::class, 'billing_address_id', false, 'id'))->setFlags(new RestrictDelete()),
             (new OneToManyAssociationField('orderDeliveries', OrderDeliveryDefinition::class, 'shipping_address_id', false, 'id'))->setFlags(new RestrictDelete()),
         ]);

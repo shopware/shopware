@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Locale\Repository;
+namespace Shopware\System\Locale\Aggregate\LocaleTranslation;
 
 use Shopware\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Framework\ORM\RepositoryInterface;
@@ -11,15 +11,15 @@ use Shopware\Framework\ORM\Search\EntitySearcherInterface;
 use Shopware\Framework\ORM\Search\IdSearchResult;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\System\Locale\Collection\LocaleTranslationBasicCollection;
-use Shopware\System\Locale\Collection\LocaleTranslationDetailCollection;
-use Shopware\System\Locale\Definition\LocaleTranslationDefinition;
-use Shopware\System\Locale\Event\LocaleTranslation\LocaleTranslationAggregationResultLoadedEvent;
-use Shopware\System\Locale\Event\LocaleTranslation\LocaleTranslationBasicLoadedEvent;
-use Shopware\System\Locale\Event\LocaleTranslation\LocaleTranslationDetailLoadedEvent;
-use Shopware\System\Locale\Event\LocaleTranslation\LocaleTranslationIdSearchResultLoadedEvent;
-use Shopware\System\Locale\Event\LocaleTranslation\LocaleTranslationSearchResultLoadedEvent;
-use Shopware\System\Locale\Struct\LocaleTranslationSearchResult;
+use Shopware\System\Locale\Aggregate\LocaleTranslation\Collection\LocaleTranslationBasicCollection;
+use Shopware\System\Locale\Aggregate\LocaleTranslation\Collection\LocaleTranslationDetailCollection;
+use Shopware\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationDefinition;
+use Shopware\System\Locale\Aggregate\LocaleTranslation\Event\LocaleTranslationAggregationResultLoadedEvent;
+use Shopware\System\Locale\Aggregate\LocaleTranslation\Event\LocaleTranslationBasicLoadedEvent;
+use Shopware\System\Locale\Aggregate\LocaleTranslation\Event\LocaleTranslationDetailLoadedEvent;
+use Shopware\System\Locale\Aggregate\LocaleTranslation\Event\LocaleTranslationIdSearchResultLoadedEvent;
+use Shopware\System\Locale\Aggregate\LocaleTranslation\Event\LocaleTranslationSearchResultLoadedEvent;
+use Shopware\System\Locale\Aggregate\LocaleTranslation\Struct\LocaleTranslationSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -106,7 +106,7 @@ class LocaleTranslationRepository implements RepositoryInterface
 
     public function readBasic(array $ids, ApplicationContext $context): LocaleTranslationBasicCollection
     {
-        /** @var LocaleTranslationBasicCollection $entities */
+        /** @var \Shopware\System\Locale\Aggregate\LocaleTranslation\Collection\LocaleTranslationBasicCollection $entities */
         $entities = $this->reader->readBasic(LocaleTranslationDefinition::class, $ids, $context);
 
         $event = new LocaleTranslationBasicLoadedEvent($entities, $context);
@@ -117,7 +117,7 @@ class LocaleTranslationRepository implements RepositoryInterface
 
     public function readDetail(array $ids, ApplicationContext $context): LocaleTranslationDetailCollection
     {
-        /** @var LocaleTranslationDetailCollection $entities */
+        /** @var \Shopware\System\Locale\Aggregate\LocaleTranslation\Collection\LocaleTranslationDetailCollection $entities */
         $entities = $this->reader->readDetail(LocaleTranslationDefinition::class, $ids, $context);
 
         $event = new LocaleTranslationDetailLoadedEvent($entities, $context);

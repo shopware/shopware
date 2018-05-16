@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Locale\Definition;
+namespace Shopware\System\Locale;
 
 use Shopware\Application\Application\Definition\ApplicationDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
@@ -20,11 +20,12 @@ use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Framework\ORM\Write\Flag\WriteOnly;
+use Shopware\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationDefinition;
 use Shopware\System\Locale\Collection\LocaleBasicCollection;
 use Shopware\System\Locale\Collection\LocaleDetailCollection;
-use Shopware\System\Locale\Event\Locale\LocaleDeletedEvent;
-use Shopware\System\Locale\Event\Locale\LocaleWrittenEvent;
-use Shopware\System\Locale\Repository\LocaleRepository;
+use Shopware\System\Locale\Event\LocaleDeletedEvent;
+use Shopware\System\Locale\Event\LocaleWrittenEvent;
+use Shopware\System\Locale\LocaleRepository;
 use Shopware\System\Locale\Struct\LocaleBasicStruct;
 use Shopware\System\Locale\Struct\LocaleDetailStruct;
 use Shopware\System\User\Definition\UserDefinition;

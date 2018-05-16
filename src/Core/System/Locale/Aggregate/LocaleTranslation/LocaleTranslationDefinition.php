@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Locale\Definition;
+namespace Shopware\System\Locale\Aggregate\LocaleTranslation;
 
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
@@ -13,13 +13,14 @@ use Shopware\Framework\ORM\FieldCollection;
 use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Application\Language\Definition\LanguageDefinition;
-use Shopware\System\Locale\Collection\LocaleTranslationBasicCollection;
-use Shopware\System\Locale\Collection\LocaleTranslationDetailCollection;
-use Shopware\System\Locale\Event\LocaleTranslation\LocaleTranslationDeletedEvent;
-use Shopware\System\Locale\Event\LocaleTranslation\LocaleTranslationWrittenEvent;
-use Shopware\System\Locale\Repository\LocaleTranslationRepository;
-use Shopware\System\Locale\Struct\LocaleTranslationBasicStruct;
-use Shopware\System\Locale\Struct\LocaleTranslationDetailStruct;
+use Shopware\System\Locale\Aggregate\LocaleTranslation\Collection\LocaleTranslationBasicCollection;
+use Shopware\System\Locale\Aggregate\LocaleTranslation\Collection\LocaleTranslationDetailCollection;
+use Shopware\System\Locale\Aggregate\LocaleTranslation\Event\LocaleTranslationDeletedEvent;
+use Shopware\System\Locale\Aggregate\LocaleTranslation\Event\LocaleTranslationWrittenEvent;
+use Shopware\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationRepository;
+use Shopware\System\Locale\Aggregate\LocaleTranslation\Struct\LocaleTranslationBasicStruct;
+use Shopware\System\Locale\Aggregate\LocaleTranslation\Struct\LocaleTranslationDetailStruct;
+use Shopware\System\Locale\LocaleDefinition;
 
 class LocaleTranslationDefinition extends EntityDefinition
 {

@@ -1,21 +1,21 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Locale\Event\Locale;
+namespace Shopware\System\Locale\Aggregate\LocaleTranslation\Event;
 
-use Shopware\System\Locale\Struct\LocaleSearchResult;
+use Shopware\System\Locale\Aggregate\LocaleTranslation\Struct\LocaleTranslationSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
-class LocaleSearchResultLoadedEvent extends NestedEvent
+class LocaleTranslationSearchResultLoadedEvent extends NestedEvent
 {
-    public const NAME = 'locale.search.result.loaded';
+    public const NAME = 'locale_translation.search.result.loaded';
 
     /**
-     * @var LocaleSearchResult
+     * @var LocaleTranslationSearchResult
      */
     protected $result;
 
-    public function __construct(LocaleSearchResult $result)
+    public function __construct(LocaleTranslationSearchResult $result)
     {
         $this->result = $result;
     }

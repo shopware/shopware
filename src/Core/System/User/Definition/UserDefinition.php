@@ -19,7 +19,7 @@ use Shopware\Framework\ORM\FieldCollection;
 use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Framework\ORM\Write\Flag\SearchRanking;
-use Shopware\System\Locale\Definition\LocaleDefinition;
+use Shopware\System\Locale\LocaleDefinition;
 use Shopware\Content\Media\MediaDefinition;
 use Shopware\System\User\Collection\UserBasicCollection;
 use Shopware\System\User\Collection\UserDetailCollection;

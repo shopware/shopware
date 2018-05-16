@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Locale\Event\Locale;
+namespace Shopware\System\Locale\Event;
 
 use Shopware\System\Locale\Collection\LocaleBasicCollection;
 use Shopware\Application\Context\Struct\ApplicationContext;

@@ -1,21 +1,21 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Locale\Event\Locale;
+namespace Shopware\System\Locale\Event;
 
-use Shopware\Framework\ORM\Search\IdSearchResult;
+use Shopware\System\Locale\Struct\LocaleSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
-class LocaleIdSearchResultLoadedEvent extends NestedEvent
+class LocaleSearchResultLoadedEvent extends NestedEvent
 {
-    public const NAME = 'locale.id.search.result.loaded';
+    public const NAME = 'locale.search.result.loaded';
 
     /**
-     * @var IdSearchResult
+     * @var LocaleSearchResult
      */
     protected $result;
 
-    public function __construct(IdSearchResult $result)
+    public function __construct(LocaleSearchResult $result)
     {
         $this->result = $result;
     }
@@ -28,10 +28,5 @@ class LocaleIdSearchResultLoadedEvent extends NestedEvent
     public function getContext(): ApplicationContext
     {
         return $this->result->getContext();
-    }
-
-    public function getResult(): IdSearchResult
-    {
-        return $this->result;
     }
 }

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Locale\Repository;
+namespace Shopware\System\Locale;
 
 use Shopware\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Framework\ORM\RepositoryInterface;
@@ -13,12 +13,12 @@ use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
 use Shopware\System\Locale\Collection\LocaleBasicCollection;
 use Shopware\System\Locale\Collection\LocaleDetailCollection;
-use Shopware\System\Locale\Definition\LocaleDefinition;
-use Shopware\System\Locale\Event\Locale\LocaleAggregationResultLoadedEvent;
-use Shopware\System\Locale\Event\Locale\LocaleBasicLoadedEvent;
-use Shopware\System\Locale\Event\Locale\LocaleDetailLoadedEvent;
-use Shopware\System\Locale\Event\Locale\LocaleIdSearchResultLoadedEvent;
-use Shopware\System\Locale\Event\Locale\LocaleSearchResultLoadedEvent;
+use Shopware\System\Locale\LocaleDefinition;
+use Shopware\System\Locale\Event\LocaleAggregationResultLoadedEvent;
+use Shopware\System\Locale\Event\LocaleBasicLoadedEvent;
+use Shopware\System\Locale\Event\LocaleDetailLoadedEvent;
+use Shopware\System\Locale\Event\LocaleIdSearchResultLoadedEvent;
+use Shopware\System\Locale\Event\LocaleSearchResultLoadedEvent;
 use Shopware\System\Locale\Struct\LocaleSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\ORM\Version\Service\VersionManager;

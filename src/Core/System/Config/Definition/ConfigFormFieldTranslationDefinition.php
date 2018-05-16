@@ -21,7 +21,7 @@ use Shopware\Framework\ORM\Field\VersionField;
 use Shopware\Framework\ORM\FieldCollection;
 use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\System\Locale\Definition\LocaleDefinition;
+use Shopware\System\Locale\LocaleDefinition;
 
 class ConfigFormFieldTranslationDefinition extends EntityDefinition
 {
@@ -58,13 +58,13 @@ class ConfigFormFieldTranslationDefinition extends EntityDefinition
             (new FkField('config_form_field_id', 'configFormFieldId', ConfigFormFieldDefinition::class))->setFlags(new Required()),
             (new ReferenceVersionField(ConfigFormFieldDefinition::class))->setFlags(new PrimaryKey(), new Required()),
 
-            (new FkField('locale_id', 'localeId', LocaleDefinition::class))->setFlags(new Required()),
+            (new FkField('locale_id', 'localeId', \Shopware\System\Locale\LocaleDefinition::class))->setFlags(new Required()),
             (new ReferenceVersionField(LocaleDefinition::class))->setFlags(new Required()),
 
             new StringField('label', 'label'),
             new LongTextField('description', 'description'),
             new ManyToOneAssociationField('configFormField', 'config_form_field_id', ConfigFormFieldDefinition::class, false),
-            new ManyToOneAssociationField('locale', 'locale_id', LocaleDefinition::class, false),
+            new ManyToOneAssociationField('locale', 'locale_id', \Shopware\System\Locale\LocaleDefinition::class, false),
         ]);
 
         foreach (self::$extensions as $extension) {

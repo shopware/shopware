@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Locale\Event\LocaleTranslation;
+namespace Shopware\System\Locale\Aggregate\LocaleTranslation\Event;
 
 use Shopware\Framework\ORM\Search\AggregatorResult;
 use Shopware\Application\Context\Struct\ApplicationContext;

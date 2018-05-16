@@ -6,23 +6,23 @@
 
     <services>
         <!-- Versioning -->
-        <service alias="Shopware\System\Locale\Repository\LocaleRepository.v1" id="Shopware\System\Locale\Repository\LocaleRepository" public="true"/>
-        <service alias="Shopware\System\Locale\Repository\LocaleTranslationRepository.v1" id="Shopware\System\Locale\Repository\LocaleTranslationRepository" public="true"/>
+        <service alias="Shopware\System\Locale\LocaleRepository.v1" id="Shopware\System\Locale\LocaleRepository" public="true"/>
+        <service alias="Shopware\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationRepository.v1" id="Shopware\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationRepository" public="true"/>
 
-         <service class="Shopware\System\Locale\Definition\LocaleDefinition" id="Shopware\System\Locale\Definition\LocaleDefinition" >
+         <service class="Shopware\System\Locale\LocaleDefinition" id="Shopware\System\Locale\LocaleDefinition" >
             <tag name="shopware.entity.definition" entity="locale" />
         </service>
-        <service class="Shopware\System\Locale\Repository\LocaleRepository" id="Shopware\System\Locale\Repository\LocaleRepository.v1" public="true">
+        <service class="Shopware\System\Locale\LocaleRepository" id="Shopware\System\Locale\LocaleRepository.v1" public="true">
           <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
           <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>
-         <service class="Shopware\System\Locale\Definition\LocaleTranslationDefinition" id="Shopware\System\Locale\Definition\LocaleTranslationDefinition" >
+         <service class="Shopware\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationDefinition" id="Shopware\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationDefinition" >
             <tag name="shopware.entity.definition" entity="locale_translation" />
         </service>
-        <service class="Shopware\System\Locale\Repository\LocaleTranslationRepository" id="Shopware\System\Locale\Repository\LocaleTranslationRepository.v1" public="true">
+        <service class="Shopware\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationRepository" id="Shopware\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationRepository.v1" public="true">
           <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
           <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>

@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Locale\Event\Locale;
+namespace Shopware\System\Locale\Event;
 
 use Shopware\Framework\ORM\Write\DeletedEvent;
 use Shopware\Framework\ORM\Write\WrittenEvent;
-use Shopware\System\Locale\Definition\LocaleDefinition;
+use Shopware\System\Locale\LocaleDefinition;
 
 class LocaleDeletedEvent extends WrittenEvent implements DeletedEvent
 {

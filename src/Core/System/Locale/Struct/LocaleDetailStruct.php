@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Locale\Struct;
 
-use Shopware\System\Locale\Collection\LocaleTranslationBasicCollection;
+use Shopware\System\Locale\Aggregate\LocaleTranslation\Collection\LocaleTranslationBasicCollection;
 
 class LocaleDetailStruct extends LocaleBasicStruct
 {

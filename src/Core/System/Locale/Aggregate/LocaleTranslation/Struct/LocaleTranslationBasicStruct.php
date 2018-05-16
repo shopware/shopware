@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Locale\Struct;
+namespace Shopware\System\Locale\Aggregate\LocaleTranslation\Struct;
 
 use Shopware\Framework\ORM\Entity;
 

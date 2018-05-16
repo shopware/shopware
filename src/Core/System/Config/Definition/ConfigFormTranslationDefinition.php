@@ -21,7 +21,7 @@ use Shopware\Framework\ORM\Field\VersionField;
 use Shopware\Framework\ORM\FieldCollection;
 use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\System\Locale\Definition\LocaleDefinition;
+use Shopware\System\Locale\LocaleDefinition;
 
 class ConfigFormTranslationDefinition extends EntityDefinition
 {
@@ -58,8 +58,8 @@ class ConfigFormTranslationDefinition extends EntityDefinition
             (new FkField('config_form_id', 'configFormId', ConfigFormDefinition::class))->setFlags(new Required()),
             (new ReferenceVersionField(ConfigFormDefinition::class))->setFlags(new Required()),
 
-            (new FkField('locale_id', 'localeId', LocaleDefinition::class))->setFlags(new Required()),
-            (new ReferenceVersionField(LocaleDefinition::class))->setFlags(new Required()),
+            (new FkField('locale_id', 'localeId', \Shopware\System\Locale\LocaleDefinition::class))->setFlags(new Required()),
+            (new ReferenceVersionField(\Shopware\System\Locale\LocaleDefinition::class))->setFlags(new Required()),
 
             new StringField('label', 'label'),
             new LongTextField('description', 'description'),

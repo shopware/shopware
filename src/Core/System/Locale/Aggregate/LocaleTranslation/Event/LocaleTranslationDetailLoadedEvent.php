@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Locale\Event\LocaleTranslation;
+namespace Shopware\System\Locale\Aggregate\LocaleTranslation\Event;
 
 use Shopware\Application\Language\Event\Language\LanguageBasicLoadedEvent;
-use Shopware\System\Locale\Collection\LocaleTranslationDetailCollection;
-use Shopware\System\Locale\Event\Locale\LocaleBasicLoadedEvent;
+use Shopware\System\Locale\Aggregate\LocaleTranslation\Collection\LocaleTranslationDetailCollection;
+use Shopware\System\Locale\Event\LocaleBasicLoadedEvent;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
@@ -19,7 +19,7 @@ class LocaleTranslationDetailLoadedEvent extends NestedEvent
     protected $context;
 
     /**
-     * @var LocaleTranslationDetailCollection
+     * @var \Shopware\System\Locale\Aggregate\LocaleTranslation\Collection\LocaleTranslationDetailCollection
      */
     protected $localeTranslations;
 

@@ -1,21 +1,21 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Locale\Event\LocaleTranslation;
+namespace Shopware\System\Locale\Event;
 
-use Shopware\Framework\ORM\Search\IdSearchResult;
+use Shopware\Framework\ORM\Search\AggregatorResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
-class LocaleTranslationIdSearchResultLoadedEvent extends NestedEvent
+class LocaleAggregationResultLoadedEvent extends NestedEvent
 {
-    public const NAME = 'locale_translation.id.search.result.loaded';
+    public const NAME = 'locale.aggregation.result.loaded';
 
     /**
-     * @var IdSearchResult
+     * @var AggregatorResult
      */
     protected $result;
 
-    public function __construct(IdSearchResult $result)
+    public function __construct(AggregatorResult $result)
     {
         $this->result = $result;
     }
@@ -30,7 +30,7 @@ class LocaleTranslationIdSearchResultLoadedEvent extends NestedEvent
         return $this->result->getContext();
     }
 
-    public function getResult(): IdSearchResult
+    public function getResult(): AggregatorResult
     {
         return $this->result;
     }

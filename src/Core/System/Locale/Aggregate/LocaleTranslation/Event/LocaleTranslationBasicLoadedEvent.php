@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Locale\Event\LocaleTranslation;
+namespace Shopware\System\Locale\Aggregate\LocaleTranslation\Event;
 
-use Shopware\System\Locale\Collection\LocaleTranslationBasicCollection;
+use Shopware\System\Locale\Aggregate\LocaleTranslation\Collection\LocaleTranslationBasicCollection;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 

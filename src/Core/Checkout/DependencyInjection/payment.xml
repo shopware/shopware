@@ -69,6 +69,12 @@
             <tag name="payment.method" />
             <argument type="service" id="Shopware\Checkout\Order\Repository\OrderTransactionRepository"/>
         </service>
+
+        <service class="Shopware\Checkout\Payment\PaymentCartProcessor" id="Shopware\Checkout\Payment\PaymentCartProcessor">
+            <tag name="cart.processor" priority="500"/>
+            <argument type="service" id="Shopware\Checkout\Cart\Price\PercentagePriceCalculator"/>
+            <argument type="service" id="Shopware\Checkout\Cart\Price\AbsolutePriceCalculator"/>
+        </service>
     </services>
 </container>                
                 

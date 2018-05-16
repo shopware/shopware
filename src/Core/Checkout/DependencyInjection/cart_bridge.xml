@@ -22,12 +22,6 @@
             <tag name="cart.processor" priority="600"/>
         </service>
 
-        <service class="Shopware\Checkout\CartBridge\Payment\PaymentSurchargeProcessor" id="Shopware\Checkout\CartBridge\Payment\PaymentSurchargeProcessor">
-            <tag name="cart.processor" priority="500"/>
-            <argument type="service" id="Shopware\Checkout\Cart\Price\PercentagePriceCalculator"/>
-            <argument type="service" id="Shopware\Checkout\Cart\Price\AbsolutePriceCalculator"/>
-        </service>
-
         <!--cart line item data collectors-->
 
         <service class="Shopware\Checkout\CartBridge\Modifier\ContextCartModifierCollector" id="Shopware\Checkout\CartBridge\Modifier\ContextCartModifierCollector">

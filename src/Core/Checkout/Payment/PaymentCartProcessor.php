@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\CartBridge\Payment;
+namespace Shopware\Checkout\Payment;
 
 use Shopware\Checkout\Cart\Cart\CartProcessorInterface;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
@@ -11,7 +11,7 @@ use Shopware\Checkout\Cart\Price\PercentagePriceCalculator;
 use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
-class PaymentSurchargeProcessor implements CartProcessorInterface
+class PaymentCartProcessor implements CartProcessorInterface
 {
     /**
      * @var PercentagePriceCalculator

@@ -23,15 +23,15 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Checkout\CartBridge\Product;
+namespace Shopware\Content\Product\Cart;
 
 use Shopware\Content\Product\Collection\ProductBasicCollection;
 use Shopware\Content\Product\Aggregate\ProductService\Collection\ProductServiceBasicCollection;
 use Shopware\Content\Product\Aggregate\ProductService\ProductServiceRepository;
 use Shopware\Checkout\Cart\Cart\CartCollectorInterface;
 use Shopware\Checkout\Cart\Cart\Struct\Cart;
-use Shopware\Checkout\CartBridge\Product\Struct\ProductFetchDefinition;
-use Shopware\Checkout\CartBridge\Product\Struct\ProductServiceFetchDefinition;
+use Shopware\Content\Product\Cart\Struct\ProductFetchDefinition;
+use Shopware\Content\Product\Cart\Struct\ProductServiceFetchDefinition;
 use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 

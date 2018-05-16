@@ -44,7 +44,7 @@ For example:
 - The core product processor requires **validation** and **product data** for each line item of type `product`
 - The plugin live shopping processor requires **validation**, **live shopping** and **product data** for each line item of type `liveShopping`
 
-Both implementations can add a `\Shopware\Checkout\CartBridge\Product\ProductFetchDefinition` to the `$fetchCollection` parameter which allows to merge this definitions and only execute a single
+Both implementations can add a `\Shopware\Content\Product\Cart\ProductFetchDefinition` to the `$fetchCollection` parameter which allows to merge this definitions and only execute a single
 request to the `product data gateway`. 
 
 The collector pattern provides two benefits:

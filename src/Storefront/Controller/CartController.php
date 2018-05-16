@@ -5,7 +5,7 @@ namespace Shopware\Storefront\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Shopware\Checkout\Cart\Exception\LineItemNotFoundException;
 use Shopware\Checkout\Cart\LineItem\LineItem;
-use Shopware\Checkout\CartBridge\Product\ProductProcessor;
+use Shopware\Content\Product\Cart\ProductProcessor;
 use Shopware\Checkout\CartBridge\Service\StoreFrontCartService;
 use Shopware\Checkout\CartBridge\Voucher\VoucherProcessor;
 use Shopware\Application\Context\Struct\StorefrontContext;

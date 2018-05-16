@@ -5,18 +5,6 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-
-        <!--calculations-->
-        <service class="Shopware\Checkout\CartBridge\Product\ProductCalculator" id="Shopware\Checkout\CartBridge\Product\ProductCalculator">
-            <argument id="Shopware\Checkout\Cart\Price\PriceCalculator" type="service"/>
-        </service>
-
-        <!--cart processors-->
-        <service class="Shopware\Checkout\CartBridge\Product\ProductProcessor" id="Shopware\Checkout\CartBridge\Product\ProductProcessor">
-            <argument type="service" id="Shopware\Checkout\CartBridge\Product\ProductCalculator" />
-            <tag name="cart.processor" priority="1000" />
-        </service>
-
         <service class="Shopware\Checkout\CartBridge\CustomerGroup\CustomerGroupDiscountProcessor" id="Shopware\Checkout\CartBridge\CustomerGroup\CustomerGroupDiscountProcessor">
             <argument id="Shopware\Checkout\Cart\Price\PercentagePriceCalculator" type="service"/>
             <tag name="cart.processor" priority="800"/>
@@ -41,11 +29,6 @@
         </service>
 
         <!--cart line item data collectors-->
-        <service class="Shopware\Checkout\CartBridge\Product\ProductCartCollector" id="Shopware\Checkout\CartBridge\Product\ProductCartCollector">
-            <argument id="Shopware\Checkout\CartBridge\Product\ProductGateway" type="service"/>
-            <tag name="cart.collector" priority="1000" />
-            <argument type="service" id="Shopware\Content\Product\Aggregate\ProductService\ProductServiceRepository"/>
-        </service>
 
         <service class="Shopware\Checkout\CartBridge\Modifier\ContextCartModifierCollector" id="Shopware\Checkout\CartBridge\Modifier\ContextCartModifierCollector">
             <argument id="Shopware\Application\Context\Repository\ContextCartModifierRepository" type="service"/>
@@ -53,10 +36,6 @@
         </service>
 
         <!--interface implementations of cart bundle-->
-
-        <service id="Shopware\Checkout\CartBridge\Product\ProductGateway" class="Shopware\Checkout\CartBridge\Product\ProductGateway" >
-            <argument type="service" id="Shopware\Content\Product\ProductRepository"/>
-        </service>
 
         <service class="Shopware\Checkout\CartBridge\Service\StoreFrontCartService" id="Shopware\Checkout\CartBridge\Service\StoreFrontCartService">
             <argument type="service" id="Shopware\Checkout\Cart\Cart\CircularCartCalculation" />

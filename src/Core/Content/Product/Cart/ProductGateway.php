@@ -23,7 +23,7 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Checkout\CartBridge\Product;
+namespace Shopware\Content\Product\Cart;
 
 use Shopware\Content\Product\Collection\ProductBasicCollection;
 use Shopware\Content\Product\ProductRepository;

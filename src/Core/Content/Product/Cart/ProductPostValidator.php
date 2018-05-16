@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\CartBridge\Product;
+namespace Shopware\Content\Product\Cart;
 
 use Shopware\Checkout\Cart\Cart\CartProcessorInterface;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Checkout\Cart\Cart\Struct\Cart;
-use Shopware\Checkout\CartBridge\Product\Struct\CalculatedProduct;
+use Shopware\Content\Product\Cart\Struct\CalculatedProduct;
 use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\CartBridge\Product;
+namespace Shopware\Content\Product\Cart;
 
 use Shopware\Checkout\Cart\Cart\CartProcessorInterface;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;

@@ -23,12 +23,30 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Checkout\CartBridge\Product;
+namespace Shopware\Content\Product\Cart\Struct;
 
-use Shopware\Content\Product\Collection\ProductBasicCollection;
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Framework\Struct\Struct;
 
-interface ProductGatewayInterface
+class ProductServiceFetchDefinition extends Struct
 {
-    public function get(array $ids, StorefrontContext $context): ProductBasicCollection;
+    /**
+     * @var string[]
+     */
+    protected $serviceIds;
+
+    /**
+     * @param string[] $serviceIds
+     */
+    public function __construct(array $serviceIds)
+    {
+        $this->serviceIds = $serviceIds;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getServiceIds(): array
+    {
+        return $this->serviceIds;
+    }
 }

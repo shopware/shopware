@@ -153,6 +153,28 @@
             <argument id="Shopware\Content\Product\ProductRepository" type="service"/>
             <argument id="Shopware\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorRepository" type="service"/>
         </service>
+
+        <!--cart implementations-->
+        <service class="Shopware\Content\Product\Cart\ProductCartCollector" id="Shopware\Content\Product\Cart\ProductCartCollector">
+            <argument id="Shopware\Content\Product\Cart\ProductGateway" type="service"/>
+            <tag name="cart.collector" priority="1000" />
+            <argument type="service" id="Shopware\Content\Product\Aggregate\ProductService\ProductServiceRepository"/>
+        </service>
+
+        <service id="Shopware\Content\Product\Cart\ProductGateway" class="Shopware\Content\Product\Cart\ProductGateway" >
+            <argument type="service" id="Shopware\Content\Product\ProductRepository"/>
+        </service>
+
+        <service class="Shopware\Content\Product\Cart\ProductCalculator" id="Shopware\Content\Product\Cart\ProductCalculator">
+            <argument id="Shopware\Checkout\Cart\Price\PriceCalculator" type="service"/>
+        </service>
+
+        <service class="Shopware\Content\Product\Cart\ProductProcessor" id="Shopware\Content\Product\Cart\ProductProcessor">
+            <argument type="service" id="Shopware\Content\Product\Cart\ProductCalculator" />
+            <tag name="cart.processor" priority="1000" />
+        </service>
+
+
     </services>
 </container>                
                 

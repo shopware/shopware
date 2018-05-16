@@ -34,7 +34,7 @@ use Shopware\Checkout\Cart\Price\AmountCalculator;
 use Shopware\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Checkout\CartBridge\Product\ProductProcessor;
+use Shopware\Content\Product\Cart\ProductProcessor;
 use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 

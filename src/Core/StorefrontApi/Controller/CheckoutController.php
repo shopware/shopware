@@ -14,7 +14,7 @@ use Shopware\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Checkout\Cart\Exception\LineItemNotFoundException;
 use Shopware\Checkout\Cart\LineItem\LineItem;
 use Shopware\Checkout\Cart\Order\OrderPersisterInterface;
-use Shopware\Checkout\CartBridge\Product\ProductProcessor;
+use Shopware\Content\Product\Cart\ProductProcessor;
 use Shopware\Checkout\CartBridge\Service\StoreFrontCartService;
 use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\Uuid;

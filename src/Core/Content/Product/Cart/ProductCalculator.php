@@ -23,7 +23,7 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Checkout\CartBridge\Product;
+namespace Shopware\Content\Product\Cart;
 
 use Shopware\Content\Product\Struct\ProductBasicStruct;
 use Shopware\Content\Product\Aggregate\ProductService\Struct\ProductServiceBasicStruct;
@@ -33,7 +33,7 @@ use Shopware\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Checkout\Cart\LineItem\LineItemInterface;
 use Shopware\Checkout\Cart\Price\PriceCalculator;
 use Shopware\Checkout\Cart\Price\Struct\PriceDefinition;
-use Shopware\Checkout\CartBridge\Product\Struct\CalculatedProduct;
+use Shopware\Content\Product\Cart\Struct\CalculatedProduct;
 use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 

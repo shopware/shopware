@@ -36,7 +36,7 @@ use Shopware\System\Listing\Definition\ListingFacetTranslationDefinition;
 use Shopware\System\Listing\Definition\ListingSortingTranslationDefinition;
 use Shopware\System\Locale\LocaleDefinition;
 use Shopware\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationDefinition;
-use Shopware\System\Mail\Definition\MailTranslationDefinition;
+use Shopware\System\Mail\Aggregate\MailTranslation\MailTranslationDefinition;
 use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\MediaAlbumTranslationDefinition;
 use Shopware\Content\Media\Aggregate\MediaTranslation\MediaTranslationDefinition;
 use Shopware\Checkout\Order\Definition\OrderStateTranslationDefinition;
@@ -96,7 +96,7 @@ class LanguageDefinition extends EntityDefinition
             (new TranslationsAssociationField('listingFacetTranslations', ListingFacetTranslationDefinition::class, 'language_id', false, 'id'))->setFlags(new WriteOnly(), new CascadeDelete()),
             (new TranslationsAssociationField('listingSortingTranslations', ListingSortingTranslationDefinition::class, 'language_id', false, 'id'))->setFlags(new WriteOnly(), new CascadeDelete()),
             (new TranslationsAssociationField('localeTranslations', LocaleTranslationDefinition::class, 'language_id', false, 'id'))->setFlags(new WriteOnly(), new CascadeDelete()),
-            (new TranslationsAssociationField('mailTranslations', MailTranslationDefinition::class, 'language_id', false, 'id'))->setFlags(new WriteOnly(), new CascadeDelete()),
+            (new TranslationsAssociationField('mailTranslations', \Shopware\System\Mail\Aggregate\MailTranslation\MailTranslationDefinition::class, 'language_id', false, 'id'))->setFlags(new WriteOnly(), new CascadeDelete()),
             (new TranslationsAssociationField('mediaAlbumTranslations', \Shopware\Content\Media\Aggregate\MediaAlbumTranslation\MediaAlbumTranslationDefinition::class, 'language_id', false, 'id'))->setFlags(new WriteOnly(), new CascadeDelete()),
             (new TranslationsAssociationField('mediaTranslations', \Shopware\Content\Media\Aggregate\MediaTranslation\MediaTranslationDefinition::class, 'language_id', false, 'id'))->setFlags(new WriteOnly(), new CascadeDelete()),
             (new TranslationsAssociationField('orderStateTranslations', OrderStateTranslationDefinition::class, 'language_id', false, 'id'))->setFlags(new WriteOnly(), new CascadeDelete()),

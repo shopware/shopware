@@ -28,7 +28,7 @@ use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Framework\ORM\Write\Flag\WriteOnly;
-use Shopware\System\Mail\Definition\MailAttachmentDefinition;
+use Shopware\System\Mail\Aggregate\MailAttachment\MailAttachmentDefinition;
 use Shopware\Content\Media\Collection\MediaBasicCollection;
 use Shopware\Content\Media\Collection\MediaDetailCollection;
 use Shopware\Content\Media\Event\MediaDeletedEvent;

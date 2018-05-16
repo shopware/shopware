@@ -6,34 +6,34 @@
 
     <services>
         <!-- Versioning -->
-        <service alias="Shopware\System\Mail\Repository\MailRepository.v1" id="Shopware\System\Mail\Repository\MailRepository" public="true"/>
-        <service alias="Shopware\System\Mail\Repository\MailAttachmentRepository.v1" id="Shopware\System\Mail\Repository\MailAttachmentRepository" public="true"/>
-        <service alias="Shopware\System\Mail\Repository\MailTranslationRepository.v1" id="Shopware\System\Mail\Repository\MailTranslationRepository" public="true"/>
+        <service alias="Shopware\System\Mail\MailRepository.v1" id="Shopware\System\Mail\MailRepository" public="true"/>
+        <service alias="Shopware\System\Mail\Aggregate\MailAttachment\MailAttachmentRepository.v1" id="Shopware\System\Mail\Aggregate\MailAttachment\MailAttachmentRepository" public="true"/>
+        <service alias="Shopware\System\Mail\Aggregate\MailTranslation\MailTranslationRepository.v1" id="Shopware\System\Mail\Aggregate\MailTranslation\MailTranslationRepository" public="true"/>
 
-        <service class="Shopware\System\Mail\Definition\MailDefinition" id="Shopware\System\Mail\Definition\MailDefinition" >
+        <service class="Shopware\System\Mail\MailDefinition" id="Shopware\System\Mail\MailDefinition" >
             <tag name="shopware.entity.definition" entity="mail" />
         </service>
-        <service class="Shopware\System\Mail\Repository\MailRepository" id="Shopware\System\Mail\Repository\MailRepository.v1" public="true">
+        <service class="Shopware\System\Mail\MailRepository" id="Shopware\System\Mail\MailRepository.v1" public="true">
             <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
             <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
             <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
             <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
             <argument id="event_dispatcher" type="service"/>
         </service>
-        <service class="Shopware\System\Mail\Definition\MailAttachmentDefinition" id="Shopware\System\Mail\Definition\MailAttachmentDefinition" >
+        <service class="Shopware\System\Mail\Aggregate\MailAttachment\MailAttachmentDefinition" id="Shopware\System\Mail\Aggregate\MailAttachment\MailAttachmentDefinition" >
             <tag name="shopware.entity.definition" entity="mail_attachment" />
         </service>
-        <service class="Shopware\System\Mail\Repository\MailAttachmentRepository" id="Shopware\System\Mail\Repository\MailAttachmentRepository.v1" public="true">
+        <service class="Shopware\System\Mail\Aggregate\MailAttachment\MailAttachmentRepository" id="Shopware\System\Mail\Aggregate\MailAttachment\MailAttachmentRepository.v1" public="true">
             <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
             <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
             <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
             <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
             <argument id="event_dispatcher" type="service"/>
         </service>
-        <service class="Shopware\System\Mail\Definition\MailTranslationDefinition" id="Shopware\System\Mail\Definition\MailTranslationDefinition" >
+        <service class="Shopware\System\Mail\Aggregate\MailTranslation\MailTranslationDefinition" id="Shopware\System\Mail\Aggregate\MailTranslation\MailTranslationDefinition" >
             <tag name="shopware.entity.definition" entity="mail_translation" />
         </service>
-        <service class="Shopware\System\Mail\Repository\MailTranslationRepository" id="Shopware\System\Mail\Repository\MailTranslationRepository.v1" public="true">
+        <service class="Shopware\System\Mail\Aggregate\MailTranslation\MailTranslationRepository" id="Shopware\System\Mail\Aggregate\MailTranslation\MailTranslationRepository.v1" public="true">
             <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
             <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
             <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>

@@ -21,7 +21,7 @@ use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Framework\ORM\Write\Flag\WriteOnly;
-use Shopware\System\Mail\Definition\MailDefinition;
+use Shopware\System\Mail\MailDefinition;
 use Shopware\Checkout\Order\Collection\OrderStateBasicCollection;
 use Shopware\Checkout\Order\Collection\OrderStateDetailCollection;
 use Shopware\Checkout\Order\Event\OrderState\OrderStateDeletedEvent;
@@ -67,7 +67,7 @@ class OrderStateDefinition extends EntityDefinition
             new BoolField('has_mail', 'hasMail'),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            (new OneToManyAssociationField('mails', MailDefinition::class, 'order_state_id', false, 'id'))->setFlags(new WriteOnly()),
+            (new OneToManyAssociationField('mails', \Shopware\System\Mail\MailDefinition::class, 'order_state_id', false, 'id'))->setFlags(new WriteOnly()),
             (new OneToManyAssociationField('orders', OrderDefinition::class, 'order_state_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
             (new OneToManyAssociationField('orderDeliveries', OrderDeliveryDefinition::class, 'order_state_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
             (new TranslationsAssociationField('translations', OrderStateTranslationDefinition::class, 'order_state_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),

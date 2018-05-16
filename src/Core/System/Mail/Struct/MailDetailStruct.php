@@ -2,8 +2,8 @@
 
 namespace Shopware\System\Mail\Struct;
 
-use Shopware\System\Mail\Collection\MailAttachmentBasicCollection;
-use Shopware\System\Mail\Collection\MailTranslationBasicCollection;
+use Shopware\System\Mail\Aggregate\MailAttachment\Collection\MailAttachmentBasicCollection;
+use Shopware\System\Mail\Aggregate\MailTranslation\Collection\MailTranslationBasicCollection;
 use Shopware\Checkout\Order\Struct\OrderStateBasicStruct;
 
 class MailDetailStruct extends MailBasicStruct
@@ -14,7 +14,7 @@ class MailDetailStruct extends MailBasicStruct
     protected $orderState;
 
     /**
-     * @var MailAttachmentBasicCollection
+     * @var \Shopware\System\Mail\Aggregate\MailAttachment\Collection\MailAttachmentBasicCollection
      */
     protected $attachments;
 

@@ -2,6 +2,9 @@
 
 namespace Shopware\Checkout\Order\Collection;
 
+use Shopware\Checkout\Order\Aggregate\OrderDelivery\Collection\OrderDeliveryBasicCollection;
+use Shopware\Checkout\Order\Aggregate\OrderLineItem\Collection\OrderLineItemBasicCollection;
+use Shopware\Checkout\Order\Aggregate\OrderTransaction\Collection\OrderTransactionBasicCollection;
 use Shopware\Checkout\Order\Struct\OrderDetailStruct;
 
 class OrderDetailCollection extends OrderBasicCollection

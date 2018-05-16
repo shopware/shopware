@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Payment\PaymentHandler;
 
-use Shopware\Checkout\Order\Repository\OrderTransactionRepository;
+use Shopware\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionRepository;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 use Shopware\Checkout\Payment\Struct\PaymentTransaction;

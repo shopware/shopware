@@ -3,6 +3,8 @@
 namespace Shopware\Checkout\Order\Collection;
 
 use Shopware\Application\Application\Collection\ApplicationBasicCollection;
+use Shopware\Checkout\Order\Aggregate\OrderAddress\Collection\OrderAddressBasicCollection;
+use Shopware\Checkout\Order\Aggregate\OrderState\Collection\OrderStateBasicCollection;
 use Shopware\System\Currency\Collection\CurrencyBasicCollection;
 use Shopware\Checkout\Customer\Collection\CustomerBasicCollection;
 use Shopware\Framework\ORM\EntityCollection;

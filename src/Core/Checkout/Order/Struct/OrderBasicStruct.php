@@ -3,6 +3,8 @@
 namespace Shopware\Checkout\Order\Struct;
 
 use Shopware\Application\Application\Struct\ApplicationBasicStruct;
+use Shopware\Checkout\Order\Aggregate\OrderAddress\Struct\OrderAddressBasicStruct;
+use Shopware\Checkout\Order\Aggregate\OrderState\Struct\OrderStateBasicStruct;
 use Shopware\System\Currency\Struct\CurrencyBasicStruct;
 use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
 use Shopware\Framework\ORM\Entity;

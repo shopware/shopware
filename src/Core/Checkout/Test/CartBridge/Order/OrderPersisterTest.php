@@ -28,7 +28,7 @@ use Faker\Factory;
 use PHPUnit\Framework\TestCase;
 use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
 use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
-use Shopware\Checkout\Order\Repository\OrderRepository;
+use Shopware\Checkout\Order\OrderRepository;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Checkout\Cart\Cart\Struct\Cart;
 use Shopware\Checkout\Cart\Delivery\Struct\DeliveryCollection;
@@ -41,7 +41,7 @@ use Shopware\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Checkout\Cart\Tax\TaxDetector;
-use Shopware\Checkout\CartBridge\Order\OrderPersister;
+use Shopware\Checkout\Order\Cart\OrderPersister;
 use Shopware\Application\Context\Struct\StorefrontContext;
 
 class OrderPersisterTest extends TestCase

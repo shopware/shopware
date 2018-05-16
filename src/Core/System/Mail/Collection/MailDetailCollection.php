@@ -5,7 +5,7 @@ namespace Shopware\System\Mail\Collection;
 use Shopware\System\Mail\Aggregate\MailAttachment\Collection\MailAttachmentBasicCollection;
 use Shopware\System\Mail\Aggregate\MailTranslation\Collection\MailTranslationBasicCollection;
 use Shopware\System\Mail\Struct\MailDetailStruct;
-use Shopware\Checkout\Order\Collection\OrderStateBasicCollection;
+use Shopware\Checkout\Order\Aggregate\OrderState\Collection\OrderStateBasicCollection;
 
 class MailDetailCollection extends MailBasicCollection
 {
@@ -16,7 +16,7 @@ class MailDetailCollection extends MailBasicCollection
 
     public function getOrderStates(): OrderStateBasicCollection
     {
-        return new OrderStateBasicCollection(
+        return new \Shopware\Checkout\Order\Aggregate\OrderState\Collection\OrderStateBasicCollection(
             $this->fmap(function (MailDetailStruct $mail) {
                 return $mail->getOrderState();
             })

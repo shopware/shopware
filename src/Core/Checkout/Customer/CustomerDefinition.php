@@ -32,7 +32,7 @@ use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Framework\ORM\Write\Flag\SearchRanking;
-use Shopware\Checkout\Order\Definition\OrderDefinition;
+use Shopware\Checkout\Order\OrderDefinition;
 use Shopware\Checkout\Payment\Definition\PaymentMethodDefinition;
 
 class CustomerDefinition extends EntityDefinition

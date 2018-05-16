@@ -31,7 +31,7 @@ use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Framework\ORM\Write\Flag\WriteOnly;
-use Shopware\Checkout\Order\Definition\OrderDefinition;
+use Shopware\Checkout\Order\OrderDefinition;
 
 class CurrencyDefinition extends EntityDefinition
 {

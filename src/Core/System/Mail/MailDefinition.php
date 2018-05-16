@@ -32,7 +32,7 @@ use Shopware\System\Mail\Event\MailWrittenEvent;
 use Shopware\System\Mail\MailRepository;
 use Shopware\System\Mail\Struct\MailBasicStruct;
 use Shopware\System\Mail\Struct\MailDetailStruct;
-use Shopware\Checkout\Order\Definition\OrderStateDefinition;
+use Shopware\Checkout\Order\Aggregate\OrderState\OrderStateDefinition;
 
 class MailDefinition extends EntityDefinition
 {

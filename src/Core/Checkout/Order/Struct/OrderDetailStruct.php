@@ -2,9 +2,9 @@
 
 namespace Shopware\Checkout\Order\Struct;
 
-use Shopware\Checkout\Order\Collection\OrderDeliveryBasicCollection;
-use Shopware\Checkout\Order\Collection\OrderLineItemBasicCollection;
-use Shopware\Checkout\Order\Collection\OrderTransactionBasicCollection;
+use Shopware\Checkout\Order\Aggregate\OrderDelivery\Collection\OrderDeliveryBasicCollection;
+use Shopware\Checkout\Order\Aggregate\OrderLineItem\Collection\OrderLineItemBasicCollection;
+use Shopware\Checkout\Order\Aggregate\OrderTransaction\Collection\OrderTransactionBasicCollection;
 
 class OrderDetailStruct extends OrderBasicStruct
 {
@@ -14,12 +14,12 @@ class OrderDetailStruct extends OrderBasicStruct
     protected $deliveries;
 
     /**
-     * @var OrderLineItemBasicCollection
+     * @var \Shopware\Checkout\Order\Aggregate\OrderLineItem\Collection\OrderLineItemBasicCollection
      */
     protected $lineItems;
 
     /**
-     * @var OrderTransactionBasicCollection
+     * @var \Shopware\Checkout\Order\Aggregate\OrderTransaction\Collection\OrderTransactionBasicCollection
      */
     protected $transactions;
 

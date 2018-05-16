@@ -4,7 +4,7 @@ namespace Shopware\System\Mail\Struct;
 
 use Shopware\System\Mail\Aggregate\MailAttachment\Collection\MailAttachmentBasicCollection;
 use Shopware\System\Mail\Aggregate\MailTranslation\Collection\MailTranslationBasicCollection;
-use Shopware\Checkout\Order\Struct\OrderStateBasicStruct;
+use Shopware\Checkout\Order\Aggregate\OrderState\Struct\OrderStateBasicStruct;
 
 class MailDetailStruct extends MailBasicStruct
 {
@@ -30,12 +30,12 @@ class MailDetailStruct extends MailBasicStruct
         $this->translations = new MailTranslationBasicCollection();
     }
 
-    public function getOrderState(): ?OrderStateBasicStruct
+    public function getOrderState(): ?\Shopware\Checkout\Order\Aggregate\OrderState\Struct\OrderStateBasicStruct
     {
         return $this->orderState;
     }
 
-    public function setOrderState(?OrderStateBasicStruct $orderState): void
+    public function setOrderState(?\Shopware\Checkout\Order\Aggregate\OrderState\Struct\OrderStateBasicStruct $orderState): void
     {
         $this->orderState = $orderState;
     }

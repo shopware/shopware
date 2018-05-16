@@ -7,7 +7,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Query\TermQuery;
-use Shopware\Checkout\Order\Repository\OrderRepository;
+use Shopware\Checkout\Order\OrderRepository;
 use Shopware\Checkout\Order\Struct\OrderBasicStruct;
 use Shopware\Checkout\Payment\Repository\PaymentMethodRepository;
 use Shopware\Checkout\CartBridge\Service\StoreFrontCartService;

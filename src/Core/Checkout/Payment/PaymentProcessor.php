@@ -2,8 +2,8 @@
 
 namespace Shopware\Checkout\Payment;
 
-use Shopware\Checkout\Order\Collection\OrderTransactionBasicCollection;
-use Shopware\Checkout\Order\Repository\OrderRepository;
+use Shopware\Checkout\Order\Aggregate\OrderTransaction\Collection\OrderTransactionBasicCollection;
+use Shopware\Checkout\Order\OrderRepository;
 use Shopware\Checkout\Order\Struct\OrderDetailStruct;
 use Shopware\Checkout\Payment\Repository\PaymentMethodRepository;
 use Shopware\Application\Context\Struct\ApplicationContext;

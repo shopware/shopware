@@ -13,10 +13,6 @@
             <tag name="cart.processor" priority="700"/>
         </service>
 
-        <service class="Shopware\Checkout\CartBridge\Order\MinimumOrderAmountProcessor" id="Shopware\Checkout\CartBridge\Order\MinimumOrderAmountProcessor">
-            <argument type="service" id="Shopware\Checkout\Cart\Price\AbsolutePriceCalculator"/>
-            <tag name="cart.processor" priority="600"/>
-        </service>
 
         <!--cart line item data collectors-->
 
@@ -30,12 +26,7 @@
         <service class="Shopware\Checkout\CartBridge\Service\StoreFrontCartService" id="Shopware\Checkout\CartBridge\Service\StoreFrontCartService">
             <argument type="service" id="Shopware\Checkout\Cart\Cart\CircularCartCalculation" />
             <argument type="service" id="Shopware\Checkout\CartBridge\Cart\CartPersister" />
-            <argument type="service" id="Shopware\Checkout\CartBridge\Order\OrderPersister" />
-        </service>
-
-        <service class="Shopware\Checkout\CartBridge\Order\OrderPersister" id="Shopware\Checkout\CartBridge\Order\OrderPersister">
-            <argument id="Shopware\Checkout\Order\Repository\OrderRepository" type="service"/>
-            <argument id="Shopware\Checkout\Cart\Tax\TaxDetector" type="service"/>
+            <argument type="service" id="Shopware\Checkout\Order\Cart\OrderPersister" />
         </service>
 
         <service class="Shopware\Checkout\CartBridge\Cart\CartPersister" id="Shopware\Checkout\CartBridge\Cart\CartPersister">

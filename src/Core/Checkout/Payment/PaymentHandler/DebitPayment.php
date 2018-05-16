@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Payment\PaymentHandler;
 
-use Shopware\Checkout\Order\Repository\OrderTransactionRepository;
+use Shopware\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionRepository;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 use Shopware\Checkout\Payment\Struct\PaymentTransaction;
@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 class DebitPayment implements PaymentHandlerInterface
 {
     /**
-     * @var OrderTransactionRepository
+     * @var \Shopware\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionRepository
      */
     private $transactionRepository;
 

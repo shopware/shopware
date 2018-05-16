@@ -34,7 +34,7 @@ use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Framework\ORM\Write\Flag\WriteOnly;
-use Shopware\Checkout\Order\Definition\OrderAddressDefinition;
+use Shopware\Checkout\Order\Aggregate\OrderAddress\OrderAddressDefinition;
 use Shopware\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleDefinition;
 
 class CountryStateDefinition extends EntityDefinition

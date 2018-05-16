@@ -4,8 +4,8 @@ namespace Shopware\StorefrontApi\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Checkout\Order\Definition\OrderDefinition;
-use Shopware\Checkout\Order\Repository\OrderRepository;
+use Shopware\Checkout\Order\OrderDefinition;
+use Shopware\Checkout\Order\OrderRepository;
 use Shopware\Checkout\Cart\Cart\CartPersisterInterface;
 use Shopware\Checkout\Cart\Cart\CircularCartCalculation;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;

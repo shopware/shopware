@@ -5,7 +5,7 @@ namespace Shopware\System\Mail\Event;
 use Shopware\System\Mail\Collection\MailDetailCollection;
 use Shopware\System\Mail\Aggregate\MailAttachment\Event\MailAttachmentBasicLoadedEvent;
 use Shopware\System\Mail\Aggregate\MailTranslation\Event\MailTranslationBasicLoadedEvent;
-use Shopware\Checkout\Order\Event\OrderState\OrderStateBasicLoadedEvent;
+use Shopware\Checkout\Order\Aggregate\OrderState\Event\OrderStateBasicLoadedEvent;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;

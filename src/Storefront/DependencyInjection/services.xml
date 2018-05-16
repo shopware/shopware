@@ -108,7 +108,7 @@
             <argument type="service" id="Shopware\Application\Language\LanguageRepository"/>
         </service>
 
-        <service class="Shopware\Storefront\Controller\Widgets\CheckoutController" public="true" id="Shopware\Storefront\Controller\Widgets\StorefrontCartController">
+        <service class="Shopware\Storefront\Controller\Widgets\CheckoutController" public="true" id="Shopware\Storefront\Controller\Widgets\CheckoutController">
             <argument type="service" id="Shopware\Checkout\Cart\StoreFrontCartService" />
         </service>
 

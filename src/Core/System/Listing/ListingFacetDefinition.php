@@ -24,7 +24,7 @@ use Shopware\System\Listing\Collection\ListingFacetDetailCollection;
 use Shopware\System\Listing\Definition\ListingFacetTranslationDefinition;
 use Shopware\System\Listing\Event\ListingFacetDeletedEvent;
 use Shopware\System\Listing\Event\ListingFacetWrittenEvent;
-use Shopware\System\Listing\ListingFacetRepository;
+
 use Shopware\System\Listing\Struct\ListingFacetBasicStruct;
 use Shopware\System\Listing\Struct\ListingFacetDetailStruct;
 

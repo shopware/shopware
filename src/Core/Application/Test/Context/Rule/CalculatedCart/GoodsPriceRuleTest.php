@@ -4,9 +4,9 @@ namespace Shopware\Application\Test\Context\Rule\CalculatedCart;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Checkout\Test\Cart\Common\Generator;
-use Shopware\Application\Context\Rule\MatchContext\CartRuleMatchContext;
-use Shopware\Application\Context\Rule\CalculatedCart\GoodsPriceRule;
-use Shopware\Application\Context\Rule\Rule;
+use Shopware\Checkout\Rule\Specification\Scope\CartRuleScope;
+use Shopware\Checkout\Rule\Specification\CalculatedCart\GoodsPriceRule;
+use Shopware\Checkout\Rule\Specification\Rule;
 use Shopware\Application\Context\Struct\StorefrontContext;
 
 class GoodsPriceRuleTest extends TestCase
@@ -19,7 +19,7 @@ class GoodsPriceRuleTest extends TestCase
         $context = $this->createMock(StorefrontContext::class);
 
         $this->assertTrue(
-            $rule->match(new CartRuleMatchContext($calculatedCart, $context))->matches()
+            $rule->match(new CartRuleScope($calculatedCart, $context))->matches()
         );
     }
 
@@ -31,7 +31,7 @@ class GoodsPriceRuleTest extends TestCase
         $context = $this->createMock(StorefrontContext::class);
 
         $this->assertFalse(
-            $rule->match(new CartRuleMatchContext($calculatedCart, $context))->matches()
+            $rule->match(new CartRuleScope($calculatedCart, $context))->matches()
         );
     }
 
@@ -43,7 +43,7 @@ class GoodsPriceRuleTest extends TestCase
         $context = $this->createMock(StorefrontContext::class);
 
         $this->assertTrue(
-            $rule->match(new CartRuleMatchContext($calculatedCart, $context))->matches()
+            $rule->match(new CartRuleScope($calculatedCart, $context))->matches()
         );
     }
 
@@ -55,7 +55,7 @@ class GoodsPriceRuleTest extends TestCase
         $context = $this->createMock(StorefrontContext::class);
 
         $this->assertTrue(
-            $rule->match(new CartRuleMatchContext($calculatedCart, $context))->matches()
+            $rule->match(new CartRuleScope($calculatedCart, $context))->matches()
         );
     }
 
@@ -67,7 +67,7 @@ class GoodsPriceRuleTest extends TestCase
         $context = $this->createMock(StorefrontContext::class);
 
         $this->assertFalse(
-            $rule->match(new CartRuleMatchContext($calculatedCart, $context))->matches()
+            $rule->match(new CartRuleScope($calculatedCart, $context))->matches()
         );
     }
 
@@ -79,7 +79,7 @@ class GoodsPriceRuleTest extends TestCase
         $context = $this->createMock(StorefrontContext::class);
 
         $this->assertTrue(
-            $rule->match(new CartRuleMatchContext($calculatedCart, $context))->matches()
+            $rule->match(new CartRuleScope($calculatedCart, $context))->matches()
         );
     }
 
@@ -91,7 +91,7 @@ class GoodsPriceRuleTest extends TestCase
         $context = $this->createMock(StorefrontContext::class);
 
         $this->assertTrue(
-            $rule->match(new CartRuleMatchContext($calculatedCart, $context))->matches()
+            $rule->match(new CartRuleScope($calculatedCart, $context))->matches()
         );
     }
 
@@ -103,7 +103,7 @@ class GoodsPriceRuleTest extends TestCase
         $context = $this->createMock(StorefrontContext::class);
 
         $this->assertFalse(
-            $rule->match(new CartRuleMatchContext($calculatedCart, $context))->matches()
+            $rule->match(new CartRuleScope($calculatedCart, $context))->matches()
         );
     }
 
@@ -115,7 +115,7 @@ class GoodsPriceRuleTest extends TestCase
         $context = $this->createMock(StorefrontContext::class);
 
         $this->assertTrue(
-            $rule->match(new CartRuleMatchContext($calculatedCart, $context))->matches()
+            $rule->match(new CartRuleScope($calculatedCart, $context))->matches()
         );
     }
 
@@ -127,7 +127,7 @@ class GoodsPriceRuleTest extends TestCase
         $context = $this->createMock(StorefrontContext::class);
 
         $this->assertFalse(
-            $rule->match(new CartRuleMatchContext($calculatedCart, $context))->matches()
+            $rule->match(new CartRuleScope($calculatedCart, $context))->matches()
         );
     }
 }

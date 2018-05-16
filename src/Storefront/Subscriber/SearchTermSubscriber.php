@@ -10,7 +10,7 @@ use Shopware\Storefront\Event\ListingEvents;
 use Shopware\Storefront\Event\PageCriteriaCreatedEvent;
 use Shopware\Storefront\Event\TransformListingPageRequestEvent;
 use Shopware\Storefront\Page\Search\SearchPageRequest;
-use Shopware\StorefrontApi\Search\KeywordSearchTermInterpreter;
+use Shopware\Content\Product\Util\KeywordSearchTermInterpreter;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class SearchTermSubscriber implements EventSubscriberInterface

@@ -8,7 +8,7 @@ use Shopware\System\Country\Aggregate\CountryState\Event\CountryStateDeletedEven
 use Shopware\System\Country\Aggregate\CountryState\Event\CountryStateWrittenEvent;
 use Shopware\System\Country\CountryDefinition;
 use Shopware\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationDefinition;
-use Shopware\System\Country\Aggregate\CountryState\CountryStateRepository;
+
 use Shopware\System\Country\Aggregate\CountryState\Struct\CountryStateBasicStruct;
 use Shopware\System\Country\Aggregate\CountryState\Struct\CountryStateDetailStruct;
 use Shopware\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;

@@ -21,7 +21,7 @@ use Shopware\System\Snippet\Collection\SnippetBasicCollection;
 use Shopware\System\Snippet\Collection\SnippetDetailCollection;
 use Shopware\System\Snippet\Event\SnippetDeletedEvent;
 use Shopware\System\Snippet\Event\SnippetWrittenEvent;
-use Shopware\System\Snippet\SnippetRepository;
+
 use Shopware\System\Snippet\Struct\SnippetBasicStruct;
 use Shopware\System\Snippet\Struct\SnippetDetailStruct;
 

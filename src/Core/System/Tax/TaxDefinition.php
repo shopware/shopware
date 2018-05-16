@@ -24,7 +24,7 @@ use Shopware\System\Tax\Collection\TaxDetailCollection;
 use Shopware\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleDefinition;
 use Shopware\System\Tax\Event\TaxDeletedEvent;
 use Shopware\System\Tax\Event\TaxWrittenEvent;
-use Shopware\System\Tax\TaxRepository;
+
 use Shopware\System\Tax\Struct\TaxBasicStruct;
 use Shopware\System\Tax\Struct\TaxDetailStruct;
 

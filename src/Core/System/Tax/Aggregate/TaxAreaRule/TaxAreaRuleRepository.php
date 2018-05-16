@@ -13,7 +13,7 @@ use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
 use Shopware\System\Tax\Aggregate\TaxAreaRule\Collection\TaxAreaRuleBasicCollection;
 use Shopware\System\Tax\Aggregate\TaxAreaRule\Collection\TaxAreaRuleDetailCollection;
-use Shopware\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleDefinition;
+
 use Shopware\System\Tax\Aggregate\TaxAreaRule\Event\TaxAreaRuleAggregationResultLoadedEvent;
 use Shopware\System\Tax\Aggregate\TaxAreaRule\Event\TaxAreaRuleBasicLoadedEvent;
 use Shopware\System\Tax\Aggregate\TaxAreaRule\Event\TaxAreaRuleDetailLoadedEvent;

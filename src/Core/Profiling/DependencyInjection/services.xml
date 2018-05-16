@@ -5,29 +5,27 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service id="Shopware\Traceable\DataCollector\CartCollector" public="false">
+        <service id="Shopware\Profiling\DataCollector\CartCollector" public="false">
             <tag name="data_collector" template="@Profiling/Profiler/layout.html.twig" id="cart"/>
-            <argument type="service" id="Shopware\Traceable\Cart\TracedCartActions"/>
+            <argument type="service" id="Shopware\Profiling\Cart\TracedCartActions"/>
         </service>
 
-        <service class="Shopware\Traceable\Cart\TracedCartActions" id="Shopware\Profiling\Cart\TracedCartActions"/>
+        <service class="Shopware\Profiling\Cart\TracedCartActions" id="Shopware\Profiling\Cart\TracedCartActions"/>
 
-        <service class="Shopware\Traceable\Dbal\TraceableEntityReader"
+        <service class="Shopware\Profiling\Dbal\TraceableEntityReader"
                  id="Shopware\Profiling\Dbal\TraceableEntityReader"
                  decorates="Shopware\Framework\ORM\Dbal\EntityReader">
 
-            <argument id="Shopware\Traceable\Dbal\TraceableEntityReader.inner" type="service"/>
+            <argument id="Shopware\Profiling\Dbal\TraceableEntityReader.inner" type="service"/>
             <argument id="debug.stopwatch" type="service"/>
         </service>
 
-        <service class="Shopware\Traceable\Dbal\TraceableEntitySearcher"
+        <service class="Shopware\Profiling\Dbal\TraceableEntitySearcher"
                  id="Shopware\Profiling\Dbal\TraceableEntitySearcher"
                  decorates="Shopware\Framework\ORM\Dbal\EntitySearcher">
 
-            <argument id="Shopware\Traceable\Dbal\TraceableEntitySearcher.inner" type="service"/>
+            <argument id="Shopware\Profiling\Dbal\TraceableEntitySearcher.inner" type="service"/>
             <argument id="debug.stopwatch" type="service"/>
         </service>
-
-
     </services>
 </container>

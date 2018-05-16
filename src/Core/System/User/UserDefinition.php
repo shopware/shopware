@@ -20,12 +20,12 @@ use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\System\Locale\LocaleDefinition;
-use Shopware\Content\Media\MediaDefinition;
+
 use Shopware\System\User\Collection\UserBasicCollection;
 use Shopware\System\User\Collection\UserDetailCollection;
 use Shopware\System\User\Event\UserDeletedEvent;
 use Shopware\System\User\Event\UserWrittenEvent;
-use Shopware\System\User\UserRepository;
+
 use Shopware\System\User\Struct\UserBasicStruct;
 use Shopware\System\User\Struct\UserDetailStruct;
 

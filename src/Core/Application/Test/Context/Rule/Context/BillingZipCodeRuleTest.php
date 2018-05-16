@@ -28,8 +28,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
 use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Application\Context\Rule\MatchContext\CartRuleMatchContext;
-use Shopware\Application\Context\Rule\Context\BillingZipCodeRule;
+use Shopware\Checkout\Rule\Specification\Scope\CartRuleScope;
+use Shopware\Checkout\Rule\Specification\Context\BillingZipCodeRule;
 use Shopware\Application\Context\Struct\StorefrontContext;
 
 class BillingZipCodeRuleTest extends TestCase
@@ -53,7 +53,7 @@ class BillingZipCodeRuleTest extends TestCase
             ->will($this->returnValue($customer));
 
         $this->assertTrue(
-            $rule->match(new CartRuleMatchContext($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))->matches()
         );
     }
 
@@ -76,7 +76,7 @@ class BillingZipCodeRuleTest extends TestCase
             ->will($this->returnValue($customer));
 
         $this->assertTrue(
-            $rule->match(new CartRuleMatchContext($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))->matches()
         );
     }
 
@@ -99,7 +99,7 @@ class BillingZipCodeRuleTest extends TestCase
             ->will($this->returnValue($customer));
 
         $this->assertFalse(
-            $rule->match(new CartRuleMatchContext($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))->matches()
         );
     }
 
@@ -116,7 +116,7 @@ class BillingZipCodeRuleTest extends TestCase
             ->will($this->returnValue(null));
 
         $this->assertFalse(
-            $rule->match(new CartRuleMatchContext($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))->matches()
         );
     }
 }

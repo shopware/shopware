@@ -13,7 +13,7 @@ use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
 use Shopware\Checkout\Order\Collection\OrderBasicCollection;
 use Shopware\Checkout\Order\Collection\OrderDetailCollection;
-use Shopware\Checkout\Order\OrderDefinition;
+
 use Shopware\Checkout\Order\Event\OrderAggregationResultLoadedEvent;
 use Shopware\Checkout\Order\Event\OrderBasicLoadedEvent;
 use Shopware\Checkout\Order\Event\OrderDetailLoadedEvent;

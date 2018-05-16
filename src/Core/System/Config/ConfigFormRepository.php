@@ -4,7 +4,7 @@ namespace Shopware\System\Config;
 
 use Shopware\System\Config\Collection\ConfigFormBasicCollection;
 use Shopware\System\Config\Collection\ConfigFormDetailCollection;
-use Shopware\System\Config\ConfigFormDefinition;
+
 use Shopware\System\Config\Event\ConfigFormAggregationResultLoadedEvent;
 use Shopware\System\Config\Event\ConfigFormBasicLoadedEvent;
 use Shopware\System\Config\Event\ConfigFormDetailLoadedEvent;

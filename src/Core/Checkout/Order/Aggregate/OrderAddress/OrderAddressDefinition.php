@@ -4,8 +4,8 @@ namespace Shopware\Checkout\Order\Aggregate\OrderAddress;
 
 use Shopware\Checkout\Order\OrderDefinition;
 use Shopware\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
-use Shopware\System\Country\CountryDefinition;
-use Shopware\System\Country\Aggregate\CountryState\CountryStateDefinition;
+
+
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\DateField;
@@ -26,7 +26,7 @@ use Shopware\Checkout\Order\Aggregate\OrderAddress\Collection\OrderAddressBasicC
 use Shopware\Checkout\Order\Aggregate\OrderAddress\Collection\OrderAddressDetailCollection;
 use Shopware\Checkout\Order\Aggregate\OrderAddress\Event\OrderAddressDeletedEvent;
 use Shopware\Checkout\Order\Aggregate\OrderAddress\Event\OrderAddressWrittenEvent;
-use Shopware\Checkout\Order\Aggregate\OrderAddress\OrderAddressRepository;
+
 use Shopware\Checkout\Order\Aggregate\OrderAddress\Struct\OrderAddressBasicStruct;
 use Shopware\Checkout\Order\Aggregate\OrderAddress\Struct\OrderAddressDetailStruct;
 

@@ -4,7 +4,7 @@ namespace Shopware\Content\Category;
 
 use Shopware\Content\Category\Collection\CategoryBasicCollection;
 use Shopware\Content\Category\Collection\CategoryDetailCollection;
-use Shopware\Content\Category\CategoryDefinition;
+
 use Shopware\Content\Category\Event\CategoryAggregationResultLoadedEvent;
 use Shopware\Content\Category\Event\CategoryBasicLoadedEvent;
 use Shopware\Content\Category\Event\CategoryDetailLoadedEvent;

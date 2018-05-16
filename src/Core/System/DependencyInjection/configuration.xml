@@ -11,7 +11,7 @@
         <service alias="Shopware\System\Configuration\Repository\ConfigurationGroupOptionTranslationRepository.v1" id="Shopware\System\Configuration\Repository\ConfigurationGroupOptionTranslationRepository" public="true" />
         <service alias="Shopware\System\Configuration\Repository\ConfigurationGroupTranslationRepository.v1" id="Shopware\System\Configuration\Repository\ConfigurationGroupTranslationRepository" public="true" />
 
-         <service class="Shopware\System\Configuration\Definition\ConfigurationGroupDefinition" id="Shopware\System\Configuration\Definition\ConfigurationGroupDefinition" >
+         <service class="Shopware\System\Configuration\ConfigurationGroupDefinition" id="Shopware\System\Configuration\ConfigurationGroupDefinition" >
             <tag name="shopware.entity.definition" entity="configuration_group" />
         </service>
 

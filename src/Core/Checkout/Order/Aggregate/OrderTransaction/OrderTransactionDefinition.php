@@ -26,7 +26,7 @@ use Shopware\Checkout\Order\Aggregate\OrderTransaction\Collection\OrderTransacti
 use Shopware\Checkout\Order\Aggregate\OrderTransaction\Collection\OrderTransactionDetailCollection;
 use Shopware\Checkout\Order\Aggregate\OrderTransaction\Event\OrderTransactionDeletedEvent;
 use Shopware\Checkout\Order\Aggregate\OrderTransaction\Event\OrderTransactionWrittenEvent;
-use Shopware\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionRepository;
+
 use Shopware\Checkout\Order\Aggregate\OrderTransaction\Struct\OrderTransactionBasicStruct;
 use Shopware\Checkout\Order\Aggregate\OrderTransaction\Struct\OrderTransactionDetailStruct;
 use Shopware\Checkout\Payment\PaymentMethodDefinition;

@@ -25,7 +25,7 @@ use Shopware\System\Unit\Collection\UnitDetailCollection;
 use Shopware\System\Unit\Definition\UnitTranslationDefinition;
 use Shopware\System\Unit\Event\UnitDeletedEvent;
 use Shopware\System\Unit\Event\UnitWrittenEvent;
-use Shopware\System\Unit\UnitRepository;
+
 use Shopware\System\Unit\Struct\UnitBasicStruct;
 use Shopware\System\Unit\Struct\UnitDetailStruct;
 

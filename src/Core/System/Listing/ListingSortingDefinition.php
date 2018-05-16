@@ -27,7 +27,7 @@ use Shopware\System\Listing\Collection\ListingSortingDetailCollection;
 use Shopware\System\Listing\Definition\ListingSortingTranslationDefinition;
 use Shopware\System\Listing\Event\ListingSortingDeletedEvent;
 use Shopware\System\Listing\Event\ListingSortingWrittenEvent;
-use Shopware\System\Listing\ListingSortingRepository;
+
 use Shopware\System\Listing\Struct\ListingSortingBasicStruct;
 use Shopware\System\Listing\Struct\ListingSortingDetailStruct;
 use Shopware\Content\Product\Aggregate\ProductStream\ProductStreamDefinition;

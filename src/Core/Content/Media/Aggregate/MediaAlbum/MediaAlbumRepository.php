@@ -13,7 +13,7 @@ use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
 use Shopware\Content\Media\Aggregate\MediaAlbum\Collection\MediaAlbumBasicCollection;
 use Shopware\Content\Media\Aggregate\MediaAlbum\Collection\MediaAlbumDetailCollection;
-use Shopware\Content\Media\Aggregate\MediaAlbum\MediaAlbumDefinition;
+
 use Shopware\Content\Media\Aggregate\MediaAlbum\Event\MediaAlbumAggregationResultLoadedEvent;
 use Shopware\Content\Media\Aggregate\MediaAlbum\Event\MediaAlbumBasicLoadedEvent;
 use Shopware\Content\Media\Aggregate\MediaAlbum\Event\MediaAlbumDetailLoadedEvent;

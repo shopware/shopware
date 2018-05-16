@@ -2,7 +2,7 @@
 
 namespace Shopware\Content\Product\Aggregate\ProductContextPrice\Collection;
 
-use Shopware\Application\Context\Collection\ContextRuleBasicCollection;
+
 
 use Shopware\Content\Product\Collection\ProductBasicCollection;
 use Shopware\System\Currency\Collection\CurrencyBasicCollection;
@@ -33,9 +33,9 @@ class ProductContextPriceDetailCollection extends ProductContextPriceBasicCollec
         );
     }
 
-    public function getContextRules(): ContextRuleBasicCollection
+    public function getContextRules(): \Shopware\Checkout\Rule\Collection\ContextRuleBasicCollection
     {
-        return new ContextRuleBasicCollection(
+        return new \Shopware\Checkout\Rule\Collection\ContextRuleBasicCollection(
             $this->fmap(function (ProductContextPriceDetailStruct $productContextPrice) {
                 return $productContextPrice->getContextRule();
             })

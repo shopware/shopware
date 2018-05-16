@@ -27,8 +27,8 @@ namespace Shopware\Application\Test\Context\Rule\Context;
 use PHPUnit\Framework\TestCase;
 use Shopware\System\Currency\Struct\CurrencyBasicStruct;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Application\Context\Rule\MatchContext\CartRuleMatchContext;
-use Shopware\Application\Context\Rule\Context\CurrencyRule;
+use Shopware\Checkout\Rule\Specification\Scope\CartRuleScope;
+use Shopware\Checkout\Rule\Specification\Context\CurrencyRule;
 use Shopware\Application\Context\Struct\StorefrontContext;
 
 class CurrencyRuleTest extends TestCase
@@ -49,7 +49,7 @@ class CurrencyRuleTest extends TestCase
             ->will($this->returnValue($currency));
 
         $this->assertTrue(
-            $rule->match(new CartRuleMatchContext($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))->matches()
         );
     }
 
@@ -69,7 +69,7 @@ class CurrencyRuleTest extends TestCase
             ->will($this->returnValue($currency));
 
         $this->assertFalse(
-            $rule->match(new CartRuleMatchContext($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))->matches()
         );
     }
 
@@ -89,7 +89,7 @@ class CurrencyRuleTest extends TestCase
             ->will($this->returnValue($currency));
 
         $this->assertTrue(
-            $rule->match(new CartRuleMatchContext($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))->matches()
         );
     }
 }

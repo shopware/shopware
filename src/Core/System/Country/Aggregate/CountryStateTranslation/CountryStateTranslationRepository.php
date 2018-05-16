@@ -4,7 +4,7 @@ namespace Shopware\System\Country\Aggregate\CountryStateTranslation;
 
 use Shopware\System\Country\Aggregate\CountryStateTranslation\Collection\CountryStateTranslationBasicCollection;
 use Shopware\System\Country\Aggregate\CountryStateTranslation\Collection\CountryStateTranslationDetailCollection;
-use Shopware\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationDefinition;
+
 use Shopware\System\Country\Aggregate\CountryStateTranslation\Event\CountryStateTranslationAggregationResultLoadedEvent;
 use Shopware\System\Country\Aggregate\CountryStateTranslation\Event\CountryStateTranslationBasicLoadedEvent;
 use Shopware\System\Country\Aggregate\CountryStateTranslation\Event\CountryStateTranslationDetailLoadedEvent;

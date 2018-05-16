@@ -8,7 +8,7 @@ use Shopware\System\Currency\Collection\CurrencyBasicCollection;
 use Shopware\System\Currency\Collection\CurrencyDetailCollection;
 use Shopware\System\Currency\Event\CurrencyDeletedEvent;
 use Shopware\System\Currency\Event\CurrencyWrittenEvent;
-use Shopware\System\Currency\CurrencyRepository;
+
 use Shopware\System\Currency\Struct\CurrencyBasicStruct;
 use Shopware\System\Currency\Struct\CurrencyDetailStruct;
 use Shopware\Framework\ORM\EntityDefinition;

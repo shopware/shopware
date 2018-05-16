@@ -4,7 +4,7 @@ namespace Shopware\Checkout\Customer\Aggregate\CustomerAddress;
 
 use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Collection\CustomerAddressBasicCollection;
 use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Collection\CustomerAddressDetailCollection;
-use Shopware\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
+
 use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Event\CustomerAddressAggregationResultLoadedEvent;
 use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Event\CustomerAddressBasicLoadedEvent;
 use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Event\CustomerAddressDetailLoadedEvent;

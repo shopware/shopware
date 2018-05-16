@@ -2,7 +2,7 @@
 
 namespace Shopware\Content\Product\Aggregate\ProductContextPrice;
 
-use Shopware\Application\Context\Definition\ContextRuleDefinition;
+use Shopware\Checkout\Rule\ContextRuleDefinition;
 use Shopware\Content\Product\ProductDefinition;
 use Shopware\System\Currency\CurrencyDefinition;
 use Shopware\Framework\ORM\EntityDefinition;

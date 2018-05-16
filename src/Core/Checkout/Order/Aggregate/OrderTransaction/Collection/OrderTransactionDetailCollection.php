@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Order\Aggregate\OrderTransaction\Collection;
 
-use Shopware\Checkout\Order\Aggregate\OrderTransaction\Collection\OrderTransactionBasicCollection;
+
 use Shopware\Checkout\Order\Aggregate\OrderTransaction\Struct\OrderTransactionDetailStruct;
 use Shopware\Checkout\Payment\Collection\PaymentMethodBasicCollection;
 

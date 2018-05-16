@@ -30,8 +30,8 @@ use Shopware\System\Country\Aggregate\CountryState\Struct\CountryStateBasicStruc
 use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Checkout\Cart\Delivery\Struct\ShippingLocation;
-use Shopware\Application\Context\Rule\MatchContext\CartRuleMatchContext;
-use Shopware\Application\Context\Rule\Context\ShippingStreetRule;
+use Shopware\Checkout\Rule\Specification\Scope\CartRuleScope;
+use Shopware\Checkout\Rule\Specification\Context\ShippingStreetRule;
 use Shopware\Application\Context\Struct\StorefrontContext;
 
 class ShippingStreetRuleTest extends TestCase
@@ -53,7 +53,7 @@ class ShippingStreetRuleTest extends TestCase
             ));
 
         $this->assertTrue(
-            $rule->match(new CartRuleMatchContext($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))->matches()
         );
     }
 
@@ -74,7 +74,7 @@ class ShippingStreetRuleTest extends TestCase
             ));
 
         $this->assertTrue(
-            $rule->match(new CartRuleMatchContext($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))->matches()
         );
     }
 
@@ -95,7 +95,7 @@ class ShippingStreetRuleTest extends TestCase
             ));
 
         $this->assertFalse(
-            $rule->match(new CartRuleMatchContext($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))->matches()
         );
     }
 
@@ -116,7 +116,7 @@ class ShippingStreetRuleTest extends TestCase
             ));
 
         $this->assertFalse(
-            $rule->match(new CartRuleMatchContext($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))->matches()
         );
     }
 

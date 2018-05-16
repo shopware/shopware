@@ -26,7 +26,7 @@ declare(strict_types=1);
 namespace Shopware\Content\Product\Cart;
 
 use Shopware\Content\Product\Struct\ProductBasicStruct;
-use Shopware\Content\Product\Aggregate\ProductService\Struct\ProductServiceBasicStruct;
+
 use Shopware\Checkout\Cart\LineItem\CalculatedLineItem;
 use Shopware\Checkout\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Checkout\Cart\LineItem\LineItemCollection;

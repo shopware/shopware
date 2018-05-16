@@ -4,9 +4,9 @@ namespace Shopware\System\Tax\Aggregate\TaxAreaRule\Collection;
 
 use Shopware\System\Country\Aggregate\CountryArea\Collection\CountryAreaBasicCollection;
 use Shopware\System\Country\Collection\CountryBasicCollection;
-use Shopware\System\Country\Aggregate\CountryState\Collection\CountryStateBasicCollection;
+
 use Shopware\Checkout\Customer\Aggregate\CustomerGroup\Collection\CustomerGroupBasicCollection;
-use Shopware\System\Tax\Aggregate\TaxAreaRule\Collection\TaxAreaRuleBasicCollection;
+
 use Shopware\System\Tax\Aggregate\TaxAreaRuleTranslation\Collection\TaxAreaRuleTranslationBasicCollection;
 use Shopware\System\Tax\Collection\TaxBasicCollection;
 use Shopware\System\Tax\Aggregate\TaxAreaRule\Struct\TaxAreaRuleDetailStruct;

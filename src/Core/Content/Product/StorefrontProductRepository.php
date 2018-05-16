@@ -10,7 +10,7 @@ use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\IdSearchResult;
 use Shopware\Content\Product\Collection\ProductBasicCollection;
 use Shopware\Content\Product\Collection\ProductDetailCollection;
-use Shopware\Content\Product\ProductRepository;
+
 use Shopware\Content\Product\Struct\ProductSearchResult;
 use Shopware\Content\Product\Aggregate\ProductService\Struct\ProductServiceBasicStruct;
 use Shopware\Checkout\Cart\Price\PriceCalculator;

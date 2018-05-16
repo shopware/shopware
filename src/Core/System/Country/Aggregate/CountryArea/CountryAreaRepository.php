@@ -4,7 +4,7 @@ namespace Shopware\System\Country\Aggregate\CountryArea;
 
 use Shopware\System\Country\Aggregate\CountryArea\Collection\CountryAreaBasicCollection;
 use Shopware\System\Country\Aggregate\CountryArea\Collection\CountryAreaDetailCollection;
-use Shopware\System\Country\Aggregate\CountryArea\CountryAreaDefinition;
+
 use Shopware\System\Country\Aggregate\CountryArea\Event\CountryAreaAggregationResultLoadedEvent;
 use Shopware\System\Country\Aggregate\CountryArea\Event\CountryAreaBasicLoadedEvent;
 use Shopware\System\Country\Aggregate\CountryArea\Event\CountryAreaDetailLoadedEvent;

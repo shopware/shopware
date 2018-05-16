@@ -53,7 +53,7 @@ use Shopware\Checkout\Cart\Tax\TaxRuleCalculator;
 use Shopware\Checkout\Test\Cart\Common\Generator;
 use Shopware\Content\Product\Cart\ProductProcessor;
 use Shopware\Content\Product\Cart\Struct\CalculatedProduct;
-use Shopware\Application\Context\Rule\Container\AndRule;
+use Shopware\Checkout\Rule\Specification\Container\AndRule;
 
 class StockDeliverySeparatorTest extends TestCase
 {

@@ -7,7 +7,7 @@ use Shopware\System\Country\Aggregate\CountryTranslation\Collection\CountryTrans
 use Shopware\System\Country\Aggregate\CountryTranslation\Event\CountryTranslationDeletedEvent;
 use Shopware\System\Country\Aggregate\CountryTranslation\Event\CountryTranslationWrittenEvent;
 use Shopware\System\Country\CountryDefinition;
-use Shopware\System\Country\Aggregate\CountryTranslation\CountryTranslationRepository;
+
 use Shopware\System\Country\Aggregate\CountryTranslation\Struct\CountryTranslationBasicStruct;
 use Shopware\System\Country\Aggregate\CountryTranslation\Struct\CountryTranslationDetailStruct;
 use Shopware\Framework\ORM\EntityDefinition;
@@ -16,7 +16,7 @@ use Shopware\Framework\ORM\Field\FkField;
 use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Framework\ORM\Field\ReferenceVersionField;
 use Shopware\Framework\ORM\Field\StringField;
-use Shopware\Framework\ORM\Field\VersionField;
+
 use Shopware\Framework\ORM\FieldCollection;
 use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;

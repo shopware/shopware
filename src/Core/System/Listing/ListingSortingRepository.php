@@ -13,7 +13,7 @@ use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
 use Shopware\System\Listing\Collection\ListingSortingBasicCollection;
 use Shopware\System\Listing\Collection\ListingSortingDetailCollection;
-use Shopware\System\Listing\ListingSortingDefinition;
+
 use Shopware\System\Listing\Event\ListingSortingAggregationResultLoadedEvent;
 use Shopware\System\Listing\Event\ListingSortingBasicLoadedEvent;
 use Shopware\System\Listing\Event\ListingSortingDetailLoadedEvent;

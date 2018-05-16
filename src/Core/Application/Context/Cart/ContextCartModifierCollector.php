@@ -3,7 +3,7 @@
 namespace Shopware\Application\Context\Cart;
 
 use Shopware\Application\Context\Repository\ContextCartModifierRepository;
-use Shopware\Application\Context\Cart\ContextCartModifierProcessor;
+
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Query\TermsQuery;
 use Shopware\Checkout\Cart\Cart\CartCollectorInterface;

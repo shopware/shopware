@@ -6,62 +6,17 @@
 
     <services>
 
-        <service class="Shopware\StorefrontApi\Context\StorefrontContextPersister" id="Shopware\StorefrontApi\Context\StorefrontContextPersister">
-            <argument id="Doctrine\DBAL\Connection" type="service"/>
-        </service>
-
-        <service class="Shopware\StorefrontApi\Context\StorefrontContextService" id="Shopware\StorefrontApi\Context\StorefrontContextService">
-            <argument type="service" id="Shopware\Application\Context\Util\ContextFactory"/>
-            <argument type="service" id="cache.serializer"/>
-            <argument type="service" id="serializer"/>
-            <argument type="service" id="Shopware\Application\Context\Util\ContextRuleLoader"/>
-            <argument type="service" id="logger"/>
-            <argument type="service" id="Shopware\StorefrontApi\Context\StorefrontContextPersister"/>
-            <tag name="shopware.traceable" />
-        </service>
-
-
-        <service class="Shopware\StorefrontApi\Controller\CheckoutController" id="Shopware\StorefrontApi\Controller\CheckoutController" public="true">
-            <argument id="Shopware\Checkout\Cart\Cart\CircularCartCalculation" type="service"/>
-            <argument id="Shopware\Checkout\Cart\Cart\CartPersister" type="service"/>
-            <argument id="Shopware\Checkout\Order\Cart\OrderPersister" type="service"/>
-            <argument type="service" id="Shopware\Checkout\Order\OrderRepository"/>
-            <argument type="service" id="serializer"/>
-            <argument type="service" id="Shopware\StorefrontApi\Context\StorefrontContextPersister"/>
-        </service>
-
-        <service class="Shopware\StorefrontApi\Controller\CustomerController" id="Shopware\StorefrontApi\Controller\CustomerController" public="true">
-            <argument id="serializer" type="service"/>
-            <argument type="service" id="Shopware\StorefrontApi\Context\StorefrontContextPersister"/>
-            <argument type="service" id="Shopware\StorefrontApi\Firewall\CustomerProvider"/>
-        </service>
-
-        <service class="Shopware\StorefrontApi\Controller\ContextController" id="Shopware\StorefrontApi\Controller\ContextController" public="true">
-            <argument id="Shopware\Checkout\Payment\PaymentMethodRepository" type="service"/>
-            <argument id="Shopware\Checkout\Shipping\ShippingMethodRepository" type="service"/>
-            <argument id="Shopware\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository" type="service"/>
-            <argument id="Shopware\StorefrontApi\Context\StorefrontContextPersister" type="service"/>
-            <argument type="service" id="serializer"/>
-        </service>
-
         <service class="Shopware\StorefrontApi\Firewall\CustomerProvider" id="Shopware\StorefrontApi\Firewall\CustomerProvider">
             <argument type="service" id="Shopware\Checkout\Customer\CustomerRepository"/>
         </service>
 
-        <service class="Shopware\StorefrontApi\Search\KeywordSearchTermInterpreter" id="Shopware\StorefrontApi\Search\KeywordSearchTermInterpreter">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="Shopware\Framework\ORM\Search\Term\Tokenizer"/>
-            <argument type="service" id="logger"/>
-        </service>
-
         <service class="Shopware\StorefrontApi\Firewall\ContextUserProvider" id="Shopware\StorefrontApi\Firewall\ContextUserProvider">
-            <argument id="Shopware\StorefrontApi\Context\StorefrontContextService" type="service"/>
+            <argument id="Shopware\Application\Context\Util\StorefrontContextService" type="service"/>
             <argument id="Doctrine\DBAL\Connection" type="service"/>
         </service>
 
         <service class="Shopware\StorefrontApi\Firewall\ApplicationAuthenticator" id="Shopware\StorefrontApi\Firewall\ApplicationAuthenticator">
             <argument id="Doctrine\DBAL\Connection" type="service"/>
         </service>
-
     </services>
 </container>

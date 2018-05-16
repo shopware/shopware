@@ -8,7 +8,7 @@ use Shopware\System\Country\Aggregate\CountryArea\Event\CountryAreaDeletedEvent;
 use Shopware\System\Country\Aggregate\CountryArea\Event\CountryAreaWrittenEvent;
 use Shopware\System\Country\Aggregate\CountryAreaTranslation\CountryAreaTranslationDefinition;
 use Shopware\System\Country\CountryDefinition;
-use Shopware\System\Country\Aggregate\CountryArea\CountryAreaRepository;
+
 use Shopware\System\Country\Aggregate\CountryArea\Struct\CountryAreaBasicStruct;
 use Shopware\System\Country\Aggregate\CountryArea\Struct\CountryAreaDetailStruct;
 use Shopware\Framework\ORM\EntityDefinition;

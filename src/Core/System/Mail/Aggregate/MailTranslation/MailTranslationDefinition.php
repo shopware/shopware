@@ -9,7 +9,7 @@ use Shopware\Framework\ORM\Field\LongTextField;
 use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Framework\ORM\Field\ReferenceVersionField;
 use Shopware\Framework\ORM\Field\StringField;
-use Shopware\Framework\ORM\Field\VersionField;
+
 use Shopware\Framework\ORM\FieldCollection;
 use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
@@ -19,7 +19,7 @@ use Shopware\System\Mail\Aggregate\MailTranslation\Collection\MailTranslationDet
 use Shopware\System\Mail\Aggregate\MailTranslation\Event\MailTranslationDeletedEvent;
 use Shopware\System\Mail\Aggregate\MailTranslation\Event\MailTranslationWrittenEvent;
 use Shopware\System\Mail\MailDefinition;
-use Shopware\System\Mail\Aggregate\MailTranslation\MailTranslationRepository;
+
 use Shopware\System\Mail\Aggregate\MailTranslation\Struct\MailTranslationBasicStruct;
 use Shopware\System\Mail\Aggregate\MailTranslation\Struct\MailTranslationDetailStruct;
 

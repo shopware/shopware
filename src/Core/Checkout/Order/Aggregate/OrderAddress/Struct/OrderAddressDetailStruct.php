@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Order\Aggregate\OrderAddress\Struct;
 
-use Shopware\Checkout\Order\Aggregate\OrderAddress\Struct\OrderAddressBasicStruct;
+
 use Shopware\Checkout\Order\Collection\OrderBasicCollection;
 use Shopware\Checkout\Order\Aggregate\OrderDelivery\Collection\OrderDeliveryBasicCollection;
 

@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Config\Aggregate\ConfigFormField\Collection;
 
-use Shopware\System\Config\Aggregate\ConfigFormField\Collection\ConfigFormFieldBasicCollection;
+
 use Shopware\System\Config\Aggregate\ConfigFormFieldTranslation\Collection\ConfigFormFieldTranslationBasicCollection;
 use Shopware\System\Config\Collection\ConfigFormBasicCollection;
 use Shopware\System\Config\Aggregate\ConfigFormFieldValue\Collection\ConfigFormFieldValueBasicCollection;

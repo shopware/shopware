@@ -41,7 +41,7 @@ use Shopware\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Checkout\Cart\Tax\TaxDetector;
-use Shopware\Checkout\Order\Cart\OrderPersister;
+use Shopware\Checkout\Cart\Order\OrderPersister;
 use Shopware\Application\Context\Struct\StorefrontContext;
 
 class OrderPersisterTest extends TestCase

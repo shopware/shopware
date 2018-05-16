@@ -4,7 +4,7 @@ namespace Shopware\System\Country\Aggregate\CountryState;
 
 use Shopware\System\Country\Aggregate\CountryState\Collection\CountryStateBasicCollection;
 use Shopware\System\Country\Aggregate\CountryState\Collection\CountryStateDetailCollection;
-use Shopware\System\Country\Aggregate\CountryState\CountryStateDefinition;
+
 use Shopware\System\Country\Aggregate\CountryState\Event\CountryStateAggregationResultLoadedEvent;
 use Shopware\System\Country\Aggregate\CountryState\Event\CountryStateBasicLoadedEvent;
 use Shopware\System\Country\Aggregate\CountryState\Event\CountryStateDetailLoadedEvent;

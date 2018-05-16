@@ -27,9 +27,9 @@ namespace Shopware\Checkout\Test\Cart\Validator\Container;
 use PHPUnit\Framework\TestCase;
 use Shopware\Checkout\Test\Cart\Common\FalseRule;
 use Shopware\Checkout\Test\Cart\Common\TrueRule;
-use Shopware\Application\Context\Rule\MatchContext\StorefrontMatchContext;
-use Shopware\Application\Context\Rule\Container\NotRule;
-use Shopware\Application\Context\Rule\Match;
+use Shopware\Checkout\Rule\Specification\Scope\StorefrontScope;
+use Shopware\Checkout\Rule\Specification\Container\NotRule;
+use Shopware\Checkout\Rule\Specification\Match;
 use Shopware\Application\Context\Struct\StorefrontContext;
 
 class NotRuleTest extends TestCase
@@ -43,7 +43,7 @@ class NotRuleTest extends TestCase
         $this->assertEquals(
             new Match(true),
             $rule->match(
-                new StorefrontMatchContext(
+                new StorefrontScope(
                     $this->createMock(StorefrontContext::class)
                 )
             )
@@ -71,7 +71,7 @@ class NotRuleTest extends TestCase
         $this->assertEquals(
             new Match(false),
             $rule->match(
-                new StorefrontMatchContext(
+                new StorefrontScope(
                     $this->createMock(StorefrontContext::class)
                 )
             )

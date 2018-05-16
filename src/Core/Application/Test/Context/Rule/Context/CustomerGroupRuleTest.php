@@ -27,8 +27,8 @@ namespace Shopware\Application\Test\Context\Rule\Context;
 use PHPUnit\Framework\TestCase;
 use Shopware\Checkout\Customer\Aggregate\CustomerGroup\Struct\CustomerGroupBasicStruct;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Application\Context\Rule\MatchContext\CartRuleMatchContext;
-use Shopware\Application\Context\Rule\Context\CustomerGroupRule;
+use Shopware\Checkout\Rule\Specification\Scope\CartRuleScope;
+use Shopware\Checkout\Rule\Specification\Context\CustomerGroupRule;
 use Shopware\Application\Context\Struct\StorefrontContext;
 
 class CustomerGroupRuleTest extends TestCase
@@ -49,7 +49,7 @@ class CustomerGroupRuleTest extends TestCase
             ->will($this->returnValue($group));
 
         $this->assertTrue(
-            $rule->match(new CartRuleMatchContext($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))->matches()
         );
     }
 
@@ -69,7 +69,7 @@ class CustomerGroupRuleTest extends TestCase
             ->will($this->returnValue($group));
 
         $this->assertTrue(
-            $rule->match(new CartRuleMatchContext($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))->matches()
         );
     }
 
@@ -89,7 +89,7 @@ class CustomerGroupRuleTest extends TestCase
             ->will($this->returnValue($group));
 
         $this->assertFalse(
-            $rule->match(new CartRuleMatchContext($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))->matches()
         );
     }
 }

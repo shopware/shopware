@@ -3,8 +3,8 @@
 namespace Shopware\Application\Context\Util;
 
 use Psr\Cache\CacheItemPoolInterface;
-use Shopware\Application\Context\Collection\ContextRuleBasicCollection;
-use Shopware\Application\Context\Repository\ContextRuleRepository;
+use Shopware\Checkout\Rule\Collection\ContextRuleBasicCollection;
+use Shopware\Checkout\Rule\ContextRuleRepository;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Checkout\Cart\Cart\CartCollector;
 use Shopware\Checkout\Cart\Cart\CartPersisterInterface;
@@ -56,7 +56,7 @@ class ContextRuleLoader
     private $cache;
 
     /**
-     * @var ContextRuleRepository
+     * @var \Shopware\Checkout\Rule\ContextRuleRepository
      */
     private $repository;
 

@@ -13,7 +13,7 @@ use Shopware\Checkout\Order\Exception\NotLoggedInCustomerException;
 use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\Uuid;
 use Shopware\Storefront\Exception\CustomerNotFoundException;
-use Shopware\StorefrontApi\Exception\AddressNotFoundHttpException;
+use Shopware\Storefront\Exception\AddressNotFoundHttpException;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 
 class AccountService

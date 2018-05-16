@@ -17,7 +17,7 @@ use Shopware\Framework\ORM\FieldCollection;
 use Shopware\Framework\ORM\Write\Flag\CascadeDelete;
 use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\Checkout\Payment\PaymentMethodDefinition;
+
 use Shopware\Framework\Plugin\Collection\PluginBasicCollection;
 use Shopware\Framework\Plugin\Collection\PluginDetailCollection;
 use Shopware\Framework\Plugin\Event\Plugin\PluginDeletedEvent;

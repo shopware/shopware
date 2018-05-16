@@ -31,7 +31,7 @@ use Shopware\Checkout\Shipping\Collection\ShippingMethodBasicCollection;
 use Shopware\Checkout\Shipping\Collection\ShippingMethodDetailCollection;
 use Shopware\Checkout\Shipping\Event\ShippingMethodDeletedEvent;
 use Shopware\Checkout\Shipping\Event\ShippingMethodWrittenEvent;
-use Shopware\Checkout\Shipping\ShippingMethodRepository;
+
 use Shopware\Checkout\Shipping\Struct\ShippingMethodBasicStruct;
 use Shopware\Checkout\Shipping\Struct\ShippingMethodDetailStruct;
 

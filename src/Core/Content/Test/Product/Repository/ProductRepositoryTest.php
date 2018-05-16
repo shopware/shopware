@@ -4,7 +4,7 @@ namespace Shopware\Content\Test\Product\Repository;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Content\Category\CategoryRepository;
-use Shopware\Application\Context\Repository\ContextRuleRepository;
+use Shopware\Checkout\Rule\ContextRuleRepository;
 use Shopware\Application\Context\Struct\ContextPriceStruct;
 use Shopware\Framework\ORM\RepositoryInterface;
 use Shopware\Framework\ORM\Search\Criteria;
@@ -17,8 +17,8 @@ use Shopware\Content\Product\Event\ProductBasicLoadedEvent;
 use Shopware\Content\Product\Event\ProductWrittenEvent;
 use Shopware\Content\Product\Aggregate\ProductManufacturer\Event\ProductManufacturerBasicLoadedEvent;
 use Shopware\Content\Product\Aggregate\ProductManufacturer\Event\ProductManufacturerWrittenEvent;
-use Shopware\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerRepository;
-use Shopware\Content\Product\ProductRepository;
+
+
 use Shopware\Content\Product\Struct\PriceStruct;
 use Shopware\Content\Product\Struct\ProductBasicStruct;
 use Shopware\Content\Product\Struct\ProductDetailStruct;
@@ -26,7 +26,7 @@ use Shopware\Content\Product\Aggregate\ProductManufacturer\Struct\ProductManufac
 use Shopware\System\Tax\TaxDefinition;
 use Shopware\System\Tax\Event\TaxWrittenEvent;
 use Shopware\System\Tax\Struct\TaxBasicStruct;
-use Shopware\Application\Context\Rule\Container\AndRule;
+use Shopware\Checkout\Rule\Specification\Container\AndRule;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\Uuid;
@@ -1355,7 +1355,7 @@ class ProductRepositoryTest extends KernelTestCase
         $ruleA = Uuid::uuid4()->getHex();
         $ruleB = Uuid::uuid4()->getHex();
 
-        $this->container->get(ContextRuleRepository::class)->create([
+        $this->container->get(\Shopware\Checkout\Rule\ContextRuleRepository::class)->create([
             ['id' => $ruleA, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 1],
             ['id' => $ruleB, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 2],
         ], ApplicationContext:: createDefaultContext(\Shopware\Defaults::TENANT_ID));

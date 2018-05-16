@@ -33,7 +33,7 @@ use Shopware\Checkout\Order\Collection\OrderBasicCollection;
 use Shopware\Checkout\Order\Collection\OrderDetailCollection;
 use Shopware\Checkout\Order\Event\OrderDeletedEvent;
 use Shopware\Checkout\Order\Event\OrderWrittenEvent;
-use Shopware\Checkout\Order\OrderRepository;
+
 use Shopware\Checkout\Order\Struct\OrderBasicStruct;
 use Shopware\Checkout\Order\Struct\OrderDetailStruct;
 use Shopware\Checkout\Payment\PaymentMethodDefinition;

@@ -13,7 +13,7 @@ use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
 use Shopware\Checkout\Payment\Collection\PaymentMethodBasicCollection;
 use Shopware\Checkout\Payment\Collection\PaymentMethodDetailCollection;
-use Shopware\Checkout\Payment\PaymentMethodDefinition;
+
 use Shopware\Checkout\Payment\Event\PaymentMethodAggregationResultLoadedEvent;
 use Shopware\Checkout\Payment\Event\PaymentMethodBasicLoadedEvent;
 use Shopware\Checkout\Payment\Event\PaymentMethodDetailLoadedEvent;

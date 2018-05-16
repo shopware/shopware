@@ -3,7 +3,7 @@
 namespace Shopware\Application\Test\Context;
 
 use Shopware\Application\Context\Repository\ContextCartModifierRepository;
-use Shopware\Application\Context\Repository\ContextRuleRepository;
+use Shopware\Checkout\Rule\ContextRuleRepository;
 use Shopware\Content\Product\ProductRepository;
 use Shopware\Checkout\Cart\Cart\CircularCartCalculation;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
@@ -16,14 +16,14 @@ use Shopware\Checkout\Cart\Tax\Struct\PercentageTaxRule;
 use Shopware\Checkout\Test\Cart\Common\Generator;
 use Shopware\Application\Context\Cart\ContextCartModifierProcessor;
 use Shopware\Content\Product\Cart\ProductProcessor;
-use Shopware\Application\Context\Rule\CalculatedCart\GoodsCountRule;
-use Shopware\Application\Context\Rule\CalculatedCart\GoodsPriceRule;
-use Shopware\Application\Context\Rule\CalculatedLineItem\LineItemOfTypeRule;
-use Shopware\Application\Context\Rule\CalculatedLineItem\LineItemTotalPriceRule;
-use Shopware\Application\Context\Rule\CalculatedLineItem\LineItemWithQuantityRule;
-use Shopware\Application\Context\Rule\CalculatedLineItem\ProductOfManufacturerRule;
-use Shopware\Application\Context\Rule\Container\AndRule;
-use Shopware\Application\Context\Rule\Rule;
+use Shopware\Checkout\Rule\Specification\CalculatedCart\GoodsCountRule;
+use Shopware\Checkout\Rule\Specification\CalculatedCart\GoodsPriceRule;
+use Shopware\Checkout\Rule\Specification\CalculatedLineItem\LineItemOfTypeRule;
+use Shopware\Checkout\Rule\Specification\CalculatedLineItem\LineItemTotalPriceRule;
+use Shopware\Checkout\Rule\Specification\CalculatedLineItem\LineItemWithQuantityRule;
+use Shopware\Checkout\Rule\Specification\CalculatedLineItem\ProductOfManufacturerRule;
+use Shopware\Checkout\Rule\Specification\Container\AndRule;
+use Shopware\Checkout\Rule\Specification\Rule;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Defaults;
@@ -38,7 +38,7 @@ class ContextCartModifierTest extends KernelTestCase
     public static $contextCartModifierRepository;
 
     /**
-     * @var ContextRuleRepository
+     * @var \Shopware\Checkout\Rule\ContextRuleRepository
      */
     public static $contextRuleRepository;
 

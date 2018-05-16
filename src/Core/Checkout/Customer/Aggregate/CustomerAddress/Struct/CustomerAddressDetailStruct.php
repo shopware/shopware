@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Customer\Aggregate\CustomerAddress\Struct;
 
-use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
+
 use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
 
 class CustomerAddressDetailStruct extends CustomerAddressBasicStruct

@@ -3,7 +3,7 @@
 namespace Shopware\Checkout\Customer\Aggregate\CustomerGroupDiscount\Struct;
 
 use Shopware\Checkout\Customer\Aggregate\CustomerGroup\Struct\CustomerGroupBasicStruct;
-use Shopware\Checkout\Customer\Aggregate\CustomerGroupDiscount\Struct\CustomerGroupDiscountBasicStruct;
+
 
 class CustomerGroupDiscountDetailStruct extends CustomerGroupDiscountBasicStruct
 {

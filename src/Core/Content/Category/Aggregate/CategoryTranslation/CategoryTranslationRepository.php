@@ -4,7 +4,7 @@ namespace Shopware\Content\Category\Aggregate\CategoryTranslation;
 
 use Shopware\Content\Category\Aggregate\CategoryTranslation\Collection\CategoryTranslationBasicCollection;
 use Shopware\Content\Category\Aggregate\CategoryTranslation\Collection\CategoryTranslationDetailCollection;
-use Shopware\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
+
 use Shopware\Content\Category\Aggregate\CategoryTranslation\Event\CategoryTranslationAggregationResultLoadedEvent;
 use Shopware\Content\Category\Aggregate\CategoryTranslation\Event\CategoryTranslationBasicLoadedEvent;
 use Shopware\Content\Category\Aggregate\CategoryTranslation\Event\CategoryTranslationDetailLoadedEvent;

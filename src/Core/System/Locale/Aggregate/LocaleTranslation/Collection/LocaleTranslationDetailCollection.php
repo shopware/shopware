@@ -3,7 +3,7 @@
 namespace Shopware\System\Locale\Aggregate\LocaleTranslation\Collection;
 
 use Shopware\Application\Language\Collection\LanguageBasicCollection;
-use Shopware\System\Locale\Aggregate\LocaleTranslation\Collection\LocaleTranslationBasicCollection;
+
 use Shopware\System\Locale\Collection\LocaleBasicCollection;
 use Shopware\System\Locale\Aggregate\LocaleTranslation\Struct\LocaleTranslationDetailStruct;
 

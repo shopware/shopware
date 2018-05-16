@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Mail\Aggregate\MailAttachment\Collection;
 
-use Shopware\System\Mail\Aggregate\MailAttachment\Collection\MailAttachmentBasicCollection;
+
 use Shopware\System\Mail\Collection\MailBasicCollection;
 use Shopware\System\Mail\Collection\ShopBasicCollection;
 use Shopware\System\Mail\Aggregate\MailAttachment\Struct\MailAttachmentDetailStruct;

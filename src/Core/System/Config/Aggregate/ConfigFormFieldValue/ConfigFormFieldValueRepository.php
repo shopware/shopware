@@ -4,7 +4,7 @@ namespace Shopware\System\Config\Aggregate\ConfigFormFieldValue;
 
 use Shopware\System\Config\Aggregate\ConfigFormFieldValue\Collection\ConfigFormFieldValueBasicCollection;
 use Shopware\System\Config\Aggregate\ConfigFormFieldValue\Collection\ConfigFormFieldValueDetailCollection;
-use Shopware\System\Config\Aggregate\ConfigFormFieldValue\ConfigFormFieldValueDefinition;
+
 use Shopware\System\Config\Aggregate\ConfigFormFieldValue\Event\ConfigFormFieldValueAggregationResultLoadedEvent;
 use Shopware\System\Config\Aggregate\ConfigFormFieldValue\Event\ConfigFormFieldValueBasicLoadedEvent;
 use Shopware\System\Config\Aggregate\ConfigFormFieldValue\Event\ConfigFormFieldValueDetailLoadedEvent;

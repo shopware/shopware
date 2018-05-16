@@ -29,9 +29,9 @@ use Shopware\System\Country\Aggregate\CountryArea\Struct\CountryAreaBasicStruct;
 use Shopware\System\Country\Struct\CountryBasicStruct;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Checkout\Cart\Delivery\Struct\ShippingLocation;
-use Shopware\Application\Context\Rule\MatchContext\CartRuleMatchContext;
-use Shopware\Application\Context\Rule\Context\ShippingAreaRule;
-use Shopware\Application\Context\Rule\Rule;
+use Shopware\Checkout\Rule\Specification\Scope\CartRuleScope;
+use Shopware\Checkout\Rule\Specification\Context\ShippingAreaRule;
+use Shopware\Checkout\Rule\Specification\Rule;
 use Shopware\Application\Context\Struct\StorefrontContext;
 
 class ShippingAreaRuleTest extends TestCase
@@ -42,7 +42,7 @@ class ShippingAreaRuleTest extends TestCase
      * @param array  $ruleData
      * @param string $currentArea
      *
-     * @throws \Shopware\Application\Context\Exception\UnsupportedOperatorException
+     * @throws \Shopware\Checkout\Rule\Exception\UnsupportedOperatorException
      */
     public function testEquals(array $ruleData, string $currentArea): void
     {
@@ -63,7 +63,7 @@ class ShippingAreaRuleTest extends TestCase
             );
 
         $this->assertTrue(
-            $rule->match(new CartRuleMatchContext($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))->matches()
         );
     }
 
@@ -81,7 +81,7 @@ class ShippingAreaRuleTest extends TestCase
      * @param array  $ruleData
      * @param string $currentArea
      *
-     * @throws \Shopware\Application\Context\Exception\UnsupportedOperatorException
+     * @throws \Shopware\Checkout\Rule\Exception\UnsupportedOperatorException
      */
     public function testNotEquals(array $ruleData, string $currentArea): void
     {
@@ -102,7 +102,7 @@ class ShippingAreaRuleTest extends TestCase
             );
 
         $this->assertTrue(
-            $rule->match(new CartRuleMatchContext($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $context))->matches()
         );
     }
 
@@ -117,7 +117,7 @@ class ShippingAreaRuleTest extends TestCase
     /**
      * @dataProvider unsupportedOperators
      *
-     * @expectedException \Shopware\Application\Context\Exception\UnsupportedOperatorException
+     * @expectedException \Shopware\Checkout\Rule\Exception\UnsupportedOperatorException
      *
      * @param string $operator
      */
@@ -129,7 +129,7 @@ class ShippingAreaRuleTest extends TestCase
 
         $context = $this->createMock(StorefrontContext::class);
 
-        $rule->match(new CartRuleMatchContext($cart, $context))->matches();
+        $rule->match(new CartRuleScope($cart, $context))->matches();
     }
 
     public function unsupportedOperators(): array
@@ -139,7 +139,7 @@ class ShippingAreaRuleTest extends TestCase
             [false],
             [''],
             [Rule::OPERATOR_GTE],
-            [\Shopware\Application\Context\Rule\Rule::OPERATOR_LTE],
+            [\Shopware\Checkout\Rule\Specification\Rule::OPERATOR_LTE],
         ];
     }
 

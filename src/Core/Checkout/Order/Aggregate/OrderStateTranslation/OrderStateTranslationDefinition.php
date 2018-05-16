@@ -9,7 +9,7 @@ use Shopware\Framework\ORM\Field\FkField;
 use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Framework\ORM\Field\ReferenceVersionField;
 use Shopware\Framework\ORM\Field\StringField;
-use Shopware\Framework\ORM\Field\VersionField;
+
 use Shopware\Framework\ORM\FieldCollection;
 use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
@@ -18,7 +18,7 @@ use Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Collection\OrderStat
 use Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Collection\OrderStateTranslationDetailCollection;
 use Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Event\OrderStateTranslationDeletedEvent;
 use Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Event\OrderStateTranslationWrittenEvent;
-use Shopware\Checkout\Order\Aggregate\OrderStateTranslation\OrderStateTranslationRepository;
+
 use Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Struct\OrderStateTranslationBasicStruct;
 use Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Struct\OrderStateTranslationDetailStruct;
 

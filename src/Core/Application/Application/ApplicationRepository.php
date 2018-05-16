@@ -4,7 +4,7 @@ namespace Shopware\Application\Application;
 
 use Shopware\Application\Application\Collection\ApplicationBasicCollection;
 use Shopware\Application\Application\Collection\ApplicationDetailCollection;
-use Shopware\Application\Application\ApplicationDefinition;
+
 use Shopware\Application\Application\Event\ApplicationAggregationResultLoadedEvent;
 use Shopware\Application\Application\Event\ApplicationBasicLoadedEvent;
 use Shopware\Application\Application\Event\ApplicationDetailLoadedEvent;

@@ -2,7 +2,7 @@
 
 namespace Shopware\Content\Product\Aggregate\ProductContextPrice\Struct;
 
-use Shopware\Application\Context\Struct\ContextRuleBasicStruct;
+use Shopware\Checkout\Rule\Struct\ContextRuleBasicStruct;
 
 use Shopware\Content\Product\Struct\ProductBasicStruct;
 use Shopware\System\Currency\Struct\CurrencyBasicStruct;
@@ -44,12 +44,12 @@ class ProductContextPriceDetailStruct extends ProductContextPriceBasicStruct
         $this->currency = $currency;
     }
 
-    public function getContextRule(): ContextRuleBasicStruct
+    public function getContextRule(): \Shopware\Checkout\Rule\Struct\ContextRuleBasicStruct
     {
         return $this->contextRule;
     }
 
-    public function setContextRule(ContextRuleBasicStruct $contextRule): void
+    public function setContextRule(\Shopware\Checkout\Rule\Struct\ContextRuleBasicStruct $contextRule): void
     {
         $this->contextRule = $contextRule;
     }

@@ -28,7 +28,7 @@ use Shopware\Checkout\Order\Aggregate\OrderLineItem\Collection\OrderLineItemBasi
 use Shopware\Checkout\Order\Aggregate\OrderLineItem\Collection\OrderLineItemDetailCollection;
 use Shopware\Checkout\Order\Aggregate\OrderLineItem\Event\OrderLineItemDeletedEvent;
 use Shopware\Checkout\Order\Aggregate\OrderLineItem\Event\OrderLineItemWrittenEvent;
-use Shopware\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemRepository;
+
 use Shopware\Checkout\Order\Aggregate\OrderLineItem\Struct\OrderLineItemBasicStruct;
 use Shopware\Checkout\Order\Aggregate\OrderLineItem\Struct\OrderLineItemDetailStruct;
 

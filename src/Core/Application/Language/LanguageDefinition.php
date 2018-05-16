@@ -2,11 +2,11 @@
 
 namespace Shopware\Application\Language;
 
-use Shopware\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
+
 use Shopware\System\Country\Aggregate\CountryAreaTranslation\CountryAreaTranslationDefinition;
 use Shopware\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationDefinition;
-use Shopware\System\Country\Aggregate\CountryTranslation\CountryTranslationDefinition;
-use Shopware\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationDefinition;
+
+
 use Shopware\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
@@ -29,19 +29,17 @@ use Shopware\Application\Language\Collection\LanguageBasicCollection;
 use Shopware\Application\Language\Collection\LanguageDetailCollection;
 use Shopware\Application\Language\Event\LanguageDeletedEvent;
 use Shopware\Application\Language\Event\LanguageWrittenEvent;
-use Shopware\Application\Language\LanguageRepository;
+
 use Shopware\Application\Language\Struct\LanguageBasicStruct;
 use Shopware\Application\Language\Struct\LanguageDetailStruct;
 use Shopware\System\Listing\Definition\ListingFacetTranslationDefinition;
 use Shopware\System\Listing\Definition\ListingSortingTranslationDefinition;
 use Shopware\System\Locale\LocaleDefinition;
 use Shopware\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationDefinition;
-use Shopware\System\Mail\Aggregate\MailTranslation\MailTranslationDefinition;
-use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\MediaAlbumTranslationDefinition;
-use Shopware\Content\Media\Aggregate\MediaTranslation\MediaTranslationDefinition;
-use Shopware\Checkout\Order\Aggregate\OrderStateTranslation\OrderStateTranslationDefinition;
+
+
 use Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationDefinition;
-use Shopware\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition;
+
 use Shopware\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationDefinition;
 use Shopware\System\Tax\Aggregate\TaxAreaRuleTranslation\TaxAreaRuleTranslationDefinition;

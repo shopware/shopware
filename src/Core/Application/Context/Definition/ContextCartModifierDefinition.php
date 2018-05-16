@@ -9,6 +9,7 @@ use Shopware\Application\Context\Event\ContextCartModifier\ContextCartModifierWr
 use Shopware\Application\Context\Repository\ContextCartModifierRepository;
 use Shopware\Application\Context\Struct\ContextCartModifierBasicStruct;
 use Shopware\Application\Context\Struct\ContextCartModifierDetailStruct;
+use Shopware\Checkout\Rule\ContextRuleDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\DateField;

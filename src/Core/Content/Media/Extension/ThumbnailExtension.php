@@ -2,13 +2,7 @@
 
 namespace Shopware\Content\Media\Extension;
 
-use Shopware\Framework\ORM\EntityExtensionInterface;
-use Shopware\Framework\ORM\Field\StructCollectionField;
-use Shopware\Framework\ORM\FieldCollection;
-use Shopware\Framework\ORM\Write\Flag\Deferred;
-use Shopware\Framework\ORM\Write\Flag\Extension;
-use Shopware\Framework\ORM\Write\Flag\ReadOnly;
-use Shopware\Content\Media\MediaDefinition;
+
 use Shopware\Content\Media\Event\MediaBasicLoadedEvent;
 use Shopware\Content\Media\Struct\MediaBasicStruct;
 use Shopware\Framework\Struct\StructCollection;

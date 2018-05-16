@@ -13,7 +13,7 @@ use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
 use Shopware\Content\Media\Collection\MediaBasicCollection;
 use Shopware\Content\Media\Collection\MediaDetailCollection;
-use Shopware\Content\Media\MediaDefinition;
+
 use Shopware\Content\Media\Event\MediaAggregationResultLoadedEvent;
 use Shopware\Content\Media\Event\MediaBasicLoadedEvent;
 use Shopware\Content\Media\Event\MediaDetailLoadedEvent;

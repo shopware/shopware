@@ -2,8 +2,7 @@
 
 namespace Shopware\Content\Product\Struct;
 
-use Shopware\Content\Product\Aggregate\ProductMedia\Collection\ProductMediaBasicCollection;
-use Shopware\Content\Product\Aggregate\ProductMedia\Struct\ProductMediaBasicStruct;
+
 use Shopware\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
 use Shopware\Checkout\Cart\Price\Struct\PriceDefinition;

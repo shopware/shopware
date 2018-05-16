@@ -7,7 +7,7 @@ use Shopware\System\Config\Aggregate\ConfigFormFieldTranslation\Collection\Confi
 use Shopware\System\Config\Aggregate\ConfigFormFieldTranslation\Collection\ConfigFormFieldTranslationDetailCollection;
 use Shopware\System\Config\Aggregate\ConfigFormFieldTranslation\Event\ConfigFormFieldTranslationDeletedEvent;
 use Shopware\System\Config\Aggregate\ConfigFormFieldTranslation\Event\ConfigFormFieldTranslationWrittenEvent;
-use Shopware\System\Config\Aggregate\ConfigFormFieldTranslation\ConfigFormFieldTranslationRepository;
+
 use Shopware\System\Config\Aggregate\ConfigFormFieldTranslation\Struct\ConfigFormFieldTranslationBasicStruct;
 use Shopware\System\Config\Aggregate\ConfigFormFieldTranslation\Struct\ConfigFormFieldTranslationDetailStruct;
 use Shopware\Framework\ORM\EntityDefinition;

@@ -13,7 +13,7 @@ use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
 use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Collection\MediaAlbumTranslationBasicCollection;
 use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Collection\MediaAlbumTranslationDetailCollection;
-use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\MediaAlbumTranslationDefinition;
+
 use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Event\MediaAlbumTranslationAggregationResultLoadedEvent;
 use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Event\MediaAlbumTranslationBasicLoadedEvent;
 use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Event\MediaAlbumTranslationDetailLoadedEvent;

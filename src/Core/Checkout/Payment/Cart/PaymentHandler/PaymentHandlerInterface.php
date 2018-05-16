@@ -3,7 +3,7 @@
 namespace Shopware\Checkout\Payment\Cart\PaymentHandler;
 
 use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Checkout\Payment\Cart\PaymentTransaction;
+use Shopware\Checkout\Payment\Cart\PaymentTransactionStruct;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -13,13 +13,13 @@ interface PaymentHandlerInterface
      * The pay function will be called after the customer completed the order.
      * Allows to process the order and store additional information.
      *
-     * @param \Shopware\Checkout\Payment\Cart\PaymentTransaction $transaction
+     * @param \Shopware\Checkout\Payment\Cart\PaymentTransactionStruct $transaction
      * @param ApplicationContext $context
      *
      * @return null|RedirectResponse if a RedirectResponse is provided, a redirect to the url will be performed
      */
     public function pay(
-        PaymentTransaction $transaction,
+        PaymentTransactionStruct $transaction,
         ApplicationContext $context
     ): ?RedirectResponse;
 

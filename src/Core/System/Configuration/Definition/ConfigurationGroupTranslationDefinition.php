@@ -4,6 +4,7 @@ namespace Shopware\System\Configuration\Definition;
 
 use Shopware\System\Configuration\Collection\ConfigurationGroupTranslationBasicCollection;
 use Shopware\System\Configuration\Collection\ConfigurationGroupTranslationDetailCollection;
+use Shopware\System\Configuration\ConfigurationGroupDefinition;
 use Shopware\System\Configuration\Event\ConfigurationGroupTranslation\ConfigurationGroupTranslationDeletedEvent;
 use Shopware\System\Configuration\Event\ConfigurationGroupTranslation\ConfigurationGroupTranslationWrittenEvent;
 use Shopware\System\Configuration\Repository\ConfigurationGroupTranslationRepository;

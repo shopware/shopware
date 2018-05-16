@@ -26,9 +26,9 @@ declare(strict_types=1);
 namespace Shopware\System\Config\Util;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Defaults;
+
 use Shopware\Framework\Framework;
-use Shopware\Framework\Struct\Uuid;
+
 
 class ConfigService implements ConfigServiceInterface
 {

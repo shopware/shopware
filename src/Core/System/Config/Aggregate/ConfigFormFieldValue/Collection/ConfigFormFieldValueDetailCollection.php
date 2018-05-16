@@ -3,7 +3,7 @@
 namespace Shopware\System\Config\Aggregate\ConfigFormFieldValue\Collection;
 
 use Shopware\System\Config\Aggregate\ConfigFormField\Collection\ConfigFormFieldBasicCollection;
-use Shopware\System\Config\Aggregate\ConfigFormFieldValue\Collection\ConfigFormFieldValueBasicCollection;
+
 use Shopware\System\Config\Aggregate\ConfigFormFieldValue\Struct\ConfigFormFieldValueDetailStruct;
 
 class ConfigFormFieldValueDetailCollection extends ConfigFormFieldValueBasicCollection

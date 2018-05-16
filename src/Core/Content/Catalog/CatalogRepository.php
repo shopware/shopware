@@ -3,7 +3,7 @@
 namespace Shopware\Content\Catalog;
 
 use Shopware\Content\Catalog\Collection\CatalogBasicCollection;
-use Shopware\Content\Catalog\CatalogDefinition;
+
 use Shopware\Content\Catalog\Event\CatalogAggregationResultLoadedEvent;
 use Shopware\Content\Catalog\Event\CatalogBasicLoadedEvent;
 use Shopware\Content\Catalog\Event\CatalogIdSearchResultLoadedEvent;

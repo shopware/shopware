@@ -13,7 +13,7 @@ use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
 use Shopware\System\Unit\Collection\UnitBasicCollection;
 use Shopware\System\Unit\Collection\UnitDetailCollection;
-use Shopware\System\Unit\UnitDefinition;
+
 use Shopware\System\Unit\Event\UnitAggregationResultLoadedEvent;
 use Shopware\System\Unit\Event\UnitBasicLoadedEvent;
 use Shopware\System\Unit\Event\UnitDetailLoadedEvent;

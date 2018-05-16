@@ -26,9 +26,9 @@ namespace Shopware\Application\Test\Context\Rule\CalculatedLineItem;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Checkout\Test\Cart\Common\Generator;
-use Shopware\Application\Context\Rule\MatchContext\CalculatedLineItemMatchContext;
-use Shopware\Application\Context\Rule\CalculatedLineItem\LineItemTotalPriceRule;
-use Shopware\Application\Context\Rule\Rule;
+use Shopware\Checkout\Rule\Specification\Scope\CalculatedLineItemScope;
+use Shopware\Checkout\Rule\Specification\CalculatedLineItem\LineItemTotalPriceRule;
+use Shopware\Checkout\Rule\Specification\Rule;
 use Shopware\Application\Context\Struct\StorefrontContext;
 
 class LineItemTotalPriceRuleTest extends TestCase
@@ -41,7 +41,7 @@ class LineItemTotalPriceRuleTest extends TestCase
         $context = $this->createMock(StorefrontContext::class);
 
         $this->assertTrue(
-            $rule->match(new CalculatedLineItemMatchContext($calculatedLineItem, $context))->matches()
+            $rule->match(new CalculatedLineItemScope($calculatedLineItem, $context))->matches()
         );
     }
 
@@ -53,7 +53,7 @@ class LineItemTotalPriceRuleTest extends TestCase
         $context = $this->createMock(StorefrontContext::class);
 
         $this->assertFalse(
-            $rule->match(new CalculatedLineItemMatchContext($calculatedLineItem, $context))->matches()
+            $rule->match(new CalculatedLineItemScope($calculatedLineItem, $context))->matches()
         );
     }
 
@@ -65,7 +65,7 @@ class LineItemTotalPriceRuleTest extends TestCase
         $context = $this->createMock(StorefrontContext::class);
 
         $this->assertTrue(
-            $rule->match(new CalculatedLineItemMatchContext($calculatedLineItem, $context))->matches()
+            $rule->match(new CalculatedLineItemScope($calculatedLineItem, $context))->matches()
         );
     }
 
@@ -77,7 +77,7 @@ class LineItemTotalPriceRuleTest extends TestCase
         $context = $this->createMock(StorefrontContext::class);
 
         $this->assertTrue(
-            $rule->match(new CalculatedLineItemMatchContext($calculatedLineItem, $context))->matches()
+            $rule->match(new CalculatedLineItemScope($calculatedLineItem, $context))->matches()
         );
     }
 
@@ -89,7 +89,7 @@ class LineItemTotalPriceRuleTest extends TestCase
         $context = $this->createMock(StorefrontContext::class);
 
         $this->assertFalse(
-            $rule->match(new CalculatedLineItemMatchContext($calculatedLineItem, $context))->matches()
+            $rule->match(new CalculatedLineItemScope($calculatedLineItem, $context))->matches()
         );
     }
 
@@ -101,7 +101,7 @@ class LineItemTotalPriceRuleTest extends TestCase
         $context = $this->createMock(StorefrontContext::class);
 
         $this->assertTrue(
-            $rule->match(new CalculatedLineItemMatchContext($calculatedLineItem, $context))->matches()
+            $rule->match(new CalculatedLineItemScope($calculatedLineItem, $context))->matches()
         );
     }
 
@@ -113,7 +113,7 @@ class LineItemTotalPriceRuleTest extends TestCase
         $context = $this->createMock(StorefrontContext::class);
 
         $this->assertTrue(
-            $rule->match(new CalculatedLineItemMatchContext($calculatedLineItem, $context))->matches()
+            $rule->match(new CalculatedLineItemScope($calculatedLineItem, $context))->matches()
         );
     }
 
@@ -125,7 +125,7 @@ class LineItemTotalPriceRuleTest extends TestCase
         $context = $this->createMock(StorefrontContext::class);
 
         $this->assertFalse(
-            $rule->match(new CalculatedLineItemMatchContext($calculatedLineItem, $context))->matches()
+            $rule->match(new CalculatedLineItemScope($calculatedLineItem, $context))->matches()
         );
     }
 
@@ -137,7 +137,7 @@ class LineItemTotalPriceRuleTest extends TestCase
         $context = $this->createMock(StorefrontContext::class);
 
         $this->assertTrue(
-            $rule->match(new CalculatedLineItemMatchContext($calculatedLineItem, $context))->matches()
+            $rule->match(new CalculatedLineItemScope($calculatedLineItem, $context))->matches()
         );
     }
 
@@ -149,7 +149,7 @@ class LineItemTotalPriceRuleTest extends TestCase
         $context = $this->createMock(StorefrontContext::class);
 
         $this->assertFalse(
-            $rule->match(new CalculatedLineItemMatchContext($calculatedLineItem, $context))->matches()
+            $rule->match(new CalculatedLineItemScope($calculatedLineItem, $context))->matches()
         );
     }
 }

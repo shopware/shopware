@@ -48,7 +48,7 @@ use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\Uuid;
-use Shopware\StorefrontApi\Context\StorefrontContextService;
+use Shopware\Application\Context\Util\StorefrontContextService;
 
 class ContextFactory implements ContextFactoryInterface
 {

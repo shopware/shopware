@@ -27,8 +27,8 @@ namespace Shopware\Application\Test\Context\Rule\CalculatedLineItem;
 use PHPUnit\Framework\TestCase;
 use Shopware\Checkout\Test\Cart\Common\Generator;
 use Shopware\Content\Product\Cart\ProductProcessor;
-use Shopware\Application\Context\Rule\MatchContext\CalculatedLineItemMatchContext;
-use Shopware\Application\Context\Rule\CalculatedLineItem\LineItemOfTypeRule;
+use Shopware\Checkout\Rule\Specification\Scope\CalculatedLineItemScope;
+use Shopware\Checkout\Rule\Specification\CalculatedLineItem\LineItemOfTypeRule;
 use Shopware\Application\Context\Struct\StorefrontContext;
 
 class LineItemOfTypeRuleTest extends TestCase
@@ -41,7 +41,7 @@ class LineItemOfTypeRuleTest extends TestCase
         $context = $this->createMock(StorefrontContext::class);
 
         $this->assertTrue(
-            $rule->match(new CalculatedLineItemMatchContext($calculatedLineItem, $context))->matches()
+            $rule->match(new CalculatedLineItemScope($calculatedLineItem, $context))->matches()
         );
     }
 
@@ -53,7 +53,7 @@ class LineItemOfTypeRuleTest extends TestCase
         $context = $this->createMock(StorefrontContext::class);
 
         $this->assertFalse(
-            $rule->match(new CalculatedLineItemMatchContext($calculatedLineItem, $context))->matches()
+            $rule->match(new CalculatedLineItemScope($calculatedLineItem, $context))->matches()
         );
     }
 }

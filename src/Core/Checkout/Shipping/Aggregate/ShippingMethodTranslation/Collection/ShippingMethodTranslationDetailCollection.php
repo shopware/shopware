@@ -3,7 +3,7 @@
 namespace Shopware\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Collection;
 
 use Shopware\Application\Language\Collection\LanguageBasicCollection;
-use Shopware\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Collection\ShippingMethodTranslationBasicCollection;
+
 use Shopware\Checkout\Shipping\Collection\ShippingMethodBasicCollection;
 use Shopware\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Struct\ShippingMethodTranslationDetailStruct;
 

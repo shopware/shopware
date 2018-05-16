@@ -5,7 +5,7 @@ namespace Shopware\Checkout\Payment\Cart\PaymentHandler;
 use Shopware\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionRepository;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
-use Shopware\Checkout\Payment\Cart\PaymentTransaction;
+use Shopware\Checkout\Payment\Cart\PaymentTransactionStruct;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -21,7 +21,7 @@ class InvoicePayment implements PaymentHandlerInterface
         $this->transactionRepository = $transactionRepository;
     }
 
-    public function pay(PaymentTransaction $transaction, ApplicationContext $context): ?RedirectResponse
+    public function pay(PaymentTransactionStruct $transaction, ApplicationContext $context): ?RedirectResponse
     {
         $data = [
             'id' => $transaction->getTransactionId(),

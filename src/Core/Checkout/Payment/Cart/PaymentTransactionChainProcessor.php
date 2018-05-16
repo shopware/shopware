@@ -12,7 +12,7 @@ use Shopware\Defaults;
 use Shopware\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerInterface;
-use Shopware\Checkout\Payment\Cart\PaymentTransaction;
+
 use Shopware\Checkout\Payment\Cart\Token\PaymentTransactionTokenFactory;
 use Shopware\Checkout\Payment\Cart\Token\PaymentTransactionTokenFactoryInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -86,7 +86,7 @@ class PaymentTransactionChainProcessor
 
             $returnUrl = $this->assembleReturnUrl($token);
 
-            $paymentTransaction = new PaymentTransaction(
+            $paymentTransaction = new PaymentTransactionStruct(
                 $transaction->getId(),
                 $transaction->getPaymentMethodId(),
                 $order,

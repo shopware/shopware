@@ -56,7 +56,7 @@ use Shopware\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Checkout\Cart\Tax\TaxAmountCalculator;
 use Shopware\Checkout\Cart\Tax\TaxDetector;
-use Shopware\Checkout\Test\Cart\Common\TestLineItem;
+
 use Shopware\Content\Product\Cart\ProductProcessor;
 use Shopware\Content\Product\Cart\Struct\CalculatedProduct;
 use Shopware\Application\Context\Struct\StorefrontContext;

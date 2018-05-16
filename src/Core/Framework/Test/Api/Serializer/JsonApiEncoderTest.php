@@ -9,8 +9,8 @@ use Shopware\Content\Media\Aggregate\MediaAlbum\Struct\MediaAlbumBasicStruct;
 use Shopware\Content\Media\Aggregate\MediaAlbum\Struct\MediaAlbumDetailStruct;
 use Shopware\Framework\Serializer\StructDecoder;
 use Shopware\Framework\Serializer\StructNormalizer;
-use Shopware\Content\Media\Extension\ThumbnailExtension;
-use Shopware\Content\Media\Extension\UrlExtension;
+
+
 use Shopware\Content\Media\Util\UrlGeneratorInterface;
 use Shopware\Framework\Api\Serializer\JsonApiEncoder;
 use Symfony\Component\Serializer\Exception\BadMethodCallException;

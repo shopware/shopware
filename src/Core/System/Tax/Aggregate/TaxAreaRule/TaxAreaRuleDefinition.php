@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Tax\Aggregate\TaxAreaRule;
 
-use Shopware\System\Country\Aggregate\CountryArea\CountryAreaDefinition;
+
 use Shopware\System\Country\CountryDefinition;
 use Shopware\System\Country\Aggregate\CountryState\CountryStateDefinition;
 use Shopware\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition;
@@ -30,7 +30,7 @@ use Shopware\System\Tax\Aggregate\TaxAreaRule\Collection\TaxAreaRuleDetailCollec
 use Shopware\System\Tax\Aggregate\TaxAreaRule\Event\TaxAreaRuleDeletedEvent;
 use Shopware\System\Tax\Aggregate\TaxAreaRule\Event\TaxAreaRuleWrittenEvent;
 use Shopware\System\Tax\Aggregate\TaxAreaRuleTranslation\TaxAreaRuleTranslationDefinition;
-use Shopware\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleRepository;
+
 use Shopware\System\Tax\Aggregate\TaxAreaRule\Struct\TaxAreaRuleBasicStruct;
 use Shopware\System\Tax\Aggregate\TaxAreaRule\Struct\TaxAreaRuleDetailStruct;
 use Shopware\System\Tax\TaxDefinition;

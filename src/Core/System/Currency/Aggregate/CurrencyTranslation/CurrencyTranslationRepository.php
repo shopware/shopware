@@ -4,7 +4,7 @@ namespace Shopware\System\Currency\Aggregate\CurrencyTranslation;
 
 use Shopware\System\Currency\Aggregate\CurrencyTranslation\Collection\CurrencyTranslationBasicCollection;
 use Shopware\System\Currency\Aggregate\CurrencyTranslation\Collection\CurrencyTranslationDetailCollection;
-use Shopware\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationDefinition;
+
 use Shopware\System\Currency\Aggregate\CurrencyTranslation\Event\CurrencyTranslationAggregationResultLoadedEvent;
 use Shopware\System\Currency\Aggregate\CurrencyTranslation\Event\CurrencyTranslationBasicLoadedEvent;
 use Shopware\System\Currency\Aggregate\CurrencyTranslation\Event\CurrencyTranslationDetailLoadedEvent;

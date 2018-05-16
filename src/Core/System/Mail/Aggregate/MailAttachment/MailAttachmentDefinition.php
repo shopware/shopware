@@ -20,7 +20,7 @@ use Shopware\System\Mail\Aggregate\MailAttachment\Collection\MailAttachmentDetai
 use Shopware\System\Mail\Aggregate\MailAttachment\Event\MailAttachmentDeletedEvent;
 use Shopware\System\Mail\Aggregate\MailAttachment\Event\MailAttachmentWrittenEvent;
 use Shopware\System\Mail\MailDefinition;
-use Shopware\System\Mail\Aggregate\MailAttachment\MailAttachmentRepository;
+
 use Shopware\System\Mail\Aggregate\MailAttachment\Struct\MailAttachmentBasicStruct;
 use Shopware\System\Mail\Aggregate\MailAttachment\Struct\MailAttachmentDetailStruct;
 use Shopware\Content\Media\MediaDefinition;

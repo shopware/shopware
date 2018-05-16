@@ -10,7 +10,7 @@ use Shopware\Framework\ORM\Dbal\Indexing\Common\RepositoryIterator;
 use Shopware\Framework\ORM\Dbal\Indexing\Event\ProgressAdvancedEvent;
 use Shopware\Framework\ORM\Dbal\Indexing\Event\ProgressFinishedEvent;
 use Shopware\Framework\ORM\Dbal\Indexing\Event\ProgressStartedEvent;
-use Shopware\Framework\ORM\Dbal\Indexing\Indexer\IndexerInterface;
+
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Doctrine\DBAL\Connection;
 use Shopware\Application\Context\Struct\ContextPriceStruct;

@@ -12,7 +12,7 @@ use Shopware\Framework\ORM\Search\IdSearchResult;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
 use Shopware\Checkout\Order\Aggregate\OrderTransactionState\Collection\OrderTransactionStateBasicCollection;
-use Shopware\Checkout\Order\Aggregate\OrderTransactionState\OrderTransactionStateDefinition;
+
 use Shopware\Checkout\Order\Aggregate\OrderTransactionState\Event\OrderTransactionStateAggregationResultLoadedEvent;
 use Shopware\Checkout\Order\Aggregate\OrderTransactionState\Event\OrderTransactionStateBasicLoadedEvent;
 use Shopware\Checkout\Order\Aggregate\OrderTransactionState\Event\OrderTransactionStateIdSearchResultLoadedEvent;

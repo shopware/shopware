@@ -4,7 +4,7 @@ namespace Shopware\Checkout\Customer;
 
 use Shopware\Checkout\Customer\Collection\CustomerBasicCollection;
 use Shopware\Checkout\Customer\Collection\CustomerDetailCollection;
-use Shopware\Checkout\Customer\CustomerDefinition;
+
 use Shopware\Checkout\Customer\Event\CustomerAggregationResultLoadedEvent;
 use Shopware\Checkout\Customer\Event\CustomerBasicLoadedEvent;
 use Shopware\Checkout\Customer\Event\CustomerDetailLoadedEvent;

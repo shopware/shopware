@@ -3,7 +3,7 @@
 namespace Shopware\Checkout\Payment\Cart\PaymentHandler;
 
 use Shopware\Checkout\Payment\Exception\UnknownPaymentMethodException;
-use Shopware\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerInterface;
+
 
 class PaymentHandlerRegistry
 {

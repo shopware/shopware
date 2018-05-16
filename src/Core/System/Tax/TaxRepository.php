@@ -13,7 +13,7 @@ use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
 use Shopware\System\Tax\Collection\TaxBasicCollection;
 use Shopware\System\Tax\Collection\TaxDetailCollection;
-use Shopware\System\Tax\TaxDefinition;
+
 use Shopware\System\Tax\Event\TaxAggregationResultLoadedEvent;
 use Shopware\System\Tax\Event\TaxBasicLoadedEvent;
 use Shopware\System\Tax\Event\TaxDetailLoadedEvent;

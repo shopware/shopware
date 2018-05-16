@@ -25,7 +25,7 @@
         <service class="Shopware\Checkout\Cart\StoreFrontCartService" id="Shopware\Checkout\Cart\StoreFrontCartService">
             <argument type="service" id="Shopware\Checkout\Cart\Cart\CircularCartCalculation" />
             <argument type="service" id="Shopware\Checkout\Cart\Cart\CartPersister" />
-            <argument type="service" id="Shopware\Checkout\Order\Cart\OrderPersister" />
+            <argument type="service" id="Shopware\Checkout\Cart\Order\OrderPersister" />
         </service>
 
         <service class="Shopware\Checkout\Cart\Price\PriceRounding" id="Shopware\Checkout\Cart\Price\PriceRounding">
@@ -128,5 +128,15 @@
         <service class="Shopware\Checkout\Cart\Transaction\TransactionSeparatorProcessor" id="Shopware\Checkout\Cart\Transaction\TransactionSeparatorProcessor">
             <tag name="cart.processor" priority="-1000" />
         </service>
+
+        <service class="Shopware\Checkout\Cart\StorefrontCartController" id="Shopware\Checkout\Cart\StorefrontCartController" public="true">
+            <argument id="Shopware\Checkout\Cart\Cart\CircularCartCalculation" type="service"/>
+            <argument id="Shopware\Checkout\Cart\Cart\CartPersister" type="service"/>
+            <argument id="Shopware\Checkout\Cart\Order\OrderPersister" type="service"/>
+            <argument type="service" id="Shopware\Checkout\Order\OrderRepository"/>
+            <argument type="service" id="serializer"/>
+            <argument type="service" id="Shopware\Application\Context\Util\StorefrontContextPersister"/>
+        </service>
+
     </services>
 </container>

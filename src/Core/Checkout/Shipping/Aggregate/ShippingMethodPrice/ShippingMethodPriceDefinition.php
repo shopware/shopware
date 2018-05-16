@@ -20,7 +20,7 @@ use Shopware\Checkout\Shipping\Aggregate\ShippingMethodPrice\Collection\Shipping
 use Shopware\Checkout\Shipping\Aggregate\ShippingMethodPrice\Collection\ShippingMethodPriceDetailCollection;
 use Shopware\Checkout\Shipping\Aggregate\ShippingMethodPrice\Event\ShippingMethodPriceDeletedEvent;
 use Shopware\Checkout\Shipping\Aggregate\ShippingMethodPrice\Event\ShippingMethodPriceWrittenEvent;
-use Shopware\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceRepository;
+
 use Shopware\Checkout\Shipping\Aggregate\ShippingMethodPrice\Struct\ShippingMethodPriceBasicStruct;
 use Shopware\Checkout\Shipping\Aggregate\ShippingMethodPrice\Struct\ShippingMethodPriceDetailStruct;
 

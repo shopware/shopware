@@ -13,7 +13,7 @@ use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
 use Shopware\Checkout\Shipping\Collection\ShippingMethodBasicCollection;
 use Shopware\Checkout\Shipping\Collection\ShippingMethodDetailCollection;
-use Shopware\Checkout\Shipping\ShippingMethodDefinition;
+
 use Shopware\Checkout\Shipping\Event\ShippingMethodAggregationResultLoadedEvent;
 use Shopware\Checkout\Shipping\Event\ShippingMethodBasicLoadedEvent;
 use Shopware\Checkout\Shipping\Event\ShippingMethodDetailLoadedEvent;

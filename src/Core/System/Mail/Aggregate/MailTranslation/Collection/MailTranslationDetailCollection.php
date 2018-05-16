@@ -3,7 +3,7 @@
 namespace Shopware\System\Mail\Aggregate\MailTranslation\Collection;
 
 use Shopware\Application\Language\Collection\LanguageBasicCollection;
-use Shopware\System\Mail\Aggregate\MailTranslation\Collection\MailTranslationBasicCollection;
+
 use Shopware\System\Mail\Collection\MailBasicCollection;
 use Shopware\System\Mail\Aggregate\MailTranslation\Struct\MailTranslationDetailStruct;
 

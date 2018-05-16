@@ -24,12 +24,12 @@ use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Framework\ORM\Write\Flag\WriteOnly;
-use Shopware\System\Mail\MailDefinition;
+
 use Shopware\Checkout\Order\Aggregate\OrderState\Collection\OrderStateBasicCollection;
 use Shopware\Checkout\Order\Aggregate\OrderState\Collection\OrderStateDetailCollection;
 use Shopware\Checkout\Order\Aggregate\OrderState\Event\OrderStateDeletedEvent;
 use Shopware\Checkout\Order\Aggregate\OrderState\Event\OrderStateWrittenEvent;
-use Shopware\Checkout\Order\Aggregate\OrderState\OrderStateRepository;
+
 use Shopware\Checkout\Order\Aggregate\OrderState\Struct\OrderStateBasicStruct;
 use Shopware\Checkout\Order\Aggregate\OrderState\Struct\OrderStateDetailStruct;
 

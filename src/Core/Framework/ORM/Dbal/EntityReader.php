@@ -23,7 +23,7 @@ use Shopware\Framework\ORM\Write\Flag\Deferred;
 use Shopware\Framework\ORM\Write\Flag\DelayedLoad;
 use Shopware\Framework\ORM\Write\Flag\Extension;
 use Shopware\Framework\ORM\Write\Flag\Inherited;
-use Shopware\Content\Product\ProductDefinition;
+
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Struct\ArrayStruct;
 use Shopware\Framework\Struct\Struct;

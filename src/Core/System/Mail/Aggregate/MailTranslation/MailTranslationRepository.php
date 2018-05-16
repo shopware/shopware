@@ -13,7 +13,7 @@ use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
 use Shopware\System\Mail\Aggregate\MailTranslation\Collection\MailTranslationBasicCollection;
 use Shopware\System\Mail\Aggregate\MailTranslation\Collection\MailTranslationDetailCollection;
-use Shopware\System\Mail\Aggregate\MailTranslation\MailTranslationDefinition;
+
 use Shopware\System\Mail\Aggregate\MailTranslation\Event\MailTranslationAggregationResultLoadedEvent;
 use Shopware\System\Mail\Aggregate\MailTranslation\Event\MailTranslationBasicLoadedEvent;
 use Shopware\System\Mail\Aggregate\MailTranslation\Event\MailTranslationDetailLoadedEvent;

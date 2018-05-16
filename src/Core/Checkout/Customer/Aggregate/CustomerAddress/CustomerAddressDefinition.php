@@ -9,7 +9,7 @@ use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Collection\CustomerAddr
 use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Collection\CustomerAddressDetailCollection;
 use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Event\CustomerAddressDeletedEvent;
 use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Event\CustomerAddressWrittenEvent;
-use Shopware\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository;
+
 use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
 use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressDetailStruct;
 use Shopware\Framework\ORM\EntityDefinition;

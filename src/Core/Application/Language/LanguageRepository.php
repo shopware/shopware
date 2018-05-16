@@ -13,7 +13,7 @@ use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
 use Shopware\Application\Language\Collection\LanguageBasicCollection;
 use Shopware\Application\Language\Collection\LanguageDetailCollection;
-use Shopware\Application\Language\LanguageDefinition;
+
 use Shopware\Application\Language\Event\LanguageAggregationResultLoadedEvent;
 use Shopware\Application\Language\Event\LanguageBasicLoadedEvent;
 use Shopware\Application\Language\Event\LanguageDetailLoadedEvent;

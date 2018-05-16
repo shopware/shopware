@@ -4,7 +4,7 @@ namespace Shopware\System\Config\Aggregate\ConfigFormTranslation;
 
 use Shopware\System\Config\Aggregate\ConfigFormTranslation\Collection\ConfigFormTranslationBasicCollection;
 use Shopware\System\Config\Aggregate\ConfigFormTranslation\Collection\ConfigFormTranslationDetailCollection;
-use Shopware\System\Config\Aggregate\ConfigFormTranslation\ConfigFormTranslationDefinition;
+
 use Shopware\System\Config\Aggregate\ConfigFormTranslation\Event\ConfigFormTranslationAggregationResultLoadedEvent;
 use Shopware\System\Config\Aggregate\ConfigFormTranslation\Event\ConfigFormTranslationBasicLoadedEvent;
 use Shopware\System\Config\Aggregate\ConfigFormTranslation\Event\ConfigFormTranslationDetailLoadedEvent;

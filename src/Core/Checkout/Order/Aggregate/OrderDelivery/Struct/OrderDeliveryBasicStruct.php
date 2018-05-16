@@ -3,7 +3,7 @@
 namespace Shopware\Checkout\Order\Aggregate\OrderDelivery\Struct;
 
 use Shopware\Checkout\Order\Aggregate\OrderAddress\Struct\OrderAddressBasicStruct;
-use Shopware\Checkout\Order\Aggregate\OrderState\Struct\OrderStateBasicStruct;
+
 use Shopware\Framework\ORM\Entity;
 use Shopware\Checkout\Shipping\Struct\ShippingMethodBasicStruct;
 

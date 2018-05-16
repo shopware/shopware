@@ -12,7 +12,7 @@ use Shopware\Framework\ORM\Search\IdSearchResult;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
 use Shopware\System\Log\Collection\LogBasicCollection;
-use Shopware\System\Log\LogDefinition;
+
 use Shopware\System\Log\Event\Log\LogAggregationResultLoadedEvent;
 use Shopware\System\Log\Event\Log\LogBasicLoadedEvent;
 use Shopware\System\Log\Event\Log\LogIdSearchResultLoadedEvent;

@@ -31,7 +31,7 @@ use Psr\Log\LoggerInterface;
 use Shopware\Content\Media\Event\MigrateAdvanceEvent;
 use Shopware\Content\Media\Event\MigrateFinishEvent;
 use Shopware\Content\Media\Event\MigrateStartEvent;
-use Shopware\Content\Media\Util\MediaMigrationInterface;
+
 use Shopware\Content\Media\Util\Strategy\StrategyInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 

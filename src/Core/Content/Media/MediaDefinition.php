@@ -33,11 +33,11 @@ use Shopware\Content\Media\Collection\MediaBasicCollection;
 use Shopware\Content\Media\Collection\MediaDetailCollection;
 use Shopware\Content\Media\Event\MediaDeletedEvent;
 use Shopware\Content\Media\Event\MediaWrittenEvent;
-use Shopware\Content\Media\MediaRepository;
+
 use Shopware\Content\Media\Struct\MediaBasicStruct;
 use Shopware\Content\Media\Struct\MediaDetailStruct;
-use Shopware\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
-use Shopware\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition;
+
+
 use Shopware\System\User\UserDefinition;
 
 class MediaDefinition extends EntityDefinition

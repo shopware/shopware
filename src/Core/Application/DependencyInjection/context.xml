@@ -6,8 +6,12 @@
 
     <services>
         <!-- Versioning -->
-        <service alias="Shopware\Application\Context\Repository\ContextRuleRepository.v1" id="Shopware\Application\Context\Repository\ContextRuleRepository" public="true" />
+        <service alias="Shopware\Checkout\Rule\ContextRuleRepository.v1" id="Shopware\Checkout\Rule\ContextRuleRepository" public="true" />
         <service alias="Shopware\Application\Context\Repository\ContextCartModifierRepository.v1" id="Shopware\Application\Context\Repository\ContextCartModifierRepository" public="true" />
+
+        <service class="Shopware\Application\Context\Util\StorefrontContextPersister" id="Shopware\Application\Context\Util\StorefrontContextPersister">
+            <argument id="Doctrine\DBAL\Connection" type="service"/>
+        </service>
 
         <service class="Shopware\Application\Context\Cart\ContextCartModifierProcessor" id="Shopware\Application\Context\Cart\ContextCartModifierProcessor">
             <argument id="Shopware\Application\Context\Repository\ContextCartModifierRepository" type="service"/>
@@ -21,11 +25,11 @@
             <tag name="cart.collector"/>
         </service>
 
-        <service class="Shopware\Application\Context\Definition\ContextRuleDefinition" id="Shopware\Application\Context\Definition\ContextRuleDefinition" >
+        <service class="Shopware\Checkout\Rule\ContextRuleDefinition" id="Shopware\Checkout\Rule\ContextRuleDefinition" >
             <tag name="shopware.entity.definition" entity="context_rule" />
         </service>
 
-        <service class="Shopware\Application\Context\Repository\ContextRuleRepository" id="Shopware\Application\Context\Repository\ContextRuleRepository.v1" public="true">
+        <service class="Shopware\Checkout\Rule\ContextRuleRepository" id="Shopware\Checkout\Rule\ContextRuleRepository.v1" public="true">
           <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
           <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
@@ -68,10 +72,29 @@
             <argument id="Shopware\Checkout\Cart\Cart\CartProcessor" type="service"/>
             <argument id="Shopware\Checkout\Cart\Cart\CartValidator" type="service"/>
             <argument id="shopware.cache" type="service"/>
-            <argument id="Shopware\Application\Context\Repository\ContextRuleRepository" type="service"/>
+            <argument id="Shopware\Checkout\Rule\ContextRuleRepository" type="service"/>
             <argument id="serializer" type="service"/>
             <argument id="Shopware\Checkout\Cart\StoreFrontCartService" type="service"/>
         </service>
+
+        <service class="Shopware\Application\Context\Util\StorefrontContextService" id="Shopware\Application\Context\Util\StorefrontContextService">
+            <argument type="service" id="Shopware\Application\Context\Util\ContextFactory"/>
+            <argument type="service" id="cache.serializer"/>
+            <argument type="service" id="serializer"/>
+            <argument type="service" id="Shopware\Application\Context\Util\ContextRuleLoader"/>
+            <argument type="service" id="logger"/>
+            <argument type="service" id="Shopware\Application\Context\Util\StorefrontContextPersister"/>
+            <tag name="shopware.traceable" />
+        </service>
+
+        <service class="Shopware\Application\Context\StorefrontContextController" id="Shopware\Application\Context\StorefrontContextController" public="true">
+            <argument id="Shopware\Checkout\Payment\PaymentMethodRepository" type="service"/>
+            <argument id="Shopware\Checkout\Shipping\ShippingMethodRepository" type="service"/>
+            <argument id="Shopware\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository" type="service"/>
+            <argument id="Shopware\Application\Context\Util\StorefrontContextPersister" type="service"/>
+            <argument type="service" id="serializer"/>
+        </service>
+
     </services>
 </container>
                 

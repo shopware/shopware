@@ -4,6 +4,7 @@ namespace Shopware\System\Configuration\Definition;
 
 use Shopware\System\Configuration\Collection\ConfigurationGroupOptionBasicCollection;
 use Shopware\System\Configuration\Collection\ConfigurationGroupOptionDetailCollection;
+use Shopware\System\Configuration\ConfigurationGroupDefinition;
 use Shopware\System\Configuration\Event\ConfigurationGroupOption\ConfigurationGroupOptionDeletedEvent;
 use Shopware\System\Configuration\Event\ConfigurationGroupOption\ConfigurationGroupOptionWrittenEvent;
 use Shopware\System\Configuration\Repository\ConfigurationGroupOptionRepository;
@@ -29,10 +30,10 @@ use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Framework\ORM\Write\Flag\WriteOnly;
 use Shopware\Content\Media\MediaDefinition;
 use Shopware\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorDefinition;
-use Shopware\Content\Product\Aggregate\ProductDatasheet\ProductDatasheetDefinition;
+
 use Shopware\Content\Product\ProductDefinition;
 use Shopware\Content\Product\Aggregate\ProductService\ProductServiceDefinition;
-use Shopware\Content\Product\Aggregate\ProductVariation\ProductVariationDefinition;
+
 
 class ConfigurationGroupOptionDefinition extends EntityDefinition
 {

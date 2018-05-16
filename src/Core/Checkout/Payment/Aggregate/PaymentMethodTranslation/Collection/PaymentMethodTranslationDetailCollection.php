@@ -3,7 +3,7 @@
 namespace Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation\Collection;
 
 use Shopware\Application\Language\Collection\LanguageBasicCollection;
-use Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation\Collection\PaymentMethodTranslationBasicCollection;
+
 use Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation\Struct\PaymentMethodTranslationDetailStruct;
 use Shopware\Checkout\Payment\Collection\PaymentMethodBasicCollection;
 

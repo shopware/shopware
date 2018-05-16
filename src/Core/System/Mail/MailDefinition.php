@@ -29,7 +29,7 @@ use Shopware\System\Mail\Collection\MailDetailCollection;
 use Shopware\System\Mail\Aggregate\MailTranslation\MailTranslationDefinition;
 use Shopware\System\Mail\Event\MailDeletedEvent;
 use Shopware\System\Mail\Event\MailWrittenEvent;
-use Shopware\System\Mail\MailRepository;
+
 use Shopware\System\Mail\Struct\MailBasicStruct;
 use Shopware\System\Mail\Struct\MailDetailStruct;
 use Shopware\Checkout\Order\Aggregate\OrderState\OrderStateDefinition;

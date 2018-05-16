@@ -4,7 +4,7 @@ namespace Shopware\System\Configuration\Repository;
 
 use Shopware\System\Configuration\Collection\ConfigurationGroupBasicCollection;
 use Shopware\System\Configuration\Collection\ConfigurationGroupDetailCollection;
-use Shopware\System\Configuration\Definition\ConfigurationGroupDefinition;
+use Shopware\System\Configuration\ConfigurationGroupDefinition;
 use Shopware\System\Configuration\Event\ConfigurationGroup\ConfigurationGroupAggregationResultLoadedEvent;
 use Shopware\System\Configuration\Event\ConfigurationGroup\ConfigurationGroupBasicLoadedEvent;
 use Shopware\System\Configuration\Event\ConfigurationGroup\ConfigurationGroupDetailLoadedEvent;

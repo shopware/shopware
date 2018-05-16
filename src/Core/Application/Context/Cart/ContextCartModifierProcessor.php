@@ -14,7 +14,7 @@ use Shopware\Checkout\Cart\Price\PercentagePriceCalculator;
 use Shopware\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
 use Shopware\Application\Context\Exception\UnsupportedModifierTypeException;
-use Shopware\Application\Context\Rule\MatchContext\CalculatedLineItemMatchContext;
+use Shopware\Checkout\Rule\Specification\Scope\CalculatedLineItemScope;
 use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
@@ -101,7 +101,7 @@ class ContextCartModifierProcessor implements CartProcessorInterface
         $prices = new CalculatedPriceCollection();
         foreach ($calculatedCart->getCalculatedLineItems() as $calculatedLineItem) {
             $match = $modifier->getRule()->match(
-                new CalculatedLineItemMatchContext($calculatedLineItem, $context)
+                new CalculatedLineItemScope($calculatedLineItem, $context)
             );
 
             if (!$match->matches()) {

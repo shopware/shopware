@@ -4,7 +4,7 @@ namespace Shopware\System\Test\Country\Repository;
 
 use Doctrine\DBAL\Connection;
 use Shopware\System\Country\CountryDefinition;
-use Shopware\System\Country\CountryRepository;
+
 use Shopware\Framework\ORM\RepositoryInterface;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Term\EntityScoreQueryBuilder;

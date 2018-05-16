@@ -82,5 +82,11 @@
             <argument type="service" id="Shopware\Checkout\Customer\Aggregate\CustomerGroupDiscount\CustomerGroupDiscountRepository.v1"/>
         </service>
 
+        <service class="Shopware\Checkout\Customer\StorefrontCustomerController" id="Shopware\Checkout\Customer\StorefrontCustomerController" public="true">
+            <argument id="serializer" type="service"/>
+            <argument type="service" id="Shopware\Application\Context\Util\StorefrontContextPersister"/>
+            <argument type="service" id="Shopware\StorefrontApi\Firewall\CustomerProvider"/>
+        </service>
+
     </services>
 </container>

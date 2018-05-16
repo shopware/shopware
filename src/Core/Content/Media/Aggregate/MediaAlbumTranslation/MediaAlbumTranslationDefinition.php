@@ -10,7 +10,7 @@ use Shopware\Framework\ORM\Field\FkField;
 use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Framework\ORM\Field\ReferenceVersionField;
 use Shopware\Framework\ORM\Field\StringField;
-use Shopware\Framework\ORM\Field\VersionField;
+
 use Shopware\Framework\ORM\FieldCollection;
 use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
@@ -19,7 +19,7 @@ use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Collection\MediaAlbum
 use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Collection\MediaAlbumTranslationDetailCollection;
 use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Event\MediaAlbumTranslationDeletedEvent;
 use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Event\MediaAlbumTranslationWrittenEvent;
-use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\MediaAlbumTranslationRepository;
+
 use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Struct\MediaAlbumTranslationBasicStruct;
 use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Struct\MediaAlbumTranslationDetailStruct;
 

@@ -26,7 +26,7 @@ namespace Shopware\Content\Media\Util;
 
 use Shopware\Content\Media\Exception\EmptyMediaFilenameException;
 use Shopware\Content\Media\Util\Strategy\StrategyInterface;
-use Shopware\Content\Media\Util\UrlGeneratorInterface;
+
 use Symfony\Component\HttpFoundation\RequestStack;
 
 class UrlGenerator implements UrlGeneratorInterface

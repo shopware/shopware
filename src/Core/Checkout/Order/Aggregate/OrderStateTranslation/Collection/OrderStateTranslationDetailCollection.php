@@ -4,7 +4,7 @@ namespace Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Collection;
 
 use Shopware\Application\Language\Collection\LanguageBasicCollection;
 use Shopware\Checkout\Order\Aggregate\OrderState\Collection\OrderStateBasicCollection;
-use Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Collection\OrderStateTranslationBasicCollection;
+
 use Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Struct\OrderStateTranslationDetailStruct;
 
 class OrderStateTranslationDetailCollection extends OrderStateTranslationBasicCollection

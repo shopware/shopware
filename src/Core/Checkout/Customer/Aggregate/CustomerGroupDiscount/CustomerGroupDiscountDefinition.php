@@ -7,7 +7,7 @@ use Shopware\Checkout\Customer\Aggregate\CustomerGroupDiscount\Collection\Custom
 use Shopware\Checkout\Customer\Aggregate\CustomerGroupDiscount\Collection\CustomerGroupDiscountDetailCollection;
 use Shopware\Checkout\Customer\Aggregate\CustomerGroupDiscount\Event\CustomerGroupDiscountDeletedEvent;
 use Shopware\Checkout\Customer\Aggregate\CustomerGroupDiscount\Event\CustomerGroupDiscountWrittenEvent;
-use Shopware\Checkout\Customer\Aggregate\CustomerGroupDiscount\CustomerGroupDiscountRepository;
+
 use Shopware\Checkout\Customer\Aggregate\CustomerGroupDiscount\Struct\CustomerGroupDiscountBasicStruct;
 use Shopware\Checkout\Customer\Aggregate\CustomerGroupDiscount\Struct\CustomerGroupDiscountDetailStruct;
 use Shopware\Framework\ORM\EntityDefinition;

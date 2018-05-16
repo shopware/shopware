@@ -10,7 +10,7 @@ use Shopware\System\Country\Aggregate\CountryState\CountryStateDefinition;
 use Shopware\System\Country\Aggregate\CountryTranslation\CountryTranslationDefinition;
 use Shopware\System\Country\Event\CountryDeletedEvent;
 use Shopware\System\Country\Event\CountryWrittenEvent;
-use Shopware\System\Country\CountryRepository;
+
 use Shopware\System\Country\Struct\CountryBasicStruct;
 use Shopware\System\Country\Struct\CountryDetailStruct;
 use Shopware\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;

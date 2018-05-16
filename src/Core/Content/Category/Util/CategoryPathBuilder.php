@@ -13,7 +13,7 @@ use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\ORM\Dbal\Indexing\Event\ProgressAdvancedEvent;
 use Shopware\Framework\ORM\Dbal\Indexing\Event\ProgressFinishedEvent;
 use Shopware\Framework\ORM\Dbal\Indexing\Event\ProgressStartedEvent;
-use Shopware\Defaults;
+
 use Shopware\Framework\Struct\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;

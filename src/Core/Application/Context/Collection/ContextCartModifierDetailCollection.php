@@ -3,6 +3,7 @@
 namespace Shopware\Application\Context\Collection;
 
 use Shopware\Application\Context\Struct\ContextCartModifierDetailStruct;
+use Shopware\Checkout\Rule\Collection\ContextRuleBasicCollection;
 
 class ContextCartModifierDetailCollection extends ContextCartModifierBasicCollection
 {

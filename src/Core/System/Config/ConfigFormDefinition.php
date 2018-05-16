@@ -8,7 +8,7 @@ use Shopware\System\Config\Aggregate\ConfigFormField\ConfigFormFieldDefinition;
 use Shopware\System\Config\Aggregate\ConfigFormTranslation\ConfigFormTranslationDefinition;
 use Shopware\System\Config\Event\ConfigFormDeletedEvent;
 use Shopware\System\Config\Event\ConfigFormWrittenEvent;
-use Shopware\System\Config\ConfigFormRepository;
+
 use Shopware\System\Config\Struct\ConfigFormBasicStruct;
 use Shopware\System\Config\Struct\ConfigFormDetailStruct;
 use Shopware\Framework\ORM\EntityDefinition;

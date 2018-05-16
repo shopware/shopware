@@ -23,7 +23,7 @@ use Shopware\Checkout\Order\Aggregate\OrderDeliveryPosition\Collection\OrderDeli
 use Shopware\Checkout\Order\Aggregate\OrderDeliveryPosition\Collection\OrderDeliveryPositionDetailCollection;
 use Shopware\Checkout\Order\Aggregate\OrderDeliveryPosition\Event\OrderDeliveryPositionDeletedEvent;
 use Shopware\Checkout\Order\Aggregate\OrderDeliveryPosition\Event\OrderDeliveryPositionWrittenEvent;
-use Shopware\Checkout\Order\Aggregate\OrderDeliveryPosition\OrderDeliveryPositionRepository;
+
 use Shopware\Checkout\Order\Aggregate\OrderDeliveryPosition\Struct\OrderDeliveryPositionBasicStruct;
 use Shopware\Checkout\Order\Aggregate\OrderDeliveryPosition\Struct\OrderDeliveryPositionDetailStruct;
 

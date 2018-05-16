@@ -94,11 +94,11 @@
         <service class="Shopware\Storefront\Controller\AccountController" public="true" id="Shopware\Storefront\Controller\AccountController">
             <argument type="service" id="security.authentication_utils" />
             <argument type="service" id="security.token_storage"/>
-            <argument type="service" id="Shopware\StorefrontApi\Context\StorefrontContextPersister"/>
+            <argument type="service" id="Shopware\Application\Context\Util\StorefrontContextPersister"/>
             <argument type="service" id="Shopware\Storefront\Page\Account\AccountService"/>
             <argument type="service" id="Shopware\Storefront\Page\Account\CustomerAddressPageLoader"/>
             <argument type="service" id="Shopware\Storefront\Page\Account\CustomerPageLoader"/>
-            <argument type="service" id="Shopware\StorefrontApi\Context\StorefrontContextService"/>
+            <argument type="service" id="Shopware\Application\Context\Util\StorefrontContextService"/>
             <argument type="service" id="Shopware\Storefront\Page\Checkout\PaymentMethodLoader"/>
             <argument type="service" id="Shopware\Storefront\Page\Account\OrderPageLoader"/>
         </service>
@@ -108,7 +108,7 @@
             <argument type="service" id="Shopware\Application\Language\LanguageRepository"/>
         </service>
 
-        <service class="Shopware\Storefront\Controller\Widgets\CheckoutController" public="true" id="Shopware\Storefront\Controller\Widgets\CheckoutController">
+        <service class="Shopware\Storefront\Controller\Widgets\CheckoutController" public="true" id="Shopware\Storefront\Controller\Widgets\StorefrontCartController">
             <argument type="service" id="Shopware\Checkout\Cart\StoreFrontCartService" />
         </service>
 
@@ -139,7 +139,7 @@
             <argument type="service" id="Shopware\Checkout\Payment\Cart\PaymentTransactionChainProcessor"/>
             <argument type="service" id="Shopware\Checkout\Payment\Cart\Token\PaymentTransactionTokenFactory"/>
             <argument type="service" id="Shopware\Checkout\Payment\PaymentMethodRepository"/>
-            <argument type="service" id="Shopware\StorefrontApi\Context\StorefrontContextPersister"/>
+            <argument type="service" id="Shopware\Application\Context\Util\StorefrontContextPersister"/>
             <argument type="service" id="serializer"/>
         </service>
 
@@ -177,7 +177,7 @@
 
         <service class="Shopware\Storefront\Subscriber\SearchTermSubscriber" id="Shopware\Storefront\Subscriber\SearchTermSubscriber">
             <tag name="kernel.event_subscriber"/>
-            <argument type="service" id="Shopware\StorefrontApi\Search\KeywordSearchTermInterpreter"/>
+            <argument type="service" id="Shopware\Content\Product\Util\KeywordSearchTermInterpreter"/>
         </service>
 
         <service class="Shopware\Framework\Routing\StorefrontContextValueResolver" id="Shopware\Framework\Routing\StorefrontContextValueResolver">

@@ -3,7 +3,7 @@
 namespace Shopware\Checkout\Order\Aggregate\OrderLineItem\Struct;
 
 use Shopware\Checkout\Order\Aggregate\OrderDeliveryPosition\Collection\OrderDeliveryPositionBasicCollection;
-use Shopware\Checkout\Order\Aggregate\OrderLineItem\Struct\OrderLineItemBasicStruct;
+
 use Shopware\Checkout\Order\Struct\OrderBasicStruct;
 
 class OrderLineItemDetailStruct extends OrderLineItemBasicStruct

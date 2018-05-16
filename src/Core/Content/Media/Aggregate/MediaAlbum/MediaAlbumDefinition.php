@@ -31,7 +31,7 @@ use Shopware\Content\Media\Aggregate\MediaAlbum\Collection\MediaAlbumBasicCollec
 use Shopware\Content\Media\Aggregate\MediaAlbum\Collection\MediaAlbumDetailCollection;
 use Shopware\Content\Media\Aggregate\MediaAlbum\Event\MediaAlbumDeletedEvent;
 use Shopware\Content\Media\Aggregate\MediaAlbum\Event\MediaAlbumWrittenEvent;
-use Shopware\Content\Media\Aggregate\MediaAlbum\MediaAlbumRepository;
+
 use Shopware\Content\Media\Aggregate\MediaAlbum\Struct\MediaAlbumBasicStruct;
 use Shopware\Content\Media\Aggregate\MediaAlbum\Struct\MediaAlbumDetailStruct;
 

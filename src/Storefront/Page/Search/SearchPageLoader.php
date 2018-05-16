@@ -5,7 +5,7 @@ namespace Shopware\Storefront\Page\Search;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\Defaults;
+
 use Shopware\System\Config\Util\ConfigServiceInterface;
 use Shopware\Storefront\Event\ListingPageLoadedEvent;
 use Shopware\Storefront\Event\PageCriteriaCreatedEvent;

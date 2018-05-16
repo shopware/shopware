@@ -13,7 +13,7 @@ use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
 use Shopware\System\Mail\Aggregate\MailAttachment\Collection\MailAttachmentBasicCollection;
 use Shopware\System\Mail\Aggregate\MailAttachment\Collection\MailAttachmentDetailCollection;
-use Shopware\System\Mail\Aggregate\MailAttachment\MailAttachmentDefinition;
+
 use Shopware\System\Mail\Aggregate\MailAttachment\Event\MailAttachmentAggregationResultLoadedEvent;
 use Shopware\System\Mail\Aggregate\MailAttachment\Event\MailAttachmentBasicLoadedEvent;
 use Shopware\System\Mail\Aggregate\MailAttachment\Event\MailAttachmentDetailLoadedEvent;

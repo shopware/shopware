@@ -2,8 +2,7 @@
 
 namespace Shopware\Content\Media\Aggregate\MediaAlbum\Collection;
 
-use Shopware\Content\Media\Aggregate\MediaAlbum\Collection\MediaAlbumBasicCollection;
-use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Collection\MediaAlbumTranslationBasicCollection;
+
 use Shopware\Content\Media\Collection\MediaBasicCollection;
 use Shopware\Content\Media\Aggregate\MediaAlbum\Struct\MediaAlbumDetailStruct;
 

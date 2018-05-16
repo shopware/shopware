@@ -3,7 +3,7 @@
 namespace Shopware\Application\Context\Event\ContextCartModifier;
 
 use Shopware\Application\Context\Collection\ContextCartModifierDetailCollection;
-use Shopware\Application\Context\Event\ContextRule\ContextRuleBasicLoadedEvent;
+use Shopware\Checkout\Rule\Event\ContextRuleBasicLoadedEvent;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;

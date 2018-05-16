@@ -4,7 +4,7 @@ namespace Shopware\System\Tax\Aggregate\TaxAreaRuleTranslation\Collection;
 
 use Shopware\Application\Language\Collection\LanguageBasicCollection;
 use Shopware\System\Tax\Aggregate\TaxAreaRule\Collection\TaxAreaRuleBasicCollection;
-use Shopware\System\Tax\Aggregate\TaxAreaRuleTranslation\Collection\TaxAreaRuleTranslationBasicCollection;
+
 use Shopware\System\Tax\Aggregate\TaxAreaRuleTranslation\Struct\TaxAreaRuleTranslationDetailStruct;
 
 class TaxAreaRuleTranslationDetailCollection extends TaxAreaRuleTranslationBasicCollection

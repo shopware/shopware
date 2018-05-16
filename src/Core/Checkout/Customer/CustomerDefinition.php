@@ -9,7 +9,7 @@ use Shopware\Checkout\Customer\Collection\CustomerDetailCollection;
 use Shopware\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition;
 use Shopware\Checkout\Customer\Event\CustomerDeletedEvent;
 use Shopware\Checkout\Customer\Event\CustomerWrittenEvent;
-use Shopware\Checkout\Customer\CustomerRepository;
+
 use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
 use Shopware\Checkout\Customer\Struct\CustomerDetailStruct;
 use Shopware\Framework\ORM\EntityDefinition;

@@ -13,7 +13,7 @@ use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
 use Shopware\System\Locale\Collection\LocaleBasicCollection;
 use Shopware\System\Locale\Collection\LocaleDetailCollection;
-use Shopware\System\Locale\LocaleDefinition;
+
 use Shopware\System\Locale\Event\LocaleAggregationResultLoadedEvent;
 use Shopware\System\Locale\Event\LocaleBasicLoadedEvent;
 use Shopware\System\Locale\Event\LocaleDetailLoadedEvent;

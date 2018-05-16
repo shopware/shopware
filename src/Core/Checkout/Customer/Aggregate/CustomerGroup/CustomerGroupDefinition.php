@@ -9,7 +9,7 @@ use Shopware\Checkout\Customer\Aggregate\CustomerGroup\Event\CustomerGroupWritte
 use Shopware\Checkout\Customer\CustomerDefinition;
 use Shopware\Checkout\Customer\Aggregate\CustomerGroupDiscount\CustomerGroupDiscountDefinition;
 use Shopware\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationDefinition;
-use Shopware\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupRepository;
+
 use Shopware\Checkout\Customer\Aggregate\CustomerGroup\Struct\CustomerGroupBasicStruct;
 use Shopware\Checkout\Customer\Aggregate\CustomerGroup\Struct\CustomerGroupDetailStruct;
 use Shopware\Framework\ORM\EntityDefinition;
@@ -32,7 +32,7 @@ use Shopware\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Framework\ORM\Write\Flag\WriteOnly;
 use Shopware\Checkout\Shipping\ShippingMethodDefinition;
-use Shopware\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleDefinition;
+
 
 class CustomerGroupDefinition extends EntityDefinition
 {

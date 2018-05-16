@@ -34,7 +34,7 @@ use Shopware\Checkout\Payment\Collection\PaymentMethodBasicCollection;
 use Shopware\Checkout\Payment\Collection\PaymentMethodDetailCollection;
 use Shopware\Checkout\Payment\Event\PaymentMethodDeletedEvent;
 use Shopware\Checkout\Payment\Event\PaymentMethodWrittenEvent;
-use Shopware\Checkout\Payment\PaymentMethodRepository;
+
 use Shopware\Checkout\Payment\Struct\PaymentMethodBasicStruct;
 use Shopware\Checkout\Payment\Struct\PaymentMethodDetailStruct;
 use Shopware\Framework\Plugin\Definition\PluginDefinition;

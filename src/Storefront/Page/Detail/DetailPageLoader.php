@@ -8,7 +8,7 @@ use Shopware\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Content\Product\Aggregate\ProductConfigurator\Collection\ProductConfiguratorBasicCollection;
 use Shopware\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorRepository;
 use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\Content\Product\Struct\StorefrontProductBasicStruct;
+
 use Shopware\Content\Product\Struct\StorefrontProductDetailStruct;
 use Shopware\Content\Product\StorefrontProductRepository;
 use Symfony\Component\HttpFoundation\Request;

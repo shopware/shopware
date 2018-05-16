@@ -26,7 +26,7 @@ declare(strict_types=1);
 namespace Shopware\Checkout\Cart\Cart;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Checkout\Cart\Cart\CartPersisterInterface;
+
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Checkout\Cart\Cart\Struct\Cart;
 use Shopware\Checkout\Cart\Exception\CartTokenNotFoundException;

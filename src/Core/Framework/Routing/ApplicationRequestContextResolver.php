@@ -4,7 +4,7 @@ namespace Shopware\Framework\Routing;
 
 use Shopware\Framework\Struct\Uuid;
 use Shopware\PlatformRequest;
-use Shopware\StorefrontApi\Context\StorefrontContextService;
+use Shopware\Application\Context\Util\StorefrontContextService;
 use Shopware\StorefrontApi\Firewall\Application;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;

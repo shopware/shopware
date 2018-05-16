@@ -137,12 +137,12 @@
             <argument id="event_dispatcher" type="service"/>
         </service>
 
-        <service class="Shopware\Checkout\Order\Cart\MinimumOrderAmountProcessor" id="Shopware\Checkout\Order\Cart\MinimumOrderAmountProcessor">
+        <service class="Shopware\Checkout\Customer\Cart\MinimumOrderAmountProcessor" id="Shopware\Checkout\Customer\Cart\MinimumOrderAmountProcessor">
             <argument type="service" id="Shopware\Checkout\Cart\Price\AbsolutePriceCalculator"/>
             <tag name="cart.processor" priority="600"/>
         </service>
 
-        <service class="Shopware\Checkout\Order\Cart\OrderPersister" id="Shopware\Checkout\Order\Cart\OrderPersister">
+        <service class="Shopware\Checkout\Cart\Order\OrderPersister" id="Shopware\Checkout\Cart\Order\OrderPersister">
             <argument id="Shopware\Checkout\Order\OrderRepository" type="service"/>
             <argument id="Shopware\Checkout\Cart\Tax\TaxDetector" type="service"/>
         </service>

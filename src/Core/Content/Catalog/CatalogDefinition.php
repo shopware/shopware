@@ -5,10 +5,10 @@ namespace Shopware\Content\Catalog;
 use Shopware\Content\Catalog\Collection\CatalogBasicCollection;
 use Shopware\Content\Catalog\Event\CatalogDeletedEvent;
 use Shopware\Content\Catalog\Event\CatalogWrittenEvent;
-use Shopware\Content\Catalog\CatalogRepository;
+
 use Shopware\Content\Catalog\Struct\CatalogBasicStruct;
-use Shopware\Content\Category\CategoryDefinition;
-use Shopware\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
+
+
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\DateField;
@@ -22,13 +22,13 @@ use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Framework\ORM\Write\Flag\WriteOnly;
 use Shopware\Content\Media\Aggregate\MediaAlbum\MediaAlbumDefinition;
-use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\MediaAlbumTranslationDefinition;
+
 use Shopware\Content\Media\MediaDefinition;
 use Shopware\Content\Media\Aggregate\MediaTranslation\MediaTranslationDefinition;
 use Shopware\Content\Product\ProductDefinition;
 use Shopware\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition;
-use Shopware\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition;
+
 use Shopware\Content\Product\Aggregate\ProductStream\ProductStreamDefinition;
 use Shopware\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 

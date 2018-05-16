@@ -6,11 +6,11 @@ use Shopware\Application\Application\Collection\ApplicationBasicCollection;
 use Shopware\Application\Application\Collection\ApplicationDetailCollection;
 use Shopware\Application\Application\Event\ApplicationDeletedEvent;
 use Shopware\Application\Application\Event\ApplicationWrittenEvent;
-use Shopware\Application\Application\ApplicationRepository;
+
 use Shopware\Application\Application\Struct\ApplicationBasicStruct;
 use Shopware\Application\Application\Struct\ApplicationDetailStruct;
-use Shopware\System\Country\CountryDefinition;
-use Shopware\System\Currency\CurrencyDefinition;
+
+
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\BoolField;

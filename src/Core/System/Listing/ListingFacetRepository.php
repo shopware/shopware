@@ -13,7 +13,7 @@ use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
 use Shopware\System\Listing\Collection\ListingFacetBasicCollection;
 use Shopware\System\Listing\Collection\ListingFacetDetailCollection;
-use Shopware\System\Listing\ListingFacetDefinition;
+
 use Shopware\System\Listing\Event\ListingFacetAggregationResultLoadedEvent;
 use Shopware\System\Listing\Event\ListingFacetBasicLoadedEvent;
 use Shopware\System\Listing\Event\ListingFacetDetailLoadedEvent;

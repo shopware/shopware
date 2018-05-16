@@ -26,8 +26,8 @@ namespace Shopware\Application\Test\Context\Rule\CalculatedCart;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Checkout\Test\Cart\Common\Generator;
-use Shopware\Application\Context\Rule\MatchContext\CartRuleMatchContext;
-use Shopware\Application\Context\Rule\CalculatedCart\LineItemsInCartRule;
+use Shopware\Checkout\Rule\Specification\Scope\CartRuleScope;
+use Shopware\Checkout\Rule\Specification\CalculatedCart\LineItemsInCartRule;
 use Shopware\Application\Context\Struct\StorefrontContext;
 
 class LineItemsInCartRuleTest extends TestCase
@@ -40,7 +40,7 @@ class LineItemsInCartRuleTest extends TestCase
         $context = $this->createMock(StorefrontContext::class);
 
         $this->assertTrue(
-            $rule->match(new CartRuleMatchContext($calculatedCart, $context))->matches()
+            $rule->match(new CartRuleScope($calculatedCart, $context))->matches()
         );
     }
 
@@ -52,7 +52,7 @@ class LineItemsInCartRuleTest extends TestCase
         $context = $this->createMock(StorefrontContext::class);
 
         $this->assertFalse(
-            $rule->match(new CartRuleMatchContext($calculatedCart, $context))->matches()
+            $rule->match(new CartRuleScope($calculatedCart, $context))->matches()
         );
     }
 
@@ -64,7 +64,7 @@ class LineItemsInCartRuleTest extends TestCase
         $context = $this->createMock(StorefrontContext::class);
 
         $this->assertTrue(
-            $rule->match(new CartRuleMatchContext($calculatedCart, $context))->matches()
+            $rule->match(new CartRuleScope($calculatedCart, $context))->matches()
         );
     }
 }

@@ -20,7 +20,7 @@ use Shopware\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Checkout\Order\Aggregate\OrderTransactionState\Collection\OrderTransactionStateBasicCollection;
 use Shopware\Checkout\Order\Aggregate\OrderTransactionState\Event\OrderTransactionStateDeletedEvent;
 use Shopware\Checkout\Order\Aggregate\OrderTransactionState\Event\OrderTransactionStateWrittenEvent;
-use Shopware\Checkout\Order\Aggregate\OrderTransactionState\OrderTransactionStateRepository;
+
 use Shopware\Checkout\Order\Aggregate\OrderTransactionState\Struct\OrderTransactionStateBasicStruct;
 
 class OrderTransactionStateDefinition extends EntityDefinition

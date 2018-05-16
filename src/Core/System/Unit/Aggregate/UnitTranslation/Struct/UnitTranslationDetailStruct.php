@@ -3,7 +3,7 @@
 namespace Shopware\System\Unit\Aggregate\UnitTranslation\Struct;
 
 use Shopware\Application\Language\Struct\LanguageBasicStruct;
-use Shopware\System\Unit\Aggregate\UnitTranslation\Struct\UnitTranslationBasicStruct;
+
 use Shopware\System\Unit\Struct\UnitBasicStruct;
 
 class UnitTranslationDetailStruct extends UnitTranslationBasicStruct

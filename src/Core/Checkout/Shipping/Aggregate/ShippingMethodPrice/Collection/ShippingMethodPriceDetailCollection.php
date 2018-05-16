@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Shipping\Aggregate\ShippingMethodPrice\Collection;
 
-use Shopware\Checkout\Shipping\Aggregate\ShippingMethodPrice\Collection\ShippingMethodPriceBasicCollection;
+
 use Shopware\Checkout\Shipping\Collection\ShippingMethodBasicCollection;
 use Shopware\Checkout\Shipping\Aggregate\ShippingMethodPrice\Struct\ShippingMethodPriceDetailStruct;
 

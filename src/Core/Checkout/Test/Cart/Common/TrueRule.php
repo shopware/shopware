@@ -24,14 +24,14 @@
 
 namespace Shopware\Checkout\Test\Cart\Common;
 
-use Shopware\Application\Context\Rule\MatchContext\RuleMatchContext;
-use Shopware\Application\Context\Rule\Match;
-use Shopware\Application\Context\Rule\Rule;
+use Shopware\Checkout\Rule\Specification\Scope\RuleScope;
+use Shopware\Checkout\Rule\Specification\Match;
+use Shopware\Checkout\Rule\Specification\Rule;
 
 class TrueRule extends Rule
 {
     public function match(
-        RuleMatchContext $matchContext
+        RuleScope $matchContext
     ): Match {
         return new Match(true);
     }

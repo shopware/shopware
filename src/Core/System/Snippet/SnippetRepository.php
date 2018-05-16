@@ -13,7 +13,7 @@ use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
 use Shopware\System\Snippet\Collection\SnippetBasicCollection;
 use Shopware\System\Snippet\Collection\SnippetDetailCollection;
-use Shopware\System\Snippet\SnippetDefinition;
+
 use Shopware\System\Snippet\Event\SnippetAggregationResultLoadedEvent;
 use Shopware\System\Snippet\Event\SnippetBasicLoadedEvent;
 use Shopware\System\Snippet\Event\SnippetDetailLoadedEvent;

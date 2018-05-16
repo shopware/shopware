@@ -2,7 +2,7 @@
 
 namespace Shopware\Content\Category\Aggregate\CategoryTranslation\Collection;
 
-use Shopware\Content\Category\Aggregate\CategoryTranslation\Collection\CategoryTranslationBasicCollection;
+
 use Shopware\Content\Category\Aggregate\CategoryTranslation\Struct\CategoryTranslationDetailStruct;
 use Shopware\Application\Language\Collection\LanguageBasicCollection;
 use Shopware\Content\Category\Collection\CategoryBasicCollection;

@@ -27,7 +27,7 @@ use Shopware\Checkout\Order\Aggregate\OrderDelivery\Collection\OrderDeliveryBasi
 use Shopware\Checkout\Order\Aggregate\OrderDelivery\Collection\OrderDeliveryDetailCollection;
 use Shopware\Checkout\Order\Aggregate\OrderDelivery\Event\OrderDeliveryDeletedEvent;
 use Shopware\Checkout\Order\Aggregate\OrderDelivery\Event\OrderDeliveryWrittenEvent;
-use Shopware\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryRepository;
+
 use Shopware\Checkout\Order\Aggregate\OrderDelivery\Struct\OrderDeliveryBasicStruct;
 use Shopware\Checkout\Order\Aggregate\OrderDelivery\Struct\OrderDeliveryDetailStruct;
 use Shopware\Checkout\Shipping\ShippingMethodDefinition;

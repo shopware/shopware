@@ -28,7 +28,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\Defaults;
+
 use Shopware\Storefront\Controller\StorefrontController;
 use Shopware\Storefront\Page\Listing\ListingPageLoader;
 use Shopware\Storefront\Page\Listing\ListingPageRequest;

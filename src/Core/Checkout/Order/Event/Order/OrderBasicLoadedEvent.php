@@ -3,7 +3,7 @@
 namespace Shopware\Checkout\Order\Event\Order;
 
 use Shopware\Application\Application\Event\Application\ApplicationBasicLoadedEvent;
-use Shopware\System\Currency\Event\Currency\CurrencyBasicLoadedEvent;
+use Shopware\System\Currency\Event\CurrencyBasicLoadedEvent;
 use Shopware\Checkout\Customer\Event\Customer\CustomerBasicLoadedEvent;
 use Shopware\Checkout\Order\Collection\OrderBasicCollection;
 use Shopware\Checkout\Order\Event\OrderAddress\OrderAddressBasicLoadedEvent;

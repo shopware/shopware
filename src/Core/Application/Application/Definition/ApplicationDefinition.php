@@ -10,7 +10,7 @@ use Shopware\Application\Application\Repository\ApplicationRepository;
 use Shopware\Application\Application\Struct\ApplicationBasicStruct;
 use Shopware\Application\Application\Struct\ApplicationDetailStruct;
 use Shopware\System\Country\CountryDefinition;
-use Shopware\System\Currency\Definition\CurrencyDefinition;
+use Shopware\System\Currency\CurrencyDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\BoolField;
@@ -61,8 +61,8 @@ class ApplicationDefinition extends EntityDefinition
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('language_id', 'languageId', LanguageDefinition::class))->setFlags(new Required()),
-            (new FkField('currency_id', 'currencyId', CurrencyDefinition::class))->setFlags(new Required()),
-            new ReferenceVersionField(CurrencyDefinition::class),
+            (new FkField('currency_id', 'currencyId', \Shopware\System\Currency\CurrencyDefinition::class))->setFlags(new Required()),
+            new ReferenceVersionField(\Shopware\System\Currency\CurrencyDefinition::class),
             (new FkField('payment_method_id', 'paymentMethodId', PaymentMethodDefinition::class))->setFlags(new Required()),
             new ReferenceVersionField(PaymentMethodDefinition::class),
             (new FkField('shipping_method_id', 'shippingMethodId', ShippingMethodDefinition::class))->setFlags(new Required()),
@@ -82,7 +82,7 @@ class ApplicationDefinition extends EntityDefinition
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
             new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, true),
-            new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, true),
+            new ManyToOneAssociationField('currency', 'currency_id', \Shopware\System\Currency\CurrencyDefinition::class, true),
             new ManyToOneAssociationField('paymentMethod', 'payment_method_id', PaymentMethodDefinition::class, false),
             new ManyToOneAssociationField('shippingMethod', 'shipping_method_id', ShippingMethodDefinition::class, false),
             new ManyToOneAssociationField('country', 'country_id', \Shopware\System\Country\CountryDefinition::class, false),

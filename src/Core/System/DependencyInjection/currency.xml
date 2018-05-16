@@ -6,23 +6,23 @@
 
     <services>
         <!-- Versioning -->
-        <service alias="Shopware\System\Currency\Repository\CurrencyRepository.v1" id="Shopware\System\Currency\Repository\CurrencyRepository" public="true"/>
-        <service alias="Shopware\System\Currency\Repository\CurrencyTranslationRepository.v1" id="Shopware\System\Currency\Repository\CurrencyTranslationRepository" public="true"/>
+        <service alias="Shopware\System\Currency\CurrencyRepository.v1" id="Shopware\System\Currency\CurrencyRepository" public="true"/>
+        <service alias="Shopware\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationRepository.v1" id="Shopware\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationRepository" public="true"/>
 
-        <service class="Shopware\System\Currency\Definition\CurrencyDefinition" id="Shopware\System\Currency\Definition\CurrencyDefinition" >
+        <service class="Shopware\System\Currency\CurrencyDefinition" id="Shopware\System\Currency\CurrencyDefinition" >
             <tag name="shopware.entity.definition" entity="currency" />
         </service>
-        <service class="Shopware\System\Currency\Repository\CurrencyRepository" id="Shopware\System\Currency\Repository\CurrencyRepository.v1" public="true">
+        <service class="Shopware\System\Currency\CurrencyRepository" id="Shopware\System\Currency\CurrencyRepository.v1" public="true">
           <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
           <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>
-         <service class="Shopware\System\Currency\Definition\CurrencyTranslationDefinition" id="Shopware\System\Currency\Definition\CurrencyTranslationDefinition" >
+         <service class="Shopware\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationDefinition" id="Shopware\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationDefinition" >
             <tag name="shopware.entity.definition" entity="currency_translation" />
         </service>
-        <service class="Shopware\System\Currency\Repository\CurrencyTranslationRepository" id="Shopware\System\Currency\Repository\CurrencyTranslationRepository.v1" public="true">
+        <service class="Shopware\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationRepository" id="Shopware\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationRepository.v1" public="true">
           <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
           <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>

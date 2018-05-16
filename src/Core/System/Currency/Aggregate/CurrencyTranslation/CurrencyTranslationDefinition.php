@@ -1,14 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Currency\Definition;
+namespace Shopware\System\Currency\Aggregate\CurrencyTranslation;
 
-use Shopware\System\Currency\Collection\CurrencyTranslationBasicCollection;
-use Shopware\System\Currency\Collection\CurrencyTranslationDetailCollection;
-use Shopware\System\Currency\Event\CurrencyTranslation\CurrencyTranslationDeletedEvent;
-use Shopware\System\Currency\Event\CurrencyTranslation\CurrencyTranslationWrittenEvent;
-use Shopware\System\Currency\Repository\CurrencyTranslationRepository;
-use Shopware\System\Currency\Struct\CurrencyTranslationBasicStruct;
-use Shopware\System\Currency\Struct\CurrencyTranslationDetailStruct;
+use Shopware\System\Currency\Aggregate\CurrencyTranslation\Collection\CurrencyTranslationBasicCollection;
+use Shopware\System\Currency\Aggregate\CurrencyTranslation\Collection\CurrencyTranslationDetailCollection;
+use Shopware\System\Currency\Aggregate\CurrencyTranslation\Event\CurrencyTranslationDeletedEvent;
+use Shopware\System\Currency\Aggregate\CurrencyTranslation\Event\CurrencyTranslationWrittenEvent;
+use Shopware\System\Currency\CurrencyDefinition;
+use Shopware\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationRepository;
+use Shopware\System\Currency\Aggregate\CurrencyTranslation\Struct\CurrencyTranslationBasicStruct;
+use Shopware\System\Currency\Aggregate\CurrencyTranslation\Struct\CurrencyTranslationDetailStruct;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\FkField;

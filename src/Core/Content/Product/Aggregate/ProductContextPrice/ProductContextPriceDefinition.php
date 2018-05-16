@@ -4,7 +4,7 @@ namespace Shopware\Content\Product\Aggregate\ProductContextPrice;
 
 use Shopware\Application\Context\Definition\ContextRuleDefinition;
 use Shopware\Content\Product\ProductDefinition;
-use Shopware\System\Currency\Definition\CurrencyDefinition;
+use Shopware\System\Currency\CurrencyDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\DateField;

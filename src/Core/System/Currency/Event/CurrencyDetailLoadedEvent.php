@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Currency\Event\Currency;
+namespace Shopware\System\Currency\Event;
 
 use Shopware\System\Currency\Collection\CurrencyDetailCollection;
-use Shopware\System\Currency\Event\CurrencyTranslation\CurrencyTranslationBasicLoadedEvent;
+use Shopware\System\Currency\Aggregate\CurrencyTranslation\Event\CurrencyTranslationBasicLoadedEvent;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;

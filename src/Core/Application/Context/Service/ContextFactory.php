@@ -29,7 +29,7 @@ use Shopware\Application\Application\Repository\ApplicationRepository;
 use Shopware\Application\Application\Struct\ApplicationBasicStruct;
 use Shopware\System\Country\CountryRepository;
 use Shopware\System\Country\Aggregate\CountryState\CountryStateRepository;
-use Shopware\System\Currency\Repository\CurrencyRepository;
+use Shopware\System\Currency\CurrencyRepository;
 use Shopware\Checkout\Customer\Repository\CustomerAddressRepository;
 use Shopware\Checkout\Customer\Repository\CustomerGroupRepository;
 use Shopware\Checkout\Customer\Repository\CustomerRepository;

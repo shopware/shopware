@@ -1,21 +1,21 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Currency\Event\CurrencyTranslation;
+namespace Shopware\System\Currency\Event;
 
-use Shopware\Framework\ORM\Search\AggregatorResult;
+use Shopware\Framework\ORM\Search\IdSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
-class CurrencyTranslationAggregationResultLoadedEvent extends NestedEvent
+class CurrencyIdSearchResultLoadedEvent extends NestedEvent
 {
-    public const NAME = 'currency_translation.aggregation.result.loaded';
+    public const NAME = 'currency.id.search.result.loaded';
 
     /**
-     * @var AggregatorResult
+     * @var IdSearchResult
      */
     protected $result;
 
-    public function __construct(AggregatorResult $result)
+    public function __construct(IdSearchResult $result)
     {
         $this->result = $result;
     }
@@ -30,7 +30,7 @@ class CurrencyTranslationAggregationResultLoadedEvent extends NestedEvent
         return $this->result->getContext();
     }
 
-    public function getResult(): AggregatorResult
+    public function getResult(): IdSearchResult
     {
         return $this->result;
     }

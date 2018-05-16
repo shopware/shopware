@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Currency\Event\CurrencyTranslation;
+namespace Shopware\System\Currency\Aggregate\CurrencyTranslation\Event;
 
 use Shopware\Framework\ORM\Search\IdSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;

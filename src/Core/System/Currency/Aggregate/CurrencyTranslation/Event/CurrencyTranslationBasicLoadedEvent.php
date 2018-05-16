@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Currency\Event\CurrencyTranslation;
+namespace Shopware\System\Currency\Aggregate\CurrencyTranslation\Event;
 
-use Shopware\System\Currency\Collection\CurrencyTranslationBasicCollection;
+use Shopware\System\Currency\Aggregate\CurrencyTranslation\Collection\CurrencyTranslationBasicCollection;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
@@ -16,7 +16,7 @@ class CurrencyTranslationBasicLoadedEvent extends NestedEvent
     protected $context;
 
     /**
-     * @var CurrencyTranslationBasicCollection
+     * @var \Shopware\System\Currency\Aggregate\CurrencyTranslation\Collection\CurrencyTranslationBasicCollection
      */
     protected $currencyTranslations;
 

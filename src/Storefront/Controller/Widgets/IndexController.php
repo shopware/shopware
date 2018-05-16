@@ -27,7 +27,7 @@ namespace Shopware\Storefront\Controller\Widgets;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\System\Currency\Collection\CurrencyBasicCollection;
-use Shopware\System\Currency\Repository\CurrencyRepository;
+use Shopware\System\Currency\CurrencyRepository;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Query\TermsQuery;
 use Shopware\Application\Language\Collection\LanguageBasicCollection;

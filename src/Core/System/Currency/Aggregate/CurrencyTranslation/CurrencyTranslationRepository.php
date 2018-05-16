@@ -1,16 +1,16 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Currency\Repository;
+namespace Shopware\System\Currency\Aggregate\CurrencyTranslation;
 
-use Shopware\System\Currency\Collection\CurrencyTranslationBasicCollection;
-use Shopware\System\Currency\Collection\CurrencyTranslationDetailCollection;
-use Shopware\System\Currency\Definition\CurrencyTranslationDefinition;
-use Shopware\System\Currency\Event\CurrencyTranslation\CurrencyTranslationAggregationResultLoadedEvent;
-use Shopware\System\Currency\Event\CurrencyTranslation\CurrencyTranslationBasicLoadedEvent;
-use Shopware\System\Currency\Event\CurrencyTranslation\CurrencyTranslationDetailLoadedEvent;
-use Shopware\System\Currency\Event\CurrencyTranslation\CurrencyTranslationIdSearchResultLoadedEvent;
-use Shopware\System\Currency\Event\CurrencyTranslation\CurrencyTranslationSearchResultLoadedEvent;
-use Shopware\System\Currency\Struct\CurrencyTranslationSearchResult;
+use Shopware\System\Currency\Aggregate\CurrencyTranslation\Collection\CurrencyTranslationBasicCollection;
+use Shopware\System\Currency\Aggregate\CurrencyTranslation\Collection\CurrencyTranslationDetailCollection;
+use Shopware\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationDefinition;
+use Shopware\System\Currency\Aggregate\CurrencyTranslation\Event\CurrencyTranslationAggregationResultLoadedEvent;
+use Shopware\System\Currency\Aggregate\CurrencyTranslation\Event\CurrencyTranslationBasicLoadedEvent;
+use Shopware\System\Currency\Aggregate\CurrencyTranslation\Event\CurrencyTranslationDetailLoadedEvent;
+use Shopware\System\Currency\Aggregate\CurrencyTranslation\Event\CurrencyTranslationIdSearchResultLoadedEvent;
+use Shopware\System\Currency\Aggregate\CurrencyTranslation\Event\CurrencyTranslationSearchResultLoadedEvent;
+use Shopware\System\Currency\Aggregate\CurrencyTranslation\Struct\CurrencyTranslationSearchResult;
 use Shopware\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Framework\ORM\RepositoryInterface;
 use Shopware\Framework\ORM\Search\AggregatorResult;
@@ -106,7 +106,7 @@ class CurrencyTranslationRepository implements RepositoryInterface
 
     public function readBasic(array $ids, ApplicationContext $context): CurrencyTranslationBasicCollection
     {
-        /** @var CurrencyTranslationBasicCollection $entities */
+        /** @var \Shopware\System\Currency\Aggregate\CurrencyTranslation\Collection\CurrencyTranslationBasicCollection $entities */
         $entities = $this->reader->readBasic(CurrencyTranslationDefinition::class, $ids, $context);
 
         $event = new CurrencyTranslationBasicLoadedEvent($entities, $context);
@@ -117,7 +117,7 @@ class CurrencyTranslationRepository implements RepositoryInterface
 
     public function readDetail(array $ids, ApplicationContext $context): CurrencyTranslationDetailCollection
     {
-        /** @var CurrencyTranslationDetailCollection $entities */
+        /** @var \Shopware\System\Currency\Aggregate\CurrencyTranslation\Collection\CurrencyTranslationDetailCollection $entities */
         $entities = $this->reader->readDetail(CurrencyTranslationDefinition::class, $ids, $context);
 
         $event = new CurrencyTranslationDetailLoadedEvent($entities, $context);

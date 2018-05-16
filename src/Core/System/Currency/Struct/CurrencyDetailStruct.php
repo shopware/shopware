@@ -2,12 +2,12 @@
 
 namespace Shopware\System\Currency\Struct;
 
-use Shopware\System\Currency\Collection\CurrencyTranslationBasicCollection;
+use Shopware\System\Currency\Aggregate\CurrencyTranslation\Collection\CurrencyTranslationBasicCollection;
 
 class CurrencyDetailStruct extends CurrencyBasicStruct
 {
     /**
-     * @var CurrencyTranslationBasicCollection
+     * @var \Shopware\System\Currency\Aggregate\CurrencyTranslation\Collection\CurrencyTranslationBasicCollection
      */
     protected $translations;
 

@@ -1,14 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Currency\Collection;
+namespace Shopware\System\Currency\Aggregate\CurrencyTranslation\Collection;
 
-use Shopware\System\Currency\Struct\CurrencyTranslationBasicStruct;
+use Shopware\System\Currency\Aggregate\CurrencyTranslation\Struct\CurrencyTranslationBasicStruct;
 use Shopware\Framework\ORM\EntityCollection;
 
 class CurrencyTranslationBasicCollection extends EntityCollection
 {
     /**
-     * @var CurrencyTranslationBasicStruct[]
+     * @var \Shopware\System\Currency\Aggregate\CurrencyTranslation\Struct\CurrencyTranslationBasicStruct[]
      */
     protected $elements = [];
 

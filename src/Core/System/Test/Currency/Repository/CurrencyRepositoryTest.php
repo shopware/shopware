@@ -3,8 +3,8 @@
 namespace Shopware\System\Test\Currency\Repository;
 
 use Doctrine\DBAL\Connection;
-use Shopware\System\Currency\Definition\CurrencyDefinition;
-use Shopware\System\Currency\Repository\CurrencyRepository;
+use Shopware\System\Currency\CurrencyDefinition;
+use Shopware\System\Currency\CurrencyRepository;
 use Shopware\Framework\ORM\RepositoryInterface;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Term\EntityScoreQueryBuilder;
@@ -36,7 +36,7 @@ class CurrencyRepositoryTest extends KernelTestCase
     {
         self::bootKernel();
         $this->container = self::$kernel->getContainer();
-        $this->repository = $this->container->get(CurrencyRepository::class);
+        $this->repository = $this->container->get(\Shopware\System\Currency\CurrencyRepository::class);
         $this->connection = $this->container->get(Connection::class);
         $this->connection->beginTransaction();
     }

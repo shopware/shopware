@@ -35,7 +35,7 @@
 
         <service class="Shopware\Application\Context\Service\ContextFactory" id="Shopware\Application\Context\Service\ContextFactory">
             <argument type="service" id="Shopware\Application\Application\Repository\ApplicationRepository"/>
-            <argument type="service" id="Shopware\System\Currency\Repository\CurrencyRepository"/>
+            <argument type="service" id="Shopware\System\Currency\CurrencyRepository"/>
             <argument type="service" id="Shopware\Checkout\Customer\Repository\CustomerRepository"/>
             <argument type="service" id="Shopware\Checkout\Customer\Repository\CustomerGroupRepository"/>
             <argument type="service" id="Shopware\System\Country\CountryRepository"/>

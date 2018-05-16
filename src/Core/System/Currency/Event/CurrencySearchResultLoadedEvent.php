@@ -1,21 +1,21 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Currency\Event\Currency;
+namespace Shopware\System\Currency\Event;
 
-use Shopware\Framework\ORM\Search\IdSearchResult;
+use Shopware\System\Currency\Struct\CurrencySearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
-class CurrencyIdSearchResultLoadedEvent extends NestedEvent
+class CurrencySearchResultLoadedEvent extends NestedEvent
 {
-    public const NAME = 'currency.id.search.result.loaded';
+    public const NAME = 'currency.search.result.loaded';
 
     /**
-     * @var IdSearchResult
+     * @var CurrencySearchResult
      */
     protected $result;
 
-    public function __construct(IdSearchResult $result)
+    public function __construct(CurrencySearchResult $result)
     {
         $this->result = $result;
     }
@@ -28,10 +28,5 @@ class CurrencyIdSearchResultLoadedEvent extends NestedEvent
     public function getContext(): ApplicationContext
     {
         return $this->result->getContext();
-    }
-
-    public function getResult(): IdSearchResult
-    {
-        return $this->result;
     }
 }

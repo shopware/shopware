@@ -1,13 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Currency\Definition;
+namespace Shopware\System\Currency;
 
 use Shopware\Application\Application\Definition\ApplicationDefinition;
+use Shopware\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationDefinition;
 use Shopware\System\Currency\Collection\CurrencyBasicCollection;
 use Shopware\System\Currency\Collection\CurrencyDetailCollection;
-use Shopware\System\Currency\Event\Currency\CurrencyDeletedEvent;
-use Shopware\System\Currency\Event\Currency\CurrencyWrittenEvent;
-use Shopware\System\Currency\Repository\CurrencyRepository;
+use Shopware\System\Currency\Event\CurrencyDeletedEvent;
+use Shopware\System\Currency\Event\CurrencyWrittenEvent;
+use Shopware\System\Currency\CurrencyRepository;
 use Shopware\System\Currency\Struct\CurrencyBasicStruct;
 use Shopware\System\Currency\Struct\CurrencyDetailStruct;
 use Shopware\Framework\ORM\EntityDefinition;

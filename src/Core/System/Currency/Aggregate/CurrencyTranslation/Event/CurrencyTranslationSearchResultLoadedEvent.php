@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Currency\Event\CurrencyTranslation;
+namespace Shopware\System\Currency\Aggregate\CurrencyTranslation\Event;
 
-use Shopware\System\Currency\Struct\CurrencyTranslationSearchResult;
+use Shopware\System\Currency\Aggregate\CurrencyTranslation\Struct\CurrencyTranslationSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
@@ -11,7 +11,7 @@ class CurrencyTranslationSearchResultLoadedEvent extends NestedEvent
     public const NAME = 'currency_translation.search.result.loaded';
 
     /**
-     * @var CurrencyTranslationSearchResult
+     * @var \Shopware\System\Currency\Aggregate\CurrencyTranslation\Struct\CurrencyTranslationSearchResult
      */
     protected $result;
 

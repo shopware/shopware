@@ -1,15 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Currency\Repository;
+namespace Shopware\System\Currency;
 
 use Shopware\System\Currency\Collection\CurrencyBasicCollection;
 use Shopware\System\Currency\Collection\CurrencyDetailCollection;
-use Shopware\System\Currency\Definition\CurrencyDefinition;
-use Shopware\System\Currency\Event\Currency\CurrencyAggregationResultLoadedEvent;
-use Shopware\System\Currency\Event\Currency\CurrencyBasicLoadedEvent;
-use Shopware\System\Currency\Event\Currency\CurrencyDetailLoadedEvent;
-use Shopware\System\Currency\Event\Currency\CurrencyIdSearchResultLoadedEvent;
-use Shopware\System\Currency\Event\Currency\CurrencySearchResultLoadedEvent;
+use Shopware\System\Currency\CurrencyDefinition;
+use Shopware\System\Currency\Event\CurrencyAggregationResultLoadedEvent;
+use Shopware\System\Currency\Event\CurrencyBasicLoadedEvent;
+use Shopware\System\Currency\Event\CurrencyDetailLoadedEvent;
+use Shopware\System\Currency\Event\CurrencyIdSearchResultLoadedEvent;
+use Shopware\System\Currency\Event\CurrencySearchResultLoadedEvent;
 use Shopware\System\Currency\Struct\CurrencySearchResult;
 use Shopware\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Framework\ORM\RepositoryInterface;

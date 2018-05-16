@@ -2,6 +2,7 @@
 
 namespace Shopware\System\Currency\Collection;
 
+use Shopware\System\Currency\Aggregate\CurrencyTranslation\Collection\CurrencyTranslationBasicCollection;
 use Shopware\System\Currency\Struct\CurrencyDetailStruct;
 
 class CurrencyDetailCollection extends CurrencyBasicCollection

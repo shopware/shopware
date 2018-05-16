@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Currency\Event\CurrencyTranslation;
+namespace Shopware\System\Currency\Aggregate\CurrencyTranslation\Event;
 
-use Shopware\System\Currency\Definition\CurrencyTranslationDefinition;
+use Shopware\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationDefinition;
 use Shopware\Framework\ORM\Write\WrittenEvent;
 
 class CurrencyTranslationWrittenEvent extends WrittenEvent

@@ -1,13 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Snippet\Event\Snippet;
+namespace Shopware\System\Snippet\Event;
 
+use Shopware\Framework\ORM\Write\DeletedEvent;
 use Shopware\Framework\ORM\Write\WrittenEvent;
-use Shopware\System\Snippet\Definition\SnippetDefinition;
+use Shopware\System\Snippet\SnippetDefinition;
 
-class SnippetWrittenEvent extends WrittenEvent
+class SnippetDeletedEvent extends WrittenEvent implements DeletedEvent
 {
-    public const NAME = 'snippet.written';
+    public const NAME = 'snippet.deleted';
 
     public function getName(): string
     {

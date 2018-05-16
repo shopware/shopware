@@ -1,21 +1,21 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Snippet\Event\Snippet;
+namespace Shopware\System\Snippet\Event;
 
-use Shopware\Framework\ORM\Search\IdSearchResult;
+use Shopware\System\Snippet\Struct\SnippetSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
-class SnippetIdSearchResultLoadedEvent extends NestedEvent
+class SnippetSearchResultLoadedEvent extends NestedEvent
 {
-    public const NAME = 'snippet.id.search.result.loaded';
+    public const NAME = 'snippet.search.result.loaded';
 
     /**
-     * @var IdSearchResult
+     * @var SnippetSearchResult
      */
     protected $result;
 
-    public function __construct(IdSearchResult $result)
+    public function __construct(SnippetSearchResult $result)
     {
         $this->result = $result;
     }
@@ -28,10 +28,5 @@ class SnippetIdSearchResultLoadedEvent extends NestedEvent
     public function getContext(): ApplicationContext
     {
         return $this->result->getContext();
-    }
-
-    public function getResult(): IdSearchResult
-    {
-        return $this->result;
     }
 }

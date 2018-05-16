@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Snippet\Event\Snippet;
+namespace Shopware\System\Snippet\Event;
 
 use Shopware\Application\Application\Event\Application\ApplicationBasicLoadedEvent;
 use Shopware\System\Snippet\Collection\SnippetDetailCollection;

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Snippet\Repository;
+namespace Shopware\System\Snippet;
 
 use Shopware\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Framework\ORM\RepositoryInterface;
@@ -13,12 +13,12 @@ use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
 use Shopware\System\Snippet\Collection\SnippetBasicCollection;
 use Shopware\System\Snippet\Collection\SnippetDetailCollection;
-use Shopware\System\Snippet\Definition\SnippetDefinition;
-use Shopware\System\Snippet\Event\Snippet\SnippetAggregationResultLoadedEvent;
-use Shopware\System\Snippet\Event\Snippet\SnippetBasicLoadedEvent;
-use Shopware\System\Snippet\Event\Snippet\SnippetDetailLoadedEvent;
-use Shopware\System\Snippet\Event\Snippet\SnippetIdSearchResultLoadedEvent;
-use Shopware\System\Snippet\Event\Snippet\SnippetSearchResultLoadedEvent;
+use Shopware\System\Snippet\SnippetDefinition;
+use Shopware\System\Snippet\Event\SnippetAggregationResultLoadedEvent;
+use Shopware\System\Snippet\Event\SnippetBasicLoadedEvent;
+use Shopware\System\Snippet\Event\SnippetDetailLoadedEvent;
+use Shopware\System\Snippet\Event\SnippetIdSearchResultLoadedEvent;
+use Shopware\System\Snippet\Event\SnippetSearchResultLoadedEvent;
 use Shopware\System\Snippet\Struct\SnippetSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\ORM\Version\Service\VersionManager;

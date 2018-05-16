@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Snippet\Definition;
+namespace Shopware\System\Snippet;
 
 use Shopware\Application\Application\Definition\ApplicationDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
@@ -19,9 +19,9 @@ use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\System\Snippet\Collection\SnippetBasicCollection;
 use Shopware\System\Snippet\Collection\SnippetDetailCollection;
-use Shopware\System\Snippet\Event\Snippet\SnippetDeletedEvent;
-use Shopware\System\Snippet\Event\Snippet\SnippetWrittenEvent;
-use Shopware\System\Snippet\Repository\SnippetRepository;
+use Shopware\System\Snippet\Event\SnippetDeletedEvent;
+use Shopware\System\Snippet\Event\SnippetWrittenEvent;
+use Shopware\System\Snippet\SnippetRepository;
 use Shopware\System\Snippet\Struct\SnippetBasicStruct;
 use Shopware\System\Snippet\Struct\SnippetDetailStruct;
 

@@ -41,7 +41,7 @@ use Shopware\Checkout\Payment\Struct\PaymentMethodBasicStruct;
 use Shopware\Checkout\Shipping\Repository\ShippingMethodRepository;
 use Shopware\Checkout\Shipping\Struct\ShippingMethodBasicStruct;
 use Shopware\System\Tax\Collection\TaxBasicCollection;
-use Shopware\System\Tax\Repository\TaxRepository;
+use Shopware\System\Tax\TaxRepository;
 use Shopware\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Checkout\Cart\Tax\TaxDetector;
 use Shopware\Application\Context\Struct\ApplicationContext;
@@ -78,7 +78,7 @@ class ContextFactory implements ContextFactoryInterface
     private $countryRepository;
 
     /**
-     * @var TaxRepository
+     * @var \Shopware\System\Tax\TaxRepository
      */
     private $taxRepository;
 

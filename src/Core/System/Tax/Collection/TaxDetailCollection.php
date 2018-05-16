@@ -2,6 +2,7 @@
 
 namespace Shopware\System\Tax\Collection;
 
+use Shopware\System\Tax\Aggregate\TaxAreaRule\Collection\TaxAreaRuleBasicCollection;
 use Shopware\System\Tax\Struct\TaxDetailStruct;
 
 class TaxDetailCollection extends TaxBasicCollection

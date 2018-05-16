@@ -4,7 +4,7 @@ namespace Shopware\Framework\Api\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\System\Tax\Repository\TaxRepository;
+use Shopware\System\Tax\TaxRepository;
 use Shopware\Checkout\Cart\Price\GrossPriceCalculator;
 use Shopware\Checkout\Cart\Price\NetPriceCalculator;
 use Shopware\Checkout\Cart\Price\Struct\PriceDefinition;
@@ -25,7 +25,7 @@ class PriceActionController extends Controller
     private $serializer;
 
     /**
-     * @var TaxRepository
+     * @var \Shopware\System\Tax\TaxRepository
      */
     private $taxRepository;
 

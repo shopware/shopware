@@ -6,13 +6,13 @@
 
     <services>
         <!-- Versioning -->
-        <service alias="Shopware\System\Unit\Repository\UnitRepository.v1" id="Shopware\System\Unit\Repository\UnitRepository" public="true"/>
-        <service alias="Shopware\System\Unit\Repository\UnitTranslationRepository.v1" id="Shopware\System\Unit\Repository\UnitTranslationRepository" public="true"/>
+        <service alias="Shopware\System\Unit\UnitRepository.v1" id="Shopware\System\Unit\UnitRepository" public="true"/>
+        <service alias="Shopware\System\Unit\Aggregate\UnitTranslation\UnitTranslationRepository.v1" id="Shopware\System\Unit\Aggregate\UnitTranslation\UnitTranslationRepository" public="true"/>
 
-        <service class="Shopware\System\Unit\Definition\UnitDefinition" id="Shopware\System\Unit\Definition\UnitDefinition" >
+        <service class="Shopware\System\Unit\UnitDefinition" id="Shopware\System\Unit\UnitDefinition" >
             <tag name="shopware.entity.definition" entity="unit" />
         </service>
-        <service class="Shopware\System\Unit\Repository\UnitRepository" id="Shopware\System\Unit\Repository\UnitRepository.v1" public="true">
+        <service class="Shopware\System\Unit\UnitRepository" id="Shopware\System\Unit\UnitRepository.v1" public="true">
           <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
           <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
@@ -22,7 +22,7 @@
          <service class="Shopware\System\Unit\Definition\UnitTranslationDefinition" id="Shopware\System\Unit\Definition\UnitTranslationDefinition" >
             <tag name="shopware.entity.definition" entity="unit_translation" />
         </service>
-        <service class="Shopware\System\Unit\Repository\UnitTranslationRepository" id="Shopware\System\Unit\Repository\UnitTranslationRepository.v1" public="true">
+        <service class="Shopware\System\Unit\Aggregate\UnitTranslation\UnitTranslationRepository" id="Shopware\System\Unit\Aggregate\UnitTranslation\UnitTranslationRepository.v1" public="true">
           <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
           <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>

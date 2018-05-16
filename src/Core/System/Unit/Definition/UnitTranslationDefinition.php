@@ -13,13 +13,14 @@ use Shopware\Framework\ORM\FieldCollection;
 use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Application\Language\Definition\LanguageDefinition;
-use Shopware\System\Unit\Collection\UnitTranslationBasicCollection;
-use Shopware\System\Unit\Collection\UnitTranslationDetailCollection;
-use Shopware\System\Unit\Event\UnitTranslation\UnitTranslationDeletedEvent;
-use Shopware\System\Unit\Event\UnitTranslation\UnitTranslationWrittenEvent;
-use Shopware\System\Unit\Repository\UnitTranslationRepository;
-use Shopware\System\Unit\Struct\UnitTranslationBasicStruct;
-use Shopware\System\Unit\Struct\UnitTranslationDetailStruct;
+use Shopware\System\Unit\Aggregate\UnitTranslation\Collection\UnitTranslationBasicCollection;
+use Shopware\System\Unit\Aggregate\UnitTranslation\Collection\UnitTranslationDetailCollection;
+use Shopware\System\Unit\Aggregate\UnitTranslation\Event\UnitTranslationDeletedEvent;
+use Shopware\System\Unit\Aggregate\UnitTranslation\Event\UnitTranslationWrittenEvent;
+use Shopware\System\Unit\Aggregate\UnitTranslation\UnitTranslationRepository;
+use Shopware\System\Unit\Aggregate\UnitTranslation\Struct\UnitTranslationBasicStruct;
+use Shopware\System\Unit\Aggregate\UnitTranslation\Struct\UnitTranslationDetailStruct;
+use Shopware\System\Unit\UnitDefinition;
 
 class UnitTranslationDefinition extends EntityDefinition
 {

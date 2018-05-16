@@ -2,7 +2,7 @@
 
 namespace Shopware\Framework\Test\Api\Controller;
 
-use Shopware\System\Tax\Repository\TaxRepository;
+use Shopware\System\Tax\TaxRepository;
 use Shopware\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
@@ -17,7 +17,7 @@ use Symfony\Component\Serializer\Serializer;
 class PriceActionControllerTest extends ApiTestCase
 {
     /**
-     * @var TaxRepository
+     * @var \Shopware\System\Tax\TaxRepository
      */
     private $repository;
 

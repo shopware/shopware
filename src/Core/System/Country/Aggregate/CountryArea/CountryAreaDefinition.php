@@ -28,7 +28,7 @@ use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Framework\ORM\Write\Flag\WriteOnly;
-use Shopware\System\Tax\Definition\TaxAreaRuleDefinition;
+use Shopware\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleDefinition;
 
 class CountryAreaDefinition extends EntityDefinition
 {

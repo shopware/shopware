@@ -23,7 +23,7 @@ use Shopware\Content\Product\Aggregate\ProductService\Event\ProductServiceDelete
 use Shopware\Content\Product\Aggregate\ProductService\Event\ProductServiceWrittenEvent;
 
 use Shopware\Content\Product\Aggregate\ProductService\Struct\ProductServiceBasicStruct;
-use Shopware\System\Tax\Definition\TaxDefinition;
+use Shopware\System\Tax\TaxDefinition;
 
 class ProductServiceDefinition extends EntityDefinition
 {

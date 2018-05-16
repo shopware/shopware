@@ -2,12 +2,12 @@
 
 namespace Shopware\System\Unit\Struct;
 
-use Shopware\System\Unit\Collection\UnitTranslationBasicCollection;
+use Shopware\System\Unit\Aggregate\UnitTranslation\Collection\UnitTranslationBasicCollection;
 
 class UnitDetailStruct extends UnitBasicStruct
 {
     /**
-     * @var UnitTranslationBasicCollection
+     * @var \Shopware\System\Unit\Aggregate\UnitTranslation\Collection\UnitTranslationBasicCollection
      */
     protected $translations;
 

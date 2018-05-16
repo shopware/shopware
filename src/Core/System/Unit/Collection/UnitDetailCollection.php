@@ -2,6 +2,7 @@
 
 namespace Shopware\System\Unit\Collection;
 
+use Shopware\System\Unit\Aggregate\UnitTranslation\Collection\UnitTranslationBasicCollection;
 use Shopware\System\Unit\Struct\UnitDetailStruct;
 
 class UnitDetailCollection extends UnitBasicCollection

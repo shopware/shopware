@@ -13,8 +13,8 @@ use Shopware\Content\Product\Aggregate\ProductSearchKeyword\Event\ProductSearchK
 use Shopware\Content\Product\Aggregate\ProductService\Event\ProductServiceBasicLoadedEvent;
 use Shopware\Content\Product\Aggregate\ProductStream\Event\ProductStreamBasicLoadedEvent;
 use Shopware\Content\Product\Aggregate\ProductTranslation\Event\ProductTranslationBasicLoadedEvent;
-use Shopware\System\Tax\Event\Tax\TaxBasicLoadedEvent;
-use Shopware\System\Unit\Event\Unit\UnitBasicLoadedEvent;
+use Shopware\System\Tax\Event\TaxBasicLoadedEvent;
+use Shopware\System\Unit\Event\UnitBasicLoadedEvent;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;

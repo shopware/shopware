@@ -44,7 +44,7 @@ use Shopware\Checkout\Payment\Definition\PaymentMethodTranslationDefinition;
 use Shopware\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition;
 use Shopware\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Checkout\Shipping\Definition\ShippingMethodTranslationDefinition;
-use Shopware\System\Tax\Definition\TaxAreaRuleTranslationDefinition;
+use Shopware\System\Tax\Aggregate\TaxAreaRuleTranslation\TaxAreaRuleTranslationDefinition;
 use Shopware\System\Unit\Definition\UnitTranslationDefinition;
 
 class LanguageDefinition extends EntityDefinition

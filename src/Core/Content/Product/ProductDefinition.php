@@ -59,8 +59,8 @@ use Shopware\Content\Product\Event\ProductWrittenEvent;
 
 use Shopware\Content\Product\Struct\ProductBasicStruct;
 use Shopware\Content\Product\Struct\ProductDetailStruct;
-use Shopware\System\Tax\Definition\TaxDefinition;
-use Shopware\System\Unit\Definition\UnitDefinition;
+use Shopware\System\Tax\TaxDefinition;
+use Shopware\System\Unit\UnitDefinition;
 
 class ProductDefinition extends EntityDefinition
 {

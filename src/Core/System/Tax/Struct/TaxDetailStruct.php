@@ -2,12 +2,12 @@
 
 namespace Shopware\System\Tax\Struct;
 
-use Shopware\System\Tax\Collection\TaxAreaRuleBasicCollection;
+use Shopware\System\Tax\Aggregate\TaxAreaRule\Collection\TaxAreaRuleBasicCollection;
 
 class TaxDetailStruct extends TaxBasicStruct
 {
     /**
-     * @var TaxAreaRuleBasicCollection
+     * @var \Shopware\System\Tax\Aggregate\TaxAreaRule\Collection\TaxAreaRuleBasicCollection
      */
     protected $areaRules;
 

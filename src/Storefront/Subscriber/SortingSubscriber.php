@@ -4,7 +4,7 @@ namespace Shopware\Storefront\Subscriber;
 
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Query\TermQuery;
-use Shopware\System\Listing\Repository\ListingSortingRepository;
+use Shopware\System\Listing\ListingSortingRepository;
 use Shopware\System\Listing\Struct\ListingSortingBasicStruct;
 use Shopware\Storefront\Event\ListingEvents;
 use Shopware\Storefront\Event\ListingPageLoadedEvent;

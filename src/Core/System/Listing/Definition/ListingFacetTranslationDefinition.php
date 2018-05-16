@@ -13,13 +13,14 @@ use Shopware\Framework\ORM\FieldCollection;
 use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Application\Language\LanguageDefinition;
-use Shopware\System\Listing\Collection\ListingFacetTranslationBasicCollection;
-use Shopware\System\Listing\Collection\ListingFacetTranslationDetailCollection;
-use Shopware\System\Listing\Event\ListingFacetTranslation\ListingFacetTranslationDeletedEvent;
-use Shopware\System\Listing\Event\ListingFacetTranslation\ListingFacetTranslationWrittenEvent;
-use Shopware\System\Listing\Repository\ListingFacetTranslationRepository;
-use Shopware\System\Listing\Struct\ListingFacetTranslationBasicStruct;
-use Shopware\System\Listing\Struct\ListingFacetTranslationDetailStruct;
+use Shopware\System\Listing\Aggregate\ListingFacetTranslation\Collection\ListingFacetTranslationBasicCollection;
+use Shopware\System\Listing\Aggregate\ListingFacetTranslation\Collection\ListingFacetTranslationDetailCollection;
+use Shopware\System\Listing\Aggregate\ListingFacetTranslation\Event\ListingFacetTranslationDeletedEvent;
+use Shopware\System\Listing\Aggregate\ListingFacetTranslation\Event\ListingFacetTranslationWrittenEvent;
+use Shopware\System\Listing\ListingFacetDefinition;
+use Shopware\System\Listing\Aggregate\ListingFacetTranslation\ListingFacetTranslationRepository;
+use Shopware\System\Listing\Aggregate\ListingFacetTranslation\Struct\ListingFacetTranslationBasicStruct;
+use Shopware\System\Listing\Aggregate\ListingFacetTranslation\Struct\ListingFacetTranslationDetailStruct;
 
 class ListingFacetTranslationDefinition extends EntityDefinition
 {

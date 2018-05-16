@@ -2,7 +2,7 @@
 
 namespace Shopware\Framework\Plugin\Definition;
 
-use Shopware\System\Config\Definition\ConfigFormDefinition;
+use Shopware\System\Config\ConfigFormDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\BoolField;

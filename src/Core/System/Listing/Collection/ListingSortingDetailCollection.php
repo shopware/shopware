@@ -2,6 +2,7 @@
 
 namespace Shopware\System\Listing\Collection;
 
+use Shopware\System\Listing\Aggregate\ListingSortingTranslation\Collection\ListingSortingTranslationBasicCollection;
 use Shopware\System\Listing\Struct\ListingSortingDetailStruct;
 
 class ListingSortingDetailCollection extends ListingSortingBasicCollection

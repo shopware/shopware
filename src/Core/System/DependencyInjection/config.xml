@@ -6,39 +6,39 @@
 
     <services>
         <!-- Versioning -->
-        <service alias="Shopware\System\Config\Repository\ConfigFormRepository.v1" id="Shopware\System\Config\Repository\ConfigFormRepository" public="true" />
-        <service alias="Shopware\System\Config\Repository\ConfigFormFieldRepository.v1" id="Shopware\System\Config\Repository\ConfigFormFieldRepository" public="true" />
-        <service alias="Shopware\System\Config\Repository\ConfigFormFieldTranslationRepository.v1" id="Shopware\System\Config\Repository\ConfigFormFieldTranslationRepository" public="true" />
-        <service alias="Shopware\System\Config\Repository\ConfigFormFieldValueRepository.v1" id="Shopware\System\Config\Repository\ConfigFormFieldValueRepository" public="true" />
-        <service alias="Shopware\System\Config\Repository\ConfigFormTranslationRepository.v1" id="Shopware\System\Config\Repository\ConfigFormTranslationRepository" public="true"/>
+        <service alias="Shopware\System\Config\ConfigFormRepository.v1" id="Shopware\System\Config\ConfigFormRepository" public="true" />
+        <service alias="Shopware\System\Config\Aggregate\ConfigFormField\ConfigFormFieldRepository.v1" id="Shopware\System\Config\Aggregate\ConfigFormField\ConfigFormFieldRepository" public="true" />
+        <service alias="Shopware\System\Config\Aggregate\ConfigFormFieldTranslation\ConfigFormFieldTranslationRepository.v1" id="Shopware\System\Config\Aggregate\ConfigFormFieldTranslation\ConfigFormFieldTranslationRepository" public="true" />
+        <service alias="Shopware\System\Config\Aggregate\ConfigFormFieldValue\ConfigFormFieldValueRepository.v1" id="Shopware\System\Config\Aggregate\ConfigFormFieldValue\ConfigFormFieldValueRepository" public="true" />
+        <service alias="Shopware\System\Config\Aggregate\ConfigFormTranslation\ConfigFormTranslationRepository.v1" id="Shopware\System\Config\Aggregate\ConfigFormTranslation\ConfigFormTranslationRepository" public="true"/>
 
-        <service class="Shopware\System\Config\Definition\ConfigFormDefinition" id="Shopware\System\Config\Definition\ConfigFormDefinition" >
+        <service class="Shopware\System\Config\ConfigFormDefinition" id="Shopware\System\Config\ConfigFormDefinition" >
             <tag name="shopware.entity.definition" entity="config_form" />
         </service>
 
-        <service class="Shopware\System\Config\Repository\ConfigFormRepository" id="Shopware\System\Config\Repository\ConfigFormRepository.v1" public="true">
+        <service class="Shopware\System\Config\ConfigFormRepository" id="Shopware\System\Config\ConfigFormRepository.v1" public="true">
           <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
           <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>
-         <service class="Shopware\System\Config\Definition\ConfigFormFieldDefinition" id="Shopware\System\Config\Definition\ConfigFormFieldDefinition" >
+         <service class="Shopware\System\Config\Aggregate\ConfigFormField\ConfigFormFieldDefinition" id="Shopware\System\Config\Aggregate\ConfigFormField\ConfigFormFieldDefinition" >
             <tag name="shopware.entity.definition" entity="config_form_field" />
         </service>
 
-        <service class="Shopware\System\Config\Repository\ConfigFormFieldRepository" id="Shopware\System\Config\Repository\ConfigFormFieldRepository.v1" public="true">
+        <service class="Shopware\System\Config\Aggregate\ConfigFormField\ConfigFormFieldRepository" id="Shopware\System\Config\Aggregate\ConfigFormField\ConfigFormFieldRepository.v1" public="true">
           <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
           <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>
-         <service class="Shopware\System\Config\Definition\ConfigFormFieldTranslationDefinition" id="Shopware\System\Config\Definition\ConfigFormFieldTranslationDefinition" >
+         <service class="Shopware\System\Config\Aggregate\ConfigFormFieldTranslation\ConfigFormFieldTranslationDefinition" id="Shopware\System\Config\Aggregate\ConfigFormFieldTranslation\ConfigFormFieldTranslationDefinition" >
             <tag name="shopware.entity.definition" entity="config_form_field_translation" />
         </service>
 
-        <service class="Shopware\System\Config\Repository\ConfigFormFieldTranslationRepository" id="Shopware\System\Config\Repository\ConfigFormFieldTranslationRepository.v1" public="true">
+        <service class="Shopware\System\Config\Aggregate\ConfigFormFieldTranslation\ConfigFormFieldTranslationRepository" id="Shopware\System\Config\Aggregate\ConfigFormFieldTranslation\ConfigFormFieldTranslationRepository.v1" public="true">
           <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
           <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
@@ -46,23 +46,23 @@
           <argument id="event_dispatcher" type="service"/>
         </service>
 
-         <service class="Shopware\System\Config\Definition\ConfigFormFieldValueDefinition" id="Shopware\System\Config\Definition\ConfigFormFieldValueDefinition" >
+         <service class="Shopware\System\Config\Aggregate\ConfigFormFieldValue\ConfigFormFieldValueDefinition" id="Shopware\System\Config\Aggregate\ConfigFormFieldValue\ConfigFormFieldValueDefinition" >
             <tag name="shopware.entity.definition" entity="config_form_field_value" />
         </service>
 
-        <service class="Shopware\System\Config\Repository\ConfigFormFieldValueRepository" id="Shopware\System\Config\Repository\ConfigFormFieldValueRepository.v1" public="true">
+        <service class="Shopware\System\Config\Aggregate\ConfigFormFieldValue\ConfigFormFieldValueRepository" id="Shopware\System\Config\Aggregate\ConfigFormFieldValue\ConfigFormFieldValueRepository.v1" public="true">
           <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
           <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>
-         <service class="Shopware\System\Config\Definition\ConfigFormTranslationDefinition" id="Shopware\System\Config\Definition\ConfigFormTranslationDefinition" >
+         <service class="Shopware\System\Config\Aggregate\ConfigFormTranslation\ConfigFormTranslationDefinition" id="Shopware\System\Config\Aggregate\ConfigFormTranslation\ConfigFormTranslationDefinition" >
             <tag name="shopware.entity.definition" entity="config_form_translation" />
         </service>
 
 
-        <service class="Shopware\System\Config\Repository\ConfigFormTranslationRepository" id="Shopware\System\Config\Repository\ConfigFormTranslationRepository.v1" public="true">
+        <service class="Shopware\System\Config\Aggregate\ConfigFormTranslation\ConfigFormTranslationRepository" id="Shopware\System\Config\Aggregate\ConfigFormTranslation\ConfigFormTranslationRepository.v1" public="true">
           <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
           <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
@@ -71,23 +71,23 @@
         </service>
 
         <!-- Config -->
-        <service class="Shopware\System\Config\Service\CacheWarmer" id="Shopware\System\Config\Service\CacheWarmer">
+        <service class="Shopware\System\Config\Util\CacheWarmer" id="Shopware\System\Config\Util\CacheWarmer">
             <tag name="kernel.cache_warmer" />
 
-            <argument type="service" id="Shopware\System\Config\Service\ConfigService" />
+            <argument type="service" id="Shopware\System\Config\Util\ConfigService" />
         </service>
 
-        <service class="Shopware\System\Config\Service\ConfigService" id="Shopware\System\Config\Service\ConfigService">
+        <service class="Shopware\System\Config\Util\ConfigService" id="Shopware\System\Config\Util\ConfigService">
             <argument type="service" id="Doctrine\DBAL\Connection" />
         </service>
 
-        <service class="Shopware\System\Config\Service\CachedConfigService" decorates="Shopware\System\Config\Service\ConfigService" id="Shopware\System\Config\Service\CachedConfigService">
-            <argument type="service" id="Shopware\System\Config\Service\CachedConfigService.inner" />
+        <service class="Shopware\System\Config\Util\CachedConfigService" decorates="Shopware\System\Config\Util\ConfigService" id="Shopware\System\Config\Util\CachedConfigService">
+            <argument type="service" id="Shopware\System\Config\Util\CachedConfigService.inner" />
             <argument type="service" id="shopware.cache" />
         </service>
 
-        <service id="shopware.config" alias="Shopware\System\Config\Service\Config" />
-        <service synthetic="true" id="Shopware\System\Config\Service\Config" class="Shopware\System\Config\Service\Config" />
+        <service id="shopware.config" alias="Shopware\System\Config\Util\Config" />
+        <service synthetic="true" id="Shopware\System\Config\Util\Config" class="Shopware\System\Config\Util\Config" />
     </services>
 </container>                
                 

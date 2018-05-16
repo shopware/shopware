@@ -3,8 +3,8 @@
 namespace Shopware\System\Config\Struct;
 
 use Shopware\System\Config\Collection\ConfigFormBasicCollection;
-use Shopware\System\Config\Collection\ConfigFormFieldBasicCollection;
-use Shopware\System\Config\Collection\ConfigFormTranslationBasicCollection;
+use Shopware\System\Config\Aggregate\ConfigFormField\Collection\ConfigFormFieldBasicCollection;
+use Shopware\System\Config\Aggregate\ConfigFormTranslation\Collection\ConfigFormTranslationBasicCollection;
 use Shopware\Framework\Plugin\Struct\PluginBasicStruct;
 
 class ConfigFormDetailStruct extends ConfigFormBasicStruct
@@ -25,7 +25,7 @@ class ConfigFormDetailStruct extends ConfigFormBasicStruct
     protected $children;
 
     /**
-     * @var ConfigFormFieldBasicCollection
+     * @var \Shopware\System\Config\Aggregate\ConfigFormField\Collection\ConfigFormFieldBasicCollection
      */
     protected $fields;
 

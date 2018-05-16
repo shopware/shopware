@@ -10,7 +10,7 @@
 
             <argument type="service" id="translator" />
             <argument type="service" id="request_stack" />
-            <argument type="service" id="Shopware\System\Config\Service\ConfigService" />
+            <argument type="service" id="Shopware\System\Config\Util\ConfigService" />
             <argument type="service" id="Shopware\Storefront\Theme\ThemeConfigReader" />
         </service>
 
@@ -80,7 +80,7 @@
         </service>
 
         <service class="Shopware\Storefront\Page\Search\SearchPageLoader" id="Shopware\Storefront\Page\Search\SearchPageLoader">
-            <argument type="service" id="Shopware\System\Config\Service\ConfigService" />
+            <argument type="service" id="Shopware\System\Config\Util\ConfigService" />
             <argument id="Shopware\Content\Product\StorefrontProductRepository" type="service"/>
             <argument type="service" id="event_dispatcher" />
         </service>
@@ -154,7 +154,7 @@
         </service>
 
         <service class="Shopware\Storefront\Subscriber\SortingSubscriber" id="Shopware\Storefront\Subscriber\SortingSubscriber">
-            <argument id="Shopware\System\Listing\Repository\ListingSortingRepository" type="service"/>
+            <argument id="Shopware\System\Listing\ListingSortingRepository" type="service"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 

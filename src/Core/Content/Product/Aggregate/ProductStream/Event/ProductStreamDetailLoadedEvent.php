@@ -2,7 +2,7 @@
 
 namespace Shopware\Content\Product\Aggregate\ProductStream\Event;
 
-use Shopware\System\Listing\Event\ListingSorting\ListingSortingBasicLoadedEvent;
+use Shopware\System\Listing\Event\ListingSortingBasicLoadedEvent;
 use Shopware\Content\Product\Aggregate\ProductStream\Collection\ProductStreamDetailCollection;
 use Shopware\Content\Product\Event\ProductBasicLoadedEvent;
 use Shopware\Application\Context\Struct\ApplicationContext;

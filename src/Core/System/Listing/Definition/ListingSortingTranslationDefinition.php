@@ -12,13 +12,14 @@ use Shopware\Framework\ORM\FieldCollection;
 use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Application\Language\LanguageDefinition;
-use Shopware\System\Listing\Collection\ListingSortingTranslationBasicCollection;
-use Shopware\System\Listing\Collection\ListingSortingTranslationDetailCollection;
-use Shopware\System\Listing\Event\ListingSortingTranslation\ListingSortingTranslationDeletedEvent;
-use Shopware\System\Listing\Event\ListingSortingTranslation\ListingSortingTranslationWrittenEvent;
-use Shopware\System\Listing\Repository\ListingSortingTranslationRepository;
-use Shopware\System\Listing\Struct\ListingSortingTranslationBasicStruct;
-use Shopware\System\Listing\Struct\ListingSortingTranslationDetailStruct;
+use Shopware\System\Listing\Aggregate\ListingSortingTranslation\Collection\ListingSortingTranslationBasicCollection;
+use Shopware\System\Listing\Aggregate\ListingSortingTranslation\Collection\ListingSortingTranslationDetailCollection;
+use Shopware\System\Listing\Aggregate\ListingSortingTranslation\Event\ListingSortingTranslationDeletedEvent;
+use Shopware\System\Listing\Aggregate\ListingSortingTranslation\Event\ListingSortingTranslationWrittenEvent;
+use Shopware\System\Listing\ListingSortingDefinition;
+use Shopware\System\Listing\Aggregate\ListingSortingTranslation\ListingSortingTranslationRepository;
+use Shopware\System\Listing\Aggregate\ListingSortingTranslation\Struct\ListingSortingTranslationBasicStruct;
+use Shopware\System\Listing\Aggregate\ListingSortingTranslation\Struct\ListingSortingTranslationDetailStruct;
 
 class ListingSortingTranslationDefinition extends EntityDefinition
 {

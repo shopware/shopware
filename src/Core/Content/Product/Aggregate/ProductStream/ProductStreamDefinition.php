@@ -28,7 +28,7 @@ use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Framework\ORM\Write\Flag\WriteOnly;
-use Shopware\System\Listing\Definition\ListingSortingDefinition;
+use Shopware\System\Listing\ListingSortingDefinition;
 use Shopware\Content\Product\Aggregate\ProductStream\Collection\ProductStreamBasicCollection;
 use Shopware\Content\Product\Aggregate\ProductStream\Collection\ProductStreamDetailCollection;
 use Shopware\Content\Product\Aggregate\ProductStream\Event\ProductStreamDeletedEvent;

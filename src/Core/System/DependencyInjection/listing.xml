@@ -6,15 +6,15 @@
 
     <services>
         <!-- Versioning -->
-        <service alias="Shopware\System\Listing\Repository\ListingFacetRepository.v1" id="Shopware\System\Listing\Repository\ListingFacetRepository" public="true"/>
-        <service alias="Shopware\System\Listing\Repository\ListingFacetTranslationRepository.v1" id="Shopware\System\Listing\Repository\ListingFacetTranslationRepository" public="true"/>
-        <service alias="Shopware\System\Listing\Repository\ListingSortingRepository.v1" id="Shopware\System\Listing\Repository\ListingSortingRepository" public="true"/>
-        <service alias="Shopware\System\Listing\Repository\ListingSortingTranslationRepository.v1" id="Shopware\System\Listing\Repository\ListingSortingTranslationRepository" public="true"/>
+        <service alias="Shopware\System\Listing\ListingFacetRepository.v1" id="Shopware\System\Listing\ListingFacetRepository" public="true"/>
+        <service alias="Shopware\System\Listing\ListingSortingRepository.v1" id="Shopware\System\Listing\ListingSortingRepository" public="true"/>
+        <service alias="Shopware\System\Listing\Aggregate\ListingFacetTranslation\ListingFacetTranslationRepository.v1" id="Shopware\System\Listing\Aggregate\ListingFacetTranslation\ListingFacetTranslationRepository" public="true"/>
+        <service alias="Shopware\System\Listing\Aggregate\ListingSortingTranslation\ListingSortingTranslationRepository.v1" id="Shopware\System\Listing\Aggregate\ListingSortingTranslation\ListingSortingTranslationRepository" public="true"/>
 
-        <service class="Shopware\System\Listing\Definition\ListingFacetDefinition" id="Shopware\System\Listing\Definition\ListingFacetDefinition" >
+        <service class="Shopware\System\Listing\ListingFacetDefinition" id="Shopware\System\Listing\ListingFacetDefinition" >
             <tag name="shopware.entity.definition" entity="listing_facet" />
         </service>
-        <service class="Shopware\System\Listing\Repository\ListingFacetRepository" id="Shopware\System\Listing\Repository\ListingFacetRepository.v1" public="true">
+        <service class="Shopware\System\Listing\ListingFacetRepository" id="Shopware\System\Listing\ListingFacetRepository.v1" public="true">
           <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
           <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
@@ -24,17 +24,17 @@
          <service class="Shopware\System\Listing\Definition\ListingFacetTranslationDefinition" id="Shopware\System\Listing\Definition\ListingFacetTranslationDefinition" >
             <tag name="shopware.entity.definition" entity="listing_facet_translation" />
         </service>
-        <service class="Shopware\System\Listing\Repository\ListingFacetTranslationRepository" id="Shopware\System\Listing\Repository\ListingFacetTranslationRepository.v1" public="true">
+        <service class="Shopware\System\Listing\Aggregate\ListingFacetTranslation\ListingFacetTranslationRepository" id="Shopware\System\Listing\Aggregate\ListingFacetTranslation\ListingFacetTranslationRepository.v1" public="true">
           <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
           <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>
-         <service class="Shopware\System\Listing\Definition\ListingSortingDefinition" id="Shopware\System\Listing\Definition\ListingSortingDefinition" >
+         <service class="Shopware\System\Listing\ListingSortingDefinition" id="Shopware\System\Listing\ListingSortingDefinition" >
             <tag name="shopware.entity.definition" entity="listing_sorting" />
         </service>
-        <service class="Shopware\System\Listing\Repository\ListingSortingRepository" id="Shopware\System\Listing\Repository\ListingSortingRepository.v1" public="true">
+        <service class="Shopware\System\Listing\ListingSortingRepository" id="Shopware\System\Listing\ListingSortingRepository.v1" public="true">
           <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
           <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
@@ -44,7 +44,7 @@
          <service class="Shopware\System\Listing\Definition\ListingSortingTranslationDefinition" id="Shopware\System\Listing\Definition\ListingSortingTranslationDefinition" >
             <tag name="shopware.entity.definition" entity="listing_sorting_translation" />
         </service>
-        <service class="Shopware\System\Listing\Repository\ListingSortingTranslationRepository" id="Shopware\System\Listing\Repository\ListingSortingTranslationRepository.v1" public="true">
+        <service class="Shopware\System\Listing\Aggregate\ListingSortingTranslation\ListingSortingTranslationRepository" id="Shopware\System\Listing\Aggregate\ListingSortingTranslation\ListingSortingTranslationRepository.v1" public="true">
           <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
           <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>

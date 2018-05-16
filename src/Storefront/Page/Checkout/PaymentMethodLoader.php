@@ -5,14 +5,14 @@ namespace Shopware\Storefront\Page\Checkout;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Checkout\Payment\Collection\PaymentMethodBasicCollection;
-use Shopware\Checkout\Payment\Repository\PaymentMethodRepository;
+use Shopware\Checkout\Payment\PaymentMethodRepository;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Symfony\Component\HttpFoundation\Request;
 
 class PaymentMethodLoader
 {
     /**
-     * @var PaymentMethodRepository
+     * @var \Shopware\Checkout\Payment\PaymentMethodRepository
      */
     private $paymentMethodRepository;
 

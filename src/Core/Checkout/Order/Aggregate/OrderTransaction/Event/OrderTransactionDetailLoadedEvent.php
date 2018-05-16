@@ -3,7 +3,7 @@
 namespace Shopware\Checkout\Order\Aggregate\OrderTransaction\Event;
 
 use Shopware\Checkout\Order\Aggregate\OrderTransaction\Collection\OrderTransactionDetailCollection;
-use Shopware\Checkout\Payment\Event\PaymentMethod\PaymentMethodBasicLoadedEvent;
+use Shopware\Checkout\Payment\Event\PaymentMethodBasicLoadedEvent;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;

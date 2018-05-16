@@ -29,7 +29,7 @@ use Shopware\Checkout\Order\Aggregate\OrderTransaction\Event\OrderTransactionWri
 use Shopware\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionRepository;
 use Shopware\Checkout\Order\Aggregate\OrderTransaction\Struct\OrderTransactionBasicStruct;
 use Shopware\Checkout\Order\Aggregate\OrderTransaction\Struct\OrderTransactionDetailStruct;
-use Shopware\Checkout\Payment\Definition\PaymentMethodDefinition;
+use Shopware\Checkout\Payment\PaymentMethodDefinition;
 
 class OrderTransactionDefinition extends EntityDefinition
 {

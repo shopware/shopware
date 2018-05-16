@@ -11,7 +11,7 @@ use Shopware\Checkout\Order\Aggregate\OrderDelivery\Event\OrderDeliveryBasicLoad
 use Shopware\Checkout\Order\Aggregate\OrderLineItem\Event\OrderLineItemBasicLoadedEvent;
 use Shopware\Checkout\Order\Aggregate\OrderState\Event\OrderStateBasicLoadedEvent;
 use Shopware\Checkout\Order\Aggregate\OrderTransaction\Event\OrderTransactionBasicLoadedEvent;
-use Shopware\Checkout\Payment\Event\PaymentMethod\PaymentMethodBasicLoadedEvent;
+use Shopware\Checkout\Payment\Event\PaymentMethodBasicLoadedEvent;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;

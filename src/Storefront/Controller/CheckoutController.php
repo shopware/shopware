@@ -9,7 +9,7 @@ use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Checkout\Order\OrderRepository;
 use Shopware\Checkout\Order\Struct\OrderBasicStruct;
-use Shopware\Checkout\Payment\Repository\PaymentMethodRepository;
+use Shopware\Checkout\Payment\PaymentMethodRepository;
 use Shopware\Checkout\Cart\StoreFrontCartService;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Application\Context\Struct\StorefrontContext;
@@ -17,9 +17,9 @@ use Shopware\Framework\Struct\Uuid;
 use Shopware\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Checkout\Payment\Exception\InvalidTransactionException;
 use Shopware\Checkout\Payment\Exception\UnknownPaymentMethodException;
-use Shopware\Checkout\Payment\PaymentHandler\PaymentHandlerInterface;
-use Shopware\Checkout\Payment\PaymentProcessor;
-use Shopware\Checkout\Payment\Token\PaymentTransactionTokenFactory;
+use Shopware\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerInterface;
+use Shopware\Checkout\Payment\Cart\PaymentTransactionChainProcessor;
+use Shopware\Checkout\Payment\Cart\Token\PaymentTransactionTokenFactory;
 use Shopware\Storefront\Page\Checkout\PaymentMethodLoader;
 use Shopware\StorefrontApi\Context\StorefrontContextPersister;
 use Shopware\StorefrontApi\Context\StorefrontContextService;
@@ -46,12 +46,12 @@ class CheckoutController extends StorefrontController
     private $paymentMethodLoader;
 
     /**
-     * @var PaymentProcessor
+     * @var \Shopware\Checkout\Payment\Cart\PaymentTransactionChainProcessor
      */
     private $paymentProcessor;
 
     /**
-     * @var PaymentMethodRepository
+     * @var \Shopware\Checkout\Payment\PaymentMethodRepository
      */
     private $paymentMethodRepository;
 
@@ -74,7 +74,7 @@ class CheckoutController extends StorefrontController
         StoreFrontCartService $cartService,
         OrderRepository $orderRepository,
         PaymentMethodLoader $paymentMethodLoader,
-        PaymentProcessor $paymentProcessor,
+        PaymentTransactionChainProcessor $paymentProcessor,
         PaymentTransactionTokenFactory $tokenFactory,
         PaymentMethodRepository $paymentMethodRepository,
         StorefrontContextPersister $contextPersister,

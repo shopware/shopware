@@ -2,6 +2,7 @@
 
 namespace Shopware\Checkout\Payment\Collection;
 
+use Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation\Collection\PaymentMethodTranslationBasicCollection;
 use Shopware\Checkout\Payment\Struct\PaymentMethodDetailStruct;
 use Shopware\Framework\Plugin\Collection\PluginBasicCollection;
 

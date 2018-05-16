@@ -17,7 +17,7 @@ use Shopware\Framework\ORM\FieldCollection;
 use Shopware\Framework\ORM\Write\Flag\CascadeDelete;
 use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\Checkout\Payment\Definition\PaymentMethodDefinition;
+use Shopware\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Framework\Plugin\Collection\PluginBasicCollection;
 use Shopware\Framework\Plugin\Collection\PluginDetailCollection;
 use Shopware\Framework\Plugin\Event\Plugin\PluginDeletedEvent;
@@ -84,7 +84,7 @@ class PluginDefinition extends EntityDefinition
             new StringField('update_version', 'updateVersion'),
             new DateField('updated_at', 'updatedAt'),
             (new OneToManyAssociationField('configForms', ConfigFormDefinition::class, 'plugin_id', false, 'id'))->setFlags(new CascadeDelete()),
-            (new OneToManyAssociationField('paymentMethods', PaymentMethodDefinition::class, 'plugin_id', false, 'id'))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('paymentMethods', \Shopware\Checkout\Payment\PaymentMethodDefinition::class, 'plugin_id', false, 'id'))->setFlags(new CascadeDelete()),
         ]);
 
         foreach (self::$extensions as $extension) {

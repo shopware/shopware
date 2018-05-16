@@ -40,7 +40,7 @@ use Shopware\System\Mail\Aggregate\MailTranslation\MailTranslationDefinition;
 use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\MediaAlbumTranslationDefinition;
 use Shopware\Content\Media\Aggregate\MediaTranslation\MediaTranslationDefinition;
 use Shopware\Checkout\Order\Aggregate\OrderStateTranslation\OrderStateTranslationDefinition;
-use Shopware\Checkout\Payment\Definition\PaymentMethodTranslationDefinition;
+use Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationDefinition;
 use Shopware\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition;
 use Shopware\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationDefinition;

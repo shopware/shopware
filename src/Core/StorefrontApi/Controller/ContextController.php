@@ -6,7 +6,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Query\TermQuery;
-use Shopware\Checkout\Payment\Repository\PaymentMethodRepository;
+use Shopware\Checkout\Payment\PaymentMethodRepository;
 use Shopware\Checkout\Shipping\ShippingMethodRepository;
 use Shopware\Checkout\Order\Exception\NotLoggedInCustomerException;
 use Shopware\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository;
@@ -24,7 +24,7 @@ use Symfony\Component\Serializer\Serializer;
 class ContextController extends Controller
 {
     /**
-     * @var PaymentMethodRepository
+     * @var \Shopware\Checkout\Payment\PaymentMethodRepository
      */
     protected $paymentMethodRepository;
 

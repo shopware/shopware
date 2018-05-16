@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Payment\Struct;
 
-use Shopware\Checkout\Payment\Collection\PaymentMethodTranslationBasicCollection;
+use Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation\Collection\PaymentMethodTranslationBasicCollection;
 use Shopware\Framework\Plugin\Struct\PluginBasicStruct;
 
 class PaymentMethodDetailStruct extends PaymentMethodBasicStruct
@@ -13,7 +13,7 @@ class PaymentMethodDetailStruct extends PaymentMethodBasicStruct
     protected $plugin;
 
     /**
-     * @var PaymentMethodTranslationBasicCollection
+     * @var \Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation\Collection\PaymentMethodTranslationBasicCollection
      */
     protected $translations;
 

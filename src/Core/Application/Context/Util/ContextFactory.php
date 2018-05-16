@@ -36,7 +36,7 @@ use Shopware\Checkout\Customer\CustomerRepository;
 use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Application\Language\LanguageRepository;
-use Shopware\Checkout\Payment\Repository\PaymentMethodRepository;
+use Shopware\Checkout\Payment\PaymentMethodRepository;
 use Shopware\Checkout\Payment\Struct\PaymentMethodBasicStruct;
 use Shopware\Checkout\Shipping\ShippingMethodRepository;
 use Shopware\Checkout\Shipping\Struct\ShippingMethodBasicStruct;
@@ -88,7 +88,7 @@ class ContextFactory implements ContextFactoryInterface
     private $addressRepository;
 
     /**
-     * @var PaymentMethodRepository
+     * @var \Shopware\Checkout\Payment\PaymentMethodRepository
      */
     private $paymentMethodRepository;
 

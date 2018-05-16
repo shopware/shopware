@@ -6,71 +6,71 @@
 
     <services>
         <!-- Versioning -->
-        <service alias="Shopware\Checkout\Payment\Repository\PaymentMethodRepository.v1" id="Shopware\Checkout\Payment\Repository\PaymentMethodRepository" public="true"/>
-        <service alias="Shopware\Checkout\Payment\Repository\PaymentMethodTranslationRepository.v1" id="Shopware\Checkout\Payment\Repository\PaymentMethodTranslationRepository" public="true"/>
+        <service alias="Shopware\Checkout\Payment\PaymentMethodRepository.v1" id="Shopware\Checkout\Payment\PaymentMethodRepository" public="true"/>
+        <service alias="Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationRepository.v1" id="Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationRepository" public="true"/>
 
-         <service class="Shopware\Checkout\Payment\Definition\PaymentMethodDefinition" id="Shopware\Checkout\Payment\Definition\PaymentMethodDefinition" >
+         <service class="Shopware\Checkout\Payment\PaymentMethodDefinition" id="Shopware\Checkout\Payment\PaymentMethodDefinition" >
             <tag name="shopware.entity.definition" entity="payment_method" />
         </service>
-        <service class="Shopware\Checkout\Payment\Repository\PaymentMethodRepository" id="Shopware\Checkout\Payment\Repository\PaymentMethodRepository.v1" public="true">
+        <service class="Shopware\Checkout\Payment\PaymentMethodRepository" id="Shopware\Checkout\Payment\PaymentMethodRepository.v1" public="true">
           <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
           <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>
-         <service class="Shopware\Checkout\Payment\Definition\PaymentMethodTranslationDefinition" id="Shopware\Checkout\Payment\Definition\PaymentMethodTranslationDefinition" >
+         <service class="Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationDefinition" id="Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationDefinition" >
             <tag name="shopware.entity.definition" entity="payment_method_translation" />
         </service>
-        <service class="Shopware\Checkout\Payment\Repository\PaymentMethodTranslationRepository" id="Shopware\Checkout\Payment\Repository\PaymentMethodTranslationRepository.v1" public="true">
+        <service class="Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationRepository" id="Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationRepository.v1" public="true">
           <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
           <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>
-        <service class="Shopware\Checkout\Payment\PaymentProcessor" id="Shopware\Checkout\Payment\PaymentProcessor">
-            <argument type="service" id="Shopware\Checkout\Payment\Token\PaymentTransactionTokenFactory"/>
+        <service class="Shopware\Checkout\Payment\Cart\PaymentTransactionChainProcessor" id="Shopware\Checkout\Payment\Cart\PaymentTransactionChainProcessor">
+            <argument type="service" id="Shopware\Checkout\Payment\Cart\Token\PaymentTransactionTokenFactory"/>
             <argument type="service" id="Shopware\Checkout\Order\OrderRepository"/>
-            <argument type="service" id="Shopware\Checkout\Payment\Repository\PaymentMethodRepository"/>
+            <argument type="service" id="Shopware\Checkout\Payment\PaymentMethodRepository"/>
             <argument type="service" id="router.default"/>
-            <argument type="service" id="Shopware\Checkout\Payment\PaymentHandlerRegistry"/>
+            <argument type="service" id="Shopware\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry"/>
         </service>
 
-        <service class="Shopware\Checkout\Payment\Token\PaymentTransactionTokenFactory" id="Shopware\Checkout\Payment\Token\PaymentTransactionTokenFactory" public="true">
+        <service class="Shopware\Checkout\Payment\Cart\Token\PaymentTransactionTokenFactory" id="Shopware\Checkout\Payment\Cart\Token\PaymentTransactionTokenFactory" public="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
-        <service class="Shopware\Checkout\Payment\PaymentHandlerRegistry" id="Shopware\Checkout\Payment\PaymentHandlerRegistry">
+        <service class="Shopware\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry" id="Shopware\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry">
             <argument type="tagged" tag="payment.method" />
         </service>
 
-        <service class="Shopware\Checkout\Payment\PaymentHandler\PrePayment" id="Shopware\Checkout\Payment\PaymentHandler\PrePayment">
+        <service class="Shopware\Checkout\Payment\Cart\PaymentHandler\PrePayment" id="Shopware\Checkout\Payment\Cart\PaymentHandler\PrePayment">
             <tag name="payment.method" />
             <argument type="service" id="Shopware\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionRepository"/>
         </service>
 
-        <service class="Shopware\Checkout\Payment\PaymentHandler\DebitPayment" id="Shopware\Checkout\Payment\PaymentHandler\DebitPayment">
+        <service class="Shopware\Checkout\Payment\Cart\PaymentHandler\DebitPayment" id="Shopware\Checkout\Payment\Cart\PaymentHandler\DebitPayment">
             <tag name="payment.method" />
             <argument type="service" id="Shopware\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionRepository"/>
         </service>
 
-        <service class="Shopware\Checkout\Payment\PaymentHandler\CashPayment" id="Shopware\Checkout\Payment\PaymentHandler\CashPayment">
+        <service class="Shopware\Checkout\Payment\Cart\PaymentHandler\CashPayment" id="Shopware\Checkout\Payment\Cart\PaymentHandler\CashPayment">
             <tag name="payment.method" />
             <argument type="service" id="Shopware\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionRepository"/>
         </service>
 
-        <service class="Shopware\Checkout\Payment\PaymentHandler\InvoicePayment" id="Shopware\Checkout\Payment\PaymentHandler\InvoicePayment">
+        <service class="Shopware\Checkout\Payment\Cart\PaymentHandler\InvoicePayment" id="Shopware\Checkout\Payment\Cart\PaymentHandler\InvoicePayment">
             <tag name="payment.method" />
             <argument type="service" id="Shopware\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionRepository"/>
         </service>
 
-        <service class="Shopware\Checkout\Payment\PaymentHandler\SEPAPayment" id="Shopware\Checkout\Payment\PaymentHandler\SEPAPayment">
+        <service class="Shopware\Checkout\Payment\Cart\PaymentHandler\SEPAPayment" id="Shopware\Checkout\Payment\Cart\PaymentHandler\SEPAPayment">
             <tag name="payment.method" />
             <argument type="service" id="Shopware\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionRepository"/>
         </service>
 
-        <service class="Shopware\Checkout\Payment\PaymentCartProcessor" id="Shopware\Checkout\Payment\PaymentCartProcessor">
+        <service class="Shopware\Checkout\Payment\Cart\PaymentCartProcessor" id="Shopware\Checkout\Payment\Cart\PaymentCartProcessor">
             <tag name="cart.processor" priority="500"/>
             <argument type="service" id="Shopware\Checkout\Cart\Price\PercentagePriceCalculator"/>
             <argument type="service" id="Shopware\Checkout\Cart\Price\AbsolutePriceCalculator"/>

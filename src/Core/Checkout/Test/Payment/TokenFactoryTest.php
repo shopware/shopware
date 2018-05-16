@@ -13,7 +13,7 @@ use Shopware\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\Uuid;
-use Shopware\Checkout\Payment\Token\PaymentTransactionTokenFactory;
+use Shopware\Checkout\Payment\Cart\Token\PaymentTransactionTokenFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class TokenFactoryTest extends KernelTestCase

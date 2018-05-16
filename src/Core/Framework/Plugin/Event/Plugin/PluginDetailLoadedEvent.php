@@ -3,7 +3,7 @@
 namespace Shopware\Framework\Plugin\Event\Plugin;
 
 use Shopware\System\Config\Event\ConfigForm\ConfigFormBasicLoadedEvent;
-use Shopware\Checkout\Payment\Event\PaymentMethod\PaymentMethodBasicLoadedEvent;
+use Shopware\Checkout\Payment\Event\PaymentMethodBasicLoadedEvent;
 use Shopware\Framework\Plugin\Collection\PluginDetailCollection;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;

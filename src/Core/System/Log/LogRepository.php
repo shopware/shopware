@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Log\Repository;
+namespace Shopware\System\Log;
 
 use Shopware\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Framework\ORM\RepositoryInterface;
@@ -12,7 +12,7 @@ use Shopware\Framework\ORM\Search\IdSearchResult;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
 use Shopware\System\Log\Collection\LogBasicCollection;
-use Shopware\System\Log\Definition\LogDefinition;
+use Shopware\System\Log\LogDefinition;
 use Shopware\System\Log\Event\Log\LogAggregationResultLoadedEvent;
 use Shopware\System\Log\Event\Log\LogBasicLoadedEvent;
 use Shopware\System\Log\Event\Log\LogIdSearchResultLoadedEvent;

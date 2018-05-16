@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Log\Definition;
+namespace Shopware\System\Log;
 
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
@@ -16,7 +16,7 @@ use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\System\Log\Collection\LogBasicCollection;
 use Shopware\System\Log\Event\Log\LogDeletedEvent;
 use Shopware\System\Log\Event\Log\LogWrittenEvent;
-use Shopware\System\Log\Repository\LogRepository;
+use Shopware\System\Log\LogRepository;
 use Shopware\System\Log\Struct\LogBasicStruct;
 
 class LogDefinition extends EntityDefinition

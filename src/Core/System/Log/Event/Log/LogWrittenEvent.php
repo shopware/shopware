@@ -3,7 +3,7 @@
 namespace Shopware\System\Log\Event\Log;
 
 use Shopware\Framework\ORM\Write\WrittenEvent;
-use Shopware\System\Log\Definition\LogDefinition;
+use Shopware\System\Log\LogDefinition;
 
 class LogWrittenEvent extends WrittenEvent
 {

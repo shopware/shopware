@@ -6,12 +6,12 @@
 
     <services>
         <!-- Versioning -->
-        <service alias="Shopware\System\Log\Repository\LogRepository.v1" id="Shopware\System\Log\Repository\LogRepository" public="true"/>
+        <service alias="Shopware\System\Log\LogRepository.v1" id="Shopware\System\Log\LogRepository" public="true"/>
 
-        <service class="Shopware\System\Log\Definition\LogDefinition" id="Shopware\System\Log\Definition\LogDefinition" >
+        <service class="Shopware\System\Log\LogDefinition" id="Shopware\System\Log\LogDefinition" >
             <tag name="shopware.entity.definition" entity="log" />
         </service>
-        <service class="Shopware\System\Log\Repository\LogRepository" id="Shopware\System\Log\Repository\LogRepository.v1" public="true">
+        <service class="Shopware\System\Log\LogRepository" id="Shopware\System\Log\LogRepository.v1" public="true">
           <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
           <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>

@@ -22,43 +22,16 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Application\Context\Struct;
+namespace Shopware\Application\Context\Util;
 
-use Shopware\Framework\Struct\Struct;
+use Shopware\Application\Context\Struct\StorefrontContext;
 
-class ApplicationScope extends Struct
+interface ContextFactoryInterface
 {
-    /**
-     * @var string
-     */
-    protected $applicationId;
-
-    /**
-     * @var string|null
-     */
-    protected $currencyId;
-
-    public function __construct(string $applicationId, ?string $currencyId = null)
-    {
-        $this->applicationId = $applicationId;
-        $this->currencyId = $currencyId;
-    }
-
-    public function getApplicationId(): string
-    {
-        return $this->applicationId;
-    }
-
-    public function getCurrencyId(): ?string
-    {
-        return $this->currencyId;
-    }
-
-    public static function createFromContext(StorefrontContext $context): self
-    {
-        return new self(
-            $context->getApplication()->getId(),
-            $context->getCurrency()->getId()
-        );
-    }
+    public function create(
+        string $tenantId,
+        string $token,
+        string $applicationId,
+        array $options = []
+    ): StorefrontContext;
 }

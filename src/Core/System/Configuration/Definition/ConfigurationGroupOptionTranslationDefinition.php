@@ -18,7 +18,7 @@ use Shopware\Framework\ORM\Field\StringField;
 use Shopware\Framework\ORM\FieldCollection;
 use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\Application\Language\Definition\LanguageDefinition;
+use Shopware\Application\Language\LanguageDefinition;
 
 class ConfigurationGroupOptionTranslationDefinition extends EntityDefinition
 {
@@ -54,7 +54,7 @@ class ConfigurationGroupOptionTranslationDefinition extends EntityDefinition
             (new FkField('language_id', 'languageId', LanguageDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new StringField('name', 'name'))->setFlags(new Required()),
             new ManyToOneAssociationField('configurationGroupOption', 'configuration_group_option_id', ConfigurationGroupOptionDefinition::class, false),
-            new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, false),
+            new ManyToOneAssociationField('language', 'language_id', \Shopware\Application\Language\LanguageDefinition::class, false),
         ]);
 
         foreach (self::$extensions as $extension) {

@@ -31,7 +31,7 @@ use Shopware\System\Currency\CurrencyRepository;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Query\TermsQuery;
 use Shopware\Application\Language\Collection\LanguageBasicCollection;
-use Shopware\Application\Language\Repository\LanguageRepository;
+use Shopware\Application\Language\LanguageRepository;
 use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Storefront\Controller\StorefrontController;
 

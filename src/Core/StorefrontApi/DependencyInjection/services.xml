@@ -11,10 +11,10 @@
         </service>
 
         <service class="Shopware\StorefrontApi\Context\StorefrontContextService" id="Shopware\StorefrontApi\Context\StorefrontContextService">
-            <argument type="service" id="Shopware\Application\Context\Service\ContextFactory"/>
+            <argument type="service" id="Shopware\Application\Context\Util\ContextFactory"/>
             <argument type="service" id="cache.serializer"/>
             <argument type="service" id="serializer"/>
-            <argument type="service" id="Shopware\Application\Context\Service\ContextRuleLoader"/>
+            <argument type="service" id="Shopware\Application\Context\Util\ContextRuleLoader"/>
             <argument type="service" id="logger"/>
             <argument type="service" id="Shopware\StorefrontApi\Context\StorefrontContextPersister"/>
             <tag name="shopware.traceable" />

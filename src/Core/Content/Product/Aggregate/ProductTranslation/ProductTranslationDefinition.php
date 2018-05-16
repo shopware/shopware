@@ -16,7 +16,7 @@ use Shopware\Framework\ORM\Field\StringField;
 use Shopware\Framework\ORM\FieldCollection;
 use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\Application\Language\Definition\LanguageDefinition;
+use Shopware\Application\Language\LanguageDefinition;
 use Shopware\Content\Product\Aggregate\ProductTranslation\Collection\ProductTranslationBasicCollection;
 use Shopware\Content\Product\Aggregate\ProductTranslation\Collection\ProductTranslationDetailCollection;
 use Shopware\Content\Product\Aggregate\ProductTranslation\Event\ProductTranslationDeletedEvent;

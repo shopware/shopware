@@ -1,16 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Application\Language\Event\Language;
+namespace Shopware\Application\Language\Event;
 
-use Shopware\Application\Language\Collection\LanguageBasicCollection;
-use Shopware\System\Locale\Event\LocaleBasicLoadedEvent;
+use Shopware\Application\Language\Collection\LanguageDetailCollection;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 
-class LanguageBasicLoadedEvent extends NestedEvent
+class LanguageDetailLoadedEvent extends NestedEvent
 {
-    public const NAME = 'language.basic.loaded';
+    public const NAME = 'language.detail.loaded';
 
     /**
      * @var ApplicationContext
@@ -18,11 +17,11 @@ class LanguageBasicLoadedEvent extends NestedEvent
     protected $context;
 
     /**
-     * @var LanguageBasicCollection
+     * @var LanguageDetailCollection
      */
     protected $languages;
 
-    public function __construct(LanguageBasicCollection $languages, ApplicationContext $context)
+    public function __construct(LanguageDetailCollection $languages, ApplicationContext $context)
     {
         $this->context = $context;
         $this->languages = $languages;
@@ -38,7 +37,7 @@ class LanguageBasicLoadedEvent extends NestedEvent
         return $this->context;
     }
 
-    public function getLanguages(): LanguageBasicCollection
+    public function getLanguages(): LanguageDetailCollection
     {
         return $this->languages;
     }
@@ -46,8 +45,11 @@ class LanguageBasicLoadedEvent extends NestedEvent
     public function getEvents(): ?NestedEventCollection
     {
         $events = [];
-        if ($this->languages->getLocales()->count() > 0) {
-            $events[] = new LocaleBasicLoadedEvent($this->languages->getLocales(), $this->context);
+        if ($this->languages->getParents()->count() > 0) {
+            $events[] = new LanguageBasicLoadedEvent($this->languages->getParents(), $this->context);
+        }
+        if ($this->languages->getChildren()->count() > 0) {
+            $events[] = new LanguageBasicLoadedEvent($this->languages->getChildren(), $this->context);
         }
 
         return new NestedEventCollection($events);

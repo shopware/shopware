@@ -24,8 +24,8 @@
 
 namespace Shopware\Application\Context\Rule;
 
-use Shopware\Application\Context\MatchContext\RuleMatchContext;
-use Shopware\Application\Context\MatchContext\StorefrontMatchContext;
+use Shopware\Application\Context\Rule\MatchContext\RuleMatchContext;
+use Shopware\Application\Context\Rule\MatchContext\StorefrontMatchContext;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Application\Context\Exception\UnsupportedOperatorException;
 use Shopware\Application\Context\Struct\StorefrontContext;

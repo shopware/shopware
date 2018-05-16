@@ -8,7 +8,7 @@ use Shopware\Framework\ORM\Write\EntityWriter;
 use Shopware\Framework\ORM\Write\EntityWriterInterface;
 use Shopware\Framework\ORM\Write\FieldException\WriteStackException;
 use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\Application\Language\Repository\LanguageRepository;
+use Shopware\Application\Language\LanguageRepository;
 use Shopware\System\Locale\LocaleRepository;
 use Shopware\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Content\Product\ProductDefinition;

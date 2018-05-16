@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Payment\Definition;
 
-use Shopware\Application\Application\Definition\ApplicationDefinition;
+use Shopware\Application\Application\ApplicationDefinition;
 use Shopware\Checkout\Customer\CustomerDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;

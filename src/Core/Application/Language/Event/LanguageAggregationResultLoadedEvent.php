@@ -1,21 +1,21 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Application\Application\Event\Application;
+namespace Shopware\Application\Language\Event;
 
-use Shopware\Application\Application\Struct\ApplicationSearchResult;
+use Shopware\Framework\ORM\Search\AggregatorResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
-class ApplicationSearchResultLoadedEvent extends NestedEvent
+class LanguageAggregationResultLoadedEvent extends NestedEvent
 {
-    public const NAME = 'application.search.result.loaded';
+    public const NAME = 'language.aggregation.result.loaded';
 
     /**
-     * @var ApplicationSearchResult
+     * @var AggregatorResult
      */
     protected $result;
 
-    public function __construct(ApplicationSearchResult $result)
+    public function __construct(AggregatorResult $result)
     {
         $this->result = $result;
     }
@@ -28,5 +28,10 @@ class ApplicationSearchResultLoadedEvent extends NestedEvent
     public function getContext(): ApplicationContext
     {
         return $this->result->getContext();
+    }
+
+    public function getResult(): AggregatorResult
+    {
+        return $this->result;
     }
 }

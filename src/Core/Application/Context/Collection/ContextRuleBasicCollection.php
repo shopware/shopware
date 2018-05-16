@@ -5,7 +5,7 @@ namespace Shopware\Application\Context\Collection;
 use Shopware\Application\Context\Struct\ContextRuleBasicStruct;
 use Shopware\Framework\ORM\EntityCollection;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Application\Context\MatchContext\CartRuleMatchContext;
+use Shopware\Application\Context\Rule\MatchContext\CartRuleMatchContext;
 use Shopware\Application\Context\Struct\StorefrontContext;
 
 class ContextRuleBasicCollection extends EntityCollection

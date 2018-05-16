@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Application\Context\MatchContext;
+namespace Shopware\Application\Context\Rule\MatchContext;
 
 use Shopware\Checkout\Cart\LineItem\CalculatedLineItemInterface;
 use Shopware\Application\Context\Struct\StorefrontContext;

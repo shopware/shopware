@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Customer;
 
-use Shopware\Application\Application\Definition\ApplicationDefinition;
+use Shopware\Application\Application\ApplicationDefinition;
 use Shopware\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Checkout\Customer\Collection\CustomerBasicCollection;
 use Shopware\Checkout\Customer\Collection\CustomerDetailCollection;

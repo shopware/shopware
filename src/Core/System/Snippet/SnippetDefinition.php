@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Snippet;
 
-use Shopware\Application\Application\Definition\ApplicationDefinition;
+use Shopware\Application\Application\ApplicationDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\BoolField;

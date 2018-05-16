@@ -28,7 +28,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Content\Product\Struct\ProductBasicStruct;
 use Shopware\Content\Product\Aggregate\ProductManufacturer\Struct\ProductManufacturerBasicStruct;
 use Shopware\Checkout\Test\Cart\Common\Generator;
-use Shopware\Application\Context\MatchContext\CalculatedLineItemMatchContext;
+use Shopware\Application\Context\Rule\MatchContext\CalculatedLineItemMatchContext;
 use Shopware\Application\Context\Rule\CalculatedLineItem\ProductOfManufacturerRule;
 use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\Uuid;

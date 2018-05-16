@@ -4,7 +4,7 @@ namespace Shopware\Application\Test\Context\Rule\CalculatedCart;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Checkout\Test\Cart\Common\Generator;
-use Shopware\Application\Context\MatchContext\CartRuleMatchContext;
+use Shopware\Application\Context\Rule\MatchContext\CartRuleMatchContext;
 use Shopware\Application\Context\Rule\CalculatedCart\GoodsPriceRule;
 use Shopware\Application\Context\Rule\Rule;
 use Shopware\Application\Context\Struct\StorefrontContext;

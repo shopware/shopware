@@ -22,10 +22,10 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Application\Context\Service;
+namespace Shopware\Application\Context\Util;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Application\Application\Repository\ApplicationRepository;
+use Shopware\Application\Application\ApplicationRepository;
 use Shopware\Application\Application\Struct\ApplicationBasicStruct;
 use Shopware\System\Country\CountryRepository;
 use Shopware\System\Country\Aggregate\CountryState\CountryStateRepository;
@@ -35,7 +35,7 @@ use Shopware\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupRepository;
 use Shopware\Checkout\Customer\CustomerRepository;
 use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
 use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Application\Language\Repository\LanguageRepository;
+use Shopware\Application\Language\LanguageRepository;
 use Shopware\Checkout\Payment\Repository\PaymentMethodRepository;
 use Shopware\Checkout\Payment\Struct\PaymentMethodBasicStruct;
 use Shopware\Checkout\Shipping\ShippingMethodRepository;
@@ -53,7 +53,7 @@ use Shopware\StorefrontApi\Context\StorefrontContextService;
 class ContextFactory implements ContextFactoryInterface
 {
     /**
-     * @var ApplicationRepository
+     * @var \Shopware\Application\Application\ApplicationRepository
      */
     private $applicationRepository;
 
@@ -108,7 +108,7 @@ class ContextFactory implements ContextFactoryInterface
     private $countryStateRepository;
 
     /**
-     * @var LanguageRepository
+     * @var \Shopware\Application\Language\LanguageRepository
      */
     private $languageRepository;
 

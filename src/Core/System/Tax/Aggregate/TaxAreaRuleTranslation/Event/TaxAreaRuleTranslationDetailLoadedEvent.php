@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Tax\Aggregate\TaxAreaRuleTranslation\Event;
 
-use Shopware\Application\Language\Event\Language\LanguageBasicLoadedEvent;
+use Shopware\Application\Language\Event\LanguageBasicLoadedEvent;
 use Shopware\System\Tax\Aggregate\TaxAreaRuleTranslation\Collection\TaxAreaRuleTranslationDetailCollection;
 use Shopware\System\Tax\Aggregate\TaxAreaRule\Event\TaxAreaRuleBasicLoadedEvent;
 use Shopware\Application\Context\Struct\ApplicationContext;

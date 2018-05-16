@@ -1,21 +1,21 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Application\Application\Event\Application;
+namespace Shopware\Application\Application\Event;
 
-use Shopware\Framework\ORM\Search\IdSearchResult;
+use Shopware\Application\Application\Struct\ApplicationSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
-class ApplicationIdSearchResultLoadedEvent extends NestedEvent
+class ApplicationSearchResultLoadedEvent extends NestedEvent
 {
-    public const NAME = 'application.id.search.result.loaded';
+    public const NAME = 'application.search.result.loaded';
 
     /**
-     * @var IdSearchResult
+     * @var ApplicationSearchResult
      */
     protected $result;
 
-    public function __construct(IdSearchResult $result)
+    public function __construct(ApplicationSearchResult $result)
     {
         $this->result = $result;
     }
@@ -28,10 +28,5 @@ class ApplicationIdSearchResultLoadedEvent extends NestedEvent
     public function getContext(): ApplicationContext
     {
         return $this->result->getContext();
-    }
-
-    public function getResult(): IdSearchResult
-    {
-        return $this->result;
     }
 }

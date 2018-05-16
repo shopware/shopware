@@ -22,7 +22,7 @@ use Shopware\Framework\ORM\Field\VersionField;
 use Shopware\Framework\ORM\FieldCollection;
 use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\Application\Language\Definition\LanguageDefinition;
+use Shopware\Application\Language\LanguageDefinition;
 
 class CategoryTranslationDefinition extends EntityDefinition
 {

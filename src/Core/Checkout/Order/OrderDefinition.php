@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Order;
 
-use Shopware\Application\Application\Definition\ApplicationDefinition;
+use Shopware\Application\Application\ApplicationDefinition;
 use Shopware\Checkout\Order\Aggregate\OrderAddress\OrderAddressDefinition;
 use Shopware\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
 use Shopware\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition;

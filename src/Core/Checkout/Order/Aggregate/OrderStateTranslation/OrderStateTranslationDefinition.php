@@ -13,7 +13,7 @@ use Shopware\Framework\ORM\Field\VersionField;
 use Shopware\Framework\ORM\FieldCollection;
 use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\Application\Language\Definition\LanguageDefinition;
+use Shopware\Application\Language\LanguageDefinition;
 use Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Collection\OrderStateTranslationBasicCollection;
 use Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Collection\OrderStateTranslationDetailCollection;
 use Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Event\OrderStateTranslationDeletedEvent;

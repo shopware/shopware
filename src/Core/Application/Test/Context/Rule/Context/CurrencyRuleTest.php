@@ -27,7 +27,7 @@ namespace Shopware\Application\Test\Context\Rule\Context;
 use PHPUnit\Framework\TestCase;
 use Shopware\System\Currency\Struct\CurrencyBasicStruct;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Application\Context\MatchContext\CartRuleMatchContext;
+use Shopware\Application\Context\Rule\MatchContext\CartRuleMatchContext;
 use Shopware\Application\Context\Rule\Context\CurrencyRule;
 use Shopware\Application\Context\Struct\StorefrontContext;
 

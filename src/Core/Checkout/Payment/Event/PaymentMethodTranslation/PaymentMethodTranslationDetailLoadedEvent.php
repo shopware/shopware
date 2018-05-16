@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Payment\Event\PaymentMethodTranslation;
 
-use Shopware\Application\Language\Event\Language\LanguageBasicLoadedEvent;
+use Shopware\Application\Language\Event\LanguageBasicLoadedEvent;
 use Shopware\Checkout\Payment\Collection\PaymentMethodTranslationDetailCollection;
 use Shopware\Checkout\Payment\Event\PaymentMethod\PaymentMethodBasicLoadedEvent;
 use Shopware\Application\Context\Struct\ApplicationContext;

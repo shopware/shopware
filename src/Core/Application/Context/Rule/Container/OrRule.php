@@ -26,7 +26,7 @@ declare(strict_types=1);
 
 namespace Shopware\Application\Context\Rule\Container;
 
-use Shopware\Application\Context\MatchContext\RuleMatchContext;
+use Shopware\Application\Context\Rule\MatchContext\RuleMatchContext;
 use Shopware\Application\Context\Rule\Match;
 
 /**

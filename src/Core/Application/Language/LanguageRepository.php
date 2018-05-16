@@ -1,16 +1,7 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Application\Application\Repository;
+namespace Shopware\Application\Language;
 
-use Shopware\Application\Application\Collection\ApplicationBasicCollection;
-use Shopware\Application\Application\Collection\ApplicationDetailCollection;
-use Shopware\Application\Application\Definition\ApplicationDefinition;
-use Shopware\Application\Application\Event\Application\ApplicationAggregationResultLoadedEvent;
-use Shopware\Application\Application\Event\Application\ApplicationBasicLoadedEvent;
-use Shopware\Application\Application\Event\Application\ApplicationDetailLoadedEvent;
-use Shopware\Application\Application\Event\Application\ApplicationIdSearchResultLoadedEvent;
-use Shopware\Application\Application\Event\Application\ApplicationSearchResultLoadedEvent;
-use Shopware\Application\Application\Struct\ApplicationSearchResult;
 use Shopware\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Framework\ORM\RepositoryInterface;
 use Shopware\Framework\ORM\Search\AggregatorResult;
@@ -20,11 +11,20 @@ use Shopware\Framework\ORM\Search\EntitySearcherInterface;
 use Shopware\Framework\ORM\Search\IdSearchResult;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
+use Shopware\Application\Language\Collection\LanguageBasicCollection;
+use Shopware\Application\Language\Collection\LanguageDetailCollection;
+use Shopware\Application\Language\LanguageDefinition;
+use Shopware\Application\Language\Event\LanguageAggregationResultLoadedEvent;
+use Shopware\Application\Language\Event\LanguageBasicLoadedEvent;
+use Shopware\Application\Language\Event\LanguageDetailLoadedEvent;
+use Shopware\Application\Language\Event\LanguageIdSearchResultLoadedEvent;
+use Shopware\Application\Language\Event\LanguageSearchResultLoadedEvent;
+use Shopware\Application\Language\Struct\LanguageSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class ApplicationRepository implements RepositoryInterface
+class LanguageRepository implements RepositoryInterface
 {
     /**
      * @var EntityReaderInterface
@@ -52,12 +52,12 @@ class ApplicationRepository implements RepositoryInterface
     private $versionManager;
 
     public function __construct(
-       EntityReaderInterface $reader,
-       VersionManager $versionManager,
-       EntitySearcherInterface $searcher,
-       EntityAggregatorInterface $aggregator,
-       EventDispatcherInterface $eventDispatcher
-   ) {
+        EntityReaderInterface $reader,
+        VersionManager $versionManager,
+        EntitySearcherInterface $searcher,
+        EntityAggregatorInterface $aggregator,
+        EventDispatcherInterface $eventDispatcher
+    ) {
         $this->reader = $reader;
         $this->searcher = $searcher;
         $this->aggregator = $aggregator;
@@ -65,7 +65,7 @@ class ApplicationRepository implements RepositoryInterface
         $this->versionManager = $versionManager;
     }
 
-    public function search(Criteria $criteria, ApplicationContext $context): ApplicationSearchResult
+    public function search(Criteria $criteria, ApplicationContext $context): LanguageSearchResult
     {
         $ids = $this->searchIds($criteria, $context);
 
@@ -76,9 +76,9 @@ class ApplicationRepository implements RepositoryInterface
             $aggregations = $this->aggregate($criteria, $context);
         }
 
-        $result = ApplicationSearchResult::createFromResults($ids, $entities, $aggregations);
+        $result = LanguageSearchResult::createFromResults($ids, $entities, $aggregations);
 
-        $event = new ApplicationSearchResultLoadedEvent($result);
+        $event = new LanguageSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $result;
@@ -86,9 +86,9 @@ class ApplicationRepository implements RepositoryInterface
 
     public function aggregate(Criteria $criteria, ApplicationContext $context): AggregatorResult
     {
-        $result = $this->aggregator->aggregate(ApplicationDefinition::class, $criteria, $context);
+        $result = $this->aggregator->aggregate(LanguageDefinition::class, $criteria, $context);
 
-        $event = new ApplicationAggregationResultLoadedEvent($result);
+        $event = new LanguageAggregationResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $result;
@@ -96,31 +96,31 @@ class ApplicationRepository implements RepositoryInterface
 
     public function searchIds(Criteria $criteria, ApplicationContext $context): IdSearchResult
     {
-        $result = $this->searcher->search(ApplicationDefinition::class, $criteria, $context);
+        $result = $this->searcher->search(LanguageDefinition::class, $criteria, $context);
 
-        $event = new ApplicationIdSearchResultLoadedEvent($result);
+        $event = new LanguageIdSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $result;
     }
 
-    public function readBasic(array $ids, ApplicationContext $context): ApplicationBasicCollection
+    public function readBasic(array $ids, ApplicationContext $context): LanguageBasicCollection
     {
-        /** @var ApplicationBasicCollection $entities */
-        $entities = $this->reader->readBasic(ApplicationDefinition::class, $ids, $context);
+        /** @var LanguageBasicCollection $entities */
+        $entities = $this->reader->readBasic(LanguageDefinition::class, $ids, $context);
 
-        $event = new ApplicationBasicLoadedEvent($entities, $context);
+        $event = new LanguageBasicLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $entities;
     }
 
-    public function readDetail(array $ids, ApplicationContext $context): ApplicationDetailCollection
+    public function readDetail(array $ids, ApplicationContext $context): LanguageDetailCollection
     {
-        /** @var ApplicationDetailCollection $entities */
-        $entities = $this->reader->readDetail(ApplicationDefinition::class, $ids, $context);
+        /** @var LanguageDetailCollection $entities */
+        $entities = $this->reader->readDetail(LanguageDefinition::class, $ids, $context);
 
-        $event = new ApplicationDetailLoadedEvent($entities, $context);
+        $event = new LanguageDetailLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $entities;
@@ -128,7 +128,7 @@ class ApplicationRepository implements RepositoryInterface
 
     public function update(array $data, ApplicationContext $context): GenericWrittenEvent
     {
-        $affected = $this->versionManager->update(ApplicationDefinition::class, $data, WriteContext::createFromApplicationContext($context));
+        $affected = $this->versionManager->update(LanguageDefinition::class, $data, WriteContext::createFromApplicationContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
@@ -137,7 +137,7 @@ class ApplicationRepository implements RepositoryInterface
 
     public function upsert(array $data, ApplicationContext $context): GenericWrittenEvent
     {
-        $affected = $this->versionManager->upsert(ApplicationDefinition::class, $data, WriteContext::createFromApplicationContext($context));
+        $affected = $this->versionManager->upsert(LanguageDefinition::class, $data, WriteContext::createFromApplicationContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
@@ -146,7 +146,7 @@ class ApplicationRepository implements RepositoryInterface
 
     public function create(array $data, ApplicationContext $context): GenericWrittenEvent
     {
-        $affected = $this->versionManager->insert(ApplicationDefinition::class, $data, WriteContext::createFromApplicationContext($context));
+        $affected = $this->versionManager->insert(LanguageDefinition::class, $data, WriteContext::createFromApplicationContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
@@ -155,7 +155,7 @@ class ApplicationRepository implements RepositoryInterface
 
     public function delete(array $ids, ApplicationContext $context): GenericWrittenEvent
     {
-        $affected = $this->versionManager->delete(ApplicationDefinition::class, $ids, WriteContext::createFromApplicationContext($context));
+        $affected = $this->versionManager->delete(LanguageDefinition::class, $ids, WriteContext::createFromApplicationContext($context));
         $event = GenericWrittenEvent::createWithDeletedEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
@@ -164,7 +164,7 @@ class ApplicationRepository implements RepositoryInterface
 
     public function createVersion(string $id, ApplicationContext $context, ?string $name = null, ?string $versionId = null): string
     {
-        return $this->versionManager->createVersion(ApplicationDefinition::class, $id, WriteContext::createFromApplicationContext($context), $name, $versionId);
+        return $this->versionManager->createVersion(LanguageDefinition::class, $id, WriteContext::createFromApplicationContext($context), $name, $versionId);
     }
 
     public function merge(string $versionId, ApplicationContext $context): void

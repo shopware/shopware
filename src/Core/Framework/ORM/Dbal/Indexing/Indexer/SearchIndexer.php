@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Content\Catalog\CatalogRepository;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Application\Language\Repository\LanguageRepository;
+use Shopware\Application\Language\LanguageRepository;
 use Shopware\Content\Product\ProductDefinition;
 use Shopware\Content\Product\ProductRepository;
 use Shopware\Content\Product\Struct\ProductSearchResult;

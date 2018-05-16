@@ -25,7 +25,7 @@
 namespace Shopware\Application\Context\Rule\Context;
 
 use DateTime;
-use Shopware\Application\Context\MatchContext\RuleMatchContext;
+use Shopware\Application\Context\Rule\MatchContext\RuleMatchContext;
 use Shopware\Application\Context\Rule\Match;
 use Shopware\Application\Context\Rule\Rule;
 

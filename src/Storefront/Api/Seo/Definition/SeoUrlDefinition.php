@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Api\Seo\Definition;
 
-use Shopware\Application\Application\Definition\ApplicationDefinition;
+use Shopware\Application\Application\ApplicationDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\BoolField;
@@ -65,7 +65,7 @@ class SeoUrlDefinition extends EntityDefinition
             new BoolField('is_modified', 'isModified'),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            new ManyToOneAssociationField('application', 'application_id', ApplicationDefinition::class, false),
+            new ManyToOneAssociationField('application', 'application_id', \Shopware\Application\Application\ApplicationDefinition::class, false),
         ]);
 
         foreach (self::$extensions as $extension) {

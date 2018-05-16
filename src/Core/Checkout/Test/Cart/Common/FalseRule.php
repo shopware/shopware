@@ -24,7 +24,7 @@
 
 namespace Shopware\Checkout\Test\Cart\Common;
 
-use Shopware\Application\Context\MatchContext\RuleMatchContext;
+use Shopware\Application\Context\Rule\MatchContext\RuleMatchContext;
 use Shopware\Application\Context\Rule\Match;
 use Shopware\Application\Context\Rule\Rule;
 

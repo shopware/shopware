@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Application\Context\Service;
+namespace Shopware\Application\Context\Util;
 
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Application\Context\Collection\ContextRuleBasicCollection;

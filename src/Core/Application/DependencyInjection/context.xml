@@ -45,8 +45,8 @@
             <argument id="event_dispatcher" type="service"/>
         </service>
 
-        <service class="Shopware\Application\Context\Service\ContextFactory" id="Shopware\Application\Context\Service\ContextFactory">
-            <argument type="service" id="Shopware\Application\Application\Repository\ApplicationRepository"/>
+        <service class="Shopware\Application\Context\Util\ContextFactory" id="Shopware\Application\Context\Util\ContextFactory">
+            <argument type="service" id="Shopware\Application\Application\ApplicationRepository"/>
             <argument type="service" id="Shopware\System\Currency\CurrencyRepository"/>
             <argument type="service" id="Shopware\Checkout\Customer\CustomerRepository"/>
             <argument type="service" id="Shopware\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupRepository"/>
@@ -57,11 +57,11 @@
             <argument type="service" id="Shopware\Checkout\Shipping\ShippingMethodRepository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\System\Country\Aggregate\CountryState\CountryStateRepository.v1"/>
-            <argument type="service" id="Shopware\Application\Language\Repository\LanguageRepository"/>
+            <argument type="service" id="Shopware\Application\Language\LanguageRepository"/>
             <argument type="service" id="Shopware\Checkout\Cart\Tax\TaxDetector"/>
         </service>
 
-        <service class="Shopware\Application\Context\Service\ContextRuleLoader" id="Shopware\Application\Context\Service\ContextRuleLoader">
+        <service class="Shopware\Application\Context\Util\ContextRuleLoader" id="Shopware\Application\Context\Util\ContextRuleLoader">
             <argument id="Shopware\Checkout\Cart\Cart\CartPersister" type="service"/>
             <argument id="Shopware\Checkout\Cart\Tax\TaxDetector" type="service"/>
             <argument id="Shopware\Checkout\Cart\Cart\CartCollector" type="service"/>

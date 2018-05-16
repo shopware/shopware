@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Country;
 
-use Shopware\Application\Application\Definition\ApplicationDefinition;
+use Shopware\Application\Application\ApplicationDefinition;
 use Shopware\System\Country\Aggregate\CountryArea\CountryAreaDefinition;
 use Shopware\System\Country\Collection\CountryBasicCollection;
 use Shopware\System\Country\Collection\CountryDetailCollection;

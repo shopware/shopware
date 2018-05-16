@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Application\Language\Event\Language;
+namespace Shopware\Application\Language\Event;
 
 use Shopware\Application\Language\Struct\LanguageSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;

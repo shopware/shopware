@@ -24,7 +24,7 @@
 
 namespace Shopware\Application\Context\Rule;
 
-use Shopware\Application\Context\MatchContext\RuleMatchContext;
+use Shopware\Application\Context\Rule\MatchContext\RuleMatchContext;
 use Shopware\Framework\Struct\Struct;
 
 abstract class Rule extends Struct

@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Application\Application\Event\Application;
+namespace Shopware\Application\Application\Event;
 
 use Shopware\Application\Application\Collection\ApplicationBasicCollection;
 use Shopware\System\Currency\Event\CurrencyBasicLoadedEvent;
-use Shopware\Application\Language\Event\Language\LanguageBasicLoadedEvent;
+use Shopware\Application\Language\Event\LanguageBasicLoadedEvent;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;

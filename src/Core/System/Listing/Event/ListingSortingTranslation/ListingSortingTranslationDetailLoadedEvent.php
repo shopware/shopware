@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Listing\Event\ListingSortingTranslation;
 
-use Shopware\Application\Language\Event\Language\LanguageBasicLoadedEvent;
+use Shopware\Application\Language\Event\LanguageBasicLoadedEvent;
 use Shopware\System\Listing\Collection\ListingSortingTranslationDetailCollection;
 use Shopware\System\Listing\Event\ListingSorting\ListingSortingBasicLoadedEvent;
 use Shopware\Application\Context\Struct\ApplicationContext;

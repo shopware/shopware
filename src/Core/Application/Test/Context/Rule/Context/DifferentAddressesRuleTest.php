@@ -28,7 +28,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
 use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Application\Context\MatchContext\CartRuleMatchContext;
+use Shopware\Application\Context\Rule\MatchContext\CartRuleMatchContext;
 use Shopware\Application\Context\Rule\Context\DifferentAddressesRule;
 use Shopware\Application\Context\Struct\StorefrontContext;
 

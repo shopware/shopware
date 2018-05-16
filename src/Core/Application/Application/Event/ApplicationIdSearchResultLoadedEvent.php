@@ -1,14 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Application\Language\Event\Language;
+namespace Shopware\Application\Application\Event;
 
 use Shopware\Framework\ORM\Search\IdSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 
-class LanguageIdSearchResultLoadedEvent extends NestedEvent
+class ApplicationIdSearchResultLoadedEvent extends NestedEvent
 {
-    public const NAME = 'language.id.search.result.loaded';
+    public const NAME = 'application.id.search.result.loaded';
 
     /**
      * @var IdSearchResult

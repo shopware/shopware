@@ -26,8 +26,8 @@ namespace Shopware\StorefrontApi\Context;
 
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerInterface;
-use Shopware\Application\Context\Service\ContextFactoryInterface;
-use Shopware\Application\Context\Service\ContextRuleLoader;
+use Shopware\Application\Context\Util\ContextFactoryInterface;
+use Shopware\Application\Context\Util\ContextRuleLoader;
 use Shopware\Application\Context\Struct\StorefrontContext;
 use Symfony\Component\Serializer\SerializerInterface;
 

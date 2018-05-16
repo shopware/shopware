@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Application\Language\Definition;
+namespace Shopware\Application\Language;
 
 use Shopware\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
 use Shopware\System\Country\Aggregate\CountryAreaTranslation\CountryAreaTranslationDefinition;
@@ -27,9 +27,9 @@ use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Framework\ORM\Write\Flag\WriteOnly;
 use Shopware\Application\Language\Collection\LanguageBasicCollection;
 use Shopware\Application\Language\Collection\LanguageDetailCollection;
-use Shopware\Application\Language\Event\Language\LanguageDeletedEvent;
-use Shopware\Application\Language\Event\Language\LanguageWrittenEvent;
-use Shopware\Application\Language\Repository\LanguageRepository;
+use Shopware\Application\Language\Event\LanguageDeletedEvent;
+use Shopware\Application\Language\Event\LanguageWrittenEvent;
+use Shopware\Application\Language\LanguageRepository;
 use Shopware\Application\Language\Struct\LanguageBasicStruct;
 use Shopware\Application\Language\Struct\LanguageDetailStruct;
 use Shopware\System\Listing\Definition\ListingFacetTranslationDefinition;

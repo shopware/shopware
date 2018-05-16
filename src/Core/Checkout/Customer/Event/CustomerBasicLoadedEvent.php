@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Customer\Event;
 
-use Shopware\Application\Application\Event\Application\ApplicationBasicLoadedEvent;
+use Shopware\Application\Application\Event\ApplicationBasicLoadedEvent;
 use Shopware\Checkout\Customer\Collection\CustomerBasicCollection;
 use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Event\CustomerAddressBasicLoadedEvent;
 use Shopware\Checkout\Customer\Aggregate\CustomerGroup\Event\CustomerGroupBasicLoadedEvent;

@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Application\Application\Definition;
+namespace Shopware\Application\Application;
 
 use Shopware\Application\Application\Collection\ApplicationBasicCollection;
 use Shopware\Application\Application\Collection\ApplicationDetailCollection;
-use Shopware\Application\Application\Event\Application\ApplicationDeletedEvent;
-use Shopware\Application\Application\Event\Application\ApplicationWrittenEvent;
-use Shopware\Application\Application\Repository\ApplicationRepository;
+use Shopware\Application\Application\Event\ApplicationDeletedEvent;
+use Shopware\Application\Application\Event\ApplicationWrittenEvent;
+use Shopware\Application\Application\ApplicationRepository;
 use Shopware\Application\Application\Struct\ApplicationBasicStruct;
 use Shopware\Application\Application\Struct\ApplicationDetailStruct;
 use Shopware\System\Country\CountryDefinition;
@@ -25,7 +25,7 @@ use Shopware\Framework\ORM\Field\TenantIdField;
 use Shopware\Framework\ORM\FieldCollection;
 use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\Application\Language\Definition\LanguageDefinition;
+use Shopware\Application\Language\LanguageDefinition;
 use Shopware\Checkout\Payment\Definition\PaymentMethodDefinition;
 use Shopware\Checkout\Shipping\ShippingMethodDefinition;
 

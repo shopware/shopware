@@ -29,7 +29,7 @@ use Shopware\System\Country\Struct\CountryBasicStruct;
 use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Checkout\Cart\Delivery\Struct\ShippingLocation;
-use Shopware\Application\Context\MatchContext\CartRuleMatchContext;
+use Shopware\Application\Context\Rule\MatchContext\CartRuleMatchContext;
 use Shopware\Application\Context\Rule\Context\ShippingZipCodeRule;
 use Shopware\Application\Context\Struct\StorefrontContext;
 

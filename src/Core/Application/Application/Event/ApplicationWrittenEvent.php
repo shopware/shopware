@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Application\Application\Event\Application;
+namespace Shopware\Application\Application\Event;
 
-use Shopware\Application\Application\Definition\ApplicationDefinition;
+use Shopware\Application\Application\ApplicationDefinition;
 use Shopware\Framework\ORM\Write\WrittenEvent;
 
 class ApplicationWrittenEvent extends WrittenEvent

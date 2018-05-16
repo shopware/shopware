@@ -4,7 +4,7 @@ namespace Shopware\Application\Context\Event\ContextCartModifierTranslation;
 
 use Shopware\Application\Context\Collection\ContextCartModifierTranslationDetailCollection;
 use Shopware\Application\Context\Event\ContextCartModifier\ContextCartModifierBasicLoadedEvent;
-use Shopware\Application\Language\Event\Language\LanguageBasicLoadedEvent;
+use Shopware\Application\Language\Event\LanguageBasicLoadedEvent;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;

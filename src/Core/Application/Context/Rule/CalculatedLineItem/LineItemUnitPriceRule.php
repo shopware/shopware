@@ -3,8 +3,8 @@
 namespace Shopware\Application\Context\Rule\CalculatedLineItem;
 
 use Shopware\Application\Context\Exception\UnsupportedOperatorException;
-use Shopware\Application\Context\MatchContext\CalculatedLineItemMatchContext;
-use Shopware\Application\Context\MatchContext\RuleMatchContext;
+use Shopware\Application\Context\Rule\MatchContext\CalculatedLineItemMatchContext;
+use Shopware\Application\Context\Rule\MatchContext\RuleMatchContext;
 use Shopware\Application\Context\Rule\Match;
 use Shopware\Application\Context\Rule\Rule;
 

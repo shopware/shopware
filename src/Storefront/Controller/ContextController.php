@@ -7,7 +7,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\System\Currency\CurrencyRepository;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Query\TermQuery;
-use Shopware\Application\Language\Repository\LanguageRepository;
+use Shopware\Application\Language\LanguageRepository;
 use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\StorefrontApi\Context\StorefrontContextPersister;
 use Shopware\StorefrontApi\Context\StorefrontContextService;
@@ -33,7 +33,7 @@ class ContextController extends StorefrontController
     private $currencyRepository;
 
     /**
-     * @var LanguageRepository
+     * @var \Shopware\Application\Language\LanguageRepository
      */
     private $languageRepository;
 

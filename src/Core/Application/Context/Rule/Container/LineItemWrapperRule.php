@@ -2,9 +2,9 @@
 
 namespace Shopware\Application\Context\Rule\Container;
 
-use Shopware\Application\Context\MatchContext\CalculatedLineItemMatchContext;
-use Shopware\Application\Context\MatchContext\CartRuleMatchContext;
-use Shopware\Application\Context\MatchContext\RuleMatchContext;
+use Shopware\Application\Context\Rule\MatchContext\CalculatedLineItemMatchContext;
+use Shopware\Application\Context\Rule\MatchContext\CartRuleMatchContext;
+use Shopware\Application\Context\Rule\MatchContext\RuleMatchContext;
 use Shopware\Application\Context\Rule\Match;
 use Shopware\Application\Context\Rule\Rule;
 

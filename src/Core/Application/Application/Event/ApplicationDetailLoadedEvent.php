@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Application\Application\Event\Application;
+namespace Shopware\Application\Application\Event;
 
 use Shopware\Application\Application\Collection\ApplicationDetailCollection;
 use Shopware\System\Country\Event\CountryBasicLoadedEvent;

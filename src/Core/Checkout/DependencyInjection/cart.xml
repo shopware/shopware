@@ -17,6 +17,17 @@
             <argument type="service" id="Shopware\Checkout\Cart\Tax\TaxAmountCalculator" />
         </service>
 
+        <service class="Shopware\Checkout\Cart\Cart\CartPersister" id="Shopware\Checkout\Cart\Cart\CartPersister">
+            <argument type="service" id="Doctrine\DBAL\Connection" />
+            <argument type="service" id="serializer" />
+        </service>
+
+        <service class="Shopware\Checkout\Cart\StoreFrontCartService" id="Shopware\Checkout\Cart\StoreFrontCartService">
+            <argument type="service" id="Shopware\Checkout\Cart\Cart\CircularCartCalculation" />
+            <argument type="service" id="Shopware\Checkout\Cart\Cart\CartPersister" />
+            <argument type="service" id="Shopware\Checkout\Order\Cart\OrderPersister" />
+        </service>
+
         <service class="Shopware\Checkout\Cart\Price\PriceRounding" id="Shopware\Checkout\Cart\Price\PriceRounding">
             <argument>%price.rounding.precision%</argument>
         </service>

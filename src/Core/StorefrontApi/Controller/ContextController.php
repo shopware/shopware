@@ -8,7 +8,7 @@ use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Checkout\Payment\Repository\PaymentMethodRepository;
 use Shopware\Checkout\Shipping\ShippingMethodRepository;
-use Shopware\Checkout\CartBridge\Exception\NotLoggedInCustomerException;
+use Shopware\Checkout\Order\Exception\NotLoggedInCustomerException;
 use Shopware\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository;
 use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\PlatformRequest;

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\CartBridge\Exception;
+namespace Shopware\Checkout\Order\Exception;
 
 class EmptyCartException extends \Exception
 {

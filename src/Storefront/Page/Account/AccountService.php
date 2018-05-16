@@ -9,7 +9,7 @@ use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressB
 use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Query\TermQuery;
-use Shopware\Checkout\CartBridge\Exception\NotLoggedInCustomerException;
+use Shopware\Checkout\Order\Exception\NotLoggedInCustomerException;
 use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\Uuid;
 use Shopware\Storefront\Exception\CustomerNotFoundException;
@@ -65,7 +65,7 @@ class AccountService
     }
 
     /**
-     * @throws NotLoggedInCustomerException
+     * @throws \Shopware\Checkout\Order\Exception\NotLoggedInCustomerException
      */
     public function getCustomerByContext(StorefrontContext $context): CustomerBasicStruct
     {
@@ -142,7 +142,7 @@ class AccountService
     }
 
     /**
-     * @throws NotLoggedInCustomerException
+     * @throws \Shopware\Checkout\Order\Exception\NotLoggedInCustomerException
      */
     public function saveAddress(array $formData, StorefrontContext $context): string
     {
@@ -179,7 +179,7 @@ class AccountService
     }
 
     /**
-     * @throws NotLoggedInCustomerException
+     * @throws \Shopware\Checkout\Order\Exception\NotLoggedInCustomerException
      */
     public function deleteAddress(string $addressId, StorefrontContext $context)
     {
@@ -189,7 +189,7 @@ class AccountService
     }
 
     /**
-     * @throws NotLoggedInCustomerException
+     * @throws \Shopware\Checkout\Order\Exception\NotLoggedInCustomerException
      */
     public function setDefaultBillingAddress(string $addressId, StorefrontContext $context)
     {
@@ -204,7 +204,7 @@ class AccountService
     }
 
     /**
-     * @throws NotLoggedInCustomerException
+     * @throws \Shopware\Checkout\Order\Exception\NotLoggedInCustomerException
      */
     public function setDefaultShippingAddress(string $addressId, StorefrontContext $context)
     {
@@ -299,7 +299,7 @@ class AccountService
     }
 
     /**
-     * @throws NotLoggedInCustomerException
+     * @throws \Shopware\Checkout\Order\Exception\NotLoggedInCustomerException
      */
     private function validateCustomer(StorefrontContext $context)
     {

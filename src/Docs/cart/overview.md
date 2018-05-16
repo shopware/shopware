@@ -33,7 +33,7 @@ Lets start with a simple example: *Add a product to cart*
 ```
 use Shopware\Checkout\Cart\LineItem\LineItem;
 use Shopware\Checkout\Cart\Product\ProductProcessor;
-use Shopware\Checkout\CartBridge\Service\StoreFrontCartService;
+use Shopware\Checkout\Cart\StoreFrontCartService;
 
 public function addProductAction()
 {
@@ -53,7 +53,7 @@ public function addProductAction()
 ### Remove a line item
 Next we remove this item again using the cart identifier (see above `SW10239`)
 ```
-use Shopware\Checkout\CartBridge\Service\StoreFrontCartService;
+use Shopware\Checkout\Cart\StoreFrontCartService;
 
 public function removeAction()
 {
@@ -73,7 +73,7 @@ use Shopware\Checkout\Cart\LineItem\CalculatedLineItemInterface;
 use Shopware\Checkout\Cart\LineItem\LineItem;
 use Shopware\Checkout\Cart\Product\ProductProcessor;
 use Shopware\Checkout\Cart\Tax\CalculatedTax;
-use Shopware\Checkout\CartBridge\Service\StoreFrontCartService;
+use Shopware\Checkout\Cart\StoreFrontCartService;
 
 public function showLineItemsAction()
 {
@@ -122,7 +122,7 @@ use Shopware\Checkout\Cart\Cart\CalculatedCart;
 use Shopware\Checkout\Cart\LineItem\LineItem;
 use Shopware\Checkout\Cart\Product\ProductProcessor;
 use Shopware\Checkout\Cart\Tax\CalculatedTax;
-use Shopware\Checkout\CartBridge\Service\StoreFrontCartService;
+use Shopware\Checkout\Cart\StoreFrontCartService;
 
 public function showAmountAction()
 {
@@ -168,7 +168,7 @@ use Shopware\Checkout\Cart\Delivery\Delivery;
 use Shopware\Checkout\Cart\Delivery\DeliveryPosition;
 use Shopware\Checkout\Cart\LineItem\LineItem;
 use Shopware\Checkout\Cart\Product\ProductProcessor;
-use Shopware\Checkout\CartBridge\Service\StoreFrontCartService;
+use Shopware\Checkout\Cart\StoreFrontCartService;
 
 public function showDeliveriesAction()
 {

@@ -23,7 +23,7 @@
 
         <service class="Shopware\StorefrontApi\Controller\CheckoutController" id="Shopware\StorefrontApi\Controller\CheckoutController" public="true">
             <argument id="Shopware\Checkout\Cart\Cart\CircularCartCalculation" type="service"/>
-            <argument id="Shopware\Checkout\CartBridge\Cart\CartPersister" type="service"/>
+            <argument id="Shopware\Checkout\Cart\Cart\CartPersister" type="service"/>
             <argument id="Shopware\Checkout\Order\Cart\OrderPersister" type="service"/>
             <argument type="service" id="Shopware\Checkout\Order\OrderRepository"/>
             <argument type="service" id="serializer"/>

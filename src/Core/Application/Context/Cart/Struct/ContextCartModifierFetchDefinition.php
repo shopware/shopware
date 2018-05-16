@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\CartBridge\Modifier\Struct;
+namespace Shopware\Application\Context\Cart\Struct;
 
 use Shopware\Framework\Struct\Struct;
 

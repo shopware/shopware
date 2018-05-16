@@ -9,6 +9,18 @@
         <service alias="Shopware\Application\Context\Repository\ContextRuleRepository.v1" id="Shopware\Application\Context\Repository\ContextRuleRepository" public="true" />
         <service alias="Shopware\Application\Context\Repository\ContextCartModifierRepository.v1" id="Shopware\Application\Context\Repository\ContextCartModifierRepository" public="true" />
 
+        <service class="Shopware\Application\Context\Cart\ContextCartModifierProcessor" id="Shopware\Application\Context\Cart\ContextCartModifierProcessor">
+            <argument id="Shopware\Application\Context\Repository\ContextCartModifierRepository" type="service"/>
+            <argument id="Shopware\Checkout\Cart\Price\AbsolutePriceCalculator" type="service"/>
+            <argument id="Shopware\Checkout\Cart\Price\PercentagePriceCalculator" type="service"/>
+            <tag name="cart.processor" priority="700"/>
+        </service>
+
+        <service class="Shopware\Application\Context\Cart\ContextCartModifierCollector" id="Shopware\Application\Context\Cart\ContextCartModifierCollector">
+            <argument id="Shopware\Application\Context\Repository\ContextCartModifierRepository" type="service"/>
+            <tag name="cart.collector"/>
+        </service>
+
         <service class="Shopware\Application\Context\Definition\ContextRuleDefinition" id="Shopware\Application\Context\Definition\ContextRuleDefinition" >
             <tag name="shopware.entity.definition" entity="context_rule" />
         </service>
@@ -50,7 +62,7 @@
         </service>
 
         <service class="Shopware\Application\Context\Service\ContextRuleLoader" id="Shopware\Application\Context\Service\ContextRuleLoader">
-            <argument id="Shopware\Checkout\CartBridge\Cart\CartPersister" type="service"/>
+            <argument id="Shopware\Checkout\Cart\Cart\CartPersister" type="service"/>
             <argument id="Shopware\Checkout\Cart\Tax\TaxDetector" type="service"/>
             <argument id="Shopware\Checkout\Cart\Cart\CartCollector" type="service"/>
             <argument id="Shopware\Checkout\Cart\Cart\CartProcessor" type="service"/>
@@ -58,7 +70,7 @@
             <argument id="shopware.cache" type="service"/>
             <argument id="Shopware\Application\Context\Repository\ContextRuleRepository" type="service"/>
             <argument id="serializer" type="service"/>
-            <argument type="service" id="Shopware\Checkout\CartBridge\Service\StoreFrontCartService"/>
+            <argument id="Shopware\Checkout\Cart\StoreFrontCartService" type="service"/>
         </service>
     </services>
 </container>

@@ -15,7 +15,7 @@ use Shopware\Checkout\Cart\Exception\LineItemNotFoundException;
 use Shopware\Checkout\Cart\LineItem\LineItem;
 use Shopware\Checkout\Cart\Order\OrderPersisterInterface;
 use Shopware\Content\Product\Cart\ProductProcessor;
-use Shopware\Checkout\CartBridge\Service\StoreFrontCartService;
+use Shopware\Checkout\Cart\StoreFrontCartService;
 use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\Uuid;
 use Shopware\Framework\Api\Response\Type\JsonType;

@@ -23,7 +23,7 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Checkout\CartBridge\Cart;
+namespace Shopware\Checkout\Cart\Cart;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Checkout\Cart\Cart\CartPersisterInterface;

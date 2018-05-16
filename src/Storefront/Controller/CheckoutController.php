@@ -10,7 +10,7 @@ use Shopware\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Checkout\Order\OrderRepository;
 use Shopware\Checkout\Order\Struct\OrderBasicStruct;
 use Shopware\Checkout\Payment\Repository\PaymentMethodRepository;
-use Shopware\Checkout\CartBridge\Service\StoreFrontCartService;
+use Shopware\Checkout\Cart\StoreFrontCartService;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\Uuid;
@@ -31,7 +31,7 @@ use Symfony\Component\Serializer\Serializer;
 class CheckoutController extends StorefrontController
 {
     /**
-     * @var StoreFrontCartService
+     * @var \Shopware\Checkout\Cart\StoreFrontCartService
      */
     private $cartService;
 

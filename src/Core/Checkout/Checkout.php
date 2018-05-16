@@ -44,6 +44,5 @@ class Checkout extends Bundle
         $loader->load('payment.xml');
         $loader->load('shipping.xml');
         $loader->load('cart.xml');
-        $loader->load('cart_bridge.xml');
     }
 }

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\CartBridge\Modifier;
+namespace Shopware\Application\Context\Cart;
 
 use Shopware\Application\Context\Repository\ContextCartModifierRepository;
 use Shopware\Application\Context\Struct\ContextCartModifierBasicStruct;
@@ -13,7 +13,7 @@ use Shopware\Checkout\Cart\Price\AbsolutePriceCalculator;
 use Shopware\Checkout\Cart\Price\PercentagePriceCalculator;
 use Shopware\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
-use Shopware\Checkout\CartBridge\Exception\UnsupportedModifierTypeException;
+use Shopware\Application\Context\Exception\UnsupportedModifierTypeException;
 use Shopware\Application\Context\MatchContext\CalculatedLineItemMatchContext;
 use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;

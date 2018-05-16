@@ -109,7 +109,7 @@
         </service>
 
         <service class="Shopware\Storefront\Controller\Widgets\CheckoutController" public="true" id="Shopware\Storefront\Controller\Widgets\CheckoutController">
-            <argument type="service" id="Shopware\Checkout\CartBridge\Service\StoreFrontCartService" />
+            <argument type="service" id="Shopware\Checkout\Cart\StoreFrontCartService" />
         </service>
 
         <service class="Shopware\Storefront\Controller\ListingController" public="true" id="Shopware\Storefront\Controller\ListingController">
@@ -123,7 +123,7 @@
         <service class="Shopware\Storefront\Page\Account\CustomerPageLoader" id="Shopware\Storefront\Page\Account\CustomerPageLoader"/>
 
         <service class="Shopware\Storefront\Controller\CartController" id="Shopware\Storefront\Controller\CartController" public="true">
-            <argument id="Shopware\Checkout\CartBridge\Service\StoreFrontCartService" type="service"/>
+            <argument id="Shopware\Checkout\Cart\StoreFrontCartService" type="service"/>
         </service>
 
         <service class="Shopware\Storefront\Routing\StorefrontSubscriber" id="shopware.storefront.routing.storefront_subscriber">
@@ -133,7 +133,7 @@
         </service>
 
         <service class="Shopware\Storefront\Controller\CheckoutController" id="Shopware\Storefront\Controller\CheckoutController" public="true">
-            <argument type="service" id="Shopware\Checkout\CartBridge\Service\StoreFrontCartService"/>
+            <argument type="service" id="Shopware\Checkout\Cart\StoreFrontCartService"/>
             <argument type="service" id="Shopware\Checkout\Order\OrderRepository"/>
             <argument type="service" id="Shopware\Storefront\Page\Checkout\PaymentMethodLoader"/>
             <argument type="service" id="Shopware\Checkout\Payment\PaymentProcessor"/>

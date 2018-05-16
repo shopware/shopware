@@ -1,13 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\CartBridge\Modifier;
+namespace Shopware\Application\Context\Cart;
 
 use Shopware\Application\Context\Repository\ContextCartModifierRepository;
+use Shopware\Application\Context\Cart\ContextCartModifierProcessor;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Query\TermsQuery;
 use Shopware\Checkout\Cart\Cart\CartCollectorInterface;
 use Shopware\Checkout\Cart\Cart\Struct\Cart;
-use Shopware\Checkout\CartBridge\Modifier\Struct\ContextCartModifierFetchDefinition;
+use Shopware\Application\Context\Cart\Struct\ContextCartModifierFetchDefinition;
 use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 

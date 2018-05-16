@@ -39,7 +39,7 @@ use Shopware\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Checkout\Test\Cart\Common\Generator;
-use Shopware\Checkout\CartBridge\Cart\CartPersister;
+use Shopware\Checkout\Cart\Cart\CartPersister;
 use Shopware\Framework\Serializer\StructNormalizer;
 use Symfony\Component\Serializer\Encoder\ChainDecoder;
 use Symfony\Component\Serializer\Encoder\ChainEncoder;
@@ -149,7 +149,7 @@ class CartPersisterTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->once())->method('executeUpdate');
 
-        $persister = new CartPersister($connection, $this->serializer);
+        $persister = new \Shopware\Checkout\Cart\Cart\CartPersister($connection, $this->serializer);
 
         $calc = new CalculatedCart(
             new Cart('shopware', 'existing', new LineItemCollection(), new ErrorCollection()),

@@ -14,7 +14,7 @@ use Shopware\Checkout\Cart\LineItem\LineItem;
 use Shopware\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Checkout\Cart\Tax\Struct\PercentageTaxRule;
 use Shopware\Checkout\Test\Cart\Common\Generator;
-use Shopware\Checkout\CartBridge\Modifier\ContextCartModifierProcessor;
+use Shopware\Application\Context\Cart\ContextCartModifierProcessor;
 use Shopware\Content\Product\Cart\ProductProcessor;
 use Shopware\Application\Context\Rule\CalculatedCart\GoodsCountRule;
 use Shopware\Application\Context\Rule\CalculatedCart\GoodsPriceRule;

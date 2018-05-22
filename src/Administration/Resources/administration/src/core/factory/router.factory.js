@@ -195,24 +195,41 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
                 componentList[componentKey] = component;
             });
 
-            if (route.children && route.children.length) {
-                route.children = route.children.map((child) => {
-                    let component = child.component;
-
-                    // Just convert component names
-                    if (typeof component === 'string') {
-                        component = getViewComponent(component);
-                    }
-                    child.component = component;
-                    return child;
-                });
-            }
+            route = iterateChildRoutes(route);
 
             route.components = componentList;
         }
 
         if (typeof route.component === 'string') {
             route.component = getViewComponent(route.component);
+        }
+
+        return route;
+    }
+
+    /**
+     * Transforms the child routes component list into View components to work with the application.
+     *
+     * @param {Object} route
+     * @returns {Object}
+     */
+    function iterateChildRoutes(route) {
+        if (route.children && route.children.length) {
+            route.children = route.children.map((child) => {
+                let component = child.component;
+
+                // Just convert component names
+                if (typeof component === 'string') {
+                    component = getViewComponent(component);
+                }
+                child.component = component;
+
+                if (child.children) {
+                    child = iterateChildRoutes(child);
+                }
+
+                return child;
+            });
         }
 
         return route;

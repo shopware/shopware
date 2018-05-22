@@ -13,7 +13,7 @@ export default {
 
 /**
  * Registry for modules
- * @type {Map<any, any>}
+ * @type {Map<String, Object>}
  */
 const modules = new Map();
 
@@ -35,8 +35,8 @@ function getModuleRegistry() {
  * @returns {Boolean|Object} moduleDefinition - registered module definition
  */
 function registerModule(moduleId, module) {
-    const moduleRoutes = new Map();
     const type = module.type || 'plugin';
+    let moduleRoutes = new Map();
 
     // A module should always have an unique identifier cause overloading modules can cause unexpected side effects
     if (!moduleId) {
@@ -84,71 +84,26 @@ function registerModule(moduleId, module) {
 
     // Sanitize the modules routes
     Object.keys(module.routes).forEach((routeKey) => {
-        const route = module.routes[routeKey];
+        let route = module.routes[routeKey];
 
         // Rewrite name and path
         route.name = `${splitModuleId.join('.')}.${routeKey}`;
+
+        // Set the type of the route e.g. "core" or "plugin"
+        route.type = type;
 
         // Core routes don't need to be nested
         if (!route.coreRoute) {
             route.path = `/${splitModuleId.join('/')}/${route.path}`;
         }
-        route.type = type;
 
-        const componentList = {};
-        if (route.components && Object.keys(route.components).length) {
-            Object.keys(route.components).forEach((componentKey) => {
-                const component = route.components[componentKey];
+        // Generate the component list based on a route
+        route = createRouteComponentList(route, moduleId);
 
-                // Don't register a component without a name
-                if (!component.length || component.length <= 0) {
-                    warn(
-                        'ModuleFactory',
-                        `The route definition of module "${moduleId}" is not valid. 
-                        A route needs an assigned component name.`
-                    );
-                    return;
-                }
-
-                componentList[componentKey] = component;
-            });
-
-            route.components = componentList;
-        } else {
-            if (!route.component || !route.component.length) {
-                warn(
-                    'ModuleFactory',
-                    `The route definition of module "${moduleId}" is not valid. 
-                    A route needs an assigned component name.`
-                );
-                return;
-            }
-
-            route.components = {
-                default: route.component
-            };
-
-            // Remove the component cause we remapped it to the components object of the route object
-            delete route.component;
-        }
-
-        if (route.children && Object.keys(route.children).length) {
-            route.children = Object.keys(route.children).map((key) => {
-                const child = route.children[key];
-                if (child.path && child.path.length === 0) {
-                    child.path = '';
-                } else {
-                    child.path = `${route.path}/${child.path}`;
-                }
-
-                child.name = `${splitModuleId.join('.')}.${routeKey}.${key}`;
-                child.isChildren = true;
-
-                // Register the child in the module routes
-                moduleRoutes.set(child.name, child);
-
-                return child;
-            });
+        // Support for children routes
+        if (Object.prototype.hasOwnProperty.call(route, 'children') && Object.keys(route.children).length) {
+            route = iterateChildRoutes(route, splitModuleId, routeKey);
+            moduleRoutes = registerChildRoutes(route, moduleRoutes);
         }
 
         // Alias support
@@ -186,6 +141,109 @@ function registerModule(moduleId, module) {
     modules.set(moduleId, moduleDefinition);
 
     return moduleDefinition;
+}
+
+/**
+ * Registers the route children in the module routes map recursively.
+ *
+ * @param {Object} routeDefinition
+ * @param {Map<String, Object>} moduleRoutes
+ * @returns {Map}
+ */
+function registerChildRoutes(routeDefinition, moduleRoutes) {
+    Object.keys(routeDefinition.children).map((key) => {
+        const child = routeDefinition.children[key];
+
+        if (Object.prototype.hasOwnProperty.call(child, 'children') && Object.keys(child.children).length) {
+            moduleRoutes = registerChildRoutes(child, moduleRoutes);
+        }
+        moduleRoutes.set(child.name, child);
+    });
+
+    return moduleRoutes;
+}
+
+/**
+ * Recursively iterates over the route children definitions and converts the format to the vue-router route definition.
+ *
+ * @param {Object} routeDefinition
+ * @param {Array} moduleName
+ * @param {String} parentKey
+ * @returns {Object}
+ */
+function iterateChildRoutes(routeDefinition, moduleName, parentKey) {
+    routeDefinition.children = Object.keys(routeDefinition.children).map((key) => {
+        let child = routeDefinition.children[key];
+
+        if (child.path && child.path.length === 0) {
+            child.path = '';
+        } else {
+            child.path = `${routeDefinition.path}/${child.path}`;
+        }
+
+        child.name = `${moduleName.join('.')}.${parentKey}.${key}`;
+        child.isChildren = true;
+
+        if (Object.prototype.hasOwnProperty.call(child, 'children') && Object.keys(child.children).length) {
+            child = iterateChildRoutes(child, moduleName, `${parentKey}.${key}`);
+        }
+
+        return child;
+    });
+
+    return routeDefinition;
+}
+
+/**
+ * Generates the route component list e.g. adds supports for multiple components per route as well as validating
+ * the developer input.
+ *
+ * @param {Object} route
+ * @param {String} moduleId
+ * @returns {void|Object}
+ */
+function createRouteComponentList(route, moduleId) {
+    if (route.components && Object.keys(route.components).length) {
+        const componentList = {};
+
+        Object.keys(route.components).forEach((componentKey) => {
+            const component = route.components[componentKey];
+
+            // Don't register a component without a name
+            if (!component.length || component.length <= 0) {
+                warn(
+                    'ModuleFactory',
+                    `The route definition of module "${moduleId}" is not valid. 
+                        A route needs an assigned component name.`
+                );
+                return;
+            }
+
+            componentList[componentKey] = component;
+        });
+
+        route.components = componentList;
+
+        return route;
+    }
+
+    if (!route.component || !route.component.length) {
+        warn(
+            'ModuleFactory',
+            `The route definition of module "${moduleId}" is not valid. 
+                A route needs an assigned component name.`
+        );
+        return;
+    }
+
+    route.components = {
+        default: route.component
+    };
+
+    // Remove the component cause we remapped it to the components object of the route object
+    delete route.component;
+
+    return route;
 }
 
 /**

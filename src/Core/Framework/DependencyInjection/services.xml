@@ -16,14 +16,14 @@
     <services>
         <service id="templating.loader.wrapped" alias="templating.loader" />
 
-        <!-- database / doctrine -->
+        <!-- Database / Doctrine -->
         <service id="Doctrine\DBAL\Connection" alias="doctrine.dbal.default_connection" public="true" />
 
         <service id="PDO" class="PDO" public="true" >
             <factory class="Shopware\Kernel" method="getConnection" />
         </service>
 
-        <!-- plugins -->
+        <!-- Plugins -->
         <service class="Shopware\Framework\Plugin\PluginCollection" id="Shopware\Framework\Plugin\PluginCollection" public="true">
             <factory service="kernel" method="getPlugins" />
         </service>
@@ -35,6 +35,10 @@
             <argument>%shopware.slug.config%</argument>
         </service>
 
+        <!--Event Listener -->
+        <service class="Shopware\Framework\EventListener\ResponseExceptionListener" id="Shopware\Framework\EventListener\ResponseExceptionListener">
+            <tag name="kernel.event_listener" event="kernel.exception" method="onKernelException"/>
+        </service>
 
         <!-- Pluginsystem -->
         <service class="Shopware\Framework\Plugin\PluginManager" id="Shopware\Framework\Plugin\PluginManager">

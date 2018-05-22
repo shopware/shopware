@@ -8,7 +8,7 @@ State.register('locale', {
 
     state() {
         return {
-            locale: 'en-UK'
+            locale: 'en-GB'
         };
     },
 

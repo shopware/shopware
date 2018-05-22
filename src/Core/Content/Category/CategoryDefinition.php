@@ -7,9 +7,11 @@ use Shopware\Content\Category\Collection\CategoryBasicCollection;
 use Shopware\Content\Category\Collection\CategoryDetailCollection;
 use Shopware\Content\Category\Event\CategoryDeletedEvent;
 use Shopware\Content\Category\Event\CategoryWrittenEvent;
-
 use Shopware\Content\Category\Struct\CategoryBasicStruct;
 use Shopware\Content\Category\Struct\CategoryDetailStruct;
+use Shopware\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
+use Shopware\Content\Product\Aggregate\ProductSeoCategory\ProductSeoCategoryDefinition;
+use Shopware\Content\Product\Aggregate\ProductStream\ProductStreamDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\BoolField;
@@ -35,11 +37,6 @@ use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Framework\ORM\Write\Flag\WriteOnly;
-
-use Shopware\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
-
-use Shopware\Content\Product\Aggregate\ProductSeoCategory\ProductSeoCategoryDefinition;
-use Shopware\Content\Product\Aggregate\ProductStream\ProductStreamDefinition;
 
 class CategoryDefinition extends EntityDefinition
 {

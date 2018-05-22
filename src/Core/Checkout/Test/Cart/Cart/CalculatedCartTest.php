@@ -25,15 +25,12 @@
 namespace Shopware\Checkout\Test\Cart\Cart;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Checkout\Test\Cart\Common\TestLineItem;
-
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Checkout\Cart\Cart\Struct\Cart;
 use Shopware\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Checkout\Cart\LineItem\CalculatedLineItem;
 use Shopware\Checkout\Cart\LineItem\CalculatedLineItemCollection;
-
 use Shopware\Checkout\Cart\LineItem\GoodsInterface;
 use Shopware\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Checkout\Cart\LineItem\LineItemInterface;
@@ -43,6 +40,7 @@ use Shopware\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Checkout\Rule\Specification\Rule;
+use Shopware\Checkout\Test\Cart\Common\TestLineItem;
 
 class CalculatedCartTest extends TestCase
 {
@@ -146,8 +144,6 @@ class NestedLineItem extends CalculatedLineItem implements NestedInterface
         return $this->children;
     }
 }
-
-
 
 class ConfiguredGoods extends CalculatedLineItem implements GoodsInterface
 {

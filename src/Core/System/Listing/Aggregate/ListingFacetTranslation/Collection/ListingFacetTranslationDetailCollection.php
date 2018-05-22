@@ -3,9 +3,8 @@
 namespace Shopware\System\Listing\Aggregate\ListingFacetTranslation\Collection;
 
 use Shopware\Application\Language\Collection\LanguageBasicCollection;
-
-use Shopware\System\Listing\Collection\ListingFacetBasicCollection;
 use Shopware\System\Listing\Aggregate\ListingFacetTranslation\Struct\ListingFacetTranslationDetailStruct;
+use Shopware\System\Listing\Collection\ListingFacetBasicCollection;
 
 class ListingFacetTranslationDetailCollection extends ListingFacetTranslationBasicCollection
 {

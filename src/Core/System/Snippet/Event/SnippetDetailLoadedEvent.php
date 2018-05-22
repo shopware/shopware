@@ -3,10 +3,10 @@
 namespace Shopware\System\Snippet\Event;
 
 use Shopware\Application\Application\Event\ApplicationBasicLoadedEvent;
-use Shopware\System\Snippet\Collection\SnippetDetailCollection;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\System\Snippet\Collection\SnippetDetailCollection;
 
 class SnippetDetailLoadedEvent extends NestedEvent
 {

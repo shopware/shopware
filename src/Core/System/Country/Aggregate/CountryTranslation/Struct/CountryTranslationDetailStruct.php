@@ -3,7 +3,6 @@
 namespace Shopware\System\Country\Aggregate\CountryTranslation\Struct;
 
 use Shopware\Application\Language\Struct\LanguageBasicStruct;
-
 use Shopware\System\Country\Struct\CountryBasicStruct;
 
 class CountryTranslationDetailStruct extends CountryTranslationBasicStruct

@@ -2,8 +2,8 @@
 
 namespace Shopware\Content\Product\Event;
 
-use Shopware\Framework\ORM\Write\WrittenEvent;
 use Shopware\Content\Product\ProductDefinition;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 
 class ProductWrittenEvent extends WrittenEvent
 {

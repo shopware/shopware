@@ -2,9 +2,9 @@
 
 namespace Shopware\System\Currency\Event;
 
-use Shopware\System\Currency\Collection\CurrencyBasicCollection;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
+use Shopware\System\Currency\Collection\CurrencyBasicCollection;
 
 class CurrencyBasicLoadedEvent extends NestedEvent
 {

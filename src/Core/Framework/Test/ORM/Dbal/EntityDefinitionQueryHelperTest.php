@@ -3,6 +3,8 @@
 namespace Shopware\Framework\Test\ORM\Dbal;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Defaults;
 use Shopware\Framework\ORM\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Framework\ORM\Dbal\FieldAccessorBuilder\FieldAccessorBuilderRegistry;
 use Shopware\Framework\ORM\Dbal\FieldAccessorBuilder\JsonObjectFieldAccessorBuilder;
@@ -11,8 +13,6 @@ use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\Field\JsonObjectField;
 use Shopware\Framework\ORM\Field\TenantIdField;
 use Shopware\Framework\ORM\FieldCollection;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Defaults;
 
 class EntityDefinitionQueryHelperTest extends TestCase
 {

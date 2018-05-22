@@ -2,8 +2,8 @@
 
 namespace Shopware\Content\Catalog\Event;
 
-use Shopware\Content\Catalog\Collection\CatalogBasicCollection;
 use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Content\Catalog\Collection\CatalogBasicCollection;
 use Shopware\Framework\Event\NestedEvent;
 
 class CatalogBasicLoadedEvent extends NestedEvent

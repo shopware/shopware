@@ -3,14 +3,7 @@
 namespace Shopware\System\Currency;
 
 use Shopware\Application\Application\ApplicationDefinition;
-use Shopware\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationDefinition;
-use Shopware\System\Currency\Collection\CurrencyBasicCollection;
-use Shopware\System\Currency\Collection\CurrencyDetailCollection;
-use Shopware\System\Currency\Event\CurrencyDeletedEvent;
-use Shopware\System\Currency\Event\CurrencyWrittenEvent;
-
-use Shopware\System\Currency\Struct\CurrencyBasicStruct;
-use Shopware\System\Currency\Struct\CurrencyDetailStruct;
+use Shopware\Checkout\Order\OrderDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\BoolField;
@@ -31,7 +24,13 @@ use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Framework\ORM\Write\Flag\WriteOnly;
-use Shopware\Checkout\Order\OrderDefinition;
+use Shopware\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationDefinition;
+use Shopware\System\Currency\Collection\CurrencyBasicCollection;
+use Shopware\System\Currency\Collection\CurrencyDetailCollection;
+use Shopware\System\Currency\Event\CurrencyDeletedEvent;
+use Shopware\System\Currency\Event\CurrencyWrittenEvent;
+use Shopware\System\Currency\Struct\CurrencyBasicStruct;
+use Shopware\System\Currency\Struct\CurrencyDetailStruct;
 
 class CurrencyDefinition extends EntityDefinition
 {

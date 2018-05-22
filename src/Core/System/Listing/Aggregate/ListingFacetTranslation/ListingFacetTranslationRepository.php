@@ -2,6 +2,7 @@
 
 namespace Shopware\System\Listing\Aggregate\ListingFacetTranslation;
 
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Framework\ORM\RepositoryInterface;
 use Shopware\Framework\ORM\Search\AggregatorResult;
@@ -9,19 +10,18 @@ use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
 use Shopware\Framework\ORM\Search\EntitySearcherInterface;
 use Shopware\Framework\ORM\Search\IdSearchResult;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
 use Shopware\System\Listing\Aggregate\ListingFacetTranslation\Collection\ListingFacetTranslationBasicCollection;
 use Shopware\System\Listing\Aggregate\ListingFacetTranslation\Collection\ListingFacetTranslationDetailCollection;
-use Shopware\System\Listing\Definition\ListingFacetTranslationDefinition;
 use Shopware\System\Listing\Aggregate\ListingFacetTranslation\Event\ListingFacetTranslationAggregationResultLoadedEvent;
 use Shopware\System\Listing\Aggregate\ListingFacetTranslation\Event\ListingFacetTranslationBasicLoadedEvent;
 use Shopware\System\Listing\Aggregate\ListingFacetTranslation\Event\ListingFacetTranslationDetailLoadedEvent;
 use Shopware\System\Listing\Aggregate\ListingFacetTranslation\Event\ListingFacetTranslationIdSearchResultLoadedEvent;
 use Shopware\System\Listing\Aggregate\ListingFacetTranslation\Event\ListingFacetTranslationSearchResultLoadedEvent;
 use Shopware\System\Listing\Aggregate\ListingFacetTranslation\Struct\ListingFacetTranslationSearchResult;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
+use Shopware\System\Listing\Definition\ListingFacetTranslationDefinition;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ListingFacetTranslationRepository implements RepositoryInterface

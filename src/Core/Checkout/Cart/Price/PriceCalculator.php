@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace Shopware\Checkout\Cart\Price;
 
+use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
 use Shopware\Checkout\Cart\Price\Struct\PriceDefinition;
@@ -32,7 +33,6 @@ use Shopware\Checkout\Cart\Price\Struct\PriceDefinitionCollection;
 use Shopware\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Checkout\Cart\Tax\TaxDetector;
-use Shopware\Application\Context\Struct\StorefrontContext;
 
 class PriceCalculator
 {

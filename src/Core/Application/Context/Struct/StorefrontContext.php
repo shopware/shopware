@@ -25,18 +25,18 @@
 namespace Shopware\Application\Context\Struct;
 
 use Shopware\Application\Application\Struct\ApplicationBasicStruct;
-use Shopware\System\Currency\Struct\CurrencyBasicStruct;
-use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
-use Shopware\Checkout\Customer\Aggregate\CustomerGroup\Struct\CustomerGroupBasicStruct;
+use Shopware\Application\Context\Exception\ContextRulesLockedException;
 use Shopware\Application\Language\Struct\LanguageBasicStruct;
-use Shopware\Checkout\Payment\Struct\PaymentMethodBasicStruct;
-use Shopware\Checkout\Shipping\Struct\ShippingMethodBasicStruct;
-use Shopware\System\Tax\Collection\TaxBasicCollection;
 use Shopware\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Checkout\Cart\Price\Struct\CartPrice;
-use Shopware\Application\Context\Exception\ContextRulesLockedException;
+use Shopware\Checkout\Customer\Aggregate\CustomerGroup\Struct\CustomerGroupBasicStruct;
+use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
+use Shopware\Checkout\Payment\Struct\PaymentMethodBasicStruct;
+use Shopware\Checkout\Shipping\Struct\ShippingMethodBasicStruct;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\Struct;
+use Shopware\System\Currency\Struct\CurrencyBasicStruct;
+use Shopware\System\Tax\Collection\TaxBasicCollection;
 
 /**
  * @category  Shopware

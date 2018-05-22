@@ -3,7 +3,6 @@
 namespace Shopware\Content\Product\Aggregate\ProductSearchKeyword\Struct;
 
 use Shopware\Application\Language\Struct\LanguageBasicStruct;
-
 use Shopware\Content\Product\Struct\ProductBasicStruct;
 
 class ProductSearchKeywordDetailStruct extends ProductSearchKeywordBasicStruct

@@ -2,12 +2,12 @@
 
 namespace Shopware\System\Config\Aggregate\ConfigFormTranslation\Event;
 
-use Shopware\System\Config\Aggregate\ConfigFormTranslation\Collection\ConfigFormTranslationDetailCollection;
-use Shopware\System\Config\Event\ConfigFormBasicLoadedEvent;
-use Shopware\System\Locale\Event\LocaleBasicLoadedEvent;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\System\Config\Aggregate\ConfigFormTranslation\Collection\ConfigFormTranslationDetailCollection;
+use Shopware\System\Config\Event\ConfigFormBasicLoadedEvent;
+use Shopware\System\Locale\Event\LocaleBasicLoadedEvent;
 
 class ConfigFormTranslationDetailLoadedEvent extends NestedEvent
 {

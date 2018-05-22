@@ -2,8 +2,8 @@
 
 namespace Shopware\Framework\ORM\Dbal\Indexing\Indexer\Analyzer;
 
-use Shopware\Content\Product\Struct\ProductBasicStruct;
 use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Content\Product\Struct\ProductBasicStruct;
 
 class SearchAnalyzerRegistry
 {

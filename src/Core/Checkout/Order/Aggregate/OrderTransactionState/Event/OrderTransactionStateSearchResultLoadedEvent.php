@@ -2,8 +2,8 @@
 
 namespace Shopware\Checkout\Order\Aggregate\OrderTransactionState\Event;
 
-use Shopware\Checkout\Order\Aggregate\OrderTransactionState\Struct\OrderTransactionStateSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Checkout\Order\Aggregate\OrderTransactionState\Struct\OrderTransactionStateSearchResult;
 use Shopware\Framework\Event\NestedEvent;
 
 class OrderTransactionStateSearchResultLoadedEvent extends NestedEvent

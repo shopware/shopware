@@ -3,9 +3,8 @@
 namespace Shopware\System\Listing\Aggregate\ListingSortingTranslation\Collection;
 
 use Shopware\Application\Language\Collection\LanguageBasicCollection;
-
-use Shopware\System\Listing\Collection\ListingSortingBasicCollection;
 use Shopware\System\Listing\Aggregate\ListingSortingTranslation\Struct\ListingSortingTranslationDetailStruct;
+use Shopware\System\Listing\Collection\ListingSortingBasicCollection;
 
 class ListingSortingTranslationDetailCollection extends ListingSortingTranslationBasicCollection
 {

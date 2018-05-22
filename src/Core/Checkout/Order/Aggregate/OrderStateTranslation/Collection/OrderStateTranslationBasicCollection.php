@@ -2,8 +2,8 @@
 
 namespace Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Collection;
 
-use Shopware\Framework\ORM\EntityCollection;
 use Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Struct\OrderStateTranslationBasicStruct;
+use Shopware\Framework\ORM\EntityCollection;
 
 class OrderStateTranslationBasicCollection extends EntityCollection
 {

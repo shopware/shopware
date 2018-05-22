@@ -2,8 +2,8 @@
 
 namespace Shopware\Content\Product\Aggregate\ProductService\Event;
 
-use Shopware\Content\Product\Aggregate\ProductService\Struct\ProductServiceSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Content\Product\Aggregate\ProductService\Struct\ProductServiceSearchResult;
 use Shopware\Framework\Event\NestedEvent;
 
 class ProductServiceSearchResultLoadedEvent extends NestedEvent

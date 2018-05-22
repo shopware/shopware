@@ -2,6 +2,7 @@
 
 namespace Shopware\System\Locale;
 
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Framework\ORM\RepositoryInterface;
 use Shopware\Framework\ORM\Search\AggregatorResult;
@@ -9,19 +10,17 @@ use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
 use Shopware\Framework\ORM\Search\EntitySearcherInterface;
 use Shopware\Framework\ORM\Search\IdSearchResult;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
 use Shopware\System\Locale\Collection\LocaleBasicCollection;
 use Shopware\System\Locale\Collection\LocaleDetailCollection;
-
 use Shopware\System\Locale\Event\LocaleAggregationResultLoadedEvent;
 use Shopware\System\Locale\Event\LocaleBasicLoadedEvent;
 use Shopware\System\Locale\Event\LocaleDetailLoadedEvent;
 use Shopware\System\Locale\Event\LocaleIdSearchResultLoadedEvent;
 use Shopware\System\Locale\Event\LocaleSearchResultLoadedEvent;
 use Shopware\System\Locale\Struct\LocaleSearchResult;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class LocaleRepository implements RepositoryInterface

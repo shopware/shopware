@@ -3,10 +3,10 @@
 namespace Shopware\Checkout\Order\Aggregate\OrderDelivery\Collection;
 
 use Shopware\Checkout\Order\Aggregate\OrderAddress\Collection\OrderAddressBasicCollection;
-use Shopware\Checkout\Order\Aggregate\OrderState\Collection\OrderStateBasicCollection;
-use Shopware\Framework\ORM\EntityCollection;
 use Shopware\Checkout\Order\Aggregate\OrderDelivery\Struct\OrderDeliveryBasicStruct;
+use Shopware\Checkout\Order\Aggregate\OrderState\Collection\OrderStateBasicCollection;
 use Shopware\Checkout\Shipping\Collection\ShippingMethodBasicCollection;
+use Shopware\Framework\ORM\EntityCollection;
 
 class OrderDeliveryBasicCollection extends EntityCollection
 {

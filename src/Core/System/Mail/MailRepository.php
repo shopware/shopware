@@ -2,6 +2,7 @@
 
 namespace Shopware\System\Mail;
 
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Framework\ORM\RepositoryInterface;
 use Shopware\Framework\ORM\Search\AggregatorResult;
@@ -9,19 +10,17 @@ use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
 use Shopware\Framework\ORM\Search\EntitySearcherInterface;
 use Shopware\Framework\ORM\Search\IdSearchResult;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
 use Shopware\System\Mail\Collection\MailBasicCollection;
 use Shopware\System\Mail\Collection\MailDetailCollection;
-
 use Shopware\System\Mail\Event\MailAggregationResultLoadedEvent;
 use Shopware\System\Mail\Event\MailBasicLoadedEvent;
 use Shopware\System\Mail\Event\MailDetailLoadedEvent;
 use Shopware\System\Mail\Event\MailIdSearchResultLoadedEvent;
 use Shopware\System\Mail\Event\MailSearchResultLoadedEvent;
 use Shopware\System\Mail\Struct\MailSearchResult;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class MailRepository implements RepositoryInterface

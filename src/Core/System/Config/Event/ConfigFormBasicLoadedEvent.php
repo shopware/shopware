@@ -2,9 +2,9 @@
 
 namespace Shopware\System\Config\Event;
 
-use Shopware\System\Config\Collection\ConfigFormBasicCollection;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
+use Shopware\System\Config\Collection\ConfigFormBasicCollection;
 
 class ConfigFormBasicLoadedEvent extends NestedEvent
 {

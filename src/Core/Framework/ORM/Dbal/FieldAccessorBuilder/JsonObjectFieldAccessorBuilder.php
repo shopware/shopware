@@ -2,10 +2,10 @@
 
 namespace Shopware\Framework\ORM\Dbal\FieldAccessorBuilder;
 
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\ORM\Field\Field;
 use Shopware\Framework\ORM\Field\JsonObjectField;
 use Shopware\Framework\ORM\Write\FieldAware\StorageAware;
-use Shopware\Application\Context\Struct\ApplicationContext;
 
 class JsonObjectFieldAccessorBuilder implements FieldAccessorBuilderInterface
 {

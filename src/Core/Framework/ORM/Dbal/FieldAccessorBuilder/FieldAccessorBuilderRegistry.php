@@ -2,8 +2,8 @@
 
 namespace Shopware\Framework\ORM\Dbal\FieldAccessorBuilder;
 
-use Shopware\Framework\ORM\Field\Field;
 use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\ORM\Field\Field;
 
 class FieldAccessorBuilderRegistry
 {

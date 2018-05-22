@@ -2,9 +2,9 @@
 
 namespace Shopware\System\Log\Event\Log;
 
-use Shopware\System\Log\Struct\LogSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
+use Shopware\System\Log\Struct\LogSearchResult;
 
 class LogSearchResultLoadedEvent extends NestedEvent
 {

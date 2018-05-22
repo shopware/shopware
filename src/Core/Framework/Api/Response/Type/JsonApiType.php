@@ -2,14 +2,14 @@
 
 namespace Shopware\Framework\Api\Response\Type;
 
-use Shopware\Framework\ORM\Entity;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\Search\SearchResultInterface;
-use Shopware\Framework\ORM\Write\FieldException\InvalidFieldException;
 use Shopware\Framework\Api\Context\RestContext;
 use Shopware\Framework\Api\Exception\WriteStackHttpException;
 use Shopware\Framework\Api\Response\JsonApiResponse;
 use Shopware\Framework\Api\Response\ResponseTypeInterface;
+use Shopware\Framework\ORM\Entity;
+use Shopware\Framework\ORM\EntityDefinition;
+use Shopware\Framework\ORM\Search\SearchResultInterface;
+use Shopware\Framework\ORM\Write\FieldException\InvalidFieldException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;

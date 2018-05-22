@@ -24,7 +24,6 @@
 
 namespace Shopware\Checkout\Rule\Specification;
 
-
 use Shopware\Checkout\Rule\Specification\Scope\RuleScope;
 use Shopware\Framework\Struct\Struct;
 

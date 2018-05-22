@@ -2,9 +2,9 @@
 
 namespace Shopware\System\Listing\Aggregate\ListingSortingTranslation\Event;
 
-use Shopware\System\Listing\Aggregate\ListingSortingTranslation\Struct\ListingSortingTranslationSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
+use Shopware\System\Listing\Aggregate\ListingSortingTranslation\Struct\ListingSortingTranslationSearchResult;
 
 class ListingSortingTranslationSearchResultLoadedEvent extends NestedEvent
 {

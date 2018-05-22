@@ -2,6 +2,7 @@
 
 namespace Shopware\System\Mail;
 
+use Shopware\Checkout\Order\Aggregate\OrderState\OrderStateDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\BoolField;
@@ -24,15 +25,13 @@ use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\System\Mail\Aggregate\MailAttachment\MailAttachmentDefinition;
+use Shopware\System\Mail\Aggregate\MailTranslation\MailTranslationDefinition;
 use Shopware\System\Mail\Collection\MailBasicCollection;
 use Shopware\System\Mail\Collection\MailDetailCollection;
-use Shopware\System\Mail\Aggregate\MailTranslation\MailTranslationDefinition;
 use Shopware\System\Mail\Event\MailDeletedEvent;
 use Shopware\System\Mail\Event\MailWrittenEvent;
-
 use Shopware\System\Mail\Struct\MailBasicStruct;
 use Shopware\System\Mail\Struct\MailDetailStruct;
-use Shopware\Checkout\Order\Aggregate\OrderState\OrderStateDefinition;
 
 class MailDefinition extends EntityDefinition
 {

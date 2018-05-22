@@ -2,25 +2,23 @@
 
 namespace Shopware\System\Country\Aggregate\CountryTranslation;
 
-use Shopware\System\Country\Aggregate\CountryTranslation\Collection\CountryTranslationBasicCollection;
-use Shopware\System\Country\Aggregate\CountryTranslation\Collection\CountryTranslationDetailCollection;
-use Shopware\System\Country\Aggregate\CountryTranslation\Event\CountryTranslationDeletedEvent;
-use Shopware\System\Country\Aggregate\CountryTranslation\Event\CountryTranslationWrittenEvent;
-use Shopware\System\Country\CountryDefinition;
-
-use Shopware\System\Country\Aggregate\CountryTranslation\Struct\CountryTranslationBasicStruct;
-use Shopware\System\Country\Aggregate\CountryTranslation\Struct\CountryTranslationDetailStruct;
+use Shopware\Application\Language\LanguageDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\FkField;
 use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Framework\ORM\Field\ReferenceVersionField;
 use Shopware\Framework\ORM\Field\StringField;
-
 use Shopware\Framework\ORM\FieldCollection;
 use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\Application\Language\LanguageDefinition;
+use Shopware\System\Country\Aggregate\CountryTranslation\Collection\CountryTranslationBasicCollection;
+use Shopware\System\Country\Aggregate\CountryTranslation\Collection\CountryTranslationDetailCollection;
+use Shopware\System\Country\Aggregate\CountryTranslation\Event\CountryTranslationDeletedEvent;
+use Shopware\System\Country\Aggregate\CountryTranslation\Event\CountryTranslationWrittenEvent;
+use Shopware\System\Country\Aggregate\CountryTranslation\Struct\CountryTranslationBasicStruct;
+use Shopware\System\Country\Aggregate\CountryTranslation\Struct\CountryTranslationDetailStruct;
+use Shopware\System\Country\CountryDefinition;
 
 class CountryTranslationDefinition extends EntityDefinition
 {

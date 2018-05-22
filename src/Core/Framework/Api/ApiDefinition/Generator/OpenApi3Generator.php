@@ -2,6 +2,7 @@
 
 namespace Shopware\Framework\Api\ApiDefinition\Generator;
 
+use Shopware\Framework\Api\ApiDefinition\ApiDefinitionGeneratorInterface;
 use Shopware\Framework\ORM\DefinitionRegistry;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\Field\AssociationInterface;
@@ -25,7 +26,6 @@ use Shopware\Framework\ORM\Field\TranslatedField;
 use Shopware\Framework\ORM\Field\VersionField;
 use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Framework\Struct\Uuid;
-use Shopware\Framework\Api\ApiDefinition\ApiDefinitionGeneratorInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 class OpenApi3Generator implements ApiDefinitionGeneratorInterface
@@ -94,7 +94,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 continue;
             }
 
-            if (0 === strpos($definition::getEntityName(), 'version')) {
+            if (strpos($definition::getEntityName(), 'version') === 0) {
                 continue;
             }
 

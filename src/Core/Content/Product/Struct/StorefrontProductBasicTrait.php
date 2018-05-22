@@ -2,7 +2,6 @@
 
 namespace Shopware\Content\Product\Struct;
 
-
 use Shopware\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
 

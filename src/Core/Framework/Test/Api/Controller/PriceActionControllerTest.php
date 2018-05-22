@@ -2,16 +2,16 @@
 
 namespace Shopware\Framework\Test\Api\Controller;
 
-use Shopware\System\Tax\TaxRepository;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Checkout\Cart\Tax\Struct\PercentageTaxRule;
 use Shopware\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Struct\Uuid;
-use Shopware\PlatformRequest;
 use Shopware\Framework\Test\Api\ApiTestCase;
+use Shopware\PlatformRequest;
+use Shopware\System\Tax\TaxRepository;
 use Symfony\Component\Serializer\Serializer;
 
 class PriceActionControllerTest extends ApiTestCase

@@ -25,14 +25,14 @@ declare(strict_types=1);
 
 namespace Shopware\Content\Product\Cart;
 
-use Shopware\Content\Product\Collection\ProductBasicCollection;
-use Shopware\Content\Product\Aggregate\ProductService\Collection\ProductServiceBasicCollection;
-use Shopware\Content\Product\Aggregate\ProductService\ProductServiceRepository;
+use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Checkout\Cart\Cart\CartCollectorInterface;
 use Shopware\Checkout\Cart\Cart\Struct\Cart;
+use Shopware\Content\Product\Aggregate\ProductService\Collection\ProductServiceBasicCollection;
+use Shopware\Content\Product\Aggregate\ProductService\ProductServiceRepository;
 use Shopware\Content\Product\Cart\Struct\ProductFetchDefinition;
 use Shopware\Content\Product\Cart\Struct\ProductServiceFetchDefinition;
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Content\Product\Collection\ProductBasicCollection;
 use Shopware\Framework\Struct\StructCollection;
 
 class ProductCartCollector implements CartCollectorInterface

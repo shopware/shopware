@@ -24,8 +24,8 @@
 
 namespace Shopware\Checkout\Rule\Specification\Context;
 
-use Shopware\Checkout\Rule\Specification\Scope\RuleScope;
 use Shopware\Checkout\Rule\Specification\Match;
+use Shopware\Checkout\Rule\Specification\Scope\RuleScope;
 
 class CustomerGroupRule extends \Shopware\Checkout\Rule\Specification\Rule
 {

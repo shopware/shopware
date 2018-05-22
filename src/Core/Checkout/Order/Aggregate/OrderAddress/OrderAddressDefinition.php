@@ -2,10 +2,14 @@
 
 namespace Shopware\Checkout\Order\Aggregate\OrderAddress;
 
-use Shopware\Checkout\Order\OrderDefinition;
+use Shopware\Checkout\Order\Aggregate\OrderAddress\Collection\OrderAddressBasicCollection;
+use Shopware\Checkout\Order\Aggregate\OrderAddress\Collection\OrderAddressDetailCollection;
+use Shopware\Checkout\Order\Aggregate\OrderAddress\Event\OrderAddressDeletedEvent;
+use Shopware\Checkout\Order\Aggregate\OrderAddress\Event\OrderAddressWrittenEvent;
+use Shopware\Checkout\Order\Aggregate\OrderAddress\Struct\OrderAddressBasicStruct;
+use Shopware\Checkout\Order\Aggregate\OrderAddress\Struct\OrderAddressDetailStruct;
 use Shopware\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
-
-
+use Shopware\Checkout\Order\OrderDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\DateField;
@@ -22,13 +26,6 @@ use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Framework\ORM\Write\Flag\SearchRanking;
-use Shopware\Checkout\Order\Aggregate\OrderAddress\Collection\OrderAddressBasicCollection;
-use Shopware\Checkout\Order\Aggregate\OrderAddress\Collection\OrderAddressDetailCollection;
-use Shopware\Checkout\Order\Aggregate\OrderAddress\Event\OrderAddressDeletedEvent;
-use Shopware\Checkout\Order\Aggregate\OrderAddress\Event\OrderAddressWrittenEvent;
-
-use Shopware\Checkout\Order\Aggregate\OrderAddress\Struct\OrderAddressBasicStruct;
-use Shopware\Checkout\Order\Aggregate\OrderAddress\Struct\OrderAddressDetailStruct;
 
 class OrderAddressDefinition extends EntityDefinition
 {

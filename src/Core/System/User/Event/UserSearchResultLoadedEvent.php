@@ -2,9 +2,9 @@
 
 namespace Shopware\System\User\Event;
 
-use Shopware\System\User\Struct\UserSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
+use Shopware\System\User\Struct\UserSearchResult;
 
 class UserSearchResultLoadedEvent extends NestedEvent
 {

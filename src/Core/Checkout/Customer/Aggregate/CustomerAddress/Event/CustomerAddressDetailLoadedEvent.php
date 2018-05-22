@@ -2,13 +2,13 @@
 
 namespace Shopware\Checkout\Customer\Aggregate\CustomerAddress\Event;
 
-use Shopware\System\Country\Event\CountryBasicLoadedEvent;
-use Shopware\System\Country\Aggregate\CountryState\Event\CountryStateBasicLoadedEvent;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Collection\CustomerAddressDetailCollection;
 use Shopware\Checkout\Customer\Event\CustomerBasicLoadedEvent;
-use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\System\Country\Aggregate\CountryState\Event\CountryStateBasicLoadedEvent;
+use Shopware\System\Country\Event\CountryBasicLoadedEvent;
 
 class CustomerAddressDetailLoadedEvent extends NestedEvent
 {

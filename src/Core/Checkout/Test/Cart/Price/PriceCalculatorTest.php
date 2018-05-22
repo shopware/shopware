@@ -25,6 +25,7 @@
 namespace Shopware\Checkout\Test\Cart\Price;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Checkout\Cart\Price\GrossPriceCalculator;
 use Shopware\Checkout\Cart\Price\NetPriceCalculator;
 use Shopware\Checkout\Cart\Price\PriceCalculator;
@@ -39,7 +40,6 @@ use Shopware\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Checkout\Cart\Tax\TaxDetector;
 use Shopware\Checkout\Cart\Tax\TaxRuleCalculator;
 use Shopware\Checkout\Test\Cart\Common\Generator;
-use Shopware\Application\Context\Struct\StorefrontContext;
 
 /**
  * Class PriceCalculatorTest

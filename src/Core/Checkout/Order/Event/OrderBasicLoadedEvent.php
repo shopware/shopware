@@ -3,15 +3,15 @@
 namespace Shopware\Checkout\Order\Event;
 
 use Shopware\Application\Application\Event\ApplicationBasicLoadedEvent;
-use Shopware\System\Currency\Event\CurrencyBasicLoadedEvent;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Checkout\Customer\Event\CustomerBasicLoadedEvent;
-use Shopware\Checkout\Order\Collection\OrderBasicCollection;
 use Shopware\Checkout\Order\Aggregate\OrderAddress\Event\OrderAddressBasicLoadedEvent;
 use Shopware\Checkout\Order\Aggregate\OrderState\Event\OrderStateBasicLoadedEvent;
+use Shopware\Checkout\Order\Collection\OrderBasicCollection;
 use Shopware\Checkout\Payment\Event\PaymentMethodBasicLoadedEvent;
-use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\System\Currency\Event\CurrencyBasicLoadedEvent;
 
 class OrderBasicLoadedEvent extends NestedEvent
 {

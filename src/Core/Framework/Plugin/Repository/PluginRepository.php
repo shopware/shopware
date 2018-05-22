@@ -2,6 +2,7 @@
 
 namespace Shopware\Framework\Plugin\Repository;
 
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Framework\ORM\RepositoryInterface;
 use Shopware\Framework\ORM\Search\AggregatorResult;
@@ -9,6 +10,7 @@ use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
 use Shopware\Framework\ORM\Search\EntitySearcherInterface;
 use Shopware\Framework\ORM\Search\IdSearchResult;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
 use Shopware\Framework\Plugin\Collection\PluginBasicCollection;
@@ -20,8 +22,6 @@ use Shopware\Framework\Plugin\Event\Plugin\PluginDetailLoadedEvent;
 use Shopware\Framework\Plugin\Event\Plugin\PluginIdSearchResultLoadedEvent;
 use Shopware\Framework\Plugin\Event\Plugin\PluginSearchResultLoadedEvent;
 use Shopware\Framework\Plugin\Struct\PluginSearchResult;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class PluginRepository implements RepositoryInterface

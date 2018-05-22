@@ -2,9 +2,9 @@
 
 namespace Shopware\Content\Product\Aggregate\ProductContextPrice\Event;
 
+use Shopware\Content\Product\Aggregate\ProductContextPrice\ProductContextPriceDefinition;
 use Shopware\Framework\ORM\Write\DeletedEvent;
 use Shopware\Framework\ORM\Write\WrittenEvent;
-use Shopware\Content\Product\Aggregate\ProductContextPrice\ProductContextPriceDefinition;
 
 class ProductContextPriceDeletedEvent extends WrittenEvent implements DeletedEvent
 {

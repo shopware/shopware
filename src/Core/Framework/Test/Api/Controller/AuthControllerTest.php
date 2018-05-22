@@ -2,8 +2,8 @@
 
 namespace Shopware\Framework\Test\Api\Controller;
 
-use Shopware\PlatformRequest;
 use Shopware\Framework\Test\Api\ApiTestCase;
+use Shopware\PlatformRequest;
 
 class AuthControllerTest extends ApiTestCase
 {

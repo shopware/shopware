@@ -4,14 +4,15 @@ namespace Shopware\Checkout\Customer;
 
 use Shopware\Application\Application\ApplicationDefinition;
 use Shopware\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
+use Shopware\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition;
 use Shopware\Checkout\Customer\Collection\CustomerBasicCollection;
 use Shopware\Checkout\Customer\Collection\CustomerDetailCollection;
-use Shopware\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition;
 use Shopware\Checkout\Customer\Event\CustomerDeletedEvent;
 use Shopware\Checkout\Customer\Event\CustomerWrittenEvent;
-
 use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
 use Shopware\Checkout\Customer\Struct\CustomerDetailStruct;
+use Shopware\Checkout\Order\OrderDefinition;
+use Shopware\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\BoolField;
@@ -32,8 +33,6 @@ use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Framework\ORM\Write\Flag\SearchRanking;
-use Shopware\Checkout\Order\OrderDefinition;
-use Shopware\Checkout\Payment\PaymentMethodDefinition;
 
 class CustomerDefinition extends EntityDefinition
 {

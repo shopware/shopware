@@ -2,8 +2,8 @@
 
 namespace Shopware\Checkout\Order\Aggregate\OrderTransaction\Struct;
 
-use Shopware\Framework\ORM\Entity;
 use Shopware\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Framework\ORM\Entity;
 
 class OrderTransactionBasicStruct extends Entity
 {

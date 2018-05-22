@@ -14,17 +14,17 @@ use Shopware\Framework\ORM\Field\OneToManyAssociationField;
 use Shopware\Framework\ORM\Field\StringField;
 use Shopware\Framework\ORM\Field\TenantIdField;
 use Shopware\Framework\ORM\FieldCollection;
+use Shopware\Framework\ORM\Version\Collection\VersionCommitBasicCollection;
+use Shopware\Framework\ORM\Version\Event\VersionCommitData\VersionCommitDataDeletedEvent;
+use Shopware\Framework\ORM\Version\Event\VersionCommitData\VersionCommitDataWrittenEvent;
+use Shopware\Framework\ORM\Version\Repository\VersionCommitRepository;
+use Shopware\Framework\ORM\Version\Struct\VersionCommitBasicStruct;
 use Shopware\Framework\ORM\Write\EntityExistence;
 use Shopware\Framework\ORM\Write\Flag\CascadeDelete;
 use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\ReadOnly;
 use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Framework\ORM\Write\Flag\SearchRanking;
-use Shopware\Framework\ORM\Version\Collection\VersionCommitBasicCollection;
-use Shopware\Framework\ORM\Version\Event\VersionCommitData\VersionCommitDataDeletedEvent;
-use Shopware\Framework\ORM\Version\Event\VersionCommitData\VersionCommitDataWrittenEvent;
-use Shopware\Framework\ORM\Version\Repository\VersionCommitRepository;
-use Shopware\Framework\ORM\Version\Struct\VersionCommitBasicStruct;
 
 class VersionCommitDefinition extends EntityDefinition
 {

@@ -2,8 +2,8 @@
 
 namespace Shopware\Content\Catalog\Event;
 
-use Shopware\Content\Catalog\Struct\CatalogSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Content\Catalog\Struct\CatalogSearchResult;
 use Shopware\Framework\Event\NestedEvent;
 
 class CatalogSearchResultLoadedEvent extends NestedEvent

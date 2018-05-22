@@ -10,15 +10,15 @@ use Shopware\Framework\ORM\Field\OneToManyAssociationField;
 use Shopware\Framework\ORM\Field\StringField;
 use Shopware\Framework\ORM\Field\TenantIdField;
 use Shopware\Framework\ORM\FieldCollection;
-use Shopware\Framework\ORM\Write\EntityExistence;
-use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
-use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Framework\ORM\Version\Collection\VersionBasicCollection;
 use Shopware\Framework\ORM\Version\Event\Version\VersionDeletedEvent;
 use Shopware\Framework\ORM\Version\Event\Version\VersionWrittenEvent;
 use Shopware\Framework\ORM\Version\Repository\VersionRepository;
 use Shopware\Framework\ORM\Version\Struct\VersionBasicStruct;
+use Shopware\Framework\ORM\Write\EntityExistence;
+use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
+use Shopware\Framework\ORM\Write\Flag\Required;
+use Shopware\Framework\ORM\Write\Flag\SearchRanking;
 
 class VersionDefinition extends EntityDefinition
 {

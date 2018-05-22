@@ -2,12 +2,12 @@
 
 namespace Shopware\System\User\Event;
 
-use Shopware\System\Locale\Event\LocaleBasicLoadedEvent;
-use Shopware\Content\Media\Event\MediaBasicLoadedEvent;
-use Shopware\System\User\Collection\UserDetailCollection;
 use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Content\Media\Event\MediaBasicLoadedEvent;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\System\Locale\Event\LocaleBasicLoadedEvent;
+use Shopware\System\User\Collection\UserDetailCollection;
 
 class UserDetailLoadedEvent extends NestedEvent
 {

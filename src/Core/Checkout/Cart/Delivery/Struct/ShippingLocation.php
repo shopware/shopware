@@ -25,10 +25,10 @@ declare(strict_types=1);
 
 namespace Shopware\Checkout\Cart\Delivery\Struct;
 
-use Shopware\System\Country\Struct\CountryBasicStruct;
-use Shopware\System\Country\Aggregate\CountryState\Struct\CountryStateBasicStruct;
 use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
 use Shopware\Framework\Struct\Struct;
+use Shopware\System\Country\Aggregate\CountryState\Struct\CountryStateBasicStruct;
+use Shopware\System\Country\Struct\CountryBasicStruct;
 
 class ShippingLocation extends Struct
 {

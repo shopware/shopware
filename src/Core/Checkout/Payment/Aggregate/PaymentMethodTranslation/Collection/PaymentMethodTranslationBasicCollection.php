@@ -2,8 +2,8 @@
 
 namespace Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation\Collection;
 
-use Shopware\Framework\ORM\EntityCollection;
 use Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation\Struct\PaymentMethodTranslationBasicStruct;
+use Shopware\Framework\ORM\EntityCollection;
 
 class PaymentMethodTranslationBasicCollection extends EntityCollection
 {

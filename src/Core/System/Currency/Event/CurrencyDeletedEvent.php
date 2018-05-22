@@ -2,9 +2,9 @@
 
 namespace Shopware\System\Currency\Event;
 
-use Shopware\System\Currency\CurrencyDefinition;
 use Shopware\Framework\ORM\Write\DeletedEvent;
 use Shopware\Framework\ORM\Write\WrittenEvent;
+use Shopware\System\Currency\CurrencyDefinition;
 
 class CurrencyDeletedEvent extends WrittenEvent implements DeletedEvent
 {

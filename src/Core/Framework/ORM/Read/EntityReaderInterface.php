@@ -2,8 +2,8 @@
 
 namespace Shopware\Framework\ORM\Read;
 
-use Shopware\Framework\ORM\EntityCollection;
 use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\ORM\EntityCollection;
 
 interface EntityReaderInterface
 {

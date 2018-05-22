@@ -2,8 +2,8 @@
 
 namespace Shopware\Checkout\Rule\Specification\Scope;
 
-use Shopware\Checkout\Cart\LineItem\CalculatedLineItemInterface;
 use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\Cart\LineItem\CalculatedLineItemInterface;
 
 class CalculatedLineItemScope extends RuleScope
 {

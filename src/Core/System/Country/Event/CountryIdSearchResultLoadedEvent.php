@@ -2,9 +2,9 @@
 
 namespace Shopware\System\Country\Event;
 
-use Shopware\Framework\ORM\Search\IdSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
+use Shopware\Framework\ORM\Search\IdSearchResult;
 
 class CountryIdSearchResultLoadedEvent extends NestedEvent
 {

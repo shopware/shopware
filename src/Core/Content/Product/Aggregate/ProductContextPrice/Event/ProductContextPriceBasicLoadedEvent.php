@@ -2,8 +2,8 @@
 
 namespace Shopware\Content\Product\Aggregate\ProductContextPrice\Event;
 
-use Shopware\Content\Product\Aggregate\ProductContextPrice\Collection\ProductContextPriceBasicCollection;
 use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Content\Product\Aggregate\ProductContextPrice\Collection\ProductContextPriceBasicCollection;
 use Shopware\Framework\Event\NestedEvent;
 
 class ProductContextPriceBasicLoadedEvent extends NestedEvent

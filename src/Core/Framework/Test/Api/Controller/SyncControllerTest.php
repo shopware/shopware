@@ -5,10 +5,10 @@ namespace Shopware\Framework\Test\Api\Controller;
 use Doctrine\DBAL\Connection;
 use Shopware\Content\Category\CategoryDefinition;
 use Shopware\Content\Product\ProductDefinition;
-use Shopware\Framework\Struct\Uuid;
-use Shopware\PlatformRequest;
 use Shopware\Framework\Api\Controller\SyncController;
+use Shopware\Framework\Struct\Uuid;
 use Shopware\Framework\Test\Api\ApiTestCase;
+use Shopware\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
 
 class SyncControllerTest extends ApiTestCase

@@ -2,9 +2,9 @@
 
 namespace Shopware\Application\Language\Event;
 
+use Shopware\Application\Language\LanguageDefinition;
 use Shopware\Framework\ORM\Write\DeletedEvent;
 use Shopware\Framework\ORM\Write\WrittenEvent;
-use Shopware\Application\Language\LanguageDefinition;
 
 class LanguageDeletedEvent extends WrittenEvent implements DeletedEvent
 {

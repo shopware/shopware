@@ -25,8 +25,6 @@ declare(strict_types=1);
 
 namespace Shopware\Content\Product\Cart\Struct;
 
-use Shopware\Content\Media\Struct\MediaBasicStruct;
-use Shopware\Content\Product\Struct\ProductBasicStruct;
 use Shopware\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Checkout\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Checkout\Cart\LineItem\CalculatedLineItemCollection;
@@ -38,6 +36,8 @@ use Shopware\Checkout\Cart\LineItem\NestedInterface;
 use Shopware\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Checkout\Rule\Specification\Rule;
 use Shopware\Checkout\Rule\Specification\Validatable;
+use Shopware\Content\Media\Struct\MediaBasicStruct;
+use Shopware\Content\Product\Struct\ProductBasicStruct;
 use Shopware\Framework\Struct\Struct;
 
 class CalculatedProduct extends Struct implements DeliverableLineItemInterface, GoodsInterface, Validatable, NestedInterface

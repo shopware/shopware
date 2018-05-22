@@ -2,15 +2,15 @@
 
 namespace Shopware\Content\Product\Aggregate\ProductService\Struct;
 
-use Shopware\Content\Product\Struct\PriceStruct;
-use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Struct\ConfigurationGroupOptionBasicStruct;
 use Shopware\Application\Context\Collection\ContextPriceCollection;
-use Shopware\Framework\ORM\Entity;
-use Shopware\System\Tax\Struct\TaxBasicStruct;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Checkout\Cart\Price\Struct\PriceDefinition;
 use Shopware\Checkout\Cart\Tax\Struct\PercentageTaxRule;
 use Shopware\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Content\Product\Struct\PriceStruct;
+use Shopware\Framework\ORM\Entity;
+use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Struct\ConfigurationGroupOptionBasicStruct;
+use Shopware\System\Tax\Struct\TaxBasicStruct;
 
 class ProductServiceBasicStruct extends Entity
 {

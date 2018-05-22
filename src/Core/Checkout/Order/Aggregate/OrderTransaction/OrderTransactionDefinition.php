@@ -2,8 +2,15 @@
 
 namespace Shopware\Checkout\Order\Aggregate\OrderTransaction;
 
-use Shopware\Checkout\Order\OrderDefinition;
+use Shopware\Checkout\Order\Aggregate\OrderTransaction\Collection\OrderTransactionBasicCollection;
+use Shopware\Checkout\Order\Aggregate\OrderTransaction\Collection\OrderTransactionDetailCollection;
+use Shopware\Checkout\Order\Aggregate\OrderTransaction\Event\OrderTransactionDeletedEvent;
+use Shopware\Checkout\Order\Aggregate\OrderTransaction\Event\OrderTransactionWrittenEvent;
+use Shopware\Checkout\Order\Aggregate\OrderTransaction\Struct\OrderTransactionBasicStruct;
+use Shopware\Checkout\Order\Aggregate\OrderTransaction\Struct\OrderTransactionDetailStruct;
 use Shopware\Checkout\Order\Aggregate\OrderTransactionState\OrderTransactionStateDefinition;
+use Shopware\Checkout\Order\OrderDefinition;
+use Shopware\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\DateField;
@@ -22,14 +29,6 @@ use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Framework\ORM\Write\Flag\Serialized;
 use Shopware\Framework\ORM\Write\Flag\WriteOnly;
-use Shopware\Checkout\Order\Aggregate\OrderTransaction\Collection\OrderTransactionBasicCollection;
-use Shopware\Checkout\Order\Aggregate\OrderTransaction\Collection\OrderTransactionDetailCollection;
-use Shopware\Checkout\Order\Aggregate\OrderTransaction\Event\OrderTransactionDeletedEvent;
-use Shopware\Checkout\Order\Aggregate\OrderTransaction\Event\OrderTransactionWrittenEvent;
-
-use Shopware\Checkout\Order\Aggregate\OrderTransaction\Struct\OrderTransactionBasicStruct;
-use Shopware\Checkout\Order\Aggregate\OrderTransaction\Struct\OrderTransactionDetailStruct;
-use Shopware\Checkout\Payment\PaymentMethodDefinition;
 
 class OrderTransactionDefinition extends EntityDefinition
 {

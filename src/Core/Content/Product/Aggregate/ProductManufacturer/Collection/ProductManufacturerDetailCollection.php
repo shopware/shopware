@@ -3,8 +3,6 @@
 namespace Shopware\Content\Product\Aggregate\ProductManufacturer\Collection;
 
 use Shopware\Content\Media\Collection\MediaBasicCollection;
-
-
 use Shopware\Content\Product\Aggregate\ProductManufacturer\Struct\ProductManufacturerDetailStruct;
 use Shopware\Content\Product\Aggregate\ProductManufacturerTranslation\Collection\ProductManufacturerTranslationBasicCollection;
 

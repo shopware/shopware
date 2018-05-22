@@ -2,8 +2,8 @@
 
 namespace Shopware\Checkout\Payment\Event;
 
-use Shopware\Checkout\Payment\Collection\PaymentMethodBasicCollection;
 use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Checkout\Payment\Collection\PaymentMethodBasicCollection;
 use Shopware\Framework\Event\NestedEvent;
 
 class PaymentMethodBasicLoadedEvent extends NestedEvent

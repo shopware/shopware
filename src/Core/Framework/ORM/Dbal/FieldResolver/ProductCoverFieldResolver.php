@@ -2,12 +2,12 @@
 
 namespace Shopware\Framework\ORM\Dbal\FieldResolver;
 
+use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition;
 use Shopware\Framework\ORM\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Framework\ORM\Dbal\QueryBuilder;
 use Shopware\Framework\ORM\Field\Field;
 use Shopware\Framework\ORM\Field\ProductCoverField;
-use Shopware\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition;
-use Shopware\Application\Context\Struct\ApplicationContext;
 
 class ProductCoverFieldResolver implements FieldResolverInterface
 {
@@ -33,7 +33,7 @@ class ProductCoverFieldResolver implements FieldResolverInterface
             '#root#' => EntityDefinitionQueryHelper::escape($root),
             '#source_column#' => EntityDefinitionQueryHelper::escape($field->getStorageName()),
             '#alias#' => EntityDefinitionQueryHelper::escape($alias),
-            '#reference_column#' => EntityDefinitionQueryHelper::escape($field->getReferenceField())
+            '#reference_column#' => EntityDefinitionQueryHelper::escape($field->getReferenceField()),
         ];
 
         $query->leftJoin(

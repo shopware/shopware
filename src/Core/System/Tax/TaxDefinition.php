@@ -2,6 +2,7 @@
 
 namespace Shopware\System\Tax;
 
+use Shopware\Content\Product\ProductDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\DateField;
@@ -18,13 +19,11 @@ use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Framework\ORM\Write\Flag\WriteOnly;
-use Shopware\Content\Product\ProductDefinition;
+use Shopware\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleDefinition;
 use Shopware\System\Tax\Collection\TaxBasicCollection;
 use Shopware\System\Tax\Collection\TaxDetailCollection;
-use Shopware\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleDefinition;
 use Shopware\System\Tax\Event\TaxDeletedEvent;
 use Shopware\System\Tax\Event\TaxWrittenEvent;
-
 use Shopware\System\Tax\Struct\TaxBasicStruct;
 use Shopware\System\Tax\Struct\TaxDetailStruct;
 

@@ -2,22 +2,22 @@
 
 namespace Shopware\Content\Product\Event;
 
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Content\Category\Event\CategoryBasicLoadedEvent;
-use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Event\ConfigurationGroupOptionBasicLoadedEvent;
-use Shopware\Content\Product\Collection\ProductDetailCollection;
-use Shopware\Content\Product\Aggregate\ProductMedia\Collection\ProductMediaBasicCollection;
 use Shopware\Content\Product\Aggregate\ProductConfigurator\Event\ProductConfiguratorBasicLoadedEvent;
 use Shopware\Content\Product\Aggregate\ProductManufacturer\Event\ProductManufacturerBasicLoadedEvent;
+use Shopware\Content\Product\Aggregate\ProductMedia\Collection\ProductMediaBasicCollection;
 use Shopware\Content\Product\Aggregate\ProductMedia\Event\ProductMediaBasicLoadedEvent;
 use Shopware\Content\Product\Aggregate\ProductSearchKeyword\Event\ProductSearchKeywordBasicLoadedEvent;
 use Shopware\Content\Product\Aggregate\ProductService\Event\ProductServiceBasicLoadedEvent;
 use Shopware\Content\Product\Aggregate\ProductStream\Event\ProductStreamBasicLoadedEvent;
 use Shopware\Content\Product\Aggregate\ProductTranslation\Event\ProductTranslationBasicLoadedEvent;
-use Shopware\System\Tax\Event\TaxBasicLoadedEvent;
-use Shopware\System\Unit\Event\UnitBasicLoadedEvent;
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Content\Product\Collection\ProductDetailCollection;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Event\ConfigurationGroupOptionBasicLoadedEvent;
+use Shopware\System\Tax\Event\TaxBasicLoadedEvent;
+use Shopware\System\Unit\Event\UnitBasicLoadedEvent;
 
 class ProductDetailLoadedEvent extends NestedEvent
 {

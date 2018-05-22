@@ -2,9 +2,9 @@
 
 namespace Shopware\System\Mail\Event;
 
-use Shopware\Framework\ORM\Search\AggregatorResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
+use Shopware\Framework\ORM\Search\AggregatorResult;
 
 class MailAggregationResultLoadedEvent extends NestedEvent
 {

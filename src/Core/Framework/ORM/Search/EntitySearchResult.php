@@ -2,8 +2,8 @@
 
 namespace Shopware\Framework\ORM\Search;
 
-use Shopware\Framework\ORM\EntityCollection;
 use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\ORM\EntityCollection;
 
 class EntitySearchResult
 {

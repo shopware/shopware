@@ -26,20 +26,8 @@ namespace Shopware\Checkout\Test\Cart\Common;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Application\Application\Struct\ApplicationBasicStruct;
-use Shopware\System\Country\Aggregate\CountryArea\Struct\CountryAreaBasicStruct;
-use Shopware\System\Country\Struct\CountryBasicStruct;
-use Shopware\System\Country\Aggregate\CountryState\Struct\CountryStateBasicStruct;
-use Shopware\System\Currency\Struct\CurrencyBasicStruct;
-use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
-use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
-use Shopware\Checkout\Customer\Aggregate\CustomerGroup\Struct\CustomerGroupBasicStruct;
+use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Application\Language\Struct\LanguageBasicStruct;
-use Shopware\System\Locale\Struct\LocaleBasicStruct;
-use Shopware\Checkout\Payment\Struct\PaymentMethodBasicStruct;
-use Shopware\Content\Product\Struct\ProductBasicStruct;
-use Shopware\Checkout\Shipping\Struct\ShippingMethodBasicStruct;
-use Shopware\System\Tax\Collection\TaxBasicCollection;
-use Shopware\System\Tax\Struct\TaxBasicStruct;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Checkout\Cart\Cart\Struct\Cart;
 use Shopware\Checkout\Cart\Delivery\DeliveryCalculator;
@@ -56,12 +44,23 @@ use Shopware\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Checkout\Cart\Tax\TaxAmountCalculator;
 use Shopware\Checkout\Cart\Tax\TaxDetector;
-
+use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
+use Shopware\Checkout\Customer\Aggregate\CustomerGroup\Struct\CustomerGroupBasicStruct;
+use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
+use Shopware\Checkout\Payment\Struct\PaymentMethodBasicStruct;
+use Shopware\Checkout\Shipping\Struct\ShippingMethodBasicStruct;
 use Shopware\Content\Product\Cart\ProductProcessor;
 use Shopware\Content\Product\Cart\Struct\CalculatedProduct;
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Content\Product\Struct\ProductBasicStruct;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\Uuid;
+use Shopware\System\Country\Aggregate\CountryArea\Struct\CountryAreaBasicStruct;
+use Shopware\System\Country\Aggregate\CountryState\Struct\CountryStateBasicStruct;
+use Shopware\System\Country\Struct\CountryBasicStruct;
+use Shopware\System\Currency\Struct\CurrencyBasicStruct;
+use Shopware\System\Locale\Struct\LocaleBasicStruct;
+use Shopware\System\Tax\Collection\TaxBasicCollection;
+use Shopware\System\Tax\Struct\TaxBasicStruct;
 
 class Generator extends TestCase
 {

@@ -2,11 +2,11 @@
 
 namespace Shopware\System\Unit\Event;
 
-use Shopware\System\Unit\Collection\UnitDetailCollection;
-use Shopware\System\Unit\Aggregate\UnitTranslation\Event\UnitTranslationBasicLoadedEvent;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\System\Unit\Aggregate\UnitTranslation\Event\UnitTranslationBasicLoadedEvent;
+use Shopware\System\Unit\Collection\UnitDetailCollection;
 
 class UnitDetailLoadedEvent extends NestedEvent
 {

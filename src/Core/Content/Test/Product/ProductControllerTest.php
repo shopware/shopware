@@ -3,8 +3,8 @@
 namespace Shopware\Content\Test\Product;
 
 use Ramsey\Uuid\Uuid;
-use Shopware\Content\Product\ProductRepository;
 use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Content\Product\ProductRepository;
 use Shopware\Framework\Test\Api\ApiTestCase;
 
 class ProductControllerTest extends ApiTestCase

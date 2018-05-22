@@ -2,9 +2,9 @@
 
 namespace Shopware\Content\Product\Aggregate\ProductCategoryTree\Event;
 
+use Shopware\Content\Product\Aggregate\ProductCategoryTree\ProductCategoryTreeDefinition;
 use Shopware\Framework\ORM\Write\DeletedEvent;
 use Shopware\Framework\ORM\Write\WrittenEvent;
-use Shopware\Content\Product\Aggregate\ProductCategoryTree\ProductCategoryTreeDefinition;
 
 class ProductCategoryTreeDeletedEvent extends WrittenEvent implements DeletedEvent
 {

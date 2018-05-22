@@ -4,6 +4,8 @@ namespace Shopware\Checkout\Customer;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Application\Context\Util\StorefrontContextPersister;
 use Shopware\Application\Context\Util\StorefrontContextService;
 use Shopware\Checkout\Order\Exception\NotLoggedInCustomerException;
 use Shopware\Checkout\Order\OrderRepository;
@@ -13,6 +15,8 @@ use Shopware\Framework\Api\Response\Type\JsonType;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Framework\ORM\Search\Sorting\FieldSorting;
+use Shopware\Framework\Routing\Firewall\CustomerProvider;
+use Shopware\PlatformRequest;
 use Shopware\Storefront\Page\Account\AccountService;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -20,11 +24,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Serializer\Serializer;
-use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\PlatformRequest;
-use Shopware\Application\Context\Util\StorefrontContextPersister;
-use Shopware\Framework\Routing\Firewall\ContextUser;
-use Shopware\Framework\Routing\Firewall\CustomerProvider;
 
 class StorefrontCustomerController extends Controller
 {
@@ -127,6 +126,7 @@ class StorefrontCustomerController extends Controller
             ],
             $context->getTenantId()
         );
+
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 

@@ -2,8 +2,8 @@
 
 namespace Shopware\Content\Product\Aggregate\ProductManufacturer\Collection;
 
-use Shopware\Framework\ORM\EntityCollection;
 use Shopware\Content\Product\Aggregate\ProductManufacturer\Struct\ProductManufacturerBasicStruct;
+use Shopware\Framework\ORM\EntityCollection;
 
 class ProductManufacturerBasicCollection extends EntityCollection
 {

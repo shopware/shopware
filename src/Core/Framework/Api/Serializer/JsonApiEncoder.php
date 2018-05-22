@@ -2,6 +2,8 @@
 
 namespace Shopware\Framework\Api\Serializer;
 
+use Shopware\Framework\Api\Exception\MissingDataException;
+use Shopware\Framework\Api\Exception\MissingValueException;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\Field\Field;
 use Shopware\Framework\ORM\Field\FkField;
@@ -12,8 +14,6 @@ use Shopware\Framework\ORM\FieldCollection;
 use Shopware\Framework\ORM\Write\Flag\Extension;
 use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Framework\Serializer\StructDecoder;
-use Shopware\Framework\Api\Exception\MissingDataException;
-use Shopware\Framework\Api\Exception\MissingValueException;
 use Symfony\Component\Serializer\Encoder\EncoderInterface;
 use Symfony\Component\Serializer\Exception\BadMethodCallException;
 use Symfony\Component\Serializer\Exception\NotEncodableValueException;

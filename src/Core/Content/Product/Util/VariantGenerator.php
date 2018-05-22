@@ -2,17 +2,17 @@
 
 namespace Shopware\Content\Product\Util;
 
+use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Content\Product\Aggregate\ProductConfigurator\Collection\ProductConfiguratorBasicCollection;
+use Shopware\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorRepository;
+use Shopware\Content\Product\Aggregate\ProductConfigurator\Struct\ProductConfiguratorBasicStruct;
+use Shopware\Content\Product\Exception\NoConfiguratorFoundException;
+use Shopware\Content\Product\Exception\ProductNotFoundException;
+use Shopware\Content\Product\ProductRepository;
+use Shopware\Content\Product\Struct\ProductBasicStruct;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Content\Product\Aggregate\ProductConfigurator\Collection\ProductConfiguratorBasicCollection;
-use Shopware\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorRepository;
-use Shopware\Content\Product\ProductRepository;
-use Shopware\Content\Product\Struct\ProductBasicStruct;
-use Shopware\Content\Product\Aggregate\ProductConfigurator\Struct\ProductConfiguratorBasicStruct;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Content\Product\Exception\NoConfiguratorFoundException;
-use Shopware\Content\Product\Exception\ProductNotFoundException;
 
 class VariantGenerator
 {

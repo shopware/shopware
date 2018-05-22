@@ -26,15 +26,14 @@ namespace Shopware\Storefront\Controller\Widgets;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Application\Context\Struct\StorefrontContext;
-
+use Shopware\Content\Product\StorefrontProductRepository;
+use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Storefront\Controller\StorefrontController;
 use Shopware\Storefront\Page\Listing\ListingPageLoader;
 use Shopware\Storefront\Page\Listing\ListingPageRequest;
 use Shopware\Storefront\Page\Search\SearchPageLoader;
 use Shopware\Storefront\Page\Search\SearchPageRequest;
-use Shopware\Content\Product\StorefrontProductRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**

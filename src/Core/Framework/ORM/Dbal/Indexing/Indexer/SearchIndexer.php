@@ -3,22 +3,22 @@
 namespace Shopware\Framework\ORM\Dbal\Indexing\Indexer;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Content\Catalog\CatalogRepository;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Application\Language\LanguageRepository;
+use Shopware\Content\Catalog\CatalogRepository;
 use Shopware\Content\Product\ProductDefinition;
 use Shopware\Content\Product\ProductRepository;
 use Shopware\Content\Product\Struct\ProductSearchResult;
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Defaults;
+use Shopware\Framework\Doctrine\MultiInsertQueryQueue;
 use Shopware\Framework\ORM\Dbal\Indexing\Common\IndexTableOperator;
 use Shopware\Framework\ORM\Dbal\Indexing\Common\RepositoryIterator;
 use Shopware\Framework\ORM\Dbal\Indexing\Event\ProgressAdvancedEvent;
 use Shopware\Framework\ORM\Dbal\Indexing\Event\ProgressFinishedEvent;
 use Shopware\Framework\ORM\Dbal\Indexing\Event\ProgressStartedEvent;
 use Shopware\Framework\ORM\Dbal\Indexing\Indexer\Analyzer\SearchAnalyzerRegistry;
-use Shopware\Defaults;
-use Shopware\Framework\Doctrine\MultiInsertQueryQueue;
+use Shopware\Framework\ORM\Search\Criteria;
+use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\Struct\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 

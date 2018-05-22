@@ -6,11 +6,11 @@ use Shopware\Application\Application\Collection\ApplicationBasicCollection;
 use Shopware\Application\Application\Collection\ApplicationDetailCollection;
 use Shopware\Application\Application\Event\ApplicationDeletedEvent;
 use Shopware\Application\Application\Event\ApplicationWrittenEvent;
-
 use Shopware\Application\Application\Struct\ApplicationBasicStruct;
 use Shopware\Application\Application\Struct\ApplicationDetailStruct;
-
-
+use Shopware\Application\Language\LanguageDefinition;
+use Shopware\Checkout\Payment\PaymentMethodDefinition;
+use Shopware\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\BoolField;
@@ -25,9 +25,6 @@ use Shopware\Framework\ORM\Field\TenantIdField;
 use Shopware\Framework\ORM\FieldCollection;
 use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\Application\Language\LanguageDefinition;
-use Shopware\Checkout\Payment\PaymentMethodDefinition;
-use Shopware\Checkout\Shipping\ShippingMethodDefinition;
 
 class ApplicationDefinition extends EntityDefinition
 {

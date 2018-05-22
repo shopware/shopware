@@ -4,13 +4,13 @@ namespace Shopware\Checkout\Cart\Test;
 
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
-use Shopware\Checkout\Customer\CustomerRepository;
-use Shopware\Content\Product\ProductRepository;
-use Shopware\Content\Product\Cart\ProductProcessor;
 use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Checkout\Customer\CustomerRepository;
+use Shopware\Content\Product\Cart\ProductProcessor;
+use Shopware\Content\Product\ProductRepository;
 use Shopware\Defaults;
-use Shopware\PlatformRequest;
 use Shopware\Framework\Test\Api\ApiTestCase;
+use Shopware\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Client;
 
 class CheckoutControllerTest extends ApiTestCase

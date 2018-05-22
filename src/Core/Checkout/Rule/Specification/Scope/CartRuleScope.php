@@ -2,8 +2,8 @@
 
 namespace Shopware\Checkout\Rule\Specification\Scope;
 
-use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
 
 class CartRuleScope extends RuleScope
 {

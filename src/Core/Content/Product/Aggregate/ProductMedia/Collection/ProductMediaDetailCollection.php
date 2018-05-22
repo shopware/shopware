@@ -2,9 +2,8 @@
 
 namespace Shopware\Content\Product\Aggregate\ProductMedia\Collection;
 
-
-use Shopware\Content\Product\Collection\ProductBasicCollection;
 use Shopware\Content\Product\Aggregate\ProductMedia\Struct\ProductMediaDetailStruct;
+use Shopware\Content\Product\Collection\ProductBasicCollection;
 
 class ProductMediaDetailCollection extends ProductMediaBasicCollection
 {

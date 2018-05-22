@@ -2,7 +2,6 @@
 
 namespace Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Struct;
 
-use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Struct\ConfigurationGroupOptionBasicStruct;
 use Shopware\System\Configuration\Aggregate\ConfigurationGroupOptionTranslation\Collection\ConfigurationGroupOptionTranslationBasicCollection;
 
 class ConfigurationGroupOptionDetailStruct extends ConfigurationGroupOptionBasicStruct

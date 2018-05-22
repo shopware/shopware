@@ -2,10 +2,8 @@
 
 namespace Shopware\Checkout\Order\Aggregate\OrderDelivery\Collection;
 
-
-use Shopware\Checkout\Order\Collection\OrderBasicCollection;
-
 use Shopware\Checkout\Order\Aggregate\OrderDelivery\Struct\OrderDeliveryDetailStruct;
+use Shopware\Checkout\Order\Collection\OrderBasicCollection;
 
 class OrderDeliveryDetailCollection extends OrderDeliveryBasicCollection
 {

@@ -4,19 +4,18 @@ namespace Shopware\Storefront\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-
 use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\Framework\Struct\Uuid;
+use Shopware\Application\Context\Util\StorefrontContextPersister;
+use Shopware\Application\Context\Util\StorefrontContextService;
+use Shopware\Checkout\Payment\Exception\PaymentMethodNotFoundHttpException;
 use Shopware\Checkout\Payment\Exception\UnknownPaymentMethodException;
+use Shopware\Framework\Struct\Uuid;
 use Shopware\Storefront\Exception\CustomerNotFoundException;
 use Shopware\Storefront\Page\Account\AccountService;
 use Shopware\Storefront\Page\Account\CustomerAddressPageLoader;
 use Shopware\Storefront\Page\Account\CustomerPageLoader;
 use Shopware\Storefront\Page\Account\OrderPageLoader;
 use Shopware\Storefront\Page\Checkout\PaymentMethodLoader;
-use Shopware\Application\Context\Util\StorefrontContextPersister;
-use Shopware\Application\Context\Util\StorefrontContextService;
-use Shopware\Checkout\Payment\Exception\PaymentMethodNotFoundHttpException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

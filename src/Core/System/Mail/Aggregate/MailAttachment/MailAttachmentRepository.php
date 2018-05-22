@@ -2,6 +2,7 @@
 
 namespace Shopware\System\Mail\Aggregate\MailAttachment;
 
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Framework\ORM\RepositoryInterface;
 use Shopware\Framework\ORM\Search\AggregatorResult;
@@ -9,19 +10,17 @@ use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
 use Shopware\Framework\ORM\Search\EntitySearcherInterface;
 use Shopware\Framework\ORM\Search\IdSearchResult;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
 use Shopware\System\Mail\Aggregate\MailAttachment\Collection\MailAttachmentBasicCollection;
 use Shopware\System\Mail\Aggregate\MailAttachment\Collection\MailAttachmentDetailCollection;
-
 use Shopware\System\Mail\Aggregate\MailAttachment\Event\MailAttachmentAggregationResultLoadedEvent;
 use Shopware\System\Mail\Aggregate\MailAttachment\Event\MailAttachmentBasicLoadedEvent;
 use Shopware\System\Mail\Aggregate\MailAttachment\Event\MailAttachmentDetailLoadedEvent;
 use Shopware\System\Mail\Aggregate\MailAttachment\Event\MailAttachmentIdSearchResultLoadedEvent;
 use Shopware\System\Mail\Aggregate\MailAttachment\Event\MailAttachmentSearchResultLoadedEvent;
 use Shopware\System\Mail\Aggregate\MailAttachment\Struct\MailAttachmentSearchResult;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class MailAttachmentRepository implements RepositoryInterface

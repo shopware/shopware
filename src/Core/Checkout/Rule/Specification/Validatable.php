@@ -24,8 +24,6 @@
 
 namespace Shopware\Checkout\Rule\Specification;
 
-
-
 interface Validatable
 {
     public function getRule(): ? Rule;

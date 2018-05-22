@@ -2,9 +2,8 @@
 
 namespace Shopware\Content\Media\Aggregate\MediaAlbum\Collection;
 
-
-use Shopware\Content\Media\Collection\MediaBasicCollection;
 use Shopware\Content\Media\Aggregate\MediaAlbum\Struct\MediaAlbumDetailStruct;
+use Shopware\Content\Media\Collection\MediaBasicCollection;
 
 class MediaAlbumDetailCollection extends MediaAlbumBasicCollection
 {

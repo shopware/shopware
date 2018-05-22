@@ -2,10 +2,10 @@
 
 namespace Shopware\Framework\ORM\Dbal\Indexing\Indexer\Analyzer;
 
+use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Content\Product\Struct\ProductBasicStruct;
 use Shopware\Framework\ORM\Search\Term\SearchFilterInterface;
 use Shopware\Framework\ORM\Search\Term\TokenizerInterface;
-use Shopware\Content\Product\Struct\ProductBasicStruct;
-use Shopware\Application\Context\Struct\ApplicationContext;
 
 class LanguageAnalyzer implements SearchAnalyzerInterface
 {

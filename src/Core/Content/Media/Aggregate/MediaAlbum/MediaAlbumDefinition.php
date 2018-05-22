@@ -2,6 +2,12 @@
 
 namespace Shopware\Content\Media\Aggregate\MediaAlbum;
 
+use Shopware\Content\Media\Aggregate\MediaAlbum\Collection\MediaAlbumBasicCollection;
+use Shopware\Content\Media\Aggregate\MediaAlbum\Collection\MediaAlbumDetailCollection;
+use Shopware\Content\Media\Aggregate\MediaAlbum\Event\MediaAlbumDeletedEvent;
+use Shopware\Content\Media\Aggregate\MediaAlbum\Event\MediaAlbumWrittenEvent;
+use Shopware\Content\Media\Aggregate\MediaAlbum\Struct\MediaAlbumBasicStruct;
+use Shopware\Content\Media\Aggregate\MediaAlbum\Struct\MediaAlbumDetailStruct;
 use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\MediaAlbumTranslationDefinition;
 use Shopware\Content\Media\MediaDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
@@ -27,13 +33,6 @@ use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Framework\ORM\Write\Flag\SearchRanking;
-use Shopware\Content\Media\Aggregate\MediaAlbum\Collection\MediaAlbumBasicCollection;
-use Shopware\Content\Media\Aggregate\MediaAlbum\Collection\MediaAlbumDetailCollection;
-use Shopware\Content\Media\Aggregate\MediaAlbum\Event\MediaAlbumDeletedEvent;
-use Shopware\Content\Media\Aggregate\MediaAlbum\Event\MediaAlbumWrittenEvent;
-
-use Shopware\Content\Media\Aggregate\MediaAlbum\Struct\MediaAlbumBasicStruct;
-use Shopware\Content\Media\Aggregate\MediaAlbum\Struct\MediaAlbumDetailStruct;
 
 class MediaAlbumDefinition extends EntityDefinition
 {

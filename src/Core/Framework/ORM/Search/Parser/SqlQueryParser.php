@@ -3,6 +3,7 @@
 namespace Shopware\Framework\ORM\Search\Parser;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\ORM\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\Field\FkField;
@@ -16,7 +17,6 @@ use Shopware\Framework\ORM\Search\Query\RangeQuery;
 use Shopware\Framework\ORM\Search\Query\ScoreQuery;
 use Shopware\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Framework\ORM\Search\Query\TermsQuery;
-use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Struct\Uuid;
 
 class SqlQueryParser

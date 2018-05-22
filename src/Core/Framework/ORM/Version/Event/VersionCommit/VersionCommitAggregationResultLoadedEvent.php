@@ -2,9 +2,9 @@
 
 namespace Shopware\Framework\ORM\Version\Event\VersionCommit;
 
-use Shopware\Framework\ORM\Search\AggregatorResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
+use Shopware\Framework\ORM\Search\AggregatorResult;
 
 class VersionCommitAggregationResultLoadedEvent extends NestedEvent
 {

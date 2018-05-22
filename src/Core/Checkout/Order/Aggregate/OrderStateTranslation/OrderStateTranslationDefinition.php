@@ -2,25 +2,23 @@
 
 namespace Shopware\Checkout\Order\Aggregate\OrderStateTranslation;
 
+use Shopware\Application\Language\LanguageDefinition;
 use Shopware\Checkout\Order\Aggregate\OrderState\OrderStateDefinition;
+use Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Collection\OrderStateTranslationBasicCollection;
+use Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Collection\OrderStateTranslationDetailCollection;
+use Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Event\OrderStateTranslationDeletedEvent;
+use Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Event\OrderStateTranslationWrittenEvent;
+use Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Struct\OrderStateTranslationBasicStruct;
+use Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Struct\OrderStateTranslationDetailStruct;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\FkField;
 use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Framework\ORM\Field\ReferenceVersionField;
 use Shopware\Framework\ORM\Field\StringField;
-
 use Shopware\Framework\ORM\FieldCollection;
 use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\Application\Language\LanguageDefinition;
-use Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Collection\OrderStateTranslationBasicCollection;
-use Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Collection\OrderStateTranslationDetailCollection;
-use Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Event\OrderStateTranslationDeletedEvent;
-use Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Event\OrderStateTranslationWrittenEvent;
-
-use Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Struct\OrderStateTranslationBasicStruct;
-use Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Struct\OrderStateTranslationDetailStruct;
 
 class OrderStateTranslationDefinition extends EntityDefinition
 {

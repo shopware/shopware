@@ -2,9 +2,9 @@
 
 namespace Shopware\Content\Product\Aggregate\ProductStream\Collection;
 
+use Shopware\Content\Product\Aggregate\ProductStream\Struct\ProductStreamBasicStruct;
 use Shopware\Framework\ORM\EntityCollection;
 use Shopware\System\Listing\Collection\ListingSortingBasicCollection;
-use Shopware\Content\Product\Aggregate\ProductStream\Struct\ProductStreamBasicStruct;
 
 class ProductStreamBasicCollection extends EntityCollection
 {

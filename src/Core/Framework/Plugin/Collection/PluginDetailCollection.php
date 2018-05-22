@@ -2,9 +2,9 @@
 
 namespace Shopware\Framework\Plugin\Collection;
 
-use Shopware\System\Config\Collection\ConfigFormBasicCollection;
 use Shopware\Checkout\Payment\Collection\PaymentMethodBasicCollection;
 use Shopware\Framework\Plugin\Struct\PluginDetailStruct;
+use Shopware\System\Config\Collection\ConfigFormBasicCollection;
 
 class PluginDetailCollection extends PluginBasicCollection
 {

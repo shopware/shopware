@@ -25,7 +25,6 @@ use Shopware\System\Locale\Collection\LocaleBasicCollection;
 use Shopware\System\Locale\Collection\LocaleDetailCollection;
 use Shopware\System\Locale\Event\LocaleDeletedEvent;
 use Shopware\System\Locale\Event\LocaleWrittenEvent;
-
 use Shopware\System\Locale\Struct\LocaleBasicStruct;
 use Shopware\System\Locale\Struct\LocaleDetailStruct;
 use Shopware\System\User\UserDefinition;

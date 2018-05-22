@@ -16,7 +16,6 @@ use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\System\Log\Collection\LogBasicCollection;
 use Shopware\System\Log\Event\Log\LogDeletedEvent;
 use Shopware\System\Log\Event\Log\LogWrittenEvent;
-
 use Shopware\System\Log\Struct\LogBasicStruct;
 
 class LogDefinition extends EntityDefinition

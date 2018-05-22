@@ -4,6 +4,8 @@ namespace Shopware\Content\Product\Aggregate\ProductSeoCategory;
 
 use Shopware\Application\Application\ApplicationDefinition;
 use Shopware\Content\Category\CategoryDefinition;
+use Shopware\Content\Product\Aggregate\ProductSeoCategory\Event\ProductSeoCategoryDeletedEvent;
+use Shopware\Content\Product\Aggregate\ProductSeoCategory\Event\ProductSeoCategoryWrittenEvent;
 use Shopware\Content\Product\ProductDefinition;
 use Shopware\Framework\ORM\Field\DateField;
 use Shopware\Framework\ORM\Field\FkField;
@@ -13,8 +15,6 @@ use Shopware\Framework\ORM\FieldCollection;
 use Shopware\Framework\ORM\MappingEntityDefinition;
 use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\Content\Product\Aggregate\ProductSeoCategory\Event\ProductSeoCategoryDeletedEvent;
-use Shopware\Content\Product\Aggregate\ProductSeoCategory\Event\ProductSeoCategoryWrittenEvent;
 
 class ProductSeoCategoryDefinition extends MappingEntityDefinition
 {

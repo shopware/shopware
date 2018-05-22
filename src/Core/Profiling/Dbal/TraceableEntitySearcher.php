@@ -2,11 +2,11 @@
 
 namespace Shopware\Profiling\Dbal;
 
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\EntitySearcherInterface;
 use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Application\Context\Struct\ApplicationContext;
 use Symfony\Component\Stopwatch\Stopwatch;
 
 class TraceableEntitySearcher implements EntitySearcherInterface

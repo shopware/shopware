@@ -2,6 +2,7 @@
 
 namespace Shopware\System\Listing\Definition;
 
+use Shopware\Application\Language\LanguageDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\FkField;
@@ -11,15 +12,14 @@ use Shopware\Framework\ORM\Field\StringField;
 use Shopware\Framework\ORM\FieldCollection;
 use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\Application\Language\LanguageDefinition;
 use Shopware\System\Listing\Aggregate\ListingSortingTranslation\Collection\ListingSortingTranslationBasicCollection;
 use Shopware\System\Listing\Aggregate\ListingSortingTranslation\Collection\ListingSortingTranslationDetailCollection;
 use Shopware\System\Listing\Aggregate\ListingSortingTranslation\Event\ListingSortingTranslationDeletedEvent;
 use Shopware\System\Listing\Aggregate\ListingSortingTranslation\Event\ListingSortingTranslationWrittenEvent;
-use Shopware\System\Listing\ListingSortingDefinition;
 use Shopware\System\Listing\Aggregate\ListingSortingTranslation\ListingSortingTranslationRepository;
 use Shopware\System\Listing\Aggregate\ListingSortingTranslation\Struct\ListingSortingTranslationBasicStruct;
 use Shopware\System\Listing\Aggregate\ListingSortingTranslation\Struct\ListingSortingTranslationDetailStruct;
+use Shopware\System\Listing\ListingSortingDefinition;
 
 class ListingSortingTranslationDefinition extends EntityDefinition
 {

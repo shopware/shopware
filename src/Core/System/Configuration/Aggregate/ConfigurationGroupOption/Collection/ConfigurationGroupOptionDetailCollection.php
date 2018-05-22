@@ -2,8 +2,6 @@
 
 namespace Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Collection;
 
-use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionBasicCollection;
-use Shopware\System\Configuration\Aggregate\ConfigurationGroupOptionTranslation\Collection\ConfigurationGroupOptionTranslationBasicCollection;
 use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Struct\ConfigurationGroupOptionDetailStruct;
 
 class ConfigurationGroupOptionDetailCollection extends ConfigurationGroupOptionBasicCollection

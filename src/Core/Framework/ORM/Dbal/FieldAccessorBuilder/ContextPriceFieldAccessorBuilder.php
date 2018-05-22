@@ -2,10 +2,10 @@
 
 namespace Shopware\Framework\ORM\Dbal\FieldAccessorBuilder;
 
-use Shopware\Framework\ORM\Field\ContextPricesJsonField;
-use Shopware\Framework\ORM\Field\Field;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
+use Shopware\Framework\ORM\Field\ContextPricesJsonField;
+use Shopware\Framework\ORM\Field\Field;
 
 class ContextPriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
 {

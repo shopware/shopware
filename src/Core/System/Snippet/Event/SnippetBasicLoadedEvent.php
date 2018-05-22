@@ -2,9 +2,9 @@
 
 namespace Shopware\System\Snippet\Event;
 
-use Shopware\System\Snippet\Collection\SnippetBasicCollection;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
+use Shopware\System\Snippet\Collection\SnippetBasicCollection;
 
 class SnippetBasicLoadedEvent extends NestedEvent
 {

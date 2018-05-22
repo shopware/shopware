@@ -82,6 +82,24 @@ class ApiTestCase extends WebTestCase
         return $this->container;
     }
 
+    public function assertEntityExists(...$params): void
+    {
+        $url = '/api/v' . PlatformRequest::API_VERSION . '/' . implode('/', $params);
+
+        $this->apiClient->request('GET', $url);
+
+        $this->assertSame(Response::HTTP_OK, $this->apiClient->getResponse()->getStatusCode(), 'Entity does not exists but should do.');
+    }
+
+    public function assertEntityNotExists(...$params): void
+    {
+        $url = '/api/v' . PlatformRequest::API_VERSION . '/' . implode('/', $params);
+
+        $this->apiClient->request('GET', $url);
+
+        $this->assertSame(Response::HTTP_NOT_FOUND, $this->apiClient->getResponse()->getStatusCode(), 'Entity exists but should not.');
+    }
+
     protected function authorizeClient(Client $client): void
     {
         $username = Uuid::uuid4()->getHex();
@@ -112,23 +130,5 @@ class ApiTestCase extends WebTestCase
         self::assertArrayHasKey('token', $data, 'No token returned from API: ' . ($data['errors'][0]['detail'] ?? 'unknown error'));
 
         $client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['token']));
-    }
-
-    public function assertEntityExists(...$params): void
-    {
-        $url = '/api/v' . PlatformRequest::API_VERSION . '/' . implode('/', $params);
-
-        $this->apiClient->request('GET', $url);
-
-        $this->assertSame(Response::HTTP_OK, $this->apiClient->getResponse()->getStatusCode(), 'Entity does not exists but should do.');
-    }
-
-    public function assertEntityNotExists(...$params): void
-    {
-        $url = '/api/v' . PlatformRequest::API_VERSION . '/' . implode('/', $params);
-
-        $this->apiClient->request('GET', $url);
-
-        $this->assertSame(Response::HTTP_NOT_FOUND, $this->apiClient->getResponse()->getStatusCode(), 'Entity exists but should not.');
     }
 }

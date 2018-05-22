@@ -2,8 +2,8 @@
 
 namespace Shopware\Checkout\Order\Aggregate\OrderLineItem\Collection;
 
-use Shopware\Framework\ORM\EntityCollection;
 use Shopware\Checkout\Order\Aggregate\OrderLineItem\Struct\OrderLineItemBasicStruct;
+use Shopware\Framework\ORM\EntityCollection;
 
 class OrderLineItemBasicCollection extends EntityCollection
 {

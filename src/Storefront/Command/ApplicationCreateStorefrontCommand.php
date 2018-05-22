@@ -4,9 +4,9 @@ namespace Shopware\Storefront\Command;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Application\Application\ApplicationRepository;
-use Shopware\Framework\ORM\Write\FieldException\WriteStackException;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
+use Shopware\Framework\ORM\Write\FieldException\WriteStackException;
 use Shopware\Framework\Struct\Uuid;
 use Shopware\Framework\Util\Random;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;

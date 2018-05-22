@@ -1,10 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Framework\Test\Api;
 
+use Shopware\Defaults;
 use Shopware\Framework\ORM\DefinitionRegistry;
 use Shopware\Framework\ORM\Exception\MappingEntityRepositoryException;
-use Shopware\Defaults;
 use Shopware\PlatformRequest;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\HttpFoundation\Response;

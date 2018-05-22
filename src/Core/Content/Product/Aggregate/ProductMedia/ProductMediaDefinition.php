@@ -2,6 +2,13 @@
 
 namespace Shopware\Content\Product\Aggregate\ProductMedia;
 
+use Shopware\Content\Media\MediaDefinition;
+use Shopware\Content\Product\Aggregate\ProductMedia\Collection\ProductMediaBasicCollection;
+use Shopware\Content\Product\Aggregate\ProductMedia\Collection\ProductMediaDetailCollection;
+use Shopware\Content\Product\Aggregate\ProductMedia\Event\ProductMediaDeletedEvent;
+use Shopware\Content\Product\Aggregate\ProductMedia\Event\ProductMediaWrittenEvent;
+use Shopware\Content\Product\Aggregate\ProductMedia\Struct\ProductMediaBasicStruct;
+use Shopware\Content\Product\Aggregate\ProductMedia\Struct\ProductMediaDetailStruct;
 use Shopware\Content\Product\ProductDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
@@ -18,14 +25,6 @@ use Shopware\Framework\ORM\Field\VersionField;
 use Shopware\Framework\ORM\FieldCollection;
 use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\Content\Media\MediaDefinition;
-use Shopware\Content\Product\Aggregate\ProductMedia\Collection\ProductMediaBasicCollection;
-use Shopware\Content\Product\Aggregate\ProductMedia\Collection\ProductMediaDetailCollection;
-use Shopware\Content\Product\Aggregate\ProductMedia\Event\ProductMediaDeletedEvent;
-use Shopware\Content\Product\Aggregate\ProductMedia\Event\ProductMediaWrittenEvent;
-
-use Shopware\Content\Product\Aggregate\ProductMedia\Struct\ProductMediaBasicStruct;
-use Shopware\Content\Product\Aggregate\ProductMedia\Struct\ProductMediaDetailStruct;
 
 class ProductMediaDefinition extends EntityDefinition
 {

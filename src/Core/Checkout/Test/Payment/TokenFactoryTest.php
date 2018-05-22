@@ -4,16 +4,16 @@ namespace Shopware\Checkout\Test\Payment;
 
 use Doctrine\DBAL\Connection;
 use Psr\Container\ContainerInterface;
-use Shopware\Checkout\Customer\CustomerRepository;
-use Shopware\Checkout\Order\OrderRepository;
-use Shopware\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionRepository;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Checkout\Customer\CustomerRepository;
+use Shopware\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionRepository;
+use Shopware\Checkout\Order\OrderRepository;
+use Shopware\Checkout\Payment\Cart\Token\PaymentTransactionTokenFactory;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\Uuid;
-use Shopware\Checkout\Payment\Cart\Token\PaymentTransactionTokenFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class TokenFactoryTest extends KernelTestCase

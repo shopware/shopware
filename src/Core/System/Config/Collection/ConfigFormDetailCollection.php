@@ -2,10 +2,10 @@
 
 namespace Shopware\System\Config\Collection;
 
+use Shopware\Framework\Plugin\Collection\PluginBasicCollection;
 use Shopware\System\Config\Aggregate\ConfigFormField\Collection\ConfigFormFieldBasicCollection;
 use Shopware\System\Config\Aggregate\ConfigFormTranslation\Collection\ConfigFormTranslationBasicCollection;
 use Shopware\System\Config\Struct\ConfigFormDetailStruct;
-use Shopware\Framework\Plugin\Collection\PluginBasicCollection;
 
 class ConfigFormDetailCollection extends ConfigFormBasicCollection
 {

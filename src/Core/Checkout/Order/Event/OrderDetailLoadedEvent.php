@@ -3,18 +3,18 @@
 namespace Shopware\Checkout\Order\Event;
 
 use Shopware\Application\Application\Event\ApplicationBasicLoadedEvent;
-use Shopware\System\Currency\Event\CurrencyBasicLoadedEvent;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Checkout\Customer\Event\CustomerBasicLoadedEvent;
-use Shopware\Checkout\Order\Collection\OrderDetailCollection;
 use Shopware\Checkout\Order\Aggregate\OrderAddress\Event\OrderAddressBasicLoadedEvent;
 use Shopware\Checkout\Order\Aggregate\OrderDelivery\Event\OrderDeliveryBasicLoadedEvent;
 use Shopware\Checkout\Order\Aggregate\OrderLineItem\Event\OrderLineItemBasicLoadedEvent;
 use Shopware\Checkout\Order\Aggregate\OrderState\Event\OrderStateBasicLoadedEvent;
 use Shopware\Checkout\Order\Aggregate\OrderTransaction\Event\OrderTransactionBasicLoadedEvent;
+use Shopware\Checkout\Order\Collection\OrderDetailCollection;
 use Shopware\Checkout\Payment\Event\PaymentMethodBasicLoadedEvent;
-use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\System\Currency\Event\CurrencyBasicLoadedEvent;
 
 class OrderDetailLoadedEvent extends NestedEvent
 {

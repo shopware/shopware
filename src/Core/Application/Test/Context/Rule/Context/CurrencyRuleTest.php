@@ -25,11 +25,11 @@
 namespace Shopware\Application\Test\Context\Rule\Context;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\System\Currency\Struct\CurrencyBasicStruct;
-use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Checkout\Rule\Specification\Scope\CartRuleScope;
-use Shopware\Checkout\Rule\Specification\Context\CurrencyRule;
 use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Checkout\Rule\Specification\Context\CurrencyRule;
+use Shopware\Checkout\Rule\Specification\Scope\CartRuleScope;
+use Shopware\System\Currency\Struct\CurrencyBasicStruct;
 
 class CurrencyRuleTest extends TestCase
 {

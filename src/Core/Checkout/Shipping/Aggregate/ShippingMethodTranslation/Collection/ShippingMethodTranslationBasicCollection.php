@@ -2,8 +2,8 @@
 
 namespace Shopware\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Collection;
 
-use Shopware\Framework\ORM\EntityCollection;
 use Shopware\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Struct\ShippingMethodTranslationBasicStruct;
+use Shopware\Framework\ORM\EntityCollection;
 
 class ShippingMethodTranslationBasicCollection extends EntityCollection
 {

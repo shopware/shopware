@@ -2,6 +2,7 @@
 
 namespace Shopware\System\Listing;
 
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Framework\ORM\RepositoryInterface;
 use Shopware\Framework\ORM\Search\AggregatorResult;
@@ -9,19 +10,17 @@ use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
 use Shopware\Framework\ORM\Search\EntitySearcherInterface;
 use Shopware\Framework\ORM\Search\IdSearchResult;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
 use Shopware\System\Listing\Collection\ListingFacetBasicCollection;
 use Shopware\System\Listing\Collection\ListingFacetDetailCollection;
-
 use Shopware\System\Listing\Event\ListingFacetAggregationResultLoadedEvent;
 use Shopware\System\Listing\Event\ListingFacetBasicLoadedEvent;
 use Shopware\System\Listing\Event\ListingFacetDetailLoadedEvent;
 use Shopware\System\Listing\Event\ListingFacetIdSearchResultLoadedEvent;
 use Shopware\System\Listing\Event\ListingFacetSearchResultLoadedEvent;
 use Shopware\System\Listing\Struct\ListingFacetSearchResult;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ListingFacetRepository implements RepositoryInterface

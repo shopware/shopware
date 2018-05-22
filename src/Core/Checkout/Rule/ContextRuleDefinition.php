@@ -2,11 +2,10 @@
 
 namespace Shopware\Checkout\Rule;
 
-use Shopware\Checkout\Rule\Collection\ContextRuleBasicCollection;
 use Shopware\Application\Context\Definition\ContextCartModifierDefinition;
+use Shopware\Checkout\Rule\Collection\ContextRuleBasicCollection;
 use Shopware\Checkout\Rule\Event\ContextRuleDeletedEvent;
 use Shopware\Checkout\Rule\Event\ContextRuleWrittenEvent;
-
 use Shopware\Checkout\Rule\Struct\ContextRuleBasicStruct;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;

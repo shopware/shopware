@@ -2,6 +2,15 @@
 
 namespace Shopware\Checkout\Order\Aggregate\OrderTransaction;
 
+use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Checkout\Order\Aggregate\OrderTransaction\Collection\OrderTransactionBasicCollection;
+use Shopware\Checkout\Order\Aggregate\OrderTransaction\Collection\OrderTransactionDetailCollection;
+use Shopware\Checkout\Order\Aggregate\OrderTransaction\Event\OrderTransactionAggregationResultLoadedEvent;
+use Shopware\Checkout\Order\Aggregate\OrderTransaction\Event\OrderTransactionBasicLoadedEvent;
+use Shopware\Checkout\Order\Aggregate\OrderTransaction\Event\OrderTransactionDetailLoadedEvent;
+use Shopware\Checkout\Order\Aggregate\OrderTransaction\Event\OrderTransactionIdSearchResultLoadedEvent;
+use Shopware\Checkout\Order\Aggregate\OrderTransaction\Event\OrderTransactionSearchResultLoadedEvent;
+use Shopware\Checkout\Order\Aggregate\OrderTransaction\Struct\OrderTransactionSearchResult;
 use Shopware\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Framework\ORM\RepositoryInterface;
 use Shopware\Framework\ORM\Search\AggregatorResult;
@@ -9,19 +18,9 @@ use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
 use Shopware\Framework\ORM\Search\EntitySearcherInterface;
 use Shopware\Framework\ORM\Search\IdSearchResult;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\Checkout\Order\Aggregate\OrderTransaction\Collection\OrderTransactionBasicCollection;
-use Shopware\Checkout\Order\Aggregate\OrderTransaction\Collection\OrderTransactionDetailCollection;
-
-use Shopware\Checkout\Order\Aggregate\OrderTransaction\Event\OrderTransactionAggregationResultLoadedEvent;
-use Shopware\Checkout\Order\Aggregate\OrderTransaction\Event\OrderTransactionBasicLoadedEvent;
-use Shopware\Checkout\Order\Aggregate\OrderTransaction\Event\OrderTransactionDetailLoadedEvent;
-use Shopware\Checkout\Order\Aggregate\OrderTransaction\Event\OrderTransactionIdSearchResultLoadedEvent;
-use Shopware\Checkout\Order\Aggregate\OrderTransaction\Event\OrderTransactionSearchResultLoadedEvent;
-use Shopware\Checkout\Order\Aggregate\OrderTransaction\Struct\OrderTransactionSearchResult;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class OrderTransactionRepository implements RepositoryInterface

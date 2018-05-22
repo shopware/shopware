@@ -2,14 +2,14 @@
 
 namespace Shopware\Framework\ORM\Dbal\FieldResolver;
 
+use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Defaults;
 use Shopware\Framework\ORM\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Framework\ORM\Dbal\QueryBuilder;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\Field\Field;
 use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Framework\ORM\Write\Flag\Inherited;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Defaults;
 
 class ManyToOneAssociationFieldResolver implements FieldResolverInterface
 {
@@ -103,7 +103,6 @@ class ManyToOneAssociationFieldResolver implements FieldResolverInterface
         }
 
         if ($versionAware) {
-
             $parameters = [
                 '#source#' => $source,
                 '#root#' => EntityDefinitionQueryHelper::escape($root),

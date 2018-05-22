@@ -2,9 +2,9 @@
 
 namespace Shopware\Content\Product\Aggregate\ProductStreamAssignment\Event;
 
+use Shopware\Content\Product\Aggregate\ProductStreamAssignment\ProductStreamAssignmentDefinition;
 use Shopware\Framework\ORM\Write\DeletedEvent;
 use Shopware\Framework\ORM\Write\WrittenEvent;
-use Shopware\Content\Product\Aggregate\ProductStreamAssignment\ProductStreamAssignmentDefinition;
 
 class ProductStreamAssignmentDeletedEvent extends WrittenEvent implements DeletedEvent
 {

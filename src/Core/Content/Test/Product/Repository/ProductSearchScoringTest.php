@@ -3,14 +3,14 @@
 namespace Shopware\Content\Test\Product\Repository;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Content\Product\ProductDefinition;
+use Shopware\Content\Product\ProductRepository;
 use Shopware\Framework\ORM\Entity;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Framework\ORM\Search\Term\SearchPattern;
 use Shopware\Framework\ORM\Search\Term\SearchTerm;
-use Shopware\Content\Product\ProductDefinition;
-use Shopware\Content\Product\ProductRepository;
-use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Struct\ArrayStruct;
 use Shopware\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;

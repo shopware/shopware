@@ -2,8 +2,8 @@
 
 namespace Shopware\Application\Context\Event\ContextCartModifier;
 
-use Shopware\Application\Context\Struct\ContextCartModifierSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ContextCartModifierSearchResult;
 use Shopware\Framework\Event\NestedEvent;
 
 class ContextCartModifierSearchResultLoadedEvent extends NestedEvent

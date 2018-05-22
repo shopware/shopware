@@ -2,8 +2,8 @@
 
 namespace Shopware\Checkout\Rule\Event;
 
-use Shopware\Checkout\Rule\Struct\ContextRuleSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Checkout\Rule\Struct\ContextRuleSearchResult;
 use Shopware\Framework\Event\NestedEvent;
 
 class ContextRuleSearchResultLoadedEvent extends NestedEvent

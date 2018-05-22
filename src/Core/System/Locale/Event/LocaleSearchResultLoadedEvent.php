@@ -2,9 +2,9 @@
 
 namespace Shopware\System\Locale\Event;
 
-use Shopware\System\Locale\Struct\LocaleSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
+use Shopware\System\Locale\Struct\LocaleSearchResult;
 
 class LocaleSearchResultLoadedEvent extends NestedEvent
 {

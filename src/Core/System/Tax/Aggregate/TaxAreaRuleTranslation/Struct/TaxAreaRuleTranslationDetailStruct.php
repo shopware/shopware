@@ -5,7 +5,6 @@ namespace Shopware\System\Tax\Aggregate\TaxAreaRuleTranslation\Struct;
 use Shopware\Application\Language\Struct\LanguageBasicStruct;
 use Shopware\System\Tax\Aggregate\TaxAreaRule\Struct\TaxAreaRuleBasicStruct;
 
-
 class TaxAreaRuleTranslationDetailStruct extends TaxAreaRuleTranslationBasicStruct
 {
     /**

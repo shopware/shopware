@@ -2,8 +2,8 @@
 
 namespace Shopware\Checkout\Order\Aggregate\OrderAddress\Event;
 
-use Shopware\Framework\ORM\Write\WrittenEvent;
 use Shopware\Checkout\Order\Aggregate\OrderAddress\OrderAddressDefinition;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 
 class OrderAddressWrittenEvent extends WrittenEvent
 {

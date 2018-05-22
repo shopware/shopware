@@ -3,7 +3,6 @@
 namespace Shopware\Content\Product\Aggregate\ProductConfigurator\Struct;
 
 use Shopware\Content\Product\Struct\PriceStruct;
-use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Struct\ConfigurationGroupOptionBasicStruct;
 use Shopware\Framework\ORM\Entity;
 
 class ProductConfiguratorBasicStruct extends Entity

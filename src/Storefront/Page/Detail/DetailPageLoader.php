@@ -2,15 +2,14 @@
 
 namespace Shopware\Storefront\Page\Detail;
 
+use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Content\Product\Aggregate\ProductConfigurator\Collection\ProductConfiguratorBasicCollection;
+use Shopware\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorRepository;
+use Shopware\Content\Product\StorefrontProductRepository;
+use Shopware\Content\Product\Struct\StorefrontProductDetailStruct;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Query\NestedQuery;
 use Shopware\Framework\ORM\Search\Query\TermQuery;
-use Shopware\Content\Product\Aggregate\ProductConfigurator\Collection\ProductConfiguratorBasicCollection;
-use Shopware\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorRepository;
-use Shopware\Application\Context\Struct\StorefrontContext;
-
-use Shopware\Content\Product\Struct\StorefrontProductDetailStruct;
-use Shopware\Content\Product\StorefrontProductRepository;
 use Symfony\Component\HttpFoundation\Request;
 
 class DetailPageLoader

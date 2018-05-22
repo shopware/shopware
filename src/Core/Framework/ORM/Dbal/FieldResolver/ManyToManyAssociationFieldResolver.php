@@ -2,6 +2,7 @@
 
 namespace Shopware\Framework\ORM\Dbal\FieldResolver;
 
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\ORM\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Framework\ORM\Dbal\QueryBuilder;
 use Shopware\Framework\ORM\EntityDefinition;
@@ -10,7 +11,6 @@ use Shopware\Framework\ORM\Field\ManyToManyAssociationField;
 use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Framework\ORM\Write\Flag\CascadeDelete;
 use Shopware\Framework\ORM\Write\Flag\Inherited;
-use Shopware\Application\Context\Struct\ApplicationContext;
 
 class ManyToManyAssociationFieldResolver implements FieldResolverInterface
 {

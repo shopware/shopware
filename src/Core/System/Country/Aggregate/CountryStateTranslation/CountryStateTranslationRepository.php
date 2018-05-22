@@ -2,15 +2,7 @@
 
 namespace Shopware\System\Country\Aggregate\CountryStateTranslation;
 
-use Shopware\System\Country\Aggregate\CountryStateTranslation\Collection\CountryStateTranslationBasicCollection;
-use Shopware\System\Country\Aggregate\CountryStateTranslation\Collection\CountryStateTranslationDetailCollection;
-
-use Shopware\System\Country\Aggregate\CountryStateTranslation\Event\CountryStateTranslationAggregationResultLoadedEvent;
-use Shopware\System\Country\Aggregate\CountryStateTranslation\Event\CountryStateTranslationBasicLoadedEvent;
-use Shopware\System\Country\Aggregate\CountryStateTranslation\Event\CountryStateTranslationDetailLoadedEvent;
-use Shopware\System\Country\Aggregate\CountryStateTranslation\Event\CountryStateTranslationIdSearchResultLoadedEvent;
-use Shopware\System\Country\Aggregate\CountryStateTranslation\Event\CountryStateTranslationSearchResultLoadedEvent;
-use Shopware\System\Country\Aggregate\CountryStateTranslation\Struct\CountryStateTranslationSearchResult;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Framework\ORM\RepositoryInterface;
 use Shopware\Framework\ORM\Search\AggregatorResult;
@@ -18,10 +10,17 @@ use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
 use Shopware\Framework\ORM\Search\EntitySearcherInterface;
 use Shopware\Framework\ORM\Search\IdSearchResult;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
+use Shopware\System\Country\Aggregate\CountryStateTranslation\Collection\CountryStateTranslationBasicCollection;
+use Shopware\System\Country\Aggregate\CountryStateTranslation\Collection\CountryStateTranslationDetailCollection;
+use Shopware\System\Country\Aggregate\CountryStateTranslation\Event\CountryStateTranslationAggregationResultLoadedEvent;
+use Shopware\System\Country\Aggregate\CountryStateTranslation\Event\CountryStateTranslationBasicLoadedEvent;
+use Shopware\System\Country\Aggregate\CountryStateTranslation\Event\CountryStateTranslationDetailLoadedEvent;
+use Shopware\System\Country\Aggregate\CountryStateTranslation\Event\CountryStateTranslationIdSearchResultLoadedEvent;
+use Shopware\System\Country\Aggregate\CountryStateTranslation\Event\CountryStateTranslationSearchResultLoadedEvent;
+use Shopware\System\Country\Aggregate\CountryStateTranslation\Struct\CountryStateTranslationSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class CountryStateTranslationRepository implements RepositoryInterface

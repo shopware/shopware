@@ -3,8 +3,8 @@
 namespace Shopware\Framework\Api\EventListener;
 
 use Psr\Log\LoggerInterface;
-use Shopware\Framework\ShopwareException;
 use Shopware\Framework\Api\Response\ResponseFactory;
+use Shopware\Framework\ShopwareException;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
 use Symfony\Component\HttpKernel\EventListener\ExceptionListener;
 use Symfony\Component\HttpKernel\Exception\HttpException;

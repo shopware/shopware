@@ -3,10 +3,8 @@
 namespace Shopware\Framework\Routing\Firewall;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Framework\Routing\Firewall\Application;
-use Shopware\PlatformRequest;
 use Shopware\Framework\Routing\Exception\ApplicationNotFoundException;
-use Shopware\Framework\Routing\Firewall\Request;
+use Shopware\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;

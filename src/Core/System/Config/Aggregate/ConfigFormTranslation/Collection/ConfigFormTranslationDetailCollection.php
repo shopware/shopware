@@ -2,9 +2,8 @@
 
 namespace Shopware\System\Config\Aggregate\ConfigFormTranslation\Collection;
 
-
-use Shopware\System\Config\Collection\ConfigFormBasicCollection;
 use Shopware\System\Config\Aggregate\ConfigFormTranslation\Struct\ConfigFormTranslationDetailStruct;
+use Shopware\System\Config\Collection\ConfigFormBasicCollection;
 use Shopware\System\Locale\Collection\LocaleBasicCollection;
 
 class ConfigFormTranslationDetailCollection extends ConfigFormTranslationBasicCollection

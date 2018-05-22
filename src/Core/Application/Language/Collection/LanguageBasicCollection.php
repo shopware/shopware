@@ -2,8 +2,8 @@
 
 namespace Shopware\Application\Language\Collection;
 
-use Shopware\Framework\ORM\EntityCollection;
 use Shopware\Application\Language\Struct\LanguageBasicStruct;
+use Shopware\Framework\ORM\EntityCollection;
 use Shopware\System\Locale\Collection\LocaleBasicCollection;
 
 class LanguageBasicCollection extends EntityCollection

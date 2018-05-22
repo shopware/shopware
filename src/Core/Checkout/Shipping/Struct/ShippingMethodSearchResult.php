@@ -2,9 +2,9 @@
 
 namespace Shopware\Checkout\Shipping\Struct;
 
+use Shopware\Checkout\Shipping\Collection\ShippingMethodBasicCollection;
 use Shopware\Framework\ORM\Search\SearchResultInterface;
 use Shopware\Framework\ORM\Search\SearchResultTrait;
-use Shopware\Checkout\Shipping\Collection\ShippingMethodBasicCollection;
 
 class ShippingMethodSearchResult extends ShippingMethodBasicCollection implements SearchResultInterface
 {

@@ -2,9 +2,9 @@
 
 namespace Shopware\Content\Category;
 
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Content\Category\Collection\CategoryBasicCollection;
 use Shopware\Content\Category\Collection\CategoryDetailCollection;
-
 use Shopware\Content\Category\Event\CategoryAggregationResultLoadedEvent;
 use Shopware\Content\Category\Event\CategoryBasicLoadedEvent;
 use Shopware\Content\Category\Event\CategoryDetailLoadedEvent;
@@ -18,10 +18,9 @@ use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
 use Shopware\Framework\ORM\Search\EntitySearcherInterface;
 use Shopware\Framework\ORM\Search\IdSearchResult;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class CategoryRepository implements RepositoryInterface

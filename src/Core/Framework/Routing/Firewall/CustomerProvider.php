@@ -2,12 +2,12 @@
 
 namespace Shopware\Framework\Routing\Firewall;
 
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Checkout\Customer\CustomerRepository;
 use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
+use Shopware\Defaults;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Query\TermQuery;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Defaults;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;

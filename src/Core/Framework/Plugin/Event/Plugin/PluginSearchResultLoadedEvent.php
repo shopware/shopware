@@ -2,9 +2,9 @@
 
 namespace Shopware\Framework\Plugin\Event\Plugin;
 
-use Shopware\Framework\Plugin\Struct\PluginSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
+use Shopware\Framework\Plugin\Struct\PluginSearchResult;
 
 class PluginSearchResultLoadedEvent extends NestedEvent
 {

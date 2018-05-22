@@ -2,16 +2,13 @@
 
 namespace Shopware\Checkout\Customer\Aggregate\CustomerAddress;
 
-use Shopware\Checkout\Customer\CustomerDefinition;
-use Shopware\System\Country\CountryDefinition;
-use Shopware\System\Country\Aggregate\CountryState\CountryStateDefinition;
 use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Collection\CustomerAddressBasicCollection;
 use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Collection\CustomerAddressDetailCollection;
 use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Event\CustomerAddressDeletedEvent;
 use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Event\CustomerAddressWrittenEvent;
-
 use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
 use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressDetailStruct;
+use Shopware\Checkout\Customer\CustomerDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\DateField;
@@ -26,6 +23,8 @@ use Shopware\Framework\ORM\FieldCollection;
 use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Framework\ORM\Write\Flag\SearchRanking;
+use Shopware\System\Country\Aggregate\CountryState\CountryStateDefinition;
+use Shopware\System\Country\CountryDefinition;
 
 class CustomerAddressDefinition extends EntityDefinition
 {

@@ -2,25 +2,24 @@
 
 namespace Shopware\System\Listing\Definition;
 
+use Shopware\Application\Language\LanguageDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\FkField;
 use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Framework\ORM\Field\ReferenceVersionField;
 use Shopware\Framework\ORM\Field\StringField;
-
 use Shopware\Framework\ORM\FieldCollection;
 use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\Application\Language\LanguageDefinition;
 use Shopware\System\Listing\Aggregate\ListingFacetTranslation\Collection\ListingFacetTranslationBasicCollection;
 use Shopware\System\Listing\Aggregate\ListingFacetTranslation\Collection\ListingFacetTranslationDetailCollection;
 use Shopware\System\Listing\Aggregate\ListingFacetTranslation\Event\ListingFacetTranslationDeletedEvent;
 use Shopware\System\Listing\Aggregate\ListingFacetTranslation\Event\ListingFacetTranslationWrittenEvent;
-use Shopware\System\Listing\ListingFacetDefinition;
 use Shopware\System\Listing\Aggregate\ListingFacetTranslation\ListingFacetTranslationRepository;
 use Shopware\System\Listing\Aggregate\ListingFacetTranslation\Struct\ListingFacetTranslationBasicStruct;
 use Shopware\System\Listing\Aggregate\ListingFacetTranslation\Struct\ListingFacetTranslationDetailStruct;
+use Shopware\System\Listing\ListingFacetDefinition;
 
 class ListingFacetTranslationDefinition extends EntityDefinition
 {

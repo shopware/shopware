@@ -2,7 +2,6 @@
 
 namespace Shopware\Checkout\Order\Aggregate\OrderDelivery\Struct;
 
-
 use Shopware\Checkout\Order\Aggregate\OrderDeliveryPosition\Collection\OrderDeliveryPositionBasicCollection;
 use Shopware\Checkout\Order\Struct\OrderBasicStruct;
 

@@ -3,7 +3,6 @@
 namespace Shopware\System\Config\Aggregate\ConfigFormFieldTranslation\Struct;
 
 use Shopware\System\Config\Aggregate\ConfigFormField\Struct\ConfigFormFieldBasicStruct;
-
 use Shopware\System\Locale\Struct\LocaleBasicStruct;
 
 class ConfigFormFieldTranslationDetailStruct extends ConfigFormFieldTranslationBasicStruct

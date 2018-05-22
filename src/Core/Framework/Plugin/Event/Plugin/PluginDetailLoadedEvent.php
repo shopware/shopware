@@ -2,12 +2,12 @@
 
 namespace Shopware\Framework\Plugin\Event\Plugin;
 
-use Shopware\System\Config\Event\ConfigFormBasicLoadedEvent;
-use Shopware\Checkout\Payment\Event\PaymentMethodBasicLoadedEvent;
-use Shopware\Framework\Plugin\Collection\PluginDetailCollection;
 use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Checkout\Payment\Event\PaymentMethodBasicLoadedEvent;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\Framework\Plugin\Collection\PluginDetailCollection;
+use Shopware\System\Config\Event\ConfigFormBasicLoadedEvent;
 
 class PluginDetailLoadedEvent extends NestedEvent
 {

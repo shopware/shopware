@@ -2,6 +2,7 @@
 
 namespace Shopware\System\Listing;
 
+use Shopware\Content\Product\Aggregate\ProductStream\ProductStreamDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\BoolField;
@@ -27,10 +28,8 @@ use Shopware\System\Listing\Collection\ListingSortingDetailCollection;
 use Shopware\System\Listing\Definition\ListingSortingTranslationDefinition;
 use Shopware\System\Listing\Event\ListingSortingDeletedEvent;
 use Shopware\System\Listing\Event\ListingSortingWrittenEvent;
-
 use Shopware\System\Listing\Struct\ListingSortingBasicStruct;
 use Shopware\System\Listing\Struct\ListingSortingDetailStruct;
-use Shopware\Content\Product\Aggregate\ProductStream\ProductStreamDefinition;
 
 class ListingSortingDefinition extends EntityDefinition
 {

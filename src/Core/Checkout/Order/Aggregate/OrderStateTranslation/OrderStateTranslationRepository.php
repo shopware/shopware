@@ -2,6 +2,15 @@
 
 namespace Shopware\Checkout\Order\Aggregate\OrderStateTranslation;
 
+use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Collection\OrderStateTranslationBasicCollection;
+use Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Collection\OrderStateTranslationDetailCollection;
+use Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Event\OrderStateTranslationAggregationResultLoadedEvent;
+use Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Event\OrderStateTranslationBasicLoadedEvent;
+use Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Event\OrderStateTranslationDetailLoadedEvent;
+use Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Event\OrderStateTranslationIdSearchResultLoadedEvent;
+use Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Event\OrderStateTranslationSearchResultLoadedEvent;
+use Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Struct\OrderStateTranslationSearchResult;
 use Shopware\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Framework\ORM\RepositoryInterface;
 use Shopware\Framework\ORM\Search\AggregatorResult;
@@ -9,19 +18,9 @@ use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
 use Shopware\Framework\ORM\Search\EntitySearcherInterface;
 use Shopware\Framework\ORM\Search\IdSearchResult;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Collection\OrderStateTranslationBasicCollection;
-use Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Collection\OrderStateTranslationDetailCollection;
-
-use Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Event\OrderStateTranslationAggregationResultLoadedEvent;
-use Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Event\OrderStateTranslationBasicLoadedEvent;
-use Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Event\OrderStateTranslationDetailLoadedEvent;
-use Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Event\OrderStateTranslationIdSearchResultLoadedEvent;
-use Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Event\OrderStateTranslationSearchResultLoadedEvent;
-use Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Struct\OrderStateTranslationSearchResult;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class OrderStateTranslationRepository implements RepositoryInterface

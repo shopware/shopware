@@ -2,9 +2,9 @@
 
 namespace Shopware\System\Config\Event;
 
-use Shopware\System\Config\ConfigFormDefinition;
 use Shopware\Framework\ORM\Write\DeletedEvent;
 use Shopware\Framework\ORM\Write\WrittenEvent;
+use Shopware\System\Config\ConfigFormDefinition;
 
 class ConfigFormDeletedEvent extends WrittenEvent implements DeletedEvent
 {

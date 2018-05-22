@@ -2,8 +2,8 @@
 
 namespace Shopware\System\Country\Aggregate\CountryAreaTranslation\Event;
 
-use Shopware\System\Country\Aggregate\CountryAreaTranslation\CountryAreaTranslationDefinition;
 use Shopware\Framework\ORM\Write\WrittenEvent;
+use Shopware\System\Country\Aggregate\CountryAreaTranslation\CountryAreaTranslationDefinition;
 
 class CountryAreaTranslationWrittenEvent extends WrittenEvent
 {

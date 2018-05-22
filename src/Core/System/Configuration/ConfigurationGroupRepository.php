@@ -2,15 +2,7 @@
 
 namespace Shopware\System\Configuration;
 
-use Shopware\System\Configuration\Collection\ConfigurationGroupBasicCollection;
-use Shopware\System\Configuration\Collection\ConfigurationGroupDetailCollection;
-use Shopware\System\Configuration\ConfigurationGroupDefinition;
-use Shopware\System\Configuration\Event\ConfigurationGroupAggregationResultLoadedEvent;
-use Shopware\System\Configuration\Event\ConfigurationGroupBasicLoadedEvent;
-use Shopware\System\Configuration\Event\ConfigurationGroupDetailLoadedEvent;
-use Shopware\System\Configuration\Event\ConfigurationGroupIdSearchResultLoadedEvent;
-use Shopware\System\Configuration\Event\ConfigurationGroupSearchResultLoadedEvent;
-use Shopware\System\Configuration\Struct\ConfigurationGroupSearchResult;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Framework\ORM\RepositoryInterface;
 use Shopware\Framework\ORM\Search\AggregatorResult;
@@ -18,10 +10,17 @@ use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
 use Shopware\Framework\ORM\Search\EntitySearcherInterface;
 use Shopware\Framework\ORM\Search\IdSearchResult;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
+use Shopware\System\Configuration\Collection\ConfigurationGroupBasicCollection;
+use Shopware\System\Configuration\Collection\ConfigurationGroupDetailCollection;
+use Shopware\System\Configuration\Event\ConfigurationGroupAggregationResultLoadedEvent;
+use Shopware\System\Configuration\Event\ConfigurationGroupBasicLoadedEvent;
+use Shopware\System\Configuration\Event\ConfigurationGroupDetailLoadedEvent;
+use Shopware\System\Configuration\Event\ConfigurationGroupIdSearchResultLoadedEvent;
+use Shopware\System\Configuration\Event\ConfigurationGroupSearchResultLoadedEvent;
+use Shopware\System\Configuration\Struct\ConfigurationGroupSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ConfigurationGroupRepository implements RepositoryInterface

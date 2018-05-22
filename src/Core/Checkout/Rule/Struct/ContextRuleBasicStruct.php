@@ -2,8 +2,8 @@
 
 namespace Shopware\Checkout\Rule\Struct;
 
-use Shopware\Framework\ORM\Entity;
 use Shopware\Checkout\Rule\Specification\Rule;
+use Shopware\Framework\ORM\Entity;
 
 class ContextRuleBasicStruct extends Entity
 {

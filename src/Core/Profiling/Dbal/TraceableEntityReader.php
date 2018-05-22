@@ -2,10 +2,10 @@
 
 namespace Shopware\Profiling\Dbal;
 
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\ORM\EntityCollection;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\Read\EntityReaderInterface;
-use Shopware\Application\Context\Struct\ApplicationContext;
 use Symfony\Component\Stopwatch\Stopwatch;
 
 class TraceableEntityReader implements EntityReaderInterface

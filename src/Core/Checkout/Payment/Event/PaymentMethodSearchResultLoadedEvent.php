@@ -2,8 +2,8 @@
 
 namespace Shopware\Checkout\Payment\Event;
 
-use Shopware\Checkout\Payment\Struct\PaymentMethodSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Checkout\Payment\Struct\PaymentMethodSearchResult;
 use Shopware\Framework\Event\NestedEvent;
 
 class PaymentMethodSearchResultLoadedEvent extends NestedEvent

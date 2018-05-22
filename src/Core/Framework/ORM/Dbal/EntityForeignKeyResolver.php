@@ -3,6 +3,8 @@
 namespace Shopware\Framework\ORM\Dbal;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Defaults;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\Field\AssociationInterface;
 use Shopware\Framework\ORM\Field\ManyToManyAssociationField;
@@ -11,8 +13,6 @@ use Shopware\Framework\ORM\Field\OneToManyAssociationField;
 use Shopware\Framework\ORM\FieldCollection;
 use Shopware\Framework\ORM\Write\Flag\CascadeDelete;
 use Shopware\Framework\ORM\Write\Flag\RestrictDelete;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Defaults;
 use Shopware\Framework\Struct\Uuid;
 
 /**

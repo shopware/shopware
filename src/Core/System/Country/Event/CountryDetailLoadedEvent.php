@@ -2,13 +2,13 @@
 
 namespace Shopware\System\Country\Event;
 
-use Shopware\System\Country\Collection\CountryDetailCollection;
-use Shopware\System\Country\Aggregate\CountryArea\Event\CountryAreaBasicLoadedEvent;
-use Shopware\System\Country\Aggregate\CountryState\Event\CountryStateBasicLoadedEvent;
-use Shopware\System\Country\Aggregate\CountryTranslation\Event\CountryTranslationBasicLoadedEvent;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\System\Country\Aggregate\CountryArea\Event\CountryAreaBasicLoadedEvent;
+use Shopware\System\Country\Aggregate\CountryState\Event\CountryStateBasicLoadedEvent;
+use Shopware\System\Country\Aggregate\CountryTranslation\Event\CountryTranslationBasicLoadedEvent;
+use Shopware\System\Country\Collection\CountryDetailCollection;
 
 class CountryDetailLoadedEvent extends NestedEvent
 {

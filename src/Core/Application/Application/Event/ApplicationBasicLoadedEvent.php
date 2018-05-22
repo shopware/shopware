@@ -3,11 +3,11 @@
 namespace Shopware\Application\Application\Event;
 
 use Shopware\Application\Application\Collection\ApplicationBasicCollection;
-use Shopware\System\Currency\Event\CurrencyBasicLoadedEvent;
-use Shopware\Application\Language\Event\LanguageBasicLoadedEvent;
 use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Application\Language\Event\LanguageBasicLoadedEvent;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\System\Currency\Event\CurrencyBasicLoadedEvent;
 
 class ApplicationBasicLoadedEvent extends NestedEvent
 {

@@ -5,6 +5,12 @@ namespace Shopware\Content\Media;
 use Shopware\Content\Category\CategoryDefinition;
 use Shopware\Content\Media\Aggregate\MediaAlbum\MediaAlbumDefinition;
 use Shopware\Content\Media\Aggregate\MediaTranslation\MediaTranslationDefinition;
+use Shopware\Content\Media\Collection\MediaBasicCollection;
+use Shopware\Content\Media\Collection\MediaDetailCollection;
+use Shopware\Content\Media\Event\MediaDeletedEvent;
+use Shopware\Content\Media\Event\MediaWrittenEvent;
+use Shopware\Content\Media\Struct\MediaBasicStruct;
+use Shopware\Content\Media\Struct\MediaDetailStruct;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\CatalogField;
@@ -29,15 +35,6 @@ use Shopware\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Framework\ORM\Write\Flag\WriteOnly;
 use Shopware\System\Mail\Aggregate\MailAttachment\MailAttachmentDefinition;
-use Shopware\Content\Media\Collection\MediaBasicCollection;
-use Shopware\Content\Media\Collection\MediaDetailCollection;
-use Shopware\Content\Media\Event\MediaDeletedEvent;
-use Shopware\Content\Media\Event\MediaWrittenEvent;
-
-use Shopware\Content\Media\Struct\MediaBasicStruct;
-use Shopware\Content\Media\Struct\MediaDetailStruct;
-
-
 use Shopware\System\User\UserDefinition;
 
 class MediaDefinition extends EntityDefinition

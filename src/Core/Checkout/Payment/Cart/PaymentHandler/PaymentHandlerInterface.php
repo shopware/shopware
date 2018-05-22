@@ -14,7 +14,7 @@ interface PaymentHandlerInterface
      * Allows to process the order and store additional information.
      *
      * @param \Shopware\Checkout\Payment\Cart\PaymentTransactionStruct $transaction
-     * @param ApplicationContext $context
+     * @param ApplicationContext                                       $context
      *
      * @return null|RedirectResponse if a RedirectResponse is provided, a redirect to the url will be performed
      */

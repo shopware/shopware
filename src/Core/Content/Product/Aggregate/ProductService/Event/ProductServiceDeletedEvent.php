@@ -2,9 +2,9 @@
 
 namespace Shopware\Content\Product\Aggregate\ProductService\Event;
 
+use Shopware\Content\Product\Aggregate\ProductService\ProductServiceDefinition;
 use Shopware\Framework\ORM\Write\DeletedEvent;
 use Shopware\Framework\ORM\Write\WrittenEvent;
-use Shopware\Content\Product\Aggregate\ProductService\ProductServiceDefinition;
 
 class ProductServiceDeletedEvent extends WrittenEvent implements DeletedEvent
 {

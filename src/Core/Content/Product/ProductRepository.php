@@ -2,6 +2,15 @@
 
 namespace Shopware\Content\Product;
 
+use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Content\Product\Collection\ProductBasicCollection;
+use Shopware\Content\Product\Collection\ProductDetailCollection;
+use Shopware\Content\Product\Event\ProductAggregationResultLoadedEvent;
+use Shopware\Content\Product\Event\ProductBasicLoadedEvent;
+use Shopware\Content\Product\Event\ProductDetailLoadedEvent;
+use Shopware\Content\Product\Event\ProductIdSearchResultLoadedEvent;
+use Shopware\Content\Product\Event\ProductSearchResultLoadedEvent;
+use Shopware\Content\Product\Struct\ProductSearchResult;
 use Shopware\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Framework\ORM\RepositoryInterface;
 use Shopware\Framework\ORM\Search\AggregatorResult;
@@ -9,19 +18,9 @@ use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
 use Shopware\Framework\ORM\Search\EntitySearcherInterface;
 use Shopware\Framework\ORM\Search\IdSearchResult;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\Content\Product\Collection\ProductBasicCollection;
-use Shopware\Content\Product\Collection\ProductDetailCollection;
-
-use Shopware\Content\Product\Event\ProductAggregationResultLoadedEvent;
-use Shopware\Content\Product\Event\ProductBasicLoadedEvent;
-use Shopware\Content\Product\Event\ProductDetailLoadedEvent;
-use Shopware\Content\Product\Event\ProductIdSearchResultLoadedEvent;
-use Shopware\Content\Product\Event\ProductSearchResultLoadedEvent;
-use Shopware\Content\Product\Struct\ProductSearchResult;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductRepository implements RepositoryInterface

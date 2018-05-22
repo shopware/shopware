@@ -2,8 +2,8 @@
 
 namespace Shopware\Checkout\Payment\Cart;
 
-use Shopware\Checkout\Order\Struct\OrderDetailStruct;
 use Shopware\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Checkout\Order\Struct\OrderDetailStruct;
 use Shopware\Framework\Struct\Struct;
 
 class PaymentTransactionStruct extends Struct

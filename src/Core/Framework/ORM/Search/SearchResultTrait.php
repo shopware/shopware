@@ -2,10 +2,10 @@
 
 namespace Shopware\Framework\ORM\Search;
 
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\ORM\Entity;
 use Shopware\Framework\ORM\EntityCollection;
 use Shopware\Framework\ORM\Search\Aggregation\AggregationResultCollection;
-use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Struct\ArrayStruct;
 
 trait SearchResultTrait

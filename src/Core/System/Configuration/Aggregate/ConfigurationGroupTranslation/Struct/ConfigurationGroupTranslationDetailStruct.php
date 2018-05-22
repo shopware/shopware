@@ -3,7 +3,6 @@
 namespace Shopware\System\Configuration\Aggregate\ConfigurationGroupTranslation\Struct;
 
 use Shopware\Application\Language\Struct\LanguageBasicStruct;
-use Shopware\System\Configuration\Aggregate\ConfigurationGroupTranslation\Struct\ConfigurationGroupTranslationBasicStruct;
 use Shopware\System\Configuration\Struct\ConfigurationGroupBasicStruct;
 
 class ConfigurationGroupTranslationDetailStruct extends ConfigurationGroupTranslationBasicStruct

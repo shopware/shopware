@@ -2,9 +2,9 @@
 
 namespace Shopware\System\Locale\Event;
 
-use Shopware\System\Locale\Collection\LocaleBasicCollection;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
+use Shopware\System\Locale\Collection\LocaleBasicCollection;
 
 class LocaleBasicLoadedEvent extends NestedEvent
 {

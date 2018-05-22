@@ -3,7 +3,6 @@
 namespace Shopware\System\Mail\Aggregate\MailAttachment\Struct;
 
 use Shopware\Content\Media\Struct\MediaBasicStruct;
-
 use Shopware\System\Mail\Struct\MailBasicStruct;
 
 class MailAttachmentDetailStruct extends MailAttachmentBasicStruct

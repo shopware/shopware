@@ -3,6 +3,7 @@
 namespace Shopware\Framework\ORM\Dbal;
 
 use Shopware\Application\Context\Collection\ContextPriceCollection;
+use Shopware\Content\Product\Struct\PriceStruct;
 use Shopware\Framework\ORM\Entity;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\Field\AssociationInterface;
@@ -30,7 +31,6 @@ use Shopware\Framework\ORM\FieldCollection;
 use Shopware\Framework\ORM\Write\Flag\Extension;
 use Shopware\Framework\ORM\Write\Flag\Inherited;
 use Shopware\Framework\ORM\Write\Flag\Serialized;
-use Shopware\Content\Product\Struct\PriceStruct;
 use Shopware\Framework\Struct\ArrayStruct;
 use Shopware\Framework\Struct\Uuid;
 use Symfony\Component\Serializer\SerializerInterface;

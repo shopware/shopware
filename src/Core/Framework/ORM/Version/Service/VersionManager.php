@@ -2,6 +2,8 @@
 
 namespace Shopware\Framework\ORM\Version\Service;
 
+use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Defaults;
 use Shopware\Framework\ORM\DefinitionRegistry;
 use Shopware\Framework\ORM\Entity;
 use Shopware\Framework\ORM\EntityDefinition;
@@ -16,22 +18,20 @@ use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\EntitySearcherInterface;
 use Shopware\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Framework\ORM\Search\Sorting\FieldSorting;
-use Shopware\Framework\ORM\Write\Command\InsertCommand;
-use Shopware\Framework\ORM\Write\EntityWriteGatewayInterface;
-use Shopware\Framework\ORM\Write\EntityWriterInterface;
-use Shopware\Framework\ORM\Write\Flag\CascadeDelete;
-use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\System\User\UserDefinition;
 use Shopware\Framework\ORM\Version\Collection\VersionCommitBasicCollection;
 use Shopware\Framework\ORM\Version\Definition\VersionCommitDataDefinition;
 use Shopware\Framework\ORM\Version\Definition\VersionCommitDefinition;
 use Shopware\Framework\ORM\Version\Definition\VersionDefinition;
 use Shopware\Framework\ORM\Version\Struct\VersionCommitDataBasicStruct;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Defaults;
+use Shopware\Framework\ORM\Write\Command\InsertCommand;
+use Shopware\Framework\ORM\Write\EntityWriteGatewayInterface;
+use Shopware\Framework\ORM\Write\EntityWriterInterface;
+use Shopware\Framework\ORM\Write\Flag\CascadeDelete;
+use Shopware\Framework\ORM\Write\WriteContext;
 use Shopware\Framework\Struct\Collection;
 use Shopware\Framework\Struct\Struct;
 use Shopware\Framework\Struct\Uuid;
+use Shopware\System\User\UserDefinition;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 

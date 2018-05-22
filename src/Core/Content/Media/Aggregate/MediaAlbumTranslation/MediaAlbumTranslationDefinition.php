@@ -2,7 +2,14 @@
 
 namespace Shopware\Content\Media\Aggregate\MediaAlbumTranslation;
 
+use Shopware\Application\Language\LanguageDefinition;
 use Shopware\Content\Media\Aggregate\MediaAlbum\MediaAlbumDefinition;
+use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Collection\MediaAlbumTranslationBasicCollection;
+use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Collection\MediaAlbumTranslationDetailCollection;
+use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Event\MediaAlbumTranslationDeletedEvent;
+use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Event\MediaAlbumTranslationWrittenEvent;
+use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Struct\MediaAlbumTranslationBasicStruct;
+use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Struct\MediaAlbumTranslationDetailStruct;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\CatalogField;
@@ -10,18 +17,9 @@ use Shopware\Framework\ORM\Field\FkField;
 use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Framework\ORM\Field\ReferenceVersionField;
 use Shopware\Framework\ORM\Field\StringField;
-
 use Shopware\Framework\ORM\FieldCollection;
 use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\Application\Language\LanguageDefinition;
-use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Collection\MediaAlbumTranslationBasicCollection;
-use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Collection\MediaAlbumTranslationDetailCollection;
-use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Event\MediaAlbumTranslationDeletedEvent;
-use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Event\MediaAlbumTranslationWrittenEvent;
-
-use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Struct\MediaAlbumTranslationBasicStruct;
-use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Struct\MediaAlbumTranslationDetailStruct;
 
 class MediaAlbumTranslationDefinition extends EntityDefinition
 {

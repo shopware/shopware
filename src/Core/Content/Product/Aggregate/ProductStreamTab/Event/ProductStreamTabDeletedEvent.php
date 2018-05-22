@@ -2,9 +2,9 @@
 
 namespace Shopware\Content\Product\Aggregate\ProductStreamTab\Event;
 
+use Shopware\Content\Product\Aggregate\ProductStreamTab\ProductStreamTabDefinition;
 use Shopware\Framework\ORM\Write\DeletedEvent;
 use Shopware\Framework\ORM\Write\WrittenEvent;
-use Shopware\Content\Product\Aggregate\ProductStreamTab\ProductStreamTabDefinition;
 
 class ProductStreamTabDeletedEvent extends WrittenEvent implements DeletedEvent
 {

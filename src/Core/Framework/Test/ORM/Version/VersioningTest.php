@@ -4,21 +4,21 @@ namespace Shopware\Framework\Test\ORM\Version;
 
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Content\Category\CategoryRepository;
+use Shopware\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
+use Shopware\Content\Product\ProductDefinition;
+use Shopware\Content\Product\ProductRepository;
+use Shopware\Content\Product\Struct\PriceStruct;
+use Shopware\Defaults;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Query\RangeQuery;
 use Shopware\Framework\ORM\Search\Query\TermQuery;
-use Shopware\Content\Product\ProductDefinition;
-use Shopware\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
-use Shopware\Content\Product\ProductRepository;
-use Shopware\Content\Product\Struct\PriceStruct;
 use Shopware\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleDefinition;
 use Shopware\System\Tax\Aggregate\TaxAreaRuleTranslation\TaxAreaRuleTranslationDefinition;
+use Shopware\System\Tax\Struct\TaxDetailStruct;
 use Shopware\System\Tax\TaxDefinition;
 use Shopware\System\Tax\TaxRepository;
-use Shopware\System\Tax\Struct\TaxDetailStruct;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Defaults;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class VersioningTest extends KernelTestCase
@@ -799,7 +799,7 @@ class VersioningTest extends KernelTestCase
             [
                 'id' => $id->getHex(),
                 'name' => 'Random category name',
-                'catalogId' => $context->getCatalogIds()[0]
+                'catalogId' => $context->getCatalogIds()[0],
             ],
             $override
         );

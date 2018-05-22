@@ -2,9 +2,6 @@
 
 namespace Shopware\Storefront\Subscriber;
 
-use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionBasicCollection;
-use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
-use Shopware\System\Configuration\Struct\ConfigurationGroupDetailStruct;
 use Shopware\Framework\ORM\Search\Aggregation\AggregationResult;
 use Shopware\Framework\ORM\Search\Aggregation\EntityAggregation;
 use Shopware\Framework\ORM\Search\AggregatorResult;
@@ -16,6 +13,8 @@ use Shopware\Storefront\Event\PageCriteriaCreatedEvent;
 use Shopware\Storefront\Event\TransformListingPageRequestEvent;
 use Shopware\Storefront\Page\Listing\AggregationView\ListAggregation;
 use Shopware\Storefront\Page\Listing\AggregationView\ListItem;
+use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
+use Shopware\System\Configuration\Struct\ConfigurationGroupDetailStruct;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class DatasheetAggregationSubscriber implements EventSubscriberInterface

@@ -2,6 +2,15 @@
 
 namespace Shopware\Content\Media\Aggregate\MediaAlbumTranslation;
 
+use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Collection\MediaAlbumTranslationBasicCollection;
+use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Collection\MediaAlbumTranslationDetailCollection;
+use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Event\MediaAlbumTranslationAggregationResultLoadedEvent;
+use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Event\MediaAlbumTranslationBasicLoadedEvent;
+use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Event\MediaAlbumTranslationDetailLoadedEvent;
+use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Event\MediaAlbumTranslationIdSearchResultLoadedEvent;
+use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Event\MediaAlbumTranslationSearchResultLoadedEvent;
+use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Struct\MediaAlbumTranslationSearchResult;
 use Shopware\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Framework\ORM\RepositoryInterface;
 use Shopware\Framework\ORM\Search\AggregatorResult;
@@ -9,19 +18,9 @@ use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
 use Shopware\Framework\ORM\Search\EntitySearcherInterface;
 use Shopware\Framework\ORM\Search\IdSearchResult;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Collection\MediaAlbumTranslationBasicCollection;
-use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Collection\MediaAlbumTranslationDetailCollection;
-
-use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Event\MediaAlbumTranslationAggregationResultLoadedEvent;
-use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Event\MediaAlbumTranslationBasicLoadedEvent;
-use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Event\MediaAlbumTranslationDetailLoadedEvent;
-use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Event\MediaAlbumTranslationIdSearchResultLoadedEvent;
-use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Event\MediaAlbumTranslationSearchResultLoadedEvent;
-use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Struct\MediaAlbumTranslationSearchResult;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class MediaAlbumTranslationRepository implements RepositoryInterface

@@ -2,6 +2,15 @@
 
 namespace Shopware\Application\Language;
 
+use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Application\Language\Collection\LanguageBasicCollection;
+use Shopware\Application\Language\Collection\LanguageDetailCollection;
+use Shopware\Application\Language\Event\LanguageAggregationResultLoadedEvent;
+use Shopware\Application\Language\Event\LanguageBasicLoadedEvent;
+use Shopware\Application\Language\Event\LanguageDetailLoadedEvent;
+use Shopware\Application\Language\Event\LanguageIdSearchResultLoadedEvent;
+use Shopware\Application\Language\Event\LanguageSearchResultLoadedEvent;
+use Shopware\Application\Language\Struct\LanguageSearchResult;
 use Shopware\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Framework\ORM\RepositoryInterface;
 use Shopware\Framework\ORM\Search\AggregatorResult;
@@ -9,19 +18,9 @@ use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
 use Shopware\Framework\ORM\Search\EntitySearcherInterface;
 use Shopware\Framework\ORM\Search\IdSearchResult;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\Application\Language\Collection\LanguageBasicCollection;
-use Shopware\Application\Language\Collection\LanguageDetailCollection;
-
-use Shopware\Application\Language\Event\LanguageAggregationResultLoadedEvent;
-use Shopware\Application\Language\Event\LanguageBasicLoadedEvent;
-use Shopware\Application\Language\Event\LanguageDetailLoadedEvent;
-use Shopware\Application\Language\Event\LanguageIdSearchResultLoadedEvent;
-use Shopware\Application\Language\Event\LanguageSearchResultLoadedEvent;
-use Shopware\Application\Language\Struct\LanguageSearchResult;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class LanguageRepository implements RepositoryInterface

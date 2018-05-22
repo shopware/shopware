@@ -2,15 +2,15 @@
 
 namespace Shopware\Content\Product\Event;
 
-use Shopware\Content\Product\Collection\ProductBasicCollection;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Content\Product\Aggregate\ProductContextPrice\Event\ProductContextPriceBasicLoadedEvent;
 use Shopware\Content\Product\Aggregate\ProductManufacturer\Event\ProductManufacturerBasicLoadedEvent;
 use Shopware\Content\Product\Aggregate\ProductMedia\Event\ProductMediaBasicLoadedEvent;
-use Shopware\System\Tax\Event\TaxBasicLoadedEvent;
-use Shopware\System\Unit\Event\UnitBasicLoadedEvent;
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Content\Product\Collection\ProductBasicCollection;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\System\Tax\Event\TaxBasicLoadedEvent;
+use Shopware\System\Unit\Event\UnitBasicLoadedEvent;
 
 class ProductBasicLoadedEvent extends NestedEvent
 {
@@ -72,7 +72,7 @@ class ProductBasicLoadedEvent extends NestedEvent
 
         $covers = $this->products->getCovers();
         if ($covers->count() > 0) {
-            $events[]= new ProductMediaBasicLoadedEvent($covers, $this->context);
+            $events[] = new ProductMediaBasicLoadedEvent($covers, $this->context);
         }
 
         return new NestedEventCollection($events);

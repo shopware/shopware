@@ -2,6 +2,11 @@
 
 namespace Shopware\Framework\Api\Controller;
 
+use Shopware\Framework\Api\Context\RestContext;
+use Shopware\Framework\Api\Exception\ResourceNotFoundException;
+use Shopware\Framework\Api\Exception\UnknownRepositoryVersionException;
+use Shopware\Framework\Api\Exception\WriteStackHttpException;
+use Shopware\Framework\Api\Response\ResponseFactory;
 use Shopware\Framework\ORM\DefinitionRegistry;
 use Shopware\Framework\ORM\Entity;
 use Shopware\Framework\ORM\EntityDefinition;
@@ -21,11 +26,6 @@ use Shopware\Framework\ORM\Write\EntityWriterInterface;
 use Shopware\Framework\ORM\Write\FieldException\WriteStackException;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\Framework\Api\Context\RestContext;
-use Shopware\Framework\Api\Exception\ResourceNotFoundException;
-use Shopware\Framework\Api\Exception\UnknownRepositoryVersionException;
-use Shopware\Framework\Api\Exception\WriteStackHttpException;
-use Shopware\Framework\Api\Response\ResponseFactory;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -500,9 +500,10 @@ class ApiController extends Controller
 
     /**
      * @param string|EntityDefinition $definition
-     * @param array $payload
-     * @param RestContext $context
-     * @param string $type
+     * @param array                   $payload
+     * @param RestContext             $context
+     * @param string                  $type
+     *
      * @return GenericWrittenEvent
      */
     private function executeWriteOperation(string $definition, array $payload, RestContext $context, string $type): GenericWrittenEvent
@@ -715,17 +716,17 @@ class ApiController extends Controller
 
     /**
      * @param string|EntityDefinition $definition
-     * @param int $version
-     *
-     * @return RepositoryInterface
+     * @param int                     $version
      *
      * @throws UnknownRepositoryVersionException
+     *
+     * @return RepositoryInterface
      */
     private function getRepository(string $definition, int $version): RepositoryInterface
     {
         $repositoryClass = sprintf('%s.v%d', $definition::getRepositoryClass(), $version);
 
-        if (false === $this->has($repositoryClass)) {
+        if ($this->has($repositoryClass) === false) {
             throw new UnknownRepositoryVersionException($definition::getEntityName(), $version);
         }
 

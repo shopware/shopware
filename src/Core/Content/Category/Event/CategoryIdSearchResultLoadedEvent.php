@@ -2,9 +2,9 @@
 
 namespace Shopware\Content\Category\Event;
 
-use Shopware\Framework\ORM\Search\IdSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
+use Shopware\Framework\ORM\Search\IdSearchResult;
 
 class CategoryIdSearchResultLoadedEvent extends NestedEvent
 {

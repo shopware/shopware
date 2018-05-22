@@ -2,8 +2,8 @@
 
 namespace Shopware\Checkout\Customer\Aggregate\CustomerGroup\Event;
 
-use Shopware\Checkout\Customer\Aggregate\CustomerGroup\Struct\CustomerGroupSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Checkout\Customer\Aggregate\CustomerGroup\Struct\CustomerGroupSearchResult;
 use Shopware\Framework\Event\NestedEvent;
 
 class CustomerGroupSearchResultLoadedEvent extends NestedEvent

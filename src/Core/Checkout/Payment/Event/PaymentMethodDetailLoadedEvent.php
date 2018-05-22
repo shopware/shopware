@@ -2,12 +2,12 @@
 
 namespace Shopware\Checkout\Payment\Event;
 
-use Shopware\Checkout\Payment\Collection\PaymentMethodDetailCollection;
-use Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation\Event\PaymentMethodTranslationBasicLoadedEvent;
-use Shopware\Framework\Plugin\Event\Plugin\PluginBasicLoadedEvent;
 use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation\Event\PaymentMethodTranslationBasicLoadedEvent;
+use Shopware\Checkout\Payment\Collection\PaymentMethodDetailCollection;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\Framework\Plugin\Event\Plugin\PluginBasicLoadedEvent;
 
 class PaymentMethodDetailLoadedEvent extends NestedEvent
 {

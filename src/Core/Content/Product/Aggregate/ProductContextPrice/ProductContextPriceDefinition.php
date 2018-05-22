@@ -3,8 +3,13 @@
 namespace Shopware\Content\Product\Aggregate\ProductContextPrice;
 
 use Shopware\Checkout\Rule\ContextRuleDefinition;
+use Shopware\Content\Product\Aggregate\ProductContextPrice\Collection\ProductContextPriceBasicCollection;
+use Shopware\Content\Product\Aggregate\ProductContextPrice\Collection\ProductContextPriceDetailCollection;
+use Shopware\Content\Product\Aggregate\ProductContextPrice\Event\ProductContextPriceDeletedEvent;
+use Shopware\Content\Product\Aggregate\ProductContextPrice\Event\ProductContextPriceWrittenEvent;
+use Shopware\Content\Product\Aggregate\ProductContextPrice\Struct\ProductContextPriceBasicStruct;
+use Shopware\Content\Product\Aggregate\ProductContextPrice\Struct\ProductContextPriceDetailStruct;
 use Shopware\Content\Product\ProductDefinition;
-use Shopware\System\Currency\CurrencyDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\DateField;
@@ -19,13 +24,7 @@ use Shopware\Framework\ORM\Field\VersionField;
 use Shopware\Framework\ORM\FieldCollection;
 use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\Content\Product\Aggregate\ProductContextPrice\Collection\ProductContextPriceBasicCollection;
-use Shopware\Content\Product\Aggregate\ProductContextPrice\Collection\ProductContextPriceDetailCollection;
-use Shopware\Content\Product\Aggregate\ProductContextPrice\Event\ProductContextPriceDeletedEvent;
-use Shopware\Content\Product\Aggregate\ProductContextPrice\Event\ProductContextPriceWrittenEvent;
-
-use Shopware\Content\Product\Aggregate\ProductContextPrice\Struct\ProductContextPriceBasicStruct;
-use Shopware\Content\Product\Aggregate\ProductContextPrice\Struct\ProductContextPriceDetailStruct;
+use Shopware\System\Currency\CurrencyDefinition;
 
 class ProductContextPriceDefinition extends EntityDefinition
 {

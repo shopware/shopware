@@ -24,23 +24,22 @@
 
 namespace Shopware\Checkout\Cart\Order;
 
-use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Checkout\Order\OrderRepository;
+use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Checkout\Cart\Delivery\Struct\DeliveryPosition;
 use Shopware\Checkout\Cart\LineItem\CalculatedLineItemInterface;
 use Shopware\Checkout\Cart\LineItem\NestedInterface;
-
 use Shopware\Checkout\Cart\Tax\TaxDetector;
 use Shopware\Checkout\Cart\Transaction\Struct\Transaction;
+use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
 use Shopware\Checkout\Order\Exception\CustomerHasNoActiveBillingAddressException;
 use Shopware\Checkout\Order\Exception\DeliveryWithoutAddressException;
 use Shopware\Checkout\Order\Exception\EmptyCartException;
 use Shopware\Checkout\Order\Exception\NotLoggedInCustomerException;
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\Order\OrderRepository;
 use Shopware\Defaults;
+use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\Struct\Uuid;
 
 class OrderPersister implements OrderPersisterInterface

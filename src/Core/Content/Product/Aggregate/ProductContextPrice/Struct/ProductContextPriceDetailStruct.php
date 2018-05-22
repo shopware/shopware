@@ -3,7 +3,6 @@
 namespace Shopware\Content\Product\Aggregate\ProductContextPrice\Struct;
 
 use Shopware\Checkout\Rule\Struct\ContextRuleBasicStruct;
-
 use Shopware\Content\Product\Struct\ProductBasicStruct;
 use Shopware\System\Currency\Struct\CurrencyBasicStruct;
 

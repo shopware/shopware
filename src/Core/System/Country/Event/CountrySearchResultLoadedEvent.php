@@ -2,9 +2,9 @@
 
 namespace Shopware\System\Country\Event;
 
-use Shopware\System\Country\Struct\CountrySearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
+use Shopware\System\Country\Struct\CountrySearchResult;
 
 class CountrySearchResultLoadedEvent extends NestedEvent
 {

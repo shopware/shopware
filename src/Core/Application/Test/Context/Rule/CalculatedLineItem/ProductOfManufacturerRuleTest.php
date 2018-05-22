@@ -25,12 +25,12 @@
 namespace Shopware\Application\Test\Context\Rule\CalculatedLineItem;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Content\Product\Struct\ProductBasicStruct;
-use Shopware\Content\Product\Aggregate\ProductManufacturer\Struct\ProductManufacturerBasicStruct;
-use Shopware\Checkout\Test\Cart\Common\Generator;
-use Shopware\Checkout\Rule\Specification\Scope\CalculatedLineItemScope;
-use Shopware\Checkout\Rule\Specification\CalculatedLineItem\ProductOfManufacturerRule;
 use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\Rule\Specification\CalculatedLineItem\ProductOfManufacturerRule;
+use Shopware\Checkout\Rule\Specification\Scope\CalculatedLineItemScope;
+use Shopware\Checkout\Test\Cart\Common\Generator;
+use Shopware\Content\Product\Aggregate\ProductManufacturer\Struct\ProductManufacturerBasicStruct;
+use Shopware\Content\Product\Struct\ProductBasicStruct;
 use Shopware\Framework\Struct\Uuid;
 
 class ProductOfManufacturerRuleTest extends TestCase

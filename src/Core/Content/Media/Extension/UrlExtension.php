@@ -3,8 +3,8 @@
 namespace Shopware\Content\Media\Extension;
 
 use Shopware\Content\Media\Event\MediaBasicLoadedEvent;
-use Shopware\Framework\Struct\ArrayStruct;
 use Shopware\Content\Media\Util\UrlGeneratorInterface;
+use Shopware\Framework\Struct\ArrayStruct;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class UrlExtension implements EventSubscriberInterface
@@ -30,7 +30,7 @@ class UrlExtension implements EventSubscriberInterface
     {
         foreach ($event->getMedia() as $media) {
             $media->addExtension('links', new ArrayStruct([
-                'url' => $this->urlGenerator->getUrl($media->getFileName())
+                'url' => $this->urlGenerator->getUrl($media->getFileName()),
             ]));
         }
     }

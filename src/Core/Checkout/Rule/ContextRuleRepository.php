@@ -2,9 +2,9 @@
 
 namespace Shopware\Checkout\Rule;
 
-use Shopware\Checkout\Rule\Collection\ContextRuleBasicCollection;
 use Shopware\Application\Context\Collection\ContextRuleDetailCollection;
-
+use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Checkout\Rule\Collection\ContextRuleBasicCollection;
 use Shopware\Checkout\Rule\Event\ContextRuleAggregationResultLoadedEvent;
 use Shopware\Checkout\Rule\Event\ContextRuleBasicLoadedEvent;
 use Shopware\Checkout\Rule\Event\ContextRuleDetailLoadedEvent;
@@ -18,10 +18,9 @@ use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
 use Shopware\Framework\ORM\Search\EntitySearcherInterface;
 use Shopware\Framework\ORM\Search\IdSearchResult;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ContextRuleRepository implements RepositoryInterface

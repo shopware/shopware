@@ -2,12 +2,12 @@
 
 namespace Shopware\Framework\Api\Context;
 
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\EntitySearcherInterface;
 use Shopware\Framework\ORM\Search\Query\TermQuery;
-use Shopware\System\User\UserDefinition;
-use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\PlatformRequest;
+use Shopware\System\User\UserDefinition;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ArgumentValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;

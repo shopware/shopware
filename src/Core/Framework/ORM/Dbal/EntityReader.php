@@ -3,6 +3,7 @@
 namespace Shopware\Framework\ORM\Dbal;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\ORM\Entity;
 use Shopware\Framework\ORM\EntityCollection;
 use Shopware\Framework\ORM\EntityDefinition;
@@ -23,8 +24,6 @@ use Shopware\Framework\ORM\Write\Flag\Deferred;
 use Shopware\Framework\ORM\Write\Flag\DelayedLoad;
 use Shopware\Framework\ORM\Write\Flag\Extension;
 use Shopware\Framework\ORM\Write\Flag\Inherited;
-
-use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Struct\ArrayStruct;
 use Shopware\Framework\Struct\Struct;
 use Shopware\Framework\Struct\Uuid;
@@ -213,7 +212,7 @@ class EntityReader implements EntityReaderInterface
                 $query->addSelect(
                     EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getPropertyName())
                     . ' as ' .
-                    EntityDefinitionQueryHelper::escape('_' . $root . '.' . $field->getPropertyName(). '.inherited')
+                    EntityDefinitionQueryHelper::escape('_' . $root . '.' . $field->getPropertyName() . '.inherited')
                 );
             }
 

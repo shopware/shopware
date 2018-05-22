@@ -3,6 +3,8 @@
 namespace Shopware\Framework\ORM\Dbal;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Defaults;
 use Shopware\Framework\ORM\Dbal\FieldAccessorBuilder\FieldAccessorBuilderRegistry;
 use Shopware\Framework\ORM\Dbal\FieldResolver\FieldResolverRegistry;
 use Shopware\Framework\ORM\EntityDefinition;
@@ -12,8 +14,6 @@ use Shopware\Framework\ORM\Field\ManyToManyAssociationField;
 use Shopware\Framework\ORM\Field\TranslatedField;
 use Shopware\Framework\ORM\Write\FieldAware\StorageAware;
 use Shopware\Framework\ORM\Write\Flag\Inherited;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Defaults;
 use Shopware\Framework\Struct\Uuid;
 
 /**

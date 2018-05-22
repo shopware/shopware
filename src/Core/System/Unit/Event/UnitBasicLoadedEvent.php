@@ -2,9 +2,9 @@
 
 namespace Shopware\System\Unit\Event;
 
-use Shopware\System\Unit\Collection\UnitBasicCollection;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
+use Shopware\System\Unit\Collection\UnitBasicCollection;
 
 class UnitBasicLoadedEvent extends NestedEvent
 {

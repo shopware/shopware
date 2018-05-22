@@ -2,11 +2,11 @@
 
 namespace Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Collection;
 
+use Shopware\Framework\ORM\EntityCollection;
+use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Struct\ConfigurationGroupOptionBasicStruct;
 use Shopware\System\Configuration\Collection\ConfigurationGroupBasicCollection;
 use Shopware\System\Configuration\Collection\ConfigurationGroupDetailCollection;
 use Shopware\System\Configuration\Struct\ConfigurationGroupDetailStruct;
-use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Struct\ConfigurationGroupOptionBasicStruct;
-use Shopware\Framework\ORM\EntityCollection;
 
 class ConfigurationGroupOptionBasicCollection extends EntityCollection
 {

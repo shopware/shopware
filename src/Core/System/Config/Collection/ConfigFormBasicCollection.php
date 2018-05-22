@@ -2,8 +2,8 @@
 
 namespace Shopware\System\Config\Collection;
 
-use Shopware\System\Config\Struct\ConfigFormBasicStruct;
 use Shopware\Framework\ORM\EntityCollection;
+use Shopware\System\Config\Struct\ConfigFormBasicStruct;
 
 class ConfigFormBasicCollection extends EntityCollection
 {

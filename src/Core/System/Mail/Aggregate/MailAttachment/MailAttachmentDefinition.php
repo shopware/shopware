@@ -2,6 +2,7 @@
 
 namespace Shopware\System\Mail\Aggregate\MailAttachment;
 
+use Shopware\Content\Media\MediaDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\DateField;
@@ -19,11 +20,9 @@ use Shopware\System\Mail\Aggregate\MailAttachment\Collection\MailAttachmentBasic
 use Shopware\System\Mail\Aggregate\MailAttachment\Collection\MailAttachmentDetailCollection;
 use Shopware\System\Mail\Aggregate\MailAttachment\Event\MailAttachmentDeletedEvent;
 use Shopware\System\Mail\Aggregate\MailAttachment\Event\MailAttachmentWrittenEvent;
-use Shopware\System\Mail\MailDefinition;
-
 use Shopware\System\Mail\Aggregate\MailAttachment\Struct\MailAttachmentBasicStruct;
 use Shopware\System\Mail\Aggregate\MailAttachment\Struct\MailAttachmentDetailStruct;
-use Shopware\Content\Media\MediaDefinition;
+use Shopware\System\Mail\MailDefinition;
 
 class MailAttachmentDefinition extends EntityDefinition
 {
@@ -64,7 +63,7 @@ class MailAttachmentDefinition extends EntityDefinition
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
             new ManyToOneAssociationField('mail', 'mail_id', MailDefinition::class, false),
-            (new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, false))->setFlags(new SearchRanking(1))
+            (new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, false))->setFlags(new SearchRanking(1)),
         ]);
 
         foreach (self::$extensions as $extension) {

@@ -2,6 +2,7 @@
 
 namespace Shopware\System\Mail\Aggregate\MailTranslation;
 
+use Shopware\Application\Language\LanguageDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\FkField;
@@ -9,19 +10,16 @@ use Shopware\Framework\ORM\Field\LongTextField;
 use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Framework\ORM\Field\ReferenceVersionField;
 use Shopware\Framework\ORM\Field\StringField;
-
 use Shopware\Framework\ORM\FieldCollection;
 use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\Application\Language\LanguageDefinition;
 use Shopware\System\Mail\Aggregate\MailTranslation\Collection\MailTranslationBasicCollection;
 use Shopware\System\Mail\Aggregate\MailTranslation\Collection\MailTranslationDetailCollection;
 use Shopware\System\Mail\Aggregate\MailTranslation\Event\MailTranslationDeletedEvent;
 use Shopware\System\Mail\Aggregate\MailTranslation\Event\MailTranslationWrittenEvent;
-use Shopware\System\Mail\MailDefinition;
-
 use Shopware\System\Mail\Aggregate\MailTranslation\Struct\MailTranslationBasicStruct;
 use Shopware\System\Mail\Aggregate\MailTranslation\Struct\MailTranslationDetailStruct;
+use Shopware\System\Mail\MailDefinition;
 
 class MailTranslationDefinition extends EntityDefinition
 {

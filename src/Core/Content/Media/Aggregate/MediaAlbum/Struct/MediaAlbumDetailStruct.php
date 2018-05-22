@@ -6,7 +6,6 @@ use Shopware\Content\Media\Aggregate\MediaAlbum\Collection\MediaAlbumBasicCollec
 use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Collection\MediaAlbumTranslationBasicCollection;
 use Shopware\Content\Media\Collection\MediaBasicCollection;
 
-
 class MediaAlbumDetailStruct extends MediaAlbumBasicStruct
 {
     /**

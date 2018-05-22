@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace Shopware\Checkout\Cart;
 
-use Shopware\Checkout\Order\OrderDefinition;
+use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Checkout\Cart\Cart\CartPersisterInterface;
 use Shopware\Checkout\Cart\Cart\CircularCartCalculation;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
@@ -34,7 +34,7 @@ use Shopware\Checkout\Cart\Exception\LineItemNotFoundException;
 use Shopware\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Checkout\Cart\LineItem\LineItemInterface;
 use Shopware\Checkout\Cart\Order\OrderPersisterInterface;
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\Order\OrderDefinition;
 
 class StoreFrontCartService
 {

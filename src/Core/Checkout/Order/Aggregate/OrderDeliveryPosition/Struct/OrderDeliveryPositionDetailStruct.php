@@ -4,7 +4,6 @@ namespace Shopware\Checkout\Order\Aggregate\OrderDeliveryPosition\Struct;
 
 use Shopware\Checkout\Order\Aggregate\OrderDelivery\Struct\OrderDeliveryBasicStruct;
 
-
 class OrderDeliveryPositionDetailStruct extends OrderDeliveryPositionBasicStruct
 {
     /**

@@ -2,8 +2,8 @@
 
 namespace Shopware\System\User\Struct;
 
-use Shopware\System\Locale\Struct\LocaleBasicStruct;
 use Shopware\Content\Media\Collection\MediaBasicCollection;
+use Shopware\System\Locale\Struct\LocaleBasicStruct;
 
 class UserDetailStruct extends UserBasicStruct
 {

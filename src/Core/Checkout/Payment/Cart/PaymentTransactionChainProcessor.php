@@ -2,19 +2,18 @@
 
 namespace Shopware\Checkout\Payment\Cart;
 
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Checkout\Order\Aggregate\OrderTransaction\Collection\OrderTransactionBasicCollection;
 use Shopware\Checkout\Order\OrderRepository;
 use Shopware\Checkout\Order\Struct\OrderDetailStruct;
-use Shopware\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
-use Shopware\Checkout\Payment\PaymentMethodRepository;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Defaults;
-use Shopware\Checkout\Payment\Exception\InvalidOrderException;
-use Shopware\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerInterface;
-
+use Shopware\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
 use Shopware\Checkout\Payment\Cart\Token\PaymentTransactionTokenFactory;
 use Shopware\Checkout\Payment\Cart\Token\PaymentTransactionTokenFactoryInterface;
+use Shopware\Checkout\Payment\Exception\InvalidOrderException;
+use Shopware\Checkout\Payment\Exception\UnknownPaymentMethodException;
+use Shopware\Checkout\Payment\PaymentMethodRepository;
+use Shopware\Defaults;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;

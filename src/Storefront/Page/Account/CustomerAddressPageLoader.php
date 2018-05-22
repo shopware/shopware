@@ -2,10 +2,10 @@
 
 namespace Shopware\Storefront\Page\Account;
 
+use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Query\TermQuery;
-use Shopware\Application\Context\Struct\StorefrontContext;
 
 class CustomerAddressPageLoader
 {

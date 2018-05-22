@@ -13,12 +13,17 @@ use Shopware\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition;
 use Shopware\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordDefinition;
 use Shopware\Content\Product\Aggregate\ProductSeoCategory\ProductSeoCategoryDefinition;
 use Shopware\Content\Product\Aggregate\ProductService\ProductServiceDefinition;
-use Shopware\Content\Product\Aggregate\ProductStreamAssignment\ProductStreamAssignmentDefinition;
 use Shopware\Content\Product\Aggregate\ProductStream\ProductStreamDefinition;
+use Shopware\Content\Product\Aggregate\ProductStreamAssignment\ProductStreamAssignmentDefinition;
 use Shopware\Content\Product\Aggregate\ProductStreamTab\ProductStreamTabDefinition;
 use Shopware\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Content\Product\Aggregate\ProductVariation\ProductVariationDefinition;
-use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
+use Shopware\Content\Product\Collection\ProductBasicCollection;
+use Shopware\Content\Product\Collection\ProductDetailCollection;
+use Shopware\Content\Product\Event\ProductDeletedEvent;
+use Shopware\Content\Product\Event\ProductWrittenEvent;
+use Shopware\Content\Product\Struct\ProductBasicStruct;
+use Shopware\Content\Product\Struct\ProductDetailStruct;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\BoolField;
@@ -52,13 +57,7 @@ use Shopware\Framework\ORM\Write\Flag\ReadOnly;
 use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Framework\ORM\Write\Flag\WriteOnly;
-use Shopware\Content\Product\Collection\ProductBasicCollection;
-use Shopware\Content\Product\Collection\ProductDetailCollection;
-use Shopware\Content\Product\Event\ProductDeletedEvent;
-use Shopware\Content\Product\Event\ProductWrittenEvent;
-
-use Shopware\Content\Product\Struct\ProductBasicStruct;
-use Shopware\Content\Product\Struct\ProductDetailStruct;
+use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
 use Shopware\System\Tax\TaxDefinition;
 use Shopware\System\Unit\UnitDefinition;
 
@@ -186,7 +185,7 @@ class ProductDefinition extends EntityDefinition
             (new ProductCoverField('cover', true))->setFlags(new ReadOnly()),
 
             (new OneToManyAssociationField('configurators', ProductConfiguratorDefinition::class, 'product_id', false, 'id'))->setFlags(new CascadeDelete()),
-            (new ManyToManyAssociationField('variations', ConfigurationGroupOptionDefinition::class, ProductVariationDefinition::class, false, 'product_id', 'configuration_group_option_id'))->setFlags(new CascadeDelete())
+            (new ManyToManyAssociationField('variations', ConfigurationGroupOptionDefinition::class, ProductVariationDefinition::class, false, 'product_id', 'configuration_group_option_id'))->setFlags(new CascadeDelete()),
         ]);
 
         foreach (self::$extensions as $extension) {

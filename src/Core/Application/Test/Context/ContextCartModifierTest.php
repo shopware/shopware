@@ -2,9 +2,10 @@
 
 namespace Shopware\Application\Test\Context;
 
+use Shopware\Application\Context\Cart\ContextCartModifierProcessor;
 use Shopware\Application\Context\Repository\ContextCartModifierRepository;
-use Shopware\Checkout\Rule\ContextRuleRepository;
-use Shopware\Content\Product\ProductRepository;
+use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Checkout\Cart\Cart\CircularCartCalculation;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Checkout\Cart\Cart\Struct\Cart;
@@ -13,9 +14,7 @@ use Shopware\Checkout\Cart\LineItem\CalculatedLineItem;
 use Shopware\Checkout\Cart\LineItem\LineItem;
 use Shopware\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Checkout\Cart\Tax\Struct\PercentageTaxRule;
-use Shopware\Checkout\Test\Cart\Common\Generator;
-use Shopware\Application\Context\Cart\ContextCartModifierProcessor;
-use Shopware\Content\Product\Cart\ProductProcessor;
+use Shopware\Checkout\Rule\ContextRuleRepository;
 use Shopware\Checkout\Rule\Specification\CalculatedCart\GoodsCountRule;
 use Shopware\Checkout\Rule\Specification\CalculatedCart\GoodsPriceRule;
 use Shopware\Checkout\Rule\Specification\CalculatedLineItem\LineItemOfTypeRule;
@@ -24,8 +23,9 @@ use Shopware\Checkout\Rule\Specification\CalculatedLineItem\LineItemWithQuantity
 use Shopware\Checkout\Rule\Specification\CalculatedLineItem\ProductOfManufacturerRule;
 use Shopware\Checkout\Rule\Specification\Container\AndRule;
 use Shopware\Checkout\Rule\Specification\Rule;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\Test\Cart\Common\Generator;
+use Shopware\Content\Product\Cart\ProductProcessor;
+use Shopware\Content\Product\ProductRepository;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;

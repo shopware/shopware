@@ -4,15 +4,13 @@ namespace Shopware\Framework\Test\Api\Serializer;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Content\Media\Aggregate\MediaAlbum\MediaAlbumDefinition;
-use Shopware\Content\Media\MediaDefinition;
 use Shopware\Content\Media\Aggregate\MediaAlbum\Struct\MediaAlbumBasicStruct;
 use Shopware\Content\Media\Aggregate\MediaAlbum\Struct\MediaAlbumDetailStruct;
-use Shopware\Framework\Serializer\StructDecoder;
-use Shopware\Framework\Serializer\StructNormalizer;
-
-
+use Shopware\Content\Media\MediaDefinition;
 use Shopware\Content\Media\Util\UrlGeneratorInterface;
 use Shopware\Framework\Api\Serializer\JsonApiEncoder;
+use Shopware\Framework\Serializer\StructDecoder;
+use Shopware\Framework\Serializer\StructNormalizer;
 use Symfony\Component\Serializer\Exception\BadMethodCallException;
 use Symfony\Component\Serializer\Exception\UnexpectedValueException;
 

@@ -2,9 +2,9 @@
 
 namespace Shopware\Checkout\Customer\Aggregate\CustomerAddress\Struct;
 
-use Shopware\System\Country\Struct\CountryBasicStruct;
-use Shopware\System\Country\Aggregate\CountryState\Struct\CountryStateBasicStruct;
 use Shopware\Framework\ORM\Entity;
+use Shopware\System\Country\Aggregate\CountryState\Struct\CountryStateBasicStruct;
+use Shopware\System\Country\Struct\CountryBasicStruct;
 
 class CustomerAddressBasicStruct extends Entity
 {

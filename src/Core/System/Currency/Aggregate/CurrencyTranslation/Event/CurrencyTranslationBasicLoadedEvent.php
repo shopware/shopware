@@ -2,9 +2,9 @@
 
 namespace Shopware\System\Currency\Aggregate\CurrencyTranslation\Event;
 
-use Shopware\System\Currency\Aggregate\CurrencyTranslation\Collection\CurrencyTranslationBasicCollection;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
+use Shopware\System\Currency\Aggregate\CurrencyTranslation\Collection\CurrencyTranslationBasicCollection;
 
 class CurrencyTranslationBasicLoadedEvent extends NestedEvent
 {

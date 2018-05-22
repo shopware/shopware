@@ -3,12 +3,12 @@
 namespace Shopware\Application\Application\Event;
 
 use Shopware\Application\Application\Collection\ApplicationDetailCollection;
-use Shopware\System\Country\Event\CountryBasicLoadedEvent;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Checkout\Payment\Event\PaymentMethodBasicLoadedEvent;
 use Shopware\Checkout\Shipping\Event\ShippingMethodBasicLoadedEvent;
-use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\System\Country\Event\CountryBasicLoadedEvent;
 
 class ApplicationDetailLoadedEvent extends NestedEvent
 {

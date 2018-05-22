@@ -3,13 +3,19 @@
 namespace Shopware\Checkout\Order;
 
 use Shopware\Application\Application\ApplicationDefinition;
+use Shopware\Checkout\Customer\CustomerDefinition;
 use Shopware\Checkout\Order\Aggregate\OrderAddress\OrderAddressDefinition;
 use Shopware\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
 use Shopware\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition;
 use Shopware\Checkout\Order\Aggregate\OrderState\OrderStateDefinition;
 use Shopware\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
-use Shopware\System\Currency\CurrencyDefinition;
-use Shopware\Checkout\Customer\CustomerDefinition;
+use Shopware\Checkout\Order\Collection\OrderBasicCollection;
+use Shopware\Checkout\Order\Collection\OrderDetailCollection;
+use Shopware\Checkout\Order\Event\OrderDeletedEvent;
+use Shopware\Checkout\Order\Event\OrderWrittenEvent;
+use Shopware\Checkout\Order\Struct\OrderBasicStruct;
+use Shopware\Checkout\Order\Struct\OrderDetailStruct;
+use Shopware\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\BoolField;
@@ -29,14 +35,7 @@ use Shopware\Framework\ORM\Write\Flag\DelayedLoad;
 use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Framework\ORM\Write\Flag\SearchRanking;
-use Shopware\Checkout\Order\Collection\OrderBasicCollection;
-use Shopware\Checkout\Order\Collection\OrderDetailCollection;
-use Shopware\Checkout\Order\Event\OrderDeletedEvent;
-use Shopware\Checkout\Order\Event\OrderWrittenEvent;
-
-use Shopware\Checkout\Order\Struct\OrderBasicStruct;
-use Shopware\Checkout\Order\Struct\OrderDetailStruct;
-use Shopware\Checkout\Payment\PaymentMethodDefinition;
+use Shopware\System\Currency\CurrencyDefinition;
 
 class OrderDefinition extends EntityDefinition
 {

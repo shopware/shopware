@@ -2,8 +2,8 @@
 
 namespace Shopware\Content\Product\Aggregate\ProductContextPrice\Event;
 
-use Shopware\Content\Product\Aggregate\ProductContextPrice\Struct\ProductContextPriceSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Content\Product\Aggregate\ProductContextPrice\Struct\ProductContextPriceSearchResult;
 use Shopware\Framework\Event\NestedEvent;
 
 class ProductContextPriceSearchResultLoadedEvent extends NestedEvent

@@ -4,10 +4,10 @@ namespace Shopware\Content\Product\Util;
 
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\ORM\Search\Term\SearchPattern;
 use Shopware\Framework\ORM\Search\Term\SearchTerm;
 use Shopware\Framework\ORM\Search\Term\TokenizerInterface;
-use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Struct\Uuid;
 
 class KeywordSearchTermInterpreter

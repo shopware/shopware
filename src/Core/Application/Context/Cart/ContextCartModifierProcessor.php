@@ -2,9 +2,11 @@
 
 namespace Shopware\Application\Context\Cart;
 
+use Shopware\Application\Context\Exception\UnsupportedModifierTypeException;
 use Shopware\Application\Context\Repository\ContextCartModifierRepository;
 use Shopware\Application\Context\Struct\ContextCartModifierBasicStruct;
 use Shopware\Application\Context\Struct\ContextCartModifierSearchResult;
+use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Checkout\Cart\Cart\CartProcessorInterface;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Checkout\Cart\Cart\Struct\Cart;
@@ -13,9 +15,7 @@ use Shopware\Checkout\Cart\Price\AbsolutePriceCalculator;
 use Shopware\Checkout\Cart\Price\PercentagePriceCalculator;
 use Shopware\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
-use Shopware\Application\Context\Exception\UnsupportedModifierTypeException;
 use Shopware\Checkout\Rule\Specification\Scope\CalculatedLineItemScope;
-use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class ContextCartModifierProcessor implements CartProcessorInterface

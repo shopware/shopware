@@ -2,8 +2,8 @@
 
 namespace Shopware\Framework\ORM\Version\Event\Version;
 
-use Shopware\Framework\ORM\Write\WrittenEvent;
 use Shopware\Framework\ORM\Version\Definition\VersionDefinition;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 
 class VersionWrittenEvent extends WrittenEvent
 {

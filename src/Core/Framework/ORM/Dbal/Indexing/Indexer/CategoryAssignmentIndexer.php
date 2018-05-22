@@ -3,23 +3,22 @@
 namespace Shopware\Framework\ORM\Dbal\Indexing\Indexer;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Content\Category\CategoryRepository;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\Query\TermQuery;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Content\Product\ProductRepository;
-use Shopware\Content\Category\Util\CategoryPathBuilder;
 use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Content\Category\CategoryRepository;
+use Shopware\Content\Category\Util\CategoryPathBuilder;
+use Shopware\Content\Product\ProductRepository;
+use Shopware\Defaults;
+use Shopware\Framework\Doctrine\MultiInsertQueryQueue;
 use Shopware\Framework\ORM\Dbal\Indexing\Common\EventIdExtractor;
 use Shopware\Framework\ORM\Dbal\Indexing\Common\RepositoryIterator;
 use Shopware\Framework\ORM\Dbal\Indexing\Event\ProgressAdvancedEvent;
 use Shopware\Framework\ORM\Dbal\Indexing\Event\ProgressFinishedEvent;
 use Shopware\Framework\ORM\Dbal\Indexing\Event\ProgressStartedEvent;
-
-use Shopware\Defaults;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Shopware\Framework\Doctrine\MultiInsertQueryQueue;
+use Shopware\Framework\ORM\Search\Criteria;
+use Shopware\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\Struct\Uuid;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class CategoryAssignmentIndexer implements IndexerInterface
 {
@@ -216,5 +215,4 @@ class CategoryAssignmentIndexer implements IndexerInterface
 
         return array_keys(array_flip(array_filter($categoryIds)));
     }
-
 }

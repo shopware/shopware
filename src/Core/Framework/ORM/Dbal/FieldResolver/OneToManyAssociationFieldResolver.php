@@ -2,6 +2,7 @@
 
 namespace Shopware\Framework\ORM\Dbal\FieldResolver;
 
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\ORM\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Framework\ORM\Dbal\QueryBuilder;
 use Shopware\Framework\ORM\EntityDefinition;
@@ -9,7 +10,6 @@ use Shopware\Framework\ORM\Field\Field;
 use Shopware\Framework\ORM\Field\OneToManyAssociationField;
 use Shopware\Framework\ORM\Write\Flag\CascadeDelete;
 use Shopware\Framework\ORM\Write\Flag\Inherited;
-use Shopware\Application\Context\Struct\ApplicationContext;
 
 class OneToManyAssociationFieldResolver implements FieldResolverInterface
 {
@@ -63,7 +63,7 @@ class OneToManyAssociationFieldResolver implements FieldResolverInterface
             '#source#' => $source,
             '#alias#' => EntityDefinitionQueryHelper::escape($alias),
             '#reference_column#' => EntityDefinitionQueryHelper::escape($field->getReferenceField()),
-            '#root#' => EntityDefinitionQueryHelper::escape($root)
+            '#root#' => EntityDefinitionQueryHelper::escape($root),
         ];
 
         $query->leftJoin(

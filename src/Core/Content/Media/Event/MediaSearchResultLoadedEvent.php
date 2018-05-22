@@ -2,8 +2,8 @@
 
 namespace Shopware\Content\Media\Event;
 
-use Shopware\Content\Media\Struct\MediaSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Content\Media\Struct\MediaSearchResult;
 use Shopware\Framework\Event\NestedEvent;
 
 class MediaSearchResultLoadedEvent extends NestedEvent

@@ -25,7 +25,6 @@
 namespace Shopware\Checkout\Rule\Specification;
 
 use Shopware\Checkout\Rule\Specification\Container\Container;
-
 use Shopware\Framework\Struct\Collection;
 
 class RuleCollection extends Collection

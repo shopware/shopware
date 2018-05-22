@@ -2,11 +2,11 @@
 
 namespace Shopware\System\Tax\Event;
 
-use Shopware\System\Tax\Collection\TaxDetailCollection;
-use Shopware\System\Tax\Aggregate\TaxAreaRule\Event\TaxAreaRuleBasicLoadedEvent;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\System\Tax\Aggregate\TaxAreaRule\Event\TaxAreaRuleBasicLoadedEvent;
+use Shopware\System\Tax\Collection\TaxDetailCollection;
 
 class TaxDetailLoadedEvent extends NestedEvent
 {

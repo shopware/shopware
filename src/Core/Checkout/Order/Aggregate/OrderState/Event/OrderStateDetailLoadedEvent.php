@@ -2,9 +2,9 @@
 
 namespace Shopware\Checkout\Order\Aggregate\OrderState\Event;
 
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Checkout\Order\Aggregate\OrderState\Collection\OrderStateDetailCollection;
 use Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Event\OrderStateTranslationBasicLoadedEvent;
-use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 

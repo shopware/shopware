@@ -2,15 +2,7 @@
 
 namespace Shopware\System\Config;
 
-use Shopware\System\Config\Collection\ConfigFormBasicCollection;
-use Shopware\System\Config\Collection\ConfigFormDetailCollection;
-
-use Shopware\System\Config\Event\ConfigFormAggregationResultLoadedEvent;
-use Shopware\System\Config\Event\ConfigFormBasicLoadedEvent;
-use Shopware\System\Config\Event\ConfigFormDetailLoadedEvent;
-use Shopware\System\Config\Event\ConfigFormIdSearchResultLoadedEvent;
-use Shopware\System\Config\Event\ConfigFormSearchResultLoadedEvent;
-use Shopware\System\Config\Struct\ConfigFormSearchResult;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Framework\ORM\RepositoryInterface;
 use Shopware\Framework\ORM\Search\AggregatorResult;
@@ -18,10 +10,17 @@ use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
 use Shopware\Framework\ORM\Search\EntitySearcherInterface;
 use Shopware\Framework\ORM\Search\IdSearchResult;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
+use Shopware\System\Config\Collection\ConfigFormBasicCollection;
+use Shopware\System\Config\Collection\ConfigFormDetailCollection;
+use Shopware\System\Config\Event\ConfigFormAggregationResultLoadedEvent;
+use Shopware\System\Config\Event\ConfigFormBasicLoadedEvent;
+use Shopware\System\Config\Event\ConfigFormDetailLoadedEvent;
+use Shopware\System\Config\Event\ConfigFormIdSearchResultLoadedEvent;
+use Shopware\System\Config\Event\ConfigFormSearchResultLoadedEvent;
+use Shopware\System\Config\Struct\ConfigFormSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ConfigFormRepository implements RepositoryInterface

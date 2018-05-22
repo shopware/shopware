@@ -2,8 +2,8 @@
 
 namespace Shopware\Checkout\Order\Event;
 
-use Shopware\Framework\ORM\Write\WrittenEvent;
 use Shopware\Checkout\Order\OrderDefinition;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 
 class OrderWrittenEvent extends WrittenEvent
 {

@@ -2,9 +2,9 @@
 
 namespace Shopware\Content\Category\Aggregate\CategoryTranslation;
 
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Content\Category\Aggregate\CategoryTranslation\Collection\CategoryTranslationBasicCollection;
 use Shopware\Content\Category\Aggregate\CategoryTranslation\Collection\CategoryTranslationDetailCollection;
-
 use Shopware\Content\Category\Aggregate\CategoryTranslation\Event\CategoryTranslationAggregationResultLoadedEvent;
 use Shopware\Content\Category\Aggregate\CategoryTranslation\Event\CategoryTranslationBasicLoadedEvent;
 use Shopware\Content\Category\Aggregate\CategoryTranslation\Event\CategoryTranslationDetailLoadedEvent;
@@ -18,10 +18,9 @@ use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
 use Shopware\Framework\ORM\Search\EntitySearcherInterface;
 use Shopware\Framework\ORM\Search\IdSearchResult;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class CategoryTranslationRepository implements RepositoryInterface

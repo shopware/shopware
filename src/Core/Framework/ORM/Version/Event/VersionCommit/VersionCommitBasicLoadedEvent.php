@@ -2,9 +2,9 @@
 
 namespace Shopware\Framework\ORM\Version\Event\VersionCommit;
 
-use Shopware\Framework\ORM\Version\Collection\VersionCommitBasicCollection;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
+use Shopware\Framework\ORM\Version\Collection\VersionCommitBasicCollection;
 
 class VersionCommitBasicLoadedEvent extends NestedEvent
 {

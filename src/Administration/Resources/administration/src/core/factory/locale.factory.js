@@ -25,7 +25,7 @@ const localeRegistry = new Map();
  *
  * @type {String}
  */
-const defaultLocale = 'en-UK';
+const defaultLocale = 'en-GB';
 
 /**
  * Defines the key of the localStorage item

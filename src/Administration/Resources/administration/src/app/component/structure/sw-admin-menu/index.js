@@ -72,7 +72,7 @@ Component.register('sw-admin-menu', {
 
         onChangeLanguage() {
             const lastLocale = this.$root.$i18n.locale;
-            const newLocale = (lastLocale === 'de-DE' ? 'en-UK' : 'de-DE');
+            const newLocale = (lastLocale === 'de-DE' ? 'en-GB' : 'de-DE');
 
             this.$root.$i18n.locale = newLocale;
             this.$store.commit('locale/setLocale', newLocale);

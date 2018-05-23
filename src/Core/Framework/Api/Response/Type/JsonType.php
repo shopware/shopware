@@ -61,6 +61,10 @@ class JsonType implements ResponseTypeInterface
             'data' => $this->format($decoded),
         ];
 
+        if ($searchResult && $searchResult->getAggregationResult()) {
+            $response['aggregations'] = $searchResult->getAggregationResult()->getFormattedAggregations();
+        }
+
         return new JsonResponse($response);
     }
 

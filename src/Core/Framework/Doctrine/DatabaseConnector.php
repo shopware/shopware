@@ -16,12 +16,12 @@ class DatabaseConnector
         );
 
         $pass = getenv('DATABASE_PW');
-        if (!isset($pass)) {
+        if (empty($pass)) {
             $pass = $url['pass'];
         }
 
         try {
-            $conn = new \PDO($dsn, $url['user'], $url['pass']);
+            $conn = new \PDO($dsn, $url['user'], $pass);
             $conn->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
             $conn->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
             $conn->exec('SET NAMES utf8mb4');

@@ -4,6 +4,7 @@
  * @module core/factory/module
  */
 import { warn } from 'src/core/service/utils/debug.utils';
+import { hasOwnProperty } from 'src/core/service/utils/object.utils';
 
 export default {
     getModuleRoutes,
@@ -72,7 +73,7 @@ function registerModule(moduleId, module) {
 
     // Modules will be mounted using the routes definition in the manifest file. If the module doesn't contains a routes
     // definition it isn't accessible in the application.
-    if (!Object.prototype.hasOwnProperty.call(module, 'routes')) {
+    if (!hasOwnProperty(module, 'routes')) {
         warn(
             'ModuleFactory',
             `Module "${moduleId}" has no configured routes. The module will not be accessible in the administration UI.`,
@@ -101,7 +102,7 @@ function registerModule(moduleId, module) {
         route = createRouteComponentList(route, moduleId);
 
         // Support for children routes
-        if (Object.prototype.hasOwnProperty.call(route, 'children') && Object.keys(route.children).length) {
+        if (hasOwnProperty(route, 'children') && Object.keys(route.children).length) {
             route = iterateChildRoutes(route, splitModuleId, routeKey);
             moduleRoutes = registerChildRoutes(route, moduleRoutes);
         }
@@ -134,7 +135,7 @@ function registerModule(moduleId, module) {
     };
 
     // Add the navigation of the module to the module definition. We'll create a menu entry later on
-    if (Object.prototype.hasOwnProperty.bind(module, 'navigation') && module.navigation) {
+    if (hasOwnProperty(module, 'navigation') && module.navigation) {
         moduleDefinition.navigation = module.navigation;
     }
 
@@ -154,7 +155,7 @@ function registerChildRoutes(routeDefinition, moduleRoutes) {
     Object.keys(routeDefinition.children).map((key) => {
         const child = routeDefinition.children[key];
 
-        if (Object.prototype.hasOwnProperty.call(child, 'children') && Object.keys(child.children).length) {
+        if (hasOwnProperty(child, 'children') && Object.keys(child.children).length) {
             moduleRoutes = registerChildRoutes(child, moduleRoutes);
         }
         moduleRoutes.set(child.name, child);
@@ -184,7 +185,7 @@ function iterateChildRoutes(routeDefinition, moduleName, parentKey) {
         child.name = `${moduleName.join('.')}.${parentKey}.${key}`;
         child.isChildren = true;
 
-        if (Object.prototype.hasOwnProperty.call(child, 'children') && Object.keys(child.children).length) {
+        if (hasOwnProperty(child, 'children') && Object.keys(child.children).length) {
             child = iterateChildRoutes(child, moduleName, `${parentKey}.${key}`);
         }
 

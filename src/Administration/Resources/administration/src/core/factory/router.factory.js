@@ -1,6 +1,7 @@
 /**
  * @module core/factory/router
  */
+import { hasOwnProperty } from 'src/core/service/utils/object.utils';
 
 /**
  * Initializes the router for the application.
@@ -227,7 +228,7 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
      * @returns {Object} route - Converted route definition
      */
     function convertRouteComponentToViewComponent(route) {
-        if (Object.prototype.hasOwnProperty.call(route, 'components') && Object.keys(route.components).length) {
+        if (hasOwnProperty(route, 'components') && Object.keys(route.components).length) {
             const componentList = {};
 
             Object.keys(route.components).forEach((componentKey) => {

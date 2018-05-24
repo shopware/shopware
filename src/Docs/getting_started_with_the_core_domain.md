@@ -10,9 +10,9 @@
     + [Filtering](#filtering)
   * [Reading data](#reading-data)
     + [Keep the system fast - A short detour into performance optimization](#keep-the-system-fast---a-short-detour-into-performance-optimization)
-    + [Api Read](#api-read)
+    + [Api read](#api-read)
   * [Writing data](#writing-data)
-- [Defining an Entity](#defining-an-entity)
+- [Defining an entity](#defining-an-entity)
   * [Entity Definition class](#entity-definition-class)
     + [Add your first fields to an entity](#add-your-first-fields-to-an-entity)
     + [Define the primary key](#define-the-primary-key)
@@ -25,40 +25,61 @@
   * [Event classes](#event-classes)
 - [Write your first plugin](#write-your-first-plugin)
   * [Plugin Bootstrap](#plugin-bootstrap)
-  * [Include Services.xml](#include-servicesxml)
+  * [Include services.xml](#include-servicesxml)
   * [Entity Extension](#entity-extension)
 
 # Getting started with the core domain
-The core domain contains all sources around the ORM, which data exist in the system, how the API can be addressed and all technical subtleties like file system abstraction, dependency injection or plugin system.
-We use Symfony 4 as the framework for the core. All data are stored in a configurable SQL environment and can be synchronized for optimal performance in high performance storage's like Elastic search or Redis.
-The entire core is API Driven, meaning that all operations can be mapped through a corresponding API. These include the normal CRUD operations of data as well as shopping cart calculations or even individual price calculation.
-Furthermore, the core supplies its own ORM, which is perfectly developed for the corresponding use cases in the Shopware universe.
+The core domain contains all sources related to the ORM. E.g. which data exist in the system, 
+how the API can be addressed and all technical subtleties like file system abstraction, 
+dependency injection or plugin system.
+We use the Symfony 4 framework for the core. All data is stored in a configurable SQL environment 
+and can be synchronized to storages like Redis or Elastic search to increase the performance.
+The entire core is API Driven, meaning that all operations can be mapped through a corresponding API.
+These include the normal CRUD operations of data as well as shopping cart calculations 
+or even individual price calculation.
+Furthermore, the core supplies its own ORM, which is has been specifically designed 
+for the corresponding use cases in the Shopware universe.
 
 # Getting around the core structure
 
 The core domain is divided into different sub domains:
 * Application
-    * This part of the core contains all sources to building application access objects, context objects or languages. Take a look into this domain in order to find out which information is available in a user context, which information is stored on an application or which translations are bound to the language system.
+    * This part of the core contains all sources for building application access objects, 
+      context objects or languages. Take a look into this domain in order to find out 
+      which information is available in a user context, which information is stored 
+      on an application or which translations are bound to the language system.
 * Checkout
-    * The checkout part includes all sources needed for the platform's checkout process. These include, the shopping cart calculation, the customer administration, the ordering system and the payment and shipping system. Furthermore, here are the sources for the dynamic rule system of the platform. 
+    * The checkout part includes all sources needed for the platform's checkout process. 
+      These include, shopping cart calculation, customer administration, 
+      ordering system and the payment/shipping system.
+      Furthermore, here are the sources for the dynamic rule system of the platform. 
 * Content
-    * The content part contains sources that take care of the maintained contents of the platform. This includes product data, media, catalogs and categories. A look in this domain reveals which data can be served to different applications 
+    * The content part contains sources that take care of the maintained contents of the platform.
+      This includes product data, media, catalogs and categories. A look in this domain reveals which data can be served to different applications 
 * Framework
-    * In this part are the technical implementations of various components that are reused in the other domains. From ORM to the file system, all sources are included here.
+    * In this part are the technical implementations of various components
+      that are reused in the other domains. All sources, from ORM to the file system, 
+      are included here.
 * Profiling
-    * The profiling part includes additional helper classes that simplify the profiling of the platform. Among other things, the components implemented here expand the Symfony Toolbar.
+    * The profiling part includes additional helper classes which simplify the profiling of 
+    the platform. Among other things, the components implemented here expand the Symfony Toolbar.
 * System
-    * In the system part, entities are defined that are not visually served to the various applications and reused by the several other domains. These include tax rates, configurations, currencies or locales.
+    * In the system part, entities are defined which are not specific to the various applications.
+      They are reused by the several other domains. These include tax rates, configurations,
+      currencies and locales.
 
 # Talking to the API
-As already described, the entire Core API is driven. When dealing with the API you should always consider two things: 
+As already described, the entire Core is API driven. When dealing with the API,
+you should always consider two things: 
+
 1. An authentication is required
 2. There is an API versioning
 
 All examples below are based on [Guzzle](http://docs.guzzlephp.org/en/stable/).
 
 ## Authentication
-The first thing to think about when listening to API is authentication. The core offers a bearer token authentication which can be addressed via the route `/api/v1/auth`:
+The first thing to think about is authentication. The core offers a bearer token authentication,
+ which can be addressed via the route `/api/v1/auth`:
 ```php
 <?php
 
@@ -96,13 +117,24 @@ $client->post(
 ```
 
 ## Versioning
-As already seen above, the Core API works with a versioning. This allows us to implement breaking changes and to make them available even though there are systems that still work with old data formats or routes. One version number of the API will always support two major versions of the Platform. The Api version v1 is therefore available simultaneously with the version v2 and will be switched off with the release of the v3. Later more about Api Versioning. 
+As already seen above, the Core API offers a versioning. This allows us to implement 
+breaking changes and to make them available even though there are systems that still work 
+with old data formats or routes. One version number of the API will always support two 
+major versions of the Platform. The API version v1 is therefore available simultaneously 
+with the version v2 and will be switched off with the release of the v3. You will find out more about the API versioning later. 
 
 # Working with data
-The high-performance read, nested and fast writing of data is the basic of all functions in the e-commerce. With the Core, we want to keep it as simple as possible, but as perform and flexible as possible for developers. Therefore, the core provides its own ORM, which is developed exactly to our requirements. 
+The high-performance read and the fast (nested) writing of data is the foundation 
+of all functions in the e-commerce. With the Core, we want to keep it as simple as possible, 
+but as fast and flexible as possible for developers. Therefore, the core provides its own ORM,
+which is developed to meet exactly our requirements. 
 
 ## Searching data
-Searching data is a big deal in ORMs and eCommerce systems. If an API or a frontend does not offer proper search options, this is usually the downfall of the system. The ORM supplied by the Core therefore has a strong focus on the ability to search data. All search queries about an entity are governed by its associated repository class.
+Searching data is a big deal in ORMs and e-commerce systems. If an API or a frontend does not 
+offer proper search options, this is usually the downfall of the system. The ORM supplied by the Core
+therefore has a strong focus on the ability to search data. All search queries about an entity are
+governed by its associated repository class.
+
 The repository classes are defined in the corresponding core parts, here are some examples which are available:
 * `\Shopware\Content\Product\ProductRepository`
 * `\Shopware\Application\Application\ApplicationRepository`
@@ -114,7 +146,9 @@ Lets start with a simple paginated list of products:
 
 **Stack example:**
 
-In the php stack we can get access to the repository via di container. Each repository uses it class name as di container id. To search for entities, a `\Shopware\Framework\ORM\Search\Criteria` object is always used
+In the PHP stack we can get access to the repository via di container.
+Each repository uses its class name as di container id. 
+To search for entities, a `\Shopware\Framework\ORM\Search\Criteria` object is always used
 ```php
 $repository = $this->container->get(ProductRepository::class);
 
@@ -125,15 +159,17 @@ $criteria->setLimit(10);
 $result = $repository->search($criteria, $context);
 ```
 
-**Api example request:** 
+**API example request:** 
 
-Each entity can also be addressed via api. Simple search queries can also be addressed via the corresponding entity routes: 
+Each entity can also be accessed via API. Simple search queries can also be used via the 
+corresponding entity routes: 
 * `GET /api/v1/product?offset=0&limit=10` 
 
 Complex queries need to be sent via the `/search` endpoint:
 * `POST /api/v1/search/product`
 
-The `/search` endpoint allows to provide the whole search `\Shopware\Framework\ORM\Search\Criteria` class via post:
+The `/search` endpoint allows to provide 
+the whole search `\Shopware\Framework\ORM\Search\Criteria` class via post:
 ```php
 <?php
 
@@ -156,22 +192,26 @@ $client->post(
 ```
 
 ### Filtering
-The platform provides a wide range of filter options. So it is possible to filter all the data of an entity and its associations. As long as a link exists between two entities, they can also be filtered.
+The platform provides a wide range of filter options. It is possible to filter all 
+properties of an entity and its associations. As long as a link exists between two entities, 
+they can also be filtered.
+
 The range of filter options includes the following classes:
 * `\Shopware\Framework\ORM\Search\Query\MatchQuery`
     * Allows to perform a string comparison (SQL: `LIKE`)
 * `\Shopware\Framework\ORM\Search\Query\RangeQuery`
     * Query of a range of values (SQL: `<=`, `>=`, `>`, `<` )
 * `\Shopware\Framework\ORM\Search\Query\TermQuery`
-    * Query to an exact value
+    * Query to filter for an exact value
 * `\Shopware\Framework\ORM\Search\Query\TermsQuery`
-    * Query on an exact value range (SQL: `IN`)
+    * Query to filter a set of exact values (SQL: `IN`)
 
-For these different filter options, there are the query containers, which allow you to link queries with each other or to negate them:
+To combine these different filter options, we have implemented query containers,
+which allow you to link queries with each other or to negate them:
 * `\Shopware\Framework\ORM\Search\Query\NestedQuery`
-    * Allows you to group multiple queries and associate them with an operator `AND` or` OR`
+    * Allows you to group multiple queries and associate them with an operator `AND` or `OR`
 * `\Shopware\Framework\ORM\Search\Query\NotQuery`
-    * Allows to negate each queries
+    * Allows to negate queries
 
 **Stack example:**
 
@@ -197,7 +237,7 @@ $criteria->addFilter(
 );
 ``` 
 
-Next, only products are displayed at the manufacturer's left a link:
+Next, only products are displayed where the manufacturer property `link` is defined
 ```
 $criteria->addFilter(
     new NotQuery(
@@ -213,19 +253,23 @@ $criteria->addFilter(
 );
 ```
 
-And at least, only products that have the letter A in their name should be displayed:
+And last but not least, only products that have the letter `A` in their name should be displayed:
 ```
 $criteria->addFilter(
     new MatchQuery('product.name', 'A')
 );
 ```
 
-**Api example request:**
+**API example request:**
 
-The same filter possibilities also offers the Api. With a small difference: If the entity endpoints are addressed only equals operator are supported, range queries or others are not possible here:
+The same filter possibilities are also offered by the API. With a small difference: 
+If you call the entity endpoint, only the equals operator is supported. 
+Range queries or others are not possible here:
 * `GET /api/v1/product?filter[product.active]=1&filter[product.manufacturer.name]=Shopware` 
 
-For more complex filtering the above mentioned `/search` endpoint is used. In the first example of filtering, filters were made for products that have the active flag, a TermQuery must also be sent via the API:
+For more complex filtering, use the `/search` endpoint as mentioned above. 
+In the first example of filtering, filters were made for products that have the active flag. 
+So a TermQuery must also be sent via the API:
 ```php
 <?php
 
@@ -249,7 +293,9 @@ $client->post(
     ]
 );
 ```
-In the second example, the product list was filtered to a price range of € 100 to € 200 using a range query. With range query you have to pass the corresponding operators like `greater than equals`, `less than` as `parameters`:
+In the second example, the product list was filtered to a price range of € 100 to € 200 
+using a range query. With range query you have to pass the corresponding operators 
+like `greater than equals`, `less than` as `parameters`:
 ```php
 <?php
 
@@ -277,7 +323,9 @@ $result = $client->post(
     ]
 );
 ```
-Subsequently, products were excluded whose manufacturer has left no link. This was solved by means of a negation. To do this, a `NOT` query must be sent to the API, which contains the other queries to be negated:
+Subsequently, products were excluded whose manufacturer has no link defined. 
+This was solved by means of a negation. To do this, a `NOT` query must be sent to the API, 
+which contains the other queries and negates them:
 ```php
 <?php
 
@@ -307,7 +355,8 @@ $result = $client->post(
 );
 ```
 
-The next step was to limit the list to products created on a specific date. The `terms` query is used for this:
+The next step was to limit the list to products created on a specific date. 
+The `terms` query is used for this:
 ```php
 <?php
 
@@ -336,7 +385,8 @@ $result = $client->post(
 );
 ```
 
-And finally, the list was filtered to products that have the letter A in their name. This is done using `match` queries:
+And finally, the list was filtered to products that have the letter `A` in their name.
+This is done using `match` queries:
 ```php
 <?php
 
@@ -366,14 +416,20 @@ $result = $client->post(
 ```
 
 ## Reading data
-As already mentioned, the high-performance reading of data is decisive in e-commerce and in an API. The reading of the data can only be controlled via the corresponding repositories. These offer two options for this:
+As already mentioned, the high-performance reading of data is decisive in e-commerce and for the API.
+The reading of the data can only be controlled via the corresponding repositories.
+These offer two options for this:
 * `readBasic(array $ids, ApplicationContext $context)`
 * `readDetail(array $ids, ApplicationContext $context)`
 
 ### Keep the system fast - A short detour into performance optimization
-Both read functions work with a list of ids that should persuade developers to always read more than one data at a time instead of requesting them one at a time. 
-Hereby we would like to make a short deviation in the area of performance, which is extremely important when it comes to maintaining a high-performance system:
-Suppose we have to select 15 products on a system. We just get the ids back from the repository. Now there are several ways to determine the data for these 15 products. The following script shows two ways:
+Both read functions work with a list of ids that should persuade developers to always read more
+than one data at a time instead of requesting them one at a time. 
+Hereby we would like to make a short deviation in the area of performance,
+which is extremely important when it comes to maintaining a high-performance system:
+Suppose we have to select 15 products on a system. We just get the ids back from the repository. 
+Now there are several ways to determine the data for these 15 products. 
+The following script shows two ways:
 ```
 $repository = $this->container->get(ProductRepository::class);
  
@@ -385,14 +441,14 @@ $ids = $repository->searchIds(
     $context->getApplicationContext()
 );
 
-//batch variant
+// batch variant
 $basics = $repository->readBasic(
     $ids->getIds(), 
     $context->getApplicationContext()
 );
 
 
-//loop variant
+// loop variant
 foreach ($ids->getIds() as $id) {
     $basics = $repository->readBasic(
         [$id], 
@@ -400,12 +456,14 @@ foreach ($ids->getIds() as $id) {
     );
 }
 ```
-In the above example, the *LOOP variant* for reading the 15 products already requires the **triple execution time** compared to the *batch variant*. 
-Therefore, you should always keep in mind during development to load data collected, since especially the *batch variant* scales better than the *loop*. 
-If you increase the limit to 50 in the example above, the loop already needs the **sixfold execution time**
+In the above example, the *LOOP variant* for reading the 15 products is **three time slower** compared to the *batch variant*. 
+Therefore, you should always keep in mind during development to load data collected,
+since the *batch variant* scales a lot better than the *loop variant*. 
+If you increase the limit to 50 in the example above, the loop is **six times slower** than the batch variant.
 
-### Api Read 
-To read out a specific list of products via the API, we recommend using the `/search` endpoint and restricting it to the corresponding ids with a term query:
+### API Read 
+To read a specific list of products via the API, we recommend using the `/search` endpoint
+and restricting it to the corresponding ids with a term query:
 ```php
 <?php
 
@@ -435,17 +493,24 @@ $result = $client->post(
 ``` 
 
 ## Writing data
-As with all other operations in the system, it is important that writing operations be done as quickly as possible. Furthermore, as a developer, you do not want to worry about dependencies on entities and they are treated in the right order.
-Therefore, all write operations are accepted by the ORM as a batch operation and all associated data can be passed in the same operation. The following three functions allows to write data: 
+As with all other operations in the system, it is important that writing operations
+are as fast as possible. Furthermore, as a developer, you do not want to worry about 
+dependencies on entities and that they are processed in the right order.
+Therefore, all write operations are accepted by the ORM as a batch operation 
+and all associated data can be processed in the same operation. The following three functions 
+allow you to write data: 
 * `update(array[] $data, ApplicationContext $context): GenericWrittenEvent;`
-    * Updates records. If a record does not exist, an exception occurs
+    * Updates records. If a record does not exist, an exception is thrown
 * `create(array[] $data, ApplicationContext $context): GenericWrittenEvent;`
-    * Creates records. If a record already exists, an exception occurs
+    * Creates records. If a record already exists, an exception is thrown
 * `upsert(array[] $data, ApplicationContext $context): GenericWrittenEvent;`
-    * Creates or updates records. If the record does not exist, it will be created, if it already exists, it will be updated.
+    * Creates or updates records. If the record does not exist, it will be created, 
+      if it already exists, it will be updated.
 
 **Repository example**
-Unlike some other ORMs, the platform does not work with entity/model classes when writing data. Instead the platform works with simple arrays. This has the advantage that no read operation must take place before:  
+Unlike some other ORMs, the platform does not work with entity/model classes when writing data.
+Instead the platform works with simple arrays. This has the advantage,
+that no read operation must take place before:  
 ```
 $repository = $this->container->get(ProductRepository::class);
 
@@ -464,7 +529,8 @@ $repository->upsert(
     $context->getApplicationContext()
 );
 ```
-In the example above, a new product is created. At the same time, a new tax rate and a new manufacturer will be created because they were not sent with a corresponding id.
+In the example above, a new product is created. At the same time, a new tax rate 
+and a new manufacturer will be created because they were not sent with a corresponding id.
 
 To link an existing manufacturer or tax rate, you can simply supply the corresponding foreign key:
 ```
@@ -486,7 +552,8 @@ $repository->upsert(
 );
 ```
 
-In order to link an existing manufacturer or tax rate and to update it at the same time, the corresponding foreign key must be sent along with the associated data array:
+In order to link an existing manufacturer or tax rate and to update it at the same time, 
+the corresponding foreign key must be sent along with the associated data array:
 ```
 $repository = $this->container->get(ProductRepository::class);
 
@@ -506,14 +573,16 @@ $repository->upsert(
 );
 ```
  
-**Api example request**
+**API example request**
 
-The API also has these three ways to write entities into the system. These are reflected in the HTTP methods:
+The API also has these three ways to write entities into the system. 
+These are reflected in the HTTP methods:
 * POST  `/api/v1/product` - `create`
 * PUT   `/api/v1/product/{id}` - `update`
 * PATCH `/api/v1/product` - `upsert`
 
-All three functions have the same syntax. For update operations it is not necessary to resend the entire entity, but it is possible to deliver only the corresponding changeset.
+All three functions have the same syntax. For update operations it is not necessary to resend 
+the entire entity. It is possible to send only the corresponding changeset.
 ```
 $client = new \GuzzleHttp\Client();
 
@@ -539,15 +608,29 @@ $result = $client->post(
 ```
 
 # Defining an Entity
-An entity defines the data structure of a table in the system. But why do you need entities and can not just work with arrays? The beauty of entities in any system is that you can rely on a structure, and every developer knows what structure is available and must stick to it. 
-This is different for an array. If a repository defines that an array is given back and the field name is included there by default, it is not necessary for a developer who may be exchanging this repository to also keep the name ready again.
+An entity defines the data structure of a table in the system. But why do you need entities
+and can not just work with arrays? The benefit of entities in any system is that you can rely on a
+stricly defined structure. Every developer knows this structure and must stick to it. 
+This is different for an array. If a repository defines that an array is returned
+and that field name `XYZ` is included by default, it is not necessary for a developer
+()who may be exchanging this repository) to provide the property `XYZ` too.
+This would cause an problem since other developers rely on this property.
 
-In most ORM the PHP properties are mapped to the table columns and provided with violations like "Can not be empty".
-The core works a bit differently with entities than you might expect. First of all, there is no entity or model class. Also the column mappings do not happen in PHP annotations, YAML or Xml files, but an EntityDefinition class for each entity is assumed.
-In this class, the corresponding columns and properties of an entity are defined as well as associated classes such as Events, Repository, Struct, Collection, etc.
-But why this overhead on classes and definition?! The beauty of it is that the rest is automatically regulated and registered by the system. Once an entity definition has been created with the associated classes, it can be selected by the ORM, the repositories can throw events for the loaded objects and the entity is automatically available via API.
+In most ORM the PHP properties are mapped to the table columns and provided with violations 
+like "Can not be empty".
+The core works a bit differently with entities than you might expect. First of all, there is no 
+entity or model class. Also the column mappings do not happen in PHP annotations, YAML or Xml files, 
+but an EntityDefinition class for each entity is required.
+In this class, the corresponding columns and properties of an entity are defined as well as 
+associated classes such as Events, Repositories, Structs, Collections, etc.
+But why this overhead on classes and definition?!
+The huge benefit here is, that the rest is automatically handled and registered by the system. 
+Once an entity definition has been created with the associated classes, 
+it can be selected by the ORM, the repositories can throw events for the loaded objects 
+and the entity is automatically available via the API.
 
-All classes for an entity are always in the corresponding domain folder. For products, the `Content/Product`. Each of these domains has the following structure:
+All classes for an entity are always in the corresponding domain folder. 
+For products, the `Content/Product`. Each of these domains has the following structure:
 * Aggregates - *Includes subordinate entities (e.g. `ProductTranslation`,` ProductCategory`)*
 * Collection - *Includes all collection classes*
 * Event - *Contains all events that are thrown to the entity*
@@ -558,10 +641,10 @@ All classes for an entity are always in the corresponding domain folder. For pro
 
 ## Entity Definition class
 In an entity definition class, the following information is recorded:
-* Which fields does the entity own?
-* Which events belong to the entity
-* Which repository belongs to the entity
-* Which DTO (Struct & Collection) classes belong to the entity
+* Which fields does the entity consist of?
+* Which events belong to the entity?
+* Which repository belongs to the entity?
+* Which DTO (Struct & Collection) classes belong to the entity?
 
 Lets start with an empty entity definition:
 
@@ -586,7 +669,8 @@ class ProductDefinition extends EntityDefinition
     }
 }
 ```
-First, the `getEntityName` function defines which table this class refers to, in this example `product`.
+First, the `getEntityName` function defines which table this class refers to, 
+in this example `product`.
 Then in the `getFields` creates a `FieldCollection`, which facilitates working with entity fields.
 
 ### Add your first fields to an entity
@@ -604,7 +688,9 @@ public static function getFields(): FieldCollection
     ]);
 }
 ```
-These are the available scalar data types which are supported by the ORM. Each of the fields gets passed two parameters: `Column name` &` Property name`. Thus, the entity now has the following properties to work with:
+These are the available scalar data types which are supported by the ORM. 
+Each of the fields gets passed two parameters: `Column name` &` Property name`. 
+Thus, the entity now has the following properties to work with:
 * `ean` 
 * `active`
 * `stock`
@@ -612,7 +698,8 @@ These are the available scalar data types which are supported by the ORM. Each o
 * `createdAt`
 
 ### Define the primary key
-Now let's add a primary key for the entity that allows us to identify records of that entity to delete or update them:
+Now let's add a primary key for the entity that allows us to identify records of that entity 
+to delete or update them:
 ```php
 public static function getFields(): FieldCollection
 {
@@ -622,14 +709,25 @@ public static function getFields(): FieldCollection
     ]);
 }
 ```
-Here an `IdField` with the flags `PrimaryKey` and` Required` is added. Field flags allow certain states to be defined on fields, such as whether they are necessary to write a record. The `PrimaryKey` flag used here defines that this field is part of the primary key. The `Required` flag, on the other hand, defines that this value must be set during writing. As id, the platform uses uuids in the v4 standard. This has the advantage of being able to fully build entities together and reference them in others before they are written to the database.
+Here an `IdField` with the flags `PrimaryKey` and` Required` is added. 
+Field flags allow certain states to be defined on fields, such as whether they are necessary
+to write a record. The `PrimaryKey` flag used here defines that this field is part of the primary key.
+The `Required` flag, on the other hand, defines that this value must be set during writing. 
+As id, the platform uses UUIDs in the v4 standard. This has the advantage of being able to fully 
+build entities together and cross reference them before they are written to the database.
 
-### Define a translatable Field
-The previously created data has been defined as simple data types and does not offer the possibility to be translated into other languages of the system. Translatable data are always stored in the core in a separate table. 
+### Define a translatable field
+The previously created data has been defined as simple data types and does not offer the 
+possibility to be translated into other languages of the system. 
+Translatable data is always stored in a separate table. 
 
-Why necessarily in a separate table? So that they are searchable ... and ... inheritable, but more on that later.
+Why necessarily in a separate table? So that they are searchable ... and ... inheritable, 
+but more on that later.
 
-The corresponding translation table always has the suffix `_translation`, since in our example it is the entity` product`, the name of the translation table is `product_translation`. This table also has its own entity definition, but we will not go into that in this example. To declare a field as translatable, the ORM brings its own class, the `TranslatedField`:
+The corresponding translation table always has the suffix `_translation`, since in our example it 
+is the entity` product`, the name of the translation table is `product_translation`. 
+This table also has its own entity definition, but we will not go into that in this example. 
+To declare a field as translatable, the ORM provides an dedicated class, the `TranslatedField`:
 ```php
 public static function getFields(): FieldCollection
 {
@@ -640,14 +738,19 @@ public static function getFields(): FieldCollection
     ]);
 }
 ```
-However, the `TranslatedField` is only a container for all other fields, for example a `FloatField` can be inserted here if the value should also be translatable.
+However, the `TranslatedField` is only a container for all other fields, for example a `FloatField` 
+can be inserted here if the value should also be translatable.
 
-### Foreign Keys
-Next we want to link the product entity with a manufacturer. This means a foreign key must be added to the product in which a manufacturer id is stored.
+### Foreign keys
+Next we want to link the product entity with a manufacturer. This means a foreign key must be
+added to the product in which a manufacturer id is stored.
 
-But what is a foreign key? A foreign key is used to define that the value of this field refers to a record in another table. This allows us to create links between tables.
+But what is a foreign key? A foreign key is used to define that the value of this field refers
+to a record in another table. This allows us to create links between tables/entities.
 
-However, as we also want to make sure that only existing manufacturer ids can be stored, as otherwise we would quickly produce inconsistent data in the system, the ORM should do a cross-check. For this we can use a field of class `FkField`.
+However, we also want to make sure that only existing manufacturer ids can be stored,
+as otherwise we would quickly produce inconsistent data in the system. 
+So the ORM should do a cross-check. For this we can use a field of class `FkField`.
 ```php
 public static function getFields(): FieldCollection
 {
@@ -658,15 +761,20 @@ public static function getFields(): FieldCollection
     ]);
 }
 ```
-As a third parameter, the `FkField` gets the corresponding reference `EntityDefinition`. As a result, the system recognizes that the stored foreign key is a manufacturer record and checks it accordingly when writing the record.
+As a third parameter, the `FkField` gets the corresponding reference to the `EntityDefinition`.
+As a result, the system recognizes that the stored foreign key is a manufacturer record 
+and checks it accordingly when writing the record.
 
 ### Associations
-Although a foreign key is already defined for the link to the manufacturer, we can not yet read out the corresponding manufacturer for the product. For this the ORM needs an `*AssociationField`. The following associations can be defined:
+Although a foreign key is already defined for the link to the manufacturer,
+we can not yet read out the corresponding manufacturer for the product. 
+For this the ORM needs an `*AssociationField`. The following associations can be defined:
 * `OneToManyAssociationField`
 * `ManyToManyAssociationField`
 * `ManyToOneassociationField`
 
-In case of the product-manufacturer relationship, we need a `ManyToOneAssociationFiel` here. An association has several parameters that are commented inline in the following example: 
+In case of the product-manufacturer relationship, we need a `ManyToOneAssociationFiel` here.
+An association has several parameters that are commented inline in the following example: 
 ```php
 public static function getFields(): FieldCollection
 {
@@ -693,7 +801,8 @@ public static function getFields(): FieldCollection
 }
 ```
 
-By defining this association, we can now act on the product with the manufacturer. We can always address this association via the property name:
+By defining this association, we can now work with the product and the manufacturer at the same time.
+We can always address this association via the property name:
 * To filter in the search - `new TermQuery('product.manufacturer.name', 'shopware')`
 * To create a manufacturer directly when writing the product - `'manufacturer' => ['name' => 'shopware']`
 * To determine the number of manufacturers of a product list - `new CountAggregation('product.manufacturer.id', 'manufacturer_count')` 
@@ -701,16 +810,18 @@ By defining this association, we can now act on the product with the manufacture
 * ...
 
 ### Tenant
-So that several instances can work with the same database, the ORM brings a tenant support with it.
+The ORM offers a tenant support, so that several instances can work with the same database,
 
 **What does this mean from a technical point of view?**
-*Each entity has another column in the primary key named `tenant_id` and each foreign key must also be defined with another `*_tenant_id `*
+*Each entity has another column in the primary key named `tenant_id` and each foreign key must
+also be defined with another `*_tenant_id `*
 
 If we apply this to the example above, the following columns must be created in the `product` table:
 * `tenant_id binary(16)` 
 * `product_manufacturer_tenant_id binary(16)`
 
-Accordingly, these fields must also be included in the `ProductDefinition`. For this the ORM brings its own field with itself:
+Accordingly, these fields must also be included in the `ProductDefinition`. 
+For this the ORM brings its own field with itself:
  ```php
 public static function getFields(): FieldCollection
 {
@@ -721,12 +832,19 @@ public static function getFields(): FieldCollection
     ]);
 }
 ```
-This field controls its own data and does not have to be specified in any write operation. For the `product_manufacturer_tenant_id`, however, the definition class does not need its own field. This is automatically controlled in the `FkField`.
+This field is automatically handled by the ORM and therefore does not have to be specified 
+in any write operation. For the `product_manufacturer_tenant_id`, however, the definition class 
+does not need its own field. This is automatically controlled in the `FkField`.
 
 ## Struct classes
-To transport the data between the database and the corresponding endpoints, the core uses so-called struct classes. These are simple PHP classes in which the properties of an entity are defined as php properties and are available via getter and setter functions.
-The ORM distinguishes here for the corresponding read functions in `*BasicStruct` and `*DetailStruct` classes.
-In the `BasicStruct` class, there are all the properties of an entity defined as a minimum in order to work with the entity. A simple struct class can look like this:
+To transport the data between the database and the corresponding endpoints, the core uses 
+so-called struct classes. These are simple PHP classes in which the properties of an entity are 
+defined as PHP properties and are available via getter/setter functions.
+The ORM distinguishes here for the corresponding read functions in `*BasicStruct` and 
+`*DetailStruct` classes.
+In the `BasicStruct` class  are all the properties of an entity defined but not the relations. 
+So you have a minimum set of properties in order to work with the entity. 
+A simple struct class can look like this:
 ```
 <?php declare(strict_types=1);
 
@@ -813,8 +931,13 @@ class LocaleBasicStruct extends Entity
 }
 ```
 
+The `DetailStruct` class also contains relations. Please keep in mind that it can have an significant
+performance impact if you use the `DetailStruct`. So if possible, use the `BasicStruct`
+
 ## Collection classes
-To simplify working with many records, the repository classes of the core do not return simple arrays with struct classes but a type aware collection class in which the elements reside. These classes can be iterated to easily handle all records:
+To simplify working with many records, the repository classes of the core do not return 
+simple arrays with struct classes but a type aware collection class which contains the elements.
+These classes can be iterated to easily handle all records:
 ```php
 <?php
 
@@ -826,7 +949,8 @@ foreach ($basics as $productBasicStruct) {
     echo $productBasicStruct->getName();
 }
 ```
-In addition, these collections provide small helper functions to make it easier to access collection's aggregated data:
+In addition, these collections provide small helper functions to make it easier to access 
+collection's aggregated data:
 ```php
 <?php
 
@@ -842,26 +966,37 @@ $prices = $basics->getPrices();
 ```
 
 ## Event classes
-As event system, the core uses the [Symfony Event System](https://symfony.com/doc/current/components/event_dispatcher.html). Additionally, ORM entity-related events are thrown, including:
+As event system, the core uses the 
+[Symfony Event System](https://symfony.com/doc/current/components/event_dispatcher.html). 
+Additionally, ORM entity-related events are thrown, including:
 * If the entity has been loaded in basic form (`*BasicLoadedEvent`)
 * If the entity has been loaded in detail form (`*DetailLoadedEvent`)
-* If ids were searched for the entity (`*IdSearchResultLoadedEvent`)
-* If a search was performed on the entity (`*SearchResultLoadedEvent`)
-* If aggregations were found on an entity (`*AggregationResultLoadedEvent`)
-* If the entity was deleted (`*DeletedEvent`)
-* If the entity was written (`*WrittenEvent`)
+* If an entity has been loaded by ids (`*IdSearchResultLoadedEvent`)
+* If a search was performed for the entity (`*SearchResultLoadedEvent`)
+* If aggregations were found for an entity (`*AggregationResultLoadedEvent`)
+* If the entity has been deleted (`*DeletedEvent`)
+* If the entity has been written (`*WrittenEvent`)
 
 # Write your first plugin
-To be able to introduce extensions into the system, the core comes with an integrated plugin system. Plugins are [Symfony Bundles](https://symfony.com/doc/current/bundles.html) which can be activated and deactivated via the database.
-Now the question arises what is possible with plugins. The answer is simple: **Everything**, since a plugin can completely hook into the kernel's boot process.
+To be able to introduce extensions into the system, the core comes with an integrated plugin system.
+Plugins are [Symfony Bundles](https://symfony.com/doc/current/bundles.html) which can be activated
+and deactivated via the database or via the bin/console plugin:* command.
+Now the question arises what is possible with plugins. The answer is simple: **Everything**, 
+since a plugin can completely hook into the kernel's boot process.
 **Everything** includes:
 * Bring your own events and / or listen to existing events
 * Include own entities in the system and / or extend existing entities
-* Define own services and / or extend existing services or even exchange them completely with something even better
+* Define own services and / or extend existing services or even exchange them completely with 
+something even better
 
 ## Plugin Bootstrap
-As an entry point into the system each plugin must have a bootstrap file. The corresponding plugin sources can be stored under `/custom/plugins`. As convention, there is a plugin folder for each plugin in the plugins folder with the corresponding name of the plugin. This folder contains the corresponding bootstrap file which must have the same name as the folder.
-The following example shows the basic structure of a plugin which should be defined with the name "GettingStarted".
+As an entry point into the system each plugin must have a bootstrap file. 
+The corresponding plugin sources can be stored under `/custom/plugins`. 
+As convention, there is a plugin folder for each plugin in the plugins folder with the 
+corresponding name of the plugin. This folder contains the bootstrap file which must have the 
+same name as the folder.
+The following example shows the basic structure of a plugin which should be defined with the name 
+"GettingStarted".
 ```php
 <?php
 
@@ -875,7 +1010,9 @@ class GettingStarted extends Plugin
 {
 }
 ```
-With these few lines of source code, the plugin can already be registered and installed in the system. Subsequently, further functions can be integrated into the bootstrap file in order to be able to react to certain actions in the system.
+With these few lines of source code, the plugin can already be registered and installed in the 
+system. Subsequently, further functions can be integrated into the bootstrap file in order 
+to be able to react to certain actions in the system.
 For example the actions when the plugin is installed, uninstalled, activated, deactivated or updated:
 ```
 public function install(InstallContext $context)
@@ -904,7 +1041,8 @@ public function uninstall(UninstallContext $context)
 }
 ``` 
 
-Furthermore, plugins can react to certain kernel events, such as when the Di container is rebuilt, the kernel is booted, or even to include more bundles:
+Furthermore, plugins can react to certain kernel events, such as when the Di container is rebuilt, 
+the kernel is booted, or even to include more bundles:
 ```
 public function boot()
 {
@@ -923,7 +1061,10 @@ public function registerBundles(string $environment): array
 ```
 
 ## Include Services.xml
-The central expansion option of a plugin is the [Di Container services](https://symfony.com/doc/current/service_container.html). In the core these are defined in XML. To integrate such a file as a plugin, the `build` function of the bootstrap file can be overwritten:
+The central expansion option of a plugin is the 
+[Di Container services](https://symfony.com/doc/current/service_container.html). 
+In the core these are defined in XML. To integrate such a file as a plugin, 
+the `build` function of the bootstrap file can be overwritten:
 ```
 public function build(ContainerBuilder $container)
 {
@@ -934,8 +1075,11 @@ public function build(ContainerBuilder $container)
 ``` 
 
 ## Entity Extension
-Own entities can be integrated in the core via the corresponding `services.xml` and behave as described above. To extend existing entities, a `\Shopware\Framework\ORM\EntityExtensionInterface` can be used.
-This must define for which entity the extension applies. Once this entity is accessed in the system, the extension can add more fields in the entity:
+Own entities can be integrated in the core via the corresponding `services.xml` 
+and behave as described above. To extend existing entities, 
+a `\Shopware\Framework\ORM\EntityExtensionInterface` can be used.
+This must define for which entity the extension applies. 
+Once this entity is accessed in the system, the extension can add more fields in the entity:
 ```
 <?php
 

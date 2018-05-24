@@ -10,6 +10,8 @@ Mixin.register('manufacturerList', {
             totalManufacturers: 0,
             limit: 25,
             total: 0,
+            sortBy: null,
+            sortDirection: 'ASC',
             isLoading: false
         };
     },
@@ -19,10 +21,31 @@ Mixin.register('manufacturerList', {
     },
 
     methods: {
+        getListingParams() {
+            const params = {
+                limit: this.limit,
+                offset: this.offset
+            };
+
+            if (this.term && this.term.length) {
+                params.term = this.term;
+            }
+
+            if (this.sortBy && this.sortBy.length) {
+                params.sortBy = this.sortBy;
+                params.sortDirection = this.sortDirection;
+            }
+
+            return params;
+        },
+
         getManufacturerList() {
             this.isLoading = true;
 
-            return this.$store.dispatch('manufacturer/getManufacturerList', this.offset, this.limit).then((response) => {
+            const params = this.getListingParams();
+
+            this.manufacturers = [];
+            return this.$store.dispatch('manufacturer/getManufacturerList', params).then((response) => {
                 this.totalManufacturers = response.total;
                 this.manufacturers = response.manufacturers;
                 this.isLoading = false;

@@ -292,5 +292,22 @@
       "tabGeneral": "Allgemein",
       "tabAdvancedPrices": "Erweiterte Preise"
     }
+  },
+  "sw-manufacturer": {
+    "general": {
+      "mainMenuItemList": "Hersteller"
+    },
+    "list": {
+      "textManufacturerOverview": "Hersteller Übersicht",
+      "textTotalManufacturer": "Keine Hersteller | ein Hersteller | {count} Hersteller",
+      "buttonAddProduct": "Hersteller anlegen",
+      "columnName": "Hersteller",
+      "columnLink": "Webseite",
+      "columnDescription": "Beschreibung",
+      "columnActions": "Aktionen",
+      "contextMenuEdit": "Hersteller bearbeiten",
+      "contextMenuDelete": "Hersteller löschen",
+      "contextMenuDuplicate": "Hersteller duplizieren"
+    }
   }
 }

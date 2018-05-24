@@ -292,5 +292,10 @@
       "tabGeneral": "General",
       "tabAdvancedPrices": "Advanced pricing"
     }
+  },
+  "sw-manufacturer": {
+    "general": {
+      "mainMenuItemList": "Manufacturer"
+    }
   }
 }

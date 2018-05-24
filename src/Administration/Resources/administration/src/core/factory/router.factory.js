@@ -15,12 +15,16 @@
 export default function createRouter(Router, View, moduleFactory, LoginService) {
     let allRoutes = [];
     let moduleRoutes = [];
+    let previousRoute = null;
+    let instance = null;
 
     return {
         addRoutes,
         addModuleRoutes,
         createRouterInstance,
-        getViewComponent
+        getViewComponent,
+        getPreviousRoute,
+        getRouterInstance
     };
 
     /**
@@ -40,6 +44,34 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
         const router = new Router(options);
 
         beforeRouterInterceptor(router);
+        afterEachRouterInterceptor(router);
+        instance = router;
+
+        return router;
+    }
+
+    /**
+     * Returns the current router instance
+     *
+     * @returns {VueRouter}
+     */
+    function getRouterInstance() {
+        return instance;
+    }
+
+    /**
+     * Installs an navigation guard interceptor, which will be triggered after a route has been changed to track
+     * the previous route, in case the user gets logged out while navigation.
+     *
+     * @memberof module:core/factory/router
+     * @param {VueRouter} router
+     * @returns {VueRouter} router
+     */
+    function afterEachRouterInterceptor(router) {
+        router.afterEach((to, from) => {
+            previousRoute = from;
+        });
+
         return router;
     }
 
@@ -68,7 +100,12 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
 
             // User tries to access a protected route, therefore redirect him to the login
             if (!loggedIn) {
-                return next({ name: 'sw.login.index' });
+                return next({
+                    name: 'sw.login.index',
+                    query: {
+                        redirectToPreviousUrl: true
+                    }
+                });
             }
 
             // Provide information about the module
@@ -97,6 +134,14 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
         });
 
         return router;
+    }
+
+    /**
+     * Returns the previous route object
+     * @returns {Object}
+     */
+    function getPreviousRoute() {
+        return previousRoute;
     }
 
     /**

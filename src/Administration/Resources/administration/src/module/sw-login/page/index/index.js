@@ -1,4 +1,4 @@
-import { Component, Mixin } from 'src/core/shopware';
+import { Component, Mixin, Application } from 'src/core/shopware';
 import template from './sw-login.html.twig';
 import './sw-login.less';
 
@@ -80,8 +80,17 @@ Component.register('sw-login', {
         },
 
         forwardLogin() {
+            const initContainer = Application.getContainer('init');
+            const routerFactory = initContainer.router;
+            const previousRoute = routerFactory.getPreviousRoute();
+
             if (!this.$store.state.login.token.length ||
                 this.$store.state.login.expiry === -1) {
+                return;
+            }
+
+            if (this.$route.query.redirectToPreviousUrl && previousRoute.name) {
+                this.$router.push(previousRoute.fullPath);
                 return;
             }
 

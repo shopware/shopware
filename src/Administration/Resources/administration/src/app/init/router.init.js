@@ -6,8 +6,10 @@ export default function initializeRouter(container) {
     const factoryContainer = this.getContainer('factory');
     const loginService = this.getContainer('service').loginService;
     const factory = RouterFactory(VueRouter, container.view, factoryContainer.module, loginService);
+
     factory.addRoutes(coreRoutes);
     factory.addModuleRoutes(container.coreModuleRoutes);
+    factory.createRouterInstance();
 
-    return factory.createRouterInstance();
+    return factory;
 }

@@ -60,7 +60,7 @@ State.register('login', {
                 return;
             }
 
-            let error = payload.response.data.error;
+            let error = payload.response.data.errors;
             error = error.length > 1 ? error : error[0];
 
             state.token = '';

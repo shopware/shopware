@@ -89,7 +89,7 @@ class WriteCommandExtractor
         $existence = $this->entityExistenceGateway->getExistence($definition, $pkData, $rawData, $commandQueue);
         $rawData = $this->integrateDefaults($definition, $rawData, $existence);
 
-        $mainFields = $fields->filter(function (Field $field) {
+        $mainFields = array_filter($fields, function (Field $field) {
             if ($field instanceof ChildrenAssociationField) {
                 return false;
             }
@@ -107,8 +107,11 @@ class WriteCommandExtractor
         $this->updateCommandQueue($definition, $commandQueue, $existence, $pkData, $data);
 
         // call map with child associations only
-        $children = $fields->filterInstance(ChildrenAssociationField::class);
-        if ($children->count() > 0) {
+        $children = array_filter($fields, function(Field $field) {
+            return $field instanceof ChildrenAssociationField;
+        });
+
+        if (count($children) > 0) {
             $this->map($children, $rawData, $existence, $exceptionStack, $extender);
         }
 
@@ -116,7 +119,7 @@ class WriteCommandExtractor
     }
 
     private function map(
-        FieldCollection $fields,
+        array $fields,
         array $rawData,
         EntityExistence $existence,
         FieldExceptionStack $exceptionStack,
@@ -206,18 +209,19 @@ class WriteCommandExtractor
      *
      * @return FieldCollection
      */
-    private function getFieldsInWriteOrder(string $definition): FieldCollection
+    private function getFieldsInWriteOrder(string $definition): array
     {
-        $fields = clone $definition::getFields();
-        $fields = $fields->filter(function (Field $field) {
+        $fields = $definition::getFields()->getElements();
+
+        $filtered = array_filter($fields, function(Field $field) {
             return !$field->is(ReadOnly::class);
         });
 
-        $fields->sort(function (Field $a, Field $b) {
+        usort($filtered, function (Field $a, Field $b) {
             return $b->getExtractPriority() <=> $a->getExtractPriority();
         });
 
-        return $fields;
+        return $filtered;
     }
 
     /**
@@ -234,7 +238,7 @@ class WriteCommandExtractor
         string $definition,
         FieldExceptionStack $exceptionStack,
         FieldExtenderCollection $extender,
-        FieldCollection $fields
+        array $fields
     ): array {
         //filter all fields which are relevant to extract the full primary key data
         //this function return additionally, to primary key flagged fields, foreign key fields and many to association
@@ -246,7 +250,9 @@ class WriteCommandExtractor
         $mapped = $this->map($mappingFields, $rawData, $existence, $exceptionStack, $extender);
 
         //after all fields extracted, filter fields to only primary key flaged fields
-        $primaryKeys = $mappingFields->filterByFlag(PrimaryKey::class);
+        $primaryKeys = array_filter($mappingFields, function(Field $field) {
+            return $field->is(PrimaryKey::class);
+        });
 
         $primaryKey = [];
 
@@ -284,11 +290,15 @@ class WriteCommandExtractor
      *
      * @return FieldCollection
      */
-    private function getFieldsForPrimaryKeyMapping(FieldCollection $fields): FieldCollection
+    private function getFieldsForPrimaryKeyMapping(array $fields): array
     {
-        $primaryKeys = $fields->filterByFlag(PrimaryKey::class);
+        $primaryKeys = array_filter($fields, function(Field $field) {
+            return $field->is(PrimaryKey::class);
+        });
 
-        $references = $fields->filterInstance(ReferenceField::class);
+        $references = array_filter($fields, function(Field $field) {
+            return $field instanceof ReferenceField;
+        });
 
         foreach ($primaryKeys as $primaryKey) {
             if (!$primaryKey instanceof FkField) {
@@ -297,18 +307,18 @@ class WriteCommandExtractor
 
             $association = $this->getAssociationByStorageName($primaryKey->getStorageName(), $references);
             if ($association) {
-                $primaryKeys->add($association);
+                $primaryKeys[] = $association;
             }
         }
 
-        $primaryKeys->sort(function (Field $a, Field $b) {
+        usort($primaryKeys, function (Field $a, Field $b) {
             return $b->getExtractPriority() <=> $a->getExtractPriority();
         });
 
         return $primaryKeys;
     }
 
-    private function getAssociationByStorageName(string $name, FieldCollection $fields): ?ManyToOneAssociationField
+    private function getAssociationByStorageName(string $name, array $fields): ?ManyToOneAssociationField
     {
         /** @var ManyToOneAssociationField $association */
         foreach ($fields as $association) {

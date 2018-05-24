@@ -4,7 +4,12 @@ namespace Shopware\Framework\ORM\Dbal\Indexing;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Event\ProgressAdvancedEvent;
+use Shopware\Framework\Event\ProgressFinishedEvent;
+use Shopware\Framework\Event\ProgressStartedEvent;
+use Shopware\Framework\ORM\Dbal\Common\LastIdQuery;
 use Shopware\Framework\ORM\Dbal\EntityDefinitionQueryHelper;
+use Shopware\Framework\ORM\DefinitionRegistry;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\Field\AssociationInterface;
 use Shopware\Framework\ORM\Field\Field;
@@ -17,6 +22,7 @@ use Shopware\Framework\ORM\Write\Flag\Inherited;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WrittenEvent;
 use Shopware\Framework\Struct\Uuid;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class InheritanceIndexer implements IndexerInterface
 {
@@ -24,14 +30,62 @@ class InheritanceIndexer implements IndexerInterface
      * @var Connection
      */
     private $connection;
+    /**
+     * @var DefinitionRegistry
+     */
+    private $registry;
 
-    public function __construct(Connection $connection)
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    public function __construct(Connection $connection, DefinitionRegistry $registry, EventDispatcherInterface $eventDispatcher)
     {
         $this->connection = $connection;
+        $this->registry = $registry;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function index(\DateTime $timestamp, string $tenantId): void
     {
+        $context = ApplicationContext::createDefaultContext($tenantId);
+
+        foreach ($this->registry->getElements() as $definition) {
+            /** @var string|EntityDefinition $definition */
+            if (!$definition::isInheritanceAware()) {
+                continue;
+            }
+
+            if (!$definition::getFields()->has('autoIncrement')) {
+                continue;
+            }
+
+            $iterator = $this->createIterator($tenantId, $definition::getEntityName());
+
+            $this->eventDispatcher->dispatch(
+                ProgressStartedEvent::NAME,
+                new ProgressStartedEvent('Start building inheritance for definition: ' . $definition::getEntityName(), $iterator->fetchCount())
+            );
+
+            while ($ids = $iterator->fetch()) {
+                $ids = array_map(function ($id) {
+                    return Uuid::fromBytesToHex($id);
+                }, $ids);
+
+                $this->update($definition, $ids, $context);
+
+                $this->eventDispatcher->dispatch(
+                    ProgressAdvancedEvent::NAME,
+                    new ProgressAdvancedEvent(count($ids))
+                );
+            }
+
+            $this->eventDispatcher->dispatch(
+                ProgressFinishedEvent::NAME,
+                new ProgressFinishedEvent('Finish building inheritance for definition: ' . $definition::getEntityName())
+            );
+        }
     }
 
     public function refresh(GenericWrittenEvent $event): void
@@ -180,5 +234,24 @@ class InheritanceIndexer implements IndexerInterface
                 ['version' => \PDO::PARAM_STR, 'tenant' => \PDO::PARAM_STR, 'ids' => Connection::PARAM_STR_ARRAY]
             );
         }
+    }
+
+    private function createIterator(string $tenantId, $entity): LastIdQuery
+    {
+        $escaped = EntityDefinitionQueryHelper::escape($entity);
+
+        $query = $this->connection->createQueryBuilder();
+        $query->select([$escaped . '.auto_increment', $escaped . '.id']);
+        $query->from($escaped);
+        $query->andWhere($escaped . '.tenant_id = :tenantId');
+        $query->andWhere($escaped . '.auto_increment > :lastId');
+        $query->addOrderBy($escaped . '.auto_increment');
+
+        $query->setMaxResults(50);
+
+        $query->setParameter('tenantId', Uuid::fromHexToBytes($tenantId));
+        $query->setParameter('lastId', 0);
+
+        return new LastIdQuery($query);
     }
 }

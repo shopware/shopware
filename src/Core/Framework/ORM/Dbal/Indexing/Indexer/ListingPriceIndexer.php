@@ -2,21 +2,20 @@
 
 namespace Shopware\Framework\ORM\Dbal\Indexing\Indexer;
 
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Content\Product\ProductRepository;
+use Doctrine\DBAL\Connection;
 use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\ContextPriceStruct;
+use Shopware\Content\Product\ProductRepository;
+use Shopware\Content\Product\Struct\PriceStruct;
 use Shopware\Framework\ORM\Dbal\Indexing\Common\EventIdExtractor;
 use Shopware\Framework\ORM\Dbal\Indexing\Common\RepositoryIterator;
 use Shopware\Framework\ORM\Dbal\Indexing\Event\ProgressAdvancedEvent;
 use Shopware\Framework\ORM\Dbal\Indexing\Event\ProgressFinishedEvent;
 use Shopware\Framework\ORM\Dbal\Indexing\Event\ProgressStartedEvent;
-
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Doctrine\DBAL\Connection;
-use Shopware\Application\Context\Struct\ContextPriceStruct;
 use Shopware\Framework\ORM\Field\ContextPricesJsonField;
-use Shopware\Content\Product\Struct\PriceStruct;
+use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\Struct\Uuid;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ListingPriceIndexer implements IndexerInterface
 {

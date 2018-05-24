@@ -2,9 +2,9 @@
 
 namespace Shopware\Checkout\Order\Aggregate\OrderTransaction\Struct;
 
+use Shopware\Checkout\Order\Aggregate\OrderTransaction\Collection\OrderTransactionBasicCollection;
 use Shopware\Framework\ORM\Search\SearchResultInterface;
 use Shopware\Framework\ORM\Search\SearchResultTrait;
-use Shopware\Checkout\Order\Aggregate\OrderTransaction\Collection\OrderTransactionBasicCollection;
 
 class OrderTransactionSearchResult extends OrderTransactionBasicCollection implements SearchResultInterface
 {

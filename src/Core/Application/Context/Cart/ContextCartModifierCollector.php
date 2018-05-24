@@ -2,14 +2,13 @@
 
 namespace Shopware\Application\Context\Cart;
 
+use Shopware\Application\Context\Cart\Struct\ContextCartModifierFetchDefinition;
 use Shopware\Application\Context\Repository\ContextCartModifierRepository;
-
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\Query\TermsQuery;
+use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Checkout\Cart\Cart\CartCollectorInterface;
 use Shopware\Checkout\Cart\Cart\Struct\Cart;
-use Shopware\Application\Context\Cart\Struct\ContextCartModifierFetchDefinition;
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Framework\ORM\Search\Criteria;
+use Shopware\Framework\ORM\Search\Query\TermsQuery;
 use Shopware\Framework\Struct\StructCollection;
 
 class ContextCartModifierCollector implements CartCollectorInterface

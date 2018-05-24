@@ -2,11 +2,9 @@
 
 namespace Shopware\Content\Product\Aggregate\ProductContextPrice\Collection;
 
-
-
+use Shopware\Content\Product\Aggregate\ProductContextPrice\Struct\ProductContextPriceDetailStruct;
 use Shopware\Content\Product\Collection\ProductBasicCollection;
 use Shopware\System\Currency\Collection\CurrencyBasicCollection;
-use Shopware\Content\Product\Aggregate\ProductContextPrice\Struct\ProductContextPriceDetailStruct;
 
 class ProductContextPriceDetailCollection extends ProductContextPriceBasicCollection
 {

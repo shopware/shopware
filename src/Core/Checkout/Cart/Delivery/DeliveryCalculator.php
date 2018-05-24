@@ -26,15 +26,15 @@ declare(strict_types=1);
 namespace Shopware\Checkout\Cart\Delivery;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Checkout\Shipping\Struct\ShippingMethodBasicStruct;
+use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Checkout\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Checkout\Cart\Price\PriceCalculator;
 use Shopware\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Checkout\Cart\Price\Struct\PriceDefinition;
 use Shopware\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\Shipping\Struct\ShippingMethodBasicStruct;
 use Shopware\Framework\Struct\Uuid;
 
 class DeliveryCalculator

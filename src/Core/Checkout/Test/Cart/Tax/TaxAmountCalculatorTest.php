@@ -26,6 +26,7 @@ namespace Shopware\Checkout\Test\Cart\Tax;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Application\Application\Struct\ApplicationBasicStruct;
+use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Checkout\Cart\Price\PriceRounding;
 use Shopware\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
@@ -40,7 +41,6 @@ use Shopware\Checkout\Cart\Tax\TaxAmountCalculator;
 use Shopware\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Checkout\Cart\Tax\TaxDetector;
 use Shopware\Checkout\Cart\Tax\TaxRuleCalculator;
-use Shopware\Application\Context\Struct\StorefrontContext;
 
 class TaxAmountCalculatorTest extends TestCase
 {

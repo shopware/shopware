@@ -2,8 +2,8 @@
 
 namespace Shopware\System\Currency\Aggregate\CurrencyTranslation\Collection;
 
-use Shopware\System\Currency\Aggregate\CurrencyTranslation\Struct\CurrencyTranslationBasicStruct;
 use Shopware\Framework\ORM\EntityCollection;
+use Shopware\System\Currency\Aggregate\CurrencyTranslation\Struct\CurrencyTranslationBasicStruct;
 
 class CurrencyTranslationBasicCollection extends EntityCollection
 {

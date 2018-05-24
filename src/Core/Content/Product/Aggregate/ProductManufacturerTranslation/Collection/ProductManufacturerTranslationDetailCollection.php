@@ -4,7 +4,6 @@ namespace Shopware\Content\Product\Aggregate\ProductManufacturerTranslation\Coll
 
 use Shopware\Application\Language\Collection\LanguageBasicCollection;
 use Shopware\Content\Product\Aggregate\ProductManufacturer\Collection\ProductManufacturerBasicCollection;
-
 use Shopware\Content\Product\Aggregate\ProductManufacturerTranslation\Struct\ProductManufacturerTranslationDetailStruct;
 
 class ProductManufacturerTranslationDetailCollection extends ProductManufacturerTranslationBasicCollection

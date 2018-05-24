@@ -2,8 +2,8 @@
 
 namespace Shopware\Framework\Plugin\Struct;
 
-use Shopware\System\Config\Collection\ConfigFormBasicCollection;
 use Shopware\Checkout\Payment\Collection\PaymentMethodBasicCollection;
+use Shopware\System\Config\Collection\ConfigFormBasicCollection;
 
 class PluginDetailStruct extends PluginBasicStruct
 {

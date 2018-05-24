@@ -10,6 +10,7 @@ use Shopware\Application\Context\Event\ContextCartModifierTranslation\ContextCar
 use Shopware\Application\Context\Event\ContextCartModifierTranslation\ContextCartModifierTranslationDetailLoadedEvent;
 use Shopware\Application\Context\Event\ContextCartModifierTranslation\ContextCartModifierTranslationIdSearchResultLoadedEvent;
 use Shopware\Application\Context\Event\ContextCartModifierTranslation\ContextCartModifierTranslationSearchResultLoadedEvent;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Application\Context\Struct\ContextCartModifierTranslationSearchResult;
 use Shopware\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Framework\ORM\RepositoryInterface;
@@ -18,10 +19,9 @@ use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
 use Shopware\Framework\ORM\Search\EntitySearcherInterface;
 use Shopware\Framework\ORM\Search\IdSearchResult;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ContextCartModifierTranslationRepository implements RepositoryInterface

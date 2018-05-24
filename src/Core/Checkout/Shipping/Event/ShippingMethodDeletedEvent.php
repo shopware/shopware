@@ -2,9 +2,9 @@
 
 namespace Shopware\Checkout\Shipping\Event;
 
+use Shopware\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Framework\ORM\Write\DeletedEvent;
 use Shopware\Framework\ORM\Write\WrittenEvent;
-use Shopware\Checkout\Shipping\ShippingMethodDefinition;
 
 class ShippingMethodDeletedEvent extends WrittenEvent implements DeletedEvent
 {

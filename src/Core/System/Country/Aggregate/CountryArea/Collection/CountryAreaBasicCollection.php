@@ -2,8 +2,8 @@
 
 namespace Shopware\System\Country\Aggregate\CountryArea\Collection;
 
-use Shopware\System\Country\Aggregate\CountryArea\Struct\CountryAreaBasicStruct;
 use Shopware\Framework\ORM\EntityCollection;
+use Shopware\System\Country\Aggregate\CountryArea\Struct\CountryAreaBasicStruct;
 
 class CountryAreaBasicCollection extends EntityCollection
 {

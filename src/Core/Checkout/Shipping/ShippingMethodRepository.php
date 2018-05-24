@@ -2,6 +2,15 @@
 
 namespace Shopware\Checkout\Shipping;
 
+use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Checkout\Shipping\Collection\ShippingMethodBasicCollection;
+use Shopware\Checkout\Shipping\Collection\ShippingMethodDetailCollection;
+use Shopware\Checkout\Shipping\Event\ShippingMethodAggregationResultLoadedEvent;
+use Shopware\Checkout\Shipping\Event\ShippingMethodBasicLoadedEvent;
+use Shopware\Checkout\Shipping\Event\ShippingMethodDetailLoadedEvent;
+use Shopware\Checkout\Shipping\Event\ShippingMethodIdSearchResultLoadedEvent;
+use Shopware\Checkout\Shipping\Event\ShippingMethodSearchResultLoadedEvent;
+use Shopware\Checkout\Shipping\Struct\ShippingMethodSearchResult;
 use Shopware\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Framework\ORM\RepositoryInterface;
 use Shopware\Framework\ORM\Search\AggregatorResult;
@@ -9,19 +18,9 @@ use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
 use Shopware\Framework\ORM\Search\EntitySearcherInterface;
 use Shopware\Framework\ORM\Search\IdSearchResult;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\Checkout\Shipping\Collection\ShippingMethodBasicCollection;
-use Shopware\Checkout\Shipping\Collection\ShippingMethodDetailCollection;
-
-use Shopware\Checkout\Shipping\Event\ShippingMethodAggregationResultLoadedEvent;
-use Shopware\Checkout\Shipping\Event\ShippingMethodBasicLoadedEvent;
-use Shopware\Checkout\Shipping\Event\ShippingMethodDetailLoadedEvent;
-use Shopware\Checkout\Shipping\Event\ShippingMethodIdSearchResultLoadedEvent;
-use Shopware\Checkout\Shipping\Event\ShippingMethodSearchResultLoadedEvent;
-use Shopware\Checkout\Shipping\Struct\ShippingMethodSearchResult;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ShippingMethodRepository implements RepositoryInterface

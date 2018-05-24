@@ -2,6 +2,7 @@
 
 namespace Shopware\System\Unit;
 
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Framework\ORM\RepositoryInterface;
 use Shopware\Framework\ORM\Search\AggregatorResult;
@@ -9,19 +10,17 @@ use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
 use Shopware\Framework\ORM\Search\EntitySearcherInterface;
 use Shopware\Framework\ORM\Search\IdSearchResult;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
 use Shopware\System\Unit\Collection\UnitBasicCollection;
 use Shopware\System\Unit\Collection\UnitDetailCollection;
-
 use Shopware\System\Unit\Event\UnitAggregationResultLoadedEvent;
 use Shopware\System\Unit\Event\UnitBasicLoadedEvent;
 use Shopware\System\Unit\Event\UnitDetailLoadedEvent;
 use Shopware\System\Unit\Event\UnitIdSearchResultLoadedEvent;
 use Shopware\System\Unit\Event\UnitSearchResultLoadedEvent;
 use Shopware\System\Unit\Struct\UnitSearchResult;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class UnitRepository implements RepositoryInterface

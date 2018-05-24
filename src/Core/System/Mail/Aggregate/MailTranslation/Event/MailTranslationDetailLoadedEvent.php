@@ -2,12 +2,12 @@
 
 namespace Shopware\System\Mail\Aggregate\MailTranslation\Event;
 
-use Shopware\Application\Language\Event\LanguageBasicLoadedEvent;
-use Shopware\System\Mail\Aggregate\MailTranslation\Collection\MailTranslationDetailCollection;
-use Shopware\System\Mail\Event\MailBasicLoadedEvent;
 use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Application\Language\Event\LanguageBasicLoadedEvent;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\System\Mail\Aggregate\MailTranslation\Collection\MailTranslationDetailCollection;
+use Shopware\System\Mail\Event\MailBasicLoadedEvent;
 
 class MailTranslationDetailLoadedEvent extends NestedEvent
 {

@@ -5,8 +5,8 @@ namespace Shopware\Framework\Test\Api\Controller;
 use Doctrine\DBAL\Connection;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\Struct\Uuid;
-use Shopware\PlatformRequest;
 use Shopware\Framework\Test\Api\ApiTestCase;
+use Shopware\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
 
 class ApiControllerTest extends ApiTestCase

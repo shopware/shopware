@@ -2,15 +2,7 @@
 
 namespace Shopware\System\Country\Aggregate\CountryArea;
 
-use Shopware\System\Country\Aggregate\CountryArea\Collection\CountryAreaBasicCollection;
-use Shopware\System\Country\Aggregate\CountryArea\Collection\CountryAreaDetailCollection;
-
-use Shopware\System\Country\Aggregate\CountryArea\Event\CountryAreaAggregationResultLoadedEvent;
-use Shopware\System\Country\Aggregate\CountryArea\Event\CountryAreaBasicLoadedEvent;
-use Shopware\System\Country\Aggregate\CountryArea\Event\CountryAreaDetailLoadedEvent;
-use Shopware\System\Country\Aggregate\CountryArea\Event\CountryAreaIdSearchResultLoadedEvent;
-use Shopware\System\Country\Aggregate\CountryArea\Event\CountryAreaSearchResultLoadedEvent;
-use Shopware\System\Country\Aggregate\CountryArea\Struct\CountryAreaSearchResult;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Framework\ORM\RepositoryInterface;
 use Shopware\Framework\ORM\Search\AggregatorResult;
@@ -18,10 +10,17 @@ use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
 use Shopware\Framework\ORM\Search\EntitySearcherInterface;
 use Shopware\Framework\ORM\Search\IdSearchResult;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
+use Shopware\System\Country\Aggregate\CountryArea\Collection\CountryAreaBasicCollection;
+use Shopware\System\Country\Aggregate\CountryArea\Collection\CountryAreaDetailCollection;
+use Shopware\System\Country\Aggregate\CountryArea\Event\CountryAreaAggregationResultLoadedEvent;
+use Shopware\System\Country\Aggregate\CountryArea\Event\CountryAreaBasicLoadedEvent;
+use Shopware\System\Country\Aggregate\CountryArea\Event\CountryAreaDetailLoadedEvent;
+use Shopware\System\Country\Aggregate\CountryArea\Event\CountryAreaIdSearchResultLoadedEvent;
+use Shopware\System\Country\Aggregate\CountryArea\Event\CountryAreaSearchResultLoadedEvent;
+use Shopware\System\Country\Aggregate\CountryArea\Struct\CountryAreaSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class CountryAreaRepository implements RepositoryInterface

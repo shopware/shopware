@@ -3,17 +3,16 @@
 namespace Shopware\Content\Category\Util;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Content\Category\CategoryRepository;
 use Shopware\Content\Category\Collection\CategoryBasicCollection;
 use Shopware\Content\Category\Event\CategoryWrittenEvent;
-use Shopware\Content\Category\CategoryRepository;
 use Shopware\Content\Category\Struct\CategoryBasicStruct;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\Query\TermQuery;
-use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\ORM\Dbal\Indexing\Event\ProgressAdvancedEvent;
 use Shopware\Framework\ORM\Dbal\Indexing\Event\ProgressFinishedEvent;
 use Shopware\Framework\ORM\Dbal\Indexing\Event\ProgressStartedEvent;
-
+use Shopware\Framework\ORM\Search\Criteria;
+use Shopware\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Framework\Struct\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;

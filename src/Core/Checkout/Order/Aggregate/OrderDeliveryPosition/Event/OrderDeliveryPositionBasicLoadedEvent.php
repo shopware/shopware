@@ -2,9 +2,9 @@
 
 namespace Shopware\Checkout\Order\Aggregate\OrderDeliveryPosition\Event;
 
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Checkout\Order\Aggregate\OrderDeliveryPosition\Collection\OrderDeliveryPositionBasicCollection;
 use Shopware\Checkout\Order\Aggregate\OrderLineItem\Event\OrderLineItemBasicLoadedEvent;
-use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 

@@ -2,9 +2,9 @@
 
 namespace Shopware\Framework\ORM\Version\Event\Version;
 
-use Shopware\Framework\ORM\Version\Struct\VersionSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
+use Shopware\Framework\ORM\Version\Struct\VersionSearchResult;
 
 class VersionSearchResultLoadedEvent extends NestedEvent
 {

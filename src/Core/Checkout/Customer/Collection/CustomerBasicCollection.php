@@ -6,8 +6,8 @@ use Shopware\Application\Application\Collection\ApplicationBasicCollection;
 use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Collection\CustomerAddressBasicCollection;
 use Shopware\Checkout\Customer\Aggregate\CustomerGroup\Collection\CustomerGroupBasicCollection;
 use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
-use Shopware\Framework\ORM\EntityCollection;
 use Shopware\Checkout\Payment\Collection\PaymentMethodBasicCollection;
+use Shopware\Framework\ORM\EntityCollection;
 
 class CustomerBasicCollection extends EntityCollection
 {

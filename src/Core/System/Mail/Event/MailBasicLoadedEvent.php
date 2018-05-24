@@ -2,9 +2,9 @@
 
 namespace Shopware\System\Mail\Event;
 
-use Shopware\System\Mail\Collection\MailBasicCollection;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
+use Shopware\System\Mail\Collection\MailBasicCollection;
 
 class MailBasicLoadedEvent extends NestedEvent
 {

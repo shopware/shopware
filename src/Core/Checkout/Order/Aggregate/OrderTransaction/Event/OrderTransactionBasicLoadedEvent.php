@@ -2,8 +2,8 @@
 
 namespace Shopware\Checkout\Order\Aggregate\OrderTransaction\Event;
 
-use Shopware\Checkout\Order\Aggregate\OrderTransaction\Collection\OrderTransactionBasicCollection;
 use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Checkout\Order\Aggregate\OrderTransaction\Collection\OrderTransactionBasicCollection;
 use Shopware\Framework\Event\NestedEvent;
 
 class OrderTransactionBasicLoadedEvent extends NestedEvent

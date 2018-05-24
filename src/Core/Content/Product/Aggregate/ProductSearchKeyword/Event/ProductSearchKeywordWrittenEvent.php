@@ -2,8 +2,8 @@
 
 namespace Shopware\Content\Product\Aggregate\ProductSearchKeyword\Event;
 
-use Shopware\Framework\ORM\Write\WrittenEvent;
 use Shopware\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordDefinition;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 
 class ProductSearchKeywordWrittenEvent extends WrittenEvent
 {

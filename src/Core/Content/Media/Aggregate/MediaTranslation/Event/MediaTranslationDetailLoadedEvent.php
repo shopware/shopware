@@ -2,10 +2,10 @@
 
 namespace Shopware\Content\Media\Aggregate\MediaTranslation\Event;
 
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Application\Language\Event\LanguageBasicLoadedEvent;
 use Shopware\Content\Media\Aggregate\MediaTranslation\Collection\MediaTranslationDetailCollection;
 use Shopware\Content\Media\Event\MediaBasicLoadedEvent;
-use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 

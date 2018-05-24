@@ -2,8 +2,8 @@
 
 namespace Shopware\Application\Context\Struct;
 
-use Shopware\Framework\ORM\Entity;
 use Shopware\Content\Product\Struct\PriceStruct;
+use Shopware\Framework\ORM\Entity;
 
 class ContextPriceStruct extends Entity
 {

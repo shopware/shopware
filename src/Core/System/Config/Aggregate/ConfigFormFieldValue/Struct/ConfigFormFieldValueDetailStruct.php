@@ -4,7 +4,6 @@ namespace Shopware\System\Config\Aggregate\ConfigFormFieldValue\Struct;
 
 use Shopware\System\Config\Aggregate\ConfigFormField\Struct\ConfigFormFieldBasicStruct;
 
-
 class ConfigFormFieldValueDetailStruct extends ConfigFormFieldValueBasicStruct
 {
     /**

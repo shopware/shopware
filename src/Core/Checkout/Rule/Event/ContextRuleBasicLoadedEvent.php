@@ -2,8 +2,8 @@
 
 namespace Shopware\Checkout\Rule\Event;
 
-use Shopware\Checkout\Rule\Collection\ContextRuleBasicCollection;
 use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Checkout\Rule\Collection\ContextRuleBasicCollection;
 use Shopware\Framework\Event\NestedEvent;
 
 class ContextRuleBasicLoadedEvent extends NestedEvent

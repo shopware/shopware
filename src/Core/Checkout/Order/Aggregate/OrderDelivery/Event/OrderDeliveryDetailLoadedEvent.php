@@ -2,13 +2,13 @@
 
 namespace Shopware\Checkout\Order\Aggregate\OrderDelivery\Event;
 
-use Shopware\Checkout\Order\Aggregate\OrderDelivery\Collection\OrderDeliveryDetailCollection;
-use Shopware\Checkout\Order\Event\OrderBasicLoadedEvent;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Checkout\Order\Aggregate\OrderAddress\Event\OrderAddressBasicLoadedEvent;
+use Shopware\Checkout\Order\Aggregate\OrderDelivery\Collection\OrderDeliveryDetailCollection;
 use Shopware\Checkout\Order\Aggregate\OrderDeliveryPosition\Event\OrderDeliveryPositionBasicLoadedEvent;
 use Shopware\Checkout\Order\Aggregate\OrderState\Event\OrderStateBasicLoadedEvent;
+use Shopware\Checkout\Order\Event\OrderBasicLoadedEvent;
 use Shopware\Checkout\Shipping\Event\ShippingMethodBasicLoadedEvent;
-use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 

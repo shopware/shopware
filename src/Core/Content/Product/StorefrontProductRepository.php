@@ -2,19 +2,18 @@
 
 namespace Shopware\Content\Product;
 
+use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\Cart\Price\PriceCalculator;
+use Shopware\Content\Product\Aggregate\ProductService\Struct\ProductServiceBasicStruct;
+use Shopware\Content\Product\Collection\ProductBasicCollection;
+use Shopware\Content\Product\Collection\ProductDetailCollection;
+use Shopware\Content\Product\Struct\ProductSearchResult;
 use Shopware\Content\Product\Struct\StorefrontProductBasicInterface;
 use Shopware\Content\Product\Struct\StorefrontProductBasicStruct;
 use Shopware\Content\Product\Struct\StorefrontProductDetailStruct;
-use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Struct\ConfigurationGroupOptionBasicStruct;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Content\Product\Collection\ProductBasicCollection;
-use Shopware\Content\Product\Collection\ProductDetailCollection;
-
-use Shopware\Content\Product\Struct\ProductSearchResult;
-use Shopware\Content\Product\Aggregate\ProductService\Struct\ProductServiceBasicStruct;
-use Shopware\Checkout\Cart\Price\PriceCalculator;
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Struct\ConfigurationGroupOptionBasicStruct;
 
 class StorefrontProductRepository
 {

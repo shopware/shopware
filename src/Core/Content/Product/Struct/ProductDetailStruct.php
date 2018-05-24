@@ -3,14 +3,14 @@
 namespace Shopware\Content\Product\Struct;
 
 use Shopware\Content\Category\Collection\CategoryBasicCollection;
-use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionBasicCollection;
-use Shopware\Content\Product\Collection\ProductBasicCollection;
 use Shopware\Content\Product\Aggregate\ProductConfigurator\Collection\ProductConfiguratorBasicCollection;
 use Shopware\Content\Product\Aggregate\ProductMedia\Collection\ProductMediaBasicCollection;
 use Shopware\Content\Product\Aggregate\ProductSearchKeyword\Collection\ProductSearchKeywordBasicCollection;
 use Shopware\Content\Product\Aggregate\ProductService\Collection\ProductServiceBasicCollection;
 use Shopware\Content\Product\Aggregate\ProductStream\Collection\ProductStreamBasicCollection;
 use Shopware\Content\Product\Aggregate\ProductTranslation\Collection\ProductTranslationBasicCollection;
+use Shopware\Content\Product\Collection\ProductBasicCollection;
+use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionBasicCollection;
 
 class ProductDetailStruct extends ProductBasicStruct
 {

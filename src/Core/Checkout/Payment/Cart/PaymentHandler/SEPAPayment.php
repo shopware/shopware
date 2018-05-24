@@ -2,10 +2,10 @@
 
 namespace Shopware\Checkout\Payment\Cart\PaymentHandler;
 
-use Shopware\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionRepository;
 use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Defaults;
+use Shopware\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionRepository;
 use Shopware\Checkout\Payment\Cart\PaymentTransactionStruct;
+use Shopware\Defaults;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 

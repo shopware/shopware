@@ -2,12 +2,12 @@
 
 namespace Shopware\System\Mail\Aggregate\MailAttachment\Event;
 
-use Shopware\System\Mail\Aggregate\MailAttachment\Collection\MailAttachmentDetailCollection;
-use Shopware\System\Mail\Event\MailBasicLoadedEvent;
-use Shopware\Content\Media\Event\MediaBasicLoadedEvent;
 use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Content\Media\Event\MediaBasicLoadedEvent;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\System\Mail\Aggregate\MailAttachment\Collection\MailAttachmentDetailCollection;
+use Shopware\System\Mail\Event\MailBasicLoadedEvent;
 
 class MailAttachmentDetailLoadedEvent extends NestedEvent
 {

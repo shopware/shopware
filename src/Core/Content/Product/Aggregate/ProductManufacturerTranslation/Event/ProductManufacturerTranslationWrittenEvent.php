@@ -2,8 +2,8 @@
 
 namespace Shopware\Content\Product\Aggregate\ProductManufacturerTranslation\Event;
 
-use Shopware\Framework\ORM\Write\WrittenEvent;
 use Shopware\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 
 class ProductManufacturerTranslationWrittenEvent extends WrittenEvent
 {

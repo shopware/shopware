@@ -3,15 +3,15 @@
 namespace Shopware\Content\Test\Catalog;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Content\Catalog\CatalogRepository;
 use Shopware\Content\Category\CategoryRepository;
 use Shopware\Content\Category\Struct\CategoryBasicStruct;
+use Shopware\Content\Product\ProductRepository;
+use Shopware\Defaults;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Framework\ORM\Write\FieldException\WriteStackException;
-use Shopware\Content\Product\ProductRepository;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Defaults;
 use Shopware\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 

@@ -3,9 +3,16 @@
 namespace Shopware\Checkout\Order\Aggregate\OrderDelivery;
 
 use Shopware\Checkout\Order\Aggregate\OrderAddress\OrderAddressDefinition;
-use Shopware\Checkout\Order\OrderDefinition;
+use Shopware\Checkout\Order\Aggregate\OrderDelivery\Collection\OrderDeliveryBasicCollection;
+use Shopware\Checkout\Order\Aggregate\OrderDelivery\Collection\OrderDeliveryDetailCollection;
+use Shopware\Checkout\Order\Aggregate\OrderDelivery\Event\OrderDeliveryDeletedEvent;
+use Shopware\Checkout\Order\Aggregate\OrderDelivery\Event\OrderDeliveryWrittenEvent;
+use Shopware\Checkout\Order\Aggregate\OrderDelivery\Struct\OrderDeliveryBasicStruct;
+use Shopware\Checkout\Order\Aggregate\OrderDelivery\Struct\OrderDeliveryDetailStruct;
 use Shopware\Checkout\Order\Aggregate\OrderDeliveryPosition\OrderDeliveryPositionDefinition;
 use Shopware\Checkout\Order\Aggregate\OrderState\OrderStateDefinition;
+use Shopware\Checkout\Order\OrderDefinition;
+use Shopware\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\DateField;
@@ -23,14 +30,6 @@ use Shopware\Framework\ORM\Write\Flag\CascadeDelete;
 use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Framework\ORM\Write\Flag\SearchRanking;
-use Shopware\Checkout\Order\Aggregate\OrderDelivery\Collection\OrderDeliveryBasicCollection;
-use Shopware\Checkout\Order\Aggregate\OrderDelivery\Collection\OrderDeliveryDetailCollection;
-use Shopware\Checkout\Order\Aggregate\OrderDelivery\Event\OrderDeliveryDeletedEvent;
-use Shopware\Checkout\Order\Aggregate\OrderDelivery\Event\OrderDeliveryWrittenEvent;
-
-use Shopware\Checkout\Order\Aggregate\OrderDelivery\Struct\OrderDeliveryBasicStruct;
-use Shopware\Checkout\Order\Aggregate\OrderDelivery\Struct\OrderDeliveryDetailStruct;
-use Shopware\Checkout\Shipping\ShippingMethodDefinition;
 
 class OrderDeliveryDefinition extends EntityDefinition
 {

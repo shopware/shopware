@@ -2,14 +2,6 @@
 
 namespace Shopware\System\Config\Aggregate\ConfigFormField;
 
-use Shopware\System\Config\Aggregate\ConfigFormField\Collection\ConfigFormFieldBasicCollection;
-use Shopware\System\Config\Aggregate\ConfigFormField\Collection\ConfigFormFieldDetailCollection;
-use Shopware\System\Config\ConfigFormDefinition;
-use Shopware\System\Config\Aggregate\ConfigFormField\Event\ConfigFormFieldDeletedEvent;
-use Shopware\System\Config\Aggregate\ConfigFormField\Event\ConfigFormFieldWrittenEvent;
-
-use Shopware\System\Config\Aggregate\ConfigFormField\Struct\ConfigFormFieldBasicStruct;
-use Shopware\System\Config\Aggregate\ConfigFormField\Struct\ConfigFormFieldDetailStruct;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\BoolField;
@@ -31,8 +23,15 @@ use Shopware\Framework\ORM\Write\Flag\CascadeDelete;
 use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Framework\ORM\Write\Flag\SearchRanking;
+use Shopware\System\Config\Aggregate\ConfigFormField\Collection\ConfigFormFieldBasicCollection;
+use Shopware\System\Config\Aggregate\ConfigFormField\Collection\ConfigFormFieldDetailCollection;
+use Shopware\System\Config\Aggregate\ConfigFormField\Event\ConfigFormFieldDeletedEvent;
+use Shopware\System\Config\Aggregate\ConfigFormField\Event\ConfigFormFieldWrittenEvent;
+use Shopware\System\Config\Aggregate\ConfigFormField\Struct\ConfigFormFieldBasicStruct;
+use Shopware\System\Config\Aggregate\ConfigFormField\Struct\ConfigFormFieldDetailStruct;
 use Shopware\System\Config\Aggregate\ConfigFormFieldTranslation\ConfigFormFieldTranslationDefinition;
 use Shopware\System\Config\Aggregate\ConfigFormFieldValue\ConfigFormFieldValueDefinition;
+use Shopware\System\Config\ConfigFormDefinition;
 
 class ConfigFormFieldDefinition extends EntityDefinition
 {

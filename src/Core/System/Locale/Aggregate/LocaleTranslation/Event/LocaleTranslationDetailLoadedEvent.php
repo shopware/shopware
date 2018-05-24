@@ -2,12 +2,12 @@
 
 namespace Shopware\System\Locale\Aggregate\LocaleTranslation\Event;
 
-use Shopware\Application\Language\Event\LanguageBasicLoadedEvent;
-use Shopware\System\Locale\Aggregate\LocaleTranslation\Collection\LocaleTranslationDetailCollection;
-use Shopware\System\Locale\Event\LocaleBasicLoadedEvent;
 use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Application\Language\Event\LanguageBasicLoadedEvent;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\System\Locale\Aggregate\LocaleTranslation\Collection\LocaleTranslationDetailCollection;
+use Shopware\System\Locale\Event\LocaleBasicLoadedEvent;
 
 class LocaleTranslationDetailLoadedEvent extends NestedEvent
 {

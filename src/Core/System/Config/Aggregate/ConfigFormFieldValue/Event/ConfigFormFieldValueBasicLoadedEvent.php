@@ -2,9 +2,9 @@
 
 namespace Shopware\System\Config\Aggregate\ConfigFormFieldValue\Event;
 
-use Shopware\System\Config\Aggregate\ConfigFormFieldValue\Collection\ConfigFormFieldValueBasicCollection;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
+use Shopware\System\Config\Aggregate\ConfigFormFieldValue\Collection\ConfigFormFieldValueBasicCollection;
 
 class ConfigFormFieldValueBasicLoadedEvent extends NestedEvent
 {

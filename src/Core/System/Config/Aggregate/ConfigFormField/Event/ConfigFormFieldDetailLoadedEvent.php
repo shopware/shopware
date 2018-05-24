@@ -2,13 +2,13 @@
 
 namespace Shopware\System\Config\Aggregate\ConfigFormField\Event;
 
-use Shopware\System\Config\Aggregate\ConfigFormField\Collection\ConfigFormFieldDetailCollection;
-use Shopware\System\Config\Event\ConfigFormBasicLoadedEvent;
-use Shopware\System\Config\Aggregate\ConfigFormFieldTranslation\Event\ConfigFormFieldTranslationBasicLoadedEvent;
-use Shopware\System\Config\Aggregate\ConfigFormFieldValue\Event\ConfigFormFieldValueBasicLoadedEvent;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\System\Config\Aggregate\ConfigFormField\Collection\ConfigFormFieldDetailCollection;
+use Shopware\System\Config\Aggregate\ConfigFormFieldTranslation\Event\ConfigFormFieldTranslationBasicLoadedEvent;
+use Shopware\System\Config\Aggregate\ConfigFormFieldValue\Event\ConfigFormFieldValueBasicLoadedEvent;
+use Shopware\System\Config\Event\ConfigFormBasicLoadedEvent;
 
 class ConfigFormFieldDetailLoadedEvent extends NestedEvent
 {

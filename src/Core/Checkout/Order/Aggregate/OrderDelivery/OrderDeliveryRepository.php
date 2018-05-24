@@ -2,6 +2,15 @@
 
 namespace Shopware\Checkout\Order\Aggregate\OrderDelivery;
 
+use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Checkout\Order\Aggregate\OrderDelivery\Collection\OrderDeliveryBasicCollection;
+use Shopware\Checkout\Order\Aggregate\OrderDelivery\Collection\OrderDeliveryDetailCollection;
+use Shopware\Checkout\Order\Aggregate\OrderDelivery\Event\OrderDeliveryAggregationResultLoadedEvent;
+use Shopware\Checkout\Order\Aggregate\OrderDelivery\Event\OrderDeliveryBasicLoadedEvent;
+use Shopware\Checkout\Order\Aggregate\OrderDelivery\Event\OrderDeliveryDetailLoadedEvent;
+use Shopware\Checkout\Order\Aggregate\OrderDelivery\Event\OrderDeliveryIdSearchResultLoadedEvent;
+use Shopware\Checkout\Order\Aggregate\OrderDelivery\Event\OrderDeliverySearchResultLoadedEvent;
+use Shopware\Checkout\Order\Aggregate\OrderDelivery\Struct\OrderDeliverySearchResult;
 use Shopware\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Framework\ORM\RepositoryInterface;
 use Shopware\Framework\ORM\Search\AggregatorResult;
@@ -9,19 +18,9 @@ use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
 use Shopware\Framework\ORM\Search\EntitySearcherInterface;
 use Shopware\Framework\ORM\Search\IdSearchResult;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\Checkout\Order\Aggregate\OrderDelivery\Collection\OrderDeliveryBasicCollection;
-use Shopware\Checkout\Order\Aggregate\OrderDelivery\Collection\OrderDeliveryDetailCollection;
-
-use Shopware\Checkout\Order\Aggregate\OrderDelivery\Event\OrderDeliveryAggregationResultLoadedEvent;
-use Shopware\Checkout\Order\Aggregate\OrderDelivery\Event\OrderDeliveryBasicLoadedEvent;
-use Shopware\Checkout\Order\Aggregate\OrderDelivery\Event\OrderDeliveryDetailLoadedEvent;
-use Shopware\Checkout\Order\Aggregate\OrderDelivery\Event\OrderDeliveryIdSearchResultLoadedEvent;
-use Shopware\Checkout\Order\Aggregate\OrderDelivery\Event\OrderDeliverySearchResultLoadedEvent;
-use Shopware\Checkout\Order\Aggregate\OrderDelivery\Struct\OrderDeliverySearchResult;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class OrderDeliveryRepository implements RepositoryInterface

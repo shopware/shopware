@@ -2,13 +2,13 @@
 
 namespace Shopware\Profiling\Cart;
 
+use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Checkout\Cart\Cart\CartProcessorInterface;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Checkout\Cart\Cart\Struct\Cart;
 use Shopware\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Checkout\Cart\Delivery\Struct\DeliveryPosition;
 use Shopware\Checkout\Cart\LineItem\CalculatedLineItemInterface;
-use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class ProcessorTracer implements CartProcessorInterface

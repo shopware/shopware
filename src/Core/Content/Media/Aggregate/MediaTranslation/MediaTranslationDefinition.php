@@ -2,6 +2,13 @@
 
 namespace Shopware\Content\Media\Aggregate\MediaTranslation;
 
+use Shopware\Application\Language\LanguageDefinition;
+use Shopware\Content\Media\Aggregate\MediaTranslation\Collection\MediaTranslationBasicCollection;
+use Shopware\Content\Media\Aggregate\MediaTranslation\Collection\MediaTranslationDetailCollection;
+use Shopware\Content\Media\Aggregate\MediaTranslation\Event\MediaTranslationDeletedEvent;
+use Shopware\Content\Media\Aggregate\MediaTranslation\Event\MediaTranslationWrittenEvent;
+use Shopware\Content\Media\Aggregate\MediaTranslation\Struct\MediaTranslationBasicStruct;
+use Shopware\Content\Media\Aggregate\MediaTranslation\Struct\MediaTranslationDetailStruct;
 use Shopware\Content\Media\MediaDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
@@ -11,18 +18,9 @@ use Shopware\Framework\ORM\Field\LongTextField;
 use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Framework\ORM\Field\ReferenceVersionField;
 use Shopware\Framework\ORM\Field\StringField;
-
 use Shopware\Framework\ORM\FieldCollection;
 use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\Application\Language\LanguageDefinition;
-use Shopware\Content\Media\Aggregate\MediaTranslation\Collection\MediaTranslationBasicCollection;
-use Shopware\Content\Media\Aggregate\MediaTranslation\Collection\MediaTranslationDetailCollection;
-use Shopware\Content\Media\Aggregate\MediaTranslation\Event\MediaTranslationDeletedEvent;
-use Shopware\Content\Media\Aggregate\MediaTranslation\Event\MediaTranslationWrittenEvent;
-
-use Shopware\Content\Media\Aggregate\MediaTranslation\Struct\MediaTranslationBasicStruct;
-use Shopware\Content\Media\Aggregate\MediaTranslation\Struct\MediaTranslationDetailStruct;
 
 class MediaTranslationDefinition extends EntityDefinition
 {

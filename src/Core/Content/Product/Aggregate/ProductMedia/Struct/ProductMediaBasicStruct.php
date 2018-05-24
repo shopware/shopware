@@ -2,8 +2,8 @@
 
 namespace Shopware\Content\Product\Aggregate\ProductMedia\Struct;
 
-use Shopware\Framework\ORM\Entity;
 use Shopware\Content\Media\Struct\MediaBasicStruct;
+use Shopware\Framework\ORM\Entity;
 
 class ProductMediaBasicStruct extends Entity
 {

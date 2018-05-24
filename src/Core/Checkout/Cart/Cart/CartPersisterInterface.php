@@ -25,10 +25,10 @@ declare(strict_types=1);
 
 namespace Shopware\Checkout\Cart\Cart;
 
+use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Checkout\Cart\Cart\Struct\Cart;
 use Shopware\Checkout\Cart\Exception\CartTokenNotFoundException;
-use Shopware\Application\Context\Struct\StorefrontContext;
 
 interface CartPersisterInterface
 {

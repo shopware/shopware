@@ -2,9 +2,9 @@
 
 namespace Shopware\System\Mail\Aggregate\MailAttachment\Event;
 
-use Shopware\System\Mail\Aggregate\MailAttachment\Struct\MailAttachmentSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
+use Shopware\System\Mail\Aggregate\MailAttachment\Struct\MailAttachmentSearchResult;
 
 class MailAttachmentSearchResultLoadedEvent extends NestedEvent
 {

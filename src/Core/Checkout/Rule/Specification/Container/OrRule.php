@@ -26,8 +26,8 @@ declare(strict_types=1);
 
 namespace Shopware\Checkout\Rule\Specification\Container;
 
-use Shopware\Checkout\Rule\Specification\Scope\RuleScope;
 use Shopware\Checkout\Rule\Specification\Match;
+use Shopware\Checkout\Rule\Specification\Scope\RuleScope;
 
 /**
  * OrRule returns true, if at least one child rule is true

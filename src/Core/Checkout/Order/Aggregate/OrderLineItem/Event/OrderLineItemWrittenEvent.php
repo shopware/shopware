@@ -2,8 +2,8 @@
 
 namespace Shopware\Checkout\Order\Aggregate\OrderLineItem\Event;
 
-use Shopware\Framework\ORM\Write\WrittenEvent;
 use Shopware\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 
 class OrderLineItemWrittenEvent extends WrittenEvent
 {

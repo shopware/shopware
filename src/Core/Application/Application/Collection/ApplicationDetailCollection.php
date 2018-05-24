@@ -3,9 +3,9 @@
 namespace Shopware\Application\Application\Collection;
 
 use Shopware\Application\Application\Struct\ApplicationDetailStruct;
-use Shopware\System\Country\Collection\CountryBasicCollection;
 use Shopware\Checkout\Payment\Collection\PaymentMethodBasicCollection;
 use Shopware\Checkout\Shipping\Collection\ShippingMethodBasicCollection;
+use Shopware\System\Country\Collection\CountryBasicCollection;
 
 class ApplicationDetailCollection extends ApplicationBasicCollection
 {

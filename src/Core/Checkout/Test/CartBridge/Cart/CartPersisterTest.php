@@ -26,6 +26,7 @@ namespace Shopware\Checkout\Test\CartBridge\Cart;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Checkout\Cart\Cart\CartPersister;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Checkout\Cart\Cart\Struct\Cart;
 use Shopware\Checkout\Cart\Delivery\Struct\DeliveryCollection;
@@ -39,7 +40,6 @@ use Shopware\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Checkout\Test\Cart\Common\Generator;
-use Shopware\Checkout\Cart\Cart\CartPersister;
 use Shopware\Framework\Serializer\StructNormalizer;
 use Symfony\Component\Serializer\Encoder\ChainDecoder;
 use Symfony\Component\Serializer\Encoder\ChainEncoder;

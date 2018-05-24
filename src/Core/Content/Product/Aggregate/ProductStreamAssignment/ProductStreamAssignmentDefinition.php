@@ -3,6 +3,8 @@
 namespace Shopware\Content\Product\Aggregate\ProductStreamAssignment;
 
 use Shopware\Content\Product\Aggregate\ProductStream\ProductStreamDefinition;
+use Shopware\Content\Product\Aggregate\ProductStreamAssignment\Event\ProductStreamAssignmentDeletedEvent;
+use Shopware\Content\Product\Aggregate\ProductStreamAssignment\Event\ProductStreamAssignmentWrittenEvent;
 use Shopware\Content\Product\ProductDefinition;
 use Shopware\Framework\ORM\Field\DateField;
 use Shopware\Framework\ORM\Field\FkField;
@@ -11,8 +13,6 @@ use Shopware\Framework\ORM\Field\ReferenceVersionField;
 use Shopware\Framework\ORM\FieldCollection;
 use Shopware\Framework\ORM\MappingEntityDefinition;
 use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\Content\Product\Aggregate\ProductStreamAssignment\Event\ProductStreamAssignmentDeletedEvent;
-use Shopware\Content\Product\Aggregate\ProductStreamAssignment\Event\ProductStreamAssignmentWrittenEvent;
 
 class ProductStreamAssignmentDefinition extends MappingEntityDefinition
 {

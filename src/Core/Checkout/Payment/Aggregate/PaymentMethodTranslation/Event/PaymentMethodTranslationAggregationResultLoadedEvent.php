@@ -2,9 +2,9 @@
 
 namespace Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation\Event;
 
-use Shopware\Framework\ORM\Search\AggregatorResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
+use Shopware\Framework\ORM\Search\AggregatorResult;
 
 class PaymentMethodTranslationAggregationResultLoadedEvent extends NestedEvent
 {

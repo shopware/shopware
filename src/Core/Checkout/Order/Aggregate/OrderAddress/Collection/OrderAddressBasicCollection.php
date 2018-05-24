@@ -2,10 +2,10 @@
 
 namespace Shopware\Checkout\Order\Aggregate\OrderAddress\Collection;
 
-use Shopware\System\Country\Collection\CountryBasicCollection;
-use Shopware\System\Country\Aggregate\CountryState\Collection\CountryStateBasicCollection;
-use Shopware\Framework\ORM\EntityCollection;
 use Shopware\Checkout\Order\Aggregate\OrderAddress\Struct\OrderAddressBasicStruct;
+use Shopware\Framework\ORM\EntityCollection;
+use Shopware\System\Country\Aggregate\CountryState\Collection\CountryStateBasicCollection;
+use Shopware\System\Country\Collection\CountryBasicCollection;
 
 class OrderAddressBasicCollection extends EntityCollection
 {

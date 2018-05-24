@@ -26,11 +26,10 @@ declare(strict_types=1);
 namespace Shopware\Checkout\Cart\Cart;
 
 use Doctrine\DBAL\Connection;
-
+use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Checkout\Cart\Cart\Struct\Cart;
 use Shopware\Checkout\Cart\Exception\CartTokenNotFoundException;
-use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\Uuid;
 use Symfony\Component\Serializer\SerializerInterface;

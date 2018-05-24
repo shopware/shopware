@@ -2,9 +2,9 @@
 
 namespace Shopware\System\Configuration\Aggregate\ConfigurationGroupTranslation\Struct;
 
-use Shopware\System\Configuration\Aggregate\ConfigurationGroupTranslation\Collection\ConfigurationGroupTranslationBasicCollection;
 use Shopware\Framework\ORM\Search\SearchResultInterface;
 use Shopware\Framework\ORM\Search\SearchResultTrait;
+use Shopware\System\Configuration\Aggregate\ConfigurationGroupTranslation\Collection\ConfigurationGroupTranslationBasicCollection;
 
 class ConfigurationGroupTranslationSearchResult extends ConfigurationGroupTranslationBasicCollection implements SearchResultInterface
 {

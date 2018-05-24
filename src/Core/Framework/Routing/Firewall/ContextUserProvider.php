@@ -3,9 +3,9 @@
 namespace Shopware\Framework\Routing\Firewall;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Application\Context\Util\StorefrontContextServiceInterface;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\Uuid;
-use Shopware\Application\Context\Util\StorefrontContextServiceInterface;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\User\UserInterface;

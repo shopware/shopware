@@ -25,14 +25,14 @@ declare(strict_types=1);
 
 namespace Shopware\Checkout\Customer\Cart;
 
+use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\Cart\Cart\CartCollectorInterface;
+use Shopware\Checkout\Cart\Cart\Struct\Cart;
 use Shopware\Checkout\Customer\Aggregate\CustomerGroupDiscount\Collection\CustomerGroupDiscountBasicCollection;
 use Shopware\Checkout\Customer\Aggregate\CustomerGroupDiscount\CustomerGroupDiscountRepository;
 use Shopware\Checkout\Customer\Aggregate\CustomerGroupDiscount\Struct\CustomerGroupDiscountBasicStruct;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Query\TermQuery;
-use Shopware\Checkout\Cart\Cart\CartCollectorInterface;
-use Shopware\Checkout\Cart\Cart\Struct\Cart;
-use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class CustomerGroupDiscountCartCollector implements CartCollectorInterface

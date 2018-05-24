@@ -2,6 +2,15 @@
 
 namespace Shopware\Checkout\Order\Aggregate\OrderState;
 
+use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Checkout\Order\Aggregate\OrderState\Collection\OrderStateBasicCollection;
+use Shopware\Checkout\Order\Aggregate\OrderState\Collection\OrderStateDetailCollection;
+use Shopware\Checkout\Order\Aggregate\OrderState\Event\OrderStateAggregationResultLoadedEvent;
+use Shopware\Checkout\Order\Aggregate\OrderState\Event\OrderStateBasicLoadedEvent;
+use Shopware\Checkout\Order\Aggregate\OrderState\Event\OrderStateDetailLoadedEvent;
+use Shopware\Checkout\Order\Aggregate\OrderState\Event\OrderStateIdSearchResultLoadedEvent;
+use Shopware\Checkout\Order\Aggregate\OrderState\Event\OrderStateSearchResultLoadedEvent;
+use Shopware\Checkout\Order\Aggregate\OrderState\Struct\OrderStateSearchResult;
 use Shopware\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Framework\ORM\RepositoryInterface;
 use Shopware\Framework\ORM\Search\AggregatorResult;
@@ -9,19 +18,9 @@ use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
 use Shopware\Framework\ORM\Search\EntitySearcherInterface;
 use Shopware\Framework\ORM\Search\IdSearchResult;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\Checkout\Order\Aggregate\OrderState\Collection\OrderStateBasicCollection;
-use Shopware\Checkout\Order\Aggregate\OrderState\Collection\OrderStateDetailCollection;
-
-use Shopware\Checkout\Order\Aggregate\OrderState\Event\OrderStateAggregationResultLoadedEvent;
-use Shopware\Checkout\Order\Aggregate\OrderState\Event\OrderStateBasicLoadedEvent;
-use Shopware\Checkout\Order\Aggregate\OrderState\Event\OrderStateDetailLoadedEvent;
-use Shopware\Checkout\Order\Aggregate\OrderState\Event\OrderStateIdSearchResultLoadedEvent;
-use Shopware\Checkout\Order\Aggregate\OrderState\Event\OrderStateSearchResultLoadedEvent;
-use Shopware\Checkout\Order\Aggregate\OrderState\Struct\OrderStateSearchResult;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class OrderStateRepository implements RepositoryInterface

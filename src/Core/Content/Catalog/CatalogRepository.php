@@ -2,8 +2,8 @@
 
 namespace Shopware\Content\Catalog;
 
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Content\Catalog\Collection\CatalogBasicCollection;
-
 use Shopware\Content\Catalog\Event\CatalogAggregationResultLoadedEvent;
 use Shopware\Content\Catalog\Event\CatalogBasicLoadedEvent;
 use Shopware\Content\Catalog\Event\CatalogIdSearchResultLoadedEvent;
@@ -16,10 +16,9 @@ use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
 use Shopware\Framework\ORM\Search\EntitySearcherInterface;
 use Shopware\Framework\ORM\Search\IdSearchResult;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class CatalogRepository implements RepositoryInterface

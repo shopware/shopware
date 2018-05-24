@@ -2,9 +2,9 @@
 
 namespace Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Event;
 
-use Shopware\Framework\ORM\Search\IdSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
+use Shopware\Framework\ORM\Search\IdSearchResult;
 
 class OrderStateTranslationIdSearchResultLoadedEvent extends NestedEvent
 {

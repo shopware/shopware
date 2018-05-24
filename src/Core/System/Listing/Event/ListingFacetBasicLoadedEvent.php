@@ -2,9 +2,9 @@
 
 namespace Shopware\System\Listing\Event;
 
-use Shopware\System\Listing\Collection\ListingFacetBasicCollection;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
+use Shopware\System\Listing\Collection\ListingFacetBasicCollection;
 
 class ListingFacetBasicLoadedEvent extends NestedEvent
 {

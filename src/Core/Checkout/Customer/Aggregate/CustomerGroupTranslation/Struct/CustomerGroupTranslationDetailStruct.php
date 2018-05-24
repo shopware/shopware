@@ -5,7 +5,6 @@ namespace Shopware\Checkout\Customer\Aggregate\CustomerGroupTranslation\Struct;
 use Shopware\Application\Language\Struct\LanguageBasicStruct;
 use Shopware\Checkout\Customer\Aggregate\CustomerGroup\Struct\CustomerGroupBasicStruct;
 
-
 class CustomerGroupTranslationDetailStruct extends CustomerGroupTranslationBasicStruct
 {
     /**

@@ -25,8 +25,7 @@ declare(strict_types=1);
 
 namespace Shopware\Content\Product\Cart;
 
-use Shopware\Content\Product\Struct\ProductBasicStruct;
-
+use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Checkout\Cart\LineItem\CalculatedLineItem;
 use Shopware\Checkout\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Checkout\Cart\LineItem\LineItemCollection;
@@ -34,7 +33,7 @@ use Shopware\Checkout\Cart\LineItem\LineItemInterface;
 use Shopware\Checkout\Cart\Price\PriceCalculator;
 use Shopware\Checkout\Cart\Price\Struct\PriceDefinition;
 use Shopware\Content\Product\Cart\Struct\CalculatedProduct;
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Content\Product\Struct\ProductBasicStruct;
 use Shopware\Framework\Struct\StructCollection;
 
 class ProductCalculator

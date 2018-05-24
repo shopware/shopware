@@ -2,11 +2,11 @@
 
 namespace Shopware\Content\Product\Cart;
 
+use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Checkout\Cart\Cart\CartProcessorInterface;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Checkout\Cart\Cart\Struct\Cart;
 use Shopware\Checkout\Cart\LineItem\LineItem;
-use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class ProductPreValidator implements CartProcessorInterface

@@ -25,9 +25,9 @@
 namespace Shopware\Checkout\Rule\Specification\Context;
 
 use Shopware\Checkout\Rule\Exception\UnsupportedOperatorException;
-use Shopware\Checkout\Rule\Specification\Scope\RuleScope;
 use Shopware\Checkout\Rule\Specification\Match;
 use Shopware\Checkout\Rule\Specification\Rule;
+use Shopware\Checkout\Rule\Specification\Scope\RuleScope;
 
 class ShippingCountryRule extends Rule
 {

@@ -2,12 +2,12 @@
 
 namespace Shopware;
 
+use Shopware\Framework\Api\Controller\ApiController;
 use Shopware\Framework\DependencyInjection\CompilerPass\TestingCompilerPass;
 use Shopware\Framework\Doctrine\DatabaseConnector;
 use Shopware\Framework\Framework;
 use Shopware\Framework\Plugin\Plugin;
 use Shopware\Framework\Plugin\PluginCollection;
-use Shopware\Framework\Api\Controller\ApiController;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;

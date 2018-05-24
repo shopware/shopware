@@ -2,7 +2,6 @@
 
 namespace Shopware\Framework\Plugin\Definition;
 
-use Shopware\System\Config\ConfigFormDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\BoolField;
@@ -17,7 +16,6 @@ use Shopware\Framework\ORM\FieldCollection;
 use Shopware\Framework\ORM\Write\Flag\CascadeDelete;
 use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
-
 use Shopware\Framework\Plugin\Collection\PluginBasicCollection;
 use Shopware\Framework\Plugin\Collection\PluginDetailCollection;
 use Shopware\Framework\Plugin\Event\Plugin\PluginDeletedEvent;
@@ -25,6 +23,7 @@ use Shopware\Framework\Plugin\Event\Plugin\PluginWrittenEvent;
 use Shopware\Framework\Plugin\Repository\PluginRepository;
 use Shopware\Framework\Plugin\Struct\PluginBasicStruct;
 use Shopware\Framework\Plugin\Struct\PluginDetailStruct;
+use Shopware\System\Config\ConfigFormDefinition;
 
 class PluginDefinition extends EntityDefinition
 {

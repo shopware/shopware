@@ -2,8 +2,8 @@
 
 namespace Shopware\Application\Language\Event;
 
-use Shopware\Application\Language\Collection\LanguageDetailCollection;
 use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Application\Language\Collection\LanguageDetailCollection;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 

@@ -4,7 +4,15 @@ namespace Shopware\Checkout\Payment;
 
 use Shopware\Application\Application\ApplicationDefinition;
 use Shopware\Checkout\Customer\CustomerDefinition;
+use Shopware\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
+use Shopware\Checkout\Order\OrderDefinition;
 use Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationDefinition;
+use Shopware\Checkout\Payment\Collection\PaymentMethodBasicCollection;
+use Shopware\Checkout\Payment\Collection\PaymentMethodDetailCollection;
+use Shopware\Checkout\Payment\Event\PaymentMethodDeletedEvent;
+use Shopware\Checkout\Payment\Event\PaymentMethodWrittenEvent;
+use Shopware\Checkout\Payment\Struct\PaymentMethodBasicStruct;
+use Shopware\Checkout\Payment\Struct\PaymentMethodDetailStruct;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\BoolField;
@@ -28,15 +36,6 @@ use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Framework\ORM\Write\Flag\WriteOnly;
-use Shopware\Checkout\Order\OrderDefinition;
-use Shopware\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
-use Shopware\Checkout\Payment\Collection\PaymentMethodBasicCollection;
-use Shopware\Checkout\Payment\Collection\PaymentMethodDetailCollection;
-use Shopware\Checkout\Payment\Event\PaymentMethodDeletedEvent;
-use Shopware\Checkout\Payment\Event\PaymentMethodWrittenEvent;
-
-use Shopware\Checkout\Payment\Struct\PaymentMethodBasicStruct;
-use Shopware\Checkout\Payment\Struct\PaymentMethodDetailStruct;
 use Shopware\Framework\Plugin\Definition\PluginDefinition;
 
 class PaymentMethodDefinition extends EntityDefinition

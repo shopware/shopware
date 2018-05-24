@@ -25,11 +25,11 @@
 namespace Shopware\Application\Test\Context\Rule\CalculatedLineItem;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\Rule\Specification\CalculatedLineItem\LineItemOfTypeRule;
+use Shopware\Checkout\Rule\Specification\Scope\CalculatedLineItemScope;
 use Shopware\Checkout\Test\Cart\Common\Generator;
 use Shopware\Content\Product\Cart\ProductProcessor;
-use Shopware\Checkout\Rule\Specification\Scope\CalculatedLineItemScope;
-use Shopware\Checkout\Rule\Specification\CalculatedLineItem\LineItemOfTypeRule;
-use Shopware\Application\Context\Struct\StorefrontContext;
 
 class LineItemOfTypeRuleTest extends TestCase
 {

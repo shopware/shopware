@@ -2,7 +2,6 @@
 
 namespace Shopware\Content\Product\Aggregate\ProductMedia\Struct;
 
-
 use Shopware\Content\Product\Struct\ProductBasicStruct;
 
 class ProductMediaDetailStruct extends ProductMediaBasicStruct

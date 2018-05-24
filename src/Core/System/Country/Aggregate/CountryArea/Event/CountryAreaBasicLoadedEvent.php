@@ -2,9 +2,9 @@
 
 namespace Shopware\System\Country\Aggregate\CountryArea\Event;
 
-use Shopware\System\Country\Aggregate\CountryArea\Collection\CountryAreaBasicCollection;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
+use Shopware\System\Country\Aggregate\CountryArea\Collection\CountryAreaBasicCollection;
 
 class CountryAreaBasicLoadedEvent extends NestedEvent
 {

@@ -3,9 +3,8 @@
 namespace Shopware\Application\Context\Util;
 
 use Psr\Cache\CacheItemPoolInterface;
-use Shopware\Checkout\Rule\Collection\ContextRuleBasicCollection;
-use Shopware\Checkout\Rule\ContextRuleRepository;
-use Shopware\Framework\ORM\Search\Criteria;
+use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Checkout\Cart\Cart\CartCollector;
 use Shopware\Checkout\Cart\Cart\CartPersisterInterface;
 use Shopware\Checkout\Cart\Cart\CartProcessor;
@@ -17,10 +16,11 @@ use Shopware\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Checkout\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Checkout\Cart\Price\Struct\CartPrice;
-use Shopware\Checkout\Cart\Tax\TaxDetector;
 use Shopware\Checkout\Cart\StoreFrontCartService;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\Cart\Tax\TaxDetector;
+use Shopware\Checkout\Rule\Collection\ContextRuleBasicCollection;
+use Shopware\Checkout\Rule\ContextRuleRepository;
+use Shopware\Framework\ORM\Search\Criteria;
 use Symfony\Component\Serializer\SerializerInterface;
 
 class ContextRuleLoader

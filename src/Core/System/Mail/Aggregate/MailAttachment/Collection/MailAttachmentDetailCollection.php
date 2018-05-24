@@ -2,11 +2,10 @@
 
 namespace Shopware\System\Mail\Aggregate\MailAttachment\Collection;
 
-
+use Shopware\Content\Media\Collection\MediaBasicCollection;
+use Shopware\System\Mail\Aggregate\MailAttachment\Struct\MailAttachmentDetailStruct;
 use Shopware\System\Mail\Collection\MailBasicCollection;
 use Shopware\System\Mail\Collection\ShopBasicCollection;
-use Shopware\System\Mail\Aggregate\MailAttachment\Struct\MailAttachmentDetailStruct;
-use Shopware\Content\Media\Collection\MediaBasicCollection;
 
 class MailAttachmentDetailCollection extends MailAttachmentBasicCollection
 {

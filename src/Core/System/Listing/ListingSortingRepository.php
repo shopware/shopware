@@ -2,6 +2,7 @@
 
 namespace Shopware\System\Listing;
 
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Framework\ORM\RepositoryInterface;
 use Shopware\Framework\ORM\Search\AggregatorResult;
@@ -9,19 +10,17 @@ use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
 use Shopware\Framework\ORM\Search\EntitySearcherInterface;
 use Shopware\Framework\ORM\Search\IdSearchResult;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
 use Shopware\System\Listing\Collection\ListingSortingBasicCollection;
 use Shopware\System\Listing\Collection\ListingSortingDetailCollection;
-
 use Shopware\System\Listing\Event\ListingSortingAggregationResultLoadedEvent;
 use Shopware\System\Listing\Event\ListingSortingBasicLoadedEvent;
 use Shopware\System\Listing\Event\ListingSortingDetailLoadedEvent;
 use Shopware\System\Listing\Event\ListingSortingIdSearchResultLoadedEvent;
 use Shopware\System\Listing\Event\ListingSortingSearchResultLoadedEvent;
 use Shopware\System\Listing\Struct\ListingSortingSearchResult;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ListingSortingRepository implements RepositoryInterface

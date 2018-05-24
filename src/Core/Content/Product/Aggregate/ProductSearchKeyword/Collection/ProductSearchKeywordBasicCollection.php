@@ -2,8 +2,8 @@
 
 namespace Shopware\Content\Product\Aggregate\ProductSearchKeyword\Collection;
 
-use Shopware\Framework\ORM\EntityCollection;
 use Shopware\Content\Product\Aggregate\ProductSearchKeyword\Struct\ProductSearchKeywordBasicStruct;
+use Shopware\Framework\ORM\EntityCollection;
 
 class ProductSearchKeywordBasicCollection extends EntityCollection
 {

@@ -2,11 +2,11 @@
 
 namespace Shopware\Checkout\Customer\Aggregate\CustomerAddress\Collection;
 
-use Shopware\System\Country\Collection\CountryBasicCollection;
-use Shopware\System\Country\Aggregate\CountryState\Collection\CountryStateBasicCollection;
 use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
 use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
 use Shopware\Framework\ORM\EntityCollection;
+use Shopware\System\Country\Aggregate\CountryState\Collection\CountryStateBasicCollection;
+use Shopware\System\Country\Collection\CountryBasicCollection;
 
 class CustomerAddressBasicCollection extends EntityCollection
 {

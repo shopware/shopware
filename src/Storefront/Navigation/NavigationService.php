@@ -2,13 +2,13 @@
 
 namespace Shopware\Storefront\Navigation;
 
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Content\Category\CategoryRepository;
 use Shopware\Content\Category\Struct\CategoryBasicStruct;
+use Shopware\Content\Category\Util\Tree\TreeBuilder;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Framework\ORM\Search\Query\TermsQuery;
-use Shopware\Content\Category\Util\Tree\TreeBuilder;
-use Shopware\Application\Context\Struct\ApplicationContext;
 
 class NavigationService
 {

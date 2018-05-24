@@ -2,9 +2,9 @@
 
 namespace Shopware\System\Mail\Aggregate\MailTranslation\Event;
 
-use Shopware\System\Mail\Aggregate\MailTranslation\Struct\MailTranslationSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
+use Shopware\System\Mail\Aggregate\MailTranslation\Struct\MailTranslationSearchResult;
 
 class MailTranslationSearchResultLoadedEvent extends NestedEvent
 {

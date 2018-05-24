@@ -2,8 +2,8 @@
 
 namespace Shopware\Content\Media\Aggregate\MediaAlbum\Event;
 
-use Shopware\Content\Media\Aggregate\MediaAlbum\Collection\MediaAlbumBasicCollection;
 use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Content\Media\Aggregate\MediaAlbum\Collection\MediaAlbumBasicCollection;
 use Shopware\Framework\Event\NestedEvent;
 
 class MediaAlbumBasicLoadedEvent extends NestedEvent

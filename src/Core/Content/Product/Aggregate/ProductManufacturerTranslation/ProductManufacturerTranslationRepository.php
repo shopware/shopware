@@ -2,15 +2,7 @@
 
 namespace Shopware\Content\Product\Aggregate\ProductManufacturerTranslation;
 
-use Shopware\Framework\ORM\Read\EntityReaderInterface;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\AggregatorResult;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
-use Shopware\Framework\ORM\Search\EntitySearcherInterface;
-use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\ORM\Write\WriteContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Content\Product\Aggregate\ProductManufacturerTranslation\Collection\ProductManufacturerTranslationBasicCollection;
 use Shopware\Content\Product\Aggregate\ProductManufacturerTranslation\Collection\ProductManufacturerTranslationDetailCollection;
 use Shopware\Content\Product\Aggregate\ProductManufacturerTranslation\Event\ProductManufacturerTranslationAggregationResultLoadedEvent;
@@ -19,8 +11,16 @@ use Shopware\Content\Product\Aggregate\ProductManufacturerTranslation\Event\Prod
 use Shopware\Content\Product\Aggregate\ProductManufacturerTranslation\Event\ProductManufacturerTranslationIdSearchResultLoadedEvent;
 use Shopware\Content\Product\Aggregate\ProductManufacturerTranslation\Event\ProductManufacturerTranslationSearchResultLoadedEvent;
 use Shopware\Content\Product\Aggregate\ProductManufacturerTranslation\Struct\ProductManufacturerTranslationSearchResult;
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Framework\ORM\RepositoryInterface;
+use Shopware\Framework\ORM\Search\AggregatorResult;
+use Shopware\Framework\ORM\Search\Criteria;
+use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
+use Shopware\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Framework\ORM\Search\IdSearchResult;
 use Shopware\Framework\ORM\Version\Service\VersionManager;
+use Shopware\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Framework\ORM\Write\WriteContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductManufacturerTranslationRepository implements RepositoryInterface

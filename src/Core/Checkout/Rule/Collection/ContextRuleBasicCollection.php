@@ -2,11 +2,11 @@
 
 namespace Shopware\Checkout\Rule\Collection;
 
-use Shopware\Checkout\Rule\Struct\ContextRuleBasicStruct;
-use Shopware\Framework\ORM\EntityCollection;
+use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Checkout\Rule\Specification\Scope\CartRuleScope;
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\Rule\Struct\ContextRuleBasicStruct;
+use Shopware\Framework\ORM\EntityCollection;
 
 class ContextRuleBasicCollection extends EntityCollection
 {

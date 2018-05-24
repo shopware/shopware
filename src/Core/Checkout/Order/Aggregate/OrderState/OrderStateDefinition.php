@@ -3,8 +3,14 @@
 namespace Shopware\Checkout\Order\Aggregate\OrderState;
 
 use Shopware\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
-use Shopware\Checkout\Order\OrderDefinition;
+use Shopware\Checkout\Order\Aggregate\OrderState\Collection\OrderStateBasicCollection;
+use Shopware\Checkout\Order\Aggregate\OrderState\Collection\OrderStateDetailCollection;
+use Shopware\Checkout\Order\Aggregate\OrderState\Event\OrderStateDeletedEvent;
+use Shopware\Checkout\Order\Aggregate\OrderState\Event\OrderStateWrittenEvent;
+use Shopware\Checkout\Order\Aggregate\OrderState\Struct\OrderStateBasicStruct;
+use Shopware\Checkout\Order\Aggregate\OrderState\Struct\OrderStateDetailStruct;
 use Shopware\Checkout\Order\Aggregate\OrderStateTranslation\OrderStateTranslationDefinition;
+use Shopware\Checkout\Order\OrderDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\BoolField;
@@ -24,14 +30,6 @@ use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Framework\ORM\Write\Flag\WriteOnly;
-
-use Shopware\Checkout\Order\Aggregate\OrderState\Collection\OrderStateBasicCollection;
-use Shopware\Checkout\Order\Aggregate\OrderState\Collection\OrderStateDetailCollection;
-use Shopware\Checkout\Order\Aggregate\OrderState\Event\OrderStateDeletedEvent;
-use Shopware\Checkout\Order\Aggregate\OrderState\Event\OrderStateWrittenEvent;
-
-use Shopware\Checkout\Order\Aggregate\OrderState\Struct\OrderStateBasicStruct;
-use Shopware\Checkout\Order\Aggregate\OrderState\Struct\OrderStateDetailStruct;
 
 class OrderStateDefinition extends EntityDefinition
 {

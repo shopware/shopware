@@ -2,12 +2,12 @@
 
 namespace Shopware\Framework\Api\Command;
 
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Query\TermQuery;
-use Shopware\System\User\UserRepository;
-use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Struct\Uuid;
 use Shopware\Framework\Util\Random;
+use Shopware\System\User\UserRepository;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -16,7 +16,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Security\Core\Encoder\EncoderFactoryInterface;
-
 
 class UserCreateCommand extends Command
 {

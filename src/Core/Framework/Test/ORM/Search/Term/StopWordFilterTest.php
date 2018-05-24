@@ -3,10 +3,10 @@
 namespace Shopware\Framework\Test\ORM\Search\Term;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Framework\ORM\Search\Term\StopWordFilter;
-use Shopware\Framework\ORM\Search\Term\Tokenizer;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
+use Shopware\Framework\ORM\Search\Term\StopWordFilter;
+use Shopware\Framework\ORM\Search\Term\Tokenizer;
 
 class StopWordFilterTest extends TestCase
 {

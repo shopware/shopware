@@ -2,9 +2,9 @@
 
 namespace Shopware\Framework\Plugin\Event\Plugin;
 
-use Shopware\Framework\Plugin\Collection\PluginBasicCollection;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
+use Shopware\Framework\Plugin\Collection\PluginBasicCollection;
 
 class PluginBasicLoadedEvent extends NestedEvent
 {

@@ -4,13 +4,13 @@ namespace Shopware\Application\Application;
 
 use Shopware\Application\Application\Collection\ApplicationBasicCollection;
 use Shopware\Application\Application\Collection\ApplicationDetailCollection;
-
 use Shopware\Application\Application\Event\ApplicationAggregationResultLoadedEvent;
 use Shopware\Application\Application\Event\ApplicationBasicLoadedEvent;
 use Shopware\Application\Application\Event\ApplicationDetailLoadedEvent;
 use Shopware\Application\Application\Event\ApplicationIdSearchResultLoadedEvent;
 use Shopware\Application\Application\Event\ApplicationSearchResultLoadedEvent;
 use Shopware\Application\Application\Struct\ApplicationSearchResult;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Framework\ORM\RepositoryInterface;
 use Shopware\Framework\ORM\Search\AggregatorResult;
@@ -18,10 +18,9 @@ use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
 use Shopware\Framework\ORM\Search\EntitySearcherInterface;
 use Shopware\Framework\ORM\Search\IdSearchResult;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ApplicationRepository implements RepositoryInterface

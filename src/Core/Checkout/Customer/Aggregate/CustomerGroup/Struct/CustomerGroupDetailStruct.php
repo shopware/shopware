@@ -2,7 +2,6 @@
 
 namespace Shopware\Checkout\Customer\Aggregate\CustomerGroup\Struct;
 
-
 use Shopware\Checkout\Customer\Aggregate\CustomerGroupDiscount\Collection\CustomerGroupDiscountBasicCollection;
 use Shopware\Checkout\Customer\Aggregate\CustomerGroupTranslation\Collection\CustomerGroupTranslationBasicCollection;
 

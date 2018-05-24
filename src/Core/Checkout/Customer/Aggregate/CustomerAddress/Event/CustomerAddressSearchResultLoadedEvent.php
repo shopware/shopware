@@ -2,8 +2,8 @@
 
 namespace Shopware\Checkout\Customer\Aggregate\CustomerAddress\Event;
 
-use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressSearchResult;
 use Shopware\Framework\Event\NestedEvent;
 
 class CustomerAddressSearchResultLoadedEvent extends NestedEvent

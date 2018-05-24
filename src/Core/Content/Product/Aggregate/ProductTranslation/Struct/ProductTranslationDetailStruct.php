@@ -3,7 +3,6 @@
 namespace Shopware\Content\Product\Aggregate\ProductTranslation\Struct;
 
 use Shopware\Application\Language\Struct\LanguageBasicStruct;
-
 use Shopware\Content\Product\Struct\ProductBasicStruct;
 
 class ProductTranslationDetailStruct extends ProductTranslationBasicStruct

@@ -2,9 +2,9 @@
 
 namespace Shopware\System\Config\Aggregate\ConfigFormField\Event;
 
-use Shopware\System\Config\Aggregate\ConfigFormField\Struct\ConfigFormFieldSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
+use Shopware\System\Config\Aggregate\ConfigFormField\Struct\ConfigFormFieldSearchResult;
 
 class ConfigFormFieldSearchResultLoadedEvent extends NestedEvent
 {

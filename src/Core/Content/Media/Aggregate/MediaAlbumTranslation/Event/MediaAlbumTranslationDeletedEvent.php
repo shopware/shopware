@@ -2,9 +2,9 @@
 
 namespace Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Event;
 
+use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\MediaAlbumTranslationDefinition;
 use Shopware\Framework\ORM\Write\DeletedEvent;
 use Shopware\Framework\ORM\Write\WrittenEvent;
-use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\MediaAlbumTranslationDefinition;
 
 class MediaAlbumTranslationDeletedEvent extends WrittenEvent implements DeletedEvent
 {

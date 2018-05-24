@@ -2,12 +2,12 @@
 
 namespace Shopware\System\Listing\Aggregate\ListingFacetTranslation\Event;
 
-use Shopware\Application\Language\Event\LanguageBasicLoadedEvent;
-use Shopware\System\Listing\Aggregate\ListingFacetTranslation\Collection\ListingFacetTranslationDetailCollection;
-use Shopware\System\Listing\Event\ListingFacetBasicLoadedEvent;
 use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Application\Language\Event\LanguageBasicLoadedEvent;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\System\Listing\Aggregate\ListingFacetTranslation\Collection\ListingFacetTranslationDetailCollection;
+use Shopware\System\Listing\Event\ListingFacetBasicLoadedEvent;
 
 class ListingFacetTranslationDetailLoadedEvent extends NestedEvent
 {

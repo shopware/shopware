@@ -2,8 +2,8 @@
 
 namespace Shopware\Content\Media\Aggregate\MediaTranslation\Event;
 
-use Shopware\Framework\ORM\Write\WrittenEvent;
 use Shopware\Content\Media\Aggregate\MediaTranslation\MediaTranslationDefinition;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 
 class MediaTranslationWrittenEvent extends WrittenEvent
 {

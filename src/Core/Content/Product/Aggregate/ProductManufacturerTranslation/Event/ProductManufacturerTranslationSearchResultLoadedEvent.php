@@ -2,8 +2,8 @@
 
 namespace Shopware\Content\Product\Aggregate\ProductManufacturerTranslation\Event;
 
-use Shopware\Content\Product\Aggregate\ProductManufacturerTranslation\Struct\ProductManufacturerTranslationSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Content\Product\Aggregate\ProductManufacturerTranslation\Struct\ProductManufacturerTranslationSearchResult;
 use Shopware\Framework\Event\NestedEvent;
 
 class ProductManufacturerTranslationSearchResultLoadedEvent extends NestedEvent

@@ -2,8 +2,8 @@
 
 namespace Shopware\Checkout\Payment\Cart\Token;
 
-use Shopware\Checkout\Order\Aggregate\OrderTransaction\Struct\OrderTransactionBasicStruct;
 use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Checkout\Order\Aggregate\OrderTransaction\Struct\OrderTransactionBasicStruct;
 
 interface PaymentTransactionTokenFactoryInterface
 {

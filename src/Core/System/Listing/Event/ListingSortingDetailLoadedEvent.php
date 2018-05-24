@@ -2,11 +2,11 @@
 
 namespace Shopware\System\Listing\Event;
 
-use Shopware\System\Listing\Collection\ListingSortingDetailCollection;
-use Shopware\System\Listing\Aggregate\ListingSortingTranslation\Event\ListingSortingTranslationBasicLoadedEvent;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\System\Listing\Aggregate\ListingSortingTranslation\Event\ListingSortingTranslationBasicLoadedEvent;
+use Shopware\System\Listing\Collection\ListingSortingDetailCollection;
 
 class ListingSortingDetailLoadedEvent extends NestedEvent
 {

@@ -2,6 +2,12 @@
 
 namespace Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation;
 
+use Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation\Collection\PaymentMethodTranslationBasicCollection;
+use Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation\Collection\PaymentMethodTranslationDetailCollection;
+use Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation\Event\PaymentMethodTranslationDeletedEvent;
+use Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation\Event\PaymentMethodTranslationWrittenEvent;
+use Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation\Struct\PaymentMethodTranslationBasicStruct;
+use Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation\Struct\PaymentMethodTranslationDetailStruct;
 use Shopware\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
@@ -10,18 +16,9 @@ use Shopware\Framework\ORM\Field\LongTextField;
 use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Framework\ORM\Field\ReferenceVersionField;
 use Shopware\Framework\ORM\Field\StringField;
-
 use Shopware\Framework\ORM\FieldCollection;
 use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
-
-use Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation\Collection\PaymentMethodTranslationBasicCollection;
-use Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation\Collection\PaymentMethodTranslationDetailCollection;
-use Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation\Event\PaymentMethodTranslationDeletedEvent;
-use Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation\Event\PaymentMethodTranslationWrittenEvent;
-
-use Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation\Struct\PaymentMethodTranslationBasicStruct;
-use Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation\Struct\PaymentMethodTranslationDetailStruct;
 
 class PaymentMethodTranslationDefinition extends EntityDefinition
 {

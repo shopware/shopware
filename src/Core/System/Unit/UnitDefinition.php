@@ -2,6 +2,7 @@
 
 namespace Shopware\System\Unit;
 
+use Shopware\Content\Product\ProductDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\DateField;
@@ -19,13 +20,11 @@ use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Framework\ORM\Write\Flag\WriteOnly;
-use Shopware\Content\Product\ProductDefinition;
 use Shopware\System\Unit\Collection\UnitBasicCollection;
 use Shopware\System\Unit\Collection\UnitDetailCollection;
 use Shopware\System\Unit\Definition\UnitTranslationDefinition;
 use Shopware\System\Unit\Event\UnitDeletedEvent;
 use Shopware\System\Unit\Event\UnitWrittenEvent;
-
 use Shopware\System\Unit\Struct\UnitBasicStruct;
 use Shopware\System\Unit\Struct\UnitDetailStruct;
 

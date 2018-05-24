@@ -5,8 +5,8 @@ namespace Shopware\Checkout\Customer\Struct;
 use Shopware\Application\Application\Struct\ApplicationBasicStruct;
 use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
 use Shopware\Checkout\Customer\Aggregate\CustomerGroup\Struct\CustomerGroupBasicStruct;
-use Shopware\Framework\ORM\Entity;
 use Shopware\Checkout\Payment\Struct\PaymentMethodBasicStruct;
+use Shopware\Framework\ORM\Entity;
 
 class CustomerBasicStruct extends Entity
 {

@@ -2,8 +2,8 @@
 
 namespace Shopware\Checkout\Customer\Aggregate\CustomerGroupTranslation\Event;
 
-use Shopware\Checkout\Customer\Aggregate\CustomerGroupTranslation\Collection\CustomerGroupTranslationBasicCollection;
 use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Checkout\Customer\Aggregate\CustomerGroupTranslation\Collection\CustomerGroupTranslationBasicCollection;
 use Shopware\Framework\Event\NestedEvent;
 
 class CustomerGroupTranslationBasicLoadedEvent extends NestedEvent

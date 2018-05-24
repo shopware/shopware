@@ -2,8 +2,8 @@
 
 namespace Shopware\Application\Language\Event;
 
-use Shopware\Application\Language\Struct\LanguageSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Application\Language\Struct\LanguageSearchResult;
 use Shopware\Framework\Event\NestedEvent;
 
 class LanguageSearchResultLoadedEvent extends NestedEvent

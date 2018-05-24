@@ -2,12 +2,12 @@
 
 namespace Shopware\Content\Media\Event;
 
-use Shopware\Content\Media\Collection\MediaDetailCollection;
-use Shopware\Content\Media\Aggregate\MediaAlbum\Event\MediaAlbumBasicLoadedEvent;
-use Shopware\System\User\Event\UserBasicLoadedEvent;
 use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Content\Media\Aggregate\MediaAlbum\Event\MediaAlbumBasicLoadedEvent;
+use Shopware\Content\Media\Collection\MediaDetailCollection;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\System\User\Event\UserBasicLoadedEvent;
 
 class MediaDetailLoadedEvent extends NestedEvent
 {

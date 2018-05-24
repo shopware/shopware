@@ -2,8 +2,8 @@
 
 namespace Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Collection;
 
-use Shopware\Framework\ORM\EntityCollection;
 use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Struct\MediaAlbumTranslationBasicStruct;
+use Shopware\Framework\ORM\EntityCollection;
 
 class MediaAlbumTranslationBasicCollection extends EntityCollection
 {

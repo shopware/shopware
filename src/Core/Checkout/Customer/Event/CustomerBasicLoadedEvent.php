@@ -3,11 +3,11 @@
 namespace Shopware\Checkout\Customer\Event;
 
 use Shopware\Application\Application\Event\ApplicationBasicLoadedEvent;
-use Shopware\Checkout\Customer\Collection\CustomerBasicCollection;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Event\CustomerAddressBasicLoadedEvent;
 use Shopware\Checkout\Customer\Aggregate\CustomerGroup\Event\CustomerGroupBasicLoadedEvent;
+use Shopware\Checkout\Customer\Collection\CustomerBasicCollection;
 use Shopware\Checkout\Payment\Event\PaymentMethodBasicLoadedEvent;
-use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 

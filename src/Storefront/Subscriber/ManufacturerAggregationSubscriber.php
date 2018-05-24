@@ -2,6 +2,9 @@
 
 namespace Shopware\Storefront\Subscriber;
 
+use Shopware\Content\Product\Aggregate\ProductManufacturer\Collection\ProductManufacturerBasicCollection;
+use Shopware\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
+use Shopware\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerRepository;
 use Shopware\Framework\ORM\Search\Aggregation\AggregationResult;
 use Shopware\Framework\ORM\Search\Aggregation\EntityAggregation;
 use Shopware\Framework\ORM\Search\AggregatorResult;
@@ -9,9 +12,6 @@ use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Query\NestedQuery;
 use Shopware\Framework\ORM\Search\Query\Query;
 use Shopware\Framework\ORM\Search\Query\TermsQuery;
-use Shopware\Content\Product\Aggregate\ProductManufacturer\Collection\ProductManufacturerBasicCollection;
-use Shopware\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
-use Shopware\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerRepository;
 use Shopware\Storefront\Event\ListingEvents;
 use Shopware\Storefront\Event\ListingPageLoadedEvent;
 use Shopware\Storefront\Event\PageCriteriaCreatedEvent;

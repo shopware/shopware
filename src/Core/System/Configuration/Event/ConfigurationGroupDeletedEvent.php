@@ -2,9 +2,9 @@
 
 namespace Shopware\System\Configuration\Event;
 
-use Shopware\System\Configuration\ConfigurationGroupDefinition;
 use Shopware\Framework\ORM\Write\DeletedEvent;
 use Shopware\Framework\ORM\Write\WrittenEvent;
+use Shopware\System\Configuration\ConfigurationGroupDefinition;
 
 class ConfigurationGroupDeletedEvent extends WrittenEvent implements DeletedEvent
 {

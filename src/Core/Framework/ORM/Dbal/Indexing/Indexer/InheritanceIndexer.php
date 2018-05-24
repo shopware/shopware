@@ -1,8 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Framework\ORM\Dbal\Indexing\Indexer;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\ORM\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\Field\AssociationInterface;
@@ -15,7 +16,6 @@ use Shopware\Framework\ORM\FieldCollection;
 use Shopware\Framework\ORM\Write\Flag\Inherited;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WrittenEvent;
-use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Struct\Uuid;
 
 class InheritanceIndexer implements IndexerInterface
@@ -49,7 +49,7 @@ class InheritanceIndexer implements IndexerInterface
     private function update(string $definition, array $ids, ApplicationContext $context): void
     {
         /** @var string|EntityDefinition $definition */
-        $inherited = $definition::getFields()->filter(function(Field $field) {
+        $inherited = $definition::getFields()->filter(function (Field $field) {
             return $field->is(Inherited::class) && $field instanceof AssociationInterface;
         });
 
@@ -75,18 +75,16 @@ class InheritanceIndexer implements IndexerInterface
         array $ids,
         FieldCollection $associations,
         ApplicationContext $context
-    ): void
-    {
+    ): void {
         $tenantId = Uuid::fromHexToBytes($context->getTenantId());
         $versionId = Uuid::fromHexToBytes($context->getVersionId());
 
-        $bytes = array_map(function($id) {
+        $bytes = array_map(function ($id) {
             return Uuid::fromHexToBytes($id);
         }, $ids);
 
-        /** @var string|EntityDefinition $definition */
+        /* @var string|EntityDefinition $definition */
         foreach ($associations as $association) {
-
             if ($association instanceof ManyToManyAssociationField) {
                 /** @var ManyToManyAssociationField $association */
                 $reference = $association->getMappingDefinition();
@@ -132,23 +130,21 @@ class InheritanceIndexer implements IndexerInterface
         array $ids,
         FieldCollection $associations,
         ApplicationContext $context
-    ): void
-    {
+    ): void {
         $tenantId = Uuid::fromHexToBytes($context->getTenantId());
         $versionId = Uuid::fromHexToBytes($context->getVersionId());
 
-        $bytes = array_map(function($id) {
+        $bytes = array_map(function ($id) {
             return Uuid::fromHexToBytes($id);
         }, $ids);
 
-        /** @var string|EntityDefinition $definition */
+        /* @var string|EntityDefinition $definition */
         /** @var Field|ManyToOneAssociationField $association */
         foreach ($associations as $association) {
-
             $parameters = [
                 '#root#' => EntityDefinitionQueryHelper::escape($definition::getEntityName()),
                 '#field#' => EntityDefinitionQueryHelper::escape($association->getStorageName()),
-                '#property#' => EntityDefinitionQueryHelper::escape($association->getPropertyName())
+                '#property#' => EntityDefinitionQueryHelper::escape($association->getPropertyName()),
             ];
 
             $this->connection->executeUpdate(

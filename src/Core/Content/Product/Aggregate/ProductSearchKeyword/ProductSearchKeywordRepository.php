@@ -2,6 +2,15 @@
 
 namespace Shopware\Content\Product\Aggregate\ProductSearchKeyword;
 
+use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Content\Product\Aggregate\ProductSearchKeyword\Collection\ProductSearchKeywordBasicCollection;
+use Shopware\Content\Product\Aggregate\ProductSearchKeyword\Collection\ProductSearchKeywordDetailCollection;
+use Shopware\Content\Product\Aggregate\ProductSearchKeyword\Event\ProductSearchKeywordAggregationResultLoadedEvent;
+use Shopware\Content\Product\Aggregate\ProductSearchKeyword\Event\ProductSearchKeywordBasicLoadedEvent;
+use Shopware\Content\Product\Aggregate\ProductSearchKeyword\Event\ProductSearchKeywordDetailLoadedEvent;
+use Shopware\Content\Product\Aggregate\ProductSearchKeyword\Event\ProductSearchKeywordIdSearchResultLoadedEvent;
+use Shopware\Content\Product\Aggregate\ProductSearchKeyword\Event\ProductSearchKeywordSearchResultLoadedEvent;
+use Shopware\Content\Product\Aggregate\ProductSearchKeyword\Struct\ProductSearchKeywordSearchResult;
 use Shopware\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Framework\ORM\RepositoryInterface;
 use Shopware\Framework\ORM\Search\AggregatorResult;
@@ -9,19 +18,9 @@ use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
 use Shopware\Framework\ORM\Search\EntitySearcherInterface;
 use Shopware\Framework\ORM\Search\IdSearchResult;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\Content\Product\Aggregate\ProductSearchKeyword\Collection\ProductSearchKeywordBasicCollection;
-use Shopware\Content\Product\Aggregate\ProductSearchKeyword\Collection\ProductSearchKeywordDetailCollection;
-
-use Shopware\Content\Product\Aggregate\ProductSearchKeyword\Event\ProductSearchKeywordAggregationResultLoadedEvent;
-use Shopware\Content\Product\Aggregate\ProductSearchKeyword\Event\ProductSearchKeywordBasicLoadedEvent;
-use Shopware\Content\Product\Aggregate\ProductSearchKeyword\Event\ProductSearchKeywordDetailLoadedEvent;
-use Shopware\Content\Product\Aggregate\ProductSearchKeyword\Event\ProductSearchKeywordIdSearchResultLoadedEvent;
-use Shopware\Content\Product\Aggregate\ProductSearchKeyword\Event\ProductSearchKeywordSearchResultLoadedEvent;
-use Shopware\Content\Product\Aggregate\ProductSearchKeyword\Struct\ProductSearchKeywordSearchResult;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductSearchKeywordRepository implements RepositoryInterface

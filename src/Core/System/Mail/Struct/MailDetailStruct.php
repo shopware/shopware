@@ -2,9 +2,9 @@
 
 namespace Shopware\System\Mail\Struct;
 
+use Shopware\Checkout\Order\Aggregate\OrderState\Struct\OrderStateBasicStruct;
 use Shopware\System\Mail\Aggregate\MailAttachment\Collection\MailAttachmentBasicCollection;
 use Shopware\System\Mail\Aggregate\MailTranslation\Collection\MailTranslationBasicCollection;
-use Shopware\Checkout\Order\Aggregate\OrderState\Struct\OrderStateBasicStruct;
 
 class MailDetailStruct extends MailBasicStruct
 {

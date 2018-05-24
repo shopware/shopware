@@ -2,9 +2,6 @@
 
 namespace Shopware\System\Tax\Aggregate\TaxAreaRule;
 
-
-use Shopware\System\Country\CountryDefinition;
-use Shopware\System\Country\Aggregate\CountryState\CountryStateDefinition;
 use Shopware\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
@@ -25,14 +22,15 @@ use Shopware\Framework\ORM\Write\Flag\CascadeDelete;
 use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Framework\ORM\Write\Flag\SearchRanking;
+use Shopware\System\Country\Aggregate\CountryState\CountryStateDefinition;
+use Shopware\System\Country\CountryDefinition;
 use Shopware\System\Tax\Aggregate\TaxAreaRule\Collection\TaxAreaRuleBasicCollection;
 use Shopware\System\Tax\Aggregate\TaxAreaRule\Collection\TaxAreaRuleDetailCollection;
 use Shopware\System\Tax\Aggregate\TaxAreaRule\Event\TaxAreaRuleDeletedEvent;
 use Shopware\System\Tax\Aggregate\TaxAreaRule\Event\TaxAreaRuleWrittenEvent;
-use Shopware\System\Tax\Aggregate\TaxAreaRuleTranslation\TaxAreaRuleTranslationDefinition;
-
 use Shopware\System\Tax\Aggregate\TaxAreaRule\Struct\TaxAreaRuleBasicStruct;
 use Shopware\System\Tax\Aggregate\TaxAreaRule\Struct\TaxAreaRuleDetailStruct;
+use Shopware\System\Tax\Aggregate\TaxAreaRuleTranslation\TaxAreaRuleTranslationDefinition;
 use Shopware\System\Tax\TaxDefinition;
 
 class TaxAreaRuleDefinition extends EntityDefinition

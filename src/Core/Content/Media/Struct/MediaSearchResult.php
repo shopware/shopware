@@ -2,9 +2,9 @@
 
 namespace Shopware\Content\Media\Struct;
 
+use Shopware\Content\Media\Collection\MediaBasicCollection;
 use Shopware\Framework\ORM\Search\SearchResultInterface;
 use Shopware\Framework\ORM\Search\SearchResultTrait;
-use Shopware\Content\Media\Collection\MediaBasicCollection;
 
 class MediaSearchResult extends MediaBasicCollection implements SearchResultInterface
 {

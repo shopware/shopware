@@ -2,9 +2,9 @@
 
 namespace Shopware\System\Tax\Event;
 
-use Shopware\System\Tax\Struct\TaxSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
+use Shopware\System\Tax\Struct\TaxSearchResult;
 
 class TaxSearchResultLoadedEvent extends NestedEvent
 {

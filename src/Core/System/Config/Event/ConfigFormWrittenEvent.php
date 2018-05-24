@@ -2,8 +2,8 @@
 
 namespace Shopware\System\Config\Event;
 
-use Shopware\System\Config\ConfigFormDefinition;
 use Shopware\Framework\ORM\Write\WrittenEvent;
+use Shopware\System\Config\ConfigFormDefinition;
 
 class ConfigFormWrittenEvent extends WrittenEvent
 {

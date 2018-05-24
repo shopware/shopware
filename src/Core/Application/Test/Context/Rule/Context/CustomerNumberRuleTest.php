@@ -25,11 +25,11 @@
 namespace Shopware\Application\Test\Context\Rule\Context;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
-use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Checkout\Rule\Specification\Scope\CartRuleScope;
-use Shopware\Checkout\Rule\Specification\Context\CustomerNumberRule;
 use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
+use Shopware\Checkout\Rule\Specification\Context\CustomerNumberRule;
+use Shopware\Checkout\Rule\Specification\Scope\CartRuleScope;
 
 class CustomerNumberRuleTest extends TestCase
 {

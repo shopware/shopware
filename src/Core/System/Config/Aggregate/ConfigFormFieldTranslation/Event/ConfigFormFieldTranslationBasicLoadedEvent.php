@@ -2,9 +2,9 @@
 
 namespace Shopware\System\Config\Aggregate\ConfigFormFieldTranslation\Event;
 
-use Shopware\System\Config\Aggregate\ConfigFormFieldTranslation\Collection\ConfigFormFieldTranslationBasicCollection;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
+use Shopware\System\Config\Aggregate\ConfigFormFieldTranslation\Collection\ConfigFormFieldTranslationBasicCollection;
 
 class ConfigFormFieldTranslationBasicLoadedEvent extends NestedEvent
 {

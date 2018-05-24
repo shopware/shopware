@@ -4,7 +4,6 @@ namespace Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Collection;
 
 use Shopware\Application\Language\Collection\LanguageBasicCollection;
 use Shopware\Content\Media\Aggregate\MediaAlbum\Collection\MediaAlbumBasicCollection;
-
 use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Struct\MediaAlbumTranslationDetailStruct;
 
 class MediaAlbumTranslationDetailCollection extends MediaAlbumTranslationBasicCollection

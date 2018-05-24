@@ -2,9 +2,9 @@
 
 namespace Shopware\Application\Context\Collection;
 
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Application\Context\Struct\ContextPriceStruct;
 use Shopware\Framework\ORM\EntityCollection;
-use Shopware\Application\Context\Struct\ApplicationContext;
 
 class ContextPriceCollection extends EntityCollection
 {

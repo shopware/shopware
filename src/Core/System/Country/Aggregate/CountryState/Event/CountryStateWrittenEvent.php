@@ -2,8 +2,8 @@
 
 namespace Shopware\System\Country\Aggregate\CountryState\Event;
 
-use Shopware\System\Country\Aggregate\CountryState\CountryStateDefinition;
 use Shopware\Framework\ORM\Write\WrittenEvent;
+use Shopware\System\Country\Aggregate\CountryState\CountryStateDefinition;
 
 class CountryStateWrittenEvent extends WrittenEvent
 {

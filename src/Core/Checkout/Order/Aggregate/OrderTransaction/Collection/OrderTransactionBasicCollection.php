@@ -2,8 +2,8 @@
 
 namespace Shopware\Checkout\Order\Aggregate\OrderTransaction\Collection;
 
-use Shopware\Framework\ORM\EntityCollection;
 use Shopware\Checkout\Order\Aggregate\OrderTransaction\Struct\OrderTransactionBasicStruct;
+use Shopware\Framework\ORM\EntityCollection;
 
 class OrderTransactionBasicCollection extends EntityCollection
 {

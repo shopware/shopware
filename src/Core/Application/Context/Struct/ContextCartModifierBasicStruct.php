@@ -2,9 +2,9 @@
 
 namespace Shopware\Application\Context\Struct;
 
+use Shopware\Checkout\Rule\Specification\Rule;
 use Shopware\Checkout\Rule\Struct\ContextRuleBasicStruct;
 use Shopware\Framework\ORM\Entity;
-use Shopware\Checkout\Rule\Specification\Rule;
 
 class ContextCartModifierBasicStruct extends Entity
 {

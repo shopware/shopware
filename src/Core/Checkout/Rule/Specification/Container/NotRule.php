@@ -25,9 +25,9 @@ declare(strict_types=1);
 
 namespace Shopware\Checkout\Rule\Specification\Container;
 
-use Shopware\Checkout\Rule\Specification\Scope\RuleScope;
 use Shopware\Checkout\Rule\Specification\Match;
 use Shopware\Checkout\Rule\Specification\Rule;
+use Shopware\Checkout\Rule\Specification\Scope\RuleScope;
 
 /**
  * NotRule inverses the return value of the child rule. Only one child is possible

@@ -2,9 +2,8 @@
 
 namespace Shopware\Checkout\Order\Aggregate\OrderDeliveryPosition\Collection;
 
-
-use Shopware\Framework\ORM\EntityCollection;
 use Shopware\Checkout\Order\Aggregate\OrderDeliveryPosition\Struct\OrderDeliveryPositionBasicStruct;
+use Shopware\Framework\ORM\EntityCollection;
 
 class OrderDeliveryPositionBasicCollection extends EntityCollection
 {

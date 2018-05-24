@@ -25,13 +25,13 @@
 namespace Shopware\Application\Test\Context\Rule\Context;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\System\Country\Struct\CountryBasicStruct;
+use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Checkout\Rule\Exception\UnsupportedOperatorException;
-use Shopware\Checkout\Rule\Specification\Scope\CartRuleScope;
 use Shopware\Checkout\Rule\Specification\Context\ShippingCountryRule;
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\Rule\Specification\Scope\CartRuleScope;
+use Shopware\System\Country\Struct\CountryBasicStruct;
 
 class ShippingCountryRuleTest extends TestCase
 {

@@ -2,9 +2,9 @@
 
 namespace Shopware\Framework\ORM\Version\Event\VersionCommitData;
 
-use Shopware\Framework\ORM\Search\IdSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
+use Shopware\Framework\ORM\Search\IdSearchResult;
 
 class VersionCommitDataIdSearchResultLoadedEvent extends NestedEvent
 {

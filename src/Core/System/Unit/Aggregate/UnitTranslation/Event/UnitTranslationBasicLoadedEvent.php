@@ -2,9 +2,9 @@
 
 namespace Shopware\System\Unit\Aggregate\UnitTranslation\Event;
 
-use Shopware\System\Unit\Aggregate\UnitTranslation\Collection\UnitTranslationBasicCollection;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
+use Shopware\System\Unit\Aggregate\UnitTranslation\Collection\UnitTranslationBasicCollection;
 
 class UnitTranslationBasicLoadedEvent extends NestedEvent
 {

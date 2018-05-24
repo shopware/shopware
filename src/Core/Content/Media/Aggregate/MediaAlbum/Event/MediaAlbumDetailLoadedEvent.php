@@ -2,10 +2,10 @@
 
 namespace Shopware\Content\Media\Aggregate\MediaAlbum\Event;
 
-use Shopware\Content\Media\Aggregate\MediaAlbum\Collection\MediaAlbumDetailCollection;
-use Shopware\Content\Media\Event\MediaBasicLoadedEvent;
-use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Event\MediaAlbumTranslationBasicLoadedEvent;
 use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Content\Media\Aggregate\MediaAlbum\Collection\MediaAlbumDetailCollection;
+use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Event\MediaAlbumTranslationBasicLoadedEvent;
+use Shopware\Content\Media\Event\MediaBasicLoadedEvent;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 

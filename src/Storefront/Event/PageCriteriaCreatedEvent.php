@@ -2,10 +2,10 @@
 
 namespace Shopware\Storefront\Event;
 
-use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Framework\Event\NestedEvent;
+use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Storefront\Page\Listing\ListingPageRequest;
 
 class PageCriteriaCreatedEvent extends NestedEvent

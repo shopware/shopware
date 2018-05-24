@@ -24,10 +24,10 @@
 
 namespace Shopware\Framework\ORM\Write;
 
+use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Application\Language\LanguageDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
-use Shopware\Application\Language\LanguageDefinition;
-use Shopware\Application\Context\Struct\ApplicationContext;
 
 class WriteContext
 {

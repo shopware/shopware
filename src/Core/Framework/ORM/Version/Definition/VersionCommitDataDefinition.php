@@ -14,14 +14,14 @@ use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Framework\ORM\Field\StringField;
 use Shopware\Framework\ORM\Field\TenantIdField;
 use Shopware\Framework\ORM\FieldCollection;
-use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
-use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Framework\ORM\Version\Collection\VersionCommitDataBasicCollection;
 use Shopware\Framework\ORM\Version\Event\VersionCommitData\VersionCommitDataDeletedEvent;
 use Shopware\Framework\ORM\Version\Event\VersionCommitData\VersionCommitDataWrittenEvent;
 use Shopware\Framework\ORM\Version\Repository\VersionCommitDataRepository;
 use Shopware\Framework\ORM\Version\Struct\VersionCommitDataBasicStruct;
+use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
+use Shopware\Framework\ORM\Write\Flag\Required;
+use Shopware\Framework\ORM\Write\Flag\SearchRanking;
 
 class VersionCommitDataDefinition extends EntityDefinition
 {

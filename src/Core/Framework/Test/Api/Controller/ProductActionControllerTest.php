@@ -2,13 +2,13 @@
 
 namespace Shopware\Framework\Test\Api\Controller;
 
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Content\Product\ProductRepository;
 use Shopware\Content\Product\Struct\PriceStruct;
 use Shopware\Content\Product\Struct\ProductDetailStruct;
-use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Struct\Uuid;
-use Shopware\PlatformRequest;
 use Shopware\Framework\Test\Api\ApiTestCase;
+use Shopware\PlatformRequest;
 
 class ProductActionControllerTest extends ApiTestCase
 {

@@ -3,6 +3,12 @@
 namespace Shopware\Content\Product\Aggregate\ProductStream;
 
 use Shopware\Content\Category\CategoryDefinition;
+use Shopware\Content\Product\Aggregate\ProductStream\Collection\ProductStreamBasicCollection;
+use Shopware\Content\Product\Aggregate\ProductStream\Collection\ProductStreamDetailCollection;
+use Shopware\Content\Product\Aggregate\ProductStream\Event\ProductStreamDeletedEvent;
+use Shopware\Content\Product\Aggregate\ProductStream\Event\ProductStreamWrittenEvent;
+use Shopware\Content\Product\Aggregate\ProductStream\Struct\ProductStreamBasicStruct;
+use Shopware\Content\Product\Aggregate\ProductStream\Struct\ProductStreamDetailStruct;
 use Shopware\Content\Product\Aggregate\ProductStreamAssignment\ProductStreamAssignmentDefinition;
 use Shopware\Content\Product\Aggregate\ProductStreamTab\ProductStreamTabDefinition;
 use Shopware\Content\Product\ProductDefinition;
@@ -29,13 +35,6 @@ use Shopware\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Framework\ORM\Write\Flag\WriteOnly;
 use Shopware\System\Listing\ListingSortingDefinition;
-use Shopware\Content\Product\Aggregate\ProductStream\Collection\ProductStreamBasicCollection;
-use Shopware\Content\Product\Aggregate\ProductStream\Collection\ProductStreamDetailCollection;
-use Shopware\Content\Product\Aggregate\ProductStream\Event\ProductStreamDeletedEvent;
-use Shopware\Content\Product\Aggregate\ProductStream\Event\ProductStreamWrittenEvent;
-
-use Shopware\Content\Product\Aggregate\ProductStream\Struct\ProductStreamBasicStruct;
-use Shopware\Content\Product\Aggregate\ProductStream\Struct\ProductStreamDetailStruct;
 
 class ProductStreamDefinition extends EntityDefinition
 {

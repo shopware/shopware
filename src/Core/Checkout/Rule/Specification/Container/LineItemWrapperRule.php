@@ -2,11 +2,11 @@
 
 namespace Shopware\Checkout\Rule\Specification\Container;
 
+use Shopware\Checkout\Rule\Specification\Match;
+use Shopware\Checkout\Rule\Specification\Rule;
 use Shopware\Checkout\Rule\Specification\Scope\CalculatedLineItemScope;
 use Shopware\Checkout\Rule\Specification\Scope\CartRuleScope;
 use Shopware\Checkout\Rule\Specification\Scope\RuleScope;
-use Shopware\Checkout\Rule\Specification\Match;
-use Shopware\Checkout\Rule\Specification\Rule;
 
 class LineItemWrapperRule extends Rule
 {

@@ -2,8 +2,8 @@
 
 namespace Shopware\Content\Product\Aggregate\ProductStreamTab\Event;
 
-use Shopware\Framework\ORM\Write\WrittenEvent;
 use Shopware\Content\Product\Aggregate\ProductStreamTab\ProductStreamTabDefinition;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 
 class ProductStreamTabWrittenEvent extends WrittenEvent
 {

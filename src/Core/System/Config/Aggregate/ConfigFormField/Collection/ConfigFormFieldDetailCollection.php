@@ -2,11 +2,10 @@
 
 namespace Shopware\System\Config\Aggregate\ConfigFormField\Collection;
 
-
-use Shopware\System\Config\Aggregate\ConfigFormFieldTranslation\Collection\ConfigFormFieldTranslationBasicCollection;
-use Shopware\System\Config\Collection\ConfigFormBasicCollection;
-use Shopware\System\Config\Aggregate\ConfigFormFieldValue\Collection\ConfigFormFieldValueBasicCollection;
 use Shopware\System\Config\Aggregate\ConfigFormField\Struct\ConfigFormFieldDetailStruct;
+use Shopware\System\Config\Aggregate\ConfigFormFieldTranslation\Collection\ConfigFormFieldTranslationBasicCollection;
+use Shopware\System\Config\Aggregate\ConfigFormFieldValue\Collection\ConfigFormFieldValueBasicCollection;
+use Shopware\System\Config\Collection\ConfigFormBasicCollection;
 
 class ConfigFormFieldDetailCollection extends ConfigFormFieldBasicCollection
 {

@@ -24,12 +24,8 @@
 
 namespace Shopware\Checkout\Rule\Specification;
 
-
-use Shopware\Checkout\Rule\Specification\Scope\RuleScope;
-
-
 use Shopware\Checkout\Rule\Exception\UnsupportedOperatorException;
-
+use Shopware\Checkout\Rule\Specification\Scope\RuleScope;
 
 class ApplicationRule extends Rule
 {

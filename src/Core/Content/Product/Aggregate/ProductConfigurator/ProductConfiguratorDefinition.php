@@ -2,8 +2,11 @@
 
 namespace Shopware\Content\Product\Aggregate\ProductConfigurator;
 
+use Shopware\Content\Product\Aggregate\ProductConfigurator\Collection\ProductConfiguratorBasicCollection;
+use Shopware\Content\Product\Aggregate\ProductConfigurator\Event\ProductConfiguratorDeletedEvent;
+use Shopware\Content\Product\Aggregate\ProductConfigurator\Event\ProductConfiguratorWrittenEvent;
+use Shopware\Content\Product\Aggregate\ProductConfigurator\Struct\ProductConfiguratorBasicStruct;
 use Shopware\Content\Product\ProductDefinition;
-use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\ContextPricesJsonField;
@@ -18,11 +21,7 @@ use Shopware\Framework\ORM\FieldCollection;
 use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Framework\ORM\Write\Flag\WriteOnly;
-use Shopware\Content\Product\Aggregate\ProductConfigurator\Collection\ProductConfiguratorBasicCollection;
-use Shopware\Content\Product\Aggregate\ProductConfigurator\Event\ProductConfiguratorDeletedEvent;
-use Shopware\Content\Product\Aggregate\ProductConfigurator\Event\ProductConfiguratorWrittenEvent;
-
-use Shopware\Content\Product\Aggregate\ProductConfigurator\Struct\ProductConfiguratorBasicStruct;
+use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
 
 class ProductConfiguratorDefinition extends EntityDefinition
 {

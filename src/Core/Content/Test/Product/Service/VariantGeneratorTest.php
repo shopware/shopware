@@ -4,15 +4,15 @@ namespace Shopware\Content\Test\Product\Service;
 
 use Doctrine\DBAL\Connection;
 use Psr\Container\ContainerInterface;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Content\Product\ProductDefinition;
 use Shopware\Content\Product\ProductRepository;
 use Shopware\Content\Product\Struct\PriceStruct;
 use Shopware\Content\Product\Struct\ProductDetailStruct;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\Struct\Uuid;
 use Shopware\Content\Product\Util\VariantGenerator;
+use Shopware\Framework\ORM\Search\Criteria;
+use Shopware\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class VariantGeneratorTest extends KernelTestCase

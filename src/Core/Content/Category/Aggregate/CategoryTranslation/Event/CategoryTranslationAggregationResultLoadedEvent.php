@@ -2,9 +2,9 @@
 
 namespace Shopware\Content\Category\Aggregate\CategoryTranslation\Event;
 
-use Shopware\Framework\ORM\Search\AggregatorResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
+use Shopware\Framework\ORM\Search\AggregatorResult;
 
 class CategoryTranslationAggregationResultLoadedEvent extends NestedEvent
 {

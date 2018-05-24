@@ -3,6 +3,8 @@
 namespace Shopware\Framework\ORM\Dbal;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Content\Product\ProductDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Framework\ORM\Search\Aggregation\Aggregation;
@@ -20,9 +22,6 @@ use Shopware\Framework\ORM\Search\AggregatorResult;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
 use Shopware\Framework\ORM\Search\Parser\SqlQueryParser;
-
-use Shopware\Content\Product\ProductDefinition;
-use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Struct\Uuid;
 
 /**
@@ -123,7 +122,7 @@ class EntityAggregator implements EntityAggregatorInterface
             $definition::getEntityName(),
             $context
         );
-        
+
         if ($aggregation instanceof EntityAggregation) {
             $query->select([$accessor]);
             $query->groupBy($accessor);

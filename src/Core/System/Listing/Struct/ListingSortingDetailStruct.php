@@ -2,8 +2,8 @@
 
 namespace Shopware\System\Listing\Struct;
 
-use Shopware\System\Listing\Aggregate\ListingSortingTranslation\Collection\ListingSortingTranslationBasicCollection;
 use Shopware\Content\Product\Aggregate\ProductStream\Collection\ProductStreamBasicCollection;
+use Shopware\System\Listing\Aggregate\ListingSortingTranslation\Collection\ListingSortingTranslationBasicCollection;
 
 class ListingSortingDetailStruct extends ListingSortingBasicStruct
 {

@@ -2,9 +2,9 @@
 
 namespace Shopware\System\Country\Event;
 
-use Shopware\System\Country\CountryDefinition;
 use Shopware\Framework\ORM\Write\DeletedEvent;
 use Shopware\Framework\ORM\Write\WrittenEvent;
+use Shopware\System\Country\CountryDefinition;
 
 class CountryDeletedEvent extends WrittenEvent implements DeletedEvent
 {

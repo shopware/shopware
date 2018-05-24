@@ -2,6 +2,7 @@
 
 namespace Shopware\System\Snippet;
 
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Framework\ORM\RepositoryInterface;
 use Shopware\Framework\ORM\Search\AggregatorResult;
@@ -9,19 +10,17 @@ use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
 use Shopware\Framework\ORM\Search\EntitySearcherInterface;
 use Shopware\Framework\ORM\Search\IdSearchResult;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
 use Shopware\System\Snippet\Collection\SnippetBasicCollection;
 use Shopware\System\Snippet\Collection\SnippetDetailCollection;
-
 use Shopware\System\Snippet\Event\SnippetAggregationResultLoadedEvent;
 use Shopware\System\Snippet\Event\SnippetBasicLoadedEvent;
 use Shopware\System\Snippet\Event\SnippetDetailLoadedEvent;
 use Shopware\System\Snippet\Event\SnippetIdSearchResultLoadedEvent;
 use Shopware\System\Snippet\Event\SnippetSearchResultLoadedEvent;
 use Shopware\System\Snippet\Struct\SnippetSearchResult;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class SnippetRepository implements RepositoryInterface

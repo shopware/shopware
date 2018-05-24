@@ -2,8 +2,8 @@
 
 namespace Shopware\Content\Product\Aggregate\ProductSeoCategory\Event;
 
-use Shopware\Framework\ORM\Write\WrittenEvent;
 use Shopware\Content\Product\Aggregate\ProductSeoCategory\ProductSeoCategoryDefinition;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 
 class ProductSeoCategoryWrittenEvent extends WrittenEvent
 {

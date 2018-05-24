@@ -2,7 +2,10 @@
 
 namespace Shopware\Administration\Search;
 
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Checkout\Customer\CustomerDefinition;
+use Shopware\Checkout\Order\OrderDefinition;
+use Shopware\Content\Product\ProductDefinition;
 use Shopware\Framework\ORM\Entity;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\RepositoryInterface;
@@ -13,10 +16,7 @@ use Shopware\Framework\ORM\Search\SearchResultInterface;
 use Shopware\Framework\ORM\Search\Sorting\FieldSorting;
 use Shopware\Framework\ORM\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Framework\ORM\Search\Term\SearchTermInterpreter;
-use Shopware\Checkout\Order\OrderDefinition;
-use Shopware\Content\Product\ProductDefinition;
 use Shopware\Framework\ORM\Version\Repository\VersionCommitDataRepository;
-use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Struct\ArrayStruct;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 

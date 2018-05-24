@@ -3,12 +3,11 @@
 namespace Shopware\Framework\Test\ORM\Reader;
 
 use Doctrine\DBAL\Connection;
-
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Checkout\Rule\ContextRuleRepository;
+use Shopware\Checkout\Rule\Specification\Container\AndRule;
 use Shopware\Content\Product\ProductRepository;
 use Shopware\Content\Product\Struct\ProductBasicStruct;
-use Shopware\Checkout\Rule\Specification\Container\AndRule;
-use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\ArrayStruct;
 use Shopware\Framework\Struct\Uuid;

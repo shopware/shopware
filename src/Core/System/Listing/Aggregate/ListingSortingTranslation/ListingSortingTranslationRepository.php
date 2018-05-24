@@ -2,6 +2,7 @@
 
 namespace Shopware\System\Listing\Aggregate\ListingSortingTranslation;
 
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Framework\ORM\RepositoryInterface;
 use Shopware\Framework\ORM\Search\AggregatorResult;
@@ -9,19 +10,18 @@ use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
 use Shopware\Framework\ORM\Search\EntitySearcherInterface;
 use Shopware\Framework\ORM\Search\IdSearchResult;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
 use Shopware\System\Listing\Aggregate\ListingSortingTranslation\Collection\ListingSortingTranslationBasicCollection;
 use Shopware\System\Listing\Aggregate\ListingSortingTranslation\Collection\ListingSortingTranslationDetailCollection;
-use Shopware\System\Listing\Definition\ListingSortingTranslationDefinition;
 use Shopware\System\Listing\Aggregate\ListingSortingTranslation\Event\ListingSortingTranslationAggregationResultLoadedEvent;
 use Shopware\System\Listing\Aggregate\ListingSortingTranslation\Event\ListingSortingTranslationBasicLoadedEvent;
 use Shopware\System\Listing\Aggregate\ListingSortingTranslation\Event\ListingSortingTranslationDetailLoadedEvent;
 use Shopware\System\Listing\Aggregate\ListingSortingTranslation\Event\ListingSortingTranslationIdSearchResultLoadedEvent;
 use Shopware\System\Listing\Aggregate\ListingSortingTranslation\Event\ListingSortingTranslationSearchResultLoadedEvent;
 use Shopware\System\Listing\Aggregate\ListingSortingTranslation\Struct\ListingSortingTranslationSearchResult;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
+use Shopware\System\Listing\Definition\ListingSortingTranslationDefinition;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ListingSortingTranslationRepository implements RepositoryInterface

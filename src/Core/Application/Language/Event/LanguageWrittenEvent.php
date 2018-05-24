@@ -2,8 +2,8 @@
 
 namespace Shopware\Application\Language\Event;
 
-use Shopware\Framework\ORM\Write\WrittenEvent;
 use Shopware\Application\Language\LanguageDefinition;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 
 class LanguageWrittenEvent extends WrittenEvent
 {

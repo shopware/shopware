@@ -4,15 +4,15 @@ namespace Shopware\Storefront\Test;
 
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Checkout\Customer\CustomerDefinition;
+use Shopware\Checkout\Order\OrderRepository;
+use Shopware\Defaults;
 use Shopware\Framework\ORM\Write\EntityWriter;
 use Shopware\Framework\ORM\Write\EntityWriterInterface;
 use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\Checkout\Order\OrderRepository;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Defaults;
-use Shopware\PlatformRequest;
 use Shopware\Framework\Test\Api\ApiTestCase;
+use Shopware\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
 
 class OrderingProcessTest extends ApiTestCase

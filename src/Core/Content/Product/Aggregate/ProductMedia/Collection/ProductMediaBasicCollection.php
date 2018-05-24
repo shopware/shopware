@@ -2,9 +2,9 @@
 
 namespace Shopware\Content\Product\Aggregate\ProductMedia\Collection;
 
-use Shopware\Framework\ORM\EntityCollection;
 use Shopware\Content\Media\Collection\MediaBasicCollection;
 use Shopware\Content\Product\Aggregate\ProductMedia\Struct\ProductMediaBasicStruct;
+use Shopware\Framework\ORM\EntityCollection;
 
 class ProductMediaBasicCollection extends EntityCollection
 {

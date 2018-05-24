@@ -5,7 +5,6 @@ namespace Shopware\Content\Product\Aggregate\ProductManufacturerTranslation\Stru
 use Shopware\Application\Language\Struct\LanguageBasicStruct;
 use Shopware\Content\Product\Aggregate\ProductManufacturer\Struct\ProductManufacturerBasicStruct;
 
-
 class ProductManufacturerTranslationDetailStruct extends ProductManufacturerTranslationBasicStruct
 {
     /**

@@ -2,8 +2,8 @@
 
 namespace Shopware\Framework\ORM\Search;
 
-use Shopware\Framework\ORM\Search\Aggregation\AggregationResultCollection;
 use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\ORM\Search\Aggregation\AggregationResultCollection;
 
 interface SearchResultInterface
 {

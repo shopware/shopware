@@ -2,8 +2,8 @@
 
 namespace Shopware\Content\Product\Aggregate\ProductContextPrice\Event;
 
-use Shopware\Framework\ORM\Write\WrittenEvent;
 use Shopware\Content\Product\Aggregate\ProductContextPrice\ProductContextPriceDefinition;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 
 class ProductContextPriceWrittenEvent extends WrittenEvent
 {

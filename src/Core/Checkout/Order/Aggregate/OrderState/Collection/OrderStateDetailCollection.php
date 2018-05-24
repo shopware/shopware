@@ -2,9 +2,8 @@
 
 namespace Shopware\Checkout\Order\Aggregate\OrderState\Collection;
 
-
-use Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Collection\OrderStateTranslationBasicCollection;
 use Shopware\Checkout\Order\Aggregate\OrderState\Struct\OrderStateDetailStruct;
+use Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Collection\OrderStateTranslationBasicCollection;
 
 class OrderStateDetailCollection extends OrderStateBasicCollection
 {

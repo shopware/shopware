@@ -2,11 +2,11 @@
 
 namespace Shopware\Storefront\Page\Listing;
 
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\System\Listing\Collection\ListingSortingBasicCollection;
 use Shopware\Content\Product\Struct\ProductSearchResult;
+use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\Struct\Struct;
 use Shopware\Storefront\Page\Listing\AggregationView\AggregationViewCollection;
+use Shopware\System\Listing\Collection\ListingSortingBasicCollection;
 
 class ListingPageStruct extends Struct
 {

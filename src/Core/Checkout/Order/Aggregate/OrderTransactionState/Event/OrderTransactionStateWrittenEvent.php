@@ -2,8 +2,8 @@
 
 namespace Shopware\Checkout\Order\Aggregate\OrderTransactionState\Event;
 
-use Shopware\Framework\ORM\Write\WrittenEvent;
 use Shopware\Checkout\Order\Aggregate\OrderTransactionState\OrderTransactionStateDefinition;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 
 class OrderTransactionStateWrittenEvent extends WrittenEvent
 {

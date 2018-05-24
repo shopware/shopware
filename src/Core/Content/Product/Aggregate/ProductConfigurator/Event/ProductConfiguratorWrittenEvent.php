@@ -2,8 +2,8 @@
 
 namespace Shopware\Content\Product\Aggregate\ProductConfigurator\Event;
 
-use Shopware\Framework\ORM\Write\WrittenEvent;
 use Shopware\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorDefinition;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 
 class ProductConfiguratorWrittenEvent extends WrittenEvent
 {

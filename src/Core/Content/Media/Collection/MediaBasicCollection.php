@@ -3,8 +3,8 @@
 namespace Shopware\Content\Media\Collection;
 
 use Shopware\Content\Media\Aggregate\MediaAlbum\Collection\MediaAlbumBasicCollection;
-use Shopware\Framework\ORM\EntityCollection;
 use Shopware\Content\Media\Struct\MediaBasicStruct;
+use Shopware\Framework\ORM\EntityCollection;
 
 class MediaBasicCollection extends EntityCollection
 {

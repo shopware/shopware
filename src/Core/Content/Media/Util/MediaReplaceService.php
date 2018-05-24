@@ -27,7 +27,6 @@ namespace Shopware\Content\Media\Util;
 use Shopware\Components\Model\ModelManager;
 use Shopware\Components\Thumbnail\Manager;
 use Shopware\Content\Media\Exception\ReplaceTypeMismatchException;
-
 use Shopware\Content\Media\Util\Strategy\StrategyFilesystem;
 use Shopware\Models\Media\Media;
 use Symfony\Component\HttpFoundation\File\UploadedFile;

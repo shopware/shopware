@@ -2,9 +2,9 @@
 
 namespace Shopware\System\Configuration\Event;
 
-use Shopware\System\Configuration\Struct\ConfigurationGroupSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
+use Shopware\System\Configuration\Struct\ConfigurationGroupSearchResult;
 
 class ConfigurationGroupSearchResultLoadedEvent extends NestedEvent
 {

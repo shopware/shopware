@@ -25,10 +25,10 @@
 namespace Shopware\Application\Test\Context\Rule\CalculatedCart;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Checkout\Test\Cart\Common\Generator;
-use Shopware\Checkout\Rule\Specification\Scope\CartRuleScope;
-use Shopware\Checkout\Rule\Specification\CalculatedCart\OrderAmountRule;
 use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\Rule\Specification\CalculatedCart\OrderAmountRule;
+use Shopware\Checkout\Rule\Specification\Scope\CartRuleScope;
+use Shopware\Checkout\Test\Cart\Common\Generator;
 
 class OrderAmountRuleTest extends TestCase
 {

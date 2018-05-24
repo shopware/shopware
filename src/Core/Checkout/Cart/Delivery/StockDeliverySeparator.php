@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace Shopware\Checkout\Cart\Delivery;
 
-use Shopware\Checkout\Shipping\Struct\ShippingMethodBasicStruct;
+use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Checkout\Cart\Delivery\Struct\DeliveryDate;
@@ -39,7 +39,7 @@ use Shopware\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Checkout\Cart\Price\Struct\PriceDefinition;
 use Shopware\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\Shipping\Struct\ShippingMethodBasicStruct;
 
 class StockDeliverySeparator
 {

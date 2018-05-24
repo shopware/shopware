@@ -2,8 +2,8 @@
 
 namespace Shopware\Content\Media\Aggregate\MediaAlbum\Event;
 
-use Shopware\Framework\ORM\Write\WrittenEvent;
 use Shopware\Content\Media\Aggregate\MediaAlbum\MediaAlbumDefinition;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 
 class MediaAlbumWrittenEvent extends WrittenEvent
 {

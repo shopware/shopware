@@ -2,10 +2,10 @@
 
 namespace Shopware\Checkout\Test\Cart\LineItem;
 
-use Shopware\Content\Media\Struct\MediaBasicStruct;
 use Shopware\Checkout\Cart\LineItem\CalculatedLineItemInterface;
 use Shopware\Checkout\Cart\LineItem\LineItemInterface;
 use Shopware\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Content\Media\Struct\MediaBasicStruct;
 
 class CustomLineItem implements CalculatedLineItemInterface
 {

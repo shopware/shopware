@@ -2,10 +2,10 @@
 
 namespace Shopware\Framework\ORM\Version\Event\VersionCommitData;
 
-use Shopware\Framework\ORM\Version\Struct\VersionCommitDataSearchResult;
-use Shopware\Framework\ORM\Version\Struct\VersionCommitSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
+use Shopware\Framework\ORM\Version\Struct\VersionCommitDataSearchResult;
+use Shopware\Framework\ORM\Version\Struct\VersionCommitSearchResult;
 
 class VersionCommitDataSearchResultLoadedEvent extends NestedEvent
 {

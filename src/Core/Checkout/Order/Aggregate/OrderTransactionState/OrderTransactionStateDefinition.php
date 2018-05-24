@@ -2,6 +2,10 @@
 
 namespace Shopware\Checkout\Order\Aggregate\OrderTransactionState;
 
+use Shopware\Checkout\Order\Aggregate\OrderTransactionState\Collection\OrderTransactionStateBasicCollection;
+use Shopware\Checkout\Order\Aggregate\OrderTransactionState\Event\OrderTransactionStateDeletedEvent;
+use Shopware\Checkout\Order\Aggregate\OrderTransactionState\Event\OrderTransactionStateWrittenEvent;
+use Shopware\Checkout\Order\Aggregate\OrderTransactionState\Struct\OrderTransactionStateBasicStruct;
 use Shopware\Checkout\Order\Aggregate\OrderTransactionStateTranslation\OrderTransactionStateTranslationDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
@@ -17,11 +21,6 @@ use Shopware\Framework\ORM\FieldCollection;
 use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Framework\ORM\Write\Flag\RestrictDelete;
-use Shopware\Checkout\Order\Aggregate\OrderTransactionState\Collection\OrderTransactionStateBasicCollection;
-use Shopware\Checkout\Order\Aggregate\OrderTransactionState\Event\OrderTransactionStateDeletedEvent;
-use Shopware\Checkout\Order\Aggregate\OrderTransactionState\Event\OrderTransactionStateWrittenEvent;
-
-use Shopware\Checkout\Order\Aggregate\OrderTransactionState\Struct\OrderTransactionStateBasicStruct;
 
 class OrderTransactionStateDefinition extends EntityDefinition
 {

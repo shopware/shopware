@@ -2,9 +2,9 @@
 
 namespace Shopware\System\Country\Aggregate\CountryAreaTranslation\Event;
 
-use Shopware\System\Country\Aggregate\CountryAreaTranslation\Collection\CountryAreaTranslationBasicCollection;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
+use Shopware\System\Country\Aggregate\CountryAreaTranslation\Collection\CountryAreaTranslationBasicCollection;
 
 class CountryAreaTranslationBasicLoadedEvent extends NestedEvent
 {

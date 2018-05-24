@@ -25,11 +25,11 @@
 namespace Shopware\Framework\ORM\Field;
 
 use Shopware\Content\Catalog\CatalogDefinition;
+use Shopware\Defaults;
 use Shopware\Framework\ORM\Write\DataStack\KeyValuePair;
 use Shopware\Framework\ORM\Write\EntityExistence;
 use Shopware\Framework\ORM\Write\FieldException\InvalidFieldException;
 use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\Defaults;
 use Shopware\Framework\Struct\Uuid;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\ConstraintViolation;

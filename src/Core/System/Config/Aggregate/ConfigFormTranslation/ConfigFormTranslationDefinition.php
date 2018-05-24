@@ -2,14 +2,6 @@
 
 namespace Shopware\System\Config\Aggregate\ConfigFormTranslation;
 
-use Shopware\System\Config\Aggregate\ConfigFormTranslation\Collection\ConfigFormTranslationBasicCollection;
-use Shopware\System\Config\Aggregate\ConfigFormTranslation\Collection\ConfigFormTranslationDetailCollection;
-use Shopware\System\Config\ConfigFormDefinition;
-use Shopware\System\Config\Aggregate\ConfigFormTranslation\Event\ConfigFormTranslationDeletedEvent;
-use Shopware\System\Config\Aggregate\ConfigFormTranslation\Event\ConfigFormTranslationWrittenEvent;
-
-use Shopware\System\Config\Aggregate\ConfigFormTranslation\Struct\ConfigFormTranslationBasicStruct;
-use Shopware\System\Config\Aggregate\ConfigFormTranslation\Struct\ConfigFormTranslationDetailStruct;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\FkField;
@@ -22,6 +14,13 @@ use Shopware\Framework\ORM\Field\VersionField;
 use Shopware\Framework\ORM\FieldCollection;
 use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
+use Shopware\System\Config\Aggregate\ConfigFormTranslation\Collection\ConfigFormTranslationBasicCollection;
+use Shopware\System\Config\Aggregate\ConfigFormTranslation\Collection\ConfigFormTranslationDetailCollection;
+use Shopware\System\Config\Aggregate\ConfigFormTranslation\Event\ConfigFormTranslationDeletedEvent;
+use Shopware\System\Config\Aggregate\ConfigFormTranslation\Event\ConfigFormTranslationWrittenEvent;
+use Shopware\System\Config\Aggregate\ConfigFormTranslation\Struct\ConfigFormTranslationBasicStruct;
+use Shopware\System\Config\Aggregate\ConfigFormTranslation\Struct\ConfigFormTranslationDetailStruct;
+use Shopware\System\Config\ConfigFormDefinition;
 use Shopware\System\Locale\LocaleDefinition;
 
 class ConfigFormTranslationDefinition extends EntityDefinition

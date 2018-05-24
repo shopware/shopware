@@ -2,8 +2,9 @@
 
 namespace Shopware\Content\Product\Aggregate\ProductDatasheet;
 
+use Shopware\Content\Product\Aggregate\ProductDatasheet\Event\ProductDatasheetDeletedEvent;
+use Shopware\Content\Product\Aggregate\ProductDatasheet\Event\ProductDatasheetWrittenEvent;
 use Shopware\Content\Product\ProductDefinition;
-use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
 use Shopware\Framework\ORM\Field\FkField;
 use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Framework\ORM\Field\ReferenceVersionField;
@@ -11,8 +12,7 @@ use Shopware\Framework\ORM\FieldCollection;
 use Shopware\Framework\ORM\MappingEntityDefinition;
 use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\Content\Product\Aggregate\ProductDatasheet\Event\ProductDatasheetDeletedEvent;
-use Shopware\Content\Product\Aggregate\ProductDatasheet\Event\ProductDatasheetWrittenEvent;
+use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
 
 class ProductDatasheetDefinition extends MappingEntityDefinition
 {

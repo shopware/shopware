@@ -2,8 +2,11 @@
 
 namespace Shopware\Content\Product\Aggregate\ProductService;
 
+use Shopware\Content\Product\Aggregate\ProductService\Collection\ProductServiceBasicCollection;
+use Shopware\Content\Product\Aggregate\ProductService\Event\ProductServiceDeletedEvent;
+use Shopware\Content\Product\Aggregate\ProductService\Event\ProductServiceWrittenEvent;
+use Shopware\Content\Product\Aggregate\ProductService\Struct\ProductServiceBasicStruct;
 use Shopware\Content\Product\ProductDefinition;
-use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\ContextPricesJsonField;
@@ -18,11 +21,7 @@ use Shopware\Framework\ORM\FieldCollection;
 use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Framework\ORM\Write\Flag\WriteOnly;
-use Shopware\Content\Product\Aggregate\ProductService\Collection\ProductServiceBasicCollection;
-use Shopware\Content\Product\Aggregate\ProductService\Event\ProductServiceDeletedEvent;
-use Shopware\Content\Product\Aggregate\ProductService\Event\ProductServiceWrittenEvent;
-
-use Shopware\Content\Product\Aggregate\ProductService\Struct\ProductServiceBasicStruct;
+use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
 use Shopware\System\Tax\TaxDefinition;
 
 class ProductServiceDefinition extends EntityDefinition

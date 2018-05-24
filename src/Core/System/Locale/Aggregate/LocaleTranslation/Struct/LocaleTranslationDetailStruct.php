@@ -3,7 +3,6 @@
 namespace Shopware\System\Locale\Aggregate\LocaleTranslation\Struct;
 
 use Shopware\Application\Language\Struct\LanguageBasicStruct;
-
 use Shopware\System\Locale\Struct\LocaleBasicStruct;
 
 class LocaleTranslationDetailStruct extends LocaleTranslationBasicStruct

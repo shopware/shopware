@@ -2,9 +2,9 @@
 
 namespace Shopware\System\Currency\Aggregate\CurrencyTranslation\Event;
 
-use Shopware\Framework\ORM\Search\IdSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
+use Shopware\Framework\ORM\Search\IdSearchResult;
 
 class CurrencyTranslationIdSearchResultLoadedEvent extends NestedEvent
 {

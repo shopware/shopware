@@ -2,6 +2,13 @@
 
 namespace Shopware\Content\Product\Aggregate\ProductTranslation;
 
+use Shopware\Application\Language\LanguageDefinition;
+use Shopware\Content\Product\Aggregate\ProductTranslation\Collection\ProductTranslationBasicCollection;
+use Shopware\Content\Product\Aggregate\ProductTranslation\Collection\ProductTranslationDetailCollection;
+use Shopware\Content\Product\Aggregate\ProductTranslation\Event\ProductTranslationDeletedEvent;
+use Shopware\Content\Product\Aggregate\ProductTranslation\Event\ProductTranslationWrittenEvent;
+use Shopware\Content\Product\Aggregate\ProductTranslation\Struct\ProductTranslationBasicStruct;
+use Shopware\Content\Product\Aggregate\ProductTranslation\Struct\ProductTranslationDetailStruct;
 use Shopware\Content\Product\ProductDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
@@ -12,18 +19,9 @@ use Shopware\Framework\ORM\Field\LongTextWithHtmlField;
 use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Framework\ORM\Field\ReferenceVersionField;
 use Shopware\Framework\ORM\Field\StringField;
-
 use Shopware\Framework\ORM\FieldCollection;
 use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\Application\Language\LanguageDefinition;
-use Shopware\Content\Product\Aggregate\ProductTranslation\Collection\ProductTranslationBasicCollection;
-use Shopware\Content\Product\Aggregate\ProductTranslation\Collection\ProductTranslationDetailCollection;
-use Shopware\Content\Product\Aggregate\ProductTranslation\Event\ProductTranslationDeletedEvent;
-use Shopware\Content\Product\Aggregate\ProductTranslation\Event\ProductTranslationWrittenEvent;
-
-use Shopware\Content\Product\Aggregate\ProductTranslation\Struct\ProductTranslationBasicStruct;
-use Shopware\Content\Product\Aggregate\ProductTranslation\Struct\ProductTranslationDetailStruct;
 
 class ProductTranslationDefinition extends EntityDefinition
 {

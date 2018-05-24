@@ -2,11 +2,11 @@
 
 namespace Shopware\Application\Language\Event;
 
-use Shopware\Application\Language\Collection\LanguageBasicCollection;
-use Shopware\System\Locale\Event\LocaleBasicLoadedEvent;
 use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Application\Language\Collection\LanguageBasicCollection;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\System\Locale\Event\LocaleBasicLoadedEvent;
 
 class LanguageBasicLoadedEvent extends NestedEvent
 {

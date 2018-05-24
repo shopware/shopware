@@ -2,12 +2,12 @@
 
 namespace Shopware\Content\Product\Aggregate\ProductStream\Event;
 
-use Shopware\System\Listing\Event\ListingSortingBasicLoadedEvent;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Content\Product\Aggregate\ProductStream\Collection\ProductStreamDetailCollection;
 use Shopware\Content\Product\Event\ProductBasicLoadedEvent;
-use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\System\Listing\Event\ListingSortingBasicLoadedEvent;
 
 class ProductStreamDetailLoadedEvent extends NestedEvent
 {

@@ -2,9 +2,9 @@
 
 namespace Shopware\Profiling\DataCollector;
 
+use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Checkout\Cart\Cart\Struct\Cart;
-use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Profiling\Cart\TracedCartActions;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

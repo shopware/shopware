@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Framework\ORM\Exception;
 
@@ -13,5 +13,4 @@ class MappingEntityStructException extends \RuntimeException implements Shopware
 
         parent::__construct($message, $code, $previous);
     }
-
 }

@@ -2,11 +2,11 @@
 
 namespace Shopware\Framework\Api\Response\Type;
 
+use Shopware\Framework\Api\Context\RestContext;
+use Shopware\Framework\Api\Response\ResponseTypeInterface;
 use Shopware\Framework\ORM\Entity;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\Search\SearchResultInterface;
-use Shopware\Framework\Api\Context\RestContext;
-use Shopware\Framework\Api\Response\ResponseTypeInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

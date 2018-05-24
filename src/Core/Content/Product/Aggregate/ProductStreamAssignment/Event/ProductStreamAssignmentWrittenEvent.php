@@ -2,8 +2,8 @@
 
 namespace Shopware\Content\Product\Aggregate\ProductStreamAssignment\Event;
 
-use Shopware\Framework\ORM\Write\WrittenEvent;
 use Shopware\Content\Product\Aggregate\ProductStreamAssignment\ProductStreamAssignmentDefinition;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 
 class ProductStreamAssignmentWrittenEvent extends WrittenEvent
 {

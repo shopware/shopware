@@ -2,9 +2,9 @@
 
 namespace Shopware\Content\Media\Event;
 
-use Shopware\Content\Media\Collection\MediaBasicCollection;
-use Shopware\Content\Media\Aggregate\MediaAlbum\Event\MediaAlbumBasicLoadedEvent;
 use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Content\Media\Aggregate\MediaAlbum\Event\MediaAlbumBasicLoadedEvent;
+use Shopware\Content\Media\Collection\MediaBasicCollection;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 

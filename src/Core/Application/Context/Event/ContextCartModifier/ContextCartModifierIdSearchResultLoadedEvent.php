@@ -2,9 +2,9 @@
 
 namespace Shopware\Application\Context\Event\ContextCartModifier;
 
-use Shopware\Framework\ORM\Search\IdSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
+use Shopware\Framework\ORM\Search\IdSearchResult;
 
 class ContextCartModifierIdSearchResultLoadedEvent extends NestedEvent
 {

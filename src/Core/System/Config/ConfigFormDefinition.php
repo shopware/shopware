@@ -2,15 +2,6 @@
 
 namespace Shopware\System\Config;
 
-use Shopware\System\Config\Collection\ConfigFormBasicCollection;
-use Shopware\System\Config\Collection\ConfigFormDetailCollection;
-use Shopware\System\Config\Aggregate\ConfigFormField\ConfigFormFieldDefinition;
-use Shopware\System\Config\Aggregate\ConfigFormTranslation\ConfigFormTranslationDefinition;
-use Shopware\System\Config\Event\ConfigFormDeletedEvent;
-use Shopware\System\Config\Event\ConfigFormWrittenEvent;
-
-use Shopware\System\Config\Struct\ConfigFormBasicStruct;
-use Shopware\System\Config\Struct\ConfigFormDetailStruct;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\DateField;
@@ -32,6 +23,14 @@ use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Framework\Plugin\Definition\PluginDefinition;
+use Shopware\System\Config\Aggregate\ConfigFormField\ConfigFormFieldDefinition;
+use Shopware\System\Config\Aggregate\ConfigFormTranslation\ConfigFormTranslationDefinition;
+use Shopware\System\Config\Collection\ConfigFormBasicCollection;
+use Shopware\System\Config\Collection\ConfigFormDetailCollection;
+use Shopware\System\Config\Event\ConfigFormDeletedEvent;
+use Shopware\System\Config\Event\ConfigFormWrittenEvent;
+use Shopware\System\Config\Struct\ConfigFormBasicStruct;
+use Shopware\System\Config\Struct\ConfigFormDetailStruct;
 
 class ConfigFormDefinition extends EntityDefinition
 {

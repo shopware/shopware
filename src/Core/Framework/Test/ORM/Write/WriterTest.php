@@ -3,18 +3,18 @@
 namespace Shopware\Framework\Test\ORM\Write;
 
 use Doctrine\DBAL\Connection;
-use Shopware\System\Country\Aggregate\CountryArea\CountryAreaDefinition;
+use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Application\Language\LanguageRepository;
+use Shopware\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
+use Shopware\Content\Product\ProductDefinition;
+use Shopware\Defaults;
 use Shopware\Framework\ORM\Write\EntityWriter;
 use Shopware\Framework\ORM\Write\EntityWriterInterface;
 use Shopware\Framework\ORM\Write\FieldException\WriteStackException;
 use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\Application\Language\LanguageRepository;
-use Shopware\System\Locale\LocaleRepository;
-use Shopware\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
-use Shopware\Content\Product\ProductDefinition;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Defaults;
 use Shopware\Framework\Struct\Uuid;
+use Shopware\System\Country\Aggregate\CountryArea\CountryAreaDefinition;
+use Shopware\System\Locale\LocaleRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 

@@ -2,10 +2,10 @@
 
 namespace Shopware\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Event;
 
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Application\Language\Event\LanguageBasicLoadedEvent;
 use Shopware\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Collection\ShippingMethodTranslationDetailCollection;
 use Shopware\Checkout\Shipping\Event\ShippingMethodBasicLoadedEvent;
-use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 

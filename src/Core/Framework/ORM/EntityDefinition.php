@@ -2,6 +2,7 @@
 
 namespace Shopware\Framework\ORM;
 
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\ORM\Field\AssociationInterface;
 use Shopware\Framework\ORM\Field\Field;
 use Shopware\Framework\ORM\Field\ManyToManyAssociationField;
@@ -11,7 +12,6 @@ use Shopware\Framework\ORM\Write\EntityExistence;
 use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\ReadOnly;
 use Shopware\Framework\ORM\Write\WrittenEvent;
-use Shopware\Application\Context\Struct\ApplicationContext;
 
 abstract class EntityDefinition
 {

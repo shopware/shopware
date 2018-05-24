@@ -3,6 +3,12 @@
 namespace Shopware\Checkout\Order\Aggregate\OrderLineItem;
 
 use Shopware\Checkout\Order\Aggregate\OrderDeliveryPosition\OrderDeliveryPositionDefinition;
+use Shopware\Checkout\Order\Aggregate\OrderLineItem\Collection\OrderLineItemBasicCollection;
+use Shopware\Checkout\Order\Aggregate\OrderLineItem\Collection\OrderLineItemDetailCollection;
+use Shopware\Checkout\Order\Aggregate\OrderLineItem\Event\OrderLineItemDeletedEvent;
+use Shopware\Checkout\Order\Aggregate\OrderLineItem\Event\OrderLineItemWrittenEvent;
+use Shopware\Checkout\Order\Aggregate\OrderLineItem\Struct\OrderLineItemBasicStruct;
+use Shopware\Checkout\Order\Aggregate\OrderLineItem\Struct\OrderLineItemDetailStruct;
 use Shopware\Checkout\Order\OrderDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
@@ -24,13 +30,6 @@ use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\ReadOnly;
 use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Framework\ORM\Write\Flag\SearchRanking;
-use Shopware\Checkout\Order\Aggregate\OrderLineItem\Collection\OrderLineItemBasicCollection;
-use Shopware\Checkout\Order\Aggregate\OrderLineItem\Collection\OrderLineItemDetailCollection;
-use Shopware\Checkout\Order\Aggregate\OrderLineItem\Event\OrderLineItemDeletedEvent;
-use Shopware\Checkout\Order\Aggregate\OrderLineItem\Event\OrderLineItemWrittenEvent;
-
-use Shopware\Checkout\Order\Aggregate\OrderLineItem\Struct\OrderLineItemBasicStruct;
-use Shopware\Checkout\Order\Aggregate\OrderLineItem\Struct\OrderLineItemDetailStruct;
 
 class OrderLineItemDefinition extends EntityDefinition
 {

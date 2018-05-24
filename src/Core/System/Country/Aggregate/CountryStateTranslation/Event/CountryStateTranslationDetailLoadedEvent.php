@@ -2,12 +2,12 @@
 
 namespace Shopware\System\Country\Aggregate\CountryStateTranslation\Event;
 
-use Shopware\System\Country\Aggregate\CountryStateTranslation\Collection\CountryStateTranslationDetailCollection;
-use Shopware\System\Country\Aggregate\CountryState\Event\CountryStateBasicLoadedEvent;
-use Shopware\Application\Language\Event\LanguageBasicLoadedEvent;
 use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Application\Language\Event\LanguageBasicLoadedEvent;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\System\Country\Aggregate\CountryState\Event\CountryStateBasicLoadedEvent;
+use Shopware\System\Country\Aggregate\CountryStateTranslation\Collection\CountryStateTranslationDetailCollection;
 
 class CountryStateTranslationDetailLoadedEvent extends NestedEvent
 {

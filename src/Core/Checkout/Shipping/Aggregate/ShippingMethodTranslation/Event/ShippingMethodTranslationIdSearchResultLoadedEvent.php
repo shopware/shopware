@@ -2,9 +2,9 @@
 
 namespace Shopware\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Event;
 
-use Shopware\Framework\ORM\Search\IdSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
+use Shopware\Framework\ORM\Search\IdSearchResult;
 
 class ShippingMethodTranslationIdSearchResultLoadedEvent extends NestedEvent
 {

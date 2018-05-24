@@ -2,6 +2,15 @@
 
 namespace Shopware\Content\Product\Aggregate\ProductManufacturer;
 
+use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Content\Product\Aggregate\ProductManufacturer\Collection\ProductManufacturerBasicCollection;
+use Shopware\Content\Product\Aggregate\ProductManufacturer\Collection\ProductManufacturerDetailCollection;
+use Shopware\Content\Product\Aggregate\ProductManufacturer\Event\ProductManufacturerAggregationResultLoadedEvent;
+use Shopware\Content\Product\Aggregate\ProductManufacturer\Event\ProductManufacturerBasicLoadedEvent;
+use Shopware\Content\Product\Aggregate\ProductManufacturer\Event\ProductManufacturerDetailLoadedEvent;
+use Shopware\Content\Product\Aggregate\ProductManufacturer\Event\ProductManufacturerIdSearchResultLoadedEvent;
+use Shopware\Content\Product\Aggregate\ProductManufacturer\Event\ProductManufacturerSearchResultLoadedEvent;
+use Shopware\Content\Product\Aggregate\ProductManufacturer\Struct\ProductManufacturerSearchResult;
 use Shopware\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Framework\ORM\RepositoryInterface;
 use Shopware\Framework\ORM\Search\AggregatorResult;
@@ -9,19 +18,9 @@ use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
 use Shopware\Framework\ORM\Search\EntitySearcherInterface;
 use Shopware\Framework\ORM\Search\IdSearchResult;
+use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\Content\Product\Aggregate\ProductManufacturer\Collection\ProductManufacturerBasicCollection;
-use Shopware\Content\Product\Aggregate\ProductManufacturer\Collection\ProductManufacturerDetailCollection;
-
-use Shopware\Content\Product\Aggregate\ProductManufacturer\Event\ProductManufacturerAggregationResultLoadedEvent;
-use Shopware\Content\Product\Aggregate\ProductManufacturer\Event\ProductManufacturerBasicLoadedEvent;
-use Shopware\Content\Product\Aggregate\ProductManufacturer\Event\ProductManufacturerDetailLoadedEvent;
-use Shopware\Content\Product\Aggregate\ProductManufacturer\Event\ProductManufacturerIdSearchResultLoadedEvent;
-use Shopware\Content\Product\Aggregate\ProductManufacturer\Event\ProductManufacturerSearchResultLoadedEvent;
-use Shopware\Content\Product\Aggregate\ProductManufacturer\Struct\ProductManufacturerSearchResult;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductManufacturerRepository implements RepositoryInterface

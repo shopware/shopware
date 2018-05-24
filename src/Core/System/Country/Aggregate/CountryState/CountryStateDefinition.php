@@ -2,16 +2,8 @@
 
 namespace Shopware\System\Country\Aggregate\CountryState;
 
-use Shopware\System\Country\Aggregate\CountryState\Collection\CountryStateBasicCollection;
-use Shopware\System\Country\Aggregate\CountryState\Collection\CountryStateDetailCollection;
-use Shopware\System\Country\Aggregate\CountryState\Event\CountryStateDeletedEvent;
-use Shopware\System\Country\Aggregate\CountryState\Event\CountryStateWrittenEvent;
-use Shopware\System\Country\CountryDefinition;
-use Shopware\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationDefinition;
-
-use Shopware\System\Country\Aggregate\CountryState\Struct\CountryStateBasicStruct;
-use Shopware\System\Country\Aggregate\CountryState\Struct\CountryStateDetailStruct;
 use Shopware\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
+use Shopware\Checkout\Order\Aggregate\OrderAddress\OrderAddressDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\BoolField;
@@ -34,7 +26,14 @@ use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Framework\ORM\Write\Flag\WriteOnly;
-use Shopware\Checkout\Order\Aggregate\OrderAddress\OrderAddressDefinition;
+use Shopware\System\Country\Aggregate\CountryState\Collection\CountryStateBasicCollection;
+use Shopware\System\Country\Aggregate\CountryState\Collection\CountryStateDetailCollection;
+use Shopware\System\Country\Aggregate\CountryState\Event\CountryStateDeletedEvent;
+use Shopware\System\Country\Aggregate\CountryState\Event\CountryStateWrittenEvent;
+use Shopware\System\Country\Aggregate\CountryState\Struct\CountryStateBasicStruct;
+use Shopware\System\Country\Aggregate\CountryState\Struct\CountryStateDetailStruct;
+use Shopware\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationDefinition;
+use Shopware\System\Country\CountryDefinition;
 use Shopware\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleDefinition;
 
 class CountryStateDefinition extends EntityDefinition

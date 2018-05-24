@@ -86,6 +86,10 @@
             <argument id="serializer" type="service"/>
             <argument type="service" id="Shopware\Application\Context\Util\StorefrontContextPersister"/>
             <argument type="service" id="Shopware\Framework\Routing\Firewall\CustomerProvider"/>
+            <argument type="service" id="Shopware\Storefront\Page\Account\AccountService"/>
+            <argument type="service" id="Shopware\Application\Context\Util\StorefrontContextService"/>
+            <argument type="service" id="Shopware\Framework\Api\Response\ResponseFactory"/>
+            <argument type="service" id="Shopware\Checkout\Order\OrderRepository.v1"/>
         </service>
 
     </services>

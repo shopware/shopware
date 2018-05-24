@@ -2,13 +2,13 @@
 
 namespace Shopware\Content\Product\Aggregate\ProductContextPrice\Event;
 
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Checkout\Rule\Event\ContextRuleBasicLoadedEvent;
-use Shopware\System\Currency\Event\CurrencyBasicLoadedEvent;
 use Shopware\Content\Product\Aggregate\ProductContextPrice\Collection\ProductContextPriceDetailCollection;
 use Shopware\Content\Product\Event\ProductBasicLoadedEvent;
-use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\System\Currency\Event\CurrencyBasicLoadedEvent;
 
 class ProductContextPriceDetailLoadedEvent extends NestedEvent
 {

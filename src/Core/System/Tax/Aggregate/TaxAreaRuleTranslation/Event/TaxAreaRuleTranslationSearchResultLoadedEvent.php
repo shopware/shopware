@@ -2,9 +2,9 @@
 
 namespace Shopware\System\Tax\Aggregate\TaxAreaRuleTranslation\Event;
 
-use Shopware\System\Tax\Aggregate\TaxAreaRuleTranslation\Struct\TaxAreaRuleTranslationSearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
+use Shopware\System\Tax\Aggregate\TaxAreaRuleTranslation\Struct\TaxAreaRuleTranslationSearchResult;
 
 class TaxAreaRuleTranslationSearchResultLoadedEvent extends NestedEvent
 {

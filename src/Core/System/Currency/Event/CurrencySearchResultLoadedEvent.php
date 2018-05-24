@@ -2,9 +2,9 @@
 
 namespace Shopware\System\Currency\Event;
 
-use Shopware\System\Currency\Struct\CurrencySearchResult;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
+use Shopware\System\Currency\Struct\CurrencySearchResult;
 
 class CurrencySearchResultLoadedEvent extends NestedEvent
 {

@@ -2,15 +2,7 @@
 
 namespace Shopware\Content\Product\Aggregate\ProductContextPrice;
 
-use Shopware\Framework\ORM\Read\EntityReaderInterface;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\AggregatorResult;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
-use Shopware\Framework\ORM\Search\EntitySearcherInterface;
-use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\ORM\Write\WriteContext;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Content\Product\Aggregate\ProductContextPrice\Collection\ProductContextPriceBasicCollection;
 use Shopware\Content\Product\Aggregate\ProductContextPrice\Collection\ProductContextPriceDetailCollection;
 use Shopware\Content\Product\Aggregate\ProductContextPrice\Event\ProductContextPriceAggregationResultLoadedEvent;
@@ -19,8 +11,16 @@ use Shopware\Content\Product\Aggregate\ProductContextPrice\Event\ProductContextP
 use Shopware\Content\Product\Aggregate\ProductContextPrice\Event\ProductContextPriceIdSearchResultLoadedEvent;
 use Shopware\Content\Product\Aggregate\ProductContextPrice\Event\ProductContextPriceSearchResultLoadedEvent;
 use Shopware\Content\Product\Aggregate\ProductContextPrice\Struct\ProductContextPriceSearchResult;
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Framework\ORM\RepositoryInterface;
+use Shopware\Framework\ORM\Search\AggregatorResult;
+use Shopware\Framework\ORM\Search\Criteria;
+use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
+use Shopware\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Framework\ORM\Search\IdSearchResult;
 use Shopware\Framework\ORM\Version\Service\VersionManager;
+use Shopware\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Framework\ORM\Write\WriteContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductContextPriceRepository implements RepositoryInterface

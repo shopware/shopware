@@ -2,8 +2,8 @@
 
 namespace Shopware\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Event;
 
-use Shopware\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Collection\ShippingMethodTranslationBasicCollection;
 use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Collection\ShippingMethodTranslationBasicCollection;
 use Shopware\Framework\Event\NestedEvent;
 
 class ShippingMethodTranslationBasicLoadedEvent extends NestedEvent

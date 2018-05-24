@@ -2,9 +2,9 @@
 
 namespace Shopware\Framework\Api\Response;
 
+use Shopware\Framework\Api\Context\RestContext;
 use Shopware\Framework\ORM\Entity;
 use Shopware\Framework\ORM\Search\SearchResultInterface;
-use Shopware\Framework\Api\Context\RestContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 

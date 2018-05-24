@@ -2,11 +2,11 @@
 
 namespace Shopware\Checkout\Rule\Specification\CalculatedLineItem;
 
-use Shopware\Content\Product\Cart\Struct\CalculatedProduct;
-use Shopware\Checkout\Rule\Specification\Scope\CalculatedLineItemScope;
-use Shopware\Checkout\Rule\Specification\Scope\RuleScope;
 use Shopware\Checkout\Rule\Specification\Match;
 use Shopware\Checkout\Rule\Specification\Rule;
+use Shopware\Checkout\Rule\Specification\Scope\CalculatedLineItemScope;
+use Shopware\Checkout\Rule\Specification\Scope\RuleScope;
+use Shopware\Content\Product\Cart\Struct\CalculatedProduct;
 
 class ProductOfManufacturerRule extends Rule
 {

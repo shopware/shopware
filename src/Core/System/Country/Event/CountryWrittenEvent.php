@@ -2,8 +2,8 @@
 
 namespace Shopware\System\Country\Event;
 
-use Shopware\System\Country\CountryDefinition;
 use Shopware\Framework\ORM\Write\WrittenEvent;
+use Shopware\System\Country\CountryDefinition;
 
 class CountryWrittenEvent extends WrittenEvent
 {

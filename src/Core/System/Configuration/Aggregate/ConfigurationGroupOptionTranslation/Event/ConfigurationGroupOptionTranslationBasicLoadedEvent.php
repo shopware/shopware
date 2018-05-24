@@ -2,9 +2,9 @@
 
 namespace Shopware\System\Configuration\Aggregate\ConfigurationGroupOptionTranslation\Event;
 
-use Shopware\System\Configuration\Aggregate\ConfigurationGroupOptionTranslation\Collection\ConfigurationGroupOptionTranslationBasicCollection;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
+use Shopware\System\Configuration\Aggregate\ConfigurationGroupOptionTranslation\Collection\ConfigurationGroupOptionTranslationBasicCollection;
 
 class ConfigurationGroupOptionTranslationBasicLoadedEvent extends NestedEvent
 {

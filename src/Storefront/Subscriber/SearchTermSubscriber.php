@@ -2,15 +2,15 @@
 
 namespace Shopware\Storefront\Subscriber;
 
+use Shopware\Content\Product\Util\KeywordSearchTermInterpreter;
+use Shopware\Defaults;
 use Shopware\Framework\ORM\Search\Query\ScoreQuery;
 use Shopware\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Framework\ORM\Search\Query\TermsQuery;
-use Shopware\Defaults;
 use Shopware\Storefront\Event\ListingEvents;
 use Shopware\Storefront\Event\PageCriteriaCreatedEvent;
 use Shopware\Storefront\Event\TransformListingPageRequestEvent;
 use Shopware\Storefront\Page\Search\SearchPageRequest;
-use Shopware\Content\Product\Util\KeywordSearchTermInterpreter;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class SearchTermSubscriber implements EventSubscriberInterface

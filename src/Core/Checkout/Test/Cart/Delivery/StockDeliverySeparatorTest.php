@@ -25,10 +25,6 @@
 namespace Shopware\Checkout\Test\Cart\Delivery;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\System\Country\Struct\CountryBasicStruct;
-use Shopware\System\Country\Aggregate\CountryState\Struct\CountryStateBasicStruct;
-use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
-use Shopware\Content\Product\Struct\ProductBasicStruct;
 use Shopware\Checkout\Cart\Delivery\StockDeliverySeparator;
 use Shopware\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Checkout\Cart\Delivery\Struct\DeliveryCollection;
@@ -50,10 +46,14 @@ use Shopware\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Checkout\Cart\Tax\TaxRuleCalculator;
+use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
+use Shopware\Checkout\Rule\Specification\Container\AndRule;
 use Shopware\Checkout\Test\Cart\Common\Generator;
 use Shopware\Content\Product\Cart\ProductProcessor;
 use Shopware\Content\Product\Cart\Struct\CalculatedProduct;
-use Shopware\Checkout\Rule\Specification\Container\AndRule;
+use Shopware\Content\Product\Struct\ProductBasicStruct;
+use Shopware\System\Country\Aggregate\CountryState\Struct\CountryStateBasicStruct;
+use Shopware\System\Country\Struct\CountryBasicStruct;
 
 class StockDeliverySeparatorTest extends TestCase
 {

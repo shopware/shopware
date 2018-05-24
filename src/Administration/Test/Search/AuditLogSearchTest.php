@@ -5,13 +5,13 @@ namespace Shopware\Administration\Test\Search;
 use Doctrine\DBAL\Connection;
 use Psr\Container\ContainerInterface;
 use Shopware\Administration\Search\AdministrationSearch;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Content\Product\ProductDefinition;
 use Shopware\Content\Product\ProductRepository;
 use Shopware\Content\Product\Struct\ProductBasicStruct;
-use Shopware\System\User\UserRepository;
-use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\Uuid;
+use Shopware\System\User\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class AuditLogSearchTest extends KernelTestCase

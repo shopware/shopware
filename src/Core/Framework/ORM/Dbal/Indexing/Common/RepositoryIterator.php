@@ -2,10 +2,10 @@
 
 namespace Shopware\Framework\ORM\Dbal\Indexing\Common;
 
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\ORM\RepositoryInterface;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\SearchResultInterface;
-use Shopware\Application\Context\Struct\ApplicationContext;
 
 class RepositoryIterator
 {

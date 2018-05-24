@@ -3,8 +3,15 @@
 namespace Shopware\Checkout\Shipping;
 
 use Shopware\Application\Application\ApplicationDefinition;
+use Shopware\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
 use Shopware\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceDefinition;
 use Shopware\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationDefinition;
+use Shopware\Checkout\Shipping\Collection\ShippingMethodBasicCollection;
+use Shopware\Checkout\Shipping\Collection\ShippingMethodDetailCollection;
+use Shopware\Checkout\Shipping\Event\ShippingMethodDeletedEvent;
+use Shopware\Checkout\Shipping\Event\ShippingMethodWrittenEvent;
+use Shopware\Checkout\Shipping\Struct\ShippingMethodBasicStruct;
+use Shopware\Checkout\Shipping\Struct\ShippingMethodDetailStruct;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\BoolField;
@@ -26,14 +33,6 @@ use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Framework\ORM\Write\Flag\WriteOnly;
-use Shopware\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
-use Shopware\Checkout\Shipping\Collection\ShippingMethodBasicCollection;
-use Shopware\Checkout\Shipping\Collection\ShippingMethodDetailCollection;
-use Shopware\Checkout\Shipping\Event\ShippingMethodDeletedEvent;
-use Shopware\Checkout\Shipping\Event\ShippingMethodWrittenEvent;
-
-use Shopware\Checkout\Shipping\Struct\ShippingMethodBasicStruct;
-use Shopware\Checkout\Shipping\Struct\ShippingMethodDetailStruct;
 
 class ShippingMethodDefinition extends EntityDefinition
 {

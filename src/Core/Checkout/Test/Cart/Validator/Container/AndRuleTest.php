@@ -25,14 +25,14 @@
 namespace Shopware\Checkout\Test\Cart\Validator\Container;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Checkout\Test\Cart\Common\FalseRule;
-use Shopware\Checkout\Test\Cart\Common\TrueRule;
-use Shopware\Checkout\Rule\Specification\Scope\CartRuleScope;
-use Shopware\Checkout\Rule\Specification\Scope\StorefrontScope;
 use Shopware\Checkout\Rule\Specification\Container\AndRule;
 use Shopware\Checkout\Rule\Specification\Match;
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\Rule\Specification\Scope\CartRuleScope;
+use Shopware\Checkout\Rule\Specification\Scope\StorefrontScope;
+use Shopware\Checkout\Test\Cart\Common\FalseRule;
+use Shopware\Checkout\Test\Cart\Common\TrueRule;
 
 class AndRuleTest extends TestCase
 {

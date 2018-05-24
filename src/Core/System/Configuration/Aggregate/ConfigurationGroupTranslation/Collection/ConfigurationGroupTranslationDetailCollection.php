@@ -2,10 +2,9 @@
 
 namespace Shopware\System\Configuration\Aggregate\ConfigurationGroupTranslation\Collection;
 
-use Shopware\System\Configuration\Aggregate\ConfigurationGroupTranslation\Collection\ConfigurationGroupTranslationBasicCollection;
-use Shopware\System\Configuration\Collection\ConfigurationGroupBasicCollection;
-use Shopware\System\Configuration\Aggregate\ConfigurationGroupTranslation\Struct\ConfigurationGroupTranslationDetailStruct;
 use Shopware\Application\Language\Collection\LanguageBasicCollection;
+use Shopware\System\Configuration\Aggregate\ConfigurationGroupTranslation\Struct\ConfigurationGroupTranslationDetailStruct;
+use Shopware\System\Configuration\Collection\ConfigurationGroupBasicCollection;
 
 class ConfigurationGroupTranslationDetailCollection extends ConfigurationGroupTranslationBasicCollection
 {

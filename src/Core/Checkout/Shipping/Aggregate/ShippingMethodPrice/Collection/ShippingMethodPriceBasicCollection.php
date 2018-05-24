@@ -2,8 +2,8 @@
 
 namespace Shopware\Checkout\Shipping\Aggregate\ShippingMethodPrice\Collection;
 
-use Shopware\Framework\ORM\EntityCollection;
 use Shopware\Checkout\Shipping\Aggregate\ShippingMethodPrice\Struct\ShippingMethodPriceBasicStruct;
+use Shopware\Framework\ORM\EntityCollection;
 
 class ShippingMethodPriceBasicCollection extends EntityCollection
 {

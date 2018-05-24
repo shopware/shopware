@@ -2,15 +2,6 @@
 
 namespace Shopware\System\Country\Aggregate\CountryArea;
 
-use Shopware\System\Country\Aggregate\CountryArea\Collection\CountryAreaBasicCollection;
-use Shopware\System\Country\Aggregate\CountryArea\Collection\CountryAreaDetailCollection;
-use Shopware\System\Country\Aggregate\CountryArea\Event\CountryAreaDeletedEvent;
-use Shopware\System\Country\Aggregate\CountryArea\Event\CountryAreaWrittenEvent;
-use Shopware\System\Country\Aggregate\CountryAreaTranslation\CountryAreaTranslationDefinition;
-use Shopware\System\Country\CountryDefinition;
-
-use Shopware\System\Country\Aggregate\CountryArea\Struct\CountryAreaBasicStruct;
-use Shopware\System\Country\Aggregate\CountryArea\Struct\CountryAreaDetailStruct;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\BoolField;
@@ -28,6 +19,14 @@ use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Framework\ORM\Write\Flag\WriteOnly;
+use Shopware\System\Country\Aggregate\CountryArea\Collection\CountryAreaBasicCollection;
+use Shopware\System\Country\Aggregate\CountryArea\Collection\CountryAreaDetailCollection;
+use Shopware\System\Country\Aggregate\CountryArea\Event\CountryAreaDeletedEvent;
+use Shopware\System\Country\Aggregate\CountryArea\Event\CountryAreaWrittenEvent;
+use Shopware\System\Country\Aggregate\CountryArea\Struct\CountryAreaBasicStruct;
+use Shopware\System\Country\Aggregate\CountryArea\Struct\CountryAreaDetailStruct;
+use Shopware\System\Country\Aggregate\CountryAreaTranslation\CountryAreaTranslationDefinition;
+use Shopware\System\Country\CountryDefinition;
 use Shopware\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleDefinition;
 
 class CountryAreaDefinition extends EntityDefinition

@@ -4,7 +4,6 @@ namespace Shopware\Checkout\Payment\Cart\PaymentHandler;
 
 use Shopware\Checkout\Payment\Exception\UnknownPaymentMethodException;
 
-
 class PaymentHandlerRegistry
 {
     /**

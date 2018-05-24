@@ -2,9 +2,8 @@
 
 namespace Shopware\Checkout\Order\Aggregate\OrderAddress\Struct;
 
-
-use Shopware\Checkout\Order\Collection\OrderBasicCollection;
 use Shopware\Checkout\Order\Aggregate\OrderDelivery\Collection\OrderDeliveryBasicCollection;
+use Shopware\Checkout\Order\Collection\OrderBasicCollection;
 
 class OrderAddressDetailStruct extends OrderAddressBasicStruct
 {

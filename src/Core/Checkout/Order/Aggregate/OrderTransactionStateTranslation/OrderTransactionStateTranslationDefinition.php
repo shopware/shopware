@@ -2,7 +2,12 @@
 
 namespace Shopware\Checkout\Order\Aggregate\OrderTransactionStateTranslation;
 
+use Shopware\Application\Language\LanguageDefinition;
 use Shopware\Checkout\Order\Aggregate\OrderTransactionState\OrderTransactionStateDefinition;
+use Shopware\Checkout\Order\Aggregate\OrderTransactionStateTranslation\Collection\OrderTransactionStateTranslationBasicCollection;
+use Shopware\Checkout\Order\Aggregate\OrderTransactionStateTranslation\Event\OrderTransactionStateTranslationDeletedEvent;
+use Shopware\Checkout\Order\Aggregate\OrderTransactionStateTranslation\Event\OrderTransactionStateTranslationWrittenEvent;
+use Shopware\Checkout\Order\Aggregate\OrderTransactionStateTranslation\Struct\OrderTransactionStateTranslationBasicStruct;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\FkField;
@@ -12,12 +17,6 @@ use Shopware\Framework\ORM\Field\StringField;
 use Shopware\Framework\ORM\FieldCollection;
 use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\Application\Language\LanguageDefinition;
-use Shopware\Checkout\Order\Aggregate\OrderTransactionStateTranslation\Collection\OrderTransactionStateTranslationBasicCollection;
-use Shopware\Checkout\Order\Aggregate\OrderTransactionStateTranslation\Event\OrderTransactionStateTranslationDeletedEvent;
-use Shopware\Checkout\Order\Aggregate\OrderTransactionStateTranslation\Event\OrderTransactionStateTranslationWrittenEvent;
-
-use Shopware\Checkout\Order\Aggregate\OrderTransactionStateTranslation\Struct\OrderTransactionStateTranslationBasicStruct;
 
 class OrderTransactionStateTranslationDefinition extends EntityDefinition
 {

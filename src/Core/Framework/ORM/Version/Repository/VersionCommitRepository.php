@@ -2,6 +2,7 @@
 
 namespace Shopware\Framework\ORM\Version\Repository;
 
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Framework\ORM\RepositoryInterface;
 use Shopware\Framework\ORM\Search\AggregatorResult;
@@ -9,8 +10,6 @@ use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
 use Shopware\Framework\ORM\Search\EntitySearcherInterface;
 use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\ORM\Write\WriteContext;
 use Shopware\Framework\ORM\Version\Collection\VersionCommitBasicCollection;
 use Shopware\Framework\ORM\Version\Collection\VersionCommitDetailCollection;
 use Shopware\Framework\ORM\Version\Definition\VersionCommitDefinition;
@@ -19,9 +18,10 @@ use Shopware\Framework\ORM\Version\Event\VersionCommit\VersionCommitBasicLoadedE
 use Shopware\Framework\ORM\Version\Event\VersionCommit\VersionCommitDetailLoadedEvent;
 use Shopware\Framework\ORM\Version\Event\VersionCommit\VersionCommitIdSearchResultLoadedEvent;
 use Shopware\Framework\ORM\Version\Event\VersionCommit\VersionCommitSearchResultLoadedEvent;
-use Shopware\Framework\ORM\Version\Struct\VersionCommitSearchResult;
-use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\ORM\Version\Service\VersionManager;
+use Shopware\Framework\ORM\Version\Struct\VersionCommitSearchResult;
+use Shopware\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Framework\ORM\Write\WriteContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class VersionCommitRepository implements RepositoryInterface

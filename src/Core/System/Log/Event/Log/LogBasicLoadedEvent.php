@@ -2,9 +2,9 @@
 
 namespace Shopware\System\Log\Event\Log;
 
-use Shopware\System\Log\Collection\LogBasicCollection;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
+use Shopware\System\Log\Collection\LogBasicCollection;
 
 class LogBasicLoadedEvent extends NestedEvent
 {

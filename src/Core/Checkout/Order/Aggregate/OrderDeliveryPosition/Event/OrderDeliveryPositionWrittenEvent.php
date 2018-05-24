@@ -2,8 +2,8 @@
 
 namespace Shopware\Checkout\Order\Aggregate\OrderDeliveryPosition\Event;
 
-use Shopware\Framework\ORM\Write\WrittenEvent;
 use Shopware\Checkout\Order\Aggregate\OrderDeliveryPosition\OrderDeliveryPositionDefinition;
+use Shopware\Framework\ORM\Write\WrittenEvent;
 
 class OrderDeliveryPositionWrittenEvent extends WrittenEvent
 {

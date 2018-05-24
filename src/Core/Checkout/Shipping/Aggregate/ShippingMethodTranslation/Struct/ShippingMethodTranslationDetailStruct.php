@@ -3,7 +3,6 @@
 namespace Shopware\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Struct;
 
 use Shopware\Application\Language\Struct\LanguageBasicStruct;
-
 use Shopware\Checkout\Shipping\Struct\ShippingMethodBasicStruct;
 
 class ShippingMethodTranslationDetailStruct extends ShippingMethodTranslationBasicStruct

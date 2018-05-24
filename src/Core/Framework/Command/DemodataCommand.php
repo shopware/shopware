@@ -87,11 +87,6 @@ class DemodataCommand extends ContainerAwareCommand
     private $tenantId;
 
     /**
-     * @var ContainerInterface
-     */
-    private $container;
-
-    /**
      * @var MediaAlbumRepository
      */
     private $albumRepository;
@@ -131,7 +126,11 @@ class DemodataCommand extends ContainerAwareCommand
         $this->addOption('products', 'p', InputOption::VALUE_REQUIRED, 'Product count', 500);
         $this->addOption('categories', 'c', InputOption::VALUE_REQUIRED, 'Category count', 10);
         $this->addOption('manufacturers', 'm', InputOption::VALUE_REQUIRED, 'Manufacturer count', 50);
-        $this->addOption('customers', null, InputOption::VALUE_REQUIRED, 'Customer count', 200);
+        $this->addOption('customers', 'cs', InputOption::VALUE_REQUIRED, 'Customer count', 200);
+
+        $this->addOption('with-configurator', 'w', InputOption::VALUE_OPTIONAL, 'Enables configurator products', 1);
+        $this->addOption('with-services', 'x', InputOption::VALUE_OPTIONAL, 'Enables serivces for products', 1);
+        $this->addOption('with-media', 'y', InputOption::VALUE_OPTIONAL, 'Enables media for products', 1);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -174,7 +173,10 @@ class DemodataCommand extends ContainerAwareCommand
             $categories,
             $manufacturer,
             $contextRuleIds,
-            $input->getOption('products')
+            $input->getOption('products'),
+            $input->getOption('with-media') == 1,
+            $input->getOption('with-configurator') == 1,
+            $input->getOption('with-services') == 1
         );
 
         $this->cleanupImages();
@@ -335,7 +337,15 @@ class DemodataCommand extends ContainerAwareCommand
         $this->writer->upsert(CustomerDefinition::class, [$customer], $this->getContext());
     }
 
-    private function createProduct(array $categories, array $manufacturer, array $contextRules, $count = 500)
+    private function createProduct(
+        array $categories,
+        array $manufacturer,
+        array $contextRules,
+        $count = 500,
+        bool $withMedia = false,
+        bool $withConfigurator = false,
+        bool $withServices = false
+    )
     {
         $payload = [];
 
@@ -346,38 +356,45 @@ class DemodataCommand extends ContainerAwareCommand
         $this->io->section(sprintf('Generating %d products...', $count));
         $this->io->progressStart($count);
 
-        $configurator = $this->createConfigurators();
+        $configurator = [];
+        if ($withConfigurator) {
+            $configurator = $this->createConfigurators();
+        }
 
-        $services = $this->createServices();
+        $services = [];
+        if ($withServices) {
+            $services = $this->createServices();
+        }
 
         for ($i = 0; $i < $count; ++$i) {
             $product = $this->createSimpleProduct($categories, $manufacturer, $contextRules);
 
-//            $imagePath = $this->getRandomImage($product['name']);
-//            $product['media'] = [
-//                [
-//                    'isCover' => true,
-//                    'media' => [
-//                        'fileName' => $product['id'] . '.' . pathinfo($imagePath, PATHINFO_EXTENSION),
-//                        'mimeType' => mime_content_type($imagePath),
-//                        'fileSize' => filesize($imagePath),
-//                        'albumId' => $albumId,
-//                        'name' => 'Product image of ' . $product['name'],
-//                    ]
-//                ]
-//            ];
-//
-//            $mediaFile = fopen($imagePath, 'rb');
-//            $this->filesystem->writeStream($product['id'] . '.' . pathinfo($imagePath, PATHINFO_EXTENSION), $mediaFile);
-//            fclose($mediaFile);
+            if ($withMedia) {
+                $imagePath = $this->getRandomImage($product['name']);
+                $product['media'] = [
+                    [
+                        'isCover' => true,
+                        'media' => [
+                            'fileName' => $product['id'] . '.' . pathinfo($imagePath, PATHINFO_EXTENSION),
+                            'mimeType' => mime_content_type($imagePath),
+                            'fileSize' => filesize($imagePath),
+                            'albumId' => $albumId,
+                            'name' => 'Product image of ' . $product['name'],
+                        ]
+                    ]
+                ];
 
-//            $hasServices = random_int(1, 100) <= 5;
-//            if ($hasServices) {
-//                $product['services'] = $this->buildProductServices($services);
-//            }
+                $mediaFile = fopen($imagePath, 'rb');
+                $this->filesystem->writeStream($product['id'] . '.' . pathinfo($imagePath, PATHINFO_EXTENSION), $mediaFile);
+                fclose($mediaFile);
+            }
 
-            $isConfigurator = random_int(1, 100) <= 5;
-            $isConfigurator = false;
+            $hasServices = random_int(1, 100) <= 5 && $withServices;
+            if ($hasServices) {
+                $product['services'] = $this->buildProductServices($services);
+            }
+
+            $isConfigurator = random_int(1, 100) <= 5 && $withConfigurator;
 
             if ($isConfigurator) {
                 $product['configurators'] = $this->buildProductConfigurator($configurator);

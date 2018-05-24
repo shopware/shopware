@@ -7,19 +7,10 @@ use bheller\ImagesGenerator\ImagesGeneratorProvider;
 use Faker\Factory;
 use Faker\Generator;
 use League\Flysystem\FilesystemInterface;
-use Shopware\Content\Category\CategoryRepository;
-use Shopware\Framework\ORM\Write\EntityWriter;
-use Shopware\System\Configuration\ConfigurationGroupDefinition;
+use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Checkout\Customer\CustomerDefinition;
 use Shopware\Checkout\Rule\ContextRuleDefinition;
 use Shopware\Checkout\Rule\ContextRuleRepository;
-use Shopware\Checkout\Customer\CustomerDefinition;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Write\EntityWriterInterface;
-use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\Content\Media\Aggregate\MediaAlbum\MediaAlbumRepository;
-use Shopware\Content\Product\ProductDefinition;
-use Shopware\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
-use Shopware\Content\Product\ProductRepository;
 use Shopware\Checkout\Rule\Specification\CalculatedCart\GoodsPriceRule;
 use Shopware\Checkout\Rule\Specification\Container\AndRule;
 use Shopware\Checkout\Rule\Specification\Container\NotRule;
@@ -27,10 +18,18 @@ use Shopware\Checkout\Rule\Specification\Context\CurrencyRule;
 use Shopware\Checkout\Rule\Specification\Context\CustomerGroupRule;
 use Shopware\Checkout\Rule\Specification\Context\DateRangeRule;
 use Shopware\Checkout\Rule\Specification\Context\IsNewCustomerRule;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Defaults;
-use Shopware\Framework\Struct\Uuid;
+use Shopware\Content\Category\CategoryRepository;
+use Shopware\Content\Media\Aggregate\MediaAlbum\MediaAlbumRepository;
+use Shopware\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
+use Shopware\Content\Product\ProductDefinition;
+use Shopware\Content\Product\ProductRepository;
 use Shopware\Content\Product\Util\VariantGenerator;
+use Shopware\Defaults;
+use Shopware\Framework\ORM\Search\Criteria;
+use Shopware\Framework\ORM\Write\EntityWriterInterface;
+use Shopware\Framework\ORM\Write\WriteContext;
+use Shopware\Framework\Struct\Uuid;
+use Shopware\System\Configuration\ConfigurationGroupDefinition;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -345,8 +344,7 @@ class DemodataCommand extends ContainerAwareCommand
         bool $withMedia = false,
         bool $withConfigurator = false,
         bool $withServices = false
-    )
-    {
+    ) {
         $payload = [];
 
         $albumId = Uuid::uuid4()->getHex();
@@ -380,8 +378,8 @@ class DemodataCommand extends ContainerAwareCommand
                             'fileSize' => filesize($imagePath),
                             'albumId' => $albumId,
                             'name' => 'Product image of ' . $product['name'],
-                        ]
-                    ]
+                        ],
+                    ],
                 ];
 
                 $mediaFile = fopen($imagePath, 'rb');

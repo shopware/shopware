@@ -3,17 +3,16 @@
 namespace Shopware\Framework\ORM\Dbal\Indexing;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Framework\ORM\Dbal\Common\LastIdQuery;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Content\Product\ProductRepository;
 use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\ORM\Dbal\Common\EventIdExtractor;
+use Shopware\Content\Product\ProductRepository;
 use Shopware\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Framework\Event\ProgressFinishedEvent;
 use Shopware\Framework\Event\ProgressStartedEvent;
-
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Shopware\Framework\ORM\Dbal\Common\EventIdExtractor;
+use Shopware\Framework\ORM\Dbal\Common\LastIdQuery;
+use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\Struct\Uuid;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class VariationJsonIndexer implements IndexerInterface
 {
@@ -61,7 +60,7 @@ class VariationJsonIndexer implements IndexerInterface
         );
 
         while ($ids = $iterator->fetch()) {
-            $ids = array_map(function($id) {
+            $ids = array_map(function ($id) {
                 return Uuid::fromBytesToHex($id);
             }, $ids);
 

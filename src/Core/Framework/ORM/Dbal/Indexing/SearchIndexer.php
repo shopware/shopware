@@ -3,22 +3,22 @@
 namespace Shopware\Framework\ORM\Dbal\Indexing;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Content\Catalog\CatalogRepository;
-use Shopware\Framework\ORM\Dbal\Common\LastIdQuery;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Application\Language\LanguageRepository;
+use Shopware\Content\Catalog\CatalogRepository;
 use Shopware\Content\Product\ProductDefinition;
 use Shopware\Content\Product\ProductRepository;
 use Shopware\Content\Product\Struct\ProductSearchResult;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\ORM\Dbal\Common\IndexTableOperator;
+use Shopware\Defaults;
+use Shopware\Framework\Doctrine\MultiInsertQueryQueue;
 use Shopware\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Framework\Event\ProgressFinishedEvent;
 use Shopware\Framework\Event\ProgressStartedEvent;
+use Shopware\Framework\ORM\Dbal\Common\IndexTableOperator;
+use Shopware\Framework\ORM\Dbal\Common\LastIdQuery;
 use Shopware\Framework\ORM\Dbal\Indexing\Analyzer\SearchAnalyzerRegistry;
-use Shopware\Defaults;
-use Shopware\Framework\Doctrine\MultiInsertQueryQueue;
+use Shopware\Framework\ORM\Search\Criteria;
+use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\Struct\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -170,9 +170,9 @@ class SearchIndexer implements IndexerInterface
         $table = $this->indexTableOperator->getIndexName(self::TABLE, $timestamp);
         $documentTable = $this->indexTableOperator->getIndexName(self::DOCUMENT_TABLE, $timestamp);
 
-        /** @var ProductSearchResult $products */
+        /* @var ProductSearchResult $products */
         while ($ids = $iterator->fetch()) {
-            $ids = array_map(function($id) {
+            $ids = array_map(function ($id) {
                 return Uuid::fromBytesToHex($id);
             }, $ids);
 

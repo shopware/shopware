@@ -3,22 +3,22 @@
 namespace Shopware\Framework\ORM\Dbal\Indexing;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Content\Category\CategoryRepository;
+use Shopware\Content\Category\Util\CategoryPathBuilder;
+use Shopware\Content\Product\ProductRepository;
+use Shopware\Defaults;
+use Shopware\Framework\Doctrine\MultiInsertQueryQueue;
+use Shopware\Framework\Event\ProgressAdvancedEvent;
+use Shopware\Framework\Event\ProgressFinishedEvent;
+use Shopware\Framework\Event\ProgressStartedEvent;
+use Shopware\Framework\ORM\Dbal\Common\EventIdExtractor;
 use Shopware\Framework\ORM\Dbal\Common\LastIdQuery;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Content\Product\ProductRepository;
-use Shopware\Content\Category\Util\CategoryPathBuilder;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\ORM\Dbal\Common\EventIdExtractor;
-use Shopware\Framework\Event\ProgressAdvancedEvent;
-use Shopware\Framework\Event\ProgressFinishedEvent;
-use Shopware\Framework\Event\ProgressStartedEvent;
-use Shopware\Defaults;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Shopware\Framework\Doctrine\MultiInsertQueryQueue;
 use Shopware\Framework\Struct\Uuid;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class CategoryAssignmentIndexer implements IndexerInterface
 {
@@ -101,7 +101,7 @@ class CategoryAssignmentIndexer implements IndexerInterface
         );
 
         while ($ids = $query->fetch()) {
-            $ids = array_map(function($id) {
+            $ids = array_map(function ($id) {
                 return Uuid::fromBytesToHex($id);
             }, $ids);
 

@@ -83,7 +83,7 @@ class CategoryDefinition extends EntityDefinition
             new FkField('product_stream_id', 'productStreamId', ProductStreamDefinition::class),
             new ReferenceVersionField(\Shopware\Content\Product\Aggregate\ProductStream\ProductStreamDefinition::class),
 
-            (new IntField('ai', 'ai'))->setFlags(new ReadOnly()),
+            (new IntField('auto_increment', 'autoIncrement'))->setFlags(new ReadOnly()),
             new LongTextField('path', 'path'),
             new IntField('position', 'position'),
             new IntField('level', 'level'),

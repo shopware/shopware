@@ -155,7 +155,7 @@ class VersionManager
     {
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('version_commit.versionId', $versionId));
-        $criteria->addSorting(new FieldSorting('version_commit.ai'));
+        $criteria->addSorting(new FieldSorting('version_commit.autoIncrement'));
 
         $applicationContext = $context->getApplicationContext();
 

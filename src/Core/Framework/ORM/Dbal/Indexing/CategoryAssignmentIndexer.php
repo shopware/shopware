@@ -235,11 +235,11 @@ class CategoryAssignmentIndexer implements IndexerInterface
     private function createIterator(string $tenantId): LastIdQuery
     {
         $query = $this->connection->createQueryBuilder();
-        $query->select(['category.ai', 'category.id']);
+        $query->select(['category.auto_increment', 'category.id']);
         $query->from('category');
         $query->andWhere('category.tenant_id = :tenantId');
-        $query->andWhere('category.ai > :lastId');
-        $query->addOrderBy('category.ai');
+        $query->andWhere('category.auto_increment > :lastId');
+        $query->addOrderBy('category.auto_increment');
 
         $query->setMaxResults(50);
 

@@ -116,11 +116,11 @@ SQL;
     private function createIterator(string $tenantId): LastIdQuery
     {
         $query = $this->connection->createQueryBuilder();
-        $query->select(['product.ai', 'product.id']);
+        $query->select(['product.auto_increment', 'product.id']);
         $query->from('product');
         $query->andWhere('product.tenant_id = :tenantId');
-        $query->andWhere('product.ai > :lastId');
-        $query->addOrderBy('product.ai');
+        $query->andWhere('product.auto_increment > :lastId');
+        $query->addOrderBy('product.auto_increment');
 
         $query->setMaxResults(50);
 

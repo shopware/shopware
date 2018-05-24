@@ -141,7 +141,7 @@ class AdministrationSearch
             new TermQuery('version_commit_data.userId', $userId)
         );
 
-        $criteria->addSorting(new FieldSorting('version_commit_data.ai', 'DESC'));
+        $criteria->addSorting(new FieldSorting('version_commit_data.autoIncrement', 'DESC'));
         $criteria->setLimit(100);
 
         $changes = $this->changesRepository->search($criteria, $context);

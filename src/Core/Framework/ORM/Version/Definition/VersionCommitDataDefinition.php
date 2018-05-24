@@ -62,7 +62,7 @@ class VersionCommitDataDefinition extends EntityDefinition
             (new FkField('version_commit_id', 'versionCommitId', VersionCommitDefinition::class))->setFlags(new Required()),
             new ManyToOneAssociationField('commit', 'version_commit_id', VersionCommitDefinition::class, false),
             new IdField('user_id', 'userId'),
-            new IntField('ai', 'ai'),
+            new IntField('auto_increment', 'autoIncrement'),
             (new StringField('entity_name', 'entityName'))->setFlags(new Required(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
             (new JsonArrayField('entity_id', 'entityId'))->setFlags(new Required()),
             (new StringField('action', 'action'))->setFlags(new Required(), new SearchRanking(self::LOW_SEARCH_RAKING)),

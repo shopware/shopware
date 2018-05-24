@@ -237,6 +237,8 @@
         <service class="Shopware\Framework\ORM\Dbal\Indexing\InheritanceIndexer" id="Shopware\Framework\ORM\Dbal\Indexing\InheritanceIndexer">
             <tag name="shopware.dbal_indexing.indexer" priority="1500"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Framework\ORM\DefinitionRegistry" />
+            <argument type="service" id="event_dispatcher" />
         </service>
 
         <service class="Shopware\Framework\ORM\Dbal\Indexing\CategoryAssignmentIndexer" id="Shopware\Framework\ORM\Dbal\Indexing\CategoryAssignmentIndexer">

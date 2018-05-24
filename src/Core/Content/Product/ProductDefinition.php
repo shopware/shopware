@@ -103,6 +103,8 @@ class ProductDefinition extends EntityDefinition
             new FkField('parent_id', 'parentId', self::class),
             new ReferenceVersionField(self::class, 'parent_version_id'),
 
+            (new IntField('ai', 'ai'))->setFlags(new ReadOnly()),
+
             //not inherited fields
             new BoolField('active', 'active'),
             new IntField('stock', 'stock'),

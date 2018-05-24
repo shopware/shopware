@@ -89,6 +89,7 @@ CREATE TABLE `category` (
   `version_id` binary(16) NOT NULL,
   `catalog_id` binary(16) NOT NULL,
   `catalog_tenant_id` binary(16) NOT NULL,
+  `ai` bigint unsigned NOT NULL AUTO_INCREMENT,
   `parent_id` binary(16) DEFAULT NULL,
   `parent_tenant_id` binary(16) DEFAULT NULL,
   `parent_version_id` binary(16) DEFAULT NULL,
@@ -116,12 +117,12 @@ CREATE TABLE `category` (
   PRIMARY KEY (`id`, `version_id`, `tenant_id`),
   KEY `position` (`position`),
   KEY `level` (`level`),
+  KEY `ai` (`ai`),
   CONSTRAINT `fk_category.catalog_id` FOREIGN KEY (`catalog_id`, `catalog_tenant_id`) REFERENCES `catalog` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_category.media_id` FOREIGN KEY (`media_id`, `media_version_id`, `media_tenant_id`) REFERENCES `media` (`id`, `version_id`, `tenant_id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `fk_category.parent_id` FOREIGN KEY (`parent_id`, `parent_version_id`, `parent_tenant_id`) REFERENCES `category` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_category.product_stream_id` FOREIGN KEY (`product_stream_id`, `product_stream_version_id`, `product_stream_tenant_id`) REFERENCES `product_stream` (`id`, `version_id`, `tenant_id`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `category_translation`;
 CREATE TABLE `category_translation` (
@@ -1176,6 +1177,7 @@ CREATE TABLE `product` (
   `version_id` binary(16) NOT NULL,
   `catalog_id` binary(16) NOT NULL,
   `catalog_tenant_id` binary(16) NOT NULL,
+  `ai` bigint unsigned NOT NULL AUTO_INCREMENT,
   `active` tinyint(1) unsigned NOT NULL DEFAULT '1',
   `parent_id` binary(16) DEFAULT NULL,
   `parent_tenant_id` binary(16) DEFAULT NULL,
@@ -1237,12 +1239,13 @@ CREATE TABLE `product` (
   CHECK (JSON_VALID(`datasheet_ids`)),
   CHECK (JSON_VALID(`variation_ids`)),
   PRIMARY KEY (`id`, `version_id`, `tenant_id`),
+  KEY `ai` (`ai`),
   CONSTRAINT `fk_product.product_manufacturer_id` FOREIGN KEY (`product_manufacturer_id`, `product_manufacturer_version_id`, `product_manufacturer_tenant_id`) REFERENCES `product_manufacturer` (`id`, `version_id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_product.tax_id` FOREIGN KEY (`tax_id`, `tax_version_id`, `tax_tenant_id`) REFERENCES `tax` (`id`, `version_id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_product.unit_id` FOREIGN KEY (`unit_id`, `unit_version_id`, `unit_tenant_id`) REFERENCES `unit` (`id`, `version_id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_product.parent_id` FOREIGN KEY (`parent_id`, `parent_version_id`, `parent_tenant_id`) REFERENCES `product` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_product.catalog_id` FOREIGN KEY (`catalog_id`, `catalog_tenant_id`) REFERENCES `catalog` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `product_context_price`;
 CREATE TABLE `product_context_price` (

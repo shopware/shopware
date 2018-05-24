@@ -7,10 +7,19 @@ use bheller\ImagesGenerator\ImagesGeneratorProvider;
 use Faker\Factory;
 use Faker\Generator;
 use League\Flysystem\FilesystemInterface;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Checkout\Customer\CustomerDefinition;
+use Shopware\Content\Category\CategoryRepository;
+use Shopware\Framework\ORM\Write\EntityWriter;
+use Shopware\System\Configuration\ConfigurationGroupDefinition;
 use Shopware\Checkout\Rule\ContextRuleDefinition;
 use Shopware\Checkout\Rule\ContextRuleRepository;
+use Shopware\Checkout\Customer\CustomerDefinition;
+use Shopware\Framework\ORM\Search\Criteria;
+use Shopware\Framework\ORM\Write\EntityWriterInterface;
+use Shopware\Framework\ORM\Write\WriteContext;
+use Shopware\Content\Media\Aggregate\MediaAlbum\MediaAlbumRepository;
+use Shopware\Content\Product\ProductDefinition;
+use Shopware\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
+use Shopware\Content\Product\ProductRepository;
 use Shopware\Checkout\Rule\Specification\CalculatedCart\GoodsPriceRule;
 use Shopware\Checkout\Rule\Specification\Container\AndRule;
 use Shopware\Checkout\Rule\Specification\Container\NotRule;
@@ -18,18 +27,10 @@ use Shopware\Checkout\Rule\Specification\Context\CurrencyRule;
 use Shopware\Checkout\Rule\Specification\Context\CustomerGroupRule;
 use Shopware\Checkout\Rule\Specification\Context\DateRangeRule;
 use Shopware\Checkout\Rule\Specification\Context\IsNewCustomerRule;
-use Shopware\Content\Category\CategoryRepository;
-use Shopware\Content\Media\Aggregate\MediaAlbum\MediaAlbumRepository;
-use Shopware\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
-use Shopware\Content\Product\ProductDefinition;
-use Shopware\Content\Product\ProductRepository;
-use Shopware\Content\Product\Util\VariantGenerator;
+use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Defaults;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Write\EntityWriterInterface;
-use Shopware\Framework\ORM\Write\WriteContext;
 use Shopware\Framework\Struct\Uuid;
-use Shopware\System\Configuration\ConfigurationGroupDefinition;
+use Shopware\Content\Product\Util\VariantGenerator;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -352,30 +353,32 @@ class DemodataCommand extends ContainerAwareCommand
         for ($i = 0; $i < $count; ++$i) {
             $product = $this->createSimpleProduct($categories, $manufacturer, $contextRules);
 
-            $imagePath = $this->getRandomImage($product['name']);
-            $product['media'] = [
-                [
-                    'isCover' => true,
-                    'media' => [
-                        'fileName' => $product['id'] . '.' . pathinfo($imagePath, PATHINFO_EXTENSION),
-                        'mimeType' => mime_content_type($imagePath),
-                        'fileSize' => filesize($imagePath),
-                        'albumId' => $albumId,
-                        'name' => 'Product image of ' . $product['name'],
-                    ],
-                ],
-            ];
+//            $imagePath = $this->getRandomImage($product['name']);
+//            $product['media'] = [
+//                [
+//                    'isCover' => true,
+//                    'media' => [
+//                        'fileName' => $product['id'] . '.' . pathinfo($imagePath, PATHINFO_EXTENSION),
+//                        'mimeType' => mime_content_type($imagePath),
+//                        'fileSize' => filesize($imagePath),
+//                        'albumId' => $albumId,
+//                        'name' => 'Product image of ' . $product['name'],
+//                    ]
+//                ]
+//            ];
+//
+//            $mediaFile = fopen($imagePath, 'rb');
+//            $this->filesystem->writeStream($product['id'] . '.' . pathinfo($imagePath, PATHINFO_EXTENSION), $mediaFile);
+//            fclose($mediaFile);
 
-            $mediaFile = fopen($imagePath, 'rb');
-            $this->filesystem->writeStream($product['id'] . '.' . pathinfo($imagePath, PATHINFO_EXTENSION), $mediaFile);
-            fclose($mediaFile);
-
-            $hasServices = random_int(1, 100) <= 5;
-            if ($hasServices) {
-                $product['services'] = $this->buildProductServices($services);
-            }
+//            $hasServices = random_int(1, 100) <= 5;
+//            if ($hasServices) {
+//                $product['services'] = $this->buildProductServices($services);
+//            }
 
             $isConfigurator = random_int(1, 100) <= 5;
+            $isConfigurator = false;
+
             if ($isConfigurator) {
                 $product['configurators'] = $this->buildProductConfigurator($configurator);
 

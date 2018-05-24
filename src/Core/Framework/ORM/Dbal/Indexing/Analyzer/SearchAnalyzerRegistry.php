@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Dbal\Indexing\Indexer\Analyzer;
+namespace Shopware\Framework\ORM\Dbal\Indexing\Analyzer;
 
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Content\Product\Struct\ProductBasicStruct;

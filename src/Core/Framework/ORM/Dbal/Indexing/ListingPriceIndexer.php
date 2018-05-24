@@ -1,21 +1,22 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Dbal\Indexing\Indexer;
+namespace Shopware\Framework\ORM\Dbal\Indexing;
 
-use Doctrine\DBAL\Connection;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Application\Context\Struct\ContextPriceStruct;
-use Shopware\Content\Product\ProductRepository;
-use Shopware\Content\Product\Struct\PriceStruct;
-use Shopware\Framework\ORM\Dbal\Indexing\Common\EventIdExtractor;
-use Shopware\Framework\ORM\Dbal\Indexing\Common\RepositoryIterator;
-use Shopware\Framework\ORM\Dbal\Indexing\Event\ProgressAdvancedEvent;
-use Shopware\Framework\ORM\Dbal\Indexing\Event\ProgressFinishedEvent;
-use Shopware\Framework\ORM\Dbal\Indexing\Event\ProgressStartedEvent;
-use Shopware\Framework\ORM\Field\ContextPricesJsonField;
+use Shopware\Framework\ORM\Dbal\Common\LastIdQuery;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\Struct\Uuid;
+use Shopware\Content\Product\ProductRepository;
+use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\ORM\Dbal\Common\EventIdExtractor;
+use Shopware\Framework\Event\ProgressAdvancedEvent;
+use Shopware\Framework\Event\ProgressFinishedEvent;
+use Shopware\Framework\Event\ProgressStartedEvent;
+
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Doctrine\DBAL\Connection;
+use Shopware\Application\Context\Struct\ContextPriceStruct;
+use Shopware\Framework\ORM\Field\ContextPricesJsonField;
+use Shopware\Content\Product\Struct\PriceStruct;
+use Shopware\Framework\Struct\Uuid;
 
 class ListingPriceIndexer implements IndexerInterface
 {
@@ -30,7 +31,7 @@ class ListingPriceIndexer implements IndexerInterface
     private $eventDispatcher;
 
     /**
-     * @var EventIdExtractor
+     * @var \Shopware\Framework\ORM\Dbal\Common\EventIdExtractor
      */
     private $eventIdExtractor;
 
@@ -55,14 +56,18 @@ class ListingPriceIndexer implements IndexerInterface
     {
         $context = ApplicationContext::createDefaultContext($tenantId);
 
-        $iterator = new RepositoryIterator($this->productRepository, $context);
+        $iterator = $this->createIterator($tenantId);
 
         $this->eventDispatcher->dispatch(
             ProgressStartedEvent::NAME,
-            new ProgressStartedEvent('Start indexing listing prices', $iterator->getTotal())
+            new ProgressStartedEvent('Start indexing listing prices', $iterator->fetchCount())
         );
 
-        while ($ids = $iterator->fetchIds()) {
+        while ($ids = $iterator->fetch()) {
+            $ids = array_map(function($id) {
+                return Uuid::fromBytesToHex($id);
+            }, $ids);
+
             $this->update($ids, $context);
 
             $this->eventDispatcher->dispatch(
@@ -188,5 +193,22 @@ class ListingPriceIndexer implements IndexerInterface
         );
 
         return array_shift($rulePrices);
+    }
+
+    private function createIterator(string $tenantId): LastIdQuery
+    {
+        $query = $this->connection->createQueryBuilder();
+        $query->select(['product.ai', 'product.id']);
+        $query->from('product');
+        $query->andWhere('product.tenant_id = :tenantId');
+        $query->andWhere('product.ai > :lastId');
+        $query->addOrderBy('product.ai');
+
+        $query->setMaxResults(50);
+
+        $query->setParameter('tenantId', Uuid::fromHexToBytes($tenantId));
+        $query->setParameter('lastId', 0);
+
+        return new LastIdQuery($query);
     }
 }

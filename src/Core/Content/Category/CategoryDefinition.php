@@ -34,6 +34,7 @@ use Shopware\Framework\ORM\Field\VersionField;
 use Shopware\Framework\ORM\FieldCollection;
 use Shopware\Framework\ORM\Write\Flag\CascadeDelete;
 use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
+use Shopware\Framework\ORM\Write\Flag\ReadOnly;
 use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Framework\ORM\Write\Flag\WriteOnly;
@@ -82,6 +83,7 @@ class CategoryDefinition extends EntityDefinition
             new FkField('product_stream_id', 'productStreamId', ProductStreamDefinition::class),
             new ReferenceVersionField(\Shopware\Content\Product\Aggregate\ProductStream\ProductStreamDefinition::class),
 
+            (new IntField('ai', 'ai'))->setFlags(new ReadOnly()),
             new LongTextField('path', 'path'),
             new IntField('position', 'position'),
             new IntField('level', 'level'),

@@ -1,24 +1,24 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Dbal\Indexing\Indexer;
+namespace Shopware\Framework\ORM\Dbal\Indexing;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Application\Language\LanguageRepository;
 use Shopware\Content\Catalog\CatalogRepository;
+use Shopware\Framework\ORM\Dbal\Common\LastIdQuery;
+use Shopware\Framework\ORM\Search\Criteria;
+use Shopware\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Application\Language\LanguageRepository;
 use Shopware\Content\Product\ProductDefinition;
 use Shopware\Content\Product\ProductRepository;
 use Shopware\Content\Product\Struct\ProductSearchResult;
+use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\ORM\Dbal\Common\IndexTableOperator;
+use Shopware\Framework\Event\ProgressAdvancedEvent;
+use Shopware\Framework\Event\ProgressFinishedEvent;
+use Shopware\Framework\Event\ProgressStartedEvent;
+use Shopware\Framework\ORM\Dbal\Indexing\Analyzer\SearchAnalyzerRegistry;
 use Shopware\Defaults;
 use Shopware\Framework\Doctrine\MultiInsertQueryQueue;
-use Shopware\Framework\ORM\Dbal\Indexing\Common\IndexTableOperator;
-use Shopware\Framework\ORM\Dbal\Indexing\Common\RepositoryIterator;
-use Shopware\Framework\ORM\Dbal\Indexing\Event\ProgressAdvancedEvent;
-use Shopware\Framework\ORM\Dbal\Indexing\Event\ProgressFinishedEvent;
-use Shopware\Framework\ORM\Dbal\Indexing\Event\ProgressStartedEvent;
-use Shopware\Framework\ORM\Dbal\Indexing\Indexer\Analyzer\SearchAnalyzerRegistry;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\Struct\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -157,13 +157,13 @@ class SearchIndexer implements IndexerInterface
 
     private function indexContext(ApplicationContext $context, \DateTime $timestamp): void
     {
-        $iterator = new RepositoryIterator($this->productRepository, $context);
+        $iterator = $this->createIterator($context->getTenantId());
 
         $this->eventDispatcher->dispatch(
             ProgressStartedEvent::NAME,
             new ProgressStartedEvent(
                 sprintf('Start analyzing search keywords for application %s', $context->getApplicationId()),
-                $iterator->getTotal()
+                $iterator->fetchCount()
             )
         );
 
@@ -171,7 +171,13 @@ class SearchIndexer implements IndexerInterface
         $documentTable = $this->indexTableOperator->getIndexName(self::DOCUMENT_TABLE, $timestamp);
 
         /** @var ProductSearchResult $products */
-        while ($products = $iterator->fetch()) {
+        while ($ids = $iterator->fetch()) {
+            $ids = array_map(function($id) {
+                return Uuid::fromBytesToHex($id);
+            }, $ids);
+
+            $products = $this->productRepository->readBasic($ids, $context);
+
             $queue = new MultiInsertQueryQueue($this->connection, 250, false, true);
             foreach ($products as $product) {
                 $keywords = $this->analyzerRegistry->analyze($product, $context);
@@ -229,5 +235,22 @@ class SearchIndexer implements IndexerInterface
                 'ranking' => $ranking,
             ]);
         }
+    }
+
+    private function createIterator(string $tenantId): LastIdQuery
+    {
+        $query = $this->connection->createQueryBuilder();
+        $query->select(['product.ai', 'product.id']);
+        $query->from('product');
+        $query->andWhere('product.tenant_id = :tenantId');
+        $query->andWhere('product.ai > :lastId');
+        $query->addOrderBy('product.ai');
+
+        $query->setMaxResults(50);
+
+        $query->setParameter('tenantId', Uuid::fromHexToBytes($tenantId));
+        $query->setParameter('lastId', 0);
+
+        return new LastIdQuery($query);
     }
 }

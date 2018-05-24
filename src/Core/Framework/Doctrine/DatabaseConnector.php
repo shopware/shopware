@@ -15,6 +15,11 @@ class DatabaseConnector
             $url['port']
         );
 
+        $pass = getenv('DATABASE_PW');
+        if (!isset($pass)) {
+            $pass = $url['pass'];
+        }
+
         try {
             $conn = new \PDO($dsn, $url['user'], $url['pass']);
             $conn->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);

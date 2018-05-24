@@ -10,7 +10,7 @@ class VersionCommitBasicStruct extends Entity
     /**
      * @var int
      */
-    protected $ai;
+    protected $autoIncrement;
 
     /**
      * @var string|null
@@ -48,17 +48,17 @@ class VersionCommitBasicStruct extends Entity
     /**
      * @return int
      */
-    public function getAi(): int
+    public function getAutoIncrement(): int
     {
-        return $this->ai;
+        return $this->autoIncrement;
     }
 
     /**
-     * @param int $ai
+     * @param int $autoIncrement
      */
-    public function setAi(int $ai): void
+    public function setAutoIncrement(int $autoIncrement): void
     {
-        $this->ai = $ai;
+        $this->autoIncrement = $autoIncrement;
     }
 
     /**

@@ -8,9 +8,6 @@ use Shopware\Content\Category\CategoryRepository;
 use Shopware\Content\Category\Collection\CategoryBasicCollection;
 use Shopware\Content\Category\Event\CategoryWrittenEvent;
 use Shopware\Content\Category\Struct\CategoryBasicStruct;
-use Shopware\Framework\ORM\Dbal\Indexing\Event\ProgressAdvancedEvent;
-use Shopware\Framework\ORM\Dbal\Indexing\Event\ProgressFinishedEvent;
-use Shopware\Framework\ORM\Dbal\Indexing\Event\ProgressStartedEvent;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Framework\Struct\Uuid;
@@ -62,26 +59,9 @@ class CategoryPathBuilder implements EventSubscriberInterface
 
     public function update(string $parentId, ApplicationContext $context): void
     {
-        $version = Uuid::fromStringToBytes($context->getVersionId());
-
-        $count = (int) $this->connection->fetchColumn(
-            'SELECT COUNT(id) FROM category WHERE parent_id IS NOT NULL AND version_id = :version AND tenant_id = :tenant',
-            ['version' => $version, 'tenant' => Uuid::fromHexToBytes($context->getTenantId())]
-        );
-
-        $this->eventDispatcher->dispatch(
-            ProgressStartedEvent::NAME,
-            new ProgressStartedEvent('Start building category paths', $count)
-        );
-
         $parents = $this->loadParents($parentId, $context);
         $parent = $parents->get($parentId);
         $this->updateRecursive($parent, $parents, $context);
-
-        $this->eventDispatcher->dispatch(
-            ProgressFinishedEvent::NAME,
-            new ProgressFinishedEvent('Finished building category paths')
-        );
     }
 
     private function updateRecursive(CategoryBasicStruct $parent, CategoryBasicCollection $parents, ApplicationContext $context): void
@@ -140,11 +120,6 @@ class CategoryPathBuilder implements EventSubscriberInterface
                 'tenant' => $tenantId,
             ]);
         }
-
-        $this->eventDispatcher->dispatch(
-            ProgressAdvancedEvent::NAME,
-            new ProgressAdvancedEvent(count($categories))
-        );
 
         return $categories;
     }

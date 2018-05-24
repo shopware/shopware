@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Dbal\Indexing\Common;
+namespace Shopware\Framework\ORM\Dbal\Common;
 
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\ORM\RepositoryInterface;

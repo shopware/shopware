@@ -761,7 +761,7 @@ class VersioningTest extends KernelTestCase
              WHERE entity_name = :entity 
              AND d.tenant_id = :tenant
              AND JSON_EXTRACT(entity_id, '$.id') = :id
-             ORDER BY ai",
+             ORDER BY auto_increment",
             [
                 'entity' => $entity,
                 'id' => $id,
@@ -781,7 +781,7 @@ class VersioningTest extends KernelTestCase
              AND JSON_EXTRACT(entity_id, '$." . $foreignKeyName . "') = :id
              AND JSON_EXTRACT(entity_id, '$.languageId') = :language
              AND JSON_EXTRACT(entity_id, '$.versionId') = :version
-             ORDER BY ai",
+             ORDER BY auto_increment",
             [
                 'entity' => $entity,
                 'id' => $foreignKey,

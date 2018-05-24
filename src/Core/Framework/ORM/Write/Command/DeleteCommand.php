@@ -3,6 +3,7 @@
 namespace Shopware\Framework\ORM\Write\Command;
 
 use Shopware\Framework\ORM\EntityDefinition;
+use Shopware\Framework\ORM\Write\EntityExistence;
 
 class DeleteCommand implements WriteCommandInterface
 {
@@ -15,11 +16,16 @@ class DeleteCommand implements WriteCommandInterface
      * @var array
      */
     private $primaryKey;
+    /**
+     * @var EntityExistence
+     */
+    private $existence;
 
-    public function __construct($definition, array $pkData)
+    public function __construct($definition, array $pkData, EntityExistence $existence)
     {
         $this->definition = $definition;
         $this->primaryKey = $pkData;
+        $this->existence = $existence;
     }
 
     public function isValid(): bool
@@ -35,5 +41,13 @@ class DeleteCommand implements WriteCommandInterface
     public function getPrimaryKey(): array
     {
         return $this->primaryKey;
+    }
+
+    /**
+     * @return EntityExistence
+     */
+    public function getEntityExistence(): EntityExistence
+    {
+        return $this->existence;
     }
 }

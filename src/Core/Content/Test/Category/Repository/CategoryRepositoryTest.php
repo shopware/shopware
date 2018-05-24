@@ -16,7 +16,6 @@ use Shopware\Framework\ORM\Search\Term\SearchTermInterpreter;
 use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class CategoryRepositoryTest extends KernelTestCase
 {

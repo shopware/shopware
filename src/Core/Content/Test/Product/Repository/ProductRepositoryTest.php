@@ -29,7 +29,6 @@ use Shopware\System\Tax\Event\TaxWrittenEvent;
 use Shopware\System\Tax\Struct\TaxBasicStruct;
 use Shopware\System\Tax\TaxDefinition;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductRepositoryTest extends KernelTestCase

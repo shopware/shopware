@@ -4,6 +4,8 @@ namespace Shopware\Framework\ORM;
 
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\ORM\Field\AssociationInterface;
+use Shopware\Framework\ORM\Field\ChildCountField;
+use Shopware\Framework\ORM\Field\ChildrenAssociationField;
 use Shopware\Framework\ORM\Field\Field;
 use Shopware\Framework\ORM\Field\ManyToManyAssociationField;
 use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
@@ -142,6 +144,16 @@ abstract class EntityDefinition
     public static function getParentPropertyName(): ?string
     {
         return null;
+    }
+
+    public static function isChildrenAware(): bool
+    {
+        return static::getFields()->get('children') instanceof ChildrenAssociationField;
+    }
+
+    public static function isChildCountAware(): bool
+    {
+        return static::getFields()->get('childCount') instanceof ChildCountField;
     }
 
     public static function isInheritanceAware(): bool

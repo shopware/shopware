@@ -35,18 +35,25 @@ class EntityExistence
      */
     protected $wasChild;
 
+    /**
+     * @var array
+     */
+    protected $state;
+
     public function __construct(
         string $definition,
         array $primaryKey,
         bool $exists,
         bool $isChild,
-        bool $wasChild
+        bool $wasChild,
+        array $state
     ) {
         $this->primaryKey = $primaryKey;
         $this->exists = $exists;
         $this->definition = $definition;
         $this->isChild = $isChild;
         $this->wasChild = $wasChild;
+        $this->state = $state;
     }
 
     public function exists(): bool
@@ -81,5 +88,13 @@ class EntityExistence
         }
 
         return !$this->isChild();
+    }
+
+    /**
+     * @return array
+     */
+    public function getState(): array
+    {
+        return $this->state;
     }
 }

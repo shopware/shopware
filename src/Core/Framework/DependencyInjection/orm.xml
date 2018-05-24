@@ -251,6 +251,13 @@
             <tag name="shopware.dbal_indexing.indexer" priority="1000"/>
         </service>
 
+        <service class="Shopware\Framework\ORM\Dbal\Indexing\ChildCountIndexer" id="Shopware\Framework\ORM\Dbal\Indexing\ChildCountIndexer">
+            <argument id="Doctrine\DBAL\Connection" type="service"/>
+            <argument id="event_dispatcher" type="service"/>
+            <argument type="service" id="Shopware\Framework\ORM\DefinitionRegistry"/>
+            <tag name="shopware.dbal_indexing.indexer" priority="1000"/>
+        </service>
+
         <service class="Shopware\Framework\ORM\Dbal\Indexing\VariationJsonIndexer" id="Shopware\Framework\ORM\Dbal\Indexing\VariationJsonIndexer">
             <argument id="Shopware\Content\Product\ProductRepository" type="service"/>
             <argument id="event_dispatcher" type="service"/>

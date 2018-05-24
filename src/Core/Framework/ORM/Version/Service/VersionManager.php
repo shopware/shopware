@@ -11,7 +11,6 @@ use Shopware\Framework\ORM\Field\AssociationInterface;
 use Shopware\Framework\ORM\Field\Field;
 use Shopware\Framework\ORM\Field\ReferenceVersionField;
 use Shopware\Framework\ORM\Field\SubresourceField;
-use Shopware\Framework\ORM\Field\SubVersionField;
 use Shopware\Framework\ORM\Field\VersionField;
 use Shopware\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Framework\ORM\Search\Criteria;
@@ -24,6 +23,7 @@ use Shopware\Framework\ORM\Version\Definition\VersionCommitDefinition;
 use Shopware\Framework\ORM\Version\Definition\VersionDefinition;
 use Shopware\Framework\ORM\Version\Struct\VersionCommitDataBasicStruct;
 use Shopware\Framework\ORM\Write\Command\InsertCommand;
+use Shopware\Framework\ORM\Write\EntityExistence;
 use Shopware\Framework\ORM\Write\EntityWriteGatewayInterface;
 use Shopware\Framework\ORM\Write\EntityWriterInterface;
 use Shopware\Framework\ORM\Write\Flag\CascadeDelete;
@@ -389,7 +389,15 @@ class VersionManager
                 'version_tenant_id' => $tenantId,
                 'created_at' => $date,
             ],
-            ['id' => $commitId->getBytes()]
+            ['id' => $commitId->getBytes()],
+            new EntityExistence(
+                VersionCommitDefinition::class,
+                ['id' => $commitId->getBytes(), 'tenant_id' => $tenantId],
+                false,
+                false,
+                false,
+                []
+            )
         );
 
         $commands = [$insert];
@@ -428,7 +436,15 @@ class VersionManager
                         'action' => $action,
                         'created_at' => $date,
                     ],
-                    ['id' => $id]
+                    ['id' => $id],
+                    new EntityExistence(
+                        VersionCommitDataDefinition::class,
+                        ['id' => $id, 'tenant_id' => $tenantId],
+                        false,
+                        false,
+                        false,
+                        []
+                    )
                 );
             }
         }

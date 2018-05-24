@@ -13,7 +13,6 @@ use Shopware\Framework\ORM\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Framework\ORM\Search\Term\SearchTermInterpreter;
 use Shopware\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class CustomerRepositoryTest extends KernelTestCase
 {

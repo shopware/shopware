@@ -112,6 +112,7 @@ CREATE TABLE `category` (
   `hide_sortings` tinyint(1) NOT NULL DEFAULT '0',
   `sorting_ids` longtext COLLATE utf8mb4_unicode_ci,
   `facet_ids` longtext COLLATE utf8mb4_unicode_ci,
+  `child_count` int(11) unsigned NOT NULL DEFAULT '0',
   `created_at` datetime,
   `updated_at` datetime,
   PRIMARY KEY (`id`, `version_id`, `tenant_id`),

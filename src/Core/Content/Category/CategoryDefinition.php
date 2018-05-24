@@ -16,6 +16,7 @@ use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\BoolField;
 use Shopware\Framework\ORM\Field\CatalogField;
+use Shopware\Framework\ORM\Field\ChildCountField;
 use Shopware\Framework\ORM\Field\ChildrenAssociationField;
 use Shopware\Framework\ORM\Field\DateField;
 use Shopware\Framework\ORM\Field\FkField;
@@ -97,6 +98,7 @@ class CategoryDefinition extends EntityDefinition
             new BoolField('hide_sortings', 'hideSortings'),
             new LongTextField('sorting_ids', 'sortingIds'),
             new LongTextField('facet_ids', 'facetIds'),
+            new ChildCountField(),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
             (new TranslatedField(new StringField('name', 'name')))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),

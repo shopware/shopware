@@ -137,6 +137,7 @@ class CategoryRepository implements RepositoryInterface
     public function upsert(array $data, ApplicationContext $context): GenericWrittenEvent
     {
         $affected = $this->versionManager->upsert(CategoryDefinition::class, $data, WriteContext::createFromApplicationContext($context));
+
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 

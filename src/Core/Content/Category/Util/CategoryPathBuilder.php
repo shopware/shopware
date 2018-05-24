@@ -4,14 +4,11 @@ namespace Shopware\Content\Category\Util;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Content\Category\CategoryRepository;
 use Shopware\Content\Category\Collection\CategoryBasicCollection;
 use Shopware\Content\Category\Event\CategoryWrittenEvent;
 use Shopware\Content\Category\Struct\CategoryBasicStruct;
 use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Framework\Struct\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;

@@ -78,7 +78,9 @@ class EntityHydrator
 
         if (array_key_exists($idProperty, $row)) {
             $objectCacheKey = $definition::getEntityName() . '::' . bin2hex($row[$idProperty]);
+
             if (array_key_exists($objectCacheKey, $this->objects)) {
+
                 return $this->objects[$objectCacheKey];
             }
         }
@@ -95,38 +97,46 @@ class EntityHydrator
                 continue;
             }
 
+            $propertyName = $field->getPropertyName();
+
+            //remove internal .inherited key which used to detect if a inherited field is selected by parent or child
             if ($field->is(Inherited::class)) {
                 $inheritedKey = '_' . $originalKey . '.inherited';
 
                 if (array_key_exists($inheritedKey, $row)) {
-                    $inherited->set($field->getPropertyName(), (bool) $row[$inheritedKey]);
+                    $inherited->set($propertyName, (bool) $row[$inheritedKey]);
                     unset($row[$inheritedKey]);
                 }
             }
+
+            //in case of a translated field, remove .translated element which is selected to detect if the value is translated in current language or contains the fallback
             if ($field instanceof TranslatedField) {
                 $translationKey = '_' . $originalKey . '.translated';
 
                 if (array_key_exists($translationKey, $row)) {
-                    $translated->set($field->getPropertyName(), (bool) $row[$translationKey]);
+                    $translated->set($propertyName, (bool) $row[$translationKey]);
                     unset($row[$translationKey]);
                 }
             }
 
+            //scalar data values can be casted directly
             if (!$field instanceof AssociationInterface) {
                 //reduce data set for nested calls
-                $data[$field->getPropertyName()] = $this->castValue($field, $value);
+                $data[$propertyName] = $this->castValue($field, $value);
                 continue;
             }
 
+            //collect to one associations, this will be hydrated after loop
             if ($field instanceof ManyToOneAssociationField) {
                 if ($value !== null) {
-                    $toOneAssociations[$field->getPropertyName()] = $field;
+                    $toOneAssociations[$propertyName] = $field;
                 }
                 continue;
             }
 
+            //many to many fields contains a group concat id value in the selection, this will be stored in an internal extension to collect them later
             if ($field instanceof ManyToManyAssociationField) {
-                $property = $root . '.' . $field->getPropertyName();
+                $property = $root . '.' . $propertyName;
 
                 $ids = explode('||', (string) $row[$property]);
                 $ids = array_filter($ids);
@@ -138,7 +148,7 @@ class EntityHydrator
                     $entity->addExtension(EntityReader::MANY_TO_MANY_EXTENSION_STORAGE, $extension);
                 }
 
-                $extension->set($field->getPropertyName(), $ids);
+                $extension->set($propertyName, $ids);
                 continue;
             }
         }
@@ -167,6 +177,7 @@ class EntityHydrator
 
         $entity->assign($data);
 
+        //write object cache key to prevent multiple hydration for the same entity
         if ($objectCacheKey) {
             $this->objects[$objectCacheKey] = $entity;
         }
@@ -193,34 +204,25 @@ class EntityHydrator
         return $entity;
     }
 
-    private function findField(FieldCollection $fields, string $fieldName, string $root): ?Field
+    private function getField(FieldCollection $fields, string $fieldName, string $root): ?Field
     {
-        if (strpos($fieldName, $root . '.') !== 0) {
+        $pos = strpos($fieldName, $root . '.');
+        if ($pos !== 0) {
             return null;
         }
 
+        $cacheKey = $root . '-' . $fieldName;
+        if (isset($this->fieldCache[$cacheKey])) {
+            return $this->fieldCache[$cacheKey];
+        }
+
         $key = str_replace($root . '.', '', $fieldName);
-
         $parts = explode('.', $key);
-
         $cursor = $parts[0];
-        if ($cursor === 'translation') {
-            $cursor = $parts[1];
-        }
 
-        return $fields->get($cursor);
-    }
+        $field = $fields->get($cursor);
 
-    private function getField(FieldCollection $fields, string $fieldName, string $root): ?Field
-    {
-        $key = $root . '-' . $fieldName;
-        if (array_key_exists($key, $this->fieldCache)) {
-            return $this->fieldCache[$key];
-        }
-
-        $field = $this->findField($fields, $fieldName, $root);
-
-        $this->fieldCache[$key] = $field;
+        $this->fieldCache[$cacheKey] = $field;
 
         return $field;
     }

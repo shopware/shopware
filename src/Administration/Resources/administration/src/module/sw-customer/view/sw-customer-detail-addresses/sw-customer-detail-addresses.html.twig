@@ -181,7 +181,7 @@
                                     <sw-modal v-if="showDeleteAddressModal === item.id"
                                               @closeModal="onCloseDeleteAddressModal"
                                               :title="$tc('sw-customer.detailAddresses.modalTitleDeleteAddress')"
-                                              size="small">
+                                              variant="small">
                                         {% block sw_customer_detail_addresses_delete_modal_confirm_delete_text %}
                                             <p class="sw-customer-detail-addresses__confirm-delete-text">
                                                 {{ $tc('sw-customer.detailAddresses.textDeleteAddressConfirm') }}

@@ -4,6 +4,7 @@
             <div class="sw-modal" :class="modalClasses" @click.prevent="closeModal">
                 {% block sw_modal_dialog %}
                     <div class="sw-modal__dialog"
+                         :style="{ maxWidth: size }"
                          role="dialog"
                          aria-labelledby="modalTitleEl"
                          tabindex="-1"

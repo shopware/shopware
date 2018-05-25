@@ -14,6 +14,10 @@ Component.register('sw-modal', {
         },
         size: {
             type: String,
+            default: ''
+        },
+        variant: {
+            type: String,
             required: false,
             default: 'default',
             validator(value) {
@@ -28,7 +32,7 @@ Component.register('sw-modal', {
     computed: {
         modalClasses() {
             return {
-                [`sw-modal--${this.size}`]: this.size
+                [`sw-modal--${this.variant}`]: (this.variant && !this.size)
             };
         },
 

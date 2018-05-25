@@ -4,6 +4,14 @@ namespace Shopware\Framework\ORM\Search;
 
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\ORM\EntityDefinition;
+use Shopware\Framework\ORM\Search\Aggregation\AvgAggregation;
+use Shopware\Framework\ORM\Search\Aggregation\CardinalityAggregation;
+use Shopware\Framework\ORM\Search\Aggregation\CountAggregation;
+use Shopware\Framework\ORM\Search\Aggregation\MaxAggregation;
+use Shopware\Framework\ORM\Search\Aggregation\MinAggregation;
+use Shopware\Framework\ORM\Search\Aggregation\StatsAggregation;
+use Shopware\Framework\ORM\Search\Aggregation\SumAggregation;
+use Shopware\Framework\ORM\Search\Aggregation\ValueCountAggregation;
 use Shopware\Framework\ORM\Search\Parser\QueryStringParser;
 use Shopware\Framework\ORM\Search\Query\NestedQuery;
 use Shopware\Framework\ORM\Search\Query\ScoreQuery;
@@ -20,6 +28,7 @@ class SearchCriteriaBuilder
      * @var SearchTermInterpreter
      */
     private $searchTermInterpreter;
+
     /**
      * @var EntityScoreQueryBuilder
      */
@@ -33,7 +42,7 @@ class SearchCriteriaBuilder
         $this->entityScoreQueryBuilder = $entityScoreQueryBuilder;
     }
 
-    public function handleRequest(Request $request, string $definition, ApplicationContext $context): Criteria
+    public function handleRequest(Request $request, Criteria $criteria, string $definition, ApplicationContext $context): Criteria
     {
         switch ($request->getMethod()) {
             case 'POST':
@@ -42,19 +51,18 @@ class SearchCriteriaBuilder
                     throw new BadRequestHttpException('Malformed JSON');
                 }
 
-                return $this->fromArray($payload, $definition, $context);
+                return $this->fromArray($payload, $criteria, $definition, $context);
             case 'GET':
                 $payload = $request->query->all();
 
-                return $this->fromArray($payload, $definition, $context);
+                return $this->fromArray($payload, $criteria, $definition, $context);
         }
 
-        return new Criteria();
+        return $criteria;
     }
 
-    private function fromArray(array $payload, string $definition, ApplicationContext $context): Criteria
+    private function fromArray(array $payload, Criteria $criteria, string $definition, ApplicationContext $context): Criteria
     {
-        $criteria = new Criteria();
         $criteria->setFetchCount(Criteria::FETCH_COUNT_TOTAL);
         $criteria->setLimit(10);
 
@@ -124,6 +132,10 @@ class SearchCriteriaBuilder
             }
         }
 
+        if (isset($payload['aggregations'])) {
+            $this->buildAggregations($payload, $criteria);
+        }
+
         return $criteria;
     }
 
@@ -181,5 +193,47 @@ class SearchCriteriaBuilder
         }
 
         return new NestedQuery($queries);
+    }
+
+    private function buildAggregations(array $payload, Criteria $criteria): void
+    {
+        foreach ($payload['aggregations'] as $name => $aggregations) {
+            foreach ($aggregations as $type => $aggregation) {
+                $field = $aggregation['field'];
+                switch ($type) {
+                    case 'avg':
+                        $criteria->addAggregation(new AvgAggregation($field, $name));
+                        break;
+
+                    case 'cardinality':
+                        $criteria->addAggregation(new CardinalityAggregation($field, $name));
+                        break;
+
+                    case 'count':
+                        $criteria->addAggregation(new CountAggregation($field, $name));
+                        break;
+
+                    case 'max':
+                        $criteria->addAggregation(new MaxAggregation($field, $name));
+                        break;
+
+                    case 'min':
+                        $criteria->addAggregation(new MinAggregation($field, $name));
+                        break;
+
+                    case 'stats':
+                        $criteria->addAggregation(new StatsAggregation($field, $name));
+                        break;
+
+                    case 'sum':
+                        $criteria->addAggregation(new SumAggregation($field, $name));
+                        break;
+
+                    case 'value_count':
+                        $criteria->addAggregation(new ValueCountAggregation($field, $name));
+                        break;
+                }
+            }
+        }
     }
 }

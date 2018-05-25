@@ -20,6 +20,7 @@ use Shopware\Framework\ORM\Field\TenantIdField;
 use Shopware\Framework\ORM\Field\VersionField;
 use Shopware\Framework\ORM\FieldCollection;
 use Shopware\Framework\ORM\RepositoryInterface;
+use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Framework\ORM\Search\SearchCriteriaBuilder;
 use Shopware\Framework\ORM\Write\EntityWriterInterface;
@@ -64,6 +65,7 @@ class ApiController extends Controller
      * @var EntityWriterInterface
      */
     private $entityWriter;
+
     /**
      * @var SearchCriteriaBuilder
      */
@@ -136,11 +138,17 @@ class ApiController extends Controller
 
         $repository = $this->getRepository($definition, $context->getVersion());
 
+        $criteria = new Criteria();
+
         if (empty($path)) {
-            $data = $repository->search(
-                $this->searchCriteriaBuilder->handleRequest($request, $definition, $context->getApplicationContext()),
+            $criteria = $this->searchCriteriaBuilder->handleRequest(
+                $request,
+                $criteria,
+                $definition,
                 $context->getApplicationContext()
             );
+
+            $data = $repository->search($criteria, $context->getApplicationContext());
 
             return $this->responseFactory->createListingResponse($data, (string) $definition, $context);
         }
@@ -152,7 +160,12 @@ class ApiController extends Controller
             $parent = array_pop($path);
         }
 
-        $criteria = $this->searchCriteriaBuilder->handleRequest($request, $definition, $context->getApplicationContext());
+        $criteria = $this->searchCriteriaBuilder->handleRequest(
+            $request,
+            $criteria,
+            $definition,
+            $context->getApplicationContext()
+        );
 
         $association = $child['field'];
 
@@ -331,19 +344,23 @@ class ApiController extends Controller
 
         $repository = $this->getRepository($definition, $context->getVersion());
 
-        if (empty($path)) {
-            $data = $repository->search(
-                $this->searchCriteriaBuilder->handleRequest(
-                    $request,
-                    $definition,
-                    $context->getApplicationContext()
-                ),
-                $context->getApplicationContext()
-            );
-
-            return $this->responseFactory->createListingResponse($data, (string) $definition, $context);
+        if (!empty($path)) {
+            throw new \RuntimeException('Only entities are supported');
         }
-        throw new \RuntimeException('Only entities are supported');
+
+        $criteria = new Criteria();
+
+        $data = $repository->search(
+            $this->searchCriteriaBuilder->handleRequest(
+                $request,
+                $criteria,
+                $definition,
+                $context->getApplicationContext()
+            ),
+            $context->getApplicationContext()
+        );
+
+        return $this->responseFactory->createListingResponse($data, (string) $definition, $context);
     }
 
     private function write(Request $request, RestContext $context, string $path, string $type): Response

@@ -107,7 +107,7 @@ class WriteCommandExtractor
         $this->updateCommandQueue($definition, $commandQueue, $existence, $pkData, $data);
 
         // call map with child associations only
-        $children = array_filter($fields, function(Field $field) {
+        $children = array_filter($fields, function (Field $field) {
             return $field instanceof ChildrenAssociationField;
         });
 
@@ -213,7 +213,7 @@ class WriteCommandExtractor
     {
         $fields = $definition::getFields()->getElements();
 
-        $filtered = array_filter($fields, function(Field $field) {
+        $filtered = array_filter($fields, function (Field $field) {
             return !$field->is(ReadOnly::class);
         });
 
@@ -250,7 +250,7 @@ class WriteCommandExtractor
         $mapped = $this->map($mappingFields, $rawData, $existence, $exceptionStack, $extender);
 
         //after all fields extracted, filter fields to only primary key flaged fields
-        $primaryKeys = array_filter($mappingFields, function(Field $field) {
+        $primaryKeys = array_filter($mappingFields, function (Field $field) {
             return $field->is(PrimaryKey::class);
         });
 
@@ -292,11 +292,11 @@ class WriteCommandExtractor
      */
     private function getFieldsForPrimaryKeyMapping(array $fields): array
     {
-        $primaryKeys = array_filter($fields, function(Field $field) {
+        $primaryKeys = array_filter($fields, function (Field $field) {
             return $field->is(PrimaryKey::class);
         });
 
-        $references = array_filter($fields, function(Field $field) {
+        $references = array_filter($fields, function (Field $field) {
             return $field instanceof ReferenceField;
         });
 

@@ -10,6 +10,12 @@ Component.register('sw-manufacturer-list', {
         Mixin.getByName('manufacturerList')
     ],
 
+    data() {
+        return {
+            showDeleteModal: false
+        };
+    },
+
     methods: {
         updateRoute() {
             const params = this.getListingParams();
@@ -48,6 +54,20 @@ Component.register('sw-manufacturer-list', {
                 this.isLoading = false;
             }).catch(() => {
                 this.isLoading = false;
+            });
+        },
+
+        onDeleteManufacturer(id) {
+            this.showDeleteModal = id;
+        },
+
+        onCloseDeleteModal() {
+            this.showDeleteModal = false;
+        },
+
+        onConfirmDelete(id) {
+            return this.$store.dispatch('manufacturer/deleteManufacturer', id).then(() => {
+                this.getManufacturerList();
             });
         }
     }

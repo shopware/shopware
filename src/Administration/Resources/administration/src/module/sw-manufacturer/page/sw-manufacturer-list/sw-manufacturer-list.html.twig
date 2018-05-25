@@ -8,8 +8,8 @@
 
         <template slot="smart-bar-actions">
             {% block sw_manufacturer_list_smart_bar_actions %}
-                <sw-button :link="'sw.product.create'" variant="primary">
-                    {{ $tc('sw-manufacturer.list.buttonAddProduct') }}
+                <sw-button :link="'sw.manufacturer.create'" variant="primary">
+                    {{ $tc('sw-manufacturer.list.buttonAddManufacturer') }}
                 </sw-button>
             {% endblock %}
         </template>
@@ -64,7 +64,7 @@
                                                             :label="$tc('sw-manufacturer.list.columnDescription')"
                                                             dataIndex="description"
                                                             sortable>
-                                                {{ item.description }}
+                                                {{ item.description | truncate }}
                                             </sw-grid-column>
                                         {% endblock %}
 
@@ -74,18 +74,18 @@
                                                         align="center">
                                             <sw-context-button>
 
-                                                {% block sw_product_list_grid_columns_actions_edit %}
-                                                    <sw-context-menu-item icon="small-pencil-paper">
-                                                        <router-link :to="{
-                                                            name: 'sw.product.detail',
-                                                            params: { id: item.id } }">
-                                                        {{ $tc('sw-manufacturer.list.contextMenuEdit') }}
-                                                        </router-link>
-                                                    </sw-context-menu-item>
-                                                {% endblock %}
+                                            {% block sw_product_list_grid_columns_actions_edit %}
+                                                <sw-context-menu-item icon="small-pencil-paper">
+                                                    <router-link :to="{
+                                                        name: 'sw.manufacturer.detail',
+                                                        params: { id: item.id } }">
+                                                    {{ $tc('sw-manufacturer.list.contextMenuEdit') }}
+                                                    </router-link>
+                                                </sw-context-menu-item>
+                                            {% endblock %}
 
                                                 {% block sw_product_list_grid_columns_actions_delete %}
-                                                    <sw-context-menu-item icon="small-default-x-line-medium">
+                                                    <sw-context-menu-item icon="small-default-x-line-medium" @click="onDeleteManufacturer(item.id)">
                                                         {{ $tc('sw-manufacturer.list.contextMenuDelete') }}
                                                     </sw-context-menu-item>
                                                 {% endblock %}
@@ -97,6 +97,38 @@
                                                 {% endblock %}
                                             </sw-context-button>
                                         </sw-grid-column>
+                                    {% endblock %}
+
+                                    {% block sw_manufacturer_list_delete_modal %}
+                                        <sw-modal v-if="showDeleteModal === item.id"
+                                                  @closeModal="onCloseDeleteModal"
+                                                  :title="$tc('sw-manufacturer.list.modalTitleDelete')"
+                                                  variant="small">
+                                            {% block sw_manufacturer_list_delete_modal_confirm_delete_text %}
+                                                <p class="sw-customer-detail-addresses__confirm-delete-text">
+                                                    {{ $tc('sw-manufacturer.list.textDeleteConfirm', 0, { name: item.name }) }}
+                                                </p>
+                                            {% endblock %}
+
+                                            {% block sw_manufacturer_list_delete_modal_footer %}
+                                                <template slot="modal-footer">
+                                                    {% block sw_manufacturer_list_delete_modal_cancel %}
+                                                        <sw-button @click="onCloseDeleteModal"
+                                                                   size="small">
+                                                            {{ $tc('sw-manufacturer.list.buttonCancel') }}
+                                                        </sw-button>
+                                                    {% endblock %}
+
+                                                    {% block sw_manufacturer_list_delete_modal_confirm %}
+                                                        <sw-button @click="onConfirmDelete(item.id)"
+                                                                   variant="primary"
+                                                                   size="small">
+                                                            {{ $tc('sw-manufacturer.list.buttonDelete') }}
+                                                        </sw-button>
+                                                    {% endblock %}
+                                                </template>
+                                            {% endblock %}
+                                        </sw-modal>
                                         {% endblock %}
                                     {% endblock %}
                                 </template>

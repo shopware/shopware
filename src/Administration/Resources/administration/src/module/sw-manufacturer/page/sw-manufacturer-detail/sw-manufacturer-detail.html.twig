@@ -1,0 +1,75 @@
+{% block sw_manufacturer_detail %}
+    <sw-page class="sw-manufacturer-detail">
+
+        {% block sw_manufacturer_detail_header %}
+            <template slot="smart-bar-header">
+                <h2 v-if="manufacturer.name">{{ manufacturer.name }}</h2>
+                <h2 v-else>{{ $tc('sw-manufacturer.detail.textHeadline') }}</h2>
+            </template>
+        {% endblock %}
+
+        {% block sw_manufacturer_detail_actions %}
+            <template slot="smart-bar-actions">
+                {% block sw_manufacturer_detail_actions_abort %}
+                    <sw-button :disabled="isLoading" link="sw.manufacturer.index">
+                        {{ $tc('sw-manufacturer.detail.buttonCancel') }}
+                    </sw-button>
+                {% endblock %}
+
+                {% block sw_manufacturer_detail_actions_save %}
+                    <sw-button variant="primary" :disabled="isLoading" @click.prevent="onSave">
+                        {{ $tc('sw-manufacturer.detail.buttonSave') }}
+                    </sw-button>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_manufacturer_detail_content %}
+            <sw-card-view slot="content">
+                {% block sw_manufacturer_detail_base_basic_info_card %}
+                    <sw-card :title="$tc('sw-manufacturer.detail.cardTitleManufacturerInfo')" :isLoading="isLoading">
+                        <sw-container grid="1fr 1fr" gap="30px">
+                            {% block sw_manufacturer_detail_base_info_field_name %}
+                                <sw-field type="text"
+                                          :label="$tc('sw-manufacturer.detail.labelName')"
+                                          :placeholder="$tc('sw-manufacturer.detail.placeholderName')"
+                                          name="name"
+                                          validation="required"
+                                          v-model="manufacturer.name">
+                                </sw-field>
+                            {% endblock %}
+
+                            {% block sw_manufacturer_detail_base_info_field_media_selection %}
+                                <div class="sw-manufacturer-detail__media-upload-selection">
+                                    Media upload selection
+
+                                    <sw-button class="sw-manufacturer-detail__media-upload-selection-button" :disabled="true">
+                                        <sw-icon name="default-action-trash" class="sw-manufacturer-detail__media-upload-selection-icon"></sw-icon>
+                                    </sw-button>
+                                </div>
+                            {% endblock %}
+                        </sw-container>
+
+                        {% block sw_manufacturer_detail_base_info_field_description %}
+                            <sw-field type="textarea"
+                                      :label="$tc('sw-manufacturer.detail.labelDescription')"
+                                      :placeholder="$tc('sw-manufacturer.detail.placeholderDescription')"
+                                      name="description"
+                                      v-model="manufacturer.description">
+                            </sw-field>
+                        {% endblock %}
+
+                        {% block sw_manufacturer_detail_base_info_field_link %}
+                            <sw-field type="url"
+                                      :label="$tc('sw-manufacturer.detail.labelLink')"
+                                      :placeholder="$tc('sw-manufacturer.detail.placeholderLink')"
+                                      name="link"
+                                      v-model="manufacturer.link">
+                            </sw-field>
+                        {% endblock %}
+                    </sw-card>
+                {% endblock %}
+            </sw-card-view>
+        {% endblock %}
+    </sw-page>
+{% endblock %}

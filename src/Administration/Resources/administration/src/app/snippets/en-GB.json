@@ -296,6 +296,36 @@
   "sw-manufacturer": {
     "general": {
       "mainMenuItemList": "Manufacturer"
+    },
+    "list": {
+      "textManufacturerOverview": "Manufacturer overview",
+      "textTotalManufacturer": "No manufacturer | one manufacturer | {count} manufacturers",
+      "buttonAddManufacturer": "Add manufacturer",
+      "columnName": "Manufacturer",
+      "columnLink": "Website",
+      "columnDescription": "Description",
+      "columnActions": "Actions",
+      "contextMenuEdit": "Edit manufacturer",
+      "contextMenuDelete": "Remove manufacturer",
+      "contextMenuDuplicate": "Duplicate manufacturer",
+      "modalTitleDelete": "Remove manufacturer",
+      "textDeleteConfirm": "Are you sure, you want to remove the manufacter {name}?",
+      "buttonCancel": "Cancel",
+      "buttonDelete": "Remove"
+    },
+    "detail": {
+      "textHeadline": "New manufacturer",
+      "buttonCancel": "Cancel",
+      "buttonSave": "Save manufacturer",
+      "cardTitleManufacturerInfo": "Manufacturer information",
+      "labelName": "Name",
+      "labelDescription": "Description",
+      "labelLink": "Website",
+      "placeholderName": "Enter manufacturer name...",
+      "placeholderDescription": "Enter manufacturer description...",
+      "placeholderLink": "Enter manufacturer website...",
+      "titleSaveSuccess": "Manufacturer",
+      "messageSaveSuccess": "The manufacturer {name} was saved successfully."
     }
   }
 }

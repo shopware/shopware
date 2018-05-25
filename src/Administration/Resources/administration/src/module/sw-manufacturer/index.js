@@ -1,5 +1,7 @@
 import { Module } from 'src/core/shopware';
 import './page/sw-manufacturer-list';
+import './page/sw-manufacturer-detail';
+import './page/sw-manufacturer-create';
 
 Module.register('sw-manufacturer', {
     type: 'core',
@@ -16,6 +18,20 @@ Module.register('sw-manufacturer', {
                 default: 'sw-manufacturer-list'
             },
             path: 'index/:offset?/:limit?/:sortBy?/:sortDirection?/:term?/:filters?'
+        },
+        create: {
+            component: 'sw-manufacturer-create',
+            path: 'create',
+            meta: {
+                parentPath: 'sw.manufacturer.index'
+            }
+        },
+        detail: {
+            component: 'sw-manufacturer-detail',
+            path: 'detail/:id',
+            meta: {
+                parentPath: 'sw.manufacturer.index'
+            }
         }
     },
 

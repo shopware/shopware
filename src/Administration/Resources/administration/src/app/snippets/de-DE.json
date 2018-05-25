@@ -300,14 +300,32 @@
     "list": {
       "textManufacturerOverview": "Hersteller Übersicht",
       "textTotalManufacturer": "Keine Hersteller | ein Hersteller | {count} Hersteller",
-      "buttonAddProduct": "Hersteller anlegen",
+      "buttonAddManufacturer": "Hersteller anlegen",
       "columnName": "Hersteller",
       "columnLink": "Webseite",
       "columnDescription": "Beschreibung",
       "columnActions": "Aktionen",
       "contextMenuEdit": "Hersteller bearbeiten",
       "contextMenuDelete": "Hersteller löschen",
-      "contextMenuDuplicate": "Hersteller duplizieren"
+      "contextMenuDuplicate": "Hersteller duplizieren",
+      "modalTitleDelete": "Hersteller löschen",
+      "textDeleteConfirm": "Sind Sie sich sicher dass sie den Hersteller {name} löschen möchten?",
+      "buttonCancel": "Abbrechen",
+      "buttonDelete": "Löschen"
+    },
+    "detail": {
+      "textHeadline": "Neuer Hersteller",
+      "buttonCancel": "Abbrechen",
+      "buttonSave": "Hersteller speichern",
+      "cardTitleManufacturerInfo": "Herstellerinformationen",
+      "labelName": "Name",
+      "labelDescription": "Beschreibung",
+      "labelLink": "Webseite",
+      "placeholderName": "Gebe ein Herstellernamen ein...",
+      "placeholderDescription": "Gebe eine Herstellerbeschreibung ein...",
+      "placeholderLink": "Gebe die Herstellerwebseite ein...",
+      "titleSaveSuccess": "Hersteller",
+      "messageSaveSuccess": "Der Hersteller {name} wurde erfolgreich gespeichert."
     }
   }
 }

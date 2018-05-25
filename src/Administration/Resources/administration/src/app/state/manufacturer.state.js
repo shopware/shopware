@@ -1,6 +1,11 @@
 import { State, Application } from 'src/core/shopware';
-import { deepCopyObject, getAssociatedDeletions, getObjectChangeSet } from 'src/core/service/utils/object.utils';
-import { types } from 'src/core/service/util.service';
+import {
+    deepCopyObject,
+    getAssociatedDeletions,
+    getObjectChangeSet,
+    hasOwnProperty
+} from 'src/core/service/utils/object.utils';
+import utils, { types } from 'src/core/service/util.service';
 
 /**
  * @module app/state/manufacturer
@@ -104,13 +109,45 @@ State.register('manufacturer', {
         },
 
         /**
+         * Create an empty manufacturer object with all possible properties from the entity definition.
+         * The object can be used in the data binding for creating a new manufacturer.
+         * It will be marked with a `ìsNew` property.
+         *
+         * @type action
+         * @memberOf module:app/state/manufacturer
+         * @param {Function} commit
+         * @param {Object} state
+         * @param {String|null} [manufacturerId=null]
+         * @returns {String|null}
+         */
+        createEmptyManufacturer({ commit, state }, manufacturerId = null) {
+            if (manufacturerId === null) {
+                manufacturerId = utils.createId();
+            }
+
+            if (typeof state.draft[manufacturerId] !== 'undefined') {
+                return state.draft[manufacturerId];
+            }
+
+            const manufacturer = Shopware.Entity.getRawEntityObject('product_manufacturer', true);
+
+            manufacturer.id = manufacturerId;
+            manufacturer.isDetail = true;
+            manufacturer.isNew = true;
+
+            commit('initManufacturer', manufacturer);
+
+            return manufacturerId;
+        },
+
+        /**
          * Saves the given manufacturer to the server by sending a changeset.
          *
          * @type action
          * @memberOf module:app/state/manufacturer
          * @param {Function} commit
          * @param {Object} state
-         * @param {Object} product
+         * @param {Object} manufacturer
          * @return {Promise}
          */
         saveManufacturer({ commit, state }, manufacturer) {
@@ -120,8 +157,6 @@ State.register('manufacturer', {
 
             const providerContainer = Application.getContainer('service');
             const manufacturerService = providerContainer.productManufacturerService;
-
-            console.log(manufacturerService);
 
             const changeset = getObjectChangeSet(state.original[manufacturer.id], manufacturer, 'product_manufacturer');
             const deletions = getAssociatedDeletions(state.original[manufacturer.id], manufacturer, 'product_manufacturer');
@@ -146,18 +181,14 @@ State.register('manufacturer', {
                 });
             }
 
-            return Promise.all(deletionCue).then((deleteResponse) => {
-                if (types.isEmpty(changeset)) {
-                    return deleteResponse;
-                }
-
+            return Promise.all(deletionCue).then(() => {
                 if (manufacturer.isNew) {
                     return manufacturerService.create(changeset)
                         .then((response) => {
-                            const newProduct = response.data;
+                            const newManufacturer = response.data;
 
-                            commit('initManufacturer', newProduct);
-                            return newProduct;
+                            commit('initManufacturer', newManufacturer);
+                            return newManufacturer;
                         })
                         .catch((exception) => {
                             if (exception.response.data && exception.response.data.errors) {
@@ -166,7 +197,7 @@ State.register('manufacturer', {
                                 });
                             }
 
-                            return exception;
+                            return Promise.reject(exception);
                         });
                 }
 
@@ -182,7 +213,7 @@ State.register('manufacturer', {
                             });
                         }
 
-                        return exception;
+                        return Promise.reject(exception);
                     });
             }).catch((deleteException) => {
                 if (deleteException.response.data && deleteException.response.data.errors) {
@@ -191,12 +222,37 @@ State.register('manufacturer', {
                     });
                 }
 
-                return deleteException;
+                return Promise.reject(deleteException);
+            });
+        },
+
+        deleteManufacturer({ commit, state }, manufacturerId) {
+            if (!manufacturerId) {
+                return Promise.reject();
+            }
+
+            const providerContainer = Application.getContainer('service');
+            const manufacturerService = providerContainer.productManufacturerService;
+
+            return manufacturerService.delete(manufacturerId).then(() => {
+                commit('deleteManufacturer', manufacturerId);
+
+                return state.draft;
             });
         }
     },
 
     mutations: {
+
+        /**
+         * Initializes a new manufacturer in the state.
+         *
+         * @type mutation
+         * @memberOf module:app/state/manufacturer
+         * @param {Object} state
+         * @param {Object} manufacturer
+         * @returns {void}
+         */
         initManufacturer(state, manufacturer) {
             if (!manufacturer.id) {
                 return;
@@ -205,8 +261,41 @@ State.register('manufacturer', {
             const originalManufacturer = deepCopyObject(manufacturer);
             const draftManufacturer = deepCopyObject(manufacturer);
 
+            manufacturer.isLoaded = true;
             state.original[manufacturer.id] = Object.assign(state.original[manufacturer.id] || {}, originalManufacturer);
             state.draft[manufacturer.id] = Object.assign(state.draft[manufacturer.id] || {}, draftManufacturer);
+        },
+
+        /**
+         * Updates a manufacturer in the state.
+         *
+         * @type mutation
+         * @memberOf module:app/state/manufacturer
+         * @param {Object} state
+         * @param {Object} manufacturer
+         * @returns {void}
+         */
+        setManufacturer(state, manufacturer) {
+            // Do not commit manufacturer without identifier
+            if (!manufacturer.id) {
+                return;
+            }
+
+            Object.assign(state.draft[manufacturer.id], manufacturer);
+        },
+
+        deleteManufacturer(state, manufacturerId) {
+            // Do not commit manufacturer without identifier
+            if (!manufacturerId) {
+                return;
+            }
+
+            if (!hasOwnProperty(state.draft, manufacturerId) || !hasOwnProperty(state.original, manufacturerId)) {
+                return;
+            }
+
+            delete state.draft[manufacturerId];
+            delete state.original[manufacturerId];
         },
 
         /**

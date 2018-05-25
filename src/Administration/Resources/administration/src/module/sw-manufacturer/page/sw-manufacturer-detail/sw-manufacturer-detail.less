@@ -1,0 +1,28 @@
+@import "~less/variables";
+
+@sw-manufacturer-detail-border-color: @color-steam-cloud;
+@sw-manufacturer-detail-danger-background-color: @color-crimson;
+@sw-manufacturer-detail-danger-text-color: @color-white;
+
+.sw-manufacturer-detail {
+    .sw-manufacturer-detail__media-upload-selection {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        border: 1px solid @sw-manufacturer-detail-border-color;
+        border-radius: 3px;
+
+        .sw-manufacturer-detail__media-upload-selection-button {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            padding: 2px 10px;
+            background: @sw-manufacturer-detail-danger-background-color;
+        }
+
+        .sw-manufacturer-detail__media-upload-selection-icon {
+            color: @sw-manufacturer-detail-danger-text-color;
+        }
+    }
+}

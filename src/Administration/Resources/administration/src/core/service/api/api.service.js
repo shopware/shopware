@@ -164,6 +164,29 @@ class ApiService {
     }
 
     /**
+     * Deletes an existing entity
+     *
+     * @param {Number} id
+     * @param {Object} [additionalParams={}]
+     * @param {Object} [additionalHeaders={}]
+     * @returns {Promise<T>}
+     */
+    delete(id, additionalParams = {}, additionalHeaders = {}) {
+        if (!id) {
+            return Promise.reject(new Error('Missing required argument: id'));
+        }
+
+        const params = Object.assign({}, additionalParams);
+        const headers = this.getBasicHeaders(additionalHeaders);
+
+        return this.httpClient
+            .delete(this.getApiBasePath(id), {
+                params,
+                headers
+            });
+    }
+
+    /**
      * Returns the URI to the API endpoint
      *
      * @param {String|Number} [id]

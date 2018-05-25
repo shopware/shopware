@@ -10,7 +10,8 @@ Component.register('sw-customer-detail', {
         Mixin.getByName('customer'),
         Mixin.getByName('applicationList'),
         Mixin.getByName('customerGroupList'),
-        Mixin.getByName('paymentMethodList')
+        Mixin.getByName('paymentMethodList'),
+        Mixin.getByName('countryList')
     ],
 
     beforeRouteLeave(to, from, next) {
@@ -55,6 +56,10 @@ Component.register('sw-customer-detail', {
             }
 
             if (this.$route.name.includes('sw.customer.create')) {
+                this.customerEditMode = true;
+            }
+
+            if (this.$route.params.edit === 'edit') {
                 this.customerEditMode = true;
             }
         },

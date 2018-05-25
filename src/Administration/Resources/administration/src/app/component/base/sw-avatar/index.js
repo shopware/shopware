@@ -59,7 +59,7 @@ Component.register('sw-avatar', {
             const firstNameLetter = user.firstName ? user.firstName[0] : '';
             const lastNameLetter = user.lastName ? user.lastName[0] : '';
 
-            return `${firstNameLetter} ${lastNameLetter}`;
+            return firstNameLetter + lastNameLetter;
         },
 
         avatarInitialsSize() {

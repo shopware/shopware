@@ -10,7 +10,7 @@
 
             <slot>
                 {% block sw_icon_slot_default %}
-                    <use :href="iconSetPath | asset"></use>
+                    <use :xlink:href="iconSetPath | asset"></use>
                 {% endblock %}
             </slot>
         {% endblock %}

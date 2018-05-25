@@ -12,3 +12,4 @@ import './locale.state';
 import './application.state';
 import './customer-group.state';
 import './payment-method.state';
+import './country.state';

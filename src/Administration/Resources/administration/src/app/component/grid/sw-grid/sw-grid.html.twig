@@ -20,8 +20,17 @@
                                          v-for="column in columns"
                                          @click="onGridCellClick($event, column)">
 
+                                        {% block sw_grid_slot_header_cell_content %}
                                             <div class="sw-grid__cell-content">
-                                                <span class="sw-grid__cell-label">{{ column.label }}</span>
+                                                {% block sw_grid_slot_header_cell_icon_label %}
+                                                    <span v-if="column.iconLabel" class="sw-grid__cell-label">
+                                                        <sw-icon :name="column.iconLabel" :title="column.label"></sw-icon>
+                                                    </span>
+                                                {% endblock %}
+
+                                                {% block sw_grid_slot_header_cell_label %}
+                                                    <span v-else class="sw-grid__cell-label">{{ column.label }}</span>
+                                                {% endblock %}
 
                                                 {% block sw_grid_slot_header_cell_sortable %}
                                                     <span class="sw-grid_cell-sortable" v-if="column.sortable && sort === column.dataIndex">
@@ -30,6 +39,7 @@
                                                     </span>
                                                 {% endblock %}
                                             </div>
+                                        {% endblock %}
                                     </div>
                                 </div>
                             {% endblock %}

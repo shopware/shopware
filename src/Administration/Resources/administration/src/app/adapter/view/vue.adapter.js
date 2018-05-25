@@ -219,7 +219,7 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
 
         return new VueI18n({
             locale: currentLocale,
-            fallbackLocale: 'en-UK',
+            fallbackLocale: 'en-GB',
             messages
         });
     }

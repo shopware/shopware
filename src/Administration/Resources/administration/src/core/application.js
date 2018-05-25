@@ -318,7 +318,7 @@ class ApplicationBootstrapper {
         const container = this.getContainer('init');
 
         this.instantiateInitializers(container).then(() => {
-            const router = container.router;
+            const router = container.router.getRouterInstance();
             const view = container.view;
 
             this.applicationRoot = view.createInstance(

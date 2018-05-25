@@ -1,6 +1,7 @@
 /**
  * @module core/factory/router
  */
+import { hasOwnProperty } from 'src/core/service/utils/object.utils';
 
 /**
  * Initializes the router for the application.
@@ -15,12 +16,16 @@
 export default function createRouter(Router, View, moduleFactory, LoginService) {
     let allRoutes = [];
     let moduleRoutes = [];
+    let previousRoute = null;
+    let instance = null;
 
     return {
         addRoutes,
         addModuleRoutes,
         createRouterInstance,
-        getViewComponent
+        getViewComponent,
+        getPreviousRoute,
+        getRouterInstance
     };
 
     /**
@@ -40,6 +45,34 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
         const router = new Router(options);
 
         beforeRouterInterceptor(router);
+        afterEachRouterInterceptor(router);
+        instance = router;
+
+        return router;
+    }
+
+    /**
+     * Returns the current router instance
+     *
+     * @returns {VueRouter}
+     */
+    function getRouterInstance() {
+        return instance;
+    }
+
+    /**
+     * Installs an navigation guard interceptor, which will be triggered after a route has been changed to track
+     * the previous route, in case the user gets logged out while navigation.
+     *
+     * @memberof module:core/factory/router
+     * @param {VueRouter} router
+     * @returns {VueRouter} router
+     */
+    function afterEachRouterInterceptor(router) {
+        router.afterEach((to, from) => {
+            previousRoute = from;
+        });
+
         return router;
     }
 
@@ -68,7 +101,12 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
 
             // User tries to access a protected route, therefore redirect him to the login
             if (!loggedIn) {
-                return next({ name: 'sw.login.index' });
+                return next({
+                    name: 'sw.login.index',
+                    query: {
+                        redirectToPreviousUrl: true
+                    }
+                });
             }
 
             // Provide information about the module
@@ -97,6 +135,14 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
         });
 
         return router;
+    }
+
+    /**
+     * Returns the previous route object
+     * @returns {Object}
+     */
+    function getPreviousRoute() {
+        return previousRoute;
     }
 
     /**
@@ -182,7 +228,7 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
      * @returns {Object} route - Converted route definition
      */
     function convertRouteComponentToViewComponent(route) {
-        if (Object.prototype.hasOwnProperty.call(route, 'components') && Object.keys(route.components).length) {
+        if (hasOwnProperty(route, 'components') && Object.keys(route.components).length) {
             const componentList = {};
 
             Object.keys(route.components).forEach((componentKey) => {
@@ -195,24 +241,41 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
                 componentList[componentKey] = component;
             });
 
-            if (route.children && route.children.length) {
-                route.children = route.children.map((child) => {
-                    let component = child.component;
-
-                    // Just convert component names
-                    if (typeof component === 'string') {
-                        component = getViewComponent(component);
-                    }
-                    child.component = component;
-                    return child;
-                });
-            }
+            route = iterateChildRoutes(route);
 
             route.components = componentList;
         }
 
         if (typeof route.component === 'string') {
             route.component = getViewComponent(route.component);
+        }
+
+        return route;
+    }
+
+    /**
+     * Transforms the child routes component list into View components to work with the application.
+     *
+     * @param {Object} route
+     * @returns {Object}
+     */
+    function iterateChildRoutes(route) {
+        if (route.children && route.children.length) {
+            route.children = route.children.map((child) => {
+                let component = child.component;
+
+                // Just convert component names
+                if (typeof component === 'string') {
+                    component = getViewComponent(component);
+                }
+                child.component = component;
+
+                if (child.children) {
+                    child = iterateChildRoutes(child);
+                }
+
+                return child;
+            });
         }
 
         return route;

@@ -8,8 +8,20 @@ export default {
     deepCopyObject,
     getObjectChangeSet,
     getAssociatedDeletions,
-    getPropertyBlacklist
+    getPropertyBlacklist,
+    hasOwnProperty
 };
+
+/**
+ * Shorthand method for `Object.prototype.hasOwnProperty`
+ *
+ * @param {Object} scope
+ * @param {String} prop
+ * @returns {Boolean}
+ */
+export function hasOwnProperty(scope, prop) {
+    return Object.prototype.hasOwnProperty.call(scope, prop);
+}
 
 /**
  * Deep copy an object
@@ -148,7 +160,7 @@ export function getObjectChangeSet(baseObject, compareObject, entitySchemaName =
         }
 
         // If the property is not present on the base object, it is an addition from the compare object.
-        if (!b.hasOwnProperty(key)) {
+        if (!hasOwnProperty(b, key)) {
             const addition = validateObjectSchema(c[key], associatedEntity);
 
             if (hasNoChanges(addition)) {

@@ -172,13 +172,12 @@ class EntityHydrator
         }
 
         if ($definition::getParentPropertyName()) {
-            $associations = $definition::getFields()
-                ->filterByFlag(Inherited::class)
-                ->filter(
-                    function (Field $field) {
-                        return $field instanceof ManyToManyAssociationField || $field instanceof OneToManyAssociationField;
-                    }
-                );
+            $associations = array_filter($definition::getFields()->getElements(), function(Field $field) {
+                if (!$field->is(Inherited::class)) {
+                    return false;
+                }
+                return $field instanceof ManyToManyAssociationField || $field instanceof OneToManyAssociationField;
+            });
 
             foreach ($associations as $association) {
                 $inherited->set($association->getPropertyName(), $this->isInherited($definition, $row, $association));
@@ -202,22 +201,14 @@ class EntityHydrator
 
         $key = str_replace($root . '.', '', $fieldName);
 
-        //is translation field? remove prefix
-        if (strpos($key, 'translation.') === 0) {
-            $key = str_replace('translation.', '', $key);
+        $parts = explode('.', $key);
+
+        $cursor = $parts[0];
+        if ($cursor === 'translation') {
+            $cursor = $parts[1];
         }
 
-        $field = $fields->get($key);
-        if ($field) {
-            return $field;
-        }
-
-        $key = $this->stripAssociationKey($key);
-        if (!$key) {
-            return null;
-        }
-
-        return $fields->get($key);
+        return $fields->get($cursor);
     }
 
     private function getField(FieldCollection $fields, string $fieldName, string $root): ?Field
@@ -232,16 +223,6 @@ class EntityHydrator
         $this->fieldCache[$key] = $field;
 
         return $field;
-    }
-
-    private function stripAssociationKey(string $key): ?string
-    {
-        if (strpos($key, '.') === false) {
-            return null;
-        }
-        $parts = explode('.', $key);
-
-        return array_shift($parts);
     }
 
     private function castValue(Field $field, $value)

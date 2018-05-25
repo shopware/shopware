@@ -3,7 +3,6 @@
 namespace Shopware\Framework\ORM\Search;
 
 use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\ORM\Search\Aggregation\AggregationResult;
 use Shopware\Framework\ORM\Search\Aggregation\AggregationResultCollection;
 use Shopware\Framework\Struct\Struct;
 
@@ -44,20 +43,5 @@ class AggregatorResult extends Struct
     public function getCriteria(): Criteria
     {
         return $this->criteria;
-    }
-
-    public function getFormattedAggregations(): array
-    {
-        $result = [];
-
-        /**
-         * @var string
-         * @var AggregationResult $aggregation
-         */
-        foreach ($this->getAggregations() as $aggregation) {
-            $result[$aggregation->getName()] = $aggregation->getResult();
-        }
-
-        return $result;
     }
 }

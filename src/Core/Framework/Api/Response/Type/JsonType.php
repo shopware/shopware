@@ -62,7 +62,12 @@ class JsonType implements ResponseTypeInterface
         ];
 
         if ($searchResult && $searchResult->getAggregationResult()) {
-            $response['aggregations'] = $searchResult->getAggregationResult()->getFormattedAggregations();
+            $aggregations = [];
+            foreach ($searchResult->getAggregationResult()->getAggregations() as $aggregation) {
+                $aggregations[$aggregation->getName()] = $aggregation->getResult();
+            }
+
+            $response['aggregations'] = $aggregations;
         }
 
         return new JsonResponse($response);

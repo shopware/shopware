@@ -87,7 +87,12 @@ class JsonApiType implements ResponseTypeInterface
         }
 
         if ($searchResult && $searchResult->getAggregationResult()) {
-            $rootNode['aggregations'] = $searchResult->getAggregationResult()->getFormattedAggregations();
+            $aggregations = [];
+            foreach ($searchResult->getAggregationResult()->getAggregations() as $aggregation) {
+                $aggregations[$aggregation->getName()] = $aggregation->getResult();
+            }
+
+            $rootNode['aggregations'] = $aggregations;
         }
 
         $response = $this->serializer->serialize(

@@ -8,6 +8,7 @@ use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Framework\Api\Context\RestContext;
 use Shopware\Framework\Api\Response\ResponseFactory;
+use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\SearchCriteriaBuilder;
 use Shopware\Framework\Routing\Firewall\ContextUser;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -46,7 +47,14 @@ class StorefrontProductController extends Controller
      */
     public function list(Request $request, StorefrontContext $context): Response
     {
-        $criteria = $this->criteriaBuilder->handleRequest($request, ProductDefinition::class, $context->getApplicationContext());
+        $criteria = new Criteria();
+
+        $criteria = $this->criteriaBuilder->handleRequest(
+            $request,
+            $criteria,
+            ProductDefinition::class,
+            $context->getApplicationContext()
+        );
 
         $result = $this->repository->search($criteria, $context);
 

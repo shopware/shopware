@@ -28,6 +28,7 @@ class SearchCriteriaBuilder
      * @var SearchTermInterpreter
      */
     private $searchTermInterpreter;
+
     /**
      * @var EntityScoreQueryBuilder
      */
@@ -132,44 +133,7 @@ class SearchCriteriaBuilder
         }
 
         if (isset($payload['aggregations'])) {
-            foreach ($payload['aggregations'] as $name => $aggregations) {
-                foreach ($aggregations as $type => $aggregation) {
-                    $field = $aggregation['field'];
-                    switch ($type) {
-                        case 'avg':
-                            $criteria->addAggregation(new AvgAggregation($field, $name));
-                            break;
-
-                        case 'cardinality':
-                            $criteria->addAggregation(new CardinalityAggregation($field, $name));
-                            break;
-
-                        case 'count':
-                            $criteria->addAggregation(new CountAggregation($field, $name));
-                            break;
-
-                        case 'max':
-                            $criteria->addAggregation(new MaxAggregation($field, $name));
-                            break;
-
-                        case 'min':
-                            $criteria->addAggregation(new MinAggregation($field, $name));
-                            break;
-
-                        case 'stats':
-                            $criteria->addAggregation(new StatsAggregation($field, $name));
-                            break;
-
-                        case 'sum':
-                            $criteria->addAggregation(new SumAggregation($field, $name));
-                            break;
-
-                        case 'value_count':
-                            $criteria->addAggregation(new ValueCountAggregation($field, $name));
-                            break;
-                    }
-                }
-            }
+            $this->buildAggregations($payload, $criteria);
         }
 
         return $criteria;
@@ -229,5 +193,47 @@ class SearchCriteriaBuilder
         }
 
         return new NestedQuery($queries);
+    }
+
+    private function buildAggregations(array $payload, Criteria $criteria): void
+    {
+        foreach ($payload['aggregations'] as $name => $aggregations) {
+            foreach ($aggregations as $type => $aggregation) {
+                $field = $aggregation['field'];
+                switch ($type) {
+                    case 'avg':
+                        $criteria->addAggregation(new AvgAggregation($field, $name));
+                        break;
+
+                    case 'cardinality':
+                        $criteria->addAggregation(new CardinalityAggregation($field, $name));
+                        break;
+
+                    case 'count':
+                        $criteria->addAggregation(new CountAggregation($field, $name));
+                        break;
+
+                    case 'max':
+                        $criteria->addAggregation(new MaxAggregation($field, $name));
+                        break;
+
+                    case 'min':
+                        $criteria->addAggregation(new MinAggregation($field, $name));
+                        break;
+
+                    case 'stats':
+                        $criteria->addAggregation(new StatsAggregation($field, $name));
+                        break;
+
+                    case 'sum':
+                        $criteria->addAggregation(new SumAggregation($field, $name));
+                        break;
+
+                    case 'value_count':
+                        $criteria->addAggregation(new ValueCountAggregation($field, $name));
+                        break;
+                }
+            }
+        }
     }
 }

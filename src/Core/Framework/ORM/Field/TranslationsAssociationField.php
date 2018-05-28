@@ -2,6 +2,9 @@
 
 namespace Shopware\Framework\ORM\Field;
 
+use Shopware\Framework\ORM\Write\DataStack\KeyValuePair;
+use Shopware\Framework\ORM\Write\EntityExistence;
+
 class TranslationsAssociationField extends SubresourceField implements AssociationInterface
 {
     use AssociationTrait;
@@ -27,6 +30,19 @@ class TranslationsAssociationField extends SubresourceField implements Associati
         $this->loadInBasic = $loadInBasic;
         $this->localField = $localField;
         $this->referenceField = $referenceField;
+    }
+
+    public function __invoke(EntityExistence $existence, KeyValuePair $data): \Generator
+    {
+        $value = $data->getValue();
+        if ($value === null) {
+            $value = [
+                $this->writeContext->getApplicationContext()->getLanguageId() => []
+            ];
+            $data = new KeyValuePair($data->getKey(), $value, $data->isRaw());
+        }
+
+        return parent::__invoke($existence, $data);
     }
 
     public function getReferenceField(): string

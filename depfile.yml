@@ -4,6 +4,7 @@ exclude_files:
   - .*test.*
   - .*Definition.php
   - .*Event.php
+  - .*DemodataCommand.php
 
 layers:
   - name: Application
@@ -19,6 +20,10 @@ layers:
             regex: Shopware\\Application\\Context\\Struct\\StorefrontContext
           - type: className
             regex: Shopware\\Application\\Language\\Struct\\LanguageBasicStruct
+          - type: className
+            regex: Shopware\\Application\\Language\\Collection\\LanguageBasicCollection
+          - type: className
+            regex: Shopware\\Application\\Context\\Struct\\ContextPriceStruct
     collectors:
       - type: className
         regex: Shopware\\Application\\

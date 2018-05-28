@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Plugin\Command;
+namespace Shopware\Framework\Command;
 
 use Shopware\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Framework\Plugin\PluginManager;
@@ -11,7 +11,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-class PluginActivateCommand extends Command
+class PluginDeactivateCommand extends Command
 {
     use PluginCommandTrait;
 
@@ -35,11 +35,11 @@ class PluginActivateCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('plugin:activate')
-            ->setDescription('Activates a plugin.')
+            ->setName('plugin:deactivate')
+            ->setDescription('Deactivates a plugin.')
             ->addArgument('plugins', InputArgument::REQUIRED | InputArgument::IS_ARRAY, 'Name of the plugins to be activated.')
             ->setHelp(<<<'EOF'
-The <info>%command.name%</info> activates a plugin.
+The <info>%command.name%</info> deactivates a plugin.
 EOF
             );
     }
@@ -60,7 +60,7 @@ EOF
             return 1;
         }
 
-        $io->text(sprintf('Activating %d plugins:', count($plugins)));
+        $io->text(sprintf('Deactivating %d plugins:', count($plugins)));
         $io->listing($this->formatPluginList($plugins));
 
         /** @var Plugin $plugin */
@@ -71,17 +71,17 @@ EOF
                 continue;
             }
 
-            if ($plugin->isActive()) {
-                $io->note(sprintf('Plugin "%s" is already active. Skipping.', $plugin->getLabel()));
+            if ($plugin->isActive() === false) {
+                $io->note(sprintf('Plugin "%s" must be activated. Skipping.', $plugin->getLabel()));
 
                 continue;
             }
 
-            $this->pluginManager->activatePlugin($plugin);
+            $this->pluginManager->deactivatePlugin($plugin);
 
-            $io->text(sprintf('Plugin "%s" has been activated successfully.', $plugin->getLabel()));
+            $io->text(sprintf('Plugin "%s" has been deactivated successfully.', $plugin->getLabel()));
         }
 
-        $io->success(sprintf('Activated %d plugins.', count($plugins)));
+        $io->success(sprintf('Deactivated %d plugins.', count($plugins)));
     }
 }

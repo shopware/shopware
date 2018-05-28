@@ -8,7 +8,7 @@
         <!-- Versioning -->
         <service alias="Shopware\Framework\Plugin\Repository\PluginRepository.v1" id="Shopware\Framework\Plugin\Repository\PluginRepository" public="true"/>
 
-        <service class="Shopware\Framework\Plugin\Definition\PluginDefinition" id="Shopware\Framework\Plugin\Definition\PluginDefinition" >
+        <service class="Shopware\Framework\Plugin\PluginDefinition" id="Shopware\Framework\Plugin\PluginDefinition" >
             <tag name="shopware.entity.definition" entity="plugin" />
         </service>
         <service class="Shopware\Framework\Plugin\Repository\PluginRepository" id="Shopware\Framework\Plugin\Repository\PluginRepository.v1" public="true">

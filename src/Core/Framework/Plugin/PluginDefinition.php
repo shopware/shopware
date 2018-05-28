@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Plugin\Definition;
+namespace Shopware\Framework\Plugin;
 
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
@@ -18,8 +18,8 @@ use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Framework\Plugin\Collection\PluginBasicCollection;
 use Shopware\Framework\Plugin\Collection\PluginDetailCollection;
-use Shopware\Framework\Plugin\Event\Plugin\PluginDeletedEvent;
-use Shopware\Framework\Plugin\Event\Plugin\PluginWrittenEvent;
+use Shopware\Framework\Plugin\Event\PluginDeletedEvent;
+use Shopware\Framework\Plugin\Event\PluginWrittenEvent;
 use Shopware\Framework\Plugin\Repository\PluginRepository;
 use Shopware\Framework\Plugin\Struct\PluginBasicStruct;
 use Shopware\Framework\Plugin\Struct\PluginDetailStruct;

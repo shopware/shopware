@@ -22,7 +22,7 @@ use Shopware\Framework\ORM\Write\Flag\CascadeDelete;
 use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Framework\ORM\Write\Flag\SearchRanking;
-use Shopware\Framework\Plugin\Definition\PluginDefinition;
+use Shopware\Framework\Plugin\PluginDefinition;
 use Shopware\System\Config\Aggregate\ConfigFormField\ConfigFormFieldDefinition;
 use Shopware\System\Config\Aggregate\ConfigFormTranslation\ConfigFormTranslationDefinition;
 use Shopware\System\Config\Collection\ConfigFormBasicCollection;

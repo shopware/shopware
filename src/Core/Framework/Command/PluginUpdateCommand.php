@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Plugin\Command;
+namespace Shopware\Framework\Command;
 
 use Shopware\Framework\Plugin\PluginManager;
 use Symfony\Component\Console\Command\Command;

@@ -44,7 +44,7 @@
 
         <!-- Serializer -->
         <service class="Shopware\Framework\Api\Serializer\JsonApiEncoder" id="shopware.api.serializer.json_api_encoder">
-            <argument type="service" id="Shopware\Framework\Serializer\StructDecoder" />
+            <argument type="service" id="Shopware\Framework\Struct\Serializer\StructDecoder" />
             <tag name="serializer.encoder" />
         </service>
 

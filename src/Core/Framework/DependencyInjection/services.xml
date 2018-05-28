@@ -59,37 +59,37 @@
             <argument id="Shopware\Framework\Plugin\XmlPluginInfoReader" type="service"/>
         </service>
 
-        <service class="Shopware\Framework\Plugin\Command\PluginUpdateCommand" id="Shopware\Framework\Plugin\Command\PluginUpdateCommand">
+        <service class="Shopware\Framework\Command\PluginUpdateCommand" id="Shopware\Framework\Command\PluginUpdateCommand">
             <tag name="console.command" />
             <argument type="service" id="Shopware\Framework\Plugin\PluginManager" />
         </service>
 
-        <service class="Shopware\Framework\Plugin\Command\PluginInstallCommand" id="Shopware\Framework\Plugin\Command\PluginInstallCommand">
+        <service class="Shopware\Framework\Command\PluginInstallCommand" id="Shopware\Framework\Command\PluginInstallCommand">
             <tag name="console.command" />
             <argument type="service" id="Shopware\Framework\Plugin\PluginManager" />
         </service>
 
-        <service class="Shopware\Framework\Plugin\Command\PluginActivateCommand" id="Shopware\Framework\Plugin\Command\PluginActivateCommand">
+        <service class="Shopware\Framework\Command\PluginActivateCommand" id="Shopware\Framework\Command\PluginActivateCommand">
             <tag name="console.command" />
             <argument type="service" id="Shopware\Framework\Plugin\PluginManager" />
         </service>
 
-        <service class="Shopware\Framework\Plugin\Command\PluginDeactivateCommand" id="Shopware\Framework\Plugin\Command\PluginDeactivateCommand">
+        <service class="Shopware\Framework\Command\PluginDeactivateCommand" id="Shopware\Framework\Command\PluginDeactivateCommand">
             <tag name="console.command" />
             <argument type="service" id="Shopware\Framework\Plugin\PluginManager" />
         </service>
 
-        <service class="Shopware\Framework\Plugin\Command\PluginUninstallCommand" id="Shopware\Framework\Plugin\Command\PluginUninstallCommand">
+        <service class="Shopware\Framework\Command\PluginUninstallCommand" id="Shopware\Framework\Command\PluginUninstallCommand">
             <tag name="console.command" />
             <argument type="service" id="Shopware\Framework\Plugin\PluginManager" />
         </service>
 
-        <service class="Shopware\Framework\Plugin\Command\PluginUpgradeCommand" id="Shopware\Framework\Plugin\Command\PluginUpgradeCommand">
+        <service class="Shopware\Framework\Command\PluginUpgradeCommand" id="Shopware\Framework\Command\PluginUpgradeCommand">
             <tag name="console.command" />
             <argument type="service" id="Shopware\Framework\Plugin\PluginManager" />
         </service>
 
-        <service class="Shopware\Framework\Plugin\Command\PluginListCommand" id="Shopware\Framework\Plugin\Command\PluginListCommand">
+        <service class="Shopware\Framework\Command\PluginListCommand" id="Shopware\Framework\Command\PluginListCommand">
             <tag name="console.command" />
             <argument type="service" id="Shopware\Framework\Plugin\PluginManager" />
         </service>
@@ -110,11 +110,11 @@
         </service>
 
         <!-- Serializer -->
-        <service class="Shopware\Framework\Serializer\StructNormalizer" id="Shopware\Framework\Serializer\StructNormalizer">
+        <service class="Shopware\Framework\Struct\Serializer\StructNormalizer" id="Shopware\Framework\Struct\Serializer\StructNormalizer">
             <tag name="serializer.normalizer"/>
         </service>
 
-        <service class="Shopware\Framework\Serializer\StructDecoder" id="Shopware\Framework\Serializer\StructDecoder">
+        <service class="Shopware\Framework\Struct\Serializer\StructDecoder" id="Shopware\Framework\Struct\Serializer\StructDecoder">
             <tag name="serializer.encoder"/>
         </service>
 
@@ -171,7 +171,7 @@
             <argument type="service" id="logger" />
         </service>
 
-        <service class="Shopware\Framework\Translation\Command\TranslationImportCommand" id="Shopware\Framework\Translation\Command\TranslationImportCommand">
+        <service class="Shopware\Framework\Command\TranslationImportCommand" id="Shopware\Framework\Command\TranslationImportCommand">
             <tag name="kernel.event_subscriber" />
             <tag name="console.command" />
 

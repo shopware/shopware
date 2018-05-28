@@ -13,6 +13,7 @@ use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Framework\ORM\Field\OneToManyAssociationField;
 use Shopware\Framework\ORM\Write\Flag\Extension;
 use Shopware\Framework\ORM\Write\Flag\Required;
+use Shopware\Framework\Struct\Serializer\StructDecoder;
 use Shopware\Framework\ORM\Write\Flag\WriteOnly;
 use Shopware\Framework\Serializer\StructDecoder;
 use Symfony\Component\Serializer\Encoder\EncoderInterface;

@@ -7,7 +7,7 @@ use Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation\Event\PaymentMe
 use Shopware\Checkout\Payment\Collection\PaymentMethodDetailCollection;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\Framework\Plugin\Event\Plugin\PluginBasicLoadedEvent;
+use Shopware\Framework\Plugin\Event\PluginBasicLoadedEvent;
 
 class PaymentMethodDetailLoadedEvent extends NestedEvent
 {

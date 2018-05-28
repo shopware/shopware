@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Serializer;
+namespace Shopware\Framework\Struct\Serializer;
 
 use Shopware\Framework\Struct\Struct;
 use Symfony\Component\Serializer\Encoder\JsonDecode;

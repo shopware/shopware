@@ -1,21 +1,21 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Plugin\Event\Plugin;
+namespace Shopware\Framework\Plugin\Event;
 
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\ORM\Search\IdSearchResult;
+use Shopware\Framework\Plugin\Struct\PluginSearchResult;
 
-class PluginIdSearchResultLoadedEvent extends NestedEvent
+class PluginSearchResultLoadedEvent extends NestedEvent
 {
-    public const NAME = 'plugin.id.search.result.loaded';
+    public const NAME = 'plugin.search.result.loaded';
 
     /**
-     * @var IdSearchResult
+     * @var PluginSearchResult
      */
     protected $result;
 
-    public function __construct(IdSearchResult $result)
+    public function __construct(PluginSearchResult $result)
     {
         $this->result = $result;
     }
@@ -28,10 +28,5 @@ class PluginIdSearchResultLoadedEvent extends NestedEvent
     public function getContext(): ApplicationContext
     {
         return $this->result->getContext();
-    }
-
-    public function getResult(): IdSearchResult
-    {
-        return $this->result;
     }
 }

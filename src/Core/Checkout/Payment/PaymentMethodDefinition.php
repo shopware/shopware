@@ -36,7 +36,7 @@ use Shopware\Framework\ORM\Write\Flag\Required;
 use Shopware\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Framework\ORM\Write\Flag\WriteOnly;
-use Shopware\Framework\Plugin\Definition\PluginDefinition;
+use Shopware\Framework\Plugin\PluginDefinition;
 
 class PaymentMethodDefinition extends EntityDefinition
 {

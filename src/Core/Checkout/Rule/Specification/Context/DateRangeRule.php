@@ -58,9 +58,8 @@ class DateRangeRule extends Rule
         $this->useTime = $useTime;
     }
 
-    public function match(
-        RuleScope $scope
-    ): Match {
+    public function match(RuleScope $scope): Match
+    {
         $now = new DateTime();
 
         if (!$this->useTime) {

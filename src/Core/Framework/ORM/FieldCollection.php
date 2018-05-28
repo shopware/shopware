@@ -12,7 +12,7 @@ use Shopware\Framework\Struct\Collection;
 class FieldCollection extends Collection
 {
     /**
-     * @var string[]
+     * @var Field[]
      */
     public $mapping = [];
     /**
@@ -31,7 +31,7 @@ class FieldCollection extends Collection
     {
         $this->elements[$field->getPropertyName()] = $field;
         if ($field instanceof StorageAware && !$field instanceof AssociationInterface) {
-            $this->mapping[$field->getStorageName()] = $field->getPropertyName();
+            $this->mapping[$field->getStorageName()] = $field;
         }
     }
 
@@ -80,11 +80,7 @@ class FieldCollection extends Collection
 
     public function getByStorageName(string $storageName): ?Field
     {
-        if (!array_key_exists($storageName, $this->mapping)) {
-            return null;
-        }
-
-        return $this->get($this->mapping[$storageName]);
+        return $this->mapping[$storageName] ?? null;
     }
 
     public function filterByFlag(string $flagClass): self

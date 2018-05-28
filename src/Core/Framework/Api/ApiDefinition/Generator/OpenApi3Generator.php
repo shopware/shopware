@@ -22,6 +22,7 @@ use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Framework\ORM\Field\OneToManyAssociationField;
 use Shopware\Framework\ORM\Field\ReferenceVersionField;
 use Shopware\Framework\ORM\Field\StringField;
+use Shopware\Framework\ORM\Field\TenantIdField;
 use Shopware\Framework\ORM\Field\TranslatedField;
 use Shopware\Framework\ORM\Field\VersionField;
 use Shopware\Framework\ORM\Write\Flag\Required;
@@ -281,6 +282,10 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         /** @var Field $field */
         foreach ($definition::getFields() as $field) {
             if ($field->getPropertyName() === 'translations' || $field->getPropertyName() === 'id' || preg_match('#translations$#i', $field->getPropertyName())) {
+                continue;
+            }
+
+            if ($field instanceof TenantIdField) {
                 continue;
             }
 

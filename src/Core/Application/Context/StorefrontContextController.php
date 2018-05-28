@@ -84,7 +84,7 @@ class StorefrontContextController extends Controller
             $update['shippingAddressId'] = $this->validateAddressId($payload['shippingAddressId'], $context);
         }
 
-        $this->contextPersister->save($context->getToken(), $update);
+        $this->contextPersister->save($context->getToken(), $update, $context->getTenantId());
 
         return new JsonResponse([
             PlatformRequest::HEADER_CONTEXT_TOKEN => $context->getToken(),

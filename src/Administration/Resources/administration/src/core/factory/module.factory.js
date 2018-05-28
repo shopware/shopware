@@ -101,6 +101,10 @@ function registerModule(moduleId, module) {
         // Generate the component list based on a route
         route = createRouteComponentList(route, moduleId);
 
+        if (!route) {
+            return;
+        }
+
         // Support for children routes
         if (hasOwnProperty(route, 'children') && Object.keys(route.children).length) {
             route = iterateChildRoutes(route, splitModuleId, routeKey);

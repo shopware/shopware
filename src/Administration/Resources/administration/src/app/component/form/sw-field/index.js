@@ -1,4 +1,4 @@
-import { Component, Mixin } from 'src/core/shopware';
+import { Component, Mixin, State } from 'src/core/shopware';
 import template from './sw-field.html.twig';
 import './sw-field.less';
 
@@ -71,14 +71,29 @@ Component.register('sw-field', {
     data() {
         return {
             currentValue: null,
+            boundExpression: '',
             boundExpressionPath: [],
-            showPassword: false
+            showPassword: false,
+            formError: {}
         };
     },
 
     computed: {
         hasSuffix() {
             return this.suffix.length || !!this.$slots.suffix;
+        },
+
+        errorStore() {
+            return State.getStore('error');
+        },
+
+        hasError() {
+            return (this.errorMessage !== null && this.errorMessage.length > 0) ||
+                   (this.formError.detail && this.formError.detail.length > 0);
+        },
+
+        hasErrorCls() {
+            return !this.isValid || this.hasError;
         }
     },
 
@@ -88,11 +103,14 @@ Component.register('sw-field', {
         }
     },
 
-    mounted() {
+    created() {
         this.currentValue = this.convertValueType(this.value);
 
         if (this.$vnode.data && this.$vnode.data.model) {
-            this.boundExpressionPath = this.$vnode.data.model.expression.split('.');
+            this.boundExpression = this.$vnode.data.model.expression;
+            this.boundExpressionPath = this.boundExpression.split('.');
+
+            this.formError = this.errorStore.registerFormField(this.boundExpression);
         }
     },
 
@@ -102,8 +120,8 @@ Component.register('sw-field', {
 
             this.$emit('input', this.currentValue);
 
-            if (this.hasError()) {
-                this.$store.commit('error/deleteError', this.getError());
+            if (this.hasError) {
+                this.errorStore.deleteError(this.formError);
             }
         },
 
@@ -116,8 +134,8 @@ Component.register('sw-field', {
                 this.$emit('input', this.currentValue);
             }
 
-            if (this.hasError()) {
-                this.$store.commit('error/deleteError', this.getError());
+            if (this.hasError) {
+                this.errorStore.deleteError(this.formError);
             }
         },
 
@@ -170,35 +188,6 @@ Component.register('sw-field', {
             }
 
             return value;
-        },
-
-        /**
-         * Get the current error of the field.
-         * Will look for errors for the bound value in the global error state.
-         * You can also pass an error message directly via property.
-         *
-         * @returns {*}
-         */
-        getError() {
-            if (this.errorMessage !== null && this.errorMessage.length > 0) {
-                return { detail: this.errorMessage };
-            }
-
-            if (this.boundExpressionPath.length <= 0) {
-                return null;
-            }
-
-            return this.boundExpressionPath.reduce((obj, key) => {
-                return (obj !== null && obj[key]) ? obj[key] : null;
-            }, this.$store.state.error);
-        },
-
-        hasError() {
-            return (this.errorMessage !== null && this.errorMessage.length > 0) || this.getError() !== null;
-        },
-
-        hasErrorCls() {
-            return !this.isValid || this.hasError();
         },
 
         onTogglePasswordVisibility() {

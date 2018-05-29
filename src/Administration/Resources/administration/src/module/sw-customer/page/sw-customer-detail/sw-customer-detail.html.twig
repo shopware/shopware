@@ -10,20 +10,20 @@
             <template slot="smart-bar-actions">
                 {% block sw_customer_detail_actions_cancel_editing %}
                     <sw-button v-if="customerEditMode && !isCreateCustomer"
-                               :disabled="isLoading"
+                               :disabled="customer.isLoading"
                                @click.prevent="onDisableCustomerEditMode">
                         {{ $tc('sw-customer.detail.buttonCancel') }}
                     </sw-button>
                 {% endblock %}
 
                 {% block sw_customer_detail_actions_cancel %}
-                    <sw-button v-else :disabled="isLoading" link="sw.customer.index">
+                    <sw-button v-else :disabled="customer.isLoading" link="sw.customer.index">
                         {{ $tc('sw-customer.detail.buttonCancel') }}
                     </sw-button>
                 {% endblock %}
 
                 {% block sw_customer_detail_actions_save %}
-                    <sw-button variant="primary" :disabled="isLoading" @click.prevent="onSave">
+                    <sw-button variant="primary" :disabled="customer.isLoading" @click.prevent="onSave">
                         {{ $tc('sw-customer.detail.buttonSave') }}
                     </sw-button>
                 {% endblock %}
@@ -57,7 +57,6 @@
                                  :customerGroups="customerGroups"
                                  :paymentMethods="paymentMethods"
                                  :countries="countries"
-                                 :isLoading="isLoading"
                                  :customerEditMode="customerEditMode"
                                  @activateCustomerEditMode="onActivateCustomerEditMode">
                     </router-view>

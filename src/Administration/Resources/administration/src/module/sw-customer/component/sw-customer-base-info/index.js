@@ -11,11 +11,6 @@ Component.register('sw-customer-base-info', {
             required: true,
             default: {}
         },
-        isLoading: {
-            type: Boolean,
-            required: true,
-            default: false
-        },
         customerName: {
             type: String,
             required: true,

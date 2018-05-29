@@ -4,6 +4,7 @@ import './page/sw-customer-detail';
 import './page/sw-customer-create';
 import './view/sw-customer-detail-base';
 import './view/sw-customer-detail-addresses';
+import './view/sw-customer-create-base';
 import './component/sw-customer-base-form';
 import './component/sw-customer-base-info';
 import './component/sw-customer-address-form';
@@ -23,7 +24,7 @@ Module.register('sw-customer', {
             components: {
                 default: 'sw-customer-list'
             },
-            path: 'index/:offset?/:limit?/:sortBy?/:sortDirection?/:term?/:filters?'
+            path: 'index'
         },
 
         create: {
@@ -34,7 +35,7 @@ Module.register('sw-customer', {
             },
             children: {
                 base: {
-                    component: 'sw-customer-detail-base',
+                    component: 'sw-customer-create-base',
                     path: 'base',
                     meta: {
                         parentPath: 'sw.customer.index'

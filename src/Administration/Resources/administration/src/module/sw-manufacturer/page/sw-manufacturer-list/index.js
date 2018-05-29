@@ -1,56 +1,32 @@
-import { Component, Mixin } from 'src/core/shopware';
-import PaginationMixin from 'src/app/component/mixin/pagination.mixin';
+import { Component, Mixin, State } from 'src/core/shopware';
 import template from './sw-manufacturer-list.html.twig';
 
 Component.register('sw-manufacturer-list', {
     template,
 
     mixins: [
-        PaginationMixin,
-        Mixin.getByName('manufacturerList')
+        Mixin.getByName('listing')
     ],
 
     data() {
         return {
-            showDeleteModal: false
+            manufacturers: [],
+            showDeleteModal: false,
+            isLoading: false
         };
     },
 
+    computed: {
+        manufacturerStore() {
+            return State.getStore('product_manufacturer');
+        }
+    },
+
     methods: {
-        updateRoute() {
-            const params = this.getListingParams();
-
-            this.$router.push({
-                name: 'sw.manufacturer.index',
-                params
-            });
-        },
-
-        handlePagination() {
-            this.updateRoute();
-            this.getManufacturerList();
-        },
-
-        onSortColumn(column) {
-            if (this.sortBy === column.dataIndex) {
-                this.sortDirection = (this.sortDirection === 'ASC' ? 'DESC' : 'ASC');
-            } else {
-                this.sortBy = column.dataIndex;
-                this.sortDirection = 'ASC';
-            }
-
-            this.updateRoute();
-            this.getManufacturerList();
-        },
-
-        onRefresh() {
-            this.getManufacturerList();
-        },
-
-        onInlineEditSave(opts) {
+        onInlineEditSave(manufacturer) {
             this.isLoading = true;
 
-            return this.$store.dispatch('manufacturer/saveManufacturer', opts.item).then(() => {
+            return manufacturer.save().then(() => {
                 this.isLoading = false;
             }).catch(() => {
                 this.isLoading = false;
@@ -66,8 +42,24 @@ Component.register('sw-manufacturer-list', {
         },
 
         onConfirmDelete(id) {
-            return this.$store.dispatch('manufacturer/deleteManufacturer', id).then(() => {
-                this.getManufacturerList();
+            return this.manufacturerStore.store[id].delete(true).then(() => {
+                this.showDeleteModal = false;
+                this.getList();
+            });
+        },
+
+        getList() {
+            this.isLoading = true;
+            const params = this.getListingParams();
+
+            this.manufacturers = [];
+
+            return this.manufacturerStore.getList(params).then((response) => {
+                this.total = response.total;
+                this.manufacturers = response.items;
+                this.isLoading = false;
+
+                return this.manufacturers;
             });
         }
     }

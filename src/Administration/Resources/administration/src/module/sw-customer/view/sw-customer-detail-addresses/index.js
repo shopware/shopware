@@ -13,11 +13,6 @@ Component.register('sw-customer-detail-addresses', {
             required: true,
             default: {}
         },
-        isLoading: {
-            type: Boolean,
-            required: true,
-            default: false
-        },
         countries: {
             type: Array,
             required: true,
@@ -48,7 +43,6 @@ Component.register('sw-customer-detail-addresses', {
 
             newAddress.id = utils.createId();
             newAddress.customerId = this.customer.id;
-            newAddress.tenantId = this.customer.tenantId;
 
             this.currentAddress = newAddress;
         },

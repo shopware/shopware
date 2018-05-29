@@ -1,5 +1,5 @@
 {% block sw_field %}
-    <div :class="['sw-field', `sw-field--${type}`, hasErrorCls() ? 'has--error' : '', hasSuffix ? 'has--suffix': '', disabled ? 'is--disabled' : '']">
+    <div :class="['sw-field', `sw-field--${type}`, hasErrorCls ? 'has--error' : '', hasSuffix ? 'has--suffix': '', disabled ? 'is--disabled' : '']">
 
         <!-- Label -->
         {% block sw_field_label %}
@@ -227,10 +227,11 @@
         {% endblock %}
 
         {% block sw_field_error %}
-            <div class="sw-field__error" v-if="hasError()">
+            <div class="sw-field__error" v-if="hasError">
                 <slot name="error">
                     {% block sw_field_slot_error %}
-                        {{ getError().detail }}
+                        <span v-if="errorMessage"{{ errorMessage }}></span>
+                        <span v-if="formError.detail">{{ formError.detail }}</span>
                     {% endblock %}
                 </slot>
             </div>

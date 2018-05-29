@@ -1,4 +1,4 @@
-import { Component } from 'src/core/shopware';
+import { Component, State } from 'src/core/shopware';
 import dom from 'src/core/service/utils/dom.utils';
 import template from './sw-admin-menu.html.twig';
 import './sw-admin-menu.less';
@@ -21,6 +21,10 @@ Component.register('sw-admin-menu', {
     },
 
     computed: {
+        localeStore() {
+            return State.getStore('adminLocale');
+        },
+
         mainMenuEntries() {
             return this.menuService.getMainMenu();
         },
@@ -93,7 +97,7 @@ Component.register('sw-admin-menu', {
             const newLocale = (lastLocale === 'de-DE' ? 'en-GB' : 'de-DE');
 
             this.$root.$i18n.locale = newLocale;
-            this.$store.commit('locale/setLocale', newLocale);
+            this.localeStore.setLocale(newLocale);
         },
 
         onToggleSidebar() {

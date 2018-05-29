@@ -11,7 +11,7 @@
 
                         {% block sw_order_list_smart_bar_header_title_counter %}
                             <span v-if="!isLoading">
-                                ({{ $tc('sw-order.list.textOrdersTotal', totalOrders, { count: totalOrders }) }})
+                                ({{ $tc('sw-order.list.textOrdersTotal', total, { count: total }) }})
                             </span>
                         {% endblock %}
                     </h2>
@@ -40,7 +40,7 @@
                     <div class="sw-order-list__content">
 
                         {% block sw_order_list_grid %}
-                            <sw-grid v-if="totalOrders"
+                            <sw-grid v-if="total"
                                      :items="orders"
                                      :pagination="true"
                                      :sortBy="sortBy"
@@ -147,9 +147,9 @@
                                     {% block sw_order_list_grid_pagination %}
                                         <sw-pagination :offset="offset"
                                                        :limit="limit"
-                                                       :total="totalOrders"
+                                                       :total="total"
                                                        :total-visible="7"
-                                                       @page-change="pageChange">
+                                                       @page-change="onPageChange">
                                         </sw-pagination>
                                     {% endblock %}
                                 </template>
@@ -176,7 +176,7 @@
                         {% endblock %}
 
                         {% block sw_order_list_empty_state %}
-                            <sw-empty-state v-else-if="!isLoading && !totalOrders" :title="$tc('sw-order.list.messageEmpty')"></sw-empty-state>
+                            <sw-empty-state v-else-if="!isLoading && !total" :title="$tc('sw-order.list.messageEmpty')"></sw-empty-state>
                         {% endblock %}
 
                         {% block sw_order_list_grid_loader %}

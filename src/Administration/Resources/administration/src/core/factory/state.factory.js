@@ -1,67 +1,48 @@
 /**
  * @module core/factory/state
  */
-import { warn } from 'src/core/service/utils/debug.utils';
-
 export default {
-    registerStateModule,
-    getStateModule,
-    getStateRegistry
+    registerStore,
+    getStore,
+    getStoreRegistry
 };
 
 /**
- * Registry for the state modules
+ * Registry for the state stores.
  *
- * @type {Map<String, Object>}
+ * @type {Map<any, any>}
  */
-const stateRegistry = new Map();
+const storeRegistry = new Map();
 
 /**
- * Registers a new state module.
+ * Register a new state storage.
  *
- * @param {String} name
- * @param {Object} [module={}]
- * @returns {boolean}
+ * @param name
+ * @param store
  */
-function registerStateModule(name, module = {}) {
+function registerStore(name, store) {
     if (!name || !name.length) {
-        warn(
-            'SateFactory',
-            'A state module always needs a name.',
-            module
-        );
-        return false;
+        return;
     }
 
-    if (stateRegistry.has(name)) {
-        warn(
-            'SateFactory',
-            `A state module with the name ${name} already exists.`,
-            module
-        );
-        return false;
-    }
-
-    stateRegistry.set(name, module);
-
-    return true;
+    storeRegistry.set(name, store);
 }
 
 /**
- * Get a state module by name.
+ * Get a store by name.
  *
- * @param {String} name
- * @returns {Object}
+ * @param name
+ * @return {any}
  */
-function getStateModule(name) {
-    return stateRegistry.get(name);
+function getStore(name) {
+    return storeRegistry.get(name);
 }
 
 /**
- * Get the complete state registry.
+ * Get the complete store registry.
  *
- * @returns {Map<String, Object>}
+ * @return {Map<any, any>}
  */
-function getStateRegistry() {
-    return stateRegistry;
+function getStoreRegistry() {
+    return storeRegistry;
 }

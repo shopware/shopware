@@ -317,7 +317,7 @@ class ApplicationBootstrapper {
     createApplicationRoot() {
         const container = this.getContainer('init');
 
-        ApplicationBootstrapper.instantiateInitializers(container).then(() => {
+        this.instantiateInitializers(container).then(() => {
             const router = container.router.getRouterInstance();
             const view = container.view;
 
@@ -337,15 +337,24 @@ class ApplicationBootstrapper {
      *
      * @private
      * @param {Bottle.IContainer} container Bottle container
+     * @param {String} [prefix='init']
      * @returns {Promise<any[]>}
      */
-    static instantiateInitializers(container) {
-        // Tap the container to start the dependency tree resolving
-        const services = Object.keys(container).map((serviceKey) => {
-            return container[serviceKey];
+    instantiateInitializers(container, prefix = 'init') {
+        const services = container.$list().map((serviceName) => {
+            return `${prefix}.${serviceName}`;
+        });
+        this.$container.digest(services);
+
+        const asyncInitializers = [];
+        Object.keys(container).forEach((serviceKey) => {
+            const service = container[serviceKey];
+            if (service && service instanceof Promise) {
+                asyncInitializers.push(service);
+            }
         });
 
-        return Promise.resolve(services);
+        return Promise.all(asyncInitializers);
     }
 }
 

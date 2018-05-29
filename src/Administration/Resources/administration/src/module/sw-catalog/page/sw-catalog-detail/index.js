@@ -1,4 +1,4 @@
-import { Component, Mixin } from 'src/core/shopware';
+import { Component, State } from 'src/core/shopware';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-catalog-detail.html.twig';
 import './sw-catalog-detail.less';
@@ -6,48 +6,38 @@ import './sw-catalog-detail.less';
 Component.register('sw-catalog-detail', {
     template,
 
-    mixins: [
-        Mixin.getByName('catalog')
-    ],
-
     data() {
         return {
+            catalogId: null,
+            catalog: {},
+            categories: [],
             addCategoryName: '',
-            categories: []
+            isLoading: false
         };
     },
 
-    created() {
-        if (this.$route.params.id) {
-            this.catalogId = this.$route.params.id;
+    computed: {
+        catalogStore() {
+            return State.getStore('catalog');
+        },
+
+        categoryStore() {
+            return State.getStore('category');
         }
     },
 
-    mounted() {
-        this.getCategories();
+    created() {
+        this.createdComponent();
     },
 
     methods: {
-        onAddCategory() {
-            if (!this.addCategoryName.length || this.addCategoryName.length <= 0) {
-                return;
+        createdComponent() {
+            if (this.$route.params.id) {
+                this.catalogId = this.$route.params.id;
+                this.catalog = this.catalogStore.getById(this.catalogId);
+
+                this.getCategories();
             }
-
-            this.$store.dispatch('category/createEmpty').then((newCategory) => {
-                newCategory.name = this.addCategoryName;
-                newCategory.catalogId = this.catalogId;
-                newCategory.parentId = null;
-                newCategory.position = 0;
-
-                this.categories.forEach((category) => {
-                    if (category.parentId === null) {
-                        category.position += 1;
-                    }
-                });
-
-                this.categories.push(newCategory);
-                this.addCategoryName = '';
-            });
         },
 
         getCategories(parentId = null, searchTerm = null) {
@@ -62,7 +52,7 @@ Component.register('sw-catalog-detail', {
                 criteria.push(CriteriaFactory.term('parentId', parentId));
             }
 
-            params.criteria = [CriteriaFactory.nested('AND', ...criteria).getQuery()];
+            params.criteria = CriteriaFactory.nested('AND', ...criteria);
 
             if (searchTerm !== null) {
                 params.term = searchTerm;
@@ -70,8 +60,8 @@ Component.register('sw-catalog-detail', {
 
             this.isLoading = searchTerm !== null || parentId === null;
 
-            return this.$store.dispatch('category/getList', params).then((data) => {
-                data.items.forEach((category) => {
+            return this.categoryStore.getList(params).then((response) => {
+                response.items.forEach((category) => {
                     if (typeof this.categories.find(i => i.d === category.id) !== 'undefined') {
                         return;
                     }
@@ -80,9 +70,30 @@ Component.register('sw-catalog-detail', {
                 });
 
                 this.isLoading = false;
-
-                return data.items;
+                return response.items;
             });
+        },
+
+        onAddCategory() {
+            if (!this.addCategoryName.length || this.addCategoryName.length <= 0) {
+                return;
+            }
+
+            const newCategory = this.categoryStore.create();
+
+            newCategory.name = this.addCategoryName;
+            newCategory.catalogId = this.catalogId;
+            newCategory.parentId = null;
+            newCategory.position = 0;
+
+            this.categories.forEach((category) => {
+                if (category.parentId === null) {
+                    category.position += 1;
+                }
+            });
+
+            this.categories.push(newCategory);
+            this.addCategoryName = '';
         },
 
         searchCategories(searchTerm) {
@@ -97,45 +108,15 @@ Component.register('sw-catalog-detail', {
         },
 
         onSave() {
-            const categoryCue = this.getCatalogCategoryCue();
             this.isLoading = true;
 
-            return Promise.all(categoryCue).then(() => {
-                this.isLoading = false;
-                this.saveCatalog();
-            }).catch((exception) => {
-                if (exception.response.data && exception.response.data.errors) {
-                    exception.response.data.errors.forEach((error) => {
-                        this.$store.commit('error/addError', {
-                            module: 'catalog',
-                            error
-                        });
-                    });
-                }
-
+            return this.categoryStore.sync().then(() => {
+                return this.catalog.save().then(() => {
+                    this.isLoading = false;
+                });
+            }).catch(() => {
                 this.isLoading = false;
             });
-        },
-
-        getCatalogCategoryCue() {
-            const categoryState = this.$store.state.category.draft;
-            const categoryCue = [];
-
-            Object.keys(categoryState).forEach((key) => {
-                if (categoryState[key].catalogId === this.catalog.id) {
-                    categoryCue.push(new Promise((resolve, reject) => {
-                        this.$store.dispatch('category/saveItem', categoryState[key])
-                            .then((response) => {
-                                resolve(response);
-                            })
-                            .catch((response) => {
-                                reject(response);
-                            });
-                    }));
-                }
-            });
-
-            return categoryCue;
         }
     }
 });

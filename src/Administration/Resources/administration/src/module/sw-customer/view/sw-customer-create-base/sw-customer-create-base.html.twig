@@ -1,0 +1,9 @@
+{% block sw_customer_detail_base_form_card %}
+    {% parent %}
+
+    <sw-card :title="$tc('sw-customer.detailBase.labelAddressesCard')"
+             :isLoading="customer.isLoading"
+             key="address">
+        <sw-customer-address-form :address="customer.addresses[0]" :countries="countries"></sw-customer-address-form>
+    </sw-card>
+{% endblock %}

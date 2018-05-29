@@ -91,7 +91,7 @@ class ApiService {
      * Updates an entity using the provided payload.
      *
      * @param {String|Number} id
-     * @param {any} payload
+     * @param {Object} payload
      * @param {Object} additionalParams
      * @param {Object} additionalHeaders
      * @returns {Promise<T>}

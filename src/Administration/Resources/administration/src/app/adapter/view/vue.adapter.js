@@ -3,10 +3,7 @@
  */
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-import VueX from 'vuex';
-import { sync } from 'vuex-router-sync';
 import VueI18n from 'vue-i18n';
-import storeDefinition from 'src/app/store';
 import { Component } from 'src/core/shopware';
 import { warn } from 'src/core/service/utils/debug.utils';
 
@@ -26,6 +23,7 @@ const vueComponents = {};
  * @param stateFactory
  * @param filterFactory
  * @param directiveFactory
+ * @param localeFactory
  * @returns {VueAdapter}
  */
 export default function VueAdapter(context, componentFactory, stateFactory, filterFactory, directiveFactory, localeFactory) {
@@ -56,8 +54,6 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
         initInheritance();
 
         const i18n = initLocales();
-
-        const store = initState(router);
         const components = getComponents();
 
         // Enable performance measurements in development mode
@@ -67,7 +63,6 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
             el: renderElement,
             template: '<sw-admin />',
             router,
-            store,
             i18n,
             components,
             provide() {
@@ -146,31 +141,7 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
      */
     function initPlugins() {
         Vue.use(VueRouter);
-        Vue.use(VueX);
         Vue.use(VueI18n);
-    }
-
-    /**
-     * Initializes the state modules with VueX
-     *
-     * @private
-     * @memberOf module:app/adapter/view/vue
-     * @param router
-     * @returns {Store}
-     */
-    function initState(router) {
-        // We need the store instance to inject it into the Vue constructor
-        const store = new VueX.Store(storeDefinition);
-
-        // Enables to see the router changes in VueX
-        sync(store, router);
-
-        // Add all registered state modules to the VueX store
-        stateFactory.getStateRegistry().forEach((stateModule, name) => {
-            store.registerModule(name, stateModule);
-        });
-
-        return store;
     }
 
     /**
@@ -207,6 +178,13 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
         return true;
     }
 
+    /**
+     * Initialises the standard locales.
+     *
+     * @private
+     * @memberOf module:app/adapter/view/vue
+     * @return {VueI18n}
+     */
     function initLocales() {
         const registry = localeFactory.getLocaleRegistry();
         const messages = {};

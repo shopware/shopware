@@ -22,7 +22,9 @@ export const Template = {
 export const Application = Shopware.Application;
 
 export const State = {
-    register: Shopware.State.register
+    registerStore: Shopware.State.registerStore,
+    getStore: Shopware.State.getStore,
+    getStoreRegistry: Shopware.State.getStoreRegistry
 };
 
 export const Mixin = {

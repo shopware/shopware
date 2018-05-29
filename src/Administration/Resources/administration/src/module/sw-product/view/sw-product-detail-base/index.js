@@ -24,11 +24,6 @@ Component.register('sw-product-detail-base', {
             type: Array,
             required: true,
             default: []
-        },
-        isLoading: {
-            type: Boolean,
-            required: true,
-            default: false
         }
     }
 });

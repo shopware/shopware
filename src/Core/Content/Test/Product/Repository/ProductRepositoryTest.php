@@ -540,7 +540,7 @@ class ProductRepositoryTest extends KernelTestCase
         $this->assertEquals(1, $count);
     }
 
-    public function testSwitchVariantToFullProduct()
+    public function testSwitchVariantToFullProduct(): void
     {
         $id = Uuid::uuid4()->getHex();
         $child = Uuid::uuid4()->getHex();
@@ -559,6 +559,9 @@ class ProductRepositoryTest extends KernelTestCase
         $raw = $this->connection->fetchAll('SELECT * FROM product');
         $this->assertCount(2, $raw);
 
+        $name = $this->connection->fetchColumn('SELECT name FROM product_translation WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($child)]);
+        $this->assertEquals('Update', $name);
+
         $data = [
             [
                 'id' => $child,
@@ -576,7 +579,78 @@ class ProductRepositoryTest extends KernelTestCase
         /* @var WriteStackException $e */
         $this->assertArrayHasKey('/taxId', $e->toArray());
         $this->assertArrayHasKey('/manufacturerId', $e->toArray());
-        $this->assertArrayHasKey('/translations', $e->toArray());
+
+        $data = [
+            [
+                'id' => $child,
+                'parentId' => null,
+                'name' => 'Child transformed to parent',
+                'price' => ['gross' => 13, 'net' => 12],
+                'tax' => ['name' => 'test', 'rate' => 15],
+                'manufacturer' => ['name' => 'test3'],
+            ],
+        ];
+
+        $this->repository->upsert($data, ApplicationContext:: createDefaultContext(\Shopware\Defaults::TENANT_ID));
+
+        $raw = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', [
+            'id' => Uuid::fromStringToBytes($child),
+        ]);
+
+        $this->assertNull($raw['parent_id']);
+
+        $products = $this->repository->readBasic([$child], ApplicationContext:: createDefaultContext(\Shopware\Defaults::TENANT_ID));
+        $product = $products->get($child);
+
+        /* @var ProductBasicStruct $product */
+        $this->assertEquals('Child transformed to parent', $product->getName());
+        $this->assertEquals(13, $product->getPrice()->getGross());
+        $this->assertEquals('test3', $product->getManufacturer()->getName());
+        $this->assertEquals(15, $product->getTax()->getRate());
+    }
+
+    public function testSwitchVariantToFullProductWithoutName(): void
+    {
+        $this->markTestSkipped('The test should error with because of a missing name.');
+
+        $id = Uuid::uuid4()->getHex();
+        $child = Uuid::uuid4()->getHex();
+
+        $data = [
+            ['id' => $id, 'name' => 'Insert', 'price' => ['gross' => 10, 'net' => 9], 'tax' => ['name' => 'test', 'rate' => 10], 'manufacturer' => ['name' => 'test']],
+            ['id' => $child, 'parentId' => $id, 'price' => ['gross' => 12, 'net' => 11]],
+        ];
+
+        $this->repository->upsert($data, ApplicationContext:: createDefaultContext(\Shopware\Defaults::TENANT_ID));
+
+        $products = $this->repository->readBasic([$id, $child], ApplicationContext:: createDefaultContext(\Shopware\Defaults::TENANT_ID));
+        $this->assertTrue($products->has($id));
+        $this->assertTrue($products->has($child));
+
+        $raw = $this->connection->fetchAll('SELECT * FROM product');
+        $this->assertCount(2, $raw);
+
+        $name = $this->connection->fetchColumn('SELECT name FROM product_translation WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($child)]);
+        $this->assertFalse($name);
+
+        $data = [
+            [
+                'id' => $child,
+                'parentId' => null,
+            ],
+        ];
+
+        $e = null;
+        try {
+            $this->repository->upsert($data, ApplicationContext:: createDefaultContext(\Shopware\Defaults::TENANT_ID));
+        } catch (\Exception $e) {
+        }
+        $this->assertInstanceOf(WriteStackException::class, $e);
+
+        /* @var WriteStackException $e */
+        $this->assertArrayHasKey('/taxId', $e->toArray());
+        $this->assertArrayHasKey('/manufacturerId', $e->toArray());
+        $this->assertArrayHasKey('/translations', $e->toArray(), print_r($e->toArray(), true));
 
         $data = [
             [

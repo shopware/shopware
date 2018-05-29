@@ -40,7 +40,8 @@
   },
   "sw-customer": {
     "general": {
-      "mainMenuItemList": "Customers",
+      "mainMenuItemGeneral": "Customers",
+      "mainMenuItemList": "Overview",
       "mainMenuItemAdd": "Add new customer"
     },
     "list": {
@@ -187,7 +188,8 @@
   },
   "sw-product": {
     "general": {
-      "mainMenuItemList": "Products",
+      "mainMenuItemGeneral": "Products",
+      "mainMenuItemList": "Overview",
       "mainMenuItemAdd": "Add new product"
     },
     "basicForm": {
@@ -306,15 +308,16 @@
       "columnDescription": "Description",
       "columnActions": "Actions",
       "contextMenuEdit": "Edit manufacturer",
-      "contextMenuDelete": "Remove manufacturer",
+      "contextMenuDelete": "Delete manufacturer",
       "contextMenuDuplicate": "Duplicate manufacturer",
-      "modalTitleDelete": "Remove manufacturer",
-      "textDeleteConfirm": "Are you sure, you want to remove the manufacter {name}?",
+      "modalTitleDelete": "Delete manufacturer",
+      "textDeleteConfirm": "Are you sure, you want to delete the manufacter {name}?",
       "buttonCancel": "Cancel",
-      "buttonDelete": "Remove"
+      "buttonDelete": "Delete"
     },
     "detail": {
       "textHeadline": "New manufacturer",
+      "textMediaSelection": "Media selection",
       "buttonCancel": "Cancel",
       "buttonSave": "Save manufacturer",
       "cardTitleManufacturerInfo": "Manufacturer information",

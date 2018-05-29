@@ -69,14 +69,20 @@ Module.register('sw-customer', {
     },
 
     navigation: [{
-        path: 'sw.customer.index',
-        label: 'sw-customer.general.mainMenuItemList',
+        id: 'sw-customer',
+        label: 'sw-customer.general.mainMenuItemGeneral',
         color: '#F88962',
         icon: 'default-avatar-multiple'
     }, {
+        path: 'sw.customer.index',
+        label: 'sw-customer.general.mainMenuItemList',
+        color: '#F88962',
+        icon: 'default-avatar-multiple',
+        parent: 'sw-customer'
+    }, {
         path: 'sw.customer.create',
         label: 'sw-customer.general.mainMenuItemAdd',
-        parent: 'sw.customer.index',
+        parent: 'sw-customer',
         color: '#F88962'
     }]
 });

@@ -46,8 +46,21 @@ Component.register('sw-admin-menu', {
     },
 
     methods: {
-        openSubMenu() {
+        openSubMenu(entry, currentTarget) {
             this.subMenuOpen = !this.subMenuOpen;
+            this.changeActiveItem(currentTarget.querySelector('.sw-admin-menu__navigation-link'));
+        },
+
+        changeActiveItem(target) {
+            const mainMenuElement = target.parentNode.parentNode;
+            const activeClasses = ['sw-admin-menu__navigation-link-active', 'router-link-active'];
+
+            const listElements = mainMenuElement.querySelectorAll('.sw-admin-menu__navigation-link');
+            listElements.forEach((listItem) => {
+                listItem.classList.remove(...activeClasses);
+            });
+
+            target.classList.add(activeClasses[0]);
         },
 
         openFlyout(entry, currentTarget) {
@@ -57,6 +70,11 @@ Component.register('sw-admin-menu', {
 
             this.flyoutEntries = entry.children;
             this.flyoutLabel = entry.label;
+
+            if (!this.isExpanded) {
+                const listItem = currentTarget.querySelector('.sw-admin-menu__navigation-link');
+                this.changeActiveItem(listItem);
+            }
 
             this.flyoutStyle = {
                 top: `${currentTarget.getBoundingClientRect().top}px`,

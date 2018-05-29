@@ -38,7 +38,9 @@ class FlatTree {
             if (element.parent !== parent) {
                 return;
             }
-            element.children = this._tree(element.path, elements);
+
+            const newParent = element.id || element.path;
+            element.children = this._tree(newParent, elements);
             children.push(element);
         });
 
@@ -53,7 +55,7 @@ class FlatTree {
      * @returns {FlatTree}
      */
     add(node) {
-        const nodeIdentifier = node.path;
+        const nodeIdentifier = node.id || node.path;
 
         if (this._registeredNodes.has(nodeIdentifier)) {
             warn(

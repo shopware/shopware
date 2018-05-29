@@ -1,11 +1,11 @@
 {% block sw_admin_menu_item %}
     <li class="sw-admin-menu__navigation-list-item"
-        :class="getItemName(entry.path)"
+        :class="getItemName(entry.id || entry.path)"
         @click="$emit('listItemClicked', entry, $event.currentTarget)"
         @mouseover="$emit('menuItemChanged', entry, $event.currentTarget)">
 
         {% block sw_admin_menu_item_link %}
-            <router-link class="sw-admin-menu__navigation-link" :to="{ name: entry.path }">
+            <router-link class="sw-admin-menu__navigation-link" :to="{ name: entry.path }" v-if="entry.path">
 
                 {% block sw_admin_menu_item_icon %}
                     <sw-icon v-if="displayIcon"
@@ -21,15 +21,32 @@
                         {{ $tc(entry.label) }}
                     </span>
                 {% endblock %}
-
             </router-link>
+
+            <span class="sw-admin-menu__navigation-link"
+                  :class="startupClass" v-else>
+                {% block sw_admin_menu_item_icon %}
+                    <sw-icon v-if="displayIcon"
+                         size="20px"
+                         class="sw-admin-menu__navigation-link-icon"
+                         :name="getIconName(entry.icon)"
+                         :style="{ 'color': entry.color }">
+                    </sw-icon>
+                {% endblock %}
+
+                {% block sw_admin_menu_item_text %}
+                     <span :class="collapsibleText ? 'collapsible-text' : ''">
+                        {{ $tc(entry.label) }}
+                    </span>
+                {% endblock %}
+            </span>
         {% endblock %}
 
         {% block sw_sidebar_sub_items_list %}
             <ul v-if="sidebarExpanded" class="sw-admin-menu__sub-navigation-list">
                 <sw-admin-menu-item v-for="entry in entry.children"
                                  :entry="entry"
-                                 :key="entry.path"
+                                 :key="entry.id || entry.path"
                                  :displayIcon="false">
                 </sw-admin-menu-item>
             </ul>

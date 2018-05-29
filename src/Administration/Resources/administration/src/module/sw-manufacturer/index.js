@@ -38,7 +38,7 @@ Module.register('sw-manufacturer', {
     navigation: [{
         path: 'sw.manufacturer.index',
         label: 'sw-manufacturer.general.mainMenuItemList',
-        parent: 'sw.product.index',
+        parent: 'sw-product',
         color: '#57D9A3'
     }]
 });

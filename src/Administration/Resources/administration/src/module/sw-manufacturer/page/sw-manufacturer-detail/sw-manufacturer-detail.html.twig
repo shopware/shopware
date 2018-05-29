@@ -28,7 +28,7 @@
             <sw-card-view slot="content">
                 {% block sw_manufacturer_detail_base_basic_info_card %}
                     <sw-card :title="$tc('sw-manufacturer.detail.cardTitleManufacturerInfo')" :isLoading="isLoading">
-                        <sw-container grid="1fr 1fr" gap="30px">
+                        <sw-container grid="1fr 1fr" gap="0 30px">
                             {% block sw_manufacturer_detail_base_info_field_name %}
                                 <sw-field type="text"
                                           :label="$tc('sw-manufacturer.detail.labelName')"
@@ -41,7 +41,7 @@
 
                             {% block sw_manufacturer_detail_base_info_field_media_selection %}
                                 <div class="sw-manufacturer-detail__media-upload-selection">
-                                    Media upload selection
+                                    {{ $tc('sw-manufacturer.detail.textMediaSelection') }}
 
                                     <sw-button class="sw-manufacturer-detail__media-upload-selection-button" :disabled="true">
                                         <sw-icon name="default-action-trash" class="sw-manufacturer-detail__media-upload-selection-icon"></sw-icon>

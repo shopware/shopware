@@ -40,7 +40,8 @@
   },
   "sw-customer": {
     "general": {
-      "mainMenuItemList": "Kunden",
+      "mainMenuItemGeneral": "Kunden",
+      "mainMenuItemList": "Übersicht",
       "mainMenuItemAdd": "Kunde anlegen"
     },
     "list": {
@@ -187,7 +188,8 @@
   },
   "sw-product": {
     "general": {
-      "mainMenuItemList": "Produkte",
+      "mainMenuItemGeneral": "Produkte",
+      "mainMenuItemList": "Übersicht",
       "mainMenuItemAdd": "Produkt anlegen"
     },
     "basicForm": {
@@ -315,6 +317,7 @@
     },
     "detail": {
       "textHeadline": "Neuer Hersteller",
+      "textMediaSelection": "Medien Auswahl",
       "buttonCancel": "Abbrechen",
       "buttonSave": "Hersteller speichern",
       "cardTitleManufacturerInfo": "Herstellerinformationen",

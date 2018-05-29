@@ -130,6 +130,19 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
                 return next();
             }
 
+            // Add the current navigation definition to the meta data
+            const navigation = module.navigation;
+            if (navigation) {
+                let currentNavigationEntry = {};
+                navigation.forEach((item) => {
+                    if (item.path === to.name) {
+                        currentNavigationEntry = item;
+                    }
+                });
+
+                to.meta.$current = currentNavigationEntry;
+            }
+
             to.meta.$module = module.manifest;
             return next();
         });

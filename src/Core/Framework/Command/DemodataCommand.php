@@ -366,6 +366,8 @@ class DemodataCommand extends ContainerAwareCommand
             $services = $this->createServices();
         }
 
+        $context = ApplicationContext::createDefaultContext($this->tenantId);
+
         for ($i = 0; $i < $count; ++$i) {
             $product = $this->createSimpleProduct($categories, $manufacturer, $contextRules);
 
@@ -445,15 +447,15 @@ class DemodataCommand extends ContainerAwareCommand
 
             $payload[] = $product;
 
-            if (count($payload) >= 20) {
+            if (count($payload) >= 50) {
                 $this->io->progressAdvance(count($payload));
-                $this->productRepository->upsert($payload, ApplicationContext::createDefaultContext($this->tenantId));
+                $this->writer->upsert(ProductDefinition::class, $payload, WriteContext::createFromApplicationContext($context));
                 $payload = [];
             }
         }
 
         if (!empty($payload)) {
-            $this->productRepository->upsert($payload, ApplicationContext::createDefaultContext($this->tenantId));
+            $this->writer->upsert(ProductDefinition::class, $payload, WriteContext::createFromApplicationContext($context));
         }
 
         $this->io->progressFinish();

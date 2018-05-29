@@ -133,13 +133,16 @@ class CategoryAssignmentIndexer implements IndexerInterface
 
         $categories = $this->fetchCategories($ids, $context);
 
-        $query = new MultiInsertQueryQueue($this->connection);
+        $query = new MultiInsertQueryQueue($this->connection, 250, false, true);
 
         $versionId = Uuid::fromStringToBytes($context->getVersionId());
         $liveVersionId = Uuid::fromStringToBytes(Defaults::LIVE_VERSION);
 
         $tenantId = Uuid::fromStringToBytes($context->getTenantId());
+
         foreach ($categories as $productId => $mapping) {
+            $productId = Uuid::fromHexToBytes($productId);
+
             $categoryIds = $this->mapCategories($mapping);
 
             $json = null;
@@ -186,22 +189,38 @@ class CategoryAssignmentIndexer implements IndexerInterface
     {
         $query = $this->connection->createQueryBuilder();
         $query->select([
-            'product.id as product_id',
+            'HEX(product.id) as product_id',
             "GROUP_CONCAT(category.path SEPARATOR '|') as paths",
             "GROUP_CONCAT(HEX(category.id) SEPARATOR '||') as ids",
         ]);
         $query->from('product');
-        $query->leftJoin('product', 'product_category', 'mapping', 'mapping.product_id = product.categories AND product.version_id = mapping.product_version_id AND product.tenant_id = mapping.product_tenant_id');
-        $query->leftJoin('mapping', 'category', 'category', 'category.id = mapping.category_id AND category.version_id = :live AND category.tenant_id = product.tenant_id');
+        $query->leftJoin(
+            'product',
+            'product_category',
+            'mapping',
+            'mapping.product_id = product.categories AND 
+             mapping.product_version_id = product.version_id AND 
+             mapping.product_tenant_id = product.tenant_id'
+        );
+        $query->leftJoin(
+            'mapping',
+            'category',
+            'category',
+            'mapping.category_id = category.id AND 
+             mapping.category_version_id = category.version_id AND
+             mapping.category_tenant_id = category.tenant_id AND
+             mapping.category_version_id = :live'
+        );
+
         $query->addGroupBy('product.id');
 
         $query->andWhere('product.id IN (:ids)');
         $query->andWhere('product.version_id = :version');
         $query->andWhere('product.tenant_id = :tenant');
 
-        $query->setParameter('tenant', Uuid::fromStringToBytes($context->getTenantId()));
-        $query->setParameter('version', Uuid::fromStringToBytes($context->getVersionId()));
-        $query->setParameter('live', Uuid::fromStringToBytes(Defaults::LIVE_VERSION));
+        $query->setParameter('tenant', Uuid::fromHexToBytes($context->getTenantId()));
+        $query->setParameter('version', Uuid::fromHexToBytes($context->getVersionId()));
+        $query->setParameter('live', Uuid::fromHexToBytes(Defaults::LIVE_VERSION));
 
         $bytes = array_map(function (string $id) {
             return Uuid::fromStringToBytes($id);
@@ -235,11 +254,11 @@ class CategoryAssignmentIndexer implements IndexerInterface
     private function createIterator(string $tenantId): LastIdQuery
     {
         $query = $this->connection->createQueryBuilder();
-        $query->select(['category.auto_increment', 'category.id']);
-        $query->from('category');
-        $query->andWhere('category.tenant_id = :tenantId');
-        $query->andWhere('category.auto_increment > :lastId');
-        $query->addOrderBy('category.auto_increment');
+        $query->select(['product.auto_increment', 'product.id']);
+        $query->from('product');
+        $query->andWhere('product.tenant_id = :tenantId');
+        $query->andWhere('product.auto_increment > :lastId');
+        $query->addOrderBy('product.auto_increment');
 
         $query->setMaxResults(50);
 

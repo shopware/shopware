@@ -2,7 +2,7 @@
     <div class="sw-product-settings-form">
 
         {% block sw_product_settings_form_content %}
-            <sw-container grid="1fr 1fr" gap="30px">
+            <sw-container grid="1fr 1fr" gap="0px 30px">
 
                 {% block sw_product_settings_form_create_date_field %}
                     <sw-field type="datetime"
@@ -25,7 +25,7 @@
                 {% endblock %}
             </sw-container>
 
-            <sw-container grid="1fr 1fr 1fr 1fr" gap="30px">
+            <sw-container grid="1fr 1fr 1fr 1fr" gap="0px 30px">
                 {% block sw_product_settings_form_width_field %}
                     <sw-field type="number"
                               name="width"
@@ -71,8 +71,8 @@
                 {% endblock %}
             </sw-container>
 
-            <sw-container grid="1fr 1fr" gap="30px">
-                <sw-container grid="1fr 1fr" gap="30px">
+            <sw-container grid="1fr 1fr" gap="0px 30px">
+                <sw-container grid="1fr 1fr" gap="0px 30px">
 
                     {% block sw_product_settings_form_min_purchase_field %}
                         <sw-field type="number"
@@ -103,7 +103,7 @@
                 {% endblock %}
             </sw-container>
 
-            <sw-container grid="1fr 1fr" gap="30px">
+            <sw-container grid="1fr 1fr" gap="0px 30px">
                 {% block sw_product_settings_form_pseudo_sales_field %}
                     <sw-field type="number"
                               name="pseudoSales"
@@ -113,7 +113,7 @@
                     </sw-field>
                 {% endblock %}
 
-                <sw-container grid="1fr 1fr" gap="30px" align="center">
+                <sw-container grid="1fr 1fr" gap="0px 30px" align="center">
                     {% block sw_product_settings_form_shipping_free_field %}
                         <sw-field type="checkbox"
                                   name="shippingFree"

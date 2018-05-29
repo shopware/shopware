@@ -6,14 +6,22 @@
 @sw-loader-colors-duration: 5.6s;
 
 .sw-loader {
+    width: 100%;
+    height: 100%;
     position: absolute;
     top: 0;
     bottom: 0;
     left: 0;
     right: 0;
+    margin: auto;
     background: @sw-loader-color-overlay;
 
     .sw-loader__container {
+        display: grid;
+        grid-auto-columns: auto;
+        align-items: center;
+        justify-items: center;
+        justify-content: center;
         text-align: center;
         position: relative;
         top: 50%;

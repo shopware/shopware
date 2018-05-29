@@ -1,7 +1,7 @@
 {% block sw_customer_base_info %}
     <div class="sw-customer-base-info">
         {% block sw_customer_base_info_overview %}
-            <sw-container class="sw-customer-base-info__overview" grid="80px 1fr 200px" gap="30px">
+            <sw-container class="sw-customer-base-info__overview" grid="80px 1fr 200px" gap="0px 30px">
                 {% block sw_customer_base_info_avatar %}
                     <sw-avatar color="#f88962" size="80px" :user="customer" :isLoading="isLoading"></sw-avatar>
                 {% endblock %}
@@ -52,7 +52,7 @@
         {% block sw_customer_base_info_data %}
             <div class="sw-customer-base-info__data">
                 {% block sw_customer_base_info_data_container %}
-                    <sw-container grid="50% 50%" gap="30px">
+                    <sw-container grid="1fr 1fr" gap="0px 30px">
                         {% block sw_customer_base_info_data_table %}
                             <sw-table columns="1fr 1fr">
                                 {% block sw_customer_base_info_data_customer_number %}

@@ -28,6 +28,7 @@
                                 {% block sw_product_detail_prices_price_card_rule_selection_options %}
                                     <option slot="options"
                                             v-for="rule in contextRules"
+                                            :key="rule.id"
                                             :value="rule.id"
                                             :disabled="!!contextPriceGroups[rule.id]">{{ rule.name }}</option>
                                 {% endblock %}
@@ -36,13 +37,13 @@
 
                         {% block sw_product_detail_prices_price_card_action_delete %}
                             <sw-button @click="onPriceGroupDelete(priceGroup.contextRuleId)">
-                                <sw-icon name="small-default-x-line-medium" size="20"></sw-icon>{{ $tc('sw-product.contextPrices.buttonPriceRuleDelete') }}
+                                <sw-icon name="small-default-x-line-medium" size="20"></sw-icon> {{ $tc('sw-product.contextPrices.buttonPriceRuleDelete') }}
                             </sw-button>
                         {% endblock %}
 
                         {% block sw_product_detail_prices_price_card_action_duplicate %}
                             <sw-button @click="onPriceGroupDuplicate(priceGroup)" :disabled="priceGroup.contextRuleId === null">
-                                <sw-icon name="small-copy" size="20"></sw-icon>{{ $tc('sw-product.contextPrices.buttonPriceRuleDuplicate') }}
+                                <sw-icon name="small-copy" size="20"></sw-icon> {{ $tc('sw-product.contextPrices.buttonPriceRuleDuplicate') }}
                             </sw-button>
                         {% endblock %}
 
@@ -50,7 +51,7 @@
                             <sw-context-button :menuOffsetLeft="0">
                                 {% block sw_product_detail_prices_price_card_action_currency_button %}
                                     <sw-button slot="button" :disabled="priceGroup.contextRuleId === null">
-                                        <sw-icon name="default-basic-plus-circle" size="20"></sw-icon>{{ $tc('sw-product.contextPrices.buttonPriceRuleCurrencyAdd') }}
+                                        <sw-icon name="default-basic-plus-circle" size="20"></sw-icon> {{ $tc('sw-product.contextPrices.buttonPriceRuleCurrencyAdd') }}
                                     </sw-button>
                                 {% endblock %}
 
@@ -155,7 +156,7 @@
             <div class="context-prices__actions" v-if="!isLoading">
                 {% block sw_product_detail_prices_actions_add_button %}
                     <sw-button @click="onAddNewPriceGroup">
-                        {{ $tc('sw-product.contextPrices.buttonCreateAdditionalPriceRule') }}
+                        {{ $tc('sw-product.contextPrices.buttonAddAdditionalPriceRule') }}
                     </sw-button>
                 {% endblock %}
             </div>

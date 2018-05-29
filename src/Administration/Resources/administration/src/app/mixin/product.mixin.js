@@ -5,15 +5,6 @@ import { Mixin, Entity } from 'src/core/shopware';
  * @module app/mixin/product
  */
 Mixin.register('product', {
-    data() {
-        return {
-            productId: null,
-            isLoading: false,
-            isLoaded: false,
-            product: Entity.getRawEntityObject('product', true)
-        };
-    },
-
     /**
      * If the create route is called we pre-generate an ID for the new product.
      * This enables all sub-components to work with the new generated product by using this mixin.
@@ -28,6 +19,15 @@ Mixin.register('product', {
         }
 
         next();
+    },
+
+    data() {
+        return {
+            productId: null,
+            isLoading: false,
+            isLoaded: false,
+            product: Entity.getRawEntityObject('product', true)
+        };
     },
 
     computed: {
@@ -103,7 +103,7 @@ Mixin.register('product', {
             });
         },
 
-        commitProduct: utils.throttle(function throttledCommitProduct() {
+        commitProduct: utils.debounce(function debouncedCommitProduct() {
             return this.$store.commit('product/setProduct', this.product);
         }, 500)
     }

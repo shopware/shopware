@@ -2,6 +2,8 @@ import './login.state';
 import './error.state';
 import './notification.state';
 
+import './catalog.state';
+import './catagory.state';
 import './product.state';
 import './customer.state';
 import './manufacturer.state';

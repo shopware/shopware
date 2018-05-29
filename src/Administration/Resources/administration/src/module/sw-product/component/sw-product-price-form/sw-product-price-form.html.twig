@@ -1,7 +1,7 @@
 {% block sw_product_price_form %}
     <div class="sw-product-price-form">
 
-        <sw-container grid="1fr 1fr" gap="30px">
+        <sw-container grid="1fr 1fr" gap="0px 30px">
             {% block sw_product_price_form_tax_field %}
                 <sw-field type="select"
                           :label="$tc('sw-product.priceForm.labelTaxRate')"
@@ -31,7 +31,7 @@
             <sw-price-field :price="product.price" :taxRate="productTaxRate" :currency="defaultCurrency"></sw-price-field>
         {% endblock %}
 
-        <sw-container grid="1fr 1fr 1fr 1fr" gap="30px">
+        <sw-container grid="1fr 1fr 1fr 1fr" gap="0px 30px">
 
             {% block sw_product_price_form_unit_field %}
                 <sw-field type="select"

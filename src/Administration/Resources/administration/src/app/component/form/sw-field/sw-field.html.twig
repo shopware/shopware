@@ -28,7 +28,6 @@
                 <!-- Select -->
                 {% block sw_field_input_select %}
                     <div v-else-if="type === 'select' || type === 'combo'" class="sw-field__select" >
-
                         {% block sw_field_input_select_field %}
                             <select :name="name"
                                     :id="name"
@@ -63,7 +62,7 @@
                         {% endblock %}
 
                         {% block sw_field_input_select_field_icon %}
-                            <sw-icon name="small-arrow-medium-down" small decorative/>
+                            <sw-icon name="small-arrow-medium-down" small decorative></sw-icon>
                         {% endblock %}
                     </div>
                 {% endblock %}

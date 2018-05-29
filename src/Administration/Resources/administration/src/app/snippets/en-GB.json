@@ -150,6 +150,41 @@
       "messageSaveSuccess": "The customer {name} has been saved successfully."
     }
   },
+  "sw-catalog": {
+    "general": {
+      "mainMenuItemIndex": "Catalogues",
+      "mainMenuItemCreate": "Create catalogue",
+      "headlineCatalogs": "Catalogues",
+      "introHeadlineCatalogs": "Welcome to the catalogue management",
+      "introDescriptionCatalogs": "All information, like products, pages and media are stored in a catalogue. All contents of a catalogue can be structured in categories. You can use a catalogue to publish your products and content to several sales channels. You can create multiple catalogues to manage different assortments.",
+      "buttonCreateCatalog": "Create new catalogue"
+    },
+    "list": {
+      "columnLabelName": "Name",
+      "columnLabelActions": "Actions",
+      "actionLabelEdit": "Edit catalogue"
+    },
+    "detail": {
+      "buttonAbortLabel": "Abort",
+      "buttonSaveLabel": "Save",
+      "introHeadlineDetail": "Catalogue content",
+      "introDescriptionDetail": "This is an overview of your catalogue \"{name}\". <br>Here you can edit the categories of the catalogue or publish the catalogue to additional sales channels.",
+      "labelOverviewProducts": "Products",
+      "labelOverviewCategories": "Categories",
+      "labelOverviewPages": "Pages",
+      "labelOverviewMedia": "Media",
+      "cardTitleProperties": "Properties",
+      "cardTitleCategories": "Categories",
+      "fieldLabelName": "Catalogue name",
+      "fieldPlaceholderAddCategory": "Add new category",
+      "buttonAddCategory": "Add",
+      "contextButtonDeleteCategory": "Delete",
+      "contextButtonAddChildCategory": "New child category"
+    },
+    "create": {
+      "headlineNewCatalog": "New catalogue"
+    }
+  },
   "sw-product": {
     "general": {
       "mainMenuItemList": "Products",

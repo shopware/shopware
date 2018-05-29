@@ -1,0 +1,77 @@
+{% block sw_tree_item %}
+    <div class="sw-tree-item" :class="{ 'is--dragging': isDragging, 'is--sortable': sortable }">
+
+        {% block sw_tree_item_element %}
+            <div class="sw-tree-item__element" v-on="sortable ? { pointerenter: onMouseEnter } : {}">
+                {% block sw_tree_item_element_leaf_icon %}
+                    <div class="sw-tree-item__leaf" v-if="isLeaf">
+                        <sw-icon name="small-documentation-map-closed"></sw-icon>
+                    </div>
+                {% endblock %}
+
+                {% block sw_tree_item_element_toggle %}
+                    <div class="sw-tree-item__toggle" @click="collapseTreeItem(item)" v-else>
+
+                        {% block sw_tree_item_element_toggle_loader %}
+                            <sw-loader v-if="isLoading" size="18"></sw-loader>
+                        {% endblock %}
+
+                        {% block sw_tree_item_element_toggle_icon %}
+                            <sw-icon :name="collapsed ? 'small-arrow-small-down' : 'small-arrow-small-right'" size="18" v-else></sw-icon>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+
+                {% block sw_tree_item_element_grip %}
+                    <div class="sw-tree-item__grip">
+                        <sw-icon name="default-action-more-vertical" small></sw-icon>
+                    </div>
+                {% endblock %}
+
+                {% block sw_tree_item_element_content %}
+                    <div class="sw-tree-item__content" v-on="sortable ? { pointerdown: onDragStart } : {}">
+                        <slot name="content" :item="item">
+                            {% block sw_tree_item_slot_content %}
+                                {{ item.data.name }}
+                            {% endblock %}
+                        </slot>
+                    </div>
+                {% endblock %}
+
+                {% block sw_tree_item_element_actions %}
+                    <div class="sw-tree-item__actions">
+                        <slot name="actions" :item="item">
+                            {% block sw_tree_item_slot_actions %}{% endblock %}
+                        </slot>
+                    </div>
+                {% endblock %}
+
+                {% block sw_tree_item_element_selection %}
+                    <div class="sw-tree-item__selection">
+                        <sw-field type="checkbox"></sw-field>
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block sw_tree_item_children_transition %}
+            <transition name="fade">
+                {% block sw_tree_item_children_content %}
+                    <div class="sw-tree-item__children" v-if="collapsed && item.children.length > 0">
+                        {% block sw_tree_item_children_items %}
+                            <sw-tree-item v-for="child in item.children" :key="child.id" :item="child" :sortable="sortable" :draggedItem="draggedItem">
+                                <template slot="actions" slot-scope="childScope" v-if="$scopedSlots.actions">
+                                    <sw-vnode-renderer :node="$scopedSlots.actions(childScope)"></sw-vnode-renderer>
+                                </template>
+
+                                <template slot="content" slot-scope="childScope" v-if="$scopedSlots.content">
+                                    <sw-vnode-renderer :node="$scopedSlots.content(childScope)"></sw-vnode-renderer>
+                                </template>
+                            </sw-tree-item>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </transition>
+        {% endblock %}
+    </div>
+{% endblock %}

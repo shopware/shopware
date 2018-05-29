@@ -22,18 +22,28 @@ class ApiService {
     /**
      * Gets a list from the configured API end point using the offset & limit.
      *
-     * @param {Number} [offset=0]
-     * @param {Number} [limit=25]
+     * @param {Number} [offset]
+     * @param {Number} [limit]
      * @param {Object} additionalParams
      * @param {Object} additionalHeaders
      * @returns {Promise<T>}
      */
-    getList(offset = 0, limit = 25, additionalParams = {}, additionalHeaders = {}) {
+    getList(offset, limit, additionalParams = {}, additionalHeaders = {}) {
         const headers = this.getBasicHeaders(additionalHeaders);
-        const params = Object.assign({ offset, limit }, additionalParams);
+        let params = {};
+
+        if (offset >= 0) {
+            params.offset = offset;
+        }
+
+        if (limit > 0) {
+            params.limit = limit;
+        }
+
+        params = Object.assign(params, additionalParams);
 
         // Switch to the general search end point when we're having a search term
-        if (params.term && params.term.length) {
+        if ((params.term && params.term.length) || (params.filter && params.filter.length)) {
             return this.httpClient
                 .post(`${this.getApiBasePath(null, 'search')}`, params, { headers })
                 .then((response) => {

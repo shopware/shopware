@@ -32,6 +32,13 @@
     cursor: pointer;
     margin: 0;
 
+    .sw-button__content {
+        display: grid;
+        grid-auto-flow: column;
+        align-items: center;
+        grid-gap: 0 8px;
+    }
+
     &:hover {
         color: darken(@sw-button-default-color-text, 5%);
         background: darken(@sw-button-default-color-background, 5%);

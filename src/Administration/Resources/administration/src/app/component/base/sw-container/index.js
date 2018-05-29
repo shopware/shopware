@@ -47,8 +47,9 @@ Component.register('sw-container', {
             const styles = {};
 
             styles[(this.type === 'row') ? 'grid-template-rows' : 'grid-template-columns'] = this.grid;
-            styles[(this.type === 'row') ? 'grid-row-gap' : 'grid-column-gap'] = this.gap;
+            styles['grid-gap'] = this.gap;
             styles['justify-items'] = this.justify;
+            styles['justify-content'] = this.justify;
             styles['align-items'] = this.align;
 
             return styles;

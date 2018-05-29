@@ -2,7 +2,7 @@
     <div class="sw-page">
 
         {% block sw_page_smart_bar %}
-            <div class="sw-page__smart-bar" :style="{ 'border-bottom-color': pageColor }">
+            <div class="sw-page__smart-bar" :style="{ 'border-bottom-color': pageColor, paddingRight: `${scrollbarOffset}px` }">
 
                 {% block sw_page_smart_bar_back_btn %}
                     <slot name="smart-bar-back">
@@ -43,7 +43,7 @@
         {% endblock %}
 
         {% block sw_page_content %}
-            <div class="sw-page__content">
+            <div class="sw-page__content" ref="swPageContent">
                 <slot name="content">
                     {% block sw_page_slot_content %}{% endblock %}
                 </slot>

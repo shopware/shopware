@@ -1,0 +1,120 @@
+{% block sw_catalog_detail %}
+    <sw-page class="sw-catalog-detail">
+        <template slot="smart-bar-header">
+            {% block sw_catalog_detail_smart_bar_header %}
+                <h2>{{ catalog.name }}</h2>
+            {% endblock %}
+        </template>
+
+        <template slot="smart-bar-actions">
+            {% block sw_catalog_detail_smart_bar_actions %}
+                {% block sw_catalog_detail_smart_bar_actions_abort %}
+                    <sw-button :disabled="isLoading" link="sw.catalog.index">{{ $tc('sw-catalog.detail.buttonAbortLabel') }}</sw-button>
+                {% endblock %}
+
+                {% block sw_catalog_detail_smart_bar_actions_save %}
+                    <sw-button :disabled="isLoading" variant="primary" @click.prevent="onSave">{{ $tc('sw-catalog.detail.buttonSaveLabel') }}</sw-button>
+                {% endblock %}
+            {% endblock %}
+        </template>
+
+        <sw-card-view slot="content">
+            {% block sw_catalog_detail_content %}
+
+                {% block sw_catalog_detail_info %}
+                    <div class="sw-catalog-detail__info">
+
+                        {% block sw_catalog_detail_info_header %}
+                            <sw-container grid="1fr 1fr">
+                                {% block sw_catalog_detail_info_intro %}
+                                    <div class="sw-catalog-detail__intro">
+                                        <h3>{{ $tc('sw-catalog.detail.introHeadlineDetail') }}</h3>
+                                        <p v-html="$tc('sw-catalog.detail.introDescriptionDetail', 0, { name: catalog.name })"></p>
+                                    </div>
+                                {% endblock %}
+                            </sw-container>
+                        {% endblock %}
+
+                        {% block sw_catalog_detail_info_statistic %}
+                            <sw-container grid="1fr 1fr" gap="30px" class="sw-catalog-detail__stats">
+
+                                {% block sw_catalog_detail_info_statistic_products %}
+                                    <div class="info-card">
+                                        <h4 class="info-card__headline">{{ $tc('sw-catalog.detail.labelOverviewProducts') }}</h4>
+                                        <div class="info-card__stats is--color-product">1.521</div>
+                                    </div>
+                                {% endblock %}
+
+                                {% block sw_catalog_detail_info_statistic_categories %}
+                                    <div class="info-card">
+                                        <h4 class="info-card__headline">{{ $tc('sw-catalog.detail.labelOverviewCategories') }}</h4>
+                                        <div class="info-card__stats is--color-category">438</div>
+                                    </div>
+                                {% endblock %}
+
+                                {% block sw_catalog_detail_info_statistic_pages %}
+                                    <div class="info-card">
+                                        <h4 class="info-card__headline">{{ $tc('sw-catalog.detail.labelOverviewPages') }}</h4>
+                                        <div class="info-card__stats is--color-page">24</div>
+                                    </div>
+                                {% endblock %}
+
+                                {% block sw_catalog_detail_info_statistic_media %}
+                                    <div class="info-card">
+                                        <h4 class="info-card__headline">{{ $tc('sw-catalog.detail.labelOverviewMedia') }}</h4>
+                                        <div class="info-card__stats is--color-media">674</div>
+                                    </div>
+                                {% endblock %}
+                            </sw-container>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+
+                {% block sw_catalog_detail_properties %}
+                    <sw-card :title="$tc('sw-catalog.detail.cardTitleProperties')" :isLoading="isLoading" class="sw-catalog-detail__properties">
+                        {% block sw_catalog_detail_properties_name_field %}
+                            <sw-field :label="$tc('sw-catalog.detail.fieldLabelName')" name="catalogName" v-model="catalog.name"></sw-field>
+                        {% endblock %}
+                    </sw-card>
+                {% endblock %}
+
+                {% block sw_catalog_detail_categories %}
+                    <sw-card :title="$tc('sw-catalog.detail.cardTitleCategories')" :isLoading="isLoading" class="sw-catalog-detail__categories">
+
+                        {% block sw_catalog_detail_categories_tree %}
+                            <sw-tree :items="categories" :sortable="true" @getTreeItems="getCategories" @searchTreeItems="searchCategories">
+
+                                {% block sw_catalog_detail_categories_tree_actions %}
+                                    <template slot="actions">
+                                        <sw-container grid="3fr 1fr" gap="0 20px">
+                                            <sw-field type="text" v-model="addCategoryName" :placeholder="$tc('sw-catalog.detail.fieldPlaceholderAddCategory')"></sw-field>
+                                            <sw-button @click="onAddCategory">{{ $tc('sw-catalog.detail.buttonAddCategory') }}</sw-button>
+                                        </sw-container>
+                                    </template>
+                                {% endblock %}
+
+                                {% block sw_catalog_detail_categories_tree_items %}
+                                    <template slot="items" slot-scope="{ treeItems, sortable, draggedItem }">
+                                        {% block sw_catalog_detail_categories_tree_items_item %}
+                                            <sw-tree-item v-for="item in treeItems" :key="item.id" :item="item" :sortable="sortable" :draggedItem="draggedItem">
+                                                {% block sw_catalog_detail_categories_tree_items_item_actions %}
+                                                    <template slot="actions" slot-scope="{ item }">
+                                                        <sw-context-button>
+                                                            <sw-icon slot="button" name="default-action-more-horizontal" size="16" decorative></sw-icon>
+                                                            <sw-context-menu-item icon="small-default-x-line-medium">{{ $tc('sw-catalog.detail.contextButtonDeleteCategory') }}</sw-context-menu-item>
+                                                            <sw-context-menu-item icon="small-documentation-map-closed">{{ $tc('sw-catalog.detail.contextButtonAddChildCategory') }}</sw-context-menu-item>
+                                                        </sw-context-button>
+                                                    </template>
+                                                {% endblock %}
+                                            </sw-tree-item>
+                                        {% endblock %}
+                                    </template>
+                                {% endblock %}
+                            </sw-tree>
+                        {% endblock %}
+                    </sw-card>
+                {% endblock %}
+            {% endblock %}
+        </sw-card-view>
+    </sw-page>
+{% endblock %}

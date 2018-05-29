@@ -150,6 +150,41 @@
       "messageSaveSuccess": "Der Kunde {name} wurde erfolgreich gespeichert."
     }
   },
+  "sw-catalog": {
+    "general": {
+      "mainMenuItemIndex": "Kataloge",
+      "mainMenuItemCreate": "Katalog anlegen",
+      "headlineCatalogs": "Kataloge",
+      "introHeadlineCatalogs": "Willkommen in der Katalogverwaltung",
+      "introDescriptionCatalogs": "Alle Informationen, wie Produkte, Seiten oder Medien werden in einem Katalog abgelegt. Alle Daten eines Kataloges können in Kategorien strukturiert werden. Du kannst einen Katalog dazu benutzen, um Deine Produkte und Inhalte auf einem oder mehreren Verkaufskanälen auszuspielen. Man kann außerdem weitere Kataloge anlegen, um z.B. neue Sortimente besser zu verwalten.",
+      "buttonCreateCatalog": "Neuen Katalog anlegen"
+    },
+    "list": {
+      "columnLabelName": "Name",
+      "columnLabelActions": "Aktionen",
+      "actionLabelEdit": "Katalog bearbeiten"
+    },
+    "detail": {
+      "buttonAbortLabel": "Abbrechen",
+      "buttonSaveLabel": "Speichern",
+      "introHeadlineDetail": "Kataloginhalt",
+      "introDescriptionDetail": "Dies ist eine Übersicht Deines Kataloges \"{name}\". <br>Hier kannst Du die Kategorien des Kataloges bearbeiten und den Katalog auf weiteren Sales Channels ausspielen.",
+      "labelOverviewProducts": "Produkte",
+      "labelOverviewCategories": "Kategorien",
+      "labelOverviewPages": "Seiten",
+      "labelOverviewMedia": "Medien",
+      "cardTitleProperties": "Eigenschaften",
+      "cardTitleCategories": "Kategorien",
+      "fieldLabelName": "Katalogname",
+      "fieldPlaceholderAddCategory": "Kategorie hinzufügen",
+      "buttonAddCategory": "Hinzufügen",
+      "contextButtonDeleteCategory": "Löschen",
+      "contextButtonAddChildCategory": "Neue Kind-Kategorie"
+    },
+    "create": {
+      "headlineNewCatalog": "Neuer Katalog"
+    }
+  },
   "sw-product": {
     "general": {
       "mainMenuItemList": "Produkte",

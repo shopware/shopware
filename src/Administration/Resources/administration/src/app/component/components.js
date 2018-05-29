@@ -12,6 +12,11 @@ import './base/sw-table';
 import './base/sw-modal';
 import './base/sw-address';
 
+import './utils/sw-loader';
+import './utils/sw-notifications';
+import './utils/sw-color-badge';
+import './utils/sw-vnode-renderer';
+
 import './grid/sw-grid';
 import './grid/sw-grid-column';
 import './grid/sw-grid-row';
@@ -22,13 +27,12 @@ import './form/sw-price-field';
 import './form/sw-form-grid';
 import './form/sw-multi-select';
 
+import './tree/sw-tree';
+import './tree/sw-tree-item';
+
 import './context-menu/sw-context-button';
 import './context-menu/sw-context-menu';
 import './context-menu/sw-context-menu-item';
-
-import './utils/sw-loader';
-import './utils/sw-notifications';
-import './utils/sw-color-badge';
 
 import './structure/sw-admin';
 import './structure/sw-desktop';

@@ -3,7 +3,6 @@
 namespace Shopware\Content\Test\Product\Service;
 
 use Doctrine\DBAL\Connection;
-use Psr\Container\ContainerInterface;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Content\Product\ProductDefinition;
 use Shopware\Content\Product\ProductRepository;
@@ -17,11 +16,6 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class VariantGeneratorTest extends KernelTestCase
 {
-    /**
-     * @var ContainerInterface
-     */
-    private $container;
-
     /**
      * @var \Shopware\Content\Product\ProductRepository
      */
@@ -39,11 +33,10 @@ class VariantGeneratorTest extends KernelTestCase
 
     protected function setUp()
     {
-        $kernel = self::bootKernel();
-        $this->container = $kernel->getContainer();
-        $this->connection = $this->container->get(Connection::class);
-        $this->generator = $this->container->get(VariantGenerator::class);
-        $this->repository = $this->container->get(ProductRepository::class);
+        self::bootKernel();
+        $this->connection = self::$container->get(Connection::class);
+        $this->generator = self::$container->get(VariantGenerator::class);
+        $this->repository = self::$container->get(ProductRepository::class);
         $this->connection->beginTransaction();
         parent::setUp();
     }

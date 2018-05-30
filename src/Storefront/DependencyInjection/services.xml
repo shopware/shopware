@@ -20,7 +20,7 @@
             <tag name="console.command"/>
         </service>
 
-        <service class="Shopware\Storefront\Page\Search\KeywordSearchTermInterpreter" id="Shopware\Storefront\Page\Search\KeywordSearchTermInterpreter">
+        <service class="Shopware\Storefront\Page\Search\KeywordSearchTermInterpreter" id="Shopware\Storefront\Page\Search\KeywordSearchTermInterpreter" public="true">
             <argument id="Doctrine\DBAL\Connection" type="service"/>
             <argument id="Shopware\Framework\ORM\Search\Term\Tokenizer" type="service"/>
             <argument id="logger" type="service"/>

@@ -17,11 +17,6 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 class AuditLogSearchTest extends KernelTestCase
 {
     /**
-     * @var ContainerInterface
-     */
-    private $container;
-
-    /**
      * @var ProductRepository
      */
     private $productRepository;
@@ -48,14 +43,13 @@ class AuditLogSearchTest extends KernelTestCase
 
     protected function setUp()
     {
-        $kernel = self::bootKernel();
-        $this->container = $kernel->getContainer();
+        self::bootKernel();
 
-        $this->connection = $this->container->get(Connection::class);
+        $this->connection = self::$container->get(Connection::class);
         $this->connection->beginTransaction();
 
-        $this->productRepository = $this->container->get(ProductRepository::class);
-        $this->search = $this->container->get(AdministrationSearch::class);
+        $this->productRepository = self::$container->get(ProductRepository::class);
+        $this->search = self::$container->get(AdministrationSearch::class);
         $this->context = $context = ApplicationContext::createDefaultContext(Defaults::TENANT_ID);
 
         $this->connection->executeUpdate('
@@ -70,7 +64,7 @@ class AuditLogSearchTest extends KernelTestCase
 
         $this->userId = Uuid::uuid4()->getHex();
 
-        $repo = $this->container->get(UserRepository::class);
+        $repo = self::$container->get(UserRepository::class);
         $repo->upsert([
             [
                 'id' => $this->userId,

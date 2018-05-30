@@ -245,7 +245,7 @@ class Kernel extends HttpKernel
         // list routes
         $route = new Route('/api/v{version}/{path}');
         $route->setMethods(['GET']);
-        $route->setDefault('_controller', $class . ':list');
+        $route->setDefault('_controller', $class . '::list');
         $route->addRequirements(['path' => '.*', 'version' => '\d+']);
         $routes->addRoute($route, 'api_controller.list');
 

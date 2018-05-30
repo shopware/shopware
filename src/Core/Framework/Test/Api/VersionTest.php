@@ -88,7 +88,7 @@ class VersionTest extends ApiTestCase
 
     public function testContainerAlias(): void
     {
-        $registry = $this->container->get(DefinitionRegistry::class);
+        $registry = self::$container->get(DefinitionRegistry::class);
 
         foreach ($registry->getElements() as $definition) {
             try {
@@ -97,10 +97,10 @@ class VersionTest extends ApiTestCase
                 return;
             }
 
-            $alias = $this->container->get($repositoryClass);
+            $alias = self::$container->get($repositoryClass);
 
             try {
-                $real = $this->container->get($repositoryClass . '.v' . PlatformRequest::API_VERSION);
+                $real = self::$container->get($repositoryClass . '.v' . PlatformRequest::API_VERSION);
             } catch (ServiceNotFoundException $ex) {
                 $this->fail(sprintf(
                     'Repository service definition for api version "%d" is missing. (%s)',

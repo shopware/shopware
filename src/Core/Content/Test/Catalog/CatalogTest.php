@@ -39,12 +39,12 @@ class CatalogTest extends KernelTestCase
 
     public function setUp()
     {
-        $kernel = static::bootKernel();
+        static::bootKernel();
 
-        $this->categoryRepository = $kernel->getContainer()->get(CategoryRepository::class);
-        $this->catalogRepository = $kernel->getContainer()->get(CatalogRepository::class);
-        $this->productRepository = $kernel->getContainer()->get(ProductRepository::class);
-        $this->connection = $kernel->getContainer()->get(Connection::class);
+        $this->categoryRepository = self::$container->get(CategoryRepository::class);
+        $this->catalogRepository = self::$container->get(CatalogRepository::class);
+        $this->productRepository = self::$container->get(ProductRepository::class);
+        $this->connection = self::$container->get(Connection::class);
         $this->connection->beginTransaction();
     }
 

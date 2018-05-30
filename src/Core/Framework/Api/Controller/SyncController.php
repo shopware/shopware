@@ -16,9 +16,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Serializer;
 
-/**
- * @Route(service="Shopware\Framework\Api\Controller\SyncController", path="/api/sync")
- */
 class SyncController extends Controller
 {
     public const ACTION_UPSERT = 'upsert';
@@ -42,7 +39,7 @@ class SyncController extends Controller
     }
 
     /**
-     * @Route("", name="sync.api")
+     * @Route("/api/sync", name="sync.api")
      * @Method({"POST"})
      *
      * @param Request                                     $request

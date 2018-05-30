@@ -30,9 +30,6 @@ use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Checkout\Cart\StoreFrontCartService;
 use Shopware\Storefront\Controller\StorefrontController;
 
-/**
- * @Route(service="shopware.storefront.controller.widgets.checkout_controller")
- */
 class CheckoutController extends StorefrontController
 {
     /**

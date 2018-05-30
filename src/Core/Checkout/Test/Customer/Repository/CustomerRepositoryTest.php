@@ -23,11 +23,6 @@ class CustomerRepositoryTest extends KernelTestCase
     private $connection;
 
     /**
-     * @var ContainerInterface
-     */
-    private $container;
-
-    /**
      * @var RepositoryInterface
      */
     private $repository;
@@ -35,9 +30,8 @@ class CustomerRepositoryTest extends KernelTestCase
     public function setUp()
     {
         self::bootKernel();
-        $this->container = self::$kernel->getContainer();
-        $this->repository = $this->container->get(CustomerRepository::class);
-        $this->connection = $this->container->get(Connection::class);
+        $this->repository = self::$container->get(CustomerRepository::class);
+        $this->connection = self::$container->get(Connection::class);
         $this->connection->executeUpdate('DELETE FROM `order`');
         $this->connection->executeUpdate('DELETE FROM customer');
         $this->connection->beginTransaction();
@@ -125,8 +119,8 @@ class CustomerRepositoryTest extends KernelTestCase
 
         $criteria = new Criteria();
 
-        $builder = $this->container->get(EntityScoreQueryBuilder::class);
-        $pattern = $this->container->get(SearchTermInterpreter::class)->interpret('match', ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
+        $builder = self::$container->get(EntityScoreQueryBuilder::class);
+        $pattern = self::$container->get(SearchTermInterpreter::class)->interpret('match', ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
         $queries = $builder->buildScoreQueries($pattern, CustomerDefinition::class, CustomerDefinition::getEntityName());
         $criteria->addQueries($queries);
 

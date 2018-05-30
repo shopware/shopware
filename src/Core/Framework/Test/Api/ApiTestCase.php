@@ -8,16 +8,10 @@ use Shopware\Framework\Struct\Uuid;
 use Shopware\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\HttpFoundation\Response;
 
 class ApiTestCase extends WebTestCase
 {
-    /**
-     * @var Container
-     */
-    public $container;
-
     /**
      * @var string[]
      */
@@ -38,8 +32,6 @@ class ApiTestCase extends WebTestCase
         parent::setUp();
 
         self::bootKernel();
-
-        $this->container = self::$kernel->getContainer();
 
         $apiClient = $this->getClient();
         $apiClient->setServerParameters([
@@ -64,7 +56,7 @@ class ApiTestCase extends WebTestCase
 
     public function tearDown()
     {
-        self::$kernel->getContainer()->get(Connection::class)->executeQuery('DELETE FROM user WHERE username IN (:usernames)', ['usernames' => $this->apiUsernames], ['usernames' => Connection::PARAM_STR_ARRAY]);
+        self::$container->get(Connection::class)->executeQuery('DELETE FROM user WHERE username IN (:usernames)', ['usernames' => $this->apiUsernames], ['usernames' => Connection::PARAM_STR_ARRAY]);
 
         parent::tearDown();
     }
@@ -79,7 +71,7 @@ class ApiTestCase extends WebTestCase
 
     public function getContainer()
     {
-        return $this->container;
+        return self::$container;
     }
 
     public function assertEntityExists(...$params): void
@@ -105,7 +97,7 @@ class ApiTestCase extends WebTestCase
         $username = Uuid::uuid4()->getHex();
         $password = Uuid::uuid4()->getHex();
 
-        self::$kernel->getContainer()->get(Connection::class)->insert('user', [
+        self::$container->get(Connection::class)->insert('user', [
             'id' => Uuid::uuid4()->getBytes(),
             'tenant_id' => Uuid::fromHexToBytes(Defaults::TENANT_ID),
             'name' => $username,

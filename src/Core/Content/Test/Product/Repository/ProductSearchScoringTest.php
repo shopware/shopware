@@ -26,9 +26,9 @@ class ProductSearchScoringTest extends KernelTestCase
     protected function setUp()
     {
         parent::setUp();
-        $kernel = self::bootKernel();
-        $this->connection = $kernel->getContainer()->get(Connection::class);
-        $this->repository = $kernel->getContainer()->get(ProductRepository::class);
+        self::bootKernel();
+        $this->connection = self::$container->get(Connection::class);
+        $this->repository = self::$container->get(ProductRepository::class);
         $this->connection->beginTransaction();
         $this->connection->executeUpdate('DELETE FROM product');
     }

@@ -36,6 +36,10 @@
         </service>
 
         <!--Event Listener -->
+        <service class="Shopware\Framework\Event\NestedEventDispatcher" decorates="event_dispatcher" id="Shopware\Framework\Event\NestedEventDispatcher">
+            <argument type="service" id="Shopware\Framework\Event\NestedEventDispatcher.inner" />
+        </service>
+
         <service class="Shopware\Framework\EventListener\ResponseExceptionListener" id="Shopware\Framework\EventListener\ResponseExceptionListener">
             <tag name="kernel.event_listener" event="kernel.exception" method="onKernelException"/>
         </service>

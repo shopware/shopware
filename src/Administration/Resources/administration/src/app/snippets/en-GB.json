@@ -40,7 +40,8 @@
   },
   "sw-customer": {
     "general": {
-      "mainMenuItemList": "Customers",
+      "mainMenuItemGeneral": "Customers",
+      "mainMenuItemList": "Overview",
       "mainMenuItemAdd": "Add new customer"
     },
     "list": {
@@ -187,7 +188,8 @@
   },
   "sw-product": {
     "general": {
-      "mainMenuItemList": "Products",
+      "mainMenuItemGeneral": "Products",
+      "mainMenuItemList": "Overview",
       "mainMenuItemAdd": "Add new product"
     },
     "basicForm": {
@@ -291,6 +293,42 @@
       "buttonSave": "Save product",
       "tabGeneral": "General",
       "tabAdvancedPrices": "Advanced pricing"
+    }
+  },
+  "sw-manufacturer": {
+    "general": {
+      "mainMenuItemList": "Manufacturer"
+    },
+    "list": {
+      "textManufacturerOverview": "Manufacturer overview",
+      "textTotalManufacturer": "No manufacturer | one manufacturer | {count} manufacturers",
+      "buttonAddManufacturer": "Add manufacturer",
+      "columnName": "Manufacturer",
+      "columnLink": "Website",
+      "columnDescription": "Description",
+      "columnActions": "Actions",
+      "contextMenuEdit": "Edit manufacturer",
+      "contextMenuDelete": "Delete manufacturer",
+      "contextMenuDuplicate": "Duplicate manufacturer",
+      "modalTitleDelete": "Delete manufacturer",
+      "textDeleteConfirm": "Are you sure, you want to delete the manufacter {name}?",
+      "buttonCancel": "Cancel",
+      "buttonDelete": "Delete"
+    },
+    "detail": {
+      "textHeadline": "New manufacturer",
+      "textMediaSelection": "Media selection",
+      "buttonCancel": "Cancel",
+      "buttonSave": "Save manufacturer",
+      "cardTitleManufacturerInfo": "Manufacturer information",
+      "labelName": "Name",
+      "labelDescription": "Description",
+      "labelLink": "Website",
+      "placeholderName": "Enter manufacturer name...",
+      "placeholderDescription": "Enter manufacturer description...",
+      "placeholderLink": "Enter manufacturer website...",
+      "titleSaveSuccess": "Manufacturer",
+      "messageSaveSuccess": "The manufacturer {name} was saved successfully."
     }
   }
 }

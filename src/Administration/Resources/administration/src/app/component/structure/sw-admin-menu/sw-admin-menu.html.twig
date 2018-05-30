@@ -50,7 +50,7 @@
                                                      v-on:listItemClicked="openSubMenu"
                                                      :sidebarExpanded="isExpanded"
                                                      :entry="entry"
-                                                     :key="entry.path"
+                                                     :key="entry.id || entry.path"
                                                      :class="entry.label">
                                     </sw-admin-menu-item>
                                 {% endblock %}
@@ -166,7 +166,7 @@
                         <ul v-if="flyoutEntries" class="sw-admin-menu__flyout-list">
                             <sw-admin-menu-item v-for="entry in flyoutEntries"
                                              :entry="entry"
-                                             :key="entry.path"
+                                             :key="entry.id || entry.path"
                                              :collapsibleText="false"
                                              :displayIcon="false">
                             </sw-admin-menu-item>

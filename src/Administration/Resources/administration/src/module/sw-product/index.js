@@ -70,14 +70,18 @@ Module.register('sw-product', {
     },
 
     navigation: [{
-        path: 'sw.product.index',
-        label: 'sw-product.general.mainMenuItemList',
+        id: 'sw-product',
+        label: 'sw-product.general.mainMenuItemGeneral',
         color: '#57D9A3',
         icon: 'default-symbol-products'
     }, {
+        path: 'sw.product.index',
+        label: 'sw-product.general.mainMenuItemList',
+        parent: 'sw-product'
+    }, {
         path: 'sw.product.create',
         label: 'sw-product.general.mainMenuItemAdd',
-        parent: 'sw.product.index',
+        parent: 'sw-product',
         color: '#57D9A3'
     }]
 });

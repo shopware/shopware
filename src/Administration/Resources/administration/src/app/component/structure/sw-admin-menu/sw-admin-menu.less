@@ -162,11 +162,13 @@
         line-height: 24px;
 
         &:hover,
-        &.router-link-active {
+        &.router-link-active,
+        &.sw-admin-menu__navigation-link-active {
             background: @sw-admin-menu-color-active;
         }
 
-        &.router-link-active + .sw-admin-menu__sub-navigation-list {
+        &.router-link-active + .sw-admin-menu__sub-navigation-list,
+        &.sw-admin-menu__navigation-link-active + .sw-admin-menu__sub-navigation-list {
             height: auto;
             opacity: 1;
 

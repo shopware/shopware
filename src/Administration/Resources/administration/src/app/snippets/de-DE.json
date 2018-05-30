@@ -42,7 +42,8 @@
     "general": {
       "mainMenuItemGeneral": "Kunden",
       "mainMenuItemList": "Übersicht",
-      "mainMenuItemAdd": "Kunde anlegen"
+      "mainMenuItemAdd": "Kunde anlegen",
+      "descriptionTextModule": "Modul zur Verwaltung von Kunden."
     },
     "list": {
       "textCustomers": "Kunden",
@@ -60,7 +61,8 @@
       "contextMenuView": "Kunde anzeigen",
       "contextMenuDuplicate": "Kunde duplizieren",
       "contextMenuDelete": "Kunde löschen",
-      "contextMenuEdit": "Kunde bearbeiten"
+      "contextMenuEdit": "Kunde bearbeiten",
+      "messageEmpty": "Noch keine Kunden"
     },
     "baseForm": {
       "labelSalutation": "Anrede",
@@ -190,7 +192,8 @@
     "general": {
       "mainMenuItemGeneral": "Produkte",
       "mainMenuItemList": "Übersicht",
-      "mainMenuItemAdd": "Produkt anlegen"
+      "mainMenuItemAdd": "Produkt anlegen",
+      "descriptionTextModule": "Modul zur Verwaltung von Produkten."
     },
     "basicForm": {
       "labelTitle": "Titel",
@@ -274,7 +277,7 @@
       "contextMenuDelete": "Löschen"
     },
     "list": {
-      "textProductOverview": "Produktüberblick",
+      "textProductOverview": "Produkte",
       "textTotalProducts": "Keine Produkte | ein Produkt | {count} Produkte",
       "buttonAddProduct": "Produkt anlegen",
       "columnName": "Name",
@@ -285,7 +288,8 @@
       "columnActions": "Aktion(en)",
       "contextMenuEdit": "Produkt editieren",
       "contextMenuDelete": "Produkt löschen",
-      "contextMenuDuplicate": "Produkt duplizieren"
+      "contextMenuDuplicate": "Produkt duplizieren",
+      "messageEmpty": "Noch keine Produkte"
     },
     "detail": {
       "textHeadline": "Neues Produkt",
@@ -329,6 +333,27 @@
       "placeholderLink": "Gebe die Herstellerwebseite ein...",
       "titleSaveSuccess": "Hersteller",
       "messageSaveSuccess": "Der Hersteller {name} wurde erfolgreich gespeichert."
+    }
+  },
+  "sw-order": {
+    "general": {
+      "mainMenuItemGeneral": "Bestellungen",
+      "mainMenuItemList": "Übersicht",
+      "descriptionTextModule": "Modul zur Verwaltung von Bestellungen."
+    },
+    "list": {
+      "columnCustomerName": "Kundenname",
+      "columnBillingAddress": "Rechnungsadresse",
+      "columnAmount": "Betrag",
+      "columnState": "Bestellstatus",
+      "orderDate": "Bestelldatum",
+      "buttonAddOrder": "Bestellung anlegen",
+      "textOrders": "Bestellungen",
+      "textOrdersTotal": "Keine Bestellungen | Eine Bestellung | {count} Bestellungen",
+      "contextMenuView": "Bestellung anzeigen",
+      "contextMenuDelete": "Bestellung löschen",
+      "contextMenuConfirmPayment": "Zahlung bestätigen",
+      "messageEmpty": "Noch keine Bestellungen"
     }
   }
 }

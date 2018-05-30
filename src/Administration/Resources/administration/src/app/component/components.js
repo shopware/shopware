@@ -11,6 +11,7 @@ import './base/sw-tabs-item';
 import './base/sw-table';
 import './base/sw-modal';
 import './base/sw-address';
+import './base/sw-empty-state';
 
 import './utils/sw-loader';
 import './utils/sw-notifications';

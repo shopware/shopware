@@ -22,7 +22,8 @@
             {% block sw_customer_list_content %}
                 <div class="sw-customer-list__content">
                     {% block sw_customer_list_grid %}
-                        <sw-grid :items="customers"
+                        <sw-grid v-if="totalCustomers"
+                                 :items="customers"
                                  :pagination="true"
                                  :sortBy="sortBy"
                                  :sortDirection="sortDirection"
@@ -217,6 +218,10 @@
                                 </sw-sidebar>
                             {% endblock %}
                         </sw-grid>
+                    {% endblock %}
+
+                    {% block sw_customer_list_empty_state %}
+                        <sw-empty-state v-else-if="!isLoading && !totalCustomers" :title="$tc('sw-customer.list.messageEmpty')"></sw-empty-state>
                     {% endblock %}
 
                     {% block sw_customer_list_grid_loader %}

@@ -12,7 +12,7 @@ import './component/sw-customer-default-addresses';
 Module.register('sw-customer', {
     type: 'core',
     name: 'Customers',
-    description: 'The module for managing customers.',
+    description: 'sw-customer.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#F88962',

@@ -67,10 +67,24 @@ class EntityHydrator
         return $collection;
     }
 
+    private function isManyToOneLoaded(ManyToOneAssociationField $field, string $root, array $row)
+    {
+        $keys = $field->getReferenceClass()::getPrimaryKeys();
+
+        foreach ($keys as $key) {
+            $nested = $root . '.' . $field->getPropertyName() . '.' . $key->getPropertyName();
+
+            if (isset($row[$nested])) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private function hydrateEntity(Entity $entity, string $definition, array $row, string $root): Entity
     {
         /** @var EntityDefinition $definition */
-        $fields = $definition::getFields();
+        $fields = $definition::getFields()->getElements();
 
         $idProperty = $root . '.id';
 
@@ -86,16 +100,27 @@ class EntityHydrator
         }
 
         $data = [];
-        $toOneAssociations = [];
+        $associations = [];
         $inherited = new ArrayStruct();
         $translated = new ArrayStruct();
 
-        foreach ($row as $originalKey => $value) {
-            $field = $this->getField($fields, $originalKey, $root);
+        foreach ($fields as $field) {
+            $originalKey = $root . '.' . $field->getPropertyName();
 
-            if (!$field) {
+            //collect to one associations, this will be hydrated after loop
+            if ($field instanceof ManyToOneAssociationField) {
+                if ($this->isManyToOneLoaded($field, $root, $row)) {
+                    $associations[$field->getPropertyName()] = $field;
+                }
+
                 continue;
             }
+
+            if (!array_key_exists($originalKey, $row)) {
+                continue;
+            }
+
+            $value = $row[$originalKey];
 
             $propertyName = $field->getPropertyName();
 
@@ -126,14 +151,6 @@ class EntityHydrator
                 continue;
             }
 
-            //collect to one associations, this will be hydrated after loop
-            if ($field instanceof ManyToOneAssociationField) {
-                if ($value !== null) {
-                    $toOneAssociations[$propertyName] = $field;
-                }
-                continue;
-            }
-
             //many to many fields contains a group concat id value in the selection, this will be stored in an internal extension to collect them later
             if ($field instanceof ManyToManyAssociationField) {
                 $property = $root . '.' . $propertyName;
@@ -153,8 +170,8 @@ class EntityHydrator
             }
         }
 
-        /** @var AssociationInterface[] $toOneAssociations */
-        foreach ($toOneAssociations as $property => $field) {
+        /** @var AssociationInterface[] $associations */
+        foreach ($associations as $property => $field) {
             $reference = $field->getReferenceClass();
 
             /** @var EntityDefinition $reference */
@@ -183,14 +200,18 @@ class EntityHydrator
         }
 
         if ($definition::getParentPropertyName()) {
-            $associations = array_filter($definition::getFields()->getElements(), function(Field $field) {
-                if (!$field->is(Inherited::class)) {
-                    return false;
-                }
-                return $field instanceof ManyToManyAssociationField || $field instanceof OneToManyAssociationField;
-            });
 
+            $associations = $definition::getFields()->getElements();
+            /** @var Field $association */
             foreach ($associations as $association) {
+                if (!$association->is(Inherited::class)) {
+                    continue;
+                }
+
+                if (!$association instanceof ManyToManyAssociationField && !$association instanceof OneToManyAssociationField) {
+                    continue;
+                }
+
                 $inherited->set($association->getPropertyName(), $this->isInherited($definition, $row, $association));
             }
 
@@ -202,29 +223,6 @@ class EntityHydrator
         }
 
         return $entity;
-    }
-
-    private function getField(FieldCollection $fields, string $fieldName, string $root): ?Field
-    {
-        $pos = strpos($fieldName, $root . '.');
-        if ($pos !== 0) {
-            return null;
-        }
-
-        $cacheKey = $root . '-' . $fieldName;
-        if (isset($this->fieldCache[$cacheKey])) {
-            return $this->fieldCache[$cacheKey];
-        }
-
-        $key = str_replace($root . '.', '', $fieldName);
-        $parts = explode('.', $key);
-        $cursor = $parts[0];
-
-        $field = $fields->get($cursor);
-
-        $this->fieldCache[$cacheKey] = $field;
-
-        return $field;
     }
 
     private function castValue(Field $field, $value)

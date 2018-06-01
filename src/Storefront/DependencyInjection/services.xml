@@ -141,6 +141,7 @@
             <argument type="service" id="Shopware\Checkout\Payment\PaymentMethodRepository"/>
             <argument type="service" id="Shopware\Application\Context\Util\StorefrontContextPersister"/>
             <argument type="service" id="serializer"/>
+            <argument type="service" id="Shopware\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry"/>
         </service>
 
         <service class="Shopware\Storefront\Controller\SearchController" public="true" id="Shopware\Storefront\Controller\SearchController">

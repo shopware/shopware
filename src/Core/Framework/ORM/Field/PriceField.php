@@ -2,26 +2,17 @@
 
 namespace Shopware\Core\Framework\ORM\Field;
 
-use Shopware\Core\Framework\ORM\Write\DataStack\KeyValuePair;
-use Shopware\Core\Framework\ORM\Write\EntityExistence;
+use Shopware\Core\Framework\ORM\Write\Flag\Required;
 
-class PriceField extends JsonObjectField
+class PriceField extends JsonArrayField
 {
-    public function __invoke(EntityExistence $existence, KeyValuePair $data): \Generator
+    public function __construct(string $storageName, string $propertyName)
     {
-        $key = $data->getKey();
-        $value = $data->getValue();
+        $propertyMapping = [
+            (new FloatField('gross', 'gross'))->setFlags(new Required()),
+            (new FloatField('net', 'net'))->setFlags(new Required()),
+        ];
 
-        if ($existence->exists()) {
-            $this->validate($this->getUpdateConstraints(), $key, $value);
-        } else {
-            $this->validate($this->getInsertConstraints(), $key, $value);
-        }
-
-        if (is_array($value)) {
-            $value = json_encode($value);
-        }
-
-        yield $this->storageName => $value;
+        parent::__construct($storageName, $propertyName, $propertyMapping);
     }
 }

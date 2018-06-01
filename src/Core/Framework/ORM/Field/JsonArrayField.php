@@ -24,10 +24,14 @@
 
 namespace Shopware\Core\Framework\ORM\Field;
 
+use Shopware\Core\Framework\ORM\Write\DataStack\DataStack;
+use Shopware\Core\Framework\ORM\Write\DataStack\ExceptionNoStackItemFound;
 use Shopware\Core\Framework\ORM\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\ORM\Write\EntityExistence;
 use Shopware\Core\Framework\ORM\Write\FieldAware\StorageAware;
 use Shopware\Core\Framework\ORM\Write\FieldException\InvalidFieldException;
+use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Framework\ORM\Write\FieldException\InvalidJsonFieldException;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
@@ -38,9 +42,15 @@ class JsonArrayField extends Field implements StorageAware
      */
     protected $storageName;
 
-    public function __construct(string $storageName, string $propertyName)
+    /**
+     * @var Field[]
+     */
+    protected $propertyMapping;
+
+    public function __construct(string $storageName, string $propertyName, array $propertyMapping = [])
     {
         $this->storageName = $storageName;
+        $this->propertyMapping = $propertyMapping;
         parent::__construct($propertyName);
     }
 
@@ -51,6 +61,10 @@ class JsonArrayField extends Field implements StorageAware
     {
         $key = $data->getKey();
         $value = $data->getValue();
+
+        if (!empty($this->propertyMapping) && is_array($value)) {
+            $value = $this->validateMapping($value);
+        }
 
         if ($existence->exists()) {
             $this->validate($this->getUpdateConstraints(), $key, $value);
@@ -75,7 +89,7 @@ class JsonArrayField extends Field implements StorageAware
      * @param string $fieldName
      * @param $value
      */
-    private function validate(array $constraints, string $fieldName, $value)
+    public function validate(array $constraints, string $fieldName, $value): void
     {
         $violationList = new ConstraintViolationList();
 
@@ -107,22 +121,55 @@ class JsonArrayField extends Field implements StorageAware
         }
     }
 
-    /**
-     * @return array
-     */
-    private function getInsertConstraints(): array
+    public function getInsertConstraints(): array
     {
         return $this->constraintBuilder
             ->isNotBlank()
             ->getConstraints();
     }
 
-    /**
-     * @return array
-     */
-    private function getUpdateConstraints(): array
+    public function getUpdateConstraints(): array
     {
         return $this->constraintBuilder
             ->getConstraints();
+    }
+
+    private function validateMapping(array $data): array
+    {
+        $exceptions = [];
+        $stack = new DataStack($data);
+        $existence = new EntityExistence('', [], false, false, false, []);
+
+        foreach ($this->propertyMapping as $field) {
+            try {
+                $kvPair = $stack->pop($field->getPropertyName());
+            } catch (ExceptionNoStackItemFound $e) {
+                if (!$field->is(Required::class)) {
+                    continue;
+                }
+
+                $kvPair = new KeyValuePair($field->getPropertyName(), null, true);
+            }
+
+            $field->setValidator($this->validator);
+            $field->setConstraintBuilder($this->constraintBuilder);
+            $field->setPath($this->path . '/' . $this->getPropertyName());
+
+            try {
+                foreach ($field($existence, $kvPair) as $fieldKey => $fieldValue) {
+                    $stack->update($fieldKey, $fieldValue);
+                }
+            } catch (InvalidFieldException $exception) {
+                $exceptions[] = $exception;
+            } catch (InvalidJsonFieldException $exception) {
+                $exceptions = array_merge($exceptions, $exception->getExceptions());
+            }
+        }
+
+        if (count($exceptions)) {
+            throw new InvalidJsonFieldException($this->path . '/' . $this->getPropertyName(), $exceptions);
+        }
+
+        return $stack->getResultAsArray();
     }
 }

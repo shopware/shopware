@@ -42,6 +42,7 @@ use Shopware\Core\Framework\ORM\Write\FieldAware\FieldExtenderCollection;
 use Shopware\Core\Framework\ORM\Write\FieldAware\RuntimeExtender;
 use Shopware\Core\Framework\ORM\Write\FieldAware\StorageAware;
 use Shopware\Core\Framework\ORM\Write\FieldException\FieldExceptionStack;
+use Shopware\Core\Framework\ORM\Write\FieldException\InvalidJsonFieldException;
 use Shopware\Core\Framework\ORM\Write\FieldException\WriteFieldException;
 use Shopware\Core\Framework\ORM\Write\Flag\Inherited;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
@@ -158,6 +159,10 @@ class WriteCommandExtractor
             try {
                 foreach ($field($existence, $kvPair) as $fieldKey => $fieldValue) {
                     $stack->update($fieldKey, $fieldValue);
+                }
+            } catch (InvalidJsonFieldException $e) {
+                foreach ($e->getExceptions() as $exception) {
+                    $exceptionStack->add($exception);
                 }
             } catch (WriteFieldException $e) {
                 $exceptionStack->add($e);

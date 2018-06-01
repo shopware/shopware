@@ -147,7 +147,7 @@ class SqlQueryParser
 
         $result = new ParseResult();
 
-        if ($field instanceof JsonArrayField) {
+        if (get_class($field) === JsonArrayField::class) {
             $result->addWhere('JSON_CONTAINS(' . $select . ', JSON_ARRAY(:' . $key . '))');
 
             if (\is_array($query->getValue())) {
@@ -181,7 +181,7 @@ class SqlQueryParser
 
         $result = new ParseResult();
 
-        if ($field instanceof JsonArrayField) {
+        if (get_class($field) === JsonArrayField::class) {
             $result->addWhere('JSON_CONTAINS(' . $select . ', JSON_ARRAY(:' . $key . '))');
             $result->addParameter($key, $query->getValue());
 

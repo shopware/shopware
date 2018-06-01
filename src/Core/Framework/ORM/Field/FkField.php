@@ -31,6 +31,7 @@ use Shopware\Core\Framework\ORM\Write\FieldException\InvalidFieldException;
 use Shopware\Core\Framework\ORM\Write\Flag\Inherited;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\Struct\Uuid;
+use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -75,7 +76,11 @@ class FkField extends Field implements StorageAware
             try {
                 $value = $this->writeContext->get($this->referenceClass, $this->referenceField);
             } catch (\InvalidArgumentException $exception) {
-                $this->validate($key, $value, $existence);
+                $this->validate(
+                    $this->getConstraints($existence),
+                    $key,
+                    $value
+                );
             }
         }
 
@@ -101,15 +106,37 @@ class FkField extends Field implements StorageAware
     }
 
     /**
+     * @param KeyValuePair    $data
+     * @param EntityExistence $existence
+     *
+     * @return bool
+     */
+    protected function shouldUseContext(KeyValuePair $data, EntityExistence $existence): bool
+    {
+        return $data->isRaw() && $data->getValue() === null && $this->is(Required::class);
+    }
+
+    private function getConstraints(EntityExistence $existence): array
+    {
+        if ($this->is(Inherited::class) && $existence->isChild()) {
+            return [];
+        }
+
+        if ($this->is(Required::class)) {
+            return [new NotBlank()];
+        }
+
+        return [];
+    }
+
+    /**
+     * @param Constraint[] $constraints
      * @param string $fieldName
      * @param $value
-     * @param array $raw
      */
-    private function validate(string $fieldName, $value, EntityExistence $existence): void
+    private function validate(array $constraints, string $fieldName, $value): void
     {
         $violationList = new ConstraintViolationList();
-
-        $constraints = $this->getConstraints($existence);
 
         $violations = $this->validator->validate($value, $constraints);
 
@@ -134,29 +161,5 @@ class FkField extends Field implements StorageAware
         if (count($violationList)) {
             throw new InvalidFieldException($this->path . '/' . $fieldName, $violationList);
         }
-    }
-
-    private function getConstraints(EntityExistence $existence): array
-    {
-        if ($this->is(Inherited::class) && $existence->isChild()) {
-            return [];
-        }
-
-        if ($this->is(Required::class)) {
-            return [new NotBlank()];
-        }
-
-        return [];
-    }
-
-    /**
-     * @param KeyValuePair    $data
-     * @param EntityExistence $existence
-     *
-     * @return bool
-     */
-    private function shouldUseContext(KeyValuePair $data, EntityExistence $existence): bool
-    {
-        return $data->isRaw() && $data->getValue() === null && $this->is(Required::class);
     }
 }

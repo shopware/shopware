@@ -26,24 +26,9 @@ namespace Shopware\Core\Framework\ORM\Field;
 
 use Shopware\Core\Framework\ORM\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\ORM\Write\EntityExistence;
-use Shopware\Core\Framework\ORM\Write\FieldAware\StorageAware;
-use Shopware\Core\Framework\ORM\Write\FieldException\InvalidFieldException;
-use Symfony\Component\Validator\ConstraintViolation;
-use Symfony\Component\Validator\ConstraintViolationList;
 
-class JsonObjectField extends Field implements StorageAware
+class JsonObjectField extends JsonArrayField
 {
-    /**
-     * @var string
-     */
-    protected $storageName;
-
-    public function __construct(string $storageName, string $propertyName)
-    {
-        $this->storageName = $storageName;
-        parent::__construct($propertyName);
-    }
-
     /**
      * {@inheritdoc}
      */
@@ -63,66 +48,5 @@ class JsonObjectField extends Field implements StorageAware
         }
 
         yield $this->storageName => $value;
-    }
-
-    public function getStorageName(): string
-    {
-        return $this->storageName;
-    }
-
-    /**
-     * @param array  $constraints
-     * @param string $fieldName
-     * @param $value
-     */
-    protected function validate(array $constraints, string $fieldName, $value)
-    {
-        $violationList = new ConstraintViolationList();
-
-        foreach ($constraints as $constraint) {
-            $violations = $this->validator
-                ->validate($value, $constraint);
-
-            /** @var ConstraintViolation $violation */
-            foreach ($violations as $violation) {
-                $violationList->add(
-                    new ConstraintViolation(
-                        $violation->getMessage(),
-                        $violation->getMessageTemplate(),
-                        $violation->getParameters(),
-                        $violation->getRoot(),
-                        $fieldName,
-                        $violation->getInvalidValue(),
-                        $violation->getPlural(),
-                        $violation->getCode(),
-                        $violation->getConstraint(),
-                        $violation->getCause()
-                    )
-                );
-            }
-        }
-
-        if (count($violationList)) {
-            throw new InvalidFieldException($this->path . '/' . $fieldName, $violationList);
-        }
-    }
-
-    /**
-     * @return array
-     */
-    protected function getInsertConstraints(): array
-    {
-        return $this->constraintBuilder
-            ->isNotBlank()
-            ->getConstraints();
-    }
-
-    /**
-     * @return array
-     */
-    protected function getUpdateConstraints(): array
-    {
-        return $this->constraintBuilder
-            ->getConstraints();
     }
 }

@@ -268,6 +268,13 @@ class EntityHydrator
 
                 return new PriceRuleCollection($structs);
 
+            case $field instanceof JsonObjectField:
+                if ($field->is(Serialized::class)) {
+                    return $this->serializer->deserialize($value, '', 'json');
+                }
+
+                return json_decode((string) $value, true);
+
             case $field instanceof JsonArrayField:
                 if ($value === null) {
                     return null;
@@ -287,13 +294,6 @@ class EntityHydrator
                 }
 
                 return $structs;
-
-            case $field instanceof JsonObjectField:
-                if ($field->is(Serialized::class)) {
-                    return $this->serializer->deserialize($value, '', 'json');
-                }
-
-                return json_decode((string) $value, true);
 
             case $field instanceof LongTextField:
             case $field instanceof LongTextWithHtmlField:

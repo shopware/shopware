@@ -3,7 +3,7 @@
 namespace Shopware\Framework\ORM\Dbal\Indexing;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Framework\Event\ProgressFinishedEvent;
 use Shopware\Framework\Event\ProgressStartedEvent;
@@ -49,7 +49,7 @@ class InheritanceIndexer implements IndexerInterface
 
     public function index(\DateTime $timestamp, string $tenantId): void
     {
-        $context = ApplicationContext::createDefaultContext($tenantId);
+        $context = Context::createDefaultContext($tenantId);
 
         foreach ($this->registry->getElements() as $definition) {
             /** @var string|EntityDefinition $definition */
@@ -100,7 +100,7 @@ class InheritanceIndexer implements IndexerInterface
         }
     }
 
-    private function update(string $definition, array $ids, ApplicationContext $context): void
+    private function update(string $definition, array $ids, Context $context): void
     {
         /** @var string|EntityDefinition $definition */
         $inherited = $definition::getFields()->filter(function (Field $field) {
@@ -128,7 +128,7 @@ class InheritanceIndexer implements IndexerInterface
         string $definition,
         array $ids,
         FieldCollection $associations,
-        ApplicationContext $context
+        Context $context
     ): void {
         $tenantId = Uuid::fromHexToBytes($context->getTenantId());
         $versionId = Uuid::fromHexToBytes($context->getVersionId());
@@ -183,7 +183,7 @@ class InheritanceIndexer implements IndexerInterface
         string $definition,
         array $ids,
         FieldCollection $associations,
-        ApplicationContext $context
+        Context $context
     ): void {
         $tenantId = Uuid::fromHexToBytes($context->getTenantId());
         $versionId = Uuid::fromHexToBytes($context->getVersionId());

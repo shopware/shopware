@@ -321,7 +321,7 @@ class ApiController extends Controller
             $this->entityWriter->delete(
                 $definition,
                 [$mapping],
-                WriteContext::createFromApplicationContext($context->getApplicationContext())
+                WriteContext::createFromContext($context->getApplicationContext())
             );
 
             return $this->responseFactory->createRedirectResponse($definition, $id, $context);

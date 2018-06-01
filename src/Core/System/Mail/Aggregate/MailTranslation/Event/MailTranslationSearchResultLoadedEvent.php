@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Mail\Aggregate\MailTranslation\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\System\Mail\Aggregate\MailTranslation\Struct\MailTranslationSearchResult;
 
@@ -25,7 +25,7 @@ class MailTranslationSearchResultLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->result->getContext();
     }

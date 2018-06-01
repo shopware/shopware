@@ -5,7 +5,7 @@ namespace Shopware\Storefront\DbalIndexing\SeoUrl;
 use Cocur\Slugify\SlugifyInterface;
 use Doctrine\DBAL\Connection;
 use Shopware\Application\Application\ApplicationRepository;
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Content\Category\CategoryRepository;
 use Shopware\Content\Category\Struct\CategorySearchResult;
 use Shopware\Defaults;
@@ -81,10 +81,10 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
 
     public function index(\DateTime $timestamp, string $tenantId): void
     {
-        $applications = $this->applicationRepository->search(new Criteria(), ApplicationContext::createDefaultContext($tenantId));
+        $applications = $this->applicationRepository->search(new Criteria(), Context::createDefaultContext($tenantId));
 
         foreach ($applications as $application) {
-            $context = ApplicationContext::createFromApplication($application);
+            $context = Context::createFromApplication($application);
 
             $iterator = new RepositoryIterator($this->categoryRepository, $context);
 
@@ -149,7 +149,7 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
         return $query->execute()->fetchAll(\PDO::FETCH_GROUP | \PDO::FETCH_UNIQUE);
     }
 
-    private function updateCategories(array $ids, ApplicationContext $context): void
+    private function updateCategories(array $ids, Context $context): void
     {
         if (empty($ids)) {
             return;

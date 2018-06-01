@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Storefront\Page\Listing\ListingPageRequest;
@@ -39,7 +39,7 @@ class ListingPageLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context->getApplicationContext();
     }

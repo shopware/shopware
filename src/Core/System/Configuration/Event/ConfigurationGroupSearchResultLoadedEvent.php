@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Configuration\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\System\Configuration\Struct\ConfigurationGroupSearchResult;
 
@@ -25,7 +25,7 @@ class ConfigurationGroupSearchResultLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->result->getContext();
     }

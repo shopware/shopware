@@ -2,7 +2,7 @@
 
 namespace Shopware\Framework\ORM\Dbal\Common;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Framework\ORM\RepositoryInterface;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\SearchResultInterface;
@@ -20,11 +20,11 @@ class RepositoryIterator
     private $repository;
 
     /**
-     * @var ApplicationContext
+     * @var \Shopware\Framework\Context
      */
     private $context;
 
-    public function __construct(RepositoryInterface $repository, ApplicationContext $context, Criteria $criteria = null)
+    public function __construct(RepositoryInterface $repository, Context $context, Criteria $criteria = null)
     {
         if ($criteria === null) {
             $criteria = new Criteria();

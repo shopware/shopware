@@ -3,7 +3,7 @@
 namespace Shopware\Application\Context\Util;
 
 use Psr\Cache\CacheItemPoolInterface;
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Checkout\Cart\Cart\CartCollector;
 use Shopware\Checkout\Cart\Cart\CartPersisterInterface;
@@ -159,7 +159,7 @@ class ContextRuleLoader
         return $rules;
     }
 
-    private function loadRules(ApplicationContext $context): ContextRuleBasicCollection
+    private function loadRules(Context $context): ContextRuleBasicCollection
     {
         if ($this->rules !== null) {
             return $this->rules;

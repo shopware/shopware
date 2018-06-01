@@ -87,7 +87,7 @@ class FkField extends Field implements StorageAware
         }
 
         yield $this->storageName => Uuid::fromStringToBytes($value);
-        yield $this->tenantIdField => Uuid::fromStringToBytes($this->writeContext->getApplicationContext()->getTenantId());
+        yield $this->tenantIdField => Uuid::fromStringToBytes($this->writeContext->getContext()->getTenantId());
     }
 
     public function getStorageName(): string

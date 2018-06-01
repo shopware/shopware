@@ -2,7 +2,7 @@
 
 namespace Shopware\Framework\ORM;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\IdSearchResult;
 use Shopware\Framework\ORM\Search\SearchResultInterface;
@@ -12,53 +12,53 @@ interface RepositoryInterface
 {
     /**
      * @param Criteria           $criteria
-     * @param ApplicationContext $context
+     * @param \Shopware\Framework\Context $context
      *
      * @return AggregationResult
      */
-    public function aggregate(Criteria $criteria, ApplicationContext $context);
+    public function aggregate(Criteria $criteria, Context $context);
 
     /**
      * @param Criteria           $criteria
-     * @param ApplicationContext $context
+     * @param \Shopware\Framework\Context $context
      *
      * @return IdSearchResult
      */
-    public function searchIds(Criteria $criteria, ApplicationContext $context);
+    public function searchIds(Criteria $criteria, Context $context);
 
     /**
      * @param Criteria           $criteria
-     * @param ApplicationContext $context
+     * @param \Shopware\Framework\Context $context
      *
      * @return SearchResultInterface
      */
-    public function search(Criteria $criteria, ApplicationContext $context);
+    public function search(Criteria $criteria, Context $context);
 
     /**
      * @param array              $ids
-     * @param ApplicationContext $context
+     * @param \Shopware\Framework\Context $context
      *
      * @return EntityCollection
      */
-    public function readBasic(array $ids, ApplicationContext $context);
+    public function readBasic(array $ids, Context $context);
 
     /**
      * @param array              $ids
-     * @param ApplicationContext $context
+     * @param Context $context
      *
      * @return EntityCollection
      */
-    public function readDetail(array $ids, ApplicationContext $context);
+    public function readDetail(array $ids, Context $context);
 
-    public function update(array $data, ApplicationContext $context): GenericWrittenEvent;
+    public function update(array $data, Context $context): GenericWrittenEvent;
 
-    public function upsert(array $data, ApplicationContext $context): GenericWrittenEvent;
+    public function upsert(array $data, Context $context): GenericWrittenEvent;
 
-    public function create(array $data, ApplicationContext $context): GenericWrittenEvent;
+    public function create(array $data, Context $context): GenericWrittenEvent;
 
-    public function delete(array $data, ApplicationContext $context): GenericWrittenEvent;
+    public function delete(array $data, Context $context): GenericWrittenEvent;
 
-    public function createVersion(string $id, ApplicationContext $context, ?string $name = null, ?string $versionId = null): string;
+    public function createVersion(string $id, Context $context, ?string $name = null, ?string $versionId = null): string;
 
-    public function merge(string $versionId, ApplicationContext $context): void;
+    public function merge(string $versionId, Context $context): void;
 }

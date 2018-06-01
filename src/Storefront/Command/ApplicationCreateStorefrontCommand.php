@@ -4,7 +4,7 @@ namespace Shopware\Storefront\Command;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Application\Application\ApplicationRepository;
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Defaults;
 use Shopware\Framework\ORM\Write\FieldException\WriteStackException;
 use Shopware\Framework\Struct\Uuid;
@@ -95,7 +95,7 @@ class ApplicationCreateStorefrontCommand extends ContainerAwareCommand
         $idBin = Uuid::fromHexToBytes($id);
 
         try {
-            $this->applicationRepository->create([$data], ApplicationContext::createDefaultContext($tenantId));
+            $this->applicationRepository->create([$data], Context::createDefaultContext($tenantId));
 
             $io->success('Application has been created successfully.');
 

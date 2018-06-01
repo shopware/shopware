@@ -2,7 +2,7 @@
 
 namespace Shopware\Content\Product\Util;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Content\Product\Aggregate\ProductConfigurator\Collection\ProductConfiguratorBasicCollection;
 use Shopware\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorRepository;
 use Shopware\Content\Product\Aggregate\ProductConfigurator\Struct\ProductConfiguratorBasicStruct;
@@ -34,7 +34,7 @@ class VariantGenerator
         $this->configuratorRepository = $configuratorRepository;
     }
 
-    public function generate(string $productId, ApplicationContext $context, $offset = null, $limit = null): GenericWrittenEvent
+    public function generate(string $productId, Context $context, $offset = null, $limit = null): GenericWrittenEvent
     {
         $products = $this->productRepository->readBasic([$productId], $context);
         $product = $products->get($productId);
@@ -85,7 +85,7 @@ class VariantGenerator
         return $this->productRepository->create($variants, $context);
     }
 
-    private function loadConfigurator(string $productId, ApplicationContext $context): ProductConfiguratorBasicCollection
+    private function loadConfigurator(string $productId, Context $context): ProductConfiguratorBasicCollection
     {
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('product_configurator.productId', $productId));

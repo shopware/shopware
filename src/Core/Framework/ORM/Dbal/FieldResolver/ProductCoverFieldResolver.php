@@ -2,7 +2,7 @@
 
 namespace Shopware\Framework\ORM\Dbal\FieldResolver;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition;
 use Shopware\Framework\ORM\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Framework\ORM\Dbal\QueryBuilder;
@@ -16,7 +16,7 @@ class ProductCoverFieldResolver implements FieldResolverInterface
         string $root,
         Field $field,
         QueryBuilder $query,
-        ApplicationContext $context,
+        Context $context,
         EntityDefinitionQueryHelper $queryHelper,
         bool $raw
     ): void {

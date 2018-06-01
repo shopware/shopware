@@ -2,7 +2,7 @@
 
 namespace Shopware\Framework\ORM\Version\Event\Version;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\ORM\Version\Struct\VersionSearchResult;
 
@@ -25,7 +25,7 @@ class VersionSearchResultLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->result->getContext();
     }

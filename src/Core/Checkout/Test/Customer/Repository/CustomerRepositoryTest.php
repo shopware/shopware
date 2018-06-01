@@ -3,7 +3,7 @@
 namespace Shopware\Checkout\Test\Customer\Repository;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Checkout\Customer\CustomerDefinition;
 use Shopware\Checkout\Customer\CustomerRepository;
 use Shopware\Defaults;
@@ -114,16 +114,16 @@ class CustomerRepositoryTest extends KernelTestCase
             ],
         ];
 
-        $this->repository->create($records, ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
+        $this->repository->create($records, Context::createDefaultContext(Defaults::TENANT_ID));
 
         $criteria = new Criteria();
 
         $builder = self::$container->get(EntityScoreQueryBuilder::class);
-        $pattern = self::$container->get(SearchTermInterpreter::class)->interpret('match', ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
+        $pattern = self::$container->get(SearchTermInterpreter::class)->interpret('match', Context::createDefaultContext(Defaults::TENANT_ID));
         $queries = $builder->buildScoreQueries($pattern, CustomerDefinition::class, CustomerDefinition::getEntityName());
         $criteria->addQueries($queries);
 
-        $result = $this->repository->searchIds($criteria, ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
+        $result = $this->repository->searchIds($criteria, Context::createDefaultContext(Defaults::TENANT_ID));
 
         $this->assertCount(4, $result->getIds());
 

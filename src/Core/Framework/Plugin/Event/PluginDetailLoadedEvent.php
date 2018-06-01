@@ -2,7 +2,7 @@
 
 namespace Shopware\Framework\Plugin\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Checkout\Payment\Event\PaymentMethodBasicLoadedEvent;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
@@ -14,7 +14,7 @@ class PluginDetailLoadedEvent extends NestedEvent
     public const NAME = 'plugin.detail.loaded';
 
     /**
-     * @var ApplicationContext
+     * @var Context
      */
     protected $context;
 
@@ -23,7 +23,7 @@ class PluginDetailLoadedEvent extends NestedEvent
      */
     protected $plugins;
 
-    public function __construct(PluginDetailCollection $plugins, ApplicationContext $context)
+    public function __construct(PluginDetailCollection $plugins, Context $context)
     {
         $this->context = $context;
         $this->plugins = $plugins;
@@ -34,7 +34,7 @@ class PluginDetailLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }

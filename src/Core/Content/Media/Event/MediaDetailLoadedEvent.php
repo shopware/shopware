@@ -2,7 +2,7 @@
 
 namespace Shopware\Content\Media\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Content\Media\Aggregate\MediaAlbum\Event\MediaAlbumBasicLoadedEvent;
 use Shopware\Content\Media\Collection\MediaDetailCollection;
 use Shopware\Framework\Event\NestedEvent;
@@ -14,7 +14,7 @@ class MediaDetailLoadedEvent extends NestedEvent
     public const NAME = 'media.detail.loaded';
 
     /**
-     * @var ApplicationContext
+     * @var Context
      */
     protected $context;
 
@@ -23,7 +23,7 @@ class MediaDetailLoadedEvent extends NestedEvent
      */
     protected $media;
 
-    public function __construct(MediaDetailCollection $media, ApplicationContext $context)
+    public function __construct(MediaDetailCollection $media, Context $context)
     {
         $this->context = $context;
         $this->media = $media;
@@ -34,7 +34,7 @@ class MediaDetailLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }

@@ -159,17 +159,17 @@ class EntityWriter implements EntityWriterInterface
                 }
 
                 if ($field instanceof ReferenceVersionField) {
-                    $mapped[$field->getStorageName()] = $writeContext->getApplicationContext()->getVersionId();
+                    $mapped[$field->getStorageName()] = $writeContext->getContext()->getVersionId();
                     continue;
                 }
 
                 if ($field instanceof VersionField) {
-                    $mapped[$field->getStorageName()] = $writeContext->getApplicationContext()->getVersionId();
+                    $mapped[$field->getStorageName()] = $writeContext->getContext()->getVersionId();
                     continue;
                 }
 
                 if ($field instanceof TenantIdField) {
-                    $mapped[$field->getStorageName()] = $writeContext->getApplicationContext()->getTenantId();
+                    $mapped[$field->getStorageName()] = $writeContext->getContext()->getTenantId();
                     continue;
                 }
 
@@ -183,7 +183,7 @@ class EntityWriter implements EntityWriterInterface
 
         $instance = new $definition();
         if (!$instance instanceof MappingEntityDefinition) {
-            $restrictions = $this->foreignKeyResolver->getAffectedDeleteRestrictions($definition, $resolved, $writeContext->getApplicationContext());
+            $restrictions = $this->foreignKeyResolver->getAffectedDeleteRestrictions($definition, $resolved, $writeContext->getContext());
 
             if (!empty($restrictions)) {
                 $restrictions = array_map(function ($restriction) {
@@ -196,7 +196,7 @@ class EntityWriter implements EntityWriterInterface
 
         $cascades = [];
         if (!$instance instanceof MappingEntityDefinition) {
-            $cascadeDeletes = $this->foreignKeyResolver->getAffectedDeletes($definition, $resolved, $writeContext->getApplicationContext());
+            $cascadeDeletes = $this->foreignKeyResolver->getAffectedDeletes($definition, $resolved, $writeContext->getContext());
 
             $cascadeDeletes = array_column($cascadeDeletes, 'restrictions');
             foreach ($cascadeDeletes as $cascadeDelete) {

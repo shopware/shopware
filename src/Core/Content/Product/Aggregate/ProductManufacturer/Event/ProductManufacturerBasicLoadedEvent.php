@@ -2,7 +2,7 @@
 
 namespace Shopware\Content\Product\Aggregate\ProductManufacturer\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Content\Product\Aggregate\ProductManufacturer\Collection\ProductManufacturerBasicCollection;
 use Shopware\Framework\Event\NestedEvent;
 
@@ -11,7 +11,7 @@ class ProductManufacturerBasicLoadedEvent extends NestedEvent
     public const NAME = 'product_manufacturer.basic.loaded';
 
     /**
-     * @var ApplicationContext
+     * @var \Shopware\Framework\Context
      */
     protected $context;
 
@@ -20,7 +20,7 @@ class ProductManufacturerBasicLoadedEvent extends NestedEvent
      */
     protected $productManufacturers;
 
-    public function __construct(ProductManufacturerBasicCollection $productManufacturers, ApplicationContext $context)
+    public function __construct(ProductManufacturerBasicCollection $productManufacturers, Context $context)
     {
         $this->context = $context;
         $this->productManufacturers = $productManufacturers;
@@ -31,7 +31,7 @@ class ProductManufacturerBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }

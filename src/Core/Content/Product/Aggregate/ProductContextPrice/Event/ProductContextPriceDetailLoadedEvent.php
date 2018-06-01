@@ -2,7 +2,7 @@
 
 namespace Shopware\Content\Product\Aggregate\ProductContextPrice\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Checkout\Rule\Event\ContextRuleBasicLoadedEvent;
 use Shopware\Content\Product\Aggregate\ProductContextPrice\Collection\ProductContextPriceDetailCollection;
 use Shopware\Content\Product\Event\ProductBasicLoadedEvent;
@@ -15,7 +15,7 @@ class ProductContextPriceDetailLoadedEvent extends NestedEvent
     public const NAME = 'product_context_price.detail.loaded';
 
     /**
-     * @var ApplicationContext
+     * @var \Shopware\Framework\Context
      */
     protected $context;
 
@@ -24,7 +24,7 @@ class ProductContextPriceDetailLoadedEvent extends NestedEvent
      */
     protected $productContextPrices;
 
-    public function __construct(ProductContextPriceDetailCollection $productContextPrices, ApplicationContext $context)
+    public function __construct(ProductContextPriceDetailCollection $productContextPrices, Context $context)
     {
         $this->context = $context;
         $this->productContextPrices = $productContextPrices;
@@ -35,7 +35,7 @@ class ProductContextPriceDetailLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }

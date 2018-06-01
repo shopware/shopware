@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Customer\Aggregate\CustomerGroupTranslation\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Application\Language\Event\LanguageBasicLoadedEvent;
 use Shopware\Checkout\Customer\Aggregate\CustomerGroup\Event\CustomerGroupBasicLoadedEvent;
 use Shopware\Checkout\Customer\Aggregate\CustomerGroupTranslation\Collection\CustomerGroupTranslationDetailCollection;
@@ -14,7 +14,7 @@ class CustomerGroupTranslationDetailLoadedEvent extends NestedEvent
     public const NAME = 'customer_group_translation.detail.loaded';
 
     /**
-     * @var ApplicationContext
+     * @var \Shopware\Framework\Context
      */
     protected $context;
 
@@ -23,7 +23,7 @@ class CustomerGroupTranslationDetailLoadedEvent extends NestedEvent
      */
     protected $customerGroupTranslations;
 
-    public function __construct(CustomerGroupTranslationDetailCollection $customerGroupTranslations, ApplicationContext $context)
+    public function __construct(CustomerGroupTranslationDetailCollection $customerGroupTranslations, Context $context)
     {
         $this->context = $context;
         $this->customerGroupTranslations = $customerGroupTranslations;
@@ -34,7 +34,7 @@ class CustomerGroupTranslationDetailLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }

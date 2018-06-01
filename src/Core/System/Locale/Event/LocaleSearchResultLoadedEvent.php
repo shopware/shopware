@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Locale\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\System\Locale\Struct\LocaleSearchResult;
 
@@ -25,7 +25,7 @@ class LocaleSearchResultLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->result->getContext();
     }

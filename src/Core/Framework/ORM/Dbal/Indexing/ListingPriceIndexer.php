@@ -3,7 +3,7 @@
 namespace Shopware\Framework\ORM\Dbal\Indexing;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Application\Context\Struct\ContextPriceStruct;
 use Shopware\Content\Product\ProductRepository;
 use Shopware\Content\Product\Struct\PriceStruct;
@@ -53,7 +53,7 @@ class ListingPriceIndexer implements IndexerInterface
 
     public function index(\DateTime $timestamp, string $tenantId): void
     {
-        $context = ApplicationContext::createDefaultContext($tenantId);
+        $context = Context::createDefaultContext($tenantId);
 
         $iterator = $this->createIterator($tenantId);
 
@@ -88,7 +88,7 @@ class ListingPriceIndexer implements IndexerInterface
         $this->update($ids, $event->getContext());
     }
 
-    private function update(array $ids, ApplicationContext $context): void
+    private function update(array $ids, Context $context): void
     {
         if (empty($ids)) {
             return;
@@ -120,7 +120,7 @@ class ListingPriceIndexer implements IndexerInterface
         }
     }
 
-    private function fetchPrices(array $ids, ApplicationContext $context): array
+    private function fetchPrices(array $ids, Context $context): array
     {
         $query = $this->connection->createQueryBuilder();
         $query->select([

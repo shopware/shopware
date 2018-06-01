@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Customer\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Checkout\Customer\Struct\CustomerSearchResult;
 use Shopware\Framework\Event\NestedEvent;
 
@@ -25,7 +25,7 @@ class CustomerSearchResultLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->result->getContext();
     }

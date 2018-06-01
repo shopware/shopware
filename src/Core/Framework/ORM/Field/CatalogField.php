@@ -57,7 +57,7 @@ class CatalogField extends FkField
             $value = Defaults::CATALOG;
         }
 
-        $restriction = $this->writeContext->getApplicationContext()->getCatalogIds();
+        $restriction = $this->writeContext->getContext()->getCatalogIds();
 
         //user has restricted catalog access
         if (is_array($restriction)) {
@@ -71,7 +71,7 @@ class CatalogField extends FkField
         }
 
         yield $this->storageName => Uuid::fromStringToBytes($value);
-        yield 'catalog_tenant_id' => Uuid::fromStringToBytes($this->writeContext->getApplicationContext()->getTenantId());
+        yield 'catalog_tenant_id' => Uuid::fromStringToBytes($this->writeContext->getContext()->getTenantId());
     }
 
     public function getExtractPriority(): int

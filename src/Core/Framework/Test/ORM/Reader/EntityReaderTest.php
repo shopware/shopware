@@ -3,7 +3,7 @@
 namespace Shopware\Framework\Test\ORM\Reader;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Checkout\Rule\ContextRuleRepository;
 use Shopware\Checkout\Rule\Specification\Container\AndRule;
 use Shopware\Content\Product\ProductRepository;
@@ -72,9 +72,9 @@ class EntityReaderTest extends KernelTestCase
             ],
         ];
 
-        $this->repository->create($products, ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
+        $this->repository->create($products, Context::createDefaultContext(Defaults::TENANT_ID));
 
-        $products = $this->repository->readBasic([$redId, $greenId], ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
+        $products = $this->repository->readBasic([$redId, $greenId], Context::createDefaultContext(Defaults::TENANT_ID));
 
         $this->assertTrue($products->has($redId));
         $this->assertTrue($products->has($greenId));
@@ -108,7 +108,7 @@ class EntityReaderTest extends KernelTestCase
                 'payload' => new AndRule(),
                 'priority' => 1,
             ],
-        ], ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
+        ], Context::createDefaultContext(Defaults::TENANT_ID));
 
         $parentId = Uuid::uuid4()->getHex();
         $greenId = Uuid::uuid4()->getHex();
@@ -148,9 +148,9 @@ class EntityReaderTest extends KernelTestCase
             ],
         ];
 
-        $this->repository->create($data, ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
+        $this->repository->create($data, Context::createDefaultContext(Defaults::TENANT_ID));
 
-        $products = $this->repository->readBasic([$redId, $greenId], ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
+        $products = $this->repository->readBasic([$redId, $greenId], Context::createDefaultContext(Defaults::TENANT_ID));
 
         $this->assertTrue($products->has($redId));
         $this->assertTrue($products->has($greenId));
@@ -199,9 +199,9 @@ class EntityReaderTest extends KernelTestCase
             ],
         ];
 
-        $this->repository->create($products, ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
+        $this->repository->create($products, Context::createDefaultContext(Defaults::TENANT_ID));
 
-        $products = $this->repository->readBasic([$redId, $greenId], ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
+        $products = $this->repository->readBasic([$redId, $greenId], Context::createDefaultContext(Defaults::TENANT_ID));
 
         $this->assertTrue($products->has($redId));
         $this->assertTrue($products->has($greenId));

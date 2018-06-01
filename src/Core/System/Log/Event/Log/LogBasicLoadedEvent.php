@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Log\Event\Log;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\System\Log\Collection\LogBasicCollection;
 
@@ -11,7 +11,7 @@ class LogBasicLoadedEvent extends NestedEvent
     public const NAME = 'log.basic.loaded';
 
     /**
-     * @var ApplicationContext
+     * @var \Shopware\Framework\Context
      */
     protected $context;
 
@@ -20,7 +20,7 @@ class LogBasicLoadedEvent extends NestedEvent
      */
     protected $logs;
 
-    public function __construct(LogBasicCollection $logs, ApplicationContext $context)
+    public function __construct(LogBasicCollection $logs, Context $context)
     {
         $this->context = $context;
         $this->logs = $logs;
@@ -31,7 +31,7 @@ class LogBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }

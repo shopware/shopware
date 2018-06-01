@@ -2,7 +2,7 @@
 
 namespace Shopware\Framework\ORM\Dbal\FieldResolver;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Framework\ORM\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Framework\ORM\Dbal\QueryBuilder;
 use Shopware\Framework\ORM\Field\Field;
@@ -19,7 +19,7 @@ class FieldResolverRegistry
         $this->resolvers = $resolvers;
     }
 
-    public function resolve(string $definition, string $root, Field $field, QueryBuilder $query, ApplicationContext $context, EntityDefinitionQueryHelper $queryHelper, $raw = false): void
+    public function resolve(string $definition, string $root, Field $field, QueryBuilder $query, Context $context, EntityDefinitionQueryHelper $queryHelper, $raw = false): void
     {
         foreach ($this->resolvers as $resolver) {
             $resolver->resolve($definition, $root, $field, $query, $context, $queryHelper, $raw);

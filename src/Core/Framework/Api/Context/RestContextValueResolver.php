@@ -2,7 +2,7 @@
 
 namespace Shopware\Framework\Api\Context;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\EntitySearcherInterface;
 use Shopware\Framework\ORM\Search\Query\TermQuery;
@@ -53,7 +53,7 @@ class RestContextValueResolver implements ArgumentValueResolverInterface
         );
     }
 
-    private function getUserId(ApplicationContext $context): ?string
+    private function getUserId(Context $context): ?string
     {
         $token = $this->tokenStorage->getToken();
         if (!$token) {

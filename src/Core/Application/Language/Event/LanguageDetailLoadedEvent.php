@@ -2,7 +2,7 @@
 
 namespace Shopware\Application\Language\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Application\Language\Collection\LanguageDetailCollection;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
@@ -12,7 +12,7 @@ class LanguageDetailLoadedEvent extends NestedEvent
     public const NAME = 'language.detail.loaded';
 
     /**
-     * @var ApplicationContext
+     * @var \Shopware\Framework\Context
      */
     protected $context;
 
@@ -21,7 +21,7 @@ class LanguageDetailLoadedEvent extends NestedEvent
      */
     protected $languages;
 
-    public function __construct(LanguageDetailCollection $languages, ApplicationContext $context)
+    public function __construct(LanguageDetailCollection $languages, Context $context)
     {
         $this->context = $context;
         $this->languages = $languages;
@@ -32,7 +32,7 @@ class LanguageDetailLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }

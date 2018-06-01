@@ -22,7 +22,7 @@ class TenantIdField extends IdField
      */
     public function __invoke(EntityExistence $existence, KeyValuePair $kvPair): \Generator
     {
-        $value = $this->writeContext->getApplicationContext()->getTenantId();
+        $value = $this->writeContext->getContext()->getTenantId();
 
         yield $this->storageName => Uuid::fromStringToBytes($value);
     }

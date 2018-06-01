@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Order\Aggregate\OrderTransaction;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Checkout\Order\Aggregate\OrderTransaction\Collection\OrderTransactionBasicCollection;
 use Shopware\Checkout\Order\Aggregate\OrderTransaction\Collection\OrderTransactionDetailCollection;
 use Shopware\Checkout\Order\Aggregate\OrderTransaction\Event\OrderTransactionAggregationResultLoadedEvent;
@@ -64,7 +64,7 @@ class OrderTransactionRepository implements RepositoryInterface
         $this->versionManager = $versionManager;
     }
 
-    public function search(Criteria $criteria, ApplicationContext $context): OrderTransactionSearchResult
+    public function search(Criteria $criteria, Context $context): OrderTransactionSearchResult
     {
         $ids = $this->searchIds($criteria, $context);
 
@@ -83,7 +83,7 @@ class OrderTransactionRepository implements RepositoryInterface
         return $result;
     }
 
-    public function aggregate(Criteria $criteria, ApplicationContext $context): AggregatorResult
+    public function aggregate(Criteria $criteria, Context $context): AggregatorResult
     {
         $result = $this->aggregator->aggregate(OrderTransactionDefinition::class, $criteria, $context);
 
@@ -93,7 +93,7 @@ class OrderTransactionRepository implements RepositoryInterface
         return $result;
     }
 
-    public function searchIds(Criteria $criteria, ApplicationContext $context): IdSearchResult
+    public function searchIds(Criteria $criteria, Context $context): IdSearchResult
     {
         $result = $this->searcher->search(OrderTransactionDefinition::class, $criteria, $context);
 
@@ -103,7 +103,7 @@ class OrderTransactionRepository implements RepositoryInterface
         return $result;
     }
 
-    public function readBasic(array $ids, ApplicationContext $context): OrderTransactionBasicCollection
+    public function readBasic(array $ids, Context $context): OrderTransactionBasicCollection
     {
         /** @var \Shopware\Checkout\Order\Aggregate\OrderTransaction\Collection\OrderTransactionBasicCollection $entities */
         $entities = $this->reader->readBasic(OrderTransactionDefinition::class, $ids, $context);
@@ -114,7 +114,7 @@ class OrderTransactionRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $ids, ApplicationContext $context): OrderTransactionDetailCollection
+    public function readDetail(array $ids, Context $context): OrderTransactionDetailCollection
     {
         /** @var OrderTransactionDetailCollection $entities */
         $entities = $this->reader->readDetail(OrderTransactionDefinition::class, $ids, $context);
@@ -125,49 +125,49 @@ class OrderTransactionRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function update(array $data, ApplicationContext $context): GenericWrittenEvent
+    public function update(array $data, Context $context): GenericWrittenEvent
     {
-        $affected = $this->versionManager->update(OrderTransactionDefinition::class, $data, WriteContext::createFromApplicationContext($context));
+        $affected = $this->versionManager->update(OrderTransactionDefinition::class, $data, WriteContext::createFromContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function upsert(array $data, ApplicationContext $context): GenericWrittenEvent
+    public function upsert(array $data, Context $context): GenericWrittenEvent
     {
-        $affected = $this->versionManager->upsert(OrderTransactionDefinition::class, $data, WriteContext::createFromApplicationContext($context));
+        $affected = $this->versionManager->upsert(OrderTransactionDefinition::class, $data, WriteContext::createFromContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function create(array $data, ApplicationContext $context): GenericWrittenEvent
+    public function create(array $data, Context $context): GenericWrittenEvent
     {
-        $affected = $this->versionManager->insert(OrderTransactionDefinition::class, $data, WriteContext::createFromApplicationContext($context));
+        $affected = $this->versionManager->insert(OrderTransactionDefinition::class, $data, WriteContext::createFromContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function delete(array $ids, ApplicationContext $context): GenericWrittenEvent
+    public function delete(array $ids, Context $context): GenericWrittenEvent
     {
-        $affected = $this->versionManager->delete(OrderTransactionDefinition::class, $ids, WriteContext::createFromApplicationContext($context));
+        $affected = $this->versionManager->delete(OrderTransactionDefinition::class, $ids, WriteContext::createFromContext($context));
         $event = GenericWrittenEvent::createWithDeletedEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function createVersion(string $id, ApplicationContext $context, ?string $name = null, ?string $versionId = null): string
+    public function createVersion(string $id, Context $context, ?string $name = null, ?string $versionId = null): string
     {
-        return $this->versionManager->createVersion(OrderTransactionDefinition::class, $id, WriteContext::createFromApplicationContext($context), $name, $versionId);
+        return $this->versionManager->createVersion(OrderTransactionDefinition::class, $id, WriteContext::createFromContext($context), $name, $versionId);
     }
 
-    public function merge(string $versionId, ApplicationContext $context): void
+    public function merge(string $versionId, Context $context): void
     {
-        $this->versionManager->merge($versionId, WriteContext::createFromApplicationContext($context));
+        $this->versionManager->merge($versionId, WriteContext::createFromContext($context));
     }
 }

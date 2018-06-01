@@ -4,7 +4,7 @@ namespace Shopware\Framework\Api\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Content\Product\ProductDefinition;
 use Shopware\Content\Product\Util\VariantGenerator;
 use Shopware\Framework\Api\Context\RestContext;
@@ -29,7 +29,7 @@ class ProductActionController extends Controller
      * @Method({"POST"})
      *
      * @param string             $productId
-     * @param ApplicationContext $context
+     * @param \Shopware\Framework\Context $context
      *
      * @throws \Shopware\Content\Product\Exception\NoConfiguratorFoundException
      * @throws \Shopware\Content\Product\Exception\ProductNotFoundException

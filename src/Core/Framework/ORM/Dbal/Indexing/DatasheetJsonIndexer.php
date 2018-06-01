@@ -3,7 +3,7 @@
 namespace Shopware\Framework\ORM\Dbal\Indexing;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Content\Product\ProductRepository;
 use Shopware\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Framework\Event\ProgressFinishedEvent;
@@ -50,7 +50,7 @@ class DatasheetJsonIndexer implements IndexerInterface
 
     public function index(\DateTime $timestamp, string $tenantId): void
     {
-        $context = ApplicationContext::createDefaultContext($tenantId);
+        $context = Context::createDefaultContext($tenantId);
 
         $iterator = $this->createIterator($tenantId);
 
@@ -85,7 +85,7 @@ class DatasheetJsonIndexer implements IndexerInterface
         $this->update($ids, $event->getContext());
     }
 
-    private function update(array $productIds, ApplicationContext $context): void
+    private function update(array $productIds, Context $context): void
     {
         if (empty($productIds)) {
             return;

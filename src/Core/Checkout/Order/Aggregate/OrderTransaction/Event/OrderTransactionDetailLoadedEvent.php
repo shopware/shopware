@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Order\Aggregate\OrderTransaction\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Checkout\Order\Aggregate\OrderTransaction\Collection\OrderTransactionDetailCollection;
 use Shopware\Checkout\Payment\Event\PaymentMethodBasicLoadedEvent;
 use Shopware\Framework\Event\NestedEvent;
@@ -13,7 +13,7 @@ class OrderTransactionDetailLoadedEvent extends NestedEvent
     public const NAME = 'order_transaction.detail.loaded';
 
     /**
-     * @var ApplicationContext
+     * @var \Shopware\Framework\Context
      */
     protected $context;
 
@@ -22,7 +22,7 @@ class OrderTransactionDetailLoadedEvent extends NestedEvent
      */
     protected $orderTransactions;
 
-    public function __construct(OrderTransactionDetailCollection $orderTransactions, ApplicationContext $context)
+    public function __construct(OrderTransactionDetailCollection $orderTransactions, Context $context)
     {
         $this->context = $context;
         $this->orderTransactions = $orderTransactions;
@@ -33,7 +33,7 @@ class OrderTransactionDetailLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }

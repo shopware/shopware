@@ -3,7 +3,8 @@
 namespace Shopware\Framework\ORM\Dbal;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
+use Shopware\Content\Product\ProductDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Framework\ORM\Search\Aggregation\Aggregation;
@@ -61,7 +62,7 @@ class EntityAggregator implements EntityAggregatorInterface
         $this->queryHelper = $queryHelper;
     }
 
-    public function aggregate(string $definition, Criteria $criteria, ApplicationContext $context): AggregatorResult
+    public function aggregate(string $definition, Criteria $criteria, Context $context): AggregatorResult
     {
         $aggregations = new AggregationResultCollection();
         foreach ($criteria->getAggregations() as $aggregation) {
@@ -77,7 +78,7 @@ class EntityAggregator implements EntityAggregatorInterface
         return new AggregatorResult($aggregations, $context, $criteria);
     }
 
-    private function createAggregationQuery(Aggregation $aggregation, string $definition, Criteria $criteria, ApplicationContext $context): QueryBuilder
+    private function createAggregationQuery(Aggregation $aggregation, string $definition, Criteria $criteria, Context $context): QueryBuilder
     {
         /** @var EntityDefinition $definition */
         $table = $definition::getEntityName();
@@ -113,7 +114,7 @@ class EntityAggregator implements EntityAggregatorInterface
         return $query;
     }
 
-    private function fetchAggregation(string $definition, QueryBuilder $query, Aggregation $aggregation, ApplicationContext $context)
+    private function fetchAggregation(string $definition, QueryBuilder $query, Aggregation $aggregation, Context $context)
     {
         /** @var EntityDefinition|string $definition */
         $accessor = $this->queryHelper->getFieldAccessor(

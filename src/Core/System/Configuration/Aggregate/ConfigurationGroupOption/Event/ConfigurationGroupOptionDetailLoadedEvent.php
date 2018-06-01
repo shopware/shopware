@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionDetailCollection;
@@ -14,7 +14,7 @@ class ConfigurationGroupOptionDetailLoadedEvent extends NestedEvent
     public const NAME = 'configuration_group_option.detail.loaded';
 
     /**
-     * @var ApplicationContext
+     * @var \Shopware\Framework\Context
      */
     protected $context;
 
@@ -23,7 +23,7 @@ class ConfigurationGroupOptionDetailLoadedEvent extends NestedEvent
      */
     protected $configurationGroupOptions;
 
-    public function __construct(ConfigurationGroupOptionDetailCollection $configurationGroupOptions, ApplicationContext $context)
+    public function __construct(ConfigurationGroupOptionDetailCollection $configurationGroupOptions, Context $context)
     {
         $this->context = $context;
         $this->configurationGroupOptions = $configurationGroupOptions;
@@ -34,7 +34,7 @@ class ConfigurationGroupOptionDetailLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }

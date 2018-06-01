@@ -3,7 +3,7 @@
 namespace Shopware\Framework\ORM\Dbal\Indexing;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Content\Category\CategoryRepository;
 use Shopware\Content\Category\Util\CategoryPathBuilder;
 use Shopware\Content\Product\ProductRepository;
@@ -70,7 +70,7 @@ class CategoryAssignmentIndexer implements IndexerInterface
 
     public function index(\DateTime $timestamp, string $tenantId): void
     {
-        $context = ApplicationContext::createDefaultContext($tenantId);
+        $context = Context::createDefaultContext($tenantId);
 
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('category.parentId', null));
@@ -125,7 +125,7 @@ class CategoryAssignmentIndexer implements IndexerInterface
         $this->update($ids, $event->getContext());
     }
 
-    private function update(array $ids, ApplicationContext $context): void
+    private function update(array $ids, Context $context): void
     {
         if (empty($ids)) {
             return;
@@ -185,7 +185,7 @@ class CategoryAssignmentIndexer implements IndexerInterface
         $query->execute();
     }
 
-    private function fetchCategories(array $ids, ApplicationContext $context): array
+    private function fetchCategories(array $ids, Context $context): array
     {
         $query = $this->connection->createQueryBuilder();
         $query->select([

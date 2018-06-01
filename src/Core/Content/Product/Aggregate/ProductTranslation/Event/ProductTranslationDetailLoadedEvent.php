@@ -2,7 +2,7 @@
 
 namespace Shopware\Content\Product\Aggregate\ProductTranslation\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Application\Language\Event\LanguageBasicLoadedEvent;
 use Shopware\Content\Product\Aggregate\ProductTranslation\Collection\ProductTranslationDetailCollection;
 use Shopware\Content\Product\Event\ProductBasicLoadedEvent;
@@ -14,7 +14,7 @@ class ProductTranslationDetailLoadedEvent extends NestedEvent
     public const NAME = 'product_translation.detail.loaded';
 
     /**
-     * @var ApplicationContext
+     * @var \Shopware\Framework\Context
      */
     protected $context;
 
@@ -23,7 +23,7 @@ class ProductTranslationDetailLoadedEvent extends NestedEvent
      */
     protected $productTranslations;
 
-    public function __construct(ProductTranslationDetailCollection $productTranslations, ApplicationContext $context)
+    public function __construct(ProductTranslationDetailCollection $productTranslations, Context $context)
     {
         $this->context = $context;
         $this->productTranslations = $productTranslations;
@@ -34,7 +34,7 @@ class ProductTranslationDetailLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }

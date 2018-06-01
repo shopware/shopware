@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Api\Entity\Dbal;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Framework\ORM\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Framework\ORM\Dbal\FieldResolver\FieldResolverInterface;
 use Shopware\Framework\ORM\Dbal\QueryBuilder;
@@ -18,7 +18,7 @@ class CanonicalUrlAssociationFieldResolver implements FieldResolverInterface
         string $root,
         Field $field,
         QueryBuilder $query,
-        ApplicationContext $context,
+        Context $context,
         EntityDefinitionQueryHelper $queryHelper,
         bool $raw
     ): void {

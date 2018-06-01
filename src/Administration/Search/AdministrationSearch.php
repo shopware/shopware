@@ -2,7 +2,7 @@
 
 namespace Shopware\Administration\Search;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Checkout\Customer\CustomerDefinition;
 use Shopware\Checkout\Order\OrderDefinition;
 use Shopware\Content\Product\ProductDefinition;
@@ -54,7 +54,7 @@ class AdministrationSearch
         $this->changesRepository = $changesRepository;
     }
 
-    public function search(string $term, int $page, int $limit, ApplicationContext $context, string $userId): array
+    public function search(string $term, int $page, int $limit, Context $context, string $userId): array
     {
         $definitions = [
             ProductDefinition::class,
@@ -99,11 +99,11 @@ class AdministrationSearch
     /**
      * @param string|EntityDefinition $definition
      * @param string                  $term
-     * @param ApplicationContext      $context
+     * @param \Shopware\Framework\Context      $context
      *
      * @return SearchResultInterface
      */
-    private function searchDefinition(string $definition, string $term, ApplicationContext $context): SearchResultInterface
+    private function searchDefinition(string $definition, string $term, Context $context): SearchResultInterface
     {
         $repository = $this->container->get($definition::getRepositoryClass());
 
@@ -127,7 +127,7 @@ class AdministrationSearch
      *
      * @return array
      */
-    private function applyAuditLog(array $results, string $userId, ApplicationContext $context): array
+    private function applyAuditLog(array $results, string $userId, Context $context): array
     {
         $criteria = new Criteria();
         $criteria->addFilter(

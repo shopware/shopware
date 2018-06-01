@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Order\Aggregate\OrderLineItem\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Checkout\Order\Aggregate\OrderDeliveryPosition\Event\OrderDeliveryPositionBasicLoadedEvent;
 use Shopware\Checkout\Order\Aggregate\OrderLineItem\Collection\OrderLineItemDetailCollection;
 use Shopware\Checkout\Order\Event\OrderBasicLoadedEvent;
@@ -14,7 +14,7 @@ class OrderLineItemDetailLoadedEvent extends NestedEvent
     public const NAME = 'order_line_item.detail.loaded';
 
     /**
-     * @var ApplicationContext
+     * @var \Shopware\Framework\Context
      */
     protected $context;
 
@@ -23,7 +23,7 @@ class OrderLineItemDetailLoadedEvent extends NestedEvent
      */
     protected $orderLineItems;
 
-    public function __construct(OrderLineItemDetailCollection $orderLineItems, ApplicationContext $context)
+    public function __construct(OrderLineItemDetailCollection $orderLineItems, Context $context)
     {
         $this->context = $context;
         $this->orderLineItems = $orderLineItems;
@@ -34,7 +34,7 @@ class OrderLineItemDetailLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }

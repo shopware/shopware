@@ -4,7 +4,7 @@ namespace Shopware\Storefront\Test;
 
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Checkout\Customer\CustomerDefinition;
 use Shopware\Checkout\Order\OrderRepository;
 use Shopware\Defaults;
@@ -64,7 +64,7 @@ class OrderingProcessTest extends ApiTestCase
         $orderId = $this->payOrder();
         self::assertTrue(\Shopware\Framework\Struct\Uuid::isValid($orderId));
 
-        $order = $this->orderRepository->readBasic([$orderId], ApplicationContext::createDefaultContext(\Shopware\Defaults::TENANT_ID))->get($orderId);
+        $order = $this->orderRepository->readBasic([$orderId], Context::createDefaultContext(\Shopware\Defaults::TENANT_ID))->get($orderId);
 
         self::assertEquals(Defaults::PAYMENT_METHOD_PAID_IN_ADVANCE, $order->getPaymentMethodId());
         self::assertEquals(25, $order->getAmountTotal());
@@ -176,7 +176,7 @@ class OrderingProcessTest extends ApiTestCase
         $this->entityWriter->upsert(
             CustomerDefinition::class,
             [$customer],
-            WriteContext::createFromApplicationContext(ApplicationContext::createDefaultContext(\Shopware\Defaults::TENANT_ID))
+            WriteContext::createFromContext(Context::createDefaultContext(\Shopware\Defaults::TENANT_ID))
         );
 
         return $customerId;

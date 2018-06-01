@@ -3,7 +3,7 @@
 namespace Shopware\Framework\ORM\Dbal;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Defaults;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\Field\AssociationInterface;
@@ -59,7 +59,7 @@ class EntityForeignKeyResolver
      *
      * @return array
      */
-    public function getAffectedDeleteRestrictions(string $definition, array $ids, ApplicationContext $context): array
+    public function getAffectedDeleteRestrictions(string $definition, array $ids, Context $context): array
     {
         return $this->fetch($definition, $ids, RestrictDelete::class, $context);
     }
@@ -86,7 +86,7 @@ class EntityForeignKeyResolver
      *
      * @return array
      */
-    public function getAffectedDeletes(string $definition, array $ids, ApplicationContext $context): array
+    public function getAffectedDeletes(string $definition, array $ids, Context $context): array
     {
         return $this->fetch($definition, $ids, CascadeDelete::class, $context);
     }
@@ -95,11 +95,11 @@ class EntityForeignKeyResolver
      * @param EntityDefinition|string $definition
      * @param array                   $ids
      * @param string                  $class
-     * @param ApplicationContext      $context
+     * @param Context      $context
      *
      * @return array
      */
-    private function fetch(string $definition, array $ids, string $class, ApplicationContext $context): array
+    private function fetch(string $definition, array $ids, string $class, Context $context): array
     {
         if ($context->getVersionId() !== Defaults::LIVE_VERSION) {
             return [];
@@ -133,7 +133,7 @@ class EntityForeignKeyResolver
         return $this->extractValues($definition, $result, $root);
     }
 
-    private function joinCascades(string $definition, FieldCollection $cascades, string $root, QueryBuilder $query, string $class, ApplicationContext $context): void
+    private function joinCascades(string $definition, FieldCollection $cascades, string $root, QueryBuilder $query, string $class, Context $context): void
     {
         foreach ($cascades as $cascade) {
             $alias = $root . '.' . $cascade->getPropertyName();

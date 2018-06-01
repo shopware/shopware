@@ -7,7 +7,7 @@ use bheller\ImagesGenerator\ImagesGeneratorProvider;
 use Faker\Factory;
 use Faker\Generator;
 use League\Flysystem\FilesystemInterface;
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Checkout\Customer\CustomerDefinition;
 use Shopware\Checkout\Rule\ContextRuleDefinition;
 use Shopware\Checkout\Rule\ContextRuleRepository;
@@ -187,8 +187,8 @@ class DemodataCommand extends ContainerAwareCommand
 
     private function getContext()
     {
-        return WriteContext::createFromApplicationContext(
-            ApplicationContext::createDefaultContext($this->tenantId)
+        return WriteContext::createFromContext(
+            Context::createDefaultContext($this->tenantId)
         );
     }
 
@@ -223,7 +223,7 @@ class DemodataCommand extends ContainerAwareCommand
 
         $chunks = array_chunk($payload, 100);
         foreach ($chunks as $chunk) {
-            $this->categoryRepository->upsert($chunk, ApplicationContext::createDefaultContext($this->tenantId));
+            $this->categoryRepository->upsert($chunk, Context::createDefaultContext($this->tenantId));
             $this->io->progressAdvance(count($chunk));
         }
 
@@ -351,7 +351,7 @@ class DemodataCommand extends ContainerAwareCommand
 
         $albumId = Uuid::uuid4()->getHex();
         $this->io->section('Creating default media album.');
-        $this->albumRepository->create([['id' => $albumId, 'name' => 'Products']], ApplicationContext::createDefaultContext($this->tenantId));
+        $this->albumRepository->create([['id' => $albumId, 'name' => 'Products']], Context::createDefaultContext($this->tenantId));
 
         $this->io->section(sprintf('Generating %d products...', $count));
         $this->io->progressStart($count);
@@ -366,7 +366,7 @@ class DemodataCommand extends ContainerAwareCommand
             $services = $this->createServices();
         }
 
-        $context = ApplicationContext::createDefaultContext($this->tenantId);
+        $context = Context::createDefaultContext($this->tenantId);
 
         for ($i = 0; $i < $count; ++$i) {
             $product = $this->createSimpleProduct($categories, $manufacturer, $contextRules);
@@ -409,9 +409,9 @@ class DemodataCommand extends ContainerAwareCommand
             if ($isConfigurator) {
                 $this->io->progressAdvance();
 
-                $this->productRepository->upsert([$product], ApplicationContext::createDefaultContext($this->tenantId));
+                $this->productRepository->upsert([$product], Context::createDefaultContext($this->tenantId));
 
-                $variantEvent = $this->variantGenerator->generate($product['id'], ApplicationContext::createDefaultContext($this->tenantId));
+                $variantEvent = $this->variantGenerator->generate($product['id'], Context::createDefaultContext($this->tenantId));
                 $productEvents = $variantEvent->getEventByDefinition(ProductDefinition::class);
                 $variantProductIds = $productEvents->getIds();
 
@@ -440,7 +440,7 @@ class DemodataCommand extends ContainerAwareCommand
                     fclose($mediaFile);
                 }
 
-                $this->productRepository->update($variantImagePayload, ApplicationContext::createDefaultContext($this->tenantId));
+                $this->productRepository->update($variantImagePayload, Context::createDefaultContext($this->tenantId));
 
                 continue;
             }
@@ -489,7 +489,7 @@ class DemodataCommand extends ContainerAwareCommand
 
     private function createContextRules(): array
     {
-        $ids = $this->contextRuleRepository->searchIds(new Criteria(), ApplicationContext::createDefaultContext($this->tenantId));
+        $ids = $this->contextRuleRepository->searchIds(new Criteria(), Context::createDefaultContext($this->tenantId));
 
         if (!empty($ids->getIds())) {
             return $ids->getIds();

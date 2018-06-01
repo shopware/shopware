@@ -3,7 +3,7 @@
 namespace Shopware\Framework\ORM\Dbal\Indexing;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Application\Language\LanguageRepository;
 use Shopware\Content\Catalog\CatalogRepository;
 use Shopware\Content\Product\ProductDefinition;
@@ -97,11 +97,11 @@ class SearchIndexer implements IndexerInterface
         $this->connection->executeUpdate('ALTER TABLE `' . $documentTable . '` ADD FOREIGN KEY (`product_id`, `product_version_id`, `product_tenant_id`) REFERENCES `product` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE');
         $this->connection->executeUpdate('ALTER TABLE `' . $documentTable . '` ADD FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE');
 
-        $languages = $this->languageRepository->search(new Criteria(), ApplicationContext::createDefaultContext($tenantId));
-        $catalogIds = $this->catalogRepository->searchIds(new Criteria(), ApplicationContext::createDefaultContext($tenantId));
+        $languages = $this->languageRepository->search(new Criteria(), Context::createDefaultContext($tenantId));
+        $catalogIds = $this->catalogRepository->searchIds(new Criteria(), Context::createDefaultContext($tenantId));
 
         foreach ($languages as $language) {
-            $context = new ApplicationContext(
+            $context = new Context(
                 $tenantId,
                 Defaults::APPLICATION,
                 $catalogIds->getIds(),
@@ -155,7 +155,7 @@ class SearchIndexer implements IndexerInterface
         return implode('', $peaces);
     }
 
-    private function indexContext(ApplicationContext $context, \DateTime $timestamp): void
+    private function indexContext(Context $context, \DateTime $timestamp): void
     {
         $iterator = $this->createIterator($context->getTenantId());
 
@@ -199,7 +199,7 @@ class SearchIndexer implements IndexerInterface
 
     private function updateQueryQueue(
         MultiInsertQueryQueue $queue,
-        ApplicationContext $context,
+        Context $context,
         string $productId,
         array $keywords,
         string $table,

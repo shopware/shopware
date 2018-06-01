@@ -3,7 +3,7 @@
 namespace Shopware\Framework\Test\ORM\Dbal;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Defaults;
 use Shopware\Framework\ORM\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Framework\ORM\Dbal\FieldAccessorBuilder\FieldAccessorBuilderRegistry;
@@ -29,7 +29,7 @@ class EntityDefinitionQueryHelperTest extends TestCase
             'json_object_test.amount.gross',
             JsonObjectTestDefinition::class,
             JsonObjectTestDefinition::getEntityName(),
-            ApplicationContext::createDefaultContext(Defaults::TENANT_ID)
+            Context::createDefaultContext(Defaults::TENANT_ID)
         );
     }
 
@@ -45,7 +45,7 @@ class EntityDefinitionQueryHelperTest extends TestCase
             'json_object_test.amount.gross',
             JsonObjectTestDefinition::class,
             JsonObjectTestDefinition::getEntityName(),
-            ApplicationContext::createDefaultContext(Defaults::TENANT_ID)
+            Context::createDefaultContext(Defaults::TENANT_ID)
         );
 
         self::assertEquals('JSON_UNQUOTE(JSON_EXTRACT(`json_object_test`.`amount`, "$.gross"))', $accessor);
@@ -63,7 +63,7 @@ class EntityDefinitionQueryHelperTest extends TestCase
             'json_object_test.amount.gross.value',
             JsonObjectTestDefinition::class,
             JsonObjectTestDefinition::getEntityName(),
-            ApplicationContext::createDefaultContext(Defaults::TENANT_ID)
+            Context::createDefaultContext(Defaults::TENANT_ID)
         );
 
         self::assertEquals('JSON_UNQUOTE(JSON_EXTRACT(`json_object_test`.`amount`, "$.gross.value"))', $accessor);

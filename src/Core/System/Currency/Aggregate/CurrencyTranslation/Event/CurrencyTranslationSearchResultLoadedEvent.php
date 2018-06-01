@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Currency\Aggregate\CurrencyTranslation\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\System\Currency\Aggregate\CurrencyTranslation\Struct\CurrencyTranslationSearchResult;
 
@@ -25,7 +25,7 @@ class CurrencyTranslationSearchResultLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->result->getContext();
     }

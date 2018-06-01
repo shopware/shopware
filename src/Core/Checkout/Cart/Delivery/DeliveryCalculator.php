@@ -26,7 +26,7 @@ declare(strict_types=1);
 namespace Shopware\Checkout\Cart\Delivery;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Checkout\Cart\LineItem\CalculatedLineItemCollection;
@@ -137,7 +137,7 @@ class DeliveryCalculator
         return $this->priceCalculator->calculate($definition, $context);
     }
 
-    private function findShippingCosts(ShippingMethodBasicStruct $shippingMethod, float $value, ApplicationContext $context): float
+    private function findShippingCosts(ShippingMethodBasicStruct $shippingMethod, float $value, Context $context): float
     {
         $query = $this->connection->createQueryBuilder();
         $query->select('costs.price');

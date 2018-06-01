@@ -2,7 +2,7 @@
 
 namespace Shopware\Content\Product\Aggregate\ProductService;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Content\Product\Aggregate\ProductService\Collection\ProductServiceBasicCollection;
 use Shopware\Content\Product\Aggregate\ProductService\Event\ProductServiceAggregationResultLoadedEvent;
 use Shopware\Content\Product\Aggregate\ProductService\Event\ProductServiceBasicLoadedEvent;
@@ -64,7 +64,7 @@ class ProductServiceRepository implements RepositoryInterface
         $this->versionManager = $versionManager;
     }
 
-    public function search(Criteria $criteria, ApplicationContext $context): ProductServiceSearchResult
+    public function search(Criteria $criteria, Context $context): ProductServiceSearchResult
     {
         $ids = $this->searchIds($criteria, $context);
 
@@ -83,7 +83,7 @@ class ProductServiceRepository implements RepositoryInterface
         return $result;
     }
 
-    public function aggregate(Criteria $criteria, ApplicationContext $context): AggregatorResult
+    public function aggregate(Criteria $criteria, Context $context): AggregatorResult
     {
         $result = $this->aggregator->aggregate(ProductServiceDefinition::class, $criteria, $context);
 
@@ -93,7 +93,7 @@ class ProductServiceRepository implements RepositoryInterface
         return $result;
     }
 
-    public function searchIds(Criteria $criteria, ApplicationContext $context): IdSearchResult
+    public function searchIds(Criteria $criteria, Context $context): IdSearchResult
     {
         $result = $this->searcher->search(ProductServiceDefinition::class, $criteria, $context);
 
@@ -103,7 +103,7 @@ class ProductServiceRepository implements RepositoryInterface
         return $result;
     }
 
-    public function readBasic(array $ids, ApplicationContext $context): ProductServiceBasicCollection
+    public function readBasic(array $ids, Context $context): ProductServiceBasicCollection
     {
         /** @var \Shopware\Content\Product\Aggregate\ProductService\Collection\ProductServiceBasicCollection $entities */
         $entities = $this->reader->readBasic(ProductServiceDefinition::class, $ids, $context);
@@ -114,7 +114,7 @@ class ProductServiceRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $ids, ApplicationContext $context): ProductServiceDetailCollection
+    public function readDetail(array $ids, Context $context): ProductServiceDetailCollection
     {
         /** @var ProductServiceDetailCollection $entities */
         $entities = $this->reader->readDetail(ProductServiceDefinition::class, $ids, $context);
@@ -125,49 +125,49 @@ class ProductServiceRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function update(array $data, ApplicationContext $context): GenericWrittenEvent
+    public function update(array $data, Context $context): GenericWrittenEvent
     {
-        $affected = $this->versionManager->update(ProductServiceDefinition::class, $data, WriteContext::createFromApplicationContext($context));
+        $affected = $this->versionManager->update(ProductServiceDefinition::class, $data, WriteContext::createFromContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function upsert(array $data, ApplicationContext $context): GenericWrittenEvent
+    public function upsert(array $data, Context $context): GenericWrittenEvent
     {
-        $affected = $this->versionManager->upsert(ProductServiceDefinition::class, $data, WriteContext::createFromApplicationContext($context));
+        $affected = $this->versionManager->upsert(ProductServiceDefinition::class, $data, WriteContext::createFromContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function create(array $data, ApplicationContext $context): GenericWrittenEvent
+    public function create(array $data, Context $context): GenericWrittenEvent
     {
-        $affected = $this->versionManager->insert(ProductServiceDefinition::class, $data, WriteContext::createFromApplicationContext($context));
+        $affected = $this->versionManager->insert(ProductServiceDefinition::class, $data, WriteContext::createFromContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function delete(array $ids, ApplicationContext $context): GenericWrittenEvent
+    public function delete(array $ids, Context $context): GenericWrittenEvent
     {
-        $affected = $this->versionManager->delete(ProductServiceDefinition::class, $ids, WriteContext::createFromApplicationContext($context));
+        $affected = $this->versionManager->delete(ProductServiceDefinition::class, $ids, WriteContext::createFromContext($context));
         $event = GenericWrittenEvent::createWithDeletedEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function createVersion(string $id, ApplicationContext $context, ?string $name = null, ?string $versionId = null): string
+    public function createVersion(string $id, Context $context, ?string $name = null, ?string $versionId = null): string
     {
-        return $this->versionManager->createVersion(ProductServiceDefinition::class, $id, WriteContext::createFromApplicationContext($context), $name, $versionId);
+        return $this->versionManager->createVersion(ProductServiceDefinition::class, $id, WriteContext::createFromContext($context), $name, $versionId);
     }
 
-    public function merge(string $versionId, ApplicationContext $context): void
+    public function merge(string $versionId, Context $context): void
     {
-        $this->versionManager->merge($versionId, WriteContext::createFromApplicationContext($context));
+        $this->versionManager->merge($versionId, WriteContext::createFromContext($context));
     }
 }

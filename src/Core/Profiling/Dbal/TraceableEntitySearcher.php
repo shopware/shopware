@@ -2,7 +2,7 @@
 
 namespace Shopware\Profiling\Dbal;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\EntitySearcherInterface;
@@ -27,7 +27,7 @@ class TraceableEntitySearcher implements EntitySearcherInterface
         $this->stopwatch = $stopwatch;
     }
 
-    public function search(string $definition, Criteria $criteria, ApplicationContext $context): IdSearchResult
+    public function search(string $definition, Criteria $criteria, Context $context): IdSearchResult
     {
         /** @var EntityDefinition $definition */
         $entity = $definition::getEntityName();

@@ -2,7 +2,7 @@
 
 namespace Shopware\Framework\Routing\Firewall;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Checkout\Customer\CustomerRepository;
 use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
 use Shopware\Defaults;
@@ -37,7 +37,7 @@ class CustomerProvider implements UserProviderInterface
         $criteria->setLimit(1);
 
         //todo@jb use tenant id of current request or console command
-        $context = ApplicationContext::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext(Defaults::TENANT_ID);
         $customerResult = $this->customerRepository->search($criteria, $context);
 
         // pretend it returns an array on success, false if there is no user

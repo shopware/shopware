@@ -2,7 +2,7 @@
 
 namespace Shopware\Content\Catalog\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Content\Catalog\Collection\CatalogBasicCollection;
 use Shopware\Framework\Event\NestedEvent;
 
@@ -11,7 +11,7 @@ class CatalogBasicLoadedEvent extends NestedEvent
     public const NAME = 'catalog.basic.loaded';
 
     /**
-     * @var ApplicationContext
+     * @var Context
      */
     protected $context;
 
@@ -20,7 +20,7 @@ class CatalogBasicLoadedEvent extends NestedEvent
      */
     protected $catalogs;
 
-    public function __construct(CatalogBasicCollection $catalogs, ApplicationContext $context)
+    public function __construct(CatalogBasicCollection $catalogs, Context $context)
     {
         $this->context = $context;
         $this->catalogs = $catalogs;
@@ -31,7 +31,7 @@ class CatalogBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }

@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Shipping\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Checkout\Shipping\Aggregate\ShippingMethodPrice\Event\ShippingMethodPriceBasicLoadedEvent;
 use Shopware\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Event\ShippingMethodTranslationBasicLoadedEvent;
 use Shopware\Checkout\Shipping\Collection\ShippingMethodDetailCollection;
@@ -14,7 +14,7 @@ class ShippingMethodDetailLoadedEvent extends NestedEvent
     public const NAME = 'shipping_method.detail.loaded';
 
     /**
-     * @var ApplicationContext
+     * @var Context
      */
     protected $context;
 
@@ -23,7 +23,7 @@ class ShippingMethodDetailLoadedEvent extends NestedEvent
      */
     protected $shippingMethods;
 
-    public function __construct(ShippingMethodDetailCollection $shippingMethods, ApplicationContext $context)
+    public function __construct(ShippingMethodDetailCollection $shippingMethods, Context $context)
     {
         $this->context = $context;
         $this->shippingMethods = $shippingMethods;
@@ -34,7 +34,7 @@ class ShippingMethodDetailLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }

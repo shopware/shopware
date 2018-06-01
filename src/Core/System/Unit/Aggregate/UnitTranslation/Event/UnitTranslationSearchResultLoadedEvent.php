@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Unit\Aggregate\UnitTranslation\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\System\Unit\Aggregate\UnitTranslation\Struct\UnitTranslationSearchResult;
 
@@ -25,7 +25,7 @@ class UnitTranslationSearchResultLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->result->getContext();
     }

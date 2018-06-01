@@ -419,8 +419,8 @@ $result = $client->post(
 As already mentioned, the high-performance reading of data is decisive in e-commerce and for the API.
 The reading of the data can only be controlled via the corresponding repositories.
 These offer two options for this:
-* `readBasic(array $ids, ApplicationContext $context)`
-* `readDetail(array $ids, ApplicationContext $context)`
+* `readBasic(array $ids, Context $context)`
+* `readDetail(array $ids, Context $context)`
 
 ### Keep the system fast - A short detour into performance optimization
 Both read functions work with a list of ids that should persuade developers to always read more
@@ -499,11 +499,11 @@ dependencies on entities and that they are processed in the right order.
 Therefore, all write operations are accepted by the ORM as a batch operation 
 and all associated data can be processed in the same operation. The following three functions 
 allow you to write data: 
-* `update(array[] $data, ApplicationContext $context): GenericWrittenEvent;`
+* `update(array[] $data, Context $context): GenericWrittenEvent;`
     * Updates records. If a record does not exist, an exception is thrown
-* `create(array[] $data, ApplicationContext $context): GenericWrittenEvent;`
+* `create(array[] $data, Context $context): GenericWrittenEvent;`
     * Creates records. If a record already exists, an exception is thrown
-* `upsert(array[] $data, ApplicationContext $context): GenericWrittenEvent;`
+* `upsert(array[] $data, Context $context): GenericWrittenEvent;`
     * Creates or updates records. If the record does not exist, it will be created, 
       if it already exists, it will be updated.
 

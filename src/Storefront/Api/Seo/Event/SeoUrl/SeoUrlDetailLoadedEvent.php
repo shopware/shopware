@@ -3,7 +3,7 @@
 namespace Shopware\Storefront\Api\Seo\Event\SeoUrl;
 
 use Shopware\Application\Application\Event\ApplicationBasicLoadedEvent;
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 use Shopware\Storefront\Api\Seo\Collection\SeoUrlDetailCollection;
@@ -13,7 +13,7 @@ class SeoUrlDetailLoadedEvent extends NestedEvent
     public const NAME = 'seo_url.detail.loaded';
 
     /**
-     * @var ApplicationContext
+     * @var \Shopware\Framework\Context
      */
     protected $context;
 
@@ -22,7 +22,7 @@ class SeoUrlDetailLoadedEvent extends NestedEvent
      */
     protected $seoUrls;
 
-    public function __construct(SeoUrlDetailCollection $seoUrls, ApplicationContext $context)
+    public function __construct(SeoUrlDetailCollection $seoUrls, Context $context)
     {
         $this->context = $context;
         $this->seoUrls = $seoUrls;
@@ -33,7 +33,7 @@ class SeoUrlDetailLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }

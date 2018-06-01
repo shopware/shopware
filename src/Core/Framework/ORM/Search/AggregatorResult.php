@@ -2,7 +2,7 @@
 
 namespace Shopware\Framework\ORM\Search;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Framework\ORM\Search\Aggregation\AggregationResultCollection;
 use Shopware\Framework\Struct\Struct;
 
@@ -14,7 +14,7 @@ class AggregatorResult extends Struct
     protected $aggregations;
 
     /**
-     * @var ApplicationContext
+     * @var Context
      */
     protected $context;
 
@@ -23,7 +23,7 @@ class AggregatorResult extends Struct
      */
     protected $criteria;
 
-    public function __construct(AggregationResultCollection $aggregations, ApplicationContext $context, Criteria $criteria)
+    public function __construct(AggregationResultCollection $aggregations, Context $context, Criteria $criteria)
     {
         $this->aggregations = $aggregations;
         $this->context = $context;
@@ -35,7 +35,7 @@ class AggregatorResult extends Struct
         return $this->aggregations;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }

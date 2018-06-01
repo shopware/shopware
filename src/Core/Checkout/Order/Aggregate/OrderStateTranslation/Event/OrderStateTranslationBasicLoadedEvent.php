@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Collection\OrderStateTranslationBasicCollection;
 use Shopware\Framework\Event\NestedEvent;
 
@@ -11,7 +11,7 @@ class OrderStateTranslationBasicLoadedEvent extends NestedEvent
     public const NAME = 'order_state_translation.basic.loaded';
 
     /**
-     * @var ApplicationContext
+     * @var \Shopware\Framework\Context
      */
     protected $context;
 
@@ -20,7 +20,7 @@ class OrderStateTranslationBasicLoadedEvent extends NestedEvent
      */
     protected $orderStateTranslations;
 
-    public function __construct(OrderStateTranslationBasicCollection $orderStateTranslations, ApplicationContext $context)
+    public function __construct(OrderStateTranslationBasicCollection $orderStateTranslations, Context $context)
     {
         $this->context = $context;
         $this->orderStateTranslations = $orderStateTranslations;
@@ -31,7 +31,7 @@ class OrderStateTranslationBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }

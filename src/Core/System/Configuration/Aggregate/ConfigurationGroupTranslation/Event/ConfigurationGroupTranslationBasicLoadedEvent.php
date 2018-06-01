@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Configuration\Aggregate\ConfigurationGroupTranslation\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\System\Configuration\Aggregate\ConfigurationGroupTranslation\Collection\ConfigurationGroupTranslationBasicCollection;
 
@@ -11,7 +11,7 @@ class ConfigurationGroupTranslationBasicLoadedEvent extends NestedEvent
     public const NAME = 'configuration_group_translation.basic.loaded';
 
     /**
-     * @var ApplicationContext
+     * @var Context
      */
     protected $context;
 
@@ -20,7 +20,7 @@ class ConfigurationGroupTranslationBasicLoadedEvent extends NestedEvent
      */
     protected $configurationGroupTranslations;
 
-    public function __construct(ConfigurationGroupTranslationBasicCollection $configurationGroupTranslations, ApplicationContext $context)
+    public function __construct(ConfigurationGroupTranslationBasicCollection $configurationGroupTranslations, Context $context)
     {
         $this->context = $context;
         $this->configurationGroupTranslations = $configurationGroupTranslations;
@@ -31,7 +31,7 @@ class ConfigurationGroupTranslationBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }

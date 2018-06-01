@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Tax\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\System\Tax\Struct\TaxSearchResult;
 
@@ -25,7 +25,7 @@ class TaxSearchResultLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->result->getContext();
     }

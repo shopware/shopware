@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Mail\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Checkout\Order\Aggregate\OrderState\Event\OrderStateBasicLoadedEvent;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
@@ -15,7 +15,7 @@ class MailDetailLoadedEvent extends NestedEvent
     public const NAME = 'mail.detail.loaded';
 
     /**
-     * @var ApplicationContext
+     * @var Context
      */
     protected $context;
 
@@ -24,7 +24,7 @@ class MailDetailLoadedEvent extends NestedEvent
      */
     protected $mails;
 
-    public function __construct(MailDetailCollection $mails, ApplicationContext $context)
+    public function __construct(MailDetailCollection $mails, Context $context)
     {
         $this->context = $context;
         $this->mails = $mails;
@@ -35,7 +35,7 @@ class MailDetailLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }

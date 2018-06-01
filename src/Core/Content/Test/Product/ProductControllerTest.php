@@ -3,7 +3,7 @@
 namespace Shopware\Content\Test\Product;
 
 use Ramsey\Uuid\Uuid;
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Content\Product\ProductRepository;
 use Shopware\Framework\Test\Api\ApiTestCase;
 
@@ -34,7 +34,7 @@ class ProductControllerTest extends ApiTestCase
                 'manufacturer' => ['id' => $manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $taxId, 'rate' => 17, 'name' => 'with id'],
             ],
-        ], ApplicationContext::createDefaultContext(\Shopware\Defaults::TENANT_ID));
+        ], Context::createDefaultContext(\Shopware\Defaults::TENANT_ID));
 
         $this->storefrontApiClient->request('GET', '/storefront-api/product');
 

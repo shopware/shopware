@@ -3,7 +3,7 @@
 namespace Shopware\Application\Test\Context\Repository;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Checkout\Rule\Specification\Container\AndRule;
 use Shopware\Checkout\Rule\Specification\Container\OrRule;
 use Shopware\Defaults;
@@ -24,7 +24,7 @@ class ContextRepositoryTest extends KernelTestCase
     private $repository;
 
     /**
-     * @var ApplicationContext
+     * @var Context
      */
     private $context;
 
@@ -33,7 +33,7 @@ class ContextRepositoryTest extends KernelTestCase
         self::bootKernel();
         $this->repository = self::$container->get(\Shopware\Checkout\Rule\ContextRuleRepository::class);
         $this->connection = self::$container->get(Connection::class);
-        $this->context = ApplicationContext::createDefaultContext(Defaults::TENANT_ID);
+        $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
         $this->connection->beginTransaction();
     }
 

@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Customer\Aggregate\CustomerAddress\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Collection\CustomerAddressBasicCollection;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
@@ -14,7 +14,7 @@ class CustomerAddressBasicLoadedEvent extends NestedEvent
     public const NAME = 'customer_address.basic.loaded';
 
     /**
-     * @var ApplicationContext
+     * @var \Shopware\Framework\Context
      */
     protected $context;
 
@@ -23,7 +23,7 @@ class CustomerAddressBasicLoadedEvent extends NestedEvent
      */
     protected $customerAddresses;
 
-    public function __construct(CustomerAddressBasicCollection $customerAddresses, ApplicationContext $context)
+    public function __construct(CustomerAddressBasicCollection $customerAddresses, Context $context)
     {
         $this->context = $context;
         $this->customerAddresses = $customerAddresses;
@@ -34,7 +34,7 @@ class CustomerAddressBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }

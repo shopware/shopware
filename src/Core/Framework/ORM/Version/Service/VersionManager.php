@@ -2,7 +2,7 @@
 
 namespace Shopware\Framework\ORM\Version\Service;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Defaults;
 use Shopware\Framework\ORM\DefinitionRegistry;
 use Shopware\Framework\ORM\Entity;
@@ -157,7 +157,7 @@ class VersionManager
         $criteria->addFilter(new TermQuery('version_commit.versionId', $versionId));
         $criteria->addSorting(new FieldSorting('version_commit.autoIncrement'));
 
-        $applicationContext = $context->getApplicationContext();
+        $applicationContext = $context->getContext();
 
         $commitIds = $this->entitySearcher->search(VersionCommitDefinition::class, $criteria, $applicationContext);
         $commits = $this->entityReader->readBasic(VersionCommitDefinition::class, $commitIds->getIds(), $applicationContext);
@@ -245,7 +245,7 @@ class VersionManager
     {
         /** @var Entity $detail */
         /** @var string|EntityDefinition $definition */
-        $detail = $this->entityReader->readRaw($definition, [$primaryKey['id']], $context->getApplicationContext())->first();
+        $detail = $this->entityReader->readRaw($definition, [$primaryKey['id']], $context->getContext())->first();
 
         if ($detail === null) {
             throw new \Exception(sprintf('Cannot create new version. %s by id (%s) not found.', $definition::getEntityName(), print_r($primaryKey, true)));
@@ -367,17 +367,17 @@ class VersionManager
 
     private function writeAuditLog(array $writtenEvents, WriteContext $writeContext, string $action, ?string $versionId = null): void
     {
-        $userId = $this->getUserId($writeContext->getApplicationContext());
+        $userId = $this->getUserId($writeContext->getContext());
 
         $userId = $userId ? Uuid::fromStringToBytes($userId) : null;
 
-        $versionId = $versionId ?? $writeContext->getApplicationContext()->getVersionId();
+        $versionId = $versionId ?? $writeContext->getContext()->getVersionId();
 
         $commitId = Uuid::uuid4();
 
         $date = (new \DateTime())->format('Y-m-d H:i:s');
 
-        $tenantId = Uuid::fromStringToBytes($writeContext->getApplicationContext()->getTenantId());
+        $tenantId = Uuid::fromStringToBytes($writeContext->getContext()->getTenantId());
 
         $insert = new InsertCommand(
             VersionCommitDefinition::class,
@@ -456,7 +456,7 @@ class VersionManager
         $this->entityWriteGateway->execute($commands);
     }
 
-    private function getUserId(ApplicationContext $context): ?string
+    private function getUserId(Context $context): ?string
     {
         $token = $this->tokenStorage->getToken();
         if (!$token) {

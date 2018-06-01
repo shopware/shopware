@@ -2,7 +2,7 @@
 
 namespace Shopware\Framework\ORM\Search;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Framework\Struct\Struct;
 
 class IdSearchResult extends Struct
@@ -23,7 +23,7 @@ class IdSearchResult extends Struct
     protected $criteria;
 
     /**
-     * @var ApplicationContext
+     * @var \Shopware\Framework\Context
      */
     protected $context;
 
@@ -32,7 +32,7 @@ class IdSearchResult extends Struct
      */
     protected $ids;
 
-    public function __construct(int $total, array $data, Criteria $criteria, ApplicationContext $context)
+    public function __construct(int $total, array $data, Criteria $criteria, Context $context)
     {
         $this->total = $total;
         $this->ids = array_keys($data);
@@ -56,7 +56,7 @@ class IdSearchResult extends Struct
         return $this->criteria;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }

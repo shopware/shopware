@@ -2,7 +2,7 @@
 
 namespace Shopware\Framework\Api\Command;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Framework\Struct\Uuid;
@@ -98,7 +98,7 @@ class UserCreateCommand extends Command
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('user.username', $username));
 
-        $result = $this->userRepository->searchIds($criteria, ApplicationContext::createDefaultContext($tenantId));
+        $result = $this->userRepository->searchIds($criteria, Context::createDefaultContext($tenantId));
 
         return $result->getTotal() > 0;
     }
@@ -108,7 +108,7 @@ class UserCreateCommand extends Command
         $password = password_hash($password, PASSWORD_BCRYPT);
         $accessKey = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode(Random::getAlphanumericString(32)));
 
-        $context = ApplicationContext::createDefaultContext($tenantId);
+        $context = Context::createDefaultContext($tenantId);
 
         $this->userRepository->create([
             [

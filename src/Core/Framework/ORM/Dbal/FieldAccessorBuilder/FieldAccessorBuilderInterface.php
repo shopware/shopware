@@ -2,10 +2,10 @@
 
 namespace Shopware\Framework\ORM\Dbal\FieldAccessorBuilder;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Framework\ORM\Field\Field;
 
 interface FieldAccessorBuilderInterface
 {
-    public function buildAccessor(string $root, Field $field, ApplicationContext $context, string $accessor): ?string;
+    public function buildAccessor(string $root, Field $field, Context $context, string $accessor): ?string;
 }

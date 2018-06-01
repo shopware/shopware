@@ -15,7 +15,7 @@ layers:
             regex: Shopware\\Application\\
         must_not:
           - type: className
-            regex: Shopware\\Application\\Context\\Struct\\ApplicationContext
+            regex: Shopware\\Framework\\Context
           - type: className
             regex: Shopware\\Application\\Context\\Struct\\StorefrontContext
           - type: className

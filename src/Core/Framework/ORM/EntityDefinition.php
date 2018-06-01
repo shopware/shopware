@@ -2,7 +2,7 @@
 
 namespace Shopware\Framework\ORM;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Framework\ORM\Field\AssociationInterface;
 use Shopware\Framework\ORM\Field\ChildCountField;
 use Shopware\Framework\ORM\Field\ChildrenAssociationField;
@@ -103,7 +103,7 @@ abstract class EntityDefinition
             });
     }
 
-    public static function createWrittenEvent(array $identifiers, ApplicationContext $context, array $errors): ?WrittenEvent
+    public static function createWrittenEvent(array $identifiers, Context $context, array $errors): ?WrittenEvent
     {
         if (!array_key_exists(static::class, $identifiers)) {
             return null;

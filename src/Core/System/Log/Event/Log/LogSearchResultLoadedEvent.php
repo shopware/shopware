@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Log\Event\Log;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\System\Log\Struct\LogSearchResult;
 
@@ -25,7 +25,7 @@ class LogSearchResultLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->result->getContext();
     }

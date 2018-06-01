@@ -4,7 +4,7 @@ namespace Shopware\Application\Context\Event\ContextCartModifierTranslation;
 
 use Shopware\Application\Context\Collection\ContextCartModifierTranslationDetailCollection;
 use Shopware\Application\Context\Event\ContextCartModifier\ContextCartModifierBasicLoadedEvent;
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Application\Language\Event\LanguageBasicLoadedEvent;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
@@ -14,7 +14,7 @@ class ContextCartModifierTranslationDetailLoadedEvent extends NestedEvent
     public const NAME = 'context_cart_modifier_translation.detail.loaded';
 
     /**
-     * @var ApplicationContext
+     * @var \Shopware\Framework\Context
      */
     protected $context;
 
@@ -23,7 +23,7 @@ class ContextCartModifierTranslationDetailLoadedEvent extends NestedEvent
      */
     protected $contextCartModifierTranslations;
 
-    public function __construct(ContextCartModifierTranslationDetailCollection $ContextCartModifierTranslations, ApplicationContext $context)
+    public function __construct(ContextCartModifierTranslationDetailCollection $ContextCartModifierTranslations, Context $context)
     {
         $this->context = $context;
         $this->contextCartModifierTranslations = $ContextCartModifierTranslations;
@@ -34,7 +34,7 @@ class ContextCartModifierTranslationDetailLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }

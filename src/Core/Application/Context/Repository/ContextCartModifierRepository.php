@@ -9,7 +9,7 @@ use Shopware\Application\Context\Event\ContextCartModifier\ContextCartModifierAg
 use Shopware\Application\Context\Event\ContextCartModifier\ContextCartModifierBasicLoadedEvent;
 use Shopware\Application\Context\Event\ContextCartModifier\ContextCartModifierIdSearchResultLoadedEvent;
 use Shopware\Application\Context\Event\ContextCartModifier\ContextCartModifierSearchResultLoadedEvent;
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Application\Context\Struct\ContextCartModifierSearchResult;
 use Shopware\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Framework\ORM\RepositoryInterface;
@@ -64,7 +64,7 @@ class ContextCartModifierRepository implements RepositoryInterface
         $this->versionManager = $versionManager;
     }
 
-    public function search(Criteria $criteria, ApplicationContext $context): ContextCartModifierSearchResult
+    public function search(Criteria $criteria, Context $context): ContextCartModifierSearchResult
     {
         $ids = $this->searchIds($criteria, $context);
 
@@ -83,7 +83,7 @@ class ContextCartModifierRepository implements RepositoryInterface
         return $result;
     }
 
-    public function aggregate(Criteria $criteria, ApplicationContext $context): AggregatorResult
+    public function aggregate(Criteria $criteria, Context $context): AggregatorResult
     {
         $result = $this->aggregator->aggregate(ContextCartModifierDefinition::class, $criteria, $context);
 
@@ -93,7 +93,7 @@ class ContextCartModifierRepository implements RepositoryInterface
         return $result;
     }
 
-    public function searchIds(Criteria $criteria, ApplicationContext $context): IdSearchResult
+    public function searchIds(Criteria $criteria, Context $context): IdSearchResult
     {
         $result = $this->searcher->search(ContextCartModifierDefinition::class, $criteria, $context);
 
@@ -103,7 +103,7 @@ class ContextCartModifierRepository implements RepositoryInterface
         return $result;
     }
 
-    public function readBasic(array $ids, ApplicationContext $context): ContextCartModifierBasicCollection
+    public function readBasic(array $ids, Context $context): ContextCartModifierBasicCollection
     {
         /** @var ContextCartModifierBasicCollection $entities */
         $entities = $this->reader->readBasic(ContextCartModifierDefinition::class, $ids, $context);
@@ -114,7 +114,7 @@ class ContextCartModifierRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $ids, ApplicationContext $context): ContextCartModifierDetailCollection
+    public function readDetail(array $ids, Context $context): ContextCartModifierDetailCollection
     {
         /** @var ContextCartModifierDetailCollection $entities */
         $entities = $this->reader->readDetail(ContextCartModifierDefinition::class, $ids, $context);
@@ -125,49 +125,49 @@ class ContextCartModifierRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function update(array $data, ApplicationContext $context): GenericWrittenEvent
+    public function update(array $data, Context $context): GenericWrittenEvent
     {
-        $affected = $this->versionManager->update(ContextCartModifierDefinition::class, $data, WriteContext::createFromApplicationContext($context));
+        $affected = $this->versionManager->update(ContextCartModifierDefinition::class, $data, WriteContext::createFromContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function upsert(array $data, ApplicationContext $context): GenericWrittenEvent
+    public function upsert(array $data, Context $context): GenericWrittenEvent
     {
-        $affected = $this->versionManager->upsert(ContextCartModifierDefinition::class, $data, WriteContext::createFromApplicationContext($context));
+        $affected = $this->versionManager->upsert(ContextCartModifierDefinition::class, $data, WriteContext::createFromContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function create(array $data, ApplicationContext $context): GenericWrittenEvent
+    public function create(array $data, Context $context): GenericWrittenEvent
     {
-        $affected = $this->versionManager->insert(ContextCartModifierDefinition::class, $data, WriteContext::createFromApplicationContext($context));
+        $affected = $this->versionManager->insert(ContextCartModifierDefinition::class, $data, WriteContext::createFromContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function delete(array $ids, ApplicationContext $context): GenericWrittenEvent
+    public function delete(array $ids, Context $context): GenericWrittenEvent
     {
-        $affected = $this->versionManager->delete(ContextCartModifierDefinition::class, $ids, WriteContext::createFromApplicationContext($context));
+        $affected = $this->versionManager->delete(ContextCartModifierDefinition::class, $ids, WriteContext::createFromContext($context));
         $event = GenericWrittenEvent::createWithDeletedEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function createVersion(string $id, ApplicationContext $context, ?string $name = null, ?string $versionId = null): string
+    public function createVersion(string $id, Context $context, ?string $name = null, ?string $versionId = null): string
     {
-        return $this->versionManager->createVersion(ContextCartModifierDefinition::class, $id, WriteContext::createFromApplicationContext($context), $name, $versionId);
+        return $this->versionManager->createVersion(ContextCartModifierDefinition::class, $id, WriteContext::createFromContext($context), $name, $versionId);
     }
 
-    public function merge(string $versionId, ApplicationContext $context): void
+    public function merge(string $versionId, Context $context): void
     {
-        $this->versionManager->merge($versionId, WriteContext::createFromApplicationContext($context));
+        $this->versionManager->merge($versionId, WriteContext::createFromContext($context));
     }
 }

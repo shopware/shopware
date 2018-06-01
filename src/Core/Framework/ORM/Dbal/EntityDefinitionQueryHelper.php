@@ -3,7 +3,7 @@
 namespace Shopware\Framework\ORM\Dbal;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Defaults;
 use Shopware\Framework\ORM\Dbal\FieldAccessorBuilder\FieldAccessorBuilderRegistry;
 use Shopware\Framework\ORM\Dbal\FieldResolver\FieldResolverRegistry;
@@ -115,7 +115,7 @@ class EntityDefinitionQueryHelper
      * root      => product
      * return    => COALESCE(`product.translation`.`name`,`product.parent.translation`.`name`)
      */
-    public function getFieldAccessor(string $fieldName, string $definition, string $root, ApplicationContext $context): string
+    public function getFieldAccessor(string $fieldName, string $definition, string $root, Context $context): string
     {
         $original = $fieldName;
         $prefix = $root . '.';
@@ -165,7 +165,7 @@ class EntityDefinitionQueryHelper
      * Creates the basic root query for the provided entity definition and application context.
      * It considers the current context version and the catalog restrictions.
      */
-    public function getBaseQuery(Connection $connection, string $definition, ApplicationContext $context): QueryBuilder
+    public function getBaseQuery(Connection $connection, string $definition, Context $context): QueryBuilder
     {
         /** @var string|EntityDefinition $definition */
         $table = $definition::getEntityName();
@@ -201,7 +201,7 @@ class EntityDefinitionQueryHelper
      * Used for dynamic sql joins. In case that the given fieldName is unknown or event nested with multiple association
      * roots, the function can resolve each association part of the field name, even if one part of the fieldName contains a translation or event inherited data field.
      */
-    public function resolveAccessor(string $fieldName, string $definition, string $root, QueryBuilder $query, ApplicationContext $context): void
+    public function resolveAccessor(string $fieldName, string $definition, string $root, QueryBuilder $query, Context $context): void
     {
         //example: `product.manufacturer.media.name`
         $original = $fieldName;
@@ -252,7 +252,7 @@ class EntityDefinitionQueryHelper
         );
     }
 
-    public function resolveField(Field $field, string $definition, string $root, QueryBuilder $query, ApplicationContext $context, bool $raw = false): void
+    public function resolveField(Field $field, string $definition, string $root, QueryBuilder $query, Context $context, bool $raw = false): void
     {
         $this->fieldResolverRegistry->resolve($definition, $root, $field, $query, $context, $this, $raw);
     }
@@ -262,7 +262,7 @@ class EntityDefinitionQueryHelper
      * Considers the parent-child inheritance and provided context language inheritance.
      * The raw parameter allows to skip the parent-child inheritance.
      */
-    public function addTranslationSelect(string $root, string $definition, QueryBuilder $query, ApplicationContext $context, array $fields, bool $raw = false): void
+    public function addTranslationSelect(string $root, string $definition, QueryBuilder $query, Context $context, array $fields, bool $raw = false): void
     {
         $fields = array_values($fields);
         $this->resolveField($fields[0], $definition, $root, $query, $context, $raw);
@@ -301,7 +301,7 @@ class EntityDefinitionQueryHelper
         }
     }
 
-    public function joinVersion(QueryBuilder $query, string $definition, string $root, ApplicationContext $context): void
+    public function joinVersion(QueryBuilder $query, string $definition, string $root, Context $context): void
     {
         /** @var string|EntityDefinition $definition */
         $table = $definition::getEntityName();
@@ -351,7 +351,7 @@ class EntityDefinitionQueryHelper
         return sprintf('COALESCE(%s)', implode(',', $chainSelect));
     }
 
-    private function buildTranslationChain(string $root, string $definition, ApplicationContext $context, bool $raw = false): array
+    private function buildTranslationChain(string $root, string $definition, Context $context, bool $raw = false): array
     {
         $chain = [$root . '.translation'];
 
@@ -375,7 +375,7 @@ class EntityDefinitionQueryHelper
         return $chain;
     }
 
-    private function buildInheritedAccessor(Field $field, string $root, string $definition, ApplicationContext $context, string $original): string
+    private function buildInheritedAccessor(Field $field, string $root, string $definition, Context $context, string $original): string
     {
         /* @var string|EntityDefinition $definition */
         if ($field instanceof TranslatedField) {
@@ -400,7 +400,7 @@ class EntityDefinitionQueryHelper
         return sprintf('IFNULL(%s, %s)', $select, $parentSelect);
     }
 
-    private function buildFieldSelector(string $root, Field $field, ApplicationContext $context, string $accessor): string
+    private function buildFieldSelector(string $root, Field $field, Context $context, string $accessor): string
     {
         return $this->fieldAccessorBuilderRegistry->buildAccessor($root, $field, $context, $accessor);
     }

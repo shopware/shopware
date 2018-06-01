@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Payment\Cart;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Checkout\Order\Aggregate\OrderTransaction\Collection\OrderTransactionBasicCollection;
 use Shopware\Checkout\Order\OrderRepository;
 use Shopware\Checkout\Order\Struct\OrderDetailStruct;
@@ -61,14 +61,14 @@ class PaymentTransactionChainProcessor
 
     /**
      * @param string             $orderId
-     * @param ApplicationContext $context
+     * @param Context $context
      *
      * @throws InvalidOrderException
      * @throws UnknownPaymentMethodException
      *
      * @return null|RedirectResponse
      */
-    public function process(string $orderId, ApplicationContext $context): ?RedirectResponse
+    public function process(string $orderId, Context $context): ?RedirectResponse
     {
         /** @var OrderDetailStruct $order */
         $order = $this->orderRepository->readDetail([$orderId], $context)->first();
@@ -104,7 +104,7 @@ class PaymentTransactionChainProcessor
         return null;
     }
 
-    private function getPaymentHandlerById(string $paymentMethodId, ApplicationContext $context): PaymentHandlerInterface
+    private function getPaymentHandlerById(string $paymentMethodId, Context $context): PaymentHandlerInterface
     {
         $paymentMethods = $this->paymentMethodRepository->readBasic([$paymentMethodId], $context);
 

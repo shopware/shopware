@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Mail\Aggregate\MailAttachment\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Content\Media\Event\MediaBasicLoadedEvent;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
@@ -14,7 +14,7 @@ class MailAttachmentDetailLoadedEvent extends NestedEvent
     public const NAME = 'mail_attachment.detail.loaded';
 
     /**
-     * @var ApplicationContext
+     * @var \Shopware\Framework\Context
      */
     protected $context;
 
@@ -23,7 +23,7 @@ class MailAttachmentDetailLoadedEvent extends NestedEvent
      */
     protected $mailAttachments;
 
-    public function __construct(MailAttachmentDetailCollection $mailAttachments, ApplicationContext $context)
+    public function __construct(MailAttachmentDetailCollection $mailAttachments, Context $context)
     {
         $this->context = $context;
         $this->mailAttachments = $mailAttachments;
@@ -34,7 +34,7 @@ class MailAttachmentDetailLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }

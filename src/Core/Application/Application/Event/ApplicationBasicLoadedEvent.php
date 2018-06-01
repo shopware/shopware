@@ -3,7 +3,7 @@
 namespace Shopware\Application\Application\Event;
 
 use Shopware\Application\Application\Collection\ApplicationBasicCollection;
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Application\Language\Event\LanguageBasicLoadedEvent;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
@@ -14,7 +14,7 @@ class ApplicationBasicLoadedEvent extends NestedEvent
     public const NAME = 'application.basic.loaded';
 
     /**
-     * @var ApplicationContext
+     * @var \Shopware\Framework\Context
      */
     protected $context;
 
@@ -23,7 +23,7 @@ class ApplicationBasicLoadedEvent extends NestedEvent
      */
     protected $applications;
 
-    public function __construct(ApplicationBasicCollection $applications, ApplicationContext $context)
+    public function __construct(ApplicationBasicCollection $applications, Context $context)
     {
         $this->context = $context;
         $this->applications = $applications;
@@ -34,7 +34,7 @@ class ApplicationBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }

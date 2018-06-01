@@ -2,7 +2,7 @@
 
 namespace Shopware\Framework\Routing;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Defaults;
 use Shopware\Framework\Api\Firewall\User;
 use Shopware\PlatformRequest;
@@ -49,7 +49,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
 
         $currencyFactory = 1.0;
 
-        $context = new ApplicationContext(
+        $context = new Context(
             $master->headers->get(PlatformRequest::HEADER_TENANT_ID),
             Defaults::APPLICATION,
             null,

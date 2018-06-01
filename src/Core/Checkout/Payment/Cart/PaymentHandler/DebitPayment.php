@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Payment\Cart\PaymentHandler;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionRepository;
 use Shopware\Checkout\Payment\Cart\PaymentTransactionStruct;
 use Shopware\Defaults;
@@ -21,7 +21,7 @@ class DebitPayment implements PaymentHandlerInterface
         $this->transactionRepository = $transactionRepository;
     }
 
-    public function pay(PaymentTransactionStruct $transaction, ApplicationContext $context): ?RedirectResponse
+    public function pay(PaymentTransactionStruct $transaction, Context $context): ?RedirectResponse
     {
         $data = [
             'id' => $transaction->getTransactionId(),
@@ -32,7 +32,7 @@ class DebitPayment implements PaymentHandlerInterface
         return null;
     }
 
-    public function finalize(string $transactionId, Request $request, ApplicationContext $context): void
+    public function finalize(string $transactionId, Request $request, Context $context): void
     {
     }
 }

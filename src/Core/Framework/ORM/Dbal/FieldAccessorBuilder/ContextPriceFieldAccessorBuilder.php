@@ -2,14 +2,14 @@
 
 namespace Shopware\Framework\ORM\Dbal\FieldAccessorBuilder;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Defaults;
 use Shopware\Framework\ORM\Field\ContextPricesJsonField;
 use Shopware\Framework\ORM\Field\Field;
 
 class ContextPriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
 {
-    public function buildAccessor(string $root, Field $field, ApplicationContext $context, string $accessor): ?string
+    public function buildAccessor(string $root, Field $field, Context $context, string $accessor): ?string
     {
         if (!$field instanceof ContextPricesJsonField) {
             return null;

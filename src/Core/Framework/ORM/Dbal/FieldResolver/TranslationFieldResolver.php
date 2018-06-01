@@ -2,7 +2,7 @@
 
 namespace Shopware\Framework\ORM\Dbal\FieldResolver;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Framework\ORM\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Framework\ORM\Dbal\QueryBuilder;
 use Shopware\Framework\ORM\EntityDefinition;
@@ -17,7 +17,7 @@ class TranslationFieldResolver implements FieldResolverInterface
         string $root,
         Field $field,
         QueryBuilder $query,
-        ApplicationContext $context,
+        Context $context,
         EntityDefinitionQueryHelper $queryHelper,
         bool $raw
     ): void {
@@ -39,7 +39,7 @@ class TranslationFieldResolver implements FieldResolverInterface
         $this->joinTranslationTable($alias, $definition, $query, $context);
     }
 
-    private function joinTranslationTable(string $root, string $definition, QueryBuilder $query, ApplicationContext $context): void
+    private function joinTranslationTable(string $root, string $definition, QueryBuilder $query, Context $context): void
     {
         $alias = $root . '.translation';
         if ($query->hasState($alias)) {

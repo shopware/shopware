@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Listing\Aggregate\ListingSortingTranslation;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Framework\ORM\RepositoryInterface;
 use Shopware\Framework\ORM\Search\AggregatorResult;
@@ -65,7 +65,7 @@ class ListingSortingTranslationRepository implements RepositoryInterface
         $this->versionManager = $versionManager;
     }
 
-    public function search(Criteria $criteria, ApplicationContext $context): ListingSortingTranslationSearchResult
+    public function search(Criteria $criteria, Context $context): ListingSortingTranslationSearchResult
     {
         $ids = $this->searchIds($criteria, $context);
 
@@ -84,7 +84,7 @@ class ListingSortingTranslationRepository implements RepositoryInterface
         return $result;
     }
 
-    public function aggregate(Criteria $criteria, ApplicationContext $context): AggregatorResult
+    public function aggregate(Criteria $criteria, Context $context): AggregatorResult
     {
         $result = $this->aggregator->aggregate(ListingSortingTranslationDefinition::class, $criteria, $context);
 
@@ -94,7 +94,7 @@ class ListingSortingTranslationRepository implements RepositoryInterface
         return $result;
     }
 
-    public function searchIds(Criteria $criteria, ApplicationContext $context): IdSearchResult
+    public function searchIds(Criteria $criteria, Context $context): IdSearchResult
     {
         $result = $this->searcher->search(ListingSortingTranslationDefinition::class, $criteria, $context);
 
@@ -104,7 +104,7 @@ class ListingSortingTranslationRepository implements RepositoryInterface
         return $result;
     }
 
-    public function readBasic(array $ids, ApplicationContext $context): ListingSortingTranslationBasicCollection
+    public function readBasic(array $ids, Context $context): ListingSortingTranslationBasicCollection
     {
         /** @var \Shopware\System\Listing\Aggregate\ListingSortingTranslation\Collection\ListingSortingTranslationBasicCollection $entities */
         $entities = $this->reader->readBasic(ListingSortingTranslationDefinition::class, $ids, $context);
@@ -115,7 +115,7 @@ class ListingSortingTranslationRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $ids, ApplicationContext $context): ListingSortingTranslationDetailCollection
+    public function readDetail(array $ids, Context $context): ListingSortingTranslationDetailCollection
     {
         /** @var ListingSortingTranslationDetailCollection $entities */
         $entities = $this->reader->readDetail(ListingSortingTranslationDefinition::class, $ids, $context);
@@ -126,49 +126,49 @@ class ListingSortingTranslationRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function update(array $data, ApplicationContext $context): GenericWrittenEvent
+    public function update(array $data, Context $context): GenericWrittenEvent
     {
-        $affected = $this->versionManager->update(ListingSortingTranslationDefinition::class, $data, WriteContext::createFromApplicationContext($context));
+        $affected = $this->versionManager->update(ListingSortingTranslationDefinition::class, $data, WriteContext::createFromContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function upsert(array $data, ApplicationContext $context): GenericWrittenEvent
+    public function upsert(array $data, Context $context): GenericWrittenEvent
     {
-        $affected = $this->versionManager->upsert(ListingSortingTranslationDefinition::class, $data, WriteContext::createFromApplicationContext($context));
+        $affected = $this->versionManager->upsert(ListingSortingTranslationDefinition::class, $data, WriteContext::createFromContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function create(array $data, ApplicationContext $context): GenericWrittenEvent
+    public function create(array $data, Context $context): GenericWrittenEvent
     {
-        $affected = $this->versionManager->insert(ListingSortingTranslationDefinition::class, $data, WriteContext::createFromApplicationContext($context));
+        $affected = $this->versionManager->insert(ListingSortingTranslationDefinition::class, $data, WriteContext::createFromContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function delete(array $ids, ApplicationContext $context): GenericWrittenEvent
+    public function delete(array $ids, Context $context): GenericWrittenEvent
     {
-        $affected = $this->versionManager->delete(ListingSortingTranslationDefinition::class, $ids, WriteContext::createFromApplicationContext($context));
+        $affected = $this->versionManager->delete(ListingSortingTranslationDefinition::class, $ids, WriteContext::createFromContext($context));
         $event = GenericWrittenEvent::createWithDeletedEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function createVersion(string $id, ApplicationContext $context, ?string $name = null, ?string $versionId = null): string
+    public function createVersion(string $id, Context $context, ?string $name = null, ?string $versionId = null): string
     {
-        return $this->versionManager->createVersion(ListingSortingTranslationDefinition::class, $id, WriteContext::createFromApplicationContext($context), $name, $versionId);
+        return $this->versionManager->createVersion(ListingSortingTranslationDefinition::class, $id, WriteContext::createFromContext($context), $name, $versionId);
     }
 
-    public function merge(string $versionId, ApplicationContext $context): void
+    public function merge(string $versionId, Context $context): void
     {
-        $this->versionManager->merge($versionId, WriteContext::createFromApplicationContext($context));
+        $this->versionManager->merge($versionId, WriteContext::createFromContext($context));
     }
 }

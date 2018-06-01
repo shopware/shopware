@@ -34,6 +34,7 @@ use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
 use Shopware\Checkout\Payment\Struct\PaymentMethodBasicStruct;
 use Shopware\Checkout\Shipping\Struct\ShippingMethodBasicStruct;
 use Shopware\Defaults;
+use Shopware\Framework\Context;
 use Shopware\Framework\Struct\Struct;
 use Shopware\System\Currency\Struct\CurrencyBasicStruct;
 use Shopware\System\Tax\Collection\TaxBasicCollection;
@@ -125,7 +126,7 @@ class StorefrontContext extends Struct
     protected $fallbackLanguage;
 
     /**
-     * @var ApplicationContext
+     * @var Context
      */
     private $context;
 
@@ -211,13 +212,13 @@ class StorefrontContext extends Struct
         return $this->shippingLocation;
     }
 
-    public function getApplicationContext(): ApplicationContext
+    public function getApplicationContext(): Context
     {
         if ($this->context) {
             return $this->context;
         }
 
-        return $this->context = new ApplicationContext(
+        return $this->context = new Context(
             $this->tenantId,
             $this->application->getId(),
             $this->application->getCatalogIds(),

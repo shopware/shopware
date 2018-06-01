@@ -3,7 +3,7 @@
 namespace Shopware\Content\Product\Aggregate\ProductService\Struct;
 
 use Shopware\Application\Context\Collection\ContextPriceCollection;
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Checkout\Cart\Price\Struct\PriceDefinition;
 use Shopware\Checkout\Cart\Tax\Struct\PercentageTaxRule;
 use Shopware\Checkout\Cart\Tax\Struct\TaxRuleCollection;
@@ -125,7 +125,7 @@ class ProductServiceBasicStruct extends Entity
         $this->tax = $tax;
     }
 
-    public function getPriceDefinition(int $quantity, ApplicationContext $context): PriceDefinition
+    public function getPriceDefinition(int $quantity, Context $context): PriceDefinition
     {
         $taxRules = $this->getTaxRuleCollection();
 

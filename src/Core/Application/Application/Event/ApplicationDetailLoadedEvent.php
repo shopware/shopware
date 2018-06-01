@@ -3,7 +3,7 @@
 namespace Shopware\Application\Application\Event;
 
 use Shopware\Application\Application\Collection\ApplicationDetailCollection;
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Checkout\Payment\Event\PaymentMethodBasicLoadedEvent;
 use Shopware\Checkout\Shipping\Event\ShippingMethodBasicLoadedEvent;
 use Shopware\Framework\Event\NestedEvent;
@@ -15,7 +15,7 @@ class ApplicationDetailLoadedEvent extends NestedEvent
     public const NAME = 'application.detail.loaded';
 
     /**
-     * @var ApplicationContext
+     * @var Context
      */
     protected $context;
 
@@ -24,7 +24,7 @@ class ApplicationDetailLoadedEvent extends NestedEvent
      */
     protected $applications;
 
-    public function __construct(ApplicationDetailCollection $applications, ApplicationContext $context)
+    public function __construct(ApplicationDetailCollection $applications, Context $context)
     {
         $this->context = $context;
         $this->applications = $applications;
@@ -35,7 +35,7 @@ class ApplicationDetailLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }

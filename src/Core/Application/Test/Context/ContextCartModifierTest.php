@@ -4,7 +4,7 @@ namespace Shopware\Application\Test\Context;
 
 use Shopware\Application\Context\Cart\ContextCartModifierProcessor;
 use Shopware\Application\Context\Repository\ContextCartModifierRepository;
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Checkout\Cart\Cart\CircularCartCalculation;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
@@ -48,7 +48,7 @@ class ContextCartModifierTest extends KernelTestCase
     public static $productRepository;
 
     /**
-     * @var ApplicationContext
+     * @var \Shopware\Framework\Context
      */
     public static $context;
 
@@ -448,7 +448,7 @@ class ContextCartModifierTest extends KernelTestCase
             'priority' => $priority,
             'payload' => new AndRule($rules),
         ];
-        $context = ApplicationContext::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext(Defaults::TENANT_ID);
         self::$contextRuleRepository->upsert([$data], $context);
 
         return $id;
@@ -471,7 +471,7 @@ class ContextCartModifierTest extends KernelTestCase
         ];
         $data = array_filter($data);
 
-        self::$contextCartModifierRepository->upsert([$data], ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
+        self::$contextCartModifierRepository->upsert([$data], Context::createDefaultContext(Defaults::TENANT_ID));
 
         return $id;
     }

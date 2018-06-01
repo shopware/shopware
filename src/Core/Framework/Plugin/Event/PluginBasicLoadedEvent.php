@@ -2,7 +2,7 @@
 
 namespace Shopware\Framework\Plugin\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Plugin\Collection\PluginBasicCollection;
 
@@ -11,7 +11,7 @@ class PluginBasicLoadedEvent extends NestedEvent
     public const NAME = 'plugin.basic.loaded';
 
     /**
-     * @var ApplicationContext
+     * @var \Shopware\Framework\Context
      */
     protected $context;
 
@@ -20,7 +20,7 @@ class PluginBasicLoadedEvent extends NestedEvent
      */
     protected $plugins;
 
-    public function __construct(PluginBasicCollection $plugins, ApplicationContext $context)
+    public function __construct(PluginBasicCollection $plugins, Context $context)
     {
         $this->context = $context;
         $this->plugins = $plugins;
@@ -31,7 +31,7 @@ class PluginBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }

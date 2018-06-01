@@ -27,7 +27,7 @@ namespace Shopware\Application\Context\Util;
 use Doctrine\DBAL\Connection;
 use Shopware\Application\Application\ApplicationRepository;
 use Shopware\Application\Application\Struct\ApplicationBasicStruct;
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Application\Language\LanguageRepository;
 use Shopware\Checkout\Cart\Delivery\Struct\ShippingLocation;
@@ -235,7 +235,7 @@ class ContextFactory implements ContextFactoryInterface
         return $context;
     }
 
-    private function getPaymentMethod(array $options, ApplicationContext $context, ApplicationBasicStruct $application, ?CustomerBasicStruct $customer): PaymentMethodBasicStruct
+    private function getPaymentMethod(array $options, Context $context, ApplicationBasicStruct $application, ?CustomerBasicStruct $customer): PaymentMethodBasicStruct
     {
         //payment switched in checkout?
         if (array_key_exists(StorefrontContextService::PAYMENT_METHOD_ID, $options)) {
@@ -256,7 +256,7 @@ class ContextFactory implements ContextFactoryInterface
             ->get($application->getPaymentMethodId());
     }
 
-    private function getShippingMethod(array $options, ApplicationContext $context, ApplicationBasicStruct $application): ShippingMethodBasicStruct
+    private function getShippingMethod(array $options, Context $context, ApplicationBasicStruct $application): ShippingMethodBasicStruct
     {
         $id = $application->getShippingMethodId();
         if (array_key_exists(StorefrontContextService::SHIPPING_METHOD_ID, $options)) {
@@ -266,7 +266,7 @@ class ContextFactory implements ContextFactoryInterface
         return $this->shippingMethodRepository->readBasic([$id], $context)->get($id);
     }
 
-    private function getApplicationContext(string $applicationId, string $tenantId): ApplicationContext
+    private function getApplicationContext(string $applicationId, string $tenantId): Context
     {
         $query = $this->connection->createQueryBuilder();
         $query->select([
@@ -287,7 +287,7 @@ class ContextFactory implements ContextFactoryInterface
 
         $data = $query->execute()->fetch(\PDO::FETCH_ASSOC);
 
-        return new ApplicationContext(
+        return new Context(
             $tenantId,
             Uuid::fromBytesToHex($data['application_id']),
             json_decode($data['application_catalog_ids'], true),
@@ -300,7 +300,7 @@ class ContextFactory implements ContextFactoryInterface
         );
     }
 
-    private function loadCustomer(array $options, ApplicationContext $applicationContext): ?CustomerBasicStruct
+    private function loadCustomer(array $options, Context $applicationContext): ?CustomerBasicStruct
     {
         $customerId = $options[StorefrontContextService::CUSTOMER_ID];
         $customer = $this->customerRepository->readBasic([$customerId], $applicationContext)->get($customerId);
@@ -333,7 +333,7 @@ class ContextFactory implements ContextFactoryInterface
 
     private function loadShippingLocation(
         array $options,
-        ApplicationContext $applicationContext,
+        Context $applicationContext,
         ApplicationBasicStruct $application
     ): ShippingLocation {
         //allows to preview cart calculation for a specify state for not logged in customers

@@ -3,7 +3,7 @@
 namespace Shopware\Framework\ORM\Search\Parser;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Framework\ORM\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\Field\FkField;
@@ -31,7 +31,7 @@ class SqlQueryParser
         $this->queryHelper = $queryHelper;
     }
 
-    public function parseRanking(array $queries, string $definition, string $root, ApplicationContext $context): ParseResult
+    public function parseRanking(array $queries, string $definition, string $root, Context $context): ParseResult
     {
         $result = new ParseResult();
 
@@ -67,7 +67,7 @@ class SqlQueryParser
         return $result;
     }
 
-    public function parse(Query $query, string $definition, ApplicationContext $context, string $root = null): ParseResult
+    public function parse(Query $query, string $definition, Context $context, string $root = null): ParseResult
     {
         if ($root === null) {
             /** @var EntityDefinition $definition */
@@ -92,7 +92,7 @@ class SqlQueryParser
         }
     }
 
-    private function parseRangeQuery(RangeQuery $query, string $definition, string $root, ApplicationContext $context): ParseResult
+    private function parseRangeQuery(RangeQuery $query, string $definition, string $root, Context $context): ParseResult
     {
         $result = new ParseResult();
 
@@ -126,7 +126,7 @@ class SqlQueryParser
         return $result;
     }
 
-    private function parseMatchQuery(MatchQuery $query, string $definition, string $root, ApplicationContext $context): ParseResult
+    private function parseMatchQuery(MatchQuery $query, string $definition, string $root, Context $context): ParseResult
     {
         $key = $this->getKey();
 
@@ -139,7 +139,7 @@ class SqlQueryParser
         return $result;
     }
 
-    private function parseTermsQuery(TermsQuery $query, string $definition, string $root, ApplicationContext $context): ParseResult
+    private function parseTermsQuery(TermsQuery $query, string $definition, string $root, Context $context): ParseResult
     {
         $key = $this->getKey();
         $select = $this->queryHelper->getFieldAccessor($query->getField(), $definition, $root, $context);
@@ -173,7 +173,7 @@ class SqlQueryParser
         return $result;
     }
 
-    private function parseTermQuery(TermQuery $query, string $definition, string $root, ApplicationContext $context): ParseResult
+    private function parseTermQuery(TermQuery $query, string $definition, string $root, Context $context): ParseResult
     {
         $key = $this->getKey();
         $select = $this->queryHelper->getFieldAccessor($query->getField(), $definition, $root, $context);
@@ -205,7 +205,7 @@ class SqlQueryParser
         return $result;
     }
 
-    private function parseNestedQuery(NestedQuery $query, string $definition, string $root, ApplicationContext $context): ParseResult
+    private function parseNestedQuery(NestedQuery $query, string $definition, string $root, Context $context): ParseResult
     {
         $result = $this->iterateNested($query, $definition, $root, $context);
 
@@ -221,7 +221,7 @@ class SqlQueryParser
         return $result;
     }
 
-    private function parseNotQuery(NotQuery $query, string $definition, string $root, ApplicationContext $context): ParseResult
+    private function parseNotQuery(NotQuery $query, string $definition, string $root, Context $context): ParseResult
     {
         $result = $this->iterateNested($query, $definition, $root, $context);
 
@@ -237,7 +237,7 @@ class SqlQueryParser
         return $result;
     }
 
-    private function iterateNested(NestedQuery $query, string $definition, string $root, ApplicationContext $context): ParseResult
+    private function iterateNested(NestedQuery $query, string $definition, string $root, Context $context): ParseResult
     {
         $result = new ParseResult();
         foreach ($query->getQueries() as $nestedQuery) {

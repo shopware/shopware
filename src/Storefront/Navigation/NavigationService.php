@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Navigation;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Content\Category\CategoryRepository;
 use Shopware\Content\Category\Struct\CategoryBasicStruct;
 use Shopware\Content\Category\Util\Tree\TreeBuilder;
@@ -27,7 +27,7 @@ class NavigationService
         $this->repository = $repository;
     }
 
-    public function load(?string $categoryId, ApplicationContext $context): ?Navigation
+    public function load(?string $categoryId, Context $context): ?Navigation
     {
         $applicationId = $context->getApplicationId();
 

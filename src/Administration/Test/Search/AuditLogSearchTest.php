@@ -4,7 +4,7 @@ namespace Shopware\Administration\Test\Search;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Administration\Search\AdministrationSearch;
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Content\Product\ProductDefinition;
 use Shopware\Content\Product\ProductRepository;
 use Shopware\Content\Product\Struct\ProductBasicStruct;
@@ -31,7 +31,7 @@ class AuditLogSearchTest extends KernelTestCase
     private $search;
 
     /**
-     * @var ApplicationContext
+     * @var Context
      */
     private $context;
 
@@ -49,7 +49,7 @@ class AuditLogSearchTest extends KernelTestCase
 
         $this->productRepository = self::$container->get(ProductRepository::class);
         $this->search = self::$container->get(AdministrationSearch::class);
-        $this->context = $context = ApplicationContext::createDefaultContext(Defaults::TENANT_ID);
+        $this->context = $context = Context::createDefaultContext(Defaults::TENANT_ID);
 
         $this->connection->executeUpdate('
             DELETE FROM `version`;
@@ -86,7 +86,7 @@ class AuditLogSearchTest extends KernelTestCase
 
     public function testProductRanking()
     {
-        $context = ApplicationContext::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext(Defaults::TENANT_ID);
 
         $p1 = Uuid::uuid4()->getHex();
         $productId2 = Uuid::uuid4()->getHex();
@@ -122,7 +122,7 @@ class AuditLogSearchTest extends KernelTestCase
             ['id' => $productId2, 'price' => ['gross' => 20, 'net' => 1]],
             ['id' => $productId2, 'price' => ['gross' => 25, 'net' => 1]],
             ['id' => $productId2, 'price' => ['gross' => 30, 'net' => 1]],
-        ], ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
+        ], Context::createDefaultContext(Defaults::TENANT_ID));
 
         $changes = $this->getVersionData(ProductDefinition::getEntityName(), $productId2, Defaults::LIVE_VERSION);
         $this->assertNotEmpty($changes);

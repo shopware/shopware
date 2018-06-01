@@ -2,7 +2,7 @@
 
 namespace Shopware\Profiling\Dbal;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Framework\ORM\EntityCollection;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\Read\EntityReaderInterface;
@@ -26,7 +26,7 @@ class TraceableEntityReader implements EntityReaderInterface
         $this->stopwatch = $stopwatch;
     }
 
-    public function readRaw(string $definition, array $ids, ApplicationContext $context): EntityCollection
+    public function readRaw(string $definition, array $ids, Context $context): EntityCollection
     {
         /** @var EntityDefinition $definition */
         $entity = $definition::getEntityName();
@@ -42,7 +42,7 @@ class TraceableEntityReader implements EntityReaderInterface
         return $result;
     }
 
-    public function readDetail(string $definition, array $ids, ApplicationContext $context): EntityCollection
+    public function readDetail(string $definition, array $ids, Context $context): EntityCollection
     {
         /** @var EntityDefinition $definition */
         $entity = $definition::getEntityName();
@@ -58,7 +58,7 @@ class TraceableEntityReader implements EntityReaderInterface
         return $result;
     }
 
-    public function readBasic(string $definition, array $ids, ApplicationContext $context): EntityCollection
+    public function readBasic(string $definition, array $ids, Context $context): EntityCollection
     {
         /** @var EntityDefinition $definition */
         $entity = $definition::getEntityName();

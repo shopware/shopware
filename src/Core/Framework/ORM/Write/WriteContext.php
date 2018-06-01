@@ -24,7 +24,7 @@
 
 namespace Shopware\Framework\ORM\Write;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Application\Language\LanguageDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
@@ -39,7 +39,7 @@ class WriteContext
     public $paths = [];
 
     /**
-     * @var ApplicationContext
+     * @var \Shopware\Framework\Context
      */
     private $applicationContext;
 
@@ -55,7 +55,7 @@ class WriteContext
      */
     private $inheritance = [];
 
-    private function __construct(ApplicationContext $applicationContext)
+    private function __construct(Context $applicationContext)
     {
         $this->applicationContext = $applicationContext;
     }
@@ -72,7 +72,7 @@ class WriteContext
         );
     }
 
-    public static function createFromApplicationContext(ApplicationContext $context): self
+    public static function createFromContext(Context $context): self
     {
         $self = new self($context);
         $self->set(LanguageDefinition::class, 'id', $context->getLanguageId());
@@ -154,7 +154,7 @@ class WriteContext
         return isset($inheritance[$raw['id']]);
     }
 
-    public function getApplicationContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->applicationContext;
     }
@@ -167,7 +167,7 @@ class WriteContext
 
     public function createWithVersionId(string $versionId): self
     {
-        return self::createFromApplicationContext($this->getApplicationContext()->createWithVersionId($versionId));
+        return self::createFromContext($this->getContext()->createWithVersionId($versionId));
     }
 
     /**

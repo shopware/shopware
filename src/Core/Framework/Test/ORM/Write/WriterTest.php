@@ -3,7 +3,7 @@
 namespace Shopware\Framework\Test\ORM\Write;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Application\Language\LanguageRepository;
 use Shopware\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Content\Product\ProductDefinition;
@@ -433,11 +433,11 @@ class WriterTest extends KernelTestCase
         $localeId = Uuid::uuid4()->getHex();
         self::$container->get(LocaleRepository::class)->upsert([
             ['id' => $localeId, 'name' => 'test', 'territory' => 'tmp', 'code' => Uuid::uuid4()->getHex()],
-        ], ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
+        ], Context::createDefaultContext(Defaults::TENANT_ID));
 
         self::$container->get(LanguageRepository::class)->upsert([
             ['id' => '2d905256-e751-4967-8dd5-a32a81b94f1f', 'name' => 'language 2', 'localeId' => $localeId, 'localeVersionId' => Defaults::LIVE_VERSION],
-        ], ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
+        ], Context::createDefaultContext(Defaults::TENANT_ID));
 
         $this->getWriter()->update(
             ProductDefinition::class,
@@ -549,7 +549,7 @@ class WriterTest extends KernelTestCase
      */
     protected function createWriteContext(): WriteContext
     {
-        $context = WriteContext::createFromApplicationContext(ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
+        $context = WriteContext::createFromContext(Context::createDefaultContext(Defaults::TENANT_ID));
 
         return $context;
     }

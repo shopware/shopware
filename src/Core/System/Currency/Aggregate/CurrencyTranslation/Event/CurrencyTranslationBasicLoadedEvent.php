@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Currency\Aggregate\CurrencyTranslation\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\System\Currency\Aggregate\CurrencyTranslation\Collection\CurrencyTranslationBasicCollection;
 
@@ -11,7 +11,7 @@ class CurrencyTranslationBasicLoadedEvent extends NestedEvent
     public const NAME = 'currency_translation.basic.loaded';
 
     /**
-     * @var ApplicationContext
+     * @var Context
      */
     protected $context;
 
@@ -20,7 +20,7 @@ class CurrencyTranslationBasicLoadedEvent extends NestedEvent
      */
     protected $currencyTranslations;
 
-    public function __construct(CurrencyTranslationBasicCollection $currencyTranslations, ApplicationContext $context)
+    public function __construct(CurrencyTranslationBasicCollection $currencyTranslations, Context $context)
     {
         $this->context = $context;
         $this->currencyTranslations = $currencyTranslations;
@@ -31,7 +31,7 @@ class CurrencyTranslationBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }

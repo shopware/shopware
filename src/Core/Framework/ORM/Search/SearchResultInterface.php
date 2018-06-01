@@ -2,7 +2,7 @@
 
 namespace Shopware\Framework\ORM\Search;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Framework\ORM\Search\Aggregation\AggregationResultCollection;
 
 interface SearchResultInterface
@@ -13,7 +13,7 @@ interface SearchResultInterface
 
     public function getCriteria(): Criteria;
 
-    public function getContext(): ApplicationContext;
+    public function getContext(): Context;
 
     public function getAggregationResult(): ?AggregatorResult;
 

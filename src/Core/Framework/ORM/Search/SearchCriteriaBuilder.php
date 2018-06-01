@@ -2,7 +2,7 @@
 
 namespace Shopware\Framework\ORM\Search;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\Search\Aggregation\AvgAggregation;
 use Shopware\Framework\ORM\Search\Aggregation\CardinalityAggregation;
@@ -42,7 +42,7 @@ class SearchCriteriaBuilder
         $this->entityScoreQueryBuilder = $entityScoreQueryBuilder;
     }
 
-    public function handleRequest(Request $request, Criteria $criteria, string $definition, ApplicationContext $context): Criteria
+    public function handleRequest(Request $request, Criteria $criteria, string $definition, Context $context): Criteria
     {
         switch ($request->getMethod()) {
             case 'POST':
@@ -61,7 +61,7 @@ class SearchCriteriaBuilder
         return $criteria;
     }
 
-    private function fromArray(array $payload, Criteria $criteria, string $definition, ApplicationContext $context): Criteria
+    private function fromArray(array $payload, Criteria $criteria, string $definition, Context $context): Criteria
     {
         $criteria->setFetchCount(Criteria::FETCH_COUNT_TOTAL);
         $criteria->setLimit(10);

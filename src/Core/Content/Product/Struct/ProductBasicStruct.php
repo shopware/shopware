@@ -3,7 +3,7 @@
 namespace Shopware\Content\Product\Struct;
 
 use Shopware\Application\Context\Collection\ContextPriceCollection;
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Checkout\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Checkout\Cart\Price\Struct\PriceDefinition;
 use Shopware\Checkout\Cart\Price\Struct\PriceDefinitionCollection;
@@ -744,7 +744,7 @@ class ProductBasicStruct extends Entity
         $this->maxDeliveryTime = $maxDeliveryTime;
     }
 
-    public function getContextPriceDefinitions(ApplicationContext $context): PriceDefinitionCollection
+    public function getContextPriceDefinitions(\Shopware\Framework\Context $context): PriceDefinitionCollection
     {
         $taxRules = $this->getTaxRuleCollection();
 
@@ -766,12 +766,12 @@ class ProductBasicStruct extends Entity
         return new PriceDefinitionCollection($definitions);
     }
 
-    public function getPriceDefinition(ApplicationContext $context): PriceDefinition
+    public function getPriceDefinition(Context $context): PriceDefinition
     {
         return new PriceDefinition($this->getPrice()->getGross(), $this->getTaxRuleCollection(), 1, true);
     }
 
-    public function getListingPriceDefinition(ApplicationContext $context): PriceDefinition
+    public function getListingPriceDefinition(Context $context): PriceDefinition
     {
         $taxRules = $this->getTaxRuleCollection();
 
@@ -801,7 +801,7 @@ class ProductBasicStruct extends Entity
         return new PriceDefinition($price->getPrice()->getGross(), $taxRules, 1, true);
     }
 
-    public function getPriceDefinitionForQuantity(ApplicationContext $context, int $quantity): PriceDefinition
+    public function getPriceDefinitionForQuantity(Context $context, int $quantity): PriceDefinition
     {
         // TODO@DR consider tax state of application context (NEXT-286)
         $taxRules = $this->getTaxRuleCollection();

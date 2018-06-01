@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Config\Aggregate\ConfigFormFieldValue\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\System\Config\Aggregate\ConfigFormFieldValue\Collection\ConfigFormFieldValueBasicCollection;
 
@@ -11,7 +11,7 @@ class ConfigFormFieldValueBasicLoadedEvent extends NestedEvent
     public const NAME = 'config_form_field_value.basic.loaded';
 
     /**
-     * @var ApplicationContext
+     * @var \Shopware\Framework\Context
      */
     protected $context;
 
@@ -20,7 +20,7 @@ class ConfigFormFieldValueBasicLoadedEvent extends NestedEvent
      */
     protected $configFormFieldValues;
 
-    public function __construct(ConfigFormFieldValueBasicCollection $configFormFieldValues, ApplicationContext $context)
+    public function __construct(ConfigFormFieldValueBasicCollection $configFormFieldValues, Context $context)
     {
         $this->context = $context;
         $this->configFormFieldValues = $configFormFieldValues;
@@ -31,7 +31,7 @@ class ConfigFormFieldValueBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }

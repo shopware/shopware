@@ -4,7 +4,7 @@ namespace Shopware\Storefront\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Application\Context\Struct\StorefrontContext;
 use Shopware\Application\Context\Util\StorefrontContextPersister;
 use Shopware\Application\Context\Util\StorefrontContextService;
@@ -301,7 +301,7 @@ class CheckoutController extends StorefrontController
         return array_shift($ids);
     }
 
-    private function processPayment(string $orderId, ApplicationContext $applicationContext): RedirectResponse
+    private function processPayment(string $orderId, Context $applicationContext): RedirectResponse
     {
         $redirect = $this->paymentProcessor->process($orderId, $applicationContext);
 
@@ -312,7 +312,7 @@ class CheckoutController extends StorefrontController
         return $this->redirectToRoute('checkout_finish', ['order' => $orderId]);
     }
 
-    private function getPaymentHandlerById(string $paymentMethodId, ApplicationContext $context): PaymentHandlerInterface
+    private function getPaymentHandlerById(string $paymentMethodId, Context $context): PaymentHandlerInterface
     {
         $paymentMethods = $this->paymentMethodRepository->readBasic([$paymentMethodId], $context);
 

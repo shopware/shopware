@@ -24,7 +24,7 @@
 
 namespace Shopware\Content\Category\Command;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Content\Category\CategoryRepository;
 use Shopware\Content\Category\Util\CategoryPathBuilder;
 use Shopware\Framework\Event\ProgressAdvancedEvent;
@@ -117,7 +117,7 @@ class BuildCategoryPathCommand extends ContainerAwareCommand implements EventSub
             throw new \Exception('Invalid uuid provided');
         }
 
-        $context = ApplicationContext::createDefaultContext($tenantId);
+        $context = Context::createDefaultContext($tenantId);
 
         $categoryRepository = $this->getContainer()->get(CategoryRepository::class);
 

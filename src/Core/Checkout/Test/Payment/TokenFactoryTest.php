@@ -3,7 +3,7 @@
 namespace Shopware\Checkout\Test\Payment;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Checkout\Cart\Tax\Struct\TaxRuleCollection;
@@ -28,7 +28,7 @@ class TokenFactoryTest extends KernelTestCase
     protected $tokenFactory;
 
     /**
-     * @var ApplicationContext
+     * @var \Shopware\Framework\Context
      */
     protected $applicationContext;
 
@@ -57,7 +57,7 @@ class TokenFactoryTest extends KernelTestCase
         self::bootKernel();
 
         $this->tokenFactory = self::$container->get(PaymentTransactionTokenFactory::class);
-        $this->applicationContext = ApplicationContext:: createDefaultContext(\Shopware\Defaults::TENANT_ID);
+        $this->applicationContext = Context::createDefaultContext(\Shopware\Defaults::TENANT_ID);
         $this->connection = self::$container->get(Connection::class);
 
         $this->orderRepository = self::$container->get(OrderRepository::class);
@@ -73,9 +73,9 @@ class TokenFactoryTest extends KernelTestCase
     {
         $transactionId = $this->prepare();
 
-        $transactions = $this->orderTransactionRepository->readBasic([$transactionId], ApplicationContext:: createDefaultContext(\Shopware\Defaults::TENANT_ID));
+        $transactions = $this->orderTransactionRepository->readBasic([$transactionId], Context:: createDefaultContext(\Shopware\Defaults::TENANT_ID));
 
-        $context = ApplicationContext::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext(Defaults::TENANT_ID);
         $tokenIdentifier = $this->tokenFactory->generateToken(
             $transactions->get($transactionId),
             $context
@@ -96,9 +96,9 @@ class TokenFactoryTest extends KernelTestCase
     {
         $transactionId = $this->prepare();
 
-        $transactions = $this->orderTransactionRepository->readBasic([$transactionId], ApplicationContext:: createDefaultContext(\Shopware\Defaults::TENANT_ID));
+        $transactions = $this->orderTransactionRepository->readBasic([$transactionId], Context:: createDefaultContext(\Shopware\Defaults::TENANT_ID));
 
-        $context = ApplicationContext::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext(Defaults::TENANT_ID);
 
         $tokenIdentifier = $this->tokenFactory->generateToken(
             $transactions->get($transactionId),
@@ -120,8 +120,8 @@ class TokenFactoryTest extends KernelTestCase
     {
         $transactionId = $this->prepare();
 
-        $transactions = $this->orderTransactionRepository->readBasic([$transactionId], ApplicationContext:: createDefaultContext(\Shopware\Defaults::TENANT_ID));
-        $context = ApplicationContext::createDefaultContext(Defaults::TENANT_ID);
+        $transactions = $this->orderTransactionRepository->readBasic([$transactionId], Context:: createDefaultContext(\Shopware\Defaults::TENANT_ID));
+        $context = Context::createDefaultContext(Defaults::TENANT_ID);
 
         $tokenIdentifier = $this->tokenFactory->generateToken(
             $transactions->get($transactionId),
@@ -144,7 +144,7 @@ class TokenFactoryTest extends KernelTestCase
     private function createTransaction(
         string $orderId,
         OrderTransactionRepository $orderTransactionRepository,
-        ApplicationContext $applicationContext
+        Context $applicationContext
     ): string {
         $id = Uuid::uuid4()->getHex();
         $transaction = [
@@ -164,7 +164,7 @@ class TokenFactoryTest extends KernelTestCase
     private function createOrder(
         string $customerId,
         OrderRepository $orderRepository,
-        ApplicationContext $applicationContext
+        Context $applicationContext
     ) {
         $orderId = Uuid::uuid4()->getHex();
 
@@ -204,7 +204,7 @@ class TokenFactoryTest extends KernelTestCase
         return $orderId;
     }
 
-    private function createCustomer(CustomerRepository $repository, ApplicationContext $context): string
+    private function createCustomer(CustomerRepository $repository, Context $context): string
     {
         $customerId = Uuid::uuid4()->getHex();
         $addressId = Uuid::uuid4()->getHex();

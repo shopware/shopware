@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Page\Checkout;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Checkout\Payment\Collection\PaymentMethodBasicCollection;
 use Shopware\Checkout\Payment\PaymentMethodRepository;
 use Shopware\Framework\ORM\Search\Criteria;
@@ -21,7 +21,7 @@ class PaymentMethodLoader
         $this->paymentMethodRepository = $paymentMethodRepository;
     }
 
-    public function load(Request $request, ApplicationContext $context)
+    public function load(Request $request, Context $context)
     {
         // todo@dr remove request, provide storefront context, provide calculated cart, use context rule system to validate
         $criteria = $this->createCriteria($request);

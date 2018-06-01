@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Configuration\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Event\ConfigurationGroupOptionBasicLoadedEvent;
@@ -14,7 +14,7 @@ class ConfigurationGroupDetailLoadedEvent extends NestedEvent
     public const NAME = 'configuration_group.detail.loaded';
 
     /**
-     * @var ApplicationContext
+     * @var Context
      */
     protected $context;
 
@@ -23,7 +23,7 @@ class ConfigurationGroupDetailLoadedEvent extends NestedEvent
      */
     protected $configurationGroups;
 
-    public function __construct(ConfigurationGroupDetailCollection $configurationGroups, ApplicationContext $context)
+    public function __construct(ConfigurationGroupDetailCollection $configurationGroups, Context $context)
     {
         $this->context = $context;
         $this->configurationGroups = $configurationGroups;
@@ -34,7 +34,7 @@ class ConfigurationGroupDetailLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }

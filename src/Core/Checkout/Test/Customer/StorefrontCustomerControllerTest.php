@@ -3,7 +3,7 @@
 namespace Shopware\Checkout\Test\Customer;
 
 use Ramsey\Uuid\Uuid;
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository;
 use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
 use Shopware\Checkout\Customer\CustomerRepository;
@@ -46,7 +46,7 @@ class StorefrontCustomerControllerTest extends ApiTestCase
     private $countryStateRepository;
 
     /**
-     * @var ApplicationContext
+     * @var Context
      */
     private $applicationContext;
 
@@ -65,7 +65,7 @@ class StorefrontCustomerControllerTest extends ApiTestCase
         $this->countryRepository = $this->getContainer()->get(CountryRepository::class);
         $this->customerAddressRepository = $this->getContainer()->get(CustomerAddressRepository::class);
         $this->countryStateRepository = $this->getContainer()->get(CountryStateRepository::class);
-        $this->applicationContext = ApplicationContext::createDefaultContext(\Shopware\Defaults::TENANT_ID);
+        $this->applicationContext = Context::createDefaultContext(\Shopware\Defaults::TENANT_ID);
     }
 
     public function testLogin()
@@ -532,7 +532,7 @@ class StorefrontCustomerControllerTest extends ApiTestCase
     {
         return $this->customerRepository->readBasic(
             [$userID],
-            ApplicationContext:: createDefaultContext(\Shopware\Defaults::TENANT_ID)
+            Context:: createDefaultContext(\Shopware\Defaults::TENANT_ID)
         )->get($userID);
     }
 
@@ -540,7 +540,7 @@ class StorefrontCustomerControllerTest extends ApiTestCase
     {
         return $this->customerAddressRepository->readBasic(
             [$addressId],
-            ApplicationContext:: createDefaultContext(\Shopware\Defaults::TENANT_ID)
+            Context:: createDefaultContext(\Shopware\Defaults::TENANT_ID)
         )->get($addressId);
     }
 

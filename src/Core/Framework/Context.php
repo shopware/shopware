@@ -22,13 +22,13 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Application\Context\Struct;
+namespace Shopware\Framework;
 
 use Shopware\Application\Application\Struct\ApplicationBasicStruct;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\Struct;
 
-class ApplicationContext extends Struct
+class Context extends Struct
 {
     /**
      * @var string

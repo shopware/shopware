@@ -2,7 +2,7 @@
 
 namespace Shopware\Framework\ORM\Version\Event\Version;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Framework\Context;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\ORM\Version\Collection\VersionBasicCollection;
 
@@ -11,7 +11,7 @@ class VersionBasicLoadedEvent extends NestedEvent
     public const NAME = 'version.basic.loaded';
 
     /**
-     * @var ApplicationContext
+     * @var \Shopware\Framework\Context
      */
     protected $context;
 
@@ -20,7 +20,7 @@ class VersionBasicLoadedEvent extends NestedEvent
      */
     protected $versions;
 
-    public function __construct(VersionBasicCollection $versions, ApplicationContext $context)
+    public function __construct(VersionBasicCollection $versions, Context $context)
     {
         $this->context = $context;
         $this->versions = $versions;
@@ -31,7 +31,7 @@ class VersionBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }

@@ -82,18 +82,18 @@ class ManyToManyAssociationFieldResolver implements FieldResolverInterface
         $versionJoinCondition = '';
         /* @var string|EntityDefinition $definition */
         if ($reference::isVersionAware()) {
-            $versionField = $reference::getEntityName() . '_version_id';
-            $versionJoinCondition = ' AND #alias#.version_id = #mapping#.' . $versionField;
+            $versionField = '`'. $reference::getEntityName() . '_version_id`';
+            $versionJoinCondition = ' AND #alias#.`version_id` = #mapping#.' . $versionField;
         }
 
         $catalogJoinCondition = '';
         if ($definition::isCatalogAware() && $reference::isCatalogAware()) {
-            $catalogJoinCondition = ' AND #root#.catalog_id = #alias#.catalog_id';
+            $catalogJoinCondition = ' AND #root#.`catalog_id` = #alias#.`catalog_id`';
         }
 
         $tenantJoinCondition = '';
         if ($definition::isTenantAware() && $reference::isTenantAware()) {
-            $tenantJoinCondition = ' AND #root#.tenant_id = #alias#.tenant_id';
+            $tenantJoinCondition = ' AND #root#.`tenant_id` = #alias#.`tenant_id`';
         }
 
         $parameters = [

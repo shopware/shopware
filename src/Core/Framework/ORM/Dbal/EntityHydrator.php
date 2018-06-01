@@ -45,8 +45,6 @@ class EntityHydrator
      */
     private $serializer;
 
-    private $fieldCache = [];
-
     private $objects = [];
 
     public function __construct(SerializerInterface $serializer)

@@ -1,19 +1,19 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Dbal;
+namespace Shopware\Core\Framework\ORM\Dbal;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\Field\Field;
-use Shopware\Framework\ORM\Field\FkField;
-use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
-use Shopware\Framework\ORM\Write\Command\DeleteCommand;
-use Shopware\Framework\ORM\Write\Command\InsertCommand;
-use Shopware\Framework\ORM\Write\Command\UpdateCommand;
-use Shopware\Framework\ORM\Write\Command\WriteCommandQueue;
-use Shopware\Framework\ORM\Write\EntityExistence;
-use Shopware\Framework\ORM\Write\EntityWriteGatewayInterface;
-use Shopware\Framework\ORM\Write\FieldAware\StorageAware;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\Field\Field;
+use Shopware\Core\Framework\ORM\Field\FkField;
+use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\ORM\Write\Command\DeleteCommand;
+use Shopware\Core\Framework\ORM\Write\Command\InsertCommand;
+use Shopware\Core\Framework\ORM\Write\Command\UpdateCommand;
+use Shopware\Core\Framework\ORM\Write\Command\WriteCommandQueue;
+use Shopware\Core\Framework\ORM\Write\EntityExistence;
+use Shopware\Core\Framework\ORM\Write\EntityWriteGatewayInterface;
+use Shopware\Core\Framework\ORM\Write\FieldAware\StorageAware;
 
 class EntityWriteGateway implements EntityWriteGatewayInterface
 {

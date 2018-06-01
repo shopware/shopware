@@ -1,26 +1,26 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Aggregate\ProductTranslation;
+namespace Shopware\Core\Content\Product\Aggregate\ProductTranslation;
 
-use Shopware\Framework\Context;
-use Shopware\Content\Product\Aggregate\ProductTranslation\Collection\ProductTranslationBasicCollection;
-use Shopware\Content\Product\Aggregate\ProductTranslation\Collection\ProductTranslationDetailCollection;
-use Shopware\Content\Product\Aggregate\ProductTranslation\Event\ProductTranslationAggregationResultLoadedEvent;
-use Shopware\Content\Product\Aggregate\ProductTranslation\Event\ProductTranslationBasicLoadedEvent;
-use Shopware\Content\Product\Aggregate\ProductTranslation\Event\ProductTranslationDetailLoadedEvent;
-use Shopware\Content\Product\Aggregate\ProductTranslation\Event\ProductTranslationIdSearchResultLoadedEvent;
-use Shopware\Content\Product\Aggregate\ProductTranslation\Event\ProductTranslationSearchResultLoadedEvent;
-use Shopware\Content\Product\Aggregate\ProductTranslation\Struct\ProductTranslationSearchResult;
-use Shopware\Framework\ORM\Read\EntityReaderInterface;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\AggregatorResult;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
-use Shopware\Framework\ORM\Search\EntitySearcherInterface;
-use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\ORM\Write\WriteContext;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Product\Aggregate\ProductTranslation\Collection\ProductTranslationBasicCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductTranslation\Collection\ProductTranslationDetailCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductTranslation\Event\ProductTranslationAggregationResultLoadedEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductTranslation\Event\ProductTranslationBasicLoadedEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductTranslation\Event\ProductTranslationDetailLoadedEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductTranslation\Event\ProductTranslationIdSearchResultLoadedEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductTranslation\Event\ProductTranslationSearchResultLoadedEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductTranslation\Struct\ProductTranslationSearchResult;
+use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\AggregatorResult;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\ORM\Search\IdSearchResult;
+use Shopware\Core\Framework\ORM\Version\Service\VersionManager;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Write\WriteContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductTranslationRepository implements RepositoryInterface
@@ -46,7 +46,7 @@ class ProductTranslationRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var \Shopware\Framework\ORM\Version\Service\VersionManager
+     * @var \Shopware\Core\Framework\ORM\Version\Service\VersionManager
      */
     private $versionManager;
 
@@ -105,7 +105,7 @@ class ProductTranslationRepository implements RepositoryInterface
 
     public function readBasic(array $ids, Context $context): ProductTranslationBasicCollection
     {
-        /** @var \Shopware\Content\Product\Aggregate\ProductTranslation\Collection\ProductTranslationBasicCollection $entities */
+        /** @var \Shopware\Core\Content\Product\Aggregate\ProductTranslation\Collection\ProductTranslationBasicCollection $entities */
         $entities = $this->reader->readBasic(ProductTranslationDefinition::class, $ids, $context);
 
         $event = new ProductTranslationBasicLoadedEvent($entities, $context);
@@ -116,7 +116,7 @@ class ProductTranslationRepository implements RepositoryInterface
 
     public function readDetail(array $ids, Context $context): ProductTranslationDetailCollection
     {
-        /** @var \Shopware\Content\Product\Aggregate\ProductTranslation\Collection\ProductTranslationDetailCollection $entities */
+        /** @var \Shopware\Core\Content\Product\Aggregate\ProductTranslation\Collection\ProductTranslationDetailCollection $entities */
         $entities = $this->reader->readDetail(ProductTranslationDefinition::class, $ids, $context);
 
         $event = new ProductTranslationDetailLoadedEvent($entities, $context);

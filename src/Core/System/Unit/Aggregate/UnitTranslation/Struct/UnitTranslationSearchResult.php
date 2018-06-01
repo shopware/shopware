@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Unit\Aggregate\UnitTranslation\Struct;
+namespace Shopware\Core\System\Unit\Aggregate\UnitTranslation\Struct;
 
-use Shopware\Framework\ORM\Search\SearchResultInterface;
-use Shopware\Framework\ORM\Search\SearchResultTrait;
-use Shopware\System\Unit\Aggregate\UnitTranslation\Collection\UnitTranslationBasicCollection;
+use Shopware\Core\Framework\ORM\Search\SearchResultInterface;
+use Shopware\Core\Framework\ORM\Search\SearchResultTrait;
+use Shopware\Core\System\Unit\Aggregate\UnitTranslation\Collection\UnitTranslationBasicCollection;
 
 class UnitTranslationSearchResult extends UnitTranslationBasicCollection implements SearchResultInterface
 {

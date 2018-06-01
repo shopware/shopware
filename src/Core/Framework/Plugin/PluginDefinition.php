@@ -1,29 +1,29 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Plugin;
+namespace Shopware\Core\Framework\Plugin;
 
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\EntityExtensionInterface;
-use Shopware\Framework\ORM\Field\BoolField;
-use Shopware\Framework\ORM\Field\DateField;
-use Shopware\Framework\ORM\Field\IdField;
-use Shopware\Framework\ORM\Field\LongTextField;
-use Shopware\Framework\ORM\Field\OneToManyAssociationField;
-use Shopware\Framework\ORM\Field\StringField;
-use Shopware\Framework\ORM\Field\TenantIdField;
-use Shopware\Framework\ORM\Field\VersionField;
-use Shopware\Framework\ORM\FieldCollection;
-use Shopware\Framework\ORM\Write\Flag\CascadeDelete;
-use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
-use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\Framework\Plugin\Collection\PluginBasicCollection;
-use Shopware\Framework\Plugin\Collection\PluginDetailCollection;
-use Shopware\Framework\Plugin\Event\PluginDeletedEvent;
-use Shopware\Framework\Plugin\Event\PluginWrittenEvent;
-use Shopware\Framework\Plugin\Repository\PluginRepository;
-use Shopware\Framework\Plugin\Struct\PluginBasicStruct;
-use Shopware\Framework\Plugin\Struct\PluginDetailStruct;
-use Shopware\System\Config\ConfigFormDefinition;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+use Shopware\Core\Framework\ORM\Field\BoolField;
+use Shopware\Core\Framework\ORM\Field\DateField;
+use Shopware\Core\Framework\ORM\Field\IdField;
+use Shopware\Core\Framework\ORM\Field\LongTextField;
+use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\ORM\Field\StringField;
+use Shopware\Core\Framework\ORM\Field\TenantIdField;
+use Shopware\Core\Framework\ORM\Field\VersionField;
+use Shopware\Core\Framework\ORM\FieldCollection;
+use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
+use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
+use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\Framework\Plugin\Collection\PluginBasicCollection;
+use Shopware\Core\Framework\Plugin\Collection\PluginDetailCollection;
+use Shopware\Core\Framework\Plugin\Event\PluginDeletedEvent;
+use Shopware\Core\Framework\Plugin\Event\PluginWrittenEvent;
+use Shopware\Core\Framework\Plugin\Repository\PluginRepository;
+use Shopware\Core\Framework\Plugin\Struct\PluginBasicStruct;
+use Shopware\Core\Framework\Plugin\Struct\PluginDetailStruct;
+use Shopware\Core\System\Config\ConfigFormDefinition;
 
 class PluginDefinition extends EntityDefinition
 {
@@ -83,7 +83,7 @@ class PluginDefinition extends EntityDefinition
             new StringField('update_version', 'updateVersion'),
             new DateField('updated_at', 'updatedAt'),
             (new OneToManyAssociationField('configForms', ConfigFormDefinition::class, 'plugin_id', false, 'id'))->setFlags(new CascadeDelete()),
-            (new OneToManyAssociationField('paymentMethods', \Shopware\Checkout\Payment\PaymentMethodDefinition::class, 'plugin_id', false, 'id'))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('paymentMethods', \Shopware\Core\Checkout\Payment\PaymentMethodDefinition::class, 'plugin_id', false, 'id'))->setFlags(new CascadeDelete()),
         ]);
 
         foreach (self::$extensions as $extension) {

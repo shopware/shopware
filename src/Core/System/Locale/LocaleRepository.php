@@ -1,26 +1,26 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Locale;
+namespace Shopware\Core\System\Locale;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\ORM\Read\EntityReaderInterface;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\AggregatorResult;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
-use Shopware\Framework\ORM\Search\EntitySearcherInterface;
-use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\System\Locale\Collection\LocaleBasicCollection;
-use Shopware\System\Locale\Collection\LocaleDetailCollection;
-use Shopware\System\Locale\Event\LocaleAggregationResultLoadedEvent;
-use Shopware\System\Locale\Event\LocaleBasicLoadedEvent;
-use Shopware\System\Locale\Event\LocaleDetailLoadedEvent;
-use Shopware\System\Locale\Event\LocaleIdSearchResultLoadedEvent;
-use Shopware\System\Locale\Event\LocaleSearchResultLoadedEvent;
-use Shopware\System\Locale\Struct\LocaleSearchResult;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\AggregatorResult;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\ORM\Search\IdSearchResult;
+use Shopware\Core\Framework\ORM\Version\Service\VersionManager;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Write\WriteContext;
+use Shopware\Core\System\Locale\Collection\LocaleBasicCollection;
+use Shopware\Core\System\Locale\Collection\LocaleDetailCollection;
+use Shopware\Core\System\Locale\Event\LocaleAggregationResultLoadedEvent;
+use Shopware\Core\System\Locale\Event\LocaleBasicLoadedEvent;
+use Shopware\Core\System\Locale\Event\LocaleDetailLoadedEvent;
+use Shopware\Core\System\Locale\Event\LocaleIdSearchResultLoadedEvent;
+use Shopware\Core\System\Locale\Event\LocaleSearchResultLoadedEvent;
+use Shopware\Core\System\Locale\Struct\LocaleSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class LocaleRepository implements RepositoryInterface
@@ -46,7 +46,7 @@ class LocaleRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var \Shopware\Framework\ORM\Version\Service\VersionManager
+     * @var \Shopware\Core\Framework\ORM\Version\Service\VersionManager
      */
     private $versionManager;
 

@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Mail\Event;
+namespace Shopware\Core\System\Mail\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\System\Mail\Collection\MailBasicCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\System\Mail\Collection\MailBasicCollection;
 
 class MailBasicLoadedEvent extends NestedEvent
 {

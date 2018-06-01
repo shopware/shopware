@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Aggregate\ProductStream\Event;
+namespace Shopware\Core\Content\Product\Aggregate\ProductStream\Event;
 
-use Shopware\Content\Product\Aggregate\ProductStream\ProductStreamDefinition;
-use Shopware\Framework\ORM\Write\DeletedEvent;
-use Shopware\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductStream\ProductStreamDefinition;
+use Shopware\Core\Framework\ORM\Write\DeletedEvent;
+use Shopware\Core\Framework\ORM\Write\WrittenEvent;
 
 class ProductStreamDeletedEvent extends WrittenEvent implements DeletedEvent
 {

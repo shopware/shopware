@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Aggregate\ProductManufacturerTranslation\Event;
+namespace Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\Event;
 
-use Shopware\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition;
-use Shopware\Framework\ORM\Write\DeletedEvent;
-use Shopware\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition;
+use Shopware\Core\Framework\ORM\Write\DeletedEvent;
+use Shopware\Core\Framework\ORM\Write\WrittenEvent;
 
 class ProductManufacturerTranslationDeletedEvent extends WrittenEvent implements DeletedEvent
 {

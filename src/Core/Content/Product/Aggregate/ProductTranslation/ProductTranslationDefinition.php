@@ -1,27 +1,27 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Aggregate\ProductTranslation;
+namespace Shopware\Core\Content\Product\Aggregate\ProductTranslation;
 
-use Shopware\System\Language\LanguageDefinition;
-use Shopware\Content\Product\Aggregate\ProductTranslation\Collection\ProductTranslationBasicCollection;
-use Shopware\Content\Product\Aggregate\ProductTranslation\Collection\ProductTranslationDetailCollection;
-use Shopware\Content\Product\Aggregate\ProductTranslation\Event\ProductTranslationDeletedEvent;
-use Shopware\Content\Product\Aggregate\ProductTranslation\Event\ProductTranslationWrittenEvent;
-use Shopware\Content\Product\Aggregate\ProductTranslation\Struct\ProductTranslationBasicStruct;
-use Shopware\Content\Product\Aggregate\ProductTranslation\Struct\ProductTranslationDetailStruct;
-use Shopware\Content\Product\ProductDefinition;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\EntityExtensionInterface;
-use Shopware\Framework\ORM\Field\CatalogField;
-use Shopware\Framework\ORM\Field\FkField;
-use Shopware\Framework\ORM\Field\LongTextField;
-use Shopware\Framework\ORM\Field\LongTextWithHtmlField;
-use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
-use Shopware\Framework\ORM\Field\ReferenceVersionField;
-use Shopware\Framework\ORM\Field\StringField;
-use Shopware\Framework\ORM\FieldCollection;
-use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
-use Shopware\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\System\Language\LanguageDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductTranslation\Collection\ProductTranslationBasicCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductTranslation\Collection\ProductTranslationDetailCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductTranslation\Event\ProductTranslationDeletedEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductTranslation\Event\ProductTranslationWrittenEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductTranslation\Struct\ProductTranslationBasicStruct;
+use Shopware\Core\Content\Product\Aggregate\ProductTranslation\Struct\ProductTranslationDetailStruct;
+use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+use Shopware\Core\Framework\ORM\Field\CatalogField;
+use Shopware\Core\Framework\ORM\Field\FkField;
+use Shopware\Core\Framework\ORM\Field\LongTextField;
+use Shopware\Core\Framework\ORM\Field\LongTextWithHtmlField;
+use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
+use Shopware\Core\Framework\ORM\Field\StringField;
+use Shopware\Core\Framework\ORM\FieldCollection;
+use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
+use Shopware\Core\Framework\ORM\Write\Flag\Required;
 
 class ProductTranslationDefinition extends EntityDefinition
 {

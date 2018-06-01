@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Listing\Event;
+namespace Shopware\Core\System\Listing\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\ORM\Search\AggregatorResult;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\ORM\Search\AggregatorResult;
 
 class ListingSortingAggregationResultLoadedEvent extends NestedEvent
 {

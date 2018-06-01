@@ -1,37 +1,37 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Configuration\Aggregate\ConfigurationGroupOption;
+namespace Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupOption;
 
-use Shopware\Content\Media\MediaDefinition;
-use Shopware\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorDefinition;
-use Shopware\Content\Product\Aggregate\ProductService\ProductServiceDefinition;
-use Shopware\Content\Product\ProductDefinition;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\EntityExtensionInterface;
-use Shopware\Framework\ORM\Field\FkField;
-use Shopware\Framework\ORM\Field\IdField;
-use Shopware\Framework\ORM\Field\ManyToManyAssociationField;
-use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
-use Shopware\Framework\ORM\Field\OneToManyAssociationField;
-use Shopware\Framework\ORM\Field\ReferenceVersionField;
-use Shopware\Framework\ORM\Field\StringField;
-use Shopware\Framework\ORM\Field\TenantIdField;
-use Shopware\Framework\ORM\Field\TranslatedField;
-use Shopware\Framework\ORM\Field\TranslationsAssociationField;
-use Shopware\Framework\ORM\Field\VersionField;
-use Shopware\Framework\ORM\FieldCollection;
-use Shopware\Framework\ORM\Write\Flag\CascadeDelete;
-use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
-use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\Framework\ORM\Write\Flag\WriteOnly;
-use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionBasicCollection;
-use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionDetailCollection;
-use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Event\ConfigurationGroupOptionDeletedEvent;
-use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Event\ConfigurationGroupOptionWrittenEvent;
-use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Struct\ConfigurationGroupOptionBasicStruct;
-use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Struct\ConfigurationGroupOptionDetailStruct;
-use Shopware\System\Configuration\Aggregate\ConfigurationGroupOptionTranslation\ConfigurationGroupOptionTranslationDefinition;
-use Shopware\System\Configuration\ConfigurationGroupDefinition;
+use Shopware\Core\Content\Media\MediaDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceDefinition;
+use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+use Shopware\Core\Framework\ORM\Field\FkField;
+use Shopware\Core\Framework\ORM\Field\IdField;
+use Shopware\Core\Framework\ORM\Field\ManyToManyAssociationField;
+use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
+use Shopware\Core\Framework\ORM\Field\StringField;
+use Shopware\Core\Framework\ORM\Field\TenantIdField;
+use Shopware\Core\Framework\ORM\Field\TranslatedField;
+use Shopware\Core\Framework\ORM\Field\TranslationsAssociationField;
+use Shopware\Core\Framework\ORM\Field\VersionField;
+use Shopware\Core\Framework\ORM\FieldCollection;
+use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
+use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
+use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
+use Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionBasicCollection;
+use Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionDetailCollection;
+use Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupOption\Event\ConfigurationGroupOptionDeletedEvent;
+use Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupOption\Event\ConfigurationGroupOptionWrittenEvent;
+use Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupOption\Struct\ConfigurationGroupOptionBasicStruct;
+use Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupOption\Struct\ConfigurationGroupOptionDetailStruct;
+use Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupOptionTranslation\ConfigurationGroupOptionTranslationDefinition;
+use Shopware\Core\System\Configuration\ConfigurationGroupDefinition;
 
 class ConfigurationGroupOptionDefinition extends EntityDefinition
 {
@@ -75,8 +75,8 @@ class ConfigurationGroupOptionDefinition extends EntityDefinition
             (new TranslationsAssociationField('translations', ConfigurationGroupOptionTranslationDefinition::class, 'configuration_group_option_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
             (new OneToManyAssociationField('productConfigurators', ProductConfiguratorDefinition::class, 'configuration_option_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
             (new OneToManyAssociationField('productServices', ProductServiceDefinition::class, 'configuration_option_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
-            (new ManyToManyAssociationField('productDatasheets', ProductDefinition::class, \Shopware\Content\Product\Aggregate\ProductDatasheet\ProductDatasheetDefinition::class, false, 'configuration_group_option_id', 'product_id'))->setFlags(new CascadeDelete(), new WriteOnly()),
-            (new ManyToManyAssociationField('productVariations', ProductDefinition::class, \Shopware\Content\Product\Aggregate\ProductVariation\ProductVariationDefinition::class, false, 'configuration_group_option_id', 'product_id'))->setFlags(new CascadeDelete(), new WriteOnly()),
+            (new ManyToManyAssociationField('productDatasheets', ProductDefinition::class, \Shopware\Core\Content\Product\Aggregate\ProductDatasheet\ProductDatasheetDefinition::class, false, 'configuration_group_option_id', 'product_id'))->setFlags(new CascadeDelete(), new WriteOnly()),
+            (new ManyToManyAssociationField('productVariations', ProductDefinition::class, \Shopware\Core\Content\Product\Aggregate\ProductVariation\ProductVariationDefinition::class, false, 'configuration_group_option_id', 'product_id'))->setFlags(new CascadeDelete(), new WriteOnly()),
         ]);
 
         foreach (self::$extensions as $extension) {

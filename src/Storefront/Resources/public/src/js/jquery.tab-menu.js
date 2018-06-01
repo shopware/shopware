@@ -1,6 +1,6 @@
 ;(function ($) {
     /**
-     * Shopware Tab Menu Plugin
+     * Shopware\Core Tab Menu Plugin
      *
      * This plugin sets up a menu with tabs you can switch between.
      */

@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Country\Aggregate\CountryState\Struct;
+namespace Shopware\Core\System\Country\Aggregate\CountryState\Struct;
 
-use Shopware\Framework\ORM\Search\SearchResultInterface;
-use Shopware\Framework\ORM\Search\SearchResultTrait;
-use Shopware\System\Country\Aggregate\CountryState\Collection\CountryStateBasicCollection;
+use Shopware\Core\Framework\ORM\Search\SearchResultInterface;
+use Shopware\Core\Framework\ORM\Search\SearchResultTrait;
+use Shopware\Core\System\Country\Aggregate\CountryState\Collection\CountryStateBasicCollection;
 
 class CountryStateSearchResult extends CountryStateBasicCollection implements SearchResultInterface
 {

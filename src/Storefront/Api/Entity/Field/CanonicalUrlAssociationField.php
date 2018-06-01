@@ -2,9 +2,9 @@
 
 namespace Shopware\Storefront\Api\Entity\Field;
 
-use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
-use Shopware\Framework\ORM\Write\Flag\Extension;
-use Shopware\Framework\ORM\Write\Flag\ReadOnly;
+use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\ORM\Write\Flag\Extension;
+use Shopware\Core\Framework\ORM\Write\Flag\ReadOnly;
 use Shopware\Storefront\Api\Seo\Definition\SeoUrlDefinition;
 
 class CanonicalUrlAssociationField extends ManyToOneAssociationField

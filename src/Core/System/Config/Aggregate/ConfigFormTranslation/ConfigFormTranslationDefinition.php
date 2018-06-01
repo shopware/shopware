@@ -1,27 +1,27 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Config\Aggregate\ConfigFormTranslation;
+namespace Shopware\Core\System\Config\Aggregate\ConfigFormTranslation;
 
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\EntityExtensionInterface;
-use Shopware\Framework\ORM\Field\FkField;
-use Shopware\Framework\ORM\Field\IdField;
-use Shopware\Framework\ORM\Field\LongTextField;
-use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
-use Shopware\Framework\ORM\Field\ReferenceVersionField;
-use Shopware\Framework\ORM\Field\StringField;
-use Shopware\Framework\ORM\Field\VersionField;
-use Shopware\Framework\ORM\FieldCollection;
-use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
-use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\System\Config\Aggregate\ConfigFormTranslation\Collection\ConfigFormTranslationBasicCollection;
-use Shopware\System\Config\Aggregate\ConfigFormTranslation\Collection\ConfigFormTranslationDetailCollection;
-use Shopware\System\Config\Aggregate\ConfigFormTranslation\Event\ConfigFormTranslationDeletedEvent;
-use Shopware\System\Config\Aggregate\ConfigFormTranslation\Event\ConfigFormTranslationWrittenEvent;
-use Shopware\System\Config\Aggregate\ConfigFormTranslation\Struct\ConfigFormTranslationBasicStruct;
-use Shopware\System\Config\Aggregate\ConfigFormTranslation\Struct\ConfigFormTranslationDetailStruct;
-use Shopware\System\Config\ConfigFormDefinition;
-use Shopware\System\Locale\LocaleDefinition;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+use Shopware\Core\Framework\ORM\Field\FkField;
+use Shopware\Core\Framework\ORM\Field\IdField;
+use Shopware\Core\Framework\ORM\Field\LongTextField;
+use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
+use Shopware\Core\Framework\ORM\Field\StringField;
+use Shopware\Core\Framework\ORM\Field\VersionField;
+use Shopware\Core\Framework\ORM\FieldCollection;
+use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
+use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\System\Config\Aggregate\ConfigFormTranslation\Collection\ConfigFormTranslationBasicCollection;
+use Shopware\Core\System\Config\Aggregate\ConfigFormTranslation\Collection\ConfigFormTranslationDetailCollection;
+use Shopware\Core\System\Config\Aggregate\ConfigFormTranslation\Event\ConfigFormTranslationDeletedEvent;
+use Shopware\Core\System\Config\Aggregate\ConfigFormTranslation\Event\ConfigFormTranslationWrittenEvent;
+use Shopware\Core\System\Config\Aggregate\ConfigFormTranslation\Struct\ConfigFormTranslationBasicStruct;
+use Shopware\Core\System\Config\Aggregate\ConfigFormTranslation\Struct\ConfigFormTranslationDetailStruct;
+use Shopware\Core\System\Config\ConfigFormDefinition;
+use Shopware\Core\System\Locale\LocaleDefinition;
 
 class ConfigFormTranslationDefinition extends EntityDefinition
 {
@@ -58,8 +58,8 @@ class ConfigFormTranslationDefinition extends EntityDefinition
             (new FkField('config_form_id', 'configFormId', ConfigFormDefinition::class))->setFlags(new Required()),
             (new ReferenceVersionField(ConfigFormDefinition::class))->setFlags(new Required()),
 
-            (new FkField('locale_id', 'localeId', \Shopware\System\Locale\LocaleDefinition::class))->setFlags(new Required()),
-            (new ReferenceVersionField(\Shopware\System\Locale\LocaleDefinition::class))->setFlags(new Required()),
+            (new FkField('locale_id', 'localeId', \Shopware\Core\System\Locale\LocaleDefinition::class))->setFlags(new Required()),
+            (new ReferenceVersionField(\Shopware\Core\System\Locale\LocaleDefinition::class))->setFlags(new Required()),
 
             new StringField('label', 'label'),
             new LongTextField('description', 'description'),

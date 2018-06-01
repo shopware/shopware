@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Config\Aggregate\ConfigFormFieldValue\Event;
+namespace Shopware\Core\System\Config\Aggregate\ConfigFormFieldValue\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\System\Config\Aggregate\ConfigFormField\Event\ConfigFormFieldBasicLoadedEvent;
-use Shopware\System\Config\Aggregate\ConfigFormFieldValue\Collection\ConfigFormFieldValueDetailCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\System\Config\Aggregate\ConfigFormField\Event\ConfigFormFieldBasicLoadedEvent;
+use Shopware\Core\System\Config\Aggregate\ConfigFormFieldValue\Collection\ConfigFormFieldValueDetailCollection;
 
 class ConfigFormFieldValueDetailLoadedEvent extends NestedEvent
 {

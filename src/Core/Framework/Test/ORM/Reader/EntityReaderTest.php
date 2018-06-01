@@ -1,16 +1,16 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Test\ORM\Reader;
+namespace Shopware\Core\Framework\Test\ORM\Reader;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Framework\Context;
-use Shopware\Checkout\Rule\ContextRuleRepository;
-use Shopware\Checkout\Rule\Specification\Container\AndRule;
-use Shopware\Content\Product\ProductRepository;
-use Shopware\Content\Product\Struct\ProductBasicStruct;
-use Shopware\Defaults;
-use Shopware\Framework\Struct\ArrayStruct;
-use Shopware\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Rule\ContextRuleRepository;
+use Shopware\Core\Checkout\Rule\Specification\Container\AndRule;
+use Shopware\Core\Content\Product\ProductRepository;
+use Shopware\Core\Content\Product\Struct\ProductBasicStruct;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Struct\ArrayStruct;
+use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class EntityReaderTest extends KernelTestCase

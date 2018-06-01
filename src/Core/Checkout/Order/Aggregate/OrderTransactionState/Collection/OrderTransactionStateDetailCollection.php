@@ -1,14 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Order\Aggregate\OrderTransactionState\Collection;
+namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransactionState\Collection;
 
-use Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Collection\OrderStateTranslationBasicCollection;
-use Shopware\Checkout\Order\Aggregate\OrderTransactionState\Struct\OrderTransactionStateDetailStruct;
+use Shopware\Core\Checkout\Order\Aggregate\OrderStateTranslation\Collection\OrderStateTranslationBasicCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionState\Struct\OrderTransactionStateDetailStruct;
 
 class OrderTransactionStateDetailCollection extends OrderTransactionStatebasicCollection
 {
     /**
-     * @var \Shopware\Checkout\Order\Aggregate\OrderTransactionState\Struct\OrderTransactionStateDetailStruct[]
+     * @var \Shopware\Core\Checkout\Order\Aggregate\OrderTransactionState\Struct\OrderTransactionStateDetailStruct[]
      */
     protected $elements = [];
 

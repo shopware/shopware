@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Tax\Aggregate\TaxAreaRuleTranslation\Struct;
+namespace Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTranslation\Struct;
 
-use Shopware\System\Language\Struct\LanguageBasicStruct;
-use Shopware\System\Tax\Aggregate\TaxAreaRule\Struct\TaxAreaRuleBasicStruct;
+use Shopware\Core\System\Language\Struct\LanguageBasicStruct;
+use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\Struct\TaxAreaRuleBasicStruct;
 
 class TaxAreaRuleTranslationDetailStruct extends TaxAreaRuleTranslationBasicStruct
 {

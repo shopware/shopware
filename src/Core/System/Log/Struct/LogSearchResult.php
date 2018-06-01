@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Log\Struct;
+namespace Shopware\Core\System\Log\Struct;
 
-use Shopware\Framework\ORM\Search\SearchResultInterface;
-use Shopware\Framework\ORM\Search\SearchResultTrait;
-use Shopware\System\Log\Collection\LogBasicCollection;
+use Shopware\Core\Framework\ORM\Search\SearchResultInterface;
+use Shopware\Core\Framework\ORM\Search\SearchResultTrait;
+use Shopware\Core\System\Log\Collection\LogBasicCollection;
 
 class LogSearchResult extends LogBasicCollection implements SearchResultInterface
 {

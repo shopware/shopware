@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Event;
+namespace Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupOption\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionBasicCollection;
-use Shopware\System\Configuration\Event\ConfigurationGroupBasicLoadedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionBasicCollection;
+use Shopware\Core\System\Configuration\Event\ConfigurationGroupBasicLoadedEvent;
 
 class ConfigurationGroupOptionBasicLoadedEvent extends NestedEvent
 {

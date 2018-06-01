@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * Shopware 5
+ * Shopware\Core 5
  * Copyright (c) shopware AG
  *
  * According to our dual licensing model, this program can be used either
@@ -16,31 +16,31 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
  *
- * "Shopware" is a registered trademark of shopware AG.
+ * "Shopware\Core" is a registered trademark of shopware AG.
  * The licensing of the program under the AGPLv3 does not imply a
  * trademark license. Therefore any rights, title and interest in
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Checkout\Cart\Order;
+namespace Shopware\Core\Checkout\Cart\Order;
 
-use Shopware\Checkout\CustomerContext;
-use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Checkout\Cart\Delivery\Struct\Delivery;
-use Shopware\Checkout\Cart\Delivery\Struct\DeliveryPosition;
-use Shopware\Checkout\Cart\LineItem\CalculatedLineItemInterface;
-use Shopware\Checkout\Cart\LineItem\NestedInterface;
-use Shopware\Checkout\Cart\Tax\TaxDetector;
-use Shopware\Checkout\Cart\Transaction\Struct\Transaction;
-use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
-use Shopware\Checkout\Order\Exception\CustomerHasNoActiveBillingAddressException;
-use Shopware\Checkout\Order\Exception\DeliveryWithoutAddressException;
-use Shopware\Checkout\Order\Exception\EmptyCartException;
-use Shopware\Checkout\Order\Exception\NotLoggedInCustomerException;
-use Shopware\Checkout\Order\OrderRepository;
-use Shopware\Defaults;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\Struct\Uuid;
+use Shopware\Core\Checkout\CustomerContext;
+use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPosition;
+use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItemInterface;
+use Shopware\Core\Checkout\Cart\LineItem\NestedInterface;
+use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
+use Shopware\Core\Checkout\Cart\Transaction\Struct\Transaction;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
+use Shopware\Core\Checkout\Order\Exception\CustomerHasNoActiveBillingAddressException;
+use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
+use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
+use Shopware\Core\Checkout\Order\Exception\NotLoggedInCustomerException;
+use Shopware\Core\Checkout\Order\OrderRepository;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\Struct\Uuid;
 
 class OrderPersister implements OrderPersisterInterface
 {

@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Plugin\Struct;
+namespace Shopware\Core\Framework\Plugin\Struct;
 
-use Shopware\Checkout\Payment\Collection\PaymentMethodBasicCollection;
-use Shopware\System\Config\Collection\ConfigFormBasicCollection;
+use Shopware\Core\Checkout\Payment\Collection\PaymentMethodBasicCollection;
+use Shopware\Core\System\Config\Collection\ConfigFormBasicCollection;
 
 class PluginDetailStruct extends PluginBasicStruct
 {

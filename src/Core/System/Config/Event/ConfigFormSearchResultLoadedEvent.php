@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Config\Event;
+namespace Shopware\Core\System\Config\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\System\Config\Struct\ConfigFormSearchResult;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\System\Config\Struct\ConfigFormSearchResult;
 
 class ConfigFormSearchResultLoadedEvent extends NestedEvent
 {

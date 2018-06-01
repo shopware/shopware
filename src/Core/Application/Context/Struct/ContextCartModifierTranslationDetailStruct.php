@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Application\Context\Struct;
+namespace Shopware\Core\Application\Context\Struct;
 
-use Shopware\System\Language\Struct\LanguageBasicStruct;
+use Shopware\Core\System\Language\Struct\LanguageBasicStruct;
 
 class ContextCartModifierTranslationDetailStruct extends ContextCartModifierTranslationBasicStruct
 {

@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Unit\Aggregate\UnitTranslation\Event;
+namespace Shopware\Core\System\Unit\Aggregate\UnitTranslation\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\ORM\Search\IdSearchResult;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\ORM\Search\IdSearchResult;
 
 class UnitTranslationIdSearchResultLoadedEvent extends NestedEvent
 {

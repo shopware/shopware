@@ -1,22 +1,22 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Config\Aggregate\ConfigFormFieldValue\Event;
+namespace Shopware\Core\System\Config\Aggregate\ConfigFormFieldValue\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\System\Config\Aggregate\ConfigFormFieldValue\Collection\ConfigFormFieldValueBasicCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\System\Config\Aggregate\ConfigFormFieldValue\Collection\ConfigFormFieldValueBasicCollection;
 
 class ConfigFormFieldValueBasicLoadedEvent extends NestedEvent
 {
     public const NAME = 'config_form_field_value.basic.loaded';
 
     /**
-     * @var \Shopware\Framework\Context
+     * @var \Shopware\Core\Framework\Context
      */
     protected $context;
 
     /**
-     * @var \Shopware\System\Config\Aggregate\ConfigFormFieldValue\Collection\ConfigFormFieldValueBasicCollection
+     * @var \Shopware\Core\System\Config\Aggregate\ConfigFormFieldValue\Collection\ConfigFormFieldValueBasicCollection
      */
     protected $configFormFieldValues;
 

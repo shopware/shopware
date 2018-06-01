@@ -6,110 +6,110 @@
 
     <services>
 
-        <service class="Shopware\Framework\Api\EventListener\CorsListener" id="Shopware\Framework\Api\EventListener\CorsListener">
+        <service class="Shopware\Core\Framework\Api\EventListener\CorsListener" id="Shopware\Core\Framework\Api\EventListener\CorsListener">
             <tag name="kernel.event_subscriber" />
         </service>
 
-        <service class="Shopware\Framework\Api\EventListener\ResponseExceptionListener" id="Shopware\Framework\Api\EventListener\ResponseExceptionListener">
+        <service class="Shopware\Core\Framework\Api\EventListener\ResponseExceptionListener" id="Shopware\Core\Framework\Api\EventListener\ResponseExceptionListener">
             <tag name="kernel.event_subscriber" />
             <argument type="service" id="logger" />
-            <argument type="service" id="Shopware\Framework\Api\Response\ResponseFactory" />
+            <argument type="service" id="Shopware\Core\Framework\Api\Response\ResponseFactory" />
         </service>
 
-        <service class="Shopware\Framework\Api\Context\RestContextValueResolver" id="Shopware\Framework\Api\Context\RestContextValueResolver">
+        <service class="Shopware\Core\Framework\Api\Context\RestContextValueResolver" id="Shopware\Core\Framework\Api\Context\RestContextValueResolver">
             <tag name="controller.argument_value_resolver" priority="1000"/>
             <argument type="service" id="security.token_storage"/>
-            <argument type="service" id="Shopware\Framework\ORM\Dbal\EntitySearcher"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\Dbal\EntitySearcher"/>
         </service>
 
-        <service class="Shopware\Framework\Api\Command\UserCreateCommand" id="Shopware\Framework\Api\Command\UserCreateCommand">
-            <argument id="Shopware\System\User\UserRepository" type="service"/>
+        <service class="Shopware\Core\Framework\Api\Command\UserCreateCommand" id="Shopware\Core\Framework\Api\Command\UserCreateCommand">
+            <argument id="Shopware\Core\System\User\UserRepository" type="service"/>
             <argument id="security.encoder_factory.generic" type="service"/>
             <tag name="console.command"/>
         </service>
 
-        <service class="Shopware\Framework\Api\Controller\ApiController" id="Shopware\Framework\Api\Controller\ApiController" public="true">
-            <argument id="Shopware\Framework\ORM\DefinitionRegistry" type="service"/>
+        <service class="Shopware\Core\Framework\Api\Controller\ApiController" id="Shopware\Core\Framework\Api\Controller\ApiController" public="true">
+            <argument id="Shopware\Core\Framework\ORM\DefinitionRegistry" type="service"/>
             <argument id="serializer" type="service"/>
-            <argument id="Shopware\Framework\Api\Response\ResponseFactory" type="service"/>
-            <argument id="Shopware\Framework\ORM\Write\EntityWriter" type="service"/>
-            <argument type="service" id="Shopware\Framework\ORM\Search\SearchCriteriaBuilder"/>
+            <argument id="Shopware\Core\Framework\Api\Response\ResponseFactory" type="service"/>
+            <argument id="Shopware\Core\Framework\ORM\Write\EntityWriter" type="service"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\Search\SearchCriteriaBuilder"/>
         </service>
 
-        <service class="Shopware\Framework\Api\Controller\SyncController" public="true" id="Shopware\Framework\Api\Controller\SyncController" >
-            <argument type="service" id="Shopware\Framework\ORM\DefinitionRegistry"/>
+        <service class="Shopware\Core\Framework\Api\Controller\SyncController" public="true" id="Shopware\Core\Framework\Api\Controller\SyncController" >
+            <argument type="service" id="Shopware\Core\Framework\ORM\DefinitionRegistry"/>
             <argument type="service" id="service_container"/>
             <argument type="service" id="serializer"/>
         </service>
 
         <!-- Serializer -->
-        <service class="Shopware\Framework\Api\Serializer\JsonApiEncoder" id="shopware.api.serializer.json_api_encoder">
-            <argument type="service" id="Shopware\Framework\Struct\Serializer\StructDecoder" />
+        <service class="Shopware\Core\Framework\Api\Serializer\JsonApiEncoder" id="shopware.api.serializer.json_api_encoder">
+            <argument type="service" id="Shopware\Core\Framework\Struct\Serializer\StructDecoder" />
             <tag name="serializer.encoder" />
         </service>
 
-        <service class="Shopware\Framework\Api\Serializer\JsonApiDecoder" id="shopware.api.serializer.json_api_decoder">
+        <service class="Shopware\Core\Framework\Api\Serializer\JsonApiDecoder" id="shopware.api.serializer.json_api_decoder">
             <tag name="serializer.encoder" />
         </service>
 
         <!-- Response types -->
-        <service class="Shopware\Framework\Api\Response\ResponseFactory" id="Shopware\Framework\Api\Response\ResponseFactory">
+        <service class="Shopware\Core\Framework\Api\Response\ResponseFactory" id="Shopware\Core\Framework\Api\Response\ResponseFactory">
             <argument type="tagged" tag="shopware.rest.response_type" />
         </service>
 
-        <service class="Shopware\Framework\Api\Response\Type\JsonApiType" id="Shopware\Framework\Api\Response\Type\JsonApiType">
+        <service class="Shopware\Core\Framework\Api\Response\Type\JsonApiType" id="Shopware\Core\Framework\Api\Response\Type\JsonApiType">
             <argument type="service" id="serializer" />
             <argument>%kernel.debug%</argument>
             <tag name="shopware.rest.response_type" />
         </service>
 
-        <service class="Shopware\Framework\Api\Response\Type\JsonType" id="Shopware\Framework\Api\Response\Type\JsonType">
+        <service class="Shopware\Core\Framework\Api\Response\Type\JsonType" id="Shopware\Core\Framework\Api\Response\Type\JsonType">
             <argument type="service" id="serializer" />
             <argument>%kernel.debug%</argument>
             <tag name="shopware.rest.response_type" />
         </service>
 
         <!-- API Docs -->
-        <service class="Shopware\Framework\Api\ApiDefinition\DefinitionService" id="Shopware\Framework\Api\ApiDefinition\DefinitionService">
+        <service class="Shopware\Core\Framework\Api\ApiDefinition\DefinitionService" id="Shopware\Core\Framework\Api\ApiDefinition\DefinitionService">
             <argument type="tagged" tag="shopware.rest.definition_generator" />
         </service>
 
-        <service class="Shopware\Framework\Api\ApiDefinition\Generator\OpenApi3Generator" id="Shopware\Framework\Api\ApiDefinition\Generator\OpenApi3Generator">
-            <argument type="service" id="Shopware\Framework\ORM\DefinitionRegistry" />
+        <service class="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator">
+            <argument type="service" id="Shopware\Core\Framework\ORM\DefinitionRegistry" />
             <tag name="shopware.rest.definition_generator" />
         </service>
 
-        <service class="Shopware\Framework\Api\Controller\InfoController" id="Shopware\Framework\Api\Controller\InfoController" public="true">
-            <argument id="Shopware\Framework\Api\ApiDefinition\DefinitionService" type="service"/>
+        <service class="Shopware\Core\Framework\Api\Controller\InfoController" id="Shopware\Core\Framework\Api\Controller\InfoController" public="true">
+            <argument id="Shopware\Core\Framework\Api\ApiDefinition\DefinitionService" type="service"/>
         </service>
 
-        <service class="Shopware\Framework\Api\Controller\ProductActionController" id="Shopware\Framework\Api\Controller\ProductActionController" public="true">
-            <argument id="Shopware\Content\Product\Util\VariantGenerator" type="service"/>
+        <service class="Shopware\Core\Framework\Api\Controller\ProductActionController" id="Shopware\Core\Framework\Api\Controller\ProductActionController" public="true">
+            <argument id="Shopware\Core\Content\Product\Util\VariantGenerator" type="service"/>
             <call method="setContainer">
                 <argument id="service_container" type="service"/>
             </call>
         </service>
 
-        <service class="Shopware\Framework\Api\Controller\PriceActionController" id="Shopware\Framework\Api\Controller\PriceActionController" public="true">
+        <service class="Shopware\Core\Framework\Api\Controller\PriceActionController" id="Shopware\Core\Framework\Api\Controller\PriceActionController" public="true">
             <argument type="service" id="serializer"/>
-            <argument type="service" id="Shopware\System\Tax\TaxRepository"/>
-            <argument type="service" id="Shopware\Checkout\Cart\Price\NetPriceCalculator"/>
-            <argument type="service" id="Shopware\Checkout\Cart\Price\GrossPriceCalculator"/>
+            <argument type="service" id="Shopware\Core\System\Tax\TaxRepository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\NetPriceCalculator"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\GrossPriceCalculator"/>
         </service>
 
-        <service class="Shopware\Framework\Api\Controller\AuthController" id="Shopware\Framework\Api\Controller\AuthController" public="true">
-            <argument id="Shopware\Framework\Api\Firewall\JWTAuthenticator" type="service"/>
+        <service class="Shopware\Core\Framework\Api\Controller\AuthController" id="Shopware\Core\Framework\Api\Controller\AuthController" public="true">
+            <argument id="Shopware\Core\Framework\Api\Firewall\JWTAuthenticator" type="service"/>
         </service>
 
-        <service class="Shopware\Framework\Api\Firewall\TokenAuthenticator" id="Shopware\Framework\Api\Firewall\TokenAuthenticator">
+        <service class="Shopware\Core\Framework\Api\Firewall\TokenAuthenticator" id="Shopware\Core\Framework\Api\Firewall\TokenAuthenticator">
             <argument id="Doctrine\DBAL\Connection" type="service"/>
         </service>
 
-        <service class="Shopware\Framework\Api\Firewall\JWTAuthenticator" id="Shopware\Framework\Api\Firewall\JWTAuthenticator">
+        <service class="Shopware\Core\Framework\Api\Firewall\JWTAuthenticator" id="Shopware\Core\Framework\Api\Firewall\JWTAuthenticator">
             <argument id="Doctrine\DBAL\Connection" type="service"/>
             <argument>%kernel.project_dir%</argument>
         </service>
 
-        <service class="Shopware\Framework\Api\Firewall\RestUserProvider" id="Shopware\Framework\Api\Firewall\RestUserProvider" />
+        <service class="Shopware\Core\Framework\Api\Firewall\RestUserProvider" id="Shopware\Core\Framework\Api\Firewall\RestUserProvider" />
     </services>
 </container>

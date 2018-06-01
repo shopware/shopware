@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Routing;
+namespace Shopware\Core\Framework\Routing;
 
-use Shopware\Framework\Context;
-use Shopware\Defaults;
-use Shopware\Framework\Api\Firewall\User;
-use Shopware\PlatformRequest;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Firewall\User;
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 

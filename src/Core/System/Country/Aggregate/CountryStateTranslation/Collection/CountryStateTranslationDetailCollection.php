@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Country\Aggregate\CountryStateTranslation\Collection;
+namespace Shopware\Core\System\Country\Aggregate\CountryStateTranslation\Collection;
 
-use Shopware\System\Language\Collection\LanguageBasicCollection;
-use Shopware\System\Country\Aggregate\CountryState\Collection\CountryStateBasicCollection;
-use Shopware\System\Country\Aggregate\CountryStateTranslation\Struct\CountryStateTranslationDetailStruct;
+use Shopware\Core\System\Language\Collection\LanguageBasicCollection;
+use Shopware\Core\System\Country\Aggregate\CountryState\Collection\CountryStateBasicCollection;
+use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\Struct\CountryStateTranslationDetailStruct;
 
 class CountryStateTranslationDetailCollection extends CountryStateTranslationBasicCollection
 {

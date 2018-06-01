@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * Shopware 5
+ * Shopware\Core 5
  * Copyright (c) shopware AG
  *
  * According to our dual licensing model, this program can be used either
@@ -16,23 +16,23 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
  *
- * "Shopware" is a registered trademark of shopware AG.
+ * "Shopware\Core" is a registered trademark of shopware AG.
  * The licensing of the program under the AGPLv3 does not imply a
  * trademark license. Therefore any rights, title and interest in
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Checkout\Test\Cart\Validator\Container;
+namespace Shopware\Core\Checkout\Test\Cart\Validator\Container;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Checkout\CustomerContext;
-use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Checkout\Rule\Specification\Container\AndRule;
-use Shopware\Checkout\Rule\Specification\Match;
-use Shopware\Checkout\Rule\Specification\Scope\CartRuleScope;
-use Shopware\Checkout\Rule\Specification\Scope\StorefrontScope;
-use Shopware\Checkout\Test\Cart\Common\FalseRule;
-use Shopware\Checkout\Test\Cart\Common\TrueRule;
+use Shopware\Core\Checkout\CustomerContext;
+use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Core\Checkout\Rule\Specification\Container\AndRule;
+use Shopware\Core\Checkout\Rule\Specification\Match;
+use Shopware\Core\Checkout\Rule\Specification\Scope\CartRuleScope;
+use Shopware\Core\Checkout\Rule\Specification\Scope\StorefrontScope;
+use Shopware\Core\Checkout\Test\Cart\Common\FalseRule;
+use Shopware\Core\Checkout\Test\Cart\Common\TrueRule;
 
 class AndRuleTest extends TestCase
 {

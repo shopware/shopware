@@ -1,34 +1,34 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Order\Aggregate\OrderTransaction;
+namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransaction;
 
-use Shopware\Checkout\Order\Aggregate\OrderTransaction\Collection\OrderTransactionBasicCollection;
-use Shopware\Checkout\Order\Aggregate\OrderTransaction\Collection\OrderTransactionDetailCollection;
-use Shopware\Checkout\Order\Aggregate\OrderTransaction\Event\OrderTransactionDeletedEvent;
-use Shopware\Checkout\Order\Aggregate\OrderTransaction\Event\OrderTransactionWrittenEvent;
-use Shopware\Checkout\Order\Aggregate\OrderTransaction\Struct\OrderTransactionBasicStruct;
-use Shopware\Checkout\Order\Aggregate\OrderTransaction\Struct\OrderTransactionDetailStruct;
-use Shopware\Checkout\Order\Aggregate\OrderTransactionState\OrderTransactionStateDefinition;
-use Shopware\Checkout\Order\OrderDefinition;
-use Shopware\Checkout\Payment\PaymentMethodDefinition;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\EntityExtensionInterface;
-use Shopware\Framework\ORM\Field\DateField;
-use Shopware\Framework\ORM\Field\FkField;
-use Shopware\Framework\ORM\Field\IdField;
-use Shopware\Framework\ORM\Field\JsonObjectField;
-use Shopware\Framework\ORM\Field\LongTextField;
-use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
-use Shopware\Framework\ORM\Field\ReferenceVersionField;
-use Shopware\Framework\ORM\Field\TenantIdField;
-use Shopware\Framework\ORM\Field\VersionField;
-use Shopware\Framework\ORM\FieldCollection;
-use Shopware\Framework\ORM\Write\Flag\CascadeDelete;
-use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
-use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\Framework\ORM\Write\Flag\RestrictDelete;
-use Shopware\Framework\ORM\Write\Flag\Serialized;
-use Shopware\Framework\ORM\Write\Flag\WriteOnly;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\Collection\OrderTransactionBasicCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\Collection\OrderTransactionDetailCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\Event\OrderTransactionDeletedEvent;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\Event\OrderTransactionWrittenEvent;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\Struct\OrderTransactionBasicStruct;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\Struct\OrderTransactionDetailStruct;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionState\OrderTransactionStateDefinition;
+use Shopware\Core\Checkout\Order\OrderDefinition;
+use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+use Shopware\Core\Framework\ORM\Field\DateField;
+use Shopware\Core\Framework\ORM\Field\FkField;
+use Shopware\Core\Framework\ORM\Field\IdField;
+use Shopware\Core\Framework\ORM\Field\JsonObjectField;
+use Shopware\Core\Framework\ORM\Field\LongTextField;
+use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
+use Shopware\Core\Framework\ORM\Field\TenantIdField;
+use Shopware\Core\Framework\ORM\Field\VersionField;
+use Shopware\Core\Framework\ORM\FieldCollection;
+use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
+use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
+use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\Framework\ORM\Write\Flag\RestrictDelete;
+use Shopware\Core\Framework\ORM\Write\Flag\Serialized;
+use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
 
 class OrderTransactionDefinition extends EntityDefinition
 {

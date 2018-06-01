@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Translation;
+namespace Shopware\Core\Framework\Translation;
 
 use Symfony\Component\Finder\SplFileInfo;
 

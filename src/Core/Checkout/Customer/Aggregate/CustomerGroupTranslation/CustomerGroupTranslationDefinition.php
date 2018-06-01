@@ -1,24 +1,24 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Customer\Aggregate\CustomerGroupTranslation;
+namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation;
 
-use Shopware\System\Language\LanguageDefinition;
-use Shopware\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition;
-use Shopware\Checkout\Customer\Aggregate\CustomerGroupTranslation\Collection\CustomerGroupTranslationBasicCollection;
-use Shopware\Checkout\Customer\Aggregate\CustomerGroupTranslation\Collection\CustomerGroupTranslationDetailCollection;
-use Shopware\Checkout\Customer\Aggregate\CustomerGroupTranslation\Event\CustomerGroupTranslationDeletedEvent;
-use Shopware\Checkout\Customer\Aggregate\CustomerGroupTranslation\Event\CustomerGroupTranslationWrittenEvent;
-use Shopware\Checkout\Customer\Aggregate\CustomerGroupTranslation\Struct\CustomerGroupTranslationBasicStruct;
-use Shopware\Checkout\Customer\Aggregate\CustomerGroupTranslation\Struct\CustomerGroupTranslationDetailStruct;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\EntityExtensionInterface;
-use Shopware\Framework\ORM\Field\FkField;
-use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
-use Shopware\Framework\ORM\Field\ReferenceVersionField;
-use Shopware\Framework\ORM\Field\StringField;
-use Shopware\Framework\ORM\FieldCollection;
-use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
-use Shopware\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\System\Language\LanguageDefinition;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\Collection\CustomerGroupTranslationBasicCollection;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\Collection\CustomerGroupTranslationDetailCollection;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\Event\CustomerGroupTranslationDeletedEvent;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\Event\CustomerGroupTranslationWrittenEvent;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\Struct\CustomerGroupTranslationBasicStruct;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\Struct\CustomerGroupTranslationDetailStruct;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+use Shopware\Core\Framework\ORM\Field\FkField;
+use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
+use Shopware\Core\Framework\ORM\Field\StringField;
+use Shopware\Core\Framework\ORM\FieldCollection;
+use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
+use Shopware\Core\Framework\ORM\Write\Flag\Required;
 
 class CustomerGroupTranslationDefinition extends EntityDefinition
 {

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * Shopware 5
+ * Shopware\Core 5
  * Copyright (c) shopware AG
  *
  * According to our dual licensing model, this program can be used either
@@ -16,18 +16,18 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
  *
- * "Shopware" is a registered trademark of shopware AG.
+ * "Shopware\Core" is a registered trademark of shopware AG.
  * The licensing of the program under the AGPLv3 does not imply a
  * trademark license. Therefore any rights, title and interest in
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Framework\ORM\Write;
+namespace Shopware\Core\Framework\ORM\Write;
 
-use Shopware\Framework\Context;
-use Shopware\System\Language\LanguageDefinition;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\System\Language\LanguageDefinition;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
 
 class WriteContext
 {
@@ -39,7 +39,7 @@ class WriteContext
     public $paths = [];
 
     /**
-     * @var \Shopware\Framework\Context
+     * @var \Shopware\Core\Framework\Context
      */
     private $context;
 

@@ -1,15 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Mail\Aggregate\MailTranslation\Collection;
+namespace Shopware\Core\System\Mail\Aggregate\MailTranslation\Collection;
 
-use Shopware\System\Language\Collection\LanguageBasicCollection;
-use Shopware\System\Mail\Aggregate\MailTranslation\Struct\MailTranslationDetailStruct;
-use Shopware\System\Mail\Collection\MailBasicCollection;
+use Shopware\Core\System\Language\Collection\LanguageBasicCollection;
+use Shopware\Core\System\Mail\Aggregate\MailTranslation\Struct\MailTranslationDetailStruct;
+use Shopware\Core\System\Mail\Collection\MailBasicCollection;
 
 class MailTranslationDetailCollection extends MailTranslationBasicCollection
 {
     /**
-     * @var \Shopware\System\Mail\Aggregate\MailTranslation\Struct\MailTranslationDetailStruct[]
+     * @var \Shopware\Core\System\Mail\Aggregate\MailTranslation\Struct\MailTranslationDetailStruct[]
      */
     protected $elements = [];
 

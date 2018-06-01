@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Field;
+namespace Shopware\Core\Framework\ORM\Field;
 
-use Shopware\Framework\ORM\Write\DataStack\KeyValuePair;
-use Shopware\Framework\ORM\Write\EntityExistence;
+use Shopware\Core\Framework\ORM\Write\DataStack\KeyValuePair;
+use Shopware\Core\Framework\ORM\Write\EntityExistence;
 
 class ContextPricesJsonField extends JsonObjectField
 {

@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Rule\Specification\Container;
+namespace Shopware\Core\Checkout\Rule\Specification\Container;
 
-use Shopware\Checkout\Rule\Specification\Match;
-use Shopware\Checkout\Rule\Specification\Rule;
-use Shopware\Checkout\Rule\Specification\Scope\CalculatedLineItemScope;
-use Shopware\Checkout\Rule\Specification\Scope\CartRuleScope;
-use Shopware\Checkout\Rule\Specification\Scope\RuleScope;
+use Shopware\Core\Checkout\Rule\Specification\Match;
+use Shopware\Core\Checkout\Rule\Specification\Rule;
+use Shopware\Core\Checkout\Rule\Specification\Scope\CalculatedLineItemScope;
+use Shopware\Core\Checkout\Rule\Specification\Scope\CartRuleScope;
+use Shopware\Core\Checkout\Rule\Specification\Scope\RuleScope;
 
 class LineItemWrapperRule extends Rule
 {

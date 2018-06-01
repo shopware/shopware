@@ -1,32 +1,32 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Unit;
+namespace Shopware\Core\System\Unit;
 
-use Shopware\Content\Product\ProductDefinition;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\EntityExtensionInterface;
-use Shopware\Framework\ORM\Field\DateField;
-use Shopware\Framework\ORM\Field\IdField;
-use Shopware\Framework\ORM\Field\OneToManyAssociationField;
-use Shopware\Framework\ORM\Field\StringField;
-use Shopware\Framework\ORM\Field\TenantIdField;
-use Shopware\Framework\ORM\Field\TranslatedField;
-use Shopware\Framework\ORM\Field\TranslationsAssociationField;
-use Shopware\Framework\ORM\Field\VersionField;
-use Shopware\Framework\ORM\FieldCollection;
-use Shopware\Framework\ORM\Write\Flag\CascadeDelete;
-use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
-use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\Framework\ORM\Write\Flag\RestrictDelete;
-use Shopware\Framework\ORM\Write\Flag\SearchRanking;
-use Shopware\Framework\ORM\Write\Flag\WriteOnly;
-use Shopware\System\Unit\Collection\UnitBasicCollection;
-use Shopware\System\Unit\Collection\UnitDetailCollection;
-use Shopware\System\Unit\Definition\UnitTranslationDefinition;
-use Shopware\System\Unit\Event\UnitDeletedEvent;
-use Shopware\System\Unit\Event\UnitWrittenEvent;
-use Shopware\System\Unit\Struct\UnitBasicStruct;
-use Shopware\System\Unit\Struct\UnitDetailStruct;
+use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+use Shopware\Core\Framework\ORM\Field\DateField;
+use Shopware\Core\Framework\ORM\Field\IdField;
+use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\ORM\Field\StringField;
+use Shopware\Core\Framework\ORM\Field\TenantIdField;
+use Shopware\Core\Framework\ORM\Field\TranslatedField;
+use Shopware\Core\Framework\ORM\Field\TranslationsAssociationField;
+use Shopware\Core\Framework\ORM\Field\VersionField;
+use Shopware\Core\Framework\ORM\FieldCollection;
+use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
+use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
+use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\Framework\ORM\Write\Flag\RestrictDelete;
+use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
+use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
+use Shopware\Core\System\Unit\Collection\UnitBasicCollection;
+use Shopware\Core\System\Unit\Collection\UnitDetailCollection;
+use Shopware\Core\System\Unit\Definition\UnitTranslationDefinition;
+use Shopware\Core\System\Unit\Event\UnitDeletedEvent;
+use Shopware\Core\System\Unit\Event\UnitWrittenEvent;
+use Shopware\Core\System\Unit\Struct\UnitBasicStruct;
+use Shopware\Core\System\Unit\Struct\UnitDetailStruct;
 
 class UnitDefinition extends EntityDefinition
 {

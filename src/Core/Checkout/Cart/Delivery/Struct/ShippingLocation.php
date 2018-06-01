@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- * Shopware 5
+ * Shopware\Core 5
  * Copyright (c) shopware AG
  *
  * According to our dual licensing model, this program can be used either
@@ -17,18 +17,18 @@ declare(strict_types=1);
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
  *
- * "Shopware" is a registered trademark of shopware AG.
+ * "Shopware\Core" is a registered trademark of shopware AG.
  * The licensing of the program under the AGPLv3 does not imply a
  * trademark license. Therefore any rights, title and interest in
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Checkout\Cart\Delivery\Struct;
+namespace Shopware\Core\Checkout\Cart\Delivery\Struct;
 
-use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
-use Shopware\Framework\Struct\Struct;
-use Shopware\System\Country\Aggregate\CountryState\Struct\CountryStateBasicStruct;
-use Shopware\System\Country\Struct\CountryBasicStruct;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
+use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\System\Country\Aggregate\CountryState\Struct\CountryStateBasicStruct;
+use Shopware\Core\System\Country\Struct\CountryBasicStruct;
 
 class ShippingLocation extends Struct
 {
@@ -43,7 +43,7 @@ class ShippingLocation extends Struct
     protected $state;
 
     /**
-     * @var null|\Shopware\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct
+     * @var null|\Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct
      */
     protected $address;
 

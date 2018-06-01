@@ -2,7 +2,7 @@
     'use strict';
 
     /**
-     * Shopware Captcha Plugin.
+     * Shopware\Core Captcha Plugin.
      *
      * @example
      *

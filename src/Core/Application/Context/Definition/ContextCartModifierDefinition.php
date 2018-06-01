@@ -1,32 +1,32 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Application\Context\Definition;
+namespace Shopware\Core\Application\Context\Definition;
 
-use Shopware\Application\Context\Collection\ContextCartModifierBasicCollection;
-use Shopware\Application\Context\Collection\ContextCartModifierDetailCollection;
-use Shopware\Application\Context\Event\ContextCartModifier\ContextCartModifierDeletedEvent;
-use Shopware\Application\Context\Event\ContextCartModifier\ContextCartModifierWrittenEvent;
-use Shopware\Application\Context\Repository\ContextCartModifierRepository;
-use Shopware\Application\Context\Struct\ContextCartModifierBasicStruct;
-use Shopware\Application\Context\Struct\ContextCartModifierDetailStruct;
-use Shopware\Checkout\Rule\ContextRuleDefinition;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\EntityExtensionInterface;
-use Shopware\Framework\ORM\Field\DateField;
-use Shopware\Framework\ORM\Field\FkField;
-use Shopware\Framework\ORM\Field\FloatField;
-use Shopware\Framework\ORM\Field\IdField;
-use Shopware\Framework\ORM\Field\JsonObjectField;
-use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
-use Shopware\Framework\ORM\Field\StringField;
-use Shopware\Framework\ORM\Field\TenantIdField;
-use Shopware\Framework\ORM\Field\TranslatedField;
-use Shopware\Framework\ORM\Field\TranslationsAssociationField;
-use Shopware\Framework\ORM\FieldCollection;
-use Shopware\Framework\ORM\Write\Flag\CascadeDelete;
-use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
-use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\Framework\ORM\Write\Flag\Serialized;
+use Shopware\Core\Application\Context\Collection\ContextCartModifierBasicCollection;
+use Shopware\Core\Application\Context\Collection\ContextCartModifierDetailCollection;
+use Shopware\Core\Application\Context\Event\ContextCartModifier\ContextCartModifierDeletedEvent;
+use Shopware\Core\Application\Context\Event\ContextCartModifier\ContextCartModifierWrittenEvent;
+use Shopware\Core\Application\Context\Repository\ContextCartModifierRepository;
+use Shopware\Core\Application\Context\Struct\ContextCartModifierBasicStruct;
+use Shopware\Core\Application\Context\Struct\ContextCartModifierDetailStruct;
+use Shopware\Core\Checkout\Rule\ContextRuleDefinition;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+use Shopware\Core\Framework\ORM\Field\DateField;
+use Shopware\Core\Framework\ORM\Field\FkField;
+use Shopware\Core\Framework\ORM\Field\FloatField;
+use Shopware\Core\Framework\ORM\Field\IdField;
+use Shopware\Core\Framework\ORM\Field\JsonObjectField;
+use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\ORM\Field\StringField;
+use Shopware\Core\Framework\ORM\Field\TenantIdField;
+use Shopware\Core\Framework\ORM\Field\TranslatedField;
+use Shopware\Core\Framework\ORM\Field\TranslationsAssociationField;
+use Shopware\Core\Framework\ORM\FieldCollection;
+use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
+use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
+use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\Framework\ORM\Write\Flag\Serialized;
 
 class ContextCartModifierDefinition extends EntityDefinition
 {

@@ -1,19 +1,19 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Dbal;
+namespace Shopware\Core\Framework\ORM\Dbal;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Framework\Context;
-use Shopware\Defaults;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\Field\AssociationInterface;
-use Shopware\Framework\ORM\Field\ManyToManyAssociationField;
-use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
-use Shopware\Framework\ORM\Field\OneToManyAssociationField;
-use Shopware\Framework\ORM\FieldCollection;
-use Shopware\Framework\ORM\Write\Flag\CascadeDelete;
-use Shopware\Framework\ORM\Write\Flag\RestrictDelete;
-use Shopware\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\Field\AssociationInterface;
+use Shopware\Core\Framework\ORM\Field\ManyToManyAssociationField;
+use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\ORM\FieldCollection;
+use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
+use Shopware\Core\Framework\ORM\Write\Flag\RestrictDelete;
+use Shopware\Core\Framework\Struct\Uuid;
 
 /**
  * Determines all associated data for a definition.
@@ -44,7 +44,7 @@ class EntityForeignKeyResolver
      *      [
      *          'pk' => '43c6baad-7561-40d8-aabb-bca533a8284f'
      *          restrictions => [
-     *              'Shopware\Content\Product\ProductDefinition' => [
+     *              'Shopware\Core\Content\Product\ProductDefinition' => [
      *                  '1ffd7ea9-58c6-4355-8256-927aae8efb07',
      *                  '1ffd7ea9-58c6-4355-8256-927aae8efb07'
      *              ]
@@ -71,7 +71,7 @@ class EntityForeignKeyResolver
      *      [
      *          'pk' => '43c6baad-7561-40d8-aabb-bca533a8284f'
      *          restrictions => [
-     *              'Shopware\Content\Product\ProductDefinition' => [
+     *              'Shopware\Core\Content\Product\ProductDefinition' => [
      *                  '1ffd7ea9-58c6-4355-8256-927aae8efb07',
      *                  '1ffd7ea9-58c6-4355-8256-927aae8efb07'
      *              ]

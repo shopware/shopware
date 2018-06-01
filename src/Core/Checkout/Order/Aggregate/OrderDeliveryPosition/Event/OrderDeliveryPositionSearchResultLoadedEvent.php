@@ -1,17 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Order\Aggregate\OrderDeliveryPosition\Event;
+namespace Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Checkout\Order\Aggregate\OrderDeliveryPosition\Struct\OrderDeliveryPositionSearchResult;
-use Shopware\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\Struct\OrderDeliveryPositionSearchResult;
+use Shopware\Core\Framework\Event\NestedEvent;
 
 class OrderDeliveryPositionSearchResultLoadedEvent extends NestedEvent
 {
     public const NAME = 'order_delivery_position.search.result.loaded';
 
     /**
-     * @var \Shopware\Checkout\Order\Aggregate\OrderDeliveryPosition\Struct\OrderDeliveryPositionSearchResult
+     * @var \Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\Struct\OrderDeliveryPositionSearchResult
      */
     protected $result;
 

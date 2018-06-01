@@ -1,16 +1,16 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Test\Api\Serializer;
+namespace Shopware\Core\Framework\Test\Api\Serializer;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Content\Media\Aggregate\MediaAlbum\MediaAlbumDefinition;
-use Shopware\Content\Media\Aggregate\MediaAlbum\Struct\MediaAlbumBasicStruct;
-use Shopware\Content\Media\Aggregate\MediaAlbum\Struct\MediaAlbumDetailStruct;
-use Shopware\Content\Media\MediaDefinition;
-use Shopware\Content\Media\Util\UrlGeneratorInterface;
-use Shopware\Framework\Api\Serializer\JsonApiEncoder;
-use Shopware\Framework\Struct\Serializer\StructDecoder;
-use Shopware\Framework\Struct\Serializer\StructNormalizer;
+use Shopware\Core\Content\Media\Aggregate\MediaAlbum\MediaAlbumDefinition;
+use Shopware\Core\Content\Media\Aggregate\MediaAlbum\Struct\MediaAlbumBasicStruct;
+use Shopware\Core\Content\Media\Aggregate\MediaAlbum\Struct\MediaAlbumDetailStruct;
+use Shopware\Core\Content\Media\MediaDefinition;
+use Shopware\Core\Content\Media\Util\UrlGeneratorInterface;
+use Shopware\Core\Framework\Api\Serializer\JsonApiEncoder;
+use Shopware\Core\Framework\Struct\Serializer\StructDecoder;
+use Shopware\Core\Framework\Struct\Serializer\StructNormalizer;
 use Symfony\Component\Serializer\Exception\BadMethodCallException;
 use Symfony\Component\Serializer\Exception\UnexpectedValueException;
 
@@ -67,7 +67,7 @@ class JsonApiEncoderTest extends TestCase
     public function testEncodeWithoutDefinition(): void
     {
         $this->expectException(BadMethodCallException::class);
-        $this->expectExceptionMessage('The context key "definition" is required and must be an instance of Shopware\Framework\ORM\EntityDefinition.');
+        $this->expectExceptionMessage('The context key "definition" is required and must be an instance of Shopware\Core\Framework\ORM\EntityDefinition.');
 
         $this->encoder->encode([], 'jsonapi', ['uri' => '/api']);
     }
@@ -207,8 +207,6 @@ class JsonApiEncoderTest extends TestCase
         $expected = include __DIR__ . '/fixtures/testBasicWithToOneRelationshipExpectation.php';
         $struct = $this->structNormalizer->normalize($struct);
 
-        $urlGenerator = $this->getMockBuilder(UrlGeneratorInterface::class)->disableOriginalConstructor()->getMock();
-
         $this->assertEquals(
             $expected,
             json_decode($this->encoder->encode($struct, 'jsonapi', ['uri' => '/api', 'definition' => MediaDefinition::class, 'basic' => true]), true)
@@ -220,8 +218,6 @@ class JsonApiEncoderTest extends TestCase
         $struct = include __DIR__ . '/fixtures/testBasicWithToManyRelationships.php';
         $expected = include __DIR__ . '/fixtures/testBasicWithToManyRelationshipsExpectation.php';
         $struct = $this->structNormalizer->normalize($struct);
-
-        $urlGenerator = $this->getMockBuilder(UrlGeneratorInterface::class)->disableOriginalConstructor()->getMock();
 
         $result = json_decode($this->encoder->encode($struct, 'jsonapi', ['uri' => '/api', 'definition' => MediaAlbumDefinition::class, 'basic' => false]), true);
 
@@ -240,8 +236,6 @@ class JsonApiEncoderTest extends TestCase
         $expected = include __DIR__ . '/fixtures/testCollectionWithToOneRelationshipExpectation.php';
         $collection = $this->structNormalizer->normalize($collection);
 
-        $urlGenerator = $this->getMockBuilder(UrlGeneratorInterface::class)->disableOriginalConstructor()->getMock();
-
         $this->assertEquals(
             $expected,
             json_decode($this->encoder->encode($collection, 'jsonapi', ['uri' => '/api', 'definition' => MediaDefinition::class, 'basic' => true]), true)
@@ -253,8 +247,6 @@ class JsonApiEncoderTest extends TestCase
         $struct = include __DIR__ . '/fixtures/testMainResourceShouldNotBeInIncluded.php';
         $expected = include __DIR__ . '/fixtures/testMainResourceShouldNotBeInIncludedExpectation.php';
         $struct = $this->structNormalizer->normalize($struct);
-
-        $urlGenerator = $this->getMockBuilder(UrlGeneratorInterface::class)->disableOriginalConstructor()->getMock();
 
         $this->assertEquals(
             $expected,

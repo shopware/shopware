@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Application\Context\Event\ContextCartModifier;
+namespace Shopware\Core\Application\Context\Event\ContextCartModifier;
 
-use Shopware\Application\Context\Definition\ContextCartModifierDefinition;
-use Shopware\Framework\ORM\Write\DeletedEvent;
-use Shopware\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Application\Context\Definition\ContextCartModifierDefinition;
+use Shopware\Core\Framework\ORM\Write\DeletedEvent;
+use Shopware\Core\Framework\ORM\Write\WrittenEvent;
 
 class ContextCartModifierDeletedEvent extends WrittenEvent implements DeletedEvent
 {

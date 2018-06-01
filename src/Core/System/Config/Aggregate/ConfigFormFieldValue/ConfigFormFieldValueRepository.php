@@ -1,26 +1,26 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Config\Aggregate\ConfigFormFieldValue;
+namespace Shopware\Core\System\Config\Aggregate\ConfigFormFieldValue;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\ORM\Read\EntityReaderInterface;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\AggregatorResult;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
-use Shopware\Framework\ORM\Search\EntitySearcherInterface;
-use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\System\Config\Aggregate\ConfigFormFieldValue\Collection\ConfigFormFieldValueBasicCollection;
-use Shopware\System\Config\Aggregate\ConfigFormFieldValue\Collection\ConfigFormFieldValueDetailCollection;
-use Shopware\System\Config\Aggregate\ConfigFormFieldValue\Event\ConfigFormFieldValueAggregationResultLoadedEvent;
-use Shopware\System\Config\Aggregate\ConfigFormFieldValue\Event\ConfigFormFieldValueBasicLoadedEvent;
-use Shopware\System\Config\Aggregate\ConfigFormFieldValue\Event\ConfigFormFieldValueDetailLoadedEvent;
-use Shopware\System\Config\Aggregate\ConfigFormFieldValue\Event\ConfigFormFieldValueIdSearchResultLoadedEvent;
-use Shopware\System\Config\Aggregate\ConfigFormFieldValue\Event\ConfigFormFieldValueSearchResultLoadedEvent;
-use Shopware\System\Config\Aggregate\ConfigFormFieldValue\Struct\ConfigFormFieldValueSearchResult;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\AggregatorResult;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\ORM\Search\IdSearchResult;
+use Shopware\Core\Framework\ORM\Version\Service\VersionManager;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Write\WriteContext;
+use Shopware\Core\System\Config\Aggregate\ConfigFormFieldValue\Collection\ConfigFormFieldValueBasicCollection;
+use Shopware\Core\System\Config\Aggregate\ConfigFormFieldValue\Collection\ConfigFormFieldValueDetailCollection;
+use Shopware\Core\System\Config\Aggregate\ConfigFormFieldValue\Event\ConfigFormFieldValueAggregationResultLoadedEvent;
+use Shopware\Core\System\Config\Aggregate\ConfigFormFieldValue\Event\ConfigFormFieldValueBasicLoadedEvent;
+use Shopware\Core\System\Config\Aggregate\ConfigFormFieldValue\Event\ConfigFormFieldValueDetailLoadedEvent;
+use Shopware\Core\System\Config\Aggregate\ConfigFormFieldValue\Event\ConfigFormFieldValueIdSearchResultLoadedEvent;
+use Shopware\Core\System\Config\Aggregate\ConfigFormFieldValue\Event\ConfigFormFieldValueSearchResultLoadedEvent;
+use Shopware\Core\System\Config\Aggregate\ConfigFormFieldValue\Struct\ConfigFormFieldValueSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ConfigFormFieldValueRepository implements RepositoryInterface
@@ -116,7 +116,7 @@ class ConfigFormFieldValueRepository implements RepositoryInterface
 
     public function readDetail(array $ids, Context $context): ConfigFormFieldValueDetailCollection
     {
-        /** @var \Shopware\System\Config\Aggregate\ConfigFormFieldValue\Collection\ConfigFormFieldValueDetailCollection $entities */
+        /** @var \Shopware\Core\System\Config\Aggregate\ConfigFormFieldValue\Collection\ConfigFormFieldValueDetailCollection $entities */
         $entities = $this->reader->readDetail(ConfigFormFieldValueDefinition::class, $ids, $context);
 
         $event = new ConfigFormFieldValueDetailLoadedEvent($entities, $context);

@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Unit\Event;
+namespace Shopware\Core\System\Unit\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\System\Unit\Aggregate\UnitTranslation\Event\UnitTranslationBasicLoadedEvent;
-use Shopware\System\Unit\Collection\UnitDetailCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\System\Unit\Aggregate\UnitTranslation\Event\UnitTranslationBasicLoadedEvent;
+use Shopware\Core\System\Unit\Collection\UnitDetailCollection;
 
 class UnitDetailLoadedEvent extends NestedEvent
 {

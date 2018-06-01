@@ -1,24 +1,24 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Test\ORM\Version;
+namespace Shopware\Core\Framework\Test\ORM\Version;
 
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
-use Shopware\Framework\Context;
-use Shopware\Content\Category\CategoryRepository;
-use Shopware\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
-use Shopware\Content\Product\ProductDefinition;
-use Shopware\Content\Product\ProductRepository;
-use Shopware\Content\Product\Struct\PriceStruct;
-use Shopware\Defaults;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\Query\RangeQuery;
-use Shopware\Framework\ORM\Search\Query\TermQuery;
-use Shopware\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleDefinition;
-use Shopware\System\Tax\Aggregate\TaxAreaRuleTranslation\TaxAreaRuleTranslationDefinition;
-use Shopware\System\Tax\Struct\TaxDetailStruct;
-use Shopware\System\Tax\TaxDefinition;
-use Shopware\System\Tax\TaxRepository;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Category\CategoryRepository;
+use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
+use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\ProductRepository;
+use Shopware\Core\Content\Product\Struct\PriceStruct;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\Query\RangeQuery;
+use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleDefinition;
+use Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTranslation\TaxAreaRuleTranslationDefinition;
+use Shopware\Core\System\Tax\Struct\TaxDetailStruct;
+use Shopware\Core\System\Tax\TaxDefinition;
+use Shopware\Core\System\Tax\TaxRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class VersioningTest extends KernelTestCase
@@ -34,7 +34,7 @@ class VersioningTest extends KernelTestCase
     private $connection;
 
     /**
-     * @var \Shopware\Content\Product\ProductRepository
+     * @var \Shopware\Core\Content\Product\ProductRepository
      */
     private $productRepository;
 

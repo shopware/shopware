@@ -1,26 +1,26 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Touchpoint;
+namespace Shopware\Core\System\Touchpoint;
 
-use Shopware\System\Touchpoint\Collection\TouchpointBasicCollection;
-use Shopware\System\Touchpoint\Collection\TouchpointDetailCollection;
-use Shopware\System\Touchpoint\Event\TouchpointAggregationResultLoadedEvent;
-use Shopware\System\Touchpoint\Event\TouchpointBasicLoadedEvent;
-use Shopware\System\Touchpoint\Event\TouchpointDetailLoadedEvent;
-use Shopware\System\Touchpoint\Event\TouchpointIdSearchResultLoadedEvent;
-use Shopware\System\Touchpoint\Event\TouchpointSearchResultLoadedEvent;
-use Shopware\System\Touchpoint\Struct\TouchpointSearchResult;
-use Shopware\Framework\Context;
-use Shopware\Framework\ORM\Read\EntityReaderInterface;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\AggregatorResult;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
-use Shopware\Framework\ORM\Search\EntitySearcherInterface;
-use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\ORM\Write\WriteContext;
+use Shopware\Core\System\Touchpoint\Collection\TouchpointBasicCollection;
+use Shopware\Core\System\Touchpoint\Collection\TouchpointDetailCollection;
+use Shopware\Core\System\Touchpoint\Event\TouchpointAggregationResultLoadedEvent;
+use Shopware\Core\System\Touchpoint\Event\TouchpointBasicLoadedEvent;
+use Shopware\Core\System\Touchpoint\Event\TouchpointDetailLoadedEvent;
+use Shopware\Core\System\Touchpoint\Event\TouchpointIdSearchResultLoadedEvent;
+use Shopware\Core\System\Touchpoint\Event\TouchpointSearchResultLoadedEvent;
+use Shopware\Core\System\Touchpoint\Struct\TouchpointSearchResult;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\AggregatorResult;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\ORM\Search\IdSearchResult;
+use Shopware\Core\Framework\ORM\Version\Service\VersionManager;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Write\WriteContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class TouchpointRepository implements RepositoryInterface

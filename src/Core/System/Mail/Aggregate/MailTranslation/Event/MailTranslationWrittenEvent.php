@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Mail\Aggregate\MailTranslation\Event;
+namespace Shopware\Core\System\Mail\Aggregate\MailTranslation\Event;
 
-use Shopware\Framework\ORM\Write\WrittenEvent;
-use Shopware\System\Mail\Aggregate\MailTranslation\MailTranslationDefinition;
+use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\System\Mail\Aggregate\MailTranslation\MailTranslationDefinition;
 
 class MailTranslationWrittenEvent extends WrittenEvent
 {

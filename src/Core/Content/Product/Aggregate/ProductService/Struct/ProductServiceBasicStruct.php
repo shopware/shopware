@@ -1,16 +1,16 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Aggregate\ProductService\Struct;
+namespace Shopware\Core\Content\Product\Aggregate\ProductService\Struct;
 
-use Shopware\Application\Context\Collection\ContextPriceCollection;
-use Shopware\Framework\Context;
-use Shopware\Checkout\Cart\Price\Struct\PriceDefinition;
-use Shopware\Checkout\Cart\Tax\Struct\PercentageTaxRule;
-use Shopware\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Content\Product\Struct\PriceStruct;
-use Shopware\Framework\ORM\Entity;
-use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Struct\ConfigurationGroupOptionBasicStruct;
-use Shopware\System\Tax\Struct\TaxBasicStruct;
+use Shopware\Core\Application\Context\Collection\ContextPriceCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinition;
+use Shopware\Core\Checkout\Cart\Tax\Struct\PercentageTaxRule;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Content\Product\Struct\PriceStruct;
+use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupOption\Struct\ConfigurationGroupOptionBasicStruct;
+use Shopware\Core\System\Tax\Struct\TaxBasicStruct;
 
 class ProductServiceBasicStruct extends Entity
 {
@@ -40,7 +40,7 @@ class ProductServiceBasicStruct extends Entity
     protected $contextPrices;
 
     /**
-     * @var \Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Struct\ConfigurationGroupOptionBasicStruct
+     * @var \Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupOption\Struct\ConfigurationGroupOptionBasicStruct
      */
     protected $option;
 
@@ -110,7 +110,7 @@ class ProductServiceBasicStruct extends Entity
     }
 
     public function setOption(
-        \Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Struct\ConfigurationGroupOptionBasicStruct $option): void
+        \Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupOption\Struct\ConfigurationGroupOptionBasicStruct $option): void
     {
         $this->option = $option;
     }

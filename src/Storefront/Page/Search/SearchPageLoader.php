@@ -2,13 +2,13 @@
 
 namespace Shopware\Storefront\Page\Search;
 
-use Shopware\Checkout\CustomerContext;
-use Shopware\Content\Product\StorefrontProductRepository;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Core\Checkout\CustomerContext;
+use Shopware\Core\Content\Product\StorefrontProductRepository;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Storefront\Event\ListingPageLoadedEvent;
 use Shopware\Storefront\Event\PageCriteriaCreatedEvent;
-use Shopware\System\Config\Util\ConfigServiceInterface;
+use Shopware\Core\System\Config\Util\ConfigServiceInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class SearchPageLoader

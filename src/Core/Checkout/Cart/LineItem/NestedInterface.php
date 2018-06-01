@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Cart\LineItem;
+namespace Shopware\Core\Checkout\Cart\LineItem;
 
 interface NestedInterface
 {

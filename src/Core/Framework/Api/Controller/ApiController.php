@@ -1,32 +1,32 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Api\Controller;
+namespace Shopware\Core\Framework\Api\Controller;
 
-use Shopware\Framework\Api\Context\RestContext;
-use Shopware\Framework\Api\Exception\ResourceNotFoundException;
-use Shopware\Framework\Api\Exception\UnknownRepositoryVersionException;
-use Shopware\Framework\Api\Exception\WriteStackHttpException;
-use Shopware\Framework\Api\Response\ResponseFactory;
-use Shopware\Framework\ORM\DefinitionRegistry;
-use Shopware\Framework\ORM\Entity;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\Field\AssociationInterface;
-use Shopware\Framework\ORM\Field\Field;
-use Shopware\Framework\ORM\Field\ManyToManyAssociationField;
-use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
-use Shopware\Framework\ORM\Field\OneToManyAssociationField;
-use Shopware\Framework\ORM\Field\ReferenceVersionField;
-use Shopware\Framework\ORM\Field\TenantIdField;
-use Shopware\Framework\ORM\Field\VersionField;
-use Shopware\Framework\ORM\FieldCollection;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\Query\TermQuery;
-use Shopware\Framework\ORM\Search\SearchCriteriaBuilder;
-use Shopware\Framework\ORM\Write\EntityWriterInterface;
-use Shopware\Framework\ORM\Write\FieldException\WriteStackException;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\ORM\Write\WriteContext;
+use Shopware\Core\Framework\Api\Context\RestContext;
+use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
+use Shopware\Core\Framework\Api\Exception\UnknownRepositoryVersionException;
+use Shopware\Core\Framework\Api\Exception\WriteStackHttpException;
+use Shopware\Core\Framework\Api\Response\ResponseFactory;
+use Shopware\Core\Framework\ORM\DefinitionRegistry;
+use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\Field\AssociationInterface;
+use Shopware\Core\Framework\ORM\Field\Field;
+use Shopware\Core\Framework\ORM\Field\ManyToManyAssociationField;
+use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
+use Shopware\Core\Framework\ORM\Field\TenantIdField;
+use Shopware\Core\Framework\ORM\Field\VersionField;
+use Shopware\Core\Framework\ORM\FieldCollection;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Core\Framework\ORM\Search\SearchCriteriaBuilder;
+use Shopware\Core\Framework\ORM\Write\EntityWriterInterface;
+use Shopware\Core\Framework\ORM\Write\FieldException\WriteStackException;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Write\WriteContext;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -148,7 +148,7 @@ class ApiController extends Controller
                 $context->getContext()
             );
 
-            $data = $repository->search($criteria, $context->getApplicationContext());
+            $data = $repository->search($criteria, $context->getContext());
 
             return $this->responseFactory->createListingResponse($data, (string) $definition, $context);
         }
@@ -177,7 +177,7 @@ class ApiController extends Controller
             /*
              * Example:
              * route:           /api/product/SW1/categories
-             * $definition:     \Shopware\Content\Category\CategoryDefinition
+             * $definition:     \Shopware\Core\Content\Category\CategoryDefinition
              */
             $definition = $association->getReferenceDefinition();
 
@@ -202,7 +202,7 @@ class ApiController extends Controller
             /*
              * Example
              * Route:           /api/product/SW1/prices
-             * $definition:     \Shopware\Content\Product\Definition\ProductPriceDefinition
+             * $definition:     \Shopware\Core\Content\Product\Definition\ProductPriceDefinition
              */
 
             //get foreign key definition of reference
@@ -221,7 +221,7 @@ class ApiController extends Controller
             /*
              * Example
              * Route:           /api/product/SW1/manufacturer
-             * $definition:     \Shopware\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition
+             * $definition:     \Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition
              */
 
             //get inverse association to filter to parent value

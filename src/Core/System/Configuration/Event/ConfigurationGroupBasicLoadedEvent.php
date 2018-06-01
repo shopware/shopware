@@ -1,17 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Configuration\Event;
+namespace Shopware\Core\System\Configuration\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\System\Configuration\Collection\ConfigurationGroupBasicCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\System\Configuration\Collection\ConfigurationGroupBasicCollection;
 
 class ConfigurationGroupBasicLoadedEvent extends NestedEvent
 {
     public const NAME = 'configuration_group.basic.loaded';
 
     /**
-     * @var \Shopware\Framework\Context
+     * @var \Shopware\Core\Framework\Context
      */
     protected $context;
 

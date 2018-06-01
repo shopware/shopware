@@ -2,8 +2,8 @@
 
 namespace Shopware\Storefront\Api\Seo\Event\SeoUrl;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Storefront\Api\Seo\Collection\SeoUrlBasicCollection;
 
 class SeoUrlBasicLoadedEvent extends NestedEvent
@@ -11,7 +11,7 @@ class SeoUrlBasicLoadedEvent extends NestedEvent
     public const NAME = 'seo_url.basic.loaded';
 
     /**
-     * @var \Shopware\Framework\Context
+     * @var \Shopware\Core\Framework\Context
      */
     protected $context;
 

@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Payment\Event;
+namespace Shopware\Core\Checkout\Payment\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation\Event\PaymentMethodTranslationBasicLoadedEvent;
-use Shopware\Checkout\Payment\Collection\PaymentMethodDetailCollection;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\Framework\Plugin\Event\PluginBasicLoadedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\Event\PaymentMethodTranslationBasicLoadedEvent;
+use Shopware\Core\Checkout\Payment\Collection\PaymentMethodDetailCollection;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Plugin\Event\PluginBasicLoadedEvent;
 
 class PaymentMethodDetailLoadedEvent extends NestedEvent
 {

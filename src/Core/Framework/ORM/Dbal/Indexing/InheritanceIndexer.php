@@ -1,27 +1,27 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Dbal\Indexing;
+namespace Shopware\Core\Framework\ORM\Dbal\Indexing;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Framework\Context;
-use Shopware\Framework\Event\ProgressAdvancedEvent;
-use Shopware\Framework\Event\ProgressFinishedEvent;
-use Shopware\Framework\Event\ProgressStartedEvent;
-use Shopware\Framework\ORM\Dbal\Common\LastIdQuery;
-use Shopware\Framework\ORM\Dbal\EntityDefinitionQueryHelper;
-use Shopware\Framework\ORM\DefinitionRegistry;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\Field\AssociationInterface;
-use Shopware\Framework\ORM\Field\Field;
-use Shopware\Framework\ORM\Field\ManyToManyAssociationField;
-use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
-use Shopware\Framework\ORM\Field\OneToManyAssociationField;
-use Shopware\Framework\ORM\Field\TranslationsAssociationField;
-use Shopware\Framework\ORM\FieldCollection;
-use Shopware\Framework\ORM\Write\Flag\Inherited;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\ORM\Write\WrittenEvent;
-use Shopware\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
+use Shopware\Core\Framework\Event\ProgressFinishedEvent;
+use Shopware\Core\Framework\Event\ProgressStartedEvent;
+use Shopware\Core\Framework\ORM\Dbal\Common\LastIdQuery;
+use Shopware\Core\Framework\ORM\Dbal\EntityDefinitionQueryHelper;
+use Shopware\Core\Framework\ORM\DefinitionRegistry;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\Field\AssociationInterface;
+use Shopware\Core\Framework\ORM\Field\Field;
+use Shopware\Core\Framework\ORM\Field\ManyToManyAssociationField;
+use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\ORM\Field\TranslationsAssociationField;
+use Shopware\Core\Framework\ORM\FieldCollection;
+use Shopware\Core\Framework\ORM\Write\Flag\Inherited;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class InheritanceIndexer implements IndexerInterface

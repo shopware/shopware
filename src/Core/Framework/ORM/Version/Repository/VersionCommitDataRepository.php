@@ -1,27 +1,27 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Version\Repository;
+namespace Shopware\Core\Framework\ORM\Version\Repository;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\ORM\Read\EntityReaderInterface;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\AggregatorResult;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
-use Shopware\Framework\ORM\Search\EntitySearcherInterface;
-use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Framework\ORM\Version\Collection\VersionCommitDataBasicCollection;
-use Shopware\Framework\ORM\Version\Collection\VersionCommitDataDetailCollection;
-use Shopware\Framework\ORM\Version\Definition\VersionCommitDataDefinition;
-use Shopware\Framework\ORM\Version\Event\VersionCommitData\VersionCommitDataAggregationResultLoadedEvent;
-use Shopware\Framework\ORM\Version\Event\VersionCommitData\VersionCommitDataBasicLoadedEvent;
-use Shopware\Framework\ORM\Version\Event\VersionCommitData\VersionCommitDataDetailLoadedEvent;
-use Shopware\Framework\ORM\Version\Event\VersionCommitData\VersionCommitDataIdSearchResultLoadedEvent;
-use Shopware\Framework\ORM\Version\Event\VersionCommitData\VersionCommitDataSearchResultLoadedEvent;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
-use Shopware\Framework\ORM\Version\Struct\VersionCommitDataSearchResult;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\ORM\Write\WriteContext;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\AggregatorResult;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\ORM\Search\IdSearchResult;
+use Shopware\Core\Framework\ORM\Version\Collection\VersionCommitDataBasicCollection;
+use Shopware\Core\Framework\ORM\Version\Collection\VersionCommitDataDetailCollection;
+use Shopware\Core\Framework\ORM\Version\Definition\VersionCommitDataDefinition;
+use Shopware\Core\Framework\ORM\Version\Event\VersionCommitData\VersionCommitDataAggregationResultLoadedEvent;
+use Shopware\Core\Framework\ORM\Version\Event\VersionCommitData\VersionCommitDataBasicLoadedEvent;
+use Shopware\Core\Framework\ORM\Version\Event\VersionCommitData\VersionCommitDataDetailLoadedEvent;
+use Shopware\Core\Framework\ORM\Version\Event\VersionCommitData\VersionCommitDataIdSearchResultLoadedEvent;
+use Shopware\Core\Framework\ORM\Version\Event\VersionCommitData\VersionCommitDataSearchResultLoadedEvent;
+use Shopware\Core\Framework\ORM\Version\Service\VersionManager;
+use Shopware\Core\Framework\ORM\Version\Struct\VersionCommitDataSearchResult;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Write\WriteContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class VersionCommitDataRepository implements RepositoryInterface
@@ -47,7 +47,7 @@ class VersionCommitDataRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var \Shopware\Framework\ORM\Version\Service\VersionManager
+     * @var \Shopware\Core\Framework\ORM\Version\Service\VersionManager
      */
     private $versionManager;
 

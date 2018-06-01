@@ -1,18 +1,18 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Test\Product\Repository;
+namespace Shopware\Core\Content\Test\Product\Repository;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Framework\Context;
-use Shopware\Content\Product\ProductDefinition;
-use Shopware\Content\Product\ProductRepository;
-use Shopware\Framework\ORM\Entity;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\Term\EntityScoreQueryBuilder;
-use Shopware\Framework\ORM\Search\Term\SearchPattern;
-use Shopware\Framework\ORM\Search\Term\SearchTerm;
-use Shopware\Framework\Struct\ArrayStruct;
-use Shopware\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\ProductRepository;
+use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\Term\EntityScoreQueryBuilder;
+use Shopware\Core\Framework\ORM\Search\Term\SearchPattern;
+use Shopware\Core\Framework\ORM\Search\Term\SearchTerm;
+use Shopware\Core\Framework\Struct\ArrayStruct;
+use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class ProductSearchScoringTest extends KernelTestCase
@@ -48,7 +48,7 @@ class ProductSearchScoringTest extends KernelTestCase
         $criteria = new Criteria();
         $criteria->addQueries($queries);
 
-        $context = Context:: createDefaultContext(\Shopware\Defaults::TENANT_ID);
+        $context = Context:: createDefaultContext(\Shopware\Core\Defaults::TENANT_ID);
         $this->repository->create([
             ['id' => Uuid::uuid4()->getHex(), 'name' => 'product 1 test', 'tax' => ['name' => 'test', 'rate' => 5], 'manufacturer' => ['name' => 'test'], 'price' => ['gross' => 10, 'net' => 9]],
             ['id' => Uuid::uuid4()->getHex(), 'name' => 'product 2 test', 'tax' => ['name' => 'test', 'rate' => 5], 'manufacturer' => ['name' => 'test'], 'price' => ['gross' => 10, 'net' => 9]],

@@ -1,24 +1,24 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Log;
+namespace Shopware\Core\System\Log;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\ORM\Read\EntityReaderInterface;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\AggregatorResult;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
-use Shopware\Framework\ORM\Search\EntitySearcherInterface;
-use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\System\Log\Collection\LogBasicCollection;
-use Shopware\System\Log\Event\Log\LogAggregationResultLoadedEvent;
-use Shopware\System\Log\Event\Log\LogBasicLoadedEvent;
-use Shopware\System\Log\Event\Log\LogIdSearchResultLoadedEvent;
-use Shopware\System\Log\Event\Log\LogSearchResultLoadedEvent;
-use Shopware\System\Log\Struct\LogSearchResult;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\AggregatorResult;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\ORM\Search\IdSearchResult;
+use Shopware\Core\Framework\ORM\Version\Service\VersionManager;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Write\WriteContext;
+use Shopware\Core\System\Log\Collection\LogBasicCollection;
+use Shopware\Core\System\Log\Event\Log\LogAggregationResultLoadedEvent;
+use Shopware\Core\System\Log\Event\Log\LogBasicLoadedEvent;
+use Shopware\Core\System\Log\Event\Log\LogIdSearchResultLoadedEvent;
+use Shopware\Core\System\Log\Event\Log\LogSearchResultLoadedEvent;
+use Shopware\Core\System\Log\Struct\LogSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class LogRepository implements RepositoryInterface

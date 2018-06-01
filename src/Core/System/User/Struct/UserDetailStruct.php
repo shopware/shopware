@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\User\Struct;
+namespace Shopware\Core\System\User\Struct;
 
-use Shopware\Content\Media\Collection\MediaBasicCollection;
-use Shopware\System\Locale\Struct\LocaleBasicStruct;
+use Shopware\Core\Content\Media\Collection\MediaBasicCollection;
+use Shopware\Core\System\Locale\Struct\LocaleBasicStruct;
 
 class UserDetailStruct extends UserBasicStruct
 {

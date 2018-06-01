@@ -1,14 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Country\Event;
+namespace Shopware\Core\System\Country\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\System\Country\Aggregate\CountryArea\Event\CountryAreaBasicLoadedEvent;
-use Shopware\System\Country\Aggregate\CountryState\Event\CountryStateBasicLoadedEvent;
-use Shopware\System\Country\Aggregate\CountryTranslation\Event\CountryTranslationBasicLoadedEvent;
-use Shopware\System\Country\Collection\CountryDetailCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\System\Country\Aggregate\CountryArea\Event\CountryAreaBasicLoadedEvent;
+use Shopware\Core\System\Country\Aggregate\CountryState\Event\CountryStateBasicLoadedEvent;
+use Shopware\Core\System\Country\Aggregate\CountryTranslation\Event\CountryTranslationBasicLoadedEvent;
+use Shopware\Core\System\Country\Collection\CountryDetailCollection;
 
 class CountryDetailLoadedEvent extends NestedEvent
 {

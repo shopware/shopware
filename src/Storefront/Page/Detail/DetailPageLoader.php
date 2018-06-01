@@ -2,20 +2,20 @@
 
 namespace Shopware\Storefront\Page\Detail;
 
-use Shopware\Checkout\CustomerContext;
-use Shopware\Content\Product\Aggregate\ProductConfigurator\Collection\ProductConfiguratorBasicCollection;
-use Shopware\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorRepository;
-use Shopware\Content\Product\StorefrontProductRepository;
-use Shopware\Content\Product\Struct\StorefrontProductDetailStruct;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\Query\NestedQuery;
-use Shopware\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Core\Checkout\CustomerContext;
+use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\Collection\ProductConfiguratorBasicCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorRepository;
+use Shopware\Core\Content\Product\StorefrontProductRepository;
+use Shopware\Core\Content\Product\Struct\StorefrontProductDetailStruct;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\Query\NestedQuery;
+use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Symfony\Component\HttpFoundation\Request;
 
 class DetailPageLoader
 {
     /**
-     * @var \Shopware\Content\Product\StorefrontProductRepository
+     * @var \Shopware\Core\Content\Product\StorefrontProductRepository
      */
     private $productRepository;
 
@@ -44,7 +44,7 @@ class DetailPageLoader
             throw new \RuntimeException('Product was not found.');
         }
 
-        /** @var \Shopware\Content\Product\Struct\StorefrontProductBasicStruct $product */
+        /** @var \Shopware\Core\Content\Product\Struct\StorefrontProductBasicStruct $product */
         $product = $collection->get($productId);
 
         $page = new DetailPageStruct($product);

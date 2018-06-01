@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Profiling\Dbal;
+namespace Shopware\Core\Profiling\Dbal;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\ORM\EntityCollection;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
 use Symfony\Component\Stopwatch\Stopwatch;
 
 class TraceableEntityReader implements EntityReaderInterface

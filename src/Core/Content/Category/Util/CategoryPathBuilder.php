@@ -1,16 +1,16 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Category\Util;
+namespace Shopware\Core\Content\Category\Util;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Framework\Context;
-use Shopware\Content\Category\CategoryRepository;
-use Shopware\Content\Category\Collection\CategoryBasicCollection;
-use Shopware\Content\Category\Event\CategoryWrittenEvent;
-use Shopware\Content\Category\Struct\CategoryBasicStruct;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\Query\TermQuery;
-use Shopware\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Category\CategoryRepository;
+use Shopware\Core\Content\Category\Collection\CategoryBasicCollection;
+use Shopware\Core\Content\Category\Event\CategoryWrittenEvent;
+use Shopware\Core\Content\Category\Struct\CategoryBasicStruct;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 

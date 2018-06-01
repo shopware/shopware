@@ -1,14 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Mail\Aggregate\MailAttachment\Collection;
+namespace Shopware\Core\System\Mail\Aggregate\MailAttachment\Collection;
 
-use Shopware\Framework\ORM\EntityCollection;
-use Shopware\System\Mail\Aggregate\MailAttachment\Struct\MailAttachmentBasicStruct;
+use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\System\Mail\Aggregate\MailAttachment\Struct\MailAttachmentBasicStruct;
 
 class MailAttachmentBasicCollection extends EntityCollection
 {
     /**
-     * @var \Shopware\System\Mail\Aggregate\MailAttachment\Struct\MailAttachmentBasicStruct[]
+     * @var \Shopware\Core\System\Mail\Aggregate\MailAttachment\Struct\MailAttachmentBasicStruct[]
      */
     protected $elements = [];
 

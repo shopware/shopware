@@ -1,26 +1,26 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Media\Aggregate\MediaAlbum;
+namespace Shopware\Core\Content\Media\Aggregate\MediaAlbum;
 
-use Shopware\Framework\Context;
-use Shopware\Content\Media\Aggregate\MediaAlbum\Collection\MediaAlbumBasicCollection;
-use Shopware\Content\Media\Aggregate\MediaAlbum\Collection\MediaAlbumDetailCollection;
-use Shopware\Content\Media\Aggregate\MediaAlbum\Event\MediaAlbumAggregationResultLoadedEvent;
-use Shopware\Content\Media\Aggregate\MediaAlbum\Event\MediaAlbumBasicLoadedEvent;
-use Shopware\Content\Media\Aggregate\MediaAlbum\Event\MediaAlbumDetailLoadedEvent;
-use Shopware\Content\Media\Aggregate\MediaAlbum\Event\MediaAlbumIdSearchResultLoadedEvent;
-use Shopware\Content\Media\Aggregate\MediaAlbum\Event\MediaAlbumSearchResultLoadedEvent;
-use Shopware\Content\Media\Aggregate\MediaAlbum\Struct\MediaAlbumSearchResult;
-use Shopware\Framework\ORM\Read\EntityReaderInterface;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\AggregatorResult;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
-use Shopware\Framework\ORM\Search\EntitySearcherInterface;
-use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\ORM\Write\WriteContext;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Media\Aggregate\MediaAlbum\Collection\MediaAlbumBasicCollection;
+use Shopware\Core\Content\Media\Aggregate\MediaAlbum\Collection\MediaAlbumDetailCollection;
+use Shopware\Core\Content\Media\Aggregate\MediaAlbum\Event\MediaAlbumAggregationResultLoadedEvent;
+use Shopware\Core\Content\Media\Aggregate\MediaAlbum\Event\MediaAlbumBasicLoadedEvent;
+use Shopware\Core\Content\Media\Aggregate\MediaAlbum\Event\MediaAlbumDetailLoadedEvent;
+use Shopware\Core\Content\Media\Aggregate\MediaAlbum\Event\MediaAlbumIdSearchResultLoadedEvent;
+use Shopware\Core\Content\Media\Aggregate\MediaAlbum\Event\MediaAlbumSearchResultLoadedEvent;
+use Shopware\Core\Content\Media\Aggregate\MediaAlbum\Struct\MediaAlbumSearchResult;
+use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\AggregatorResult;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\ORM\Search\IdSearchResult;
+use Shopware\Core\Framework\ORM\Version\Service\VersionManager;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Write\WriteContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class MediaAlbumRepository implements RepositoryInterface

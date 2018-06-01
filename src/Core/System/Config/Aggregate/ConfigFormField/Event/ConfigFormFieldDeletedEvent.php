@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Config\Aggregate\ConfigFormField\Event;
+namespace Shopware\Core\System\Config\Aggregate\ConfigFormField\Event;
 
-use Shopware\Framework\ORM\Write\DeletedEvent;
-use Shopware\Framework\ORM\Write\WrittenEvent;
-use Shopware\System\Config\Aggregate\ConfigFormField\ConfigFormFieldDefinition;
+use Shopware\Core\Framework\ORM\Write\DeletedEvent;
+use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\System\Config\Aggregate\ConfigFormField\ConfigFormFieldDefinition;
 
 class ConfigFormFieldDeletedEvent extends WrittenEvent implements DeletedEvent
 {

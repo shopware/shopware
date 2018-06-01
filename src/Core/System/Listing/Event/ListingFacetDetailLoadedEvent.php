@@ -1,19 +1,19 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Listing\Event;
+namespace Shopware\Core\System\Listing\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\System\Listing\Aggregate\ListingFacetTranslation\Event\ListingFacetTranslationBasicLoadedEvent;
-use Shopware\System\Listing\Collection\ListingFacetDetailCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation\Event\ListingFacetTranslationBasicLoadedEvent;
+use Shopware\Core\System\Listing\Collection\ListingFacetDetailCollection;
 
 class ListingFacetDetailLoadedEvent extends NestedEvent
 {
     public const NAME = 'listing_facet.detail.loaded';
 
     /**
-     * @var \Shopware\Framework\Context
+     * @var \Shopware\Core\Framework\Context
      */
     protected $context;
 

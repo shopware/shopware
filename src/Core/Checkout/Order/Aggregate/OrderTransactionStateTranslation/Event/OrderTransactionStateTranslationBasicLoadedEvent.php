@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Order\Aggregate\OrderTransactionStateTranslation\Event;
+namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransactionStateTranslation\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Checkout\Order\Aggregate\OrderTransactionStateTranslation\Collection\OrderTransactionStateTranslationBasicCollection;
-use Shopware\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionStateTranslation\Collection\OrderTransactionStateTranslationBasicCollection;
+use Shopware\Core\Framework\Event\NestedEvent;
 
 class OrderTransactionStateTranslationBasicLoadedEvent extends NestedEvent
 {
@@ -16,7 +16,7 @@ class OrderTransactionStateTranslationBasicLoadedEvent extends NestedEvent
     protected $context;
 
     /**
-     * @var \Shopware\Checkout\Order\Aggregate\OrderTransactionStateTranslation\Collection\OrderTransactionStateTranslationBasicCollection
+     * @var \Shopware\Core\Checkout\Order\Aggregate\OrderTransactionStateTranslation\Collection\OrderTransactionStateTranslationBasicCollection
      */
     protected $orderTransactionStateTranslations;
 

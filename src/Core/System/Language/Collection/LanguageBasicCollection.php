@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Language\Collection;
+namespace Shopware\Core\System\Language\Collection;
 
-use Shopware\System\Language\Struct\LanguageBasicStruct;
-use Shopware\Framework\ORM\EntityCollection;
-use Shopware\System\Locale\Collection\LocaleBasicCollection;
+use Shopware\Core\System\Language\Struct\LanguageBasicStruct;
+use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\System\Locale\Collection\LocaleBasicCollection;
 
 class LanguageBasicCollection extends EntityCollection
 {

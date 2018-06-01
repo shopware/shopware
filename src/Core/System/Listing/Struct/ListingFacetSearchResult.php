@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Listing\Struct;
+namespace Shopware\Core\System\Listing\Struct;
 
-use Shopware\Framework\ORM\Search\SearchResultInterface;
-use Shopware\Framework\ORM\Search\SearchResultTrait;
-use Shopware\System\Listing\Collection\ListingFacetBasicCollection;
+use Shopware\Core\Framework\ORM\Search\SearchResultInterface;
+use Shopware\Core\Framework\ORM\Search\SearchResultTrait;
+use Shopware\Core\System\Listing\Collection\ListingFacetBasicCollection;
 
 class ListingFacetSearchResult extends ListingFacetBasicCollection implements SearchResultInterface
 {

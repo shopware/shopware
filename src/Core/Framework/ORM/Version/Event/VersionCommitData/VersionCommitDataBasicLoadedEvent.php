@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Version\Event\VersionCommitData;
+namespace Shopware\Core\Framework\ORM\Version\Event\VersionCommitData;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\ORM\Version\Collection\VersionCommitDataBasicCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\ORM\Version\Collection\VersionCommitDataBasicCollection;
 
 class VersionCommitDataBasicLoadedEvent extends NestedEvent
 {

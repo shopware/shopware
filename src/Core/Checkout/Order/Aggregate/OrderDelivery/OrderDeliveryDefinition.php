@@ -1,35 +1,35 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Order\Aggregate\OrderDelivery;
+namespace Shopware\Core\Checkout\Order\Aggregate\OrderDelivery;
 
-use Shopware\Checkout\Order\Aggregate\OrderAddress\OrderAddressDefinition;
-use Shopware\Checkout\Order\Aggregate\OrderDelivery\Collection\OrderDeliveryBasicCollection;
-use Shopware\Checkout\Order\Aggregate\OrderDelivery\Collection\OrderDeliveryDetailCollection;
-use Shopware\Checkout\Order\Aggregate\OrderDelivery\Event\OrderDeliveryDeletedEvent;
-use Shopware\Checkout\Order\Aggregate\OrderDelivery\Event\OrderDeliveryWrittenEvent;
-use Shopware\Checkout\Order\Aggregate\OrderDelivery\Struct\OrderDeliveryBasicStruct;
-use Shopware\Checkout\Order\Aggregate\OrderDelivery\Struct\OrderDeliveryDetailStruct;
-use Shopware\Checkout\Order\Aggregate\OrderDeliveryPosition\OrderDeliveryPositionDefinition;
-use Shopware\Checkout\Order\Aggregate\OrderState\OrderStateDefinition;
-use Shopware\Checkout\Order\OrderDefinition;
-use Shopware\Checkout\Shipping\ShippingMethodDefinition;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\EntityExtensionInterface;
-use Shopware\Framework\ORM\Field\DateField;
-use Shopware\Framework\ORM\Field\FkField;
-use Shopware\Framework\ORM\Field\IdField;
-use Shopware\Framework\ORM\Field\LongTextField;
-use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
-use Shopware\Framework\ORM\Field\OneToManyAssociationField;
-use Shopware\Framework\ORM\Field\ReferenceVersionField;
-use Shopware\Framework\ORM\Field\StringField;
-use Shopware\Framework\ORM\Field\TenantIdField;
-use Shopware\Framework\ORM\Field\VersionField;
-use Shopware\Framework\ORM\FieldCollection;
-use Shopware\Framework\ORM\Write\Flag\CascadeDelete;
-use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
-use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\Framework\ORM\Write\Flag\SearchRanking;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressDefinition;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\Collection\OrderDeliveryBasicCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\Collection\OrderDeliveryDetailCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\Event\OrderDeliveryDeletedEvent;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\Event\OrderDeliveryWrittenEvent;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\Struct\OrderDeliveryBasicStruct;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\Struct\OrderDeliveryDetailStruct;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\OrderDeliveryPositionDefinition;
+use Shopware\Core\Checkout\Order\Aggregate\OrderState\OrderStateDefinition;
+use Shopware\Core\Checkout\Order\OrderDefinition;
+use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+use Shopware\Core\Framework\ORM\Field\DateField;
+use Shopware\Core\Framework\ORM\Field\FkField;
+use Shopware\Core\Framework\ORM\Field\IdField;
+use Shopware\Core\Framework\ORM\Field\LongTextField;
+use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
+use Shopware\Core\Framework\ORM\Field\StringField;
+use Shopware\Core\Framework\ORM\Field\TenantIdField;
+use Shopware\Core\Framework\ORM\Field\VersionField;
+use Shopware\Core\Framework\ORM\FieldCollection;
+use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
+use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
+use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
 
 class OrderDeliveryDefinition extends EntityDefinition
 {

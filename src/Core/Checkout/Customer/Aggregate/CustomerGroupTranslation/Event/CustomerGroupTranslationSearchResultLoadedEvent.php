@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Customer\Aggregate\CustomerGroupTranslation\Event;
+namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Checkout\Customer\Aggregate\CustomerGroupTranslation\Struct\CustomerGroupTranslationSearchResult;
-use Shopware\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\Struct\CustomerGroupTranslationSearchResult;
+use Shopware\Core\Framework\Event\NestedEvent;
 
 class CustomerGroupTranslationSearchResultLoadedEvent extends NestedEvent
 {

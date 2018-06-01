@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Country\Aggregate\CountryTranslation\Event;
+namespace Shopware\Core\System\Country\Aggregate\CountryTranslation\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\System\Country\Aggregate\CountryTranslation\Collection\CountryTranslationBasicCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\System\Country\Aggregate\CountryTranslation\Collection\CountryTranslationBasicCollection;
 
 class CountryTranslationBasicLoadedEvent extends NestedEvent
 {
@@ -16,7 +16,7 @@ class CountryTranslationBasicLoadedEvent extends NestedEvent
     protected $context;
 
     /**
-     * @var \Shopware\System\Country\Aggregate\CountryTranslation\Collection\CountryTranslationBasicCollection
+     * @var \Shopware\Core\System\Country\Aggregate\CountryTranslation\Collection\CountryTranslationBasicCollection
      */
     protected $countryTranslations;
 

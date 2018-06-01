@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Api\Context;
+namespace Shopware\Core\Framework\Api\Context;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\EntitySearcherInterface;
-use Shopware\Framework\ORM\Search\Query\TermQuery;
-use Shopware\PlatformRequest;
-use Shopware\System\User\UserDefinition;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\User\UserDefinition;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ArgumentValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;

@@ -1,24 +1,24 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Version\Definition;
+namespace Shopware\Core\Framework\ORM\Version\Definition;
 
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\EntityExtensionInterface;
-use Shopware\Framework\ORM\Field\DateField;
-use Shopware\Framework\ORM\Field\IdField;
-use Shopware\Framework\ORM\Field\OneToManyAssociationField;
-use Shopware\Framework\ORM\Field\StringField;
-use Shopware\Framework\ORM\Field\TenantIdField;
-use Shopware\Framework\ORM\FieldCollection;
-use Shopware\Framework\ORM\Version\Collection\VersionBasicCollection;
-use Shopware\Framework\ORM\Version\Event\Version\VersionDeletedEvent;
-use Shopware\Framework\ORM\Version\Event\Version\VersionWrittenEvent;
-use Shopware\Framework\ORM\Version\Repository\VersionRepository;
-use Shopware\Framework\ORM\Version\Struct\VersionBasicStruct;
-use Shopware\Framework\ORM\Write\EntityExistence;
-use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
-use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\Framework\ORM\Write\Flag\SearchRanking;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+use Shopware\Core\Framework\ORM\Field\DateField;
+use Shopware\Core\Framework\ORM\Field\IdField;
+use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\ORM\Field\StringField;
+use Shopware\Core\Framework\ORM\Field\TenantIdField;
+use Shopware\Core\Framework\ORM\FieldCollection;
+use Shopware\Core\Framework\ORM\Version\Collection\VersionBasicCollection;
+use Shopware\Core\Framework\ORM\Version\Event\Version\VersionDeletedEvent;
+use Shopware\Core\Framework\ORM\Version\Event\Version\VersionWrittenEvent;
+use Shopware\Core\Framework\ORM\Version\Repository\VersionRepository;
+use Shopware\Core\Framework\ORM\Version\Struct\VersionBasicStruct;
+use Shopware\Core\Framework\ORM\Write\EntityExistence;
+use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
+use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
 
 class VersionDefinition extends EntityDefinition
 {

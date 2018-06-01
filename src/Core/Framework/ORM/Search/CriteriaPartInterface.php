@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Search;
+namespace Shopware\Core\Framework\ORM\Search;
 
 interface CriteriaPartInterface
 {

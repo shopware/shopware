@@ -1,18 +1,18 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Aggregate\ProductStreamAssignment;
+namespace Shopware\Core\Content\Product\Aggregate\ProductStreamAssignment;
 
-use Shopware\Content\Product\Aggregate\ProductStream\ProductStreamDefinition;
-use Shopware\Content\Product\Aggregate\ProductStreamAssignment\Event\ProductStreamAssignmentDeletedEvent;
-use Shopware\Content\Product\Aggregate\ProductStreamAssignment\Event\ProductStreamAssignmentWrittenEvent;
-use Shopware\Content\Product\ProductDefinition;
-use Shopware\Framework\ORM\Field\DateField;
-use Shopware\Framework\ORM\Field\FkField;
-use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
-use Shopware\Framework\ORM\Field\ReferenceVersionField;
-use Shopware\Framework\ORM\FieldCollection;
-use Shopware\Framework\ORM\MappingEntityDefinition;
-use Shopware\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\Content\Product\Aggregate\ProductStream\ProductStreamDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductStreamAssignment\Event\ProductStreamAssignmentDeletedEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductStreamAssignment\Event\ProductStreamAssignmentWrittenEvent;
+use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\ORM\Field\DateField;
+use Shopware\Core\Framework\ORM\Field\FkField;
+use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
+use Shopware\Core\Framework\ORM\FieldCollection;
+use Shopware\Core\Framework\ORM\MappingEntityDefinition;
+use Shopware\Core\Framework\ORM\Write\Flag\Required;
 
 class ProductStreamAssignmentDefinition extends MappingEntityDefinition
 {

@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Event;
+namespace Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Struct\ShippingMethodTranslationSearchResult;
-use Shopware\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Struct\ShippingMethodTranslationSearchResult;
+use Shopware\Core\Framework\Event\NestedEvent;
 
 class ShippingMethodTranslationSearchResultLoadedEvent extends NestedEvent
 {

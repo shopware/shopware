@@ -1,6 +1,6 @@
 # Administration
 
-> Shopware Administration
+> Shopware\Core Administration
 
 ## Build Setup
 

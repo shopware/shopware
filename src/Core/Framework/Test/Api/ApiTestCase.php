@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Test\Api;
+namespace Shopware\Core\Framework\Test\Api;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Defaults;
-use Shopware\Framework\Struct\Uuid;
-use Shopware\PlatformRequest;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;

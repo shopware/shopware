@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Listing\Aggregate\ListingSortingTranslation\Event;
+namespace Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation\Event;
 
-use Shopware\Framework\ORM\Write\WrittenEvent;
-use Shopware\System\Listing\Definition\ListingSortingTranslationDefinition;
+use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\System\Listing\Definition\ListingSortingTranslationDefinition;
 
 class ListingSortingTranslationWrittenEvent extends WrittenEvent
 {

@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Mail\Aggregate\MailAttachment\Struct;
+namespace Shopware\Core\System\Mail\Aggregate\MailAttachment\Struct;
 
-use Shopware\Content\Media\Struct\MediaBasicStruct;
-use Shopware\System\Mail\Struct\MailBasicStruct;
+use Shopware\Core\Content\Media\Struct\MediaBasicStruct;
+use Shopware\Core\System\Mail\Struct\MailBasicStruct;
 
 class MailAttachmentDetailStruct extends MailAttachmentBasicStruct
 {

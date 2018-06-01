@@ -84,8 +84,8 @@
 
                 {% for delivery in cart.deliveries %}
 
-                    {# @var delivery \Shopware\Checkout\Cart\Delivery\Struct\Delivery #}
-                    {# @var location \Shopware\Checkout\Cart\Delivery\Struct\ShippingLocation #}
+                    {# @var delivery \Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery #}
+                    {# @var location \Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation #}
                     {% set location = delivery.location %}
 
                     {% block frontend_checkout_finish_deliveries_headline %}

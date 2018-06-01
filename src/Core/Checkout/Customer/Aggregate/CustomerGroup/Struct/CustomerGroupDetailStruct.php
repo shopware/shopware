@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Customer\Aggregate\CustomerGroup\Struct;
+namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\Struct;
 
-use Shopware\Checkout\Customer\Aggregate\CustomerGroupDiscount\Collection\CustomerGroupDiscountBasicCollection;
-use Shopware\Checkout\Customer\Aggregate\CustomerGroupTranslation\Collection\CustomerGroupTranslationBasicCollection;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\Collection\CustomerGroupDiscountBasicCollection;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\Collection\CustomerGroupTranslationBasicCollection;
 
 class CustomerGroupDetailStruct extends CustomerGroupBasicStruct
 {

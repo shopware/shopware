@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Collection;
+namespace Shopware\Core\Content\Product\Collection;
 
-use Shopware\Content\Product\Struct\PriceStruct;
-use Shopware\Framework\Struct\Collection;
+use Shopware\Core\Content\Product\Struct\PriceStruct;
+use Shopware\Core\Framework\Struct\Collection;
 
 class PriceCollection extends Collection
 {

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * Shopware 5
+ * Shopware\Core 5
  * Copyright (c) shopware AG
  *
  * According to our dual licensing model, this program can be used either
@@ -16,19 +16,19 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
  *
- * "Shopware" is a registered trademark of shopware AG.
+ * "Shopware\Core" is a registered trademark of shopware AG.
  * The licensing of the program under the AGPLv3 does not imply a
  * trademark license. Therefore any rights, title and interest in
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Content\Media\Commands;
+namespace Shopware\Core\Content\Media\Commands;
 
 use Doctrine\ORM\AbstractQuery;
 use Doctrine\ORM\ORMException;
-use Shopware\Components\Model\ModelManager;
-use Shopware\Content\Media\Util\GarbageCollector\GarbageCollector;
-use Shopware\Models\Media\Media;
+use Shopware\Core\Components\Model\ModelManager;
+use Shopware\Core\Content\Media\Util\GarbageCollector\GarbageCollector;
+use Shopware\Core\Models\Media\Media;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -38,12 +38,12 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class MediaCleanupCommand extends Command
 {
     /**
-     * @var \Shopware\Content\Media\Util\GarbageCollector\GarbageCollector
+     * @var \Shopware\Core\Content\Media\Util\GarbageCollector\GarbageCollector
      */
     private $garbageCollector;
 
     /**
-     * @param \Shopware\Content\Media\Util\GarbageCollector\GarbageCollector $garbageCollector
+     * @param \Shopware\Core\Content\Media\Util\GarbageCollector\GarbageCollector $garbageCollector
      */
     public function __construct(GarbageCollector $garbageCollector)
     {
@@ -105,7 +105,7 @@ class MediaCleanupCommand extends Command
         /** @var ModelManager $modelManager */
         $modelManager = $this->getContainer()->get('models');
 
-        /** @var \Shopware\Models\Media\Repository $repository */
+        /** @var \Shopware\Core\Models\Media\Repository $repository */
         $repository = $modelManager->getRepository(Media::class);
 
         $query = $repository->getAlbumMediaQuery(-13);

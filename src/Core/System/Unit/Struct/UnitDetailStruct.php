@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Unit\Struct;
+namespace Shopware\Core\System\Unit\Struct;
 
-use Shopware\System\Unit\Aggregate\UnitTranslation\Collection\UnitTranslationBasicCollection;
+use Shopware\Core\System\Unit\Aggregate\UnitTranslation\Collection\UnitTranslationBasicCollection;
 
 class UnitDetailStruct extends UnitBasicStruct
 {
     /**
-     * @var \Shopware\System\Unit\Aggregate\UnitTranslation\Collection\UnitTranslationBasicCollection
+     * @var \Shopware\Core\System\Unit\Aggregate\UnitTranslation\Collection\UnitTranslationBasicCollection
      */
     protected $translations;
 

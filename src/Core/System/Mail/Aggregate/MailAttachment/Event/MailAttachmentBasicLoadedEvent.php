@@ -1,17 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Mail\Aggregate\MailAttachment\Event;
+namespace Shopware\Core\System\Mail\Aggregate\MailAttachment\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\System\Mail\Aggregate\MailAttachment\Collection\MailAttachmentBasicCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\System\Mail\Aggregate\MailAttachment\Collection\MailAttachmentBasicCollection;
 
 class MailAttachmentBasicLoadedEvent extends NestedEvent
 {
     public const NAME = 'mail_attachment.basic.loaded';
 
     /**
-     * @var \Shopware\Framework\Context
+     * @var \Shopware\Core\Framework\Context
      */
     protected $context;
 

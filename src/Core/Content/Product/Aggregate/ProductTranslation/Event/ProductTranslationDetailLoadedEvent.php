@@ -1,20 +1,20 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Aggregate\ProductTranslation\Event;
+namespace Shopware\Core\Content\Product\Aggregate\ProductTranslation\Event;
 
-use Shopware\Framework\Context;
-use Shopware\System\Language\Event\LanguageBasicLoadedEvent;
-use Shopware\Content\Product\Aggregate\ProductTranslation\Collection\ProductTranslationDetailCollection;
-use Shopware\Content\Product\Event\ProductBasicLoadedEvent;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\System\Language\Event\LanguageBasicLoadedEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductTranslation\Collection\ProductTranslationDetailCollection;
+use Shopware\Core\Content\Product\Event\ProductBasicLoadedEvent;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
 
 class ProductTranslationDetailLoadedEvent extends NestedEvent
 {
     public const NAME = 'product_translation.detail.loaded';
 
     /**
-     * @var \Shopware\Framework\Context
+     * @var \Shopware\Core\Framework\Context
      */
     protected $context;
 

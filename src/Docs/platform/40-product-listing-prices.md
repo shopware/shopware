@@ -1,13 +1,13 @@
 # Product listing prices
 
-Like described in the **Product context prices** chapter, the product prices are stored in the `Shopware\Content\Product\Aggregate\ProductContextPrice\ProductContextPriceDefinition` storage.
+Like described in the **Product context prices** chapter, the product prices are stored in the `Shopware\Core\Content\Product\Aggregate\ProductContextPrice\ProductContextPriceDefinition` storage.
 Product listing prices can be seen as **marketing price**, which means it is the cheapest price of a product which can be configured by the customer.
 This configuration considers:
 * different variant of the same product (children shoes, different size or color)
 * graduation discounts (buy 20 units and you got 10% discount)
 
 Considering that product prices are based on the **context rule system** it is really expensive (performance) to calculate the cheapest product price on demand in listings for sortings or aggregations.
-For the sake of the storage engine (in many cases the mysql server), shopware stores pre calculates this listing prices and stores them in the `Shopware\Content\Product\ProductDefinition::listingPrices` field.
+For the sake of the storage engine (in many cases the mysql server), shopware stores pre calculates this listing prices and stores them in the `Shopware\Core\Content\Product\ProductDefinition::listingPrices` field.
 
 The prices are stored in mysql as json which allows a coalesce select for the different rules. The following json shows the listing prices for a single product:
 

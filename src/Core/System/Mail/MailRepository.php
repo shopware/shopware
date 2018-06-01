@@ -1,26 +1,26 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Mail;
+namespace Shopware\Core\System\Mail;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\ORM\Read\EntityReaderInterface;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\AggregatorResult;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
-use Shopware\Framework\ORM\Search\EntitySearcherInterface;
-use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\System\Mail\Collection\MailBasicCollection;
-use Shopware\System\Mail\Collection\MailDetailCollection;
-use Shopware\System\Mail\Event\MailAggregationResultLoadedEvent;
-use Shopware\System\Mail\Event\MailBasicLoadedEvent;
-use Shopware\System\Mail\Event\MailDetailLoadedEvent;
-use Shopware\System\Mail\Event\MailIdSearchResultLoadedEvent;
-use Shopware\System\Mail\Event\MailSearchResultLoadedEvent;
-use Shopware\System\Mail\Struct\MailSearchResult;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\AggregatorResult;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\ORM\Search\IdSearchResult;
+use Shopware\Core\Framework\ORM\Version\Service\VersionManager;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Write\WriteContext;
+use Shopware\Core\System\Mail\Collection\MailBasicCollection;
+use Shopware\Core\System\Mail\Collection\MailDetailCollection;
+use Shopware\Core\System\Mail\Event\MailAggregationResultLoadedEvent;
+use Shopware\Core\System\Mail\Event\MailBasicLoadedEvent;
+use Shopware\Core\System\Mail\Event\MailDetailLoadedEvent;
+use Shopware\Core\System\Mail\Event\MailIdSearchResultLoadedEvent;
+use Shopware\Core\System\Mail\Event\MailSearchResultLoadedEvent;
+use Shopware\Core\System\Mail\Struct\MailSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class MailRepository implements RepositoryInterface
@@ -46,7 +46,7 @@ class MailRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var \Shopware\Framework\ORM\Version\Service\VersionManager
+     * @var \Shopware\Core\Framework\ORM\Version\Service\VersionManager
      */
     private $versionManager;
 

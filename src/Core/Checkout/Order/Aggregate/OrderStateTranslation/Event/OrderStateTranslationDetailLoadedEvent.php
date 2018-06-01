@@ -1,20 +1,20 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Event;
+namespace Shopware\Core\Checkout\Order\Aggregate\OrderStateTranslation\Event;
 
-use Shopware\Framework\Context;
-use Shopware\System\Language\Event\LanguageBasicLoadedEvent;
-use Shopware\Checkout\Order\Aggregate\OrderState\Event\OrderStateBasicLoadedEvent;
-use Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Collection\OrderStateTranslationDetailCollection;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\System\Language\Event\LanguageBasicLoadedEvent;
+use Shopware\Core\Checkout\Order\Aggregate\OrderState\Event\OrderStateBasicLoadedEvent;
+use Shopware\Core\Checkout\Order\Aggregate\OrderStateTranslation\Collection\OrderStateTranslationDetailCollection;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
 
 class OrderStateTranslationDetailLoadedEvent extends NestedEvent
 {
     public const NAME = 'order_state_translation.detail.loaded';
 
     /**
-     * @var \Shopware\Framework\Context
+     * @var \Shopware\Core\Framework\Context
      */
     protected $context;
 

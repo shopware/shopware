@@ -1,17 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Api\Controller;
+namespace Shopware\Core\Framework\Api\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Checkout\Cart\Price\GrossPriceCalculator;
-use Shopware\Checkout\Cart\Price\NetPriceCalculator;
-use Shopware\Checkout\Cart\Price\Struct\PriceDefinition;
-use Shopware\Checkout\Cart\Tax\Struct\PercentageTaxRule;
-use Shopware\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Framework\Api\Context\RestContext;
-use Shopware\Framework\Api\Response\Type\JsonType;
-use Shopware\System\Tax\TaxRepository;
+use Shopware\Core\Checkout\Cart\Price\GrossPriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\NetPriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinition;
+use Shopware\Core\Checkout\Cart\Tax\Struct\PercentageTaxRule;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Framework\Api\Context\RestContext;
+use Shopware\Core\Framework\Api\Response\Type\JsonType;
+use Shopware\Core\System\Tax\TaxRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,7 +25,7 @@ class PriceActionController extends Controller
     private $serializer;
 
     /**
-     * @var \Shopware\System\Tax\TaxRepository
+     * @var \Shopware\Core\System\Tax\TaxRepository
      */
     private $taxRepository;
 

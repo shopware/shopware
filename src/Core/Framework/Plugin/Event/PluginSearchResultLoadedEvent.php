@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Plugin\Event;
+namespace Shopware\Core\Framework\Plugin\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Plugin\Struct\PluginSearchResult;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Plugin\Struct\PluginSearchResult;
 
 class PluginSearchResultLoadedEvent extends NestedEvent
 {

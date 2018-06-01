@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Aggregate\ProductContextPrice\Struct;
+namespace Shopware\Core\Content\Product\Aggregate\ProductContextPrice\Struct;
 
-use Shopware\Checkout\Rule\Struct\ContextRuleBasicStruct;
-use Shopware\Content\Product\Struct\ProductBasicStruct;
-use Shopware\System\Currency\Struct\CurrencyBasicStruct;
+use Shopware\Core\Checkout\Rule\Struct\ContextRuleBasicStruct;
+use Shopware\Core\Content\Product\Struct\ProductBasicStruct;
+use Shopware\Core\System\Currency\Struct\CurrencyBasicStruct;
 
 class ProductContextPriceDetailStruct extends ProductContextPriceBasicStruct
 {
@@ -43,12 +43,12 @@ class ProductContextPriceDetailStruct extends ProductContextPriceBasicStruct
         $this->currency = $currency;
     }
 
-    public function getContextRule(): \Shopware\Checkout\Rule\Struct\ContextRuleBasicStruct
+    public function getContextRule(): \Shopware\Core\Checkout\Rule\Struct\ContextRuleBasicStruct
     {
         return $this->contextRule;
     }
 
-    public function setContextRule(\Shopware\Checkout\Rule\Struct\ContextRuleBasicStruct $contextRule): void
+    public function setContextRule(\Shopware\Core\Checkout\Rule\Struct\ContextRuleBasicStruct $contextRule): void
     {
         $this->contextRule = $contextRule;
     }

@@ -1,26 +1,26 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Order\Aggregate\OrderDelivery\Event;
+namespace Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Checkout\Order\Aggregate\OrderAddress\Event\OrderAddressBasicLoadedEvent;
-use Shopware\Checkout\Order\Aggregate\OrderDelivery\Collection\OrderDeliveryBasicCollection;
-use Shopware\Checkout\Order\Aggregate\OrderState\Event\OrderStateBasicLoadedEvent;
-use Shopware\Checkout\Shipping\Event\ShippingMethodBasicLoadedEvent;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\Event\OrderAddressBasicLoadedEvent;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\Collection\OrderDeliveryBasicCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderState\Event\OrderStateBasicLoadedEvent;
+use Shopware\Core\Checkout\Shipping\Event\ShippingMethodBasicLoadedEvent;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
 
 class OrderDeliveryBasicLoadedEvent extends NestedEvent
 {
     public const NAME = 'order_delivery.basic.loaded';
 
     /**
-     * @var \Shopware\Framework\Context
+     * @var \Shopware\Core\Framework\Context
      */
     protected $context;
 
     /**
-     * @var \Shopware\Checkout\Order\Aggregate\OrderDelivery\Collection\OrderDeliveryBasicCollection
+     * @var \Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\Collection\OrderDeliveryBasicCollection
      */
     protected $orderDeliveries;
 

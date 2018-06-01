@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Unit\Event;
+namespace Shopware\Core\System\Unit\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\System\Unit\Struct\UnitSearchResult;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\System\Unit\Struct\UnitSearchResult;
 
 class UnitSearchResultLoadedEvent extends NestedEvent
 {

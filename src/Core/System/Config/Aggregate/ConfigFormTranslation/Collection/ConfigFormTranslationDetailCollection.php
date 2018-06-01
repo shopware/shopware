@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Config\Aggregate\ConfigFormTranslation\Collection;
+namespace Shopware\Core\System\Config\Aggregate\ConfigFormTranslation\Collection;
 
-use Shopware\System\Config\Aggregate\ConfigFormTranslation\Struct\ConfigFormTranslationDetailStruct;
-use Shopware\System\Config\Collection\ConfigFormBasicCollection;
-use Shopware\System\Locale\Collection\LocaleBasicCollection;
+use Shopware\Core\System\Config\Aggregate\ConfigFormTranslation\Struct\ConfigFormTranslationDetailStruct;
+use Shopware\Core\System\Config\Collection\ConfigFormBasicCollection;
+use Shopware\Core\System\Locale\Collection\LocaleBasicCollection;
 
 class ConfigFormTranslationDetailCollection extends ConfigFormTranslationBasicCollection
 {

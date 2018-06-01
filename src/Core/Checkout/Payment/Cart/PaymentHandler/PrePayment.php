@@ -1,18 +1,18 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Payment\Cart\PaymentHandler;
+namespace Shopware\Core\Checkout\Payment\Cart\PaymentHandler;
 
-use Shopware\Framework\Context;
-use Shopware\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionRepository;
-use Shopware\Checkout\Payment\Cart\PaymentTransactionStruct;
-use Shopware\Defaults;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionRepository;
+use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
+use Shopware\Core\Defaults;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 class PrePayment implements PaymentHandlerInterface
 {
     /**
-     * @var \Shopware\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionRepository
+     * @var \Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionRepository
      */
     private $transactionRepository;
 

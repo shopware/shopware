@@ -2,10 +2,10 @@
 
 namespace Shopware\Storefront\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Checkout\CustomerContext;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\CustomerContext;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Storefront\Page\Listing\ListingPageRequest;
 
 class PageCriteriaCreatedEvent extends NestedEvent
@@ -18,7 +18,7 @@ class PageCriteriaCreatedEvent extends NestedEvent
     protected $criteria;
 
     /**
-     * @var \Shopware\Checkout\CustomerContext
+     * @var \Shopware\Core\Checkout\CustomerContext
      */
     protected $context;
 

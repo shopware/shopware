@@ -1,21 +1,21 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Config\Event;
+namespace Shopware\Core\System\Config\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\Framework\Plugin\Event\PluginBasicLoadedEvent;
-use Shopware\System\Config\Aggregate\ConfigFormField\Event\ConfigFormFieldBasicLoadedEvent;
-use Shopware\System\Config\Aggregate\ConfigFormTranslation\Event\ConfigFormTranslationBasicLoadedEvent;
-use Shopware\System\Config\Collection\ConfigFormDetailCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Plugin\Event\PluginBasicLoadedEvent;
+use Shopware\Core\System\Config\Aggregate\ConfigFormField\Event\ConfigFormFieldBasicLoadedEvent;
+use Shopware\Core\System\Config\Aggregate\ConfigFormTranslation\Event\ConfigFormTranslationBasicLoadedEvent;
+use Shopware\Core\System\Config\Collection\ConfigFormDetailCollection;
 
 class ConfigFormDetailLoadedEvent extends NestedEvent
 {
     public const NAME = 'config_form.detail.loaded';
 
     /**
-     * @var \Shopware\Framework\Context
+     * @var \Shopware\Core\Framework\Context
      */
     protected $context;
 

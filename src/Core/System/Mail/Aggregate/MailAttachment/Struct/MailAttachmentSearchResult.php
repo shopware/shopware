@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Mail\Aggregate\MailAttachment\Struct;
+namespace Shopware\Core\System\Mail\Aggregate\MailAttachment\Struct;
 
-use Shopware\Framework\ORM\Search\SearchResultInterface;
-use Shopware\Framework\ORM\Search\SearchResultTrait;
-use Shopware\System\Mail\Aggregate\MailAttachment\Collection\MailAttachmentBasicCollection;
+use Shopware\Core\Framework\ORM\Search\SearchResultInterface;
+use Shopware\Core\Framework\ORM\Search\SearchResultTrait;
+use Shopware\Core\System\Mail\Aggregate\MailAttachment\Collection\MailAttachmentBasicCollection;
 
 class MailAttachmentSearchResult extends MailAttachmentBasicCollection implements SearchResultInterface
 {

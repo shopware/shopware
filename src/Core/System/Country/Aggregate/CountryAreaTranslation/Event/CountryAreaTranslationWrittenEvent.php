@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Country\Aggregate\CountryAreaTranslation\Event;
+namespace Shopware\Core\System\Country\Aggregate\CountryAreaTranslation\Event;
 
-use Shopware\Framework\ORM\Write\WrittenEvent;
-use Shopware\System\Country\Aggregate\CountryAreaTranslation\CountryAreaTranslationDefinition;
+use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\System\Country\Aggregate\CountryAreaTranslation\CountryAreaTranslationDefinition;
 
 class CountryAreaTranslationWrittenEvent extends WrittenEvent
 {

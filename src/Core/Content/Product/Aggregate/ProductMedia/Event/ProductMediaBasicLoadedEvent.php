@@ -1,24 +1,24 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Aggregate\ProductMedia\Event;
+namespace Shopware\Core\Content\Product\Aggregate\ProductMedia\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Content\Media\Event\MediaBasicLoadedEvent;
-use Shopware\Content\Product\Aggregate\ProductMedia\Collection\ProductMediaBasicCollection;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Media\Event\MediaBasicLoadedEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\Collection\ProductMediaBasicCollection;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
 
 class ProductMediaBasicLoadedEvent extends NestedEvent
 {
     public const NAME = 'product_media.basic.loaded';
 
     /**
-     * @var \Shopware\Framework\Context
+     * @var \Shopware\Core\Framework\Context
      */
     protected $context;
 
     /**
-     * @var \Shopware\Content\Product\Aggregate\ProductMedia\Collection\ProductMediaBasicCollection
+     * @var \Shopware\Core\Content\Product\Aggregate\ProductMedia\Collection\ProductMediaBasicCollection
      */
     protected $productMedia;
 

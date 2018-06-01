@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Config\Aggregate\ConfigFormTranslation\Struct;
+namespace Shopware\Core\System\Config\Aggregate\ConfigFormTranslation\Struct;
 
-use Shopware\System\Config\Struct\ConfigFormBasicStruct;
-use Shopware\System\Locale\Struct\LocaleBasicStruct;
+use Shopware\Core\System\Config\Struct\ConfigFormBasicStruct;
+use Shopware\Core\System\Locale\Struct\LocaleBasicStruct;
 
 class ConfigFormTranslationDetailStruct extends ConfigFormTranslationBasicStruct
 {

@@ -1,22 +1,22 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Country\Aggregate\CountryStateTranslation\Event;
+namespace Shopware\Core\System\Country\Aggregate\CountryStateTranslation\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\System\Country\Aggregate\CountryStateTranslation\Collection\CountryStateTranslationBasicCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\Collection\CountryStateTranslationBasicCollection;
 
 class CountryStateTranslationBasicLoadedEvent extends NestedEvent
 {
     public const NAME = 'country_state_translation.basic.loaded';
 
     /**
-     * @var \Shopware\Framework\Context
+     * @var \Shopware\Core\Framework\Context
      */
     protected $context;
 
     /**
-     * @var \Shopware\System\Country\Aggregate\CountryStateTranslation\Collection\CountryStateTranslationBasicCollection
+     * @var \Shopware\Core\System\Country\Aggregate\CountryStateTranslation\Collection\CountryStateTranslationBasicCollection
      */
     protected $countryStateTranslations;
 

@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Config\Aggregate\ConfigFormFieldTranslation\Event;
+namespace Shopware\Core\System\Config\Aggregate\ConfigFormFieldTranslation\Event;
 
-use Shopware\Framework\ORM\Write\WrittenEvent;
-use Shopware\System\Config\Aggregate\ConfigFormFieldTranslation\ConfigFormFieldTranslationDefinition;
+use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\System\Config\Aggregate\ConfigFormFieldTranslation\ConfigFormFieldTranslationDefinition;
 
 class ConfigFormFieldTranslationWrittenEvent extends WrittenEvent
 {

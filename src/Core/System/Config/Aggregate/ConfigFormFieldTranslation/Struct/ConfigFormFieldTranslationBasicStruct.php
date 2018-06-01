@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Config\Aggregate\ConfigFormFieldTranslation\Struct;
+namespace Shopware\Core\System\Config\Aggregate\ConfigFormFieldTranslation\Struct;
 
-use Shopware\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Entity;
 
 class ConfigFormFieldTranslationBasicStruct extends Entity
 {

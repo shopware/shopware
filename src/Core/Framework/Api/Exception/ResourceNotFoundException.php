@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Api\Exception;
+namespace Shopware\Core\Framework\Api\Exception;
 
-use Shopware\Framework\ShopwareException;
+use Shopware\Core\Framework\ShopwareException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ResourceNotFoundException extends NotFoundHttpException implements ShopwareException

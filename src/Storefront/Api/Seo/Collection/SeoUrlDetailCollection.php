@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Api\Seo\Collection;
 
-use Shopware\System\Touchpoint\Collection\TouchpointBasicCollection;
+use Shopware\Core\System\Touchpoint\Collection\TouchpointBasicCollection;
 use Shopware\Storefront\Api\Seo\Struct\SeoUrlDetailStruct;
 
 class SeoUrlDetailCollection extends SeoUrlBasicCollection

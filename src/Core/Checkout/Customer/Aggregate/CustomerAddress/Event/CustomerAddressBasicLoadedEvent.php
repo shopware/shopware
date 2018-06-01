@@ -1,25 +1,25 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Customer\Aggregate\CustomerAddress\Event;
+namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Collection\CustomerAddressBasicCollection;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\System\Country\Aggregate\CountryState\Event\CountryStateBasicLoadedEvent;
-use Shopware\System\Country\Event\CountryBasicLoadedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Collection\CustomerAddressBasicCollection;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\System\Country\Aggregate\CountryState\Event\CountryStateBasicLoadedEvent;
+use Shopware\Core\System\Country\Event\CountryBasicLoadedEvent;
 
 class CustomerAddressBasicLoadedEvent extends NestedEvent
 {
     public const NAME = 'customer_address.basic.loaded';
 
     /**
-     * @var \Shopware\Framework\Context
+     * @var \Shopware\Core\Framework\Context
      */
     protected $context;
 
     /**
-     * @var \Shopware\Checkout\Customer\Aggregate\CustomerAddress\Collection\CustomerAddressBasicCollection
+     * @var \Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Collection\CustomerAddressBasicCollection
      */
     protected $customerAddresses;
 

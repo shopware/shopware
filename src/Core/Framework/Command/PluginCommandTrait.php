@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Command;
+namespace Shopware\Core\Framework\Command;
 
-use Shopware\Framework\Plugin\PluginManager;
-use Shopware\Framework\Plugin\Struct\Plugin;
+use Shopware\Core\Framework\Plugin\PluginManager;
+use Shopware\Core\Framework\Plugin\Struct\Plugin;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 trait PluginCommandTrait
@@ -12,7 +12,7 @@ trait PluginCommandTrait
 
     public function displayHeader(SymfonyStyle $io): void
     {
-        $io->title('Shopware Plugin Manager');
+        $io->title('Shopware\Core Plugin Manager');
     }
 
     /**

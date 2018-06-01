@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Aggregate\ProductTranslation\Collection;
+namespace Shopware\Core\Content\Product\Aggregate\ProductTranslation\Collection;
 
-use Shopware\System\Language\Collection\LanguageBasicCollection;
-use Shopware\Content\Product\Aggregate\ProductTranslation\Struct\ProductTranslationDetailStruct;
-use Shopware\Content\Product\Collection\ProductBasicCollection;
+use Shopware\Core\System\Language\Collection\LanguageBasicCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductTranslation\Struct\ProductTranslationDetailStruct;
+use Shopware\Core\Content\Product\Collection\ProductBasicCollection;
 
 class ProductTranslationDetailCollection extends ProductTranslationBasicCollection
 {

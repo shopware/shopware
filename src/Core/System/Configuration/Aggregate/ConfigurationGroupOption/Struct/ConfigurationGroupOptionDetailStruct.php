@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Struct;
+namespace Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupOption\Struct;
 
-use Shopware\System\Configuration\Aggregate\ConfigurationGroupOptionTranslation\Collection\ConfigurationGroupOptionTranslationBasicCollection;
+use Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupOptionTranslation\Collection\ConfigurationGroupOptionTranslationBasicCollection;
 
 class ConfigurationGroupOptionDetailStruct extends ConfigurationGroupOptionBasicStruct
 {
     /**
-     * @var \Shopware\System\Configuration\Aggregate\ConfigurationGroupOptionTranslation\Collection\ConfigurationGroupOptionTranslationBasicCollection
+     * @var \Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupOptionTranslation\Collection\ConfigurationGroupOptionTranslationBasicCollection
      */
     protected $translations;
 

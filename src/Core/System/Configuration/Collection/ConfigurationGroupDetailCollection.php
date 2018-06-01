@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Configuration\Collection;
+namespace Shopware\Core\System\Configuration\Collection;
 
-use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionBasicCollection;
-use Shopware\System\Configuration\Aggregate\ConfigurationGroupTranslation\Collection\ConfigurationGroupTranslationBasicCollection;
-use Shopware\System\Configuration\Struct\ConfigurationGroupDetailStruct;
+use Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionBasicCollection;
+use Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupTranslation\Collection\ConfigurationGroupTranslationBasicCollection;
+use Shopware\Core\System\Configuration\Struct\ConfigurationGroupDetailStruct;
 
 class ConfigurationGroupDetailCollection extends ConfigurationGroupBasicCollection
 {

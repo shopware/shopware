@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Struct;
+namespace Shopware\Core\Content\Product\Struct;
 
-use Shopware\Framework\Context;
-use Shopware\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
-use Shopware\Checkout\Cart\Price\Struct\PriceDefinition;
-use Shopware\Checkout\Cart\Price\Struct\PriceDefinitionCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
+use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinition;
+use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionCollection;
 
 interface StorefrontProductBasicInterface
 {
@@ -24,9 +24,9 @@ interface StorefrontProductBasicInterface
 
     public function setCalculatedPrice(CalculatedPrice $calculatedPrice): void;
 
-    public function getListingPriceDefinition(\Shopware\Framework\Context $context): PriceDefinition;
+    public function getListingPriceDefinition(\Shopware\Core\Framework\Context $context): PriceDefinition;
 
-    public function getContextPriceDefinitions(\Shopware\Framework\Context $context): PriceDefinitionCollection;
+    public function getContextPriceDefinitions(\Shopware\Core\Framework\Context $context): PriceDefinitionCollection;
 
     public function getPriceDefinition(Context $context): PriceDefinition;
 }

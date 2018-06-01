@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Media\Struct;
+namespace Shopware\Core\Content\Media\Struct;
 
-use Shopware\Content\Media\Aggregate\MediaTranslation\Collection\MediaTranslationBasicCollection;
-use Shopware\System\User\Struct\UserBasicStruct;
+use Shopware\Core\Content\Media\Aggregate\MediaTranslation\Collection\MediaTranslationBasicCollection;
+use Shopware\Core\System\User\Struct\UserBasicStruct;
 
 class MediaDetailStruct extends MediaBasicStruct
 {
@@ -13,7 +13,7 @@ class MediaDetailStruct extends MediaBasicStruct
     protected $user;
 
     /**
-     * @var \Shopware\Content\Media\Aggregate\MediaTranslation\Collection\MediaTranslationBasicCollection
+     * @var \Shopware\Core\Content\Media\Aggregate\MediaTranslation\Collection\MediaTranslationBasicCollection
      */
     protected $translations;
 

@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Configuration\Struct;
+namespace Shopware\Core\System\Configuration\Struct;
 
-use Shopware\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Entity;
 
 class ConfigurationGroupBasicStruct extends Entity
 {

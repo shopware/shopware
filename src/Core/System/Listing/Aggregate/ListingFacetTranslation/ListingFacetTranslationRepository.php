@@ -1,27 +1,27 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Listing\Aggregate\ListingFacetTranslation;
+namespace Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\ORM\Read\EntityReaderInterface;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\AggregatorResult;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
-use Shopware\Framework\ORM\Search\EntitySearcherInterface;
-use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\System\Listing\Aggregate\ListingFacetTranslation\Collection\ListingFacetTranslationBasicCollection;
-use Shopware\System\Listing\Aggregate\ListingFacetTranslation\Collection\ListingFacetTranslationDetailCollection;
-use Shopware\System\Listing\Aggregate\ListingFacetTranslation\Event\ListingFacetTranslationAggregationResultLoadedEvent;
-use Shopware\System\Listing\Aggregate\ListingFacetTranslation\Event\ListingFacetTranslationBasicLoadedEvent;
-use Shopware\System\Listing\Aggregate\ListingFacetTranslation\Event\ListingFacetTranslationDetailLoadedEvent;
-use Shopware\System\Listing\Aggregate\ListingFacetTranslation\Event\ListingFacetTranslationIdSearchResultLoadedEvent;
-use Shopware\System\Listing\Aggregate\ListingFacetTranslation\Event\ListingFacetTranslationSearchResultLoadedEvent;
-use Shopware\System\Listing\Aggregate\ListingFacetTranslation\Struct\ListingFacetTranslationSearchResult;
-use Shopware\System\Listing\Definition\ListingFacetTranslationDefinition;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\AggregatorResult;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\ORM\Search\IdSearchResult;
+use Shopware\Core\Framework\ORM\Version\Service\VersionManager;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Write\WriteContext;
+use Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation\Collection\ListingFacetTranslationBasicCollection;
+use Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation\Collection\ListingFacetTranslationDetailCollection;
+use Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation\Event\ListingFacetTranslationAggregationResultLoadedEvent;
+use Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation\Event\ListingFacetTranslationBasicLoadedEvent;
+use Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation\Event\ListingFacetTranslationDetailLoadedEvent;
+use Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation\Event\ListingFacetTranslationIdSearchResultLoadedEvent;
+use Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation\Event\ListingFacetTranslationSearchResultLoadedEvent;
+use Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation\Struct\ListingFacetTranslationSearchResult;
+use Shopware\Core\System\Listing\Definition\ListingFacetTranslationDefinition;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ListingFacetTranslationRepository implements RepositoryInterface
@@ -47,7 +47,7 @@ class ListingFacetTranslationRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var \Shopware\Framework\ORM\Version\Service\VersionManager
+     * @var \Shopware\Core\Framework\ORM\Version\Service\VersionManager
      */
     private $versionManager;
 
@@ -117,7 +117,7 @@ class ListingFacetTranslationRepository implements RepositoryInterface
 
     public function readDetail(array $ids, Context $context): ListingFacetTranslationDetailCollection
     {
-        /** @var \Shopware\System\Listing\Aggregate\ListingFacetTranslation\Collection\ListingFacetTranslationDetailCollection $entities */
+        /** @var \Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation\Collection\ListingFacetTranslationDetailCollection $entities */
         $entities = $this->reader->readDetail(ListingFacetTranslationDefinition::class, $ids, $context);
 
         $event = new ListingFacetTranslationDetailLoadedEvent($entities, $context);

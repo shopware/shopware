@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Mail\Aggregate\MailAttachment\Event;
+namespace Shopware\Core\System\Mail\Aggregate\MailAttachment\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\ORM\Search\AggregatorResult;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\ORM\Search\AggregatorResult;
 
 class MailAttachmentAggregationResultLoadedEvent extends NestedEvent
 {

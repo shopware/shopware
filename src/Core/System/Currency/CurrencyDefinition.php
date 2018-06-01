@@ -1,36 +1,36 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Currency;
+namespace Shopware\Core\System\Currency;
 
-use Shopware\System\Touchpoint\TouchpointDefinition;
-use Shopware\Checkout\Order\OrderDefinition;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\EntityExtensionInterface;
-use Shopware\Framework\ORM\Field\BoolField;
-use Shopware\Framework\ORM\Field\DateField;
-use Shopware\Framework\ORM\Field\FloatField;
-use Shopware\Framework\ORM\Field\IdField;
-use Shopware\Framework\ORM\Field\IntField;
-use Shopware\Framework\ORM\Field\OneToManyAssociationField;
-use Shopware\Framework\ORM\Field\StringField;
-use Shopware\Framework\ORM\Field\TenantIdField;
-use Shopware\Framework\ORM\Field\TranslatedField;
-use Shopware\Framework\ORM\Field\TranslationsAssociationField;
-use Shopware\Framework\ORM\Field\VersionField;
-use Shopware\Framework\ORM\FieldCollection;
-use Shopware\Framework\ORM\Write\Flag\CascadeDelete;
-use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
-use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\Framework\ORM\Write\Flag\RestrictDelete;
-use Shopware\Framework\ORM\Write\Flag\SearchRanking;
-use Shopware\Framework\ORM\Write\Flag\WriteOnly;
-use Shopware\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationDefinition;
-use Shopware\System\Currency\Collection\CurrencyBasicCollection;
-use Shopware\System\Currency\Collection\CurrencyDetailCollection;
-use Shopware\System\Currency\Event\CurrencyDeletedEvent;
-use Shopware\System\Currency\Event\CurrencyWrittenEvent;
-use Shopware\System\Currency\Struct\CurrencyBasicStruct;
-use Shopware\System\Currency\Struct\CurrencyDetailStruct;
+use Shopware\Core\System\Touchpoint\TouchpointDefinition;
+use Shopware\Core\Checkout\Order\OrderDefinition;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+use Shopware\Core\Framework\ORM\Field\BoolField;
+use Shopware\Core\Framework\ORM\Field\DateField;
+use Shopware\Core\Framework\ORM\Field\FloatField;
+use Shopware\Core\Framework\ORM\Field\IdField;
+use Shopware\Core\Framework\ORM\Field\IntField;
+use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\ORM\Field\StringField;
+use Shopware\Core\Framework\ORM\Field\TenantIdField;
+use Shopware\Core\Framework\ORM\Field\TranslatedField;
+use Shopware\Core\Framework\ORM\Field\TranslationsAssociationField;
+use Shopware\Core\Framework\ORM\Field\VersionField;
+use Shopware\Core\Framework\ORM\FieldCollection;
+use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
+use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
+use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\Framework\ORM\Write\Flag\RestrictDelete;
+use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
+use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
+use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationDefinition;
+use Shopware\Core\System\Currency\Collection\CurrencyBasicCollection;
+use Shopware\Core\System\Currency\Collection\CurrencyDetailCollection;
+use Shopware\Core\System\Currency\Event\CurrencyDeletedEvent;
+use Shopware\Core\System\Currency\Event\CurrencyWrittenEvent;
+use Shopware\Core\System\Currency\Struct\CurrencyBasicStruct;
+use Shopware\Core\System\Currency\Struct\CurrencyDetailStruct;
 
 class CurrencyDefinition extends EntityDefinition
 {

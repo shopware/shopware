@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Snippet\Struct;
+namespace Shopware\Core\System\Snippet\Struct;
 
-use Shopware\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Entity;
 
 class SnippetBasicStruct extends Entity
 {

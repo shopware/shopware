@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Media\Struct;
+namespace Shopware\Core\Content\Media\Struct;
 
-use Shopware\Content\Media\Aggregate\MediaAlbum\Struct\MediaAlbumBasicStruct;
-use Shopware\Framework\ORM\Entity;
+use Shopware\Core\Content\Media\Aggregate\MediaAlbum\Struct\MediaAlbumBasicStruct;
+use Shopware\Core\Framework\ORM\Entity;
 
 class MediaBasicStruct extends Entity
 {

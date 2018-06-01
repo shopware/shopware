@@ -1,24 +1,24 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Unit\Definition;
+namespace Shopware\Core\System\Unit\Definition;
 
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\EntityExtensionInterface;
-use Shopware\Framework\ORM\Field\FkField;
-use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
-use Shopware\Framework\ORM\Field\ReferenceVersionField;
-use Shopware\Framework\ORM\Field\StringField;
-use Shopware\Framework\ORM\FieldCollection;
-use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
-use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\System\Unit\Aggregate\UnitTranslation\Collection\UnitTranslationBasicCollection;
-use Shopware\System\Unit\Aggregate\UnitTranslation\Collection\UnitTranslationDetailCollection;
-use Shopware\System\Unit\Aggregate\UnitTranslation\Event\UnitTranslationDeletedEvent;
-use Shopware\System\Unit\Aggregate\UnitTranslation\Event\UnitTranslationWrittenEvent;
-use Shopware\System\Unit\Aggregate\UnitTranslation\Struct\UnitTranslationBasicStruct;
-use Shopware\System\Unit\Aggregate\UnitTranslation\Struct\UnitTranslationDetailStruct;
-use Shopware\System\Unit\Aggregate\UnitTranslation\UnitTranslationRepository;
-use Shopware\System\Unit\UnitDefinition;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+use Shopware\Core\Framework\ORM\Field\FkField;
+use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
+use Shopware\Core\Framework\ORM\Field\StringField;
+use Shopware\Core\Framework\ORM\FieldCollection;
+use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
+use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\System\Unit\Aggregate\UnitTranslation\Collection\UnitTranslationBasicCollection;
+use Shopware\Core\System\Unit\Aggregate\UnitTranslation\Collection\UnitTranslationDetailCollection;
+use Shopware\Core\System\Unit\Aggregate\UnitTranslation\Event\UnitTranslationDeletedEvent;
+use Shopware\Core\System\Unit\Aggregate\UnitTranslation\Event\UnitTranslationWrittenEvent;
+use Shopware\Core\System\Unit\Aggregate\UnitTranslation\Struct\UnitTranslationBasicStruct;
+use Shopware\Core\System\Unit\Aggregate\UnitTranslation\Struct\UnitTranslationDetailStruct;
+use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationRepository;
+use Shopware\Core\System\Unit\UnitDefinition;
 
 class UnitTranslationDefinition extends EntityDefinition
 {
@@ -51,11 +51,11 @@ class UnitTranslationDefinition extends EntityDefinition
         self::$fields = new FieldCollection([
             (new FkField('unit_id', 'unitId', UnitDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new ReferenceVersionField(UnitDefinition::class))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('language_id', 'languageId', \Shopware\System\Language\LanguageDefinition::class))->setFlags(new PrimaryKey(), new Required()),
+            (new FkField('language_id', 'languageId', \Shopware\Core\System\Language\LanguageDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new StringField('short_code', 'shortCode'))->setFlags(new Required()),
             (new StringField('name', 'name'))->setFlags(new Required()),
             new ManyToOneAssociationField('unit', 'unit_id', UnitDefinition::class, false),
-            new ManyToOneAssociationField('language', 'language_id', \Shopware\System\Language\LanguageDefinition::class, false),
+            new ManyToOneAssociationField('language', 'language_id', \Shopware\Core\System\Language\LanguageDefinition::class, false),
         ]);
 
         foreach (self::$extensions as $extension) {

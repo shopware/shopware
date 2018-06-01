@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Locale\Aggregate\LocaleTranslation\Event;
+namespace Shopware\Core\System\Locale\Aggregate\LocaleTranslation\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\ORM\Search\IdSearchResult;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\ORM\Search\IdSearchResult;
 
 class LocaleTranslationIdSearchResultLoadedEvent extends NestedEvent
 {

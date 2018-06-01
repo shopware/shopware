@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Dbal\Common;
+namespace Shopware\Core\Framework\ORM\Dbal\Common;
 
-use Shopware\Content\Category\CategoryDefinition;
-use Shopware\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
-use Shopware\Content\Product\ProductDefinition;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
+use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
 
 class EventIdExtractor
 {

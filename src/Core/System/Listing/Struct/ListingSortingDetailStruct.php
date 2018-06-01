@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Listing\Struct;
+namespace Shopware\Core\System\Listing\Struct;
 
-use Shopware\Content\Product\Aggregate\ProductStream\Collection\ProductStreamBasicCollection;
-use Shopware\System\Listing\Aggregate\ListingSortingTranslation\Collection\ListingSortingTranslationBasicCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductStream\Collection\ProductStreamBasicCollection;
+use Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation\Collection\ListingSortingTranslationBasicCollection;
 
 class ListingSortingDetailStruct extends ListingSortingBasicStruct
 {

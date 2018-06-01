@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Category\Event;
+namespace Shopware\Core\Content\Category\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Content\Category\Collection\CategoryBasicCollection;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Category\Collection\CategoryBasicCollection;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
 
 class CategoryBasicLoadedEvent extends NestedEvent
 {

@@ -1,17 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Mail\Aggregate\MailTranslation\Event;
+namespace Shopware\Core\System\Mail\Aggregate\MailTranslation\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\System\Mail\Aggregate\MailTranslation\Struct\MailTranslationSearchResult;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\System\Mail\Aggregate\MailTranslation\Struct\MailTranslationSearchResult;
 
 class MailTranslationSearchResultLoadedEvent extends NestedEvent
 {
     public const NAME = 'mail_translation.search.result.loaded';
 
     /**
-     * @var \Shopware\System\Mail\Aggregate\MailTranslation\Struct\MailTranslationSearchResult
+     * @var \Shopware\Core\System\Mail\Aggregate\MailTranslation\Struct\MailTranslationSearchResult
      */
     protected $result;
 

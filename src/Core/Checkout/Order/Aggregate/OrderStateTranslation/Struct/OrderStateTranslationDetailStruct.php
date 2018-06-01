@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Struct;
+namespace Shopware\Core\Checkout\Order\Aggregate\OrderStateTranslation\Struct;
 
-use Shopware\System\Language\Struct\LanguageBasicStruct;
-use Shopware\Checkout\Order\Aggregate\OrderState\Struct\OrderStateBasicStruct;
+use Shopware\Core\System\Language\Struct\LanguageBasicStruct;
+use Shopware\Core\Checkout\Order\Aggregate\OrderState\Struct\OrderStateBasicStruct;
 
 class OrderStateTranslationDetailStruct extends OrderStateTranslationBasicStruct
 {

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * Shopware 5
+ * Shopware\Core 5
  * Copyright (c) shopware AG
  *
  * According to our dual licensing model, this program can be used either
@@ -16,37 +16,37 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
  *
- * "Shopware" is a registered trademark of shopware AG.
+ * "Shopware\Core" is a registered trademark of shopware AG.
  * The licensing of the program under the AGPLv3 does not imply a
  * trademark license. Therefore any rights, title and interest in
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Framework\ORM\Write;
+namespace Shopware\Core\Framework\ORM\Write;
 
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\Field\ChildrenAssociationField;
-use Shopware\Framework\ORM\Field\DateField;
-use Shopware\Framework\ORM\Field\Field;
-use Shopware\Framework\ORM\Field\FkField;
-use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
-use Shopware\Framework\ORM\Field\ReferenceField;
-use Shopware\Framework\ORM\FieldCollection;
-use Shopware\Framework\ORM\Write\Command\InsertCommand;
-use Shopware\Framework\ORM\Write\Command\UpdateCommand;
-use Shopware\Framework\ORM\Write\Command\WriteCommandQueue;
-use Shopware\Framework\ORM\Write\DataStack\DataStack;
-use Shopware\Framework\ORM\Write\DataStack\ExceptionNoStackItemFound;
-use Shopware\Framework\ORM\Write\DataStack\KeyValuePair;
-use Shopware\Framework\ORM\Write\FieldAware\FieldExtenderCollection;
-use Shopware\Framework\ORM\Write\FieldAware\RuntimeExtender;
-use Shopware\Framework\ORM\Write\FieldAware\StorageAware;
-use Shopware\Framework\ORM\Write\FieldException\FieldExceptionStack;
-use Shopware\Framework\ORM\Write\FieldException\WriteFieldException;
-use Shopware\Framework\ORM\Write\Flag\Inherited;
-use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
-use Shopware\Framework\ORM\Write\Flag\ReadOnly;
-use Shopware\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\Field\ChildrenAssociationField;
+use Shopware\Core\Framework\ORM\Field\DateField;
+use Shopware\Core\Framework\ORM\Field\Field;
+use Shopware\Core\Framework\ORM\Field\FkField;
+use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\ORM\Field\ReferenceField;
+use Shopware\Core\Framework\ORM\FieldCollection;
+use Shopware\Core\Framework\ORM\Write\Command\InsertCommand;
+use Shopware\Core\Framework\ORM\Write\Command\UpdateCommand;
+use Shopware\Core\Framework\ORM\Write\Command\WriteCommandQueue;
+use Shopware\Core\Framework\ORM\Write\DataStack\DataStack;
+use Shopware\Core\Framework\ORM\Write\DataStack\ExceptionNoStackItemFound;
+use Shopware\Core\Framework\ORM\Write\DataStack\KeyValuePair;
+use Shopware\Core\Framework\ORM\Write\FieldAware\FieldExtenderCollection;
+use Shopware\Core\Framework\ORM\Write\FieldAware\RuntimeExtender;
+use Shopware\Core\Framework\ORM\Write\FieldAware\StorageAware;
+use Shopware\Core\Framework\ORM\Write\FieldException\FieldExceptionStack;
+use Shopware\Core\Framework\ORM\Write\FieldException\WriteFieldException;
+use Shopware\Core\Framework\ORM\Write\Flag\Inherited;
+use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
+use Shopware\Core\Framework\ORM\Write\Flag\ReadOnly;
+use Shopware\Core\Framework\ORM\Write\Flag\Required;
 
 /**
  * Builds the command queue for write operations.

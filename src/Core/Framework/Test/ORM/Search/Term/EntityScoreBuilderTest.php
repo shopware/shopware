@@ -1,21 +1,21 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Test\ORM\Search\Term;
+namespace Shopware\Core\Framework\Test\ORM\Search\Term;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
-use Shopware\Framework\ORM\Field\StringField;
-use Shopware\Framework\ORM\Field\TenantIdField;
-use Shopware\Framework\ORM\Field\TranslatedField;
-use Shopware\Framework\ORM\FieldCollection;
-use Shopware\Framework\ORM\Search\Query\MatchQuery;
-use Shopware\Framework\ORM\Search\Query\ScoreQuery;
-use Shopware\Framework\ORM\Search\Query\TermQuery;
-use Shopware\Framework\ORM\Search\Term\EntityScoreQueryBuilder;
-use Shopware\Framework\ORM\Search\Term\SearchPattern;
-use Shopware\Framework\ORM\Search\Term\SearchTerm;
-use Shopware\Framework\ORM\Write\Flag\SearchRanking;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\ORM\Field\StringField;
+use Shopware\Core\Framework\ORM\Field\TenantIdField;
+use Shopware\Core\Framework\ORM\Field\TranslatedField;
+use Shopware\Core\Framework\ORM\FieldCollection;
+use Shopware\Core\Framework\ORM\Search\Query\MatchQuery;
+use Shopware\Core\Framework\ORM\Search\Query\ScoreQuery;
+use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Core\Framework\ORM\Search\Term\EntityScoreQueryBuilder;
+use Shopware\Core\Framework\ORM\Search\Term\SearchPattern;
+use Shopware\Core\Framework\ORM\Search\Term\SearchTerm;
+use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
 
 class EntityScoreBuilderTest extends TestCase
 {
@@ -44,13 +44,13 @@ class EntityScoreBuilderTest extends TestCase
 
     public function testMultipleTerms()
     {
-        $builder = new \Shopware\Framework\ORM\Search\Term\EntityScoreQueryBuilder();
+        $builder = new \Shopware\Core\Framework\ORM\Search\Term\EntityScoreQueryBuilder();
 
         $pattern = new SearchPattern(
-            new \Shopware\Framework\ORM\Search\Term\SearchTerm('term', 1)
+            new \Shopware\Core\Framework\ORM\Search\Term\SearchTerm('term', 1)
         );
         $pattern->addTerm(
-            new \Shopware\Framework\ORM\Search\Term\SearchTerm('test', 0.1)
+            new \Shopware\Core\Framework\ORM\Search\Term\SearchTerm('test', 0.1)
         );
 
         $queries = $builder->buildScoreQueries($pattern, TestDefinition::class, 'test');

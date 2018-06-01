@@ -1,19 +1,19 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Shipping\Event;
+namespace Shopware\Core\Checkout\Shipping\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Checkout\Shipping\Aggregate\ShippingMethodPrice\Event\ShippingMethodPriceBasicLoadedEvent;
-use Shopware\Checkout\Shipping\Collection\ShippingMethodBasicCollection;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\Event\ShippingMethodPriceBasicLoadedEvent;
+use Shopware\Core\Checkout\Shipping\Collection\ShippingMethodBasicCollection;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
 
 class ShippingMethodBasicLoadedEvent extends NestedEvent
 {
     public const NAME = 'shipping_method.basic.loaded';
 
     /**
-     * @var \Shopware\Framework\Context
+     * @var \Shopware\Core\Framework\Context
      */
     protected $context;
 

@@ -1,17 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Configuration\Aggregate\ConfigurationGroupTranslation\Event;
+namespace Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupTranslation\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\System\Configuration\Aggregate\ConfigurationGroupTranslation\Struct\ConfigurationGroupTranslationSearchResult;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupTranslation\Struct\ConfigurationGroupTranslationSearchResult;
 
 class ConfigurationGroupTranslationSearchResultLoadedEvent extends NestedEvent
 {
     public const NAME = 'configuration_group_translation.search.result.loaded';
 
     /**
-     * @var \Shopware\System\Configuration\Aggregate\ConfigurationGroupTranslation\Struct\ConfigurationGroupTranslationSearchResult
+     * @var \Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupTranslation\Struct\ConfigurationGroupTranslationSearchResult
      */
     protected $result;
 

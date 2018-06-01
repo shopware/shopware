@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Tax\Event;
+namespace Shopware\Core\System\Tax\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\System\Tax\Collection\TaxBasicCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\System\Tax\Collection\TaxBasicCollection;
 
 class TaxBasicLoadedEvent extends NestedEvent
 {

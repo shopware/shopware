@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Config\Struct;
+namespace Shopware\Core\System\Config\Struct;
 
-use Shopware\Framework\ORM\Search\SearchResultInterface;
-use Shopware\Framework\ORM\Search\SearchResultTrait;
-use Shopware\System\Config\Collection\ConfigFormBasicCollection;
+use Shopware\Core\Framework\ORM\Search\SearchResultInterface;
+use Shopware\Core\Framework\ORM\Search\SearchResultTrait;
+use Shopware\Core\System\Config\Collection\ConfigFormBasicCollection;
 
 class ConfigFormSearchResult extends ConfigFormBasicCollection implements SearchResultInterface
 {

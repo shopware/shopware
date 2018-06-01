@@ -1,26 +1,26 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Configuration;
+namespace Shopware\Core\System\Configuration;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\ORM\Read\EntityReaderInterface;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\AggregatorResult;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
-use Shopware\Framework\ORM\Search\EntitySearcherInterface;
-use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\System\Configuration\Collection\ConfigurationGroupBasicCollection;
-use Shopware\System\Configuration\Collection\ConfigurationGroupDetailCollection;
-use Shopware\System\Configuration\Event\ConfigurationGroupAggregationResultLoadedEvent;
-use Shopware\System\Configuration\Event\ConfigurationGroupBasicLoadedEvent;
-use Shopware\System\Configuration\Event\ConfigurationGroupDetailLoadedEvent;
-use Shopware\System\Configuration\Event\ConfigurationGroupIdSearchResultLoadedEvent;
-use Shopware\System\Configuration\Event\ConfigurationGroupSearchResultLoadedEvent;
-use Shopware\System\Configuration\Struct\ConfigurationGroupSearchResult;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\AggregatorResult;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\ORM\Search\IdSearchResult;
+use Shopware\Core\Framework\ORM\Version\Service\VersionManager;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Write\WriteContext;
+use Shopware\Core\System\Configuration\Collection\ConfigurationGroupBasicCollection;
+use Shopware\Core\System\Configuration\Collection\ConfigurationGroupDetailCollection;
+use Shopware\Core\System\Configuration\Event\ConfigurationGroupAggregationResultLoadedEvent;
+use Shopware\Core\System\Configuration\Event\ConfigurationGroupBasicLoadedEvent;
+use Shopware\Core\System\Configuration\Event\ConfigurationGroupDetailLoadedEvent;
+use Shopware\Core\System\Configuration\Event\ConfigurationGroupIdSearchResultLoadedEvent;
+use Shopware\Core\System\Configuration\Event\ConfigurationGroupSearchResultLoadedEvent;
+use Shopware\Core\System\Configuration\Struct\ConfigurationGroupSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ConfigurationGroupRepository implements RepositoryInterface
@@ -46,7 +46,7 @@ class ConfigurationGroupRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var \Shopware\Framework\ORM\Version\Service\VersionManager
+     * @var \Shopware\Core\Framework\ORM\Version\Service\VersionManager
      */
     private $versionManager;
 

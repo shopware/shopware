@@ -1,21 +1,19 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Api\Serializer;
+namespace Shopware\Core\Framework\Api\Serializer;
 
-use Shopware\Framework\Api\Exception\MissingDataException;
-use Shopware\Framework\Api\Exception\MissingValueException;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\Field\AssociationInterface;
-use Shopware\Framework\ORM\Field\Field;
-use Shopware\Framework\ORM\Field\FkField;
-use Shopware\Framework\ORM\Field\ManyToManyAssociationField;
-use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
-use Shopware\Framework\ORM\Field\OneToManyAssociationField;
-use Shopware\Framework\ORM\Write\Flag\Extension;
-use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\Framework\Struct\Serializer\StructDecoder;
-use Shopware\Framework\ORM\Write\Flag\WriteOnly;
-use Shopware\Framework\Serializer\StructDecoder;
+use Shopware\Core\Framework\Api\Exception\MissingDataException;
+use Shopware\Core\Framework\Api\Exception\MissingValueException;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\Field\Field;
+use Shopware\Core\Framework\ORM\Field\FkField;
+use Shopware\Core\Framework\ORM\Field\ManyToManyAssociationField;
+use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\ORM\FieldCollection;
+use Shopware\Core\Framework\ORM\Write\Flag\Extension;
+use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\Framework\Struct\Serializer\StructDecoder;
 use Symfony\Component\Serializer\Encoder\EncoderInterface;
 use Symfony\Component\Serializer\Exception\BadMethodCallException;
 use Symfony\Component\Serializer\Exception\RuntimeException;

@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Customer\Aggregate\CustomerGroup\Struct;
+namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\Struct;
 
-use Shopware\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Entity;
 
 class CustomerGroupBasicStruct extends Entity
 {

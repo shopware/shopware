@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Listing\Event;
+namespace Shopware\Core\System\Listing\Event;
 
-use Shopware\Framework\ORM\Write\WrittenEvent;
-use Shopware\System\Listing\ListingFacetDefinition;
+use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\System\Listing\ListingFacetDefinition;
 
 class ListingFacetWrittenEvent extends WrittenEvent
 {

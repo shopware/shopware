@@ -1,15 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Collection;
+namespace Shopware\Core\Content\Media\Aggregate\MediaAlbumTranslation\Collection;
 
-use Shopware\System\Language\Collection\LanguageBasicCollection;
-use Shopware\Content\Media\Aggregate\MediaAlbum\Collection\MediaAlbumBasicCollection;
-use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Struct\MediaAlbumTranslationDetailStruct;
+use Shopware\Core\System\Language\Collection\LanguageBasicCollection;
+use Shopware\Core\Content\Media\Aggregate\MediaAlbum\Collection\MediaAlbumBasicCollection;
+use Shopware\Core\Content\Media\Aggregate\MediaAlbumTranslation\Struct\MediaAlbumTranslationDetailStruct;
 
 class MediaAlbumTranslationDetailCollection extends MediaAlbumTranslationBasicCollection
 {
     /**
-     * @var \Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Struct\MediaAlbumTranslationDetailStruct[]
+     * @var \Shopware\Core\Content\Media\Aggregate\MediaAlbumTranslation\Struct\MediaAlbumTranslationDetailStruct[]
      */
     protected $elements = [];
 

@@ -1,17 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Application\Context\Event\ContextCartModifierTranslation;
+namespace Shopware\Core\Application\Context\Event\ContextCartModifierTranslation;
 
-use Shopware\Application\Context\Collection\ContextCartModifierTranslationBasicCollection;
-use Shopware\Framework\Context;
-use Shopware\Framework\Event\NestedEvent;
+use Shopware\Core\Application\Context\Collection\ContextCartModifierTranslationBasicCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
 
 class ContextCartModifierTranslationBasicLoadedEvent extends NestedEvent
 {
     public const NAME = 'context_cart_modifier_translation.basic.loaded';
 
     /**
-     * @var \Shopware\Framework\Context
+     * @var \Shopware\Core\Framework\Context
      */
     protected $context;
 

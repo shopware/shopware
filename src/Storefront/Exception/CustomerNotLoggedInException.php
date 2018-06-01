@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Exception;
 
-use Shopware\Framework\ShopwareException;
+use Shopware\Core\Framework\ShopwareException;
 
 class CustomerNotLoggedInException extends \Exception implements ShopwareException
 {

@@ -1,27 +1,27 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Unit\Aggregate\UnitTranslation;
+namespace Shopware\Core\System\Unit\Aggregate\UnitTranslation;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\ORM\Read\EntityReaderInterface;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\AggregatorResult;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
-use Shopware\Framework\ORM\Search\EntitySearcherInterface;
-use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\System\Unit\Aggregate\UnitTranslation\Collection\UnitTranslationBasicCollection;
-use Shopware\System\Unit\Aggregate\UnitTranslation\Collection\UnitTranslationDetailCollection;
-use Shopware\System\Unit\Aggregate\UnitTranslation\Event\UnitTranslationAggregationResultLoadedEvent;
-use Shopware\System\Unit\Aggregate\UnitTranslation\Event\UnitTranslationBasicLoadedEvent;
-use Shopware\System\Unit\Aggregate\UnitTranslation\Event\UnitTranslationDetailLoadedEvent;
-use Shopware\System\Unit\Aggregate\UnitTranslation\Event\UnitTranslationIdSearchResultLoadedEvent;
-use Shopware\System\Unit\Aggregate\UnitTranslation\Event\UnitTranslationSearchResultLoadedEvent;
-use Shopware\System\Unit\Aggregate\UnitTranslation\Struct\UnitTranslationSearchResult;
-use Shopware\System\Unit\Definition\UnitTranslationDefinition;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\AggregatorResult;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\ORM\Search\IdSearchResult;
+use Shopware\Core\Framework\ORM\Version\Service\VersionManager;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Write\WriteContext;
+use Shopware\Core\System\Unit\Aggregate\UnitTranslation\Collection\UnitTranslationBasicCollection;
+use Shopware\Core\System\Unit\Aggregate\UnitTranslation\Collection\UnitTranslationDetailCollection;
+use Shopware\Core\System\Unit\Aggregate\UnitTranslation\Event\UnitTranslationAggregationResultLoadedEvent;
+use Shopware\Core\System\Unit\Aggregate\UnitTranslation\Event\UnitTranslationBasicLoadedEvent;
+use Shopware\Core\System\Unit\Aggregate\UnitTranslation\Event\UnitTranslationDetailLoadedEvent;
+use Shopware\Core\System\Unit\Aggregate\UnitTranslation\Event\UnitTranslationIdSearchResultLoadedEvent;
+use Shopware\Core\System\Unit\Aggregate\UnitTranslation\Event\UnitTranslationSearchResultLoadedEvent;
+use Shopware\Core\System\Unit\Aggregate\UnitTranslation\Struct\UnitTranslationSearchResult;
+use Shopware\Core\System\Unit\Definition\UnitTranslationDefinition;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class UnitTranslationRepository implements RepositoryInterface
@@ -47,7 +47,7 @@ class UnitTranslationRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var \Shopware\Framework\ORM\Version\Service\VersionManager
+     * @var \Shopware\Core\Framework\ORM\Version\Service\VersionManager
      */
     private $versionManager;
 

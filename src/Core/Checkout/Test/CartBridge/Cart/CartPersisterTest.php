@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * Shopware 5
+ * Shopware\Core 5
  * Copyright (c) shopware AG
  *
  * According to our dual licensing model, this program can be used either
@@ -16,31 +16,31 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
  *
- * "Shopware" is a registered trademark of shopware AG.
+ * "Shopware\Core" is a registered trademark of shopware AG.
  * The licensing of the program under the AGPLv3 does not imply a
  * trademark license. Therefore any rights, title and interest in
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Checkout\Test\CartBridge\Cart;
+namespace Shopware\Core\Checkout\Test\CartBridge\Cart;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Checkout\Cart\Cart\CartPersister;
-use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Checkout\Cart\Cart\Struct\Cart;
-use Shopware\Checkout\Cart\Delivery\Struct\DeliveryCollection;
-use Shopware\Checkout\Cart\Error\ErrorCollection;
-use Shopware\Checkout\Cart\Exception\CartTokenNotFoundException;
-use Shopware\Checkout\Cart\LineItem\CalculatedLineItem;
-use Shopware\Checkout\Cart\LineItem\CalculatedLineItemCollection;
-use Shopware\Checkout\Cart\LineItem\LineItemCollection;
-use Shopware\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Checkout\Cart\Price\Struct\CartPrice;
-use Shopware\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
-use Shopware\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Checkout\Test\Cart\Common\Generator;
-use Shopware\Framework\Struct\Serializer\StructNormalizer;
+use Shopware\Core\Checkout\Cart\Cart\CartPersister;
+use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
+use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
+use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
+use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItem;
+use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItemCollection;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Test\Cart\Common\Generator;
+use Shopware\Core\Framework\Struct\Serializer\StructNormalizer;
 use Symfony\Component\Serializer\Encoder\ChainDecoder;
 use Symfony\Component\Serializer\Encoder\ChainEncoder;
 use Symfony\Component\Serializer\Encoder\CsvEncoder;
@@ -149,7 +149,7 @@ class CartPersisterTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->once())->method('executeUpdate');
 
-        $persister = new \Shopware\Checkout\Cart\Cart\CartPersister($connection, $this->serializer);
+        $persister = new \Shopware\Core\Checkout\Cart\Cart\CartPersister($connection, $this->serializer);
 
         $calc = new CalculatedCart(
             new Cart('shopware', 'existing', new LineItemCollection(), new ErrorCollection()),

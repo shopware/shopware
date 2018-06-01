@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Exception;
+namespace Shopware\Core\Content\Product\Exception;
 
 class ProductNotFoundException extends \Exception
 {

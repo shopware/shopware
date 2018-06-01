@@ -1,16 +1,16 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Event;
+namespace Shopware\Core\Content\Product\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Content\Product\Aggregate\ProductContextPrice\Event\ProductContextPriceBasicLoadedEvent;
-use Shopware\Content\Product\Aggregate\ProductManufacturer\Event\ProductManufacturerBasicLoadedEvent;
-use Shopware\Content\Product\Aggregate\ProductMedia\Event\ProductMediaBasicLoadedEvent;
-use Shopware\Content\Product\Collection\ProductBasicCollection;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\System\Tax\Event\TaxBasicLoadedEvent;
-use Shopware\System\Unit\Event\UnitBasicLoadedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Product\Aggregate\ProductContextPrice\Event\ProductContextPriceBasicLoadedEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\Event\ProductManufacturerBasicLoadedEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\Event\ProductMediaBasicLoadedEvent;
+use Shopware\Core\Content\Product\Collection\ProductBasicCollection;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\System\Tax\Event\TaxBasicLoadedEvent;
+use Shopware\Core\System\Unit\Event\UnitBasicLoadedEvent;
 
 class ProductBasicLoadedEvent extends NestedEvent
 {

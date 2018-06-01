@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Category\Aggregate\CategoryTranslation\Event;
+namespace Shopware\Core\Content\Category\Aggregate\CategoryTranslation\Event;
 
-use Shopware\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
-use Shopware\Framework\ORM\Write\DeletedEvent;
-use Shopware\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
+use Shopware\Core\Framework\ORM\Write\DeletedEvent;
+use Shopware\Core\Framework\ORM\Write\WrittenEvent;
 
 class CategoryTranslationDeletedEvent extends WrittenEvent implements DeletedEvent
 {

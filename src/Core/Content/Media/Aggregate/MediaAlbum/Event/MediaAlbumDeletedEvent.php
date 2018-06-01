@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Media\Aggregate\MediaAlbum\Event;
+namespace Shopware\Core\Content\Media\Aggregate\MediaAlbum\Event;
 
-use Shopware\Content\Media\Aggregate\MediaAlbum\MediaAlbumDefinition;
-use Shopware\Framework\ORM\Write\DeletedEvent;
-use Shopware\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Content\Media\Aggregate\MediaAlbum\MediaAlbumDefinition;
+use Shopware\Core\Framework\ORM\Write\DeletedEvent;
+use Shopware\Core\Framework\ORM\Write\WrittenEvent;
 
 class MediaAlbumDeletedEvent extends WrittenEvent implements DeletedEvent
 {

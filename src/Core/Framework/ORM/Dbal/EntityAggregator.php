@@ -1,29 +1,28 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Dbal;
+namespace Shopware\Core\Framework\ORM\Dbal;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Framework\Context;
-use Shopware\Content\Product\ProductDefinition;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\Read\EntityReaderInterface;
-use Shopware\Framework\ORM\Search\Aggregation\Aggregation;
-use Shopware\Framework\ORM\Search\Aggregation\AggregationResult;
-use Shopware\Framework\ORM\Search\Aggregation\AggregationResultCollection;
-use Shopware\Framework\ORM\Search\Aggregation\AvgAggregation;
-use Shopware\Framework\ORM\Search\Aggregation\CardinalityAggregation;
-use Shopware\Framework\ORM\Search\Aggregation\CountAggregation;
-use Shopware\Framework\ORM\Search\Aggregation\EntityAggregation;
-use Shopware\Framework\ORM\Search\Aggregation\MaxAggregation;
-use Shopware\Framework\ORM\Search\Aggregation\MinAggregation;
-use Shopware\Framework\ORM\Search\Aggregation\StatsAggregation;
-use Shopware\Framework\ORM\Search\Aggregation\SumAggregation;
-use Shopware\Framework\ORM\Search\Aggregation\ValueCountAggregation;
-use Shopware\Framework\ORM\Search\AggregatorResult;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
-use Shopware\Framework\ORM\Search\Parser\SqlQueryParser;
-use Shopware\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Core\Framework\ORM\Search\Aggregation\Aggregation;
+use Shopware\Core\Framework\ORM\Search\Aggregation\AggregationResult;
+use Shopware\Core\Framework\ORM\Search\Aggregation\AggregationResultCollection;
+use Shopware\Core\Framework\ORM\Search\Aggregation\AvgAggregation;
+use Shopware\Core\Framework\ORM\Search\Aggregation\CardinalityAggregation;
+use Shopware\Core\Framework\ORM\Search\Aggregation\CountAggregation;
+use Shopware\Core\Framework\ORM\Search\Aggregation\EntityAggregation;
+use Shopware\Core\Framework\ORM\Search\Aggregation\MaxAggregation;
+use Shopware\Core\Framework\ORM\Search\Aggregation\MinAggregation;
+use Shopware\Core\Framework\ORM\Search\Aggregation\StatsAggregation;
+use Shopware\Core\Framework\ORM\Search\Aggregation\SumAggregation;
+use Shopware\Core\Framework\ORM\Search\Aggregation\ValueCountAggregation;
+use Shopware\Core\Framework\ORM\Search\AggregatorResult;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\ORM\Search\Parser\SqlQueryParser;
+use Shopware\Core\Framework\Struct\Uuid;
 
 /**
  * Allows to execute aggregated queries for all entities in the system

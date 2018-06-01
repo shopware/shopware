@@ -2,15 +2,15 @@
 
 namespace Shopware\Storefront\Page\Account;
 
-use Shopware\Checkout\CustomerContext;
-use Shopware\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Core\Checkout\CustomerContext;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 
 class CustomerAddressPageLoader
 {
     /**
-     * @var \Shopware\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository
+     * @var \Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository
      */
     private $customerAddressRepository;
 

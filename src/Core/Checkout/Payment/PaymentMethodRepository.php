@@ -1,26 +1,26 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Payment;
+namespace Shopware\Core\Checkout\Payment;
 
-use Shopware\Framework\Context;
-use Shopware\Checkout\Payment\Collection\PaymentMethodBasicCollection;
-use Shopware\Checkout\Payment\Collection\PaymentMethodDetailCollection;
-use Shopware\Checkout\Payment\Event\PaymentMethodAggregationResultLoadedEvent;
-use Shopware\Checkout\Payment\Event\PaymentMethodBasicLoadedEvent;
-use Shopware\Checkout\Payment\Event\PaymentMethodDetailLoadedEvent;
-use Shopware\Checkout\Payment\Event\PaymentMethodIdSearchResultLoadedEvent;
-use Shopware\Checkout\Payment\Event\PaymentMethodSearchResultLoadedEvent;
-use Shopware\Checkout\Payment\Struct\PaymentMethodSearchResult;
-use Shopware\Framework\ORM\Read\EntityReaderInterface;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\AggregatorResult;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
-use Shopware\Framework\ORM\Search\EntitySearcherInterface;
-use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\ORM\Write\WriteContext;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Payment\Collection\PaymentMethodBasicCollection;
+use Shopware\Core\Checkout\Payment\Collection\PaymentMethodDetailCollection;
+use Shopware\Core\Checkout\Payment\Event\PaymentMethodAggregationResultLoadedEvent;
+use Shopware\Core\Checkout\Payment\Event\PaymentMethodBasicLoadedEvent;
+use Shopware\Core\Checkout\Payment\Event\PaymentMethodDetailLoadedEvent;
+use Shopware\Core\Checkout\Payment\Event\PaymentMethodIdSearchResultLoadedEvent;
+use Shopware\Core\Checkout\Payment\Event\PaymentMethodSearchResultLoadedEvent;
+use Shopware\Core\Checkout\Payment\Struct\PaymentMethodSearchResult;
+use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\AggregatorResult;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\ORM\Search\IdSearchResult;
+use Shopware\Core\Framework\ORM\Version\Service\VersionManager;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Write\WriteContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class PaymentMethodRepository implements RepositoryInterface
@@ -46,7 +46,7 @@ class PaymentMethodRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var \Shopware\Framework\ORM\Version\Service\VersionManager
+     * @var \Shopware\Core\Framework\ORM\Version\Service\VersionManager
      */
     private $versionManager;
 

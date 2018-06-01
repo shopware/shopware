@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Order\Aggregate\OrderLineItem\Event;
+namespace Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Checkout\Order\Aggregate\OrderLineItem\Collection\OrderLineItemBasicCollection;
-use Shopware\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\Collection\OrderLineItemBasicCollection;
+use Shopware\Core\Framework\Event\NestedEvent;
 
 class OrderLineItemBasicLoadedEvent extends NestedEvent
 {
@@ -16,7 +16,7 @@ class OrderLineItemBasicLoadedEvent extends NestedEvent
     protected $context;
 
     /**
-     * @var \Shopware\Checkout\Order\Aggregate\OrderLineItem\Collection\OrderLineItemBasicCollection
+     * @var \Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\Collection\OrderLineItemBasicCollection
      */
     protected $orderLineItems;
 

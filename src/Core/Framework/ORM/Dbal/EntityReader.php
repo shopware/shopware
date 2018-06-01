@@ -1,32 +1,32 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Dbal;
+namespace Shopware\Core\Framework\ORM\Dbal;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Framework\Context;
-use Shopware\Framework\ORM\Entity;
-use Shopware\Framework\ORM\EntityCollection;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\Field\AssociationInterface;
-use Shopware\Framework\ORM\Field\Field;
-use Shopware\Framework\ORM\Field\ManyToManyAssociationField;
-use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
-use Shopware\Framework\ORM\Field\OneToManyAssociationField;
-use Shopware\Framework\ORM\Field\TranslatedField;
-use Shopware\Framework\ORM\FieldCollection;
-use Shopware\Framework\ORM\Read\EntityReaderInterface;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\EntitySearcherInterface;
-use Shopware\Framework\ORM\Search\Query\TermsQuery;
-use Shopware\Framework\ORM\Write\FieldAware\StorageAware;
-use Shopware\Framework\ORM\Write\Flag\CascadeDelete;
-use Shopware\Framework\ORM\Write\Flag\Deferred;
-use Shopware\Framework\ORM\Write\Flag\DelayedLoad;
-use Shopware\Framework\ORM\Write\Flag\Extension;
-use Shopware\Framework\ORM\Write\Flag\Inherited;
-use Shopware\Framework\Struct\ArrayStruct;
-use Shopware\Framework\Struct\Struct;
-use Shopware\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\Field\AssociationInterface;
+use Shopware\Core\Framework\ORM\Field\Field;
+use Shopware\Core\Framework\ORM\Field\ManyToManyAssociationField;
+use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\ORM\Field\TranslatedField;
+use Shopware\Core\Framework\ORM\FieldCollection;
+use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\ORM\Search\Query\TermsQuery;
+use Shopware\Core\Framework\ORM\Write\FieldAware\StorageAware;
+use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
+use Shopware\Core\Framework\ORM\Write\Flag\Deferred;
+use Shopware\Core\Framework\ORM\Write\Flag\DelayedLoad;
+use Shopware\Core\Framework\ORM\Write\Flag\Extension;
+use Shopware\Core\Framework\ORM\Write\Flag\Inherited;
+use Shopware\Core\Framework\Struct\ArrayStruct;
+use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\Framework\Struct\Uuid;
 
 /**
  * Reads entities in specify data form (basic, detail, dynamic).
@@ -297,7 +297,7 @@ class EntityReader implements EntityReaderInterface
     /**
      * @param array                   $ids
      * @param string|EntityDefinition $definition
-     * @param \Shopware\Framework\Context      $context
+     * @param \Shopware\Core\Framework\Context      $context
      * @param FieldCollection         $fields
      *
      * @return array
@@ -323,7 +323,7 @@ class EntityReader implements EntityReaderInterface
     /**
      * @param string|EntityDefinition   $definition
      * @param ManyToOneAssociationField $association
-     * @param \Shopware\Framework\Context        $context
+     * @param \Shopware\Core\Framework\Context        $context
      * @param EntityCollection          $collection
      */
     private function loadManyToOne(string $definition, ManyToOneAssociationField $association, Context $context, EntityCollection $collection)

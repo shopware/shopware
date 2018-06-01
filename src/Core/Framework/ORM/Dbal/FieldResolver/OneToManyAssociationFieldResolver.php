@@ -1,15 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Dbal\FieldResolver;
+namespace Shopware\Core\Framework\ORM\Dbal\FieldResolver;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\ORM\Dbal\EntityDefinitionQueryHelper;
-use Shopware\Framework\ORM\Dbal\QueryBuilder;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\Field\Field;
-use Shopware\Framework\ORM\Field\OneToManyAssociationField;
-use Shopware\Framework\ORM\Write\Flag\CascadeDelete;
-use Shopware\Framework\ORM\Write\Flag\Inherited;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Dbal\EntityDefinitionQueryHelper;
+use Shopware\Core\Framework\ORM\Dbal\QueryBuilder;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\Field\Field;
+use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
+use Shopware\Core\Framework\ORM\Write\Flag\Inherited;
 
 class OneToManyAssociationFieldResolver implements FieldResolverInterface
 {

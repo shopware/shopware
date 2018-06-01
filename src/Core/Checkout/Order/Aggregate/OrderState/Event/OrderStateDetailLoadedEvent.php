@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Order\Aggregate\OrderState\Event;
+namespace Shopware\Core\Checkout\Order\Aggregate\OrderState\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Checkout\Order\Aggregate\OrderState\Collection\OrderStateDetailCollection;
-use Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Event\OrderStateTranslationBasicLoadedEvent;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Order\Aggregate\OrderState\Collection\OrderStateDetailCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderStateTranslation\Event\OrderStateTranslationBasicLoadedEvent;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
 
 class OrderStateDetailLoadedEvent extends NestedEvent
 {
@@ -18,7 +18,7 @@ class OrderStateDetailLoadedEvent extends NestedEvent
     protected $context;
 
     /**
-     * @var \Shopware\Checkout\Order\Aggregate\OrderState\Collection\OrderStateDetailCollection
+     * @var \Shopware\Core\Checkout\Order\Aggregate\OrderState\Collection\OrderStateDetailCollection
      */
     protected $orderStates;
 

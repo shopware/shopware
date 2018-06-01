@@ -2,12 +2,12 @@
 
 namespace Shopware\Storefront\Page\Account;
 
-use Shopware\Checkout\CustomerContext;
-use Shopware\Checkout\Order\OrderRepository;
-use Shopware\Checkout\Order\Struct\OrderSearchResult;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\Query\TermQuery;
-use Shopware\Framework\ORM\Search\Sorting\FieldSorting;
+use Shopware\Core\Checkout\CustomerContext;
+use Shopware\Core\Checkout\Order\OrderRepository;
+use Shopware\Core\Checkout\Order\Struct\OrderSearchResult;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Core\Framework\ORM\Search\Sorting\FieldSorting;
 use Symfony\Component\HttpFoundation\Request;
 
 class OrderPageLoader
@@ -16,7 +16,7 @@ class OrderPageLoader
 
     const PAGE_PARAMETER = 'page';
     /**
-     * @var \Shopware\Checkout\Order\OrderRepository
+     * @var \Shopware\Core\Checkout\Order\OrderRepository
      */
     private $orderRepository;
 

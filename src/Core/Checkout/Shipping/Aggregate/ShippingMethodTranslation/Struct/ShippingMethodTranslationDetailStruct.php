@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Struct;
+namespace Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Struct;
 
-use Shopware\System\Language\Struct\LanguageBasicStruct;
-use Shopware\Checkout\Shipping\Struct\ShippingMethodBasicStruct;
+use Shopware\Core\System\Language\Struct\LanguageBasicStruct;
+use Shopware\Core\Checkout\Shipping\Struct\ShippingMethodBasicStruct;
 
 class ShippingMethodTranslationDetailStruct extends ShippingMethodTranslationBasicStruct
 {

@@ -1,26 +1,26 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Order\Aggregate\OrderDelivery;
+namespace Shopware\Core\Checkout\Order\Aggregate\OrderDelivery;
 
-use Shopware\Framework\Context;
-use Shopware\Checkout\Order\Aggregate\OrderDelivery\Collection\OrderDeliveryBasicCollection;
-use Shopware\Checkout\Order\Aggregate\OrderDelivery\Collection\OrderDeliveryDetailCollection;
-use Shopware\Checkout\Order\Aggregate\OrderDelivery\Event\OrderDeliveryAggregationResultLoadedEvent;
-use Shopware\Checkout\Order\Aggregate\OrderDelivery\Event\OrderDeliveryBasicLoadedEvent;
-use Shopware\Checkout\Order\Aggregate\OrderDelivery\Event\OrderDeliveryDetailLoadedEvent;
-use Shopware\Checkout\Order\Aggregate\OrderDelivery\Event\OrderDeliveryIdSearchResultLoadedEvent;
-use Shopware\Checkout\Order\Aggregate\OrderDelivery\Event\OrderDeliverySearchResultLoadedEvent;
-use Shopware\Checkout\Order\Aggregate\OrderDelivery\Struct\OrderDeliverySearchResult;
-use Shopware\Framework\ORM\Read\EntityReaderInterface;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\AggregatorResult;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
-use Shopware\Framework\ORM\Search\EntitySearcherInterface;
-use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\ORM\Write\WriteContext;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\Collection\OrderDeliveryBasicCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\Collection\OrderDeliveryDetailCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\Event\OrderDeliveryAggregationResultLoadedEvent;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\Event\OrderDeliveryBasicLoadedEvent;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\Event\OrderDeliveryDetailLoadedEvent;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\Event\OrderDeliveryIdSearchResultLoadedEvent;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\Event\OrderDeliverySearchResultLoadedEvent;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\Struct\OrderDeliverySearchResult;
+use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\AggregatorResult;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\ORM\Search\IdSearchResult;
+use Shopware\Core\Framework\ORM\Version\Service\VersionManager;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Write\WriteContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class OrderDeliveryRepository implements RepositoryInterface
@@ -105,7 +105,7 @@ class OrderDeliveryRepository implements RepositoryInterface
 
     public function readBasic(array $ids, Context $context): OrderDeliveryBasicCollection
     {
-        /** @var \Shopware\Checkout\Order\Aggregate\OrderDelivery\Collection\OrderDeliveryBasicCollection $entities */
+        /** @var \Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\Collection\OrderDeliveryBasicCollection $entities */
         $entities = $this->reader->readBasic(OrderDeliveryDefinition::class, $ids, $context);
 
         $event = new OrderDeliveryBasicLoadedEvent($entities, $context);

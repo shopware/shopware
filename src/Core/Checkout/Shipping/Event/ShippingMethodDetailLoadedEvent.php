@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Shipping\Event;
+namespace Shopware\Core\Checkout\Shipping\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Checkout\Shipping\Aggregate\ShippingMethodPrice\Event\ShippingMethodPriceBasicLoadedEvent;
-use Shopware\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Event\ShippingMethodTranslationBasicLoadedEvent;
-use Shopware\Checkout\Shipping\Collection\ShippingMethodDetailCollection;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\Event\ShippingMethodPriceBasicLoadedEvent;
+use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Event\ShippingMethodTranslationBasicLoadedEvent;
+use Shopware\Core\Checkout\Shipping\Collection\ShippingMethodDetailCollection;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
 
 class ShippingMethodDetailLoadedEvent extends NestedEvent
 {

@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Rule\Specification\Scope;
+namespace Shopware\Core\Checkout\Rule\Specification\Scope;
 
-use Shopware\Checkout\CustomerContext;
-use Shopware\Checkout\Cart\LineItem\CalculatedLineItemInterface;
+use Shopware\Core\Checkout\CustomerContext;
+use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItemInterface;
 
 class CalculatedLineItemScope extends RuleScope
 {

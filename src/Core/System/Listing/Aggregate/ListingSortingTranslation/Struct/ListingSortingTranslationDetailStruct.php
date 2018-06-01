@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Listing\Aggregate\ListingSortingTranslation\Struct;
+namespace Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation\Struct;
 
-use Shopware\System\Language\Struct\LanguageBasicStruct;
-use Shopware\System\Listing\Struct\ListingSortingBasicStruct;
+use Shopware\Core\System\Language\Struct\LanguageBasicStruct;
+use Shopware\Core\System\Listing\Struct\ListingSortingBasicStruct;
 
 class ListingSortingTranslationDetailStruct extends ListingSortingTranslationBasicStruct
 {

@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Plugin\Struct;
+namespace Shopware\Core\Framework\Plugin\Struct;
 
-use Shopware\Framework\ORM\Search\SearchResultInterface;
-use Shopware\Framework\ORM\Search\SearchResultTrait;
-use Shopware\Framework\Plugin\Collection\PluginBasicCollection;
+use Shopware\Core\Framework\ORM\Search\SearchResultInterface;
+use Shopware\Core\Framework\ORM\Search\SearchResultTrait;
+use Shopware\Core\Framework\Plugin\Collection\PluginBasicCollection;
 
 class PluginSearchResult extends PluginBasicCollection implements SearchResultInterface
 {

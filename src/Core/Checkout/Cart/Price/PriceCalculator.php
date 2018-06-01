@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- * Shopware 5
+ * Shopware\Core 5
  * Copyright (c) shopware AG
  *
  * According to our dual licensing model, this program can be used either
@@ -17,22 +17,22 @@ declare(strict_types=1);
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
  *
- * "Shopware" is a registered trademark of shopware AG.
+ * "Shopware\Core" is a registered trademark of shopware AG.
  * The licensing of the program under the AGPLv3 does not imply a
  * trademark license. Therefore any rights, title and interest in
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Checkout\Cart\Price;
+namespace Shopware\Core\Checkout\Cart\Price;
 
-use Shopware\Checkout\CustomerContext;
-use Shopware\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
-use Shopware\Checkout\Cart\Price\Struct\PriceDefinition;
-use Shopware\Checkout\Cart\Price\Struct\PriceDefinitionCollection;
-use Shopware\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
-use Shopware\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Checkout\Cart\Tax\TaxDetector;
+use Shopware\Core\Checkout\CustomerContext;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
+use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinition;
+use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
 
 class PriceCalculator
 {

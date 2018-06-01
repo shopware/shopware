@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Struct\Serializer;
+namespace Shopware\Core\Framework\Struct\Serializer;
 
-use Shopware\Framework\Struct\Struct;
+use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Component\Serializer\Encoder\JsonDecode;
 use Symfony\Component\Serializer\Encoder\JsonEncode;
 use Symfony\Component\Serializer\Exception\InvalidArgumentException;

@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Configuration\Collection;
+namespace Shopware\Core\System\Configuration\Collection;
 
-use Shopware\Framework\ORM\EntityCollection;
-use Shopware\System\Configuration\Struct\ConfigurationGroupBasicStruct;
+use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\System\Configuration\Struct\ConfigurationGroupBasicStruct;
 
 class ConfigurationGroupBasicCollection extends EntityCollection
 {

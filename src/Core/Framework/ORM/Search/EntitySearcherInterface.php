@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Search;
+namespace Shopware\Core\Framework\ORM\Search;
 
-use Shopware\Framework\Context;
+use Shopware\Core\Framework\Context;
 
 interface EntitySearcherInterface
 {

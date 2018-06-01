@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Country\Aggregate\CountryAreaTranslation\Struct;
+namespace Shopware\Core\System\Country\Aggregate\CountryAreaTranslation\Struct;
 
-use Shopware\System\Language\Struct\LanguageBasicStruct;
-use Shopware\System\Country\Aggregate\CountryArea\Struct\CountryAreaBasicStruct;
+use Shopware\Core\System\Language\Struct\LanguageBasicStruct;
+use Shopware\Core\System\Country\Aggregate\CountryArea\Struct\CountryAreaBasicStruct;
 
 class CountryAreaTranslationDetailStruct extends CountryAreaTranslationBasicStruct
 {

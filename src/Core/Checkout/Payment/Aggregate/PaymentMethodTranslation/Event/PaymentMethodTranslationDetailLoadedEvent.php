@@ -1,20 +1,20 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation\Event;
+namespace Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\Event;
 
-use Shopware\Framework\Context;
-use Shopware\System\Language\Event\LanguageBasicLoadedEvent;
-use Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation\Collection\PaymentMethodTranslationDetailCollection;
-use Shopware\Checkout\Payment\Event\PaymentMethodBasicLoadedEvent;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\System\Language\Event\LanguageBasicLoadedEvent;
+use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\Collection\PaymentMethodTranslationDetailCollection;
+use Shopware\Core\Checkout\Payment\Event\PaymentMethodBasicLoadedEvent;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
 
 class PaymentMethodTranslationDetailLoadedEvent extends NestedEvent
 {
     public const NAME = 'payment_method_translation.detail.loaded';
 
     /**
-     * @var \Shopware\Framework\Context
+     * @var \Shopware\Core\Framework\Context
      */
     protected $context;
 

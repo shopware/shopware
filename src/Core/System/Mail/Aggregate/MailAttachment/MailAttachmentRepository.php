@@ -1,26 +1,26 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Mail\Aggregate\MailAttachment;
+namespace Shopware\Core\System\Mail\Aggregate\MailAttachment;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\ORM\Read\EntityReaderInterface;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\AggregatorResult;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
-use Shopware\Framework\ORM\Search\EntitySearcherInterface;
-use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\System\Mail\Aggregate\MailAttachment\Collection\MailAttachmentBasicCollection;
-use Shopware\System\Mail\Aggregate\MailAttachment\Collection\MailAttachmentDetailCollection;
-use Shopware\System\Mail\Aggregate\MailAttachment\Event\MailAttachmentAggregationResultLoadedEvent;
-use Shopware\System\Mail\Aggregate\MailAttachment\Event\MailAttachmentBasicLoadedEvent;
-use Shopware\System\Mail\Aggregate\MailAttachment\Event\MailAttachmentDetailLoadedEvent;
-use Shopware\System\Mail\Aggregate\MailAttachment\Event\MailAttachmentIdSearchResultLoadedEvent;
-use Shopware\System\Mail\Aggregate\MailAttachment\Event\MailAttachmentSearchResultLoadedEvent;
-use Shopware\System\Mail\Aggregate\MailAttachment\Struct\MailAttachmentSearchResult;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\AggregatorResult;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\ORM\Search\IdSearchResult;
+use Shopware\Core\Framework\ORM\Version\Service\VersionManager;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Write\WriteContext;
+use Shopware\Core\System\Mail\Aggregate\MailAttachment\Collection\MailAttachmentBasicCollection;
+use Shopware\Core\System\Mail\Aggregate\MailAttachment\Collection\MailAttachmentDetailCollection;
+use Shopware\Core\System\Mail\Aggregate\MailAttachment\Event\MailAttachmentAggregationResultLoadedEvent;
+use Shopware\Core\System\Mail\Aggregate\MailAttachment\Event\MailAttachmentBasicLoadedEvent;
+use Shopware\Core\System\Mail\Aggregate\MailAttachment\Event\MailAttachmentDetailLoadedEvent;
+use Shopware\Core\System\Mail\Aggregate\MailAttachment\Event\MailAttachmentIdSearchResultLoadedEvent;
+use Shopware\Core\System\Mail\Aggregate\MailAttachment\Event\MailAttachmentSearchResultLoadedEvent;
+use Shopware\Core\System\Mail\Aggregate\MailAttachment\Struct\MailAttachmentSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class MailAttachmentRepository implements RepositoryInterface
@@ -105,7 +105,7 @@ class MailAttachmentRepository implements RepositoryInterface
 
     public function readBasic(array $ids, Context $context): MailAttachmentBasicCollection
     {
-        /** @var \Shopware\System\Mail\Aggregate\MailAttachment\Collection\MailAttachmentBasicCollection $entities */
+        /** @var \Shopware\Core\System\Mail\Aggregate\MailAttachment\Collection\MailAttachmentBasicCollection $entities */
         $entities = $this->reader->readBasic(MailAttachmentDefinition::class, $ids, $context);
 
         $event = new MailAttachmentBasicLoadedEvent($entities, $context);

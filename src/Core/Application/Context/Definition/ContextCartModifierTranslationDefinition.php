@@ -1,23 +1,23 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Application\Context\Definition;
+namespace Shopware\Core\Application\Context\Definition;
 
-use Shopware\Application\Context\Collection\ContextCartModifierTranslationBasicCollection;
-use Shopware\Application\Context\Collection\ContextCartModifierTranslationDetailCollection;
-use Shopware\Application\Context\Event\ContextCartModifierTranslation\ContextCartModifierTranslationDeletedEvent;
-use Shopware\Application\Context\Event\ContextCartModifierTranslation\ContextCartModifierTranslationWrittenEvent;
-use Shopware\Application\Context\Repository\ContextCartModifierTranslationRepository;
-use Shopware\Application\Context\Struct\ContextCartModifierTranslationBasicStruct;
-use Shopware\Application\Context\Struct\ContextCartModifierTranslationDetailStruct;
-use Shopware\System\Language\LanguageDefinition;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\EntityExtensionInterface;
-use Shopware\Framework\ORM\Field\FkField;
-use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
-use Shopware\Framework\ORM\Field\StringField;
-use Shopware\Framework\ORM\FieldCollection;
-use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
-use Shopware\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\Application\Context\Collection\ContextCartModifierTranslationBasicCollection;
+use Shopware\Core\Application\Context\Collection\ContextCartModifierTranslationDetailCollection;
+use Shopware\Core\Application\Context\Event\ContextCartModifierTranslation\ContextCartModifierTranslationDeletedEvent;
+use Shopware\Core\Application\Context\Event\ContextCartModifierTranslation\ContextCartModifierTranslationWrittenEvent;
+use Shopware\Core\Application\Context\Repository\ContextCartModifierTranslationRepository;
+use Shopware\Core\Application\Context\Struct\ContextCartModifierTranslationBasicStruct;
+use Shopware\Core\Application\Context\Struct\ContextCartModifierTranslationDetailStruct;
+use Shopware\Core\System\Language\LanguageDefinition;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+use Shopware\Core\Framework\ORM\Field\FkField;
+use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\ORM\Field\StringField;
+use Shopware\Core\Framework\ORM\FieldCollection;
+use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
+use Shopware\Core\Framework\ORM\Write\Flag\Required;
 
 class ContextCartModifierTranslationDefinition extends EntityDefinition
 {

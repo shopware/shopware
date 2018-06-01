@@ -39,7 +39,7 @@ The `-` sign defines the `DESCENDING` direction for the `product.name` field.
 ```
 /api/product/term=shopware
 ```
-Builds a search query for the product entity. The api uses different fields (which are marked in the entity definition with the \Shopware\Framework\ORM\Write\Flag\SearchRanking flag) for the query execution.
+Builds a search query for the product entity. The api uses different fields (which are marked in the entity definition with the \Shopware\Core\Framework\ORM\Write\Flag\SearchRanking flag) for the query execution.
 
 ## Advanced mode
 To send complex conditional queries to the api, it is required to use the `/api/search/{entity}` endpoint.

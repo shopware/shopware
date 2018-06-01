@@ -1,14 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Aggregate\ProductStream\Collection;
+namespace Shopware\Core\Content\Product\Aggregate\ProductStream\Collection;
 
-use Shopware\Content\Product\Aggregate\ProductStream\Struct\ProductStreamDetailStruct;
-use Shopware\Content\Product\Collection\ProductBasicCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductStream\Struct\ProductStreamDetailStruct;
+use Shopware\Core\Content\Product\Collection\ProductBasicCollection;
 
 class ProductStreamDetailCollection extends ProductStreamBasicCollection
 {
     /**
-     * @var \Shopware\Content\Product\Aggregate\ProductStream\Struct\ProductStreamDetailStruct[]
+     * @var \Shopware\Core\Content\Product\Aggregate\ProductStream\Struct\ProductStreamDetailStruct[]
      */
     protected $elements = [];
 

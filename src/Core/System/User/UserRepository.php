@@ -1,26 +1,26 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\User;
+namespace Shopware\Core\System\User;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\ORM\Read\EntityReaderInterface;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\AggregatorResult;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
-use Shopware\Framework\ORM\Search\EntitySearcherInterface;
-use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\System\User\Collection\UserBasicCollection;
-use Shopware\System\User\Collection\UserDetailCollection;
-use Shopware\System\User\Event\UserAggregationResultLoadedEvent;
-use Shopware\System\User\Event\UserBasicLoadedEvent;
-use Shopware\System\User\Event\UserDetailLoadedEvent;
-use Shopware\System\User\Event\UserIdSearchResultLoadedEvent;
-use Shopware\System\User\Event\UserSearchResultLoadedEvent;
-use Shopware\System\User\Struct\UserSearchResult;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\AggregatorResult;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\ORM\Search\IdSearchResult;
+use Shopware\Core\Framework\ORM\Version\Service\VersionManager;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Write\WriteContext;
+use Shopware\Core\System\User\Collection\UserBasicCollection;
+use Shopware\Core\System\User\Collection\UserDetailCollection;
+use Shopware\Core\System\User\Event\UserAggregationResultLoadedEvent;
+use Shopware\Core\System\User\Event\UserBasicLoadedEvent;
+use Shopware\Core\System\User\Event\UserDetailLoadedEvent;
+use Shopware\Core\System\User\Event\UserIdSearchResultLoadedEvent;
+use Shopware\Core\System\User\Event\UserSearchResultLoadedEvent;
+use Shopware\Core\System\User\Struct\UserSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class UserRepository implements RepositoryInterface

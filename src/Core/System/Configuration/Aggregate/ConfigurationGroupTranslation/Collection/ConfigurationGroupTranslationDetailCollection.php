@@ -1,15 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Configuration\Aggregate\ConfigurationGroupTranslation\Collection;
+namespace Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupTranslation\Collection;
 
-use Shopware\System\Language\Collection\LanguageBasicCollection;
-use Shopware\System\Configuration\Aggregate\ConfigurationGroupTranslation\Struct\ConfigurationGroupTranslationDetailStruct;
-use Shopware\System\Configuration\Collection\ConfigurationGroupBasicCollection;
+use Shopware\Core\System\Language\Collection\LanguageBasicCollection;
+use Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupTranslation\Struct\ConfigurationGroupTranslationDetailStruct;
+use Shopware\Core\System\Configuration\Collection\ConfigurationGroupBasicCollection;
 
 class ConfigurationGroupTranslationDetailCollection extends ConfigurationGroupTranslationBasicCollection
 {
     /**
-     * @var \Shopware\System\Configuration\Aggregate\ConfigurationGroupTranslation\Struct\ConfigurationGroupTranslationDetailStruct[]
+     * @var \Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupTranslation\Struct\ConfigurationGroupTranslationDetailStruct[]
      */
     protected $elements = [];
 

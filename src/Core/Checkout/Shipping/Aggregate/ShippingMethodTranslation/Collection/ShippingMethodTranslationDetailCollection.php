@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Collection;
+namespace Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Collection;
 
-use Shopware\System\Language\Collection\LanguageBasicCollection;
-use Shopware\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Struct\ShippingMethodTranslationDetailStruct;
-use Shopware\Checkout\Shipping\Collection\ShippingMethodBasicCollection;
+use Shopware\Core\System\Language\Collection\LanguageBasicCollection;
+use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Struct\ShippingMethodTranslationDetailStruct;
+use Shopware\Core\Checkout\Shipping\Collection\ShippingMethodBasicCollection;
 
 class ShippingMethodTranslationDetailCollection extends ShippingMethodTranslationBasicCollection
 {

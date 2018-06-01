@@ -1,18 +1,18 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Language\Event;
+namespace Shopware\Core\System\Language\Event;
 
-use Shopware\Framework\Context;
-use Shopware\System\Language\Collection\LanguageDetailCollection;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\System\Language\Collection\LanguageDetailCollection;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
 
 class LanguageDetailLoadedEvent extends NestedEvent
 {
     public const NAME = 'language.detail.loaded';
 
     /**
-     * @var \Shopware\Framework\Context
+     * @var \Shopware\Core\Framework\Context
      */
     protected $context;
 

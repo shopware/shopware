@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Collection;
+namespace Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupOption\Collection;
 
-use Shopware\Framework\ORM\EntityCollection;
-use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Struct\ConfigurationGroupOptionBasicStruct;
-use Shopware\System\Configuration\Collection\ConfigurationGroupBasicCollection;
-use Shopware\System\Configuration\Collection\ConfigurationGroupDetailCollection;
-use Shopware\System\Configuration\Struct\ConfigurationGroupDetailStruct;
+use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupOption\Struct\ConfigurationGroupOptionBasicStruct;
+use Shopware\Core\System\Configuration\Collection\ConfigurationGroupBasicCollection;
+use Shopware\Core\System\Configuration\Collection\ConfigurationGroupDetailCollection;
+use Shopware\Core\System\Configuration\Struct\ConfigurationGroupDetailStruct;
 
 class ConfigurationGroupOptionBasicCollection extends EntityCollection
 {

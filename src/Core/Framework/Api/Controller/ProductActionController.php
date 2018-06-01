@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Api\Controller;
+namespace Shopware\Core\Framework\Api\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Framework\Context;
-use Shopware\Content\Product\ProductDefinition;
-use Shopware\Content\Product\Util\VariantGenerator;
-use Shopware\Framework\Api\Context\RestContext;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\Util\VariantGenerator;
+use Shopware\Core\Framework\Api\Context\RestContext;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -29,10 +29,10 @@ class ProductActionController extends Controller
      * @Method({"POST"})
      *
      * @param string             $productId
-     * @param \Shopware\Framework\Context $context
+     * @param \Shopware\Core\Framework\Context $context
      *
-     * @throws \Shopware\Content\Product\Exception\NoConfiguratorFoundException
-     * @throws \Shopware\Content\Product\Exception\ProductNotFoundException
+     * @throws \Shopware\Core\Content\Product\Exception\NoConfiguratorFoundException
+     * @throws \Shopware\Core\Content\Product\Exception\ProductNotFoundException
      *
      * @return JsonResponse
      */

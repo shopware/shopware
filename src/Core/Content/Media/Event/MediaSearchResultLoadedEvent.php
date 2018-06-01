@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Media\Event;
+namespace Shopware\Core\Content\Media\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Content\Media\Struct\MediaSearchResult;
-use Shopware\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Media\Struct\MediaSearchResult;
+use Shopware\Core\Framework\Event\NestedEvent;
 
 class MediaSearchResultLoadedEvent extends NestedEvent
 {

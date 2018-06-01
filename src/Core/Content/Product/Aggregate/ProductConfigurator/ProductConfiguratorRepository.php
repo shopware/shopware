@@ -1,25 +1,25 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Aggregate\ProductConfigurator;
+namespace Shopware\Core\Content\Product\Aggregate\ProductConfigurator;
 
-use Shopware\Framework\Context;
-use Shopware\Content\Product\Aggregate\ProductConfigurator\Collection\ProductConfiguratorBasicCollection;
-use Shopware\Content\Product\Aggregate\ProductConfigurator\Event\ProductConfiguratorAggregationResultLoadedEvent;
-use Shopware\Content\Product\Aggregate\ProductConfigurator\Event\ProductConfiguratorBasicLoadedEvent;
-use Shopware\Content\Product\Aggregate\ProductConfigurator\Event\ProductConfiguratorIdSearchResultLoadedEvent;
-use Shopware\Content\Product\Aggregate\ProductConfigurator\Event\ProductConfiguratorSearchResultLoadedEvent;
-use Shopware\Content\Product\Aggregate\ProductConfigurator\Struct\ProductConfiguratorSearchResult;
-use Shopware\Content\Product\Collection\ProductConfiguratorDetailCollection;
-use Shopware\Framework\ORM\Read\EntityReaderInterface;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\AggregatorResult;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
-use Shopware\Framework\ORM\Search\EntitySearcherInterface;
-use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\ORM\Write\WriteContext;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\Collection\ProductConfiguratorBasicCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\Event\ProductConfiguratorAggregationResultLoadedEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\Event\ProductConfiguratorBasicLoadedEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\Event\ProductConfiguratorIdSearchResultLoadedEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\Event\ProductConfiguratorSearchResultLoadedEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\Struct\ProductConfiguratorSearchResult;
+use Shopware\Core\Content\Product\Collection\ProductConfiguratorDetailCollection;
+use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\AggregatorResult;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\ORM\Search\IdSearchResult;
+use Shopware\Core\Framework\ORM\Version\Service\VersionManager;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Write\WriteContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductConfiguratorRepository implements RepositoryInterface
@@ -45,7 +45,7 @@ class ProductConfiguratorRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var \Shopware\Framework\ORM\Version\Service\VersionManager
+     * @var \Shopware\Core\Framework\ORM\Version\Service\VersionManager
      */
     private $versionManager;
 
@@ -104,7 +104,7 @@ class ProductConfiguratorRepository implements RepositoryInterface
 
     public function readBasic(array $ids, Context $context): ProductConfiguratorBasicCollection
     {
-        /** @var \Shopware\Content\Product\Aggregate\ProductConfigurator\Collection\ProductConfiguratorBasicCollection $entities */
+        /** @var \Shopware\Core\Content\Product\Aggregate\ProductConfigurator\Collection\ProductConfiguratorBasicCollection $entities */
         $entities = $this->reader->readBasic(ProductConfiguratorDefinition::class, $ids, $context);
 
         $event = new ProductConfiguratorBasicLoadedEvent($entities, $context);

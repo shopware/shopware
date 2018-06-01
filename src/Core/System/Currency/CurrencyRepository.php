@@ -1,26 +1,26 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Currency;
+namespace Shopware\Core\System\Currency;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\ORM\Read\EntityReaderInterface;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\AggregatorResult;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
-use Shopware\Framework\ORM\Search\EntitySearcherInterface;
-use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\System\Currency\Collection\CurrencyBasicCollection;
-use Shopware\System\Currency\Collection\CurrencyDetailCollection;
-use Shopware\System\Currency\Event\CurrencyAggregationResultLoadedEvent;
-use Shopware\System\Currency\Event\CurrencyBasicLoadedEvent;
-use Shopware\System\Currency\Event\CurrencyDetailLoadedEvent;
-use Shopware\System\Currency\Event\CurrencyIdSearchResultLoadedEvent;
-use Shopware\System\Currency\Event\CurrencySearchResultLoadedEvent;
-use Shopware\System\Currency\Struct\CurrencySearchResult;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\AggregatorResult;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\ORM\Search\IdSearchResult;
+use Shopware\Core\Framework\ORM\Version\Service\VersionManager;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Write\WriteContext;
+use Shopware\Core\System\Currency\Collection\CurrencyBasicCollection;
+use Shopware\Core\System\Currency\Collection\CurrencyDetailCollection;
+use Shopware\Core\System\Currency\Event\CurrencyAggregationResultLoadedEvent;
+use Shopware\Core\System\Currency\Event\CurrencyBasicLoadedEvent;
+use Shopware\Core\System\Currency\Event\CurrencyDetailLoadedEvent;
+use Shopware\Core\System\Currency\Event\CurrencyIdSearchResultLoadedEvent;
+use Shopware\Core\System\Currency\Event\CurrencySearchResultLoadedEvent;
+use Shopware\Core\System\Currency\Struct\CurrencySearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class CurrencyRepository implements RepositoryInterface
@@ -46,7 +46,7 @@ class CurrencyRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var \Shopware\Framework\ORM\Version\Service\VersionManager
+     * @var \Shopware\Core\Framework\ORM\Version\Service\VersionManager
      */
     private $versionManager;
 

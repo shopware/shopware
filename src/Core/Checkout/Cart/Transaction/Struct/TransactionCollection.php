@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Cart\Transaction\Struct;
+namespace Shopware\Core\Checkout\Cart\Transaction\Struct;
 
-use Shopware\Framework\Struct\Collection;
+use Shopware\Core\Framework\Struct\Collection;
 
 class TransactionCollection extends Collection
 {

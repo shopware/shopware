@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- * Shopware 5
+ * Shopware\Core 5
  * Copyright (c) shopware AG
  *
  * According to our dual licensing model, this program can be used either
@@ -17,24 +17,24 @@ declare(strict_types=1);
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
  *
- * "Shopware" is a registered trademark of shopware AG.
+ * "Shopware\Core" is a registered trademark of shopware AG.
  * The licensing of the program under the AGPLv3 does not imply a
  * trademark license. Therefore any rights, title and interest in
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Content\Product\Cart;
+namespace Shopware\Core\Content\Product\Cart;
 
-use Shopware\Checkout\CustomerContext;
-use Shopware\Checkout\Cart\LineItem\CalculatedLineItem;
-use Shopware\Checkout\Cart\LineItem\CalculatedLineItemCollection;
-use Shopware\Checkout\Cart\LineItem\LineItemCollection;
-use Shopware\Checkout\Cart\LineItem\LineItemInterface;
-use Shopware\Checkout\Cart\Price\PriceCalculator;
-use Shopware\Checkout\Cart\Price\Struct\PriceDefinition;
-use Shopware\Content\Product\Cart\Struct\CalculatedProduct;
-use Shopware\Content\Product\Struct\ProductBasicStruct;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Core\Checkout\CustomerContext;
+use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItem;
+use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItemCollection;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemInterface;
+use Shopware\Core\Checkout\Cart\Price\PriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinition;
+use Shopware\Core\Content\Product\Cart\Struct\CalculatedProduct;
+use Shopware\Core\Content\Product\Struct\ProductBasicStruct;
+use Shopware\Core\Framework\Struct\StructCollection;
 
 class ProductCalculator
 {
@@ -103,7 +103,7 @@ class ProductCalculator
                     continue;
                 }
 
-                /** @var \Shopware\Content\Product\Aggregate\ProductService\Struct\ProductServiceBasicStruct $service */
+                /** @var \Shopware\Core\Content\Product\Aggregate\ProductService\Struct\ProductServiceBasicStruct $service */
                 $service = $dataCollection->get($serviceId);
                 if (!$service) {
                     continue;

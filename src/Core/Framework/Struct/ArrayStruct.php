@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Struct;
+namespace Shopware\Core\Framework\Struct;
 
-use Shopware\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Entity;
 
 class ArrayStruct extends Entity implements \ArrayAccess
 {

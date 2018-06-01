@@ -1,18 +1,18 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Aggregate\ProductVariation;
+namespace Shopware\Core\Content\Product\Aggregate\ProductVariation;
 
-use Shopware\Content\Product\Aggregate\ProductVariation\Event\ProductVariationDeletedEvent;
-use Shopware\Content\Product\Aggregate\ProductVariation\Event\ProductVariationWrittenEvent;
-use Shopware\Content\Product\ProductDefinition;
-use Shopware\Framework\ORM\Field\FkField;
-use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
-use Shopware\Framework\ORM\Field\ReferenceVersionField;
-use Shopware\Framework\ORM\FieldCollection;
-use Shopware\Framework\ORM\MappingEntityDefinition;
-use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
-use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductVariation\Event\ProductVariationDeletedEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductVariation\Event\ProductVariationWrittenEvent;
+use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\ORM\Field\FkField;
+use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
+use Shopware\Core\Framework\ORM\FieldCollection;
+use Shopware\Core\Framework\ORM\MappingEntityDefinition;
+use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
+use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
 
 class ProductVariationDefinition extends MappingEntityDefinition
 {

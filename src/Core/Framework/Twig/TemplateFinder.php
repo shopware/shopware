@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Twig;
+namespace Shopware\Core\Framework\Twig;
 
-use Shopware\Kernel;
+use Shopware\Core\Kernel;
 use Symfony\Bundle\TwigBundle\Loader\FilesystemLoader;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 
@@ -25,7 +25,7 @@ class TemplateFinder
 
     private $defaultBundles = [
         'Administration',
-        'Shopware',
+        'Shopware\Core',
     ];
 
     /**

@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Api\Seo\Struct;
 
-use Shopware\System\Touchpoint\Struct\TouchpointBasicStruct;
+use Shopware\Core\System\Touchpoint\Struct\TouchpointBasicStruct;
 
 class SeoUrlDetailStruct extends SeoUrlBasicStruct
 {

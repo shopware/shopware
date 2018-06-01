@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Customer\Aggregate\CustomerAddress\Struct;
+namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Struct;
 
-use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
+use Shopware\Core\Checkout\Customer\Struct\CustomerBasicStruct;
 
 class CustomerAddressDetailStruct extends CustomerAddressBasicStruct
 {

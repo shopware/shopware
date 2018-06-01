@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Customer\Aggregate\CustomerGroup\Event;
+namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Checkout\Customer\Aggregate\CustomerGroup\Collection\CustomerGroupBasicCollection;
-use Shopware\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\Collection\CustomerGroupBasicCollection;
+use Shopware\Core\Framework\Event\NestedEvent;
 
 class CustomerGroupBasicLoadedEvent extends NestedEvent
 {
@@ -16,7 +16,7 @@ class CustomerGroupBasicLoadedEvent extends NestedEvent
     protected $context;
 
     /**
-     * @var \Shopware\Checkout\Customer\Aggregate\CustomerGroup\Collection\CustomerGroupBasicCollection
+     * @var \Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\Collection\CustomerGroupBasicCollection
      */
     protected $customerGroups;
 

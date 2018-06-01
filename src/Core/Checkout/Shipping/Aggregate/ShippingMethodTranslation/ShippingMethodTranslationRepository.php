@@ -1,26 +1,26 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Shipping\Aggregate\ShippingMethodTranslation;
+namespace Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation;
 
-use Shopware\Framework\Context;
-use Shopware\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Collection\ShippingMethodTranslationBasicCollection;
-use Shopware\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Collection\ShippingMethodTranslationDetailCollection;
-use Shopware\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Event\ShippingMethodTranslationAggregationResultLoadedEvent;
-use Shopware\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Event\ShippingMethodTranslationBasicLoadedEvent;
-use Shopware\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Event\ShippingMethodTranslationDetailLoadedEvent;
-use Shopware\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Event\ShippingMethodTranslationIdSearchResultLoadedEvent;
-use Shopware\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Event\ShippingMethodTranslationSearchResultLoadedEvent;
-use Shopware\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Struct\ShippingMethodTranslationSearchResult;
-use Shopware\Framework\ORM\Read\EntityReaderInterface;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\AggregatorResult;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
-use Shopware\Framework\ORM\Search\EntitySearcherInterface;
-use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\ORM\Write\WriteContext;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Collection\ShippingMethodTranslationBasicCollection;
+use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Collection\ShippingMethodTranslationDetailCollection;
+use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Event\ShippingMethodTranslationAggregationResultLoadedEvent;
+use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Event\ShippingMethodTranslationBasicLoadedEvent;
+use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Event\ShippingMethodTranslationDetailLoadedEvent;
+use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Event\ShippingMethodTranslationIdSearchResultLoadedEvent;
+use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Event\ShippingMethodTranslationSearchResultLoadedEvent;
+use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Struct\ShippingMethodTranslationSearchResult;
+use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\AggregatorResult;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\ORM\Search\IdSearchResult;
+use Shopware\Core\Framework\ORM\Version\Service\VersionManager;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Write\WriteContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ShippingMethodTranslationRepository implements RepositoryInterface
@@ -46,7 +46,7 @@ class ShippingMethodTranslationRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var \Shopware\Framework\ORM\Version\Service\VersionManager
+     * @var \Shopware\Core\Framework\ORM\Version\Service\VersionManager
      */
     private $versionManager;
 
@@ -105,7 +105,7 @@ class ShippingMethodTranslationRepository implements RepositoryInterface
 
     public function readBasic(array $ids, Context $context): ShippingMethodTranslationBasicCollection
     {
-        /** @var \Shopware\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Collection\ShippingMethodTranslationBasicCollection $entities */
+        /** @var \Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Collection\ShippingMethodTranslationBasicCollection $entities */
         $entities = $this->reader->readBasic(ShippingMethodTranslationDefinition::class, $ids, $context);
 
         $event = new ShippingMethodTranslationBasicLoadedEvent($entities, $context);

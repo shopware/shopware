@@ -2,7 +2,7 @@
     'use strict';
 
     /**
-     * Shopware Panel Auto Resizer Plugin
+     * Shopware\Core Panel Auto Resizer Plugin
      *
      * This plugin allows you to automatically resize a bunch of panels to match their biggest height. By default,
      * the setting 'columns' is set to 0, which will calculate the height based on all children elements beneath the

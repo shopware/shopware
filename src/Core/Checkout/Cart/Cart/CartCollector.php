@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Cart\Cart;
+namespace Shopware\Core\Checkout\Cart\Cart;
 
-use Shopware\Checkout\CustomerContext;
-use Shopware\Checkout\Cart\Cart\Struct\Cart;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Core\Checkout\CustomerContext;
+use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
+use Shopware\Core\Framework\Struct\StructCollection;
 
 class CartCollector
 {

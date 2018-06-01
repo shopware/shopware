@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Payment\Collection;
+namespace Shopware\Core\Checkout\Payment\Collection;
 
-use Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation\Collection\PaymentMethodTranslationBasicCollection;
-use Shopware\Checkout\Payment\Struct\PaymentMethodDetailStruct;
-use Shopware\Framework\Plugin\Collection\PluginBasicCollection;
+use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\Collection\PaymentMethodTranslationBasicCollection;
+use Shopware\Core\Checkout\Payment\Struct\PaymentMethodDetailStruct;
+use Shopware\Core\Framework\Plugin\Collection\PluginBasicCollection;
 
 class PaymentMethodDetailCollection extends PaymentMethodBasicCollection
 {

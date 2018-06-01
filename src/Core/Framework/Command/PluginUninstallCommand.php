@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Command;
+namespace Shopware\Core\Framework\Command;
 
-use Shopware\Framework\Plugin\Exception\PluginNotFoundException;
-use Shopware\Framework\Plugin\PluginManager;
-use Shopware\Framework\Plugin\Struct\Plugin;
+use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
+use Shopware\Core\Framework\Plugin\PluginManager;
+use Shopware\Core\Framework\Plugin\Struct\Plugin;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;

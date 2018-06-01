@@ -1,35 +1,35 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Command;
+namespace Shopware\Core\Framework\Command;
 
 use Bezhanov\Faker\Provider\Commerce;
 use bheller\ImagesGenerator\ImagesGeneratorProvider;
 use Faker\Factory;
 use Faker\Generator;
 use League\Flysystem\FilesystemInterface;
-use Shopware\Framework\Context;
-use Shopware\Checkout\Customer\CustomerDefinition;
-use Shopware\Checkout\Rule\ContextRuleDefinition;
-use Shopware\Checkout\Rule\ContextRuleRepository;
-use Shopware\Checkout\Rule\Specification\CalculatedCart\GoodsPriceRule;
-use Shopware\Checkout\Rule\Specification\Container\AndRule;
-use Shopware\Checkout\Rule\Specification\Container\NotRule;
-use Shopware\Checkout\Rule\Specification\Context\CurrencyRule;
-use Shopware\Checkout\Rule\Specification\Context\CustomerGroupRule;
-use Shopware\Checkout\Rule\Specification\Context\DateRangeRule;
-use Shopware\Checkout\Rule\Specification\Context\IsNewCustomerRule;
-use Shopware\Content\Category\CategoryRepository;
-use Shopware\Content\Media\Aggregate\MediaAlbum\MediaAlbumRepository;
-use Shopware\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
-use Shopware\Content\Product\ProductDefinition;
-use Shopware\Content\Product\ProductRepository;
-use Shopware\Content\Product\Util\VariantGenerator;
-use Shopware\Defaults;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Write\EntityWriterInterface;
-use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\Framework\Struct\Uuid;
-use Shopware\System\Configuration\ConfigurationGroupDefinition;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Customer\CustomerDefinition;
+use Shopware\Core\Checkout\Rule\ContextRuleDefinition;
+use Shopware\Core\Checkout\Rule\ContextRuleRepository;
+use Shopware\Core\Checkout\Rule\Specification\CalculatedCart\GoodsPriceRule;
+use Shopware\Core\Checkout\Rule\Specification\Container\AndRule;
+use Shopware\Core\Checkout\Rule\Specification\Container\NotRule;
+use Shopware\Core\Checkout\Rule\Specification\Context\CurrencyRule;
+use Shopware\Core\Checkout\Rule\Specification\Context\CustomerGroupRule;
+use Shopware\Core\Checkout\Rule\Specification\Context\DateRangeRule;
+use Shopware\Core\Checkout\Rule\Specification\Context\IsNewCustomerRule;
+use Shopware\Core\Content\Category\CategoryRepository;
+use Shopware\Core\Content\Media\Aggregate\MediaAlbum\MediaAlbumRepository;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
+use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\ProductRepository;
+use Shopware\Core\Content\Product\Util\VariantGenerator;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Write\EntityWriterInterface;
+use Shopware\Core\Framework\ORM\Write\WriteContext;
+use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\System\Configuration\ConfigurationGroupDefinition;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -449,13 +449,13 @@ class DemodataCommand extends ContainerAwareCommand
 
             if (count($payload) >= 50) {
                 $this->io->progressAdvance(count($payload));
-                $this->writer->upsert(ProductDefinition::class, $payload, WriteContext::createFromApplicationContext($context));
+                $this->writer->upsert(ProductDefinition::class, $payload, WriteContext::createFromContext($context));
                 $payload = [];
             }
         }
 
         if (!empty($payload)) {
-            $this->writer->upsert(ProductDefinition::class, $payload, WriteContext::createFromApplicationContext($context));
+            $this->writer->upsert(ProductDefinition::class, $payload, WriteContext::createFromContext($context));
         }
 
         $this->io->progressFinish();

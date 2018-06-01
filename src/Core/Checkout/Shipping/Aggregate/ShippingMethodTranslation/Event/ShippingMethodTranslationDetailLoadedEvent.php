@@ -1,20 +1,20 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Event;
+namespace Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Event;
 
-use Shopware\Framework\Context;
-use Shopware\System\Language\Event\LanguageBasicLoadedEvent;
-use Shopware\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Collection\ShippingMethodTranslationDetailCollection;
-use Shopware\Checkout\Shipping\Event\ShippingMethodBasicLoadedEvent;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\System\Language\Event\LanguageBasicLoadedEvent;
+use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Collection\ShippingMethodTranslationDetailCollection;
+use Shopware\Core\Checkout\Shipping\Event\ShippingMethodBasicLoadedEvent;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
 
 class ShippingMethodTranslationDetailLoadedEvent extends NestedEvent
 {
     public const NAME = 'shipping_method_translation.detail.loaded';
 
     /**
-     * @var \Shopware\Framework\Context
+     * @var \Shopware\Core\Framework\Context
      */
     protected $context;
 

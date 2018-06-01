@@ -1,26 +1,26 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Snippet;
+namespace Shopware\Core\System\Snippet;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\ORM\Read\EntityReaderInterface;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\AggregatorResult;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
-use Shopware\Framework\ORM\Search\EntitySearcherInterface;
-use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\System\Snippet\Collection\SnippetBasicCollection;
-use Shopware\System\Snippet\Collection\SnippetDetailCollection;
-use Shopware\System\Snippet\Event\SnippetAggregationResultLoadedEvent;
-use Shopware\System\Snippet\Event\SnippetBasicLoadedEvent;
-use Shopware\System\Snippet\Event\SnippetDetailLoadedEvent;
-use Shopware\System\Snippet\Event\SnippetIdSearchResultLoadedEvent;
-use Shopware\System\Snippet\Event\SnippetSearchResultLoadedEvent;
-use Shopware\System\Snippet\Struct\SnippetSearchResult;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\AggregatorResult;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\ORM\Search\IdSearchResult;
+use Shopware\Core\Framework\ORM\Version\Service\VersionManager;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Write\WriteContext;
+use Shopware\Core\System\Snippet\Collection\SnippetBasicCollection;
+use Shopware\Core\System\Snippet\Collection\SnippetDetailCollection;
+use Shopware\Core\System\Snippet\Event\SnippetAggregationResultLoadedEvent;
+use Shopware\Core\System\Snippet\Event\SnippetBasicLoadedEvent;
+use Shopware\Core\System\Snippet\Event\SnippetDetailLoadedEvent;
+use Shopware\Core\System\Snippet\Event\SnippetIdSearchResultLoadedEvent;
+use Shopware\Core\System\Snippet\Event\SnippetSearchResultLoadedEvent;
+use Shopware\Core\System\Snippet\Struct\SnippetSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class SnippetRepository implements RepositoryInterface

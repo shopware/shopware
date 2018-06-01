@@ -2,8 +2,8 @@
 
 namespace Shopware\Storefront\Routing;
 
-use Shopware\Framework\Struct\Uuid;
-use Shopware\PlatformRequest;
+use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\PlatformRequest;
 use Shopware\Storefront\Exception\CustomerNotLoggedInException;
 use Shopware\Storefront\StorefrontRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;

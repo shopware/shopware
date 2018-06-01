@@ -2,8 +2,8 @@
 
 namespace Shopware\Storefront\Api\Seo\Event\SeoUrl;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Storefront\Api\Seo\Struct\SeoUrlSearchResult;
 
 class SeoUrlSearchResultLoadedEvent extends NestedEvent

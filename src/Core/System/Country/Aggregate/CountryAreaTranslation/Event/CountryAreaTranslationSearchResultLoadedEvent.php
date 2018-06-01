@@ -1,17 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Country\Aggregate\CountryAreaTranslation\Event;
+namespace Shopware\Core\System\Country\Aggregate\CountryAreaTranslation\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\System\Country\Aggregate\CountryAreaTranslation\Struct\CountryAreaTranslationSearchResult;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\System\Country\Aggregate\CountryAreaTranslation\Struct\CountryAreaTranslationSearchResult;
 
 class CountryAreaTranslationSearchResultLoadedEvent extends NestedEvent
 {
     public const NAME = 'country_area_translation.search.result.loaded';
 
     /**
-     * @var \Shopware\System\Country\Aggregate\CountryAreaTranslation\Struct\CountryAreaTranslationSearchResult
+     * @var \Shopware\Core\System\Country\Aggregate\CountryAreaTranslation\Struct\CountryAreaTranslationSearchResult
      */
     protected $result;
 

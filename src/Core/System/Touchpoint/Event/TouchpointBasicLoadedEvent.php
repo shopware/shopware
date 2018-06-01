@@ -1,20 +1,20 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Touchpoint\Event;
+namespace Shopware\Core\System\Touchpoint\Event;
 
-use Shopware\System\Touchpoint\Collection\TouchpointBasicCollection;
-use Shopware\Framework\Context;
-use Shopware\System\Language\Event\LanguageBasicLoadedEvent;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\System\Currency\Event\CurrencyBasicLoadedEvent;
+use Shopware\Core\System\Touchpoint\Collection\TouchpointBasicCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\System\Language\Event\LanguageBasicLoadedEvent;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\System\Currency\Event\CurrencyBasicLoadedEvent;
 
 class TouchpointBasicLoadedEvent extends NestedEvent
 {
     public const NAME = 'touchpoint.basic.loaded';
 
     /**
-     * @var \Shopware\Framework\Context
+     * @var \Shopware\Core\Framework\Context
      */
     protected $context;
 

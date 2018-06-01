@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Customer\Collection;
+namespace Shopware\Core\Checkout\Customer\Collection;
 
-use Shopware\System\Touchpoint\Collection\TouchpointBasicCollection;
-use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Collection\CustomerAddressBasicCollection;
-use Shopware\Checkout\Customer\Aggregate\CustomerGroup\Collection\CustomerGroupBasicCollection;
-use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
-use Shopware\Checkout\Payment\Collection\PaymentMethodBasicCollection;
-use Shopware\Framework\ORM\EntityCollection;
+use Shopware\Core\System\Touchpoint\Collection\TouchpointBasicCollection;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Collection\CustomerAddressBasicCollection;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\Collection\CustomerGroupBasicCollection;
+use Shopware\Core\Checkout\Customer\Struct\CustomerBasicStruct;
+use Shopware\Core\Checkout\Payment\Collection\PaymentMethodBasicCollection;
+use Shopware\Core\Framework\ORM\EntityCollection;
 
 class CustomerBasicCollection extends EntityCollection
 {

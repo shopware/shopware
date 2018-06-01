@@ -1,17 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Aggregate\ProductConfigurator\Collection;
+namespace Shopware\Core\Content\Product\Aggregate\ProductConfigurator\Collection;
 
-use Shopware\Content\Product\Aggregate\ProductConfigurator\Struct\ProductConfiguratorBasicStruct;
-use Shopware\Framework\ORM\EntityCollection;
-use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionBasicCollection;
-use Shopware\System\Configuration\Collection\ConfigurationGroupDetailCollection;
-use Shopware\System\Configuration\Struct\ConfigurationGroupDetailStruct;
+use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\Struct\ProductConfiguratorBasicStruct;
+use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionBasicCollection;
+use Shopware\Core\System\Configuration\Collection\ConfigurationGroupDetailCollection;
+use Shopware\Core\System\Configuration\Struct\ConfigurationGroupDetailStruct;
 
 class ProductConfiguratorBasicCollection extends EntityCollection
 {
     /**
-     * @var \Shopware\Content\Product\Aggregate\ProductConfigurator\Struct\ProductConfiguratorBasicStruct[]
+     * @var \Shopware\Core\Content\Product\Aggregate\ProductConfigurator\Struct\ProductConfiguratorBasicStruct[]
      */
     protected $elements = [];
 
@@ -55,7 +55,7 @@ class ProductConfiguratorBasicCollection extends EntityCollection
 
     public function getOptions(): ConfigurationGroupOptionBasicCollection
     {
-        return new \Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionBasicCollection(
+        return new \Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionBasicCollection(
             $this->fmap(function (ProductConfiguratorBasicStruct $productConfigurator) {
                 return $productConfigurator->getOption();
             })

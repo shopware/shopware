@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Tax\Aggregate\TaxAreaRuleTranslation\Collection;
+namespace Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTranslation\Collection;
 
-use Shopware\System\Language\Collection\LanguageBasicCollection;
-use Shopware\System\Tax\Aggregate\TaxAreaRule\Collection\TaxAreaRuleBasicCollection;
-use Shopware\System\Tax\Aggregate\TaxAreaRuleTranslation\Struct\TaxAreaRuleTranslationDetailStruct;
+use Shopware\Core\System\Language\Collection\LanguageBasicCollection;
+use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\Collection\TaxAreaRuleBasicCollection;
+use Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTranslation\Struct\TaxAreaRuleTranslationDetailStruct;
 
 class TaxAreaRuleTranslationDetailCollection extends TaxAreaRuleTranslationBasicCollection
 {

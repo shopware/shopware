@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Currency\Event;
+namespace Shopware\Core\System\Currency\Event;
 
-use Shopware\Framework\ORM\Write\WrittenEvent;
-use Shopware\System\Currency\CurrencyDefinition;
+use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\System\Currency\CurrencyDefinition;
 
 class CurrencyWrittenEvent extends WrittenEvent
 {

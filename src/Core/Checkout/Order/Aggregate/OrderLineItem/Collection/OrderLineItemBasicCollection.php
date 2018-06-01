@@ -1,14 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Order\Aggregate\OrderLineItem\Collection;
+namespace Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\Collection;
 
-use Shopware\Checkout\Order\Aggregate\OrderLineItem\Struct\OrderLineItemBasicStruct;
-use Shopware\Framework\ORM\EntityCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\Struct\OrderLineItemBasicStruct;
+use Shopware\Core\Framework\ORM\EntityCollection;
 
 class OrderLineItemBasicCollection extends EntityCollection
 {
     /**
-     * @var \Shopware\Checkout\Order\Aggregate\OrderLineItem\Struct\OrderLineItemBasicStruct[]
+     * @var \Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\Struct\OrderLineItemBasicStruct[]
      */
     protected $elements = [];
 

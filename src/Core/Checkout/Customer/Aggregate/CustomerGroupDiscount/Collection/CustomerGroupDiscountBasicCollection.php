@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Customer\Aggregate\CustomerGroupDiscount\Collection;
+namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\Collection;
 
-use Shopware\Checkout\Customer\Aggregate\CustomerGroupDiscount\Struct\CustomerGroupDiscountBasicStruct;
-use Shopware\Framework\ORM\EntityCollection;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\Struct\CustomerGroupDiscountBasicStruct;
+use Shopware\Core\Framework\ORM\EntityCollection;
 
 class CustomerGroupDiscountBasicCollection extends EntityCollection
 {

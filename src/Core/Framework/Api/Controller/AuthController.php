@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Api\Controller;
+namespace Shopware\Core\Framework\Api\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Framework\Api\Firewall\JWTAuthenticator;
+use Shopware\Core\Framework\Api\Firewall\JWTAuthenticator;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;

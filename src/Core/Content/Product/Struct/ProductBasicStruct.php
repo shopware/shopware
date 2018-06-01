@@ -1,21 +1,21 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Struct;
+namespace Shopware\Core\Content\Product\Struct;
 
-use Shopware\Application\Context\Collection\ContextPriceCollection;
-use Shopware\Framework\Context;
-use Shopware\Checkout\Cart\Delivery\Struct\DeliveryDate;
-use Shopware\Checkout\Cart\Price\Struct\PriceDefinition;
-use Shopware\Checkout\Cart\Price\Struct\PriceDefinitionCollection;
-use Shopware\Checkout\Cart\Tax\Struct\PercentageTaxRule;
-use Shopware\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Content\Product\Aggregate\ProductContextPrice\Collection\ProductContextPriceBasicCollection;
-use Shopware\Content\Product\Aggregate\ProductContextPrice\Struct\ProductContextPriceBasicStruct;
-use Shopware\Content\Product\Aggregate\ProductManufacturer\Struct\ProductManufacturerBasicStruct;
-use Shopware\Content\Product\Aggregate\ProductMedia\Struct\ProductMediaBasicStruct;
-use Shopware\Framework\ORM\Entity;
-use Shopware\System\Tax\Struct\TaxBasicStruct;
-use Shopware\System\Unit\Struct\UnitBasicStruct;
+use Shopware\Core\Application\Context\Collection\ContextPriceCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
+use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinition;
+use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\PercentageTaxRule;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductContextPrice\Collection\ProductContextPriceBasicCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductContextPrice\Struct\ProductContextPriceBasicStruct;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\Struct\ProductManufacturerBasicStruct;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\Struct\ProductMediaBasicStruct;
+use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\System\Tax\Struct\TaxBasicStruct;
+use Shopware\Core\System\Unit\Struct\UnitBasicStruct;
 
 class ProductBasicStruct extends Entity
 {
@@ -744,7 +744,7 @@ class ProductBasicStruct extends Entity
         $this->maxDeliveryTime = $maxDeliveryTime;
     }
 
-    public function getContextPriceDefinitions(\Shopware\Framework\Context $context): PriceDefinitionCollection
+    public function getContextPriceDefinitions(\Shopware\Core\Framework\Context $context): PriceDefinitionCollection
     {
         $taxRules = $this->getTaxRuleCollection();
 

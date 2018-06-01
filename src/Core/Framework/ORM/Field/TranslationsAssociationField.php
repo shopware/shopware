@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Field;
+namespace Shopware\Core\Framework\ORM\Field;
 
-use Shopware\Framework\ORM\Write\DataStack\KeyValuePair;
-use Shopware\Framework\ORM\Write\EntityExistence;
+use Shopware\Core\Framework\ORM\Write\DataStack\KeyValuePair;
+use Shopware\Core\Framework\ORM\Write\EntityExistence;
 
 class TranslationsAssociationField extends SubresourceField implements AssociationInterface
 {
@@ -37,7 +37,7 @@ class TranslationsAssociationField extends SubresourceField implements Associati
         $value = $data->getValue();
         if ($value === null) {
             $value = [
-                $this->writeContext->getApplicationContext()->getLanguageId() => [],
+                $this->writeContext->getContext()->getLanguageId() => [],
             ];
             $data = new KeyValuePair($data->getKey(), $value, $data->isRaw());
         }

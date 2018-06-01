@@ -1,17 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Media\Aggregate\MediaAlbum\Event;
+namespace Shopware\Core\Content\Media\Aggregate\MediaAlbum\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Content\Media\Aggregate\MediaAlbum\Collection\MediaAlbumBasicCollection;
-use Shopware\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Media\Aggregate\MediaAlbum\Collection\MediaAlbumBasicCollection;
+use Shopware\Core\Framework\Event\NestedEvent;
 
 class MediaAlbumBasicLoadedEvent extends NestedEvent
 {
     public const NAME = 'media_album.basic.loaded';
 
     /**
-     * @var \Shopware\Framework\Context
+     * @var \Shopware\Core\Framework\Context
      */
     protected $context;
 

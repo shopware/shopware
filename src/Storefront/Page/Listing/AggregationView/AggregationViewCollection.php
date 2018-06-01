@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Page\Listing\AggregationView;
 
-use Shopware\Framework\Struct\Collection;
+use Shopware\Core\Framework\Struct\Collection;
 
 class AggregationViewCollection extends Collection
 {

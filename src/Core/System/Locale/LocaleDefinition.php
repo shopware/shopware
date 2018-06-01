@@ -1,33 +1,33 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Locale;
+namespace Shopware\Core\System\Locale;
 
-use Shopware\System\Touchpoint\TouchpointDefinition;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\EntityExtensionInterface;
-use Shopware\Framework\ORM\Field\DateField;
-use Shopware\Framework\ORM\Field\IdField;
-use Shopware\Framework\ORM\Field\OneToManyAssociationField;
-use Shopware\Framework\ORM\Field\StringField;
-use Shopware\Framework\ORM\Field\TenantIdField;
-use Shopware\Framework\ORM\Field\TranslatedField;
-use Shopware\Framework\ORM\Field\TranslationsAssociationField;
-use Shopware\Framework\ORM\Field\VersionField;
-use Shopware\Framework\ORM\FieldCollection;
-use Shopware\Framework\ORM\Write\Flag\CascadeDelete;
-use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
-use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\Framework\ORM\Write\Flag\RestrictDelete;
-use Shopware\Framework\ORM\Write\Flag\SearchRanking;
-use Shopware\Framework\ORM\Write\Flag\WriteOnly;
-use Shopware\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationDefinition;
-use Shopware\System\Locale\Collection\LocaleBasicCollection;
-use Shopware\System\Locale\Collection\LocaleDetailCollection;
-use Shopware\System\Locale\Event\LocaleDeletedEvent;
-use Shopware\System\Locale\Event\LocaleWrittenEvent;
-use Shopware\System\Locale\Struct\LocaleBasicStruct;
-use Shopware\System\Locale\Struct\LocaleDetailStruct;
-use Shopware\System\User\UserDefinition;
+use Shopware\Core\System\Touchpoint\TouchpointDefinition;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+use Shopware\Core\Framework\ORM\Field\DateField;
+use Shopware\Core\Framework\ORM\Field\IdField;
+use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\ORM\Field\StringField;
+use Shopware\Core\Framework\ORM\Field\TenantIdField;
+use Shopware\Core\Framework\ORM\Field\TranslatedField;
+use Shopware\Core\Framework\ORM\Field\TranslationsAssociationField;
+use Shopware\Core\Framework\ORM\Field\VersionField;
+use Shopware\Core\Framework\ORM\FieldCollection;
+use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
+use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
+use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\Framework\ORM\Write\Flag\RestrictDelete;
+use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
+use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
+use Shopware\Core\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationDefinition;
+use Shopware\Core\System\Locale\Collection\LocaleBasicCollection;
+use Shopware\Core\System\Locale\Collection\LocaleDetailCollection;
+use Shopware\Core\System\Locale\Event\LocaleDeletedEvent;
+use Shopware\Core\System\Locale\Event\LocaleWrittenEvent;
+use Shopware\Core\System\Locale\Struct\LocaleBasicStruct;
+use Shopware\Core\System\Locale\Struct\LocaleDetailStruct;
+use Shopware\Core\System\User\UserDefinition;
 
 class LocaleDefinition extends EntityDefinition
 {

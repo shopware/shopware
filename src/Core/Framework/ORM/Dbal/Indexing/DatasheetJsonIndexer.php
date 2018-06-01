@@ -1,17 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Dbal\Indexing;
+namespace Shopware\Core\Framework\ORM\Dbal\Indexing;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Framework\Context;
-use Shopware\Content\Product\ProductRepository;
-use Shopware\Framework\Event\ProgressAdvancedEvent;
-use Shopware\Framework\Event\ProgressFinishedEvent;
-use Shopware\Framework\Event\ProgressStartedEvent;
-use Shopware\Framework\ORM\Dbal\Common\EventIdExtractor;
-use Shopware\Framework\ORM\Dbal\Common\LastIdQuery;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Product\ProductRepository;
+use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
+use Shopware\Core\Framework\Event\ProgressFinishedEvent;
+use Shopware\Core\Framework\Event\ProgressStartedEvent;
+use Shopware\Core\Framework\ORM\Dbal\Common\EventIdExtractor;
+use Shopware\Core\Framework\ORM\Dbal\Common\LastIdQuery;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class DatasheetJsonIndexer implements IndexerInterface
@@ -27,7 +27,7 @@ class DatasheetJsonIndexer implements IndexerInterface
     private $eventDispatcher;
 
     /**
-     * @var \Shopware\Framework\ORM\Dbal\Common\EventIdExtractor
+     * @var \Shopware\Core\Framework\ORM\Dbal\Common\EventIdExtractor
      */
     private $eventIdExtractor;
 

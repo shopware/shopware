@@ -2,9 +2,9 @@
 
 namespace Shopware\Storefront\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Checkout\CustomerContext;
-use Shopware\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\CustomerContext;
+use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Storefront\Page\Listing\ListingPageRequest;
 use Shopware\Storefront\Page\Listing\ListingPageStruct;
 

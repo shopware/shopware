@@ -1,26 +1,26 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Category\Aggregate\CategoryTranslation;
+namespace Shopware\Core\Content\Category\Aggregate\CategoryTranslation;
 
-use Shopware\Framework\Context;
-use Shopware\Content\Category\Aggregate\CategoryTranslation\Collection\CategoryTranslationBasicCollection;
-use Shopware\Content\Category\Aggregate\CategoryTranslation\Collection\CategoryTranslationDetailCollection;
-use Shopware\Content\Category\Aggregate\CategoryTranslation\Event\CategoryTranslationAggregationResultLoadedEvent;
-use Shopware\Content\Category\Aggregate\CategoryTranslation\Event\CategoryTranslationBasicLoadedEvent;
-use Shopware\Content\Category\Aggregate\CategoryTranslation\Event\CategoryTranslationDetailLoadedEvent;
-use Shopware\Content\Category\Aggregate\CategoryTranslation\Event\CategoryTranslationIdSearchResultLoadedEvent;
-use Shopware\Content\Category\Aggregate\CategoryTranslation\Event\CategoryTranslationSearchResultLoadedEvent;
-use Shopware\Content\Category\Aggregate\CategoryTranslation\Struct\CategoryTranslationSearchResult;
-use Shopware\Framework\ORM\Read\EntityReaderInterface;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\AggregatorResult;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
-use Shopware\Framework\ORM\Search\EntitySearcherInterface;
-use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\ORM\Write\WriteContext;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\Collection\CategoryTranslationBasicCollection;
+use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\Collection\CategoryTranslationDetailCollection;
+use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\Event\CategoryTranslationAggregationResultLoadedEvent;
+use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\Event\CategoryTranslationBasicLoadedEvent;
+use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\Event\CategoryTranslationDetailLoadedEvent;
+use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\Event\CategoryTranslationIdSearchResultLoadedEvent;
+use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\Event\CategoryTranslationSearchResultLoadedEvent;
+use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\Struct\CategoryTranslationSearchResult;
+use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\AggregatorResult;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\ORM\Search\IdSearchResult;
+use Shopware\Core\Framework\ORM\Version\Service\VersionManager;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Write\WriteContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class CategoryTranslationRepository implements RepositoryInterface
@@ -46,7 +46,7 @@ class CategoryTranslationRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var \Shopware\Framework\ORM\Version\Service\VersionManager
+     * @var \Shopware\Core\Framework\ORM\Version\Service\VersionManager
      */
     private $versionManager;
 
@@ -116,7 +116,7 @@ class CategoryTranslationRepository implements RepositoryInterface
 
     public function readDetail(array $ids, Context $context): CategoryTranslationDetailCollection
     {
-        /** @var \Shopware\Content\Category\Aggregate\CategoryTranslation\Collection\CategoryTranslationDetailCollection $entities */
+        /** @var \Shopware\Core\Content\Category\Aggregate\CategoryTranslation\Collection\CategoryTranslationDetailCollection $entities */
         $entities = $this->reader->readDetail(CategoryTranslationDefinition::class, $ids, $context);
 
         $event = new CategoryTranslationDetailLoadedEvent($entities, $context);

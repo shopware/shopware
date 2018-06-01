@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Routing\Firewall;
+namespace Shopware\Core\Framework\Routing\Firewall;
 
-use Shopware\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 class Touchpoint implements UserInterface

@@ -1,20 +1,20 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Customer;
+namespace Shopware\Core\Checkout\Customer;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Checkout\CustomerContext;
-use Shopware\Checkout\Customer\Util\CustomerContextPersister;
-use Shopware\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository;
-use Shopware\Checkout\Order\Exception\NotLoggedInCustomerException;
-use Shopware\Checkout\Payment\Exception\PaymentMethodNotFoundHttpException;
-use Shopware\Checkout\Payment\PaymentMethodRepository;
-use Shopware\Checkout\Shipping\Exception\ShippingMethodNotFoundHttpException;
-use Shopware\Checkout\Shipping\ShippingMethodRepository;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\Query\TermQuery;
-use Shopware\PlatformRequest;
+use Shopware\Core\Checkout\CustomerContext;
+use Shopware\Core\Checkout\Customer\Util\CustomerContextPersister;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository;
+use Shopware\Core\Checkout\Order\Exception\NotLoggedInCustomerException;
+use Shopware\Core\Checkout\Payment\Exception\PaymentMethodNotFoundHttpException;
+use Shopware\Core\Checkout\Payment\PaymentMethodRepository;
+use Shopware\Core\Checkout\Shipping\Exception\ShippingMethodNotFoundHttpException;
+use Shopware\Core\Checkout\Shipping\ShippingMethodRepository;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Core\PlatformRequest;
 use Shopware\Storefront\Exception\AddressNotFoundHttpException;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -24,12 +24,12 @@ use Symfony\Component\Serializer\Serializer;
 class StorefrontCustomerContextController extends Controller
 {
     /**
-     * @var \Shopware\Checkout\Payment\PaymentMethodRepository
+     * @var \Shopware\Core\Checkout\Payment\PaymentMethodRepository
      */
     protected $paymentMethodRepository;
 
     /**
-     * @var \Shopware\Checkout\Shipping\ShippingMethodRepository
+     * @var \Shopware\Core\Checkout\Shipping\ShippingMethodRepository
      */
     protected $shippingMethodRepository;
 
@@ -39,7 +39,7 @@ class StorefrontCustomerContextController extends Controller
     protected $customerAddressRepository;
 
     /**
-     * @var \Shopware\Checkout\Customer\Util\CustomerContextPersister
+     * @var \Shopware\Core\Checkout\Customer\Util\CustomerContextPersister
      */
     protected $contextPersister;
 

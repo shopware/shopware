@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- * Shopware 5
+ * Shopware\Core 5
  * Copyright (c) shopware AG
  *
  * According to our dual licensing model, this program can be used either
@@ -17,29 +17,29 @@ declare(strict_types=1);
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
  *
- * "Shopware" is a registered trademark of shopware AG.
+ * "Shopware\Core" is a registered trademark of shopware AG.
  * The licensing of the program under the AGPLv3 does not imply a
  * trademark license. Therefore any rights, title and interest in
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Checkout\Cart\Delivery;
+namespace Shopware\Core\Checkout\Cart\Delivery;
 
-use Shopware\Checkout\CustomerContext;
-use Shopware\Checkout\Cart\Delivery\Struct\Delivery;
-use Shopware\Checkout\Cart\Delivery\Struct\DeliveryCollection;
-use Shopware\Checkout\Cart\Delivery\Struct\DeliveryDate;
-use Shopware\Checkout\Cart\Delivery\Struct\DeliveryPosition;
-use Shopware\Checkout\Cart\Delivery\Struct\DeliveryPositionCollection;
-use Shopware\Checkout\Cart\Delivery\Struct\ShippingLocation;
-use Shopware\Checkout\Cart\LineItem\CalculatedLineItemCollection;
-use Shopware\Checkout\Cart\LineItem\DeliverableLineItemInterface;
-use Shopware\Checkout\Cart\Price\PriceCalculator;
-use Shopware\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Checkout\Cart\Price\Struct\PriceDefinition;
-use Shopware\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
-use Shopware\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Checkout\Shipping\Struct\ShippingMethodBasicStruct;
+use Shopware\Core\Checkout\CustomerContext;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPosition;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPositionCollection;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
+use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItemCollection;
+use Shopware\Core\Checkout\Cart\LineItem\DeliverableLineItemInterface;
+use Shopware\Core\Checkout\Cart\Price\PriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinition;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Shipping\Struct\ShippingMethodBasicStruct;
 
 class StockDeliverySeparator
 {

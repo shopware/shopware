@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * Shopware 5
+ * Shopware\Core 5
  * Copyright (c) shopware AG
  *
  * According to our dual licensing model, this program can be used either
@@ -16,44 +16,44 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
  *
- * "Shopware" is a registered trademark of shopware AG.
+ * "Shopware\Core" is a registered trademark of shopware AG.
  * The licensing of the program under the AGPLv3 does not imply a
  * trademark license. Therefore any rights, title and interest in
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Checkout\Test\Cart\Delivery;
+namespace Shopware\Core\Checkout\Test\Cart\Delivery;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Checkout\Cart\Delivery\StockDeliverySeparator;
-use Shopware\Checkout\Cart\Delivery\Struct\Delivery;
-use Shopware\Checkout\Cart\Delivery\Struct\DeliveryCollection;
-use Shopware\Checkout\Cart\Delivery\Struct\DeliveryDate;
-use Shopware\Checkout\Cart\Delivery\Struct\DeliveryPosition;
-use Shopware\Checkout\Cart\Delivery\Struct\DeliveryPositionCollection;
-use Shopware\Checkout\Cart\Delivery\Struct\ShippingLocation;
-use Shopware\Checkout\Cart\LineItem\CalculatedLineItem;
-use Shopware\Checkout\Cart\LineItem\CalculatedLineItemCollection;
-use Shopware\Checkout\Cart\LineItem\LineItem;
-use Shopware\Checkout\Cart\Price\GrossPriceCalculator;
-use Shopware\Checkout\Cart\Price\NetPriceCalculator;
-use Shopware\Checkout\Cart\Price\PriceCalculator;
-use Shopware\Checkout\Cart\Price\PriceRounding;
-use Shopware\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Checkout\Cart\Tax\Struct\CalculatedTax;
-use Shopware\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
-use Shopware\Checkout\Cart\Tax\Struct\TaxRule;
-use Shopware\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Checkout\Cart\Tax\TaxCalculator;
-use Shopware\Checkout\Cart\Tax\TaxRuleCalculator;
-use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
-use Shopware\Checkout\Rule\Specification\Container\AndRule;
-use Shopware\Checkout\Test\Cart\Common\Generator;
-use Shopware\Content\Product\Cart\ProductProcessor;
-use Shopware\Content\Product\Cart\Struct\CalculatedProduct;
-use Shopware\Content\Product\Struct\ProductBasicStruct;
-use Shopware\System\Country\Aggregate\CountryState\Struct\CountryStateBasicStruct;
-use Shopware\System\Country\Struct\CountryBasicStruct;
+use Shopware\Core\Checkout\Cart\Delivery\StockDeliverySeparator;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPosition;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPositionCollection;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
+use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItem;
+use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItemCollection;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\Price\GrossPriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\NetPriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\PriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\PriceRounding;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
+use Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
+use Shopware\Core\Checkout\Rule\Specification\Container\AndRule;
+use Shopware\Core\Checkout\Test\Cart\Common\Generator;
+use Shopware\Core\Content\Product\Cart\ProductProcessor;
+use Shopware\Core\Content\Product\Cart\Struct\CalculatedProduct;
+use Shopware\Core\Content\Product\Struct\ProductBasicStruct;
+use Shopware\Core\System\Country\Aggregate\CountryState\Struct\CountryStateBasicStruct;
+use Shopware\Core\System\Country\Struct\CountryBasicStruct;
 
 class StockDeliverySeparatorTest extends TestCase
 {

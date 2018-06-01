@@ -1,5 +1,5 @@
 {# Thumbnails #}
-{# @var product \Shopware\Content\Product\Struct\StorefrontProductDetailStruct #}
+{# @var product \Shopware\Core\Content\Product\Struct\StorefrontProductDetailStruct #}
 {% if product.media.count %}
 
     {# Thumbnail - Container #}
@@ -26,7 +26,7 @@
                 {% endif %}
 
                 {# Thumbnails #}
-                {# @var media \Shopware\Content\Product\Aggregate\ProductMedia\Struct\ProductMediaBasicStruct #}
+                {# @var media \Shopware\Core\Content\Product\Aggregate\ProductMedia\Struct\ProductMediaBasicStruct #}
                 {% for media in product.media[1:] %}
                     {% if media.media.extension('thumbnails') %}
                         {% set thumbnails = media.media.extension('thumbnails') %}

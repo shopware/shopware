@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Order\Aggregate\OrderDelivery\Event;
+namespace Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Checkout\Order\Aggregate\OrderDelivery\Struct\OrderDeliverySearchResult;
-use Shopware\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\Struct\OrderDeliverySearchResult;
+use Shopware\Core\Framework\Event\NestedEvent;
 
 class OrderDeliverySearchResultLoadedEvent extends NestedEvent
 {

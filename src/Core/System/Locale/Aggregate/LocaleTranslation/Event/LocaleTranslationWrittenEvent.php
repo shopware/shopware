@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Locale\Aggregate\LocaleTranslation\Event;
+namespace Shopware\Core\System\Locale\Aggregate\LocaleTranslation\Event;
 
-use Shopware\Framework\ORM\Write\WrittenEvent;
-use Shopware\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationDefinition;
+use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationDefinition;
 
 class LocaleTranslationWrittenEvent extends WrittenEvent
 {

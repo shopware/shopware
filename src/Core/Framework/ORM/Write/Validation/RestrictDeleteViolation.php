@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Write\Validation;
+namespace Shopware\Core\Framework\ORM\Write\Validation;
 
 class RestrictDeleteViolation
 {
@@ -16,12 +16,12 @@ class RestrictDeleteViolation
      * Each value represents a single restricted identity
      *
      * Example:
-     *      [Shopware\Checkout\Cart\Price\Struct\PriceDefinition] => Array
+     *      [Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinition] => Array
      *          (
      *              [0] => c708bb9d-c2c3-4243-b9fb-1fd6a676f2fb
      *              [1] => c708bb9d-c2c3-4243-b9fb-1fd6a676f2fb
      *          )
-     *      [Shopware\Content\Product\ProductDefinition] => Array
+     *      [Shopware\Core\Content\Product\ProductDefinition] => Array
      *          (
      *              [0] => c708bb9d-c2c3-4243-b9fb-1fd6a676f2fb
      *              [1] => c708bb9d-c2c3-4243-b9fb-1fd6a676f2fb

@@ -1,16 +1,16 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product;
+namespace Shopware\Core\Content\Product;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Checkout\CustomerContext;
-use Shopware\Content\Product\Exception\ProductNotFoundException;
-use Shopware\Framework\Api\Context\RestContext;
-use Shopware\Framework\Api\Response\ResponseFactory;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\SearchCriteriaBuilder;
-use Shopware\Framework\Routing\Firewall\ContextUser;
+use Shopware\Core\Checkout\CustomerContext;
+use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
+use Shopware\Core\Framework\Api\Context\RestContext;
+use Shopware\Core\Framework\Api\Response\ResponseFactory;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\SearchCriteriaBuilder;
+use Shopware\Core\Framework\Routing\Firewall\ContextUser;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\Response;
 class StorefrontProductController extends Controller
 {
     /**
-     * @var \Shopware\Content\Product\StorefrontProductRepository
+     * @var \Shopware\Core\Content\Product\StorefrontProductRepository
      */
     private $repository;
 

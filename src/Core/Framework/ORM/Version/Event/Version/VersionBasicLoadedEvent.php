@@ -1,17 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Version\Event\Version;
+namespace Shopware\Core\Framework\ORM\Version\Event\Version;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\ORM\Version\Collection\VersionBasicCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\ORM\Version\Collection\VersionBasicCollection;
 
 class VersionBasicLoadedEvent extends NestedEvent
 {
     public const NAME = 'version.basic.loaded';
 
     /**
-     * @var \Shopware\Framework\Context
+     * @var \Shopware\Core\Framework\Context
      */
     protected $context;
 

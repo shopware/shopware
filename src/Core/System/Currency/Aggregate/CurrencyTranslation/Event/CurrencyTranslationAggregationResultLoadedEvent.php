@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Currency\Aggregate\CurrencyTranslation\Event;
+namespace Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\ORM\Search\AggregatorResult;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\ORM\Search\AggregatorResult;
 
 class CurrencyTranslationAggregationResultLoadedEvent extends NestedEvent
 {

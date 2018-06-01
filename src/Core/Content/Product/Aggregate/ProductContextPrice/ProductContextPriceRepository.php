@@ -1,26 +1,26 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Aggregate\ProductContextPrice;
+namespace Shopware\Core\Content\Product\Aggregate\ProductContextPrice;
 
-use Shopware\Framework\Context;
-use Shopware\Content\Product\Aggregate\ProductContextPrice\Collection\ProductContextPriceBasicCollection;
-use Shopware\Content\Product\Aggregate\ProductContextPrice\Collection\ProductContextPriceDetailCollection;
-use Shopware\Content\Product\Aggregate\ProductContextPrice\Event\ProductContextPriceAggregationResultLoadedEvent;
-use Shopware\Content\Product\Aggregate\ProductContextPrice\Event\ProductContextPriceBasicLoadedEvent;
-use Shopware\Content\Product\Aggregate\ProductContextPrice\Event\ProductContextPriceDetailLoadedEvent;
-use Shopware\Content\Product\Aggregate\ProductContextPrice\Event\ProductContextPriceIdSearchResultLoadedEvent;
-use Shopware\Content\Product\Aggregate\ProductContextPrice\Event\ProductContextPriceSearchResultLoadedEvent;
-use Shopware\Content\Product\Aggregate\ProductContextPrice\Struct\ProductContextPriceSearchResult;
-use Shopware\Framework\ORM\Read\EntityReaderInterface;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\AggregatorResult;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
-use Shopware\Framework\ORM\Search\EntitySearcherInterface;
-use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\ORM\Write\WriteContext;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Product\Aggregate\ProductContextPrice\Collection\ProductContextPriceBasicCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductContextPrice\Collection\ProductContextPriceDetailCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductContextPrice\Event\ProductContextPriceAggregationResultLoadedEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductContextPrice\Event\ProductContextPriceBasicLoadedEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductContextPrice\Event\ProductContextPriceDetailLoadedEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductContextPrice\Event\ProductContextPriceIdSearchResultLoadedEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductContextPrice\Event\ProductContextPriceSearchResultLoadedEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductContextPrice\Struct\ProductContextPriceSearchResult;
+use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\AggregatorResult;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\ORM\Search\IdSearchResult;
+use Shopware\Core\Framework\ORM\Version\Service\VersionManager;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Write\WriteContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductContextPriceRepository implements RepositoryInterface
@@ -105,7 +105,7 @@ class ProductContextPriceRepository implements RepositoryInterface
 
     public function readBasic(array $ids, Context $context): ProductContextPriceBasicCollection
     {
-        /** @var \Shopware\Content\Product\Aggregate\ProductContextPrice\Collection\ProductContextPriceBasicCollection $entities */
+        /** @var \Shopware\Core\Content\Product\Aggregate\ProductContextPrice\Collection\ProductContextPriceBasicCollection $entities */
         $entities = $this->reader->readBasic(ProductContextPriceDefinition::class, $ids, $context);
 
         $event = new ProductContextPriceBasicLoadedEvent($entities, $context);

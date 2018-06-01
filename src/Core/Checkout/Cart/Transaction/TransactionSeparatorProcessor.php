@@ -1,14 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Cart\Transaction;
+namespace Shopware\Core\Checkout\Cart\Transaction;
 
-use Shopware\Checkout\CustomerContext;
-use Shopware\Checkout\Cart\Cart\CartProcessorInterface;
-use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Checkout\Cart\Cart\Struct\Cart;
-use Shopware\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Checkout\Cart\Transaction\Struct\Transaction;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Core\Checkout\CustomerContext;
+use Shopware\Core\Checkout\Cart\Cart\CartProcessorInterface;
+use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Transaction\Struct\Transaction;
+use Shopware\Core\Framework\Struct\StructCollection;
 
 class TransactionSeparatorProcessor implements CartProcessorInterface
 {

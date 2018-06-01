@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Touchpoint\Event;
+namespace Shopware\Core\System\Touchpoint\Event;
 
-use Shopware\System\Touchpoint\TouchpointDefinition;
-use Shopware\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\System\Touchpoint\TouchpointDefinition;
+use Shopware\Core\Framework\ORM\Write\WrittenEvent;
 
 class TouchpointWrittenEvent extends WrittenEvent
 {

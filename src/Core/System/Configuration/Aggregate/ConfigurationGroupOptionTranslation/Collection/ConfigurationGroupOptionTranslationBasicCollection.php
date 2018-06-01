@@ -1,14 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Configuration\Aggregate\ConfigurationGroupOptionTranslation\Collection;
+namespace Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupOptionTranslation\Collection;
 
-use Shopware\Framework\ORM\EntityCollection;
-use Shopware\System\Configuration\Aggregate\ConfigurationGroupOptionTranslation\Struct\ConfigurationGroupOptionTranslationBasicStruct;
+use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupOptionTranslation\Struct\ConfigurationGroupOptionTranslationBasicStruct;
 
 class ConfigurationGroupOptionTranslationBasicCollection extends EntityCollection
 {
     /**
-     * @var \Shopware\System\Configuration\Aggregate\ConfigurationGroupOptionTranslation\Struct\ConfigurationGroupOptionTranslationBasicStruct[]
+     * @var \Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupOptionTranslation\Struct\ConfigurationGroupOptionTranslationBasicStruct[]
      */
     protected $elements = [];
 

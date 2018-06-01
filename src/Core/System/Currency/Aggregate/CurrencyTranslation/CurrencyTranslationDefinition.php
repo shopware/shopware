@@ -1,24 +1,24 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Currency\Aggregate\CurrencyTranslation;
+namespace Shopware\Core\System\Currency\Aggregate\CurrencyTranslation;
 
-use Shopware\System\Language\LanguageDefinition;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\EntityExtensionInterface;
-use Shopware\Framework\ORM\Field\FkField;
-use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
-use Shopware\Framework\ORM\Field\ReferenceVersionField;
-use Shopware\Framework\ORM\Field\StringField;
-use Shopware\Framework\ORM\FieldCollection;
-use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
-use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\System\Currency\Aggregate\CurrencyTranslation\Collection\CurrencyTranslationBasicCollection;
-use Shopware\System\Currency\Aggregate\CurrencyTranslation\Collection\CurrencyTranslationDetailCollection;
-use Shopware\System\Currency\Aggregate\CurrencyTranslation\Event\CurrencyTranslationDeletedEvent;
-use Shopware\System\Currency\Aggregate\CurrencyTranslation\Event\CurrencyTranslationWrittenEvent;
-use Shopware\System\Currency\Aggregate\CurrencyTranslation\Struct\CurrencyTranslationBasicStruct;
-use Shopware\System\Currency\Aggregate\CurrencyTranslation\Struct\CurrencyTranslationDetailStruct;
-use Shopware\System\Currency\CurrencyDefinition;
+use Shopware\Core\System\Language\LanguageDefinition;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+use Shopware\Core\Framework\ORM\Field\FkField;
+use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
+use Shopware\Core\Framework\ORM\Field\StringField;
+use Shopware\Core\Framework\ORM\FieldCollection;
+use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
+use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\Collection\CurrencyTranslationBasicCollection;
+use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\Collection\CurrencyTranslationDetailCollection;
+use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\Event\CurrencyTranslationDeletedEvent;
+use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\Event\CurrencyTranslationWrittenEvent;
+use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\Struct\CurrencyTranslationBasicStruct;
+use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\Struct\CurrencyTranslationDetailStruct;
+use Shopware\Core\System\Currency\CurrencyDefinition;
 
 class CurrencyTranslationDefinition extends EntityDefinition
 {

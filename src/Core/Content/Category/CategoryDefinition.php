@@ -1,44 +1,44 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Category;
+namespace Shopware\Core\Content\Category;
 
-use Shopware\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
-use Shopware\Content\Category\Collection\CategoryBasicCollection;
-use Shopware\Content\Category\Collection\CategoryDetailCollection;
-use Shopware\Content\Category\Event\CategoryDeletedEvent;
-use Shopware\Content\Category\Event\CategoryWrittenEvent;
-use Shopware\Content\Category\Struct\CategoryBasicStruct;
-use Shopware\Content\Category\Struct\CategoryDetailStruct;
-use Shopware\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
-use Shopware\Content\Product\Aggregate\ProductSeoCategory\ProductSeoCategoryDefinition;
-use Shopware\Content\Product\Aggregate\ProductStream\ProductStreamDefinition;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\EntityExtensionInterface;
-use Shopware\Framework\ORM\Field\BoolField;
-use Shopware\Framework\ORM\Field\CatalogField;
-use Shopware\Framework\ORM\Field\ChildCountField;
-use Shopware\Framework\ORM\Field\ChildrenAssociationField;
-use Shopware\Framework\ORM\Field\DateField;
-use Shopware\Framework\ORM\Field\FkField;
-use Shopware\Framework\ORM\Field\IdField;
-use Shopware\Framework\ORM\Field\IntField;
-use Shopware\Framework\ORM\Field\LongTextField;
-use Shopware\Framework\ORM\Field\ManyToManyAssociationField;
-use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
-use Shopware\Framework\ORM\Field\ParentField;
-use Shopware\Framework\ORM\Field\ReferenceVersionField;
-use Shopware\Framework\ORM\Field\StringField;
-use Shopware\Framework\ORM\Field\TenantIdField;
-use Shopware\Framework\ORM\Field\TranslatedField;
-use Shopware\Framework\ORM\Field\TranslationsAssociationField;
-use Shopware\Framework\ORM\Field\VersionField;
-use Shopware\Framework\ORM\FieldCollection;
-use Shopware\Framework\ORM\Write\Flag\CascadeDelete;
-use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
-use Shopware\Framework\ORM\Write\Flag\ReadOnly;
-use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\Framework\ORM\Write\Flag\SearchRanking;
-use Shopware\Framework\ORM\Write\Flag\WriteOnly;
+use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
+use Shopware\Core\Content\Category\Collection\CategoryBasicCollection;
+use Shopware\Core\Content\Category\Collection\CategoryDetailCollection;
+use Shopware\Core\Content\Category\Event\CategoryDeletedEvent;
+use Shopware\Core\Content\Category\Event\CategoryWrittenEvent;
+use Shopware\Core\Content\Category\Struct\CategoryBasicStruct;
+use Shopware\Core\Content\Category\Struct\CategoryDetailStruct;
+use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductSeoCategory\ProductSeoCategoryDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductStream\ProductStreamDefinition;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+use Shopware\Core\Framework\ORM\Field\BoolField;
+use Shopware\Core\Framework\ORM\Field\CatalogField;
+use Shopware\Core\Framework\ORM\Field\ChildrenAssociationField;
+use Shopware\Core\Framework\ORM\Field\DateField;
+use Shopware\Core\Framework\ORM\Field\FkField;
+use Shopware\Core\Framework\ORM\Field\IdField;
+use Shopware\Core\Framework\ORM\Field\IntField;
+use Shopware\Core\Framework\ORM\Field\LongTextField;
+use Shopware\Core\Framework\ORM\Field\ManyToManyAssociationField;
+use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\ORM\Field\ParentField;
+use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
+use Shopware\Core\Framework\ORM\Field\StringField;
+use Shopware\Core\Framework\ORM\Field\TenantIdField;
+use Shopware\Core\Framework\ORM\Field\TranslatedField;
+use Shopware\Core\Framework\ORM\Field\TranslationsAssociationField;
+use Shopware\Core\Framework\ORM\Field\VersionField;
+use Shopware\Core\Framework\ORM\FieldCollection;
+use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
+use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
+use Shopware\Core\Framework\ORM\Write\Flag\ReadOnly;
+use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
+use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
+use Shopware\Core\Framework\ORM\Field\ChildCountField;
 
 class CategoryDefinition extends EntityDefinition
 {
@@ -78,11 +78,11 @@ class CategoryDefinition extends EntityDefinition
             new ParentField(self::class),
             new ReferenceVersionField(self::class, 'parent_version_id'),
 
-            new FkField('media_id', 'mediaId', \Shopware\Content\Media\MediaDefinition::class),
-            new ReferenceVersionField(\Shopware\Content\Media\MediaDefinition::class),
+            new FkField('media_id', 'mediaId', \Shopware\Core\Content\Media\MediaDefinition::class),
+            new ReferenceVersionField(\Shopware\Core\Content\Media\MediaDefinition::class),
 
             new FkField('product_stream_id', 'productStreamId', ProductStreamDefinition::class),
-            new ReferenceVersionField(\Shopware\Content\Product\Aggregate\ProductStream\ProductStreamDefinition::class),
+            new ReferenceVersionField(\Shopware\Core\Content\Product\Aggregate\ProductStream\ProductStreamDefinition::class),
 
             (new IntField('auto_increment', 'autoIncrement'))->setFlags(new ReadOnly()),
             new LongTextField('path', 'path'),
@@ -109,12 +109,12 @@ class CategoryDefinition extends EntityDefinition
             new TranslatedField(new StringField('cms_headline', 'cmsHeadline')),
             new TranslatedField(new LongTextField('cms_description', 'cmsDescription')),
             new ManyToOneAssociationField('parent', 'parent_id', self::class, false),
-            new ManyToOneAssociationField('media', 'media_id', \Shopware\Content\Media\MediaDefinition::class, false),
-            new ManyToOneAssociationField('productStream', 'product_stream_id', \Shopware\Content\Product\Aggregate\ProductStream\ProductStreamDefinition::class, false),
+            new ManyToOneAssociationField('media', 'media_id', \Shopware\Core\Content\Media\MediaDefinition::class, false),
+            new ManyToOneAssociationField('productStream', 'product_stream_id', \Shopware\Core\Content\Product\Aggregate\ProductStream\ProductStreamDefinition::class, false),
             (new ChildrenAssociationField(self::class))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField('translations', CategoryTranslationDefinition::class, 'category_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
-            (new ManyToManyAssociationField('products', \Shopware\Content\Product\ProductDefinition::class, ProductCategoryDefinition::class, false, 'category_id', 'product_id', 'id', 'categories'))->setFlags(new CascadeDelete(), new WriteOnly()),
-            (new ManyToManyAssociationField('seoProducts', \Shopware\Content\Product\ProductDefinition::class, ProductSeoCategoryDefinition::class, false, 'category_id', 'product_id'))->setFlags(new CascadeDelete(), new WriteOnly()),
+            (new ManyToManyAssociationField('products', \Shopware\Core\Content\Product\ProductDefinition::class, ProductCategoryDefinition::class, false, 'category_id', 'product_id', 'id', 'categories'))->setFlags(new CascadeDelete(), new WriteOnly()),
+            (new ManyToManyAssociationField('seoProducts', \Shopware\Core\Content\Product\ProductDefinition::class, ProductSeoCategoryDefinition::class, false, 'category_id', 'product_id'))->setFlags(new CascadeDelete(), new WriteOnly()),
         ]);
 
         foreach (self::$extensions as $extension) {

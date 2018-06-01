@@ -1,25 +1,25 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Listing\Definition;
+namespace Shopware\Core\System\Listing\Definition;
 
-use Shopware\System\Language\LanguageDefinition;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\EntityExtensionInterface;
-use Shopware\Framework\ORM\Field\FkField;
-use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
-use Shopware\Framework\ORM\Field\ReferenceVersionField;
-use Shopware\Framework\ORM\Field\StringField;
-use Shopware\Framework\ORM\FieldCollection;
-use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
-use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\System\Listing\Aggregate\ListingSortingTranslation\Collection\ListingSortingTranslationBasicCollection;
-use Shopware\System\Listing\Aggregate\ListingSortingTranslation\Collection\ListingSortingTranslationDetailCollection;
-use Shopware\System\Listing\Aggregate\ListingSortingTranslation\Event\ListingSortingTranslationDeletedEvent;
-use Shopware\System\Listing\Aggregate\ListingSortingTranslation\Event\ListingSortingTranslationWrittenEvent;
-use Shopware\System\Listing\Aggregate\ListingSortingTranslation\ListingSortingTranslationRepository;
-use Shopware\System\Listing\Aggregate\ListingSortingTranslation\Struct\ListingSortingTranslationBasicStruct;
-use Shopware\System\Listing\Aggregate\ListingSortingTranslation\Struct\ListingSortingTranslationDetailStruct;
-use Shopware\System\Listing\ListingSortingDefinition;
+use Shopware\Core\System\Language\LanguageDefinition;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+use Shopware\Core\Framework\ORM\Field\FkField;
+use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
+use Shopware\Core\Framework\ORM\Field\StringField;
+use Shopware\Core\Framework\ORM\FieldCollection;
+use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
+use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation\Collection\ListingSortingTranslationBasicCollection;
+use Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation\Collection\ListingSortingTranslationDetailCollection;
+use Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation\Event\ListingSortingTranslationDeletedEvent;
+use Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation\Event\ListingSortingTranslationWrittenEvent;
+use Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation\ListingSortingTranslationRepository;
+use Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation\Struct\ListingSortingTranslationBasicStruct;
+use Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation\Struct\ListingSortingTranslationDetailStruct;
+use Shopware\Core\System\Listing\ListingSortingDefinition;
 
 class ListingSortingTranslationDefinition extends EntityDefinition
 {

@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Struct;
+namespace Shopware\Core\Content\Product\Struct;
 
-use Shopware\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
 
 trait StorefrontProductBasicTrait
 {

@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Config\Aggregate\ConfigFormTranslation\Event;
+namespace Shopware\Core\System\Config\Aggregate\ConfigFormTranslation\Event;
 
-use Shopware\Framework\ORM\Write\DeletedEvent;
-use Shopware\Framework\ORM\Write\WrittenEvent;
-use Shopware\System\Config\Aggregate\ConfigFormTranslation\ConfigFormTranslationDefinition;
+use Shopware\Core\Framework\ORM\Write\DeletedEvent;
+use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\System\Config\Aggregate\ConfigFormTranslation\ConfigFormTranslationDefinition;
 
 class ConfigFormTranslationDeletedEvent extends WrittenEvent implements DeletedEvent
 {

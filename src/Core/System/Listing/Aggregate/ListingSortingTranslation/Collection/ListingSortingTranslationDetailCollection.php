@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Listing\Aggregate\ListingSortingTranslation\Collection;
+namespace Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation\Collection;
 
-use Shopware\System\Language\Collection\LanguageBasicCollection;
-use Shopware\System\Listing\Aggregate\ListingSortingTranslation\Struct\ListingSortingTranslationDetailStruct;
-use Shopware\System\Listing\Collection\ListingSortingBasicCollection;
+use Shopware\Core\System\Language\Collection\LanguageBasicCollection;
+use Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation\Struct\ListingSortingTranslationDetailStruct;
+use Shopware\Core\System\Listing\Collection\ListingSortingBasicCollection;
 
 class ListingSortingTranslationDetailCollection extends ListingSortingTranslationBasicCollection
 {

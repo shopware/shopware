@@ -1,16 +1,16 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Test\Country\Repository;
+namespace Shopware\Core\System\Test\Country\Repository;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Framework\Context;
-use Shopware\Defaults;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\Term\EntityScoreQueryBuilder;
-use Shopware\Framework\ORM\Search\Term\SearchTermInterpreter;
-use Shopware\Framework\Struct\Uuid;
-use Shopware\System\Country\CountryDefinition;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\Term\EntityScoreQueryBuilder;
+use Shopware\Core\Framework\ORM\Search\Term\SearchTermInterpreter;
+use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\System\Country\CountryDefinition;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class CountryRepositoryTest extends KernelTestCase
@@ -28,7 +28,7 @@ class CountryRepositoryTest extends KernelTestCase
     public function setUp()
     {
         self::bootKernel();
-        $this->repository = self::$container->get(\Shopware\System\Country\CountryRepository::class);
+        $this->repository = self::$container->get(\Shopware\Core\System\Country\CountryRepository::class);
         $this->connection = self::$container->get(Connection::class);
         $this->connection->beginTransaction();
     }

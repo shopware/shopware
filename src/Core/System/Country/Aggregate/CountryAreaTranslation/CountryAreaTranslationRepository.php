@@ -1,26 +1,26 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Country\Aggregate\CountryAreaTranslation;
+namespace Shopware\Core\System\Country\Aggregate\CountryAreaTranslation;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\ORM\Read\EntityReaderInterface;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\AggregatorResult;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
-use Shopware\Framework\ORM\Search\EntitySearcherInterface;
-use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\System\Country\Aggregate\CountryAreaTranslation\Collection\CountryAreaTranslationBasicCollection;
-use Shopware\System\Country\Aggregate\CountryAreaTranslation\Collection\CountryAreaTranslationDetailCollection;
-use Shopware\System\Country\Aggregate\CountryAreaTranslation\Event\CountryAreaTranslationAggregationResultLoadedEvent;
-use Shopware\System\Country\Aggregate\CountryAreaTranslation\Event\CountryAreaTranslationBasicLoadedEvent;
-use Shopware\System\Country\Aggregate\CountryAreaTranslation\Event\CountryAreaTranslationDetailLoadedEvent;
-use Shopware\System\Country\Aggregate\CountryAreaTranslation\Event\CountryAreaTranslationIdSearchResultLoadedEvent;
-use Shopware\System\Country\Aggregate\CountryAreaTranslation\Event\CountryAreaTranslationSearchResultLoadedEvent;
-use Shopware\System\Country\Aggregate\CountryAreaTranslation\Struct\CountryAreaTranslationSearchResult;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\AggregatorResult;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\ORM\Search\IdSearchResult;
+use Shopware\Core\Framework\ORM\Version\Service\VersionManager;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Write\WriteContext;
+use Shopware\Core\System\Country\Aggregate\CountryAreaTranslation\Collection\CountryAreaTranslationBasicCollection;
+use Shopware\Core\System\Country\Aggregate\CountryAreaTranslation\Collection\CountryAreaTranslationDetailCollection;
+use Shopware\Core\System\Country\Aggregate\CountryAreaTranslation\Event\CountryAreaTranslationAggregationResultLoadedEvent;
+use Shopware\Core\System\Country\Aggregate\CountryAreaTranslation\Event\CountryAreaTranslationBasicLoadedEvent;
+use Shopware\Core\System\Country\Aggregate\CountryAreaTranslation\Event\CountryAreaTranslationDetailLoadedEvent;
+use Shopware\Core\System\Country\Aggregate\CountryAreaTranslation\Event\CountryAreaTranslationIdSearchResultLoadedEvent;
+use Shopware\Core\System\Country\Aggregate\CountryAreaTranslation\Event\CountryAreaTranslationSearchResultLoadedEvent;
+use Shopware\Core\System\Country\Aggregate\CountryAreaTranslation\Struct\CountryAreaTranslationSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class CountryAreaTranslationRepository implements RepositoryInterface
@@ -46,7 +46,7 @@ class CountryAreaTranslationRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var \Shopware\Framework\ORM\Version\Service\VersionManager
+     * @var \Shopware\Core\Framework\ORM\Version\Service\VersionManager
      */
     private $versionManager;
 

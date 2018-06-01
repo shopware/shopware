@@ -1,26 +1,26 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Country\Aggregate\CountryState;
+namespace Shopware\Core\System\Country\Aggregate\CountryState;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\ORM\Read\EntityReaderInterface;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\AggregatorResult;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
-use Shopware\Framework\ORM\Search\EntitySearcherInterface;
-use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\System\Country\Aggregate\CountryState\Collection\CountryStateBasicCollection;
-use Shopware\System\Country\Aggregate\CountryState\Collection\CountryStateDetailCollection;
-use Shopware\System\Country\Aggregate\CountryState\Event\CountryStateAggregationResultLoadedEvent;
-use Shopware\System\Country\Aggregate\CountryState\Event\CountryStateBasicLoadedEvent;
-use Shopware\System\Country\Aggregate\CountryState\Event\CountryStateDetailLoadedEvent;
-use Shopware\System\Country\Aggregate\CountryState\Event\CountryStateIdSearchResultLoadedEvent;
-use Shopware\System\Country\Aggregate\CountryState\Event\CountryStateSearchResultLoadedEvent;
-use Shopware\System\Country\Aggregate\CountryState\Struct\CountryStateSearchResult;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\AggregatorResult;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\ORM\Search\IdSearchResult;
+use Shopware\Core\Framework\ORM\Version\Service\VersionManager;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Write\WriteContext;
+use Shopware\Core\System\Country\Aggregate\CountryState\Collection\CountryStateBasicCollection;
+use Shopware\Core\System\Country\Aggregate\CountryState\Collection\CountryStateDetailCollection;
+use Shopware\Core\System\Country\Aggregate\CountryState\Event\CountryStateAggregationResultLoadedEvent;
+use Shopware\Core\System\Country\Aggregate\CountryState\Event\CountryStateBasicLoadedEvent;
+use Shopware\Core\System\Country\Aggregate\CountryState\Event\CountryStateDetailLoadedEvent;
+use Shopware\Core\System\Country\Aggregate\CountryState\Event\CountryStateIdSearchResultLoadedEvent;
+use Shopware\Core\System\Country\Aggregate\CountryState\Event\CountryStateSearchResultLoadedEvent;
+use Shopware\Core\System\Country\Aggregate\CountryState\Struct\CountryStateSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class CountryStateRepository implements RepositoryInterface
@@ -46,7 +46,7 @@ class CountryStateRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var \Shopware\Framework\ORM\Version\Service\VersionManager
+     * @var \Shopware\Core\Framework\ORM\Version\Service\VersionManager
      */
     private $versionManager;
 

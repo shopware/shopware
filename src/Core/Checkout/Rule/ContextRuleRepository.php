@@ -1,26 +1,26 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Rule;
+namespace Shopware\Core\Checkout\Rule;
 
-use Shopware\Application\Context\Collection\ContextRuleDetailCollection;
-use Shopware\Framework\Context;
-use Shopware\Checkout\Rule\Collection\ContextRuleBasicCollection;
-use Shopware\Checkout\Rule\Event\ContextRuleAggregationResultLoadedEvent;
-use Shopware\Checkout\Rule\Event\ContextRuleBasicLoadedEvent;
-use Shopware\Checkout\Rule\Event\ContextRuleDetailLoadedEvent;
-use Shopware\Checkout\Rule\Event\ContextRuleIdSearchResultLoadedEvent;
-use Shopware\Checkout\Rule\Event\ContextRuleSearchResultLoadedEvent;
-use Shopware\Checkout\Rule\Struct\ContextRuleSearchResult;
-use Shopware\Framework\ORM\Read\EntityReaderInterface;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\AggregatorResult;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
-use Shopware\Framework\ORM\Search\EntitySearcherInterface;
-use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\ORM\Write\WriteContext;
+use Shopware\Core\Application\Context\Collection\ContextRuleDetailCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Rule\Collection\ContextRuleBasicCollection;
+use Shopware\Core\Checkout\Rule\Event\ContextRuleAggregationResultLoadedEvent;
+use Shopware\Core\Checkout\Rule\Event\ContextRuleBasicLoadedEvent;
+use Shopware\Core\Checkout\Rule\Event\ContextRuleDetailLoadedEvent;
+use Shopware\Core\Checkout\Rule\Event\ContextRuleIdSearchResultLoadedEvent;
+use Shopware\Core\Checkout\Rule\Event\ContextRuleSearchResultLoadedEvent;
+use Shopware\Core\Checkout\Rule\Struct\ContextRuleSearchResult;
+use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\AggregatorResult;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\ORM\Search\IdSearchResult;
+use Shopware\Core\Framework\ORM\Version\Service\VersionManager;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Write\WriteContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ContextRuleRepository implements RepositoryInterface
@@ -46,7 +46,7 @@ class ContextRuleRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var \Shopware\Framework\ORM\Version\Service\VersionManager
+     * @var \Shopware\Core\Framework\ORM\Version\Service\VersionManager
      */
     private $versionManager;
 

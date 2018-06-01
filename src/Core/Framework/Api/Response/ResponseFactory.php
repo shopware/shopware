@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Api\Response;
+namespace Shopware\Core\Framework\Api\Response;
 
-use Shopware\Framework\Api\Context\RestContext;
-use Shopware\Framework\ORM\Entity;
-use Shopware\Framework\ORM\Search\SearchResultInterface;
+use Shopware\Core\Framework\Api\Context\RestContext;
+use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Search\SearchResultInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\UnsupportedMediaTypeHttpException;

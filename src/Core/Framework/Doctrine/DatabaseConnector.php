@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Doctrine;
+namespace Shopware\Core\Framework\Doctrine;
 
 use PDO;
 

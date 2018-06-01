@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Payment\Cart\PaymentHandler;
+namespace Shopware\Core\Checkout\Payment\Cart\PaymentHandler;
 
-use Shopware\Checkout\Payment\Exception\UnknownPaymentMethodException;
+use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 
 class PaymentHandlerRegistry
 {

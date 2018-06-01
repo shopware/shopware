@@ -1,26 +1,26 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Country\Aggregate\CountryStateTranslation;
+namespace Shopware\Core\System\Country\Aggregate\CountryStateTranslation;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\ORM\Read\EntityReaderInterface;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\AggregatorResult;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
-use Shopware\Framework\ORM\Search\EntitySearcherInterface;
-use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\System\Country\Aggregate\CountryStateTranslation\Collection\CountryStateTranslationBasicCollection;
-use Shopware\System\Country\Aggregate\CountryStateTranslation\Collection\CountryStateTranslationDetailCollection;
-use Shopware\System\Country\Aggregate\CountryStateTranslation\Event\CountryStateTranslationAggregationResultLoadedEvent;
-use Shopware\System\Country\Aggregate\CountryStateTranslation\Event\CountryStateTranslationBasicLoadedEvent;
-use Shopware\System\Country\Aggregate\CountryStateTranslation\Event\CountryStateTranslationDetailLoadedEvent;
-use Shopware\System\Country\Aggregate\CountryStateTranslation\Event\CountryStateTranslationIdSearchResultLoadedEvent;
-use Shopware\System\Country\Aggregate\CountryStateTranslation\Event\CountryStateTranslationSearchResultLoadedEvent;
-use Shopware\System\Country\Aggregate\CountryStateTranslation\Struct\CountryStateTranslationSearchResult;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\AggregatorResult;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\ORM\Search\IdSearchResult;
+use Shopware\Core\Framework\ORM\Version\Service\VersionManager;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Write\WriteContext;
+use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\Collection\CountryStateTranslationBasicCollection;
+use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\Collection\CountryStateTranslationDetailCollection;
+use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\Event\CountryStateTranslationAggregationResultLoadedEvent;
+use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\Event\CountryStateTranslationBasicLoadedEvent;
+use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\Event\CountryStateTranslationDetailLoadedEvent;
+use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\Event\CountryStateTranslationIdSearchResultLoadedEvent;
+use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\Event\CountryStateTranslationSearchResultLoadedEvent;
+use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\Struct\CountryStateTranslationSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class CountryStateTranslationRepository implements RepositoryInterface
@@ -46,7 +46,7 @@ class CountryStateTranslationRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var \Shopware\Framework\ORM\Version\Service\VersionManager
+     * @var \Shopware\Core\Framework\ORM\Version\Service\VersionManager
      */
     private $versionManager;
 
@@ -116,7 +116,7 @@ class CountryStateTranslationRepository implements RepositoryInterface
 
     public function readDetail(array $ids, Context $context): CountryStateTranslationDetailCollection
     {
-        /** @var \Shopware\System\Country\Aggregate\CountryStateTranslation\Collection\CountryStateTranslationDetailCollection $entities */
+        /** @var \Shopware\Core\System\Country\Aggregate\CountryStateTranslation\Collection\CountryStateTranslationDetailCollection $entities */
         $entities = $this->reader->readDetail(CountryStateTranslationDefinition::class, $ids, $context);
 
         $event = new CountryStateTranslationDetailLoadedEvent($entities, $context);

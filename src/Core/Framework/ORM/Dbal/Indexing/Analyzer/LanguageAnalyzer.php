@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Dbal\Indexing\Analyzer;
+namespace Shopware\Core\Framework\ORM\Dbal\Indexing\Analyzer;
 
-use Shopware\Framework\Context;
-use Shopware\Content\Product\Struct\ProductBasicStruct;
-use Shopware\Framework\ORM\Search\Term\SearchFilterInterface;
-use Shopware\Framework\ORM\Search\Term\TokenizerInterface;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Product\Struct\ProductBasicStruct;
+use Shopware\Core\Framework\ORM\Search\Term\SearchFilterInterface;
+use Shopware\Core\Framework\ORM\Search\Term\TokenizerInterface;
 
 class LanguageAnalyzer implements SearchAnalyzerInterface
 {

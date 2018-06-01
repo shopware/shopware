@@ -1,26 +1,26 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Customer\Aggregate\CustomerGroup;
+namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup;
 
-use Shopware\Framework\Context;
-use Shopware\Checkout\Customer\Aggregate\CustomerGroup\Collection\CustomerGroupBasicCollection;
-use Shopware\Checkout\Customer\Aggregate\CustomerGroup\Collection\CustomerGroupDetailCollection;
-use Shopware\Checkout\Customer\Aggregate\CustomerGroup\Event\CustomerGroupAggregationResultLoadedEvent;
-use Shopware\Checkout\Customer\Aggregate\CustomerGroup\Event\CustomerGroupBasicLoadedEvent;
-use Shopware\Checkout\Customer\Aggregate\CustomerGroup\Event\CustomerGroupDetailLoadedEvent;
-use Shopware\Checkout\Customer\Aggregate\CustomerGroup\Event\CustomerGroupIdSearchResultLoadedEvent;
-use Shopware\Checkout\Customer\Aggregate\CustomerGroup\Event\CustomerGroupSearchResultLoadedEvent;
-use Shopware\Checkout\Customer\Aggregate\CustomerGroup\Struct\CustomerGroupSearchResult;
-use Shopware\Framework\ORM\Read\EntityReaderInterface;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\AggregatorResult;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
-use Shopware\Framework\ORM\Search\EntitySearcherInterface;
-use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\ORM\Write\WriteContext;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\Collection\CustomerGroupBasicCollection;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\Collection\CustomerGroupDetailCollection;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\Event\CustomerGroupAggregationResultLoadedEvent;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\Event\CustomerGroupBasicLoadedEvent;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\Event\CustomerGroupDetailLoadedEvent;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\Event\CustomerGroupIdSearchResultLoadedEvent;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\Event\CustomerGroupSearchResultLoadedEvent;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\Struct\CustomerGroupSearchResult;
+use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\AggregatorResult;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\ORM\Search\IdSearchResult;
+use Shopware\Core\Framework\ORM\Version\Service\VersionManager;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Write\WriteContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class CustomerGroupRepository implements RepositoryInterface
@@ -46,7 +46,7 @@ class CustomerGroupRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var \Shopware\Framework\ORM\Version\Service\VersionManager
+     * @var \Shopware\Core\Framework\ORM\Version\Service\VersionManager
      */
     private $versionManager;
 
@@ -116,7 +116,7 @@ class CustomerGroupRepository implements RepositoryInterface
 
     public function readDetail(array $ids, Context $context): CustomerGroupDetailCollection
     {
-        /** @var \Shopware\Checkout\Customer\Aggregate\CustomerGroup\Collection\CustomerGroupDetailCollection $entities */
+        /** @var \Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\Collection\CustomerGroupDetailCollection $entities */
         $entities = $this->reader->readDetail(CustomerGroupDefinition::class, $ids, $context);
 
         $event = new CustomerGroupDetailLoadedEvent($entities, $context);

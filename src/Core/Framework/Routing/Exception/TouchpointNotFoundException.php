@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Routing\Exception;
+namespace Shopware\Core\Framework\Routing\Exception;
 
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 

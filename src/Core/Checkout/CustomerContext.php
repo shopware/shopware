@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * Shopware 5
+ * Shopware\Core 5
  * Copyright (c) shopware AG
  *
  * According to our dual licensing model, this program can be used either
@@ -16,31 +16,31 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
  *
- * "Shopware" is a registered trademark of shopware AG.
+ * "Shopware\Core" is a registered trademark of shopware AG.
  * The licensing of the program under the AGPLv3 does not imply a
  * trademark license. Therefore any rights, title and interest in
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Checkout;
+namespace Shopware\Core\Checkout;
 
-use Shopware\System\Touchpoint\Struct\TouchpointBasicStruct;
-use Shopware\Application\Context\Exception\ContextRulesLockedException;
-use Shopware\System\Language\Struct\LanguageBasicStruct;
-use Shopware\Checkout\Cart\Delivery\Struct\ShippingLocation;
-use Shopware\Checkout\Cart\Price\Struct\CartPrice;
-use Shopware\Checkout\Customer\Aggregate\CustomerGroup\Struct\CustomerGroupBasicStruct;
-use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
-use Shopware\Checkout\Payment\Struct\PaymentMethodBasicStruct;
-use Shopware\Checkout\Shipping\Struct\ShippingMethodBasicStruct;
-use Shopware\Defaults;
-use Shopware\Framework\Context;
-use Shopware\Framework\Struct\Struct;
-use Shopware\System\Currency\Struct\CurrencyBasicStruct;
-use Shopware\System\Tax\Collection\TaxBasicCollection;
+use Shopware\Core\System\Touchpoint\Struct\TouchpointBasicStruct;
+use Shopware\Core\Application\Context\Exception\ContextRulesLockedException;
+use Shopware\Core\System\Language\Struct\LanguageBasicStruct;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\Struct\CustomerGroupBasicStruct;
+use Shopware\Core\Checkout\Customer\Struct\CustomerBasicStruct;
+use Shopware\Core\Checkout\Payment\Struct\PaymentMethodBasicStruct;
+use Shopware\Core\Checkout\Shipping\Struct\ShippingMethodBasicStruct;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\System\Currency\Struct\CurrencyBasicStruct;
+use Shopware\Core\System\Tax\Collection\TaxBasicCollection;
 
 /**
- * @category  Shopware
+ * @category  Shopware\Core
  *
  * @copyright Copyright (c) shopware AG (http://www.shopware.de)
  */
@@ -59,7 +59,7 @@ class CustomerContext extends Struct
     protected $currentCustomerGroup;
 
     /**
-     * @var \Shopware\Checkout\Customer\Aggregate\CustomerGroup\Struct\CustomerGroupBasicStruct
+     * @var \Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\Struct\CustomerGroupBasicStruct
      */
     protected $fallbackCustomerGroup;
 

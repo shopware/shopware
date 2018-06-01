@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Struct;
+namespace Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupOption\Struct;
 
-use Shopware\Framework\ORM\Entity;
-use Shopware\System\Configuration\Struct\ConfigurationGroupBasicStruct;
+use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\System\Configuration\Struct\ConfigurationGroupBasicStruct;
 
 class ConfigurationGroupOptionBasicStruct extends Entity
 {

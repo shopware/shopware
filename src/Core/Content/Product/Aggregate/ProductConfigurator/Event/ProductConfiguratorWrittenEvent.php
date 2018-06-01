@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Aggregate\ProductConfigurator\Event;
+namespace Shopware\Core\Content\Product\Aggregate\ProductConfigurator\Event;
 
-use Shopware\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorDefinition;
-use Shopware\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorDefinition;
+use Shopware\Core\Framework\ORM\Write\WrittenEvent;
 
 class ProductConfiguratorWrittenEvent extends WrittenEvent
 {

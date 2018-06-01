@@ -1,29 +1,29 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Configuration;
+namespace Shopware\Core\System\Configuration;
 
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\EntityExtensionInterface;
-use Shopware\Framework\ORM\Field\BoolField;
-use Shopware\Framework\ORM\Field\IdField;
-use Shopware\Framework\ORM\Field\IntField;
-use Shopware\Framework\ORM\Field\OneToManyAssociationField;
-use Shopware\Framework\ORM\Field\StringField;
-use Shopware\Framework\ORM\Field\TenantIdField;
-use Shopware\Framework\ORM\Field\TranslatedField;
-use Shopware\Framework\ORM\Field\TranslationsAssociationField;
-use Shopware\Framework\ORM\Field\VersionField;
-use Shopware\Framework\ORM\FieldCollection;
-use Shopware\Framework\ORM\Write\Flag\CascadeDelete;
-use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
-use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\System\Configuration\Aggregate\ConfigurationGroupTranslation\ConfigurationGroupTranslationDefinition;
-use Shopware\System\Configuration\Collection\ConfigurationGroupBasicCollection;
-use Shopware\System\Configuration\Collection\ConfigurationGroupDetailCollection;
-use Shopware\System\Configuration\Event\ConfigurationGroupDeletedEvent;
-use Shopware\System\Configuration\Event\ConfigurationGroupWrittenEvent;
-use Shopware\System\Configuration\Struct\ConfigurationGroupBasicStruct;
-use Shopware\System\Configuration\Struct\ConfigurationGroupDetailStruct;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+use Shopware\Core\Framework\ORM\Field\BoolField;
+use Shopware\Core\Framework\ORM\Field\IdField;
+use Shopware\Core\Framework\ORM\Field\IntField;
+use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\ORM\Field\StringField;
+use Shopware\Core\Framework\ORM\Field\TenantIdField;
+use Shopware\Core\Framework\ORM\Field\TranslatedField;
+use Shopware\Core\Framework\ORM\Field\TranslationsAssociationField;
+use Shopware\Core\Framework\ORM\Field\VersionField;
+use Shopware\Core\Framework\ORM\FieldCollection;
+use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
+use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
+use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupTranslation\ConfigurationGroupTranslationDefinition;
+use Shopware\Core\System\Configuration\Collection\ConfigurationGroupBasicCollection;
+use Shopware\Core\System\Configuration\Collection\ConfigurationGroupDetailCollection;
+use Shopware\Core\System\Configuration\Event\ConfigurationGroupDeletedEvent;
+use Shopware\Core\System\Configuration\Event\ConfigurationGroupWrittenEvent;
+use Shopware\Core\System\Configuration\Struct\ConfigurationGroupBasicStruct;
+use Shopware\Core\System\Configuration\Struct\ConfigurationGroupDetailStruct;
 
 class ConfigurationGroupDefinition extends EntityDefinition
 {

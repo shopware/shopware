@@ -1,24 +1,24 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Country\Aggregate\CountryAreaTranslation;
+namespace Shopware\Core\System\Country\Aggregate\CountryAreaTranslation;
 
-use Shopware\System\Language\LanguageDefinition;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\EntityExtensionInterface;
-use Shopware\Framework\ORM\Field\FkField;
-use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
-use Shopware\Framework\ORM\Field\ReferenceVersionField;
-use Shopware\Framework\ORM\Field\StringField;
-use Shopware\Framework\ORM\FieldCollection;
-use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
-use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\System\Country\Aggregate\CountryArea\CountryAreaDefinition;
-use Shopware\System\Country\Aggregate\CountryAreaTranslation\Collection\CountryAreaTranslationBasicCollection;
-use Shopware\System\Country\Aggregate\CountryAreaTranslation\Collection\CountryAreaTranslationDetailCollection;
-use Shopware\System\Country\Aggregate\CountryAreaTranslation\Event\CountryAreaTranslationDeletedEvent;
-use Shopware\System\Country\Aggregate\CountryAreaTranslation\Event\CountryAreaTranslationWrittenEvent;
-use Shopware\System\Country\Aggregate\CountryAreaTranslation\Struct\CountryAreaTranslationBasicStruct;
-use Shopware\System\Country\Aggregate\CountryAreaTranslation\Struct\CountryAreaTranslationDetailStruct;
+use Shopware\Core\System\Language\LanguageDefinition;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+use Shopware\Core\Framework\ORM\Field\FkField;
+use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
+use Shopware\Core\Framework\ORM\Field\StringField;
+use Shopware\Core\Framework\ORM\FieldCollection;
+use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
+use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\System\Country\Aggregate\CountryArea\CountryAreaDefinition;
+use Shopware\Core\System\Country\Aggregate\CountryAreaTranslation\Collection\CountryAreaTranslationBasicCollection;
+use Shopware\Core\System\Country\Aggregate\CountryAreaTranslation\Collection\CountryAreaTranslationDetailCollection;
+use Shopware\Core\System\Country\Aggregate\CountryAreaTranslation\Event\CountryAreaTranslationDeletedEvent;
+use Shopware\Core\System\Country\Aggregate\CountryAreaTranslation\Event\CountryAreaTranslationWrittenEvent;
+use Shopware\Core\System\Country\Aggregate\CountryAreaTranslation\Struct\CountryAreaTranslationBasicStruct;
+use Shopware\Core\System\Country\Aggregate\CountryAreaTranslation\Struct\CountryAreaTranslationDetailStruct;
 
 class CountryAreaTranslationDefinition extends EntityDefinition
 {

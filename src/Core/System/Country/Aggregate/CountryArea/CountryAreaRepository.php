@@ -1,26 +1,26 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Country\Aggregate\CountryArea;
+namespace Shopware\Core\System\Country\Aggregate\CountryArea;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\ORM\Read\EntityReaderInterface;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\AggregatorResult;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
-use Shopware\Framework\ORM\Search\EntitySearcherInterface;
-use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\System\Country\Aggregate\CountryArea\Collection\CountryAreaBasicCollection;
-use Shopware\System\Country\Aggregate\CountryArea\Collection\CountryAreaDetailCollection;
-use Shopware\System\Country\Aggregate\CountryArea\Event\CountryAreaAggregationResultLoadedEvent;
-use Shopware\System\Country\Aggregate\CountryArea\Event\CountryAreaBasicLoadedEvent;
-use Shopware\System\Country\Aggregate\CountryArea\Event\CountryAreaDetailLoadedEvent;
-use Shopware\System\Country\Aggregate\CountryArea\Event\CountryAreaIdSearchResultLoadedEvent;
-use Shopware\System\Country\Aggregate\CountryArea\Event\CountryAreaSearchResultLoadedEvent;
-use Shopware\System\Country\Aggregate\CountryArea\Struct\CountryAreaSearchResult;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\AggregatorResult;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\ORM\Search\IdSearchResult;
+use Shopware\Core\Framework\ORM\Version\Service\VersionManager;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Write\WriteContext;
+use Shopware\Core\System\Country\Aggregate\CountryArea\Collection\CountryAreaBasicCollection;
+use Shopware\Core\System\Country\Aggregate\CountryArea\Collection\CountryAreaDetailCollection;
+use Shopware\Core\System\Country\Aggregate\CountryArea\Event\CountryAreaAggregationResultLoadedEvent;
+use Shopware\Core\System\Country\Aggregate\CountryArea\Event\CountryAreaBasicLoadedEvent;
+use Shopware\Core\System\Country\Aggregate\CountryArea\Event\CountryAreaDetailLoadedEvent;
+use Shopware\Core\System\Country\Aggregate\CountryArea\Event\CountryAreaIdSearchResultLoadedEvent;
+use Shopware\Core\System\Country\Aggregate\CountryArea\Event\CountryAreaSearchResultLoadedEvent;
+use Shopware\Core\System\Country\Aggregate\CountryArea\Struct\CountryAreaSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class CountryAreaRepository implements RepositoryInterface
@@ -46,7 +46,7 @@ class CountryAreaRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var \Shopware\Framework\ORM\Version\Service\VersionManager
+     * @var \Shopware\Core\Framework\ORM\Version\Service\VersionManager
      */
     private $versionManager;
 
@@ -105,7 +105,7 @@ class CountryAreaRepository implements RepositoryInterface
 
     public function readBasic(array $ids, Context $context): CountryAreaBasicCollection
     {
-        /** @var \Shopware\System\Country\Aggregate\CountryArea\Collection\CountryAreaBasicCollection $entities */
+        /** @var \Shopware\Core\System\Country\Aggregate\CountryArea\Collection\CountryAreaBasicCollection $entities */
         $entities = $this->reader->readBasic(CountryAreaDefinition::class, $ids, $context);
 
         $event = new CountryAreaBasicLoadedEvent($entities, $context);
@@ -116,7 +116,7 @@ class CountryAreaRepository implements RepositoryInterface
 
     public function readDetail(array $ids, Context $context): CountryAreaDetailCollection
     {
-        /** @var \Shopware\System\Country\Aggregate\CountryArea\Collection\CountryAreaDetailCollection $entities */
+        /** @var \Shopware\Core\System\Country\Aggregate\CountryArea\Collection\CountryAreaDetailCollection $entities */
         $entities = $this->reader->readDetail(CountryAreaDefinition::class, $ids, $context);
 
         $event = new CountryAreaDetailLoadedEvent($entities, $context);

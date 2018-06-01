@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Rule\Collection;
+namespace Shopware\Core\Checkout\Rule\Collection;
 
-use Shopware\Checkout\CustomerContext;
-use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Checkout\Rule\Specification\Scope\CartRuleScope;
-use Shopware\Checkout\Rule\Struct\ContextRuleBasicStruct;
-use Shopware\Framework\ORM\EntityCollection;
+use Shopware\Core\Checkout\CustomerContext;
+use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Core\Checkout\Rule\Specification\Scope\CartRuleScope;
+use Shopware\Core\Checkout\Rule\Struct\ContextRuleBasicStruct;
+use Shopware\Core\Framework\ORM\EntityCollection;
 
 class ContextRuleBasicCollection extends EntityCollection
 {

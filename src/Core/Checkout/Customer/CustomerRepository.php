@@ -1,26 +1,26 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Customer;
+namespace Shopware\Core\Checkout\Customer;
 
-use Shopware\Framework\Context;
-use Shopware\Checkout\Customer\Collection\CustomerBasicCollection;
-use Shopware\Checkout\Customer\Collection\CustomerDetailCollection;
-use Shopware\Checkout\Customer\Event\CustomerAggregationResultLoadedEvent;
-use Shopware\Checkout\Customer\Event\CustomerBasicLoadedEvent;
-use Shopware\Checkout\Customer\Event\CustomerDetailLoadedEvent;
-use Shopware\Checkout\Customer\Event\CustomerIdSearchResultLoadedEvent;
-use Shopware\Checkout\Customer\Event\CustomerSearchResultLoadedEvent;
-use Shopware\Checkout\Customer\Struct\CustomerSearchResult;
-use Shopware\Framework\ORM\Read\EntityReaderInterface;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\AggregatorResult;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
-use Shopware\Framework\ORM\Search\EntitySearcherInterface;
-use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\ORM\Write\WriteContext;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Customer\Collection\CustomerBasicCollection;
+use Shopware\Core\Checkout\Customer\Collection\CustomerDetailCollection;
+use Shopware\Core\Checkout\Customer\Event\CustomerAggregationResultLoadedEvent;
+use Shopware\Core\Checkout\Customer\Event\CustomerBasicLoadedEvent;
+use Shopware\Core\Checkout\Customer\Event\CustomerDetailLoadedEvent;
+use Shopware\Core\Checkout\Customer\Event\CustomerIdSearchResultLoadedEvent;
+use Shopware\Core\Checkout\Customer\Event\CustomerSearchResultLoadedEvent;
+use Shopware\Core\Checkout\Customer\Struct\CustomerSearchResult;
+use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\AggregatorResult;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\ORM\Search\IdSearchResult;
+use Shopware\Core\Framework\ORM\Version\Service\VersionManager;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Write\WriteContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class CustomerRepository implements RepositoryInterface
@@ -46,7 +46,7 @@ class CustomerRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var \Shopware\Framework\ORM\Version\Service\VersionManager
+     * @var \Shopware\Core\Framework\ORM\Version\Service\VersionManager
      */
     private $versionManager;
 

@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Routing;
+namespace Shopware\Core\Framework\Routing;
 
-use Shopware\Checkout\Customer\Util\CustomerContextService;
-use Shopware\Framework\Routing\Firewall\Touchpoint;
-use Shopware\Framework\Struct\Uuid;
-use Shopware\PlatformRequest;
+use Shopware\Core\Checkout\Customer\Util\CustomerContextService;
+use Shopware\Core\Framework\Routing\Firewall\Touchpoint;
+use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
@@ -43,7 +43,7 @@ class TouchpointRequestContextResolver implements RequestContextResolverInterfac
 
             return;
         }
-        /** @var \Shopware\Framework\Routing\Firewall\Touchpoint $touchpoint */
+        /** @var \Shopware\Core\Framework\Routing\Firewall\Touchpoint $touchpoint */
         $touchpoint = $this->tokenStorage->getToken()->getUser();
 
         if (!$touchpoint instanceof Touchpoint) {

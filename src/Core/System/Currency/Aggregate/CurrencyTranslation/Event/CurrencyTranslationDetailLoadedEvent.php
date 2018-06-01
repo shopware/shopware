@@ -1,25 +1,25 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Currency\Aggregate\CurrencyTranslation\Event;
+namespace Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\Event;
 
-use Shopware\Framework\Context;
-use Shopware\System\Language\Event\LanguageBasicLoadedEvent;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\System\Currency\Aggregate\CurrencyTranslation\Collection\CurrencyTranslationDetailCollection;
-use Shopware\System\Currency\Event\CurrencyBasicLoadedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\System\Language\Event\LanguageBasicLoadedEvent;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\Collection\CurrencyTranslationDetailCollection;
+use Shopware\Core\System\Currency\Event\CurrencyBasicLoadedEvent;
 
 class CurrencyTranslationDetailLoadedEvent extends NestedEvent
 {
     public const NAME = 'currency_translation.detail.loaded';
 
     /**
-     * @var \Shopware\Framework\Context
+     * @var \Shopware\Core\Framework\Context
      */
     protected $context;
 
     /**
-     * @var \Shopware\System\Currency\Aggregate\CurrencyTranslation\Collection\CurrencyTranslationDetailCollection
+     * @var \Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\Collection\CurrencyTranslationDetailCollection
      */
     protected $currencyTranslations;
 

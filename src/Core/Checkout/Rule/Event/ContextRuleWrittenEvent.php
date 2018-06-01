@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Rule\Event;
+namespace Shopware\Core\Checkout\Rule\Event;
 
-use Shopware\Checkout\Rule\ContextRuleDefinition;
-use Shopware\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Checkout\Rule\ContextRuleDefinition;
+use Shopware\Core\Framework\ORM\Write\WrittenEvent;
 
 class ContextRuleWrittenEvent extends WrittenEvent
 {

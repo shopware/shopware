@@ -1,23 +1,23 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Customer\Event;
+namespace Shopware\Core\Checkout\Customer\Event;
 
-use Shopware\System\Touchpoint\Event\TouchpointBasicLoadedEvent;
-use Shopware\Framework\Context;
-use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Event\CustomerAddressBasicLoadedEvent;
-use Shopware\Checkout\Customer\Aggregate\CustomerGroup\Event\CustomerGroupBasicLoadedEvent;
-use Shopware\Checkout\Customer\Collection\CustomerDetailCollection;
-use Shopware\Checkout\Order\Event\OrderBasicLoadedEvent;
-use Shopware\Checkout\Payment\Event\PaymentMethodBasicLoadedEvent;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\Core\System\Touchpoint\Event\TouchpointBasicLoadedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Event\CustomerAddressBasicLoadedEvent;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\Event\CustomerGroupBasicLoadedEvent;
+use Shopware\Core\Checkout\Customer\Collection\CustomerDetailCollection;
+use Shopware\Core\Checkout\Order\Event\OrderBasicLoadedEvent;
+use Shopware\Core\Checkout\Payment\Event\PaymentMethodBasicLoadedEvent;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
 
 class CustomerDetailLoadedEvent extends NestedEvent
 {
     public const NAME = 'customer.detail.loaded';
 
     /**
-     * @var \Shopware\Framework\Context
+     * @var \Shopware\Core\Framework\Context
      */
     protected $context;
 

@@ -2,10 +2,10 @@
 
 namespace Shopware\Storefront\Page\Listing;
 
-use Shopware\Checkout\CustomerContext;
-use Shopware\Content\Product\StorefrontProductRepository;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Core\Checkout\CustomerContext;
+use Shopware\Core\Content\Product\StorefrontProductRepository;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Storefront\Event\ListingEvents;
 use Shopware\Storefront\Event\ListingPageLoadedEvent;
 use Shopware\Storefront\Event\PageCriteriaCreatedEvent;
@@ -14,7 +14,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class ListingPageLoader
 {
     /**
-     * @var \Shopware\Content\Product\StorefrontProductRepository
+     * @var \Shopware\Core\Content\Product\StorefrontProductRepository
      */
     private $productRepository;
 

@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Locale\Struct;
+namespace Shopware\Core\System\Locale\Struct;
 
-use Shopware\System\Locale\Aggregate\LocaleTranslation\Collection\LocaleTranslationBasicCollection;
+use Shopware\Core\System\Locale\Aggregate\LocaleTranslation\Collection\LocaleTranslationBasicCollection;
 
 class LocaleDetailStruct extends LocaleBasicStruct
 {

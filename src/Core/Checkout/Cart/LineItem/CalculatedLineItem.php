@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Cart\LineItem;
+namespace Shopware\Core\Checkout\Cart\LineItem;
 
-use Shopware\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Checkout\Rule\Specification\Rule;
-use Shopware\Checkout\Rule\Specification\Validatable;
-use Shopware\Content\Media\Struct\MediaBasicStruct;
-use Shopware\Framework\Struct\Struct;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Rule\Specification\Rule;
+use Shopware\Core\Checkout\Rule\Specification\Validatable;
+use Shopware\Core\Content\Media\Struct\MediaBasicStruct;
+use Shopware\Core\Framework\Struct\Struct;
 
 class CalculatedLineItem extends Struct implements CalculatedLineItemInterface, Validatable
 {

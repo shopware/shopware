@@ -1,16 +1,16 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Struct;
+namespace Shopware\Core\Content\Product\Struct;
 
-use Shopware\Content\Category\Collection\CategoryBasicCollection;
-use Shopware\Content\Product\Aggregate\ProductConfigurator\Collection\ProductConfiguratorBasicCollection;
-use Shopware\Content\Product\Aggregate\ProductMedia\Collection\ProductMediaBasicCollection;
-use Shopware\Content\Product\Aggregate\ProductSearchKeyword\Collection\ProductSearchKeywordBasicCollection;
-use Shopware\Content\Product\Aggregate\ProductService\Collection\ProductServiceBasicCollection;
-use Shopware\Content\Product\Aggregate\ProductStream\Collection\ProductStreamBasicCollection;
-use Shopware\Content\Product\Aggregate\ProductTranslation\Collection\ProductTranslationBasicCollection;
-use Shopware\Content\Product\Collection\ProductBasicCollection;
-use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionBasicCollection;
+use Shopware\Core\Content\Category\Collection\CategoryBasicCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\Collection\ProductConfiguratorBasicCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\Collection\ProductMediaBasicCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\Collection\ProductSearchKeywordBasicCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductService\Collection\ProductServiceBasicCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductStream\Collection\ProductStreamBasicCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductTranslation\Collection\ProductTranslationBasicCollection;
+use Shopware\Core\Content\Product\Collection\ProductBasicCollection;
+use Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionBasicCollection;
 
 class ProductDetailStruct extends ProductBasicStruct
 {
@@ -25,7 +25,7 @@ class ProductDetailStruct extends ProductBasicStruct
     protected $children;
 
     /**
-     * @var \Shopware\Content\Product\Aggregate\ProductMedia\Collection\ProductMediaBasicCollection
+     * @var \Shopware\Core\Content\Product\Aggregate\ProductMedia\Collection\ProductMediaBasicCollection
      */
     protected $media;
 
@@ -35,7 +35,7 @@ class ProductDetailStruct extends ProductBasicStruct
     protected $searchKeywords;
 
     /**
-     * @var \Shopware\Content\Product\Aggregate\ProductTranslation\Collection\ProductTranslationBasicCollection
+     * @var \Shopware\Core\Content\Product\Aggregate\ProductTranslation\Collection\ProductTranslationBasicCollection
      */
     protected $translations;
 
@@ -50,22 +50,22 @@ class ProductDetailStruct extends ProductBasicStruct
     protected $seoCategories;
 
     /**
-     * @var \Shopware\Content\Product\Aggregate\ProductStream\Collection\ProductStreamBasicCollection
+     * @var \Shopware\Core\Content\Product\Aggregate\ProductStream\Collection\ProductStreamBasicCollection
      */
     protected $tabs;
 
     /**
-     * @var \Shopware\Content\Product\Aggregate\ProductStream\Collection\ProductStreamBasicCollection
+     * @var \Shopware\Core\Content\Product\Aggregate\ProductStream\Collection\ProductStreamBasicCollection
      */
     protected $streams;
 
     /**
-     * @var \Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionBasicCollection
+     * @var \Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionBasicCollection
      */
     protected $datasheet;
 
     /**
-     * @var \Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionBasicCollection
+     * @var \Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionBasicCollection
      */
     protected $variations;
 

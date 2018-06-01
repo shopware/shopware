@@ -1,14 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Config\Aggregate\ConfigFormFieldValue\Collection;
+namespace Shopware\Core\System\Config\Aggregate\ConfigFormFieldValue\Collection;
 
-use Shopware\System\Config\Aggregate\ConfigFormField\Collection\ConfigFormFieldBasicCollection;
-use Shopware\System\Config\Aggregate\ConfigFormFieldValue\Struct\ConfigFormFieldValueDetailStruct;
+use Shopware\Core\System\Config\Aggregate\ConfigFormField\Collection\ConfigFormFieldBasicCollection;
+use Shopware\Core\System\Config\Aggregate\ConfigFormFieldValue\Struct\ConfigFormFieldValueDetailStruct;
 
 class ConfigFormFieldValueDetailCollection extends ConfigFormFieldValueBasicCollection
 {
     /**
-     * @var \Shopware\System\Config\Aggregate\ConfigFormFieldValue\Struct\ConfigFormFieldValueDetailStruct[]
+     * @var \Shopware\Core\System\Config\Aggregate\ConfigFormFieldValue\Struct\ConfigFormFieldValueDetailStruct[]
      */
     protected $elements = [];
 

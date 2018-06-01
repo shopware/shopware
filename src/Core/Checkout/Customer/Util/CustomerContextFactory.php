@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * Shopware 5
+ * Shopware\Core 5
  * Copyright (c) shopware AG
  *
  * According to our dual licensing model, this program can be used either
@@ -16,43 +16,43 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
  *
- * "Shopware" is a registered trademark of shopware AG.
+ * "Shopware\Core" is a registered trademark of shopware AG.
  * The licensing of the program under the AGPLv3 does not imply a
  * trademark license. Therefore any rights, title and interest in
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Checkout\Customer\Util;
+namespace Shopware\Core\Checkout\Customer\Util;
 
 use Doctrine\DBAL\Connection;
-use Shopware\System\Touchpoint\TouchpointRepository;
-use Shopware\System\Touchpoint\Struct\TouchpointBasicStruct;
-use Shopware\Framework\Context;
-use Shopware\Checkout\CustomerContext;
-use Shopware\System\Language\LanguageRepository;
-use Shopware\Checkout\Cart\Delivery\Struct\ShippingLocation;
-use Shopware\Checkout\Cart\Tax\TaxDetector;
-use Shopware\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository;
-use Shopware\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupRepository;
-use Shopware\Checkout\Customer\CustomerRepository;
-use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
-use Shopware\Checkout\Payment\PaymentMethodRepository;
-use Shopware\Checkout\Payment\Struct\PaymentMethodBasicStruct;
-use Shopware\Checkout\Shipping\ShippingMethodRepository;
-use Shopware\Checkout\Shipping\Struct\ShippingMethodBasicStruct;
-use Shopware\Defaults;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\Struct\Uuid;
-use Shopware\System\Country\Aggregate\CountryState\CountryStateRepository;
-use Shopware\System\Country\CountryRepository;
-use Shopware\System\Currency\CurrencyRepository;
-use Shopware\System\Tax\Collection\TaxBasicCollection;
-use Shopware\System\Tax\TaxRepository;
+use Shopware\Core\System\Touchpoint\TouchpointRepository;
+use Shopware\Core\System\Touchpoint\Struct\TouchpointBasicStruct;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\CustomerContext;
+use Shopware\Core\System\Language\LanguageRepository;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
+use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupRepository;
+use Shopware\Core\Checkout\Customer\CustomerRepository;
+use Shopware\Core\Checkout\Customer\Struct\CustomerBasicStruct;
+use Shopware\Core\Checkout\Payment\PaymentMethodRepository;
+use Shopware\Core\Checkout\Payment\Struct\PaymentMethodBasicStruct;
+use Shopware\Core\Checkout\Shipping\ShippingMethodRepository;
+use Shopware\Core\Checkout\Shipping\Struct\ShippingMethodBasicStruct;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateRepository;
+use Shopware\Core\System\Country\CountryRepository;
+use Shopware\Core\System\Currency\CurrencyRepository;
+use Shopware\Core\System\Tax\Collection\TaxBasicCollection;
+use Shopware\Core\System\Tax\TaxRepository;
 
 class CustomerContextFactory implements CustomerContextFactoryInterface
 {
     /**
-     * @var \Shopware\System\Touchpoint\TouchpointRepository
+     * @var \Shopware\Core\System\Touchpoint\TouchpointRepository
      */
     private $touchpointRepository;
 
@@ -62,7 +62,7 @@ class CustomerContextFactory implements CustomerContextFactoryInterface
     private $currencyRepository;
 
     /**
-     * @var \Shopware\Checkout\Customer\CustomerRepository
+     * @var \Shopware\Core\Checkout\Customer\CustomerRepository
      */
     private $customerRepository;
 
@@ -72,12 +72,12 @@ class CustomerContextFactory implements CustomerContextFactoryInterface
     private $customerGroupRepository;
 
     /**
-     * @var \Shopware\System\Country\CountryRepository
+     * @var \Shopware\Core\System\Country\CountryRepository
      */
     private $countryRepository;
 
     /**
-     * @var \Shopware\System\Tax\TaxRepository
+     * @var \Shopware\Core\System\Tax\TaxRepository
      */
     private $taxRepository;
 
@@ -87,12 +87,12 @@ class CustomerContextFactory implements CustomerContextFactoryInterface
     private $addressRepository;
 
     /**
-     * @var \Shopware\Checkout\Payment\PaymentMethodRepository
+     * @var \Shopware\Core\Checkout\Payment\PaymentMethodRepository
      */
     private $paymentMethodRepository;
 
     /**
-     * @var \Shopware\Checkout\Shipping\ShippingMethodRepository
+     * @var \Shopware\Core\Checkout\Shipping\ShippingMethodRepository
      */
     private $shippingMethodRepository;
 
@@ -102,12 +102,12 @@ class CustomerContextFactory implements CustomerContextFactoryInterface
     private $connection;
 
     /**
-     * @var \Shopware\System\Country\Aggregate\CountryState\CountryStateRepository
+     * @var \Shopware\Core\System\Country\Aggregate\CountryState\CountryStateRepository
      */
     private $countryStateRepository;
 
     /**
-     * @var \Shopware\System\Language\LanguageRepository
+     * @var \Shopware\Core\System\Language\LanguageRepository
      */
     private $languageRepository;
 

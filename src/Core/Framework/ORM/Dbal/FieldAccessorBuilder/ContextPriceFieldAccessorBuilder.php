@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Dbal\FieldAccessorBuilder;
+namespace Shopware\Core\Framework\ORM\Dbal\FieldAccessorBuilder;
 
-use Shopware\Framework\Context;
-use Shopware\Defaults;
-use Shopware\Framework\ORM\Field\ContextPricesJsonField;
-use Shopware\Framework\ORM\Field\Field;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\ORM\Field\ContextPricesJsonField;
+use Shopware\Core\Framework\ORM\Field\Field;
 
 class ContextPriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
 {

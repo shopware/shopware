@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Media\Aggregate\MediaTranslation\Struct;
+namespace Shopware\Core\Content\Media\Aggregate\MediaTranslation\Struct;
 
-use Shopware\System\Language\Struct\LanguageBasicStruct;
-use Shopware\Content\Media\Struct\MediaBasicStruct;
+use Shopware\Core\System\Language\Struct\LanguageBasicStruct;
+use Shopware\Core\Content\Media\Struct\MediaBasicStruct;
 
 class MediaTranslationDetailStruct extends MediaTranslationBasicStruct
 {

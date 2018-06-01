@@ -5,7 +5,7 @@
         $body = $('body');
 
     /**
-     * Shopware Search Plugin.
+     * Shopware\Core Search Plugin.
      *
      * The plugin controlling the search field behaviour in all possible states
      */

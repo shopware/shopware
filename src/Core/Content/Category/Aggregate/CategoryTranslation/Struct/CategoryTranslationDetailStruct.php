@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Category\Aggregate\CategoryTranslation\Struct;
+namespace Shopware\Core\Content\Category\Aggregate\CategoryTranslation\Struct;
 
-use Shopware\System\Language\Struct\LanguageBasicStruct;
-use Shopware\Content\Category\Struct\CategoryBasicStruct;
+use Shopware\Core\System\Language\Struct\LanguageBasicStruct;
+use Shopware\Core\Content\Category\Struct\CategoryBasicStruct;
 
 class CategoryTranslationDetailStruct extends CategoryTranslationBasicStruct
 {

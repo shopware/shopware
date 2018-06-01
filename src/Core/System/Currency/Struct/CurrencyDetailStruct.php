@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Currency\Struct;
+namespace Shopware\Core\System\Currency\Struct;
 
-use Shopware\System\Currency\Aggregate\CurrencyTranslation\Collection\CurrencyTranslationBasicCollection;
+use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\Collection\CurrencyTranslationBasicCollection;
 
 class CurrencyDetailStruct extends CurrencyBasicStruct
 {
     /**
-     * @var \Shopware\System\Currency\Aggregate\CurrencyTranslation\Collection\CurrencyTranslationBasicCollection
+     * @var \Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\Collection\CurrencyTranslationBasicCollection
      */
     protected $translations;
 

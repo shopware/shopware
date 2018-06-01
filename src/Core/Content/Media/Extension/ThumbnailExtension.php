@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Media\Extension;
+namespace Shopware\Core\Content\Media\Extension;
 
-use Shopware\Content\Media\Event\MediaBasicLoadedEvent;
-use Shopware\Content\Media\Struct\MediaBasicStruct;
-use Shopware\Content\Media\Struct\ThumbnailStruct;
-use Shopware\Content\Media\Util\UrlGeneratorInterface;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Core\Content\Media\Event\MediaBasicLoadedEvent;
+use Shopware\Core\Content\Media\Struct\MediaBasicStruct;
+use Shopware\Core\Content\Media\Struct\ThumbnailStruct;
+use Shopware\Core\Content\Media\Util\UrlGeneratorInterface;
+use Shopware\Core\Framework\Struct\StructCollection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class ThumbnailExtension implements EventSubscriberInterface

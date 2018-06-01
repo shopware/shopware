@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Currency\Aggregate\CurrencyTranslation\Struct;
+namespace Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\Struct;
 
-use Shopware\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Entity;
 
 class CurrencyTranslationBasicStruct extends Entity
 {

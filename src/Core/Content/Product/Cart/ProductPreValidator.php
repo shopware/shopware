@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Cart;
+namespace Shopware\Core\Content\Product\Cart;
 
-use Shopware\Checkout\CustomerContext;
-use Shopware\Checkout\Cart\Cart\CartProcessorInterface;
-use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Checkout\Cart\Cart\Struct\Cart;
-use Shopware\Checkout\Cart\LineItem\LineItem;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Core\Checkout\CustomerContext;
+use Shopware\Core\Checkout\Cart\Cart\CartProcessorInterface;
+use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Framework\Struct\StructCollection;
 
 class ProductPreValidator implements CartProcessorInterface
 {

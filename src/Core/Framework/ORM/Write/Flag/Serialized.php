@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Write\Flag;
+namespace Shopware\Core\Framework\ORM\Write\Flag;
 
 /**
  * Allows to automatically serialize and deserialize data from the storage.

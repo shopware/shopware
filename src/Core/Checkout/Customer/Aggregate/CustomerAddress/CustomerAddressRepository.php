@@ -1,26 +1,26 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Customer\Aggregate\CustomerAddress;
+namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress;
 
-use Shopware\Framework\Context;
-use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Collection\CustomerAddressBasicCollection;
-use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Collection\CustomerAddressDetailCollection;
-use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Event\CustomerAddressAggregationResultLoadedEvent;
-use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Event\CustomerAddressBasicLoadedEvent;
-use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Event\CustomerAddressDetailLoadedEvent;
-use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Event\CustomerAddressIdSearchResultLoadedEvent;
-use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Event\CustomerAddressSearchResultLoadedEvent;
-use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressSearchResult;
-use Shopware\Framework\ORM\Read\EntityReaderInterface;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\AggregatorResult;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
-use Shopware\Framework\ORM\Search\EntitySearcherInterface;
-use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\ORM\Write\WriteContext;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Collection\CustomerAddressBasicCollection;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Collection\CustomerAddressDetailCollection;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Event\CustomerAddressAggregationResultLoadedEvent;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Event\CustomerAddressBasicLoadedEvent;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Event\CustomerAddressDetailLoadedEvent;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Event\CustomerAddressIdSearchResultLoadedEvent;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Event\CustomerAddressSearchResultLoadedEvent;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressSearchResult;
+use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\AggregatorResult;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\ORM\Search\IdSearchResult;
+use Shopware\Core\Framework\ORM\Version\Service\VersionManager;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Write\WriteContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class CustomerAddressRepository implements RepositoryInterface
@@ -105,7 +105,7 @@ class CustomerAddressRepository implements RepositoryInterface
 
     public function readBasic(array $ids, Context $context): CustomerAddressBasicCollection
     {
-        /** @var \Shopware\Checkout\Customer\Aggregate\CustomerAddress\Collection\CustomerAddressBasicCollection $entities */
+        /** @var \Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Collection\CustomerAddressBasicCollection $entities */
         $entities = $this->reader->readBasic(CustomerAddressDefinition::class, $ids, $context);
 
         $event = new CustomerAddressBasicLoadedEvent($entities, $context);
@@ -116,7 +116,7 @@ class CustomerAddressRepository implements RepositoryInterface
 
     public function readDetail(array $ids, Context $context): CustomerAddressDetailCollection
     {
-        /** @var \Shopware\Checkout\Customer\Aggregate\CustomerAddress\Collection\CustomerAddressDetailCollection $entities */
+        /** @var \Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Collection\CustomerAddressDetailCollection $entities */
         $entities = $this->reader->readDetail(CustomerAddressDefinition::class, $ids, $context);
 
         $event = new CustomerAddressDetailLoadedEvent($entities, $context);

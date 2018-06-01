@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Application\Context\Collection;
+namespace Shopware\Core\Application\Context\Collection;
 
-use Shopware\Application\Context\Struct\ContextCartModifierDetailStruct;
-use Shopware\Checkout\Rule\Collection\ContextRuleBasicCollection;
+use Shopware\Core\Application\Context\Struct\ContextCartModifierDetailStruct;
+use Shopware\Core\Checkout\Rule\Collection\ContextRuleBasicCollection;
 
 class ContextCartModifierDetailCollection extends ContextCartModifierBasicCollection
 {

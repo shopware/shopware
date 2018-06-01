@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Language\Event;
+namespace Shopware\Core\System\Language\Event;
 
-use Shopware\System\Language\LanguageDefinition;
-use Shopware\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\System\Language\LanguageDefinition;
+use Shopware\Core\Framework\ORM\Write\WrittenEvent;
 
 class LanguageWrittenEvent extends WrittenEvent
 {

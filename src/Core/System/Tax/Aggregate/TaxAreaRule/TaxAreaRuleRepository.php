@@ -1,26 +1,26 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Tax\Aggregate\TaxAreaRule;
+namespace Shopware\Core\System\Tax\Aggregate\TaxAreaRule;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\ORM\Read\EntityReaderInterface;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\AggregatorResult;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
-use Shopware\Framework\ORM\Search\EntitySearcherInterface;
-use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\System\Tax\Aggregate\TaxAreaRule\Collection\TaxAreaRuleBasicCollection;
-use Shopware\System\Tax\Aggregate\TaxAreaRule\Collection\TaxAreaRuleDetailCollection;
-use Shopware\System\Tax\Aggregate\TaxAreaRule\Event\TaxAreaRuleAggregationResultLoadedEvent;
-use Shopware\System\Tax\Aggregate\TaxAreaRule\Event\TaxAreaRuleBasicLoadedEvent;
-use Shopware\System\Tax\Aggregate\TaxAreaRule\Event\TaxAreaRuleDetailLoadedEvent;
-use Shopware\System\Tax\Aggregate\TaxAreaRule\Event\TaxAreaRuleIdSearchResultLoadedEvent;
-use Shopware\System\Tax\Aggregate\TaxAreaRule\Event\TaxAreaRuleSearchResultLoadedEvent;
-use Shopware\System\Tax\Aggregate\TaxAreaRule\Struct\TaxAreaRuleSearchResult;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\AggregatorResult;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\ORM\Search\IdSearchResult;
+use Shopware\Core\Framework\ORM\Version\Service\VersionManager;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Write\WriteContext;
+use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\Collection\TaxAreaRuleBasicCollection;
+use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\Collection\TaxAreaRuleDetailCollection;
+use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\Event\TaxAreaRuleAggregationResultLoadedEvent;
+use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\Event\TaxAreaRuleBasicLoadedEvent;
+use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\Event\TaxAreaRuleDetailLoadedEvent;
+use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\Event\TaxAreaRuleIdSearchResultLoadedEvent;
+use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\Event\TaxAreaRuleSearchResultLoadedEvent;
+use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\Struct\TaxAreaRuleSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class TaxAreaRuleRepository implements RepositoryInterface
@@ -46,7 +46,7 @@ class TaxAreaRuleRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var \Shopware\Framework\ORM\Version\Service\VersionManager
+     * @var \Shopware\Core\Framework\ORM\Version\Service\VersionManager
      */
     private $versionManager;
 

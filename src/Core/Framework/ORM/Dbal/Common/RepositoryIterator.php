@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Dbal\Common;
+namespace Shopware\Core\Framework\ORM\Dbal\Common;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\SearchResultInterface;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\SearchResultInterface;
 
 class RepositoryIterator
 {
@@ -20,7 +20,7 @@ class RepositoryIterator
     private $repository;
 
     /**
-     * @var \Shopware\Framework\Context
+     * @var \Shopware\Core\Framework\Context
      */
     private $context;
 

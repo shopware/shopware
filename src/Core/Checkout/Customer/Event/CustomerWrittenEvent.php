@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Customer\Event;
+namespace Shopware\Core\Checkout\Customer\Event;
 
-use Shopware\Checkout\Customer\CustomerDefinition;
-use Shopware\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Checkout\Customer\CustomerDefinition;
+use Shopware\Core\Framework\ORM\Write\WrittenEvent;
 
 class CustomerWrittenEvent extends WrittenEvent
 {

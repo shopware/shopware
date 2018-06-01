@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * Shopware 5
+ * Shopware\Core 5
  * Copyright (c) shopware AG
  *
  * According to our dual licensing model, this program can be used either
@@ -16,16 +16,16 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
  *
- * "Shopware" is a registered trademark of shopware AG.
+ * "Shopware\Core" is a registered trademark of shopware AG.
  * The licensing of the program under the AGPLv3 does not imply a
  * trademark license. Therefore any rights, title and interest in
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Content\Media\Commands;
+namespace Shopware\Core\Content\Media\Commands;
 
-use Shopware\Content\Media\Exception\OptimizerNotFoundException;
-use Shopware\Content\Media\Util\Optimizer\OptimizerServiceInterface;
+use Shopware\Core\Content\Media\Exception\OptimizerNotFoundException;
+use Shopware\Core\Content\Media\Util\Optimizer\OptimizerServiceInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;

@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Configuration\Event;
+namespace Shopware\Core\System\Configuration\Event;
 
-use Shopware\Framework\ORM\Write\WrittenEvent;
-use Shopware\System\Configuration\ConfigurationGroupDefinition;
+use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\System\Configuration\ConfigurationGroupDefinition;
 
 class ConfigurationGroupWrittenEvent extends WrittenEvent
 {

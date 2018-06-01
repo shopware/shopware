@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Aggregate\ProductContextPrice\Collection;
+namespace Shopware\Core\Content\Product\Aggregate\ProductContextPrice\Collection;
 
-use Shopware\Content\Product\Aggregate\ProductContextPrice\Struct\ProductContextPriceDetailStruct;
-use Shopware\Content\Product\Collection\ProductBasicCollection;
-use Shopware\System\Currency\Collection\CurrencyBasicCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductContextPrice\Struct\ProductContextPriceDetailStruct;
+use Shopware\Core\Content\Product\Collection\ProductBasicCollection;
+use Shopware\Core\System\Currency\Collection\CurrencyBasicCollection;
 
 class ProductContextPriceDetailCollection extends ProductContextPriceBasicCollection
 {
@@ -31,9 +31,9 @@ class ProductContextPriceDetailCollection extends ProductContextPriceBasicCollec
         );
     }
 
-    public function getContextRules(): \Shopware\Checkout\Rule\Collection\ContextRuleBasicCollection
+    public function getContextRules(): \Shopware\Core\Checkout\Rule\Collection\ContextRuleBasicCollection
     {
-        return new \Shopware\Checkout\Rule\Collection\ContextRuleBasicCollection(
+        return new \Shopware\Core\Checkout\Rule\Collection\ContextRuleBasicCollection(
             $this->fmap(function (ProductContextPriceDetailStruct $productContextPrice) {
                 return $productContextPrice->getContextRule();
             })

@@ -5,7 +5,7 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <parameters>
-        <parameter key="doctrine.dbal.connection_factory.class">Shopware\Framework\Doctrine\ConnectionFactory</parameter>
+        <parameter key="doctrine.dbal.connection_factory.class">Shopware\Core\Framework\Doctrine\ConnectionFactory</parameter>
 
         <parameter key="shopware.slug.config" type="collection">
             <parameter key="regexp">/([^A-Za-z0-9\.]|-)+/</parameter>
@@ -24,7 +24,7 @@
         </service>
 
         <!-- Plugins -->
-        <service class="Shopware\Framework\Plugin\PluginCollection" id="Shopware\Framework\Plugin\PluginCollection" public="true">
+        <service class="Shopware\Core\Framework\Plugin\PluginCollection" id="Shopware\Core\Framework\Plugin\PluginCollection" public="true">
             <factory service="kernel" method="getPlugins" />
         </service>
 
@@ -36,107 +36,107 @@
         </service>
 
         <!--Event Listener -->
-        <service class="Shopware\Framework\Event\NestedEventDispatcher" decorates="event_dispatcher" id="Shopware\Framework\Event\NestedEventDispatcher">
+        <service class="Shopware\Core\Framework\Event\NestedEventDispatcher" decorates="event_dispatcher" id="Shopware\Framework\Event\NestedEventDispatcher">
             <argument type="service" id="Shopware\Framework\Event\NestedEventDispatcher.inner" />
         </service>
 
-        <service class="Shopware\Framework\EventListener\ResponseExceptionListener" id="Shopware\Framework\EventListener\ResponseExceptionListener">
+        <service class="Shopware\Core\Framework\EventListener\ResponseExceptionListener" id="Shopware\Core\Framework\EventListener\ResponseExceptionListener">
             <tag name="kernel.event_listener" event="kernel.exception" method="onKernelException"/>
         </service>
 
         <!-- Pluginsystem -->
-        <service class="Shopware\Framework\Plugin\PluginManager" id="Shopware\Framework\Plugin\PluginManager">
+        <service class="Shopware\Core\Framework\Plugin\PluginManager" id="Shopware\Core\Framework\Plugin\PluginManager">
             <argument>%kernel.plugin_dir%</argument>
             <argument type="service" id="kernel"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="service_container"/>
-            <argument type="service" id="Shopware\Framework\Plugin\RequirementValidator" />
+            <argument type="service" id="Shopware\Core\Framework\Plugin\RequirementValidator" />
         </service>
 
-        <service class="Shopware\Framework\Plugin\XmlPluginInfoReader" id="Shopware\Framework\Plugin\XmlPluginInfoReader"/>
+        <service class="Shopware\Core\Framework\Plugin\XmlPluginInfoReader" id="Shopware\Core\Framework\Plugin\XmlPluginInfoReader"/>
 
-        <service class="Shopware\Framework\Plugin\RequirementValidator" id="Shopware\Framework\Plugin\RequirementValidator">
-            <argument id="Shopware\Framework\Plugin\XmlPluginInfoReader" type="service"/>
+        <service class="Shopware\Core\Framework\Plugin\RequirementValidator" id="Shopware\Core\Framework\Plugin\RequirementValidator">
+            <argument id="Shopware\Core\Framework\Plugin\XmlPluginInfoReader" type="service"/>
         </service>
 
-        <service class="Shopware\Framework\Command\PluginUpdateCommand" id="Shopware\Framework\Command\PluginUpdateCommand">
+        <service class="Shopware\Core\Framework\Command\PluginUpdateCommand" id="Shopware\Core\Framework\Command\PluginUpdateCommand">
             <tag name="console.command" />
-            <argument type="service" id="Shopware\Framework\Plugin\PluginManager" />
+            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManager" />
         </service>
 
-        <service class="Shopware\Framework\Command\PluginInstallCommand" id="Shopware\Framework\Command\PluginInstallCommand">
+        <service class="Shopware\Core\Framework\Command\PluginInstallCommand" id="Shopware\Core\Framework\Command\PluginInstallCommand">
             <tag name="console.command" />
-            <argument type="service" id="Shopware\Framework\Plugin\PluginManager" />
+            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManager" />
         </service>
 
-        <service class="Shopware\Framework\Command\PluginActivateCommand" id="Shopware\Framework\Command\PluginActivateCommand">
+        <service class="Shopware\Core\Framework\Command\PluginActivateCommand" id="Shopware\Core\Framework\Command\PluginActivateCommand">
             <tag name="console.command" />
-            <argument type="service" id="Shopware\Framework\Plugin\PluginManager" />
+            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManager" />
         </service>
 
-        <service class="Shopware\Framework\Command\PluginDeactivateCommand" id="Shopware\Framework\Command\PluginDeactivateCommand">
+        <service class="Shopware\Core\Framework\Command\PluginDeactivateCommand" id="Shopware\Core\Framework\Command\PluginDeactivateCommand">
             <tag name="console.command" />
-            <argument type="service" id="Shopware\Framework\Plugin\PluginManager" />
+            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManager" />
         </service>
 
-        <service class="Shopware\Framework\Command\PluginUninstallCommand" id="Shopware\Framework\Command\PluginUninstallCommand">
+        <service class="Shopware\Core\Framework\Command\PluginUninstallCommand" id="Shopware\Core\Framework\Command\PluginUninstallCommand">
             <tag name="console.command" />
-            <argument type="service" id="Shopware\Framework\Plugin\PluginManager" />
+            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManager" />
         </service>
 
-        <service class="Shopware\Framework\Command\PluginUpgradeCommand" id="Shopware\Framework\Command\PluginUpgradeCommand">
+        <service class="Shopware\Core\Framework\Command\PluginUpgradeCommand" id="Shopware\Core\Framework\Command\PluginUpgradeCommand">
             <tag name="console.command" />
-            <argument type="service" id="Shopware\Framework\Plugin\PluginManager" />
+            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManager" />
         </service>
 
-        <service class="Shopware\Framework\Command\PluginListCommand" id="Shopware\Framework\Command\PluginListCommand">
+        <service class="Shopware\Core\Framework\Command\PluginListCommand" id="Shopware\Core\Framework\Command\PluginListCommand">
             <tag name="console.command" />
-            <argument type="service" id="Shopware\Framework\Plugin\PluginManager" />
+            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManager" />
         </service>
 
-        <service class="Shopware\Framework\Command\DemodataCommand" id="Shopware\Framework\Command\DemodataCommand">
+        <service class="Shopware\Core\Framework\Command\DemodataCommand" id="Shopware\Core\Framework\Command\DemodataCommand">
             <tag name="console.command" command="framework:demodata" />
             <argument>framework:demodata</argument>
-            <argument type="service" id="Shopware\Framework\ORM\Write\EntityWriter"/>
-            <argument type="service" id="Shopware\Content\Product\Util\VariantGenerator"/>
-            <argument type="service" id="Shopware\Content\Media\Util\Strategy\StrategyFilesystem"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\Write\EntityWriter"/>
+            <argument type="service" id="Shopware\Core\Content\Product\Util\VariantGenerator"/>
+            <argument type="service" id="Shopware\Core\Content\Media\Util\Strategy\StrategyFilesystem"/>
             <argument type="service" id="service_container"/>
         </service>
 
-        <service class="Shopware\Framework\Command\CreateTenantCommand" id="Shopware\Framework\Command\CreateTenantCommand">
+        <service class="Shopware\Core\Framework\Command\CreateTenantCommand" id="Shopware\Core\Framework\Command\CreateTenantCommand">
             <tag name="console.command" command="framework:create:tenant" />
             <argument>framework:create:tenant</argument>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <!-- Serializer -->
-        <service class="Shopware\Framework\Struct\Serializer\StructNormalizer" id="Shopware\Framework\Struct\Serializer\StructNormalizer">
+        <service class="Shopware\Core\Framework\Struct\Serializer\StructNormalizer" id="Shopware\Core\Framework\Struct\Serializer\StructNormalizer">
             <tag name="serializer.normalizer"/>
         </service>
 
-        <service class="Shopware\Framework\Struct\Serializer\StructDecoder" id="Shopware\Framework\Struct\Serializer\StructDecoder">
+        <service class="Shopware\Core\Framework\Struct\Serializer\StructDecoder" id="Shopware\Core\Framework\Struct\Serializer\StructDecoder">
             <tag name="serializer.encoder"/>
         </service>
 
         <!-- Routing -->
 
-        <service class="Shopware\Framework\Routing\TouchpointSubscriber" id="Shopware\Framework\Routing\TouchpointSubscriber">
+        <service class="Shopware\Core\Framework\Routing\TouchpointSubscriber" id="Shopware\Core\Framework\Routing\TouchpointSubscriber">
             <argument type="service" id="request_stack"/>
-            <argument type="service" id="Shopware\Framework\Routing\RequestContextResolverInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\Routing\RequestContextResolverInterface"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
 
         <!-- Twig -->
-        <service class="Shopware\Framework\Twig\TemplateFinder" public="true" id="Shopware\Framework\Twig\TemplateFinder">
+        <service class="Shopware\Core\Framework\Twig\TemplateFinder" public="true" id="Shopware\Core\Framework\Twig\TemplateFinder">
             <argument id="kernel" type="service"/>
             <argument id="twig.loader" type="service"/>
         </service>
 
-        <service class="Shopware\Framework\Twig\InheritanceExtension" public="false" id="Shopware\Framework\Twig\InheritanceExtension">
+        <service class="Shopware\Core\Framework\Twig\InheritanceExtension" public="false" id="Shopware\Core\Framework\Twig\InheritanceExtension">
             <tag name="twig.extension" />
 
-            <argument type="service" id="Shopware\Framework\Twig\TemplateFinder" />
+            <argument type="service" id="Shopware\Core\Framework\Twig\TemplateFinder" />
         </service>
 
         <service class="Twig_Extensions_Extension_Intl" id="twig.extension.intl">
@@ -147,49 +147,49 @@
             <tag name="twig.extension" />
         </service>
 
-        <service class="Shopware\Framework\Twig\InstanceOfExtension" id="Shopware\Framework\Twig\InstanceOfExtension">
+        <service class="Shopware\Core\Framework\Twig\InstanceOfExtension" id="Shopware\Core\Framework\Twig\InstanceOfExtension">
             <tag name="twig.extension"/>
         </service>
 
 
-        <service class="Shopware\Framework\Routing\ApiRequestContextResolver" id="Shopware\Framework\Routing\RequestContextResolverInterface">
+        <service class="Shopware\Core\Framework\Routing\ApiRequestContextResolver" id="Shopware\Core\Framework\Routing\RequestContextResolverInterface">
             <argument id="security.token_storage" type="service"/>
         </service>
 
-        <service class="Shopware\Framework\Routing\TouchpointRequestContextResolver"
-                 decorates="Shopware\Framework\Routing\RequestContextResolverInterface"
-                 id="Shopware\Framework\Routing\TouchpointRequestContextResolver">
+        <service class="Shopware\Core\Framework\Routing\TouchpointRequestContextResolver"
+                 decorates="Shopware\Core\Framework\Routing\RequestContextResolverInterface"
+                 id="Shopware\Core\Framework\Routing\TouchpointRequestContextResolver">
 
-            <argument id="Shopware\Framework\Routing\TouchpointRequestContextResolver.inner" type="service"/>
-            <argument id="Shopware\Checkout\Customer\Util\CustomerContextService" type="service"/>
+            <argument id="Shopware\Core\Framework\Routing\TouchpointRequestContextResolver.inner" type="service"/>
+            <argument id="Shopware\Core\Checkout\Customer\Util\CustomerContextService" type="service"/>
             <argument type="service" id="security.token_storage"/>
         </service>
 
-        <service class="Shopware\Framework\Translation\ImportService" id="Shopware\Framework\Translation\ImportService">
+        <service class="Shopware\Core\Framework\Translation\ImportService" id="Shopware\Core\Framework\Translation\ImportService">
             <argument type="service" id="Doctrine\DBAL\Connection" />
             <argument type="service" id="event_dispatcher" />
             <argument type="service" id="logger" />
         </service>
 
-        <service class="Shopware\Framework\Command\TranslationImportCommand" id="Shopware\Framework\Command\TranslationImportCommand">
+        <service class="Shopware\Core\Framework\Command\TranslationImportCommand" id="Shopware\Core\Framework\Command\TranslationImportCommand">
             <tag name="kernel.event_subscriber" />
             <tag name="console.command" />
 
-            <argument type="service" id="Shopware\Framework\Translation\ImportService" />
+            <argument type="service" id="Shopware\Core\Framework\Translation\ImportService" />
         </service>
 
         <!-- Translation / Snippet -->
-        <service class="Shopware\Framework\Translation\DatabaseLoader" id="Shopware\Framework\Translation\DatabaseLoader">
+        <service class="Shopware\Core\Framework\Translation\DatabaseLoader" id="Shopware\Core\Framework\Translation\DatabaseLoader">
             <tag name="translation.loader" alias="database" />
 
             <argument type="service" id="Doctrine\DBAL\Connection" />
         </service>
 
-        <service class="Shopware\Framework\Routing\Firewall\CustomerProvider" id="Shopware\Framework\Routing\Firewall\CustomerProvider">
-            <argument type="service" id="Shopware\Checkout\Customer\CustomerRepository"/>
+        <service class="Shopware\Core\Framework\Routing\Firewall\CustomerProvider" id="Shopware\Core\Framework\Routing\Firewall\CustomerProvider">
+            <argument type="service" id="Shopware\Core\Checkout\Customer\CustomerRepository"/>
         </service>
 
-        <service class="Shopware\Framework\Routing\Firewall\TouchpointAuthenticator" id="Shopware\Framework\Routing\Firewall\TouchpointAuthenticator">
+        <service class="Shopware\Core\Framework\Routing\Firewall\TouchpointAuthenticator" id="Shopware\Core\Framework\Routing\Firewall\TouchpointAuthenticator">
             <argument id="Doctrine\DBAL\Connection" type="service"/>
         </service>
 

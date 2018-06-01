@@ -1,26 +1,26 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation;
+namespace Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation;
 
-use Shopware\Framework\Context;
-use Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation\Collection\PaymentMethodTranslationBasicCollection;
-use Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation\Collection\PaymentMethodTranslationDetailCollection;
-use Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation\Event\PaymentMethodTranslationAggregationResultLoadedEvent;
-use Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation\Event\PaymentMethodTranslationBasicLoadedEvent;
-use Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation\Event\PaymentMethodTranslationDetailLoadedEvent;
-use Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation\Event\PaymentMethodTranslationIdSearchResultLoadedEvent;
-use Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation\Event\PaymentMethodTranslationSearchResultLoadedEvent;
-use Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation\Struct\PaymentMethodTranslationSearchResult;
-use Shopware\Framework\ORM\Read\EntityReaderInterface;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\AggregatorResult;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
-use Shopware\Framework\ORM\Search\EntitySearcherInterface;
-use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\ORM\Write\WriteContext;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\Collection\PaymentMethodTranslationBasicCollection;
+use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\Collection\PaymentMethodTranslationDetailCollection;
+use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\Event\PaymentMethodTranslationAggregationResultLoadedEvent;
+use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\Event\PaymentMethodTranslationBasicLoadedEvent;
+use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\Event\PaymentMethodTranslationDetailLoadedEvent;
+use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\Event\PaymentMethodTranslationIdSearchResultLoadedEvent;
+use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\Event\PaymentMethodTranslationSearchResultLoadedEvent;
+use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\Struct\PaymentMethodTranslationSearchResult;
+use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\AggregatorResult;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\ORM\Search\IdSearchResult;
+use Shopware\Core\Framework\ORM\Version\Service\VersionManager;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Write\WriteContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class PaymentMethodTranslationRepository implements RepositoryInterface
@@ -105,7 +105,7 @@ class PaymentMethodTranslationRepository implements RepositoryInterface
 
     public function readBasic(array $ids, Context $context): PaymentMethodTranslationBasicCollection
     {
-        /** @var \Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation\Collection\PaymentMethodTranslationBasicCollection $entities */
+        /** @var \Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\Collection\PaymentMethodTranslationBasicCollection $entities */
         $entities = $this->reader->readBasic(PaymentMethodTranslationDefinition::class, $ids, $context);
 
         $event = new PaymentMethodTranslationBasicLoadedEvent($entities, $context);

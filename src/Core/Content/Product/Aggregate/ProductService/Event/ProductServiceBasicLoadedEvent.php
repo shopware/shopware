@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Aggregate\ProductService\Event;
+namespace Shopware\Core\Content\Product\Aggregate\ProductService\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Content\Product\Aggregate\ProductService\Collection\ProductServiceBasicCollection;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Event\ConfigurationGroupOptionBasicLoadedEvent;
-use Shopware\System\Tax\Event\TaxBasicLoadedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Product\Aggregate\ProductService\Collection\ProductServiceBasicCollection;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupOption\Event\ConfigurationGroupOptionBasicLoadedEvent;
+use Shopware\Core\System\Tax\Event\TaxBasicLoadedEvent;
 
 class ProductServiceBasicLoadedEvent extends NestedEvent
 {
@@ -19,7 +19,7 @@ class ProductServiceBasicLoadedEvent extends NestedEvent
     protected $context;
 
     /**
-     * @var \Shopware\Content\Product\Aggregate\ProductService\Collection\ProductServiceBasicCollection
+     * @var \Shopware\Core\Content\Product\Aggregate\ProductService\Collection\ProductServiceBasicCollection
      */
     protected $productServices;
 

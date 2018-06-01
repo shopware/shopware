@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Tax\Aggregate\TaxAreaRuleTranslation\Event;
+namespace Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTranslation\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\System\Tax\Aggregate\TaxAreaRuleTranslation\Struct\TaxAreaRuleTranslationSearchResult;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTranslation\Struct\TaxAreaRuleTranslationSearchResult;
 
 class TaxAreaRuleTranslationSearchResultLoadedEvent extends NestedEvent
 {

@@ -1,17 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Order\Aggregate\OrderTransaction\Event;
+namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Checkout\Order\Aggregate\OrderTransaction\Collection\OrderTransactionBasicCollection;
-use Shopware\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\Collection\OrderTransactionBasicCollection;
+use Shopware\Core\Framework\Event\NestedEvent;
 
 class OrderTransactionBasicLoadedEvent extends NestedEvent
 {
     public const NAME = 'order_transaction.basic.loaded';
 
     /**
-     * @var \Shopware\Framework\Context
+     * @var \Shopware\Core\Framework\Context
      */
     protected $context;
 

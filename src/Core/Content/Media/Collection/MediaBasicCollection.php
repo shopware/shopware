@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Media\Collection;
+namespace Shopware\Core\Content\Media\Collection;
 
-use Shopware\Content\Media\Aggregate\MediaAlbum\Collection\MediaAlbumBasicCollection;
-use Shopware\Content\Media\Struct\MediaBasicStruct;
-use Shopware\Framework\ORM\EntityCollection;
+use Shopware\Core\Content\Media\Aggregate\MediaAlbum\Collection\MediaAlbumBasicCollection;
+use Shopware\Core\Content\Media\Struct\MediaBasicStruct;
+use Shopware\Core\Framework\ORM\EntityCollection;
 
 class MediaBasicCollection extends EntityCollection
 {

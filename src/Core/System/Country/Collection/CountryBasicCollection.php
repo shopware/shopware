@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Country\Collection;
+namespace Shopware\Core\System\Country\Collection;
 
-use Shopware\Framework\ORM\EntityCollection;
-use Shopware\System\Country\Struct\CountryBasicStruct;
+use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\System\Country\Struct\CountryBasicStruct;
 
 class CountryBasicCollection extends EntityCollection
 {

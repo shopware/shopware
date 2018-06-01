@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Touchpoint\Collection;
+namespace Shopware\Core\System\Touchpoint\Collection;
 
-use Shopware\System\Touchpoint\Struct\TouchpointBasicStruct;
-use Shopware\System\Language\Collection\LanguageBasicCollection;
-use Shopware\Framework\ORM\EntityCollection;
-use Shopware\System\Currency\Collection\CurrencyBasicCollection;
+use Shopware\Core\System\Touchpoint\Struct\TouchpointBasicStruct;
+use Shopware\Core\System\Language\Collection\LanguageBasicCollection;
+use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\System\Currency\Collection\CurrencyBasicCollection;
 
 class TouchpointBasicCollection extends EntityCollection
 {

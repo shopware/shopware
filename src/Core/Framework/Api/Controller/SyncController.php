@@ -1,14 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Api\Controller;
+namespace Shopware\Core\Framework\Api\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Framework\Api\Context\RestContext;
-use Shopware\Framework\ORM\DefinitionRegistry;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Write\FieldException\WriteStackException;
-use Shopware\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Framework\Api\Context\RestContext;
+use Shopware\Core\Framework\ORM\DefinitionRegistry;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Write\FieldException\WriteStackException;
+use Shopware\Core\Framework\ORM\Write\WrittenEvent;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -43,7 +43,7 @@ class SyncController extends Controller
      * @Method({"POST"})
      *
      * @param Request                                     $request
-     * @param \Shopware\Framework\Api\Context\RestContext $restContext
+     * @param \Shopware\Core\Framework\Api\Context\RestContext $restContext
      *
      * @return Response
      */

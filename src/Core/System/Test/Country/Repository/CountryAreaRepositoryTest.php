@@ -1,17 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Test\Country\Repository;
+namespace Shopware\Core\System\Test\Country\Repository;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Framework\Context;
-use Shopware\Defaults;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\Term\EntityScoreQueryBuilder;
-use Shopware\Framework\ORM\Search\Term\SearchTermInterpreter;
-use Shopware\Framework\Struct\Uuid;
-use Shopware\System\Country\Aggregate\CountryArea\CountryAreaDefinition;
-use Shopware\System\Country\Aggregate\CountryArea\CountryAreaRepository;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\Term\EntityScoreQueryBuilder;
+use Shopware\Core\Framework\ORM\Search\Term\SearchTermInterpreter;
+use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\System\Country\Aggregate\CountryArea\CountryAreaDefinition;
+use Shopware\Core\System\Country\Aggregate\CountryArea\CountryAreaRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class CountryAreaRepositoryTest extends KernelTestCase

@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Rule\Specification\Scope;
+namespace Shopware\Core\Checkout\Rule\Specification\Scope;
 
-use Shopware\Checkout\CustomerContext;
+use Shopware\Core\Checkout\CustomerContext;
 
 class StorefrontScope extends RuleScope
 {

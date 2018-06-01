@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Country\Aggregate\CountryArea\Struct;
+namespace Shopware\Core\System\Country\Aggregate\CountryArea\Struct;
 
-use Shopware\System\Country\Aggregate\CountryAreaTranslation\Collection\CountryAreaTranslationBasicCollection;
-use Shopware\System\Country\Collection\CountryBasicCollection;
+use Shopware\Core\System\Country\Aggregate\CountryAreaTranslation\Collection\CountryAreaTranslationBasicCollection;
+use Shopware\Core\System\Country\Collection\CountryBasicCollection;
 
 class CountryAreaDetailStruct extends CountryAreaBasicStruct
 {
@@ -13,7 +13,7 @@ class CountryAreaDetailStruct extends CountryAreaBasicStruct
     protected $countries;
 
     /**
-     * @var \Shopware\System\Country\Aggregate\CountryAreaTranslation\Collection\CountryAreaTranslationBasicCollection
+     * @var \Shopware\Core\System\Country\Aggregate\CountryAreaTranslation\Collection\CountryAreaTranslationBasicCollection
      */
     protected $translations;
 

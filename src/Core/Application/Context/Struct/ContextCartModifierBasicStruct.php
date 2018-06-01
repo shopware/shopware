@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Application\Context\Struct;
+namespace Shopware\Core\Application\Context\Struct;
 
-use Shopware\Checkout\Rule\Specification\Rule;
-use Shopware\Checkout\Rule\Struct\ContextRuleBasicStruct;
-use Shopware\Framework\ORM\Entity;
+use Shopware\Core\Checkout\Rule\Specification\Rule;
+use Shopware\Core\Checkout\Rule\Struct\ContextRuleBasicStruct;
+use Shopware\Core\Framework\ORM\Entity;
 
 class ContextCartModifierBasicStruct extends Entity
 {

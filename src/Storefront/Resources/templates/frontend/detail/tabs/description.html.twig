@@ -14,7 +14,7 @@
 
 {% block frontend_detail_description %}
 <div class="content--description">
-    {# @var product \Shopware\Content\Product\Struct\StorefrontProductDetailStruct #}
+    {# @var product \Shopware\Core\Content\Product\Struct\StorefrontProductDetailStruct #}
 
     {# Headline #}
     {% block frontend_detail_description_title %}
@@ -39,7 +39,7 @@
 
                     {% set grouped = product.datasheet.groupByConfigurationGroups %}
 
-                    {# @var group \Shopware\System\Configuration\Struct\ConfigurationGroupDetailStruct #}
+                    {# @var group \Shopware\Core\System\Configuration\Struct\ConfigurationGroupDetailStruct #}
                     {% for group in grouped %}
                         <tr class="product--properties-row">
                             {# Property label #}

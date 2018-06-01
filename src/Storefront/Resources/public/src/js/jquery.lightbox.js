@@ -2,7 +2,7 @@
     'use strict';
 
     /**
-     * Shopware Lightbox Plugin.
+     * Shopware\Core Lightbox Plugin.
      *
      * This plugin is based on the modal plugin.
      * It opens images in a modal window and sets the width and height

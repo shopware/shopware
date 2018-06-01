@@ -1,15 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Api\Response\Type;
+namespace Shopware\Core\Framework\Api\Response\Type;
 
-use Shopware\Framework\Api\Context\RestContext;
-use Shopware\Framework\Api\Exception\WriteStackHttpException;
-use Shopware\Framework\Api\Response\JsonApiResponse;
-use Shopware\Framework\Api\Response\ResponseTypeInterface;
-use Shopware\Framework\ORM\Entity;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\Search\SearchResultInterface;
-use Shopware\Framework\ORM\Write\FieldException\InvalidFieldException;
+use Shopware\Core\Framework\Api\Context\RestContext;
+use Shopware\Core\Framework\Api\Exception\WriteStackHttpException;
+use Shopware\Core\Framework\Api\Response\JsonApiResponse;
+use Shopware\Core\Framework\Api\Response\ResponseTypeInterface;
+use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\Search\SearchResultInterface;
+use Shopware\Core\Framework\ORM\Write\FieldException\InvalidFieldException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;

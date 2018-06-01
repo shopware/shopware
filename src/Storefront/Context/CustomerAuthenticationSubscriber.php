@@ -2,9 +2,9 @@
 
 namespace Shopware\Storefront\Context;
 
-use Shopware\Checkout\Customer\Util\CustomerContextPersister;
-use Shopware\Checkout\Customer\Util\CustomerContextService;
-use Shopware\Framework\Routing\Firewall\CustomerUser;
+use Shopware\Core\Checkout\Customer\Util\CustomerContextPersister;
+use Shopware\Core\Checkout\Customer\Util\CustomerContextService;
+use Shopware\Core\Framework\Routing\Firewall\CustomerUser;
 use Shopware\Storefront\StorefrontRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;

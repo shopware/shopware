@@ -1,6 +1,6 @@
 ;(function ($) {
     /**
-     * Shopware Offcanvas HTML Panel
+     * Shopware\Core Offcanvas HTML Panel
      *
      * This plugin displays the given content inside an off canvas menu
      *

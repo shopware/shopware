@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Order\Aggregate\OrderTransaction\Collection;
+namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\Collection;
 
-use Shopware\Checkout\Order\Aggregate\OrderTransaction\Struct\OrderTransactionBasicStruct;
-use Shopware\Framework\ORM\EntityCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\Struct\OrderTransactionBasicStruct;
+use Shopware\Core\Framework\ORM\EntityCollection;
 
 class OrderTransactionBasicCollection extends EntityCollection
 {

@@ -2,7 +2,7 @@
     'use strict';
 
     /**
-     * Shopware Collapse Panel Plugin.
+     * Shopware\Core Collapse Panel Plugin.
      */
     $.plugin('swCollapsePanel', {
 

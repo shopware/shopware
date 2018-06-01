@@ -1,17 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Test\Country\Repository;
+namespace Shopware\Core\System\Test\Country\Repository;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Framework\Context;
-use Shopware\Defaults;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\Term\EntityScoreQueryBuilder;
-use Shopware\Framework\ORM\Search\Term\SearchTermInterpreter;
-use Shopware\Framework\Struct\Uuid;
-use Shopware\System\Country\Aggregate\CountryState\CountryStateDefinition;
-use Shopware\System\Country\Aggregate\CountryState\CountryStateRepository;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\Term\EntityScoreQueryBuilder;
+use Shopware\Core\Framework\ORM\Search\Term\SearchTermInterpreter;
+use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition;
+use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class CountryStateRepositoryTest extends KernelTestCase
@@ -44,7 +44,7 @@ class CountryStateRepositoryTest extends KernelTestCase
     {
         $country = Uuid::uuid4()->getHex();
 
-        self::$container->get(\Shopware\System\Country\CountryRepository::class)->create([
+        self::$container->get(\Shopware\Core\System\Country\CountryRepository::class)->create([
             ['id' => $country, 'name' => 'test'],
         ], Context::createDefaultContext(Defaults::TENANT_ID));
 

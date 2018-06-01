@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Twig;
+namespace Shopware\Core\Framework\Twig;
 
-use Shopware\Framework\Twig\TokenParser\ExtendsTokenParser;
-use Shopware\Framework\Twig\TokenParser\IncludeTokenParser;
+use Shopware\Core\Framework\Twig\TokenParser\ExtendsTokenParser;
+use Shopware\Core\Framework\Twig\TokenParser\IncludeTokenParser;
 
 class InheritanceExtension extends \Twig_Extension
 {

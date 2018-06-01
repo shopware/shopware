@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Locale\Aggregate\LocaleTranslation\Struct;
+namespace Shopware\Core\System\Locale\Aggregate\LocaleTranslation\Struct;
 
-use Shopware\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Entity;
 
 class LocaleTranslationBasicStruct extends Entity
 {

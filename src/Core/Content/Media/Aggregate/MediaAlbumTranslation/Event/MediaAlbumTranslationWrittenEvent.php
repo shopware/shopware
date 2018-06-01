@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Event;
+namespace Shopware\Core\Content\Media\Aggregate\MediaAlbumTranslation\Event;
 
-use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\MediaAlbumTranslationDefinition;
-use Shopware\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Content\Media\Aggregate\MediaAlbumTranslation\MediaAlbumTranslationDefinition;
+use Shopware\Core\Framework\ORM\Write\WrittenEvent;
 
 class MediaAlbumTranslationWrittenEvent extends WrittenEvent
 {

@@ -1,15 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Application\Context\Cart;
+namespace Shopware\Core\Application\Context\Cart;
 
-use Shopware\Application\Context\Cart\Struct\ContextCartModifierFetchDefinition;
-use Shopware\Application\Context\Repository\ContextCartModifierRepository;
-use Shopware\Checkout\CustomerContext;
-use Shopware\Checkout\Cart\Cart\CartCollectorInterface;
-use Shopware\Checkout\Cart\Cart\Struct\Cart;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\Query\TermsQuery;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Core\Application\Context\Cart\Struct\ContextCartModifierFetchDefinition;
+use Shopware\Core\Application\Context\Repository\ContextCartModifierRepository;
+use Shopware\Core\Checkout\CustomerContext;
+use Shopware\Core\Checkout\Cart\Cart\CartCollectorInterface;
+use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\Query\TermsQuery;
+use Shopware\Core\Framework\Struct\StructCollection;
 
 class ContextCartModifierCollector implements CartCollectorInterface
 {

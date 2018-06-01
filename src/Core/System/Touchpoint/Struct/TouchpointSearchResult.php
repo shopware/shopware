@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Touchpoint\Struct;
+namespace Shopware\Core\System\Touchpoint\Struct;
 
-use Shopware\System\Touchpoint\Collection\TouchpointBasicCollection;
-use Shopware\Framework\ORM\Search\SearchResultInterface;
-use Shopware\Framework\ORM\Search\SearchResultTrait;
+use Shopware\Core\System\Touchpoint\Collection\TouchpointBasicCollection;
+use Shopware\Core\Framework\ORM\Search\SearchResultInterface;
+use Shopware\Core\Framework\ORM\Search\SearchResultTrait;
 
 class TouchpointSearchResult extends TouchpointBasicCollection implements SearchResultInterface
 {

@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Application\Context\Event\ContextCartModifier;
+namespace Shopware\Core\Application\Context\Event\ContextCartModifier;
 
-use Shopware\Application\Context\Collection\ContextCartModifierBasicCollection;
-use Shopware\Framework\Context;
-use Shopware\Framework\Event\NestedEvent;
+use Shopware\Core\Application\Context\Collection\ContextCartModifierBasicCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
 
 class ContextCartModifierBasicLoadedEvent extends NestedEvent
 {

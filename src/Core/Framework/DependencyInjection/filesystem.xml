@@ -7,34 +7,34 @@
     <services>
 
         <!-- Filesystem -->
-        <service class="Shopware\Framework\Filesystem\FilesystemFactory" id="Shopware\Framework\Filesystem\FilesystemFactory">
-            <argument type="tagged" tag="Shopware\Framework\Filesystem\FilesystemFactory"/>
+        <service class="Shopware\Core\Framework\Filesystem\FilesystemFactory" id="Shopware\Core\Framework\Filesystem\FilesystemFactory">
+            <argument type="tagged" tag="Shopware\Core\Framework\Filesystem\FilesystemFactory"/>
         </service>
 
         <service class="League\Flysystem\FilesystemInterface" id="shopware.filesystem.public">
-            <factory service="Shopware\Framework\Filesystem\FilesystemFactory" method="factory" />
+            <factory service="Shopware\Core\Framework\Filesystem\FilesystemFactory" method="factory" />
             <argument>%shopware.filesystem.public%</argument>
         </service>
 
         <service class="League\Flysystem\FilesystemInterface" id="shopware.filesystem.private">
-            <factory service="Shopware\Framework\Filesystem\FilesystemFactory" method="factory" />
+            <factory service="Shopware\Core\Framework\Filesystem\FilesystemFactory" method="factory" />
             <argument>%shopware.filesystem.private%</argument>
         </service>
 
-        <service class="Shopware\Framework\Filesystem\Adapter\LocalFactory" id="Shopware\Framework\Filesystem\FilesystemFactory.local">
-            <tag name="Shopware\Framework\Filesystem\FilesystemFactory" />
+        <service class="Shopware\Core\Framework\Filesystem\Adapter\LocalFactory" id="Shopware\Core\Framework\Filesystem\FilesystemFactory.local">
+            <tag name="Shopware\Core\Framework\Filesystem\FilesystemFactory" />
         </service>
 
-        <service class="Shopware\Framework\Filesystem\Adapter\AwsS3v3Factory" id="Shopware\Framework\Filesystem\FilesystemFactory.amazon_s3">
-            <tag name="Shopware\Framework\Filesystem\FilesystemFactory" />
+        <service class="Shopware\Core\Framework\Filesystem\Adapter\AwsS3v3Factory" id="Shopware\Core\Framework\Filesystem\FilesystemFactory.amazon_s3">
+            <tag name="Shopware\Core\Framework\Filesystem\FilesystemFactory" />
         </service>
 
-        <service class="Shopware\Framework\Filesystem\Adapter\GoogleStorageFactory" id="Shopware\Framework\Filesystem\FilesystemFactory.google_storage">
-            <tag name="Shopware\Framework\Filesystem\FilesystemFactory" />
+        <service class="Shopware\Core\Framework\Filesystem\Adapter\GoogleStorageFactory" id="Shopware\Core\Framework\Filesystem\FilesystemFactory.google_storage">
+            <tag name="Shopware\Core\Framework\Filesystem\FilesystemFactory" />
         </service>
 
-        <service class="Shopware\Framework\Filesystem\Adapter\AzureFactory" id="Shopware\Framework\Filesystem\FilesystemFactory.microsoft_azure">
-            <tag name="Shopware\Framework\Filesystem\FilesystemFactory" />
+        <service class="Shopware\Core\Framework\Filesystem\Adapter\AzureFactory" id="Shopware\Core\Framework\Filesystem\FilesystemFactory.microsoft_azure">
+            <tag name="Shopware\Core\Framework\Filesystem\FilesystemFactory" />
         </service>
 
     </services>

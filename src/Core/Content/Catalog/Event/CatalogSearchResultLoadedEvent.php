@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Catalog\Event;
+namespace Shopware\Core\Content\Catalog\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Content\Catalog\Struct\CatalogSearchResult;
-use Shopware\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Catalog\Struct\CatalogSearchResult;
+use Shopware\Core\Framework\Event\NestedEvent;
 
 class CatalogSearchResultLoadedEvent extends NestedEvent
 {

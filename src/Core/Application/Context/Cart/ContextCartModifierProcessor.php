@@ -1,22 +1,22 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Application\Context\Cart;
+namespace Shopware\Core\Application\Context\Cart;
 
-use Shopware\Application\Context\Exception\UnsupportedModifierTypeException;
-use Shopware\Application\Context\Repository\ContextCartModifierRepository;
-use Shopware\Application\Context\Struct\ContextCartModifierBasicStruct;
-use Shopware\Application\Context\Struct\ContextCartModifierSearchResult;
-use Shopware\Checkout\CustomerContext;
-use Shopware\Checkout\Cart\Cart\CartProcessorInterface;
-use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Checkout\Cart\Cart\Struct\Cart;
-use Shopware\Checkout\Cart\LineItem\CalculatedLineItem;
-use Shopware\Checkout\Cart\Price\AbsolutePriceCalculator;
-use Shopware\Checkout\Cart\Price\PercentagePriceCalculator;
-use Shopware\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
-use Shopware\Checkout\Rule\Specification\Scope\CalculatedLineItemScope;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Core\Application\Context\Exception\UnsupportedModifierTypeException;
+use Shopware\Core\Application\Context\Repository\ContextCartModifierRepository;
+use Shopware\Core\Application\Context\Struct\ContextCartModifierBasicStruct;
+use Shopware\Core\Application\Context\Struct\ContextCartModifierSearchResult;
+use Shopware\Core\Checkout\CustomerContext;
+use Shopware\Core\Checkout\Cart\Cart\CartProcessorInterface;
+use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
+use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItem;
+use Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
+use Shopware\Core\Checkout\Rule\Specification\Scope\CalculatedLineItemScope;
+use Shopware\Core\Framework\Struct\StructCollection;
 
 class ContextCartModifierProcessor implements CartProcessorInterface
 {

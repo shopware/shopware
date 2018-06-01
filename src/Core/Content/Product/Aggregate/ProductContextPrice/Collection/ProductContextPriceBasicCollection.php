@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Aggregate\ProductContextPrice\Collection;
+namespace Shopware\Core\Content\Product\Aggregate\ProductContextPrice\Collection;
 
-use Shopware\Content\Product\Aggregate\ProductContextPrice\Struct\ProductContextPriceBasicStruct;
+use Shopware\Core\Content\Product\Aggregate\ProductContextPrice\Struct\ProductContextPriceBasicStruct;
 
-class ProductContextPriceBasicCollection extends \Shopware\Application\Context\Collection\ContextPriceCollection
+class ProductContextPriceBasicCollection extends \Shopware\Core\Application\Context\Collection\ContextPriceCollection
 {
     /**
      * @var ProductContextPriceBasicStruct[]

@@ -1,20 +1,20 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Test\Category\Repository;
+namespace Shopware\Core\Content\Test\Category\Repository;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Framework\Context;
-use Shopware\Content\Category\CategoryDefinition;
-use Shopware\Content\Category\CategoryRepository;
-use Shopware\Content\Category\Event\CategoryDeletedEvent;
-use Shopware\Defaults;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\Query\TermQuery;
-use Shopware\Framework\ORM\Search\Term\EntityScoreQueryBuilder;
-use Shopware\Framework\ORM\Search\Term\SearchTermInterpreter;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Category\CategoryRepository;
+use Shopware\Core\Content\Category\Event\CategoryDeletedEvent;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Core\Framework\ORM\Search\Term\EntityScoreQueryBuilder;
+use Shopware\Core\Framework\ORM\Search\Term\SearchTermInterpreter;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class CategoryRepositoryTest extends KernelTestCase

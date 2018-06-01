@@ -12,41 +12,41 @@ layers:
       - type: bool
         must:
           - type: className
-            regex: Shopware\\Touchpoint\\
+            regex: Shopware\Core\\Touchpoint\\
         must_not:
           - type: className
-            regex: Shopware\\Framework\\Context
+            regex: Shopware\Core\\Framework\\Context
           - type: className
-            regex: Shopware\\Checkout\\CustomerContext
+            regex: Shopware\Core\\Checkout\\CustomerContext
           - type: className
-            regex: Shopware\\Touchpoint\\Language\\Struct\\LanguageBasicStruct
+            regex: Shopware\Core\\Touchpoint\\Language\\Struct\\LanguageBasicStruct
           - type: className
-            regex: Shopware\\Touchpoint\\Language\\Collection\\LanguageBasicCollection
+            regex: Shopware\Core\\Touchpoint\\Language\\Collection\\LanguageBasicCollection
           - type: className
-            regex: Shopware\\Touchpoint\\Context\\Struct\\ContextPriceStruct
+            regex: Shopware\Core\\Touchpoint\\Context\\Struct\\ContextPriceStruct
     collectors:
       - type: className
-        regex: Shopware\\Touchpoint\\
+        regex: Shopware\Core\\Touchpoint\\
   - name: Checkout
     collectors:
       - type: className
-        regex: Shopware\\Checkout\\
+        regex: Shopware\Core\\Checkout\\
   - name: Content
     collectors:
       - type: className
-        regex: Shopware\\Content\\
+        regex: Shopware\Core\\Content\\
   - name: Framework
     collectors:
       - type: className
-        regex: Shopware\\Framework\\
+        regex: Shopware\Core\\Framework\\
   - name: Profiling
     collectors:
       - type: className
-        regex: Shopware\\Profiling\\
+        regex: Shopware\Core\\Profiling\\
   - name: System
     collectors:
       - type: className
-        regex: Shopware\\System\\
+        regex: Shopware\Core\\System\\
 ruleset:
   Application:
     - Framework

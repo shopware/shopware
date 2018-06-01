@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Customer\Aggregate\CustomerAddress\Event;
+namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressSearchResult;
-use Shopware\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressSearchResult;
+use Shopware\Core\Framework\Event\NestedEvent;
 
 class CustomerAddressSearchResultLoadedEvent extends NestedEvent
 {

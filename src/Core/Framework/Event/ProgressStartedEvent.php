@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Event;
+namespace Shopware\Core\Framework\Event;
 
 use Symfony\Component\EventDispatcher\Event;
 

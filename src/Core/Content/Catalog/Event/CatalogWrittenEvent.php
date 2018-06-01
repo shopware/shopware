@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Catalog\Event;
+namespace Shopware\Core\Content\Catalog\Event;
 
-use Shopware\Content\Catalog\CatalogDefinition;
-use Shopware\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Content\Catalog\CatalogDefinition;
+use Shopware\Core\Framework\ORM\Write\WrittenEvent;
 
 class CatalogWrittenEvent extends WrittenEvent
 {

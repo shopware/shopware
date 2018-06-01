@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Configuration\Aggregate\ConfigurationGroupTranslation\Struct;
+namespace Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupTranslation\Struct;
 
-use Shopware\System\Language\Struct\LanguageBasicStruct;
-use Shopware\System\Configuration\Struct\ConfigurationGroupBasicStruct;
+use Shopware\Core\System\Language\Struct\LanguageBasicStruct;
+use Shopware\Core\System\Configuration\Struct\ConfigurationGroupBasicStruct;
 
 class ConfigurationGroupTranslationDetailStruct extends ConfigurationGroupTranslationBasicStruct
 {

@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Search;
+namespace Shopware\Core\Framework\ORM\Search;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\ORM\Search\Aggregation\AggregationResultCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Search\Aggregation\AggregationResultCollection;
 
 interface SearchResultInterface
 {

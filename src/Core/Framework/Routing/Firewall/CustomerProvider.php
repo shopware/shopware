@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Routing\Firewall;
+namespace Shopware\Core\Framework\Routing\Firewall;
 
-use Shopware\Framework\Context;
-use Shopware\Checkout\Customer\CustomerRepository;
-use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
-use Shopware\Defaults;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Customer\CustomerRepository;
+use Shopware\Core\Checkout\Customer\Struct\CustomerBasicStruct;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -16,14 +16,14 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 class CustomerProvider implements UserProviderInterface
 {
     /**
-     * @var \Shopware\Checkout\Customer\CustomerRepository
+     * @var \Shopware\Core\Checkout\Customer\CustomerRepository
      */
     private $customerRepository;
 
     /**
      * CustomerProvider constructor.
      *
-     * @param \Shopware\Checkout\Customer\CustomerRepository $customerRepository
+     * @param \Shopware\Core\Checkout\Customer\CustomerRepository $customerRepository
      */
     public function __construct(CustomerRepository $customerRepository)
     {

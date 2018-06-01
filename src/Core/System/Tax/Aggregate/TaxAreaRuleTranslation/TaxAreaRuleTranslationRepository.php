@@ -1,26 +1,26 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Tax\Aggregate\TaxAreaRuleTranslation;
+namespace Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTranslation;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\ORM\Read\EntityReaderInterface;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\AggregatorResult;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
-use Shopware\Framework\ORM\Search\EntitySearcherInterface;
-use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\System\Tax\Aggregate\TaxAreaRuleTranslation\Collection\TaxAreaRuleTranslationBasicCollection;
-use Shopware\System\Tax\Aggregate\TaxAreaRuleTranslation\Collection\TaxAreaRuleTranslationDetailCollection;
-use Shopware\System\Tax\Aggregate\TaxAreaRuleTranslation\Event\TaxAreaRuleTranslationAggregationResultLoadedEvent;
-use Shopware\System\Tax\Aggregate\TaxAreaRuleTranslation\Event\TaxAreaRuleTranslationBasicLoadedEvent;
-use Shopware\System\Tax\Aggregate\TaxAreaRuleTranslation\Event\TaxAreaRuleTranslationDetailLoadedEvent;
-use Shopware\System\Tax\Aggregate\TaxAreaRuleTranslation\Event\TaxAreaRuleTranslationIdSearchResultLoadedEvent;
-use Shopware\System\Tax\Aggregate\TaxAreaRuleTranslation\Event\TaxAreaRuleTranslationSearchResultLoadedEvent;
-use Shopware\System\Tax\Aggregate\TaxAreaRuleTranslation\Struct\TaxAreaRuleTranslationSearchResult;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\AggregatorResult;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\ORM\Search\IdSearchResult;
+use Shopware\Core\Framework\ORM\Version\Service\VersionManager;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Write\WriteContext;
+use Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTranslation\Collection\TaxAreaRuleTranslationBasicCollection;
+use Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTranslation\Collection\TaxAreaRuleTranslationDetailCollection;
+use Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTranslation\Event\TaxAreaRuleTranslationAggregationResultLoadedEvent;
+use Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTranslation\Event\TaxAreaRuleTranslationBasicLoadedEvent;
+use Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTranslation\Event\TaxAreaRuleTranslationDetailLoadedEvent;
+use Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTranslation\Event\TaxAreaRuleTranslationIdSearchResultLoadedEvent;
+use Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTranslation\Event\TaxAreaRuleTranslationSearchResultLoadedEvent;
+use Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTranslation\Struct\TaxAreaRuleTranslationSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class TaxAreaRuleTranslationRepository implements RepositoryInterface
@@ -46,7 +46,7 @@ class TaxAreaRuleTranslationRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var \Shopware\Framework\ORM\Version\Service\VersionManager
+     * @var \Shopware\Core\Framework\ORM\Version\Service\VersionManager
      */
     private $versionManager;
 
@@ -116,7 +116,7 @@ class TaxAreaRuleTranslationRepository implements RepositoryInterface
 
     public function readDetail(array $ids, Context $context): TaxAreaRuleTranslationDetailCollection
     {
-        /** @var \Shopware\System\Tax\Aggregate\TaxAreaRuleTranslation\Collection\TaxAreaRuleTranslationDetailCollection $entities */
+        /** @var \Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTranslation\Collection\TaxAreaRuleTranslationDetailCollection $entities */
         $entities = $this->reader->readDetail(TaxAreaRuleTranslationDefinition::class, $ids, $context);
 
         $event = new TaxAreaRuleTranslationDetailLoadedEvent($entities, $context);

@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Aggregate\ProductManufacturer\Struct;
+namespace Shopware\Core\Content\Product\Aggregate\ProductManufacturer\Struct;
 
-use Shopware\Content\Media\Struct\MediaBasicStruct;
-use Shopware\Content\Product\Aggregate\ProductManufacturerTranslation\Collection\ProductManufacturerTranslationBasicCollection;
+use Shopware\Core\Content\Media\Struct\MediaBasicStruct;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\Collection\ProductManufacturerTranslationBasicCollection;
 
 class ProductManufacturerDetailStruct extends ProductManufacturerBasicStruct
 {
@@ -13,7 +13,7 @@ class ProductManufacturerDetailStruct extends ProductManufacturerBasicStruct
     protected $media;
 
     /**
-     * @var \Shopware\Content\Product\Aggregate\ProductManufacturerTranslation\Collection\ProductManufacturerTranslationBasicCollection
+     * @var \Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\Collection\ProductManufacturerTranslationBasicCollection
      */
     protected $translations;
 

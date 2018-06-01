@@ -1,14 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Search\Parser;
+namespace Shopware\Core\Framework\ORM\Search\Parser;
 
-use Shopware\Framework\ORM\Search\Query\MatchQuery;
-use Shopware\Framework\ORM\Search\Query\NestedQuery;
-use Shopware\Framework\ORM\Search\Query\NotQuery;
-use Shopware\Framework\ORM\Search\Query\Query;
-use Shopware\Framework\ORM\Search\Query\RangeQuery;
-use Shopware\Framework\ORM\Search\Query\TermQuery;
-use Shopware\Framework\ORM\Search\Query\TermsQuery;
+use Shopware\Core\Framework\ORM\Search\Query\MatchQuery;
+use Shopware\Core\Framework\ORM\Search\Query\NestedQuery;
+use Shopware\Core\Framework\ORM\Search\Query\NotQuery;
+use Shopware\Core\Framework\ORM\Search\Query\Query;
+use Shopware\Core\Framework\ORM\Search\Query\RangeQuery;
+use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Core\Framework\ORM\Search\Query\TermsQuery;
 
 class QueryStringParser
 {

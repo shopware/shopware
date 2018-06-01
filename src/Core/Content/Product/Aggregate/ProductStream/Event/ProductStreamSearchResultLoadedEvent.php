@@ -1,17 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Aggregate\ProductStream\Event;
+namespace Shopware\Core\Content\Product\Aggregate\ProductStream\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Content\Product\Aggregate\ProductStream\Struct\ProductStreamSearchResult;
-use Shopware\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Product\Aggregate\ProductStream\Struct\ProductStreamSearchResult;
+use Shopware\Core\Framework\Event\NestedEvent;
 
 class ProductStreamSearchResultLoadedEvent extends NestedEvent
 {
     public const NAME = 'product_stream.search.result.loaded';
 
     /**
-     * @var \Shopware\Content\Product\Aggregate\ProductStream\Struct\ProductStreamSearchResult
+     * @var \Shopware\Core\Content\Product\Aggregate\ProductStream\Struct\ProductStreamSearchResult
      */
     protected $result;
 

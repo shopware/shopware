@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Plugin\Context;
+namespace Shopware\Core\Framework\Plugin\Context;
 
-use Shopware\Framework\Plugin\Plugin;
+use Shopware\Core\Framework\Plugin\Plugin;
 
 class InstallContext implements \JsonSerializable
 {

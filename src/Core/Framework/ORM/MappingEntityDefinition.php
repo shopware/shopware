@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM;
+namespace Shopware\Core\Framework\ORM;
 
-use Shopware\Framework\ORM\Exception\MappingEntityRepositoryException;
-use Shopware\Framework\ORM\Exception\MappingEntityStructException;
+use Shopware\Core\Framework\ORM\Exception\MappingEntityRepositoryException;
+use Shopware\Core\Framework\ORM\Exception\MappingEntityStructException;
 
 abstract class MappingEntityDefinition extends EntityDefinition
 {

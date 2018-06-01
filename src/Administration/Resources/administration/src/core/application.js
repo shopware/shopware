@@ -52,7 +52,7 @@ class ApplicationBootstrapper {
      * The factory will be registered in a nested DI container.
      *
      * @example
-     * Shopware.Touchpoint.addFactory('module', (container) => {
+     * Shopware\Core.Touchpoint.addFactory('module', (container) => {
      *    return ModuleFactory();
      * });
      *
@@ -70,13 +70,13 @@ class ApplicationBootstrapper {
      * Registers a factory middleware for either every factory in the container or a defined one.
      *
      * @example
-     * Shopware.Touchpoint.addFactoryMiddleware((container, next) => {
+     * Shopware\Core.Touchpoint.addFactoryMiddleware((container, next) => {
      *    // Do something with the container
      *    next();
      * });
      *
      * @example
-     * Shopware.Touchpoint.addFactoryMiddleware('module', (service, next) => {
+     * Shopware\Core.Touchpoint.addFactoryMiddleware('module', (service, next) => {
      *    // Do something with the service
      *    next();
      * });
@@ -92,13 +92,13 @@ class ApplicationBootstrapper {
      * Registers a decorator for either every factory in the container or a defined one.
      *
      * @example
-     * Shopware.Touchpoint.addFactoryDecorator((container, next) => {
+     * Shopware\Core.Touchpoint.addFactoryDecorator((container, next) => {
      *    // Do something with the container
      *    next();
      * });
      *
      * @example
-     * Shopware.Touchpoint.addFactoryDecorator('module', (service, next) => {
+     * Shopware\Core.Touchpoint.addFactoryDecorator('module', (service, next) => {
      *    // Do something with the service
      *    next();
      * });
@@ -117,7 +117,7 @@ class ApplicationBootstrapper {
      * The initializer will be registered in a nested DI container.
      *
      * @example
-     * Shopware.Touchpoint.addInitializer('httpClient', (container) => {
+     * Shopware\Core.Touchpoint.addInitializer('httpClient', (container) => {
      *    return HttpFactory(container.contextService);
      * });
      *
@@ -137,7 +137,7 @@ class ApplicationBootstrapper {
      * The service will be added to a nested DI container.
      *
      * @example
-     * Shopware.Touchpoint.addServiceProvider('productService', (container) => {
+     * Shopware\Core.Touchpoint.addServiceProvider('productService', (container) => {
      *    return new ProductApiService(container.mediaService);
      * });
      *
@@ -166,13 +166,13 @@ class ApplicationBootstrapper {
      * Registers an initializer middleware for either every initializer in the container or a defined one.
      *
      * @example
-     * Shopware.Touchpoint.addInitializerMiddleware((container, next) => {
+     * Shopware\Core.Touchpoint.addInitializerMiddleware((container, next) => {
      *    // Do something with the container
      *    next();
      * });
      *
      * @example
-     * Shopware.Touchpoint.addInitializerMiddleware('httpClient', (service, next) => {
+     * Shopware\Core.Touchpoint.addInitializerMiddleware('httpClient', (service, next) => {
      *    // Do something with the service
      *    next();
      * });
@@ -188,13 +188,13 @@ class ApplicationBootstrapper {
      * Registers a service provider middleware for either every service provider in the container or a defined one.
      *
      * @example
-     * Shopware.Touchpoint.addServiceProviderMiddleware((container, next) => {
+     * Shopware\Core.Touchpoint.addServiceProviderMiddleware((container, next) => {
      *    // Do something with the container
      *    next();
      * });
      *
      * @example
-     * Shopware.Touchpoint.addServiceProviderMiddleware('productService', (service, next) => {
+     * Shopware\Core.Touchpoint.addServiceProviderMiddleware('productService', (service, next) => {
      *    // Do something with the service
      *    next();
      * });
@@ -227,13 +227,13 @@ class ApplicationBootstrapper {
      * Registers a decorator for either every initializer in the container or a defined one.
      *
      * @example
-     * Shopware.Touchpoint.addInitializerDecorator((container, next) => {
+     * Shopware\Core.Touchpoint.addInitializerDecorator((container, next) => {
      *    // Do something with the container
      *    next();
      * });
      *
      * @example
-     * Shopware.Touchpoint.addInitializerDecorator('httpClient', (service, next) => {
+     * Shopware\Core.Touchpoint.addInitializerDecorator('httpClient', (service, next) => {
      *    // Do something with the service
      *    next();
      * });
@@ -249,13 +249,13 @@ class ApplicationBootstrapper {
      * Registers a service provider decorator for either every service provider in the container or a defined one.
      *
      * @example
-     * Shopware.Touchpoint.addServiceProviderDecorator((container, next) => {
+     * Shopware\Core.Touchpoint.addServiceProviderDecorator((container, next) => {
      *    // Do something with the container
      *    next();
      * });
      *
      * @example
-     * Shopware.Touchpoint.addServiceProviderDecorator('productService', (service, next) => {
+     * Shopware\Core.Touchpoint.addServiceProviderDecorator('productService', (service, next) => {
      *    // Do something with the service
      *    next();
      * });

@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Application\Test\Context\Rule\CalculatedCart;
+namespace Shopware\Core\Application\Test\Context\Rule\CalculatedCart;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Checkout\CustomerContext;
-use Shopware\Checkout\Rule\Specification\CalculatedCart\GoodsPriceRule;
-use Shopware\Checkout\Rule\Specification\Rule;
-use Shopware\Checkout\Rule\Specification\Scope\CartRuleScope;
-use Shopware\Checkout\Test\Cart\Common\Generator;
+use Shopware\Core\Checkout\CustomerContext;
+use Shopware\Core\Checkout\Rule\Specification\CalculatedCart\GoodsPriceRule;
+use Shopware\Core\Checkout\Rule\Specification\Rule;
+use Shopware\Core\Checkout\Rule\Specification\Scope\CartRuleScope;
+use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 
 class GoodsPriceRuleTest extends TestCase
 {

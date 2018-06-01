@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Shopware\Framework\Struct;
+namespace Shopware\Core\Framework\Struct;
 
 interface ExtendableInterface
 {

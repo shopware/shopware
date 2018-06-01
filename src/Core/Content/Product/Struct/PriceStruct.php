@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Struct;
+namespace Shopware\Core\Content\Product\Struct;
 
-use Shopware\Framework\Struct\Struct;
+use Shopware\Core\Framework\Struct\Struct;
 
 class PriceStruct extends Struct
 {

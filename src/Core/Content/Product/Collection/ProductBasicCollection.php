@@ -1,14 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Collection;
+namespace Shopware\Core\Content\Product\Collection;
 
-use Shopware\Content\Product\Aggregate\ProductContextPrice\Collection\ProductContextPriceBasicCollection;
-use Shopware\Content\Product\Aggregate\ProductManufacturer\Collection\ProductManufacturerBasicCollection;
-use Shopware\Content\Product\Aggregate\ProductMedia\Collection\ProductMediaBasicCollection;
-use Shopware\Content\Product\Struct\ProductBasicStruct;
-use Shopware\Framework\ORM\EntityCollection;
-use Shopware\System\Tax\Collection\TaxBasicCollection;
-use Shopware\System\Unit\Collection\UnitBasicCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductContextPrice\Collection\ProductContextPriceBasicCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\Collection\ProductManufacturerBasicCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\Collection\ProductMediaBasicCollection;
+use Shopware\Core\Content\Product\Struct\ProductBasicStruct;
+use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\System\Tax\Collection\TaxBasicCollection;
+use Shopware\Core\System\Unit\Collection\UnitBasicCollection;
 
 class ProductBasicCollection extends EntityCollection
 {

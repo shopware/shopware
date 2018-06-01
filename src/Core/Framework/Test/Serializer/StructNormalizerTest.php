@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Test\Serializer;
+namespace Shopware\Core\Framework\Test\Serializer;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Framework\Struct\Serializer\StructNormalizer;
-use Shopware\Framework\Struct\Collection;
-use Shopware\Framework\Struct\Struct;
+use Shopware\Core\Framework\Struct\Serializer\StructNormalizer;
+use Shopware\Core\Framework\Struct\Collection;
+use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 
 class StructNormalizerTest extends TestCase

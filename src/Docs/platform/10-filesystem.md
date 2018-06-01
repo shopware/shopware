@@ -35,7 +35,7 @@ Each installed and activate plugin gets its own prefixed filesystem. Imagine a p
     // or private filesystem
     $filesystem = $this->container->get('swag_bonus.filesystem.private');
 
-The file will be stored in the global Shopware filesystem prefixed with `pluginData/pluginName`, e.g. `pluginData/SwagBonus`:
+The file will be stored in the global Shopware\Core filesystem prefixed with `pluginData/pluginName`, e.g. `pluginData/SwagBonus`:
 
     $global = $this->container->get('shopware.filesystem.private');
     $plugin->write('path/fo/file.pdf', $contents);

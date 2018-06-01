@@ -2,7 +2,7 @@
     'use strict';
 
     /**
-     * Shopware Image Zoom Plugin.
+     * Shopware\Core Image Zoom Plugin.
      *
      * Creates a zoomed view of a product image.
      * You can move a lens object over the original image to

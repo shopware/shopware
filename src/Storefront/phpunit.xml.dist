@@ -14,7 +14,7 @@
     </php>
 
     <testsuites>
-        <testsuite name="Shopware Storefront Test Suite">
+        <testsuite name="Shopware\Core Storefront Test Suite">
             <directory>./Test/</directory>
         </testsuite>
     </testsuites>

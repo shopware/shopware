@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Field;
+namespace Shopware\Core\Framework\ORM\Field;
 
-use Shopware\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\EntityDefinition;
 
 trait AssociationTrait
 {

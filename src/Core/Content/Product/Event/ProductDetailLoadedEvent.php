@@ -1,23 +1,23 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Event;
+namespace Shopware\Core\Content\Product\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Content\Category\Event\CategoryBasicLoadedEvent;
-use Shopware\Content\Product\Aggregate\ProductConfigurator\Event\ProductConfiguratorBasicLoadedEvent;
-use Shopware\Content\Product\Aggregate\ProductManufacturer\Event\ProductManufacturerBasicLoadedEvent;
-use Shopware\Content\Product\Aggregate\ProductMedia\Collection\ProductMediaBasicCollection;
-use Shopware\Content\Product\Aggregate\ProductMedia\Event\ProductMediaBasicLoadedEvent;
-use Shopware\Content\Product\Aggregate\ProductSearchKeyword\Event\ProductSearchKeywordBasicLoadedEvent;
-use Shopware\Content\Product\Aggregate\ProductService\Event\ProductServiceBasicLoadedEvent;
-use Shopware\Content\Product\Aggregate\ProductStream\Event\ProductStreamBasicLoadedEvent;
-use Shopware\Content\Product\Aggregate\ProductTranslation\Event\ProductTranslationBasicLoadedEvent;
-use Shopware\Content\Product\Collection\ProductDetailCollection;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Event\ConfigurationGroupOptionBasicLoadedEvent;
-use Shopware\System\Tax\Event\TaxBasicLoadedEvent;
-use Shopware\System\Unit\Event\UnitBasicLoadedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Category\Event\CategoryBasicLoadedEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\Event\ProductConfiguratorBasicLoadedEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\Event\ProductManufacturerBasicLoadedEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\Collection\ProductMediaBasicCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\Event\ProductMediaBasicLoadedEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\Event\ProductSearchKeywordBasicLoadedEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductService\Event\ProductServiceBasicLoadedEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductStream\Event\ProductStreamBasicLoadedEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductTranslation\Event\ProductTranslationBasicLoadedEvent;
+use Shopware\Core\Content\Product\Collection\ProductDetailCollection;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupOption\Event\ConfigurationGroupOptionBasicLoadedEvent;
+use Shopware\Core\System\Tax\Event\TaxBasicLoadedEvent;
+use Shopware\Core\System\Unit\Event\UnitBasicLoadedEvent;
 
 class ProductDetailLoadedEvent extends NestedEvent
 {

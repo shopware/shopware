@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Config\Aggregate\ConfigFormFieldValue\Event;
+namespace Shopware\Core\System\Config\Aggregate\ConfigFormFieldValue\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\System\Config\Aggregate\ConfigFormFieldValue\Struct\ConfigFormFieldValueSearchResult;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\System\Config\Aggregate\ConfigFormFieldValue\Struct\ConfigFormFieldValueSearchResult;
 
 class ConfigFormFieldValueSearchResultLoadedEvent extends NestedEvent
 {

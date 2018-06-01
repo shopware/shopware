@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Order\Aggregate\OrderLineItem\Collection;
+namespace Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\Collection;
 
-use Shopware\Checkout\Order\Aggregate\OrderDeliveryPosition\Collection\OrderDeliveryPositionBasicCollection;
-use Shopware\Checkout\Order\Aggregate\OrderLineItem\Struct\OrderLineItemDetailStruct;
-use Shopware\Checkout\Order\Collection\OrderBasicCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\Collection\OrderDeliveryPositionBasicCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\Struct\OrderLineItemDetailStruct;
+use Shopware\Core\Checkout\Order\Collection\OrderBasicCollection;
 
 class OrderLineItemDetailCollection extends OrderLineItemBasicCollection
 {

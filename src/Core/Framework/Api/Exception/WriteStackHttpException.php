@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Api\Exception;
+namespace Shopware\Core\Framework\Api\Exception;
 
-use Shopware\Framework\ORM\Write\FieldException\WriteStackException;
-use Shopware\Framework\ShopwareException;
+use Shopware\Core\Framework\ORM\Write\FieldException\WriteStackException;
+use Shopware\Core\Framework\ShopwareException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class WriteStackHttpException extends HttpException implements ShopwareException

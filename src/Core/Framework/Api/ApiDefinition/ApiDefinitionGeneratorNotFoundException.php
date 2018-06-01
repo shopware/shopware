@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Api\ApiDefinition;
+namespace Shopware\Core\Framework\Api\ApiDefinition;
 
 use Throwable;
 

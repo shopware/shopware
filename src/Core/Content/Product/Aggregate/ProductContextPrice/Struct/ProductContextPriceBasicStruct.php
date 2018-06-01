@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Aggregate\ProductContextPrice\Struct;
+namespace Shopware\Core\Content\Product\Aggregate\ProductContextPrice\Struct;
 
-use Shopware\Application\Context\Struct\ContextPriceStruct;
+use Shopware\Core\Application\Context\Struct\ContextPriceStruct;
 
 class ProductContextPriceBasicStruct extends ContextPriceStruct
 {

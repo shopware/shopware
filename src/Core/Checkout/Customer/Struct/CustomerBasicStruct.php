@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Customer\Struct;
+namespace Shopware\Core\Checkout\Customer\Struct;
 
-use Shopware\System\Touchpoint\Struct\TouchpointBasicStruct;
-use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
-use Shopware\Checkout\Customer\Aggregate\CustomerGroup\Struct\CustomerGroupBasicStruct;
-use Shopware\Checkout\Payment\Struct\PaymentMethodBasicStruct;
-use Shopware\Framework\ORM\Entity;
+use Shopware\Core\System\Touchpoint\Struct\TouchpointBasicStruct;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\Struct\CustomerGroupBasicStruct;
+use Shopware\Core\Checkout\Payment\Struct\PaymentMethodBasicStruct;
+use Shopware\Core\Framework\ORM\Entity;
 
 class CustomerBasicStruct extends Entity
 {

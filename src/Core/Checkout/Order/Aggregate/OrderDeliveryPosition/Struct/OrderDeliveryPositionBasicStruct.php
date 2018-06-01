@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Order\Aggregate\OrderDeliveryPosition\Struct;
+namespace Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\Struct;
 
-use Shopware\Checkout\Order\Aggregate\OrderLineItem\Struct\OrderLineItemBasicStruct;
-use Shopware\Framework\ORM\Entity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\Struct\OrderLineItemBasicStruct;
+use Shopware\Core\Framework\ORM\Entity;
 
 class OrderDeliveryPositionBasicStruct extends Entity
 {
@@ -132,12 +132,13 @@ class OrderDeliveryPositionBasicStruct extends Entity
         $this->updatedAt = $updatedAt;
     }
 
-    public function getOrderLineItem(): \Shopware\Checkout\Order\Aggregate\OrderLineItem\Struct\OrderLineItemBasicStruct
+    public function getOrderLineItem(): \Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\Struct\OrderLineItemBasicStruct
     {
         return $this->orderLineItem;
     }
 
-    public function setOrderLineItem(\Shopware\Checkout\Order\Aggregate\OrderLineItem\Struct\OrderLineItemBasicStruct $orderLineItem): void
+    public function setOrderLineItem(
+        \Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\Struct\OrderLineItemBasicStruct $orderLineItem): void
     {
         $this->orderLineItem = $orderLineItem;
     }

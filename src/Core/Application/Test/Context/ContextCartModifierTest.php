@@ -1,33 +1,33 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Application\Test\Context;
+namespace Shopware\Core\Application\Test\Context;
 
-use Shopware\Application\Context\Cart\ContextCartModifierProcessor;
-use Shopware\Application\Context\Repository\ContextCartModifierRepository;
-use Shopware\Framework\Context;
-use Shopware\Checkout\CustomerContext;
-use Shopware\Checkout\Cart\Cart\CircularCartCalculation;
-use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Checkout\Cart\Cart\Struct\Cart;
-use Shopware\Checkout\Cart\Error\ErrorCollection;
-use Shopware\Checkout\Cart\LineItem\CalculatedLineItem;
-use Shopware\Checkout\Cart\LineItem\LineItem;
-use Shopware\Checkout\Cart\LineItem\LineItemCollection;
-use Shopware\Checkout\Cart\Tax\Struct\PercentageTaxRule;
-use Shopware\Checkout\Rule\ContextRuleRepository;
-use Shopware\Checkout\Rule\Specification\CalculatedCart\GoodsCountRule;
-use Shopware\Checkout\Rule\Specification\CalculatedCart\GoodsPriceRule;
-use Shopware\Checkout\Rule\Specification\CalculatedLineItem\LineItemOfTypeRule;
-use Shopware\Checkout\Rule\Specification\CalculatedLineItem\LineItemTotalPriceRule;
-use Shopware\Checkout\Rule\Specification\CalculatedLineItem\LineItemWithQuantityRule;
-use Shopware\Checkout\Rule\Specification\CalculatedLineItem\ProductOfManufacturerRule;
-use Shopware\Checkout\Rule\Specification\Container\AndRule;
-use Shopware\Checkout\Rule\Specification\Rule;
-use Shopware\Checkout\Test\Cart\Common\Generator;
-use Shopware\Content\Product\Cart\ProductProcessor;
-use Shopware\Content\Product\ProductRepository;
-use Shopware\Defaults;
-use Shopware\Framework\Struct\Uuid;
+use Shopware\Core\Application\Context\Cart\ContextCartModifierProcessor;
+use Shopware\Core\Application\Context\Repository\ContextCartModifierRepository;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\CustomerContext;
+use Shopware\Core\Checkout\Cart\Cart\CircularCartCalculation;
+use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
+use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
+use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItem;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\PercentageTaxRule;
+use Shopware\Core\Checkout\Rule\ContextRuleRepository;
+use Shopware\Core\Checkout\Rule\Specification\CalculatedCart\GoodsCountRule;
+use Shopware\Core\Checkout\Rule\Specification\CalculatedCart\GoodsPriceRule;
+use Shopware\Core\Checkout\Rule\Specification\CalculatedLineItem\LineItemOfTypeRule;
+use Shopware\Core\Checkout\Rule\Specification\CalculatedLineItem\LineItemTotalPriceRule;
+use Shopware\Core\Checkout\Rule\Specification\CalculatedLineItem\LineItemWithQuantityRule;
+use Shopware\Core\Checkout\Rule\Specification\CalculatedLineItem\ProductOfManufacturerRule;
+use Shopware\Core\Checkout\Rule\Specification\Container\AndRule;
+use Shopware\Core\Checkout\Rule\Specification\Rule;
+use Shopware\Core\Checkout\Test\Cart\Common\Generator;
+use Shopware\Core\Content\Product\Cart\ProductProcessor;
+use Shopware\Core\Content\Product\ProductRepository;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class ContextCartModifierTest extends KernelTestCase
@@ -38,17 +38,17 @@ class ContextCartModifierTest extends KernelTestCase
     public static $contextCartModifierRepository;
 
     /**
-     * @var \Shopware\Checkout\Rule\ContextRuleRepository
+     * @var \Shopware\Core\Checkout\Rule\ContextRuleRepository
      */
     public static $contextRuleRepository;
 
     /**
-     * @var \Shopware\Content\Product\ProductRepository
+     * @var \Shopware\Core\Content\Product\ProductRepository
      */
     public static $productRepository;
 
     /**
-     * @var \Shopware\Framework\Context
+     * @var \Shopware\Core\Framework\Context
      */
     public static $context;
 
@@ -66,7 +66,7 @@ class ContextCartModifierTest extends KernelTestCase
         self::$contextCartModifierRepository = self::$container->get(ContextCartModifierRepository::class);
         self::$contextRuleRepository = self::$container->get(ContextRuleRepository::class);
         self::$productRepository = self::$container->get(ProductRepository::class);
-        self::$context = ApplicationContext::createDefaultContext(Defaults::TENANT_ID);
+        self::$context = Context::createDefaultContext(Defaults::TENANT_ID);
         self::$calculation = self::$container->get(CircularCartCalculation::class);
     }
 

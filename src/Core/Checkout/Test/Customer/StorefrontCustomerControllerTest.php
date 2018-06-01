@@ -1,19 +1,19 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Test\Customer;
+namespace Shopware\Core\Checkout\Test\Customer;
 
 use Ramsey\Uuid\Uuid;
-use Shopware\Framework\Context;
-use Shopware\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository;
-use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
-use Shopware\Checkout\Customer\CustomerRepository;
-use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
-use Shopware\Content\Product\ProductRepository;
-use Shopware\Defaults;
-use Shopware\Framework\Api\Response\Type\JsonType;
-use Shopware\Framework\Test\Api\ApiTestCase;
-use Shopware\System\Country\Aggregate\CountryState\CountryStateRepository;
-use Shopware\System\Country\CountryRepository;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
+use Shopware\Core\Checkout\Customer\CustomerRepository;
+use Shopware\Core\Checkout\Customer\Struct\CustomerBasicStruct;
+use Shopware\Core\Content\Product\ProductRepository;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Response\Type\JsonType;
+use Shopware\Core\Framework\Test\Api\ApiTestCase;
+use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateRepository;
+use Shopware\Core\System\Country\CountryRepository;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Serializer\Serializer;
@@ -65,7 +65,7 @@ class StorefrontCustomerControllerTest extends ApiTestCase
         $this->countryRepository = $this->getContainer()->get(CountryRepository::class);
         $this->customerAddressRepository = $this->getContainer()->get(CustomerAddressRepository::class);
         $this->countryStateRepository = $this->getContainer()->get(CountryStateRepository::class);
-        $this->context = Context::createDefaultContext(\Shopware\Defaults::TENANT_ID);
+        $this->context = Context::createDefaultContext(\Shopware\Core\Defaults::TENANT_ID);
     }
 
     public function testLogin()
@@ -207,7 +207,7 @@ class StorefrontCustomerControllerTest extends ApiTestCase
             'city' => 'New York',
             'zipcode' => '12749',
             'country' => Defaults::COUNTRY,
-            'company' => 'Shopware AG',
+            'company' => 'Shopware\Core AG',
         ];
 
         $this->storefrontApiClient->request('POST', '/storefront-api/customer/address', [], [], [], json_encode($address));
@@ -218,7 +218,7 @@ class StorefrontCustomerControllerTest extends ApiTestCase
         $this->assertNotEmpty($content);
         $this->assertArrayHasKey('data', $content);
 
-        $this->assertTrue(\Shopware\Framework\Struct\Uuid::isValid($content['data']));
+        $this->assertTrue(\Shopware\Core\Framework\Struct\Uuid::isValid($content['data']));
 
         $customerAddress = $this->readCustomerAddress($content['data']);
 
@@ -344,7 +344,7 @@ class StorefrontCustomerControllerTest extends ApiTestCase
         $uuid = $content['data'];
         $this->assertTrue(Uuid::isValid($uuid));
 
-        $customer = $this->readCustomer(\Shopware\Framework\Struct\Uuid::optimize($uuid));
+        $customer = $this->readCustomer(\Shopware\Core\Framework\Struct\Uuid::optimize($uuid));
 
         // verify personal data
         $this->assertEquals($personal['salutation'], $customer->getSalutation());
@@ -532,7 +532,7 @@ class StorefrontCustomerControllerTest extends ApiTestCase
     {
         return $this->customerRepository->readBasic(
             [$userID],
-            Context:: createDefaultContext(\Shopware\Defaults::TENANT_ID)
+            Context:: createDefaultContext(\Shopware\Core\Defaults::TENANT_ID)
         )->get($userID);
     }
 
@@ -540,7 +540,7 @@ class StorefrontCustomerControllerTest extends ApiTestCase
     {
         return $this->customerAddressRepository->readBasic(
             [$addressId],
-            Context:: createDefaultContext(\Shopware\Defaults::TENANT_ID)
+            Context:: createDefaultContext(\Shopware\Core\Defaults::TENANT_ID)
         )->get($addressId);
     }
 

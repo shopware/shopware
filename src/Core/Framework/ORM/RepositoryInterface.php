@@ -1,18 +1,18 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM;
+namespace Shopware\Core\Framework\ORM;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Framework\ORM\Search\SearchResultInterface;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\IdSearchResult;
+use Shopware\Core\Framework\ORM\Search\SearchResultInterface;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
 
 interface RepositoryInterface
 {
     /**
      * @param Criteria           $criteria
-     * @param \Shopware\Framework\Context $context
+     * @param \Shopware\Core\Framework\Context $context
      *
      * @return AggregationResult
      */
@@ -20,7 +20,7 @@ interface RepositoryInterface
 
     /**
      * @param Criteria           $criteria
-     * @param \Shopware\Framework\Context $context
+     * @param \Shopware\Core\Framework\Context $context
      *
      * @return IdSearchResult
      */
@@ -28,7 +28,7 @@ interface RepositoryInterface
 
     /**
      * @param Criteria           $criteria
-     * @param \Shopware\Framework\Context $context
+     * @param \Shopware\Core\Framework\Context $context
      *
      * @return SearchResultInterface
      */
@@ -36,7 +36,7 @@ interface RepositoryInterface
 
     /**
      * @param array              $ids
-     * @param \Shopware\Framework\Context $context
+     * @param \Shopware\Core\Framework\Context $context
      *
      * @return EntityCollection
      */

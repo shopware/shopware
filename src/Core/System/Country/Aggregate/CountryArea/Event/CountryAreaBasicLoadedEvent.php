@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Country\Aggregate\CountryArea\Event;
+namespace Shopware\Core\System\Country\Aggregate\CountryArea\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\System\Country\Aggregate\CountryArea\Collection\CountryAreaBasicCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\System\Country\Aggregate\CountryArea\Collection\CountryAreaBasicCollection;
 
 class CountryAreaBasicLoadedEvent extends NestedEvent
 {

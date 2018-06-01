@@ -1,22 +1,22 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Rule\Event;
+namespace Shopware\Core\Checkout\Rule\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Checkout\Rule\Collection\ContextRuleBasicCollection;
-use Shopware\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Rule\Collection\ContextRuleBasicCollection;
+use Shopware\Core\Framework\Event\NestedEvent;
 
 class ContextRuleBasicLoadedEvent extends NestedEvent
 {
     public const NAME = 'context_rule.basic.loaded';
 
     /**
-     * @var \Shopware\Framework\Context
+     * @var \Shopware\Core\Framework\Context
      */
     protected $context;
 
     /**
-     * @var \Shopware\Checkout\Rule\Collection\ContextRuleBasicCollection
+     * @var \Shopware\Core\Checkout\Rule\Collection\ContextRuleBasicCollection
      */
     protected $contextRules;
 

@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Customer\Event;
+namespace Shopware\Core\Checkout\Customer\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Checkout\Customer\Struct\CustomerSearchResult;
-use Shopware\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Customer\Struct\CustomerSearchResult;
+use Shopware\Core\Framework\Event\NestedEvent;
 
 class CustomerSearchResultLoadedEvent extends NestedEvent
 {

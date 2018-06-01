@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Write;
+namespace Shopware\Core\Framework\ORM\Write;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\ORM\EntityDefinition;
 
 abstract class WrittenEvent extends NestedEvent
 {

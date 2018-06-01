@@ -4,21 +4,21 @@ namespace Shopware\Storefront\DbalIndexing\SeoUrl;
 
 use Cocur\Slugify\SlugifyInterface;
 use Doctrine\DBAL\Connection;
-use Shopware\System\Touchpoint\TouchpointRepository;
-use Shopware\Framework\Context;
-use Shopware\Content\Product\ProductRepository;
-use Shopware\Content\Product\Struct\ProductSearchResult;
-use Shopware\Defaults;
-use Shopware\Framework\Doctrine\MultiInsertQueryQueue;
-use Shopware\Framework\Event\ProgressAdvancedEvent;
-use Shopware\Framework\Event\ProgressFinishedEvent;
-use Shopware\Framework\Event\ProgressStartedEvent;
-use Shopware\Framework\ORM\Dbal\Common\EventIdExtractor;
-use Shopware\Framework\ORM\Dbal\Common\RepositoryIterator;
-use Shopware\Framework\ORM\Dbal\Indexing\IndexerInterface;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\Struct\Uuid;
+use Shopware\Core\System\Touchpoint\TouchpointRepository;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Product\ProductRepository;
+use Shopware\Core\Content\Product\Struct\ProductSearchResult;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Doctrine\MultiInsertQueryQueue;
+use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
+use Shopware\Core\Framework\Event\ProgressFinishedEvent;
+use Shopware\Core\Framework\Event\ProgressStartedEvent;
+use Shopware\Core\Framework\ORM\Dbal\Common\EventIdExtractor;
+use Shopware\Core\Framework\ORM\Dbal\Common\RepositoryIterator;
+use Shopware\Core\Framework\ORM\Dbal\Indexing\IndexerInterface;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Storefront\Api\Seo\Definition\SeoUrlDefinition;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Routing\RouterInterface;
@@ -44,7 +44,7 @@ class DetailPageSeoUrlIndexer implements IndexerInterface
     private $router;
 
     /**
-     * @var \Shopware\Content\Product\ProductRepository
+     * @var \Shopware\Core\Content\Product\ProductRepository
      */
     private $productRepository;
 
@@ -59,7 +59,7 @@ class DetailPageSeoUrlIndexer implements IndexerInterface
     private $eventDispatcher;
 
     /**
-     * @var \Shopware\Framework\ORM\Dbal\Common\EventIdExtractor
+     * @var \Shopware\Core\Framework\ORM\Dbal\Common\EventIdExtractor
      */
     private $eventIdExtractor;
 

@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Application\Context\Cart\Struct;
+namespace Shopware\Core\Application\Context\Cart\Struct;
 
-use Shopware\Framework\Struct\Struct;
+use Shopware\Core\Framework\Struct\Struct;
 
 class ContextCartModifierFetchDefinition extends Struct
 {

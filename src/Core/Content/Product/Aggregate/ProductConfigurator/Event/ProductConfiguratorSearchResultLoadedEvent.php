@@ -1,17 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Aggregate\ProductConfigurator\Event;
+namespace Shopware\Core\Content\Product\Aggregate\ProductConfigurator\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Content\Product\Aggregate\ProductConfigurator\Struct\ProductConfiguratorSearchResult;
-use Shopware\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\Struct\ProductConfiguratorSearchResult;
+use Shopware\Core\Framework\Event\NestedEvent;
 
 class ProductConfiguratorSearchResultLoadedEvent extends NestedEvent
 {
     public const NAME = 'product_configurator.search.result.loaded';
 
     /**
-     * @var \Shopware\Content\Product\Aggregate\ProductConfigurator\Struct\ProductConfiguratorSearchResult
+     * @var \Shopware\Core\Content\Product\Aggregate\ProductConfigurator\Struct\ProductConfiguratorSearchResult
      */
     protected $result;
 

@@ -4,15 +4,15 @@ namespace Shopware\Storefront\Test;
 
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
-use Shopware\Framework\Context;
-use Shopware\Checkout\Customer\CustomerDefinition;
-use Shopware\Checkout\Order\OrderRepository;
-use Shopware\Defaults;
-use Shopware\Framework\ORM\Write\EntityWriter;
-use Shopware\Framework\ORM\Write\EntityWriterInterface;
-use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\Framework\Test\Api\ApiTestCase;
-use Shopware\PlatformRequest;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Customer\CustomerDefinition;
+use Shopware\Core\Checkout\Order\OrderRepository;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\ORM\Write\EntityWriter;
+use Shopware\Core\Framework\ORM\Write\EntityWriterInterface;
+use Shopware\Core\Framework\ORM\Write\WriteContext;
+use Shopware\Core\Framework\Test\Api\ApiTestCase;
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
 
 class OrderingProcessTest extends ApiTestCase
@@ -47,9 +47,9 @@ class OrderingProcessTest extends ApiTestCase
         $customerId = $this->createCustomer($email, 'test1234');
         $this->loginUser($email, 'test1234');
 
-        $product1 = $this->createProduct('Shopware stickers', 10, 11.9, 19);
-        $product2 = $this->createProduct('Shopware t-shirt', 20, 23.8, 19);
-        $product3 = $this->createProduct('Shopware cup', 5, 5.95, 19);
+        $product1 = $this->createProduct('Shopware\Core stickers', 10, 11.9, 19);
+        $product2 = $this->createProduct('Shopware\Core t-shirt', 20, 23.8, 19);
+        $product3 = $this->createProduct('Shopware\Core cup', 5, 5.95, 19);
 
         $this->addProductToCart($product1, 1);
         $this->addProductToCart($product2, 5);
@@ -62,9 +62,9 @@ class OrderingProcessTest extends ApiTestCase
         $this->changePaymentMethod(Defaults::PAYMENT_METHOD_PAID_IN_ADVANCE);
 
         $orderId = $this->payOrder();
-        self::assertTrue(\Shopware\Framework\Struct\Uuid::isValid($orderId));
+        self::assertTrue(\Shopware\Core\Framework\Struct\Uuid::isValid($orderId));
 
-        $order = $this->orderRepository->readBasic([$orderId], Context::createDefaultContext(\Shopware\Defaults::TENANT_ID))->get($orderId);
+        $order = $this->orderRepository->readBasic([$orderId], Context::createDefaultContext(\Shopware\Core\Defaults::TENANT_ID))->get($orderId);
 
         self::assertEquals(Defaults::PAYMENT_METHOD_PAID_IN_ADVANCE, $order->getPaymentMethodId());
         self::assertEquals(25, $order->getAmountTotal());
@@ -179,7 +179,7 @@ class OrderingProcessTest extends ApiTestCase
         $this->entityWriter->upsert(
             CustomerDefinition::class,
             [$customer],
-            WriteContext::createFromContext(Context::createDefaultContext(\Shopware\Defaults::TENANT_ID))
+            WriteContext::createFromContext(Context::createDefaultContext(\Shopware\Core\Defaults::TENANT_ID))
         );
 
         return $customerId;
@@ -229,6 +229,7 @@ class OrderingProcessTest extends ApiTestCase
 
     private function getOrderIdByResponse(Response $response): string
     {
+        $this->assertTrue($response->headers->has('location'), print_r($response->getContent(), true));
         $location = $response->headers->get('location');
         $query = parse_url($location, PHP_URL_QUERY);
         $parsedQuery = [];

@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Test\Routing;
+namespace Shopware\Core\Framework\Test\Routing;
 
-use Shopware\Defaults;
-use Shopware\Framework\Test\Api\ApiTestCase;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Test\Api\ApiTestCase;
 
 class TouchpointAuthenticatorTest extends ApiTestCase
 {

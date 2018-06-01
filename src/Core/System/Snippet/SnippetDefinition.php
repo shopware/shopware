@@ -1,28 +1,28 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Snippet;
+namespace Shopware\Core\System\Snippet;
 
-use Shopware\System\Touchpoint\TouchpointDefinition;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\EntityExtensionInterface;
-use Shopware\Framework\ORM\Field\BoolField;
-use Shopware\Framework\ORM\Field\DateField;
-use Shopware\Framework\ORM\Field\FkField;
-use Shopware\Framework\ORM\Field\IdField;
-use Shopware\Framework\ORM\Field\LongTextField;
-use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
-use Shopware\Framework\ORM\Field\StringField;
-use Shopware\Framework\ORM\Field\TenantIdField;
-use Shopware\Framework\ORM\FieldCollection;
-use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
-use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\Framework\ORM\Write\Flag\SearchRanking;
-use Shopware\System\Snippet\Collection\SnippetBasicCollection;
-use Shopware\System\Snippet\Collection\SnippetDetailCollection;
-use Shopware\System\Snippet\Event\SnippetDeletedEvent;
-use Shopware\System\Snippet\Event\SnippetWrittenEvent;
-use Shopware\System\Snippet\Struct\SnippetBasicStruct;
-use Shopware\System\Snippet\Struct\SnippetDetailStruct;
+use Shopware\Core\System\Touchpoint\TouchpointDefinition;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+use Shopware\Core\Framework\ORM\Field\BoolField;
+use Shopware\Core\Framework\ORM\Field\DateField;
+use Shopware\Core\Framework\ORM\Field\FkField;
+use Shopware\Core\Framework\ORM\Field\IdField;
+use Shopware\Core\Framework\ORM\Field\LongTextField;
+use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\ORM\Field\StringField;
+use Shopware\Core\Framework\ORM\Field\TenantIdField;
+use Shopware\Core\Framework\ORM\FieldCollection;
+use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
+use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
+use Shopware\Core\System\Snippet\Collection\SnippetBasicCollection;
+use Shopware\Core\System\Snippet\Collection\SnippetDetailCollection;
+use Shopware\Core\System\Snippet\Event\SnippetDeletedEvent;
+use Shopware\Core\System\Snippet\Event\SnippetWrittenEvent;
+use Shopware\Core\System\Snippet\Struct\SnippetBasicStruct;
+use Shopware\Core\System\Snippet\Struct\SnippetDetailStruct;
 
 class SnippetDefinition extends EntityDefinition
 {

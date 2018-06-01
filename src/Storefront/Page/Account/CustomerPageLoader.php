@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Page\Account;
 
-use Shopware\Checkout\CustomerContext;
+use Shopware\Core\Checkout\CustomerContext;
 
 class CustomerPageLoader
 {

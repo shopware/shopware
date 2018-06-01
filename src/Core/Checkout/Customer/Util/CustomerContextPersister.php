@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Customer\Util;
+namespace Shopware\Core\Checkout\Customer\Util;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Struct\Uuid;
 
 class CustomerContextPersister
 {

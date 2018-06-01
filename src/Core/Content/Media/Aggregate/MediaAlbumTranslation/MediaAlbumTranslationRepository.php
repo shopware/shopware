@@ -1,26 +1,26 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Media\Aggregate\MediaAlbumTranslation;
+namespace Shopware\Core\Content\Media\Aggregate\MediaAlbumTranslation;
 
-use Shopware\Framework\Context;
-use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Collection\MediaAlbumTranslationBasicCollection;
-use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Collection\MediaAlbumTranslationDetailCollection;
-use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Event\MediaAlbumTranslationAggregationResultLoadedEvent;
-use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Event\MediaAlbumTranslationBasicLoadedEvent;
-use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Event\MediaAlbumTranslationDetailLoadedEvent;
-use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Event\MediaAlbumTranslationIdSearchResultLoadedEvent;
-use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Event\MediaAlbumTranslationSearchResultLoadedEvent;
-use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Struct\MediaAlbumTranslationSearchResult;
-use Shopware\Framework\ORM\Read\EntityReaderInterface;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\AggregatorResult;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
-use Shopware\Framework\ORM\Search\EntitySearcherInterface;
-use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\ORM\Write\WriteContext;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Media\Aggregate\MediaAlbumTranslation\Collection\MediaAlbumTranslationBasicCollection;
+use Shopware\Core\Content\Media\Aggregate\MediaAlbumTranslation\Collection\MediaAlbumTranslationDetailCollection;
+use Shopware\Core\Content\Media\Aggregate\MediaAlbumTranslation\Event\MediaAlbumTranslationAggregationResultLoadedEvent;
+use Shopware\Core\Content\Media\Aggregate\MediaAlbumTranslation\Event\MediaAlbumTranslationBasicLoadedEvent;
+use Shopware\Core\Content\Media\Aggregate\MediaAlbumTranslation\Event\MediaAlbumTranslationDetailLoadedEvent;
+use Shopware\Core\Content\Media\Aggregate\MediaAlbumTranslation\Event\MediaAlbumTranslationIdSearchResultLoadedEvent;
+use Shopware\Core\Content\Media\Aggregate\MediaAlbumTranslation\Event\MediaAlbumTranslationSearchResultLoadedEvent;
+use Shopware\Core\Content\Media\Aggregate\MediaAlbumTranslation\Struct\MediaAlbumTranslationSearchResult;
+use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\AggregatorResult;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\ORM\Search\IdSearchResult;
+use Shopware\Core\Framework\ORM\Version\Service\VersionManager;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Write\WriteContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class MediaAlbumTranslationRepository implements RepositoryInterface
@@ -105,7 +105,7 @@ class MediaAlbumTranslationRepository implements RepositoryInterface
 
     public function readBasic(array $ids, Context $context): MediaAlbumTranslationBasicCollection
     {
-        /** @var \Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Collection\MediaAlbumTranslationBasicCollection $entities */
+        /** @var \Shopware\Core\Content\Media\Aggregate\MediaAlbumTranslation\Collection\MediaAlbumTranslationBasicCollection $entities */
         $entities = $this->reader->readBasic(MediaAlbumTranslationDefinition::class, $ids, $context);
 
         $event = new MediaAlbumTranslationBasicLoadedEvent($entities, $context);

@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Unit\Aggregate\UnitTranslation\Struct;
+namespace Shopware\Core\System\Unit\Aggregate\UnitTranslation\Struct;
 
-use Shopware\System\Language\Struct\LanguageBasicStruct;
-use Shopware\System\Unit\Struct\UnitBasicStruct;
+use Shopware\Core\System\Language\Struct\LanguageBasicStruct;
+use Shopware\Core\System\Unit\Struct\UnitBasicStruct;
 
 class UnitTranslationDetailStruct extends UnitTranslationBasicStruct
 {

@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Collection;
+namespace Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupOption\Collection;
 
-use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Struct\ConfigurationGroupOptionDetailStruct;
+use Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupOption\Struct\ConfigurationGroupOptionDetailStruct;
 
 class ConfigurationGroupOptionDetailCollection extends ConfigurationGroupOptionBasicCollection
 {
@@ -23,9 +23,9 @@ class ConfigurationGroupOptionDetailCollection extends ConfigurationGroupOptionB
         return $ids;
     }
 
-    public function getTranslations(): \Shopware\System\Configuration\Aggregate\ConfigurationGroupOptionTranslation\Collection\ConfigurationGroupOptionTranslationBasicCollection
+    public function getTranslations(): \Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupOptionTranslation\Collection\ConfigurationGroupOptionTranslationBasicCollection
     {
-        $collection = new \Shopware\System\Configuration\Aggregate\ConfigurationGroupOptionTranslation\Collection\ConfigurationGroupOptionTranslationBasicCollection();
+        $collection = new \Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupOptionTranslation\Collection\ConfigurationGroupOptionTranslationBasicCollection();
         foreach ($this->elements as $element) {
             $collection->fill($element->getTranslations()->getElements());
         }

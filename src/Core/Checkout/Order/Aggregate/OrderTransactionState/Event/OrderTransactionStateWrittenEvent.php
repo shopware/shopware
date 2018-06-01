@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Order\Aggregate\OrderTransactionState\Event;
+namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransactionState\Event;
 
-use Shopware\Checkout\Order\Aggregate\OrderTransactionState\OrderTransactionStateDefinition;
-use Shopware\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionState\OrderTransactionStateDefinition;
+use Shopware\Core\Framework\ORM\Write\WrittenEvent;
 
 class OrderTransactionStateWrittenEvent extends WrittenEvent
 {

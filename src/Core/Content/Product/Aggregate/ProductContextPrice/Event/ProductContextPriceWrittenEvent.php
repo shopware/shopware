@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Aggregate\ProductContextPrice\Event;
+namespace Shopware\Core\Content\Product\Aggregate\ProductContextPrice\Event;
 
-use Shopware\Content\Product\Aggregate\ProductContextPrice\ProductContextPriceDefinition;
-use Shopware\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductContextPrice\ProductContextPriceDefinition;
+use Shopware\Core\Framework\ORM\Write\WrittenEvent;
 
 class ProductContextPriceWrittenEvent extends WrittenEvent
 {

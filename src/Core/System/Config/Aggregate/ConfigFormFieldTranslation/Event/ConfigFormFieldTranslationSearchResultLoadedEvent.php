@@ -1,17 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Config\Aggregate\ConfigFormFieldTranslation\Event;
+namespace Shopware\Core\System\Config\Aggregate\ConfigFormFieldTranslation\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\System\Config\Aggregate\ConfigFormFieldTranslation\Struct\ConfigFormFieldTranslationSearchResult;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\System\Config\Aggregate\ConfigFormFieldTranslation\Struct\ConfigFormFieldTranslationSearchResult;
 
 class ConfigFormFieldTranslationSearchResultLoadedEvent extends NestedEvent
 {
     public const NAME = 'config_form_field_translation.search.result.loaded';
 
     /**
-     * @var \Shopware\System\Config\Aggregate\ConfigFormFieldTranslation\Struct\ConfigFormFieldTranslationSearchResult
+     * @var \Shopware\Core\System\Config\Aggregate\ConfigFormFieldTranslation\Struct\ConfigFormFieldTranslationSearchResult
      */
     protected $result;
 

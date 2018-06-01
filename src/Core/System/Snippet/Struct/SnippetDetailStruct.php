@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Snippet\Struct;
+namespace Shopware\Core\System\Snippet\Struct;
 
-use Shopware\System\Touchpoint\Struct\TouchpointBasicStruct;
+use Shopware\Core\System\Touchpoint\Struct\TouchpointBasicStruct;
 
 class SnippetDetailStruct extends SnippetBasicStruct
 {

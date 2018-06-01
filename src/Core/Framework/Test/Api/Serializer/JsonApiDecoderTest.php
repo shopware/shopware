@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Test\Api\Serializer;
+namespace Shopware\Core\Framework\Test\Api\Serializer;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Framework\Api\Serializer\JsonApiDecoder;
+use Shopware\Core\Framework\Api\Serializer\JsonApiDecoder;
 use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 use Symfony\Component\Serializer\Exception\UnexpectedValueException;
 

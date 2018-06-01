@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Config\Aggregate\ConfigFormFieldTranslation\Event;
+namespace Shopware\Core\System\Config\Aggregate\ConfigFormFieldTranslation\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\System\Config\Aggregate\ConfigFormFieldTranslation\Collection\ConfigFormFieldTranslationBasicCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\System\Config\Aggregate\ConfigFormFieldTranslation\Collection\ConfigFormFieldTranslationBasicCollection;
 
 class ConfigFormFieldTranslationBasicLoadedEvent extends NestedEvent
 {
@@ -16,7 +16,7 @@ class ConfigFormFieldTranslationBasicLoadedEvent extends NestedEvent
     protected $context;
 
     /**
-     * @var \Shopware\System\Config\Aggregate\ConfigFormFieldTranslation\Collection\ConfigFormFieldTranslationBasicCollection
+     * @var \Shopware\Core\System\Config\Aggregate\ConfigFormFieldTranslation\Collection\ConfigFormFieldTranslationBasicCollection
      */
     protected $configFormFieldTranslations;
 

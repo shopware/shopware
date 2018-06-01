@@ -1,14 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Mail\Event;
+namespace Shopware\Core\System\Mail\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Checkout\Order\Aggregate\OrderState\Event\OrderStateBasicLoadedEvent;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\System\Mail\Aggregate\MailAttachment\Event\MailAttachmentBasicLoadedEvent;
-use Shopware\System\Mail\Aggregate\MailTranslation\Event\MailTranslationBasicLoadedEvent;
-use Shopware\System\Mail\Collection\MailDetailCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Order\Aggregate\OrderState\Event\OrderStateBasicLoadedEvent;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\System\Mail\Aggregate\MailAttachment\Event\MailAttachmentBasicLoadedEvent;
+use Shopware\Core\System\Mail\Aggregate\MailTranslation\Event\MailTranslationBasicLoadedEvent;
+use Shopware\Core\System\Mail\Collection\MailDetailCollection;
 
 class MailDetailLoadedEvent extends NestedEvent
 {

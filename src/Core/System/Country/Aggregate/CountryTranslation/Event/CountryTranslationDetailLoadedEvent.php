@@ -1,20 +1,20 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Country\Aggregate\CountryTranslation\Event;
+namespace Shopware\Core\System\Country\Aggregate\CountryTranslation\Event;
 
-use Shopware\Framework\Context;
-use Shopware\System\Language\Event\LanguageBasicLoadedEvent;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\System\Country\Aggregate\CountryTranslation\Collection\CountryTranslationDetailCollection;
-use Shopware\System\Country\Event\CountryBasicLoadedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\System\Language\Event\LanguageBasicLoadedEvent;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\System\Country\Aggregate\CountryTranslation\Collection\CountryTranslationDetailCollection;
+use Shopware\Core\System\Country\Event\CountryBasicLoadedEvent;
 
 class CountryTranslationDetailLoadedEvent extends NestedEvent
 {
     public const NAME = 'country_translation.detail.loaded';
 
     /**
-     * @var \Shopware\Framework\Context
+     * @var \Shopware\Core\Framework\Context
      */
     protected $context;
 

@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Version\Struct;
+namespace Shopware\Core\Framework\ORM\Version\Struct;
 
-use Shopware\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Entity;
 
 class VersionCommitDataBasicStruct extends Entity
 {

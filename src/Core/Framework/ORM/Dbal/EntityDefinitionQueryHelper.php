@@ -1,20 +1,20 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Dbal;
+namespace Shopware\Core\Framework\ORM\Dbal;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Framework\Context;
-use Shopware\Defaults;
-use Shopware\Framework\ORM\Dbal\FieldAccessorBuilder\FieldAccessorBuilderRegistry;
-use Shopware\Framework\ORM\Dbal\FieldResolver\FieldResolverRegistry;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\Field\AssociationInterface;
-use Shopware\Framework\ORM\Field\Field;
-use Shopware\Framework\ORM\Field\ManyToManyAssociationField;
-use Shopware\Framework\ORM\Field\TranslatedField;
-use Shopware\Framework\ORM\Write\FieldAware\StorageAware;
-use Shopware\Framework\ORM\Write\Flag\Inherited;
-use Shopware\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\ORM\Dbal\FieldAccessorBuilder\FieldAccessorBuilderRegistry;
+use Shopware\Core\Framework\ORM\Dbal\FieldResolver\FieldResolverRegistry;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\Field\AssociationInterface;
+use Shopware\Core\Framework\ORM\Field\Field;
+use Shopware\Core\Framework\ORM\Field\ManyToManyAssociationField;
+use Shopware\Core\Framework\ORM\Field\TranslatedField;
+use Shopware\Core\Framework\ORM\Write\FieldAware\StorageAware;
+use Shopware\Core\Framework\ORM\Write\Flag\Inherited;
+use Shopware\Core\Framework\Struct\Uuid;
 
 /**
  * This class acts only as helper/common class for all dbal operations for entity definitions.

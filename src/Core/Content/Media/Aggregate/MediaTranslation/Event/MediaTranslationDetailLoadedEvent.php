@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Media\Aggregate\MediaTranslation\Event;
+namespace Shopware\Core\Content\Media\Aggregate\MediaTranslation\Event;
 
-use Shopware\Framework\Context;
-use Shopware\System\Language\Event\LanguageBasicLoadedEvent;
-use Shopware\Content\Media\Aggregate\MediaTranslation\Collection\MediaTranslationDetailCollection;
-use Shopware\Content\Media\Event\MediaBasicLoadedEvent;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\System\Language\Event\LanguageBasicLoadedEvent;
+use Shopware\Core\Content\Media\Aggregate\MediaTranslation\Collection\MediaTranslationDetailCollection;
+use Shopware\Core\Content\Media\Event\MediaBasicLoadedEvent;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
 
 class MediaTranslationDetailLoadedEvent extends NestedEvent
 {

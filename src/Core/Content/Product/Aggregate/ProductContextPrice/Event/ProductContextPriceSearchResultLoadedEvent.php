@@ -1,17 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Aggregate\ProductContextPrice\Event;
+namespace Shopware\Core\Content\Product\Aggregate\ProductContextPrice\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Content\Product\Aggregate\ProductContextPrice\Struct\ProductContextPriceSearchResult;
-use Shopware\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Product\Aggregate\ProductContextPrice\Struct\ProductContextPriceSearchResult;
+use Shopware\Core\Framework\Event\NestedEvent;
 
 class ProductContextPriceSearchResultLoadedEvent extends NestedEvent
 {
     public const NAME = 'product_context_price.search.result.loaded';
 
     /**
-     * @var \Shopware\Content\Product\Aggregate\ProductContextPrice\Struct\ProductContextPriceSearchResult
+     * @var \Shopware\Core\Content\Product\Aggregate\ProductContextPrice\Struct\ProductContextPriceSearchResult
      */
     protected $result;
 

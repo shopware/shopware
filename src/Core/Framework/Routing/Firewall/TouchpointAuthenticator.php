@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Routing\Firewall;
+namespace Shopware\Core\Framework\Routing\Firewall;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Framework\Routing\Exception\TouchpointNotFoundException;
-use Shopware\PlatformRequest;
+use Shopware\Core\Framework\Routing\Exception\TouchpointNotFoundException;
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;

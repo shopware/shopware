@@ -228,7 +228,7 @@
     };
 
     /**
-     * Shopware Address Selector Plugin.
+     * Shopware\Core Address Selector Plugin.
      *
      * The plugin handles the address selection. You need to set some extra data to make something happen.
      *

@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Application\Context\Event\ContextCartModifierTranslation;
+namespace Shopware\Core\Application\Context\Event\ContextCartModifierTranslation;
 
-use Shopware\Framework\Context;
-use Shopware\Application\Context\Struct\ContextCartModifierTranslationSearchResult;
-use Shopware\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Application\Context\Struct\ContextCartModifierTranslationSearchResult;
+use Shopware\Core\Framework\Event\NestedEvent;
 
 class ContextCartModifierTranslationSearchResultLoadedEvent extends NestedEvent
 {

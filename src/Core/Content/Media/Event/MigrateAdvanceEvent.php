@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Media\Event;
+namespace Shopware\Core\Content\Media\Event;
 
 use Symfony\Component\EventDispatcher\Event;
 

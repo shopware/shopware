@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Language\Struct;
+namespace Shopware\Core\System\Language\Struct;
 
-use Shopware\System\Language\Collection\LanguageBasicCollection;
-use Shopware\System\Locale\Struct\LocaleBasicStruct;
+use Shopware\Core\System\Language\Collection\LanguageBasicCollection;
+use Shopware\Core\System\Locale\Struct\LocaleBasicStruct;
 
 class LanguageDetailStruct extends LanguageBasicStruct
 {

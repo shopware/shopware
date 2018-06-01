@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Touchpoint\Event;
+namespace Shopware\Core\System\Touchpoint\Event;
 
-use Shopware\System\Touchpoint\Struct\TouchpointSearchResult;
-use Shopware\Framework\Context;
-use Shopware\Framework\Event\NestedEvent;
+use Shopware\Core\System\Touchpoint\Struct\TouchpointSearchResult;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
 
 class TouchpointSearchResultLoadedEvent extends NestedEvent
 {

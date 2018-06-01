@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Exception;
 
-use Shopware\Framework\ShopwareException;
+use Shopware\Core\Framework\ShopwareException;
 use Throwable;
 
 class CustomerNotFoundException extends \Exception implements ShopwareException

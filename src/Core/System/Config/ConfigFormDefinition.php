@@ -1,36 +1,36 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Config;
+namespace Shopware\Core\System\Config;
 
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\EntityExtensionInterface;
-use Shopware\Framework\ORM\Field\DateField;
-use Shopware\Framework\ORM\Field\FkField;
-use Shopware\Framework\ORM\Field\IdField;
-use Shopware\Framework\ORM\Field\IntField;
-use Shopware\Framework\ORM\Field\LongTextField;
-use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
-use Shopware\Framework\ORM\Field\OneToManyAssociationField;
-use Shopware\Framework\ORM\Field\ReferenceVersionField;
-use Shopware\Framework\ORM\Field\StringField;
-use Shopware\Framework\ORM\Field\TenantIdField;
-use Shopware\Framework\ORM\Field\TranslatedField;
-use Shopware\Framework\ORM\Field\TranslationsAssociationField;
-use Shopware\Framework\ORM\Field\VersionField;
-use Shopware\Framework\ORM\FieldCollection;
-use Shopware\Framework\ORM\Write\Flag\CascadeDelete;
-use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
-use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\Framework\ORM\Write\Flag\SearchRanking;
-use Shopware\Framework\Plugin\PluginDefinition;
-use Shopware\System\Config\Aggregate\ConfigFormField\ConfigFormFieldDefinition;
-use Shopware\System\Config\Aggregate\ConfigFormTranslation\ConfigFormTranslationDefinition;
-use Shopware\System\Config\Collection\ConfigFormBasicCollection;
-use Shopware\System\Config\Collection\ConfigFormDetailCollection;
-use Shopware\System\Config\Event\ConfigFormDeletedEvent;
-use Shopware\System\Config\Event\ConfigFormWrittenEvent;
-use Shopware\System\Config\Struct\ConfigFormBasicStruct;
-use Shopware\System\Config\Struct\ConfigFormDetailStruct;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+use Shopware\Core\Framework\ORM\Field\DateField;
+use Shopware\Core\Framework\ORM\Field\FkField;
+use Shopware\Core\Framework\ORM\Field\IdField;
+use Shopware\Core\Framework\ORM\Field\IntField;
+use Shopware\Core\Framework\ORM\Field\LongTextField;
+use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
+use Shopware\Core\Framework\ORM\Field\StringField;
+use Shopware\Core\Framework\ORM\Field\TenantIdField;
+use Shopware\Core\Framework\ORM\Field\TranslatedField;
+use Shopware\Core\Framework\ORM\Field\TranslationsAssociationField;
+use Shopware\Core\Framework\ORM\Field\VersionField;
+use Shopware\Core\Framework\ORM\FieldCollection;
+use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
+use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
+use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
+use Shopware\Core\Framework\Plugin\PluginDefinition;
+use Shopware\Core\System\Config\Aggregate\ConfigFormField\ConfigFormFieldDefinition;
+use Shopware\Core\System\Config\Aggregate\ConfigFormTranslation\ConfigFormTranslationDefinition;
+use Shopware\Core\System\Config\Collection\ConfigFormBasicCollection;
+use Shopware\Core\System\Config\Collection\ConfigFormDetailCollection;
+use Shopware\Core\System\Config\Event\ConfigFormDeletedEvent;
+use Shopware\Core\System\Config\Event\ConfigFormWrittenEvent;
+use Shopware\Core\System\Config\Struct\ConfigFormBasicStruct;
+use Shopware\Core\System\Config\Struct\ConfigFormDetailStruct;
 
 class ConfigFormDefinition extends EntityDefinition
 {

@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Category\Aggregate\CategoryTranslation\Event;
+namespace Shopware\Core\Content\Category\Aggregate\CategoryTranslation\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Content\Category\Aggregate\CategoryTranslation\Collection\CategoryTranslationBasicCollection;
-use Shopware\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\Collection\CategoryTranslationBasicCollection;
+use Shopware\Core\Framework\Event\NestedEvent;
 
 class CategoryTranslationBasicLoadedEvent extends NestedEvent
 {

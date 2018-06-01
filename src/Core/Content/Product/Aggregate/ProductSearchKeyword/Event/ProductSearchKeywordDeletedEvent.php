@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Aggregate\ProductSearchKeyword\Event;
+namespace Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\Event;
 
-use Shopware\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordDefinition;
-use Shopware\Framework\ORM\Write\DeletedEvent;
-use Shopware\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordDefinition;
+use Shopware\Core\Framework\ORM\Write\DeletedEvent;
+use Shopware\Core\Framework\ORM\Write\WrittenEvent;
 
 class ProductSearchKeywordDeletedEvent extends WrittenEvent implements DeletedEvent
 {

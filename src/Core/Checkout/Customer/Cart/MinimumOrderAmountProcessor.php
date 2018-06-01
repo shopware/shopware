@@ -1,14 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Customer\Cart;
+namespace Shopware\Core\Checkout\Customer\Cart;
 
-use Shopware\Checkout\CustomerContext;
-use Shopware\Checkout\Cart\Cart\CartProcessorInterface;
-use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Checkout\Cart\Cart\Struct\Cart;
-use Shopware\Checkout\Cart\LineItem\CalculatedLineItem;
-use Shopware\Checkout\Cart\Price\AbsolutePriceCalculator;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Core\Checkout\CustomerContext;
+use Shopware\Core\Checkout\Cart\Cart\CartProcessorInterface;
+use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
+use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItem;
+use Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator;
+use Shopware\Core\Framework\Struct\StructCollection;
 
 class MinimumOrderAmountProcessor implements CartProcessorInterface
 {

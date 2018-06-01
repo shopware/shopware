@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Order\Aggregate\OrderAddress\Collection;
+namespace Shopware\Core\Checkout\Order\Aggregate\OrderAddress\Collection;
 
-use Shopware\Checkout\Order\Aggregate\OrderAddress\Struct\OrderAddressDetailStruct;
-use Shopware\Checkout\Order\Collection\OrderBasicCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\Struct\OrderAddressDetailStruct;
+use Shopware\Core\Checkout\Order\Collection\OrderBasicCollection;
 
 class OrderAddressDetailCollection extends OrderAddressBasicCollection
 {
@@ -46,9 +46,9 @@ class OrderAddressDetailCollection extends OrderAddressBasicCollection
         return $ids;
     }
 
-    public function getOrderDeliveries(): \Shopware\Checkout\Order\Aggregate\OrderDelivery\Collection\OrderDeliveryBasicCollection
+    public function getOrderDeliveries(): \Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\Collection\OrderDeliveryBasicCollection
     {
-        $collection = new \Shopware\Checkout\Order\Aggregate\OrderDelivery\Collection\OrderDeliveryBasicCollection();
+        $collection = new \Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\Collection\OrderDeliveryBasicCollection();
         foreach ($this->elements as $element) {
             $collection->fill($element->getOrderDeliveries()->getElements());
         }

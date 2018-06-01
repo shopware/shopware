@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Unit\Aggregate\UnitTranslation\Collection;
+namespace Shopware\Core\System\Unit\Aggregate\UnitTranslation\Collection;
 
-use Shopware\System\Language\Collection\LanguageBasicCollection;
-use Shopware\System\Unit\Aggregate\UnitTranslation\Struct\UnitTranslationDetailStruct;
-use Shopware\System\Unit\Collection\UnitBasicCollection;
+use Shopware\Core\System\Language\Collection\LanguageBasicCollection;
+use Shopware\Core\System\Unit\Aggregate\UnitTranslation\Struct\UnitTranslationDetailStruct;
+use Shopware\Core\System\Unit\Collection\UnitBasicCollection;
 
 class UnitTranslationDetailCollection extends UnitTranslationBasicCollection
 {

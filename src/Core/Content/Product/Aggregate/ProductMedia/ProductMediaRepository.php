@@ -1,26 +1,26 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Aggregate\ProductMedia;
+namespace Shopware\Core\Content\Product\Aggregate\ProductMedia;
 
-use Shopware\Framework\Context;
-use Shopware\Content\Product\Aggregate\ProductMedia\Collection\ProductMediaBasicCollection;
-use Shopware\Content\Product\Aggregate\ProductMedia\Collection\ProductMediaDetailCollection;
-use Shopware\Content\Product\Aggregate\ProductMedia\Event\ProductMediaAggregationResultLoadedEvent;
-use Shopware\Content\Product\Aggregate\ProductMedia\Event\ProductMediaBasicLoadedEvent;
-use Shopware\Content\Product\Aggregate\ProductMedia\Event\ProductMediaDetailLoadedEvent;
-use Shopware\Content\Product\Aggregate\ProductMedia\Event\ProductMediaIdSearchResultLoadedEvent;
-use Shopware\Content\Product\Aggregate\ProductMedia\Event\ProductMediaSearchResultLoadedEvent;
-use Shopware\Content\Product\Aggregate\ProductMedia\Struct\ProductMediaSearchResult;
-use Shopware\Framework\ORM\Read\EntityReaderInterface;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\AggregatorResult;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
-use Shopware\Framework\ORM\Search\EntitySearcherInterface;
-use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\ORM\Write\WriteContext;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\Collection\ProductMediaBasicCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\Collection\ProductMediaDetailCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\Event\ProductMediaAggregationResultLoadedEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\Event\ProductMediaBasicLoadedEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\Event\ProductMediaDetailLoadedEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\Event\ProductMediaIdSearchResultLoadedEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\Event\ProductMediaSearchResultLoadedEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\Struct\ProductMediaSearchResult;
+use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\AggregatorResult;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\ORM\Search\IdSearchResult;
+use Shopware\Core\Framework\ORM\Version\Service\VersionManager;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Write\WriteContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductMediaRepository implements RepositoryInterface

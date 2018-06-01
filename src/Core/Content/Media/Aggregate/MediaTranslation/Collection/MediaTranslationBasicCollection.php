@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Media\Aggregate\MediaTranslation\Collection;
+namespace Shopware\Core\Content\Media\Aggregate\MediaTranslation\Collection;
 
-use Shopware\Content\Media\Aggregate\MediaTranslation\Struct\MediaTranslationBasicStruct;
-use Shopware\Framework\ORM\EntityCollection;
+use Shopware\Core\Content\Media\Aggregate\MediaTranslation\Struct\MediaTranslationBasicStruct;
+use Shopware\Core\Framework\ORM\EntityCollection;
 
 class MediaTranslationBasicCollection extends EntityCollection
 {

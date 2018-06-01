@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Write;
+namespace Shopware\Core\Framework\ORM\Write;
 
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\Write\Command\WriteCommandInterface;
-use Shopware\Framework\ORM\Write\Command\WriteCommandQueue;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\Write\Command\WriteCommandInterface;
+use Shopware\Core\Framework\ORM\Write\Command\WriteCommandQueue;
 
 interface EntityWriteGatewayInterface
 {

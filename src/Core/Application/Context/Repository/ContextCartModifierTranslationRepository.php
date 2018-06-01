@@ -1,27 +1,27 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Application\Context\Repository;
+namespace Shopware\Core\Application\Context\Repository;
 
-use Shopware\Application\Context\Collection\ContextCartModifierTranslationBasicCollection;
-use Shopware\Application\Context\Collection\ContextCartModifierTranslationDetailCollection;
-use Shopware\Application\Context\Definition\ContextCartModifierTranslationDefinition;
-use Shopware\Application\Context\Event\ContextCartModifierTranslation\ContextCartModifierTranslationAggregationResultLoadedEvent;
-use Shopware\Application\Context\Event\ContextCartModifierTranslation\ContextCartModifierTranslationBasicLoadedEvent;
-use Shopware\Application\Context\Event\ContextCartModifierTranslation\ContextCartModifierTranslationDetailLoadedEvent;
-use Shopware\Application\Context\Event\ContextCartModifierTranslation\ContextCartModifierTranslationIdSearchResultLoadedEvent;
-use Shopware\Application\Context\Event\ContextCartModifierTranslation\ContextCartModifierTranslationSearchResultLoadedEvent;
-use Shopware\Framework\Context;
-use Shopware\Application\Context\Struct\ContextCartModifierTranslationSearchResult;
-use Shopware\Framework\ORM\Read\EntityReaderInterface;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\AggregatorResult;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
-use Shopware\Framework\ORM\Search\EntitySearcherInterface;
-use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\ORM\Write\WriteContext;
+use Shopware\Core\Application\Context\Collection\ContextCartModifierTranslationBasicCollection;
+use Shopware\Core\Application\Context\Collection\ContextCartModifierTranslationDetailCollection;
+use Shopware\Core\Application\Context\Definition\ContextCartModifierTranslationDefinition;
+use Shopware\Core\Application\Context\Event\ContextCartModifierTranslation\ContextCartModifierTranslationAggregationResultLoadedEvent;
+use Shopware\Core\Application\Context\Event\ContextCartModifierTranslation\ContextCartModifierTranslationBasicLoadedEvent;
+use Shopware\Core\Application\Context\Event\ContextCartModifierTranslation\ContextCartModifierTranslationDetailLoadedEvent;
+use Shopware\Core\Application\Context\Event\ContextCartModifierTranslation\ContextCartModifierTranslationIdSearchResultLoadedEvent;
+use Shopware\Core\Application\Context\Event\ContextCartModifierTranslation\ContextCartModifierTranslationSearchResultLoadedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Application\Context\Struct\ContextCartModifierTranslationSearchResult;
+use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\AggregatorResult;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\ORM\Search\IdSearchResult;
+use Shopware\Core\Framework\ORM\Version\Service\VersionManager;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Write\WriteContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ContextCartModifierTranslationRepository implements RepositoryInterface

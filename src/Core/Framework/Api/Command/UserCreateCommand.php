@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Api\Command;
+namespace Shopware\Core\Framework\Api\Command;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\Query\TermQuery;
-use Shopware\Framework\Struct\Uuid;
-use Shopware\Framework\Util\Random;
-use Shopware\System\User\UserRepository;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Util\Random;
+use Shopware\Core\System\User\UserRepository;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;

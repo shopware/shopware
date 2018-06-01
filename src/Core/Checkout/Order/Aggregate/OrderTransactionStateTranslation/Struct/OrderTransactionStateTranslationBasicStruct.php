@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Order\Aggregate\OrderTransactionStateTranslation\Struct;
+namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransactionStateTranslation\Struct;
 
-use Shopware\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Entity;
 
 class OrderTransactionStateTranslationBasicStruct extends Entity
 {

@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Mail\Aggregate\MailTranslation\Struct;
+namespace Shopware\Core\System\Mail\Aggregate\MailTranslation\Struct;
 
-use Shopware\System\Language\Struct\LanguageBasicStruct;
-use Shopware\System\Mail\Struct\MailBasicStruct;
+use Shopware\Core\System\Language\Struct\LanguageBasicStruct;
+use Shopware\Core\System\Mail\Struct\MailBasicStruct;
 
 class MailTranslationDetailStruct extends MailTranslationBasicStruct
 {

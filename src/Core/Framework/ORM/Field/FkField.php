@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * Shopware 5
+ * Shopware\Core 5
  * Copyright (c) shopware AG
  *
  * According to our dual licensing model, this program can be used either
@@ -16,21 +16,21 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
  *
- * "Shopware" is a registered trademark of shopware AG.
+ * "Shopware\Core" is a registered trademark of shopware AG.
  * The licensing of the program under the AGPLv3 does not imply a
  * trademark license. Therefore any rights, title and interest in
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Framework\ORM\Field;
+namespace Shopware\Core\Framework\ORM\Field;
 
-use Shopware\Framework\ORM\Write\DataStack\KeyValuePair;
-use Shopware\Framework\ORM\Write\EntityExistence;
-use Shopware\Framework\ORM\Write\FieldAware\StorageAware;
-use Shopware\Framework\ORM\Write\FieldException\InvalidFieldException;
-use Shopware\Framework\ORM\Write\Flag\Inherited;
-use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\Framework\Struct\Uuid;
+use Shopware\Core\Framework\ORM\Write\DataStack\KeyValuePair;
+use Shopware\Core\Framework\ORM\Write\EntityExistence;
+use Shopware\Core\Framework\ORM\Write\FieldAware\StorageAware;
+use Shopware\Core\Framework\ORM\Write\FieldException\InvalidFieldException;
+use Shopware\Core\Framework\ORM\Write\Flag\Inherited;
+use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;

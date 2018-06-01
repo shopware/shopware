@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * Shopware 5
+ * Shopware\Core 5
  * Copyright (c) shopware AG
  *
  * According to our dual licensing model, this program can be used either
@@ -16,19 +16,19 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
  *
- * "Shopware" is a registered trademark of shopware AG.
+ * "Shopware\Core" is a registered trademark of shopware AG.
  * The licensing of the program under the AGPLv3 does not imply a
  * trademark license. Therefore any rights, title and interest in
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Framework\ORM\Write\FieldAware;
+namespace Shopware\Core\Framework\ORM\Write\FieldAware;
 
-use Shopware\Framework\ORM\Field\Field;
-use Shopware\Framework\ORM\Write\Filter\FilterRegistry;
-use Shopware\Framework\ORM\Write\IdGenerator\GeneratorRegistry;
-use Shopware\Framework\ORM\Write\Validation\ConstraintBuilder;
-use Shopware\Framework\ORM\Write\ValueTransformer\ValueTransformerRegistry;
+use Shopware\Core\Framework\ORM\Field\Field;
+use Shopware\Core\Framework\ORM\Write\Filter\FilterRegistry;
+use Shopware\Core\Framework\ORM\Write\IdGenerator\GeneratorRegistry;
+use Shopware\Core\Framework\ORM\Write\Validation\ConstraintBuilder;
+use Shopware\Core\Framework\ORM\Write\ValueTransformer\ValueTransformerRegistry;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class DefaultExtender extends FieldExtender

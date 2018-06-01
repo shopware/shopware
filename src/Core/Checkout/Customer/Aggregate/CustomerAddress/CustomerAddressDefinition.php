@@ -1,30 +1,30 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Customer\Aggregate\CustomerAddress;
+namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress;
 
-use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Collection\CustomerAddressBasicCollection;
-use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Collection\CustomerAddressDetailCollection;
-use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Event\CustomerAddressDeletedEvent;
-use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Event\CustomerAddressWrittenEvent;
-use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
-use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressDetailStruct;
-use Shopware\Checkout\Customer\CustomerDefinition;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\EntityExtensionInterface;
-use Shopware\Framework\ORM\Field\DateField;
-use Shopware\Framework\ORM\Field\FkField;
-use Shopware\Framework\ORM\Field\IdField;
-use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
-use Shopware\Framework\ORM\Field\ReferenceVersionField;
-use Shopware\Framework\ORM\Field\StringField;
-use Shopware\Framework\ORM\Field\TenantIdField;
-use Shopware\Framework\ORM\Field\VersionField;
-use Shopware\Framework\ORM\FieldCollection;
-use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
-use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\Framework\ORM\Write\Flag\SearchRanking;
-use Shopware\System\Country\Aggregate\CountryState\CountryStateDefinition;
-use Shopware\System\Country\CountryDefinition;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Collection\CustomerAddressBasicCollection;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Collection\CustomerAddressDetailCollection;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Event\CustomerAddressDeletedEvent;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Event\CustomerAddressWrittenEvent;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressDetailStruct;
+use Shopware\Core\Checkout\Customer\CustomerDefinition;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+use Shopware\Core\Framework\ORM\Field\DateField;
+use Shopware\Core\Framework\ORM\Field\FkField;
+use Shopware\Core\Framework\ORM\Field\IdField;
+use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
+use Shopware\Core\Framework\ORM\Field\StringField;
+use Shopware\Core\Framework\ORM\Field\TenantIdField;
+use Shopware\Core\Framework\ORM\Field\VersionField;
+use Shopware\Core\Framework\ORM\FieldCollection;
+use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
+use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
+use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition;
+use Shopware\Core\System\Country\CountryDefinition;
 
 class CustomerAddressDefinition extends EntityDefinition
 {
@@ -62,10 +62,10 @@ class CustomerAddressDefinition extends EntityDefinition
             (new FkField('customer_id', 'customerId', CustomerDefinition::class))->setFlags(new Required()),
             (new ReferenceVersionField(CustomerDefinition::class))->setFlags(new Required()),
 
-            (new FkField('country_id', 'countryId', \Shopware\System\Country\CountryDefinition::class))->setFlags(new Required()),
-            (new ReferenceVersionField(\Shopware\System\Country\CountryDefinition::class))->setFlags(new Required()),
+            (new FkField('country_id', 'countryId', \Shopware\Core\System\Country\CountryDefinition::class))->setFlags(new Required()),
+            (new ReferenceVersionField(\Shopware\Core\System\Country\CountryDefinition::class))->setFlags(new Required()),
 
-            new FkField('country_state_id', 'countryStateId', \Shopware\System\Country\Aggregate\CountryState\CountryStateDefinition::class),
+            new FkField('country_state_id', 'countryStateId', \Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition::class),
             new ReferenceVersionField(CountryStateDefinition::class),
 
             (new StringField('salutation', 'salutation'))->setFlags(new Required()),

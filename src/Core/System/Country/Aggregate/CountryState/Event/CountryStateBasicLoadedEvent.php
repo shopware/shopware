@@ -1,17 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Country\Aggregate\CountryState\Event;
+namespace Shopware\Core\System\Country\Aggregate\CountryState\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\System\Country\Aggregate\CountryState\Collection\CountryStateBasicCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\System\Country\Aggregate\CountryState\Collection\CountryStateBasicCollection;
 
 class CountryStateBasicLoadedEvent extends NestedEvent
 {
     public const NAME = 'country_state.basic.loaded';
 
     /**
-     * @var \Shopware\Framework\Context
+     * @var \Shopware\Core\Framework\Context
      */
     protected $context;
 

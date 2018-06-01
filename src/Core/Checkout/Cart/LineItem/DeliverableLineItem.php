@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Cart\LineItem;
+namespace Shopware\Core\Checkout\Cart\LineItem;
 
-use Shopware\Checkout\Cart\Delivery\Struct\Delivery;
-use Shopware\Checkout\Cart\Delivery\Struct\DeliveryDate;
-use Shopware\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Checkout\Rule\Specification\Rule;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Rule\Specification\Rule;
 
 class DeliverableLineItem extends CalculatedLineItem implements DeliverableLineItemInterface
 {
@@ -30,12 +30,12 @@ class DeliverableLineItem extends CalculatedLineItem implements DeliverableLineI
     protected $weight;
 
     /**
-     * @var \Shopware\Checkout\Cart\Delivery\Struct\DeliveryDate
+     * @var \Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate
      */
     protected $inStockDeliveryDate;
 
     /**
-     * @var \Shopware\Checkout\Cart\Delivery\Struct\DeliveryDate
+     * @var \Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate
      */
     protected $outOfStockDeliveryDate;
 

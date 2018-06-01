@@ -1,14 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Touchpoint\Event;
+namespace Shopware\Core\System\Touchpoint\Event;
 
-use Shopware\System\Touchpoint\Collection\TouchpointDetailCollection;
-use Shopware\Framework\Context;
-use Shopware\Checkout\Payment\Event\PaymentMethodBasicLoadedEvent;
-use Shopware\Checkout\Shipping\Event\ShippingMethodBasicLoadedEvent;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\System\Country\Event\CountryBasicLoadedEvent;
+use Shopware\Core\System\Touchpoint\Collection\TouchpointDetailCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Payment\Event\PaymentMethodBasicLoadedEvent;
+use Shopware\Core\Checkout\Shipping\Event\ShippingMethodBasicLoadedEvent;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\System\Country\Event\CountryBasicLoadedEvent;
 
 class TouchpointDetailLoadedEvent extends NestedEvent
 {

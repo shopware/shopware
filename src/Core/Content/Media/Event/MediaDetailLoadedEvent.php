@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Media\Event;
+namespace Shopware\Core\Content\Media\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Content\Media\Aggregate\MediaAlbum\Event\MediaAlbumBasicLoadedEvent;
-use Shopware\Content\Media\Collection\MediaDetailCollection;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\System\User\Event\UserBasicLoadedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Media\Aggregate\MediaAlbum\Event\MediaAlbumBasicLoadedEvent;
+use Shopware\Core\Content\Media\Collection\MediaDetailCollection;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\System\User\Event\UserBasicLoadedEvent;
 
 class MediaDetailLoadedEvent extends NestedEvent
 {

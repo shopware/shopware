@@ -1,10 +1,10 @@
 Documentation
 =============
 
-A collection of documentation to build the Shopware Platform documentation. 
+A collection of documentation to build the Shopware\Core Platform documentation. 
 
 This repository is considered **read-only**. Please send pull requests
-to our [main Shopware repository](https://github.com/shopware/platform).
+to our [main Shopware\Core repository](https://github.com/shopware/platform).
 
 Resources
 ---------
@@ -13,4 +13,4 @@ Resources
   * [Contributing](https://developers.shopware.com/community/contributing-code/)
   * [Report issues](https://github.com/shopware/platform/issues) and
     [send Pull Requests](https://github.com/shopware/platform/pulls)
-    in the [main Shopware repository](https://github.com/shopware/platform)
+    in the [main Shopware\Core repository](https://github.com/shopware/platform)

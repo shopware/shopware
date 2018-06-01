@@ -2,16 +2,16 @@
 
 namespace Shopware\Storefront\Subscriber;
 
-use Shopware\Content\Product\Aggregate\ProductManufacturer\Collection\ProductManufacturerBasicCollection;
-use Shopware\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
-use Shopware\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerRepository;
-use Shopware\Framework\ORM\Search\Aggregation\AggregationResult;
-use Shopware\Framework\ORM\Search\Aggregation\EntityAggregation;
-use Shopware\Framework\ORM\Search\AggregatorResult;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\Query\NestedQuery;
-use Shopware\Framework\ORM\Search\Query\Query;
-use Shopware\Framework\ORM\Search\Query\TermsQuery;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\Collection\ProductManufacturerBasicCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerRepository;
+use Shopware\Core\Framework\ORM\Search\Aggregation\AggregationResult;
+use Shopware\Core\Framework\ORM\Search\Aggregation\EntityAggregation;
+use Shopware\Core\Framework\ORM\Search\AggregatorResult;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\Query\NestedQuery;
+use Shopware\Core\Framework\ORM\Search\Query\Query;
+use Shopware\Core\Framework\ORM\Search\Query\TermsQuery;
 use Shopware\Storefront\Event\ListingEvents;
 use Shopware\Storefront\Event\ListingPageLoadedEvent;
 use Shopware\Storefront\Event\PageCriteriaCreatedEvent;
@@ -29,7 +29,7 @@ class ManufacturerAggregationSubscriber implements EventSubscriberInterface
     public const AGGREGATION_NAME = 'manufacturer';
 
     /**
-     * @var \Shopware\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerRepository
+     * @var \Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerRepository
      */
     private $manufacturerRepository;
 

@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Snippet\Event;
+namespace Shopware\Core\System\Snippet\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\System\Snippet\Struct\SnippetSearchResult;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\System\Snippet\Struct\SnippetSearchResult;
 
 class SnippetSearchResultLoadedEvent extends NestedEvent
 {

@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Payment\Event;
+namespace Shopware\Core\Checkout\Payment\Event;
 
-use Shopware\Checkout\Payment\PaymentMethodDefinition;
-use Shopware\Framework\ORM\Write\DeletedEvent;
-use Shopware\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
+use Shopware\Core\Framework\ORM\Write\DeletedEvent;
+use Shopware\Core\Framework\ORM\Write\WrittenEvent;
 
 class PaymentMethodDeletedEvent extends WrittenEvent implements DeletedEvent
 {

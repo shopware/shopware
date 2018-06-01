@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Aggregate\ProductManufacturer\Collection;
+namespace Shopware\Core\Content\Product\Aggregate\ProductManufacturer\Collection;
 
-use Shopware\Content\Product\Aggregate\ProductManufacturer\Struct\ProductManufacturerBasicStruct;
-use Shopware\Framework\ORM\EntityCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\Struct\ProductManufacturerBasicStruct;
+use Shopware\Core\Framework\ORM\EntityCollection;
 
 class ProductManufacturerBasicCollection extends EntityCollection
 {

@@ -1,16 +1,16 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Test\Currency\Repository;
+namespace Shopware\Core\System\Test\Currency\Repository;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Framework\Context;
-use Shopware\Defaults;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\Term\EntityScoreQueryBuilder;
-use Shopware\Framework\ORM\Search\Term\SearchTermInterpreter;
-use Shopware\Framework\Struct\Uuid;
-use Shopware\System\Currency\CurrencyDefinition;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\Term\EntityScoreQueryBuilder;
+use Shopware\Core\Framework\ORM\Search\Term\SearchTermInterpreter;
+use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\System\Currency\CurrencyDefinition;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class CurrencyRepositoryTest extends KernelTestCase
@@ -28,7 +28,7 @@ class CurrencyRepositoryTest extends KernelTestCase
     public function setUp()
     {
         self::bootKernel();
-        $this->repository = self::$container->get(\Shopware\System\Currency\CurrencyRepository::class);
+        $this->repository = self::$container->get(\Shopware\Core\System\Currency\CurrencyRepository::class);
         $this->connection = self::$container->get(Connection::class);
         $this->connection->beginTransaction();
     }

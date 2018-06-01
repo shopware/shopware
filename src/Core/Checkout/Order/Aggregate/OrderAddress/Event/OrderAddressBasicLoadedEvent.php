@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Order\Aggregate\OrderAddress\Event;
+namespace Shopware\Core\Checkout\Order\Aggregate\OrderAddress\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Checkout\Order\Aggregate\OrderAddress\Collection\OrderAddressBasicCollection;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\System\Country\Aggregate\CountryState\Event\CountryStateBasicLoadedEvent;
-use Shopware\System\Country\Event\CountryBasicLoadedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\Collection\OrderAddressBasicCollection;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\System\Country\Aggregate\CountryState\Event\CountryStateBasicLoadedEvent;
+use Shopware\Core\System\Country\Event\CountryBasicLoadedEvent;
 
 class OrderAddressBasicLoadedEvent extends NestedEvent
 {

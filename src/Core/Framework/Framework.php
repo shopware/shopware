@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- * Shopware 5
+ * Shopware\Core 5
  * Copyright (c) shopware AG
  *
  * According to our dual licensing model, this program can be used either
@@ -17,20 +17,20 @@ declare(strict_types=1);
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
  *
- * "Shopware" is a registered trademark of shopware AG.
+ * "Shopware\Core" is a registered trademark of shopware AG.
  * The licensing of the program under the AGPLv3 does not imply a
  * trademark license. Therefore any rights, title and interest in
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Framework;
+namespace Shopware\Core\Framework;
 
-use Shopware\Framework\DependencyInjection\CompilerPass\DefinitionRegistryCompilerPass;
-use Shopware\Framework\DependencyInjection\CompilerPass\ExtensionCompilerPass;
-use Shopware\Framework\DependencyInjection\FrameworkExtension;
-use Shopware\Framework\Doctrine\BridgeDatabaseCompilerPass;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\ExtensionRegistry;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\DefinitionRegistryCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\ExtensionCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\FrameworkExtension;
+use Shopware\Core\Framework\Doctrine\BridgeDatabaseCompilerPass;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\ExtensionRegistry;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
@@ -43,7 +43,7 @@ class Framework extends Bundle
     public const VERSION_TEXT = '___VERSION_TEXT___';
     public const REVISION = '___REVISION___';
 
-    protected $name = 'Shopware';
+    protected $name = 'Shopware\Core';
 
     /**
      * {@inheritdoc}

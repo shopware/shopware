@@ -4,12 +4,12 @@ namespace Shopware\Storefront\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Checkout\CustomerContext;
-use Shopware\Checkout\Customer\Util\CustomerContextPersister;
-use Shopware\Checkout\Customer\Util\CustomerContextService;
-use Shopware\Checkout\Payment\Exception\PaymentMethodNotFoundHttpException;
-use Shopware\Checkout\Payment\Exception\UnknownPaymentMethodException;
-use Shopware\Framework\Struct\Uuid;
+use Shopware\Core\Checkout\CustomerContext;
+use Shopware\Core\Checkout\Customer\Util\CustomerContextPersister;
+use Shopware\Core\Checkout\Customer\Util\CustomerContextService;
+use Shopware\Core\Checkout\Payment\Exception\PaymentMethodNotFoundHttpException;
+use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
+use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Storefront\Exception\CustomerNotFoundException;
 use Shopware\Storefront\Page\Account\AccountService;
 use Shopware\Storefront\Page\Account\CustomerAddressPageLoader;
@@ -365,7 +365,7 @@ class AccountController extends StorefrontController
      * @Route("/account/address/save", name="address_save", options={"seo"="false"})
      * @Method({"POST"})
      *
-     * @throws \Shopware\Checkout\Order\Exception\NotLoggedInCustomerException
+     * @throws \Shopware\Core\Checkout\Order\Exception\NotLoggedInCustomerException
      */
     public function addressSave(Request $request, CustomerContext $context): Response
     {
@@ -428,7 +428,7 @@ class AccountController extends StorefrontController
      * @Route("/account/address/delete", name="address_delete", options={"seo"="false"})
      * @Method({"POST"})
      *
-     * @throws \Shopware\Checkout\Order\Exception\NotLoggedInCustomerException
+     * @throws \Shopware\Core\Checkout\Order\Exception\NotLoggedInCustomerException
      */
     public function addressDelete(Request $request, CustomerContext $context): Response
     {
@@ -444,7 +444,7 @@ class AccountController extends StorefrontController
      * @Route("/account/address/setDefaultBillingAddress", name="address_set_default_billing", options={"seo"="false"})
      * @Method({"POST"})
      *
-     * @throws \Shopware\Checkout\Order\Exception\NotLoggedInCustomerException
+     * @throws \Shopware\Core\Checkout\Order\Exception\NotLoggedInCustomerException
      */
     public function addressSetDefaultBillingAddress(Request $request, CustomerContext $context): Response
     {
@@ -461,7 +461,7 @@ class AccountController extends StorefrontController
      * @Route("/account/address/setDefaultShippingAddress", name="address_set_default_shipping", options={"seo"="false"})
      * @Method({"POST"})
      *
-     * @throws \Shopware\Checkout\Order\Exception\NotLoggedInCustomerException
+     * @throws \Shopware\Core\Checkout\Order\Exception\NotLoggedInCustomerException
      */
     public function addressSetDefaultShippingAddress(Request $request, CustomerContext $context): Response
     {
@@ -478,7 +478,7 @@ class AccountController extends StorefrontController
      * @Route("/account/address/ajaxSelection", name="address_ajax_selection", options={"seo"="false"})
      * @Method({"GET"})
      *
-     * @throws \Shopware\Checkout\Order\Exception\NotLoggedInCustomerException
+     * @throws \Shopware\Core\Checkout\Order\Exception\NotLoggedInCustomerException
      */
     public function addressAjaxSelection(Request $request, CustomerContext $context): Response
     {
@@ -490,7 +490,7 @@ class AccountController extends StorefrontController
         $addresses = $this->accountService->getAddressesByCustomer($context);
 
         if (!empty($addressId)) {
-            /** @var \Shopware\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct $address */
+            /** @var \Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct $address */
             foreach ($addresses as $key => $address) {
                 if ($address->getId() === $addressId) {
                     unset($addresses[$key]);
@@ -529,7 +529,7 @@ class AccountController extends StorefrontController
      * @Route("/account/address/ajaxSave", name="address_ajax_save", options={"seo"="false"})
      * @Method("POST")
      *
-     * @throws \Shopware\Checkout\Order\Exception\NotLoggedInCustomerException
+     * @throws \Shopware\Core\Checkout\Order\Exception\NotLoggedInCustomerException
      */
     public function addressAjaxSave(Request $request, CustomerContext $context): Response
     {

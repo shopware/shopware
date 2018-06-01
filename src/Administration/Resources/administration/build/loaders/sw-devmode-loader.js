@@ -2,7 +2,7 @@ var path = require('path');
 
 /**
  * Simple loader which adds a new property `__file` with the relative path of the module to the second argument
- * of the `Shopware.Component.register` call.
+ * of the `Shopware\Core.Component.register` call.
  */
 module.exports = function(content) {
     var modulePath = this.resourcePath.replace(path.resolve(__dirname, '../../') + '/', '');

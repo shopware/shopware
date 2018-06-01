@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Application\Context\Collection;
+namespace Shopware\Core\Application\Context\Collection;
 
-use Shopware\Framework\Context;
-use Shopware\Application\Context\Struct\ContextPriceStruct;
-use Shopware\Framework\ORM\EntityCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Application\Context\Struct\ContextPriceStruct;
+use Shopware\Core\Framework\ORM\EntityCollection;
 
 class ContextPriceCollection extends EntityCollection
 {

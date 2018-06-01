@@ -1,26 +1,26 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Listing;
+namespace Shopware\Core\System\Listing;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\ORM\Read\EntityReaderInterface;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\AggregatorResult;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
-use Shopware\Framework\ORM\Search\EntitySearcherInterface;
-use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\System\Listing\Collection\ListingSortingBasicCollection;
-use Shopware\System\Listing\Collection\ListingSortingDetailCollection;
-use Shopware\System\Listing\Event\ListingSortingAggregationResultLoadedEvent;
-use Shopware\System\Listing\Event\ListingSortingBasicLoadedEvent;
-use Shopware\System\Listing\Event\ListingSortingDetailLoadedEvent;
-use Shopware\System\Listing\Event\ListingSortingIdSearchResultLoadedEvent;
-use Shopware\System\Listing\Event\ListingSortingSearchResultLoadedEvent;
-use Shopware\System\Listing\Struct\ListingSortingSearchResult;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\AggregatorResult;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\ORM\Search\IdSearchResult;
+use Shopware\Core\Framework\ORM\Version\Service\VersionManager;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Write\WriteContext;
+use Shopware\Core\System\Listing\Collection\ListingSortingBasicCollection;
+use Shopware\Core\System\Listing\Collection\ListingSortingDetailCollection;
+use Shopware\Core\System\Listing\Event\ListingSortingAggregationResultLoadedEvent;
+use Shopware\Core\System\Listing\Event\ListingSortingBasicLoadedEvent;
+use Shopware\Core\System\Listing\Event\ListingSortingDetailLoadedEvent;
+use Shopware\Core\System\Listing\Event\ListingSortingIdSearchResultLoadedEvent;
+use Shopware\Core\System\Listing\Event\ListingSortingSearchResultLoadedEvent;
+use Shopware\Core\System\Listing\Struct\ListingSortingSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ListingSortingRepository implements RepositoryInterface
@@ -46,7 +46,7 @@ class ListingSortingRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var \Shopware\Framework\ORM\Version\Service\VersionManager
+     * @var \Shopware\Core\Framework\ORM\Version\Service\VersionManager
      */
     private $versionManager;
 

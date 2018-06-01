@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Currency\Aggregate\CurrencyTranslation\Struct;
+namespace Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\Struct;
 
-use Shopware\System\Language\Struct\LanguageBasicStruct;
-use Shopware\System\Currency\Struct\CurrencyBasicStruct;
+use Shopware\Core\System\Language\Struct\LanguageBasicStruct;
+use Shopware\Core\System\Currency\Struct\CurrencyBasicStruct;
 
 class CurrencyTranslationDetailStruct extends CurrencyTranslationBasicStruct
 {

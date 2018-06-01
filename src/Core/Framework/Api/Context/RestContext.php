@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Api\Context;
+namespace Shopware\Core\Framework\Api\Context;
 
-use Shopware\Framework\Context;
+use Shopware\Core\Framework\Context;
 use Symfony\Component\HttpFoundation\Request;
 
 class RestContext
@@ -18,7 +18,7 @@ class RestContext
     private $userId;
 
     /**
-     * @var \Shopware\Framework\Context
+     * @var \Shopware\Core\Framework\Context
      */
     private $context;
 

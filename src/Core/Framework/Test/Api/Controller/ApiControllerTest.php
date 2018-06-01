@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Test\Api\Controller;
+namespace Shopware\Core\Framework\Test\Api\Controller;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\Struct\Uuid;
-use Shopware\Framework\Test\Api\ApiTestCase;
-use Shopware\PlatformRequest;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Test\Api\ApiTestCase;
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
 
 class ApiControllerTest extends ApiTestCase
@@ -321,7 +321,7 @@ class ApiControllerTest extends ApiTestCase
             'id' => $id,
             'name' => 'Cotton Shirt',
             'tax' => ['name' => 'test', 'rate' => 10],
-            'manufacturer' => ['name' => 'Shopware AG'],
+            'manufacturer' => ['name' => 'Shopware\Core AG'],
             'price' => ['gross' => 50, 'net' => 25],
         ];
 
@@ -360,7 +360,7 @@ class ApiControllerTest extends ApiTestCase
                         [
                             'type' => 'term',
                             'field' => 'product.manufacturer.name',
-                            'value' => 'Shopware AG',
+                            'value' => 'Shopware\Core AG',
                         ],
                         [
                             'type' => 'terms',
@@ -401,7 +401,7 @@ class ApiControllerTest extends ApiTestCase
             'id' => $id,
             'name' => 'Wool Shirt',
             'tax' => ['name' => 'test', 'rate' => 10],
-            'manufacturer' => ['name' => 'Shopware AG'],
+            'manufacturer' => ['name' => 'Shopware\Core AG'],
             'price' => ['gross' => 8300, 'net' => 8300],
         ];
 
@@ -477,7 +477,7 @@ class ApiControllerTest extends ApiTestCase
 
         $content = json_decode($response->getContent(), true);
 
-        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode(), print_r($response->getContent(), true));
         $this->assertNotEmpty($content);
 
         $this->assertArrayHasKey('aggregations', $content);

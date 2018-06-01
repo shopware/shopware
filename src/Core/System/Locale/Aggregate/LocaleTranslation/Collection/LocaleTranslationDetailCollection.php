@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Locale\Aggregate\LocaleTranslation\Collection;
+namespace Shopware\Core\System\Locale\Aggregate\LocaleTranslation\Collection;
 
-use Shopware\System\Language\Collection\LanguageBasicCollection;
-use Shopware\System\Locale\Aggregate\LocaleTranslation\Struct\LocaleTranslationDetailStruct;
-use Shopware\System\Locale\Collection\LocaleBasicCollection;
+use Shopware\Core\System\Language\Collection\LanguageBasicCollection;
+use Shopware\Core\System\Locale\Aggregate\LocaleTranslation\Struct\LocaleTranslationDetailStruct;
+use Shopware\Core\System\Locale\Collection\LocaleBasicCollection;
 
 class LocaleTranslationDetailCollection extends LocaleTranslationBasicCollection
 {

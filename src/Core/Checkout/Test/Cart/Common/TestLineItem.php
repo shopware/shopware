@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Test\Cart\Common;
+namespace Shopware\Core\Checkout\Test\Cart\Common;
 
-use Shopware\Checkout\Cart\LineItem\CalculatedLineItemInterface;
-use Shopware\Checkout\Cart\LineItem\LineItemInterface;
-use Shopware\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
-use Shopware\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Content\Media\Struct\MediaBasicStruct;
+use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItemInterface;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemInterface;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Content\Media\Struct\MediaBasicStruct;
 
 class TestLineItem implements CalculatedLineItemInterface
 {

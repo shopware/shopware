@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM;
+namespace Shopware\Core\Framework\ORM;
 
 /**
  * Contains all registered entity extensions in the system

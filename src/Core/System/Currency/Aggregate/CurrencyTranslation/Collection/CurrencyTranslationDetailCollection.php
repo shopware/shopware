@@ -1,15 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Currency\Aggregate\CurrencyTranslation\Collection;
+namespace Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\Collection;
 
-use Shopware\System\Language\Collection\LanguageBasicCollection;
-use Shopware\System\Currency\Aggregate\CurrencyTranslation\Struct\CurrencyTranslationDetailStruct;
-use Shopware\System\Currency\Collection\CurrencyBasicCollection;
+use Shopware\Core\System\Language\Collection\LanguageBasicCollection;
+use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\Struct\CurrencyTranslationDetailStruct;
+use Shopware\Core\System\Currency\Collection\CurrencyBasicCollection;
 
 class CurrencyTranslationDetailCollection extends CurrencyTranslationBasicCollection
 {
     /**
-     * @var \Shopware\System\Currency\Aggregate\CurrencyTranslation\Struct\CurrencyTranslationDetailStruct[]
+     * @var \Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\Struct\CurrencyTranslationDetailStruct[]
      */
     protected $elements = [];
 

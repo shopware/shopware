@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Rule\Struct;
+namespace Shopware\Core\Checkout\Rule\Struct;
 
-use Shopware\Checkout\Rule\Specification\Rule;
-use Shopware\Framework\ORM\Entity;
+use Shopware\Core\Checkout\Rule\Specification\Rule;
+use Shopware\Core\Framework\ORM\Entity;
 
 class ContextRuleBasicStruct extends Entity
 {
@@ -13,7 +13,7 @@ class ContextRuleBasicStruct extends Entity
     protected $name;
 
     /**
-     * @var \Shopware\Checkout\Rule\Specification\Rule
+     * @var \Shopware\Core\Checkout\Rule\Specification\Rule
      */
     protected $payload;
 

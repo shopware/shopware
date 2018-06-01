@@ -1,15 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Customer\Aggregate\CustomerGroup\Collection;
+namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\Collection;
 
-use Shopware\Checkout\Customer\Aggregate\CustomerGroup\Struct\CustomerGroupDetailStruct;
-use Shopware\Checkout\Customer\Aggregate\CustomerGroupDiscount\Collection\CustomerGroupDiscountBasicCollection;
-use Shopware\Checkout\Customer\Aggregate\CustomerGroupTranslation\Collection\CustomerGroupTranslationBasicCollection;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\Struct\CustomerGroupDetailStruct;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\Collection\CustomerGroupDiscountBasicCollection;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\Collection\CustomerGroupTranslationBasicCollection;
 
 class CustomerGroupDetailCollection extends CustomerGroupBasicCollection
 {
     /**
-     * @var \Shopware\Checkout\Customer\Aggregate\CustomerGroup\Struct\CustomerGroupDetailStruct[]
+     * @var \Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\Struct\CustomerGroupDetailStruct[]
      */
     protected $elements = [];
 
@@ -27,7 +27,7 @@ class CustomerGroupDetailCollection extends CustomerGroupBasicCollection
 
     public function getDiscounts(): CustomerGroupDiscountBasicCollection
     {
-        $collection = new \Shopware\Checkout\Customer\Aggregate\CustomerGroupDiscount\Collection\CustomerGroupDiscountBasicCollection();
+        $collection = new \Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\Collection\CustomerGroupDiscountBasicCollection();
         foreach ($this->elements as $element) {
             $collection->fill($element->getDiscounts()->getElements());
         }

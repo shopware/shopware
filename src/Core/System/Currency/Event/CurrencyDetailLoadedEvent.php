@@ -1,19 +1,19 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Currency\Event;
+namespace Shopware\Core\System\Currency\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\System\Currency\Aggregate\CurrencyTranslation\Event\CurrencyTranslationBasicLoadedEvent;
-use Shopware\System\Currency\Collection\CurrencyDetailCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\Event\CurrencyTranslationBasicLoadedEvent;
+use Shopware\Core\System\Currency\Collection\CurrencyDetailCollection;
 
 class CurrencyDetailLoadedEvent extends NestedEvent
 {
     public const NAME = 'currency.detail.loaded';
 
     /**
-     * @var \Shopware\Framework\Context
+     * @var \Shopware\Core\Framework\Context
      */
     protected $context;
 

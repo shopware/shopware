@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Country\Aggregate\CountryState\Struct;
+namespace Shopware\Core\System\Country\Aggregate\CountryState\Struct;
 
-use Shopware\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Entity;
 
 class CountryStateBasicStruct extends Entity
 {

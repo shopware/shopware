@@ -1,17 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Event;
+namespace Shopware\Core\Content\Media\Aggregate\MediaAlbumTranslation\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Collection\MediaAlbumTranslationBasicCollection;
-use Shopware\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Media\Aggregate\MediaAlbumTranslation\Collection\MediaAlbumTranslationBasicCollection;
+use Shopware\Core\Framework\Event\NestedEvent;
 
 class MediaAlbumTranslationBasicLoadedEvent extends NestedEvent
 {
     public const NAME = 'media_album_translation.basic.loaded';
 
     /**
-     * @var \Shopware\Framework\Context
+     * @var \Shopware\Core\Framework\Context
      */
     protected $context;
 

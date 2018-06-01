@@ -1,15 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Country\Aggregate\CountryTranslation\Collection;
+namespace Shopware\Core\System\Country\Aggregate\CountryTranslation\Collection;
 
-use Shopware\System\Language\Collection\LanguageBasicCollection;
-use Shopware\System\Country\Aggregate\CountryTranslation\Struct\CountryTranslationDetailStruct;
-use Shopware\System\Country\Collection\CountryBasicCollection;
+use Shopware\Core\System\Language\Collection\LanguageBasicCollection;
+use Shopware\Core\System\Country\Aggregate\CountryTranslation\Struct\CountryTranslationDetailStruct;
+use Shopware\Core\System\Country\Collection\CountryBasicCollection;
 
 class CountryTranslationDetailCollection extends CountryTranslationBasicCollection
 {
     /**
-     * @var \Shopware\System\Country\Aggregate\CountryTranslation\Struct\CountryTranslationDetailStruct[]
+     * @var \Shopware\Core\System\Country\Aggregate\CountryTranslation\Struct\CountryTranslationDetailStruct[]
      */
     protected $elements = [];
 

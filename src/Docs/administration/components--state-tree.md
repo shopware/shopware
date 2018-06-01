@@ -1,14 +1,14 @@
-# Shopware Backend components state tree
+# Shopware\Core Backend components state tree
 
 ## Usage
-Register your own state tree using the method `Shopware.State.register`, see the full documentation on how to create a state
+Register your own state tree using the method `Shopware\Core.State.register`, see the full documentation on how to create a state
 tree including actions, getters and mutations in the [official documentation](https://vuex.vuejs.org/en/core-concepts.html).
 
 ## Defining a state tree module
 We're providing you with a convenience function which registers your state tree module in the application.
 
 ```
-Shopware.State.register('product', {
+Shopware\Core.State.register('product', {
     state() {
         return {
             /** ... */
@@ -26,7 +26,7 @@ All registered state tree modules are namespaced, therefore they're standing on 
 simply define an object in your component definition:
 
 ```
-Shopware.Component.register('sw-login', {
+Shopware\Core.Component.register('sw-login', {
     stateMapping: {
         state: 'login'
     }
@@ -41,7 +41,7 @@ Please notice we're namespacing the properties from the state with the state key
 change the mapping using the property `mapping`:
 
 ```
-Shopware.Component.register('sw-login', {
+Shopware\Core.Component.register('sw-login', {
     stateMapping: {
         state: 'login',
         mapping: 'fooBar'
@@ -53,7 +53,7 @@ You can customize the behavior when defining a property called `properties` to d
 your component.
 
 ```
-Shopware.Component.register('sw-login', {
+Shopware\Core.Component.register('sw-login', {
     stateMapping: {
         state: 'login',
         properties: ['isWorking', 'username', 'password']
@@ -64,7 +64,7 @@ Shopware.Component.register('sw-login', {
 If you don't want any properties from the state tree and deal with it on your own you reach this goal with the following:
 
 ```
-Shopware.Component.register('sw-login', {
+Shopware\Core.Component.register('sw-login', {
     stateMapping: {
         state: 'login',
         properties: false
@@ -79,7 +79,7 @@ To make your life easier we're automatically mapping the available actions of th
 behavior as well.
 
 ```
-Shopware.Component.register('sw-login', {
+Shopware\Core.Component.register('sw-login', {
     stateMapping: {
         state: 'login',
         actions: ['loginUserWithPassword']
@@ -91,7 +91,7 @@ If you don't want to use map any actions to your component and dispatch the acti
 empty array:
 
 ```
-Shopware.Component.register('sw-login', {
+Shopware\Core.Component.register('sw-login', {
     stateMapping: {
         state: 'login',
         actions: false
@@ -103,7 +103,7 @@ Shopware.Component.register('sw-login', {
 It's also possible to map more than one state tree to a component:
 
 ```
-Shopware.Component.register('sw-login', {
+Shopware\Core.Component.register('sw-login', {
    stateMapping: [{
        state: 'login'
    }, {

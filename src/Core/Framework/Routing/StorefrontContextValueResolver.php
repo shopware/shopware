@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Routing;
+namespace Shopware\Core\Framework\Routing;
 
-use Shopware\Checkout\CustomerContext;
-use Shopware\PlatformRequest;
+use Shopware\Core\Checkout\CustomerContext;
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Controller\ArgumentValueResolverInterface;

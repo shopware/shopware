@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Listing\Aggregate\ListingFacetTranslation\Struct;
+namespace Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation\Struct;
 
-use Shopware\System\Language\Struct\LanguageBasicStruct;
-use Shopware\System\Listing\Struct\ListingFacetBasicStruct;
+use Shopware\Core\System\Language\Struct\LanguageBasicStruct;
+use Shopware\Core\System\Listing\Struct\ListingFacetBasicStruct;
 
 class ListingFacetTranslationDetailStruct extends ListingFacetTranslationBasicStruct
 {

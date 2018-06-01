@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Dbal\FieldResolver;
+namespace Shopware\Core\Framework\ORM\Dbal\FieldResolver;
 
-use Shopware\Framework\Context;
-use Shopware\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition;
-use Shopware\Framework\ORM\Dbal\EntityDefinitionQueryHelper;
-use Shopware\Framework\ORM\Dbal\QueryBuilder;
-use Shopware\Framework\ORM\Field\Field;
-use Shopware\Framework\ORM\Field\ProductCoverField;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition;
+use Shopware\Core\Framework\ORM\Dbal\EntityDefinitionQueryHelper;
+use Shopware\Core\Framework\ORM\Dbal\QueryBuilder;
+use Shopware\Core\Framework\ORM\Field\Field;
+use Shopware\Core\Framework\ORM\Field\ProductCoverField;
 
 class ProductCoverFieldResolver implements FieldResolverInterface
 {

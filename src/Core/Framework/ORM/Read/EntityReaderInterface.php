@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Read;
+namespace Shopware\Core\Framework\ORM\Read;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\ORM\EntityCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\EntityCollection;
 
 interface EntityReaderInterface
 {

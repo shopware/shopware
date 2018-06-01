@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Aggregate\ProductService\Collection;
+namespace Shopware\Core\Content\Product\Aggregate\ProductService\Collection;
 
-use Shopware\Content\Product\Aggregate\ProductService\Struct\ProductServiceBasicStruct;
-use Shopware\Framework\ORM\EntityCollection;
-use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionBasicCollection;
-use Shopware\System\Tax\Collection\TaxBasicCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductService\Struct\ProductServiceBasicStruct;
+use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionBasicCollection;
+use Shopware\Core\System\Tax\Collection\TaxBasicCollection;
 
 class ProductServiceBasicCollection extends EntityCollection
 {

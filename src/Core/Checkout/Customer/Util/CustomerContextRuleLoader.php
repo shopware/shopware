@@ -1,26 +1,26 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Customer\Util;
+namespace Shopware\Core\Checkout\Customer\Util;
 
 use Psr\Cache\CacheItemPoolInterface;
-use Shopware\Framework\Context;
-use Shopware\Checkout\CustomerContext;
-use Shopware\Checkout\Cart\Cart\CartCollector;
-use Shopware\Checkout\Cart\Cart\CartPersisterInterface;
-use Shopware\Checkout\Cart\Cart\CartProcessor;
-use Shopware\Checkout\Cart\Cart\CartValidator;
-use Shopware\Checkout\Cart\Cart\CircularCartCalculation;
-use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Checkout\Cart\Cart\Struct\Cart;
-use Shopware\Checkout\Cart\Delivery\Struct\DeliveryCollection;
-use Shopware\Checkout\Cart\Exception\CartTokenNotFoundException;
-use Shopware\Checkout\Cart\LineItem\CalculatedLineItemCollection;
-use Shopware\Checkout\Cart\Price\Struct\CartPrice;
-use Shopware\Checkout\Cart\StoreFrontCartService;
-use Shopware\Checkout\Cart\Tax\TaxDetector;
-use Shopware\Checkout\Rule\Collection\ContextRuleBasicCollection;
-use Shopware\Checkout\Rule\ContextRuleRepository;
-use Shopware\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\CustomerContext;
+use Shopware\Core\Checkout\Cart\Cart\CartCollector;
+use Shopware\Core\Checkout\Cart\Cart\CartPersisterInterface;
+use Shopware\Core\Checkout\Cart\Cart\CartProcessor;
+use Shopware\Core\Checkout\Cart\Cart\CartValidator;
+use Shopware\Core\Checkout\Cart\Cart\CircularCartCalculation;
+use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
+use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
+use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItemCollection;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\StoreFrontCartService;
+use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
+use Shopware\Core\Checkout\Rule\Collection\ContextRuleBasicCollection;
+use Shopware\Core\Checkout\Rule\ContextRuleRepository;
+use Shopware\Core\Framework\ORM\Search\Criteria;
 use Symfony\Component\Serializer\SerializerInterface;
 
 class CustomerContextRuleLoader
@@ -56,7 +56,7 @@ class CustomerContextRuleLoader
     private $cache;
 
     /**
-     * @var \Shopware\Checkout\Rule\ContextRuleRepository
+     * @var \Shopware\Core\Checkout\Rule\ContextRuleRepository
      */
     private $repository;
 

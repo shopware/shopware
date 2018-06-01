@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM;
+namespace Shopware\Core\Framework\ORM;
 
-use Shopware\Framework\Struct\Collection;
+use Shopware\Core\Framework\Struct\Collection;
 
 class EntityCollection extends Collection
 {

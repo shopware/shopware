@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Order\Aggregate\OrderDeliveryPosition\Collection;
+namespace Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\Collection;
 
-use Shopware\Checkout\Order\Aggregate\OrderDeliveryPosition\Struct\OrderDeliveryPositionBasicStruct;
-use Shopware\Framework\ORM\EntityCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\Struct\OrderDeliveryPositionBasicStruct;
+use Shopware\Core\Framework\ORM\EntityCollection;
 
 class OrderDeliveryPositionBasicCollection extends EntityCollection
 {
@@ -50,9 +50,9 @@ class OrderDeliveryPositionBasicCollection extends EntityCollection
         });
     }
 
-    public function getOrderLineItems(): \Shopware\Checkout\Order\Aggregate\OrderLineItem\Collection\OrderLineItemBasicCollection
+    public function getOrderLineItems(): \Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\Collection\OrderLineItemBasicCollection
     {
-        return new \Shopware\Checkout\Order\Aggregate\OrderLineItem\Collection\OrderLineItemBasicCollection(
+        return new \Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\Collection\OrderLineItemBasicCollection(
             $this->fmap(function (OrderDeliveryPositionBasicStruct $orderDeliveryPosition) {
                 return $orderDeliveryPosition->getOrderLineItem();
             })

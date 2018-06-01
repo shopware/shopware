@@ -1,26 +1,26 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Config;
+namespace Shopware\Core\System\Config;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\ORM\Read\EntityReaderInterface;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\AggregatorResult;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
-use Shopware\Framework\ORM\Search\EntitySearcherInterface;
-use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\System\Config\Collection\ConfigFormBasicCollection;
-use Shopware\System\Config\Collection\ConfigFormDetailCollection;
-use Shopware\System\Config\Event\ConfigFormAggregationResultLoadedEvent;
-use Shopware\System\Config\Event\ConfigFormBasicLoadedEvent;
-use Shopware\System\Config\Event\ConfigFormDetailLoadedEvent;
-use Shopware\System\Config\Event\ConfigFormIdSearchResultLoadedEvent;
-use Shopware\System\Config\Event\ConfigFormSearchResultLoadedEvent;
-use Shopware\System\Config\Struct\ConfigFormSearchResult;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\AggregatorResult;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\ORM\Search\IdSearchResult;
+use Shopware\Core\Framework\ORM\Version\Service\VersionManager;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Write\WriteContext;
+use Shopware\Core\System\Config\Collection\ConfigFormBasicCollection;
+use Shopware\Core\System\Config\Collection\ConfigFormDetailCollection;
+use Shopware\Core\System\Config\Event\ConfigFormAggregationResultLoadedEvent;
+use Shopware\Core\System\Config\Event\ConfigFormBasicLoadedEvent;
+use Shopware\Core\System\Config\Event\ConfigFormDetailLoadedEvent;
+use Shopware\Core\System\Config\Event\ConfigFormIdSearchResultLoadedEvent;
+use Shopware\Core\System\Config\Event\ConfigFormSearchResultLoadedEvent;
+use Shopware\Core\System\Config\Struct\ConfigFormSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ConfigFormRepository implements RepositoryInterface
@@ -46,7 +46,7 @@ class ConfigFormRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var \Shopware\Framework\ORM\Version\Service\VersionManager
+     * @var \Shopware\Core\Framework\ORM\Version\Service\VersionManager
      */
     private $versionManager;
 

@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Unit\Collection;
+namespace Shopware\Core\System\Unit\Collection;
 
-use Shopware\System\Unit\Aggregate\UnitTranslation\Collection\UnitTranslationBasicCollection;
-use Shopware\System\Unit\Struct\UnitDetailStruct;
+use Shopware\Core\System\Unit\Aggregate\UnitTranslation\Collection\UnitTranslationBasicCollection;
+use Shopware\Core\System\Unit\Struct\UnitDetailStruct;
 
 class UnitDetailCollection extends UnitBasicCollection
 {

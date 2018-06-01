@@ -1,19 +1,19 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Application\Context\Event\ContextCartModifier;
+namespace Shopware\Core\Application\Context\Event\ContextCartModifier;
 
-use Shopware\Application\Context\Collection\ContextCartModifierDetailCollection;
-use Shopware\Framework\Context;
-use Shopware\Checkout\Rule\Event\ContextRuleBasicLoadedEvent;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\Core\Application\Context\Collection\ContextCartModifierDetailCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Rule\Event\ContextRuleBasicLoadedEvent;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
 
 class ContextCartModifierDetailLoadedEvent extends NestedEvent
 {
     public const NAME = 'context_cart_modifier.detail.loaded';
 
     /**
-     * @var \Shopware\Framework\Context
+     * @var \Shopware\Core\Framework\Context
      */
     protected $context;
 

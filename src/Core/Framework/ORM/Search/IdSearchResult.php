@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Search;
+namespace Shopware\Core\Framework\ORM\Search;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\Struct\Struct;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Struct\Struct;
 
 class IdSearchResult extends Struct
 {
@@ -23,7 +23,7 @@ class IdSearchResult extends Struct
     protected $criteria;
 
     /**
-     * @var \Shopware\Framework\Context
+     * @var \Shopware\Core\Framework\Context
      */
     protected $context;
 

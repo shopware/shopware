@@ -1,23 +1,23 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Search\Parser;
+namespace Shopware\Core\Framework\ORM\Search\Parser;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Framework\Context;
-use Shopware\Framework\ORM\Dbal\EntityDefinitionQueryHelper;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\Field\FkField;
-use Shopware\Framework\ORM\Field\IdField;
-use Shopware\Framework\ORM\Field\JsonArrayField;
-use Shopware\Framework\ORM\Search\Query\MatchQuery;
-use Shopware\Framework\ORM\Search\Query\NestedQuery;
-use Shopware\Framework\ORM\Search\Query\NotQuery;
-use Shopware\Framework\ORM\Search\Query\Query;
-use Shopware\Framework\ORM\Search\Query\RangeQuery;
-use Shopware\Framework\ORM\Search\Query\ScoreQuery;
-use Shopware\Framework\ORM\Search\Query\TermQuery;
-use Shopware\Framework\ORM\Search\Query\TermsQuery;
-use Shopware\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Dbal\EntityDefinitionQueryHelper;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\Field\FkField;
+use Shopware\Core\Framework\ORM\Field\IdField;
+use Shopware\Core\Framework\ORM\Field\JsonArrayField;
+use Shopware\Core\Framework\ORM\Search\Query\MatchQuery;
+use Shopware\Core\Framework\ORM\Search\Query\NestedQuery;
+use Shopware\Core\Framework\ORM\Search\Query\NotQuery;
+use Shopware\Core\Framework\ORM\Search\Query\Query;
+use Shopware\Core\Framework\ORM\Search\Query\RangeQuery;
+use Shopware\Core\Framework\ORM\Search\Query\ScoreQuery;
+use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Core\Framework\ORM\Search\Query\TermsQuery;
+use Shopware\Core\Framework\Struct\Uuid;
 
 class SqlQueryParser
 {

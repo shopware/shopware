@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Shipping\Aggregate\ShippingMethodPrice\Event;
+namespace Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\Event;
 
-use Shopware\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceDefinition;
-use Shopware\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceDefinition;
+use Shopware\Core\Framework\ORM\Write\WrittenEvent;
 
 class ShippingMethodPriceWrittenEvent extends WrittenEvent
 {

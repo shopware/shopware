@@ -2,11 +2,11 @@
 
 namespace Shopware\Storefront\Subscriber;
 
-use Shopware\Content\Product\Util\KeywordSearchTermInterpreter;
-use Shopware\Defaults;
-use Shopware\Framework\ORM\Search\Query\ScoreQuery;
-use Shopware\Framework\ORM\Search\Query\TermQuery;
-use Shopware\Framework\ORM\Search\Query\TermsQuery;
+use Shopware\Core\Content\Product\Util\KeywordSearchTermInterpreter;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\ORM\Search\Query\ScoreQuery;
+use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Core\Framework\ORM\Search\Query\TermsQuery;
 use Shopware\Storefront\Event\ListingEvents;
 use Shopware\Storefront\Event\PageCriteriaCreatedEvent;
 use Shopware\Storefront\Event\TransformListingPageRequestEvent;

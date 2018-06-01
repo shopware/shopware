@@ -1,19 +1,19 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product;
+namespace Shopware\Core\Content\Product;
 
-use Shopware\Checkout\CustomerContext;
-use Shopware\Checkout\Cart\Price\PriceCalculator;
-use Shopware\Content\Product\Aggregate\ProductService\Struct\ProductServiceBasicStruct;
-use Shopware\Content\Product\Collection\ProductBasicCollection;
-use Shopware\Content\Product\Collection\ProductDetailCollection;
-use Shopware\Content\Product\Struct\ProductSearchResult;
-use Shopware\Content\Product\Struct\StorefrontProductBasicInterface;
-use Shopware\Content\Product\Struct\StorefrontProductBasicStruct;
-use Shopware\Content\Product\Struct\StorefrontProductDetailStruct;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\Struct\ConfigurationGroupOptionBasicStruct;
+use Shopware\Core\Checkout\CustomerContext;
+use Shopware\Core\Checkout\Cart\Price\PriceCalculator;
+use Shopware\Core\Content\Product\Aggregate\ProductService\Struct\ProductServiceBasicStruct;
+use Shopware\Core\Content\Product\Collection\ProductBasicCollection;
+use Shopware\Core\Content\Product\Collection\ProductDetailCollection;
+use Shopware\Core\Content\Product\Struct\ProductSearchResult;
+use Shopware\Core\Content\Product\Struct\StorefrontProductBasicInterface;
+use Shopware\Core\Content\Product\Struct\StorefrontProductBasicStruct;
+use Shopware\Core\Content\Product\Struct\StorefrontProductDetailStruct;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\IdSearchResult;
+use Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupOption\Struct\ConfigurationGroupOptionBasicStruct;
 
 class StorefrontProductRepository
 {

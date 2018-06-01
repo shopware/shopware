@@ -1,26 +1,26 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Tax;
+namespace Shopware\Core\System\Tax;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\ORM\Read\EntityReaderInterface;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\AggregatorResult;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
-use Shopware\Framework\ORM\Search\EntitySearcherInterface;
-use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\System\Tax\Collection\TaxBasicCollection;
-use Shopware\System\Tax\Collection\TaxDetailCollection;
-use Shopware\System\Tax\Event\TaxAggregationResultLoadedEvent;
-use Shopware\System\Tax\Event\TaxBasicLoadedEvent;
-use Shopware\System\Tax\Event\TaxDetailLoadedEvent;
-use Shopware\System\Tax\Event\TaxIdSearchResultLoadedEvent;
-use Shopware\System\Tax\Event\TaxSearchResultLoadedEvent;
-use Shopware\System\Tax\Struct\TaxSearchResult;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\AggregatorResult;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\ORM\Search\IdSearchResult;
+use Shopware\Core\Framework\ORM\Version\Service\VersionManager;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Write\WriteContext;
+use Shopware\Core\System\Tax\Collection\TaxBasicCollection;
+use Shopware\Core\System\Tax\Collection\TaxDetailCollection;
+use Shopware\Core\System\Tax\Event\TaxAggregationResultLoadedEvent;
+use Shopware\Core\System\Tax\Event\TaxBasicLoadedEvent;
+use Shopware\Core\System\Tax\Event\TaxDetailLoadedEvent;
+use Shopware\Core\System\Tax\Event\TaxIdSearchResultLoadedEvent;
+use Shopware\Core\System\Tax\Event\TaxSearchResultLoadedEvent;
+use Shopware\Core\System\Tax\Struct\TaxSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class TaxRepository implements RepositoryInterface

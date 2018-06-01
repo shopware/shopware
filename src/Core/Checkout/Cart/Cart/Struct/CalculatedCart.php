@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- * Shopware 5
+ * Shopware\Core 5
  * Copyright (c) shopware AG
  *
  * According to our dual licensing model, this program can be used either
@@ -17,27 +17,27 @@ declare(strict_types=1);
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
  *
- * "Shopware" is a registered trademark of shopware AG.
+ * "Shopware\Core" is a registered trademark of shopware AG.
  * The licensing of the program under the AGPLv3 does not imply a
  * trademark license. Therefore any rights, title and interest in
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Checkout\Cart\Cart\Struct;
+namespace Shopware\Core\Checkout\Cart\Cart\Struct;
 
-use Shopware\Checkout\Cart\Delivery\Struct\DeliveryCollection;
-use Shopware\Checkout\Cart\Error\ErrorCollection;
-use Shopware\Checkout\Cart\LineItem\CalculatedLineItemCollection;
-use Shopware\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Checkout\Cart\Price\Struct\CartPrice;
-use Shopware\Checkout\Cart\Transaction\Struct\Transaction;
-use Shopware\Checkout\Cart\Transaction\Struct\TransactionCollection;
-use Shopware\Framework\Struct\Struct;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
+use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
+use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItemCollection;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\Transaction\Struct\Transaction;
+use Shopware\Core\Checkout\Cart\Transaction\Struct\TransactionCollection;
+use Shopware\Core\Framework\Struct\Struct;
 
 class CalculatedCart extends Struct
 {
     /**
-     * @var \Shopware\Checkout\Cart\Price\Struct\CartPrice
+     * @var \Shopware\Core\Checkout\Cart\Price\Struct\CartPrice
      */
     protected $price;
 
@@ -52,7 +52,7 @@ class CalculatedCart extends Struct
     protected $calculatedLineItems;
 
     /**
-     * @var \Shopware\Checkout\Cart\Delivery\Struct\DeliveryCollection
+     * @var \Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection
      */
     protected $deliveries;
     /**

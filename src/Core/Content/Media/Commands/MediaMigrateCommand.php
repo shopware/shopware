@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * Shopware 5
+ * Shopware\Core 5
  * Copyright (c) shopware AG
  *
  * According to our dual licensing model, this program can be used either
@@ -16,20 +16,20 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
  *
- * "Shopware" is a registered trademark of shopware AG.
+ * "Shopware\Core" is a registered trademark of shopware AG.
  * The licensing of the program under the AGPLv3 does not imply a
  * trademark license. Therefore any rights, title and interest in
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Content\Media\Commands;
+namespace Shopware\Core\Content\Media\Commands;
 
-use Shopware\Content\Media\Event\MigrateAdvanceEvent;
-use Shopware\Content\Media\Event\MigrateFinishEvent;
-use Shopware\Content\Media\Event\MigrateStartEvent;
-use Shopware\Content\Media\Util\MediaMigration;
-use Shopware\Content\Media\Util\Strategy\StrategyFactory;
-use Shopware\Content\Media\Util\Strategy\StrategyFilesystem;
+use Shopware\Core\Content\Media\Event\MigrateAdvanceEvent;
+use Shopware\Core\Content\Media\Event\MigrateFinishEvent;
+use Shopware\Core\Content\Media\Event\MigrateStartEvent;
+use Shopware\Core\Content\Media\Util\MediaMigration;
+use Shopware\Core\Content\Media\Util\Strategy\StrategyFactory;
+use Shopware\Core\Content\Media\Util\Strategy\StrategyFilesystem;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -43,12 +43,12 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class MediaMigrateCommand extends Command implements EventSubscriberInterface
 {
     /**
-     * @var \Shopware\Content\Media\Util\Strategy\StrategyFilesystem
+     * @var \Shopware\Core\Content\Media\Util\Strategy\StrategyFilesystem
      */
     private $filesystem;
 
     /**
-     * @var \Shopware\Content\Media\Util\Strategy\StrategyFactory
+     * @var \Shopware\Core\Content\Media\Util\Strategy\StrategyFactory
      */
     private $strategyFactory;
 

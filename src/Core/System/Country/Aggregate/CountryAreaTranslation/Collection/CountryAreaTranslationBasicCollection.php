@@ -1,14 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Country\Aggregate\CountryAreaTranslation\Collection;
+namespace Shopware\Core\System\Country\Aggregate\CountryAreaTranslation\Collection;
 
-use Shopware\Framework\ORM\EntityCollection;
-use Shopware\System\Country\Aggregate\CountryAreaTranslation\Struct\CountryAreaTranslationBasicStruct;
+use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\System\Country\Aggregate\CountryAreaTranslation\Struct\CountryAreaTranslationBasicStruct;
 
 class CountryAreaTranslationBasicCollection extends EntityCollection
 {
     /**
-     * @var \Shopware\System\Country\Aggregate\CountryAreaTranslation\Struct\CountryAreaTranslationBasicStruct[]
+     * @var \Shopware\Core\System\Country\Aggregate\CountryAreaTranslation\Struct\CountryAreaTranslationBasicStruct[]
      */
     protected $elements = [];
 

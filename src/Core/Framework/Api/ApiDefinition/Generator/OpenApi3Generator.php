@@ -1,32 +1,32 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Api\ApiDefinition\Generator;
+namespace Shopware\Core\Framework\Api\ApiDefinition\Generator;
 
-use Shopware\Framework\Api\ApiDefinition\ApiDefinitionGeneratorInterface;
-use Shopware\Framework\ORM\DefinitionRegistry;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\Field\AssociationInterface;
-use Shopware\Framework\ORM\Field\BoolField;
-use Shopware\Framework\ORM\Field\DateField;
-use Shopware\Framework\ORM\Field\Field;
-use Shopware\Framework\ORM\Field\FkField;
-use Shopware\Framework\ORM\Field\FloatField;
-use Shopware\Framework\ORM\Field\IdField;
-use Shopware\Framework\ORM\Field\IntField;
-use Shopware\Framework\ORM\Field\JsonArrayField;
-use Shopware\Framework\ORM\Field\JsonObjectField;
-use Shopware\Framework\ORM\Field\LongTextField;
-use Shopware\Framework\ORM\Field\LongTextWithHtmlField;
-use Shopware\Framework\ORM\Field\ManyToManyAssociationField;
-use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
-use Shopware\Framework\ORM\Field\OneToManyAssociationField;
-use Shopware\Framework\ORM\Field\ReferenceVersionField;
-use Shopware\Framework\ORM\Field\StringField;
-use Shopware\Framework\ORM\Field\TenantIdField;
-use Shopware\Framework\ORM\Field\TranslatedField;
-use Shopware\Framework\ORM\Field\VersionField;
-use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Api\ApiDefinition\ApiDefinitionGeneratorInterface;
+use Shopware\Core\Framework\ORM\DefinitionRegistry;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\Field\AssociationInterface;
+use Shopware\Core\Framework\ORM\Field\BoolField;
+use Shopware\Core\Framework\ORM\Field\DateField;
+use Shopware\Core\Framework\ORM\Field\Field;
+use Shopware\Core\Framework\ORM\Field\FkField;
+use Shopware\Core\Framework\ORM\Field\FloatField;
+use Shopware\Core\Framework\ORM\Field\IdField;
+use Shopware\Core\Framework\ORM\Field\IntField;
+use Shopware\Core\Framework\ORM\Field\JsonArrayField;
+use Shopware\Core\Framework\ORM\Field\JsonObjectField;
+use Shopware\Core\Framework\ORM\Field\LongTextField;
+use Shopware\Core\Framework\ORM\Field\LongTextWithHtmlField;
+use Shopware\Core\Framework\ORM\Field\ManyToManyAssociationField;
+use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
+use Shopware\Core\Framework\ORM\Field\StringField;
+use Shopware\Core\Framework\ORM\Field\TenantIdField;
+use Shopware\Core\Framework\ORM\Field\TranslatedField;
+use Shopware\Core\Framework\ORM\Field\VersionField;
+use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Component\HttpFoundation\Response;
 
 class OpenApi3Generator implements ApiDefinitionGeneratorInterface
@@ -56,7 +56,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 ['url' => 'http://shopware.next/api'],
             ],
             'info' => [
-                'title' => 'Shopware API',
+                'title' => 'Shopware\Core API',
                 'version' => '1.0.0',
             ],
             'security' => [

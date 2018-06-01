@@ -9,7 +9,7 @@
     {% block frontend_detail_image_box %}
         {% spaceless %}
 
-        {# @var product \Shopware\Content\Product\Struct\StorefrontProductDetailStruct #}
+        {# @var product \Shopware\Core\Content\Product\Struct\StorefrontProductDetailStruct #}
         <div class="image-slider--container{% if not product.media %} no--image{% endif %}{% if product.media.count == 0 %} no--thumbnails{% endif %}">
             <div class="image-slider--slide">
 

@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Listing\Aggregate\ListingFacetTranslation\Collection;
+namespace Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation\Collection;
 
-use Shopware\System\Language\Collection\LanguageBasicCollection;
-use Shopware\System\Listing\Aggregate\ListingFacetTranslation\Struct\ListingFacetTranslationDetailStruct;
-use Shopware\System\Listing\Collection\ListingFacetBasicCollection;
+use Shopware\Core\System\Language\Collection\LanguageBasicCollection;
+use Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation\Struct\ListingFacetTranslationDetailStruct;
+use Shopware\Core\System\Listing\Collection\ListingFacetBasicCollection;
 
 class ListingFacetTranslationDetailCollection extends ListingFacetTranslationBasicCollection
 {

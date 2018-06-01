@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Tax\Aggregate\TaxAreaRule\Struct;
+namespace Shopware\Core\System\Tax\Aggregate\TaxAreaRule\Struct;
 
-use Shopware\Checkout\Customer\Aggregate\CustomerGroup\Struct\CustomerGroupBasicStruct;
-use Shopware\System\Country\Aggregate\CountryArea\Struct\CountryAreaBasicStruct;
-use Shopware\System\Country\Aggregate\CountryState\Struct\CountryStateBasicStruct;
-use Shopware\System\Country\Struct\CountryBasicStruct;
-use Shopware\System\Tax\Aggregate\TaxAreaRuleTranslation\Collection\TaxAreaRuleTranslationBasicCollection;
-use Shopware\System\Tax\Struct\TaxBasicStruct;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\Struct\CustomerGroupBasicStruct;
+use Shopware\Core\System\Country\Aggregate\CountryArea\Struct\CountryAreaBasicStruct;
+use Shopware\Core\System\Country\Aggregate\CountryState\Struct\CountryStateBasicStruct;
+use Shopware\Core\System\Country\Struct\CountryBasicStruct;
+use Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTranslation\Collection\TaxAreaRuleTranslationBasicCollection;
+use Shopware\Core\System\Tax\Struct\TaxBasicStruct;
 
 class TaxAreaRuleDetailStruct extends TaxAreaRuleBasicStruct
 {
@@ -66,12 +66,12 @@ class TaxAreaRuleDetailStruct extends TaxAreaRuleBasicStruct
         $this->country = $country;
     }
 
-    public function getCountryState(): ?\Shopware\System\Country\Aggregate\CountryState\Struct\CountryStateBasicStruct
+    public function getCountryState(): ?\Shopware\Core\System\Country\Aggregate\CountryState\Struct\CountryStateBasicStruct
     {
         return $this->countryState;
     }
 
-    public function setCountryState(?\Shopware\System\Country\Aggregate\CountryState\Struct\CountryStateBasicStruct $countryState): void
+    public function setCountryState(?\Shopware\Core\System\Country\Aggregate\CountryState\Struct\CountryStateBasicStruct $countryState): void
     {
         $this->countryState = $countryState;
     }
@@ -91,7 +91,8 @@ class TaxAreaRuleDetailStruct extends TaxAreaRuleBasicStruct
         return $this->customerGroup;
     }
 
-    public function setCustomerGroup(\Shopware\Checkout\Customer\Aggregate\CustomerGroup\Struct\CustomerGroupBasicStruct $customerGroup): void
+    public function setCustomerGroup(
+        \Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\Struct\CustomerGroupBasicStruct $customerGroup): void
     {
         $this->customerGroup = $customerGroup;
     }

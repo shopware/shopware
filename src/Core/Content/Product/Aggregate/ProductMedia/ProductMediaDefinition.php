@@ -1,30 +1,30 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Aggregate\ProductMedia;
+namespace Shopware\Core\Content\Product\Aggregate\ProductMedia;
 
-use Shopware\Content\Media\MediaDefinition;
-use Shopware\Content\Product\Aggregate\ProductMedia\Collection\ProductMediaBasicCollection;
-use Shopware\Content\Product\Aggregate\ProductMedia\Collection\ProductMediaDetailCollection;
-use Shopware\Content\Product\Aggregate\ProductMedia\Event\ProductMediaDeletedEvent;
-use Shopware\Content\Product\Aggregate\ProductMedia\Event\ProductMediaWrittenEvent;
-use Shopware\Content\Product\Aggregate\ProductMedia\Struct\ProductMediaBasicStruct;
-use Shopware\Content\Product\Aggregate\ProductMedia\Struct\ProductMediaDetailStruct;
-use Shopware\Content\Product\ProductDefinition;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\EntityExtensionInterface;
-use Shopware\Framework\ORM\Field\BoolField;
-use Shopware\Framework\ORM\Field\CatalogField;
-use Shopware\Framework\ORM\Field\DateField;
-use Shopware\Framework\ORM\Field\FkField;
-use Shopware\Framework\ORM\Field\IdField;
-use Shopware\Framework\ORM\Field\IntField;
-use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
-use Shopware\Framework\ORM\Field\ReferenceVersionField;
-use Shopware\Framework\ORM\Field\TenantIdField;
-use Shopware\Framework\ORM\Field\VersionField;
-use Shopware\Framework\ORM\FieldCollection;
-use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
-use Shopware\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\Content\Media\MediaDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\Collection\ProductMediaBasicCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\Collection\ProductMediaDetailCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\Event\ProductMediaDeletedEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\Event\ProductMediaWrittenEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\Struct\ProductMediaBasicStruct;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\Struct\ProductMediaDetailStruct;
+use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+use Shopware\Core\Framework\ORM\Field\BoolField;
+use Shopware\Core\Framework\ORM\Field\CatalogField;
+use Shopware\Core\Framework\ORM\Field\DateField;
+use Shopware\Core\Framework\ORM\Field\FkField;
+use Shopware\Core\Framework\ORM\Field\IdField;
+use Shopware\Core\Framework\ORM\Field\IntField;
+use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
+use Shopware\Core\Framework\ORM\Field\TenantIdField;
+use Shopware\Core\Framework\ORM\Field\VersionField;
+use Shopware\Core\Framework\ORM\FieldCollection;
+use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
+use Shopware\Core\Framework\ORM\Write\Flag\Required;
 
 class ProductMediaDefinition extends EntityDefinition
 {

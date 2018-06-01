@@ -1,18 +1,18 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Util;
+namespace Shopware\Core\Content\Product\Util;
 
-use Shopware\Framework\Context;
-use Shopware\Content\Product\Aggregate\ProductConfigurator\Collection\ProductConfiguratorBasicCollection;
-use Shopware\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorRepository;
-use Shopware\Content\Product\Aggregate\ProductConfigurator\Struct\ProductConfiguratorBasicStruct;
-use Shopware\Content\Product\Exception\NoConfiguratorFoundException;
-use Shopware\Content\Product\Exception\ProductNotFoundException;
-use Shopware\Content\Product\ProductRepository;
-use Shopware\Content\Product\Struct\ProductBasicStruct;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\Query\TermQuery;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\Collection\ProductConfiguratorBasicCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorRepository;
+use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\Struct\ProductConfiguratorBasicStruct;
+use Shopware\Core\Content\Product\Exception\NoConfiguratorFoundException;
+use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
+use Shopware\Core\Content\Product\ProductRepository;
+use Shopware\Core\Content\Product\Struct\ProductBasicStruct;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
 
 class VariantGenerator
 {

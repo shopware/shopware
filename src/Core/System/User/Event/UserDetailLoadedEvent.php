@@ -1,20 +1,20 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\User\Event;
+namespace Shopware\Core\System\User\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Content\Media\Event\MediaBasicLoadedEvent;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\System\Locale\Event\LocaleBasicLoadedEvent;
-use Shopware\System\User\Collection\UserDetailCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Media\Event\MediaBasicLoadedEvent;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\System\Locale\Event\LocaleBasicLoadedEvent;
+use Shopware\Core\System\User\Collection\UserDetailCollection;
 
 class UserDetailLoadedEvent extends NestedEvent
 {
     public const NAME = 'user.detail.loaded';
 
     /**
-     * @var \Shopware\Framework\Context
+     * @var \Shopware\Core\Framework\Context
      */
     protected $context;
 

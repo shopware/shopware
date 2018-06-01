@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Version\Event\VersionCommitData;
+namespace Shopware\Core\Framework\ORM\Version\Event\VersionCommitData;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\ORM\Version\Struct\VersionCommitDataSearchResult;
-use Shopware\Framework\ORM\Version\Struct\VersionCommitSearchResult;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\ORM\Version\Struct\VersionCommitDataSearchResult;
+use Shopware\Core\Framework\ORM\Version\Struct\VersionCommitSearchResult;
 
 class VersionCommitDataSearchResultLoadedEvent extends NestedEvent
 {

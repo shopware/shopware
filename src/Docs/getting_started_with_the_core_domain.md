@@ -38,7 +38,7 @@ The entire core is API Driven, meaning that all operations can be mapped through
 These include the normal CRUD operations of data as well as shopping cart calculations 
 or even individual price calculation.
 Furthermore, the core supplies its own ORM, which is has been specifically designed 
-for the corresponding use cases in the Shopware universe.
+for the corresponding use cases in the Shopware\Core universe.
 
 # Getting around the core structure
 
@@ -136,10 +136,10 @@ therefore has a strong focus on the ability to search data. All search queries a
 governed by its associated repository class.
 
 The repository classes are defined in the corresponding core parts, here are some examples which are available:
-* `\Shopware\Content\Product\ProductRepository`
-* `\Shopware\System\Touchpoint\TouchpointRepository`
-* `\Shopware\System\Locale\LocaleRepository`
-* `\Shopware\Checkout\Customer\CustomerRepository`
+* `\Shopware\Core\Content\Product\ProductRepository`
+* `\Shopware\Core\System\Touchpoint\TouchpointRepository`
+* `\Shopware\Core\System\Locale\LocaleRepository`
+* `\Shopware\Core\Checkout\Customer\CustomerRepository`
 
 ### Pagination
 Lets start with a simple paginated list of products:
@@ -148,7 +148,7 @@ Lets start with a simple paginated list of products:
 
 In the PHP stack we can get access to the repository via di container.
 Each repository uses its class name as di container id. 
-To search for entities, a `\Shopware\Framework\ORM\Search\Criteria` object is always used
+To search for entities, a `\Shopware\Core\Framework\ORM\Search\Criteria` object is always used
 ```php
 $repository = $this->container->get(ProductRepository::class);
 
@@ -169,7 +169,7 @@ Complex queries need to be sent via the `/search` endpoint:
 * `POST /api/v1/search/product`
 
 The `/search` endpoint allows to provide 
-the whole search `\Shopware\Framework\ORM\Search\Criteria` class via post:
+the whole search `\Shopware\Core\Framework\ORM\Search\Criteria` class via post:
 ```php
 <?php
 
@@ -197,20 +197,20 @@ properties of an entity and its associations. As long as a link exists between t
 they can also be filtered.
 
 The range of filter options includes the following classes:
-* `\Shopware\Framework\ORM\Search\Query\MatchQuery`
+* `\Shopware\Core\Framework\ORM\Search\Query\MatchQuery`
     * Allows to perform a string comparison (SQL: `LIKE`)
-* `\Shopware\Framework\ORM\Search\Query\RangeQuery`
+* `\Shopware\Core\Framework\ORM\Search\Query\RangeQuery`
     * Query of a range of values (SQL: `<=`, `>=`, `>`, `<` )
-* `\Shopware\Framework\ORM\Search\Query\TermQuery`
+* `\Shopware\Core\Framework\ORM\Search\Query\TermQuery`
     * Query to filter for an exact value
-* `\Shopware\Framework\ORM\Search\Query\TermsQuery`
+* `\Shopware\Core\Framework\ORM\Search\Query\TermsQuery`
     * Query to filter a set of exact values (SQL: `IN`)
 
 To combine these different filter options, we have implemented query containers,
 which allow you to link queries with each other or to negate them:
-* `\Shopware\Framework\ORM\Search\Query\NestedQuery`
+* `\Shopware\Core\Framework\ORM\Search\Query\NestedQuery`
     * Allows you to group multiple queries and associate them with an operator `AND` or `OR`
-* `\Shopware\Framework\ORM\Search\Query\NotQuery`
+* `\Shopware\Core\Framework\ORM\Search\Query\NotQuery`
     * Allows to negate queries
 
 **Stack example:**
@@ -265,7 +265,7 @@ $criteria->addFilter(
 The same filter possibilities are also offered by the API. With a small difference: 
 If you call the entity endpoint, only the equals operator is supported. 
 Range queries or others are not possible here:
-* `GET /api/v1/product?filter[product.active]=1&filter[product.manufacturer.name]=Shopware` 
+* `GET /api/v1/product?filter[product.active]=1&filter[product.manufacturer.name]=Shopware\Core` 
 
 For more complex filtering, use the `/search` endpoint as mentioned above. 
 In the first example of filtering, filters were made for products that have the active flag. 
@@ -651,10 +651,10 @@ Lets start with an empty entity definition:
 ```php
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product;
+namespace Shopware\Core\Content\Product;
 
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\FieldCollection;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\FieldCollection;
 
 class ProductDefinition extends EntityDefinition
 {
@@ -848,9 +848,9 @@ A simple struct class can look like this:
 ```
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Locale\Struct;
+namespace Shopware\Core\System\Locale\Struct;
 
-use Shopware\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Entity;
 
 class LocaleBasicStruct extends Entity
 {
@@ -1004,7 +1004,7 @@ The following example shows the basic structure of a plugin which should be defi
 
 namespace GettingStarted;
 
-use Shopware\Framework\Plugin\Plugin;
+use Shopware\Core\Framework\Plugin\Plugin;
 
 class GettingStarted extends Plugin
 {
@@ -1077,7 +1077,7 @@ public function build(ContainerBuilder $container)
 ## Entity Extension
 Own entities can be integrated in the core via the corresponding `services.xml` 
 and behave as described above. To extend existing entities, 
-a `\Shopware\Framework\ORM\EntityExtensionInterface` can be used.
+a `\Shopware\Core\Framework\ORM\EntityExtensionInterface` can be used.
 This must define for which entity the extension applies. 
 Once this entity is accessed in the system, the extension can add more fields in the entity:
 ```
@@ -1086,11 +1086,11 @@ Once this entity is accessed in the system, the extension can add more fields in
 namespace GettingStarted\Content\Product;
 
 use GettingStarted\Content\Promotion\PromotionDefinition;
-use Shopware\Content\Product\ProductDefinition;
-use Shopware\Framework\ORM\EntityExtensionInterface;
-use Shopware\Framework\ORM\Field\OneToManyAssociationField;
-use Shopware\Framework\ORM\FieldCollection;
-use Shopware\Framework\ORM\Write\Flag\Extension;
+use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\ORM\FieldCollection;
+use Shopware\Core\Framework\ORM\Write\Flag\Extension;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class PromotionExtension implements EntityExtensionInterface, EventSubscriberInterface

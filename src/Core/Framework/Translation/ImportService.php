@@ -1,15 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Translation;
+namespace Shopware\Core\Framework\Translation;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use Psr\Log\LoggerInterface;
-use Shopware\Defaults;
-use Shopware\Framework\Struct\Uuid;
-use Shopware\Framework\Event\ImportAdvanceEvent;
-use Shopware\Framework\Event\ImportFinishEvent;
-use Shopware\Framework\Event\ImportStartEvent;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Event\ImportAdvanceEvent;
+use Shopware\Core\Framework\Event\ImportFinishEvent;
+use Shopware\Core\Framework\Event\ImportStartEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;

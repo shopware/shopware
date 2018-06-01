@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Api\Firewall;
+namespace Shopware\Core\Framework\Api\Firewall;
 
 use Doctrine\DBAL\Connection;
 use Firebase\JWT\JWT;
-use Shopware\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;

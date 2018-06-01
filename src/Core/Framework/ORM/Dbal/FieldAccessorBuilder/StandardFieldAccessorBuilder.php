@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Dbal\FieldAccessorBuilder;
+namespace Shopware\Core\Framework\ORM\Dbal\FieldAccessorBuilder;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\ORM\Dbal\EntityDefinitionQueryHelper;
-use Shopware\Framework\ORM\Field\Field;
-use Shopware\Framework\ORM\Write\FieldAware\StorageAware;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Dbal\EntityDefinitionQueryHelper;
+use Shopware\Core\Framework\ORM\Field\Field;
+use Shopware\Core\Framework\ORM\Write\FieldAware\StorageAware;
 
 class StandardFieldAccessorBuilder implements FieldAccessorBuilderInterface
 {

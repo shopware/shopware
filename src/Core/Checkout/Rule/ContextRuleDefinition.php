@@ -1,27 +1,27 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Rule;
+namespace Shopware\Core\Checkout\Rule;
 
-use Shopware\Application\Context\Definition\ContextCartModifierDefinition;
-use Shopware\Checkout\Rule\Collection\ContextRuleBasicCollection;
-use Shopware\Checkout\Rule\Event\ContextRuleDeletedEvent;
-use Shopware\Checkout\Rule\Event\ContextRuleWrittenEvent;
-use Shopware\Checkout\Rule\Struct\ContextRuleBasicStruct;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\EntityExtensionInterface;
-use Shopware\Framework\ORM\Field\DateField;
-use Shopware\Framework\ORM\Field\IdField;
-use Shopware\Framework\ORM\Field\IntField;
-use Shopware\Framework\ORM\Field\JsonObjectField;
-use Shopware\Framework\ORM\Field\OneToManyAssociationField;
-use Shopware\Framework\ORM\Field\StringField;
-use Shopware\Framework\ORM\Field\TenantIdField;
-use Shopware\Framework\ORM\FieldCollection;
-use Shopware\Framework\ORM\Write\Flag\CascadeDelete;
-use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
-use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\Framework\ORM\Write\Flag\Serialized;
-use Shopware\Framework\ORM\Write\Flag\WriteOnly;
+use Shopware\Core\Application\Context\Definition\ContextCartModifierDefinition;
+use Shopware\Core\Checkout\Rule\Collection\ContextRuleBasicCollection;
+use Shopware\Core\Checkout\Rule\Event\ContextRuleDeletedEvent;
+use Shopware\Core\Checkout\Rule\Event\ContextRuleWrittenEvent;
+use Shopware\Core\Checkout\Rule\Struct\ContextRuleBasicStruct;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+use Shopware\Core\Framework\ORM\Field\DateField;
+use Shopware\Core\Framework\ORM\Field\IdField;
+use Shopware\Core\Framework\ORM\Field\IntField;
+use Shopware\Core\Framework\ORM\Field\JsonObjectField;
+use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\ORM\Field\StringField;
+use Shopware\Core\Framework\ORM\Field\TenantIdField;
+use Shopware\Core\Framework\ORM\FieldCollection;
+use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
+use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
+use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\Framework\ORM\Write\Flag\Serialized;
+use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
 
 class ContextRuleDefinition extends EntityDefinition
 {

@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Country\Collection;
+namespace Shopware\Core\System\Country\Collection;
 
-use Shopware\System\Country\Aggregate\CountryArea\Collection\CountryAreaBasicCollection;
-use Shopware\System\Country\Aggregate\CountryState\Collection\CountryStateBasicCollection;
-use Shopware\System\Country\Aggregate\CountryTranslation\Collection\CountryTranslationBasicCollection;
-use Shopware\System\Country\Struct\CountryDetailStruct;
+use Shopware\Core\System\Country\Aggregate\CountryArea\Collection\CountryAreaBasicCollection;
+use Shopware\Core\System\Country\Aggregate\CountryState\Collection\CountryStateBasicCollection;
+use Shopware\Core\System\Country\Aggregate\CountryTranslation\Collection\CountryTranslationBasicCollection;
+use Shopware\Core\System\Country\Struct\CountryDetailStruct;
 
 class CountryDetailCollection extends CountryBasicCollection
 {

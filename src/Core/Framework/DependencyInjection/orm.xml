@@ -6,300 +6,300 @@
 
     <services>
 
-        <service class="Shopware\Framework\ORM\Dbal\EntityDefinitionQueryHelper" id="Shopware\Framework\ORM\Dbal\EntityDefinitionQueryHelper" >
-            <argument type="service" id="Shopware\Framework\ORM\Dbal\FieldResolver\FieldResolverRegistry"/>
-            <argument type="service" id="Shopware\Framework\ORM\Dbal\FieldAccessorBuilder\FieldAccessorBuilderRegistry"/>
+        <service class="Shopware\Core\Framework\ORM\Dbal\EntityDefinitionQueryHelper" id="Shopware\Core\Framework\ORM\Dbal\EntityDefinitionQueryHelper" >
+            <argument type="service" id="Shopware\Core\Framework\ORM\Dbal\FieldResolver\FieldResolverRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\Dbal\FieldAccessorBuilder\FieldAccessorBuilderRegistry"/>
         </service>
 
-        <service class="Shopware\Framework\ORM\Dbal\EntityHydrator" id="Shopware\Framework\ORM\Dbal\EntityHydrator">
+        <service class="Shopware\Core\Framework\ORM\Dbal\EntityHydrator" id="Shopware\Core\Framework\ORM\Dbal\EntityHydrator">
             <argument type="service" id="serializer"/>
         </service>
 
-        <service class="Shopware\Framework\ORM\Search\Term\Tokenizer" id="Shopware\Framework\ORM\Search\Term\Tokenizer"/>
+        <service class="Shopware\Core\Framework\ORM\Search\Term\Tokenizer" id="Shopware\Core\Framework\ORM\Search\Term\Tokenizer"/>
 
-        <service class="Shopware\Framework\ORM\Search\Term\StopWordFilter" id="Shopware\Framework\ORM\Search\Term\StopWordFilter"/>
+        <service class="Shopware\Core\Framework\ORM\Search\Term\StopWordFilter" id="Shopware\Core\Framework\ORM\Search\Term\StopWordFilter"/>
 
-        <service class="Shopware\Framework\ORM\Search\Term\SearchTermInterpreter" id="Shopware\Framework\ORM\Search\Term\SearchTermInterpreter" public="true">
-            <argument id="Shopware\Framework\ORM\Search\Term\Tokenizer" type="service"/>
+        <service class="Shopware\Core\Framework\ORM\Search\Term\SearchTermInterpreter" id="Shopware\Core\Framework\ORM\Search\Term\SearchTermInterpreter" public="true">
+            <argument id="Shopware\Core\Framework\ORM\Search\Term\Tokenizer" type="service"/>
         </service>
 
-        <service class="Shopware\Framework\ORM\Search\Term\EntityScoreQueryBuilder" id="Shopware\Framework\ORM\Search\Term\EntityScoreQueryBuilder" public="true"/>
+        <service class="Shopware\Core\Framework\ORM\Search\Term\EntityScoreQueryBuilder" id="Shopware\Core\Framework\ORM\Search\Term\EntityScoreQueryBuilder" public="true"/>
 
-        <service class="Shopware\Framework\ORM\Search\SearchCriteriaBuilder" id="Shopware\Framework\ORM\Search\SearchCriteriaBuilder">
-            <argument id="Shopware\Framework\ORM\Search\Term\SearchTermInterpreter" type="service"/>
-            <argument id="Shopware\Framework\ORM\Search\Term\EntityScoreQueryBuilder" type="service"/>
+        <service class="Shopware\Core\Framework\ORM\Search\SearchCriteriaBuilder" id="Shopware\Core\Framework\ORM\Search\SearchCriteriaBuilder">
+            <argument id="Shopware\Core\Framework\ORM\Search\Term\SearchTermInterpreter" type="service"/>
+            <argument id="Shopware\Core\Framework\ORM\Search\Term\EntityScoreQueryBuilder" type="service"/>
         </service>
 
-        <service class="Shopware\Framework\ORM\ExtensionRegistry" id="Shopware\Framework\ORM\ExtensionRegistry" public="true">
+        <service class="Shopware\Core\Framework\ORM\ExtensionRegistry" id="Shopware\Core\Framework\ORM\ExtensionRegistry" public="true">
             <argument type="tagged" tag="shopware.entity.extension" />
         </service>
 
-        <service class="Shopware\Framework\ORM\DefinitionRegistry" id="Shopware\Framework\ORM\DefinitionRegistry">
+        <service class="Shopware\Core\Framework\ORM\DefinitionRegistry" id="Shopware\Core\Framework\ORM\DefinitionRegistry">
             <argument type="collection" />
         </service>
 
-        <service class="Shopware\Framework\ORM\Dbal\EntityReader" id="Shopware\Framework\ORM\Dbal\EntityReader">
+        <service class="Shopware\Core\Framework\ORM\Dbal\EntityReader" id="Shopware\Core\Framework\ORM\Dbal\EntityReader">
             <argument id="Doctrine\DBAL\Connection" type="service"/>
-            <argument type="service" id="Shopware\Framework\ORM\Dbal\EntitySearcher"/>
-            <argument type="service" id="Shopware\Framework\ORM\Dbal\EntityHydrator"/>
-            <argument type="service" id="Shopware\Framework\ORM\Dbal\EntityDefinitionQueryHelper"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\Dbal\EntitySearcher"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\Dbal\EntityHydrator"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\Dbal\EntityDefinitionQueryHelper"/>
         </service>
 
-        <service class="Shopware\Framework\ORM\Dbal\EntityAggregator" id="Shopware\Framework\ORM\Dbal\EntityAggregator">
+        <service class="Shopware\Core\Framework\ORM\Dbal\EntityAggregator" id="Shopware\Core\Framework\ORM\Dbal\EntityAggregator">
             <argument id="Doctrine\DBAL\Connection" type="service"/>
-            <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
+            <argument id="Shopware\Core\Framework\ORM\Dbal\EntityReader" type="service"/>
             <tag name="shopware.traceable" label="entity.aggregator" />
-            <argument type="service" id="Shopware\Framework\ORM\Search\Parser\SqlQueryParser"/>
-            <argument type="service" id="Shopware\Framework\ORM\Dbal\EntityDefinitionQueryHelper"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\Search\Parser\SqlQueryParser"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\Dbal\EntityDefinitionQueryHelper"/>
         </service>
 
-        <service class="Shopware\Framework\ORM\Dbal\EntitySearcher" id="Shopware\Framework\ORM\Dbal\EntitySearcher" >
+        <service class="Shopware\Core\Framework\ORM\Dbal\EntitySearcher" id="Shopware\Core\Framework\ORM\Dbal\EntitySearcher" >
             <argument id="Doctrine\DBAL\Connection" type="service"/>
-            <argument type="service" id="Shopware\Framework\ORM\Search\Parser\SqlQueryParser"/>
-            <argument type="service" id="Shopware\Framework\ORM\Dbal\EntityDefinitionQueryHelper"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\Search\Parser\SqlQueryParser"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\Dbal\EntityDefinitionQueryHelper"/>
         </service>
 
-        <service class="Shopware\Framework\ORM\Write\EntityWriter" id="Shopware\Framework\ORM\Write\EntityWriter" public="true">
-            <argument type="service" id="Shopware\Framework\ORM\Write\WriteCommandExtractor"/>
-            <argument type="service" id="Shopware\Framework\ORM\Write\FieldAware\DefaultExtender"/>
-            <argument type="service" id="Shopware\Framework\ORM\Dbal\EntityForeignKeyResolver"/>
-            <argument id="Shopware\Framework\ORM\Dbal\EntityWriteGateway" type="service"/>
+        <service class="Shopware\Core\Framework\ORM\Write\EntityWriter" id="Shopware\Core\Framework\ORM\Write\EntityWriter" public="true">
+            <argument type="service" id="Shopware\Core\Framework\ORM\Write\WriteCommandExtractor"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\Write\FieldAware\DefaultExtender"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\Dbal\EntityForeignKeyResolver"/>
+            <argument id="Shopware\Core\Framework\ORM\Dbal\EntityWriteGateway" type="service"/>
             <tag name="shopware.traceable" label="entity.writer" />
         </service>
 
-        <service class="Shopware\Framework\ORM\Write\WriteCommandExtractor" id="Shopware\Framework\ORM\Write\WriteCommandExtractor">
-            <argument id="Shopware\Framework\ORM\Dbal\EntityWriteGateway" type="service"/>
+        <service class="Shopware\Core\Framework\ORM\Write\WriteCommandExtractor" id="Shopware\Core\Framework\ORM\Write\WriteCommandExtractor">
+            <argument id="Shopware\Core\Framework\ORM\Dbal\EntityWriteGateway" type="service"/>
         </service>
 
-        <service class="Shopware\Framework\ORM\Dbal\EntityWriteGateway" id="Shopware\Framework\ORM\Dbal\EntityWriteGateway">
+        <service class="Shopware\Core\Framework\ORM\Dbal\EntityWriteGateway" id="Shopware\Core\Framework\ORM\Dbal\EntityWriteGateway">
             <argument id="Doctrine\DBAL\Connection" type="service"/>
             <tag name="shopware.traceable" label="entity.write-gateway" />
         </service>
 
-        <service id="Shopware\Framework\ORM\Write\Validation\ConstraintBuilder" class="Shopware\Framework\ORM\Write\Validation\ConstraintBuilder"/>
+        <service id="Shopware\Core\Framework\ORM\Write\Validation\ConstraintBuilder" class="Shopware\Core\Framework\ORM\Write\Validation\ConstraintBuilder"/>
 
-        <service class="Shopware\Framework\ORM\Write\FieldAware\DefaultExtender" id="Shopware\Framework\ORM\Write\FieldAware\DefaultExtender">
+        <service class="Shopware\Core\Framework\ORM\Write\FieldAware\DefaultExtender" id="Shopware\Core\Framework\ORM\Write\FieldAware\DefaultExtender">
             <argument id="validator" type="service"/>
-            <argument id="Shopware\Framework\ORM\Write\Validation\ConstraintBuilder" type="service"/>
-            <argument id="Shopware\Framework\ORM\Write\IdGenerator\GeneratorRegistry" type="service"/>
-            <argument id="Shopware\Framework\ORM\Write\Filter\FilterRegistry" type="service"/>
-            <argument id="Shopware\Framework\ORM\Write\ValueTransformer\ValueTransformerRegistry" type="service"/>
+            <argument id="Shopware\Core\Framework\ORM\Write\Validation\ConstraintBuilder" type="service"/>
+            <argument id="Shopware\Core\Framework\ORM\Write\IdGenerator\GeneratorRegistry" type="service"/>
+            <argument id="Shopware\Core\Framework\ORM\Write\Filter\FilterRegistry" type="service"/>
+            <argument id="Shopware\Core\Framework\ORM\Write\ValueTransformer\ValueTransformerRegistry" type="service"/>
         </service>
 
-        <service class="Shopware\Framework\ORM\Search\Parser\SqlQueryParser" id="Shopware\Framework\ORM\Search\Parser\SqlQueryParser">
-            <argument type="service" id="Shopware\Framework\ORM\Dbal\EntityDefinitionQueryHelper"/>
+        <service class="Shopware\Core\Framework\ORM\Search\Parser\SqlQueryParser" id="Shopware\Core\Framework\ORM\Search\Parser\SqlQueryParser">
+            <argument type="service" id="Shopware\Core\Framework\ORM\Dbal\EntityDefinitionQueryHelper"/>
         </service>
 
         <!-- Value transformer -->
-        <service class="Shopware\Framework\ORM\Write\ValueTransformer\ValueTransformerRegistry" id="Shopware\Framework\ORM\Write\ValueTransformer\ValueTransformerRegistry">
+        <service class="Shopware\Core\Framework\ORM\Write\ValueTransformer\ValueTransformerRegistry" id="Shopware\Core\Framework\ORM\Write\ValueTransformer\ValueTransformerRegistry">
             <argument type="tagged" tag="shopware.api.entity.write.value_transformer" />
         </service>
 
-        <service class="Shopware\Framework\ORM\Write\ValueTransformer\ValueTransformerDate" id="Shopware\Framework\ORM\Write\ValueTransformer\ValueTransformerDate">
+        <service class="Shopware\Core\Framework\ORM\Write\ValueTransformer\ValueTransformerDate" id="Shopware\Core\Framework\ORM\Write\ValueTransformer\ValueTransformerDate">
             <tag name="shopware.api.entity.write.value_transformer"/>
         </service>
 
-        <service class="Shopware\Framework\ORM\Write\ValueTransformer\ValueTransformerBoolean" id="Shopware\Framework\ORM\Write\ValueTransformer\ValueTransformerBoolean">
+        <service class="Shopware\Core\Framework\ORM\Write\ValueTransformer\ValueTransformerBoolean" id="Shopware\Core\Framework\ORM\Write\ValueTransformer\ValueTransformerBoolean">
             <tag name="shopware.api.entity.write.value_transformer"/>
         </service>
 
         <!-- Filter -->
-        <service class="Shopware\Framework\ORM\Write\Filter\FilterRegistry" id="Shopware\Framework\ORM\Write\Filter\FilterRegistry">
+        <service class="Shopware\Core\Framework\ORM\Write\Filter\FilterRegistry" id="Shopware\Core\Framework\ORM\Write\Filter\FilterRegistry">
             <argument type="tagged" tag="shopware.api.entity.write.filter" />
         </service>
 
-        <service class="Shopware\Framework\ORM\Write\Filter\HtmlFilter" id="Shopware\Framework\ORM\Write\Filter\HtmlFilter">
+        <service class="Shopware\Core\Framework\ORM\Write\Filter\HtmlFilter" id="Shopware\Core\Framework\ORM\Write\Filter\HtmlFilter">
             <tag name="shopware.api.entity.write.filter"/>
         </service>
 
         <!-- ID GENERATOR -->
-        <service class="Shopware\Framework\ORM\Write\IdGenerator\GeneratorRegistry" id="Shopware\Framework\ORM\Write\IdGenerator\GeneratorRegistry">
+        <service class="Shopware\Core\Framework\ORM\Write\IdGenerator\GeneratorRegistry" id="Shopware\Core\Framework\ORM\Write\IdGenerator\GeneratorRegistry">
             <argument type="tagged" tag="shopware.api.entity.write.id_generator" />
         </service>
 
 
-        <service class="Shopware\Framework\ORM\Write\IdGenerator\RamseyGenerator" id="Shopware\Framework\ORM\Write\IdGenerator\RamseyGenerator">
+        <service class="Shopware\Core\Framework\ORM\Write\IdGenerator\RamseyGenerator" id="Shopware\Core\Framework\ORM\Write\IdGenerator\RamseyGenerator">
             <tag name="shopware.api.entity.write.id_generator"/>
         </service>
 
-        <service class="Shopware\Framework\ORM\Dbal\EntityForeignKeyResolver" id="Shopware\Framework\ORM\Dbal\EntityForeignKeyResolver">
+        <service class="Shopware\Core\Framework\ORM\Dbal\EntityForeignKeyResolver" id="Shopware\Core\Framework\ORM\Dbal\EntityForeignKeyResolver">
             <argument id="Doctrine\DBAL\Connection" type="service"/>
-            <argument type="service" id="Shopware\Framework\ORM\Dbal\EntityDefinitionQueryHelper"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\Dbal\EntityDefinitionQueryHelper"/>
         </service>
 
-        <service class="Shopware\Framework\ORM\Dbal\FieldResolver\FieldResolverRegistry" id="Shopware\Framework\ORM\Dbal\FieldResolver\FieldResolverRegistry">
+        <service class="Shopware\Core\Framework\ORM\Dbal\FieldResolver\FieldResolverRegistry" id="Shopware\Core\Framework\ORM\Dbal\FieldResolver\FieldResolverRegistry">
             <argument type="tagged" tag="shopware.entity.field_resolver" />
         </service>
 
-        <service class="Shopware\Framework\ORM\Dbal\FieldResolver\ManyToOneAssociationFieldResolver" id="Shopware\Framework\ORM\Dbal\FieldResolver\ManyToOneAssociationFieldResolver">
+        <service class="Shopware\Core\Framework\ORM\Dbal\FieldResolver\ManyToOneAssociationFieldResolver" id="Shopware\Core\Framework\ORM\Dbal\FieldResolver\ManyToOneAssociationFieldResolver">
             <tag name="shopware.entity.field_resolver" priority="-50" />
         </service>
 
-        <service class="Shopware\Framework\ORM\Dbal\FieldResolver\OneToManyAssociationFieldResolver" id="Shopware\Framework\ORM\Dbal\FieldResolver\OneToManyAssociationFieldResolver">
+        <service class="Shopware\Core\Framework\ORM\Dbal\FieldResolver\OneToManyAssociationFieldResolver" id="Shopware\Core\Framework\ORM\Dbal\FieldResolver\OneToManyAssociationFieldResolver">
             <tag name="shopware.entity.field_resolver" priority="-50" />
         </service>
 
-        <service class="Shopware\Framework\ORM\Dbal\FieldResolver\ManyToManyAssociationFieldResolver" id="Shopware\Framework\ORM\Dbal\FieldResolver\ManyToManyAssociationFieldResolver">
+        <service class="Shopware\Core\Framework\ORM\Dbal\FieldResolver\ManyToManyAssociationFieldResolver" id="Shopware\Core\Framework\ORM\Dbal\FieldResolver\ManyToManyAssociationFieldResolver">
             <tag name="shopware.entity.field_resolver" priority="-50" />
         </service>
 
-        <service class="Shopware\Framework\ORM\Dbal\FieldResolver\TranslationFieldResolver" id="Shopware\Framework\ORM\Dbal\FieldResolver\TranslationFieldResolver">
+        <service class="Shopware\Core\Framework\ORM\Dbal\FieldResolver\TranslationFieldResolver" id="Shopware\Core\Framework\ORM\Dbal\FieldResolver\TranslationFieldResolver">
             <tag name="shopware.entity.field_resolver"  priority="-50" />
         </service>
 
-        <service class="Shopware\Framework\ORM\Dbal\FieldResolver\ProductCoverFieldResolver" id="Shopware\Framework\ORM\Dbal\FieldResolver\ProductCoverFieldResolver">
+        <service class="Shopware\Core\Framework\ORM\Dbal\FieldResolver\ProductCoverFieldResolver" id="Shopware\Core\Framework\ORM\Dbal\FieldResolver\ProductCoverFieldResolver">
             <tag name="shopware.entity.field_resolver" />
         </service>
 
-        <service class="Shopware\Framework\ORM\Dbal\FieldAccessorBuilder\FieldAccessorBuilderRegistry" id="Shopware\Framework\ORM\Dbal\FieldAccessorBuilder\FieldAccessorBuilderRegistry">
+        <service class="Shopware\Core\Framework\ORM\Dbal\FieldAccessorBuilder\FieldAccessorBuilderRegistry" id="Shopware\Core\Framework\ORM\Dbal\FieldAccessorBuilder\FieldAccessorBuilderRegistry">
             <argument type="tagged" tag="shopware.entity.field_accessor_builder" />
         </service>
 
-        <service class="Shopware\Framework\ORM\Dbal\FieldAccessorBuilder\ContextPriceFieldAccessorBuilder" id="Shopware\Framework\ORM\Dbal\FieldAccessorBuilder\ContextPriceFieldAccessorBuilder">
+        <service class="Shopware\Core\Framework\ORM\Dbal\FieldAccessorBuilder\ContextPriceFieldAccessorBuilder" id="Shopware\Core\Framework\ORM\Dbal\FieldAccessorBuilder\ContextPriceFieldAccessorBuilder">
             <tag name="shopware.entity.field_accessor_builder" priority="-50" />
         </service>
 
-        <service class="Shopware\Framework\ORM\Dbal\FieldAccessorBuilder\PriceFieldAccessorBuilder" id="Shopware\Framework\ORM\Dbal\FieldAccessorBuilder\PriceFieldAccessorBuilder">
+        <service class="Shopware\Core\Framework\ORM\Dbal\FieldAccessorBuilder\PriceFieldAccessorBuilder" id="Shopware\Core\Framework\ORM\Dbal\FieldAccessorBuilder\PriceFieldAccessorBuilder">
             <tag name="shopware.entity.field_accessor_builder" priority="-100" />
         </service>
 
-        <service class="Shopware\Framework\ORM\Dbal\FieldAccessorBuilder\JsonObjectFieldAccessorBuilder" id="Shopware\Framework\ORM\Dbal\FieldAccessorBuilder\JsonObjectFieldAccessorBuilder">
+        <service class="Shopware\Core\Framework\ORM\Dbal\FieldAccessorBuilder\JsonObjectFieldAccessorBuilder" id="Shopware\Core\Framework\ORM\Dbal\FieldAccessorBuilder\JsonObjectFieldAccessorBuilder">
             <tag name="shopware.entity.field_accessor_builder" priority="-150" />
         </service>
 
-        <service class="Shopware\Framework\ORM\Dbal\FieldAccessorBuilder\StandardFieldAccessorBuilder" id="Shopware\Framework\ORM\Dbal\FieldAccessorBuilder\StandardFieldAccessorBuilder">
+        <service class="Shopware\Core\Framework\ORM\Dbal\FieldAccessorBuilder\StandardFieldAccessorBuilder" id="Shopware\Core\Framework\ORM\Dbal\FieldAccessorBuilder\StandardFieldAccessorBuilder">
             <tag name="shopware.entity.field_accessor_builder" priority="-200" />
         </service>
 
         <!-- Versioning -->
-        <service alias="Shopware\Framework\ORM\Version\Repository\VersionRepository.v1" id="Shopware\Framework\ORM\Version\Repository\VersionRepository" public="true"/>
-        <service alias="Shopware\Framework\ORM\Version\Repository\VersionCommitRepository.v1" id="Shopware\Framework\ORM\Version\Repository\VersionCommitRepository" public="true" />
-        <service alias="Shopware\Framework\ORM\Version\Repository\VersionCommitDataRepository.v1" id="Shopware\Framework\ORM\Version\Repository\VersionCommitDataRepository" public="true" />
+        <service alias="Shopware\Core\Framework\ORM\Version\Repository\VersionRepository.v1" id="Shopware\Core\Framework\ORM\Version\Repository\VersionRepository" public="true"/>
+        <service alias="Shopware\Core\Framework\ORM\Version\Repository\VersionCommitRepository.v1" id="Shopware\Core\Framework\ORM\Version\Repository\VersionCommitRepository" public="true" />
+        <service alias="Shopware\Core\Framework\ORM\Version\Repository\VersionCommitDataRepository.v1" id="Shopware\Core\Framework\ORM\Version\Repository\VersionCommitDataRepository" public="true" />
 
-        <service class="Shopware\Framework\ORM\Version\Definition\VersionDefinition" id="Shopware\Framework\ORM\Version\Definition\VersionDefinition" >
+        <service class="Shopware\Core\Framework\ORM\Version\Definition\VersionDefinition" id="Shopware\Core\Framework\ORM\Version\Definition\VersionDefinition" >
             <tag name="shopware.entity.definition" entity="version" />
         </service>
-        <service class="Shopware\Framework\ORM\Version\Repository\VersionRepository" id="Shopware\Framework\ORM\Version\Repository\VersionRepository.v1" public="true">
-            <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
-            <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
-            <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
-            <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
+        <service class="Shopware\Core\Framework\ORM\Version\Repository\VersionRepository" id="Shopware\Core\Framework\ORM\Version\Repository\VersionRepository.v1" public="true">
+            <argument id="Shopware\Core\Framework\ORM\Dbal\EntityReader" type="service"/>
+            <argument id="Shopware\Core\Framework\ORM\Version\Service\VersionManager" type="service"/>
+            <argument id="Shopware\Core\Framework\ORM\Dbal\EntitySearcher" type="service"/>
+            <argument id="Shopware\Core\Framework\ORM\Dbal\EntityAggregator" type="service"/>
             <argument id="event_dispatcher" type="service"/>
         </service>
-        <service class="Shopware\Framework\ORM\Version\Definition\VersionCommitDefinition" id="Shopware\Framework\ORM\Version\Definition\VersionCommitDefinition" >
+        <service class="Shopware\Core\Framework\ORM\Version\Definition\VersionCommitDefinition" id="Shopware\Core\Framework\ORM\Version\Definition\VersionCommitDefinition" >
             <tag name="shopware.entity.definition" entity="version_commit" />
         </service>
-        <service class="Shopware\Framework\ORM\Version\Repository\VersionCommitRepository" id="Shopware\Framework\ORM\Version\Repository\VersionCommitRepository.v1" public="true">
-            <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
-            <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
-            <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
-            <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
+        <service class="Shopware\Core\Framework\ORM\Version\Repository\VersionCommitRepository" id="Shopware\Core\Framework\ORM\Version\Repository\VersionCommitRepository.v1" public="true">
+            <argument id="Shopware\Core\Framework\ORM\Dbal\EntityReader" type="service"/>
+            <argument id="Shopware\Core\Framework\ORM\Version\Service\VersionManager" type="service"/>
+            <argument id="Shopware\Core\Framework\ORM\Dbal\EntitySearcher" type="service"/>
+            <argument id="Shopware\Core\Framework\ORM\Dbal\EntityAggregator" type="service"/>
             <argument id="event_dispatcher" type="service"/>
         </service>
-        <service class="Shopware\Framework\ORM\Version\Definition\VersionCommitDataDefinition" id="Shopware\Framework\ORM\Version\Definition\VersionCommitDataDefinition" >
+        <service class="Shopware\Core\Framework\ORM\Version\Definition\VersionCommitDataDefinition" id="Shopware\Core\Framework\ORM\Version\Definition\VersionCommitDataDefinition" >
             <tag name="shopware.entity.definition" entity="version_commit_data" />
         </service>
-        <service class="Shopware\Framework\ORM\Version\Repository\VersionCommitDataRepository" id="Shopware\Framework\ORM\Version\Repository\VersionCommitDataRepository.v1" public="true">
-            <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
-            <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
-            <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>
-            <argument id="Shopware\Framework\ORM\Dbal\EntityAggregator" type="service"/>
+        <service class="Shopware\Core\Framework\ORM\Version\Repository\VersionCommitDataRepository" id="Shopware\Core\Framework\ORM\Version\Repository\VersionCommitDataRepository.v1" public="true">
+            <argument id="Shopware\Core\Framework\ORM\Dbal\EntityReader" type="service"/>
+            <argument id="Shopware\Core\Framework\ORM\Version\Service\VersionManager" type="service"/>
+            <argument id="Shopware\Core\Framework\ORM\Dbal\EntitySearcher" type="service"/>
+            <argument id="Shopware\Core\Framework\ORM\Dbal\EntityAggregator" type="service"/>
             <argument id="event_dispatcher" type="service"/>
         </service>
 
-        <service class="Shopware\Framework\ORM\Dbal\Common\IndexTableOperator" id="Shopware\Framework\ORM\Dbal\Common\IndexTableOperator">
+        <service class="Shopware\Core\Framework\ORM\Dbal\Common\IndexTableOperator" id="Shopware\Core\Framework\ORM\Dbal\Common\IndexTableOperator">
             <argument id="Doctrine\DBAL\Connection" type="service"/>
         </service>
 
-        <service class="Shopware\Framework\ORM\Dbal\Indexing\Analyzer\SearchAnalyzerRegistry" id="Shopware\Framework\ORM\Dbal\Indexing\Analyzer\SearchAnalyzerRegistry">
+        <service class="Shopware\Core\Framework\ORM\Dbal\Indexing\Analyzer\SearchAnalyzerRegistry" id="Shopware\Core\Framework\ORM\Dbal\Indexing\Analyzer\SearchAnalyzerRegistry">
             <argument type="tagged" tag="shopware.search_analyzer"/>
         </service>
 
-        <service class="Shopware\Framework\ORM\Dbal\Indexing\IndexerRegistry" id="Shopware\Framework\ORM\Dbal\Indexing\IndexerRegistry">
+        <service class="Shopware\Core\Framework\ORM\Dbal\Indexing\IndexerRegistry" id="Shopware\Core\Framework\ORM\Dbal\Indexing\IndexerRegistry">
             <argument type="tagged" tag="shopware.dbal_indexing.indexer"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service class="Shopware\Framework\Command\RefreshIndexCommand" id="Shopware\Framework\Command\RefreshIndexCommand">
-            <argument type="service" id="Shopware\Framework\ORM\Dbal\Indexing\IndexerRegistry"/>
+        <service class="Shopware\Core\Framework\Command\RefreshIndexCommand" id="Shopware\Core\Framework\Command\RefreshIndexCommand">
+            <argument type="service" id="Shopware\Core\Framework\ORM\Dbal\Indexing\IndexerRegistry"/>
             <tag name="kernel.event_subscriber"/>
             <tag name="console.command"/>
         </service>
 
-        <service class="Shopware\Framework\ORM\Dbal\Indexing\Analyzer\LanguageAnalyzer" id="Shopware\Framework\ORM\Dbal\Indexing\Analyzer\LanguageAnalyzer">
-            <argument id="Shopware\Framework\ORM\Search\Term\Tokenizer" type="service"/>
-            <argument id="Shopware\Framework\ORM\Search\Term\StopWordFilter" type="service"/>
+        <service class="Shopware\Core\Framework\ORM\Dbal\Indexing\Analyzer\LanguageAnalyzer" id="Shopware\Core\Framework\ORM\Dbal\Indexing\Analyzer\LanguageAnalyzer">
+            <argument id="Shopware\Core\Framework\ORM\Search\Term\Tokenizer" type="service"/>
+            <argument id="Shopware\Core\Framework\ORM\Search\Term\StopWordFilter" type="service"/>
             <tag name="shopware.search_analyzer" />
         </service>
 
-        <service class="Shopware\Framework\ORM\Dbal\Common\EventIdExtractor" id="Shopware\Framework\ORM\Dbal\Common\EventIdExtractor"/>
+        <service class="Shopware\Core\Framework\ORM\Dbal\Common\EventIdExtractor" id="Shopware\Core\Framework\ORM\Dbal\Common\EventIdExtractor"/>
 
-        <service class="Shopware\Framework\ORM\Dbal\Indexing\InheritanceIndexer" id="Shopware\Framework\ORM\Dbal\Indexing\InheritanceIndexer">
+        <service class="Shopware\Core\Framework\ORM\Dbal\Indexing\InheritanceIndexer" id="Shopware\Core\Framework\ORM\Dbal\Indexing\InheritanceIndexer">
             <tag name="shopware.dbal_indexing.indexer" priority="1500"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="Shopware\Framework\ORM\DefinitionRegistry" />
+            <argument type="service" id="Shopware\Core\Framework\ORM\DefinitionRegistry" />
             <argument type="service" id="event_dispatcher" />
         </service>
 
-        <service class="Shopware\Framework\ORM\Dbal\Indexing\CategoryAssignmentIndexer" id="Shopware\Framework\ORM\Dbal\Indexing\CategoryAssignmentIndexer">
-            <argument id="Shopware\Content\Product\ProductRepository" type="service"/>
+        <service class="Shopware\Core\Framework\ORM\Dbal\Indexing\CategoryAssignmentIndexer" id="Shopware\Core\Framework\ORM\Dbal\Indexing\CategoryAssignmentIndexer">
+            <argument id="Shopware\Core\Content\Product\ProductRepository" type="service"/>
             <argument id="Doctrine\DBAL\Connection" type="service"/>
             <argument id="event_dispatcher" type="service"/>
-            <argument id="Shopware\Content\Category\Util\CategoryPathBuilder" type="service"/>
-            <argument id="Shopware\Framework\ORM\Dbal\Common\EventIdExtractor" type="service"/>
-            <argument id="Shopware\Content\Category\CategoryRepository" type="service"/>
+            <argument id="Shopware\Core\Content\Category\Util\CategoryPathBuilder" type="service"/>
+            <argument id="Shopware\Core\Framework\ORM\Dbal\Common\EventIdExtractor" type="service"/>
+            <argument id="Shopware\Core\Content\Category\CategoryRepository" type="service"/>
             <tag name="shopware.dbal_indexing.indexer" priority="1000"/>
         </service>
 
-        <service class="Shopware\Framework\ORM\Dbal\Indexing\ChildCountIndexer" id="Shopware\Framework\ORM\Dbal\Indexing\ChildCountIndexer">
+        <service class="Shopware\Core\Framework\ORM\Dbal\Indexing\ChildCountIndexer" id="Shopware\Core\Framework\ORM\Dbal\Indexing\ChildCountIndexer">
             <argument id="Doctrine\DBAL\Connection" type="service"/>
             <argument id="event_dispatcher" type="service"/>
-            <argument type="service" id="Shopware\Framework\ORM\DefinitionRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\DefinitionRegistry"/>
             <tag name="shopware.dbal_indexing.indexer" priority="1000"/>
         </service>
 
-        <service class="Shopware\Framework\ORM\Dbal\Indexing\VariationJsonIndexer" id="Shopware\Framework\ORM\Dbal\Indexing\VariationJsonIndexer">
-            <argument id="Shopware\Content\Product\ProductRepository" type="service"/>
+        <service class="Shopware\Core\Framework\ORM\Dbal\Indexing\VariationJsonIndexer" id="Shopware\Core\Framework\ORM\Dbal\Indexing\VariationJsonIndexer">
+            <argument id="Shopware\Core\Content\Product\ProductRepository" type="service"/>
             <argument id="event_dispatcher" type="service"/>
-            <argument id="Shopware\Framework\ORM\Dbal\Common\EventIdExtractor" type="service"/>
+            <argument id="Shopware\Core\Framework\ORM\Dbal\Common\EventIdExtractor" type="service"/>
             <argument id="Doctrine\DBAL\Connection" type="service"/>
             <tag name="shopware.dbal_indexing.indexer" priority="900"/>
         </service>
 
-        <service class="Shopware\Framework\ORM\Dbal\Indexing\DatasheetJsonIndexer" id="Shopware\Framework\ORM\Dbal\Indexing\DatasheetJsonIndexer">
-            <argument id="Shopware\Content\Product\ProductRepository" type="service"/>
+        <service class="Shopware\Core\Framework\ORM\Dbal\Indexing\DatasheetJsonIndexer" id="Shopware\Core\Framework\ORM\Dbal\Indexing\DatasheetJsonIndexer">
+            <argument id="Shopware\Core\Content\Product\ProductRepository" type="service"/>
             <argument id="Doctrine\DBAL\Connection" type="service"/>
             <argument id="event_dispatcher" type="service"/>
-            <argument id="Shopware\Framework\ORM\Dbal\Common\EventIdExtractor" type="service"/>
+            <argument id="Shopware\Core\Framework\ORM\Dbal\Common\EventIdExtractor" type="service"/>
             <tag name="shopware.dbal_indexing.indexer" priority="400"/>
         </service>
 
-        <service class="Shopware\Framework\ORM\Dbal\Indexing\ListingPriceIndexer" id="Shopware\Framework\ORM\Dbal\Indexing\ListingPriceIndexer">
-            <argument id="Shopware\Content\Product\ProductRepository" type="service"/>
+        <service class="Shopware\Core\Framework\ORM\Dbal\Indexing\ListingPriceIndexer" id="Shopware\Core\Framework\ORM\Dbal\Indexing\ListingPriceIndexer">
+            <argument id="Shopware\Core\Content\Product\ProductRepository" type="service"/>
             <argument id="event_dispatcher" type="service"/>
-            <argument id="Shopware\Framework\ORM\Dbal\Common\EventIdExtractor" type="service"/>
+            <argument id="Shopware\Core\Framework\ORM\Dbal\Common\EventIdExtractor" type="service"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="shopware.dbal_indexing.indexer" priority="300"/>
         </service>
 
-        <service class="Shopware\Framework\ORM\Dbal\Indexing\SearchIndexer" id="Shopware\Framework\ORM\Dbal\Indexing\SearchIndexer">
+        <service class="Shopware\Core\Framework\ORM\Dbal\Indexing\SearchIndexer" id="Shopware\Core\Framework\ORM\Dbal\Indexing\SearchIndexer">
             <argument id="Doctrine\DBAL\Connection" type="service"/>
-            <argument type="service" id="Shopware\Content\Product\ProductRepository"/>
+            <argument type="service" id="Shopware\Core\Content\Product\ProductRepository"/>
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Framework\ORM\Dbal\Indexing\Analyzer\SearchAnalyzerRegistry"/>
-            <argument type="service" id="Shopware\Framework\ORM\Dbal\Common\IndexTableOperator"/>
-            <argument type="service" id="Shopware\System\Language\LanguageRepository"/>
-            <argument type="service" id="Shopware\Content\Catalog\CatalogRepository"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\Dbal\Indexing\Analyzer\SearchAnalyzerRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\Dbal\Common\IndexTableOperator"/>
+            <argument type="service" id="Shopware\Core\System\Language\LanguageRepository"/>
+            <argument type="service" id="Shopware\Core\Content\Catalog\CatalogRepository"/>
             <tag name="shopware.dbal_indexing.indexer" priority="200"/>
         </service>
 
-        <service class="Shopware\Framework\ORM\Version\Service\VersionManager" id="Shopware\Framework\ORM\Version\Service\VersionManager">
-            <argument type="service" id="Shopware\Framework\ORM\Write\EntityWriter"/>
-            <argument type="service" id="Shopware\Framework\ORM\Dbal\EntityReader"/>
-            <argument type="service" id="Shopware\Framework\ORM\Dbal\EntitySearcher"/>
-            <argument type="service" id="Shopware\Framework\ORM\DefinitionRegistry"/>
+        <service class="Shopware\Core\Framework\ORM\Version\Service\VersionManager" id="Shopware\Core\Framework\ORM\Version\Service\VersionManager">
+            <argument type="service" id="Shopware\Core\Framework\ORM\Write\EntityWriter"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\Dbal\EntityReader"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\Dbal\EntitySearcher"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\DefinitionRegistry"/>
             <argument type="service" id="security.token_storage"/>
-            <argument type="service" id="Shopware\Framework\ORM\Dbal\EntityWriteGateway"/>
+            <argument type="service" id="Shopware\Core\Framework\ORM\Dbal\EntityWriteGateway"/>
         </service>
     </services>
 </container>

@@ -2,7 +2,7 @@
     'use strict';
 
     /**
-     * Shopware Address Editor Plugin.
+     * Shopware\Core Address Editor Plugin.
      *
      * The plugin handles the address editing of a given address or creation of a new one. You can specify
      * additional parameters to do various operations afterwards. See property section extra parameters for

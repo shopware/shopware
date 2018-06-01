@@ -1,19 +1,19 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Language\Event;
+namespace Shopware\Core\System\Language\Event;
 
-use Shopware\Framework\Context;
-use Shopware\System\Language\Collection\LanguageBasicCollection;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\System\Locale\Event\LocaleBasicLoadedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\System\Language\Collection\LanguageBasicCollection;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\System\Locale\Event\LocaleBasicLoadedEvent;
 
 class LanguageBasicLoadedEvent extends NestedEvent
 {
     public const NAME = 'language.basic.loaded';
 
     /**
-     * @var \Shopware\Framework\Context
+     * @var \Shopware\Core\Framework\Context
      */
     protected $context;
 

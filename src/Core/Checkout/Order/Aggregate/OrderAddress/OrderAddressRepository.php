@@ -1,26 +1,26 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Order\Aggregate\OrderAddress;
+namespace Shopware\Core\Checkout\Order\Aggregate\OrderAddress;
 
-use Shopware\Framework\Context;
-use Shopware\Checkout\Order\Aggregate\OrderAddress\Collection\OrderAddressBasicCollection;
-use Shopware\Checkout\Order\Aggregate\OrderAddress\Collection\OrderAddressDetailCollection;
-use Shopware\Checkout\Order\Aggregate\OrderAddress\Event\OrderAddressAggregationResultLoadedEvent;
-use Shopware\Checkout\Order\Aggregate\OrderAddress\Event\OrderAddressBasicLoadedEvent;
-use Shopware\Checkout\Order\Aggregate\OrderAddress\Event\OrderAddressDetailLoadedEvent;
-use Shopware\Checkout\Order\Aggregate\OrderAddress\Event\OrderAddressIdSearchResultLoadedEvent;
-use Shopware\Checkout\Order\Aggregate\OrderAddress\Event\OrderAddressSearchResultLoadedEvent;
-use Shopware\Checkout\Order\Aggregate\OrderAddress\Struct\OrderAddressSearchResult;
-use Shopware\Framework\ORM\Read\EntityReaderInterface;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\AggregatorResult;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
-use Shopware\Framework\ORM\Search\EntitySearcherInterface;
-use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\ORM\Write\WriteContext;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\Collection\OrderAddressBasicCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\Collection\OrderAddressDetailCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\Event\OrderAddressAggregationResultLoadedEvent;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\Event\OrderAddressBasicLoadedEvent;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\Event\OrderAddressDetailLoadedEvent;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\Event\OrderAddressIdSearchResultLoadedEvent;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\Event\OrderAddressSearchResultLoadedEvent;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\Struct\OrderAddressSearchResult;
+use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\AggregatorResult;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\ORM\Search\IdSearchResult;
+use Shopware\Core\Framework\ORM\Version\Service\VersionManager;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Write\WriteContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class OrderAddressRepository implements RepositoryInterface

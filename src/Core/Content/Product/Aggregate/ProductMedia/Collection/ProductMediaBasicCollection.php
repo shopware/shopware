@@ -1,15 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Aggregate\ProductMedia\Collection;
+namespace Shopware\Core\Content\Product\Aggregate\ProductMedia\Collection;
 
-use Shopware\Content\Media\Collection\MediaBasicCollection;
-use Shopware\Content\Product\Aggregate\ProductMedia\Struct\ProductMediaBasicStruct;
-use Shopware\Framework\ORM\EntityCollection;
+use Shopware\Core\Content\Media\Collection\MediaBasicCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\Struct\ProductMediaBasicStruct;
+use Shopware\Core\Framework\ORM\EntityCollection;
 
 class ProductMediaBasicCollection extends EntityCollection
 {
     /**
-     * @var \Shopware\Content\Product\Aggregate\ProductMedia\Struct\ProductMediaBasicStruct[]
+     * @var \Shopware\Core\Content\Product\Aggregate\ProductMedia\Struct\ProductMediaBasicStruct[]
      */
     protected $elements = [];
 

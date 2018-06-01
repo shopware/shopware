@@ -1,14 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Test\Api\Controller;
+namespace Shopware\Core\Framework\Test\Api\Controller;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Content\Category\CategoryDefinition;
-use Shopware\Content\Product\ProductDefinition;
-use Shopware\Framework\Api\Controller\SyncController;
-use Shopware\Framework\Struct\Uuid;
-use Shopware\Framework\Test\Api\ApiTestCase;
-use Shopware\PlatformRequest;
+use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\Api\Controller\SyncController;
+use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Test\Api\ApiTestCase;
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
 
 class SyncControllerTest extends ApiTestCase

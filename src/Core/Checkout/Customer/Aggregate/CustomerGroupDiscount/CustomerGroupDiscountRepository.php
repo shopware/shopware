@@ -1,26 +1,26 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Customer\Aggregate\CustomerGroupDiscount;
+namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount;
 
-use Shopware\Framework\Context;
-use Shopware\Checkout\Customer\Aggregate\CustomerGroupDiscount\Collection\CustomerGroupDiscountBasicCollection;
-use Shopware\Checkout\Customer\Aggregate\CustomerGroupDiscount\Collection\CustomerGroupDiscountDetailCollection;
-use Shopware\Checkout\Customer\Aggregate\CustomerGroupDiscount\Event\CustomerGroupDiscountAggregationResultLoadedEvent;
-use Shopware\Checkout\Customer\Aggregate\CustomerGroupDiscount\Event\CustomerGroupDiscountBasicLoadedEvent;
-use Shopware\Checkout\Customer\Aggregate\CustomerGroupDiscount\Event\CustomerGroupDiscountDetailLoadedEvent;
-use Shopware\Checkout\Customer\Aggregate\CustomerGroupDiscount\Event\CustomerGroupDiscountIdSearchResultLoadedEvent;
-use Shopware\Checkout\Customer\Aggregate\CustomerGroupDiscount\Event\CustomerGroupDiscountSearchResultLoadedEvent;
-use Shopware\Checkout\Customer\Aggregate\CustomerGroupDiscount\Struct\CustomerGroupDiscountSearchResult;
-use Shopware\Framework\ORM\Read\EntityReaderInterface;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\AggregatorResult;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
-use Shopware\Framework\ORM\Search\EntitySearcherInterface;
-use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\ORM\Write\WriteContext;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\Collection\CustomerGroupDiscountBasicCollection;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\Collection\CustomerGroupDiscountDetailCollection;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\Event\CustomerGroupDiscountAggregationResultLoadedEvent;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\Event\CustomerGroupDiscountBasicLoadedEvent;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\Event\CustomerGroupDiscountDetailLoadedEvent;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\Event\CustomerGroupDiscountIdSearchResultLoadedEvent;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\Event\CustomerGroupDiscountSearchResultLoadedEvent;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\Struct\CustomerGroupDiscountSearchResult;
+use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\AggregatorResult;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\ORM\Search\IdSearchResult;
+use Shopware\Core\Framework\ORM\Version\Service\VersionManager;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Write\WriteContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class CustomerGroupDiscountRepository implements RepositoryInterface
@@ -46,7 +46,7 @@ class CustomerGroupDiscountRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var \Shopware\Framework\ORM\Version\Service\VersionManager
+     * @var \Shopware\Core\Framework\ORM\Version\Service\VersionManager
      */
     private $versionManager;
 
@@ -105,7 +105,7 @@ class CustomerGroupDiscountRepository implements RepositoryInterface
 
     public function readBasic(array $ids, Context $context): CustomerGroupDiscountBasicCollection
     {
-        /** @var \Shopware\Checkout\Customer\Aggregate\CustomerGroupDiscount\Collection\CustomerGroupDiscountBasicCollection $entities */
+        /** @var \Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\Collection\CustomerGroupDiscountBasicCollection $entities */
         $entities = $this->reader->readBasic(CustomerGroupDiscountDefinition::class, $ids, $context);
 
         $event = new CustomerGroupDiscountBasicLoadedEvent($entities, $context);
@@ -116,7 +116,7 @@ class CustomerGroupDiscountRepository implements RepositoryInterface
 
     public function readDetail(array $ids, Context $context): CustomerGroupDiscountDetailCollection
     {
-        /** @var \Shopware\Checkout\Customer\Aggregate\CustomerGroupDiscount\Collection\CustomerGroupDiscountDetailCollection $entities */
+        /** @var \Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\Collection\CustomerGroupDiscountDetailCollection $entities */
         $entities = $this->reader->readDetail(CustomerGroupDiscountDefinition::class, $ids, $context);
 
         $event = new CustomerGroupDiscountDetailLoadedEvent($entities, $context);

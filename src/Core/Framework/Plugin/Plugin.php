@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- * Shopware 5
+ * Shopware\Core 5
  * Copyright (c) shopware AG
  *
  * According to our dual licensing model, this program can be used either
@@ -17,20 +17,20 @@ declare(strict_types=1);
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
  *
- * "Shopware" is a registered trademark of shopware AG.
+ * "Shopware\Core" is a registered trademark of shopware AG.
  * The licensing of the program under the AGPLv3 does not imply a
  * trademark license. Therefore any rights, title and interest in
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Framework\Plugin;
+namespace Shopware\Core\Framework\Plugin;
 
-use Shopware\Framework\Filesystem\PrefixFilesystem;
-use Shopware\Framework\Plugin\Context\ActivateContext;
-use Shopware\Framework\Plugin\Context\DeactivateContext;
-use Shopware\Framework\Plugin\Context\InstallContext;
-use Shopware\Framework\Plugin\Context\UninstallContext;
-use Shopware\Framework\Plugin\Context\UpdateContext;
+use Shopware\Core\Framework\Filesystem\PrefixFilesystem;
+use Shopware\Core\Framework\Plugin\Context\ActivateContext;
+use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
+use Shopware\Core\Framework\Plugin\Context\InstallContext;
+use Shopware\Core\Framework\Plugin\Context\UninstallContext;
+use Shopware\Core\Framework\Plugin\Context\UpdateContext;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;

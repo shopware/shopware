@@ -1,26 +1,26 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Config\Aggregate\ConfigFormFieldTranslation;
+namespace Shopware\Core\System\Config\Aggregate\ConfigFormFieldTranslation;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\ORM\Read\EntityReaderInterface;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\AggregatorResult;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
-use Shopware\Framework\ORM\Search\EntitySearcherInterface;
-use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\System\Config\Aggregate\ConfigFormFieldTranslation\Collection\ConfigFormFieldTranslationBasicCollection;
-use Shopware\System\Config\Aggregate\ConfigFormFieldTranslation\Collection\ConfigFormFieldTranslationDetailCollection;
-use Shopware\System\Config\Aggregate\ConfigFormFieldTranslation\Event\ConfigFormFieldTranslationAggregationResultLoadedEvent;
-use Shopware\System\Config\Aggregate\ConfigFormFieldTranslation\Event\ConfigFormFieldTranslationBasicLoadedEvent;
-use Shopware\System\Config\Aggregate\ConfigFormFieldTranslation\Event\ConfigFormFieldTranslationDetailLoadedEvent;
-use Shopware\System\Config\Aggregate\ConfigFormFieldTranslation\Event\ConfigFormFieldTranslationIdSearchResultLoadedEvent;
-use Shopware\System\Config\Aggregate\ConfigFormFieldTranslation\Event\ConfigFormFieldTranslationSearchResultLoadedEvent;
-use Shopware\System\Config\Aggregate\ConfigFormFieldTranslation\Struct\ConfigFormFieldTranslationSearchResult;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\AggregatorResult;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\ORM\Search\IdSearchResult;
+use Shopware\Core\Framework\ORM\Version\Service\VersionManager;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Write\WriteContext;
+use Shopware\Core\System\Config\Aggregate\ConfigFormFieldTranslation\Collection\ConfigFormFieldTranslationBasicCollection;
+use Shopware\Core\System\Config\Aggregate\ConfigFormFieldTranslation\Collection\ConfigFormFieldTranslationDetailCollection;
+use Shopware\Core\System\Config\Aggregate\ConfigFormFieldTranslation\Event\ConfigFormFieldTranslationAggregationResultLoadedEvent;
+use Shopware\Core\System\Config\Aggregate\ConfigFormFieldTranslation\Event\ConfigFormFieldTranslationBasicLoadedEvent;
+use Shopware\Core\System\Config\Aggregate\ConfigFormFieldTranslation\Event\ConfigFormFieldTranslationDetailLoadedEvent;
+use Shopware\Core\System\Config\Aggregate\ConfigFormFieldTranslation\Event\ConfigFormFieldTranslationIdSearchResultLoadedEvent;
+use Shopware\Core\System\Config\Aggregate\ConfigFormFieldTranslation\Event\ConfigFormFieldTranslationSearchResultLoadedEvent;
+use Shopware\Core\System\Config\Aggregate\ConfigFormFieldTranslation\Struct\ConfigFormFieldTranslationSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ConfigFormFieldTranslationRepository implements RepositoryInterface

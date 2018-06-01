@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Tax\Event;
+namespace Shopware\Core\System\Tax\Event;
 
-use Shopware\Framework\ORM\Write\WrittenEvent;
-use Shopware\System\Tax\TaxDefinition;
+use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\System\Tax\TaxDefinition;
 
 class TaxWrittenEvent extends WrittenEvent
 {

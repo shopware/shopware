@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Application\Context\Collection;
+namespace Shopware\Core\Application\Context\Collection;
 
-use Shopware\Application\Context\Struct\ContextCartModifierTranslationBasicStruct;
-use Shopware\Framework\ORM\EntityCollection;
+use Shopware\Core\Application\Context\Struct\ContextCartModifierTranslationBasicStruct;
+use Shopware\Core\Framework\ORM\EntityCollection;
 
 class ContextCartModifierTranslationBasicCollection extends EntityCollection
 {

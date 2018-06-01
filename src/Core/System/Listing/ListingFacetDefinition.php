@@ -1,31 +1,31 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Listing;
+namespace Shopware\Core\System\Listing;
 
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\EntityExtensionInterface;
-use Shopware\Framework\ORM\Field\BoolField;
-use Shopware\Framework\ORM\Field\DateField;
-use Shopware\Framework\ORM\Field\IdField;
-use Shopware\Framework\ORM\Field\IntField;
-use Shopware\Framework\ORM\Field\LongTextField;
-use Shopware\Framework\ORM\Field\StringField;
-use Shopware\Framework\ORM\Field\TenantIdField;
-use Shopware\Framework\ORM\Field\TranslatedField;
-use Shopware\Framework\ORM\Field\TranslationsAssociationField;
-use Shopware\Framework\ORM\Field\VersionField;
-use Shopware\Framework\ORM\FieldCollection;
-use Shopware\Framework\ORM\Write\Flag\CascadeDelete;
-use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
-use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\Framework\ORM\Write\Flag\SearchRanking;
-use Shopware\System\Listing\Collection\ListingFacetBasicCollection;
-use Shopware\System\Listing\Collection\ListingFacetDetailCollection;
-use Shopware\System\Listing\Definition\ListingFacetTranslationDefinition;
-use Shopware\System\Listing\Event\ListingFacetDeletedEvent;
-use Shopware\System\Listing\Event\ListingFacetWrittenEvent;
-use Shopware\System\Listing\Struct\ListingFacetBasicStruct;
-use Shopware\System\Listing\Struct\ListingFacetDetailStruct;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+use Shopware\Core\Framework\ORM\Field\BoolField;
+use Shopware\Core\Framework\ORM\Field\DateField;
+use Shopware\Core\Framework\ORM\Field\IdField;
+use Shopware\Core\Framework\ORM\Field\IntField;
+use Shopware\Core\Framework\ORM\Field\LongTextField;
+use Shopware\Core\Framework\ORM\Field\StringField;
+use Shopware\Core\Framework\ORM\Field\TenantIdField;
+use Shopware\Core\Framework\ORM\Field\TranslatedField;
+use Shopware\Core\Framework\ORM\Field\TranslationsAssociationField;
+use Shopware\Core\Framework\ORM\Field\VersionField;
+use Shopware\Core\Framework\ORM\FieldCollection;
+use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
+use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
+use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
+use Shopware\Core\System\Listing\Collection\ListingFacetBasicCollection;
+use Shopware\Core\System\Listing\Collection\ListingFacetDetailCollection;
+use Shopware\Core\System\Listing\Definition\ListingFacetTranslationDefinition;
+use Shopware\Core\System\Listing\Event\ListingFacetDeletedEvent;
+use Shopware\Core\System\Listing\Event\ListingFacetWrittenEvent;
+use Shopware\Core\System\Listing\Struct\ListingFacetBasicStruct;
+use Shopware\Core\System\Listing\Struct\ListingFacetDetailStruct;
 
 class ListingFacetDefinition extends EntityDefinition
 {

@@ -1,26 +1,26 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Mail\Aggregate\MailTranslation;
+namespace Shopware\Core\System\Mail\Aggregate\MailTranslation;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\ORM\Read\EntityReaderInterface;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\AggregatorResult;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
-use Shopware\Framework\ORM\Search\EntitySearcherInterface;
-use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\System\Mail\Aggregate\MailTranslation\Collection\MailTranslationBasicCollection;
-use Shopware\System\Mail\Aggregate\MailTranslation\Collection\MailTranslationDetailCollection;
-use Shopware\System\Mail\Aggregate\MailTranslation\Event\MailTranslationAggregationResultLoadedEvent;
-use Shopware\System\Mail\Aggregate\MailTranslation\Event\MailTranslationBasicLoadedEvent;
-use Shopware\System\Mail\Aggregate\MailTranslation\Event\MailTranslationDetailLoadedEvent;
-use Shopware\System\Mail\Aggregate\MailTranslation\Event\MailTranslationIdSearchResultLoadedEvent;
-use Shopware\System\Mail\Aggregate\MailTranslation\Event\MailTranslationSearchResultLoadedEvent;
-use Shopware\System\Mail\Aggregate\MailTranslation\Struct\MailTranslationSearchResult;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\AggregatorResult;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\ORM\Search\IdSearchResult;
+use Shopware\Core\Framework\ORM\Version\Service\VersionManager;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Write\WriteContext;
+use Shopware\Core\System\Mail\Aggregate\MailTranslation\Collection\MailTranslationBasicCollection;
+use Shopware\Core\System\Mail\Aggregate\MailTranslation\Collection\MailTranslationDetailCollection;
+use Shopware\Core\System\Mail\Aggregate\MailTranslation\Event\MailTranslationAggregationResultLoadedEvent;
+use Shopware\Core\System\Mail\Aggregate\MailTranslation\Event\MailTranslationBasicLoadedEvent;
+use Shopware\Core\System\Mail\Aggregate\MailTranslation\Event\MailTranslationDetailLoadedEvent;
+use Shopware\Core\System\Mail\Aggregate\MailTranslation\Event\MailTranslationIdSearchResultLoadedEvent;
+use Shopware\Core\System\Mail\Aggregate\MailTranslation\Event\MailTranslationSearchResultLoadedEvent;
+use Shopware\Core\System\Mail\Aggregate\MailTranslation\Struct\MailTranslationSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class MailTranslationRepository implements RepositoryInterface
@@ -116,7 +116,7 @@ class MailTranslationRepository implements RepositoryInterface
 
     public function readDetail(array $ids, Context $context): MailTranslationDetailCollection
     {
-        /** @var \Shopware\System\Mail\Aggregate\MailTranslation\Collection\MailTranslationDetailCollection $entities */
+        /** @var \Shopware\Core\System\Mail\Aggregate\MailTranslation\Collection\MailTranslationDetailCollection $entities */
         $entities = $this->reader->readDetail(MailTranslationDefinition::class, $ids, $context);
 
         $event = new MailTranslationDetailLoadedEvent($entities, $context);

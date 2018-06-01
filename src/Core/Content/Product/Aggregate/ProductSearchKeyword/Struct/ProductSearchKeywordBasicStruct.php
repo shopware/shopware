@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Aggregate\ProductSearchKeyword\Struct;
+namespace Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\Struct;
 
-use Shopware\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Entity;
 
 class ProductSearchKeywordBasicStruct extends Entity
 {

@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Plugin\Collection;
+namespace Shopware\Core\Framework\Plugin\Collection;
 
-use Shopware\Checkout\Payment\Collection\PaymentMethodBasicCollection;
-use Shopware\Framework\Plugin\Struct\PluginDetailStruct;
-use Shopware\System\Config\Collection\ConfigFormBasicCollection;
+use Shopware\Core\Checkout\Payment\Collection\PaymentMethodBasicCollection;
+use Shopware\Core\Framework\Plugin\Struct\PluginDetailStruct;
+use Shopware\Core\System\Config\Collection\ConfigFormBasicCollection;
 
 class PluginDetailCollection extends PluginBasicCollection
 {

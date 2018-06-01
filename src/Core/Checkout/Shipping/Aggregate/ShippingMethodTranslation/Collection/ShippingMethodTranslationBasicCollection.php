@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Collection;
+namespace Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Collection;
 
-use Shopware\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Struct\ShippingMethodTranslationBasicStruct;
-use Shopware\Framework\ORM\EntityCollection;
+use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Struct\ShippingMethodTranslationBasicStruct;
+use Shopware\Core\Framework\ORM\EntityCollection;
 
 class ShippingMethodTranslationBasicCollection extends EntityCollection
 {

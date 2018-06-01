@@ -1,14 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Customer\Aggregate\CustomerAddress\Collection;
+namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Collection;
 
-use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressDetailStruct;
-use Shopware\Checkout\Customer\Collection\CustomerBasicCollection;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressDetailStruct;
+use Shopware\Core\Checkout\Customer\Collection\CustomerBasicCollection;
 
 class CustomerAddressDetailCollection extends CustomerAddressBasicCollection
 {
     /**
-     * @var \Shopware\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressDetailStruct[]
+     * @var \Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressDetailStruct[]
      */
     protected $elements = [];
 

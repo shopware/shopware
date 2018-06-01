@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Aggregate\ProductMedia\Struct;
+namespace Shopware\Core\Content\Product\Aggregate\ProductMedia\Struct;
 
-use Shopware\Content\Product\Struct\ProductBasicStruct;
+use Shopware\Core\Content\Product\Struct\ProductBasicStruct;
 
 class ProductMediaDetailStruct extends ProductMediaBasicStruct
 {

@@ -1,22 +1,22 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Customer;
+namespace Shopware\Core\Checkout\Customer;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Checkout\CustomerContext;
-use Shopware\Checkout\Customer\Util\CustomerContextPersister;
-use Shopware\Checkout\Customer\Util\CustomerContextService;
-use Shopware\Checkout\Order\Exception\NotLoggedInCustomerException;
-use Shopware\Checkout\Order\OrderRepository;
-use Shopware\Framework\Api\Context\RestContext;
-use Shopware\Framework\Api\Response\ResponseFactory;
-use Shopware\Framework\Api\Response\Type\JsonType;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\Query\TermQuery;
-use Shopware\Framework\ORM\Search\Sorting\FieldSorting;
-use Shopware\Framework\Routing\Firewall\CustomerProvider;
-use Shopware\PlatformRequest;
+use Shopware\Core\Checkout\CustomerContext;
+use Shopware\Core\Checkout\Customer\Util\CustomerContextPersister;
+use Shopware\Core\Checkout\Customer\Util\CustomerContextService;
+use Shopware\Core\Checkout\Order\Exception\NotLoggedInCustomerException;
+use Shopware\Core\Checkout\Order\OrderRepository;
+use Shopware\Core\Framework\Api\Context\RestContext;
+use Shopware\Core\Framework\Api\Response\ResponseFactory;
+use Shopware\Core\Framework\Api\Response\Type\JsonType;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Core\Framework\ORM\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Routing\Firewall\CustomerProvider;
+use Shopware\Core\PlatformRequest;
 use Shopware\Storefront\Page\Account\AccountService;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;

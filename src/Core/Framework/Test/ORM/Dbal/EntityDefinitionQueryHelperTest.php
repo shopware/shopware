@@ -1,18 +1,18 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Test\ORM\Dbal;
+namespace Shopware\Core\Framework\Test\ORM\Dbal;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Framework\Context;
-use Shopware\Defaults;
-use Shopware\Framework\ORM\Dbal\EntityDefinitionQueryHelper;
-use Shopware\Framework\ORM\Dbal\FieldAccessorBuilder\FieldAccessorBuilderRegistry;
-use Shopware\Framework\ORM\Dbal\FieldAccessorBuilder\JsonObjectFieldAccessorBuilder;
-use Shopware\Framework\ORM\Dbal\FieldResolver\FieldResolverRegistry;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\Field\JsonObjectField;
-use Shopware\Framework\ORM\Field\TenantIdField;
-use Shopware\Framework\ORM\FieldCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\ORM\Dbal\EntityDefinitionQueryHelper;
+use Shopware\Core\Framework\ORM\Dbal\FieldAccessorBuilder\FieldAccessorBuilderRegistry;
+use Shopware\Core\Framework\ORM\Dbal\FieldAccessorBuilder\JsonObjectFieldAccessorBuilder;
+use Shopware\Core\Framework\ORM\Dbal\FieldResolver\FieldResolverRegistry;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\Field\JsonObjectField;
+use Shopware\Core\Framework\ORM\Field\TenantIdField;
+use Shopware\Core\Framework\ORM\FieldCollection;
 
 class EntityDefinitionQueryHelperTest extends TestCase
 {

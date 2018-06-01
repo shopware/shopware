@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Tax\Aggregate\TaxAreaRule\Event;
+namespace Shopware\Core\System\Tax\Aggregate\TaxAreaRule\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\System\Tax\Aggregate\TaxAreaRule\Collection\TaxAreaRuleBasicCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\Collection\TaxAreaRuleBasicCollection;
 
 class TaxAreaRuleBasicLoadedEvent extends NestedEvent
 {
@@ -16,7 +16,7 @@ class TaxAreaRuleBasicLoadedEvent extends NestedEvent
     protected $context;
 
     /**
-     * @var \Shopware\System\Tax\Aggregate\TaxAreaRule\Collection\TaxAreaRuleBasicCollection
+     * @var \Shopware\Core\System\Tax\Aggregate\TaxAreaRule\Collection\TaxAreaRuleBasicCollection
      */
     protected $taxAreaRules;
 

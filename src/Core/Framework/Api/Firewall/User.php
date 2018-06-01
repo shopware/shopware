@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Api\Firewall;
+namespace Shopware\Core\Framework\Api\Firewall;
 
-use Shopware\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 class User implements UserInterface, \JsonSerializable

@@ -1,24 +1,24 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Test\Catalog;
+namespace Shopware\Core\Content\Test\Catalog;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Framework\Context;
-use Shopware\Content\Catalog\CatalogRepository;
-use Shopware\Content\Category\CategoryRepository;
-use Shopware\Content\Category\Struct\CategoryBasicStruct;
-use Shopware\Content\Product\ProductRepository;
-use Shopware\Defaults;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\Query\TermQuery;
-use Shopware\Framework\ORM\Write\FieldException\WriteStackException;
-use Shopware\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Catalog\CatalogRepository;
+use Shopware\Core\Content\Category\CategoryRepository;
+use Shopware\Core\Content\Category\Struct\CategoryBasicStruct;
+use Shopware\Core\Content\Product\ProductRepository;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Core\Framework\ORM\Write\FieldException\WriteStackException;
+use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class CatalogTest extends KernelTestCase
 {
     /**
-     * @var \Shopware\Content\Category\CategoryRepository
+     * @var \Shopware\Core\Content\Category\CategoryRepository
      */
     private $categoryRepository;
 
@@ -33,7 +33,7 @@ class CatalogTest extends KernelTestCase
     private $catalogRepository;
 
     /**
-     * @var \Shopware\Content\Product\ProductRepository
+     * @var \Shopware\Core\Content\Product\ProductRepository
      */
     private $productRepository;
 

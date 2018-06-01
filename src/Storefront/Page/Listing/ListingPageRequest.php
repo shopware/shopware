@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Page\Listing;
 
-use Shopware\Framework\Struct\Struct;
+use Shopware\Core\Framework\Struct\Struct;
 
 class ListingPageRequest extends Struct
 {

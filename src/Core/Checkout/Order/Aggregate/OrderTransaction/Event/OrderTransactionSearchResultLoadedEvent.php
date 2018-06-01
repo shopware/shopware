@@ -1,17 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Order\Aggregate\OrderTransaction\Event;
+namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Checkout\Order\Aggregate\OrderTransaction\Struct\OrderTransactionSearchResult;
-use Shopware\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\Struct\OrderTransactionSearchResult;
+use Shopware\Core\Framework\Event\NestedEvent;
 
 class OrderTransactionSearchResultLoadedEvent extends NestedEvent
 {
     public const NAME = 'order_transaction.search.result.loaded';
 
     /**
-     * @var \Shopware\Checkout\Order\Aggregate\OrderTransaction\Struct\OrderTransactionSearchResult
+     * @var \Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\Struct\OrderTransactionSearchResult
      */
     protected $result;
 

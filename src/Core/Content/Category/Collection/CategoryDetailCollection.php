@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Category\Collection;
+namespace Shopware\Core\Content\Category\Collection;
 
-use Shopware\Content\Category\Aggregate\CategoryTranslation\Collection\CategoryTranslationBasicCollection;
-use Shopware\Content\Category\Struct\CategoryDetailStruct;
-use Shopware\Content\Media\Collection\MediaBasicCollection;
-use Shopware\Content\Product\Aggregate\ProductStream\Collection\ProductStreamBasicCollection;
+use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\Collection\CategoryTranslationBasicCollection;
+use Shopware\Core\Content\Category\Struct\CategoryDetailStruct;
+use Shopware\Core\Content\Media\Collection\MediaBasicCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductStream\Collection\ProductStreamBasicCollection;
 
 class CategoryDetailCollection extends CategoryBasicCollection
 {

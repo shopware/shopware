@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * Shopware 5
+ * Shopware\Core 5
  * Copyright (c) shopware AG
  *
  * According to our dual licensing model, this program can be used either
@@ -16,23 +16,23 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
  *
- * "Shopware" is a registered trademark of shopware AG.
+ * "Shopware\Core" is a registered trademark of shopware AG.
  * The licensing of the program under the AGPLv3 does not imply a
  * trademark license. Therefore any rights, title and interest in
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Framework\Migration;
+namespace Shopware\Core\Framework\Migration;
 
 /**
- * Shopware migration manager
+ * Shopware\Core migration manager
  *
  * <code>
  * $migrationManager = new Manager($conn, '/path/to/migrations');
  * $migrationManager->run();
  * </code>
  *
- * @category  Shopware
+ * @category  Shopware\Core
  *
  * @copyright Copyright (c) shopware AG (http://www.shopware.de)
  */

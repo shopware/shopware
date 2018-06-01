@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Mail\Event;
+namespace Shopware\Core\System\Mail\Event;
 
-use Shopware\Framework\ORM\Write\WrittenEvent;
-use Shopware\System\Mail\MailDefinition;
+use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\System\Mail\MailDefinition;
 
 class MailWrittenEvent extends WrittenEvent
 {

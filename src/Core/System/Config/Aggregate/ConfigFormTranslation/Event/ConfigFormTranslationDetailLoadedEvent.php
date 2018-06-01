@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Config\Aggregate\ConfigFormTranslation\Event;
+namespace Shopware\Core\System\Config\Aggregate\ConfigFormTranslation\Event;
 
-use Shopware\Framework\Context;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\System\Config\Aggregate\ConfigFormTranslation\Collection\ConfigFormTranslationDetailCollection;
-use Shopware\System\Config\Event\ConfigFormBasicLoadedEvent;
-use Shopware\System\Locale\Event\LocaleBasicLoadedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\System\Config\Aggregate\ConfigFormTranslation\Collection\ConfigFormTranslationDetailCollection;
+use Shopware\Core\System\Config\Event\ConfigFormBasicLoadedEvent;
+use Shopware\Core\System\Locale\Event\LocaleBasicLoadedEvent;
 
 class ConfigFormTranslationDetailLoadedEvent extends NestedEvent
 {

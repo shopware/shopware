@@ -2,11 +2,12 @@
 
 namespace Shopware\Framework\Test\Routing;
 
+use Shopware\Defaults;
 use Shopware\Framework\Test\Api\ApiTestCase;
 
-class ApplicationAuthenticatorTest extends ApiTestCase
+class TouchpointAuthenticatorTest extends ApiTestCase
 {
-    public function testNoAccessWithoutApplicationToken()
+    public function testNoAccessWithoutTouchpointToken()
     {
         $client = self::createClient(
             ['test_case' => 'ApiTest'],
@@ -28,17 +29,17 @@ class ApplicationAuthenticatorTest extends ApiTestCase
 
         $error = array_shift($content['errors']);
 
-        $this->assertEquals($error['detail'], 'Header "X-SW-Application-Token" is required.');
+        $this->assertEquals($error['detail'], 'Header "X-SW-Touchpoint-Token" is required.');
     }
 
-    public function testNoAccessWithUnknownApplicationToken()
+    public function testNoAccessWithUnknownTouchpointToken()
     {
         $client = self::createClient(
             ['test_case' => 'ApiTest'],
             [
                 'CONTENT_TYPE' => 'application/json',
                 'HTTP_ACCEPT' => ['application/json'],
-                'HTTP_X_SW_APPLICATION_TOKEN' => 'ffffffff-ffff-ffff-ffff-ffffffffffff',
+                'HTTP_X_SW_TOUCHPOINT_TOKEN' => Defaults::TOUCHPOINT,
             ]
         );
 
@@ -54,6 +55,6 @@ class ApplicationAuthenticatorTest extends ApiTestCase
 
         $error = array_shift($content['errors']);
 
-        $this->assertEquals($error['detail'], 'No application found for provided token.');
+        $this->assertEquals($error['detail'], 'No touchpoint found for provided token.');
     }
 }

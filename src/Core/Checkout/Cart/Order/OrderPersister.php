@@ -64,7 +64,7 @@ class OrderPersister implements OrderPersisterInterface
     {
         $order = $this->convert($calculatedCart, $context);
 
-        return $this->repository->create([$order], $context->getApplicationContext());
+        return $this->repository->create([$order], $context->getContext());
     }
 
     private function convert(CalculatedCart $calculatedCart, CustomerContext $context): array
@@ -102,7 +102,7 @@ class OrderPersister implements OrderPersisterInterface
             'stateId' => Defaults::ORDER_STATE_OPEN,
             'paymentMethodId' => $context->getPaymentMethod()->getId(),
             'currencyId' => $context->getCurrency()->getId(),
-            'applicationId' => $context->getApplication()->getId(),
+            'touchpointId' => $context->getTouchpoint()->getId(),
             'billingAddressId' => $addressId,
             'lineItems' => [],
             'deliveries' => [],

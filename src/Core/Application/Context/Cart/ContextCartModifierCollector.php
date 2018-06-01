@@ -56,7 +56,7 @@ class ContextCartModifierCollector implements CartCollectorInterface
 
         $criteria = new Criteria();
         $criteria->addFilter(new TermsQuery('context_cart_modifier.contextRuleId', $ids));
-        $contextCartModifiers = $this->repository->search($criteria, $context->getApplicationContext());
+        $contextCartModifiers = $this->repository->search($criteria, $context->getContext());
 
         $dataCollection->add($contextCartModifiers, ContextCartModifierProcessor::TYPE);
     }

@@ -48,7 +48,7 @@ class AccountService
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('customer.email', $email));
 
-        $customers = $this->customerRepository->search($criteria, $context->getApplicationContext());
+        $customers = $this->customerRepository->search($criteria, $context->getContext());
 
         if ($customers->count() === 0) {
             throw new CustomerNotFoundException($email);
@@ -86,7 +86,7 @@ class AccountService
         ];
 
         $data = array_filter($data);
-        $this->customerRepository->update([$data], $context->getApplicationContext());
+        $this->customerRepository->update([$data], $context->getContext());
     }
 
     public function changePassword(string $password, CustomerContext $context)
@@ -96,7 +96,7 @@ class AccountService
             'password' => password_hash($password, PASSWORD_BCRYPT, ['cost' => 13]),
             'encoder' => 'bcrypt',
         ];
-        $this->customerRepository->update([$data], $context->getApplicationContext());
+        $this->customerRepository->update([$data], $context->getContext());
     }
 
     public function changeEmail(string $email, CustomerContext $context)
@@ -105,7 +105,7 @@ class AccountService
             'id' => $context->getCustomer()->getId(),
             'email' => $email,
         ];
-        $this->customerRepository->update([$data], $context->getApplicationContext());
+        $this->customerRepository->update([$data], $context->getContext());
     }
 
     public function getAddressById(string $addressId, CustomerContext $context): CustomerAddressBasicStruct
@@ -118,8 +118,8 @@ class AccountService
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('country.active', true));
         $countries = $this->countryRepository->readDetail(
-            $this->countryRepository->searchIds($criteria, $context->getApplicationContext())->getIds(),
-            $context->getApplicationContext()
+            $this->countryRepository->searchIds($criteria, $context->getContext())->getIds(),
+            $context->getContext()
         );
         $countries->sortCountryAndStates();
 
@@ -136,7 +136,7 @@ class AccountService
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('customer_address.customerId', $context->getCustomer()->getId()));
 
-        $addresses = $this->customerAddressRepository->search($criteria, $context->getApplicationContext());
+        $addresses = $this->customerAddressRepository->search($criteria, $context->getContext());
 
         return $addresses->sortByDefaultAddress($customer)->getElements();
     }
@@ -173,7 +173,7 @@ class AccountService
         ];
         $data = array_filter($data);
 
-        $this->customerAddressRepository->upsert([$data], $context->getApplicationContext());
+        $this->customerAddressRepository->upsert([$data], $context->getContext());
 
         return $id;
     }
@@ -185,7 +185,7 @@ class AccountService
     {
         $this->validateCustomer($context);
         $this->validateAddressId($addressId, $context);
-        $this->customerAddressRepository->delete([['id' => $addressId]], $context->getApplicationContext());
+        $this->customerAddressRepository->delete([['id' => $addressId]], $context->getContext());
     }
 
     /**
@@ -200,7 +200,7 @@ class AccountService
             'id' => $context->getCustomer()->getId(),
             'defaultBillingAddressId' => $addressId,
         ];
-        $this->customerRepository->update([$data], $context->getApplicationContext());
+        $this->customerRepository->update([$data], $context->getContext());
     }
 
     /**
@@ -215,7 +215,7 @@ class AccountService
             'id' => $context->getCustomer()->getId(),
             'defaultShippingAddressId' => $addressId,
         ];
-        $this->customerRepository->update([$data], $context->getApplicationContext());
+        $this->customerRepository->update([$data], $context->getContext());
     }
 
     public function createNewCustomer(array $formData, CustomerContext $context): string
@@ -232,6 +232,7 @@ class AccountService
         $addresses[] = array_filter([
             'id' => $billingAddressId,
             'customerId' => $customerId,
+
             'countryId' => $billing['country'],
             'salutation' => $billing['salutation'] ?? $personal['salutation'],
             'firstName' => $billing['firstname'] ?? $personal['firstname'],
@@ -269,7 +270,7 @@ class AccountService
         // todo implement customer number generator
         $data = [
             'id' => $customerId,
-            'applicationId' => $context->getApplication()->getId(),
+            'touchpointId' => $context->getTouchpoint()->getId(),
             'customerGroupId' => $context->getCurrentCustomerGroup()->getId(),
             'defaultPaymentMethodId' => $context->getPaymentMethod()->getId(),
             'groupId' => $context->getCurrentCustomerGroup()->getId(),
@@ -293,7 +294,7 @@ class AccountService
         ];
 
         $data = array_filter($data);
-        $this->customerRepository->create([$data], $context->getApplicationContext());
+        $this->customerRepository->create([$data], $context->getContext());
 
         return $customerId;
     }
@@ -310,7 +311,7 @@ class AccountService
 
     private function validateAddressId(string $addressId, CustomerContext $context): CustomerAddressBasicStruct
     {
-        $addresses = $this->customerAddressRepository->readBasic([$addressId], $context->getApplicationContext());
+        $addresses = $this->customerAddressRepository->readBasic([$addressId], $context->getContext());
         $address = $addresses->get($addressId);
 
         if (!$address) {

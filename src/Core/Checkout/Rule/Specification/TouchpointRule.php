@@ -27,21 +27,21 @@ namespace Shopware\Checkout\Rule\Specification;
 use Shopware\Checkout\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Checkout\Rule\Specification\Scope\RuleScope;
 
-class ApplicationRule extends Rule
+class TouchpointRule extends Rule
 {
     /**
      * @var int[]
      */
-    protected $applicationIds;
+    protected $touchpointIds;
 
     /**
      * @var string
      */
     protected $operator;
 
-    public function __construct(array $applicationIds, string $operator)
+    public function __construct(array $touchpointIds, string $operator)
     {
-        $this->applicationIds = $applicationIds;
+        $this->touchpointIds = $touchpointIds;
         $this->operator = $operator;
     }
 
@@ -53,15 +53,15 @@ class ApplicationRule extends Rule
             case self::OPERATOR_EQ:
 
                 return new Match(
-                    in_array($context->getApplication()->getId(), $this->applicationIds, true),
-                    ['Application not matched']
+                    in_array($context->getTouchpoint()->getId(), $this->touchpointIds, true),
+                    ['Touchpoint not matched']
                 );
 
             case self::OPERATOR_NEQ:
 
                 return new Match(
-                    !in_array($context->getApplication()->getId(), $this->applicationIds, true),
-                    ['Application not matched']
+                    !in_array($context->getTouchpoint()->getId(), $this->touchpointIds, true),
+                    ['Touchpoint not matched']
                 );
 
             default:

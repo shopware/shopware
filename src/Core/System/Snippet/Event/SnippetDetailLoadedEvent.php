@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Snippet\Event;
 
-use Shopware\Application\Application\Event\ApplicationBasicLoadedEvent;
+use Shopware\System\Touchpoint\Event\TouchpointBasicLoadedEvent;
 use Shopware\Framework\Context;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
@@ -46,8 +46,8 @@ class SnippetDetailLoadedEvent extends NestedEvent
     public function getEvents(): ?NestedEventCollection
     {
         $events = [];
-        if ($this->snippets->getApplications()->count() > 0) {
-            $events[] = new ApplicationBasicLoadedEvent($this->snippets->getApplications(), $this->context);
+        if ($this->snippets->getTouchpoints()->count() > 0) {
+            $events[] = new TouchpointBasicLoadedEvent($this->snippets->getTouchpoints(), $this->context);
         }
 
         return new NestedEventCollection($events);

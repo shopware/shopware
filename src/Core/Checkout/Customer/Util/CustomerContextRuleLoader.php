@@ -116,7 +116,7 @@ class CustomerContextRuleLoader
             );
         }
 
-        $rules = $this->loadRules($context->getApplicationContext());
+        $rules = $this->loadRules($context->getContext());
 
         $rules->sortByPriority();
 

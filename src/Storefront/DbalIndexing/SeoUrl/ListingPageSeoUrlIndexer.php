@@ -4,7 +4,7 @@ namespace Shopware\Storefront\DbalIndexing\SeoUrl;
 
 use Cocur\Slugify\SlugifyInterface;
 use Doctrine\DBAL\Connection;
-use Shopware\Application\Application\ApplicationRepository;
+use Shopware\System\Touchpoint\TouchpointRepository;
 use Shopware\Framework\Context;
 use Shopware\Content\Category\CategoryRepository;
 use Shopware\Content\Category\Struct\CategorySearchResult;
@@ -43,7 +43,7 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
     private $router;
 
     /**
-     * @var ApplicationRepository
+     * @var TouchpointRepository
      */
     private $applicationRepository;
 
@@ -66,7 +66,7 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
         SlugifyInterface $slugify,
         RouterInterface $router,
         CategoryRepository $categoryRepository,
-        ApplicationRepository $applicationRepository,
+        TouchpointRepository $applicationRepository,
         EventDispatcherInterface $eventDispatcher,
         EventIdExtractor $eventIdExtractor
     ) {
@@ -84,7 +84,7 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
         $applications = $this->applicationRepository->search(new Criteria(), Context::createDefaultContext($tenantId));
 
         foreach ($applications as $application) {
-            $context = Context::createFromApplication($application);
+            $context = Context::createFromTouchpoint($application);
 
             $iterator = new RepositoryIterator($this->categoryRepository, $context);
 
@@ -136,7 +136,7 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
         $query->from('seo_url', 'seo_url');
 
         $query->andWhere('seo_url.name = :name');
-        $query->andWhere('seo_url.application_id = :application');
+        $query->andWhere('seo_url.touchpoint_id = :application');
         $query->andWhere('seo_url.is_canonical = 1');
         $query->andWhere('seo_url.tenant_id = :tenant');
         $query->andWhere('seo_url.foreign_key IN (:ids)');
@@ -157,7 +157,7 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
 
         $categories = $this->categoryRepository->readBasic($ids, $context);
 
-        $canonicals = $this->fetchCanonicals($categories->getIds(), $context->getApplicationId(), $context->getTenantId());
+        $canonicals = $this->fetchCanonicals($categories->getIds(), $context->getTouchpointId(), $context->getTenantId());
 
         $liveVersionId = Uuid::fromStringToBytes(Defaults::LIVE_VERSION);
         $insertQuery = new MultiInsertQueryQueue($this->connection, 250, false, true);
@@ -196,8 +196,8 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
                 'id' => $existing['id'],
                 'tenant_id' => Uuid::fromStringToBytes($context->getTenantId()),
                 'version_id' => $liveVersionId,
-                'application_id' => Uuid::fromStringToBytes($context->getApplicationId()),
-                'application_tenant_id' => Uuid::fromStringToBytes($context->getTenantId()),
+                'touchpoint_id' => Uuid::fromStringToBytes($context->getTouchpointId()),
+                'touchpoint_tenant_id' => Uuid::fromStringToBytes($context->getTenantId()),
                 'name' => self::ROUTE_NAME,
                 'foreign_key' => Uuid::fromStringToBytes($category->getId()),
                 'foreign_key_version_id' => $liveVersionId,

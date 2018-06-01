@@ -97,7 +97,7 @@
         </service>
 
         <service class="Shopware\Checkout\Customer\Util\CustomerContextFactory" id="Shopware\Checkout\Customer\Util\CustomerContextFactory">
-            <argument type="service" id="Shopware\Application\Application\ApplicationRepository"/>
+            <argument type="service" id="Shopware\System\Touchpoint\TouchpointRepository"/>
             <argument type="service" id="Shopware\System\Currency\CurrencyRepository"/>
             <argument type="service" id="Shopware\Checkout\Customer\CustomerRepository"/>
             <argument type="service" id="Shopware\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupRepository"/>

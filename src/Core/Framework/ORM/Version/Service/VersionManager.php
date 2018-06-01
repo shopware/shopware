@@ -151,22 +151,20 @@ class VersionManager
         return $versionData['id'];
     }
 
-    public function merge(string $versionId, WriteContext $context): void
+    public function merge(string $versionId, WriteContext $writeContext): void
     {
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('version_commit.versionId', $versionId));
         $criteria->addSorting(new FieldSorting('version_commit.autoIncrement'));
 
-        $applicationContext = $context->getContext();
-
-        $commitIds = $this->entitySearcher->search(VersionCommitDefinition::class, $criteria, $applicationContext);
-        $commits = $this->entityReader->readBasic(VersionCommitDefinition::class, $commitIds->getIds(), $applicationContext);
+        $commitIds = $this->entitySearcher->search(VersionCommitDefinition::class, $criteria, $writeContext->getContext());
+        $commits = $this->entityReader->readBasic(VersionCommitDefinition::class, $commitIds->getIds(), $writeContext->getContext());
 
         $allChanges = [];
         $entities = [];
 
-        $versionContext = $context->createWithVersionId($versionId);
-        $liveContext = $context->createWithVersionId(Defaults::LIVE_VERSION);
+        $versionContext = $writeContext->createWithVersionId($versionId);
+        $liveContext = $writeContext->createWithVersionId(Defaults::LIVE_VERSION);
 
         /** @var VersionCommitBasicCollection $commits */
         foreach ($commits as $commit) {
@@ -224,13 +222,13 @@ class VersionManager
         $commit = [
             'versionId' => Defaults::LIVE_VERSION,
             'data' => $newData,
-            'userId' => $this->getUserId($applicationContext),
+            'userId' => $this->getUserId($writeContext->getContext()),
             'isMerge' => true,
             'message' => 'merge commit ' . (new \DateTime())->format(\DateTime::ATOM),
         ];
 
-        $this->entityWriter->insert(VersionCommitDefinition::class, [$commit], $context);
-        $this->entityWriter->delete(VersionDefinition::class, [['id' => $versionId]], $context);
+        $this->entityWriter->insert(VersionCommitDefinition::class, [$commit], $writeContext);
+        $this->entityWriter->delete(VersionDefinition::class, [['id' => $versionId]], $writeContext);
 
         foreach ($entities as $entity) {
             $primary = $entity['primary'];

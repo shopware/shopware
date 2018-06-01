@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Customer;
 
-use Shopware\Application\Application\ApplicationDefinition;
+use Shopware\System\Touchpoint\TouchpointDefinition;
 use Shopware\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition;
 use Shopware\Checkout\Customer\Collection\CustomerBasicCollection;
@@ -73,7 +73,7 @@ class CustomerDefinition extends EntityDefinition
             (new FkField('default_payment_method_id', 'defaultPaymentMethodId', PaymentMethodDefinition::class))->setFlags(new Required()),
             (new ReferenceVersionField(PaymentMethodDefinition::class, 'default_payment_method_version_id'))->setFlags(new Required()),
 
-            (new FkField('application_id', 'applicationId', ApplicationDefinition::class))->setFlags(new Required()),
+            (new FkField('touchpoint_id', 'touchpointId', TouchpointDefinition::class))->setFlags(new Required()),
 
             new FkField('last_payment_method_id', 'lastPaymentMethodId', PaymentMethodDefinition::class),
             new ReferenceVersionField(PaymentMethodDefinition::class, 'last_payment_method_version_id'),
@@ -107,7 +107,7 @@ class CustomerDefinition extends EntityDefinition
             new DateField('updated_at', 'updatedAt'),
             new ManyToOneAssociationField('group', 'customer_group_id', CustomerGroupDefinition::class, true),
             new ManyToOneAssociationField('defaultPaymentMethod', 'default_payment_method_id', PaymentMethodDefinition::class, true),
-            new ManyToOneAssociationField('application', 'application_id', ApplicationDefinition::class, true),
+            new ManyToOneAssociationField('touchpoint', 'touchpoint_id', TouchpointDefinition::class, true),
             new ManyToOneAssociationField('lastPaymentMethod', 'last_payment_method_id', PaymentMethodDefinition::class, true),
             new ManyToOneAssociationField('defaultBillingAddress', 'default_billing_address_id', CustomerAddressDefinition::class, true),
             new ManyToOneAssociationField('defaultShippingAddress', 'default_shipping_address_id', CustomerAddressDefinition::class, true),

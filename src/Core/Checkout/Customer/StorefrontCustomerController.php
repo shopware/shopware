@@ -189,7 +189,7 @@ class StorefrontCustomerController extends Controller
         $this->accountService->changeEmail($content['email'], $context);
         $this->storefrontContextService->refresh(
             $context->getTenantId(),
-            $context->getApplication()->getId(),
+            $context->getTouchpoint()->getId(),
             $context->getToken()
         );
 
@@ -209,7 +209,7 @@ class StorefrontCustomerController extends Controller
         $this->accountService->changePassword($content['password'], $context);
         $this->storefrontContextService->refresh(
             $context->getTenantId(),
-            $context->getApplication()->getId(),
+            $context->getTouchpoint()->getId(),
             $context->getToken()
         );
 
@@ -226,7 +226,7 @@ class StorefrontCustomerController extends Controller
         $this->accountService->changeProfile($profile, $context);
         $this->storefrontContextService->refresh(
             $context->getTenantId(),
-            $context->getApplication()->getId(),
+            $context->getTouchpoint()->getId(),
             $context->getToken()
         );
 
@@ -244,7 +244,7 @@ class StorefrontCustomerController extends Controller
         return $this->responseFactory->createDetailResponse(
             $this->accountService->getCustomerByContext($context),
             CustomerDefinition::class,
-            new RestContext($request, $context->getApplicationContext(), null)
+            new RestContext($request, $context->getContext(), null)
         );
     }
 
@@ -285,7 +285,7 @@ class StorefrontCustomerController extends Controller
         $content = $this->decodedContent($request);
         $addressId = $this->accountService->saveAddress($content, $context);
 
-        $this->storefrontContextService->refresh($context->getTenantId(), $context->getApplication()->getId(), $context->getToken());
+        $this->storefrontContextService->refresh($context->getTenantId(), $context->getTouchpoint()->getId(), $context->getToken());
 
         return new JsonResponse($this->serialize($addressId));
     }
@@ -327,7 +327,7 @@ class StorefrontCustomerController extends Controller
         $criteria->setOffset($page * $limit);
         $criteria->setFetchCount(Criteria::FETCH_COUNT_NEXT_PAGES);
 
-        return $this->orderRepository->search($criteria, $context->getApplicationContext())->getElements();
+        return $this->orderRepository->search($criteria, $context->getContext())->getElements();
     }
 
     private function decodedContent(Request $request): array

@@ -1,21 +1,21 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Application\Application\Event;
+namespace Shopware\System\Touchpoint\Event;
 
 use Shopware\Framework\Context;
 use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\ORM\Search\IdSearchResult;
+use Shopware\Framework\ORM\Search\AggregatorResult;
 
-class ApplicationIdSearchResultLoadedEvent extends NestedEvent
+class TouchpointAggregationResultLoadedEvent extends NestedEvent
 {
-    public const NAME = 'application.id.search.result.loaded';
+    public const NAME = 'application.aggregation.result.loaded';
 
     /**
-     * @var IdSearchResult
+     * @var AggregatorResult
      */
     protected $result;
 
-    public function __construct(IdSearchResult $result)
+    public function __construct(AggregatorResult $result)
     {
         $this->result = $result;
     }
@@ -30,7 +30,7 @@ class ApplicationIdSearchResultLoadedEvent extends NestedEvent
         return $this->result->getContext();
     }
 
-    public function getResult(): IdSearchResult
+    public function getResult(): AggregatorResult
     {
         return $this->result;
     }

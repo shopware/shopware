@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Customer\Event;
 
-use Shopware\Application\Application\Event\ApplicationBasicLoadedEvent;
+use Shopware\System\Touchpoint\Event\TouchpointBasicLoadedEvent;
 use Shopware\Framework\Context;
 use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Event\CustomerAddressBasicLoadedEvent;
 use Shopware\Checkout\Customer\Aggregate\CustomerGroup\Event\CustomerGroupBasicLoadedEvent;
@@ -55,8 +55,8 @@ class CustomerBasicLoadedEvent extends NestedEvent
         if ($this->customers->getDefaultPaymentMethods()->count() > 0) {
             $events[] = new PaymentMethodBasicLoadedEvent($this->customers->getDefaultPaymentMethods(), $this->context);
         }
-        if ($this->customers->getApplications()->count() > 0) {
-            $events[] = new ApplicationBasicLoadedEvent($this->customers->getApplications(), $this->context);
+        if ($this->customers->getTouchpoints()->count() > 0) {
+            $events[] = new TouchpointBasicLoadedEvent($this->customers->getTouchpoints(), $this->context);
         }
         if ($this->customers->getLastPaymentMethods()->count() > 0) {
             $events[] = new PaymentMethodBasicLoadedEvent($this->customers->getLastPaymentMethods(), $this->context);

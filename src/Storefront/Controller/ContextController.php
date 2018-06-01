@@ -64,7 +64,7 @@ class ContextController extends StorefrontController
 
         if (!empty($payload)) {
             $this->contextPersister->save($context->getToken(), $payload, $context->getTenantId());
-            $this->storefrontContextService->refresh($context->getTenantId(), $context->getApplicationContext()->getApplicationId(), $context->getToken());
+            $this->storefrontContextService->refresh($context->getTenantId(), $context->getContext()->getTouchpointId(), $context->getToken());
         }
 
         $target = $request->request->get('target') ?? $request->headers->get('referer');
@@ -84,7 +84,7 @@ class ContextController extends StorefrontController
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('currency.id', $currencyId));
 
-        $currencies = $this->currencyRepository->searchIds($criteria, $context->getApplicationContext());
+        $currencies = $this->currencyRepository->searchIds($criteria, $context->getContext());
 
         if ($currencies->getTotal() !== 0) {
             return $currencyId;
@@ -105,7 +105,7 @@ class ContextController extends StorefrontController
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('language.id', $languageId));
 
-        $currencies = $this->languageRepository->searchIds($criteria, $context->getApplicationContext());
+        $currencies = $this->languageRepository->searchIds($criteria, $context->getContext());
 
         if ($currencies->getTotal() !== 0) {
             return $languageId;

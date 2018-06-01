@@ -81,7 +81,7 @@ class ImportService implements ImportServiceInterface
         $tenantId = hex2bin($tenantId);
 
         $this->connection->transactional(function () use ($content, $namespace, $today, $tenantId) {
-            $applicationId = Uuid::fromStringToBytes(Defaults::APPLICATION);
+            $touchpointId = Uuid::fromStringToBytes(Defaults::TOUCHPOINT);
 
             foreach ($content as $locale => $translations) {
                 foreach ($translations as $name => $value) {
@@ -89,8 +89,8 @@ class ImportService implements ImportServiceInterface
                         'id' => Uuid::uuid4()->getBytes(),
                         'tenant_id' => $tenantId,
                         'namespace' => $namespace,
-                        'application_id' => $applicationId,
-                        'application_tenant_id' => $tenantId,
+                        'touchpoint_id' => $touchpointId,
+                        'touchpoint_tenant_id' => $tenantId,
                         'locale' => $locale,
                         'name' => $name,
                         'value' => $value,

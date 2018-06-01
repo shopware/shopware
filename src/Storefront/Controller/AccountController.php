@@ -142,7 +142,7 @@ class AccountController extends StorefrontController
             $context->getTenantId()
         );
 
-        $this->storefrontContextService->refresh($context->getTenantId(), $context->getApplication()->getId(), $context->getToken());
+        $this->storefrontContextService->refresh($context->getTenantId(), $context->getTouchpoint()->getId(), $context->getToken());
 
         if ($url = $request->query->get('redirectTo')) {
             return $this->handleRedirectTo($url);
@@ -191,7 +191,7 @@ class AccountController extends StorefrontController
                 $context->getTenantId()
             );
 
-            $this->storefrontContextService->refresh($context->getTenantId(), $context->getApplication()->getId(), $context->getToken());
+            $this->storefrontContextService->refresh($context->getTenantId(), $context->getTouchpoint()->getId(), $context->getToken());
         } catch (CustomerNotFoundException | BadCredentialsException $exception) {
             return $this->redirectToRoute('account_login');
         }
@@ -212,7 +212,7 @@ class AccountController extends StorefrontController
         $this->denyAccessUnlessLoggedIn();
 
         return $this->renderStorefront('@Storefront/frontend/account/payment.html.twig', [
-            'paymentMethods' => $this->paymentMethodLoader->load($request, $context->getApplicationContext()),
+            'paymentMethods' => $this->paymentMethodLoader->load($request, $context->getContext()),
         ]);
     }
 
@@ -294,7 +294,7 @@ class AccountController extends StorefrontController
         // todo validate user input and persist salutation
         $profile = $request->request->get('profile');
         $this->accountService->changeProfile($profile, $context);
-        $this->storefrontContextService->refresh($context->getTenantId(), $context->getApplication()->getId(), $context->getToken());
+        $this->storefrontContextService->refresh($context->getTenantId(), $context->getTouchpoint()->getId(), $context->getToken());
 
         return $this->redirectToRoute('account_profile', [
             'success' => true,
@@ -312,7 +312,7 @@ class AccountController extends StorefrontController
         // todo validate user input
         $password = $request->request->get('password');
         $this->accountService->changePassword($password['password'], $context);
-        $this->storefrontContextService->refresh($context->getTenantId(), $context->getApplication()->getId(), $context->getToken());
+        $this->storefrontContextService->refresh($context->getTenantId(), $context->getTouchpoint()->getId(), $context->getToken());
 
         return $this->redirectToRoute('account_profile', [
             'success' => true,
@@ -330,7 +330,7 @@ class AccountController extends StorefrontController
         // todo validate user input
         $email = $request->request->get('email');
         $this->accountService->changeEmail($email['email'], $context);
-        $this->storefrontContextService->refresh($context->getTenantId(), $context->getApplication()->getId(), $context->getToken());
+        $this->storefrontContextService->refresh($context->getTenantId(), $context->getTouchpoint()->getId(), $context->getToken());
 
         return $this->redirectToRoute('account_profile', [
             'success' => true,
@@ -384,7 +384,7 @@ class AccountController extends StorefrontController
                 $this->accountService->setDefaultBillingAddress($addressId, $context);
             }
         }
-        $this->storefrontContextService->refresh($context->getTenantId(), $context->getApplication()->getId(), $context->getToken());
+        $this->storefrontContextService->refresh($context->getTenantId(), $context->getTouchpoint()->getId(), $context->getToken());
 
         if ($url = $request->query->get('redirectTo')) {
             return $this->handleRedirectTo($url);
@@ -452,7 +452,7 @@ class AccountController extends StorefrontController
 
         $addressId = $request->request->get('addressId');
         $this->accountService->setDefaultBillingAddress($addressId, $context);
-        $this->storefrontContextService->refresh($context->getTenantId(), $context->getApplication()->getId(), $context->getToken());
+        $this->storefrontContextService->refresh($context->getTenantId(), $context->getTouchpoint()->getId(), $context->getToken());
 
         return $this->redirectToRoute('address_index', ['success' => 'default_billing']);
     }
@@ -469,7 +469,7 @@ class AccountController extends StorefrontController
 
         $addressId = $request->request->get('addressId');
         $this->accountService->setDefaultShippingAddress($addressId, $context);
-        $this->storefrontContextService->refresh($context->getTenantId(), $context->getApplication()->getId(), $context->getToken());
+        $this->storefrontContextService->refresh($context->getTenantId(), $context->getTouchpoint()->getId(), $context->getToken());
 
         return $this->redirectToRoute('address_index', ['success' => 'default_shipping']);
     }
@@ -546,7 +546,7 @@ class AccountController extends StorefrontController
             $this->accountService->setDefaultBillingAddress($addressId, $context);
         }
 
-        $this->storefrontContextService->refresh($context->getTenantId(), $context->getApplication()->getId(), $context->getToken());
+        $this->storefrontContextService->refresh($context->getTenantId(), $context->getTouchpoint()->getId(), $context->getToken());
 
         return new JsonResponse([
             'success' => true,

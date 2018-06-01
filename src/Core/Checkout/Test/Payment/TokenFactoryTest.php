@@ -30,7 +30,7 @@ class TokenFactoryTest extends KernelTestCase
     /**
      * @var \Shopware\Framework\Context
      */
-    protected $applicationContext;
+    protected $context;
 
     /**
      * @var \Shopware\Checkout\Order\OrderRepository
@@ -135,16 +135,16 @@ class TokenFactoryTest extends KernelTestCase
 
     private function prepare(): string
     {
-        $customerId = $this->createCustomer($this->customerRepository, $this->applicationContext);
-        $orderId = $this->createOrder($customerId, $this->orderRepository, $this->applicationContext);
+        $customerId = $this->createCustomer($this->customerRepository, $this->context);
+        $orderId = $this->createOrder($customerId, $this->orderRepository, $this->context);
 
-        return $this->createTransaction($orderId, $this->orderTransactionRepository, $this->applicationContext);
+        return $this->createTransaction($orderId, $this->orderTransactionRepository, $this->context);
     }
 
     private function createTransaction(
         string $orderId,
         OrderTransactionRepository $orderTransactionRepository,
-        Context $applicationContext
+        Context $context
     ): string {
         $id = Uuid::uuid4()->getHex();
         $transaction = [
@@ -156,7 +156,7 @@ class TokenFactoryTest extends KernelTestCase
             'payload' => '{}',
         ];
 
-        $orderTransactionRepository->upsert([$transaction], $applicationContext);
+        $orderTransactionRepository->upsert([$transaction], $context);
 
         return $id;
     }
@@ -164,7 +164,7 @@ class TokenFactoryTest extends KernelTestCase
     private function createOrder(
         string $customerId,
         OrderRepository $orderRepository,
-        Context $applicationContext
+        Context $context
     ) {
         $orderId = Uuid::uuid4()->getHex();
 
@@ -182,7 +182,7 @@ class TokenFactoryTest extends KernelTestCase
             'stateId' => Defaults::ORDER_STATE_OPEN,
             'paymentMethodId' => self::PAYMENT_METHOD_INVOICE,
             'currencyId' => Defaults::CURRENCY,
-            'applicationId' => Defaults::APPLICATION,
+            'touchpointId' => Defaults::TOUCHPOINT,
             'billingAddress' => [
                 'salutation' => 'mr',
                 'firstName' => 'Max',
@@ -199,7 +199,7 @@ class TokenFactoryTest extends KernelTestCase
             'payload' => '{}',
         ];
 
-        $orderRepository->upsert([$order], $applicationContext);
+        $orderRepository->upsert([$order], $context);
 
         return $orderId;
     }
@@ -219,7 +219,7 @@ class TokenFactoryTest extends KernelTestCase
             'password' => password_hash('shopware', PASSWORD_BCRYPT, ['cost' => 13]),
             'defaultPaymentMethodId' => self::PAYMENT_METHOD_INVOICE,
             'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-            'applicationId' => Defaults::APPLICATION,
+            'touchpointId' => Defaults::TOUCHPOINT,
             'defaultBillingAddressId' => $addressId,
             'defaultShippingAddressId' => $addressId,
             'addresses' => [

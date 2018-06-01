@@ -4,7 +4,7 @@ namespace Shopware\Storefront\DbalIndexing\SeoUrl;
 
 use Cocur\Slugify\SlugifyInterface;
 use Doctrine\DBAL\Connection;
-use Shopware\Application\Application\ApplicationRepository;
+use Shopware\System\Touchpoint\TouchpointRepository;
 use Shopware\Framework\Context;
 use Shopware\Content\Product\ProductRepository;
 use Shopware\Content\Product\Struct\ProductSearchResult;
@@ -49,9 +49,9 @@ class DetailPageSeoUrlIndexer implements IndexerInterface
     private $productRepository;
 
     /**
-     * @var ApplicationRepository
+     * @var TouchpointRepository
      */
-    private $applicationRepository;
+    private $touchpointRepository;
 
     /**
      * @var EventDispatcherInterface
@@ -68,7 +68,7 @@ class DetailPageSeoUrlIndexer implements IndexerInterface
         SlugifyInterface $slugify,
         RouterInterface $router,
         ProductRepository $productRepository,
-        ApplicationRepository $applicationRepository,
+        TouchpointRepository $touchpointRepository,
         EventDispatcherInterface $eventDispatcher,
         EventIdExtractor $eventIdExtractor
     ) {
@@ -76,17 +76,17 @@ class DetailPageSeoUrlIndexer implements IndexerInterface
         $this->slugify = $slugify;
         $this->router = $router;
         $this->productRepository = $productRepository;
-        $this->applicationRepository = $applicationRepository;
+        $this->touchpointRepository = $touchpointRepository;
         $this->eventDispatcher = $eventDispatcher;
         $this->eventIdExtractor = $eventIdExtractor;
     }
 
     public function index(\DateTime $timestamp, string $tenantId): void
     {
-        $applications = $this->applicationRepository->search(new Criteria(), Context::createDefaultContext($tenantId));
+        $applications = $this->touchpointRepository->search(new Criteria(), Context::createDefaultContext($tenantId));
 
         foreach ($applications as $application) {
-            $context = Context::createFromApplication($application);
+            $context = Context::createFromTouchpoint($application);
 
             $iterator = new RepositoryIterator($this->productRepository, $context);
 
@@ -126,7 +126,7 @@ class DetailPageSeoUrlIndexer implements IndexerInterface
         $this->updateProducts($ids, $event->getContext());
     }
 
-    private function fetchCanonicals(array $productIds, string $applicationId, string $tenantId): array
+    private function fetchCanonicals(array $productIds, string $touchpointId, string $tenantId): array
     {
         $productIds = array_map(function ($id) {
             return Uuid::fromStringToBytes($id);
@@ -143,13 +143,13 @@ class DetailPageSeoUrlIndexer implements IndexerInterface
 
         $query->andWhere('seo_url.name = :name');
         $query->andWhere('seo_url.tenant_id = :tenant');
-        $query->andWhere('seo_url.application_id = :application');
+        $query->andWhere('seo_url.touchpoint_id = :touchpoint');
         $query->andWhere('seo_url.is_canonical = 1');
         $query->andWhere('seo_url.foreign_key IN (:ids)');
 
         $query->setParameter('ids', $productIds, Connection::PARAM_STR_ARRAY);
         $query->setParameter('name', self::ROUTE_NAME);
-        $query->setParameter('application', Uuid::fromStringToBytes($applicationId));
+        $query->setParameter('touchpoint', Uuid::fromStringToBytes($touchpointId));
         $query->setParameter('tenant', Uuid::fromStringToBytes($tenantId));
 
         return $query->execute()->fetchAll(\PDO::FETCH_GROUP | \PDO::FETCH_UNIQUE);
@@ -163,7 +163,7 @@ class DetailPageSeoUrlIndexer implements IndexerInterface
 
         $products = $this->productRepository->readBasic($ids, $context);
 
-        $canonicals = $this->fetchCanonicals($products->getIds(), $context->getApplicationId(), $context->getTenantId());
+        $canonicals = $this->fetchCanonicals($products->getIds(), $context->getTouchpointId(), $context->getTenantId());
         $timestamp = new \DateTime();
 
         foreach ($products as $product) {
@@ -187,8 +187,8 @@ class DetailPageSeoUrlIndexer implements IndexerInterface
                 'id' => $existing['id'],
                 'tenant_id' => Uuid::fromStringToBytes($context->getTenantId()),
                 'version_id' => $liveVersionId,
-                'application_id' => Uuid::fromStringToBytes($context->getApplicationId()),
-                'application_tenant_id' => Uuid::fromStringToBytes($context->getTenantId()),
+                'touchpoint_id' => Uuid::fromStringToBytes($context->getTouchpointId()),
+                'touchpoint_tenant_id' => Uuid::fromStringToBytes($context->getTenantId()),
                 'name' => self::ROUTE_NAME,
                 'foreign_key' => Uuid::fromStringToBytes($product->getId()),
                 'foreign_key_version_id' => $liveVersionId,

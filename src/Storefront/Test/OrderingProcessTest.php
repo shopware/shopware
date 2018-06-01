@@ -108,6 +108,9 @@ class OrderingProcessTest extends ApiTestCase
 
         $this->storefrontApiClient->request('POST', '/cart/addProduct', $data);
         $response = $this->storefrontApiClient->getResponse();
+
+        $this->assertEquals(200, $response->getStatusCode(), print_r($response->getContent(), true));
+
         $content = json_decode($response->getContent(), true);
 
         self::assertEquals(true, $content['success']);
@@ -155,7 +158,7 @@ class OrderingProcessTest extends ApiTestCase
             'password' => password_hash($password, PASSWORD_BCRYPT, ['cost' => 13]),
             'defaultPaymentMethodId' => Defaults::PAYMENT_METHOD_INVOICE,
             'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-            'applicationId' => Defaults::APPLICATION,
+            'touchpointId' => Defaults::TOUCHPOINT,
             'defaultBillingAddressId' => $addressId,
             'defaultShippingAddressId' => $addressId,
             'addresses' => [

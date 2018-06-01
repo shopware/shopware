@@ -53,4 +53,4 @@ Assuming the following scenario exists:
 
 As a result, the database is accessed 100 times each time storefront page is requested.
 
-All matching rules of a request state are stored in the `\Shopware\Checkout\CustomerContext` and the `\Shopware\Application\Context\Struct\ShopContext`.
+All matching rules of a request state are stored in the `\Shopware\Checkout\CustomerContext` and the `\Shopware\Touchpoint\Context\Struct\ShopContext`.

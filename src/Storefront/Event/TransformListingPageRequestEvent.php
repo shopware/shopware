@@ -41,7 +41,7 @@ class TransformListingPageRequestEvent extends NestedEvent
 
     public function getContext(): Context
     {
-        return $this->context->getApplicationContext();
+        return $this->context->getContext();
     }
 
     public function getStorefrontContext(): CustomerContext

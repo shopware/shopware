@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Currency;
 
-use Shopware\Application\Application\ApplicationDefinition;
+use Shopware\System\Touchpoint\TouchpointDefinition;
 use Shopware\Checkout\Order\OrderDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
@@ -73,7 +73,7 @@ class CurrencyDefinition extends EntityDefinition
             new IntField('position', 'position'),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            (new OneToManyAssociationField('applications', ApplicationDefinition::class, 'currency_id', false, 'id'))->setFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('touchpoints', TouchpointDefinition::class, 'currency_id', false, 'id'))->setFlags(new RestrictDelete()),
             (new TranslationsAssociationField('translations', CurrencyTranslationDefinition::class, 'currency_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
             (new OneToManyAssociationField('orders', OrderDefinition::class, 'currency_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
         ]);

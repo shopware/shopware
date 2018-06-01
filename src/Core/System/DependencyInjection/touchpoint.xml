@@ -6,13 +6,13 @@
 
     <services>
         <!-- Versioning -->
-        <service alias="Shopware\Application\Application\ApplicationRepository.v1" id="Shopware\Application\Application\ApplicationRepository" public="true" />
+        <service alias="Shopware\System\Touchpoint\TouchpointRepository.v1" id="Shopware\System\Touchpoint\TouchpointRepository" public="true" />
 
-         <service class="Shopware\Application\Application\ApplicationDefinition" id="Shopware\Application\Application\ApplicationDefinition" >
+         <service class="Shopware\System\Touchpoint\TouchpointDefinition" id="Shopware\System\Touchpoint\TouchpointDefinition" >
             <tag name="shopware.entity.definition" entity="application" />
         </service>
 
-        <service class="Shopware\Application\Application\ApplicationRepository" id="Shopware\Application\Application\ApplicationRepository.v1" public="true">
+        <service class="Shopware\System\Touchpoint\TouchpointRepository" id="Shopware\System\Touchpoint\TouchpointRepository.v1" public="true">
           <argument id="Shopware\Framework\ORM\Dbal\EntityReader" type="service"/>
           <argument id="Shopware\Framework\ORM\Version\Service\VersionManager" type="service"/>
           <argument id="Shopware\Framework\ORM\Dbal\EntitySearcher" type="service"/>

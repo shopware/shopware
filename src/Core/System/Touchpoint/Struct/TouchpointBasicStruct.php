@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Application\Application\Struct;
+namespace Shopware\System\Touchpoint\Struct;
 
 use Shopware\Application\Language\Struct\LanguageBasicStruct;
 use Shopware\Framework\ORM\Entity;
 use Shopware\System\Currency\Struct\CurrencyBasicStruct;
 
-class ApplicationBasicStruct extends Entity
+class TouchpointBasicStruct extends Entity
 {
     /**
      * @var string

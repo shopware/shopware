@@ -44,7 +44,7 @@ class CreateTenantCommand extends ContainerAwareCommand
         $this->connection->executeUpdate('SET NAMES utf8mb4;');
         $this->connection->executeUpdate('SET FOREIGN_KEY_CHECKS=0;');
 
-        $this->importApplication($bytes);
+        $this->importTouchpoint($bytes);
         $this->importCatalog($bytes);
         $this->importLanguage($bytes);
         $this->importCountry($bytes);
@@ -82,11 +82,11 @@ class CreateTenantCommand extends ContainerAwareCommand
         }
     }
 
-    private function importApplication(string $tenantId)
+    private function importTouchpoint(string $tenantId)
     {
         $this->importTable(
             $tenantId,
-            'application',
+            'touchpoint',
             ['id', 'type', 'name', 'configuration', 'access_key', 'secret_access_key', 'catalog_ids', 'currency_ids', 'language_ids', 'tax_calculation_type', 'language_id', 'currency_id', 'payment_method_id', 'shipping_method_id', 'country_id', 'currency_version_id', 'payment_method_version_id', 'shipping_method_version_id', 'country_version_id'],
             ['tenant_id', 'language_tenant_id', 'currency_tenant_id', 'payment_method_tenant_id', 'shipping_method_tenant_id', 'country_tenant_id'],
             [

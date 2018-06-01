@@ -31,7 +31,7 @@ interface CustomerContextFactoryInterface
     public function create(
         string $tenantId,
         string $token,
-        string $applicationId,
+        string $touchpointId,
         array $options = []
     ): CustomerContext;
 }

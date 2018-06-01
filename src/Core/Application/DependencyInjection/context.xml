@@ -33,7 +33,7 @@
           <argument id="event_dispatcher" type="service"/>
         </service>
 
-        <service class="Shopware\Application\Context\Definition\ContextCartModifierDefinition" id="Shopware\Application\Context\Definition\ContextCartModifierDefinition" >
+        <service class="Shopware\Application\Context\Definition\ContextCartModifierDefinition" id="Shopware\Touchpoint\Context\Definition\ContextCartModifierDefinition" >
             <tag name="shopware.entity.definition" entity="context_cart_modifier" />
         </service>
 

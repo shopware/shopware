@@ -80,7 +80,7 @@ class DeliveryCalculator
                     $this->findShippingCosts(
                         $delivery->getShippingMethod(),
                         $delivery->getPositions()->getWeight(),
-                        $context->getApplicationContext()
+                        $context->getContext()
                     ),
                     $delivery->getPositions()->getLineItems(),
                     $context
@@ -92,7 +92,7 @@ class DeliveryCalculator
                     $this->findShippingCosts(
                         $delivery->getShippingMethod(),
                         $delivery->getPositions()->getPrices()->sum()->getTotalPrice(),
-                        $context->getApplicationContext()
+                        $context->getContext()
                     ),
                     $delivery->getPositions()->getLineItems(),
                     $context
@@ -105,7 +105,7 @@ class DeliveryCalculator
                     $this->findShippingCosts(
                         $delivery->getShippingMethod(),
                         $delivery->getPositions()->getQuantity(),
-                        $context->getApplicationContext()
+                        $context->getContext()
                     ),
                     $delivery->getPositions()->getLineItems(),
                     $context

@@ -40,7 +40,7 @@ class SearchPageLoader
 
     public function load(SearchPageRequest $request, CustomerContext $context): SearchPageStruct
     {
-        $config = $this->configService->get($context->getApplication()->getId(), null);
+        $config = $this->configService->get($context->getTouchpoint()->getId(), null);
 
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('product.active', 1));

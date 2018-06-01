@@ -1,15 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Application\Application;
+namespace Shopware\System\Touchpoint;
 
-use Shopware\Application\Application\Collection\ApplicationBasicCollection;
-use Shopware\Application\Application\Collection\ApplicationDetailCollection;
-use Shopware\Application\Application\Event\ApplicationAggregationResultLoadedEvent;
-use Shopware\Application\Application\Event\ApplicationBasicLoadedEvent;
-use Shopware\Application\Application\Event\ApplicationDetailLoadedEvent;
-use Shopware\Application\Application\Event\ApplicationIdSearchResultLoadedEvent;
-use Shopware\Application\Application\Event\ApplicationSearchResultLoadedEvent;
-use Shopware\Application\Application\Struct\ApplicationSearchResult;
+use Shopware\System\Touchpoint\Collection\TouchpointBasicCollection;
+use Shopware\System\Touchpoint\Collection\TouchpointDetailCollection;
+use Shopware\System\Touchpoint\Event\TouchpointAggregationResultLoadedEvent;
+use Shopware\System\Touchpoint\Event\TouchpointBasicLoadedEvent;
+use Shopware\System\Touchpoint\Event\TouchpointDetailLoadedEvent;
+use Shopware\System\Touchpoint\Event\TouchpointIdSearchResultLoadedEvent;
+use Shopware\System\Touchpoint\Event\TouchpointSearchResultLoadedEvent;
+use Shopware\System\Touchpoint\Struct\TouchpointSearchResult;
 use Shopware\Framework\Context;
 use Shopware\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Framework\ORM\RepositoryInterface;
@@ -23,7 +23,7 @@ use Shopware\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Framework\ORM\Write\WriteContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class ApplicationRepository implements RepositoryInterface
+class TouchpointRepository implements RepositoryInterface
 {
     /**
      * @var EntityReaderInterface
@@ -64,7 +64,7 @@ class ApplicationRepository implements RepositoryInterface
         $this->versionManager = $versionManager;
     }
 
-    public function search(Criteria $criteria, Context $context): ApplicationSearchResult
+    public function search(Criteria $criteria, Context $context): TouchpointSearchResult
     {
         $ids = $this->searchIds($criteria, $context);
 
@@ -75,9 +75,9 @@ class ApplicationRepository implements RepositoryInterface
             $aggregations = $this->aggregate($criteria, $context);
         }
 
-        $result = ApplicationSearchResult::createFromResults($ids, $entities, $aggregations);
+        $result = TouchpointSearchResult::createFromResults($ids, $entities, $aggregations);
 
-        $event = new ApplicationSearchResultLoadedEvent($result);
+        $event = new TouchpointSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $result;
@@ -85,9 +85,9 @@ class ApplicationRepository implements RepositoryInterface
 
     public function aggregate(Criteria $criteria, Context $context): AggregatorResult
     {
-        $result = $this->aggregator->aggregate(ApplicationDefinition::class, $criteria, $context);
+        $result = $this->aggregator->aggregate(TouchpointDefinition::class, $criteria, $context);
 
-        $event = new ApplicationAggregationResultLoadedEvent($result);
+        $event = new TouchpointAggregationResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $result;
@@ -95,31 +95,31 @@ class ApplicationRepository implements RepositoryInterface
 
     public function searchIds(Criteria $criteria, Context $context): IdSearchResult
     {
-        $result = $this->searcher->search(ApplicationDefinition::class, $criteria, $context);
+        $result = $this->searcher->search(TouchpointDefinition::class, $criteria, $context);
 
-        $event = new ApplicationIdSearchResultLoadedEvent($result);
+        $event = new TouchpointIdSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $result;
     }
 
-    public function readBasic(array $ids, Context $context): ApplicationBasicCollection
+    public function readBasic(array $ids, Context $context): TouchpointBasicCollection
     {
-        /** @var ApplicationBasicCollection $entities */
-        $entities = $this->reader->readBasic(ApplicationDefinition::class, $ids, $context);
+        /** @var TouchpointBasicCollection $entities */
+        $entities = $this->reader->readBasic(TouchpointDefinition::class, $ids, $context);
 
-        $event = new ApplicationBasicLoadedEvent($entities, $context);
+        $event = new TouchpointBasicLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $entities;
     }
 
-    public function readDetail(array $ids, Context $context): ApplicationDetailCollection
+    public function readDetail(array $ids, Context $context): TouchpointDetailCollection
     {
-        /** @var ApplicationDetailCollection $entities */
-        $entities = $this->reader->readDetail(ApplicationDefinition::class, $ids, $context);
+        /** @var TouchpointDetailCollection $entities */
+        $entities = $this->reader->readDetail(TouchpointDefinition::class, $ids, $context);
 
-        $event = new ApplicationDetailLoadedEvent($entities, $context);
+        $event = new TouchpointDetailLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $entities;
@@ -127,7 +127,7 @@ class ApplicationRepository implements RepositoryInterface
 
     public function update(array $data, Context $context): GenericWrittenEvent
     {
-        $affected = $this->versionManager->update(ApplicationDefinition::class, $data, WriteContext::createFromContext($context));
+        $affected = $this->versionManager->update(TouchpointDefinition::class, $data, WriteContext::createFromContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
@@ -136,7 +136,7 @@ class ApplicationRepository implements RepositoryInterface
 
     public function upsert(array $data, Context $context): GenericWrittenEvent
     {
-        $affected = $this->versionManager->upsert(ApplicationDefinition::class, $data, WriteContext::createFromContext($context));
+        $affected = $this->versionManager->upsert(TouchpointDefinition::class, $data, WriteContext::createFromContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
@@ -145,7 +145,7 @@ class ApplicationRepository implements RepositoryInterface
 
     public function create(array $data, Context $context): GenericWrittenEvent
     {
-        $affected = $this->versionManager->insert(ApplicationDefinition::class, $data, WriteContext::createFromContext($context));
+        $affected = $this->versionManager->insert(TouchpointDefinition::class, $data, WriteContext::createFromContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
@@ -154,7 +154,7 @@ class ApplicationRepository implements RepositoryInterface
 
     public function delete(array $ids, Context $context): GenericWrittenEvent
     {
-        $affected = $this->versionManager->delete(ApplicationDefinition::class, $ids, WriteContext::createFromContext($context));
+        $affected = $this->versionManager->delete(TouchpointDefinition::class, $ids, WriteContext::createFromContext($context));
         $event = GenericWrittenEvent::createWithDeletedEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
@@ -163,7 +163,7 @@ class ApplicationRepository implements RepositoryInterface
 
     public function createVersion(string $id, Context $context, ?string $name = null, ?string $versionId = null): string
     {
-        return $this->versionManager->createVersion(ApplicationDefinition::class, $id, WriteContext::createFromContext($context), $name, $versionId);
+        return $this->versionManager->createVersion(TouchpointDefinition::class, $id, WriteContext::createFromContext($context), $name, $versionId);
     }
 
     public function merge(string $versionId, Context $context): void

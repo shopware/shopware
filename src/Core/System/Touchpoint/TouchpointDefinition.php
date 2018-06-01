@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Application\Application;
+namespace Shopware\System\Touchpoint;
 
-use Shopware\Application\Application\Collection\ApplicationBasicCollection;
-use Shopware\Application\Application\Collection\ApplicationDetailCollection;
-use Shopware\Application\Application\Event\ApplicationDeletedEvent;
-use Shopware\Application\Application\Event\ApplicationWrittenEvent;
-use Shopware\Application\Application\Struct\ApplicationBasicStruct;
-use Shopware\Application\Application\Struct\ApplicationDetailStruct;
+use Shopware\System\Touchpoint\Collection\TouchpointBasicCollection;
+use Shopware\System\Touchpoint\Collection\TouchpointDetailCollection;
+use Shopware\System\Touchpoint\Event\TouchpointDeletedEvent;
+use Shopware\System\Touchpoint\Event\TouchpointWrittenEvent;
+use Shopware\System\Touchpoint\Struct\TouchpointBasicStruct;
+use Shopware\System\Touchpoint\Struct\TouchpointDetailStruct;
 use Shopware\Application\Language\LanguageDefinition;
 use Shopware\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Checkout\Shipping\ShippingMethodDefinition;
@@ -26,7 +26,7 @@ use Shopware\Framework\ORM\FieldCollection;
 use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Framework\ORM\Write\Flag\Required;
 
-class ApplicationDefinition extends EntityDefinition
+class TouchpointDefinition extends EntityDefinition
 {
     /**
      * @var FieldCollection
@@ -45,7 +45,7 @@ class ApplicationDefinition extends EntityDefinition
 
     public static function getEntityName(): string
     {
-        return 'application';
+        return 'touchpoint';
     }
 
     public static function getFields(): FieldCollection
@@ -94,27 +94,27 @@ class ApplicationDefinition extends EntityDefinition
 
     public static function getRepositoryClass(): string
     {
-        return ApplicationRepository::class;
+        return TouchpointRepository::class;
     }
 
     public static function getBasicCollectionClass(): string
     {
-        return ApplicationBasicCollection::class;
+        return TouchpointBasicCollection::class;
     }
 
     public static function getDeletedEventClass(): string
     {
-        return ApplicationDeletedEvent::class;
+        return TouchpointDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string
     {
-        return ApplicationWrittenEvent::class;
+        return TouchpointWrittenEvent::class;
     }
 
     public static function getBasicStructClass(): string
     {
-        return ApplicationBasicStruct::class;
+        return TouchpointBasicStruct::class;
     }
 
     public static function getTranslationDefinitionClass(): ?string
@@ -124,11 +124,11 @@ class ApplicationDefinition extends EntityDefinition
 
     public static function getDetailStructClass(): string
     {
-        return ApplicationDetailStruct::class;
+        return TouchpointDetailStruct::class;
     }
 
     public static function getDetailCollectionClass(): string
     {
-        return ApplicationDetailCollection::class;
+        return TouchpointDetailCollection::class;
     }
 }

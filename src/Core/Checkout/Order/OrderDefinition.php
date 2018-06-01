@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Order;
 
-use Shopware\Application\Application\ApplicationDefinition;
+use Shopware\System\Touchpoint\TouchpointDefinition;
 use Shopware\Checkout\Customer\CustomerDefinition;
 use Shopware\Checkout\Order\Aggregate\OrderAddress\OrderAddressDefinition;
 use Shopware\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
@@ -82,7 +82,7 @@ class OrderDefinition extends EntityDefinition
             (new FkField('currency_id', 'currencyId', CurrencyDefinition::class))->setFlags(new Required()),
             (new ReferenceVersionField(CurrencyDefinition::class))->setFlags(new Required()),
 
-            (new FkField('application_id', 'applicationId', ApplicationDefinition::class))->setFlags(new Required()),
+            (new FkField('touchpoint_id', 'touchpointId', TouchpointDefinition::class))->setFlags(new Required()),
 
             (new FkField('billing_address_id', 'billingAddressId', OrderAddressDefinition::class))->setFlags(new Required()),
             (new ReferenceVersionField(OrderAddressDefinition::class, 'billing_address_version_id'))->setFlags(new Required()),
@@ -101,7 +101,7 @@ class OrderDefinition extends EntityDefinition
             new ManyToOneAssociationField('state', 'order_state_id', OrderStateDefinition::class, true),
             (new ManyToOneAssociationField('paymentMethod', 'payment_method_id', PaymentMethodDefinition::class, true))->setFlags(new SearchRanking(self::ASSOCIATION_SEARCH_RANKING)),
             new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, true),
-            new ManyToOneAssociationField('application', 'application_id', ApplicationDefinition::class, true),
+            new ManyToOneAssociationField('touchpoint', 'touchpoint_id', TouchpointDefinition::class, true),
             (new ManyToOneAssociationField('billingAddress', 'billing_address_id', OrderAddressDefinition::class, true))->setFlags(new SearchRanking(self::ASSOCIATION_SEARCH_RANKING)),
             (new OneToManyAssociationField('deliveries', OrderDeliveryDefinition::class, 'order_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new OneToManyAssociationField('lineItems', OrderLineItemDefinition::class, 'order_id', false, 'id'))->setFlags(new CascadeDelete(), new SearchRanking(self::ASSOCIATION_SEARCH_RANKING)),

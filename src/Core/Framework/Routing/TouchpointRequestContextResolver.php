@@ -3,13 +3,13 @@
 namespace Shopware\Framework\Routing;
 
 use Shopware\Checkout\Customer\Util\CustomerContextService;
-use Shopware\Framework\Routing\Firewall\Application;
+use Shopware\Framework\Routing\Firewall\Touchpoint;
 use Shopware\Framework\Struct\Uuid;
 use Shopware\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
-class ApplicationRequestContextResolver implements RequestContextResolverInterface
+class TouchpointRequestContextResolver implements RequestContextResolverInterface
 {
     /**
      * @var RequestContextResolverInterface
@@ -43,10 +43,10 @@ class ApplicationRequestContextResolver implements RequestContextResolverInterfa
 
             return;
         }
-        /** @var \Shopware\Framework\Routing\Firewall\Application $application */
-        $application = $this->tokenStorage->getToken()->getUser();
+        /** @var \Shopware\Framework\Routing\Firewall\Touchpoint $touchpoint */
+        $touchpoint = $this->tokenStorage->getToken()->getUser();
 
-        if (!$application instanceof Application) {
+        if (!$touchpoint instanceof Touchpoint) {
             $this->decorated->resolve($master, $request);
 
             return;
@@ -67,17 +67,17 @@ class ApplicationRequestContextResolver implements RequestContextResolverInterfa
         }
 
         $contextToken = $master->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
-        $applicationId = $application->getApplicationId();
+        $touchpointId = $touchpoint->getTouchpointId();
         $tenantId = $master->headers->get(PlatformRequest::HEADER_TENANT_ID);
 
         //sub requests can use the context of the master request
         if ($master->attributes->has(PlatformRequest::ATTRIBUTE_STOREFRONT_CONTEXT_OBJECT)) {
             $context = $master->attributes->get(PlatformRequest::ATTRIBUTE_STOREFRONT_CONTEXT_OBJECT);
         } else {
-            $context = $this->contextService->get($tenantId, $applicationId, $contextToken);
+            $context = $this->contextService->get($tenantId, $touchpointId, $contextToken);
         }
 
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context->getApplicationContext());
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context->getContext());
         $request->attributes->set(PlatformRequest::ATTRIBUTE_STOREFRONT_CONTEXT_OBJECT, $context);
     }
 }

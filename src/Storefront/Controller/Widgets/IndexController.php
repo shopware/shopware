@@ -66,10 +66,10 @@ class IndexController extends StorefrontController
         $languages = $this->loadLanguages($context);
 
         return $this->render('@Storefront/widgets/index/shop_menu.html.twig', [
-            'application' => $context->getApplication(),
+            'application' => $context->getTouchpoint(),
             'currency' => $context->getCurrency(),
             'languages' => $languages,
-            'language' => $languages->get($context->getApplicationContext()->getLanguageId()),
+            'language' => $languages->get($context->getContext()->getLanguageId()),
             'currencies' => $this->getCurrencies($context),
         ]);
     }
@@ -77,9 +77,9 @@ class IndexController extends StorefrontController
     private function loadLanguages(CustomerContext $context): LanguageBasicCollection
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new TermsQuery('language.id', $context->getApplication()->getLanguageIds()));
+        $criteria->addFilter(new TermsQuery('language.id', $context->getTouchpoint()->getLanguageIds()));
 
-        return $this->languageRepository->search($criteria, $context->getApplicationContext());
+        return $this->languageRepository->search($criteria, $context->getContext());
     }
 
     private function getCurrencies(CustomerContext $context): CurrencyBasicCollection
@@ -87,6 +87,6 @@ class IndexController extends StorefrontController
         $criteria = new Criteria();
         $criteria->addFilter(new TermsQuery('currency.id', ['4c8eba11-bd35-46d7-86af-bed481a6e665', '2824ea63-db67-4110-9e23-78ddcc9cec84']));
 
-        return $this->currencyRepository->search($criteria, $context->getApplicationContext());
+        return $this->currencyRepository->search($criteria, $context->getContext());
     }
 }

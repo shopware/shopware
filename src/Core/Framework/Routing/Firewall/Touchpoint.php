@@ -5,12 +5,12 @@ namespace Shopware\Framework\Routing\Firewall;
 use Shopware\Framework\Struct\Uuid;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-class Application implements UserInterface
+class Touchpoint implements UserInterface
 {
     /**
      * @var string
      */
-    private $applicationId;
+    private $touchpointId;
 
     /**
      * @var string
@@ -52,9 +52,9 @@ class Application implements UserInterface
      */
     private $languageIds;
 
-    private function __construct(string $applicationId, string $languageId, string $currencyId, string $paymentMethodId, string $shippingMethodId, string $countryId, string $taxCalculationType, array $catalogIds, array $languageIds)
+    private function __construct(string $touchpointId, string $languageId, string $currencyId, string $paymentMethodId, string $shippingMethodId, string $countryId, string $taxCalculationType, array $catalogIds, array $languageIds)
     {
-        $this->applicationId = $applicationId;
+        $this->touchpointId = $touchpointId;
         $this->languageId = $languageId;
         $this->currencyId = $currencyId;
         $this->paymentMethodId = $paymentMethodId;
@@ -98,7 +98,7 @@ class Application implements UserInterface
      */
     public function getRoles()
     {
-        return ['ROLE_APPLICATION'];
+        return ['ROLE_TOUCHPOINT'];
     }
 
     /**
@@ -133,7 +133,7 @@ class Application implements UserInterface
      */
     public function getUsername()
     {
-        return $this->applicationId;
+        return $this->touchpointId;
     }
 
     /**
@@ -146,9 +146,9 @@ class Application implements UserInterface
     {
     }
 
-    public function getApplicationId()
+    public function getTouchpointId(): string
     {
-        return $this->applicationId;
+        return $this->touchpointId;
     }
 
     public function getLanguageId(): string

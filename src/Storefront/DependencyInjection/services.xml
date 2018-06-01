@@ -14,8 +14,8 @@
             <argument type="service" id="Shopware\Storefront\Theme\ThemeConfigReader" />
         </service>
 
-        <service class="Shopware\Storefront\Command\ApplicationCreateStorefrontCommand" id="Shopware\Storefront\Command\ApplicationCreateStorefrontCommand">
-            <argument id="Shopware\Application\Application\ApplicationRepository" type="service"/>
+        <service class="Shopware\Storefront\Command\TouchpointCreateStorefrontCommand" id="Shopware\Storefront\Command\TouchpointCreateStorefrontCommand">
+            <argument id="Shopware\System\Touchpoint\TouchpointRepository" type="service"/>
             <argument id="Doctrine\DBAL\Connection" type="service"/>
             <tag name="console.command"/>
         </service>
@@ -48,7 +48,7 @@
             <argument id="slugify" type="service"/>
             <argument id="router" type="service"/>
             <argument id="Shopware\Content\Product\ProductRepository" type="service"/>
-            <argument id="Shopware\Application\Application\ApplicationRepository" type="service"/>
+            <argument id="Shopware\System\Touchpoint\TouchpointRepository" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument type="service" id="Shopware\Framework\ORM\Dbal\Common\EventIdExtractor"/>
             <tag name="shopware.dbal_indexing.indexer"/>
@@ -59,7 +59,7 @@
             <argument id="slugify" type="service"/>
             <argument id="router" type="service"/>
             <argument id="Shopware\Content\Category\CategoryRepository" type="service"/>
-            <argument id="Shopware\Application\Application\ApplicationRepository" type="service"/>
+            <argument id="Shopware\System\Touchpoint\TouchpointRepository" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument type="service" id="Shopware\Framework\ORM\Dbal\Common\EventIdExtractor"/>
             <tag name="shopware.dbal_indexing.indexer"/>

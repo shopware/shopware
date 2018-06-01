@@ -674,7 +674,7 @@ State.register('locale', {
 
     mutations: {
         setLocale(state, locale) {
-            const factoryContainer = Shopware.Application.getContainer('factory');
+            const factoryContainer = Shopware.Touchpoint.getContainer('factory');
             const localeFactory = factoryContainer.locale;
 
             // The actual state modification
@@ -715,7 +715,7 @@ State.register('manufacturer', {
     actions: {
         getManufacturerList({ commit }, offset = 0, limit = 25) {
             // Get the manufacturer API service
-            const providerContainer = Shopware.Application.getContainer('service');
+            const providerContainer = Shopware.Touchpoint.getContainer('service');
             const manufacturerService = providerContainer.productManufacturerService;
 
             // Request the list using the manufacturer API service
@@ -741,7 +741,7 @@ State.register('manufacturer', {
             }
             
             // Get the manufacturer API service
-            const providerContainer = Shopware.Application.getContainer('service');
+            const providerContainer = Shopware.Touchpoint.getContainer('service');
             const manufacturerService = providerContainer.manufacturerService;
             
             // Generate the change set
@@ -833,7 +833,7 @@ These services are so called API services which are an abstraction layer of the 
 It is also possible to register your own service provider using the third-party developer interface:
 
 ```js
-Shopware.Application.addServiceProvider('exampleService', () => {
+Shopware.Touchpoint.addServiceProvider('exampleService', () => {
     return new ExampleService();
 });
 ```
@@ -974,7 +974,7 @@ State.register('tax', {
 
     actions: {
         getTaxList({ commit }, offset = 0, limit = 25) {
-            const providerContainer = Shopware.Application.getContainer('service');
+            const providerContainer = Shopware.Touchpoint.getContainer('service');
             const taxService = providerContainer.taxService;
 
             return taxService.getList(offset, limit).then((response) => {
@@ -1018,7 +1018,7 @@ Let us take a closer look on the method `getTaxList`.
 
 ```js
 getTaxList({ commit }, offset = 0, limit = 25) {
-    const providerContainer = Shopware.Application.getContainer('service');
+    const providerContainer = Shopware.Touchpoint.getContainer('service');
     const taxService = providerContainer.taxService;
 
     return taxService.getList(offset, limit).then((response) => {
@@ -1041,9 +1041,9 @@ getTaxList({ commit }, offset = 0, limit = 25) {
 In there we're using the application-wide dependency management using [Bottle.js](https://github.com/young-steveo/bottlejs). The application exposes the dependency injection containers using the third-party developer interface. This way we're having access to all available factories, initializers and service providers. We're providing three containers - `factory`, `init` and `service`.
 
 ```js
-Shopware.Application.getContainer('factory');
-Shopware.Application.getContainer('init');
-Shopware.Application.getContainer('service');
+Shopware.Touchpoint.getContainer('factory');
+Shopware.Touchpoint.getContainer('init');
+Shopware.Touchpoint.getContainer('service');
 ```
 
 *Example access using the application-wide dependency containers*
@@ -1095,7 +1095,7 @@ The injected HTTP client is a configured [Axios instance](https://github.com/axi
 
 ```js
 // Register your service provider
-Shopware.Application.addServiceProvider('exampleService', (serviceContainer) =>() {
+Shopware.Touchpoint.addServiceProvider('exampleService', (serviceContainer) =>() {
     const initContainer = application.getContainer('init');
     return new ExampleService(initContainer.httpClient, container.loginService);
 });
@@ -1333,7 +1333,7 @@ The following features and methods are available to you:
         * Tries to find a `<template>` tag where the attribute `component` is equal to the name of the component in the `document`.
     * `findOverride`
         *  Tries to find a `<template>` tag where the attribute `override` is equal to the name of the component in the `document`.
-* `Application` - The application bootstrapping which takes care of the dependency management and bootstrapping of the application
+* `Touchpoint` - The application bootstrapping which takes care of the dependency management and bootstrapping of the application
     * `addFactory`
         * Adds a factory to the application. A factory creates objects for the domain. The factory will be registered in a nested DI container.
     * `addFactoryDecorator`

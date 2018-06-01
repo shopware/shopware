@@ -22,17 +22,17 @@ class SnippetBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getApplicationIds(): array
+    public function getTouchpointIds(): array
     {
         return $this->fmap(function (SnippetBasicStruct $snippet) {
-            return $snippet->getApplicationId();
+            return $snippet->getTouchpointId();
         });
     }
 
-    public function filterByApplicationId(string $id): self
+    public function filterByTouchpointId(string $id): self
     {
         return $this->filter(function (SnippetBasicStruct $snippet) use ($id) {
-            return $snippet->getApplicationId() === $id;
+            return $snippet->getTouchpointId() === $id;
         });
     }
 

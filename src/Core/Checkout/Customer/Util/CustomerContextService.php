@@ -84,21 +84,21 @@ class CustomerContextService implements CustomerContextServiceInterface
         $this->contextPersister = $contextPersister;
     }
 
-    public function get(string $tenantId, string $applicationId, string $token): CustomerContext
+    public function get(string $tenantId, string $touchpointId, string $token): CustomerContext
     {
-        return $this->load($tenantId, $applicationId, $token, true);
+        return $this->load($tenantId, $touchpointId, $token, true);
     }
 
-    public function refresh(string $tenantId, string $applicationId, string $token): void
+    public function refresh(string $tenantId, string $touchpointId, string $token): void
     {
-        $key = $applicationId . '-' . $token . '-' . $tenantId;
+        $key = $touchpointId . '-' . $token . '-' . $tenantId;
         $this->context[$key] = null;
-        $this->load($tenantId, $applicationId, $token, false);
+        $this->load($tenantId, $touchpointId, $token, false);
     }
 
-    private function load(string $tenantId, string $applicationId, string $token, bool $useCache): CustomerContext
+    private function load(string $tenantId, string $touchpointId, string $token, bool $useCache): CustomerContext
     {
-        $key = $applicationId . '-' . $token . '-' . $tenantId;
+        $key = $touchpointId . '-' . $token . '-' . $tenantId;
 
         if (isset($this->context[$key])) {
             return $this->context[$key];
@@ -106,6 +106,7 @@ class CustomerContextService implements CustomerContextServiceInterface
 
         $parameters = $this->contextPersister->load($token, $tenantId);
 
+        $context = $this->factory->create($tenantId, $token, $touchpointId, $parameters);
         $cacheKey = $key . '-' . implode($parameters);
 
         $item = $this->cache->getItem($cacheKey);
@@ -119,7 +120,7 @@ class CustomerContextService implements CustomerContextServiceInterface
         }
 
         if (!$context) {
-            $context = $this->factory->create($tenantId, $token, $applicationId, $parameters);
+            $context = $this->factory->create($tenantId, $token, $touchpointId, $parameters);
 
             $item->set(serialize($context));
 
@@ -137,15 +138,15 @@ class CustomerContextService implements CustomerContextServiceInterface
         return $context;
     }
 
-    private function loadFromCache(CacheItemInterface $item, string $token): StorefrontContext
+    private function loadFromCache(CacheItemInterface $item, string $token): CustomerContext
     {
         $cacheContext = unserialize($item->get(), [Struct::class]);
 
-        /** @var StorefrontContext $cacheContext */
-        return new StorefrontContext(
+        /** @var CustomerContext $cacheContext */
+        return new CustomerContext(
             $cacheContext->getTenantId(),
             $token,
-            $cacheContext->getApplication(),
+            $cacheContext->getTouchpoint(),
             $cacheContext->getLanguage(),
             $cacheContext->getFallbackLanguage(),
             $cacheContext->getCurrency(),

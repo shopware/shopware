@@ -7,26 +7,26 @@ exclude_files:
   - .*DemodataCommand.php
 
 layers:
-  - name: Application
+  - name: Touchpoint
     collectors:
       - type: bool
         must:
           - type: className
-            regex: Shopware\\Application\\
+            regex: Shopware\\Touchpoint\\
         must_not:
           - type: className
             regex: Shopware\\Framework\\Context
           - type: className
             regex: Shopware\\Checkout\\CustomerContext
           - type: className
-            regex: Shopware\\Application\\Language\\Struct\\LanguageBasicStruct
+            regex: Shopware\\Touchpoint\\Language\\Struct\\LanguageBasicStruct
           - type: className
-            regex: Shopware\\Application\\Language\\Collection\\LanguageBasicCollection
+            regex: Shopware\\Touchpoint\\Language\\Collection\\LanguageBasicCollection
           - type: className
-            regex: Shopware\\Application\\Context\\Struct\\ContextPriceStruct
+            regex: Shopware\\Touchpoint\\Context\\Struct\\ContextPriceStruct
     collectors:
       - type: className
-        regex: Shopware\\Application\\
+        regex: Shopware\\Touchpoint\\
   - name: Checkout
     collectors:
       - type: className
@@ -63,7 +63,7 @@ ruleset:
   Framework:
   Profiling:
     - Framework
-    - Application
+    - Touchpoint
     - Checkout
     - Content
     - Framework

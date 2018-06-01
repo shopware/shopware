@@ -2,7 +2,7 @@
 
 namespace Shopware\Content\Product\Aggregate\ProductSeoCategory;
 
-use Shopware\Application\Application\ApplicationDefinition;
+use Shopware\System\Touchpoint\TouchpointDefinition;
 use Shopware\Content\Category\CategoryDefinition;
 use Shopware\Content\Product\Aggregate\ProductSeoCategory\Event\ProductSeoCategoryDeletedEvent;
 use Shopware\Content\Product\Aggregate\ProductSeoCategory\Event\ProductSeoCategoryWrittenEvent;
@@ -45,7 +45,7 @@ class ProductSeoCategoryDefinition extends MappingEntityDefinition
         }
 
         return self::$fields = new FieldCollection([
-            (new FkField('application_id', 'applicationId', ApplicationDefinition::class))->setFlags(new PrimaryKey(), new Required()),
+            (new FkField('touchpoint_id', 'touchpointId', TouchpointDefinition::class))->setFlags(new PrimaryKey(), new Required()),
 
             (new FkField('product_id', 'productId', ProductDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new ReferenceVersionField(ProductDefinition::class))->setFlags(new PrimaryKey(), new Required()),
@@ -55,7 +55,7 @@ class ProductSeoCategoryDefinition extends MappingEntityDefinition
 
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            new ManyToOneAssociationField('application', 'application_id', ApplicationDefinition::class, false),
+            new ManyToOneAssociationField('touchpoint', 'touchpoint_id', TouchpointDefinition::class, false),
             new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, false),
             new ManyToOneAssociationField('category', 'category_id', CategoryDefinition::class, false),
         ]);

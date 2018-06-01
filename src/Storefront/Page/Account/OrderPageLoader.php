@@ -31,7 +31,7 @@ class OrderPageLoader
         $page = $request->query->getInt(self::PAGE_PARAMETER, 1);
 
         $criteria = $this->createCriteria($context->getCustomer()->getId(), $limit, $page);
-        $orders = $this->orderRepository->search($criteria, $context->getApplicationContext());
+        $orders = $this->orderRepository->search($criteria, $context->getContext());
 
         return new OrderPageStruct(
             $orders,

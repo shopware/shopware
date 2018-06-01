@@ -1,21 +1,21 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Application\Application\Event;
+namespace Shopware\System\Touchpoint\Event;
 
-use Shopware\Application\Application\Struct\ApplicationSearchResult;
+use Shopware\System\Touchpoint\Struct\TouchpointSearchResult;
 use Shopware\Framework\Context;
 use Shopware\Framework\Event\NestedEvent;
 
-class ApplicationSearchResultLoadedEvent extends NestedEvent
+class TouchpointSearchResultLoadedEvent extends NestedEvent
 {
-    public const NAME = 'application.search.result.loaded';
+    public const NAME = 'touchpoint.search.result.loaded';
 
     /**
-     * @var ApplicationSearchResult
+     * @var TouchpointSearchResult
      */
     protected $result;
 
-    public function __construct(ApplicationSearchResult $result)
+    public function __construct(TouchpointSearchResult $result)
     {
         $this->result = $result;
     }

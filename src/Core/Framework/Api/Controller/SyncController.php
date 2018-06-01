@@ -51,7 +51,7 @@ class SyncController extends Controller
     {
         $payload = $this->serializer->decode($request->getContent(), 'json');
 
-        $context = $restContext->getApplicationContext();
+        $context = $restContext->getContext();
 
         $errors = $result = [];
 

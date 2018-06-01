@@ -35,21 +35,21 @@ class StorefrontProductRepository
 
     public function read(array $ids, CustomerContext $context): ProductBasicCollection
     {
-        $basics = $this->repository->readBasic($ids, $context->getApplicationContext());
+        $basics = $this->repository->readBasic($ids, $context->getContext());
 
         return $this->loadListProducts($basics, $context);
     }
 
     public function readDetail(array $ids, CustomerContext $context): ProductBasicCollection
     {
-        $basics = $this->repository->readDetail($ids, $context->getApplicationContext());
+        $basics = $this->repository->readDetail($ids, $context->getContext());
 
         return $this->loadDetailProducts($context, $basics);
     }
 
     public function search(Criteria $criteria, CustomerContext $context): ProductSearchResult
     {
-        $basics = $this->repository->search($criteria, $context->getApplicationContext());
+        $basics = $this->repository->search($criteria, $context->getContext());
 
         $listProducts = $this->loadListProducts($basics, $context);
 
@@ -61,7 +61,7 @@ class StorefrontProductRepository
 
     public function searchIds(Criteria $criteria, CustomerContext $context): IdSearchResult
     {
-        return $this->repository->searchIds($criteria, $context->getApplicationContext());
+        return $this->repository->searchIds($criteria, $context->getContext());
     }
 
     private function loadListProducts(ProductBasicCollection $products, CustomerContext $context): ProductBasicCollection
@@ -106,17 +106,17 @@ class StorefrontProductRepository
     private function calculatePrices(CustomerContext $context, StorefrontProductBasicInterface $product): void
     {
         //calculate listing price
-        $listingPriceDefinition = $product->getListingPriceDefinition($context->getApplicationContext());
+        $listingPriceDefinition = $product->getListingPriceDefinition($context->getContext());
         $listingPrice = $this->priceCalculator->calculate($listingPriceDefinition, $context);
         $product->setCalculatedListingPrice($listingPrice);
 
         //calculate context prices
-        $contextPriceDefinitions = $product->getContextPriceDefinitions($context->getApplicationContext());
+        $contextPriceDefinitions = $product->getContextPriceDefinitions($context->getContext());
         $contextPrices = $this->priceCalculator->calculateCollection($contextPriceDefinitions, $context);
         $product->setCalculatedContextPrices($contextPrices);
 
         //calculate simple price
-        $priceDefinition = $product->getPriceDefinition($context->getApplicationContext());
+        $priceDefinition = $product->getPriceDefinition($context->getContext());
         $price = $this->priceCalculator->calculate($priceDefinition, $context);
         $product->setCalculatedPrice($price);
     }

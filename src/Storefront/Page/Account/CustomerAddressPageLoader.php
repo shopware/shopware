@@ -22,7 +22,7 @@ class CustomerAddressPageLoader
     public function load(CustomerContext $context): CustomerAddressPageStruct
     {
         $criteria = $this->createCriteria($context->getCustomer()->getId());
-        $addresses = $this->customerAddressRepository->search($criteria, $context->getApplicationContext());
+        $addresses = $this->customerAddressRepository->search($criteria, $context->getContext());
 
         return new CustomerAddressPageStruct($addresses->sortByDefaultAddress($context->getCustomer()));
     }

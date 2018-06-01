@@ -24,7 +24,7 @@
 
 namespace Shopware\Framework;
 
-use Shopware\Application\Application\Struct\ApplicationBasicStruct;
+use Shopware\System\Touchpoint\Struct\TouchpointBasicStruct;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\Struct;
 
@@ -53,7 +53,7 @@ class Context extends Struct
     /**
      * @var string
      */
-    protected $applicationId;
+    protected $touchpointId;
 
     /**
      * @var array|null
@@ -77,7 +77,7 @@ class Context extends Struct
 
     public function __construct(
         string $tenantId,
-        string $applicationId,
+        string $touchpointId,
         ?array $catalogIds,
         array $contextRules,
         string $currencyId,
@@ -87,7 +87,7 @@ class Context extends Struct
         float $currencyFactor = 1.0
     ) {
         $this->tenantId = $tenantId;
-        $this->applicationId = $applicationId;
+        $this->touchpointId = $touchpointId;
         $this->catalogIds = $catalogIds;
         $this->contextRules = $contextRules;
         $this->currencyId = $currencyId;
@@ -99,21 +99,21 @@ class Context extends Struct
 
     public static function createDefaultContext(string $tenantId): self
     {
-        return new self($tenantId, Defaults::APPLICATION, [Defaults::CATALOG], [], Defaults::CURRENCY, Defaults::LANGUAGE);
+        return new self($tenantId, Defaults::TOUCHPOINT, [Defaults::CATALOG], [], Defaults::CURRENCY, Defaults::LANGUAGE);
     }
 
-    public static function createFromApplication(ApplicationBasicStruct $application): self
+    public static function createFromTouchpoint(TouchpointBasicStruct $touchpoint): self
     {
         return new self(
-            $application->getTenantId(),
-            $application->getId(),
-            $application->getCatalogIds(),
+            $touchpoint->getTenantId(),
+            $touchpoint->getId(),
+            $touchpoint->getCatalogIds(),
             [],
-            $application->getCurrencyId(),
-            $application->getLanguageId(),
-            $application->getLanguage()->getParentId(),
+            $touchpoint->getCurrencyId(),
+            $touchpoint->getLanguageId(),
+            $touchpoint->getLanguage()->getParentId(),
             Defaults::LIVE_VERSION,
-            $application->getCurrency()->getFactor()
+            $touchpoint->getCurrency()->getFactor()
         );
     }
 
@@ -123,9 +123,9 @@ class Context extends Struct
             && $this->getFallbackLanguageId() !== $this->getLanguageId();
     }
 
-    public function getApplicationId(): string
+    public function getTouchpointId(): string
     {
-        return $this->applicationId;
+        return $this->touchpointId;
     }
 
     public function getVersionId(): string
@@ -172,7 +172,7 @@ class Context extends Struct
     {
         return new self(
             $this->tenantId,
-            $this->applicationId,
+            $this->touchpointId,
             $this->catalogIds,
             $this->contextRules,
             $this->currencyId,
@@ -187,7 +187,7 @@ class Context extends Struct
     {
         return new self(
             $this->tenantId,
-            $this->applicationId,
+            $this->touchpointId,
             $catalogIds,
             $this->contextRules,
             $this->currencyId,

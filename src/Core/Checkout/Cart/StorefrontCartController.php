@@ -232,7 +232,7 @@ class StorefrontCartController extends Controller
 
         $orderId = array_shift($ids);
 
-        $order = $this->orderRepository->readDetail([$orderId], $context->getApplicationContext());
+        $order = $this->orderRepository->readDetail([$orderId], $context->getContext());
 
         $this->contextPersister->save($context->getToken(), ['cartToken' => null], $context->getTenantId());
 

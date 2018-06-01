@@ -39,6 +39,7 @@ class System extends Bundle
         parent::build($container);
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
+        $loader->load('touchpoint.xml');
         $loader->load('config.xml');
         $loader->load('configuration.xml');
         $loader->load('country.xml');

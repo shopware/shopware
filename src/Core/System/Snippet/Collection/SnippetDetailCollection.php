@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Snippet\Collection;
 
-use Shopware\Application\Application\Collection\ApplicationBasicCollection;
+use Shopware\System\Touchpoint\Collection\TouchpointBasicCollection;
 use Shopware\System\Snippet\Struct\SnippetDetailStruct;
 
 class SnippetDetailCollection extends SnippetBasicCollection
@@ -12,11 +12,11 @@ class SnippetDetailCollection extends SnippetBasicCollection
      */
     protected $elements = [];
 
-    public function getApplications(): ApplicationBasicCollection
+    public function getTouchpoints(): TouchpointBasicCollection
     {
-        return new ApplicationBasicCollection(
+        return new TouchpointBasicCollection(
             $this->fmap(function (SnippetDetailStruct $snippet) {
-                return $snippet->getApplication();
+                return $snippet->getTouchpoint();
             })
         );
     }

@@ -24,7 +24,7 @@
 
 namespace Shopware\Checkout;
 
-use Shopware\Application\Application\Struct\ApplicationBasicStruct;
+use Shopware\System\Touchpoint\Struct\TouchpointBasicStruct;
 use Shopware\Application\Context\Exception\ContextRulesLockedException;
 use Shopware\Application\Language\Struct\LanguageBasicStruct;
 use Shopware\Checkout\Cart\Delivery\Struct\ShippingLocation;
@@ -69,9 +69,9 @@ class CustomerContext extends Struct
     protected $currency;
 
     /**
-     * @var ApplicationBasicStruct
+     * @var TouchpointBasicStruct
      */
-    protected $application;
+    protected $touchpoint;
 
     /**
      * @var TaxBasicCollection
@@ -138,7 +138,7 @@ class CustomerContext extends Struct
     public function __construct(
         string $tenantId,
         string $token,
-        ApplicationBasicStruct $application,
+        TouchpointBasicStruct $touchpoint,
         LanguageBasicStruct $language,
         ?LanguageBasicStruct $fallbackLanguage,
         CurrencyBasicStruct $currency,
@@ -154,7 +154,7 @@ class CustomerContext extends Struct
         $this->currentCustomerGroup = $currentCustomerGroup;
         $this->fallbackCustomerGroup = $fallbackCustomerGroup;
         $this->currency = $currency;
-        $this->application = $application;
+        $this->touchpoint = $touchpoint;
         $this->taxRules = $taxRules;
         $this->customer = $customer;
         $this->paymentMethod = $paymentMethod;
@@ -182,9 +182,9 @@ class CustomerContext extends Struct
         return $this->currency;
     }
 
-    public function getApplication(): ApplicationBasicStruct
+    public function getTouchpoint(): TouchpointBasicStruct
     {
-        return $this->application;
+        return $this->touchpoint;
     }
 
     public function getTaxRules(): TaxBasicCollection
@@ -212,7 +212,7 @@ class CustomerContext extends Struct
         return $this->shippingLocation;
     }
 
-    public function getApplicationContext(): Context
+    public function getContext(): Context
     {
         if ($this->context) {
             return $this->context;
@@ -220,8 +220,8 @@ class CustomerContext extends Struct
 
         return $this->context = new Context(
             $this->tenantId,
-            $this->application->getId(),
-            $this->application->getCatalogIds(),
+            $this->touchpoint->getId(),
+            $this->touchpoint->getCatalogIds(),
             $this->contextRulesIds,
             $this->currency->getId(),
             $this->language->getId(),

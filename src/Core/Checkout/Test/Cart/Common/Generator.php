@@ -25,7 +25,7 @@
 namespace Shopware\Checkout\Test\Cart\Common;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Application\Application\Struct\ApplicationBasicStruct;
+use Shopware\System\Touchpoint\Struct\TouchpointBasicStruct;
 use Shopware\Checkout\CustomerContext;
 use Shopware\Application\Language\Struct\LanguageBasicStruct;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
@@ -67,7 +67,7 @@ class Generator extends TestCase
     public static function createContext(
         $currentCustomerGroup = null,
         $fallbackCustomerGroup = null,
-        $application = null,
+        $touchpoint = null,
         $currency = null,
         $priceGroupDiscounts = null,
         $taxes = null,
@@ -78,11 +78,11 @@ class Generator extends TestCase
         $language = null,
         $fallbackLanguage = null
     ) {
-        if ($application === null) {
-            $application = new ApplicationBasicStruct();
-            $application->setId('ffa32a50e2d04cf38389a53f8d6cd594');
-            $application->setTaxCalculationType(TaxAmountCalculator::CALCULATION_HORIZONTAL);
-            $application->setCatalogIds([Defaults::CATALOG]);
+        if ($touchpoint === null) {
+            $touchpoint = new TouchpointBasicStruct();
+            $touchpoint->setId('ffa32a50e2d04cf38389a53f8d6cd594');
+            $touchpoint->setTaxCalculationType(TaxAmountCalculator::CALCULATION_HORIZONTAL);
+            $touchpoint->setCatalogIds([Defaults::CATALOG]);
         }
 
         $currency = $currency ?: (new CurrencyBasicStruct())->assign([
@@ -170,7 +170,7 @@ class Generator extends TestCase
         return new CustomerContext(
             Defaults::TENANT_ID,
             Uuid::uuid4()->toString(),
-            $application,
+            $touchpoint,
             $language,
             $fallbackLanguage,
             $currency,

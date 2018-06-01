@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Application\Application\Struct;
+namespace Shopware\System\Touchpoint\Struct;
 
 use Shopware\Checkout\Payment\Struct\PaymentMethodBasicStruct;
 use Shopware\Checkout\Shipping\Struct\ShippingMethodBasicStruct;
 use Shopware\System\Country\Struct\CountryBasicStruct;
 
-class ApplicationDetailStruct extends ApplicationBasicStruct
+class TouchpointDetailStruct extends TouchpointBasicStruct
 {
     /**
      * @var PaymentMethodBasicStruct

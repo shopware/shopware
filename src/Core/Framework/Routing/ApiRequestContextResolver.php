@@ -51,7 +51,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
 
         $context = new Context(
             $master->headers->get(PlatformRequest::HEADER_TENANT_ID),
-            Defaults::APPLICATION,
+            Defaults::TOUCHPOINT,
             null,
             [],
             $config['currencyId'],

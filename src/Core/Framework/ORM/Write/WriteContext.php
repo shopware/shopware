@@ -41,7 +41,7 @@ class WriteContext
     /**
      * @var \Shopware\Framework\Context
      */
-    private $applicationContext;
+    private $context;
 
     /**
      * @var array[]
@@ -55,9 +55,9 @@ class WriteContext
      */
     private $inheritance = [];
 
-    private function __construct(Context $applicationContext)
+    private function __construct(Context $context)
     {
-        $this->applicationContext = $applicationContext;
+        $this->context = $context;
     }
 
     public function addInheritance(string $definition, array $inheritance): void
@@ -156,13 +156,13 @@ class WriteContext
 
     public function getContext(): Context
     {
-        return $this->applicationContext;
+        return $this->context;
     }
 
     public function resetPaths(): void
     {
         $this->paths = [];
-        $this->set(LanguageDefinition::class, 'id', $this->applicationContext->getLanguageId());
+        $this->set(LanguageDefinition::class, 'id', $this->context->getLanguageId());
     }
 
     public function createWithVersionId(string $versionId): self

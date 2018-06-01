@@ -25,8 +25,8 @@
 namespace Shopware\Checkout\Customer\Util;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Application\Application\ApplicationRepository;
-use Shopware\Application\Application\Struct\ApplicationBasicStruct;
+use Shopware\System\Touchpoint\TouchpointRepository;
+use Shopware\System\Touchpoint\Struct\TouchpointBasicStruct;
 use Shopware\Framework\Context;
 use Shopware\Checkout\CustomerContext;
 use Shopware\Application\Language\LanguageRepository;
@@ -52,9 +52,9 @@ use Shopware\System\Tax\TaxRepository;
 class CustomerContextFactory implements CustomerContextFactoryInterface
 {
     /**
-     * @var \Shopware\Application\Application\ApplicationRepository
+     * @var \Shopware\System\Touchpoint\TouchpointRepository
      */
-    private $applicationRepository;
+    private $touchpointRepository;
 
     /**
      * @var CurrencyRepository
@@ -117,7 +117,7 @@ class CustomerContextFactory implements CustomerContextFactoryInterface
     private $taxDetector;
 
     public function __construct(
-        ApplicationRepository $applicationRepository,
+        TouchpointRepository $touchpointRepository,
         CurrencyRepository $currencyRepository,
         CustomerRepository $customerRepository,
         CustomerGroupRepository $customerGroupRepository,
@@ -131,7 +131,7 @@ class CustomerContextFactory implements CustomerContextFactoryInterface
         LanguageRepository $languageRepository,
         TaxDetector $taxDetector
     ) {
-        $this->applicationRepository = $applicationRepository;
+        $this->touchpointRepository = $touchpointRepository;
         $this->currencyRepository = $currencyRepository;
         $this->customerRepository = $customerRepository;
         $this->customerGroupRepository = $customerGroupRepository;
@@ -149,36 +149,36 @@ class CustomerContextFactory implements CustomerContextFactoryInterface
     public function create(
         string $tenantId,
         string $token,
-        string $applicationId,
+        string $touchpointId,
         array $options = []
     ): CustomerContext {
-        $applicationContext = $this->getApplicationContext($applicationId, $tenantId);
+        $context = $this->getContext($touchpointId, $tenantId);
 
-        $application = $this->applicationRepository->readBasic([$applicationContext->getApplicationId()], $applicationContext)
-            ->get($applicationContext->getApplicationId());
+        $touchpoint = $this->touchpointRepository->readBasic([$context->getTouchpointId()], $context)
+            ->get($context->getTouchpointId());
 
-        if (!$application) {
-            throw new \RuntimeException(sprintf('Application with id %s not found or not valid!', $applicationContext->getApplicationId()));
+        if (!$touchpoint) {
+            throw new \RuntimeException(sprintf('Touchpoint with id %s not found or not valid!', $context->getTouchpointId()));
         }
 
         //load active currency, fallback to shop currency
-        $currency = $application->getCurrency();
+        $currency = $touchpoint->getCurrency();
         if (array_key_exists(CustomerContextService::CURRENCY_ID, $options)) {
-            $currency = $this->currencyRepository->readBasic([$options[CustomerContextService::CURRENCY_ID]], $applicationContext)->get($options[CustomerContextService::CURRENCY_ID]);
+            $currency = $this->currencyRepository->readBasic([$options[CustomerContextService::CURRENCY_ID]], $context)->get($options[CustomerContextService::CURRENCY_ID]);
         }
 
-        $language = $application->getLanguage();
+        $language = $touchpoint->getLanguage();
         if (array_key_exists(CustomerContextService::LANGUAGE_ID, $options)) {
-            $language = $this->languageRepository->readBasic([$options[CustomerContextService::LANGUAGE_ID]], $applicationContext)->get($options[CustomerContextService::LANGUAGE_ID]);
+            $language = $this->languageRepository->readBasic([$options[CustomerContextService::LANGUAGE_ID]], $context)->get($options[CustomerContextService::LANGUAGE_ID]);
         }
 
         $fallbackLanguage = null;
         if ($language->getParentId()) {
-            $language = $this->languageRepository->readBasic([$language->getParentId()], $applicationContext)->get($language->getParentId());
+            $language = $this->languageRepository->readBasic([$language->getParentId()], $context)->get($language->getParentId());
         }
 
         //fallback customer group is hard coded to 'EK'
-        $customerGroups = $this->customerGroupRepository->readBasic([Defaults::FALLBACK_CUSTOMER_GROUP], $applicationContext);
+        $customerGroups = $this->customerGroupRepository->readBasic([Defaults::FALLBACK_CUSTOMER_GROUP], $context);
         $fallbackGroup = $customerGroups->get(Defaults::FALLBACK_CUSTOMER_GROUP);
         $customerGroup = $customerGroups->get(Defaults::FALLBACK_CUSTOMER_GROUP);
 
@@ -186,7 +186,7 @@ class CustomerContextFactory implements CustomerContextFactoryInterface
         $customer = null;
         if (array_key_exists(CustomerContextService::CUSTOMER_ID, $options)) {
             //load logged in customer and set active addresses
-            $customer = $this->loadCustomer($options, $applicationContext);
+            $customer = $this->loadCustomer($options, $context);
 
             if ($customer) {
                 $shippingLocation = ShippingLocation::createFromAddress($customer->getActiveShippingAddress());
@@ -194,29 +194,29 @@ class CustomerContextFactory implements CustomerContextFactoryInterface
             }
         } else {
             //load not logged in customer with default shop configuration or with provided checkout scopes
-            $shippingLocation = $this->loadShippingLocation($options, $applicationContext, $application);
+            $shippingLocation = $this->loadShippingLocation($options, $context, $touchpoint);
         }
 
         //customer group switched?
         if (array_key_exists(CustomerContextService::CUSTOMER_GROUP_ID, $options)) {
-            $customerGroup = $this->customerGroupRepository->readBasic([$options[CustomerContextService::CUSTOMER_GROUP_ID]], $applicationContext)->get($options[CustomerContextService::CUSTOMER_GROUP_ID]);
+            $customerGroup = $this->customerGroupRepository->readBasic([$options[CustomerContextService::CUSTOMER_GROUP_ID]], $context)->get($options[CustomerContextService::CUSTOMER_GROUP_ID]);
         }
 
         //loads tax rules based on active customer group and delivery address
         //todo@dr load area based tax rules
         $criteria = new Criteria();
-        $taxRules = $this->taxRepository->search($criteria, $applicationContext);
+        $taxRules = $this->taxRepository->search($criteria, $context);
 
         //detect active payment method, first check if checkout defined other payment method, otherwise validate if customer logged in, at least use shop default
-        $payment = $this->getPaymentMethod($options, $applicationContext, $application, $customer);
+        $payment = $this->getPaymentMethod($options, $context, $touchpoint, $customer);
 
         //detect active delivery method, at first checkout scope, at least shop default method
-        $delivery = $this->getShippingMethod($options, $applicationContext, $application);
+        $delivery = $this->getShippingMethod($options, $context, $touchpoint);
 
         $context = new CustomerContext(
             $tenantId,
             $token,
-            $application,
+            $touchpoint,
             $language,
             $fallbackLanguage,
             $currency,
@@ -235,7 +235,7 @@ class CustomerContextFactory implements CustomerContextFactoryInterface
         return $context;
     }
 
-    private function getPaymentMethod(array $options, Context $context, ApplicationBasicStruct $application, ?CustomerBasicStruct $customer): PaymentMethodBasicStruct
+    private function getPaymentMethod(array $options, Context $context, TouchpointBasicStruct $touchpoint, ?CustomerBasicStruct $customer): PaymentMethodBasicStruct
     {
         //payment switched in checkout?
         if (array_key_exists(CustomerContextService::PAYMENT_METHOD_ID, $options)) {
@@ -252,13 +252,13 @@ class CustomerContextFactory implements CustomerContextFactoryInterface
             return $customer->getDefaultPaymentMethod();
         }
 
-        return $this->paymentMethodRepository->readBasic([$application->getPaymentMethodId()], $context)
-            ->get($application->getPaymentMethodId());
+        return $this->paymentMethodRepository->readBasic([$touchpoint->getPaymentMethodId()], $context)
+            ->get($touchpoint->getPaymentMethodId());
     }
 
-    private function getShippingMethod(array $options, Context $context, ApplicationBasicStruct $application): ShippingMethodBasicStruct
+    private function getShippingMethod(array $options, Context $context, TouchpointBasicStruct $touchpoint): ShippingMethodBasicStruct
     {
-        $id = $application->getShippingMethodId();
+        $id = $touchpoint->getShippingMethodId();
         if (array_key_exists(CustomerContextService::SHIPPING_METHOD_ID, $options)) {
             $id = $options[CustomerContextService::SHIPPING_METHOD_ID];
         }
@@ -266,44 +266,44 @@ class CustomerContextFactory implements CustomerContextFactoryInterface
         return $this->shippingMethodRepository->readBasic([$id], $context)->get($id);
     }
 
-    private function getApplicationContext(string $applicationId, string $tenantId): Context
+    private function getContext(string $touchpointId, string $tenantId): Context
     {
         $query = $this->connection->createQueryBuilder();
         $query->select([
-            'application.id as application_id',
-            'application.language_id as application_language_id',
-            'application.currency_id as application_currency_id',
-            'application.catalog_ids as application_catalog_ids',
-            'currency.factor as application_currency_factor',
-            'language.parent_id as application_language_parent_id',
+            'touchpoint.id as touchpoint_id',
+            'touchpoint.language_id as touchpoint_language_id',
+            'touchpoint.currency_id as touchpoint_currency_id',
+            'touchpoint.catalog_ids as touchpoint_catalog_ids',
+            'currency.factor as touchpoint_currency_factor',
+            'language.parent_id as touchpoint_language_parent_id',
         ]);
-        $query->from('application', 'application');
-        $query->innerJoin('application', 'currency', 'currency', 'application.currency_id = currency.id');
-        $query->innerJoin('application', 'language', 'language', 'application.language_id = language.id');
-        $query->andWhere('application.id = :id');
-        $query->andWhere('application.tenant_id = :tenant');
-        $query->setParameter('id', Uuid::fromHexToBytes($applicationId));
+        $query->from('touchpoint', 'touchpoint');
+        $query->innerJoin('touchpoint', 'currency', 'currency', 'touchpoint.currency_id = currency.id');
+        $query->innerJoin('touchpoint', 'language', 'language', 'touchpoint.language_id = language.id');
+        $query->andWhere('touchpoint.id = :id');
+        $query->andWhere('touchpoint.tenant_id = :tenant');
+        $query->setParameter('id', Uuid::fromHexToBytes($touchpointId));
         $query->setParameter('tenant', Uuid::fromHexToBytes($tenantId));
 
         $data = $query->execute()->fetch(\PDO::FETCH_ASSOC);
 
         return new Context(
             $tenantId,
-            Uuid::fromBytesToHex($data['application_id']),
-            json_decode($data['application_catalog_ids'], true),
+            Uuid::fromBytesToHex($data['touchpoint_id']),
+            json_decode($data['touchpoint_catalog_ids'], true),
             [],
-            Uuid::fromBytesToHex($data['application_currency_id']),
-            Uuid::fromBytesToHex($data['application_language_id']),
-            $data['application_language_parent_id'] ? Uuid::fromBytesToHex($data['application_language_parent_id']) : null,
+            Uuid::fromBytesToHex($data['touchpoint_currency_id']),
+            Uuid::fromBytesToHex($data['touchpoint_language_id']),
+            $data['touchpoint_language_parent_id'] ? Uuid::fromBytesToHex($data['touchpoint_language_parent_id']) : null,
             Defaults::LIVE_VERSION,
-            (float) $data['application_currency_factor']
+            (float) $data['touchpoint_currency_factor']
         );
     }
 
-    private function loadCustomer(array $options, Context $applicationContext): ?CustomerBasicStruct
+    private function loadCustomer(array $options, Context $context): ?CustomerBasicStruct
     {
         $customerId = $options[CustomerContextService::CUSTOMER_ID];
-        $customer = $this->customerRepository->readBasic([$customerId], $applicationContext)->get($customerId);
+        $customer = $this->customerRepository->readBasic([$customerId], $context)->get($customerId);
 
         if (!$customer) {
             return $customer;
@@ -316,7 +316,7 @@ class CustomerContextFactory implements CustomerContextFactoryInterface
         $billingAddressId = $options[CustomerContextService::BILLING_ADDRESS_ID];
         $shippingAddressId = $options[CustomerContextService::SHIPPING_ADDRESS_ID];
 
-        $addresses = $this->addressRepository->readBasic([$billingAddressId, $shippingAddressId], $applicationContext);
+        $addresses = $this->addressRepository->readBasic([$billingAddressId, $shippingAddressId], $context);
 
         //billing address changed within checkout?
         if ($billingAddressId !== null) {
@@ -333,26 +333,26 @@ class CustomerContextFactory implements CustomerContextFactoryInterface
 
     private function loadShippingLocation(
         array $options,
-        Context $applicationContext,
-        ApplicationBasicStruct $application
+        Context $context,
+        TouchpointBasicStruct $touchpoint
     ): ShippingLocation {
         //allows to preview cart calculation for a specify state for not logged in customers
         if (array_key_exists(CustomerContextService::STATE_ID, $options)) {
-            $state = $this->countryStateRepository->readBasic([$options[CustomerContextService::STATE_ID]], $applicationContext)
+            $state = $this->countryStateRepository->readBasic([$options[CustomerContextService::STATE_ID]], $context)
                 ->get($options[CustomerContextService::STATE_ID]);
 
-            $country = $this->countryRepository->readBasic([$state->getCountryId()], $applicationContext)
+            $country = $this->countryRepository->readBasic([$state->getCountryId()], $context)
                 ->get($state->getCountryId());
 
             return new ShippingLocation($country, $state, null);
         }
 
-        $countryId = $application->getCountryId();
+        $countryId = $touchpoint->getCountryId();
         if (array_key_exists(CustomerContextService::COUNTRY_ID, $options)) {
             $countryId = $options[CustomerContextService::COUNTRY_ID];
         }
 
-        $country = $this->countryRepository->readBasic([$countryId], $applicationContext)
+        $country = $this->countryRepository->readBasic([$countryId], $context)
             ->get($countryId);
 
         return ShippingLocation::createFromCountry($country);

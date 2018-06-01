@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Snippet;
 
-use Shopware\Application\Application\ApplicationDefinition;
+use Shopware\System\Touchpoint\TouchpointDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\BoolField;
@@ -55,7 +55,7 @@ class SnippetDefinition extends EntityDefinition
         self::$fields = new FieldCollection([
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('application_id', 'applicationId', ApplicationDefinition::class))->setFlags(new Required()),
+            (new FkField('touchpoint_id', 'touchpointId', TouchpointDefinition::class))->setFlags(new Required()),
             (new StringField('namespace', 'namespace'))->setFlags(new Required(), new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
             (new StringField('locale', 'locale'))->setFlags(new Required()),
             (new StringField('name', 'name'))->setFlags(new Required(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
@@ -63,7 +63,7 @@ class SnippetDefinition extends EntityDefinition
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
             new BoolField('dirty', 'dirty'),
-            new ManyToOneAssociationField('application', 'application_id', ApplicationDefinition::class, false),
+            new ManyToOneAssociationField('touchpoint', 'touchpoint_id', TouchpointDefinition::class, false),
         ]);
 
         foreach (self::$extensions as $extension) {

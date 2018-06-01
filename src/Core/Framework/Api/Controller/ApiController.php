@@ -112,7 +112,7 @@ class ApiController extends Controller
         }
 
         /** @var RepositoryInterface $repository */
-        $entities = $repository->readDetail([$id], $context->getApplicationContext());
+        $entities = $repository->readDetail([$id], $context->getContext());
 
         $entity = $entities->get($id);
 
@@ -145,7 +145,7 @@ class ApiController extends Controller
                 $request,
                 $criteria,
                 $definition,
-                $context->getApplicationContext()
+                $context->getContext()
             );
 
             $data = $repository->search($criteria, $context->getApplicationContext());
@@ -164,7 +164,7 @@ class ApiController extends Controller
             $request,
             $criteria,
             $definition,
-            $context->getApplicationContext()
+            $context->getContext()
         );
 
         $association = $child['field'];
@@ -244,7 +244,7 @@ class ApiController extends Controller
 
         $repository = $this->getRepository($definition, $context->getVersion());
 
-        $result = $repository->search($criteria, $context->getApplicationContext());
+        $result = $repository->search($criteria, $context->getContext());
 
         return $this->responseFactory->createListingResponse($result, (string) $definition, $context);
     }
@@ -321,7 +321,7 @@ class ApiController extends Controller
             $this->entityWriter->delete(
                 $definition,
                 [$mapping],
-                WriteContext::createFromContext($context->getApplicationContext())
+                WriteContext::createFromContext($context->getContext())
             );
 
             return $this->responseFactory->createRedirectResponse($definition, $id, $context);
@@ -355,9 +355,9 @@ class ApiController extends Controller
                 $request,
                 $criteria,
                 $definition,
-                $context->getApplicationContext()
+                $context->getContext()
             ),
-            $context->getApplicationContext()
+            $context->getContext()
         );
 
         return $this->responseFactory->createListingResponse($data, (string) $definition, $context);
@@ -399,9 +399,9 @@ class ApiController extends Controller
             }
 
             if ($responseDataType === self::RESPONSE_DETAIL) {
-                $entities = $repository->readDetail($event->getIds(), $context->getApplicationContext());
+                $entities = $repository->readDetail($event->getIds(), $context->getContext());
             } else {
-                $entities = $repository->readBasic($event->getIds(), $context->getApplicationContext());
+                $entities = $repository->readBasic($event->getIds(), $context->getContext());
             }
 
             return $this->responseFactory->createDetailResponse($entities->first(), $definition, $context, $appendLocationHeader);
@@ -441,9 +441,9 @@ class ApiController extends Controller
             $repository = $this->getRepository($definition, $context->getVersion());
 
             if ($responseDataType === self::RESPONSE_DETAIL) {
-                $entities = $repository->readDetail($event->getIds(), $context->getApplicationContext());
+                $entities = $repository->readDetail($event->getIds(), $context->getContext());
             } else {
-                $entities = $repository->readBasic($event->getIds(), $context->getApplicationContext());
+                $entities = $repository->readBasic($event->getIds(), $context->getContext());
             }
 
             return $this->responseFactory->createDetailResponse($entities->first(), $definition, $context, $appendLocationHeader);
@@ -464,16 +464,16 @@ class ApiController extends Controller
             ];
 
             $repository = $this->getRepository($parentDefinition, $context->getVersion());
-            $repository->update([$payload], $context->getApplicationContext());
+            $repository->update([$payload], $context->getContext());
 
             if (!$responseDataType) {
                 return $this->responseFactory->createRedirectResponse($definition, $entityId, $context);
             }
 
             if ($responseDataType === self::RESPONSE_DETAIL) {
-                $entities = $repository->readDetail($event->getIds(), $context->getApplicationContext());
+                $entities = $repository->readDetail($event->getIds(), $context->getContext());
             } else {
-                $entities = $repository->readBasic($event->getIds(), $context->getApplicationContext());
+                $entities = $repository->readBasic($event->getIds(), $context->getContext());
             }
 
             return $this->responseFactory->createDetailResponse($entities->first(), $definition, $context, $appendLocationHeader);
@@ -490,9 +490,9 @@ class ApiController extends Controller
         $repository = $this->getRepository($reference, $context->getVersion());
 
         if ($responseDataType === self::RESPONSE_DETAIL) {
-            $entities = $repository->readDetail($event->getIds(), $context->getApplicationContext());
+            $entities = $repository->readDetail($event->getIds(), $context->getContext());
         } else {
-            $entities = $repository->readBasic($event->getIds(), $context->getApplicationContext());
+            $entities = $repository->readBasic($event->getIds(), $context->getContext());
         }
 
         $entity = $entities->first();
@@ -506,7 +506,7 @@ class ApiController extends Controller
             ],
         ];
 
-        $repository->update([$payload], $context->getApplicationContext());
+        $repository->update([$payload], $context->getContext());
 
         if (!$responseDataType) {
             return $this->responseFactory->createRedirectResponse($reference, $entity->getId(), $context);
@@ -532,11 +532,11 @@ class ApiController extends Controller
             switch ($type) {
                 case self::WRITE_CREATE:
 
-                    return $repository->create([$payload], $context->getApplicationContext());
+                    return $repository->create([$payload], $context->getContext());
 
                 case self::WRITE_UPDATE:
                 default:
-                    return $repository->update([$payload], $context->getApplicationContext());
+                    return $repository->update([$payload], $context->getContext());
             }
         } catch (WriteStackException $exceptionStack) {
             throw new WriteStackHttpException($exceptionStack);
@@ -712,7 +712,7 @@ class ApiController extends Controller
             $mapping = [$pk->getPropertyName() => $id];
         }
 
-        $repository->delete([$mapping], $context->getApplicationContext());
+        $repository->delete([$mapping], $context->getContext());
     }
 
     private function getResponseDataType(Request $request): ?string

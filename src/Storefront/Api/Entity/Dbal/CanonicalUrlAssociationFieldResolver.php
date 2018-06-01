@@ -50,13 +50,13 @@ class CanonicalUrlAssociationFieldResolver implements FieldResolverInterface
             str_replace(
                 array_keys($parameters),
                 array_values($parameters),
-                '#alias#.application_id = :applicationId
+                '#alias#.`touchpoint_id` = :touchpointId
                  AND #root#.#source_column# = #alias#.#reference_column# 
                  AND #alias#.name = :' . $key . '
                  AND #alias#.is_canonical = 1'
             )
         );
         $query->setParameter($key, $field->getRouteName());
-        $query->setParameter('applicationId', Uuid::fromStringToBytes($context->getApplicationId()));
+        $query->setParameter('touchpointId', Uuid::fromStringToBytes($context->getTouchpointId()));
     }
 }

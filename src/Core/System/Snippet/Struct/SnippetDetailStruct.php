@@ -2,22 +2,22 @@
 
 namespace Shopware\System\Snippet\Struct;
 
-use Shopware\Application\Application\Struct\ApplicationBasicStruct;
+use Shopware\System\Touchpoint\Struct\TouchpointBasicStruct;
 
 class SnippetDetailStruct extends SnippetBasicStruct
 {
     /**
-     * @var ApplicationBasicStruct
+     * @var TouchpointBasicStruct
      */
-    protected $application;
+    protected $touchpoint;
 
-    public function getApplication(): ApplicationBasicStruct
+    public function getTouchpoint(): TouchpointBasicStruct
     {
-        return $this->application;
+        return $this->touchpoint;
     }
 
-    public function setApplication(ApplicationBasicStruct $application): void
+    public function setTouchpoint(TouchpointBasicStruct $touchpoint): void
     {
-        $this->application = $application;
+        $this->touchpoint = $touchpoint;
     }
 }

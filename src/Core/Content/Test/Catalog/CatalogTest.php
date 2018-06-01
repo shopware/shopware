@@ -116,7 +116,7 @@ class CatalogTest extends KernelTestCase
 
         $readContext = new Context(
             Defaults::TENANT_ID,
-            $context->getApplicationId(),
+            $context->getTouchpointId(),
             [],
             [],
             $context->getCurrencyId(),
@@ -214,7 +214,7 @@ class CatalogTest extends KernelTestCase
         // read with two enabled catalogs
         $context = new Context(
             Defaults::TENANT_ID,
-            $context->getApplicationId(),
+            $context->getTouchpointId(),
             [$catalogId1, $catalogId2],
             $context->getContextRules(),
             $context->getCurrencyId(),
@@ -227,7 +227,7 @@ class CatalogTest extends KernelTestCase
         // read with default and another two enabled catalogs
         $context = new Context(
             Defaults::TENANT_ID,
-            $context->getApplicationId(),
+            $context->getTouchpointId(),
             [$catalogId1, $catalogId2, Defaults::CATALOG],
             [],
             $context->getCurrencyId(),
@@ -248,7 +248,7 @@ class CatalogTest extends KernelTestCase
 
         $context = new Context(
             Defaults::TENANT_ID,
-            $context->getApplicationId(),
+            $context->getTouchpointId(),
             [$catalogId],
             [],
             $context->getCurrencyId(),
@@ -319,7 +319,7 @@ class CatalogTest extends KernelTestCase
 
         $context = new Context(
             Defaults::TENANT_ID,
-            $context->getApplicationId(),
+            $context->getTouchpointId(),
             [$catalogId],
             [],
             $context->getCurrencyId(),
@@ -385,7 +385,7 @@ class CatalogTest extends KernelTestCase
 
         $context = new Context(
             Defaults::TENANT_ID,
-            $context->getApplicationId(),
+            $context->getTouchpointId(),
             [$catalogId],
             [],
             $context->getCurrencyId(),
@@ -455,7 +455,7 @@ class CatalogTest extends KernelTestCase
     {
         return new Context(
             Defaults::TENANT_ID,
-            $context->getApplicationId(),
+            $context->getTouchpointId(),
             array_merge($context->getCatalogIds(), [$catalogId]),
             $context->getContextRules(),
             $context->getCurrencyId(),

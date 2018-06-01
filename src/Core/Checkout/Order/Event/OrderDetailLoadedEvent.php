@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Order\Event;
 
-use Shopware\Application\Application\Event\ApplicationBasicLoadedEvent;
+use Shopware\System\Touchpoint\Event\TouchpointBasicLoadedEvent;
 use Shopware\Framework\Context;
 use Shopware\Checkout\Customer\Event\CustomerBasicLoadedEvent;
 use Shopware\Checkout\Order\Aggregate\OrderAddress\Event\OrderAddressBasicLoadedEvent;
@@ -66,8 +66,8 @@ class OrderDetailLoadedEvent extends NestedEvent
         if ($this->orders->getCurrencies()->count() > 0) {
             $events[] = new CurrencyBasicLoadedEvent($this->orders->getCurrencies(), $this->context);
         }
-        if ($this->orders->getApplications()->count() > 0) {
-            $events[] = new ApplicationBasicLoadedEvent($this->orders->getApplications(), $this->context);
+        if ($this->orders->getTouchpoints()->count() > 0) {
+            $events[] = new TouchpointBasicLoadedEvent($this->orders->getTouchpoints(), $this->context);
         }
         if ($this->orders->getBillingAddress()->count() > 0) {
             $events[] = new OrderAddressBasicLoadedEvent($this->orders->getBillingAddress(), $this->context);

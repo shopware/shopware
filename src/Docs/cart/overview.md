@@ -248,7 +248,7 @@ The cart calculation is done in the `Shopware\Checkout\Cart\Cart\CartProcessor` 
 This class contains a list of `Shopware\Checkout\Cart\Cart\CartProcessorInterface`, which are the access points for the Shopware core and third party developers in the cart process. 
 
 ```php
-use Shopware\Application\Context\Struct\ShopContext;
+use Shopware\Touchpoint\Context\Struct\ShopContext;
 use Shopware\Framework\Struct\StructCollection;
 
 interface CartProcessorInterface
@@ -321,7 +321,7 @@ use Shopware\Checkout\Cart\Cart\CartProcessorInterface;
 use Shopware\Checkout\Cart\Cart\ProcessorCart;
 use Shopware\Checkout\Cart\LineItem\Discount;
 use Shopware\Checkout\Cart\Price\PercentagePriceCalculator;
-use Shopware\Application\Context\Struct\ShopContext;
+use Shopware\Touchpoint\Context\Struct\ShopContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class NewCustomerDiscountProcessor implements CartProcessorInterface
@@ -431,7 +431,7 @@ use Shopware\Checkout\Cart\Cart\ProcessorCart;
 use Shopware\Checkout\Cart\LineItem\LineItem;
 use Shopware\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Checkout\Cart\Product\ProductProcessor;
-use Shopware\Application\Context\Struct\ShopContext;
+use Shopware\Touchpoint\Context\Struct\ShopContext;
 use Shopware\Framework\Struct\StructCollection;
 
 class BlacklistedProductProcessor implements CartProcessorInterface

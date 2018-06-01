@@ -20,7 +20,7 @@ class RestContext
     /**
      * @var \Shopware\Framework\Context
      */
-    private $applicationContext;
+    private $context;
 
     /**
      * @var int
@@ -29,18 +29,18 @@ class RestContext
 
     public function __construct(
         Request $request,
-        Context $applicationContext,
+        Context $context,
         ?string $userId
     ) {
         $this->request = $request;
-        $this->applicationContext = $applicationContext;
+        $this->context = $context;
         $this->userId = $userId;
         $this->version = (int) $this->getRequest()->get('version');
     }
 
-    public function getApplicationContext(): Context
+    public function getContext(): Context
     {
-        return $this->applicationContext;
+        return $this->context;
     }
 
     public function getUserId(): ?string

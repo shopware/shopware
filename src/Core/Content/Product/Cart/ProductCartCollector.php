@@ -121,6 +121,6 @@ class ProductCartCollector implements CartCollectorInterface
 
         $ids = array_keys(array_flip($ids));
 
-        return $this->serviceGateway->readBasic($ids, $context->getApplicationContext());
+        return $this->serviceGateway->readBasic($ids, $context->getContext());
     }
 }

@@ -53,7 +53,7 @@ class StorefrontProductController extends Controller
             $request,
             $criteria,
             ProductDefinition::class,
-            $context->getApplicationContext()
+            $context->getContext()
         );
 
         $result = $this->repository->search($criteria, $context);
@@ -61,7 +61,7 @@ class StorefrontProductController extends Controller
         return $this->responseFactory->createListingResponse(
             $result,
             ProductDefinition::class,
-            new RestContext($request, $context->getApplicationContext(), null)
+            new RestContext($request, $context->getContext(), null)
         );
     }
 
@@ -82,7 +82,7 @@ class StorefrontProductController extends Controller
         return $this->responseFactory->createDetailResponse(
             $products->get($productId),
             ProductDefinition::class,
-            new RestContext($request, $user->getContext()->getApplicationContext(), null)
+            new RestContext($request, $user->getContext()->getContext(), null)
         );
     }
 }

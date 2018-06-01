@@ -48,7 +48,7 @@ class StorefrontCustomerControllerTest extends ApiTestCase
     /**
      * @var Context
      */
-    private $applicationContext;
+    private $context;
 
     /**
      * @var CustomerAddressRepository
@@ -65,7 +65,7 @@ class StorefrontCustomerControllerTest extends ApiTestCase
         $this->countryRepository = $this->getContainer()->get(CountryRepository::class);
         $this->customerAddressRepository = $this->getContainer()->get(CustomerAddressRepository::class);
         $this->countryStateRepository = $this->getContainer()->get(CountryStateRepository::class);
-        $this->applicationContext = Context::createDefaultContext(\Shopware\Defaults::TENANT_ID);
+        $this->context = Context::createDefaultContext(\Shopware\Defaults::TENANT_ID);
     }
 
     public function testLogin()
@@ -478,7 +478,7 @@ class StorefrontCustomerControllerTest extends ApiTestCase
         $this->customerRepository->create([
             [
                 'id' => $customerId,
-                'applicationId' => Defaults::APPLICATION,
+                'touchpointId' => Defaults::TOUCHPOINT,
                 'defaultShippingAddress' => [
                     'id' => $addressId,
                     'firstName' => 'Max',
@@ -503,7 +503,7 @@ class StorefrontCustomerControllerTest extends ApiTestCase
                 'salutation' => 'Mr.',
                 'number' => '12345',
             ],
-        ], $this->applicationContext);
+        ], $this->context);
 
         return $customerId;
     }
@@ -523,7 +523,7 @@ class StorefrontCustomerControllerTest extends ApiTestCase
             'country' => ['name' => 'Germany'],
         ];
 
-        $this->customerAddressRepository->upsert([$data], $this->applicationContext);
+        $this->customerAddressRepository->upsert([$data], $this->context);
 
         return $addressId;
     }

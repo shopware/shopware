@@ -100,7 +100,7 @@ class DetailPageLoader
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('product_configurator.productId', $containerId));
 
-        $configurator = $this->configuratorRepository->search($criteria, $context->getApplicationContext());
+        $configurator = $this->configuratorRepository->search($criteria, $context->getContext());
         $variationIds = $product->getVariationIds() ?? [];
 
         foreach ($configurator as $config) {

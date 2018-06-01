@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Payment;
 
-use Shopware\Application\Application\ApplicationDefinition;
+use Shopware\System\Touchpoint\TouchpointDefinition;
 use Shopware\Checkout\Customer\CustomerDefinition;
 use Shopware\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
 use Shopware\Checkout\Order\OrderDefinition;
@@ -92,7 +92,7 @@ class PaymentMethodDefinition extends EntityDefinition
             new LongTextField('risk_rules', 'riskRules'),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            (new OneToManyAssociationField('applications', ApplicationDefinition::class, 'payment_method_id', false, 'id'))->setFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('touchpoints', TouchpointDefinition::class, 'payment_method_id', false, 'id'))->setFlags(new RestrictDelete()),
             new ManyToOneAssociationField('plugin', 'plugin_id', PluginDefinition::class, false),
             (new OneToManyAssociationField('customers', CustomerDefinition::class, 'default_payment_method_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
             (new OneToManyAssociationField('customers', CustomerDefinition::class, 'last_payment_method_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),

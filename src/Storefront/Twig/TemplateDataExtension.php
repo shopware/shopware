@@ -96,7 +96,7 @@ class TemplateDataExtension extends \Twig_Extension implements \Twig_Extension_G
             'shopware' => [
                 'config' => array_merge(
                     $this->getDefaultConfiguration(),
-                    $this->configService->get($context->getApplication()->getId(), null)
+                    $this->configService->get($context->getTouchpoint()->getId(), null)
                 ),
                 'theme' => $this->getThemeConfig(),
             ],

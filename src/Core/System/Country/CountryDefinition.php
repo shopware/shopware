@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Country;
 
-use Shopware\Application\Application\ApplicationDefinition;
+use Shopware\System\Touchpoint\TouchpointDefinition;
 use Shopware\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Checkout\Order\Aggregate\OrderAddress\OrderAddressDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
@@ -87,7 +87,7 @@ class CountryDefinition extends EntityDefinition
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
             new ManyToOneAssociationField('area', 'country_area_id', CountryAreaDefinition::class, false),
-            (new OneToManyAssociationField('applications', ApplicationDefinition::class, 'country_id', false, 'id'))->setFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('touchpoints', TouchpointDefinition::class, 'country_id', false, 'id'))->setFlags(new RestrictDelete()),
             (new OneToManyAssociationField('states', CountryStateDefinition::class, 'country_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField('translations', CountryTranslationDefinition::class, 'country_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
             (new OneToManyAssociationField('customerAddresses', CustomerAddressDefinition::class, 'country_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),

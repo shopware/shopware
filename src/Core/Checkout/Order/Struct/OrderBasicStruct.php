@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Order\Struct;
 
-use Shopware\Application\Application\Struct\ApplicationBasicStruct;
+use Shopware\System\Touchpoint\Struct\TouchpointBasicStruct;
 use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
 use Shopware\Checkout\Order\Aggregate\OrderAddress\Struct\OrderAddressBasicStruct;
 use Shopware\Checkout\Order\Aggregate\OrderState\Struct\OrderStateBasicStruct;
@@ -35,7 +35,7 @@ class OrderBasicStruct extends Entity
     /**
      * @var string
      */
-    protected $applicationId;
+    protected $touchpointId;
 
     /**
      * @var string
@@ -113,9 +113,9 @@ class OrderBasicStruct extends Entity
     protected $currency;
 
     /**
-     * @var ApplicationBasicStruct
+     * @var TouchpointBasicStruct
      */
-    protected $application;
+    protected $touchpoint;
 
     /**
      * @var OrderAddressBasicStruct
@@ -162,14 +162,14 @@ class OrderBasicStruct extends Entity
         $this->currencyId = $currencyId;
     }
 
-    public function getApplicationId(): string
+    public function getTouchpointId(): string
     {
-        return $this->applicationId;
+        return $this->touchpointId;
     }
 
-    public function setApplicationId(string $applicationId): void
+    public function setTouchpointId(string $touchpointId): void
     {
-        $this->applicationId = $applicationId;
+        $this->touchpointId = $touchpointId;
     }
 
     public function getBillingAddressId(): string
@@ -322,14 +322,14 @@ class OrderBasicStruct extends Entity
         $this->currency = $currency;
     }
 
-    public function getApplication(): ApplicationBasicStruct
+    public function getTouchpoint(): TouchpointBasicStruct
     {
-        return $this->application;
+        return $this->touchpoint;
     }
 
-    public function setApplication(ApplicationBasicStruct $application): void
+    public function setTouchpoint(TouchpointBasicStruct $touchpoint): void
     {
-        $this->application = $application;
+        $this->touchpoint = $touchpoint;
     }
 
     public function getBillingAddress(): OrderAddressBasicStruct

@@ -1,24 +1,24 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Application\Application\Collection;
+namespace Shopware\System\Touchpoint\Collection;
 
-use Shopware\Application\Application\Struct\ApplicationDetailStruct;
+use Shopware\System\Touchpoint\Struct\TouchpointDetailStruct;
 use Shopware\Checkout\Payment\Collection\PaymentMethodBasicCollection;
 use Shopware\Checkout\Shipping\Collection\ShippingMethodBasicCollection;
 use Shopware\System\Country\Collection\CountryBasicCollection;
 
-class ApplicationDetailCollection extends ApplicationBasicCollection
+class TouchpointDetailCollection extends TouchpointBasicCollection
 {
     /**
-     * @var ApplicationDetailStruct[]
+     * @var TouchpointDetailStruct[]
      */
     protected $elements = [];
 
     public function getPaymentMethods(): PaymentMethodBasicCollection
     {
         return new PaymentMethodBasicCollection(
-            $this->fmap(function (ApplicationDetailStruct $application) {
-                return $application->getPaymentMethod();
+            $this->fmap(function (TouchpointDetailStruct $touchpoint) {
+                return $touchpoint->getPaymentMethod();
             })
         );
     }
@@ -26,8 +26,8 @@ class ApplicationDetailCollection extends ApplicationBasicCollection
     public function getShippingMethods(): ShippingMethodBasicCollection
     {
         return new ShippingMethodBasicCollection(
-            $this->fmap(function (ApplicationDetailStruct $application) {
-                return $application->getShippingMethod();
+            $this->fmap(function (TouchpointDetailStruct $touchpoint) {
+                return $touchpoint->getShippingMethod();
             })
         );
     }
@@ -35,14 +35,14 @@ class ApplicationDetailCollection extends ApplicationBasicCollection
     public function getCountries(): CountryBasicCollection
     {
         return new CountryBasicCollection(
-            $this->fmap(function (ApplicationDetailStruct $application) {
-                return $application->getCountry();
+            $this->fmap(function (TouchpointDetailStruct $touchpoint) {
+                return $touchpoint->getCountry();
             })
         );
     }
 
     protected function getExpectedClass(): string
     {
-        return ApplicationDetailStruct::class;
+        return TouchpointDetailStruct::class;
     }
 }

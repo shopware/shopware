@@ -3,7 +3,7 @@
 namespace Shopware\Framework\Routing\Firewall;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Framework\Routing\Exception\ApplicationNotFoundException;
+use Shopware\Framework\Routing\Exception\TouchpointNotFoundException;
 use Shopware\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,7 +14,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
 
-class ApplicationAuthenticator extends AbstractGuardAuthenticator
+class TouchpointAuthenticator extends AbstractGuardAuthenticator
 {
     /**
      * @var Connection
@@ -46,8 +46,8 @@ class ApplicationAuthenticator extends AbstractGuardAuthenticator
      */
     public function start(SymfonyRequest $request, AuthenticationException $authException = null)
     {
-        if ($request->headers->has(PlatformRequest::HEADER_APPLICATION_TOKEN) === false) {
-            throw new UnauthorizedHttpException('header', 'Header "X-SW-Application-Token" is required.');
+        if ($request->headers->has(PlatformRequest::HEADER_TOUCHPOINT_TOKEN) === false) {
+            throw new UnauthorizedHttpException('header', 'Header "X-SW-Touchpoint-Token" is required.');
         }
 
         throw new UnauthorizedHttpException('header', $authException->getMessageKey());
@@ -64,7 +64,7 @@ class ApplicationAuthenticator extends AbstractGuardAuthenticator
      */
     public function supports(SymfonyRequest $request)
     {
-        return $request->headers->has(PlatformRequest::HEADER_APPLICATION_TOKEN);
+        return $request->headers->has(PlatformRequest::HEADER_TOUCHPOINT_TOKEN);
     }
 
     /**
@@ -93,7 +93,7 @@ class ApplicationAuthenticator extends AbstractGuardAuthenticator
     public function getCredentials(SymfonyRequest $request)
     {
         return [
-            'access_key' => $request->headers->get(PlatformRequest::HEADER_APPLICATION_TOKEN),
+            'access_key' => $request->headers->get(PlatformRequest::HEADER_TOUCHPOINT_TOKEN),
         ];
     }
 
@@ -116,28 +116,28 @@ class ApplicationAuthenticator extends AbstractGuardAuthenticator
     {
         //todo@dr no tenant id
         $builder = $this->connection->createQueryBuilder();
-        $application = $builder->select([
-                'application.id',
-                'application.language_id',
-                'application.currency_id',
-                'application.payment_method_id',
-                'application.shipping_method_id',
-                'application.country_id',
-                'application.tax_calculation_type',
-                'application.catalog_ids',
-                'application.language_ids',
+        $touchpoint = $builder->select([
+                'touchpoint.id',
+                'touchpoint.language_id',
+                'touchpoint.currency_id',
+                'touchpoint.payment_method_id',
+                'touchpoint.shipping_method_id',
+                'touchpoint.country_id',
+                'touchpoint.tax_calculation_type',
+                'touchpoint.catalog_ids',
+                'touchpoint.language_ids',
             ])
-            ->from('application')
+            ->from('touchpoint')
             ->where('access_key = :accessKey')
             ->setParameter('accessKey', $credentials['access_key'])
             ->execute()
             ->fetch();
 
-        if (!$application) {
-            throw new ApplicationNotFoundException($credentials['access_key']);
+        if (!$touchpoint) {
+            throw new TouchpointNotFoundException($credentials['access_key']);
         }
 
-        return Application::createFromDatabase($application);
+        return Touchpoint::createFromDatabase($touchpoint);
     }
 
     /**
@@ -158,7 +158,7 @@ class ApplicationAuthenticator extends AbstractGuardAuthenticator
      */
     public function checkCredentials($credentials, UserInterface $user)
     {
-        return $user instanceof Application;
+        return $user instanceof Touchpoint;
     }
 
     /**

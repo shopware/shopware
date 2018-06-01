@@ -411,7 +411,7 @@ class ProductRepositoryTest extends KernelTestCase
 
         $context = new Context(
             Defaults::TENANT_ID,
-            Defaults::APPLICATION,
+            Defaults::TOUCHPOINT,
             [Defaults::CATALOG],
             [$ruleA],
             Defaults::CURRENCY,

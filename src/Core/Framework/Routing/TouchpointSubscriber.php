@@ -7,7 +7,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
-class ApplicationSubscriber implements EventSubscriberInterface
+class TouchpointSubscriber implements EventSubscriberInterface
 {
     /**
      * @var RequestStack

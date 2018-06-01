@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Shipping;
 
-use Shopware\Application\Application\ApplicationDefinition;
+use Shopware\System\Touchpoint\TouchpointDefinition;
 use Shopware\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
 use Shopware\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceDefinition;
 use Shopware\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationDefinition;
@@ -92,7 +92,7 @@ class ShippingMethodDefinition extends EntityDefinition
             new LongTextField('calculation_sql', 'calculationSql'),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            (new OneToManyAssociationField('applications', ApplicationDefinition::class, 'shipping_method_id', false, 'id'))->setFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('touchpoints', TouchpointDefinition::class, 'shipping_method_id', false, 'id'))->setFlags(new RestrictDelete()),
             (new TranslatedField(new LongTextField('description', 'description')))->setFlags(new SearchRanking(self::LOW_SEARCH_RAKING)),
             (new TranslatedField(new StringField('comment', 'comment')))->setFlags(new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
             (new OneToManyAssociationField('orderDeliveries', OrderDeliveryDefinition::class, 'shipping_method_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),

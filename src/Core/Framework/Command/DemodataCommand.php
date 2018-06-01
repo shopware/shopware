@@ -256,7 +256,7 @@ class DemodataCommand extends ContainerAwareCommand
                 'password' => $password,
                 'defaultPaymentMethodId' => '47160b00-cd06-4b01-8817-6451f9f3c247',
                 'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-                'applicationId' => Defaults::APPLICATION,
+                'touchpointId' => Defaults::TOUCHPOINT,
                 'defaultBillingAddressId' => $addressId,
                 'defaultShippingAddressId' => $addressId,
                 'addresses' => [
@@ -306,7 +306,7 @@ class DemodataCommand extends ContainerAwareCommand
             'password' => password_hash('shopware', PASSWORD_BCRYPT, ['cost' => 13]),
             'defaultPaymentMethodId' => '47160b00cd064b0188176451f9f3c247',
             'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-            'applicationId' => Defaults::APPLICATION,
+            'touchpointId' => Defaults::TOUCHPOINT,
             'defaultBillingAddressId' => $billingAddressId,
             'defaultShippingAddressId' => $shippingAddressId,
             'addresses' => [

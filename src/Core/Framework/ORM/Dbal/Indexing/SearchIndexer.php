@@ -103,7 +103,7 @@ class SearchIndexer implements IndexerInterface
         foreach ($languages as $language) {
             $context = new Context(
                 $tenantId,
-                Defaults::APPLICATION,
+                Defaults::TOUCHPOINT,
                 $catalogIds->getIds(),
                 [],
                 Defaults::CURRENCY,
@@ -162,7 +162,7 @@ class SearchIndexer implements IndexerInterface
         $this->eventDispatcher->dispatch(
             ProgressStartedEvent::NAME,
             new ProgressStartedEvent(
-                sprintf('Start analyzing search keywords for application %s', $context->getApplicationId()),
+                sprintf('Start analyzing search keywords for application %s', $context->getTouchpointId()),
                 $iterator->fetchCount()
             )
         );
@@ -193,7 +193,7 @@ class SearchIndexer implements IndexerInterface
 
         $this->eventDispatcher->dispatch(
             ProgressFinishedEvent::NAME,
-            new ProgressFinishedEvent(sprintf('Finished analyzing search keywords for application id %s', $context->getApplicationId()))
+            new ProgressFinishedEvent(sprintf('Finished analyzing search keywords for application id %s', $context->getTouchpointId()))
         );
     }
 

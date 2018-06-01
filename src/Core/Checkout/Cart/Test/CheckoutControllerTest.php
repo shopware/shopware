@@ -327,7 +327,7 @@ class CheckoutControllerTest extends ApiTestCase
 
         $this->customerRepository->create([
             [
-                'applicationId' => Defaults::APPLICATION,
+                'touchpointId' => Defaults::TOUCHPOINT,
                 'defaultShippingAddress' => [
                     'id' => $addressId,
                     'firstName' => 'not',

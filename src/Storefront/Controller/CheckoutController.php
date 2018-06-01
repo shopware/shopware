@@ -123,7 +123,7 @@ class CheckoutController extends StorefrontController
         $this->denyAccessUnlessLoggedIn();
 
         return $this->renderStorefront('@Storefront/frontend/checkout/shipping_payment.html.twig', [
-            'paymentMethods' => $this->paymentMethodLoader->load($request, $context->getApplicationContext()),
+            'paymentMethods' => $this->paymentMethodLoader->load($request, $context->getContext()),
         ]);
     }
 
@@ -191,7 +191,7 @@ class CheckoutController extends StorefrontController
     {
         $this->denyAccessUnlessLoggedIn();
 
-        $applicationContext = $context->getApplicationContext();
+        $applicationContext = $context->getContext();
         $transaction = $request->get('transaction');
 
         // check if customer is inside transaction loop
@@ -232,16 +232,16 @@ class CheckoutController extends StorefrontController
 
         $paymentToken = $this->tokenFactory->validateToken(
             $request->get('_sw_payment_token'),
-            $context->getApplicationContext()
+            $context->getContext()
         );
 
         $this->tokenFactory->invalidateToken(
             $paymentToken->getToken(),
-            $context->getApplicationContext()
+            $context->getContext()
         );
 
-        $paymentHandler = $this->getPaymentHandlerById($paymentToken->getPaymentMethodId(), $context->getApplicationContext());
-        $paymentHandler->finalize($paymentToken->getTransactionId(), $request, $context->getApplicationContext());
+        $paymentHandler = $this->getPaymentHandlerById($paymentToken->getPaymentMethodId(), $context->getContext());
+        $paymentHandler->finalize($paymentToken->getTransactionId(), $request, $context->getContext());
 
         return $this->redirectToRoute('checkout_pay', ['transaction' => $paymentToken->getTransactionId()]);
     }
@@ -272,7 +272,7 @@ class CheckoutController extends StorefrontController
         $criteria->addFilter(new TermQuery('order.customer.id', $context->getCustomer()->getId()));
         $criteria->addFilter(new TermQuery('order.id', $orderId));
 
-        $searchResult = $this->orderRepository->search($criteria, $context->getApplicationContext());
+        $searchResult = $this->orderRepository->search($criteria, $context->getContext());
 
         if ($searchResult->count() !== 1) {
             throw new \Exception(sprintf('Unable to find order with id: %s', $orderId));
@@ -290,7 +290,7 @@ class CheckoutController extends StorefrontController
         $criteria->addFilter(new TermQuery('order.customer.id', $context->getCustomer()->getId()));
         $criteria->addFilter(new TermQuery('order.transactions.id', $transactionId));
 
-        $searchResult = $this->orderRepository->searchIds($criteria, $context->getApplicationContext());
+        $searchResult = $this->orderRepository->searchIds($criteria, $context->getContext());
 
         if ($searchResult->getTotal() !== 1) {
             throw new InvalidTransactionException($transactionId);

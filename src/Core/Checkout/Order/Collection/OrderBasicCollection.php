@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Order\Collection;
 
-use Shopware\Application\Application\Collection\ApplicationBasicCollection;
+use Shopware\System\Touchpoint\Collection\TouchpointBasicCollection;
 use Shopware\Checkout\Customer\Collection\CustomerBasicCollection;
 use Shopware\Checkout\Order\Aggregate\OrderAddress\Collection\OrderAddressBasicCollection;
 use Shopware\Checkout\Order\Aggregate\OrderState\Collection\OrderStateBasicCollection;
@@ -84,17 +84,17 @@ class OrderBasicCollection extends EntityCollection
         });
     }
 
-    public function getApplicationIds(): array
+    public function getTouchpointIs(): array
     {
         return $this->fmap(function (OrderBasicStruct $order) {
-            return $order->getApplicationId();
+            return $order->getTouchpointId();
         });
     }
 
-    public function filterByApplicationId(string $id): self
+    public function filterByTouchpointId(string $id): self
     {
         return $this->filter(function (OrderBasicStruct $order) use ($id) {
-            return $order->getApplicationId() === $id;
+            return $order->getTouchpointId() === $id;
         });
     }
 
@@ -148,11 +148,11 @@ class OrderBasicCollection extends EntityCollection
         );
     }
 
-    public function getApplications(): ApplicationBasicCollection
+    public function getTouchpoints(): TouchpointBasicCollection
     {
-        return new ApplicationBasicCollection(
+        return new TouchpointBasicCollection(
             $this->fmap(function (OrderBasicStruct $order) {
-                return $order->getApplication();
+                return $order->getTouchpoint();
             })
         );
     }

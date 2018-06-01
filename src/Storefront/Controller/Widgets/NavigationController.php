@@ -53,7 +53,7 @@ class NavigationController extends StorefrontController
 
         $navigationId = $this->getNavigationId($request);
 
-        $navigation = $this->get(NavigationService::class)->load($navigationId, $context->getApplicationContext());
+        $navigation = $this->get(NavigationService::class)->load($navigationId, $context->getContext());
 
         return $this->render('@Storefront/widgets/navigation/navigation.html.twig', [
             'navigation' => $navigation,
@@ -78,7 +78,7 @@ class NavigationController extends StorefrontController
 
         $navigationId = $this->getNavigationId($request);
 
-        $navigation = $this->get(NavigationService::class)->load($navigationId, $context->getApplicationContext());
+        $navigation = $this->get(NavigationService::class)->load($navigationId, $context->getContext());
 
         return $this->render('@Storefront/widgets/navigation/sidebar.html.twig', [
             'navigation' => $navigation,

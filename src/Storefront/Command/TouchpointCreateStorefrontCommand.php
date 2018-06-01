@@ -3,7 +3,7 @@
 namespace Shopware\Storefront\Command;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Application\Application\ApplicationRepository;
+use Shopware\System\Touchpoint\TouchpointRepository;
 use Shopware\Framework\Context;
 use Shopware\Defaults;
 use Shopware\Framework\ORM\Write\FieldException\WriteStackException;
@@ -18,29 +18,29 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Validator\ConstraintViolation;
 
-class ApplicationCreateStorefrontCommand extends ContainerAwareCommand
+class TouchpointCreateStorefrontCommand extends ContainerAwareCommand
 {
     /**
      * @var
      */
-    private $applicationRepository;
+    private $touchpointRepository;
 
     /**
      * @var Connection
      */
     private $connection;
 
-    public function __construct(ApplicationRepository $applicationRepository, Connection $connection)
+    public function __construct(TouchpointRepository $touchpointRepository, Connection $connection)
     {
         parent::__construct();
 
-        $this->applicationRepository = $applicationRepository;
+        $this->touchpointRepository = $touchpointRepository;
         $this->connection = $connection;
     }
 
     protected function configure()
     {
-        $this->setName('application:create:storefront')
+        $this->setName('touchpoint:create:storefront')
             ->addArgument('storefront_url', InputArgument::REQUIRED, 'URL to public folder of the application')
             ->addOption('tenant-id', 't', InputOption::VALUE_REQUIRED, 'Tenant id')
             ->addOption('name', null, InputOption::VALUE_REQUIRED, 'Name for the application', 'Storefront application')
@@ -95,9 +95,9 @@ class ApplicationCreateStorefrontCommand extends ContainerAwareCommand
         $idBin = Uuid::fromHexToBytes($id);
 
         try {
-            $this->applicationRepository->create([$data], Context::createDefaultContext($tenantId));
+            $this->touchpointRepository->create([$data], Context::createDefaultContext($tenantId));
 
-            $io->success('Application has been created successfully.');
+            $io->success('Touchpoint has been created successfully.');
 
             $io->note('Copy snippets to new application');
 
@@ -106,7 +106,7 @@ class ApplicationCreateStorefrontCommand extends ContainerAwareCommand
             $io->progressStart(count($snippets));
 
             foreach ($snippets as $snippet) {
-                $snippet['application_id'] = $idBin;
+                $snippet['touchpoint_id'] = $idBin;
                 $snippet['id'] = Uuid::uuid4()->getBytes();
                 $this->connection->insert('snippet', $snippet);
                 $io->progressAdvance();

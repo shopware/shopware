@@ -29,7 +29,7 @@ use Shopware\System\Touchpoint\TouchpointRepository;
 use Shopware\System\Touchpoint\Struct\TouchpointBasicStruct;
 use Shopware\Framework\Context;
 use Shopware\Checkout\CustomerContext;
-use Shopware\Application\Language\LanguageRepository;
+use Shopware\System\Language\LanguageRepository;
 use Shopware\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Checkout\Cart\Tax\TaxDetector;
 use Shopware\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository;
@@ -107,7 +107,7 @@ class CustomerContextFactory implements CustomerContextFactoryInterface
     private $countryStateRepository;
 
     /**
-     * @var \Shopware\Application\Language\LanguageRepository
+     * @var \Shopware\System\Language\LanguageRepository
      */
     private $languageRepository;
 

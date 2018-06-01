@@ -2,7 +2,7 @@
 
 namespace Shopware\Content\Category\Aggregate\CategoryTranslation;
 
-use Shopware\Application\Language\LanguageDefinition;
+use Shopware\System\Language\LanguageDefinition;
 use Shopware\Content\Category\Aggregate\CategoryTranslation\Collection\CategoryTranslationBasicCollection;
 use Shopware\Content\Category\Aggregate\CategoryTranslation\Collection\CategoryTranslationDetailCollection;
 use Shopware\Content\Category\Aggregate\CategoryTranslation\Event\CategoryTranslationDeletedEvent;

@@ -108,7 +108,7 @@
             <argument type="service" id="Shopware\Checkout\Shipping\ShippingMethodRepository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\System\Country\Aggregate\CountryState\CountryStateRepository.v1"/>
-            <argument type="service" id="Shopware\Application\Language\LanguageRepository"/>
+            <argument type="service" id="Shopware\System\Language\LanguageRepository"/>
             <argument type="service" id="Shopware\Checkout\Cart\Tax\TaxDetector"/>
         </service>
 

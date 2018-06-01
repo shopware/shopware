@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Collection;
 
-use Shopware\Application\Language\Collection\LanguageBasicCollection;
+use Shopware\System\Language\Collection\LanguageBasicCollection;
 use Shopware\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Struct\ShippingMethodTranslationDetailStruct;
 use Shopware\Checkout\Shipping\Collection\ShippingMethodBasicCollection;
 

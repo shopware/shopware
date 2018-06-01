@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Configuration\Aggregate\ConfigurationGroupTranslation\Collection;
 
-use Shopware\Application\Language\Collection\LanguageBasicCollection;
+use Shopware\System\Language\Collection\LanguageBasicCollection;
 use Shopware\System\Configuration\Aggregate\ConfigurationGroupTranslation\Struct\ConfigurationGroupTranslationDetailStruct;
 use Shopware\System\Configuration\Collection\ConfigurationGroupBasicCollection;
 

@@ -2,7 +2,7 @@
 
 namespace Shopware\Content\Media\Aggregate\MediaAlbumTranslation;
 
-use Shopware\Application\Language\LanguageDefinition;
+use Shopware\System\Language\LanguageDefinition;
 use Shopware\Content\Media\Aggregate\MediaAlbum\MediaAlbumDefinition;
 use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Collection\MediaAlbumTranslationBasicCollection;
 use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Collection\MediaAlbumTranslationDetailCollection;

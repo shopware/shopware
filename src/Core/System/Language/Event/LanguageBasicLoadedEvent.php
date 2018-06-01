@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Application\Language\Event;
+namespace Shopware\System\Language\Event;
 
 use Shopware\Framework\Context;
-use Shopware\Application\Language\Collection\LanguageBasicCollection;
+use Shopware\System\Language\Collection\LanguageBasicCollection;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 use Shopware\System\Locale\Event\LocaleBasicLoadedEvent;

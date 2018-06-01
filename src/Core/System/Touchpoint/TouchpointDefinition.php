@@ -8,7 +8,7 @@ use Shopware\System\Touchpoint\Event\TouchpointDeletedEvent;
 use Shopware\System\Touchpoint\Event\TouchpointWrittenEvent;
 use Shopware\System\Touchpoint\Struct\TouchpointBasicStruct;
 use Shopware\System\Touchpoint\Struct\TouchpointDetailStruct;
-use Shopware\Application\Language\LanguageDefinition;
+use Shopware\System\Language\LanguageDefinition;
 use Shopware\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Framework\ORM\EntityDefinition;

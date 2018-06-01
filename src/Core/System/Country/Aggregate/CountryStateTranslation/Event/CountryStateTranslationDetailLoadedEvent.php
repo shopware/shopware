@@ -3,7 +3,7 @@
 namespace Shopware\System\Country\Aggregate\CountryStateTranslation\Event;
 
 use Shopware\Framework\Context;
-use Shopware\Application\Language\Event\LanguageBasicLoadedEvent;
+use Shopware\System\Language\Event\LanguageBasicLoadedEvent;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Framework\Event\NestedEventCollection;
 use Shopware\System\Country\Aggregate\CountryState\Event\CountryStateBasicLoadedEvent;

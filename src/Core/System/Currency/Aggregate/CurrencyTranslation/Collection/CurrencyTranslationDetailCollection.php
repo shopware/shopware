@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Currency\Aggregate\CurrencyTranslation\Collection;
 
-use Shopware\Application\Language\Collection\LanguageBasicCollection;
+use Shopware\System\Language\Collection\LanguageBasicCollection;
 use Shopware\System\Currency\Aggregate\CurrencyTranslation\Struct\CurrencyTranslationDetailStruct;
 use Shopware\System\Currency\Collection\CurrencyBasicCollection;
 

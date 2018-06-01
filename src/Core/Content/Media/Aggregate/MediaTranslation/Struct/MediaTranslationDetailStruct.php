@@ -2,7 +2,7 @@
 
 namespace Shopware\Content\Media\Aggregate\MediaTranslation\Struct;
 
-use Shopware\Application\Language\Struct\LanguageBasicStruct;
+use Shopware\System\Language\Struct\LanguageBasicStruct;
 use Shopware\Content\Media\Struct\MediaBasicStruct;
 
 class MediaTranslationDetailStruct extends MediaTranslationBasicStruct

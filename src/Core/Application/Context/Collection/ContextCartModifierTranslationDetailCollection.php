@@ -3,7 +3,7 @@
 namespace Shopware\Application\Context\Collection;
 
 use Shopware\Application\Context\Struct\ContextCartModifierTranslationDetailStruct;
-use Shopware\Application\Language\Collection\LanguageBasicCollection;
+use Shopware\System\Language\Collection\LanguageBasicCollection;
 
 class ContextCartModifierTranslationDetailCollection extends ContextCartModifierTranslationBasicCollection
 {

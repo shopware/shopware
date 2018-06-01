@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Application\Language;
+namespace Shopware\System\Language;
 
-use Shopware\Application\Language\Collection\LanguageBasicCollection;
-use Shopware\Application\Language\Collection\LanguageDetailCollection;
-use Shopware\Application\Language\Event\LanguageDeletedEvent;
-use Shopware\Application\Language\Event\LanguageWrittenEvent;
-use Shopware\Application\Language\Struct\LanguageBasicStruct;
-use Shopware\Application\Language\Struct\LanguageDetailStruct;
+use Shopware\System\Language\Collection\LanguageBasicCollection;
+use Shopware\System\Language\Collection\LanguageDetailCollection;
+use Shopware\System\Language\Event\LanguageDeletedEvent;
+use Shopware\System\Language\Event\LanguageWrittenEvent;
+use Shopware\System\Language\Struct\LanguageBasicStruct;
+use Shopware\System\Language\Struct\LanguageDetailStruct;
 use Shopware\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationDefinition;
 use Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationDefinition;
 use Shopware\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationDefinition;

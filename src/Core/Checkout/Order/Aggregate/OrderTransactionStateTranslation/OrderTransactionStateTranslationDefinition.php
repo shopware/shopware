@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Order\Aggregate\OrderTransactionStateTranslation;
 
-use Shopware\Application\Language\LanguageDefinition;
+use Shopware\System\Language\LanguageDefinition;
 use Shopware\Checkout\Order\Aggregate\OrderTransactionState\OrderTransactionStateDefinition;
 use Shopware\Checkout\Order\Aggregate\OrderTransactionStateTranslation\Collection\OrderTransactionStateTranslationBasicCollection;
 use Shopware\Checkout\Order\Aggregate\OrderTransactionStateTranslation\Event\OrderTransactionStateTranslationDeletedEvent;

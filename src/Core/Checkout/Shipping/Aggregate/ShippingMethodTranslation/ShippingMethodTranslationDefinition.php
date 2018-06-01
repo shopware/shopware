@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Shipping\Aggregate\ShippingMethodTranslation;
 
-use Shopware\Application\Language\LanguageDefinition;
+use Shopware\System\Language\LanguageDefinition;
 use Shopware\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Collection\ShippingMethodTranslationBasicCollection;
 use Shopware\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Collection\ShippingMethodTranslationDetailCollection;
 use Shopware\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Event\ShippingMethodTranslationDeletedEvent;

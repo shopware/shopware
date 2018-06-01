@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Order\Aggregate\OrderStateTranslation;
 
-use Shopware\Application\Language\LanguageDefinition;
+use Shopware\System\Language\LanguageDefinition;
 use Shopware\Checkout\Order\Aggregate\OrderState\OrderStateDefinition;
 use Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Collection\OrderStateTranslationBasicCollection;
 use Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Collection\OrderStateTranslationDetailCollection;

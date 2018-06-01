@@ -51,11 +51,11 @@ class PaymentMethodTranslationDefinition extends EntityDefinition
         self::$fields = new FieldCollection([
             (new FkField('payment_method_id', 'paymentMethodId', PaymentMethodDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new ReferenceVersionField(PaymentMethodDefinition::class))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('language_id', 'languageId', \Shopware\Application\Language\LanguageDefinition::class))->setFlags(new PrimaryKey(), new Required()),
+            (new FkField('language_id', 'languageId', \Shopware\System\Language\LanguageDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new StringField('name', 'name'))->setFlags(new Required()),
             (new LongTextField('additional_description', 'additionalDescription'))->setFlags(new Required()),
             new ManyToOneAssociationField('paymentMethod', 'payment_method_id', PaymentMethodDefinition::class, false),
-            new ManyToOneAssociationField('language', 'language_id', \Shopware\Application\Language\LanguageDefinition::class, false),
+            new ManyToOneAssociationField('language', 'language_id', \Shopware\System\Language\LanguageDefinition::class, false),
         ]);
 
         foreach (self::$extensions as $extension) {

@@ -3,7 +3,7 @@
 namespace Shopware\Checkout\Customer\Aggregate\CustomerGroupTranslation\Event;
 
 use Shopware\Framework\Context;
-use Shopware\Application\Language\Event\LanguageBasicLoadedEvent;
+use Shopware\System\Language\Event\LanguageBasicLoadedEvent;
 use Shopware\Checkout\Customer\Aggregate\CustomerGroup\Event\CustomerGroupBasicLoadedEvent;
 use Shopware\Checkout\Customer\Aggregate\CustomerGroupTranslation\Collection\CustomerGroupTranslationDetailCollection;
 use Shopware\Framework\Event\NestedEvent;

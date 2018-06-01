@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Country\Aggregate\CountryTranslation\Collection;
 
-use Shopware\Application\Language\Collection\LanguageBasicCollection;
+use Shopware\System\Language\Collection\LanguageBasicCollection;
 use Shopware\System\Country\Aggregate\CountryTranslation\Struct\CountryTranslationDetailStruct;
 use Shopware\System\Country\Collection\CountryBasicCollection;
 

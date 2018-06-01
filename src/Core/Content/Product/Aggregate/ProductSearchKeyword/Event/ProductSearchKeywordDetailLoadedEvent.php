@@ -3,7 +3,7 @@
 namespace Shopware\Content\Product\Aggregate\ProductSearchKeyword\Event;
 
 use Shopware\Framework\Context;
-use Shopware\Application\Language\Event\LanguageBasicLoadedEvent;
+use Shopware\System\Language\Event\LanguageBasicLoadedEvent;
 use Shopware\Content\Product\Aggregate\ProductSearchKeyword\Collection\ProductSearchKeywordDetailCollection;
 use Shopware\Content\Product\Event\ProductBasicLoadedEvent;
 use Shopware\Framework\Event\NestedEvent;

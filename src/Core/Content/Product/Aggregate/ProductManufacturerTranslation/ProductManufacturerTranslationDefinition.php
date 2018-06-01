@@ -2,7 +2,7 @@
 
 namespace Shopware\Content\Product\Aggregate\ProductManufacturerTranslation;
 
-use Shopware\Application\Language\LanguageDefinition;
+use Shopware\System\Language\LanguageDefinition;
 use Shopware\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Content\Product\Aggregate\ProductManufacturerTranslation\Collection\ProductManufacturerTranslationBasicCollection;
 use Shopware\Content\Product\Aggregate\ProductManufacturerTranslation\Collection\ProductManufacturerTranslationDetailCollection;

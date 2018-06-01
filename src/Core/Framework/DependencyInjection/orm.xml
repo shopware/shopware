@@ -288,7 +288,7 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Framework\ORM\Dbal\Indexing\Analyzer\SearchAnalyzerRegistry"/>
             <argument type="service" id="Shopware\Framework\ORM\Dbal\Common\IndexTableOperator"/>
-            <argument type="service" id="Shopware\Application\Language\LanguageRepository"/>
+            <argument type="service" id="Shopware\System\Language\LanguageRepository"/>
             <argument type="service" id="Shopware\Content\Catalog\CatalogRepository"/>
             <tag name="shopware.dbal_indexing.indexer" priority="200"/>
         </service>

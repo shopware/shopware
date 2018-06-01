@@ -4,7 +4,7 @@ namespace Shopware\Framework\Test\ORM\Write;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Framework\Context;
-use Shopware\Application\Language\LanguageRepository;
+use Shopware\System\Language\LanguageRepository;
 use Shopware\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Content\Product\ProductDefinition;
 use Shopware\Defaults;

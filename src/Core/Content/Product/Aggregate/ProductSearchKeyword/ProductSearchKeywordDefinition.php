@@ -2,7 +2,7 @@
 
 namespace Shopware\Content\Product\Aggregate\ProductSearchKeyword;
 
-use Shopware\Application\Language\LanguageDefinition;
+use Shopware\System\Language\LanguageDefinition;
 use Shopware\Content\Product\Aggregate\ProductSearchKeyword\Collection\ProductSearchKeywordBasicCollection;
 use Shopware\Content\Product\Aggregate\ProductSearchKeyword\Collection\ProductSearchKeywordDetailCollection;
 use Shopware\Content\Product\Aggregate\ProductSearchKeyword\Event\ProductSearchKeywordDeletedEvent;

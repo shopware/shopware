@@ -26,7 +26,7 @@ namespace Shopware\Checkout;
 
 use Shopware\System\Touchpoint\Struct\TouchpointBasicStruct;
 use Shopware\Application\Context\Exception\ContextRulesLockedException;
-use Shopware\Application\Language\Struct\LanguageBasicStruct;
+use Shopware\System\Language\Struct\LanguageBasicStruct;
 use Shopware\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Checkout\Customer\Aggregate\CustomerGroup\Struct\CustomerGroupBasicStruct;

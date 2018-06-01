@@ -2,7 +2,7 @@
 
 namespace Shopware\Content\Media\Aggregate\MediaTranslation;
 
-use Shopware\Application\Language\LanguageDefinition;
+use Shopware\System\Language\LanguageDefinition;
 use Shopware\Content\Media\Aggregate\MediaTranslation\Collection\MediaTranslationBasicCollection;
 use Shopware\Content\Media\Aggregate\MediaTranslation\Collection\MediaTranslationDetailCollection;
 use Shopware\Content\Media\Aggregate\MediaTranslation\Event\MediaTranslationDeletedEvent;

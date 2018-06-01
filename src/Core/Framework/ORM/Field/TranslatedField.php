@@ -24,7 +24,7 @@
 
 namespace Shopware\Framework\ORM\Field;
 
-use Shopware\Application\Language\LanguageDefinition;
+use Shopware\System\Language\LanguageDefinition;
 use Shopware\Framework\ORM\Write\DataStack\KeyValuePair;
 use Shopware\Framework\ORM\Write\EntityExistence;
 use Shopware\Framework\ORM\Write\FieldAware\StorageAware;

@@ -27,7 +27,7 @@ namespace Shopware\Checkout\Test\Cart\Common;
 use PHPUnit\Framework\TestCase;
 use Shopware\System\Touchpoint\Struct\TouchpointBasicStruct;
 use Shopware\Checkout\CustomerContext;
-use Shopware\Application\Language\Struct\LanguageBasicStruct;
+use Shopware\System\Language\Struct\LanguageBasicStruct;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Checkout\Cart\Cart\Struct\Cart;
 use Shopware\Checkout\Cart\Delivery\DeliveryCalculator;

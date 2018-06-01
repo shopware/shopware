@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Listing\Aggregate\ListingFacetTranslation\Struct;
 
-use Shopware\Application\Language\Struct\LanguageBasicStruct;
+use Shopware\System\Language\Struct\LanguageBasicStruct;
 use Shopware\System\Listing\Struct\ListingFacetBasicStruct;
 
 class ListingFacetTranslationDetailStruct extends ListingFacetTranslationBasicStruct

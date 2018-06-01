@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Application\Language\Collection;
+namespace Shopware\System\Language\Collection;
 
-use Shopware\Application\Language\Struct\LanguageBasicStruct;
+use Shopware\System\Language\Struct\LanguageBasicStruct;
 use Shopware\Framework\ORM\EntityCollection;
 use Shopware\System\Locale\Collection\LocaleBasicCollection;
 

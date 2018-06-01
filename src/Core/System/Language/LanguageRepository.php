@@ -1,16 +1,16 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Application\Language;
+namespace Shopware\System\Language;
 
 use Shopware\Framework\Context;
-use Shopware\Application\Language\Collection\LanguageBasicCollection;
-use Shopware\Application\Language\Collection\LanguageDetailCollection;
-use Shopware\Application\Language\Event\LanguageAggregationResultLoadedEvent;
-use Shopware\Application\Language\Event\LanguageBasicLoadedEvent;
-use Shopware\Application\Language\Event\LanguageDetailLoadedEvent;
-use Shopware\Application\Language\Event\LanguageIdSearchResultLoadedEvent;
-use Shopware\Application\Language\Event\LanguageSearchResultLoadedEvent;
-use Shopware\Application\Language\Struct\LanguageSearchResult;
+use Shopware\System\Language\Collection\LanguageBasicCollection;
+use Shopware\System\Language\Collection\LanguageDetailCollection;
+use Shopware\System\Language\Event\LanguageAggregationResultLoadedEvent;
+use Shopware\System\Language\Event\LanguageBasicLoadedEvent;
+use Shopware\System\Language\Event\LanguageDetailLoadedEvent;
+use Shopware\System\Language\Event\LanguageIdSearchResultLoadedEvent;
+use Shopware\System\Language\Event\LanguageSearchResultLoadedEvent;
+use Shopware\System\Language\Struct\LanguageSearchResult;
 use Shopware\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Framework\ORM\RepositoryInterface;
 use Shopware\Framework\ORM\Search\AggregatorResult;

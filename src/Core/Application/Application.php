@@ -40,6 +40,6 @@ class Application extends Bundle
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
         $loader->load('context.xml');
-        $loader->load('language.xml');
+
     }
 }

@@ -3,7 +3,7 @@
 namespace Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Event;
 
 use Shopware\Framework\Context;
-use Shopware\Application\Language\Event\LanguageBasicLoadedEvent;
+use Shopware\System\Language\Event\LanguageBasicLoadedEvent;
 use Shopware\Content\Media\Aggregate\MediaAlbum\Event\MediaAlbumBasicLoadedEvent;
 use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Collection\MediaAlbumTranslationDetailCollection;
 use Shopware\Framework\Event\NestedEvent;

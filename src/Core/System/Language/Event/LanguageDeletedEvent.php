@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Application\Language\Event;
+namespace Shopware\System\Language\Event;
 
-use Shopware\Application\Language\LanguageDefinition;
+use Shopware\System\Language\LanguageDefinition;
 use Shopware\Framework\ORM\Write\DeletedEvent;
 use Shopware\Framework\ORM\Write\WrittenEvent;
 

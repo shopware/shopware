@@ -4,7 +4,7 @@ namespace Shopware\Framework\ORM\Dbal\Indexing;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Framework\Context;
-use Shopware\Application\Language\LanguageRepository;
+use Shopware\System\Language\LanguageRepository;
 use Shopware\Content\Catalog\CatalogRepository;
 use Shopware\Content\Product\ProductDefinition;
 use Shopware\Content\Product\ProductRepository;

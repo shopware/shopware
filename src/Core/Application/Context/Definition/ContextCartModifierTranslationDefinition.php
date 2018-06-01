@@ -9,7 +9,7 @@ use Shopware\Application\Context\Event\ContextCartModifierTranslation\ContextCar
 use Shopware\Application\Context\Repository\ContextCartModifierTranslationRepository;
 use Shopware\Application\Context\Struct\ContextCartModifierTranslationBasicStruct;
 use Shopware\Application\Context\Struct\ContextCartModifierTranslationDetailStruct;
-use Shopware\Application\Language\LanguageDefinition;
+use Shopware\System\Language\LanguageDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\FkField;

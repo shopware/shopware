@@ -25,7 +25,7 @@
 namespace Shopware\Framework\ORM\Write;
 
 use Shopware\Framework\Context;
-use Shopware\Application\Language\LanguageDefinition;
+use Shopware\System\Language\LanguageDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
 

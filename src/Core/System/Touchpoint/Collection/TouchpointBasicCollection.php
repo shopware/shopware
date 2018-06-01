@@ -3,7 +3,7 @@
 namespace Shopware\System\Touchpoint\Collection;
 
 use Shopware\System\Touchpoint\Struct\TouchpointBasicStruct;
-use Shopware\Application\Language\Collection\LanguageBasicCollection;
+use Shopware\System\Language\Collection\LanguageBasicCollection;
 use Shopware\Framework\ORM\EntityCollection;
 use Shopware\System\Currency\Collection\CurrencyBasicCollection;
 

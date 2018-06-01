@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Touchpoint\Struct;
 
-use Shopware\Application\Language\Struct\LanguageBasicStruct;
+use Shopware\System\Language\Struct\LanguageBasicStruct;
 use Shopware\Framework\ORM\Entity;
 use Shopware\System\Currency\Struct\CurrencyBasicStruct;
 

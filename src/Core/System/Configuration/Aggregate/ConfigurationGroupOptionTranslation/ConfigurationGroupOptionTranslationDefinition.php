@@ -2,7 +2,7 @@
 
 namespace Shopware\System\Configuration\Aggregate\ConfigurationGroupOptionTranslation;
 
-use Shopware\Application\Language\LanguageDefinition;
+use Shopware\System\Language\LanguageDefinition;
 use Shopware\Framework\ORM\EntityDefinition;
 use Shopware\Framework\ORM\EntityExtensionInterface;
 use Shopware\Framework\ORM\Field\FkField;
@@ -54,7 +54,7 @@ class ConfigurationGroupOptionTranslationDefinition extends EntityDefinition
             (new FkField('language_id', 'languageId', LanguageDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new StringField('name', 'name'))->setFlags(new Required()),
             new ManyToOneAssociationField('configurationGroupOption', 'configuration_group_option_id', ConfigurationGroupOptionDefinition::class, false),
-            new ManyToOneAssociationField('language', 'language_id', \Shopware\Application\Language\LanguageDefinition::class, false),
+            new ManyToOneAssociationField('language', 'language_id', \Shopware\System\Language\LanguageDefinition::class, false),
         ]);
 
         foreach (self::$extensions as $extension) {

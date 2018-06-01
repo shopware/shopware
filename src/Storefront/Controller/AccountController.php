@@ -24,9 +24,6 @@ use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\Security\Http\Util\TargetPathTrait;
 
-/**
- * @Route(service="Shopware\Storefront\Controller\AccountController")
- */
 class AccountController extends StorefrontController
 {
     use TargetPathTrait;

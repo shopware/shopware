@@ -10,9 +10,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @Route(service="Shopware\Administration\Controller\AdministrationController", path="/")
- */
 class AdministrationController extends Controller
 {
     /**

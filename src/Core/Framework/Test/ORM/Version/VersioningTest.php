@@ -40,11 +40,11 @@ class VersioningTest extends KernelTestCase
 
     public function setUp()
     {
-        $kernel = static::bootKernel();
+        static::bootKernel();
 
-        $this->taxRepository = $kernel->getContainer()->get(TaxRepository::class);
-        $this->productRepository = $kernel->getContainer()->get(ProductRepository::class);
-        $this->connection = $kernel->getContainer()->get(Connection::class);
+        $this->taxRepository = self::$container->get(TaxRepository::class);
+        $this->productRepository = self::$container->get(ProductRepository::class);
+        $this->connection = self::$container->get(Connection::class);
         $this->connection->beginTransaction();
         $this->connection->executeUpdate('DELETE FROM product');
         $this->connection->executeUpdate('DELETE FROM tax');
@@ -804,7 +804,7 @@ class VersioningTest extends KernelTestCase
             $override
         );
 
-        self::$kernel->getContainer()->get(CategoryRepository::class)->create([$payload], $context);
+        self::$container->get(CategoryRepository::class)->create([$payload], $context);
 
         return $payload['id'];
     }

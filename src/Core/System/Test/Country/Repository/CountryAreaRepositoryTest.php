@@ -23,11 +23,6 @@ class CountryAreaRepositoryTest extends KernelTestCase
     private $connection;
 
     /**
-     * @var ContainerInterface
-     */
-    private $container;
-
-    /**
      * @var RepositoryInterface
      */
     private $repository;
@@ -35,9 +30,8 @@ class CountryAreaRepositoryTest extends KernelTestCase
     public function setUp()
     {
         self::bootKernel();
-        $this->container = self::$kernel->getContainer();
-        $this->repository = $this->container->get(CountryAreaRepository::class);
-        $this->connection = $this->container->get(Connection::class);
+        $this->repository = self::$container->get(CountryAreaRepository::class);
+        $this->connection = self::$container->get(Connection::class);
         $this->connection->beginTransaction();
     }
 
@@ -61,8 +55,8 @@ class CountryAreaRepositoryTest extends KernelTestCase
 
         $criteria = new Criteria();
 
-        $builder = $this->container->get(EntityScoreQueryBuilder::class);
-        $pattern = $this->container->get(SearchTermInterpreter::class)->interpret('match', ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
+        $builder = self::$container->get(EntityScoreQueryBuilder::class);
+        $pattern = self::$container->get(SearchTermInterpreter::class)->interpret('match', ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
         $queries = $builder->buildScoreQueries($pattern, CountryAreaDefinition::class, CountryAreaDefinition::getEntityName());
         $criteria->addQueries($queries);
 

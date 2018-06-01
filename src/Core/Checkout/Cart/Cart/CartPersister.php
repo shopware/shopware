@@ -63,7 +63,7 @@ class CartPersister implements CartPersisterInterface
             throw new CartTokenNotFoundException($token);
         }
 
-        return $this->serializer->deserialize((string) $content, null, 'json');
+        return $this->serializer->deserialize((string) $content, '', 'json');
     }
 
     public function loadCalculated(string $token, string $name, StorefrontContext $context): CalculatedCart
@@ -77,7 +77,7 @@ class CartPersister implements CartPersisterInterface
             throw new CartTokenNotFoundException($token);
         }
 
-        return $this->serializer->deserialize((string) $content, null, 'json');
+        return $this->serializer->deserialize((string) $content, '', 'json');
     }
 
     public function save(CalculatedCart $cart, StorefrontContext $context): void

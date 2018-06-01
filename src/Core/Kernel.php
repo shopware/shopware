@@ -3,14 +3,12 @@
 namespace Shopware;
 
 use Shopware\Framework\Api\Controller\ApiController;
-use Shopware\Framework\DependencyInjection\CompilerPass\TestingCompilerPass;
 use Shopware\Framework\Doctrine\DatabaseConnector;
 use Shopware\Framework\Framework;
 use Shopware\Framework\Plugin\Plugin;
 use Shopware\Framework\Plugin\PluginCollection;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\Loader\LoaderInterface;
-use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpKernel\Kernel as HttpKernel;
@@ -179,15 +177,6 @@ class Kernel extends HttpKernel
             . 'ProjectContainer';
     }
 
-    protected function build(ContainerBuilder $container)
-    {
-        parent::build($container);
-
-        if ($this->getEnvironment() === 'test') {
-            $container->addCompilerPass(new TestingCompilerPass(), PassConfig::TYPE_OPTIMIZE);
-        }
-    }
-
     protected function initializePlugins(): void
     {
         $stmt = self::$connection->query(
@@ -256,7 +245,7 @@ class Kernel extends HttpKernel
         // list routes
         $route = new Route('/api/v{version}/{path}');
         $route->setMethods(['GET']);
-        $route->setDefault('_controller', $class . ':list');
+        $route->setDefault('_controller', $class . '::list');
         $route->addRequirements(['path' => '.*', 'version' => '\d+']);
         $routes->addRoute($route, 'api_controller.list');
 

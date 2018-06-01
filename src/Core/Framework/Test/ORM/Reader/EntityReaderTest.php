@@ -17,11 +17,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class EntityReaderTest extends KernelTestCase
 {
     /**
-     * @var ContainerInterface
-     */
-    private $container;
-
-    /**
      * @var Connection
      */
     private $connection;
@@ -35,13 +30,12 @@ class EntityReaderTest extends KernelTestCase
     {
         self::bootKernel();
         parent::setUp();
-        $this->container = self::$kernel->getContainer();
 
-        $this->connection = $this->container->get(Connection::class);
+        $this->connection = self::$container->get(Connection::class);
         $this->connection->beginTransaction();
         $this->connection->executeUpdate('DELETE FROM product');
 
-        $this->repository = $this->container->get(ProductRepository::class);
+        $this->repository = self::$container->get(ProductRepository::class);
     }
 
     protected function tearDown()
@@ -108,7 +102,7 @@ class EntityReaderTest extends KernelTestCase
     {
         $ruleA = Uuid::uuid4()->getHex();
 
-        $this->container->get(ContextRuleRepository::class)->create([
+        self::$container->get(ContextRuleRepository::class)->create([
             [
                 'id' => $ruleA,
                 'name' => 'test',

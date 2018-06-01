@@ -25,11 +25,10 @@ class KeywordSearchTermInterpreterTest extends KernelTestCase
     public function setUp()
     {
         self::bootKernel();
-        $container = self::$kernel->getContainer();
 
-        $this->connection = $container->get(Connection::class);
+        $this->connection = self::$container->get(Connection::class);
+        $this->interpreter = self::$container->get(KeywordSearchTermInterpreter::class);
         $this->connection->beginTransaction();
-        $this->interpreter = $container->get(KeywordSearchTermInterpreter::class);
         $this->connection->executeUpdate('DELETE FROM search_keyword');
 
         $this->setupKeywords();

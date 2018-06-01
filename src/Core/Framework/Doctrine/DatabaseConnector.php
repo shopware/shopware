@@ -2,13 +2,15 @@
 
 namespace Shopware\Framework\Doctrine;
 
+use PDO;
+
 class DatabaseConnector
 {
     public static function createPdoConnection()
     {
         $url = parse_url(getenv('DATABASE_URL'));
         $dsn = sprintf(
-            '%s:dbname=%s;host=%s;port=%d',
+            '%s:dbname=%s;host=%s;port=%d;charset=utf8mb4',
             $url['scheme'],
             ltrim($url['path'], '/'),
             $url['host'],
@@ -20,15 +22,15 @@ class DatabaseConnector
             $pass = $url['pass'];
         }
 
+        $options = [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        ];
+
         try {
-            $conn = new \PDO($dsn, $url['user'], $pass);
-            $conn->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-            $conn->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
-            $conn->exec('SET NAMES utf8mb4');
+            return new PDO($dsn, $url['user'], $pass, $options);
         } catch (\PDOException $e) {
             throw new \RuntimeException('Could not connect to database.' . $e->getMessage(), $e->getCode());
         }
-
-        return $conn;
     }
 }

@@ -36,9 +36,6 @@ use Shopware\Storefront\Page\Search\SearchPageLoader;
 use Shopware\Storefront\Page\Search\SearchPageRequest;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
-/**
- * @Route(service="Shopware\Storefront\Controller\Widgets\ListingController", path="/")
- */
 class ListingController extends StorefrontController
 {
     /**

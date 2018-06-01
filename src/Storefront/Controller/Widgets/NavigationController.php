@@ -33,9 +33,6 @@ use Shopware\Storefront\Navigation\NavigationService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @Route(service="Shopware\Storefront\Controller\Widgets\NavigationController", path="/")
- */
 class NavigationController extends StorefrontController
 {
     /**

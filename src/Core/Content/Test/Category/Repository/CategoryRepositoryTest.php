@@ -26,11 +26,6 @@ class CategoryRepositoryTest extends KernelTestCase
     private $connection;
 
     /**
-     * @var ContainerInterface
-     */
-    private $container;
-
-    /**
      * @var RepositoryInterface
      */
     private $repository;
@@ -38,9 +33,8 @@ class CategoryRepositoryTest extends KernelTestCase
     public function setUp()
     {
         self::bootKernel();
-        $this->container = self::$kernel->getContainer();
-        $this->repository = $this->container->get(CategoryRepository::class);
-        $this->connection = $this->container->get(Connection::class);
+        $this->repository = self::$container->get(CategoryRepository::class);
+        $this->connection = self::$container->get(Connection::class);
         $this->connection->beginTransaction();
     }
 
@@ -210,9 +204,9 @@ class CategoryRepositoryTest extends KernelTestCase
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('category.parentId', $parent));
 
-        $builder = $this->container->get(EntityScoreQueryBuilder::class);
+        $builder = self::$container->get(EntityScoreQueryBuilder::class);
 
-        $pattern = $this->container->get(SearchTermInterpreter::class)->interpret('match', ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
+        $pattern = self::$container->get(SearchTermInterpreter::class)->interpret('match', ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
         $queries = $builder->buildScoreQueries($pattern, CategoryDefinition::class, 'category');
         $criteria->addQueries($queries);
 

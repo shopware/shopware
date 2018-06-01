@@ -3,7 +3,6 @@
 namespace Shopware\Checkout\Test\Payment;
 
 use Doctrine\DBAL\Connection;
-use Psr\Container\ContainerInterface;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
@@ -27,11 +26,6 @@ class TokenFactoryTest extends KernelTestCase
      * @var PaymentTransactionTokenFactory
      */
     protected $tokenFactory;
-
-    /**
-     * @var ContainerInterface
-     */
-    protected $container;
 
     /**
      * @var ApplicationContext
@@ -61,15 +55,14 @@ class TokenFactoryTest extends KernelTestCase
     public function setUp()
     {
         self::bootKernel();
-        $this->container = self::$kernel->getContainer();
 
-        $this->tokenFactory = $this->container->get(PaymentTransactionTokenFactory::class);
+        $this->tokenFactory = self::$container->get(PaymentTransactionTokenFactory::class);
         $this->applicationContext = ApplicationContext:: createDefaultContext(\Shopware\Defaults::TENANT_ID);
-        $this->connection = $this->container->get(Connection::class);
+        $this->connection = self::$container->get(Connection::class);
 
-        $this->orderRepository = $this->container->get(OrderRepository::class);
-        $this->customerRepository = $this->container->get(CustomerRepository::class);
-        $this->orderTransactionRepository = $this->container->get(OrderTransactionRepository::class);
+        $this->orderRepository = self::$container->get(OrderRepository::class);
+        $this->customerRepository = self::$container->get(CustomerRepository::class);
+        $this->orderTransactionRepository = self::$container->get(OrderTransactionRepository::class);
     }
 
     /**

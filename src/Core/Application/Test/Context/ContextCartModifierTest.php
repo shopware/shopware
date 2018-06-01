@@ -59,12 +59,15 @@ class ContextCartModifierTest extends KernelTestCase
 
     public function setUp()
     {
+        parent::setUp();
+
         self::bootKernel();
-        self::$contextCartModifierRepository = self::$kernel->getContainer()->get(ContextCartModifierRepository::class);
-        self::$contextRuleRepository = self::$kernel->getContainer()->get(ContextRuleRepository::class);
-        self::$productRepository = self::$kernel->getContainer()->get(ProductRepository::class);
+
+        self::$contextCartModifierRepository = self::$container->get(ContextCartModifierRepository::class);
+        self::$contextRuleRepository = self::$container->get(ContextRuleRepository::class);
+        self::$productRepository = self::$container->get(ProductRepository::class);
         self::$context = ApplicationContext::createDefaultContext(Defaults::TENANT_ID);
-        self::$calculation = self::$kernel->getContainer()->get(CircularCartCalculation::class);
+        self::$calculation = self::$container->get(CircularCartCalculation::class);
     }
 
     public function testAbsoluteSurchargeMatch()

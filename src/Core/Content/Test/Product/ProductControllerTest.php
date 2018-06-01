@@ -18,7 +18,7 @@ class ProductControllerTest extends ApiTestCase
     {
         parent::setUp();
 
-        $this->productRepository = self::$kernel->getContainer()->get(ProductRepository::class);
+        $this->productRepository = self::$container->get(ProductRepository::class);
     }
 
     public function testProductList()

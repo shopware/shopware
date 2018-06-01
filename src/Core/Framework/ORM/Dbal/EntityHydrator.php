@@ -27,7 +27,6 @@ use Shopware\Framework\ORM\Field\ReferenceVersionField;
 use Shopware\Framework\ORM\Field\StringField;
 use Shopware\Framework\ORM\Field\TranslatedField;
 use Shopware\Framework\ORM\Field\VersionField;
-use Shopware\Framework\ORM\FieldCollection;
 use Shopware\Framework\ORM\Write\Flag\Extension;
 use Shopware\Framework\ORM\Write\Flag\Inherited;
 use Shopware\Framework\ORM\Write\Flag\Serialized;
@@ -76,6 +75,7 @@ class EntityHydrator
                 return true;
             }
         }
+
         return false;
     }
 
@@ -92,7 +92,6 @@ class EntityHydrator
             $objectCacheKey = $definition::getEntityName() . '::' . bin2hex($row[$idProperty]);
 
             if (array_key_exists($objectCacheKey, $this->objects)) {
-
                 return $this->objects[$objectCacheKey];
             }
         }
@@ -198,7 +197,6 @@ class EntityHydrator
         }
 
         if ($definition::getParentPropertyName()) {
-
             $associations = $definition::getFields()->getElements();
             /** @var Field $association */
             foreach ($associations as $association) {

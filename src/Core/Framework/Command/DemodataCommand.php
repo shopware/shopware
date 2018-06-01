@@ -200,7 +200,7 @@ class DemodataCommand extends ContainerAwareCommand
                 'id' => Uuid::uuid4()->getHex(),
                 'catalogId' => Defaults::CATALOG,
                 'name' => $this->randomDepartment(),
-                'position' => $i
+                'position' => $i,
             ];
         }
 
@@ -212,7 +212,7 @@ class DemodataCommand extends ContainerAwareCommand
                     'catalogId' => Defaults::CATALOG,
                     'name' => $this->randomDepartment(),
                     'parentId' => $category['id'],
-                    'position' => $x
+                    'position' => $x,
                 ];
             }
         }

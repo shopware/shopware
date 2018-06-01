@@ -82,7 +82,7 @@ class ManyToManyAssociationFieldResolver implements FieldResolverInterface
         $versionJoinCondition = '';
         /* @var string|EntityDefinition $definition */
         if ($reference::isVersionAware()) {
-            $versionField = '`'. $reference::getEntityName() . '_version_id`';
+            $versionField = '`' . $reference::getEntityName() . '_version_id`';
             $versionJoinCondition = ' AND #alias#.`version_id` = #mapping#.' . $versionField;
         }
 

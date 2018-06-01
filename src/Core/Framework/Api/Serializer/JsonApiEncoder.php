@@ -17,10 +17,8 @@ use Shopware\Framework\ORM\Write\Flag\WriteOnly;
 use Shopware\Framework\Serializer\StructDecoder;
 use Symfony\Component\Serializer\Encoder\EncoderInterface;
 use Symfony\Component\Serializer\Exception\BadMethodCallException;
-use Symfony\Component\Serializer\Exception\NotEncodableValueException;
 use Symfony\Component\Serializer\Exception\RuntimeException;
 use Symfony\Component\Serializer\Exception\UnexpectedValueException;
-use Symfony\Component\Serializer\Exception\UnsupportedException;
 
 class JsonApiEncoder implements EncoderInterface
 {
@@ -257,23 +255,6 @@ class JsonApiEncoder implements EncoderInterface
     }
 
     /**
-     * @param EntityDefinition|string $definition
-     * @param string                  $fieldName
-     *
-     * @return bool
-     */
-    private function isToManyAssociation(string $definition, string $fieldName): bool
-    {
-        $field = $definition::getFields()->get($fieldName);
-
-        if (!$field) {
-            return false;
-        }
-
-        return $field instanceof ManyToManyAssociationField || $field instanceof OneToManyAssociationField;
-    }
-
-    /**
      * @param array $data
      *
      * @throws \RuntimeException
@@ -362,7 +343,6 @@ class JsonApiEncoder implements EncoderInterface
 
         if (!$field->is(Extension::class)) {
             throw new MissingValueException($name);
-
         }
         if (!array_key_exists('extensions', $data)) {
             throw new RuntimeException(sprintf('Expected data container to contain key "extensions". It is required for field "%s".', $name));

@@ -37,7 +37,7 @@ class TranslationsAssociationField extends SubresourceField implements Associati
         $value = $data->getValue();
         if ($value === null) {
             $value = [
-                $this->writeContext->getApplicationContext()->getLanguageId() => []
+                $this->writeContext->getApplicationContext()->getLanguageId() => [],
             ];
             $data = new KeyValuePair($data->getKey(), $value, $data->isRaw());
         }

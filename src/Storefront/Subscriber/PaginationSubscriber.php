@@ -6,8 +6,8 @@ use Shopware\Core\Content\Product\Struct\ProductSearchResult;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Storefront\Event\ListingEvents;
 use Shopware\Storefront\Event\ListingPageLoadedEvent;
+use Shopware\Storefront\Event\ListingPageRequestEvent;
 use Shopware\Storefront\Event\PageCriteriaCreatedEvent;
-use Shopware\Storefront\Event\TransformListingPageRequestEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class PaginationSubscriber implements EventSubscriberInterface
@@ -19,13 +19,13 @@ class PaginationSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            ListingEvents::PAGE_CRITERIA_CREATED_EVENT => 'buildCriteria',
-            ListingEvents::LISTING_PAGE_LOADED_EVENT => 'buildPage',
-            ListingEvents::TRANSFORM_LISTING_PAGE_REQUEST => 'transformRequest',
+            ListingEvents::CRITERIA_CREATED => 'buildCriteria',
+            ListingEvents::LOADED => 'buildPage',
+            ListingEvents::REQUEST => 'transformRequest',
         ];
     }
 
-    public function transformRequest(TransformListingPageRequestEvent $event)
+    public function transformRequest(ListingPageRequestEvent $event)
     {
         $page = $event->getRequest()->query->getInt(self::PAGE_PARAMETER);
         if ($page <= 0) {

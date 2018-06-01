@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Storefront\Page\Listing\ListingPageRequest;
 use Symfony\Component\HttpFoundation\Request;
 
-class TransformListingPageRequestEvent extends NestedEvent
+class ListingPageRequestEvent extends NestedEvent
 {
     public const NAME = 'transform.listing.page.request.event';
 

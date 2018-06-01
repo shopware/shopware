@@ -1,16 +1,16 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Page\Search;
+namespace Shopware\Storefront\Page\Account;
 
-use Shopware\Core\PlatformRequest;
-use Shopware\Storefront\Event\ListingPageRequestEvent;
+use Shopware\PlatformRequest;
+use Shopware\Storefront\Event\ProfileSaveRequestEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Controller\ArgumentValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 
-class SearchPageRequestResolver implements ArgumentValueResolverInterface
+class ProfileSaveRequestResolver implements ArgumentValueResolverInterface
 {
     /**
      * @var EventDispatcherInterface
@@ -28,14 +28,14 @@ class SearchPageRequestResolver implements ArgumentValueResolverInterface
         $this->requestStack = $requestStack;
     }
 
-    public function supports(Request $request, ArgumentMetadata $argument)
+    public function supports(Request $request, ArgumentMetadata $argument): bool
     {
-        return $argument->getType() === SearchPageRequest::class;
+        return $argument->getType() === ProfileSaveRequest::class;
     }
 
     public function resolve(Request $request, ArgumentMetadata $argument)
     {
-        $pageRequest = new SearchPageRequest();
+        $pageRequest = new ProfileSaveRequest();
 
         $context = $this->requestStack
             ->getMasterRequest()
@@ -43,10 +43,10 @@ class SearchPageRequestResolver implements ArgumentValueResolverInterface
             ->get(PlatformRequest::ATTRIBUTE_STOREFRONT_CONTEXT_OBJECT);
 
         $event = $this->eventDispatcher->dispatch(
-            ListingPageRequestEvent::NAME,
-            new ListingPageRequestEvent($request, $context, $pageRequest)
+            ProfileSaveRequestEvent::NAME,
+            new ProfileSaveRequestEvent($request, $context, $pageRequest)
         );
 
-        yield $event->getListingPageRequest();
+        yield $event->getProfileSaveRequest();
     }
 }

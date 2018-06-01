@@ -9,8 +9,8 @@ use Shopware\Core\Framework\ORM\Search\Query\TermsQuery;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Storefront\Event\ListingEvents;
 use Shopware\Storefront\Event\ListingPageLoadedEvent;
+use Shopware\Storefront\Event\ListingPageRequestEvent;
 use Shopware\Storefront\Event\PageCriteriaCreatedEvent;
-use Shopware\Storefront\Event\TransformListingPageRequestEvent;
 use Shopware\Storefront\Page\Listing\AggregationView\ListAggregation;
 use Shopware\Storefront\Page\Listing\AggregationView\ListItem;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
@@ -30,13 +30,13 @@ class DatasheetAggregationSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            ListingEvents::PAGE_CRITERIA_CREATED_EVENT => 'buildCriteria',
-            ListingEvents::LISTING_PAGE_LOADED_EVENT => 'buildPage',
-            ListingEvents::TRANSFORM_LISTING_PAGE_REQUEST => 'transformRequest',
+            ListingEvents::CRITERIA_CREATED => 'buildCriteria',
+            ListingEvents::LOADED => 'buildPage',
+            ListingEvents::REQUEST => 'transformRequest',
         ];
     }
 
-    public function transformRequest(TransformListingPageRequestEvent $event): void
+    public function transformRequest(ListingPageRequestEvent $event): void
     {
         $listingRequest = $event->getListingPageRequest();
 

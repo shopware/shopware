@@ -1,0 +1,26 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Storefront\Subscriber;
+
+use Shopware\Storefront\Event\ProfileSaveRequestEvent;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+
+class ProfileSaveSubscriber implements EventSubscriberInterface
+{
+    public const PREFIX = 'profile';
+
+    public static function getSubscribedEvents()
+    {
+        return [
+            ProfileSaveRequestEvent::NAME => 'transformRequest',
+        ];
+    }
+
+    public function transformRequest(ProfileSaveRequestEvent $event)
+    {
+        $request = $event->getRequest();
+        $transformed = $event->getProfileSaveRequest();
+
+        $transformed->assign($request->request->get(self::PREFIX));
+    }
+}

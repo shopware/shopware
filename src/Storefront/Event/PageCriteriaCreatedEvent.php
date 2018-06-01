@@ -10,7 +10,7 @@ use Shopware\Storefront\Page\Listing\ListingPageRequest;
 
 class PageCriteriaCreatedEvent extends NestedEvent
 {
-    public const NAME = 'page.criteria.created.event';
+    public const NAME = 'page.criteria.created';
 
     /**
      * @var Criteria

@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Page\Account;
 
 use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Application\Context\Util\StorefrontContextPersister;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
 use Shopware\Core\Checkout\Customer\CustomerRepository;
@@ -10,10 +11,14 @@ use Shopware\Core\Checkout\Customer\Struct\CustomerBasicStruct;
 use Shopware\Core\Checkout\Order\Exception\NotLoggedInCustomerException;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Framework\Routing\Firewall\CustomerUser;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Storefront\Exception\AddressNotFoundHttpException;
 use Shopware\Storefront\Exception\CustomerNotFoundException;
 use Shopware\Core\System\Country\CountryRepository;
+use Symfony\Component\Security\Core\Authentication\AuthenticationManagerInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 
 class AccountService
@@ -33,14 +38,35 @@ class AccountService
      */
     private $customerRepository;
 
+    /**
+     * @var AuthenticationManagerInterface
+     */
+    private $authenticationManager;
+
+    /**
+     * @var TokenStorageInterface
+     */
+    private $tokenStorage;
+
+    /**
+     * @var StorefrontContextPersister
+     */
+    private $contextPersister;
+
     public function __construct(
         CountryRepository $countryRepository,
         CustomerAddressRepository $customerAddressRepository,
-        CustomerRepository $customerRepository
+        CustomerRepository $customerRepository,
+        AuthenticationManagerInterface $authenticationManager,
+        TokenStorageInterface $tokenStorage,
+        StorefrontContextPersister $contextPersister
     ) {
         $this->countryRepository = $countryRepository;
         $this->customerAddressRepository = $customerAddressRepository;
         $this->customerRepository = $customerRepository;
+        $this->authenticationManager = $authenticationManager;
+        $this->tokenStorage = $tokenStorage;
+        $this->contextPersister = $contextPersister;
     }
 
     public function getCustomerByLogin(string $email, string $password, CheckoutContext $context): CustomerBasicStruct
@@ -74,37 +100,53 @@ class AccountService
         return $context->getCustomer();
     }
 
-    public function changeProfile(array $data, CheckoutContext $context)
+    public function saveProfile(ProfileSaveRequest $profileSaveRequest, CheckoutContext $context)
     {
         $data = [
             'id' => $context->getCustomer()->getId(),
-            'firstName' => $data['firstname'],
-            'lastName' => $data['lastname'],
-            'title' => $data['title'] ?? null,
-            'salutation' => $data['salutation'] ?? null,
-            'birthday' => array_key_exists('birthday', $data) ? $this->formatBirthday($data['birthday']) : null,
+            'firstName' => $profileSaveRequest->getFirstName(),
+            'lastName' => $profileSaveRequest->getLastName(),
+            'title' => $profileSaveRequest->getTitle(),
+            'salutation' => $profileSaveRequest->getSalutation(),
+            'birthday' => $profileSaveRequest->getBirthday(),
         ];
 
+        foreach ($profileSaveRequest->getExtensions() as $key => $value) {
+            $data[$key] = $value;
+        }
         $data = array_filter($data);
+
         $this->customerRepository->update([$data], $context->getContext());
     }
 
-    public function changePassword(string $password, CheckoutContext $context)
+    public function changePassword(PasswordSaveRequest $passwordSaveRequest, CheckoutContext $context)
     {
         $data = [
             'id' => $context->getCustomer()->getId(),
-            'password' => password_hash($password, PASSWORD_BCRYPT, ['cost' => 13]),
+            'password' => password_hash($passwordSaveRequest->getPassword(), PASSWORD_BCRYPT, ['cost' => 13]),
             'encoder' => 'bcrypt',
         ];
+
+        foreach ($passwordSaveRequest->getExtensions() as $key => $value) {
+            $data[$key] = $value;
+        }
+        $data = array_filter($data);
+
         $this->customerRepository->update([$data], $context->getContext());
     }
 
-    public function changeEmail(string $email, CheckoutContext $context)
+    public function changeEmail(EmailSaveRequest $emailSaveRequest, CheckoutContext $context)
     {
         $data = [
             'id' => $context->getCustomer()->getId(),
-            'email' => $email,
+            'email' => $emailSaveRequest->getEmail(),
         ];
+
+        foreach ($emailSaveRequest->getExtensions() as $key => $value) {
+            $data[$key] = $value;
+        }
+        $data = array_filter($data);
+
         $this->customerRepository->update([$data], $context->getContext());
     }
 
@@ -144,38 +186,46 @@ class AccountService
     /**
      * @throws \Shopware\Core\Checkout\Order\Exception\NotLoggedInCustomerException
      */
-    public function saveAddress(array $formData, CheckoutContext $context): string
+    public function saveAddress(AddressSaveRequest $addressSaveRequest, CheckoutContext $context): string
     {
         $this->validateCustomer($context);
-        if (!array_key_exists('addressId', $formData)) {
-            $id = Uuid::optimize(Uuid::uuid4()->toString());
+
+        if (!$addressSaveRequest->getId()) {
+            $addressSaveRequest->setId(Uuid::uuid4()->getHex());
         } else {
-            $id = $this->validateAddressId($formData['addressId'], $context)->getId();
+            $this->validateAddressId($addressSaveRequest->getId(), $context)->getId();
         }
 
         $data = [
-            'id' => $id,
+            'id' => $addressSaveRequest->getId(),
             'customerId' => $context->getCustomer()->getId(),
-            'salutation' => $formData['salutation'],
-            'firstName' => $formData['firstname'],
-            'lastName' => $formData['lastname'],
-            'street' => $formData['street'],
-            'city' => $formData['city'],
-            'zipcode' => $formData['zipcode'],
-            'countryId' => $formData['country'],
-            'countryStateId' => $formData['state'] ?? null,
-            'company' => $formData['company'] ?? null,
-            'department' => $formData['department'] ?? null,
-            'title' => $formData['title'] ?? null,
-            'vatId' => $formData['vatId'] ?? null,
-            'additionalAddressLine1' => $formData['additionalAddressLine1'] ?? null,
-            'additionalAddressLine2' => $formData['additionalAddressLine2'] ?? null,
+            'salutation' => $addressSaveRequest->getSalutation(),
+            'firstName' => $addressSaveRequest->getFirstName(),
+            'lastName' => $addressSaveRequest->getLastName(),
+            'street' => $addressSaveRequest->getStreet(),
+            'city' => $addressSaveRequest->getCity(),
+            'zipcode' => $addressSaveRequest->getZipcode(),
+            'countryId' => $addressSaveRequest->getCountryId(),
+            'countryStateId' => $addressSaveRequest->getCountryStateId(),
+            'company' => $addressSaveRequest->getCompany(),
+            'department' => $addressSaveRequest->getDepartment(),
+            'title' => $addressSaveRequest->getTitle(),
+            'vatId' => $addressSaveRequest->getVatId(),
+            'additionalAddressLine1' => $addressSaveRequest->getAdditionalAddressLine1(),
+            'additionalAddressLine2' => $addressSaveRequest->getAdditionalAddressLine2(),
         ];
+
+        /* TODO pretty dangerous since extensions could not only overwrite all properties above
+        *  but also could write all sub entities.
+        */
+        foreach ($addressSaveRequest->getExtensions() as $key => $value) {
+            $data[$key] = $value;
+        }
         $data = array_filter($data);
 
         $this->customerAddressRepository->upsert([$data], $context->getContext());
 
-        return $id;
+        return $addressSaveRequest->getId();
     }
 
     /**
@@ -218,52 +268,45 @@ class AccountService
         $this->customerRepository->update([$data], $context->getContext());
     }
 
-    public function createNewCustomer(array $formData, CheckoutContext $context): string
+    public function createNewCustomer(RegistrationRequest $registrationRequest, CheckoutContext $context): string
     {
-        $customerId = Uuid::uuid4()->toString();
-        $billingAddressId = Uuid::uuid4()->toString();
-
-        $personal = $formData['personal'];
-        $billing = $formData['billing'];
-        $shipping = $formData['shipping'];
+        $customerId = Uuid::uuid4()->getHex();
+        $billingAddressId = Uuid::uuid4()->getHex();
 
         $addresses = [];
 
         $addresses[] = array_filter([
             'id' => $billingAddressId,
             'customerId' => $customerId,
-
-            'countryId' => $billing['country'],
-            'salutation' => $billing['salutation'] ?? $personal['salutation'],
-            'firstName' => $billing['firstname'] ?? $personal['firstname'],
-            'lastName' => $billing['lastname'] ?? $personal['lastname'],
-            'street' => $billing['street'],
-            'zipcode' => $billing['zipcode'],
-            'city' => $billing['city'],
-            'phoneNumber' => $billing['phone'] ?? null,
-            'vatId' => $billing['vatId'] ?? null,
-            'additionalAddressLine1' => $billing['additionalAddressLine1'] ?? null,
-            'additionalAddressLine2' => $billing['additionalAddressLine2'] ?? null,
-            'countryStateId' => $billing['country_state'] ?? null,
+            'countryId' => $registrationRequest->getBillingCountry(),
+            'salutation' => $registrationRequest->getSalutation(),
+            'firstName' => $registrationRequest->getFirstName(),
+            'lastName' => $registrationRequest->getLastName(),
+            'street' => $registrationRequest->getBillingStreet(),
+            'zipcode' => $registrationRequest->getBillingZipcode(),
+            'city' => $registrationRequest->getBillingCity(),
+            'phoneNumber' => $registrationRequest->getBillingPhone(),
+            'vatId' => $registrationRequest->getBillingVatId(),
+            'additionalAddressLine1' => $registrationRequest->getBillingAdditionalAddressLine1(),
+            'additionalAddressLine2' => $registrationRequest->getBillingAdditionalAddressLine2(),
+            'countryStateId' => $registrationRequest->getBillingCountryState(),
         ]);
 
-        if ($shipping) {
-            $shippingAddressId = Uuid::uuid4()->toString();
+        if ($registrationRequest->hasDifferentShippingAddress()) {
+            $shippingAddressId = Uuid::uuid4()->getHex();
             $addresses[] = array_filter([
                 'id' => $shippingAddressId,
                 'customerId' => $customerId,
-                'countryId' => $shipping['country'],
-                'salutation' => $shipping['salutation'] ?? $personal['salutation'],
-                'firstName' => $shipping['firstname'] ?? $personal['firstname'],
-                'lastName' => $shipping['lastname'] ?? $personal['lastname'],
-                'street' => $shipping['street'],
-                'zipcode' => $shipping['zipcode'],
-                'city' => $shipping['city'],
-                'phoneNumber' => $shipping['phone'] ?? null,
-                'vatId' => $shipping['vatId'] ?? null,
-                'additionalAddressLine1' => $shipping['additionalAddressLine1'] ?? null,
-                'additionalAddressLine2' => $shipping['additionalAddressLine2'] ?? null,
-                'countryStateId' => $shipping['country_state'] ?? null,
+                'countryId' => $registrationRequest->getShippingCountry(),
+                'salutation' => $registrationRequest->getShippingSalutation(),
+                'firstName' => $registrationRequest->getShippingFirstName(),
+                'lastName' => $registrationRequest->getShippingLastName(),
+                'street' => $registrationRequest->getShippingStreet(),
+                'zipcode' => $registrationRequest->getShippingZipcode(),
+                'city' => $registrationRequest->getShippingCity(),
+                'additionalAddressLine1' => $registrationRequest->getShippingAdditionalAddressLine1(),
+                'additionalAddressLine2' => $registrationRequest->getShippingAdditionalAddressLine2(),
+                'countryStateId' => $registrationRequest->getShippingCountryState(),
             ]);
         }
 
@@ -273,24 +316,20 @@ class AccountService
             'touchpointId' => $context->getTouchpoint()->getId(),
             'customerGroupId' => $context->getCurrentCustomerGroup()->getId(),
             'defaultPaymentMethodId' => $context->getPaymentMethod()->getId(),
-            'groupId' => $context->getCurrentCustomerGroup()->getId(),
+            'applicationId' => $context->getApplication()->getId(),
             'number' => '123',
-            'salutation' => $personal['salutation'],
-            'firstName' => $personal['firstname'],
-            'lastName' => $personal['lastname'],
-            'password' => password_hash($personal['password'], PASSWORD_BCRYPT, ['cost' => 13]),
-            'email' => $personal['email'],
-            'title' => $personal['title'] ?? null,
+            'salutation' => $registrationRequest->getSalutation(),
+            'firstName' => $registrationRequest->getFirstName(),
+            'lastName' => $registrationRequest->getLastName(),
+            'password' => password_hash($registrationRequest->getPassword(), PASSWORD_BCRYPT, ['cost' => 13]),
+            'email' => $registrationRequest->getEmail(),
+            'title' => $registrationRequest->getTitle(),
             'encoder' => 'bcrypt',
             'active' => true,
             'defaultBillingAddressId' => $billingAddressId,
             'defaultShippingAddressId' => $shippingAddressId ?? $billingAddressId,
             'addresses' => $addresses,
-            'birthday' => sprintf('%s-%s-%s',
-                    (int) $personal['birthday']['year'],
-                    (int) $personal['birthday']['month'],
-                    (int) $personal['birthday']['day']
-                ) ?? null,
+            'birthday' => $registrationRequest->getBirthday(),
         ];
 
         $data = array_filter($data);
@@ -323,21 +362,5 @@ class AccountService
         }
 
         return $address;
-    }
-
-    private function formatBirthday(array $data): ?string
-    {
-        if (!array_key_exists('year', $data) or
-            !array_key_exists('month', $data) or
-            !array_key_exists('day', $data)) {
-            return null;
-        }
-
-        return sprintf(
-            '%s-%s-%s',
-            (int) $data['year'],
-            (int) $data['month'],
-            (int) $data['day']
-        );
     }
 }

@@ -5,6 +5,7 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
+        <defaults autowire="true" />
         <service class="Shopware\Storefront\Twig\TemplateDataExtension" id="Shopware\Storefront\Twig\TemplateDataExtension">
             <tag name="twig.extension" />
 
@@ -89,6 +90,9 @@
             <argument id="Shopware\Core\System\Country\CountryRepository" type="service"/>
             <argument id="Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository" type="service"/>
             <argument id="Shopware\Core\Checkout\Customer\CustomerRepository" type="service"/>
+            <argument type="service" id="security.authentication.manager"/>
+            <argument type="service" id="security.token_storage"/>
+            <argument type="service" id="Shopware\Application\Context\Util\StorefrontContextPersister"/>
         </service>
 
         <service class="Shopware\Storefront\Controller\AccountController" public="true" id="Shopware\Storefront\Controller\AccountController">
@@ -148,6 +152,31 @@
             <argument id="Shopware\Storefront\Page\Search\SearchPageLoader" type="service"/>
         </service>
 
+        <!-- Event subscriber -->
+        <service class="Shopware\Storefront\Subscriber\AddressSaveSubscriber" id="Shopware\Storefront\Subscriber\AddressSaveSubscriber">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service class="Shopware\Storefront\Subscriber\EmailSaveSubscriber" id="Shopware\Storefront\Subscriber\EmailSaveSubscriber">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service class="Shopware\Storefront\Subscriber\LoginSubscriber" id="Shopware\Storefront\Subscriber\LoginSubscriber">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service class="Shopware\Storefront\Subscriber\PasswordSaveSubscriber" id="Shopware\Storefront\Subscriber\PasswordSaveSubscriber">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service class="Shopware\Storefront\Subscriber\RegistrationSubscriber" id="Shopware\Storefront\Subscriber\RegistrationSubscriber">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service class="Shopware\Storefront\Subscriber\ProfileSaveSubscriber" id="Shopware\Storefront\Subscriber\ProfileSaveSubscriber">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service class="Shopware\Storefront\Controller\Widgets\ListingController" id="Shopware\Storefront\Controller\Widgets\ListingController" public="true">
             <argument id="Shopware\Core\Content\Product\Storefront\StorefrontProductRepository" type="service"/>
             <argument type="service" id="Shopware\Storefront\Page\Listing\ListingPageLoader"/>
@@ -181,13 +210,57 @@
             <argument type="service" id="Shopware\Core\Content\Product\Util\KeywordSearchTermInterpreter"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Context\CheckoutContextValueResolver" id="Shopware\Core\Checkout\Context\CheckoutContextValueResolver">
+        <!--Entity field resolver -->
+        <service class="Shopware\Storefront\Api\Entity\Dbal\CanonicalUrlAssociationFieldResolver" id="shopware.storefront.api.entity.dbal.canonical_url_association_field_resolver">
+            <tag name="shopware.entity.field_resolver" priority="200"/>
+        </service>
+
+        <!-- Argument Resolver -->
+
+        <service class="Shopware\Storefront\Page\Account\AddressSaveRequestResolver" id="Shopware\Storefront\Page\Account\AddressSaveRequestResolver">
+            <argument id="event_dispatcher" type="service"/>
             <argument id="request_stack" type="service"/>
             <tag name="controller.argument_value_resolver" priority="1000"/>
         </service>
 
-        <service class="Shopware\Storefront\Api\Entity\Dbal\CanonicalUrlAssociationFieldResolver" id="shopware.storefront.api.entity.dbal.canonical_url_association_field_resolver">
-            <tag name="shopware.entity.field_resolver" priority="200"/>
+        <service class="Shopware\Storefront\Page\Listing\ListingPageRequestResolver" id="shopware.storefront.page.listing.listing_page_request_resolver">
+            <argument id="event_dispatcher" type="service"/>
+            <argument id="request_stack" type="service"/>
+            <tag name="controller.argument_value_resolver" priority="1000"/>
+        </service>
+
+        <service class="Shopware\Storefront\Routing\PageStructValueResolver" id="Shopware\Storefront\Routing\PageStructValueResolver">
+            <tag name="controller.argument_value_resolver" priority="150"/>
+        </service>
+
+        <service class="Shopware\Storefront\Page\Account\EmailSaveRequestResolver" id="Shopware\Storefront\Page\Account\EmailSaveRequestResolver">
+            <argument id="event_dispatcher" type="service"/>
+            <argument id="request_stack" type="service"/>
+            <tag name="controller.argument_value_resolver" priority="1000"/>
+        </service>
+
+        <service class="Shopware\Storefront\Page\Account\LoginRequestResolver" id="Shopware\Storefront\Page\Account\LoginRequestResolver">
+            <argument id="event_dispatcher" type="service"/>
+            <argument id="request_stack" type="service"/>
+            <tag name="controller.argument_value_resolver" priority="1000"/>
+        </service>
+
+        <service class="Shopware\Storefront\Page\Account\PasswordSaveRequestResolver" id="Shopware\Storefront\Page\Account\PasswordSaveRequestResolver">
+            <argument id="event_dispatcher" type="service"/>
+            <argument id="request_stack" type="service"/>
+            <tag name="controller.argument_value_resolver" priority="1000"/>
+        </service>
+
+        <service class="Shopware\Storefront\Page\Account\ProfileSaveRequestResolver" id="Shopware\Storefront\Page\Account\ProfileSaveRequestResolver">
+            <argument id="event_dispatcher" type="service"/>
+            <argument id="request_stack" type="service"/>
+            <tag name="controller.argument_value_resolver" priority="1000"/>
+        </service>
+
+        <service class="Shopware\Storefront\Page\Account\RegistrationRequestResolver" id="Shopware\Storefront\Page\Account\RegistrationRequestResolver">
+            <argument id="event_dispatcher" type="service"/>
+            <argument id="request_stack" type="service"/>
+            <tag name="controller.argument_value_resolver" priority="1000"/>
         </service>
 
         <service class="Shopware\Storefront\Page\Search\SearchPageRequestResolver" id="shopware.storefront.page.listing.search_page_request_resolver">
@@ -196,8 +269,7 @@
             <tag name="controller.argument_value_resolver" priority="1000"/>
         </service>
 
-        <service class="Shopware\Storefront\Page\Listing\ListingPageRequestResolver" id="shopware.storefront.page.listing.listing_page_request_resolver">
-            <argument id="event_dispatcher" type="service"/>
+        <service class="Shopware\Framework\Routing\StorefrontContextValueResolver" id="Shopware\Framework\Routing\StorefrontContextValueResolver">
             <argument id="request_stack" type="service"/>
             <tag name="controller.argument_value_resolver" priority="1000"/>
         </service>

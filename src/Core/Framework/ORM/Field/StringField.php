@@ -24,6 +24,7 @@
 
 namespace Shopware\Core\Framework\ORM\Field;
 
+use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\ORM\Write\EntityExistence;
 use Shopware\Core\Framework\ORM\Write\FieldAware\StorageAware;

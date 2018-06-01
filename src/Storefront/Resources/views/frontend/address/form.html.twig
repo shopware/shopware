@@ -18,14 +18,14 @@
                     {% if shopware.config.showCompanySelectField %}
                         {% block frontend_address_form_fieldset_customer_type_select %}
                             <div class="select-field">
-                                <select name="{{ inputPrefix }}[additional][customer_type]"
+                                <select name="{{ inputPrefix }}[customerType]"
                                         required="required"
                                         aria-required="true"
-                                        class="is--required{if $error_flags.customer_type} has--error{/if}">
-                                    <option value="private"{% if formData.additional.customer_type or formData.additional.customer_type == 'private' %} selected="selected"{% endif %}>
+                                        class="is--required{% if error_flags.customerType %} has--error{% endif %}">
+                                    <option value="private"{% if formData.additional.customer_type or formData.customerType == 'private' %} selected="selected"{% endif %}>
                                         {% trans from 'frontend/register/personal_fieldset' %}RegisterPersonalLabelPrivate{% endtrans %}
                                     </option>
-                                    <option value="business" {% if formData.company or formData.additional.customer_type == 'buisiness' %} selected="selected"{% endif %}>
+                                    <option value="business" {% if formData.company or formData.customerType == 'buisiness' %} selected="selected"{% endif %}>
                                         {% trans from 'frontend/register/personal_fieldset' %}RegisterPersonalLabelBusiness{% endtrans %}
                                     </option>
                                     {% block frontend_address_form_fieldset_customer_type_options %}{% endblock %}
@@ -35,7 +35,7 @@
                     {% else %}
                         {% block frontend_address_form_fieldset_customer_type_input %}
                             {# Always register as a private customer #}
-                            <input type="hidden" name="{{ inputPrefix }}[additional][customer_type]" value="{% if formData.company %}business{% else %}private{% endif %}" />
+                            <input type="hidden" name="{{ inputPrefix }}[customerType]" value="{% if formData.company %}business{% else %}private{% endif %}" />
                         {% endblock %}
                     {% endif %}
                 </div>
@@ -133,14 +133,14 @@
                 {% block frontend_address_form_input_firstname %}
                     <div class="address--firstname">
                         <input autocomplete="section-billing billing given-name"
-                               name="{{ inputPrefix }}[firstname]"
+                               name="{{ inputPrefix }}[firstName]"
                                type="text"
                                required="required"
                                aria-required="true"
                                placeholder="{% trans from 'frontend/register/shipping_fieldset' %}RegisterShippingPlaceholderFirstname{% endtrans %}{% trans from 'frontend/register/index' %}RequiredField{% endtrans %}"
                                id="firstname2"
-                               value="{{ formData.firstname|escape }}"
-                               class="address--field is--required{% if error_flags.firstname %} has--error{% endif %}"/>
+                               value="{{ formData.firstName|escape }}"
+                               class="address--field is--required{% if error_flags.firstName %} has--error{% endif %}"/>
                     </div>
                 {% endblock %}
 
@@ -148,14 +148,14 @@
                 {% block frontend_address_form_input_lastname %}
                     <div class="address--lastname">
                         <input autocomplete="section-billing billing family-name"
-                               name="{{ inputPrefix }}[lastname]"
+                               name="{{ inputPrefix }}[lastName]"
                                type="text"
                                required="required"
                                aria-required="true"
                                placeholder="{% trans from 'frontend/register/shipping_fieldset' %}RegisterShippingPlaceholderLastname{% endtrans %}{% trans from 'frontend/register/index' %}RequiredField{% endtrans %}"
                                id="lastname2"
-                               value="{{ formData.lastname|escape }}"
-                               class="address--field is--required{% if error_flags.lastname %} has--error{% endif %}"/>
+                               value="{{ formData.lastName|escape }}"
+                               class="address--field is--required{% if error_flags.lastName %} has--error{% endif %}"/>
                     </div>
                 {% endblock %}
 
@@ -256,7 +256,7 @@
                 {# Country #}
                 {% block frontend_address_form_input_country %}
                         <div class="address--country field--select select-field">
-                            <select name="{{ inputPrefix }}[country]"
+                            <select name="{{ inputPrefix }}[countryId]"
                                     data-address-type="address"
                                     id="country"
                                     required="required"
@@ -283,19 +283,19 @@
                     <div class="country-area-state-selection">
                         {% for country in countryList %}
                             {% block frontend_address_form_input_country_states_item %}
-                                {% set states = country.states %}
-                                {% if states.count %}
+                                {% set states = country.extensions.states %}
+                                {% if states.elements %}
                                     <div data-country-id="{{ country.id }}"
                                          data-address-type="address"
                                          class="address--state-selection field--select select-field{% if country.id != formData.country.id %} is--hidden{% endif %}">
                                         <select {% if country.id != formData.country.id %}disabled="disabled"{% endif %}
-                                                name="{{ inputPrefix }}[state]"{% if country.forceStateInRegistration %}
+                                                name="{{ inputPrefix }}[countryStateId]"{% if country.forceStateInRegistration %}
                                                 required="required"
                                                 aria-required="true"{% endif %}
                                                 class="select--state {% if country.forceStateInRegistration %}is--required{% endif %}{% if error_flags.state %} has--error{% endif %}">
-                                            <option value="" selected="selected"{% if country.forceStateInRegistration %} disabled="disabled"{% endif %}>
+                                            <option value="" selected="selected"{% if country.force_state_in_registration %} disabled="disabled"{% endif %}>
                                                 {% trans from 'frontend/register/billing_fieldset' %}RegisterBillingLabelState{% endtrans %}
-                                                {% if country.forceStateInRegistration %}
+                                                {% if country.force_state_in_registration %}
                                                     {% trans from 'frontend/register/index' %}RequiredField{% endtrans %}
                                                 {% endif %}
                                             </option>
@@ -332,7 +332,7 @@
 
                 {% block frontend_address_form_addressId %}
                     {% if formData.id %}
-                        <input type="hidden" name="{{ inputPrefix }}[addressId]" value="{{ formData.id }}" />
+                        <input type="hidden" name="{{ inputPrefix }}[id]" value="{{ formData.id }}" />
                     {% endif %}
                 {% endblock %}
 
@@ -342,7 +342,7 @@
                         <div class="address--default-shipping">
                             <input type="checkbox"
                                    id="set_default_shipping"
-                                   name="{{ inputPrefix }}[additional][setDefaultShippingAddress]"
+                                   name="{{ inputPrefix }}[isDefaultShippingAddress]"
                                    value="1" />
                             <label for="set_default_shipping">
                                 {% trans %}AddressesSetAsDefaultShippingAction{% endtrans %}
@@ -353,16 +353,16 @@
 
                 {% block frontend_address_form_input_set_default_billing %}
                     {% if not formData.id or context.customer.defaultBillingAddressId != formData.id %}
-                            <div class="address--default-billing">
-                                <input type="checkbox"
-                                       id="set_default_billing"
-                                       name="{{ inputPrefix }}[additional][setDefaultBillingAddress]"
-                                       value="1" />
-                                <label for="set_default_billing">
-                                    {% trans %}AddressesSetAsDefaultBillingAction{% endtrans %}
-                                </label>
-                            </div>
-                        {% endif %}
+                        <div class="address--default-billing">
+                            <input type="checkbox"
+                                   id="set_default_billing"
+                                   name="{{ inputPrefix }}[isDefaultBillingAddress]"
+                                   value="1" />
+                            <label for="set_default_billing">
+                                {% trans %}AddressesSetAsDefaultBillingAction{% endtrans %}
+                            </label>
+                        </div>
+                    {% endif %}
                 {% endblock %}
             {% endblock %}
         </div>

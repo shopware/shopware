@@ -187,12 +187,15 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
         if (array_key_exists(CheckoutContextService::CUSTOMER_ID, $options)) {
             //load logged in customer and set active addresses
             $customer = $this->loadCustomer($options, $context);
+        }
 
-            if ($customer) {
-                $shippingLocation = ShippingLocation::createFromAddress($customer->getActiveShippingAddress());
-                $customerGroup = $customer->getGroup();
-            }
-        } else {
+        $shippingLocation = null;
+        if ($customer) {
+            $shippingLocation = ShippingLocation::createFromAddress($customer->getActiveShippingAddress());
+            $customerGroup = $customer->getGroup();
+        }
+
+        if (!$shippingLocation) {
             //load not logged in customer with default shop configuration or with provided checkout scopes
             $shippingLocation = $this->loadShippingLocation($options, $context, $touchpoint);
         }

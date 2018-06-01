@@ -224,7 +224,7 @@ class CustomerController extends Controller
     public function changeProfile(Request $request, CheckoutContext $context): JsonResponse
     {
         $profile = $this->decodedContent($request);
-        $this->accountService->changeProfile($profile, $context);
+        $this->accountService->saveProfile($profile, $context);
         $this->storefrontContextService->refresh(
             $context->getTenantId(),
             $context->getTouchpoint()->getId(),

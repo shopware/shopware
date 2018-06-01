@@ -3,7 +3,7 @@
 namespace Shopware\Storefront\Page\Listing;
 
 use Shopware\Core\PlatformRequest;
-use Shopware\Storefront\Event\TransformListingPageRequestEvent;
+use Shopware\Storefront\Event\ListingPageRequestEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -43,8 +43,8 @@ class ListingPageRequestResolver implements ArgumentValueResolverInterface
             ->get(PlatformRequest::ATTRIBUTE_STOREFRONT_CONTEXT_OBJECT);
 
         $event = $this->eventDispatcher->dispatch(
-            TransformListingPageRequestEvent::NAME,
-            new TransformListingPageRequestEvent($request, $context, $pageRequest)
+            ListingPageRequestEvent::NAME,
+            new ListingPageRequestEvent($request, $context, $pageRequest)
         );
 
         yield $event->getListingPageRequest();

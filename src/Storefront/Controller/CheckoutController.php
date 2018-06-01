@@ -13,6 +13,7 @@ use Shopware\Checkout\Cart\StoreFrontCartService;
 use Shopware\Checkout\Order\OrderRepository;
 use Shopware\Checkout\Order\Struct\OrderBasicStruct;
 use Shopware\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerInterface;
+use Shopware\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
 use Shopware\Checkout\Payment\Cart\PaymentTransactionChainProcessor;
 use Shopware\Checkout\Payment\Cart\Token\PaymentTransactionTokenFactory;
 use Shopware\Checkout\Payment\Exception\InvalidOrderException;
@@ -66,6 +67,11 @@ class CheckoutController extends StorefrontController
     private $contextPersister;
 
     /**
+     * @var PaymentHandlerRegistry
+     */
+    private $paymentHandlerRegistry;
+
+    /**
      * @var Serializer
      */
     private $serializer;
@@ -78,7 +84,8 @@ class CheckoutController extends StorefrontController
         PaymentTransactionTokenFactory $tokenFactory,
         PaymentMethodRepository $paymentMethodRepository,
         StorefrontContextPersister $contextPersister,
-        Serializer $serializer
+        Serializer $serializer,
+        PaymentHandlerRegistry $paymentHandlerRegistry
     ) {
         $this->cartService = $cartService;
         $this->orderRepository = $orderRepository;
@@ -88,6 +95,7 @@ class CheckoutController extends StorefrontController
         $this->tokenFactory = $tokenFactory;
         $this->contextPersister = $contextPersister;
         $this->serializer = $serializer;
+        $this->paymentHandlerRegistry = $paymentHandlerRegistry;
     }
 
     /**
@@ -314,10 +322,6 @@ class CheckoutController extends StorefrontController
             throw new UnknownPaymentMethodException($paymentMethodId);
         }
 
-        try {
-            return $this->container->get($paymentMethod->getClass());
-        } catch (NotFoundExceptionInterface $e) {
-            throw new UnknownPaymentMethodException($paymentMethod->getClass());
-        }
+        return $this->paymentHandlerRegistry->get($paymentMethod->getClass());
     }
 }

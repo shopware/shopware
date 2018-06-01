@@ -2,13 +2,13 @@
 
 namespace Shopware\Checkout\Rule\Specification\Scope;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
 
 class CartRuleScope extends RuleScope
 {
     /**
-     * @var StorefrontContext
+     * @var CustomerContext
      */
     protected $context;
 
@@ -17,7 +17,7 @@ class CartRuleScope extends RuleScope
      */
     protected $calculatedCart;
 
-    public function __construct(CalculatedCart $calculatedCart, StorefrontContext $context)
+    public function __construct(CalculatedCart $calculatedCart, CustomerContext $context)
     {
         $this->context = $context;
         $this->calculatedCart = $calculatedCart;
@@ -28,7 +28,7 @@ class CartRuleScope extends RuleScope
         return $this->calculatedCart;
     }
 
-    public function getContext(): StorefrontContext
+    public function getContext(): CustomerContext
     {
         return $this->context;
     }

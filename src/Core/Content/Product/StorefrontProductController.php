@@ -4,7 +4,7 @@ namespace Shopware\Content\Product;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 use Shopware\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Framework\Api\Context\RestContext;
 use Shopware\Framework\Api\Response\ResponseFactory;
@@ -45,7 +45,7 @@ class StorefrontProductController extends Controller
     /**
      * @Route("/storefront-api/product", name="storefront.api.product.list")
      */
-    public function list(Request $request, StorefrontContext $context): Response
+    public function list(Request $request, CustomerContext $context): Response
     {
         $criteria = new Criteria();
 

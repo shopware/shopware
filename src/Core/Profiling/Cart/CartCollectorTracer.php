@@ -2,7 +2,7 @@
 
 namespace Shopware\Profiling\Cart;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 use Shopware\Checkout\Cart\Cart\CartCollectorInterface;
 use Shopware\Checkout\Cart\Cart\Struct\Cart;
 use Shopware\Framework\Struct\StructCollection;
@@ -28,7 +28,7 @@ class CartCollectorTracer implements CartCollectorInterface
     public function prepare(
         StructCollection $fetchDefinition,
         Cart $cart,
-        StorefrontContext $context
+        CustomerContext $context
     ): void {
         $before = clone $fetchDefinition;
         $this->decorated->prepare($fetchDefinition, $cart, $context);
@@ -53,7 +53,7 @@ class CartCollectorTracer implements CartCollectorInterface
     public function fetch(
         StructCollection $dataCollection,
         StructCollection $fetchCollection,
-        StorefrontContext $context
+        CustomerContext $context
     ): void {
         $before = clone $dataCollection;
 

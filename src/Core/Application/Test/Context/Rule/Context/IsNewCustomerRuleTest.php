@@ -25,7 +25,7 @@
 namespace Shopware\Application\Test\Context\Rule\Context;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
 use Shopware\Checkout\Rule\Specification\Context\IsNewCustomerRule;
@@ -42,7 +42,7 @@ class IsNewCustomerRuleTest extends TestCase
         $customer = new CustomerBasicStruct();
         $customer->setFirstLogin(new \DateTime());
 
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CustomerContext::class);
 
         $context->expects($this->any())
             ->method('getCustomer')
@@ -66,7 +66,7 @@ class IsNewCustomerRuleTest extends TestCase
             )
         );
 
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CustomerContext::class);
 
         $context->expects($this->any())
             ->method('getCustomer')
@@ -90,7 +90,7 @@ class IsNewCustomerRuleTest extends TestCase
             )
         );
 
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CustomerContext::class);
 
         $context->expects($this->any())
             ->method('getCustomer')
@@ -107,7 +107,7 @@ class IsNewCustomerRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CustomerContext::class);
 
         $context->expects($this->any())
             ->method('getCustomer')

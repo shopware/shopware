@@ -4,8 +4,8 @@ namespace Shopware\Checkout\Cart;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\Application\Context\Util\StorefrontContextPersister;
+use Shopware\Checkout\CustomerContext;
+use Shopware\Checkout\Customer\Util\CustomerContextPersister;
 use Shopware\Checkout\Cart\Cart\CartPersisterInterface;
 use Shopware\Checkout\Cart\Cart\CircularCartCalculation;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
@@ -56,7 +56,7 @@ class StorefrontCartController extends Controller
     private $serializer;
 
     /**
-     * @var StorefrontContextPersister
+     * @var CustomerContextPersister
      */
     private $contextPersister;
 
@@ -66,7 +66,7 @@ class StorefrontCartController extends Controller
         OrderPersisterInterface $orderPersister,
         OrderRepository $orderRepository,
         Serializer $serializer,
-        StorefrontContextPersister $contextPersister
+        CustomerContextPersister $contextPersister
     ) {
         $this->calculation = $calculation;
         $this->persister = $persister;
@@ -80,7 +80,7 @@ class StorefrontCartController extends Controller
      * @Route("/storefront-api/checkout", name="storefront.api.checkout.get")
      * @Method({"GET"})
      */
-    public function getCart(StorefrontContext $context): JsonResponse
+    public function getCart(CustomerContext $context): JsonResponse
     {
         $cart = $this->loadCart($context->getToken(), $context);
 
@@ -95,7 +95,7 @@ class StorefrontCartController extends Controller
      * @Route("/storefront-api/checkout", name="storefront.api.checkout.create")
      * @Method({"POST"})
      */
-    public function create(StorefrontContext $context): JsonResponse
+    public function create(CustomerContext $context): JsonResponse
     {
         $this->persister->delete($context->getToken(), self::CART_NAME, $context);
 
@@ -110,7 +110,7 @@ class StorefrontCartController extends Controller
      * @Route("/storefront-api/checkout/add-product/{identifier}", name="storefront.api.checkout.add.product")
      * @Method({"POST"})
      */
-    public function addProduct(string $identifier, Request $request, StorefrontContext $context): JsonResponse
+    public function addProduct(string $identifier, Request $request, CustomerContext $context): JsonResponse
     {
         $post = $this->getPost($request);
 
@@ -131,7 +131,7 @@ class StorefrontCartController extends Controller
      * @Route("/storefront-api/checkout/add", name="storefront.api.checkout.add")
      * @Method({"POST"})
      */
-    public function add(Request $request, StorefrontContext $context): JsonResponse
+    public function add(Request $request, CustomerContext $context): JsonResponse
     {
         $post = $this->getPost($request);
 
@@ -164,7 +164,7 @@ class StorefrontCartController extends Controller
      * @Route("/storefront-api/checkout/{identifier}", name="storefront.api.checkout.delete")
      * @Method({"DELETE"})
      */
-    public function remove(string $identifier, StorefrontContext $context): JsonResponse
+    public function remove(string $identifier, CustomerContext $context): JsonResponse
     {
         $cart = $this->loadCart($context->getToken(), $context);
 
@@ -187,7 +187,7 @@ class StorefrontCartController extends Controller
      * @Route("/storefront-api/checkout/set-quantity/{identifier}", name="storefront.api.checkout.set-quantity")
      * @Method({"PUT"})
      */
-    public function setQuantity(string $identifier, Request $request, StorefrontContext $context): JsonResponse
+    public function setQuantity(string $identifier, Request $request, CustomerContext $context): JsonResponse
     {
         $cart = $this->loadCart($context->getToken(), $context);
 
@@ -218,7 +218,7 @@ class StorefrontCartController extends Controller
      * @Route("/storefront-api/checkout/order", name="storefront.api.checkout.order")
      * @Method({"POST"})
      */
-    public function order(StorefrontContext $context): JsonResponse
+    public function order(CustomerContext $context): JsonResponse
     {
         $cart = $this->loadCart($context->getToken(), $context);
 
@@ -241,7 +241,7 @@ class StorefrontCartController extends Controller
         );
     }
 
-    private function loadCart(?string $token, StorefrontContext $context): Cart
+    private function loadCart(?string $token, CustomerContext $context): Cart
     {
         if (!$token) {
             $token = Uuid::uuid4()->getHex();
@@ -265,7 +265,7 @@ class StorefrontCartController extends Controller
         ];
     }
 
-    private function save(CalculatedCart $calculated, StorefrontContext $context): void
+    private function save(CalculatedCart $calculated, CustomerContext $context): void
     {
         $this->persister->save($calculated, $context);
     }
@@ -279,7 +279,7 @@ class StorefrontCartController extends Controller
         return $this->serializer->decode($request->getContent(), 'json');
     }
 
-    private function addLineItem(StorefrontContext $context, string $identifier, string $type, int $quantity, array $payload): CalculatedCart
+    private function addLineItem(CustomerContext $context, string $identifier, string $type, int $quantity, array $payload): CalculatedCart
     {
         $cart = $this->loadCart($context->getToken(), $context);
 

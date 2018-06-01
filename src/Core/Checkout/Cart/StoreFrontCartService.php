@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace Shopware\Checkout\Cart;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 use Shopware\Checkout\Cart\Cart\CartPersisterInterface;
 use Shopware\Checkout\Cart\Cart\CircularCartCalculation;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
@@ -81,14 +81,14 @@ class StoreFrontCartService
         $this->calculated = $calculatedCart;
     }
 
-    public function createNew(StorefrontContext $context): CalculatedCart
+    public function createNew(CustomerContext $context): CalculatedCart
     {
         $this->createNewCart($context);
 
         return $this->getCalculatedCart($context);
     }
 
-    public function getCalculatedCart(StorefrontContext $context): CalculatedCart
+    public function getCalculatedCart(CustomerContext $context): CalculatedCart
     {
         if ($this->calculated) {
             return $this->calculated;
@@ -99,7 +99,7 @@ class StoreFrontCartService
         return $this->calculate($container, $context);
     }
 
-    public function add(LineItemInterface $item, StorefrontContext $context): void
+    public function add(LineItemInterface $item, CustomerContext $context): void
     {
         $cart = $this->getCart($context);
 
@@ -108,7 +108,7 @@ class StoreFrontCartService
         $this->calculate($cart, $context);
     }
 
-    public function fill(LineItemCollection $lineItems, StorefrontContext $context): void
+    public function fill(LineItemCollection $lineItems, CustomerContext $context): void
     {
         $cart = $this->getCart($context);
 
@@ -120,7 +120,7 @@ class StoreFrontCartService
     /**
      * @throws LineItemNotFoundException
      */
-    public function changeQuantity(string $identifier, int $quantity, StorefrontContext $context): void
+    public function changeQuantity(string $identifier, int $quantity, CustomerContext $context): void
     {
         $cart = $this->getCart($context);
 
@@ -133,14 +133,14 @@ class StoreFrontCartService
         $this->calculate($cart, $context);
     }
 
-    public function remove(string $identifier, StorefrontContext $context): void
+    public function remove(string $identifier, CustomerContext $context): void
     {
         $cart = $this->getCart($context);
         $cart->getLineItems()->remove($identifier);
         $this->calculate($cart, $context);
     }
 
-    public function order(StorefrontContext $context): string
+    public function order(CustomerContext $context): string
     {
         $events = $this->orderPersister->persist(
             $this->getCalculatedCart($context),
@@ -155,7 +155,7 @@ class StoreFrontCartService
         return array_shift($ids);
     }
 
-    public function getCart(StorefrontContext $context): Cart
+    public function getCart(CustomerContext $context): Cart
     {
         if ($this->cart) {
             return $this->cart;
@@ -174,7 +174,7 @@ class StoreFrontCartService
         }
     }
 
-    private function calculate(Cart $cart, StorefrontContext $context): CalculatedCart
+    private function calculate(Cart $cart, CustomerContext $context): CalculatedCart
     {
         $calculated = $this->calculation->calculate($cart, $context);
 
@@ -185,14 +185,14 @@ class StoreFrontCartService
         return $calculated;
     }
 
-    private function save(CalculatedCart $calculatedCart, StorefrontContext $context): void
+    private function save(CalculatedCart $calculatedCart, CustomerContext $context): void
     {
         $this->persister->save($calculatedCart, $context);
 
         $this->cart = $calculatedCart->getCart();
     }
 
-    private function createNewCart(StorefrontContext $context): Cart
+    private function createNewCart(CustomerContext $context): Cart
     {
         $this->persister->delete($context->getToken(), self::CART_NAME, $context);
         $this->cart = Cart::createNew(self::CART_NAME, $context->getToken());

@@ -22,13 +22,13 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Application\Context\Util;
+namespace Shopware\Checkout\Customer\Util;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Application\Application\ApplicationRepository;
 use Shopware\Application\Application\Struct\ApplicationBasicStruct;
 use Shopware\Framework\Context;
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 use Shopware\Application\Language\LanguageRepository;
 use Shopware\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Checkout\Cart\Tax\TaxDetector;
@@ -49,7 +49,7 @@ use Shopware\System\Currency\CurrencyRepository;
 use Shopware\System\Tax\Collection\TaxBasicCollection;
 use Shopware\System\Tax\TaxRepository;
 
-class ContextFactory implements ContextFactoryInterface
+class CustomerContextFactory implements CustomerContextFactoryInterface
 {
     /**
      * @var \Shopware\Application\Application\ApplicationRepository
@@ -151,7 +151,7 @@ class ContextFactory implements ContextFactoryInterface
         string $token,
         string $applicationId,
         array $options = []
-    ): StorefrontContext {
+    ): CustomerContext {
         $applicationContext = $this->getApplicationContext($applicationId, $tenantId);
 
         $application = $this->applicationRepository->readBasic([$applicationContext->getApplicationId()], $applicationContext)
@@ -163,13 +163,13 @@ class ContextFactory implements ContextFactoryInterface
 
         //load active currency, fallback to shop currency
         $currency = $application->getCurrency();
-        if (array_key_exists(StorefrontContextService::CURRENCY_ID, $options)) {
-            $currency = $this->currencyRepository->readBasic([$options[StorefrontContextService::CURRENCY_ID]], $applicationContext)->get($options[StorefrontContextService::CURRENCY_ID]);
+        if (array_key_exists(CustomerContextService::CURRENCY_ID, $options)) {
+            $currency = $this->currencyRepository->readBasic([$options[CustomerContextService::CURRENCY_ID]], $applicationContext)->get($options[CustomerContextService::CURRENCY_ID]);
         }
 
         $language = $application->getLanguage();
-        if (array_key_exists(StorefrontContextService::LANGUAGE_ID, $options)) {
-            $language = $this->languageRepository->readBasic([$options[StorefrontContextService::LANGUAGE_ID]], $applicationContext)->get($options[StorefrontContextService::LANGUAGE_ID]);
+        if (array_key_exists(CustomerContextService::LANGUAGE_ID, $options)) {
+            $language = $this->languageRepository->readBasic([$options[CustomerContextService::LANGUAGE_ID]], $applicationContext)->get($options[CustomerContextService::LANGUAGE_ID]);
         }
 
         $fallbackLanguage = null;
@@ -184,7 +184,7 @@ class ContextFactory implements ContextFactoryInterface
 
         // customer
         $customer = null;
-        if (array_key_exists(StorefrontContextService::CUSTOMER_ID, $options)) {
+        if (array_key_exists(CustomerContextService::CUSTOMER_ID, $options)) {
             //load logged in customer and set active addresses
             $customer = $this->loadCustomer($options, $applicationContext);
 
@@ -198,8 +198,8 @@ class ContextFactory implements ContextFactoryInterface
         }
 
         //customer group switched?
-        if (array_key_exists(StorefrontContextService::CUSTOMER_GROUP_ID, $options)) {
-            $customerGroup = $this->customerGroupRepository->readBasic([$options[StorefrontContextService::CUSTOMER_GROUP_ID]], $applicationContext)->get($options[StorefrontContextService::CUSTOMER_GROUP_ID]);
+        if (array_key_exists(CustomerContextService::CUSTOMER_GROUP_ID, $options)) {
+            $customerGroup = $this->customerGroupRepository->readBasic([$options[CustomerContextService::CUSTOMER_GROUP_ID]], $applicationContext)->get($options[CustomerContextService::CUSTOMER_GROUP_ID]);
         }
 
         //loads tax rules based on active customer group and delivery address
@@ -213,7 +213,7 @@ class ContextFactory implements ContextFactoryInterface
         //detect active delivery method, at first checkout scope, at least shop default method
         $delivery = $this->getShippingMethod($options, $applicationContext, $application);
 
-        $context = new StorefrontContext(
+        $context = new CustomerContext(
             $tenantId,
             $token,
             $application,
@@ -238,8 +238,8 @@ class ContextFactory implements ContextFactoryInterface
     private function getPaymentMethod(array $options, Context $context, ApplicationBasicStruct $application, ?CustomerBasicStruct $customer): PaymentMethodBasicStruct
     {
         //payment switched in checkout?
-        if (array_key_exists(StorefrontContextService::PAYMENT_METHOD_ID, $options)) {
-            return $this->paymentMethodRepository->readBasic([$options[StorefrontContextService::PAYMENT_METHOD_ID]], $context)->get($options[StorefrontContextService::PAYMENT_METHOD_ID]);
+        if (array_key_exists(CustomerContextService::PAYMENT_METHOD_ID, $options)) {
+            return $this->paymentMethodRepository->readBasic([$options[CustomerContextService::PAYMENT_METHOD_ID]], $context)->get($options[CustomerContextService::PAYMENT_METHOD_ID]);
         }
 
         //customer has a last payment method from previous order?
@@ -259,8 +259,8 @@ class ContextFactory implements ContextFactoryInterface
     private function getShippingMethod(array $options, Context $context, ApplicationBasicStruct $application): ShippingMethodBasicStruct
     {
         $id = $application->getShippingMethodId();
-        if (array_key_exists(StorefrontContextService::SHIPPING_METHOD_ID, $options)) {
-            $id = $options[StorefrontContextService::SHIPPING_METHOD_ID];
+        if (array_key_exists(CustomerContextService::SHIPPING_METHOD_ID, $options)) {
+            $id = $options[CustomerContextService::SHIPPING_METHOD_ID];
         }
 
         return $this->shippingMethodRepository->readBasic([$id], $context)->get($id);
@@ -302,19 +302,19 @@ class ContextFactory implements ContextFactoryInterface
 
     private function loadCustomer(array $options, Context $applicationContext): ?CustomerBasicStruct
     {
-        $customerId = $options[StorefrontContextService::CUSTOMER_ID];
+        $customerId = $options[CustomerContextService::CUSTOMER_ID];
         $customer = $this->customerRepository->readBasic([$customerId], $applicationContext)->get($customerId);
 
         if (!$customer) {
             return $customer;
         }
 
-        if (array_key_exists(StorefrontContextService::BILLING_ADDRESS_ID, $options) === false && array_key_exists(StorefrontContextService::SHIPPING_ADDRESS_ID, $options) === false) {
+        if (array_key_exists(CustomerContextService::BILLING_ADDRESS_ID, $options) === false && array_key_exists(CustomerContextService::SHIPPING_ADDRESS_ID, $options) === false) {
             return $customer;
         }
 
-        $billingAddressId = $options[StorefrontContextService::BILLING_ADDRESS_ID];
-        $shippingAddressId = $options[StorefrontContextService::SHIPPING_ADDRESS_ID];
+        $billingAddressId = $options[CustomerContextService::BILLING_ADDRESS_ID];
+        $shippingAddressId = $options[CustomerContextService::SHIPPING_ADDRESS_ID];
 
         $addresses = $this->addressRepository->readBasic([$billingAddressId, $shippingAddressId], $applicationContext);
 
@@ -337,9 +337,9 @@ class ContextFactory implements ContextFactoryInterface
         ApplicationBasicStruct $application
     ): ShippingLocation {
         //allows to preview cart calculation for a specify state for not logged in customers
-        if (array_key_exists(StorefrontContextService::STATE_ID, $options)) {
-            $state = $this->countryStateRepository->readBasic([$options[StorefrontContextService::STATE_ID]], $applicationContext)
-                ->get($options[StorefrontContextService::STATE_ID]);
+        if (array_key_exists(CustomerContextService::STATE_ID, $options)) {
+            $state = $this->countryStateRepository->readBasic([$options[CustomerContextService::STATE_ID]], $applicationContext)
+                ->get($options[CustomerContextService::STATE_ID]);
 
             $country = $this->countryRepository->readBasic([$state->getCountryId()], $applicationContext)
                 ->get($state->getCountryId());
@@ -348,8 +348,8 @@ class ContextFactory implements ContextFactoryInterface
         }
 
         $countryId = $application->getCountryId();
-        if (array_key_exists(StorefrontContextService::COUNTRY_ID, $options)) {
-            $countryId = $options[StorefrontContextService::COUNTRY_ID];
+        if (array_key_exists(CustomerContextService::COUNTRY_ID, $options)) {
+            $countryId = $options[CustomerContextService::COUNTRY_ID];
         }
 
         $country = $this->countryRepository->readBasic([$countryId], $applicationContext)

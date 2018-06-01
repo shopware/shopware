@@ -2,7 +2,7 @@
 
 namespace Shopware\Framework\Routing;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 use Shopware\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -23,7 +23,7 @@ class StorefrontContextValueResolver implements ArgumentValueResolverInterface
 
     public function supports(Request $request, ArgumentMetadata $argument): bool
     {
-        return $argument->getType() === StorefrontContext::class;
+        return $argument->getType() === CustomerContext::class;
     }
 
     public function resolve(Request $request, ArgumentMetadata $argument): iterable

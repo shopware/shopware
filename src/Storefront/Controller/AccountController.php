@@ -4,9 +4,9 @@ namespace Shopware\Storefront\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\Application\Context\Util\StorefrontContextPersister;
-use Shopware\Application\Context\Util\StorefrontContextService;
+use Shopware\Checkout\CustomerContext;
+use Shopware\Checkout\Customer\Util\CustomerContextPersister;
+use Shopware\Checkout\Customer\Util\CustomerContextService;
 use Shopware\Checkout\Payment\Exception\PaymentMethodNotFoundHttpException;
 use Shopware\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Framework\Struct\Uuid;
@@ -39,12 +39,12 @@ class AccountController extends StorefrontController
     private $tokenStorage;
 
     /**
-     * @var StorefrontContextPersister
+     * @var CustomerContextPersister
      */
     private $contextPersister;
 
     /**
-     * @var StorefrontContextService
+     * @var CustomerContextService
      */
     private $storefrontContextService;
 
@@ -74,11 +74,11 @@ class AccountController extends StorefrontController
     public function __construct(
         AuthenticationUtils $authUtils,
         TokenStorageInterface $tokenStorage,
-        StorefrontContextPersister $contextPersister,
+        CustomerContextPersister $contextPersister,
         AccountService $accountService,
         CustomerAddressPageLoader $customerAddressPageLoader,
         CustomerPageLoader $customerPageLoader,
-        StorefrontContextService $storefrontContextService,
+        CustomerContextService $storefrontContextService,
         PaymentMethodLoader $paymentMethodLoader,
         OrderPageLoader $orderPageLoader
     ) {
@@ -96,7 +96,7 @@ class AccountController extends StorefrontController
     /**
      * @Route("/account", name="account_home")
      */
-    public function index(Request $request, StorefrontContext $context): Response
+    public function index(Request $request, CustomerContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -107,7 +107,7 @@ class AccountController extends StorefrontController
      * @Route("/account/login", name="account_login")
      * @Method({"GET"})
      */
-    public function login(Request $request, StorefrontContext $context): Response
+    public function login(Request $request, CustomerContext $context): Response
     {
         if ($context->getCustomer()) {
             return $this->redirectToRoute('account_home');
@@ -122,7 +122,7 @@ class AccountController extends StorefrontController
     /**
      * @Route("/account/login", name="account_login_check", methods={"POST"})
      */
-    public function checkLogin(Request $request, StorefrontContext $context)
+    public function checkLogin(Request $request, CustomerContext $context)
     {
         try {
             $customer = $this->accountService->getCustomerByLogin(
@@ -138,7 +138,7 @@ class AccountController extends StorefrontController
 
         $this->contextPersister->save(
             $context->getToken(),
-            [StorefrontContextService::CUSTOMER_ID => $customer->getId()],
+            [CustomerContextService::CUSTOMER_ID => $customer->getId()],
             $context->getTenantId()
         );
 
@@ -154,13 +154,13 @@ class AccountController extends StorefrontController
     /**
      * @Route("/account/logout", name="account_logout")
      */
-    public function logout(StorefrontContext $context): Response
+    public function logout(CustomerContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
         $this->contextPersister->save(
             $context->getToken(),
-            [StorefrontContextService::CUSTOMER_ID => null],
+            [CustomerContextService::CUSTOMER_ID => null],
             $context->getTenantId()
         );
 
@@ -171,7 +171,7 @@ class AccountController extends StorefrontController
      * @Route("/account/saveRegistration", name="account_save_registration")
      * @Method({"POST"})
      */
-    public function saveRegistration(Request $request, StorefrontContext $context): Response
+    public function saveRegistration(Request $request, CustomerContext $context): Response
     {
         $formData = $request->request->get('register');
 
@@ -187,7 +187,7 @@ class AccountController extends StorefrontController
 
             $this->contextPersister->save(
                 $context->getToken(),
-                [StorefrontContextService::CUSTOMER_ID => $customer->getId()],
+                [CustomerContextService::CUSTOMER_ID => $customer->getId()],
                 $context->getTenantId()
             );
 
@@ -207,7 +207,7 @@ class AccountController extends StorefrontController
      * @Route("/account/payment", name="account_payment", options={"seo"="false"})
      * @Method({"GET"})
      */
-    public function payment(Request $request, StorefrontContext $context): Response
+    public function payment(Request $request, CustomerContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -222,7 +222,7 @@ class AccountController extends StorefrontController
      *
      * @throws UnknownPaymentMethodException
      */
-    public function savePayment(Request $request, StorefrontContext $context): Response
+    public function savePayment(Request $request, CustomerContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -234,7 +234,7 @@ class AccountController extends StorefrontController
 
         $this->contextPersister->save(
             $context->getToken(),
-            [StorefrontContextService::PAYMENT_METHOD_ID => $data['payment']],
+            [CustomerContextService::PAYMENT_METHOD_ID => $data['payment']],
             $context->getTenantId()
         );
 
@@ -245,7 +245,7 @@ class AccountController extends StorefrontController
      * @Route("/account/orders", name="account_orders", options={"seo"="false"}, methods={"GET"})
      * @Method({"GET"})
      */
-    public function orders(Request $request, StorefrontContext $context): Response
+    public function orders(Request $request, CustomerContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -257,7 +257,7 @@ class AccountController extends StorefrontController
     /**
      * @Route("/account/profile", name="account_profile")
      */
-    public function profile(Request $request, StorefrontContext $context): Response
+    public function profile(Request $request, CustomerContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -287,7 +287,7 @@ class AccountController extends StorefrontController
      * @Route("/account/saveProfile", name="account_save_profile")
      * @Method({"POST"})
      */
-    public function saveProfile(Request $request, StorefrontContext $context): Response
+    public function saveProfile(Request $request, CustomerContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -305,7 +305,7 @@ class AccountController extends StorefrontController
     /**
      * @Route("/account/savePassword", name="account_save_password", methods={"POST"})
      */
-    public function savePassword(Request $request, StorefrontContext $context): Response
+    public function savePassword(Request $request, CustomerContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -323,7 +323,7 @@ class AccountController extends StorefrontController
     /**
      * @Route("/account/saveEmail", name="account_save_email", methods={"POST"})
      */
-    public function saveEmail(Request $request, StorefrontContext $context): Response
+    public function saveEmail(Request $request, CustomerContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -342,7 +342,7 @@ class AccountController extends StorefrontController
      * @Route("/account/address", name="address_index", options={"seo"="false"})
      * @Method({"GET"})
      */
-    public function addressIndex(StorefrontContext $context)
+    public function addressIndex(CustomerContext $context)
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -354,7 +354,7 @@ class AccountController extends StorefrontController
     /**
      * @Route("/account/address/create", name="address_create", options={"seo"="false"})
      */
-    public function addressCreate(Request $request, StorefrontContext $context): Response
+    public function addressCreate(Request $request, CustomerContext $context): Response
     {
         return $this->renderStorefront('@Storefront/frontend/address/create.html.twig', [
             'countryList' => $this->accountService->getCountryList($context),
@@ -367,7 +367,7 @@ class AccountController extends StorefrontController
      *
      * @throws \Shopware\Checkout\Order\Exception\NotLoggedInCustomerException
      */
-    public function addressSave(Request $request, StorefrontContext $context): Response
+    public function addressSave(Request $request, CustomerContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -396,7 +396,7 @@ class AccountController extends StorefrontController
     /**
      * @Route("/account/address/edit", name="address_edit", options={"seo"="false"})
      */
-    public function addressEdit(Request $request, StorefrontContext $context): Response
+    public function addressEdit(Request $request, CustomerContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -414,7 +414,7 @@ class AccountController extends StorefrontController
      * @Route("/account/address/delete_confirm", name="address_delete_confirm", options={"seo"="false"})
      * @Method({"GET"})
      */
-    public function addressDeleteConfirm(Request $request, StorefrontContext $context): Response
+    public function addressDeleteConfirm(Request $request, CustomerContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -430,7 +430,7 @@ class AccountController extends StorefrontController
      *
      * @throws \Shopware\Checkout\Order\Exception\NotLoggedInCustomerException
      */
-    public function addressDelete(Request $request, StorefrontContext $context): Response
+    public function addressDelete(Request $request, CustomerContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -446,7 +446,7 @@ class AccountController extends StorefrontController
      *
      * @throws \Shopware\Checkout\Order\Exception\NotLoggedInCustomerException
      */
-    public function addressSetDefaultBillingAddress(Request $request, StorefrontContext $context): Response
+    public function addressSetDefaultBillingAddress(Request $request, CustomerContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -463,7 +463,7 @@ class AccountController extends StorefrontController
      *
      * @throws \Shopware\Checkout\Order\Exception\NotLoggedInCustomerException
      */
-    public function addressSetDefaultShippingAddress(Request $request, StorefrontContext $context): Response
+    public function addressSetDefaultShippingAddress(Request $request, CustomerContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -480,7 +480,7 @@ class AccountController extends StorefrontController
      *
      * @throws \Shopware\Checkout\Order\Exception\NotLoggedInCustomerException
      */
-    public function addressAjaxSelection(Request $request, StorefrontContext $context): Response
+    public function addressAjaxSelection(Request $request, CustomerContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -510,7 +510,7 @@ class AccountController extends StorefrontController
      * @Route("/account/address/ajaxEditor", name="address_ajax_editor", options={"seo"="false"})
      * @Method("GET")
      */
-    public function addressAjaxEdit(Request $request, StorefrontContext $context): Response
+    public function addressAjaxEdit(Request $request, CustomerContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -531,7 +531,7 @@ class AccountController extends StorefrontController
      *
      * @throws \Shopware\Checkout\Order\Exception\NotLoggedInCustomerException
      */
-    public function addressAjaxSave(Request $request, StorefrontContext $context): Response
+    public function addressAjaxSave(Request $request, CustomerContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 

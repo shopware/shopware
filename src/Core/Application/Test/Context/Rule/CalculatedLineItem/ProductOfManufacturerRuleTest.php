@@ -25,7 +25,7 @@
 namespace Shopware\Application\Test\Context\Rule\CalculatedLineItem;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 use Shopware\Checkout\Rule\Specification\CalculatedLineItem\ProductOfManufacturerRule;
 use Shopware\Checkout\Rule\Specification\Scope\CalculatedLineItemScope;
 use Shopware\Checkout\Test\Cart\Common\Generator;
@@ -41,7 +41,7 @@ class ProductOfManufacturerRuleTest extends TestCase
         $rule = new ProductOfManufacturerRule($product->getManufacturerId());
 
         $calculatedLineItem = Generator::createCalculatedProduct('A', 100, 2, $product);
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CustomerContext::class);
 
         $this->assertTrue(
             $rule->match(new CalculatedLineItemScope($calculatedLineItem, $context))->matches()
@@ -54,7 +54,7 @@ class ProductOfManufacturerRuleTest extends TestCase
         $rule = new ProductOfManufacturerRule(Uuid::uuid4()->getHex());
 
         $calculatedLineItem = Generator::createCalculatedProduct('A', 100, 2, $product);
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CustomerContext::class);
 
         $this->assertFalse(
             $rule->match(new CalculatedLineItemScope($calculatedLineItem, $context))->matches()

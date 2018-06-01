@@ -94,11 +94,11 @@
         <service class="Shopware\Storefront\Controller\AccountController" public="true" id="Shopware\Storefront\Controller\AccountController">
             <argument type="service" id="security.authentication_utils" />
             <argument type="service" id="security.token_storage"/>
-            <argument type="service" id="Shopware\Application\Context\Util\StorefrontContextPersister"/>
+            <argument type="service" id="Shopware\Checkout\Customer\Util\CustomerContextPersister"/>
             <argument type="service" id="Shopware\Storefront\Page\Account\AccountService"/>
             <argument type="service" id="Shopware\Storefront\Page\Account\CustomerAddressPageLoader"/>
             <argument type="service" id="Shopware\Storefront\Page\Account\CustomerPageLoader"/>
-            <argument type="service" id="Shopware\Application\Context\Util\StorefrontContextService"/>
+            <argument type="service" id="Shopware\Checkout\Customer\Util\CustomerContextService"/>
             <argument type="service" id="Shopware\Storefront\Page\Checkout\PaymentMethodLoader"/>
             <argument type="service" id="Shopware\Storefront\Page\Account\OrderPageLoader"/>
         </service>
@@ -139,7 +139,7 @@
             <argument type="service" id="Shopware\Checkout\Payment\Cart\PaymentTransactionChainProcessor"/>
             <argument type="service" id="Shopware\Checkout\Payment\Cart\Token\PaymentTransactionTokenFactory"/>
             <argument type="service" id="Shopware\Checkout\Payment\PaymentMethodRepository"/>
-            <argument type="service" id="Shopware\Application\Context\Util\StorefrontContextPersister"/>
+            <argument type="service" id="Shopware\Checkout\Customer\Util\CustomerContextPersister"/>
             <argument type="service" id="serializer"/>
             <argument type="service" id="Shopware\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry"/>
         </service>

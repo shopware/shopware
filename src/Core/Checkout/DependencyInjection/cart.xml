@@ -135,7 +135,7 @@
             <argument id="Shopware\Checkout\Cart\Order\OrderPersister" type="service"/>
             <argument type="service" id="Shopware\Checkout\Order\OrderRepository"/>
             <argument type="service" id="serializer"/>
-            <argument type="service" id="Shopware\Application\Context\Util\StorefrontContextPersister"/>
+            <argument type="service" id="Shopware\Checkout\Customer\Util\CustomerContextPersister"/>
         </service>
 
     </services>

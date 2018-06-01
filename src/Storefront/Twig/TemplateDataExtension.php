@@ -24,7 +24,7 @@
 
 namespace Shopware\Storefront\Twig;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 use Shopware\PlatformRequest;
 use Shopware\Storefront\Theme\ThemeConfigReader;
 use Shopware\System\Config\Util\ConfigServiceInterface;
@@ -83,7 +83,7 @@ class TemplateDataExtension extends \Twig_Extension implements \Twig_Extension_G
             return [];
         }
 
-        /** @var StorefrontContext $context */
+        /** @var CustomerContext $context */
         $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_STOREFRONT_CONTEXT_OBJECT);
 
         if (!$context) {

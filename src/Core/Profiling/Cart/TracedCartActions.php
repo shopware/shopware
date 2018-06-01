@@ -2,7 +2,7 @@
 
 namespace Shopware\Profiling\Cart;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Checkout\Cart\Cart\Struct\Cart;
 
@@ -24,7 +24,7 @@ class TracedCartActions
     public $cart;
 
     /**
-     * @var StorefrontContext
+     * @var CustomerContext
      */
     public $context;
 

@@ -2,8 +2,8 @@
 
 namespace Shopware\Storefront\Context;
 
-use Shopware\Application\Context\Util\StorefrontContextPersister;
-use Shopware\Application\Context\Util\StorefrontContextService;
+use Shopware\Checkout\Customer\Util\CustomerContextPersister;
+use Shopware\Checkout\Customer\Util\CustomerContextService;
 use Shopware\Framework\Routing\Firewall\CustomerUser;
 use Shopware\Storefront\StorefrontRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -12,11 +12,11 @@ use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
 class CustomerAuthenticationSubscriber implements EventSubscriberInterface
 {
     /**
-     * @var StorefrontContextPersister
+     * @var CustomerContextPersister
      */
     private $contextPersister;
 
-    public function __construct(StorefrontContextPersister $contextPersister)
+    public function __construct(CustomerContextPersister $contextPersister)
     {
         $this->contextPersister = $contextPersister;
     }
@@ -47,7 +47,7 @@ class CustomerAuthenticationSubscriber implements EventSubscriberInterface
 
         $this->contextPersister->save(
             $contextKey,
-            [StorefrontContextService::CUSTOMER_ID => $customerId]
+            [CustomerContextService::CUSTOMER_ID => $customerId]
         );
     }
 }

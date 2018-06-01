@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Rule\Collection;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Checkout\Rule\Specification\Scope\CartRuleScope;
 use Shopware\Checkout\Rule\Struct\ContextRuleBasicStruct;
@@ -25,7 +25,7 @@ class ContextRuleBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function filterMatchingRules(CalculatedCart $cart, StorefrontContext $context)
+    public function filterMatchingRules(CalculatedCart $cart, CustomerContext $context)
     {
         return $this->filter(
             function (ContextRuleBasicStruct $rule) use ($cart, $context) {

@@ -26,7 +26,7 @@ namespace Shopware\Checkout\Test\CartBridge\Order;
 
 use Faker\Factory;
 use PHPUnit\Framework\TestCase;
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Checkout\Cart\Cart\Struct\Cart;
 use Shopware\Checkout\Cart\Delivery\Struct\DeliveryCollection;
@@ -69,7 +69,7 @@ class OrderPersisterTest extends TestCase
 
         $persister = new OrderPersister($repository, $taxDetector);
 
-        $storefrontContext = $this->createMock(StorefrontContext::class);
+        $storefrontContext = $this->createMock(CustomerContext::class);
         $storefrontContext->expects($this->any())->method('getCustomer')->willReturn($customer);
 
         $cart = new CalculatedCart(

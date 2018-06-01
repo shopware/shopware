@@ -26,7 +26,7 @@ namespace Shopware\Storefront\Controller\Widgets;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 use Shopware\Content\Product\StorefrontProductRepository;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Storefront\Controller\StorefrontController;
@@ -67,7 +67,7 @@ class ListingController extends StorefrontController
      * @Route("/widgets/listing/top_seller", name="widgets_top_seller")
      * @Method({"GET"})
      */
-    public function topSellerAction(StorefrontContext $context)
+    public function topSellerAction(CustomerContext $context)
     {
         $criteria = new Criteria();
         $criteria->setLimit(10);
@@ -83,7 +83,7 @@ class ListingController extends StorefrontController
      * @Route("/widgets/listing/list/{categoryId}", name="widgets_listing_list")
      * @Method({"GET"})
      */
-    public function listAction(string $categoryId, ListingPageRequest $request, StorefrontContext $context)
+    public function listAction(string $categoryId, ListingPageRequest $request, CustomerContext $context)
     {
         $request->setNavigationId($categoryId);
 
@@ -108,7 +108,7 @@ class ListingController extends StorefrontController
      * @Route("/widgets/listing/search", name="widgets_listing_search")
      * @Method({"GET"})
      */
-    public function searchAction(SearchPageRequest $request, StorefrontContext $context)
+    public function searchAction(SearchPageRequest $request, CustomerContext $context)
     {
         $page = $this->searchPageLoader->load($request, $context);
 

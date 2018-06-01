@@ -2,7 +2,7 @@
 
 namespace Shopware\Framework\Routing;
 
-use Shopware\Application\Context\Util\StorefrontContextService;
+use Shopware\Checkout\Customer\Util\CustomerContextService;
 use Shopware\Framework\Routing\Firewall\Application;
 use Shopware\Framework\Struct\Uuid;
 use Shopware\PlatformRequest;
@@ -17,7 +17,7 @@ class ApplicationRequestContextResolver implements RequestContextResolverInterfa
     private $decorated;
 
     /**
-     * @var StorefrontContextService
+     * @var CustomerContextService
      */
     private $contextService;
 
@@ -28,7 +28,7 @@ class ApplicationRequestContextResolver implements RequestContextResolverInterfa
 
     public function __construct(
         RequestContextResolverInterface $decorated,
-        StorefrontContextService $contextService,
+        CustomerContextService $contextService,
         TokenStorageInterface $tokenStorage
     ) {
         $this->decorated = $decorated;
@@ -74,7 +74,7 @@ class ApplicationRequestContextResolver implements RequestContextResolverInterfa
         if ($master->attributes->has(PlatformRequest::ATTRIBUTE_STOREFRONT_CONTEXT_OBJECT)) {
             $context = $master->attributes->get(PlatformRequest::ATTRIBUTE_STOREFRONT_CONTEXT_OBJECT);
         } else {
-            $context = $this->contextService->getStorefrontContext($tenantId, $applicationId, $contextToken);
+            $context = $this->contextService->get($tenantId, $applicationId, $contextToken);
         }
 
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context->getApplicationContext());

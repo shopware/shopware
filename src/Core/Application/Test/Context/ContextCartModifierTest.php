@@ -5,7 +5,7 @@ namespace Shopware\Application\Test\Context;
 use Shopware\Application\Context\Cart\ContextCartModifierProcessor;
 use Shopware\Application\Context\Repository\ContextCartModifierRepository;
 use Shopware\Framework\Context;
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 use Shopware\Checkout\Cart\Cart\CircularCartCalculation;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Checkout\Cart\Cart\Struct\Cart;
@@ -511,7 +511,7 @@ class ContextCartModifierTest extends KernelTestCase
     private function createContext(
         bool $taxFree,
         bool $displayGross
-    ): StorefrontContext {
+    ): CustomerContext {
         $context = Generator::createContext();
 
         $context->getCurrentCustomerGroup()->setDisplayGross($displayGross);

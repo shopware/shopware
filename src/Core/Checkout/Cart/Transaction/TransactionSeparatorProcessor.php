@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Cart\Transaction;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 use Shopware\Checkout\Cart\Cart\CartProcessorInterface;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Checkout\Cart\Cart\Struct\Cart;
@@ -16,7 +16,7 @@ class TransactionSeparatorProcessor implements CartProcessorInterface
         Cart $cart,
         CalculatedCart $calculatedCart,
         StructCollection $dataCollection,
-        StorefrontContext $context
+        CustomerContext $context
     ): void {
         $price = $calculatedCart->getPrice()->getTotalPrice();
 

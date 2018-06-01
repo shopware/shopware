@@ -25,7 +25,7 @@
 namespace Shopware\Application\Test\Context\Rule\Context;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
 use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
@@ -41,7 +41,7 @@ class BillingAreaRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CustomerContext::class);
 
         $country = new CountryBasicStruct();
         $country->setId('SWAG-AREA-COUNTRY-ID-1');
@@ -68,7 +68,7 @@ class BillingAreaRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CustomerContext::class);
 
         $country = new CountryBasicStruct();
         $country->setId('SWAG-AREA-COUNTRY-ID-1');
@@ -95,7 +95,7 @@ class BillingAreaRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CustomerContext::class);
 
         $country = new CountryBasicStruct();
         $country->setId('SWAG-AREA-COUNTRY-ID-1');
@@ -122,7 +122,7 @@ class BillingAreaRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CustomerContext::class);
 
         $context->expects($this->any())
             ->method('getCustomer')

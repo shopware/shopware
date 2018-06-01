@@ -2,7 +2,7 @@
 
 namespace Shopware\Content\Product;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 use Shopware\Checkout\Cart\Price\PriceCalculator;
 use Shopware\Content\Product\Aggregate\ProductService\Struct\ProductServiceBasicStruct;
 use Shopware\Content\Product\Collection\ProductBasicCollection;
@@ -33,21 +33,21 @@ class StorefrontProductRepository
         $this->priceCalculator = $priceCalculator;
     }
 
-    public function read(array $ids, StorefrontContext $context): ProductBasicCollection
+    public function read(array $ids, CustomerContext $context): ProductBasicCollection
     {
         $basics = $this->repository->readBasic($ids, $context->getApplicationContext());
 
         return $this->loadListProducts($basics, $context);
     }
 
-    public function readDetail(array $ids, StorefrontContext $context): ProductBasicCollection
+    public function readDetail(array $ids, CustomerContext $context): ProductBasicCollection
     {
         $basics = $this->repository->readDetail($ids, $context->getApplicationContext());
 
         return $this->loadDetailProducts($context, $basics);
     }
 
-    public function search(Criteria $criteria, StorefrontContext $context): ProductSearchResult
+    public function search(Criteria $criteria, CustomerContext $context): ProductSearchResult
     {
         $basics = $this->repository->search($criteria, $context->getApplicationContext());
 
@@ -59,12 +59,12 @@ class StorefrontProductRepository
         return $basics;
     }
 
-    public function searchIds(Criteria $criteria, StorefrontContext $context): IdSearchResult
+    public function searchIds(Criteria $criteria, CustomerContext $context): IdSearchResult
     {
         return $this->repository->searchIds($criteria, $context->getApplicationContext());
     }
 
-    private function loadListProducts(ProductBasicCollection $products, StorefrontContext $context): ProductBasicCollection
+    private function loadListProducts(ProductBasicCollection $products, CustomerContext $context): ProductBasicCollection
     {
         $listingProducts = new ProductBasicCollection();
 
@@ -79,7 +79,7 @@ class StorefrontProductRepository
         return $listingProducts;
     }
 
-    private function loadDetailProducts(StorefrontContext $context, ProductDetailCollection $products): ProductBasicCollection
+    private function loadDetailProducts(CustomerContext $context, ProductDetailCollection $products): ProductBasicCollection
     {
         $collection = new ProductBasicCollection();
 
@@ -103,7 +103,7 @@ class StorefrontProductRepository
         return $collection;
     }
 
-    private function calculatePrices(StorefrontContext $context, StorefrontProductBasicInterface $product): void
+    private function calculatePrices(CustomerContext $context, StorefrontProductBasicInterface $product): void
     {
         //calculate listing price
         $listingPriceDefinition = $product->getListingPriceDefinition($context->getApplicationContext());

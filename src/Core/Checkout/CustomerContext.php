@@ -22,7 +22,7 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Application\Context\Struct;
+namespace Shopware\Checkout;
 
 use Shopware\Application\Application\Struct\ApplicationBasicStruct;
 use Shopware\Application\Context\Exception\ContextRulesLockedException;
@@ -44,7 +44,7 @@ use Shopware\System\Tax\Collection\TaxBasicCollection;
  *
  * @copyright Copyright (c) shopware AG (http://www.shopware.de)
  */
-class StorefrontContext extends Struct
+class CustomerContext extends Struct
 {
     /**
      * Unique token for context, e.g. stored in session or provided in request headers

@@ -25,7 +25,7 @@
 namespace Shopware\Application\Test\Context\Rule\CalculatedCart;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 use Shopware\Checkout\Rule\Specification\CalculatedCart\OrderAmountRule;
 use Shopware\Checkout\Rule\Specification\Scope\CartRuleScope;
 use Shopware\Checkout\Test\Cart\Common\Generator;
@@ -37,7 +37,7 @@ class OrderAmountRuleTest extends TestCase
         $rule = new OrderAmountRule(275, OrderAmountRule::OPERATOR_EQ);
 
         $calculatedCart = Generator::createCalculatedCart();
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CustomerContext::class);
 
         $this->assertTrue(
             $rule->match(new CartRuleScope($calculatedCart, $context))->matches()
@@ -49,7 +49,7 @@ class OrderAmountRuleTest extends TestCase
         $rule = new OrderAmountRule(0, OrderAmountRule::OPERATOR_EQ);
 
         $calculatedCart = Generator::createCalculatedCart();
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CustomerContext::class);
 
         $this->assertFalse(
             $rule->match(new CartRuleScope($calculatedCart, $context))->matches()
@@ -61,7 +61,7 @@ class OrderAmountRuleTest extends TestCase
         $rule = new OrderAmountRule(275, OrderAmountRule::OPERATOR_LTE);
 
         $calculatedCart = Generator::createCalculatedCart();
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CustomerContext::class);
 
         $this->assertTrue(
             $rule->match(new CartRuleScope($calculatedCart, $context))->matches()
@@ -73,7 +73,7 @@ class OrderAmountRuleTest extends TestCase
         $rule = new OrderAmountRule(300, OrderAmountRule::OPERATOR_LTE);
 
         $calculatedCart = Generator::createCalculatedCart();
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CustomerContext::class);
 
         $this->assertTrue(
             $rule->match(new CartRuleScope($calculatedCart, $context))->matches()
@@ -85,7 +85,7 @@ class OrderAmountRuleTest extends TestCase
         $rule = new OrderAmountRule(274, OrderAmountRule::OPERATOR_LTE);
 
         $calculatedCart = Generator::createCalculatedCart();
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CustomerContext::class);
 
         $this->assertFalse(
             $rule->match(new CartRuleScope($calculatedCart, $context))->matches()
@@ -97,7 +97,7 @@ class OrderAmountRuleTest extends TestCase
         $rule = new OrderAmountRule(275, OrderAmountRule::OPERATOR_GTE);
 
         $calculatedCart = Generator::createCalculatedCart();
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CustomerContext::class);
 
         $this->assertTrue(
             $rule->match(new CartRuleScope($calculatedCart, $context))->matches()
@@ -109,7 +109,7 @@ class OrderAmountRuleTest extends TestCase
         $rule = new OrderAmountRule(100, OrderAmountRule::OPERATOR_GTE);
 
         $calculatedCart = Generator::createCalculatedCart();
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CustomerContext::class);
 
         $this->assertTrue(
             $rule->match(new CartRuleScope($calculatedCart, $context))->matches()
@@ -121,7 +121,7 @@ class OrderAmountRuleTest extends TestCase
         $rule = new OrderAmountRule(276, OrderAmountRule::OPERATOR_GTE);
 
         $calculatedCart = Generator::createCalculatedCart();
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CustomerContext::class);
 
         $this->assertFalse(
             $rule->match(new CartRuleScope($calculatedCart, $context))->matches()
@@ -133,7 +133,7 @@ class OrderAmountRuleTest extends TestCase
         $rule = new OrderAmountRule(0, OrderAmountRule::OPERATOR_NEQ);
 
         $calculatedCart = Generator::createCalculatedCart();
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CustomerContext::class);
 
         $this->assertTrue(
             $rule->match(new CartRuleScope($calculatedCart, $context))->matches()
@@ -145,7 +145,7 @@ class OrderAmountRuleTest extends TestCase
         $rule = new OrderAmountRule(275, OrderAmountRule::OPERATOR_NEQ);
 
         $calculatedCart = Generator::createCalculatedCart();
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CustomerContext::class);
 
         $this->assertFalse(
             $rule->match(new CartRuleScope($calculatedCart, $context))->matches()
@@ -164,7 +164,7 @@ class OrderAmountRuleTest extends TestCase
         $rule = new OrderAmountRule(100, $operator);
 
         $calculatedCart = Generator::createCalculatedCart();
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CustomerContext::class);
 
         $this->assertFalse(
             $rule->match(new CartRuleScope($calculatedCart, $context))->matches()

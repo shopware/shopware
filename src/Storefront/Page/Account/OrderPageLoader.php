@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Page\Account;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 use Shopware\Checkout\Order\OrderRepository;
 use Shopware\Checkout\Order\Struct\OrderSearchResult;
 use Shopware\Framework\ORM\Search\Criteria;
@@ -25,7 +25,7 @@ class OrderPageLoader
         $this->orderRepository = $orderRepository;
     }
 
-    public function load(Request $request, StorefrontContext $context): OrderPageStruct
+    public function load(Request $request, CustomerContext $context): OrderPageStruct
     {
         $limit = $request->query->getInt(self::LIMIT_PARAMETER, 10);
         $page = $request->query->getInt(self::PAGE_PARAMETER, 1);

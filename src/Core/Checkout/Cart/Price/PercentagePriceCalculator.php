@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace Shopware\Checkout\Cart\Price;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 use Shopware\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
 use Shopware\Checkout\Cart\Price\Struct\DerivedCalculatedPrice;
 use Shopware\Checkout\Cart\Price\Struct\PriceDefinition;
@@ -63,14 +63,14 @@ class PercentagePriceCalculator
      *
      * @param float                     $percentage 10.00 for 10%, -10.0 for -10%
      * @param CalculatedPriceCollection $prices
-     * @param StorefrontContext         $context
+     * @param CustomerContext         $context
      *
      * @return DerivedCalculatedPrice
      */
     public function calculate(
         $percentage,
         CalculatedPriceCollection $prices,
-        StorefrontContext $context
+        CustomerContext $context
     ): DerivedCalculatedPrice {
         $price = $prices->sum();
 

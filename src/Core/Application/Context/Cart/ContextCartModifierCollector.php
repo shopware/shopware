@@ -4,7 +4,7 @@ namespace Shopware\Application\Context\Cart;
 
 use Shopware\Application\Context\Cart\Struct\ContextCartModifierFetchDefinition;
 use Shopware\Application\Context\Repository\ContextCartModifierRepository;
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 use Shopware\Checkout\Cart\Cart\CartCollectorInterface;
 use Shopware\Checkout\Cart\Cart\Struct\Cart;
 use Shopware\Framework\ORM\Search\Criteria;
@@ -26,7 +26,7 @@ class ContextCartModifierCollector implements CartCollectorInterface
     public function prepare(
         StructCollection $fetchDefinition,
         Cart $cart,
-        StorefrontContext $context
+        CustomerContext $context
     ): void {
         $contextRuleIds = $context->getContextRuleIds();
 
@@ -40,7 +40,7 @@ class ContextCartModifierCollector implements CartCollectorInterface
     public function fetch(
         StructCollection $dataCollection,
         StructCollection $fetchCollection,
-        StorefrontContext $context
+        CustomerContext $context
     ): void {
         $definitions = $fetchCollection->filterInstance(ContextCartModifierFetchDefinition::class);
 

@@ -25,7 +25,7 @@
 namespace Shopware\Checkout\Test\Cart\Price;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 use Shopware\Checkout\Cart\Price\GrossPriceCalculator;
 use Shopware\Checkout\Cart\Price\NetPriceCalculator;
 use Shopware\Checkout\Cart\Price\PriceCalculator;
@@ -102,7 +102,7 @@ class PriceCalculatorTest extends TestCase
             $detector
         );
 
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CustomerContext::class);
 
         $lineItemPrice = $calculator->calculate($priceDefinition, $context);
 
@@ -134,7 +134,7 @@ class PriceCalculatorTest extends TestCase
             $detector
         );
 
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CustomerContext::class);
 
         $lineItemPrice = $calculator->calculate($priceDefinition, $context);
 

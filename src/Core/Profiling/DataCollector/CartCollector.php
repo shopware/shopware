@@ -2,7 +2,7 @@
 
 namespace Shopware\Profiling\DataCollector;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Checkout\Cart\Cart\Struct\Cart;
 use Shopware\Profiling\Cart\TracedCartActions;
@@ -47,7 +47,7 @@ class CartCollector extends DataCollector
         return $this->data['cart'];
     }
 
-    public function getContext(): ?StorefrontContext
+    public function getContext(): ?CustomerContext
     {
         return $this->data['context'];
     }

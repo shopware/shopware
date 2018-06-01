@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace Shopware\Checkout\Cart\Cart;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 use Shopware\Checkout\Cart\Cart\Struct\Cart;
 use Shopware\Framework\Struct\StructCollection;
 
@@ -34,12 +34,12 @@ interface CartCollectorInterface
     public function prepare(
         StructCollection $fetchDefinition,
         Cart $cart,
-        StorefrontContext $context
+        CustomerContext $context
     ): void;
 
     public function fetch(
         StructCollection $dataCollection,
         StructCollection $fetchCollection,
-        StorefrontContext $context
+        CustomerContext $context
     ): void;
 }

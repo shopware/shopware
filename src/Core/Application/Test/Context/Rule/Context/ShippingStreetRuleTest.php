@@ -25,7 +25,7 @@
 namespace Shopware\Application\Test\Context\Rule\Context;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
@@ -42,7 +42,7 @@ class ShippingStreetRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CustomerContext::class);
 
         $context->expects($this->any())
             ->method('getShippingLocation')
@@ -63,7 +63,7 @@ class ShippingStreetRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CustomerContext::class);
 
         $context->expects($this->any())
             ->method('getShippingLocation')
@@ -84,7 +84,7 @@ class ShippingStreetRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CustomerContext::class);
 
         $context->expects($this->any())
             ->method('getShippingLocation')
@@ -105,7 +105,7 @@ class ShippingStreetRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CustomerContext::class);
 
         $context->expects($this->any())
             ->method('getShippingLocation')

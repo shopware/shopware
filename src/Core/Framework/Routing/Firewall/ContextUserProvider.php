@@ -3,7 +3,7 @@
 namespace Shopware\Framework\Routing\Firewall;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Application\Context\Util\StorefrontContextServiceInterface;
+use Shopware\Checkout\Customer\Util\CustomerContextServiceInterface;
 use Shopware\Defaults;
 use Shopware\Framework\Struct\Uuid;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -14,7 +14,7 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 class ContextUserProvider implements UserProviderInterface
 {
     /**
-     * @var StorefrontContextServiceInterface
+     * @var CustomerContextServiceInterface
      */
     private $storefrontContextService;
 
@@ -23,7 +23,7 @@ class ContextUserProvider implements UserProviderInterface
      */
     private $connection;
 
-    public function __construct(StorefrontContextServiceInterface $storefrontContextService, Connection $connection)
+    public function __construct(CustomerContextServiceInterface $storefrontContextService, Connection $connection)
     {
         $this->storefrontContextService = $storefrontContextService;
         $this->connection = $connection;
@@ -50,7 +50,7 @@ class ContextUserProvider implements UserProviderInterface
         }
 
         //todo@jb use real tenant id
-        $context = $this->storefrontContextService->getStorefrontContext(Defaults::TENANT_ID, $token->getApplicationId(), $token->getContextId());
+        $context = $this->storefrontContextService->get(Defaults::TENANT_ID, $token->getApplicationId(), $token->getContextId());
 
         return new ContextUser($token->getApplicationId(), $context);
     }

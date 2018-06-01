@@ -24,11 +24,11 @@
 
 namespace Shopware\Checkout\Cart\Tax;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 use Shopware\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
 use Shopware\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 
 interface TaxAmountCalculatorInterface
 {
-    public function calculate(CalculatedPriceCollection $priceCollection, StorefrontContext $context): CalculatedTaxCollection;
+    public function calculate(CalculatedPriceCollection $priceCollection, CustomerContext $context): CalculatedTaxCollection;
 }

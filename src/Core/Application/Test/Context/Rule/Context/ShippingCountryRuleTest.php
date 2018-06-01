@@ -25,7 +25,7 @@
 namespace Shopware\Application\Test\Context\Rule\Context;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Checkout\Rule\Exception\UnsupportedOperatorException;
@@ -41,7 +41,7 @@ class ShippingCountryRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CustomerContext::class);
 
         $country = new CountryBasicStruct();
         $country->setId('SWAG-AREA-COUNTRY-ID-1');
@@ -61,7 +61,7 @@ class ShippingCountryRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CustomerContext::class);
 
         $country = new CountryBasicStruct();
         $country->setId('SWAG-AREA-COUNTRY-ID-1');
@@ -81,7 +81,7 @@ class ShippingCountryRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CustomerContext::class);
 
         $country = new CountryBasicStruct();
         $country->setId('SWAG-AREA-COUNTRY-ID-2');
@@ -101,7 +101,7 @@ class ShippingCountryRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CustomerContext::class);
 
         $country = new CountryBasicStruct();
         $country->setId('SWAG-AREA-COUNTRY-ID-2');
@@ -128,7 +128,7 @@ class ShippingCountryRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CustomerContext::class);
 
         $country = new CountryBasicStruct();
         $country->setId('SWAG-AREA-COUNTRY-ID-2');
@@ -146,7 +146,7 @@ class ShippingCountryRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CustomerContext::class);
 
         $country = new CountryBasicStruct();
         $country->setId('SWAG-AREA-COUNTRY-ID-2');

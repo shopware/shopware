@@ -3,7 +3,7 @@
 namespace Shopware\Storefront\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 use Shopware\Checkout\Cart\Exception\LineItemNotFoundException;
 use Shopware\Checkout\Cart\LineItem\LineItem;
 use Shopware\Checkout\Cart\StoreFrontCartService;
@@ -55,7 +55,7 @@ class CartController extends StorefrontController
      * @Route("/cart/addProduct", name="cart_add_product", options={"seo"="false"})
      * @Method({"POST"})
      */
-    public function addProduct(Request $request, StorefrontContext $context): Response
+    public function addProduct(Request $request, CustomerContext $context): Response
     {
         $identifier = $request->request->get('identifier');
         $quantity = $request->request->getInt('quantity');
@@ -85,7 +85,7 @@ class CartController extends StorefrontController
      * @Route("/cart/removeLineItem", name="cart_delete_line_item", options={"seo"="false"})
      * @Method({"POST"})
      */
-    public function removeLineItem(Request $request, StorefrontContext $context): Response
+    public function removeLineItem(Request $request, CustomerContext $context): Response
     {
         $identifier = $request->request->get('identifier');
         $target = $request->request->get('target');
@@ -113,7 +113,7 @@ class CartController extends StorefrontController
      * @Route("/cart/setLineItemQuantity", name="cart_set_line_item_quantity", options={"seo"="false"})
      * @Method({"POST"})
      */
-    public function setLineItemQuantity(Request $request, StorefrontContext $context): Response
+    public function setLineItemQuantity(Request $request, CustomerContext $context): Response
     {
         $identifier = $request->request->get('identifier');
         $quantity = $request->request->getInt('quantity');
@@ -142,7 +142,7 @@ class CartController extends StorefrontController
      * @Route("/cart/addVoucher", name="cart_add_voucher", options={"seo"="false"})
      * @Method({"POST"})
      */
-    public function addVoucher(Request $request, StorefrontContext $context): Response
+    public function addVoucher(Request $request, CustomerContext $context): Response
     {
         $identifier = $request->request->get('identifier', false);
         $target = $request->request->get('target');
@@ -168,7 +168,7 @@ class CartController extends StorefrontController
      *
      * @throws \Exception
      */
-    public function getCartAmount(Request $request, StorefrontContext $context): Response
+    public function getCartAmount(Request $request, CustomerContext $context): Response
     {
         $calculatedCart = $this->cartService->getCalculatedCart($context);
 
@@ -189,7 +189,7 @@ class CartController extends StorefrontController
      *
      * @throws \Exception
      */
-    public function getCart(Request $request, StorefrontContext $context): Response
+    public function getCart(Request $request, CustomerContext $context): Response
     {
         $calculatedCart = $this->cartService->getCalculatedCart($context);
 
@@ -217,7 +217,7 @@ class CartController extends StorefrontController
         return $this->redirectToRoute(self::ROUTE_CHECKOUT_CART);
     }
 
-    private function addProductToCart(StorefrontContext $context, string $identifier, int $quantity, array $services = []): void
+    private function addProductToCart(CustomerContext $context, string $identifier, int $quantity, array $services = []): void
     {
         $key = $identifier;
         if (!empty($services)) {

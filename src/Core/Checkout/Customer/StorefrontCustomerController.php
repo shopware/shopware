@@ -4,9 +4,9 @@ namespace Shopware\Checkout\Customer;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\Application\Context\Util\StorefrontContextPersister;
-use Shopware\Application\Context\Util\StorefrontContextService;
+use Shopware\Checkout\CustomerContext;
+use Shopware\Checkout\Customer\Util\CustomerContextPersister;
+use Shopware\Checkout\Customer\Util\CustomerContextService;
 use Shopware\Checkout\Order\Exception\NotLoggedInCustomerException;
 use Shopware\Checkout\Order\OrderRepository;
 use Shopware\Framework\Api\Context\RestContext;
@@ -33,7 +33,7 @@ class StorefrontCustomerController extends Controller
     private $serializer;
 
     /**
-     * @var StorefrontContextPersister
+     * @var CustomerContextPersister
      */
     private $contextPersister;
 
@@ -48,7 +48,7 @@ class StorefrontCustomerController extends Controller
     private $accountService;
 
     /**
-     * @var StorefrontContextService
+     * @var CustomerContextService
      */
     private $storefrontContextService;
 
@@ -64,10 +64,10 @@ class StorefrontCustomerController extends Controller
 
     public function __construct(
         Serializer $serializer,
-        StorefrontContextPersister $contextPersister,
+        CustomerContextPersister $contextPersister,
         CustomerProvider $customerProvider,
         AccountService $accountService,
-        StorefrontContextService $storefrontContextService,
+        CustomerContextService $storefrontContextService,
         ResponseFactory $responseFactory,
         OrderRepository $orderRepository
     ) {
@@ -84,7 +84,7 @@ class StorefrontCustomerController extends Controller
      * @Route("/storefront-api/customer/login", name="storefront.api.customer.login")
      * @Method({"POST"})
      */
-    public function login(Request $request, StorefrontContext $context): JsonResponse
+    public function login(Request $request, CustomerContext $context): JsonResponse
     {
         $post = $this->decodedContent($request);
 
@@ -115,7 +115,7 @@ class StorefrontCustomerController extends Controller
      * @Route("/storefront-api/customer/logout", name="storefront.api.customer.logout")
      * @Method({"POST"})
      */
-    public function logout(StorefrontContext $context): JsonResponse
+    public function logout(CustomerContext $context): JsonResponse
     {
         $this->contextPersister->save(
             $context->getToken(),
@@ -136,7 +136,7 @@ class StorefrontCustomerController extends Controller
      *
      * @throws NotLoggedInCustomerException
      */
-    public function setDefaultBillingAddress(string $id, StorefrontContext $context)
+    public function setDefaultBillingAddress(string $id, CustomerContext $context)
     {
         $this->accountService->setDefaultBillingAddress($id, $context);
 
@@ -149,7 +149,7 @@ class StorefrontCustomerController extends Controller
      *
      * @throws NotLoggedInCustomerException
      */
-    public function orderOverview(Request $request, StorefrontContext $context): JsonResponse
+    public function orderOverview(Request $request, CustomerContext $context): JsonResponse
     {
         $content = $this->decodedContent($request);
 
@@ -170,7 +170,7 @@ class StorefrontCustomerController extends Controller
      * @Route("/storefront-api/customer", name="storefront.api.customer.create")
      * @Method({"POST"})
      */
-    public function register(Request $request, StorefrontContext $context): JsonResponse
+    public function register(Request $request, CustomerContext $context): JsonResponse
     {
         $content = $this->decodedContent($request);
         $customerId = $this->accountService->createNewCustomer($content, $context);
@@ -182,7 +182,7 @@ class StorefrontCustomerController extends Controller
      * @Route("/storefront-api/customer/email", name="storefront.api.customer.email.update")
      * @Method({"PUT"})
      */
-    public function changeEmail(Request $request, StorefrontContext $context): JsonResponse
+    public function changeEmail(Request $request, CustomerContext $context): JsonResponse
     {
         $content = $this->decodedContent($request);
 
@@ -200,7 +200,7 @@ class StorefrontCustomerController extends Controller
      * @Route("/storefront-api/customer/password", name="storefront.api.customer.password.update")
      * @Method({"PUT"})
      */
-    public function changePassword(Request $request, StorefrontContext $context): JsonResponse
+    public function changePassword(Request $request, CustomerContext $context): JsonResponse
     {
         $content = $this->decodedContent($request);
         if (!array_key_exists('password', $content) || empty($content['password'])) {
@@ -220,7 +220,7 @@ class StorefrontCustomerController extends Controller
      * @Route("/storefront-api/customer/profile", name="storefront.api.customer.profile.update")
      * @Method({"PUT"})
      */
-    public function changeProfile(Request $request, StorefrontContext $context): JsonResponse
+    public function changeProfile(Request $request, CustomerContext $context): JsonResponse
     {
         $profile = $this->decodedContent($request);
         $this->accountService->changeProfile($profile, $context);
@@ -239,7 +239,7 @@ class StorefrontCustomerController extends Controller
      *
      * @throws NotLoggedInCustomerException
      */
-    public function getCustomerDetail(Request $request, StorefrontContext $context): Response
+    public function getCustomerDetail(Request $request, CustomerContext $context): Response
     {
         return $this->responseFactory->createDetailResponse(
             $this->accountService->getCustomerByContext($context),
@@ -254,7 +254,7 @@ class StorefrontCustomerController extends Controller
      *
      * @throws NotLoggedInCustomerException
      */
-    public function getAddresses(StorefrontContext $context): JsonResponse
+    public function getAddresses(CustomerContext $context): JsonResponse
     {
         return new JsonResponse(
             $this->serialize($this->accountService->getAddressesByCustomer($context))
@@ -267,7 +267,7 @@ class StorefrontCustomerController extends Controller
      *
      * @throws NotLoggedInCustomerException
      */
-    public function getAddress(string $id, StorefrontContext $context): JsonResponse
+    public function getAddress(string $id, CustomerContext $context): JsonResponse
     {
         return new JsonResponse(
             $this->serialize($this->accountService->getAddressById($id, $context))
@@ -280,7 +280,7 @@ class StorefrontCustomerController extends Controller
      *
      * @throws NotLoggedInCustomerException
      */
-    public function createAddress(Request $request, StorefrontContext $context): JsonResponse
+    public function createAddress(Request $request, CustomerContext $context): JsonResponse
     {
         $content = $this->decodedContent($request);
         $addressId = $this->accountService->saveAddress($content, $context);
@@ -296,7 +296,7 @@ class StorefrontCustomerController extends Controller
      *
      * @throws NotLoggedInCustomerException
      */
-    public function deleteAddress(string $id, StorefrontContext $context): JsonResponse
+    public function deleteAddress(string $id, CustomerContext $context): JsonResponse
     {
         $this->accountService->deleteAddress($id, $context);
 
@@ -309,14 +309,14 @@ class StorefrontCustomerController extends Controller
      *
      * @throws NotLoggedInCustomerException
      */
-    public function setDefaultShippingAddress(string $id, StorefrontContext $context)
+    public function setDefaultShippingAddress(string $id, CustomerContext $context)
     {
         $this->accountService->setDefaultShippingAddress($id, $context);
 
         return new JsonResponse($this->serialize($id));
     }
 
-    private function loadOrders(int $page, int $limit, StorefrontContext $context): array
+    private function loadOrders(int $page, int $limit, CustomerContext $context): array
     {
         $page = $page - 1;
 

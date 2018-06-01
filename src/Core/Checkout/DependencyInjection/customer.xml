@@ -84,13 +84,61 @@
 
         <service class="Shopware\Checkout\Customer\StorefrontCustomerController" id="Shopware\Checkout\Customer\StorefrontCustomerController" public="true">
             <argument id="serializer" type="service"/>
-            <argument type="service" id="Shopware\Application\Context\Util\StorefrontContextPersister"/>
+            <argument type="service" id="Shopware\Checkout\Customer\Util\CustomerContextPersister"/>
             <argument type="service" id="Shopware\Framework\Routing\Firewall\CustomerProvider"/>
             <argument type="service" id="Shopware\Storefront\Page\Account\AccountService"/>
-            <argument type="service" id="Shopware\Application\Context\Util\StorefrontContextService"/>
+            <argument type="service" id="Shopware\Checkout\Customer\Util\CustomerContextService"/>
             <argument type="service" id="Shopware\Framework\Api\Response\ResponseFactory"/>
             <argument type="service" id="Shopware\Checkout\Order\OrderRepository.v1"/>
         </service>
+
+        <service class="Shopware\Checkout\Customer\Util\CustomerContextPersister" id="Shopware\Checkout\Customer\Util\CustomerContextPersister">
+            <argument id="Doctrine\DBAL\Connection" type="service"/>
+        </service>
+
+        <service class="Shopware\Checkout\Customer\Util\CustomerContextFactory" id="Shopware\Checkout\Customer\Util\CustomerContextFactory">
+            <argument type="service" id="Shopware\Application\Application\ApplicationRepository"/>
+            <argument type="service" id="Shopware\System\Currency\CurrencyRepository"/>
+            <argument type="service" id="Shopware\Checkout\Customer\CustomerRepository"/>
+            <argument type="service" id="Shopware\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupRepository"/>
+            <argument type="service" id="Shopware\System\Country\CountryRepository"/>
+            <argument type="service" id="Shopware\System\Tax\TaxRepository"/>
+            <argument type="service" id="Shopware\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository"/>
+            <argument type="service" id="Shopware\Checkout\Payment\PaymentMethodRepository"/>
+            <argument type="service" id="Shopware\Checkout\Shipping\ShippingMethodRepository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\System\Country\Aggregate\CountryState\CountryStateRepository.v1"/>
+            <argument type="service" id="Shopware\Application\Language\LanguageRepository"/>
+            <argument type="service" id="Shopware\Checkout\Cart\Tax\TaxDetector"/>
+        </service>
+
+        <service class="Shopware\Checkout\Customer\Util\CustomerContextRuleLoader" id="Shopware\Checkout\Customer\Util\CustomerContextRuleLoader">
+            <argument id="Shopware\Checkout\Cart\Cart\CartPersister" type="service"/>
+            <argument id="Shopware\Checkout\Cart\Tax\TaxDetector" type="service"/>
+            <argument id="Shopware\Checkout\Cart\Cart\CartCollector" type="service"/>
+            <argument id="Shopware\Checkout\Cart\Cart\CartProcessor" type="service"/>
+            <argument id="Shopware\Checkout\Cart\Cart\CartValidator" type="service"/>
+            <argument id="shopware.cache" type="service"/>
+            <argument id="Shopware\Checkout\Rule\ContextRuleRepository" type="service"/>
+            <argument id="serializer" type="service"/>
+            <argument id="Shopware\Checkout\Cart\StoreFrontCartService" type="service"/>
+        </service>
+
+        <service class="Shopware\Checkout\Customer\Util\CustomerContextService" id="Shopware\Checkout\Customer\Util\CustomerContextService">
+            <argument type="service" id="Shopware\Checkout\Customer\Util\CustomerContextFactory"/>
+            <argument type="service" id="Shopware\Checkout\Customer\Util\CustomerContextRuleLoader"/>
+            <argument type="service" id="Shopware\Checkout\Customer\Util\CustomerContextPersister"/>
+            <tag name="shopware.traceable" />
+        </service>
+
+        <service class="Shopware\Checkout\Customer\StorefrontCustomerContextController" id="Shopware\Checkout\Customer\StorefrontCustomerContextController" public="true">
+            <argument id="Shopware\Checkout\Payment\PaymentMethodRepository" type="service"/>
+            <argument id="Shopware\Checkout\Shipping\ShippingMethodRepository" type="service"/>
+            <argument id="Shopware\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository" type="service"/>
+            <argument id="Shopware\Checkout\Customer\Util\CustomerContextPersister" type="service"/>
+            <argument type="service" id="serializer"/>
+        </service>
+
 
     </services>
 </container>

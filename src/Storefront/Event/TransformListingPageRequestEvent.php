@@ -3,7 +3,7 @@
 namespace Shopware\Storefront\Event;
 
 use Shopware\Framework\Context;
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 use Shopware\Framework\Event\NestedEvent;
 use Shopware\Storefront\Page\Listing\ListingPageRequest;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,7 +13,7 @@ class TransformListingPageRequestEvent extends NestedEvent
     public const NAME = 'transform.listing.page.request.event';
 
     /**
-     * @var StorefrontContext
+     * @var CustomerContext
      */
     protected $context;
 
@@ -27,7 +27,7 @@ class TransformListingPageRequestEvent extends NestedEvent
      */
     protected $listingPageRequest;
 
-    public function __construct(Request $request, StorefrontContext $context, ListingPageRequest $listingPageRequest)
+    public function __construct(Request $request, CustomerContext $context, ListingPageRequest $listingPageRequest)
     {
         $this->context = $context;
         $this->request = $request;
@@ -44,7 +44,7 @@ class TransformListingPageRequestEvent extends NestedEvent
         return $this->context->getApplicationContext();
     }
 
-    public function getStorefrontContext(): StorefrontContext
+    public function getStorefrontContext(): CustomerContext
     {
         return $this->context;
     }

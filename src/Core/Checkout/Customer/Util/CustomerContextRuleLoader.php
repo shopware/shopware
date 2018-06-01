@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Application\Context\Util;
+namespace Shopware\Checkout\Customer\Util;
 
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Framework\Context;
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 use Shopware\Checkout\Cart\Cart\CartCollector;
 use Shopware\Checkout\Cart\Cart\CartPersisterInterface;
 use Shopware\Checkout\Cart\Cart\CartProcessor;
@@ -23,7 +23,7 @@ use Shopware\Checkout\Rule\ContextRuleRepository;
 use Shopware\Framework\ORM\Search\Criteria;
 use Symfony\Component\Serializer\SerializerInterface;
 
-class ContextRuleLoader
+class CustomerContextRuleLoader
 {
     /**
      * @var CartPersisterInterface
@@ -97,7 +97,7 @@ class ContextRuleLoader
         $this->storeFrontCartService = $storeFrontCartService;
     }
 
-    public function loadMatchingRules(StorefrontContext $context, ?string $cartToken)
+    public function loadMatchingRules(CustomerContext $context, ?string $cartToken)
     {
         $context = clone $context;
 

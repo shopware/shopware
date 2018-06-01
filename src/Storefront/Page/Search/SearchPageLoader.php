@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Page\Search;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 use Shopware\Content\Product\StorefrontProductRepository;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Query\TermQuery;
@@ -38,7 +38,7 @@ class SearchPageLoader
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function load(SearchPageRequest $request, StorefrontContext $context): SearchPageStruct
+    public function load(SearchPageRequest $request, CustomerContext $context): SearchPageStruct
     {
         $config = $this->configService->get($context->getApplication()->getId(), null);
 

@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Application\Context;
+namespace Shopware\Checkout\Customer;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\Application\Context\Util\StorefrontContextPersister;
+use Shopware\Checkout\CustomerContext;
+use Shopware\Checkout\Customer\Util\CustomerContextPersister;
 use Shopware\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository;
 use Shopware\Checkout\Order\Exception\NotLoggedInCustomerException;
 use Shopware\Checkout\Payment\Exception\PaymentMethodNotFoundHttpException;
@@ -21,7 +21,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Serializer\Serializer;
 
-class StorefrontContextController extends Controller
+class StorefrontCustomerContextController extends Controller
 {
     /**
      * @var \Shopware\Checkout\Payment\PaymentMethodRepository
@@ -39,7 +39,7 @@ class StorefrontContextController extends Controller
     protected $customerAddressRepository;
 
     /**
-     * @var \Shopware\Application\Context\Util\StorefrontContextPersister
+     * @var \Shopware\Checkout\Customer\Util\CustomerContextPersister
      */
     protected $contextPersister;
 
@@ -52,7 +52,7 @@ class StorefrontContextController extends Controller
         PaymentMethodRepository $paymentMethodRepository,
         ShippingMethodRepository $shippingMethodRepository,
         CustomerAddressRepository $customerAddressRepository,
-        StorefrontContextPersister $contextPersister,
+        CustomerContextPersister $contextPersister,
         Serializer $serializer
     ) {
         $this->paymentMethodRepository = $paymentMethodRepository;
@@ -66,7 +66,7 @@ class StorefrontContextController extends Controller
      * @Route("/storefront-api/context/", name="storefront.api.context.update")
      * @Method({"PUT"})
      */
-    public function update(StorefrontContext $context): JsonResponse
+    public function update(CustomerContext $context): JsonResponse
     {
         $payload = $this->getPayload();
 
@@ -91,7 +91,7 @@ class StorefrontContextController extends Controller
         ]);
     }
 
-    private function validatePaymentMethodId(string $paymentMethodId, StorefrontContext $context): string
+    private function validatePaymentMethodId(string $paymentMethodId, CustomerContext $context): string
     {
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('payment_method.id', $paymentMethodId));
@@ -104,7 +104,7 @@ class StorefrontContextController extends Controller
         return $paymentMethodId;
     }
 
-    private function validateShippingMethodId(string $shippingMethodId, StorefrontContext $context): string
+    private function validateShippingMethodId(string $shippingMethodId, CustomerContext $context): string
     {
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('shipping_method.id', $shippingMethodId));
@@ -117,7 +117,7 @@ class StorefrontContextController extends Controller
         return $shippingMethodId;
     }
 
-    private function validateAddressId(string $addressId, StorefrontContext $context): string
+    private function validateAddressId(string $addressId, CustomerContext $context): string
     {
         if (!$context->getCustomer()) {
             throw new NotLoggedInCustomerException();

@@ -2,13 +2,13 @@
 
 namespace Shopware\Checkout\Rule\Specification\Scope;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 use Shopware\Checkout\Cart\LineItem\CalculatedLineItemInterface;
 
 class CalculatedLineItemScope extends RuleScope
 {
     /**
-     * @var StorefrontContext
+     * @var CustomerContext
      */
     protected $context;
 
@@ -17,7 +17,7 @@ class CalculatedLineItemScope extends RuleScope
      */
     protected $calculatedLineItem;
 
-    public function __construct(CalculatedLineItemInterface $calculatedLineItem, StorefrontContext $context)
+    public function __construct(CalculatedLineItemInterface $calculatedLineItem, CustomerContext $context)
     {
         $this->calculatedLineItem = $calculatedLineItem;
         $this->context = $context;
@@ -28,7 +28,7 @@ class CalculatedLineItemScope extends RuleScope
         return $this->calculatedLineItem;
     }
 
-    public function getContext(): StorefrontContext
+    public function getContext(): CustomerContext
     {
         return $this->context;
     }

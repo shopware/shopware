@@ -6,7 +6,7 @@ use Shopware\Application\Context\Exception\UnsupportedModifierTypeException;
 use Shopware\Application\Context\Repository\ContextCartModifierRepository;
 use Shopware\Application\Context\Struct\ContextCartModifierBasicStruct;
 use Shopware\Application\Context\Struct\ContextCartModifierSearchResult;
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 use Shopware\Checkout\Cart\Cart\CartProcessorInterface;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Checkout\Cart\Cart\Struct\Cart;
@@ -58,7 +58,7 @@ class ContextCartModifierProcessor implements CartProcessorInterface
         Cart $cart,
         CalculatedCart $calculatedCart,
         StructCollection $dataCollection,
-        StorefrontContext $context
+        CustomerContext $context
     ): void {
         /** @var ContextCartModifierSearchResult $contextCartModifiers */
         $contextCartModifiers = $dataCollection->get(self::TYPE);
@@ -96,7 +96,7 @@ class ContextCartModifierProcessor implements CartProcessorInterface
     private function calculate(
         ContextCartModifierBasicStruct $modifier,
         CalculatedCart $calculatedCart,
-        StorefrontContext $context
+        CustomerContext $context
     ): CalculatedPrice {
         $prices = new CalculatedPriceCollection();
         foreach ($calculatedCart->getCalculatedLineItems() as $calculatedLineItem) {

@@ -22,21 +22,19 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Application\Context\Util;
+namespace Shopware\Checkout\Customer\Util;
 
+use Shopware\Checkout\CustomerContext;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerInterface;
-use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\Framework\Struct\Struct;
-use Symfony\Component\Serializer\SerializerInterface;
 
 /**
  * @category  Shopware
  *
  * @copyright Copyright (c) shopware AG (http://www.shopware.de)
  */
-class StorefrontContextService implements StorefrontContextServiceInterface
+class CustomerContextService implements CustomerContextServiceInterface
 {
     public const CURRENCY_ID = 'currencyId';
     public const LANGUAGE_ID = 'languageId';
@@ -50,57 +48,43 @@ class StorefrontContextService implements StorefrontContextServiceInterface
     public const STATE_ID = 'stateId';
 
     /**
-     * @var ContextFactoryInterface
-     */
-    private $factory;
-
-    /**
      * @var CacheItemPoolInterface
      */
     private $cache;
 
     /**
-     * @var SerializerInterface
+     * @var CustomerContextFactoryInterface
      */
-    private $serializer;
+    private $factory;
 
     /**
-     * @var StorefrontContext[]
+     * @var CustomerContext[]
      */
     private $context = [];
 
     /**
-     * @var ContextRuleLoader
+     * @var CustomerContextRuleLoader
      */
     private $contextRuleLoader;
 
     /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    /**
-     * @var StorefrontContextPersister
+     * @var CustomerContextPersister
      */
     private $contextPersister;
 
     public function __construct(
-        ContextFactoryInterface $factory,
+        CustomerContextFactoryInterface $factory,
         CacheItemPoolInterface $cache,
-        SerializerInterface $serializer,
-        ContextRuleLoader $contextRuleLoader,
-        LoggerInterface $logger,
-        StorefrontContextPersister $contextPersister
+        CustomerContextRuleLoader $contextRuleLoader,
+        CustomerContextPersister $contextPersister
     ) {
         $this->factory = $factory;
         $this->cache = $cache;
-        $this->serializer = $serializer;
         $this->contextRuleLoader = $contextRuleLoader;
-        $this->logger = $logger;
         $this->contextPersister = $contextPersister;
     }
 
-    public function getStorefrontContext(string $tenantId, string $applicationId, string $token): StorefrontContext
+    public function get(string $tenantId, string $applicationId, string $token): CustomerContext
     {
         return $this->load($tenantId, $applicationId, $token, true);
     }
@@ -112,7 +96,7 @@ class StorefrontContextService implements StorefrontContextServiceInterface
         $this->load($tenantId, $applicationId, $token, false);
     }
 
-    private function load(string $tenantId, string $applicationId, string $token, bool $useCache): StorefrontContext
+    private function load(string $tenantId, string $applicationId, string $token, bool $useCache): CustomerContext
     {
         $key = $applicationId . '-' . $token . '-' . $tenantId;
 

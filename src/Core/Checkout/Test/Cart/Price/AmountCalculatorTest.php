@@ -26,7 +26,7 @@ namespace Shopware\Checkout\Test\Cart\Price;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Application\Application\Struct\ApplicationBasicStruct;
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 use Shopware\Checkout\Cart\Price\AmountCalculator;
 use Shopware\Checkout\Cart\Price\PriceRounding;
 use Shopware\Checkout\Cart\Price\Struct\CalculatedPrice;
@@ -62,7 +62,7 @@ class AmountCalculatorTest extends TestCase
         $shop = $this->createMock(ApplicationBasicStruct::class);
         $shop->method('getTaxCalculationType')->will($this->returnValue(TaxAmountCalculator::CALCULATION_VERTICAL));
 
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CustomerContext::class);
         $context->method('getApplication')->will($this->returnValue($shop));
 
         $calculator = new AmountCalculator(
@@ -100,7 +100,7 @@ class AmountCalculatorTest extends TestCase
         $shop = $this->createMock(ApplicationBasicStruct::class);
         $shop->method('getTaxCalculationType')->will($this->returnValue(TaxAmountCalculator::CALCULATION_VERTICAL));
 
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CustomerContext::class);
         $context->method('getApplication')->will($this->returnValue($shop));
 
         $calculator = new AmountCalculator(
@@ -138,7 +138,7 @@ class AmountCalculatorTest extends TestCase
         $shop = $this->createMock(ApplicationBasicStruct::class);
         $shop->method('getTaxCalculationType')->will($this->returnValue(TaxAmountCalculator::CALCULATION_VERTICAL));
 
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CustomerContext::class);
         $context->method('getApplication')->will($this->returnValue($shop));
 
         $calculator = new AmountCalculator(

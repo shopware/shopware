@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Page\Detail;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 use Shopware\Content\Product\Aggregate\ProductConfigurator\Collection\ProductConfiguratorBasicCollection;
 use Shopware\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorRepository;
 use Shopware\Content\Product\StorefrontProductRepository;
@@ -32,7 +32,7 @@ class DetailPageLoader
         $this->configuratorRepository = $configuratorRepository;
     }
 
-    public function load(string $productId, Request $request, StorefrontContext $context): DetailPageStruct
+    public function load(string $productId, Request $request, CustomerContext $context): DetailPageStruct
     {
         $parentId = $this->fetchParentId($productId, $context);
 
@@ -60,7 +60,7 @@ class DetailPageLoader
         string $productId,
         string $parentId,
         Request $request,
-        StorefrontContext $context
+        CustomerContext $context
     ): string {
         $selection = $request->get('group', []);
 
@@ -93,7 +93,7 @@ class DetailPageLoader
         return $productId;
     }
 
-    private function loadConfigurator(StorefrontProductDetailStruct $product, StorefrontContext $context): ProductConfiguratorBasicCollection
+    private function loadConfigurator(StorefrontProductDetailStruct $product, CustomerContext $context): ProductConfiguratorBasicCollection
     {
         $containerId = $product->getParentId() ?? $product->getId();
 
@@ -110,7 +110,7 @@ class DetailPageLoader
         return $configurator;
     }
 
-    private function fetchParentId(string $productId, StorefrontContext $context): string
+    private function fetchParentId(string $productId, CustomerContext $context): string
     {
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('product.children.id', $productId));

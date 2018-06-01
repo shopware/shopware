@@ -2,21 +2,21 @@
 
 namespace Shopware\Checkout\Rule\Specification\Scope;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 
 class StorefrontScope extends RuleScope
 {
     /**
-     * @var StorefrontContext
+     * @var CustomerContext
      */
     protected $context;
 
-    public function __construct(StorefrontContext $context)
+    public function __construct(CustomerContext $context)
     {
         $this->context = $context;
     }
 
-    public function getContext(): StorefrontContext
+    public function getContext(): CustomerContext
     {
         return $this->context;
     }

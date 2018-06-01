@@ -24,7 +24,7 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 use Shopware\Storefront\Page\Listing\ListingPageLoader;
 use Shopware\Storefront\Page\Listing\ListingPageRequest;
 use Symfony\Component\Routing\Annotation\Route;
@@ -44,7 +44,7 @@ class ListingController extends StorefrontController
     /**
      * @Route("/listing/{id}", name="listing_page", options={"seo"=true})
      */
-    public function index(string $id, StorefrontContext $context, ListingPageRequest $request)
+    public function index(string $id, CustomerContext $context, ListingPageRequest $request)
     {
         $request->setNavigationId($id);
 

@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Page\Listing;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 use Shopware\Content\Product\StorefrontProductRepository;
 use Shopware\Framework\ORM\Search\Criteria;
 use Shopware\Framework\ORM\Search\Query\TermQuery;
@@ -31,7 +31,7 @@ class ListingPageLoader
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function load(ListingPageRequest $request, StorefrontContext $context): ListingPageStruct
+    public function load(ListingPageRequest $request, CustomerContext $context): ListingPageStruct
     {
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('product.active', 1));

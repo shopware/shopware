@@ -26,7 +26,7 @@ namespace Shopware\Storefront\Controller\Widgets;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 use Shopware\Application\Language\Collection\LanguageBasicCollection;
 use Shopware\Application\Language\LanguageRepository;
 use Shopware\Framework\ORM\Search\Criteria;
@@ -57,11 +57,11 @@ class IndexController extends StorefrontController
      * @Route("/widgets/index/shopMenu", name="widgets/shopMenu")
      * @Method({"GET"})
      *
-     * @param StorefrontContext $context
+     * @param CustomerContext $context
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function shopMenuAction(StorefrontContext $context)
+    public function shopMenuAction(CustomerContext $context)
     {
         $languages = $this->loadLanguages($context);
 
@@ -74,7 +74,7 @@ class IndexController extends StorefrontController
         ]);
     }
 
-    private function loadLanguages(StorefrontContext $context): LanguageBasicCollection
+    private function loadLanguages(CustomerContext $context): LanguageBasicCollection
     {
         $criteria = new Criteria();
         $criteria->addFilter(new TermsQuery('language.id', $context->getApplication()->getLanguageIds()));
@@ -82,7 +82,7 @@ class IndexController extends StorefrontController
         return $this->languageRepository->search($criteria, $context->getApplicationContext());
     }
 
-    private function getCurrencies(StorefrontContext $context): CurrencyBasicCollection
+    private function getCurrencies(CustomerContext $context): CurrencyBasicCollection
     {
         $criteria = new Criteria();
         $criteria->addFilter(new TermsQuery('currency.id', ['4c8eba11-bd35-46d7-86af-bed481a6e665', '2824ea63-db67-4110-9e23-78ddcc9cec84']));

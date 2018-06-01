@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace Shopware\Checkout\Cart\Price;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 use Shopware\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
 use Shopware\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
@@ -60,7 +60,7 @@ class AmountCalculator
         $this->taxAmountCalculator = $taxAmountCalculator;
     }
 
-    public function calculateAmount(CalculatedPriceCollection $prices, CalculatedPriceCollection $shippingCosts, StorefrontContext $context): CartPrice
+    public function calculateAmount(CalculatedPriceCollection $prices, CalculatedPriceCollection $shippingCosts, CustomerContext $context): CartPrice
     {
         if ($this->taxDetector->isNetDelivery($context)) {
             return $this->calculateNetDeliveryAmount($prices, $shippingCosts);
@@ -105,11 +105,11 @@ class AmountCalculator
      *
      * @param CalculatedPriceCollection                              $prices
      * @param CalculatedPriceCollection                              $shippingCosts
-     * @param \Shopware\Application\Context\Struct\StorefrontContext $context
+     * @param \Shopware\Checkout\CustomerContext $context
      *
      * @return CartPrice
      */
-    private function calculateGrossAmount(CalculatedPriceCollection $prices, CalculatedPriceCollection $shippingCosts, StorefrontContext $context): CartPrice
+    private function calculateGrossAmount(CalculatedPriceCollection $prices, CalculatedPriceCollection $shippingCosts, CustomerContext $context): CartPrice
     {
         $allPrices = $prices->merge($shippingCosts);
 
@@ -140,11 +140,11 @@ class AmountCalculator
      *
      * @param CalculatedPriceCollection                              $prices
      * @param CalculatedPriceCollection                              $shippingCosts
-     * @param \Shopware\Application\Context\Struct\StorefrontContext $context
+     * @param \Shopware\Checkout\CustomerContext $context
      *
      * @return CartPrice
      */
-    private function calculateNetAmount(CalculatedPriceCollection $prices, CalculatedPriceCollection $shippingCosts, StorefrontContext $context): CartPrice
+    private function calculateNetAmount(CalculatedPriceCollection $prices, CalculatedPriceCollection $shippingCosts, CustomerContext $context): CartPrice
     {
         $all = $prices->merge($shippingCosts);
 

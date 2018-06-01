@@ -161,7 +161,7 @@
                  id="Shopware\Framework\Routing\ApplicationRequestContextResolver">
 
             <argument id="Shopware\Framework\Routing\ApplicationRequestContextResolver.inner" type="service"/>
-            <argument id="Shopware\Application\Context\Util\StorefrontContextService" type="service"/>
+            <argument id="Shopware\Checkout\Customer\Util\CustomerContextService" type="service"/>
             <argument type="service" id="security.token_storage"/>
         </service>
 
@@ -190,7 +190,7 @@
         </service>
 
         <service class="Shopware\Framework\Routing\Firewall\ContextUserProvider" id="Shopware\Framework\Routing\Firewall\ContextUserProvider">
-            <argument id="Shopware\Application\Context\Util\StorefrontContextService" type="service"/>
+            <argument id="Shopware\Checkout\Customer\Util\CustomerContextService" type="service"/>
             <argument id="Doctrine\DBAL\Connection" type="service"/>
         </service>
 

@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Application\Context\Util;
+namespace Shopware\Checkout\Customer\Util;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Framework\Struct\Uuid;
 
-class StorefrontContextPersister
+class CustomerContextPersister
 {
     /**
      * @var Connection

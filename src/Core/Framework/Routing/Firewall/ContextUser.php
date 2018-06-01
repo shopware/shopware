@@ -2,7 +2,7 @@
 
 namespace Shopware\Framework\Routing\Firewall;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 class ContextUser implements UserInterface
@@ -13,11 +13,11 @@ class ContextUser implements UserInterface
     private $applicationToken;
 
     /**
-     * @var StorefrontContext
+     * @var \Shopware\Checkout\CustomerContext
      */
     private $context;
 
-    public function __construct(string $applicationToken, StorefrontContext $context)
+    public function __construct(string $applicationToken, CustomerContext $context)
     {
         $this->applicationToken = $applicationToken;
         $this->context = $context;
@@ -33,7 +33,7 @@ class ContextUser implements UserInterface
         return $this->context->getToken();
     }
 
-    public function getContext(): StorefrontContext
+    public function getContext(): CustomerContext
     {
         return $this->context;
     }

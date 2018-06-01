@@ -2,9 +2,9 @@
 
 namespace Shopware\Checkout\Rule\Specification\Scope;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 
 abstract class RuleScope
 {
-    abstract public function getContext(): StorefrontContext;
+    abstract public function getContext(): CustomerContext;
 }

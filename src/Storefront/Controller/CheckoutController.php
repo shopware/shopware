@@ -5,9 +5,9 @@ namespace Shopware\Storefront\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Framework\Context;
-use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\Application\Context\Util\StorefrontContextPersister;
-use Shopware\Application\Context\Util\StorefrontContextService;
+use Shopware\Checkout\CustomerContext;
+use Shopware\Checkout\Customer\Util\CustomerContextPersister;
+use Shopware\Checkout\Customer\Util\CustomerContextService;
 use Shopware\Checkout\Cart\StoreFrontCartService;
 use Shopware\Checkout\Order\OrderRepository;
 use Shopware\Checkout\Order\Struct\OrderBasicStruct;
@@ -61,7 +61,7 @@ class CheckoutController extends StorefrontController
     private $tokenFactory;
 
     /**
-     * @var StorefrontContextPersister
+     * @var CustomerContextPersister
      */
     private $contextPersister;
 
@@ -82,7 +82,7 @@ class CheckoutController extends StorefrontController
         PaymentTransactionChainProcessor $paymentProcessor,
         PaymentTransactionTokenFactory $tokenFactory,
         PaymentMethodRepository $paymentMethodRepository,
-        StorefrontContextPersister $contextPersister,
+        CustomerContextPersister $contextPersister,
         Serializer $serializer,
         PaymentHandlerRegistry $paymentHandlerRegistry
     ) {
@@ -108,7 +108,7 @@ class CheckoutController extends StorefrontController
     /**
      * @Route("/checkout/cart", name="checkout_cart", options={"seo"="false"})
      */
-    public function cart(StorefrontContext $context): Response
+    public function cart(CustomerContext $context): Response
     {
         return $this->renderStorefront('@Storefront/frontend/checkout/cart.html.twig', [
             'cart' => $this->cartService->getCalculatedCart($context),
@@ -118,7 +118,7 @@ class CheckoutController extends StorefrontController
     /**
      * @Route("/checkout/shippingPayment", name="checkout_shipping_payment", options={"seo"="false"})
      */
-    public function shippingPayment(Request $request, StorefrontContext $context): Response
+    public function shippingPayment(Request $request, CustomerContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -133,7 +133,7 @@ class CheckoutController extends StorefrontController
      *
      * @throws UnknownPaymentMethodException
      */
-    public function saveShippingPayment(Request $request, StorefrontContext $context): Response
+    public function saveShippingPayment(Request $request, CustomerContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -145,7 +145,7 @@ class CheckoutController extends StorefrontController
 
         $this->contextPersister->save(
             $context->getToken(),
-            [StorefrontContextService::PAYMENT_METHOD_ID => $paymentMethodId],
+            [CustomerContextService::PAYMENT_METHOD_ID => $paymentMethodId],
             $context->getTenantId()
         );
 
@@ -157,11 +157,11 @@ class CheckoutController extends StorefrontController
      * @Route("/checkout/confirm", name="checkout_confirm", options={"seo"="false"})
      *
      * @param Request           $request
-     * @param StorefrontContext $context
+     * @param CustomerContext $context
      *
      * @return RedirectResponse|Response
      */
-    public function confirm(Request $request, StorefrontContext $context): Response
+    public function confirm(Request $request, CustomerContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -179,7 +179,7 @@ class CheckoutController extends StorefrontController
      * @Route("/checkout/pay", name="checkout_pay", options={"seo"="false"})
      *
      * @param Request           $request
-     * @param StorefrontContext $context
+     * @param CustomerContext $context
      *
      * @throws InvalidOrderException
      * @throws InvalidTransactionException
@@ -187,7 +187,7 @@ class CheckoutController extends StorefrontController
      *
      * @return RedirectResponse
      */
-    public function pay(Request $request, StorefrontContext $context): RedirectResponse
+    public function pay(Request $request, CustomerContext $context): RedirectResponse
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -217,7 +217,7 @@ class CheckoutController extends StorefrontController
      * @Route("/checkout/finalize-transaction", name="checkout_finalize_transaction", options={"seo"="false"})
      *
      * @param Request           $request
-     * @param StorefrontContext $context
+     * @param CustomerContext $context
      *
      * @throws UnknownPaymentMethodException
      * @throws \Doctrine\DBAL\Exception\InvalidArgumentException
@@ -226,7 +226,7 @@ class CheckoutController extends StorefrontController
      *
      * @return RedirectResponse
      */
-    public function finalizeTransaction(Request $request, StorefrontContext $context): RedirectResponse
+    public function finalizeTransaction(Request $request, CustomerContext $context): RedirectResponse
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -252,7 +252,7 @@ class CheckoutController extends StorefrontController
      *
      * @throws \Exception
      */
-    public function finish(Request $request, StorefrontContext $context): Response
+    public function finish(Request $request, CustomerContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -266,7 +266,7 @@ class CheckoutController extends StorefrontController
         ]);
     }
 
-    private function getOrder(string $orderId, StorefrontContext $context): OrderBasicStruct
+    private function getOrder(string $orderId, CustomerContext $context): OrderBasicStruct
     {
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('order.customer.id', $context->getCustomer()->getId()));
@@ -284,7 +284,7 @@ class CheckoutController extends StorefrontController
     /**
      * @throws InvalidTransactionException
      */
-    private function getOrderIdByTransactionId(string $transactionId, StorefrontContext $context): string
+    private function getOrderIdByTransactionId(string $transactionId, CustomerContext $context): string
     {
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('order.customer.id', $context->getCustomer()->getId()));

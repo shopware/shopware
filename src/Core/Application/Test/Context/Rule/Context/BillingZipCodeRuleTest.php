@@ -25,7 +25,7 @@
 namespace Shopware\Application\Test\Context\Rule\Context;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
 use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
@@ -40,7 +40,7 @@ class BillingZipCodeRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CustomerContext::class);
 
         $billing = new CustomerAddressBasicStruct();
         $billing->setZipcode('ABC123');
@@ -63,7 +63,7 @@ class BillingZipCodeRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CustomerContext::class);
 
         $billing = new CustomerAddressBasicStruct();
         $billing->setZipcode('ABC2');
@@ -86,7 +86,7 @@ class BillingZipCodeRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CustomerContext::class);
 
         $billing = new CustomerAddressBasicStruct();
         $billing->setZipcode('ABC4');
@@ -109,7 +109,7 @@ class BillingZipCodeRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CustomerContext::class);
 
         $context->expects($this->any())
             ->method('getCustomer')

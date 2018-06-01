@@ -26,7 +26,7 @@ namespace Shopware\Checkout\Test\Cart\Common;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Application\Application\Struct\ApplicationBasicStruct;
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 use Shopware\Application\Language\Struct\LanguageBasicStruct;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Checkout\Cart\Cart\Struct\Cart;
@@ -167,7 +167,7 @@ class Generator extends TestCase
         $customer->setId(Uuid::uuid4()->getHex());
         $customer->setGroup($currentCustomerGroup);
 
-        return new StorefrontContext(
+        return new CustomerContext(
             Defaults::TENANT_ID,
             Uuid::uuid4()->toString(),
             $application,

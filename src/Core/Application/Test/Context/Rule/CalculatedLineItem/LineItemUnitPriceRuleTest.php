@@ -25,7 +25,7 @@
 namespace Shopware\Application\Test\Context\Rule\CalculatedLineItem;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 use Shopware\Checkout\Rule\Specification\CalculatedLineItem\LineItemUnitPriceRule;
 use Shopware\Checkout\Rule\Specification\Rule;
 use Shopware\Checkout\Rule\Specification\Scope\CalculatedLineItemScope;
@@ -38,7 +38,7 @@ class LineItemUnitPriceRuleTest extends TestCase
         $rule = new LineItemUnitPriceRule(100);
 
         $calculatedLineItem = Generator::createCalculatedProduct('A', 100, 2);
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CustomerContext::class);
 
         $this->assertTrue(
             $rule->match(new CalculatedLineItemScope($calculatedLineItem, $context))->matches()
@@ -50,7 +50,7 @@ class LineItemUnitPriceRuleTest extends TestCase
         $rule = new LineItemUnitPriceRule(99);
 
         $calculatedLineItem = Generator::createCalculatedProduct('A', 100, 2);
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CustomerContext::class);
 
         $this->assertFalse(
             $rule->match(new CalculatedLineItemScope($calculatedLineItem, $context))->matches()
@@ -62,7 +62,7 @@ class LineItemUnitPriceRuleTest extends TestCase
         $rule = new LineItemUnitPriceRule(100, Rule::OPERATOR_LTE);
 
         $calculatedLineItem = Generator::createCalculatedProduct('A', 100, 2);
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CustomerContext::class);
 
         $this->assertTrue(
             $rule->match(new CalculatedLineItemScope($calculatedLineItem, $context))->matches()
@@ -74,7 +74,7 @@ class LineItemUnitPriceRuleTest extends TestCase
         $rule = new LineItemUnitPriceRule(101, Rule::OPERATOR_LTE);
 
         $calculatedLineItem = Generator::createCalculatedProduct('A', 100, 2);
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CustomerContext::class);
 
         $this->assertTrue(
             $rule->match(new CalculatedLineItemScope($calculatedLineItem, $context))->matches()
@@ -86,7 +86,7 @@ class LineItemUnitPriceRuleTest extends TestCase
         $rule = new LineItemUnitPriceRule(99, Rule::OPERATOR_LTE);
 
         $calculatedLineItem = Generator::createCalculatedProduct('A', 100, 2);
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CustomerContext::class);
 
         $this->assertFalse(
             $rule->match(new CalculatedLineItemScope($calculatedLineItem, $context))->matches()
@@ -98,7 +98,7 @@ class LineItemUnitPriceRuleTest extends TestCase
         $rule = new LineItemUnitPriceRule(100, Rule::OPERATOR_GTE);
 
         $calculatedLineItem = Generator::createCalculatedProduct('A', 100, 2);
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CustomerContext::class);
 
         $this->assertTrue(
             $rule->match(new CalculatedLineItemScope($calculatedLineItem, $context))->matches()
@@ -110,7 +110,7 @@ class LineItemUnitPriceRuleTest extends TestCase
         $rule = new LineItemUnitPriceRule(99, Rule::OPERATOR_GTE);
 
         $calculatedLineItem = Generator::createCalculatedProduct('A', 100, 2);
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CustomerContext::class);
 
         $this->assertTrue(
             $rule->match(new CalculatedLineItemScope($calculatedLineItem, $context))->matches()
@@ -122,7 +122,7 @@ class LineItemUnitPriceRuleTest extends TestCase
         $rule = new LineItemUnitPriceRule(101, Rule::OPERATOR_GTE);
 
         $calculatedLineItem = Generator::createCalculatedProduct('A', 100, 2);
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CustomerContext::class);
 
         $this->assertFalse(
             $rule->match(new CalculatedLineItemScope($calculatedLineItem, $context))->matches()
@@ -134,7 +134,7 @@ class LineItemUnitPriceRuleTest extends TestCase
         $rule = new LineItemUnitPriceRule(101, Rule::OPERATOR_NEQ);
 
         $calculatedLineItem = Generator::createCalculatedProduct('A', 100, 2);
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CustomerContext::class);
 
         $this->assertTrue(
             $rule->match(new CalculatedLineItemScope($calculatedLineItem, $context))->matches()
@@ -146,7 +146,7 @@ class LineItemUnitPriceRuleTest extends TestCase
         $rule = new LineItemUnitPriceRule(100, Rule::OPERATOR_NEQ);
 
         $calculatedLineItem = Generator::createCalculatedProduct('A', 100, 2);
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CustomerContext::class);
 
         $this->assertFalse(
             $rule->match(new CalculatedLineItemScope($calculatedLineItem, $context))->matches()

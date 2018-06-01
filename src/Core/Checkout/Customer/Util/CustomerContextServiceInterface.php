@@ -22,16 +22,18 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Application\Context\Util;
+namespace Shopware\Checkout\Customer\Util;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 
-interface ContextFactoryInterface
+/**
+ * @category  Shopware
+ *
+ * @copyright Copyright (c) shopware AG (http://www.shopware.de)
+ */
+interface CustomerContextServiceInterface
 {
-    public function create(
-        string $tenantId,
-        string $token,
-        string $applicationId,
-        array $options = []
-    ): StorefrontContext;
+    public function get(string $tenantId, string $applicationId, string $token): CustomerContext;
+
+    public function refresh(string $tenantId, string $applicationId, string $token): void;
 }

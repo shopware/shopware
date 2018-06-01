@@ -10,7 +10,7 @@ An entire simple rule might look like this:
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Checkout\Rule\Specification\Match;
 use Shopware\Checkout\Rule\Specification\Rule;
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 
 class TrueRule extends Rule
 {
@@ -53,4 +53,4 @@ Assuming the following scenario exists:
 
 As a result, the database is accessed 100 times each time storefront page is requested.
 
-All matching rules of a request state are stored in the `\Shopware\Application\Context\Struct\StorefrontContext` and the `\Shopware\Application\Context\Struct\ShopContext`.
+All matching rules of a request state are stored in the `\Shopware\Checkout\CustomerContext` and the `\Shopware\Application\Context\Struct\ShopContext`.

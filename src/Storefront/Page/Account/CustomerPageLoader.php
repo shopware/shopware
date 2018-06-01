@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Page\Account;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 
 class CustomerPageLoader
 {
@@ -10,7 +10,7 @@ class CustomerPageLoader
     {
     }
 
-    public function load(StorefrontContext $context): CustomerPageStruct
+    public function load(CustomerContext $context): CustomerPageStruct
     {
         return new CustomerPageStruct($context->getCustomer());
     }

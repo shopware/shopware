@@ -2,7 +2,7 @@
 
 namespace Shopware\Content\Product\Cart;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 use Shopware\Checkout\Cart\Cart\CartProcessorInterface;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Checkout\Cart\Cart\Struct\Cart;
@@ -15,7 +15,7 @@ class ProductPreValidator implements CartProcessorInterface
         Cart $cart,
         CalculatedCart $calculatedCart,
         StructCollection $dataCollection,
-        StorefrontContext $context
+        CustomerContext $context
     ): void {
         $products = $cart->getLineItems()->filterType(ProductProcessor::TYPE_PRODUCT);
         if ($products->count() <= 0) {

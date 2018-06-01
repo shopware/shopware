@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace Shopware\Content\Product\Cart;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 use Shopware\Checkout\Cart\Cart\CartCollectorInterface;
 use Shopware\Checkout\Cart\Cart\Struct\Cart;
 use Shopware\Content\Product\Aggregate\ProductService\Collection\ProductServiceBasicCollection;
@@ -53,7 +53,7 @@ class ProductCartCollector implements CartCollectorInterface
         $this->serviceGateway = $serviceGateway;
     }
 
-    public function prepare(StructCollection $fetchDefinition, Cart $cart, StorefrontContext $context): void
+    public function prepare(StructCollection $fetchDefinition, Cart $cart, CustomerContext $context): void
     {
         $lineItems = $cart->getLineItems()->filterType(ProductProcessor::TYPE_PRODUCT);
         if ($lineItems->count() === 0) {
@@ -72,7 +72,7 @@ class ProductCartCollector implements CartCollectorInterface
         }
     }
 
-    public function fetch(StructCollection $dataCollection, StructCollection $fetchCollection, StorefrontContext $context): void
+    public function fetch(StructCollection $dataCollection, StructCollection $fetchCollection, CustomerContext $context): void
     {
         $definitions = $fetchCollection->filterInstance(ProductFetchDefinition::class);
         if ($definitions->count() > 0) {
@@ -98,7 +98,7 @@ class ProductCartCollector implements CartCollectorInterface
         return array_filter(array_keys(array_flip($flat)));
     }
 
-    private function fetchProducts(StorefrontContext $context, StructCollection $definitions): ProductBasicCollection
+    private function fetchProducts(CustomerContext $context, StructCollection $definitions): ProductBasicCollection
     {
         $ids = [];
         /** @var ProductFetchDefinition[] $definitions */
@@ -111,7 +111,7 @@ class ProductCartCollector implements CartCollectorInterface
         return $this->productGateway->get($ids, $context);
     }
 
-    private function fetchServices(StorefrontContext $context, StructCollection $definitions): ProductServiceBasicCollection
+    private function fetchServices(CustomerContext $context, StructCollection $definitions): ProductServiceBasicCollection
     {
         $ids = [];
         /** @var ProductServiceFetchDefinition[] $definitions */

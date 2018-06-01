@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace Shopware\Checkout\Cart\Price;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 use Shopware\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
 use Shopware\Checkout\Cart\Price\Struct\PriceDefinition;
@@ -61,7 +61,7 @@ class PriceCalculator
         $this->taxDetector = $taxDetector;
     }
 
-    public function calculateCollection(PriceDefinitionCollection $collection, StorefrontContext $context): CalculatedPriceCollection
+    public function calculateCollection(PriceDefinitionCollection $collection, CustomerContext $context): CalculatedPriceCollection
     {
         $prices = $collection->map(
             function (PriceDefinition $definition) use ($context) {
@@ -72,7 +72,7 @@ class PriceCalculator
         return new CalculatedPriceCollection($prices);
     }
 
-    public function calculate(PriceDefinition $definition, StorefrontContext $context): CalculatedPrice
+    public function calculate(PriceDefinition $definition, CustomerContext $context): CalculatedPrice
     {
         if ($this->taxDetector->useGross($context)) {
             $price = $this->grossPriceCalculator->calculate($definition);

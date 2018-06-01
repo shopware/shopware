@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace Shopware\Checkout\Cart\Cart;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Checkout\Cart\Cart\Struct\Cart;
 use Shopware\Checkout\Cart\Exception\CircularCartCalculationException;
@@ -57,14 +57,14 @@ class CircularCartCalculation
         $this->validator = $validator;
     }
 
-    public function calculate(Cart $cart, StorefrontContext $context): CalculatedCart
+    public function calculate(Cart $cart, CustomerContext $context): CalculatedCart
     {
         $dataCollection = $this->collector->collect($cart, $context);
 
         return $this->process($cart, $context, $dataCollection, 0);
     }
 
-    private function process(Cart $cart, StorefrontContext $context, StructCollection $dataCollection, int $iteration): CalculatedCart
+    private function process(Cart $cart, CustomerContext $context, StructCollection $dataCollection, int $iteration): CalculatedCart
     {
         if ($iteration >= self::MAX_ITERATION) {
             throw new CircularCartCalculationException();

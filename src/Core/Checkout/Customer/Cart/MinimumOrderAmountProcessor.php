@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Customer\Cart;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 use Shopware\Checkout\Cart\Cart\CartProcessorInterface;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Checkout\Cart\Cart\Struct\Cart;
@@ -26,7 +26,7 @@ class MinimumOrderAmountProcessor implements CartProcessorInterface
         Cart $cart,
         CalculatedCart $calculatedCart,
         StructCollection $dataCollection,
-        StorefrontContext $context
+        CustomerContext $context
     ): void {
         if (!$context->getCustomer()) {
             return;

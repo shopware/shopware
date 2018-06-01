@@ -26,7 +26,7 @@ namespace Shopware\Storefront\Controller\Widgets;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 use Shopware\Checkout\Cart\StoreFrontCartService;
 use Shopware\Storefront\Controller\StorefrontController;
 
@@ -46,7 +46,7 @@ class CheckoutController extends StorefrontController
      * @Route("/widgets/checkout/info", name="widgets/checkout/info")
      * @Method({"GET"})
      */
-    public function infoAction(StorefrontContext $context)
+    public function infoAction(CustomerContext $context)
     {
         $cart = $this->cartService->getCalculatedCart($context);
 

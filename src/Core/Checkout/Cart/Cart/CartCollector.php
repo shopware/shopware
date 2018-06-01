@@ -2,7 +2,7 @@
 
 namespace Shopware\Checkout\Cart\Cart;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 use Shopware\Checkout\Cart\Cart\Struct\Cart;
 use Shopware\Framework\Struct\StructCollection;
 
@@ -18,7 +18,7 @@ class CartCollector
         $this->collectors = $collectors;
     }
 
-    public function collect(Cart $cart, StorefrontContext $context): StructCollection
+    public function collect(Cart $cart, CustomerContext $context): StructCollection
     {
         $fetchCollection = new StructCollection();
         foreach ($this->collectors as $collector) {

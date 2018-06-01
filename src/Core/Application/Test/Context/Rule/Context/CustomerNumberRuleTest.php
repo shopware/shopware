@@ -25,7 +25,7 @@
 namespace Shopware\Application\Test\Context\Rule\Context;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
 use Shopware\Checkout\Rule\Specification\Context\CustomerNumberRule;
@@ -42,7 +42,7 @@ class CustomerNumberRuleTest extends TestCase
         $customer = new CustomerBasicStruct();
         $customer->setNumber('NO. 1');
 
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CustomerContext::class);
 
         $context->expects($this->any())
             ->method('getCustomer')
@@ -62,7 +62,7 @@ class CustomerNumberRuleTest extends TestCase
         $customer = new CustomerBasicStruct();
         $customer->setNumber('NO. 2');
 
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CustomerContext::class);
 
         $context->expects($this->any())
             ->method('getCustomer')
@@ -82,7 +82,7 @@ class CustomerNumberRuleTest extends TestCase
         $customer = new CustomerBasicStruct();
         $customer->setNumber('no. 1');
 
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CustomerContext::class);
 
         $context->expects($this->any())
             ->method('getCustomer')
@@ -99,7 +99,7 @@ class CustomerNumberRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CustomerContext::class);
 
         $context->expects($this->any())
             ->method('getCustomer')
@@ -119,7 +119,7 @@ class CustomerNumberRuleTest extends TestCase
         $customer = new CustomerBasicStruct();
         $customer->setNumber('no. 2');
 
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CustomerContext::class);
 
         $context->expects($this->any())
             ->method('getCustomer')

@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace Shopware\Content\Product\Cart;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 use Shopware\Checkout\Cart\LineItem\CalculatedLineItem;
 use Shopware\Checkout\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Checkout\Cart\LineItem\LineItemCollection;
@@ -50,7 +50,7 @@ class ProductCalculator
 
     public function calculate(
         LineItemCollection $collection,
-        StorefrontContext $context,
+        CustomerContext $context,
         StructCollection $dataCollection
     ): CalculatedLineItemCollection {
         $products = new CalculatedLineItemCollection();

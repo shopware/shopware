@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace Shopware\Checkout\Cart\Delivery;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 use Shopware\Checkout\Cart\Cart\CartProcessorInterface;
 use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Checkout\Cart\Cart\Struct\Cart;
@@ -48,7 +48,7 @@ class DeliverySeparatorProcessor implements CartProcessorInterface
         Cart $cart,
         CalculatedCart $calculatedCart,
         StructCollection $dataCollection,
-        StorefrontContext $context
+        CustomerContext $context
     ): void {
         $items = $calculatedCart
             ->getCalculatedLineItems()

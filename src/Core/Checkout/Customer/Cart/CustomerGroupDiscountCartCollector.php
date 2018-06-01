@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace Shopware\Checkout\Customer\Cart;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Checkout\CustomerContext;
 use Shopware\Checkout\Cart\Cart\CartCollectorInterface;
 use Shopware\Checkout\Cart\Cart\Struct\Cart;
 use Shopware\Checkout\Customer\Aggregate\CustomerGroupDiscount\Collection\CustomerGroupDiscountBasicCollection;
@@ -50,14 +50,14 @@ class CustomerGroupDiscountCartCollector implements CartCollectorInterface
     public function prepare(
         StructCollection $fetchDefinition,
         Cart $cart,
-        StorefrontContext $context
+        CustomerContext $context
     ): void {
     }
 
     public function fetch(
         StructCollection $dataCollection,
         StructCollection $fetchCollection,
-        StorefrontContext $context
+        CustomerContext $context
     ): void {
         $criteria = new Criteria();
         $criteria->addFilter(

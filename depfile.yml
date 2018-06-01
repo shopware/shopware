@@ -17,7 +17,7 @@ layers:
           - type: className
             regex: Shopware\\Framework\\Context
           - type: className
-            regex: Shopware\\Application\\Context\\Struct\\StorefrontContext
+            regex: Shopware\\Checkout\\CustomerContext
           - type: className
             regex: Shopware\\Application\\Language\\Struct\\LanguageBasicStruct
           - type: className

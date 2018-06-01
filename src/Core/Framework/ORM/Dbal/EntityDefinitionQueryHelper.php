@@ -314,9 +314,9 @@ class EntityDefinitionQueryHelper
             'live.`tenant_id` as tenant_id',
         ]);
         $versionQuery->from(self::escape($table), 'live');
-        $versionQuery->leftJoin('live', self::escape($table), 'draft', 'draft.`id` = live.`id` AND draft.`version_id` = :version AND draft.tenant_id = live.tenant_id');
+        $versionQuery->leftJoin('live', self::escape($table), 'draft', 'draft.`id` = live.`id` AND draft.`version_id` = :version AND draft.`tenant_id` = live.tenant_id');
         $versionQuery->andWhere('live.`version_id` = :liveVersion');
-        $versionQuery->andWhere('live.tenant_id = :tenant');
+        $versionQuery->andWhere('live.`tenant_id` = :tenant');
 
         $query->setParameter('liveVersion', Uuid::fromStringToBytes(Defaults::LIVE_VERSION));
         $query->setParameter('version', Uuid::fromStringToBytes($context->getVersionId()));
@@ -331,7 +331,7 @@ class EntityDefinitionQueryHelper
             str_replace(
                 ['#version#', '#root#'],
                 [self::escape($versionRoot), self::escape($root)],
-                '#version#.`version_id` = #root#.`version_id` AND #version#.`id` = #root#.`id` AND #root#.tenant_id = #version#.tenant_id'
+                '#version#.`version_id` = #root#.`version_id` AND #version#.`id` = #root#.`id` AND #root#.`tenant_id` = #version#.tenant_id'
             )
         );
     }

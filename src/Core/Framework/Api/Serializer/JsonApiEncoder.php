@@ -5,21 +5,20 @@ namespace Shopware\Framework\Api\Serializer;
 use Shopware\Framework\Api\Exception\MissingDataException;
 use Shopware\Framework\Api\Exception\MissingValueException;
 use Shopware\Framework\ORM\EntityDefinition;
+use Shopware\Framework\ORM\Field\AssociationInterface;
 use Shopware\Framework\ORM\Field\Field;
 use Shopware\Framework\ORM\Field\FkField;
 use Shopware\Framework\ORM\Field\ManyToManyAssociationField;
 use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Framework\ORM\Field\OneToManyAssociationField;
-use Shopware\Framework\ORM\FieldCollection;
 use Shopware\Framework\ORM\Write\Flag\Extension;
 use Shopware\Framework\ORM\Write\Flag\Required;
+use Shopware\Framework\ORM\Write\Flag\WriteOnly;
 use Shopware\Framework\Serializer\StructDecoder;
 use Symfony\Component\Serializer\Encoder\EncoderInterface;
 use Symfony\Component\Serializer\Exception\BadMethodCallException;
-use Symfony\Component\Serializer\Exception\NotEncodableValueException;
 use Symfony\Component\Serializer\Exception\RuntimeException;
 use Symfony\Component\Serializer\Exception\UnexpectedValueException;
-use Symfony\Component\Serializer\Exception\UnsupportedException;
 
 class JsonApiEncoder implements EncoderInterface
 {
@@ -122,11 +121,16 @@ class JsonApiEncoder implements EncoderInterface
 
         $objectContextUri = $context['uri'] . '/' . $this->camelCaseToSnailCase($context['definition']::getEntityName()) . '/' . $this->getIdentifier($data);
 
-        /** @var FieldCollection $fields */
-        $fields = $context['definition']::getFields();
-
+        /** @var array $fields */
+        $fields = $context['definition']::getFields()->getElements();
         if ($context['basic'] === true) {
-            $fields = $fields->getBasicProperties();
+            $fields = array_filter($fields, function (Field $field) {
+                if ($field instanceof AssociationInterface) {
+                    return $field->loadInBasic() && !$field->is(WriteOnly::class);
+                }
+
+                return true;
+            });
         }
 
         $missingProperties = [];
@@ -161,7 +165,7 @@ class JsonApiEncoder implements EncoderInterface
                 }
 
                 $subContext = $context;
-                $subContext['definition'] = $this->getReferenceDefinition($context['definition'], $key);
+                $subContext['definition'] = $field->getReferenceClass();
                 $subContext['basic'] = true;
 
                 $relationship = $this->extractRelationship($value, $subContext['definition']);
@@ -176,7 +180,7 @@ class JsonApiEncoder implements EncoderInterface
                 continue;
             }
 
-            if ($this->isToManyAssociation($context['definition'], $key)) {
+            if ($field instanceof ManyToManyAssociationField || $field instanceof OneToManyAssociationField) {
                 $relationships[$key] = [
                     'data' => [],
                     'links' => [
@@ -190,7 +194,13 @@ class JsonApiEncoder implements EncoderInterface
 
                 foreach ($value as $resource) {
                     $subContext = $context;
-                    $subContext['definition'] = $this->getReferenceDefinition($context['definition'], $key);
+
+                    if ($field instanceof OneToManyAssociationField) {
+                        $subContext['definition'] = $field->getReferenceClass();
+                    } else {
+                        $subContext['definition'] = $field->getReferenceDefinition();
+                    }
+
                     $subContext['basic'] = true;
 
                     $relationship = $this->extractRelationship($resource, $subContext['definition']);
@@ -242,23 +252,6 @@ class JsonApiEncoder implements EncoderInterface
     private function isCollection(array $array): bool
     {
         return array_keys($array) === range(0, \count($array) - 1);
-    }
-
-    /**
-     * @param EntityDefinition|string $definition
-     * @param string                  $fieldName
-     *
-     * @return bool
-     */
-    private function isToManyAssociation(string $definition, string $fieldName): bool
-    {
-        $field = $definition::getFields()->get($fieldName);
-
-        if (!$field) {
-            return false;
-        }
-
-        return $field instanceof ManyToManyAssociationField || $field instanceof OneToManyAssociationField;
     }
 
     /**
@@ -336,34 +329,6 @@ class JsonApiEncoder implements EncoderInterface
     }
 
     /**
-     * @param string|EntityDefinition $definition
-     * @param string                  $fieldName
-     *
-     * @throws NotEncodableValueException
-     * @throws UnsupportedException
-     *
-     * @return EntityDefinition|string
-     */
-    private function getReferenceDefinition(string $definition, string $fieldName): string
-    {
-        $field = $definition::getFields()->get($fieldName);
-
-        if (!$field) {
-            throw new NotEncodableValueException(sprintf('Field "%s" was not found in definition "%s".', $fieldName, $definition));
-        }
-
-        if ($field instanceof OneToManyAssociationField) {
-            return $field->getReferenceClass();
-        } elseif ($field instanceof ManyToOneAssociationField) {
-            return $field->getReferenceClass();
-        } elseif ($field instanceof ManyToManyAssociationField) {
-            return $field->getReferenceDefinition();
-        }
-
-        throw new UnsupportedException('Could not determine reference definition due to unknown association type.');
-    }
-
-    /**
      * @param Field $field
      * @param array $data
      *
@@ -371,23 +336,23 @@ class JsonApiEncoder implements EncoderInterface
      */
     private function getValue(Field $field, array $data)
     {
-        if ($field->is(Extension::class)) {
-            if (!array_key_exists('extensions', $data)) {
-                throw new RuntimeException(sprintf('Expected data container to contain key "extensions". It is required for field "%s".', $field->getPropertyName()));
-            }
-
-            if (!array_key_exists($field->getPropertyName(), $data['extensions'])) {
-                throw new MissingValueException(sprintf('extensions.%s', $field->getPropertyName()));
-            }
-
-            return $data['extensions'][$field->getPropertyName()];
+        $name = $field->getPropertyName();
+        if (array_key_exists($name, $data)) {
+            return $data[$name];
         }
 
-        if (!array_key_exists($field->getPropertyName(), $data)) {
-            throw new MissingValueException($field->getPropertyName());
+        if (!$field->is(Extension::class)) {
+            throw new MissingValueException($name);
+        }
+        if (!array_key_exists('extensions', $data)) {
+            throw new RuntimeException(sprintf('Expected data container to contain key "extensions". It is required for field "%s".', $name));
         }
 
-        return $data[$field->getPropertyName()];
+        if (!array_key_exists($name, $data['extensions'])) {
+            throw new MissingValueException(sprintf('extensions.%s', $name));
+        }
+
+        return $data['extensions'][$name];
     }
 
     private function getDefaultValue(Field $field): ?array

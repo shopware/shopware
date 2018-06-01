@@ -24,6 +24,7 @@
 
 namespace Shopware\Framework\ORM\Field;
 
+use Shopware\Api\Entity\Write\Flag\Required;
 use Shopware\Framework\ORM\Write\DataStack\KeyValuePair;
 use Shopware\Framework\ORM\Write\EntityExistence;
 use Shopware\Framework\ORM\Write\FieldAware\StorageAware;
@@ -32,7 +33,6 @@ use Shopware\Framework\ORM\Write\Filter\Filter;
 use Shopware\Framework\ORM\Write\Filter\HtmlFilter;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
-use Shopware\Api\Entity\Write\Flag\Required;
 
 class StringField extends Field implements StorageAware
 {
@@ -57,6 +57,7 @@ class StringField extends Field implements StorageAware
 
         if ($value === null && !$this->is(Required::class)) {
             yield $this->storageName => $this->getFilter()->filter($value);
+
             return;
         }
 

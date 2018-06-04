@@ -10,7 +10,7 @@ class ClassNamespaceTest extends TestCase
 {
     public function test_all_production_files_are_namespaced_correctly()
     {
-        $basePath = __DIR__ . '/../../';
+        $basePath = __DIR__ . '/../../../';
         $basePathParts = explode('/', $basePath);
 
         $phpFiles = (new Finder())->files()->in($basePath)->name('*.php')->getIterator();
@@ -27,7 +27,7 @@ class ClassNamespaceTest extends TestCase
 
             if (strpos($file->getContents(), $namespace) === false) {
                 $relativePath = str_replace($basePath, '', $file->getPathname());
-                $errors['src' . $relativePath] = $namespace;
+                $errors['src/' . $relativePath] = $namespace;
             }
         }
 

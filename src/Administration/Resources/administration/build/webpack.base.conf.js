@@ -7,6 +7,8 @@ function resolve(dir) {
     return path.join(__dirname, '..', dir)
 }
 
+const eslintDisable = (process.env.ESLINT_DISABLE === 'true');
+
 module.exports = {
     entry: {
         commons: resolve('src') + '/core/common.js',
@@ -31,7 +33,7 @@ module.exports = {
     },
     module: {
         rules: [
-            {
+            (eslintDisable === true ? {} : {
                 test: /\.(js|vue)$/,
                 loader: 'eslint-loader',
                 enforce: "pre",
@@ -39,7 +41,7 @@ module.exports = {
                 options: {
                     formatter: require('eslint-friendly-formatter')
                 }
-            },
+            }),
             {
                 test: /\.vue$/,
                 loader: 'vue-loader',

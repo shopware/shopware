@@ -161,7 +161,7 @@
             <tag name="shopware.entity.field_accessor_builder" priority="-100" />
         </service>
 
-        <service class="Shopware\Core\Framework\ORM\Dbal\FieldAccessorBuilder\JsonObjectFieldAccessorBuilder" id="Shopware\Core\Framework\ORM\Dbal\FieldAccessorBuilder\JsonObjectFieldAccessorBuilder">
+        <service class="Shopware\Core\Framework\ORM\Dbal\FieldAccessorBuilder\ObjectFieldAccessorBuilder" id="Shopware\Core\Framework\ORM\Dbal\FieldAccessorBuilder\ObjectFieldAccessorBuilder">
             <tag name="shopware.entity.field_accessor_builder" priority="-150" />
         </service>
 

@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\ORM\Field;
 
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 
-class PriceField extends JsonArrayField
+class PriceField extends JsonField
 {
     public function __construct(string $storageName, string $propertyName)
     {

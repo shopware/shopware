@@ -162,6 +162,18 @@ class ConstraintBuilder
     }
 
     /**
+     * Set prop must be an array
+     *
+     * @return $this
+     */
+    public function isArray()
+    {
+        $this->addConstraint(new Type('array'));
+
+        return $this;
+    }
+
+    /**
      * @param Constraint $constraint
      *
      * @return ConstraintBuilder

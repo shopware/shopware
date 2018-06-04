@@ -13,8 +13,9 @@ use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\FloatField;
 use Shopware\Core\Framework\ORM\Field\IdField;
 use Shopware\Core\Framework\ORM\Field\IntField;
-use Shopware\Core\Framework\ORM\Field\JsonArrayField;
-use Shopware\Core\Framework\ORM\Field\JsonObjectField;
+use Shopware\Core\Framework\ORM\Field\JsonField;
+use Shopware\Core\Framework\ORM\Field\ListField;
+use Shopware\Core\Framework\ORM\Field\ObjectField;
 use Shopware\Core\Framework\ORM\Field\LongTextField;
 use Shopware\Core\Framework\ORM\Field\LongTextWithHtmlField;
 use Shopware\Core\Framework\ORM\Field\ManyToManyAssociationField;
@@ -56,7 +57,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 ['url' => 'http://shopware.next/api'],
             ],
             'info' => [
-                'title' => 'Shopware\Core API',
+                'title' => 'Shopware API',
                 'version' => '1.0.0',
             ],
             'security' => [
@@ -210,10 +211,12 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
     private function getType(Field $field): string
     {
         switch (true) {
-            case $field instanceof JsonObjectField:
-                return 'json_object';
-            case $field instanceof JsonArrayField:
-                return 'json_array';
+            case $field instanceof ObjectField:
+                return 'object';
+            case $field instanceof ListField:
+                return 'array';
+            case $field instanceof JsonField:
+                return 'json';
             case $field instanceof OneToManyAssociationField:
             case $field instanceof ManyToManyAssociationField:
                 return 'array';

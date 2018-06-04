@@ -30,12 +30,14 @@ use Shopware\Core\Framework\ORM\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\ORM\Write\EntityExistence;
 use Shopware\Core\Framework\ORM\Write\FieldAware\StorageAware;
 use Shopware\Core\Framework\ORM\Write\FieldException\InvalidFieldException;
+use Shopware\Core\Framework\ORM\Write\FieldException\InvalidJsonFieldException;
+use Shopware\Core\Framework\ORM\Write\FieldException\UnexpectedFieldException;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
-use Shopware\Framework\ORM\Write\FieldException\InvalidJsonFieldException;
+use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
-class JsonArrayField extends Field implements StorageAware
+class JsonField extends Field implements StorageAware
 {
     /**
      * @var string
@@ -62,7 +64,7 @@ class JsonArrayField extends Field implements StorageAware
         $key = $data->getKey();
         $value = $data->getValue();
 
-        if (!empty($this->propertyMapping) && is_array($value)) {
+        if (!empty($this->propertyMapping) && $value) {
             $value = $this->validateMapping($value);
         }
 
@@ -72,7 +74,7 @@ class JsonArrayField extends Field implements StorageAware
             $this->validate($this->getInsertConstraints(), $key, $value);
         }
 
-        if (is_array($value)) {
+        if ($value !== null) {
             $value = json_encode($value);
         }
 
@@ -85,11 +87,19 @@ class JsonArrayField extends Field implements StorageAware
     }
 
     /**
+     * @return Field[]
+     */
+    public function getPropertyMapping(): array
+    {
+        return $this->propertyMapping;
+    }
+
+    /**
      * @param array  $constraints
      * @param string $fieldName
      * @param $value
      */
-    public function validate(array $constraints, string $fieldName, $value): void
+    protected function validate(array $constraints, string $fieldName, $value): void
     {
         $violationList = new ConstraintViolationList();
 
@@ -121,14 +131,19 @@ class JsonArrayField extends Field implements StorageAware
         }
     }
 
-    public function getInsertConstraints(): array
+    /**
+     * @return Constraint[]
+     */
+    protected function getInsertConstraints(): array
     {
         return $this->constraintBuilder
-            ->isNotBlank()
             ->getConstraints();
     }
 
-    public function getUpdateConstraints(): array
+    /**
+     * @return Constraint[]
+     */
+    protected function getUpdateConstraints(): array
     {
         return $this->constraintBuilder
             ->getConstraints();
@@ -136,14 +151,36 @@ class JsonArrayField extends Field implements StorageAware
 
     private function validateMapping(array $data): array
     {
+        if (array_key_exists('_class', $data)) {
+            unset($data['_class']);
+        }
+
         $exceptions = [];
         $stack = new DataStack($data);
         $existence = new EntityExistence('', [], false, false, false, []);
+        $fieldPath = $this->path . '/' . $this->getPropertyName();
+
+        $propertyKeys = array_map(function (Field $field) {
+            return $field->getPropertyName();
+        }, $this->propertyMapping);
+
+        // If a mapping is defined, you should not send properties that are undefined.
+        // Sending undefined fields will throw an UnexpectedFieldException
+        $keyDiff = array_diff(array_keys($data), $propertyKeys);
+        if (count($keyDiff)) {
+            foreach ($keyDiff as $fieldName) {
+                $exceptions[] = new UnexpectedFieldException($fieldPath . '/' . $fieldName, $fieldName);
+            }
+        }
 
         foreach ($this->propertyMapping as $field) {
             try {
                 $kvPair = $stack->pop($field->getPropertyName());
             } catch (ExceptionNoStackItemFound $e) {
+                // The writer updates the whole field, so there is no possibility to update
+                // "some" fields. To enable a merge, we have to respect the $existence state
+                // for correct constraint validation. In addition the writer has to be rewritten
+                // in order to handle merges.
                 if (!$field->is(Required::class)) {
                     continue;
                 }
@@ -151,8 +188,7 @@ class JsonArrayField extends Field implements StorageAware
                 $kvPair = new KeyValuePair($field->getPropertyName(), null, true);
             }
 
-            $field->setValidator($this->validator);
-            $field->setConstraintBuilder($this->constraintBuilder);
+            $this->fieldExtenderCollection->extend($field);
             $field->setPath($this->path . '/' . $this->getPropertyName());
 
             try {

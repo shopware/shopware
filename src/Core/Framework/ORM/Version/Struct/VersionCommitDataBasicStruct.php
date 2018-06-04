@@ -37,7 +37,7 @@ class VersionCommitDataBasicStruct extends Entity
     protected $action;
 
     /**
-     * @var string|null
+     * @var array|null
      */
     protected $payload;
 
@@ -142,17 +142,17 @@ class VersionCommitDataBasicStruct extends Entity
     }
 
     /**
-     * @return null|string
+     * @return null|array
      */
-    public function getPayload(): ?string
+    public function getPayload(): ?array
     {
         return $this->payload;
     }
 
     /**
-     * @param null|string $payload
+     * @param null|array $payload
      */
-    public function setPayload(?string $payload): void
+    public function setPayload(?array $payload): void
     {
         $this->payload = $payload;
     }

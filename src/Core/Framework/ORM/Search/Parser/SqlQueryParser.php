@@ -8,7 +8,7 @@ use Shopware\Core\Framework\ORM\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\IdField;
-use Shopware\Core\Framework\ORM\Field\JsonArrayField;
+use Shopware\Core\Framework\ORM\Field\ListField;
 use Shopware\Core\Framework\ORM\Search\Query\MatchQuery;
 use Shopware\Core\Framework\ORM\Search\Query\NestedQuery;
 use Shopware\Core\Framework\ORM\Search\Query\NotQuery;
@@ -147,7 +147,7 @@ class SqlQueryParser
 
         $result = new ParseResult();
 
-        if (get_class($field) === JsonArrayField::class) {
+        if ($field instanceof ListField) {
             $result->addWhere('JSON_CONTAINS(' . $select . ', JSON_ARRAY(:' . $key . '))');
 
             if (\is_array($query->getValue())) {
@@ -181,7 +181,7 @@ class SqlQueryParser
 
         $result = new ParseResult();
 
-        if (get_class($field) === JsonArrayField::class) {
+        if ($field instanceof ListField) {
             $result->addWhere('JSON_CONTAINS(' . $select . ', JSON_ARRAY(:' . $key . '))');
             $result->addParameter($key, $query->getValue());
 

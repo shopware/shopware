@@ -29,6 +29,7 @@ use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\Field\Field;
 use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\IdField;
+use Shopware\Core\Framework\ORM\Field\JsonField;
 use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
 use Shopware\Core\Framework\ORM\Field\TenantIdField;
 use Shopware\Core\Framework\ORM\Field\VersionField;
@@ -342,6 +343,11 @@ class EntityWriter implements EntityWriterInterface
             if (($field instanceof IdField || $field instanceof FkField) && !empty($value)) {
                 $value = Uuid::fromBytesToHex($value);
             }
+
+            if ($field instanceof JsonField && !empty($value)) {
+                $value = json_decode($value, true);
+            }
+
             $convertedPayload[$field->getPropertyName()] = $value;
         }
 

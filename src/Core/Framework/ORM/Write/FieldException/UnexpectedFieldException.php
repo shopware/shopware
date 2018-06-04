@@ -26,29 +26,33 @@ namespace Shopware\Core\Framework\ORM\Write\FieldException;
 
 use Throwable;
 
-class InvalidJsonFieldException extends WriteFieldException
+class UnexpectedFieldException extends WriteFieldException
 {
-    private const CONCERN = 'validation-error';
-
-    /**
-     * @var InvalidFieldException[]
-     */
-    private $exceptions;
+    private const CONCERN = 'unexpected-field';
 
     /**
      * @var string
      */
     private $path;
+    /**
+     * @var string
+     */
+    private $fieldName;
 
-    public function __construct(string $path, array $exceptions, $code = 0, Throwable $previous = null)
+    public function __construct(string $path, string $fieldName, $code = 0, Throwable $previous = null)
     {
         parent::__construct(
-            sprintf('Caught %s validation errors.', count($exceptions)),
+            sprintf('Unexpected field: %s', $fieldName),
             $code,
             $previous
         );
         $this->path = $path;
-        $this->exceptions = $exceptions;
+        $this->fieldName = $fieldName;
+    }
+
+    public function getFieldName(): string
+    {
+        return $this->fieldName;
     }
 
     public function getPath(): string
@@ -61,13 +65,13 @@ class InvalidJsonFieldException extends WriteFieldException
         return self::CONCERN;
     }
 
-    public function getExceptions(): array
-    {
-        return $this->exceptions;
-    }
-
     public function toArray(): array
     {
-        exit('FOO');
+        return [
+            'message' => $this->getMessage(),
+            'messageTemplate' => $this->getMessage(),
+            'parameters' => [],
+            'propertyPath' => $this->getPath(),
+        ];
     }
 }

@@ -16,9 +16,9 @@ use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\DateField;
 use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\IdField;
-use Shopware\Core\Framework\ORM\Field\JsonObjectField;
 use Shopware\Core\Framework\ORM\Field\LongTextField;
 use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\ORM\Field\ObjectField;
 use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
 use Shopware\Core\Framework\ORM\Field\TenantIdField;
 use Shopware\Core\Framework\ORM\Field\VersionField;
@@ -27,7 +27,6 @@ use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\RestrictDelete;
-use Shopware\Core\Framework\ORM\Write\Flag\Serialized;
 use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
 
 class OrderTransactionDefinition extends EntityDefinition
@@ -68,7 +67,7 @@ class OrderTransactionDefinition extends EntityDefinition
             (new ReferenceVersionField(PaymentMethodDefinition::class))->setFlags(new Required()),
             (new FkField('order_transaction_state_id', 'orderTransactionStateId', OrderTransactionStateDefinition::class))->setFlags(new Required()),
             (new ReferenceVersionField(OrderTransactionStateDefinition::class))->setFlags(new Required()),
-            (new JsonObjectField('amount', 'amount'))->setFlags(new Required(), new Serialized()),
+            (new ObjectField('amount', 'amount'))->setFlags(new Required()),
             (new LongTextField('payload', 'payload'))->setFlags(new Required()),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),

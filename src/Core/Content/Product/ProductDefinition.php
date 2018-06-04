@@ -28,13 +28,13 @@ use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\BoolField;
 use Shopware\Core\Content\Catalog\ORM\CatalogField;
+use Shopware\Core\Framework\ORM\Field\ListField;
 use Shopware\Core\Framework\ORM\Field\PriceRulesJsonField;
 use Shopware\Core\Framework\ORM\Field\DateField;
 use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\FloatField;
 use Shopware\Core\Framework\ORM\Field\IdField;
 use Shopware\Core\Framework\ORM\Field\IntField;
-use Shopware\Core\Framework\ORM\Field\JsonArrayField;
 use Shopware\Core\Framework\ORM\Field\LongTextField;
 use Shopware\Core\Framework\ORM\Field\LongTextWithHtmlField;
 use Shopware\Core\Framework\ORM\Field\ManyToManyAssociationField;
@@ -146,9 +146,9 @@ class ProductDefinition extends EntityDefinition
             (new StringField('template', 'template'))->setFlags(new Inherited()),
             (new BoolField('allow_notification', 'allowNotification'))->setFlags(new Inherited()),
             (new DateField('release_date', 'releaseDate'))->setFlags(new Inherited()),
-            (new JsonArrayField('category_tree', 'categoryTree'))->setFlags(new Inherited()),
-            (new JsonArrayField('datasheet_ids', 'datasheetIds'))->setFlags(new Inherited()),
-            new JsonArrayField('variation_ids', 'variationIds'),
+            (new ListField('category_tree', 'categoryTree', IdField::class))->setFlags(new Inherited()),
+            (new ListField('datasheet_ids', 'datasheetIds', IdField::class))->setFlags(new Inherited()),
+            new ListField('variation_ids', 'variationIds', IdField::class),
 
             (new IntField('min_delivery_time', 'minDeliveryTime'))->setFlags(new Inherited()),
             (new IntField('max_delivery_time', 'maxDeliveryTime'))->setFlags(new Inherited()),

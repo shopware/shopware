@@ -7,10 +7,10 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ORM\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\ORM\Dbal\FieldAccessorBuilder\FieldAccessorBuilderRegistry;
-use Shopware\Core\Framework\ORM\Dbal\FieldAccessorBuilder\JsonObjectFieldAccessorBuilder;
+use Shopware\Core\Framework\ORM\Dbal\FieldAccessorBuilder\ObjectFieldAccessorBuilder;
 use Shopware\Core\Framework\ORM\Dbal\FieldResolver\FieldResolverRegistry;
 use Shopware\Core\Framework\ORM\EntityDefinition;
-use Shopware\Core\Framework\ORM\Field\JsonObjectField;
+use Shopware\Core\Framework\ORM\Field\ObjectField;
 use Shopware\Core\Framework\ORM\Field\TenantIdField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 
@@ -38,7 +38,7 @@ class EntityDefinitionQueryHelperTest extends TestCase
         $helper = new EntityDefinitionQueryHelper(
             new FieldResolverRegistry([]),
             new FieldAccessorBuilderRegistry([
-                new JsonObjectFieldAccessorBuilder(),
+                new ObjectFieldAccessorBuilder(),
             ])
         );
         $accessor = $helper->getFieldAccessor(
@@ -56,7 +56,7 @@ class EntityDefinitionQueryHelperTest extends TestCase
         $helper = new EntityDefinitionQueryHelper(
             new FieldResolverRegistry([]),
             new FieldAccessorBuilderRegistry([
-                new JsonObjectFieldAccessorBuilder(),
+                new ObjectFieldAccessorBuilder(),
             ])
         );
         $accessor = $helper->getFieldAccessor(
@@ -74,7 +74,7 @@ class EntityDefinitionQueryHelperTest extends TestCase
         $helper = new EntityDefinitionQueryHelper(
             new FieldResolverRegistry([]),
             new FieldAccessorBuilderRegistry([
-                new JsonObjectFieldAccessorBuilder(),
+                new ObjectFieldAccessorBuilder(),
             ])
         );
         $field = $helper->getField(
@@ -83,7 +83,7 @@ class EntityDefinitionQueryHelperTest extends TestCase
             JsonObjectTestDefinition::getEntityName()
         );
 
-        $this->assertInstanceOf(JsonObjectField::class, $field);
+        $this->assertInstanceOf(ObjectField::class, $field);
     }
 }
 
@@ -98,7 +98,7 @@ class JsonObjectTestDefinition extends EntityDefinition
     {
         return new FieldCollection([
             new TenantIdField(),
-            new JsonObjectField('amount', 'amount'),
+            new ObjectField('amount', 'amount'),
         ]);
     }
 

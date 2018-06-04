@@ -1,28 +1,24 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Test\ORM\Field;
+namespace Shopware\Core\Framework\Test\ORM\Field;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Content\Product\ProductDefinition;
-use Shopware\Defaults;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\Field\BoolField;
-use Shopware\Framework\ORM\Field\FloatField;
-use Shopware\Framework\ORM\Field\JsonArrayField;
-use Shopware\Framework\ORM\Field\StringField;
-use Shopware\Framework\ORM\FieldCollection;
-use Shopware\Framework\ORM\Version\Definition\VersionCommitDataDefinition;
-use Shopware\Framework\ORM\Write\EntityWriter;
-use Shopware\Framework\ORM\Write\EntityWriterInterface;
-use Shopware\Framework\ORM\Write\FieldException\InvalidFieldException;
-use Shopware\Framework\ORM\Write\FieldException\WriteStackException;
-use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\Framework\Struct\Uuid;
+use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Version\Definition\VersionCommitDataDefinition;
+use Shopware\Core\Framework\ORM\Write\EntityWriter;
+use Shopware\Core\Framework\ORM\Write\EntityWriterInterface;
+use Shopware\Core\Framework\ORM\Write\FieldException\InvalidFieldException;
+use Shopware\Core\Framework\ORM\Write\FieldException\UnexpectedFieldException;
+use Shopware\Core\Framework\ORM\Write\FieldException\WriteStackException;
+use Shopware\Core\Framework\ORM\Write\WriteContext;
+use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Test\ORM\Field\TestDefinition\NestedDefinition;
+use Shopware\Core\Framework\Test\ORM\Field\TestDefinition\JsonDefinition;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class JsonArrayFieldTest extends KernelTestCase
+class JsonFieldTest extends KernelTestCase
 {
     /**
      * @var Connection
@@ -34,12 +30,42 @@ class JsonArrayFieldTest extends KernelTestCase
         self::bootKernel();
         $this->connection = self::$container->get(Connection::class);
         $this->connection->beginTransaction();
+
+        $nullableTable = <<<EOF
+CREATE TABLE `_test_nullable` (
+  `id` varbinary(16) NOT NULL,
+  `data` longtext NULL,
+  PRIMARY KEY `id` (`id`)
+);
+EOF;
+        $this->connection->executeUpdate($nullableTable);
     }
 
     public function tearDown(): void
     {
+        $this->connection->executeUpdate('DROP TABLE `_test_nullable`');
+
         $this->connection->rollBack();
         parent::tearDown();
+    }
+
+    public function testNullableJsonField(): void
+    {
+        $id = Uuid::uuid4();
+        $context = $this->createWriteContext();
+
+        $data = [
+            'id' => $id->getHex(),
+            'data' => null,
+        ];
+
+        $this->getWriter()->insert(JsonDefinition::class, [$data], $context);
+
+        $data = $this->connection->fetchAll('SELECT * FROM `_test_nullable`');
+
+        $this->assertCount(1, $data);
+        $this->assertEquals($id->getBytes(), $data[0]['id']);
+        $this->assertNull($data[0]['data']);
     }
 
     public function testMissingProperty(): void
@@ -95,13 +121,17 @@ class JsonArrayFieldTest extends KernelTestCase
         }
 
         $this->assertInstanceOf(WriteStackException::class, $ex);
-        $this->assertCount(2, $ex->getExceptions());
+        $this->assertCount(3, $ex->getExceptions());
 
         $fieldException = $ex->getExceptions()[0];
+        $this->assertEquals(UnexpectedFieldException::class, get_class($fieldException));
+        $this->assertEquals('/price/foo', $fieldException->getPath());
+
+        $fieldException = $ex->getExceptions()[1];
         $this->assertEquals(InvalidFieldException::class, get_class($fieldException));
         $this->assertEquals('/price/gross', $fieldException->getPath());
 
-        $fieldException = $ex->getExceptions()[1];
+        $fieldException = $ex->getExceptions()[2];
         $this->assertEquals(InvalidFieldException::class, get_class($fieldException));
         $this->assertEquals('/price/net', $fieldException->getPath());
     }
@@ -136,7 +166,7 @@ class JsonArrayFieldTest extends KernelTestCase
         $this->assertEquals('/price/net', $fieldException->getPath());
     }
 
-    public function testFieldShouldOnlyContainDefinedProperties(): void
+    public function testUnexpectedFieldShouldThrowException(): void
     {
         $id = Uuid::uuid4();
         $context = $this->createWriteContext();
@@ -144,7 +174,7 @@ class JsonArrayFieldTest extends KernelTestCase
         $data = [
             'id' => $id->getHex(),
             'name' => 'test',
-            'price' => ['gross' => 15, 'net' => 13.2, 'ignore' => 'me'],
+            'price' => ['gross' => 15, 'net' => 13.2, 'fail' => 'me'],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'rate' => 15],
             'categories' => [
@@ -152,17 +182,18 @@ class JsonArrayFieldTest extends KernelTestCase
             ],
         ];
 
-        $this->getWriter()->insert(ProductDefinition::class, [$data], $context);
+        $ex = null;
+        try {
+            $this->getWriter()->insert(ProductDefinition::class, [$data], $context);
+        } catch (WriteStackException $ex) {
+        }
 
-        $price = $this->connection->fetchColumn('SELECT price FROM product WHERE id = :id', ['id' => $id->getBytes()]);
-        $this->assertNotEmpty($price);
+        $this->assertInstanceOf(WriteStackException::class, $ex);
+        $this->assertCount(1, $ex->getExceptions());
 
-        $price = json_decode($price, true);
-
-        $this->assertEquals(
-            ['gross' => 15, 'net' => 13.2],
-            $price
-        );
+        $fieldException = $ex->getExceptions()[0];
+        $this->assertEquals(UnexpectedFieldException::class, get_class($fieldException));
+        $this->assertEquals('/price/fail', $fieldException->getPath());
     }
 
     public function testWithoutMappingShouldAcceptAnyKey(): void
@@ -196,9 +227,11 @@ class JsonArrayFieldTest extends KernelTestCase
 
     public function testFieldNesting(): void
     {
+        $id = Uuid::uuid4();
         $context = $this->createWriteContext();
 
         $data = [
+            'id' => $id->getHex(),
             'data' => [
                 'net' => 15,
                 'foo' => [
@@ -232,12 +265,9 @@ class JsonArrayFieldTest extends KernelTestCase
         $this->assertEquals('/data/foo/baz/deep', $fieldException->getPath());
     }
 
-    /**
-     * @return WriteContext
-     */
     protected function createWriteContext(): WriteContext
     {
-        $context = WriteContext::createFromApplicationContext(ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
+        $context = WriteContext::createFromContext(Context::createDefaultContext(Defaults::TENANT_ID));
 
         return $context;
     }
@@ -245,59 +275,5 @@ class JsonArrayFieldTest extends KernelTestCase
     private function getWriter(): EntityWriterInterface
     {
         return self::$container->get(EntityWriter::class);
-    }
-}
-
-class NestedDefinition extends EntityDefinition
-{
-    public static function getEntityName(): string
-    {
-        return 'product';
-    }
-
-    public static function getFields(): FieldCollection
-    {
-        return new FieldCollection([
-            new JsonArrayField('data', 'data', [
-                (new FloatField('gross', 'gross'))->setFlags(new Required()),
-                new FloatField('net', 'net'),
-                new JsonArrayField('foo', 'foo', [
-                    new StringField('bar', 'bar'),
-                    new JsonArrayField('baz', 'baz', [
-                        new BoolField('deep', 'deep'),
-                    ]),
-                ]),
-            ]),
-        ]);
-    }
-
-    public static function getRepositoryClass(): string
-    {
-        return '';
-    }
-
-    public static function getBasicCollectionClass(): string
-    {
-        return '';
-    }
-
-    public static function getBasicStructClass(): string
-    {
-        return '';
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return '';
-    }
-
-    public static function getDeletedEventClass(): string
-    {
-        return '';
-    }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return '';
     }
 }

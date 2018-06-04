@@ -17,7 +17,8 @@ use Shopware\Core\Framework\ORM\Field\BoolField;
 use Shopware\Core\Framework\ORM\Field\DateField;
 use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\IdField;
-use Shopware\Core\Framework\ORM\Field\JsonArrayField;
+use Shopware\Core\Framework\ORM\Field\JsonField;
+use Shopware\Core\Framework\ORM\Field\ListField;
 use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
 use Shopware\Core\Framework\ORM\Field\StringField;
@@ -70,10 +71,10 @@ class TouchpointDefinition extends EntityDefinition
             (new StringField('name', 'name'))->setFlags(new Required()),
             (new StringField('access_key', 'accessKey'))->setFlags(new Required()),
             (new StringField('secret_access_key', 'secretAccessKey'))->setFlags(new Required()),
-            (new JsonArrayField('catalog_ids', 'catalogIds'))->setFlags(new Required()),
-            (new JsonArrayField('currency_ids', 'currencyIds'))->setFlags(new Required()),
-            (new JsonArrayField('language_ids', 'languageIds'))->setFlags(new Required()),
-            new JsonArrayField('configuration', 'configuration'),
+            (new ListField('catalog_ids', 'catalogIds', IdField::class))->setFlags(new Required()),
+            (new ListField('currency_ids', 'currencyIds', IdField::class))->setFlags(new Required()),
+            (new ListField('language_ids', 'languageIds', IdField::class))->setFlags(new Required()),
+            new JsonField('configuration', 'configuration'),
             new BoolField('active', 'active'),
             new StringField('tax_calculation_type', 'taxCalculationType'),
             new DateField('created_at', 'createdAt'),

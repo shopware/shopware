@@ -15,8 +15,9 @@ use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\FloatField;
 use Shopware\Core\Framework\ORM\Field\IdField;
 use Shopware\Core\Framework\ORM\Field\IntField;
-use Shopware\Core\Framework\ORM\Field\JsonArrayField;
-use Shopware\Core\Framework\ORM\Field\JsonObjectField;
+use Shopware\Core\Framework\ORM\Field\JsonField;
+use Shopware\Core\Framework\ORM\Field\ListField;
+use Shopware\Core\Framework\ORM\Field\ObjectField;
 use Shopware\Core\Framework\ORM\Field\LongTextField;
 use Shopware\Core\Framework\ORM\Field\LongTextWithHtmlField;
 use Shopware\Core\Framework\ORM\Field\ManyToManyAssociationField;
@@ -27,7 +28,6 @@ use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
 use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\Field\TranslatedField;
 use Shopware\Core\Framework\ORM\Field\VersionField;
-use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\Extension;
 use Shopware\Core\Framework\ORM\Write\Flag\Inherited;
 use Shopware\Core\Framework\ORM\Write\Flag\Serialized;
@@ -268,32 +268,22 @@ class EntityHydrator
 
                 return new PriceRuleCollection($structs);
 
-            case $field instanceof JsonObjectField:
-                if ($field->is(Serialized::class)) {
-                    return $this->serializer->deserialize($value, '', 'json');
+            case $field instanceof ObjectField:
+                return $this->serializer->deserialize($value, '', 'json');
+
+            case $field instanceof ListField:
+                if ($value === null) {
+                    return [];
                 }
 
-                return json_decode((string) $value, true);
+                return json_decode($value, true);
 
-            case $field instanceof JsonArrayField:
+            case $field instanceof JsonField:
                 if ($value === null) {
                     return null;
                 }
 
-                if (!$field->is(Serialized::class)) {
-                    return json_decode($value, true);
-                }
-
-                $structs = [];
-                $array = json_decode($value, true);
-                if (!is_array($array)) {
-                    return null;
-                }
-                foreach ($array as $item) {
-                    $structs[] = $this->serializer->deserialize(json_encode($item), '', 'json');
-                }
-
-                return $structs;
+                return json_decode($value, true);
 
             case $field instanceof LongTextField:
             case $field instanceof LongTextWithHtmlField:

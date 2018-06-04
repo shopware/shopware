@@ -288,10 +288,10 @@ class ApplicationBootstrapper {
      * Starts the bootstrapping process of the application.
      *
      * @param {Object} [context={}]
-     * @returns {void}
+     * @returns {module:core/application.ApplicationBootstrapper}
      */
     start(context = {}) {
-        this.registerContext(context)
+        return this.registerContext(context)
             .createApplicationRoot();
     }
 
@@ -317,7 +317,7 @@ class ApplicationBootstrapper {
     createApplicationRoot() {
         const container = this.getContainer('init');
 
-        this.instantiateInitializers(container).then(() => {
+        ApplicationBootstrapper.instantiateInitializers(container).then(() => {
             const router = container.router.getRouterInstance();
             const view = container.view;
 
@@ -337,24 +337,15 @@ class ApplicationBootstrapper {
      *
      * @private
      * @param {Bottle.IContainer} container Bottle container
-     * @param {String} [prefix='init'] Nested container prefix
      * @returns {Promise<any[]>}
      */
-    instantiateInitializers(container, prefix = 'init') {
-        const services = container.$list().map((serviceName) => {
-            return `${prefix}.${serviceName}`;
-        });
-        this.$container.digest(services);
-
-        const asyncInitializers = [];
-        Object.keys(container).forEach((serviceKey) => {
-            const service = container[serviceKey];
-            if (service && service instanceof Promise) {
-                asyncInitializers.push(service);
-            }
+    static instantiateInitializers(container) {
+        // Tap the container to start the dependency tree resolving
+        const services = Object.keys(container).map((serviceKey) => {
+            return container[serviceKey];
         });
 
-        return Promise.all(asyncInitializers);
+        return Promise.resolve(services);
     }
 }
 

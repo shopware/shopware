@@ -1,4 +1,4 @@
-import { State } from 'src/core/shopware';
+import { State, Application } from 'src/core/shopware';
 import { deepCopyObject } from 'src/core/service/utils/object.utils';
 
 /**
@@ -22,7 +22,7 @@ State.register('contextRule', {
 
     actions: {
         getContextRuleList({ commit }, { offset = 0, limit = 25 }) {
-            const providerContainer = Shopware.Application.getContainer('service');
+            const providerContainer = Application.getContainer('service');
             const contextRuleService = providerContainer.contextRuleService;
 
             return contextRuleService.getList(offset, limit).then((response) => {

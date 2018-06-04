@@ -3,8 +3,6 @@
  * @module Shopware
  * @ignore
  */
-
-// <reference path="types/common.d.ts" />
 const Bottle = require('bottlejs');
 
 const ModuleFactory = require('src/core/factory/module.factory').default;

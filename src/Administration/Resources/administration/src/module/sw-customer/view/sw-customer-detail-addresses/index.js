@@ -1,4 +1,4 @@
-import { Component } from 'src/core/shopware';
+import { Component, Entity } from 'src/core/shopware';
 import utils, { object } from 'src/core/service/util.service';
 import { required } from 'src/core/service/validation.service';
 import template from './sw-customer-detail-addresses.html.twig';
@@ -74,7 +74,7 @@ Component.register('sw-customer-detail-addresses', {
         },
 
         isValidAddress(address) {
-            const requiredAddressFields = Shopware.Entity.getRequiredProperties('customer_address');
+            const requiredAddressFields = Entity.getRequiredProperties('customer_address');
             let isValid = true;
 
             isValid = requiredAddressFields.every((field) => {
@@ -89,7 +89,7 @@ Component.register('sw-customer-detail-addresses', {
         },
 
         createEmptyAddress() {
-            return Shopware.Entity.getRawEntityObject('customer_address');
+            return Entity.getRawEntityObject('customer_address');
         },
 
         onEditAddress(id) {

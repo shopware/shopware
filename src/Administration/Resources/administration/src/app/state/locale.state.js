@@ -1,4 +1,4 @@
-import { State } from 'src/core/shopware';
+import { State, Application } from 'src/core/shopware';
 
 /**
  * @module app/state/locale
@@ -14,7 +14,7 @@ State.register('locale', {
 
     mutations: {
         setLocale(state, locale) {
-            const factoryContainer = Shopware.Application.getContainer('factory');
+            const factoryContainer = Application.getContainer('factory');
             const localeFactory = factoryContainer.locale;
 
             state.locale = locale;

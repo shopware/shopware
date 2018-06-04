@@ -1,4 +1,4 @@
-import { State } from 'src/core/shopware';
+import { State, Application, Entity } from 'src/core/shopware';
 import utils, { types } from 'src/core/service/util.service';
 import { deepCopyObject, getAssociatedDeletions, getObjectChangeSet } from 'src/core/service/utils/object.utils';
 
@@ -46,7 +46,7 @@ State.register('product', {
          * @returns {Promise<T>}
          */
         getProductList({ commit }, { limit, offset, sortBy, sortDirection, term, criteria }) {
-            const providerContainer = Shopware.Application.getContainer('service');
+            const providerContainer = Application.getContainer('service');
             const productService = providerContainer.productService;
 
             const additionalParams = {};
@@ -97,7 +97,7 @@ State.register('product', {
                 return (localCopy === true) ? deepCopyObject(product) : product;
             }
 
-            const providerContainer = Shopware.Application.getContainer('service');
+            const providerContainer = Application.getContainer('service');
             const productService = providerContainer.productService;
 
             return productService.getById(id).then((response) => {
@@ -131,7 +131,7 @@ State.register('product', {
                 return state.draft[productId];
             }
 
-            const product = Shopware.Entity.getRawEntityObject('product', true);
+            const product = Entity.getRawEntityObject('product', true);
 
             product.id = productId;
             product.isDetail = true;
@@ -157,7 +157,7 @@ State.register('product', {
                 return Promise.reject();
             }
 
-            const providerContainer = Shopware.Application.getContainer('service');
+            const providerContainer = Application.getContainer('service');
             const productService = providerContainer.productService;
 
             const changeset = getObjectChangeSet(state.original[product.id], product, 'product');

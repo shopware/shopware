@@ -1,4 +1,4 @@
-import { Component, Mixin } from 'src/core/shopware';
+import { Component, Mixin, Entity } from 'src/core/shopware';
 import { deepCopyObject } from 'src/core/service/utils/object.utils';
 import utils from 'src/core/service/util.service';
 import template from './sw-product-detail-context-prices.html.twig';
@@ -96,7 +96,7 @@ Component.register('sw-product-detail-context-prices', {
                 return;
             }
 
-            const newContextPrice = Shopware.Entity.getRawEntityObject('product_context_price');
+            const newContextPrice = Entity.getRawEntityObject('product_context_price');
 
             newContextPrice.id = utils.createId();
 
@@ -175,7 +175,7 @@ Component.register('sw-product-detail-context-prices', {
             }
 
             if (currencyPrices[currencyPrices.length - 1].id === price.id && value !== null) {
-                const newContextPrice = Shopware.Entity.getRawEntityObject('product_context_price');
+                const newContextPrice = Entity.getRawEntityObject('product_context_price');
 
                 newContextPrice.id = utils.createId();
 

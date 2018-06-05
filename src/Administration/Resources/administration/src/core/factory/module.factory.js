@@ -1,5 +1,3 @@
-/* eslint-disable */
-
 /**
  * @module core/factory/module
  */
@@ -163,6 +161,7 @@ function registerChildRoutes(routeDefinition, moduleRoutes) {
             moduleRoutes = registerChildRoutes(child, moduleRoutes);
         }
         moduleRoutes.set(child.name, child);
+        return child;
     });
 
     return moduleRoutes;
@@ -238,7 +237,7 @@ function createRouteComponentList(route, moduleId) {
             `The route definition of module "${moduleId}" is not valid. 
                 A route needs an assigned component name.`
         );
-        return;
+        return false;
     }
 
     route.components = {

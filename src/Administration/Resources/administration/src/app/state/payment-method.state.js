@@ -1,4 +1,4 @@
-import { State } from 'src/core/shopware';
+import { State, Application } from 'src/core/shopware';
 import { deepCopyObject } from 'src/core/service/utils/object.utils';
 
 /**
@@ -24,7 +24,7 @@ State.register('paymentMethod', {
 
     actions: {
         getPaymentMethodList({ commit }, offset = 0, limit = 25) {
-            const providerContainer = Shopware.Application.getContainer('service');
+            const providerContainer = Application.getContainer('service');
             const paymentMethodService = providerContainer.paymentMethodService;
 
             return paymentMethodService.getList(offset, limit).then((response) => {

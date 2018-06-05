@@ -1,4 +1,4 @@
-import { State } from 'src/core/shopware';
+import { State, Entity, Application } from 'src/core/shopware';
 import utils, { types } from 'src/core/service/util.service';
 import { deepCopyObject, getAssociatedDeletions, getObjectChangeSet } from 'src/core/service/utils/object.utils';
 
@@ -37,7 +37,7 @@ State.register('customer', {
          * @returns {Promise<T>}
          */
         getCustomerList({ commit }, { limit, offset, sortBy, sortDirection, term, criteria }) {
-            const providerContainer = Shopware.Application.getContainer('service');
+            const providerContainer = Application.getContainer('service');
             const customerService = providerContainer.customerService;
 
             const additionalParams = {};
@@ -88,7 +88,7 @@ State.register('customer', {
                 return (localCopy === true) ? deepCopyObject(customer) : customer;
             }
 
-            const providerContainer = Shopware.Application.getContainer('service');
+            const providerContainer = Application.getContainer('service');
             const customerService = providerContainer.customerService;
 
             return customerService.getById(id).then((response) => {
@@ -122,7 +122,7 @@ State.register('customer', {
                 return state.draft[customerId];
             }
 
-            const customer = Shopware.Entity.getRawEntityObject('customer', true);
+            const customer = Entity.getRawEntityObject('customer', true);
 
             customer.id = customerId;
             customer.isDetail = true;
@@ -180,7 +180,7 @@ State.register('customer', {
                 return Promise.reject();
             }
 
-            const providerContainer = Shopware.Application.getContainer('service');
+            const providerContainer = Application.getContainer('service');
             const customerService = providerContainer.customerService;
 
             const changeset = getObjectChangeSet(state.original[customer.id], customer, 'customer');

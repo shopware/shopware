@@ -7,6 +7,7 @@ import VueX from 'vuex';
 import { sync } from 'vuex-router-sync';
 import VueI18n from 'vue-i18n';
 import storeDefinition from 'src/app/store';
+import { Component } from 'src/core/shopware';
 import { warn } from 'src/core/service/utils/debug.utils';
 
 import 'src/app/component/components';
@@ -100,7 +101,7 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
      * @returns {Function}
      */
     function createComponent(componentName) {
-        const componentConfig = Shopware.Component.build(componentName);
+        const componentConfig = Component.build(componentName);
 
         if (!componentConfig) {
             return false;

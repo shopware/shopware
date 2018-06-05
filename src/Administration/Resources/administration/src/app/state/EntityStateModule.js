@@ -1,4 +1,5 @@
 import { deepCopyObject, getAssociatedDeletions, getObjectChangeSet } from 'src/core/service/utils/object.utils';
+import { Entity, Application } from 'src/core/shopware';
 import utils, { types } from '../../core/service/util.service';
 
 class EntityStateModule {
@@ -77,7 +78,7 @@ class EntityStateModule {
             return state.draft[id];
         }
 
-        const item = Shopware.Entity.getRawEntityObject(this.stateName, true);
+        const item = Entity.getRawEntityObject(this.stateName, true);
 
         item.id = id;
         item.isDetail = true;
@@ -218,7 +219,7 @@ class EntityStateModule {
     }
 
     get apiService() {
-        const serviceContainer = Shopware.Application.getContainer('service');
+        const serviceContainer = Application.getContainer('service');
         return serviceContainer[this._apiService];
     }
 }

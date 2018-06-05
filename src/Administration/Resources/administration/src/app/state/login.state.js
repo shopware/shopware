@@ -1,4 +1,4 @@
-import { State } from 'src/core/shopware';
+import { State, Application } from 'src/core/shopware';
 
 /**
  * @module app/state/login
@@ -19,7 +19,7 @@ State.register('login', {
 
     actions: {
         loginUserWithPassword({ state, commit }) {
-            const providerContainer = Shopware.Application.getContainer('service');
+            const providerContainer = Application.getContainer('service');
             const loginService = providerContainer.loginService;
 
             return loginService.loginByUsername(state.username, state.password)

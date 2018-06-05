@@ -1,3 +1,6 @@
+/** Application Bootstrapper */
+import { Application } from 'src/core/shopware';
+
 /** Initializer */
 import initializers from 'src/app/init';
 
@@ -11,22 +14,20 @@ import ValidationService from 'src/core/service/validation.service';
 /** Import global styles */
 import 'src/app/assets/less/all.less';
 
-const application = Shopware.Application;
-
 // Add initializers
 Object.keys(initializers).forEach((key) => {
     const initializer = initializers[key];
-    application.addInitializer(key, initializer);
+    Application.addInitializer(key, initializer);
 });
 
 // Add service providers
-application
+Application
     .addServiceProvider('menuService', () => {
-        const factoryContainer = application.getContainer('factory');
+        const factoryContainer = Application.getContainer('factory');
         return MenuService(factoryContainer.module);
     })
     .addServiceProvider('loginService', () => {
-        const initContainer = application.getContainer('init');
+        const initContainer = Application.getContainer('init');
         return LoginService(initContainer.httpClient);
     })
     .addServiceProvider('jsonApiParserService', () => {
@@ -40,8 +41,8 @@ application
 Object.keys(apiServices).forEach((key) => {
     const ServiceFactoryClass = apiServices[key];
 
-    application.addServiceProvider(key, (container) => {
-        const initContainer = application.getContainer('init');
+    Application.addServiceProvider(key, (container) => {
+        const initContainer = Application.getContainer('init');
         return new ServiceFactoryClass(initContainer.httpClient, container.loginService);
     });
 });
@@ -51,5 +52,5 @@ Object.keys(apiServices).forEach((key) => {
 
 /* istanbul ignore if */
 if (module.hot) {
-    application.start();
+    Application.start();
 }

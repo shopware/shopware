@@ -1,0 +1,52 @@
+{% block sw_order_detail_deliveries %}
+    <div class="sw-order-detail-deliveries">
+
+        {% block sw_order_detail_deliveries_delivery %}
+            <sw-card v-for="(delivery, index) in order.deliveries"
+                     :title="$tc('sw-order.detailDeliveries.cardTitleItems', 0, { count: index + 1 })"
+                     :isLoading="isLoading"
+                     :key="delivery.id">
+
+                {% block sw_order_detail_deliveries_delivery_rows %}
+                    <sw-container type="row" slot="grid">
+
+                        {% block sw_order_detail_deliveries_delivery_row_line_items %}
+                            <sw-card-section divider="bottom">
+                                Delivery items
+                            </sw-card-section>
+                        {% endblock %}
+
+                        {% block sw_order_detail_deliveries_delivery_row_info %}
+                            <sw-card-section secondary slim>
+                                {% block sw_order_detail_deliveries_delivery_row_info %}
+                                    <sw-container grid="1fr 1fr" gap="0 30px">
+
+                                        {% block sw_order_detail_deliveries_delivery_row_info_meta_data %}
+                                            <sw-description-list>
+                                                <dt>{{ $tc('sw-order.detailDeliveries.labelShippingMethod') }}</dt>
+                                                <dd>{{ delivery.shippingMethod.name }}</dd>
+                                                <dt>{{ $tc('sw-order.detailDeliveries.labelDeliveryDate') }}</dt>
+                                                <dd>{{ delivery.shippingDateEarliest | date }}</dd>
+                                                <dt>{{ $tc('sw-order.detailDeliveries.labelShippingCosts') }}</dt>
+                                                <dd></dd>
+                                            </sw-description-list>
+                                        {% endblock %}
+
+                                        {% block sw_order_detail_deliveries_delivery_row_info_address %}
+                                            <sw-address headline="Shipping Address"
+                                                        :address="delivery.shippingAddress">
+                                            </sw-address>
+                                        {% endblock %}
+
+                                    </sw-container>
+                                {% endblock %}
+                            </sw-card-section>
+                        {% endblock %}
+
+                    </sw-container>
+                {% endblock %}
+
+            </sw-card>
+        {% endblock %}
+    </div>
+{% endblock %}

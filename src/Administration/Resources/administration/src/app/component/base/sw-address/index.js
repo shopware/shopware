@@ -10,6 +10,11 @@ Component.register('sw-address', {
             type: Object,
             required: true,
             default: {}
+        },
+        headline: {
+            type: String,
+            required: false,
+            default: ''
         }
     },
 
@@ -21,6 +26,10 @@ Component.register('sw-address', {
             const lastName = this.address.lastName ? this.address.lastName : '';
 
             return salutation + title + firstName + lastName;
+        },
+
+        addressHeadline() {
+            return this.headline;
         }
     }
 });

@@ -358,6 +358,36 @@
       "contextMenuDelete": "Delete order",
       "contextMenuConfirmPayment": "Confirm payment",
       "messageEmpty": "No orders yet"
+    },
+    "detail": {
+      "buttonCancel": "Cancel",
+      "buttonSave": "Save",
+      "tabOrderDetails": "Order details",
+      "tabDeliveries": "Deliveries",
+      "textHeadline": "Order",
+      "textHeadlineNew": "New order"
+    },
+    "detailBase": {
+      "cardTitleDetails": "Details",
+      "cardTitleLineItems": "Items",
+      "columnProductName": "Name",
+      "columnQuantity": "Quantity",
+      "columnPrice": "Price",
+      "columnTotalPrice": "Total",
+      "contextMenuShowProduct": "Show product",
+      "summaryLabelAmount": "Amount",
+      "summaryLabelAmountTotal": "Total amount",
+      "summaryLabelShippingCosts": "Shipping costs",
+      "labelOrderStatus": "Order status",
+      "labelSalesChanel": "Sales chanel",
+      "labelOrderDate": "Order date",
+      "headlineBillingAddress": "Billing address"
+    },
+    "detailDeliveries": {
+      "cardTitleItems": "Delivery {count}",
+      "labelShippingMethod": "Shipping method",
+      "labelDeliveryDate": "Delivery date",
+      "labelShippingCosts": "Shipping costs"
     }
   }
 }

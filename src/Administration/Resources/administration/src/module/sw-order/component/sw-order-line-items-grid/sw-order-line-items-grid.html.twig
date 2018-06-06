@@ -1,0 +1,82 @@
+{% block sw_order_line_items_grid %}
+    <sw-grid class="sw-order-line-items-grid" :items="lineItems" table>
+
+        {% block sw_order_line_items_grid_columns %}
+            <template slot="columns" slot-scope="{ item }">
+
+                {% block sw_order_line_items_grid_columns_name %}
+                    <sw-grid-column flex="minmax(180px, 1fr)"
+                                    :label="$tc('sw-order.detailBase.columnProductName')">
+                        {% block sw_order_line_items_grid_columns_name_link %}
+                            <router-link target="_blank"
+                                         :title="$tc('sw-order.detailBase.contextMenuShowProduct')"
+                                         :to="{ name: 'sw.product.detail', params: { id: item.identifier } }">
+                                {% block sw_order_line_items_grid_columns_name_label %}
+                                    {{ item.label }}
+                                {% endblock %}
+                            </router-link>
+                        {% endblock %}
+                    </sw-grid-column>
+                {% endblock %}
+
+                {% block sw_order_line_items_grid_columns_unit_price %}
+                    <sw-grid-column flex="minmax(110px, 130px)"
+                                    align="right"
+                                    :label="$tc('sw-order.detailBase.columnPrice')">
+                        {% block sw_order_line_items_grid_columns_unit_price_label %}
+                            {{ item.unitPrice | currency }}
+                        {% endblock %}
+                    </sw-grid-column>
+                {% endblock %}
+
+                {% block sw_order_line_items_grid_columns_quantity %}
+                    <sw-grid-column flex="minmax(110px, 110px)"
+                                    :label="$tc('sw-order.detailBase.columnQuantity')"
+                                    align="right">
+                        {% block sw_order_line_items_grid_columns_quantity_label %}
+                            {{ item.quantity }}
+                        {% endblock %}
+                    </sw-grid-column>
+                {% endblock %}
+
+                {% block sw_order_line_items_grid_columns_total_price %}
+                    <sw-grid-column flex="minmax(110px, 130px)"
+                                    align="right"
+                                    :label="$tc('sw-order.detailBase.columnTotalPrice')">
+                        {% block sw_order_line_items_grid_columns_total_price_label %}
+                            {{ item.totalPrice | currency }}
+                        {% endblock %}
+                    </sw-grid-column>
+                {% endblock %}
+
+                {% block sw_order_line_items_grid_columns_actions %}
+                    <sw-grid-column flex="minmax(70px, 70px)"
+                                    align="center"
+                                    label=""
+                                    iconLabel="small-search">
+                        {% block sw_order_line_items_grid_columns_actions_button %}
+                            <sw-context-button>
+
+                                {% block sw_order_line_items_grid_columns_actions_show %}
+                                    <sw-context-menu-item icon="default-eye-open">
+                                        {% block sw_order_line_items_grid_columns_actions_show_link %}
+                                            <router-link :to="{ name: 'sw.product.detail', params: { id: item.identifier } }"
+                                                         target="_blank">
+                                                {% block sw_order_line_items_grid_columns_actions_show_label %}
+                                                    {{ $tc('sw-order.detailBase.contextMenuShowProduct') }}
+                                                {% endblock %}
+                                            </router-link>
+                                        {% endblock %}
+                                    </sw-context-menu-item>
+                                {% endblock %}
+
+                            </sw-context-button>
+                        {% endblock %}
+                    </sw-grid-column>
+                {% endblock %}
+
+            </template>
+        {% endblock %}
+
+    </sw-grid>
+{% endblock %}

@@ -1,0 +1,64 @@
+{% block sw_order_detail %}
+    <sw-page class="sw-order-detail">
+
+        {% block sw_order_detail_header %}
+            <template slot="smart-bar-header">
+                {% block sw_order_detail_header_title %}
+                    <h2 v-if="order.id">{{ $tc('sw-order.detail.textHeadline') }} {{ order.id }}</h2>
+                {% endblock %}
+
+                {% block sw_order_detail_header_title_new %}
+                    <h2 v-else>{{ $tc('sw-order.detail.textHeadlineNew') }}</h2>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_order_detail_actions %}
+            <template slot="smart-bar-actions">
+                {% block sw_order_detail_actions_abort %}
+                    <sw-button link="sw.order.index" :disabled="isLoading">
+                        {{ $tc('sw-order.detail.buttonCancel') }}
+                    </sw-button>
+                {% endblock %}
+
+                {% block sw_order_detail_actions_save %}
+                    <sw-button variant="primary" :disabled="isLoading">
+                        {{ $tc('sw-order.detail.buttonSave') }}
+                    </sw-button>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_order_detail_content %}
+            <sw-card-view slot="content">
+
+                {% block sw_order_detail_content_tabs %}
+                    <sw-tabs class="sw-order-detail-page__tabs">
+                        {% block sw_order_detail_content_tabs_tab_base %}
+                            <sw-tabs-item :route="{ name: 'sw.order.detail.base', params: { id: $route.params.id } }"
+                                          :title="$tc('sw-order.detail.tabOrderDetails')">
+                                {{ $tc('sw-order.detail.tabOrderDetails') }}
+                            </sw-tabs-item>
+                        {% endblock %}
+
+                        {% block sw_order_detail_content_tabs_tab_deliveries %}
+                            <sw-tabs-item :route="{ name: 'sw.order.detail.deliveries', params: { id: $route.params.id } }"
+                                          :title="$tc('sw-order.detail.tabDeliveries')">
+                                {{ $tc('sw-order.detail.tabDeliveries') }}
+                            </sw-tabs-item>
+                        {% endblock %}
+                    </sw-tabs>
+                {% endblock %}
+
+                {% block sw_order_detail_content_view %}
+                    <router-view :order="order"
+                                 :isLoading="isLoading"
+                                 :isLoaded="isLoaded">
+                    </router-view>
+                {% endblock %}
+
+            </sw-card-view>
+        {% endblock %}
+
+    </sw-page>
+{% endblock %}

@@ -358,6 +358,36 @@
       "contextMenuDelete": "Bestellung löschen",
       "contextMenuConfirmPayment": "Zahlung bestätigen",
       "messageEmpty": "Noch keine Bestellungen"
+    },
+    "detail": {
+      "buttonCancel": "Abbrechen",
+      "buttonSave": "Speichern",
+      "tabOrderDetails": "Bestelldetails",
+      "tabDeliveries": "Lieferungen",
+      "textHeadline": "Bestellung",
+      "textHeadlineNew": "Neue Bestellung"
+    },
+    "detailBase": {
+      "cardTitleDetails": "Details",
+      "cardTitleLineItems": "Positionen",
+      "columnProductName": "Name",
+      "columnQuantity": "Menge",
+      "columnPrice": "Preis",
+      "columnTotalPrice": "Gesamt",
+      "contextMenuShowProduct": "Produkt anzeigen",
+      "summaryLabelAmount": "Summe",
+      "summaryLabelAmountTotal": "Gesamtsumme",
+      "summaryLabelShippingCosts": "Versandkosten",
+      "labelOrderStatus": "Bestellstatus",
+      "labelSalesChanel": "Verkaufskanal",
+      "labelOrderDate": "Bestelldatum",
+      "headlineBillingAddress": "Rechnungsadresse"
+    },
+    "detailDeliveries": {
+      "cardTitleItems": "Lieferung {count}",
+      "labelShippingMethod": "Versandart",
+      "labelDeliveryDate": "Lieferdatum",
+      "labelShippingCosts": "Versandkosten"
     }
   }
 }

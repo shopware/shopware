@@ -30,6 +30,26 @@
         border: 0 none;
     }
 
+    &.sw-grid--table {
+        border: 0 none;
+
+        .sw-grid__header {
+            background: 0 none;
+        }
+
+        .sw-grid-row {
+            background-color: @color-white;
+
+            &.is--selected {
+                background-color: @sw-grid-item-active-color-background;
+            }
+        }
+
+        .sw-grid-column {
+            border-right: 0 none;
+        }
+    }
+
     .sw-grid__content {
         display: grid;
         grid-template-rows: auto;
@@ -59,6 +79,10 @@
 
             .sw-grid__cell-content {
                 color: @sw-grid-header-color-text
+            }
+
+            .sw-grid__cell-content {
+                color: @color-kashmir;
             }
 
             &.is--sortable {

@@ -1,0 +1,87 @@
+{% block sw_order_detail_base %}
+    <div class="sw-order-detail-base">
+
+        {% block sw_order_detail_base_info_card %}
+            <sw-card :title="$tc('sw-order.detailBase.cardTitleDetails')"
+                     :isLoading="isLoading">
+
+                {% block sw_order_detail_base_info_card_rows %}
+                    <sw-container slot="grid" type="row">
+
+                        {% block sw_order_detail_base_info_card_row_user %}
+                            <sw-card-section divider="bottom">
+                                <sw-avatar :color="moduleColor"
+                                           size="80px"
+                                           :user="order.customer"
+                                           :isLoading="isLoading">
+                                </sw-avatar>
+                            </sw-card-section>
+                        {% endblock %}
+
+                        {% block sw_order_detail_base_info_card_row_order_data %}
+                            <sw-card-section secondary slim>
+                                <sw-container grid="1fr 1fr" gap="30px 30px">
+
+                                    <sw-description-list>
+                                        <dt>{{ $tc('sw-order.detailBase.labelOrderStatus') }}</dt>
+                                        <dd>{{ order.state.description }}</dd>
+                                        <dt>{{ $tc('sw-order.detailBase.labelOrderDate') }}</dt>
+                                        <dd>{{ order.date | date }}</dd>
+                                        <dt>{{ $tc('sw-order.detailBase.labelSalesChanel') }}</dt>
+                                        <dd>{{ order.application.name }}</dd>
+                                    </sw-description-list>
+
+                                    <sw-address :headline="$tc('sw-order.detailBase.headlineBillingAddress')"
+                                                :address="order.billingAddress">
+                                    </sw-address>
+
+                                </sw-container>
+                            </sw-card-section>
+                        {% endblock %}
+
+                    </sw-container>
+                {% endblock %}
+
+            </sw-card>
+        {% endblock %}
+
+        {% block sw_order_detail_base_line_items_card %}
+            <sw-card :title="$tc('sw-order.detailBase.cardTitleLineItems')"
+                     :isLoading="isLoading">
+
+                {% block sw_order_detail_base_line_items_card_rows %}
+                    <sw-container slot="grid" type="row">
+
+                        {% block sw_order_detail_base_line_items_grid %}
+                            <sw-order-line-items-grid :orderLineItems="order.lineItems"></sw-order-line-items-grid>
+                        {% endblock %}
+
+                        {% block sw_order_detail_base_line_items_row_summary %}
+                            <sw-card-section class="sw-order-detail-base__summary"
+                                             divider="top"
+                                             secondary
+                                             slim>
+                                <sw-container grid="1fr 440px" style="grid-template-areas: 'empty summary'">
+                                    {% block sw_order_detail_base_line_items_summary %}
+                                        <sw-description-list columns="265px 1fr"
+                                                             style="grid-area: summary"
+                                                             class="sw-order-detail-base__summary-data">
+                                            <dt>{{ $tc('sw-order.detailBase.summaryLabelAmount') }}</dt>
+                                            <dd>{{ order.positionPrice | currency }}</dd>
+                                            <dt>{{ $tc('sw-order.detailBase.summaryLabelShippingCosts') }}</dt>
+                                            <dd>{{ order.shippingTotal | currency }}</dd>
+                                            <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmountTotal') }}</strong></dt>
+                                            <dd><strong>{{ order.amountTotal | currency }}</strong></dd>
+                                        </sw-description-list>
+                                    {% endblock %}
+                                </sw-container>
+                            </sw-card-section>
+                        {% endblock %}
+
+                    </sw-container>
+                {% endblock %}
+
+            </sw-card>
+        {% endblock %}
+    </div>
+{% endblock %}

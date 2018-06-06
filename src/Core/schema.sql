@@ -849,6 +849,8 @@ CREATE TABLE `order_line_item` (
   `parent_id` binary(16) DEFAULT NULL,
   `parent_tenant_id` binary(16) DEFAULT NULL,
   `identifier` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `label` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` mediumtext COLLATE utf8mb4_unicode_ci,
   `quantity` int(11) NOT NULL,
   `unit_price` double NOT NULL,
   `total_price` double NOT NULL,

@@ -14,12 +14,21 @@ Component.register('sw-card', {
             type: Boolean,
             required: false,
             default: false
+        },
+        grid: {
+            type: String,
+            required: false,
+            default: ''
         }
     },
 
     computed: {
         hasTabsSlot() {
             return !!this.$slots.tabs;
+        },
+
+        hasGridSlot() {
+            return !!this.$slots.grid;
         }
     }
 });

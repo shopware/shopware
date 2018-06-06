@@ -12,7 +12,7 @@ import './page/sw-product-create';
 Module.register('sw-product', {
     type: 'core',
     name: 'Products',
-    description: 'The module for managing products.',
+    description: 'sw-product.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#57D9A3',

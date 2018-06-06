@@ -33,5 +33,6 @@ export function currency(val, sign) {
  * @returns {string}
  */
 export function date(val, locale = 'de-DE') {
-    return val.toLocaleString(locale);
+    const dateObj = new Date(val);
+    return dateObj.toLocaleString(locale);
 }

@@ -42,7 +42,8 @@
     "general": {
       "mainMenuItemGeneral": "Customers",
       "mainMenuItemList": "Overview",
-      "mainMenuItemAdd": "Add new customer"
+      "mainMenuItemAdd": "Add new customer",
+      "descriptionTextModule": "The module for managing customers."
     },
     "list": {
       "textCustomers": "Customers",
@@ -60,7 +61,8 @@
       "contextMenuView": "View customer",
       "contextMenuDelete": "Delete customer",
       "contextMenuDuplicate": "Duplicate customer",
-      "contextMenuEdit": "Edit customer"
+      "contextMenuEdit": "Edit customer",
+      "messageEmpty": "No customers yet"
     },
     "baseForm": {
       "labelSalutation": "Salutation",
@@ -190,7 +192,8 @@
     "general": {
       "mainMenuItemGeneral": "Products",
       "mainMenuItemList": "Overview",
-      "mainMenuItemAdd": "Add new product"
+      "mainMenuItemAdd": "Add new product",
+      "descriptionTextModule": "The module for managing products."
     },
     "basicForm": {
       "labelTitle": "Title",
@@ -274,7 +277,7 @@
       "contextMenuDelete": "Delete"
     },
     "list": {
-      "textProductOverview": "Product overview",
+      "textProductOverview": "Products",
       "textTotalProducts": "No products | one product | {count} products",
       "buttonAddProduct": "Add product",
       "columnName": "Name",
@@ -285,7 +288,8 @@
       "columnActions": "Action(s)",
       "contextMenuEdit": "Edit product",
       "contextMenuDelete": "Delete product",
-      "contextMenuDuplicate": "Duplicate product"
+      "contextMenuDuplicate": "Duplicate product",
+      "messageEmpty": "No products yet"
     },
     "detail": {
       "textHeadline": "New product",
@@ -329,6 +333,27 @@
       "placeholderLink": "Enter manufacturer website...",
       "titleSaveSuccess": "Manufacturer",
       "messageSaveSuccess": "The manufacturer {name} was saved successfully."
+    }
+  },
+  "sw-order": {
+    "general": {
+      "mainMenuItemGeneral": "Orders",
+      "mainMenuItemList": "Overview",
+      "descriptionTextModule": "The module for managing orders."
+    },
+    "list": {
+      "columnCustomerName": "Customer name",
+      "columnBillingAddress": "Billing address",
+      "columnAmount": "Amount",
+      "columnState": "Order status",
+      "orderDate": "Order date",
+      "buttonAddOrder": "Add order",
+      "textOrders": "Orders",
+      "textOrdersTotal": "No orders | One order | {count} orders",
+      "contextMenuView": "View order",
+      "contextMenuDelete": "Delete order",
+      "contextMenuConfirmPayment": "Confirm payment",
+      "messageEmpty": "No orders yet"
     }
   }
 }

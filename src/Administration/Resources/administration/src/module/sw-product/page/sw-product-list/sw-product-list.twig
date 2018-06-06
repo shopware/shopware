@@ -18,7 +18,8 @@
             {% block sw_product_list_content %}
                 <div class="sw-product-list__content">
                     {% block sw_product_list_grid %}
-                        <sw-grid :items="products"
+                        <sw-grid v-if="totalProducts"
+                                 :items="products"
                                  :pagination="true"
                                  :sortBy="sortBy"
                                  :sortDirection="sortDirection"
@@ -175,6 +176,10 @@
                                 </sw-sidebar>
                             {% endblock %}
                         </sw-grid>
+                    {% endblock %}
+
+                    {% block sw_product_list_empty_state %}
+                        <sw-empty-state v-else-if="!isLoading && !totalProducts" :title="$tc('sw-product.list.messageEmpty')"></sw-empty-state>
                     {% endblock %}
 
                     {% block sw_product_list_grid_loader %}

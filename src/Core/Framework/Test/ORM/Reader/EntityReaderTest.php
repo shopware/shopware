@@ -4,8 +4,8 @@ namespace Shopware\Core\Framework\Test\ORM\Reader;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Checkout\Rule\ContextRuleRepository;
-use Shopware\Core\Checkout\Rule\Specification\Container\AndRule;
+use Shopware\Core\Content\Rule\ContextRuleRepository;
+use Shopware\Core\Content\Rule\Specification\Container\AndRule;
 use Shopware\Core\Content\Product\ProductRepository;
 use Shopware\Core\Content\Product\Struct\ProductBasicStruct;
 use Shopware\Core\Defaults;

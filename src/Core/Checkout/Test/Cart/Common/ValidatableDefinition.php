@@ -24,8 +24,8 @@
 
 namespace Shopware\Core\Checkout\Test\Cart\Common;
 
-use Shopware\Core\Checkout\Rule\Specification\Rule;
-use Shopware\Core\Checkout\Rule\Specification\Validatable;
+use Shopware\Core\Content\Rule\Specification\Rule;
+use Shopware\Core\Content\Rule\Specification\Validatable;
 use Shopware\Core\Framework\Struct\Struct;
 
 class ValidatableDefinition extends Struct implements Validatable

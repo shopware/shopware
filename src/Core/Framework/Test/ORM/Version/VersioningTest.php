@@ -9,7 +9,7 @@ use Shopware\Core\Content\Category\CategoryRepository;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductRepository;
-use Shopware\Core\Content\Product\Struct\PriceStruct;
+use Shopware\Core\Framework\Pricing\PriceStruct;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\RangeQuery;

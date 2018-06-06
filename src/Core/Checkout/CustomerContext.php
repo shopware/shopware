@@ -25,7 +25,7 @@
 namespace Shopware\Core\Checkout;
 
 use Shopware\Core\System\Touchpoint\Struct\TouchpointBasicStruct;
-use Shopware\Core\Application\Context\Exception\ContextRulesLockedException;
+use Shopware\Core\Checkout\DiscountSurcharge\Exception\ContextRulesLockedException;
 use Shopware\Core\System\Language\Struct\LanguageBasicStruct;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;

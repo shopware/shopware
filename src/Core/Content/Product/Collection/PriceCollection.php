@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Collection;
 
-use Shopware\Core\Content\Product\Struct\PriceStruct;
+use Shopware\Core\Framework\Pricing\PriceStruct;
 use Shopware\Core\Framework\Struct\Collection;
 
 class PriceCollection extends Collection

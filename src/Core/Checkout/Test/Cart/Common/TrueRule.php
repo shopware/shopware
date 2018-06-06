@@ -24,9 +24,9 @@
 
 namespace Shopware\Core\Checkout\Test\Cart\Common;
 
-use Shopware\Core\Checkout\Rule\Specification\Match;
-use Shopware\Core\Checkout\Rule\Specification\Rule;
-use Shopware\Core\Checkout\Rule\Specification\Scope\RuleScope;
+use Shopware\Core\Content\Rule\Specification\Match;
+use Shopware\Core\Content\Rule\Specification\Rule;
+use Shopware\Core\Content\Rule\Specification\Scope\RuleScope;
 
 class TrueRule extends Rule
 {

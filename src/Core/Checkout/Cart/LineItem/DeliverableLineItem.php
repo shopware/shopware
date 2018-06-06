@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Cart\LineItem;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Core\Checkout\Rule\Specification\Rule;
+use Shopware\Core\Content\Rule\Specification\Rule;
 
 class DeliverableLineItem extends CalculatedLineItem implements DeliverableLineItemInterface
 {

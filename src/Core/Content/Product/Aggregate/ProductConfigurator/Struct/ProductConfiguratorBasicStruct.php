@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductConfigurator\Struct;
 
-use Shopware\Core\Content\Product\Struct\PriceStruct;
+use Shopware\Core\Framework\Pricing\PriceStruct;
 use Shopware\Core\Framework\ORM\Entity;
 
 class ProductConfiguratorBasicStruct extends Entity
@@ -62,7 +62,7 @@ class ProductConfiguratorBasicStruct extends Entity
         return $this->price;
     }
 
-    public function setPrice(?PriceStruct $price): void
+    public function setPrice(?\Shopware\Core\Framework\Pricing\PriceStruct $price): void
     {
         $this->price = $price;
     }

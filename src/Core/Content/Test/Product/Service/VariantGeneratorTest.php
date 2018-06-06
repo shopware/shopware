@@ -7,7 +7,7 @@ use Psr\Container\ContainerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductRepository;
-use Shopware\Core\Content\Product\Struct\PriceStruct;
+use Shopware\Core\Framework\Pricing\PriceStruct;
 use Shopware\Core\Content\Product\Struct\ProductDetailStruct;
 use Shopware\Core\Content\Product\Util\VariantGenerator;
 use Shopware\Core\Framework\ORM\Search\Criteria;

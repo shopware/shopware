@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductContextPrice;
 
-use Shopware\Core\Checkout\Rule\ContextRuleDefinition;
+use Shopware\Core\Content\Rule\ContextRuleDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductContextPrice\Collection\ProductContextPriceBasicCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductContextPrice\Collection\ProductContextPriceDetailCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductContextPrice\Event\ProductContextPriceDeletedEvent;

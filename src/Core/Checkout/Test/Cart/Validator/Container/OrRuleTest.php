@@ -26,9 +26,9 @@ namespace Shopware\Core\Checkout\Test\Cart\Validator\Container;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CustomerContext;
-use Shopware\Core\Checkout\Rule\Specification\Container\OrRule;
-use Shopware\Core\Checkout\Rule\Specification\Match;
-use Shopware\Core\Checkout\Rule\Specification\Scope\StorefrontScope;
+use Shopware\Core\Content\Rule\Specification\Container\OrRule;
+use Shopware\Core\Content\Rule\Specification\Match;
+use Shopware\Core\Content\Rule\Specification\Scope\StorefrontScope;
 use Shopware\Core\Checkout\Test\Cart\Common\FalseRule;
 use Shopware\Core\Checkout\Test\Cart\Common\TrueRule;
 

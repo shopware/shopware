@@ -4,9 +4,9 @@ namespace Shopware\Core\Content\Test\Product\Repository;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Application\Context\Struct\ContextPriceStruct;
-use Shopware\Core\Checkout\Rule\ContextRuleRepository;
-use Shopware\Core\Checkout\Rule\Specification\Container\AndRule;
+use Shopware\Core\Framework\Pricing\ContextPriceStruct;
+use Shopware\Core\Content\Rule\ContextRuleRepository;
+use Shopware\Core\Content\Rule\Specification\Container\AndRule;
 use Shopware\Core\Content\Category\CategoryRepository;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\Event\ProductManufacturerBasicLoadedEvent;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\Event\ProductManufacturerWrittenEvent;
@@ -14,7 +14,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\Struct\ProductMa
 use Shopware\Core\Content\Product\Collection\ProductBasicCollection;
 use Shopware\Core\Content\Product\Event\ProductBasicLoadedEvent;
 use Shopware\Core\Content\Product\Event\ProductWrittenEvent;
-use Shopware\Core\Content\Product\Struct\PriceStruct;
+use Shopware\Core\Framework\Pricing\PriceStruct;
 use Shopware\Core\Content\Product\Struct\ProductBasicStruct;
 use Shopware\Core\Content\Product\Struct\ProductDetailStruct;
 use Shopware\Core\Defaults;
@@ -1423,7 +1423,11 @@ class ProductRepositoryTest extends KernelTestCase
         $ruleA = Uuid::uuid4()->getHex();
         $ruleB = Uuid::uuid4()->getHex();
 
+<<<<<<< Updated upstream
         self::$container->get(\Shopware\Core\Checkout\Rule\ContextRuleRepository::class)->create([
+=======
+        $this->container->get(\Shopware\Core\Content\Rule\ContextRuleRepository::class)->create([
+>>>>>>> Stashed changes
             ['id' => $ruleA, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 1],
             ['id' => $ruleB, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 2],
         ], Context:: createDefaultContext(\Shopware\Core\Defaults::TENANT_ID));

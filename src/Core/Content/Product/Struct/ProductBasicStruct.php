@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Struct;
 
-use Shopware\Core\Application\Context\Collection\ContextPriceCollection;
+use Shopware\Core\Framework\Pricing\ContextPriceCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinition;
@@ -14,6 +14,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductContextPrice\Struct\ProductCo
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\Struct\ProductManufacturerBasicStruct;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\Struct\ProductMediaBasicStruct;
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\Pricing\PriceStruct;
 use Shopware\Core\System\Tax\Struct\TaxBasicStruct;
 use Shopware\Core\System\Unit\Struct\UnitBasicStruct;
 

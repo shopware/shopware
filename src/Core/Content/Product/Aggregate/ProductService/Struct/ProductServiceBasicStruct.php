@@ -2,12 +2,12 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductService\Struct;
 
-use Shopware\Core\Application\Context\Collection\ContextPriceCollection;
+use Shopware\Core\Framework\Pricing\ContextPriceCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\PercentageTaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Content\Product\Struct\PriceStruct;
+use Shopware\Core\Framework\Pricing\PriceStruct;
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupOption\Struct\ConfigurationGroupOptionBasicStruct;
 use Shopware\Core\System\Tax\Struct\TaxBasicStruct;
@@ -84,7 +84,7 @@ class ProductServiceBasicStruct extends Entity
         $this->taxId = $taxId;
     }
 
-    public function getPrice(): ?PriceStruct
+    public function getPrice(): ?\Shopware\Core\Framework\Pricing\PriceStruct
     {
         return $this->price;
     }

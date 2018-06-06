@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\Product\Aggregate\ProductContextPrice\Event;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Checkout\Rule\Event\ContextRuleBasicLoadedEvent;
+use Shopware\Core\Content\Rule\Event\ContextRuleBasicLoadedEvent;
 use Shopware\Core\Content\Product\Aggregate\ProductContextPrice\Collection\ProductContextPriceDetailCollection;
 use Shopware\Core\Content\Product\Event\ProductBasicLoadedEvent;
 use Shopware\Core\Framework\Event\NestedEvent;

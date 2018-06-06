@@ -8,7 +8,7 @@ use Shopware\Core\Framework\ORM\Search\AggregatorResult;
 
 class TouchpointAggregationResultLoadedEvent extends NestedEvent
 {
-    public const NAME = 'application.aggregation.result.loaded';
+    public const NAME = 'touchpoint.aggregation.result.loaded';
 
     /**
      * @var AggregatorResult

@@ -18,8 +18,8 @@ use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\StoreFrontCartService;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
-use Shopware\Core\Checkout\Rule\Collection\ContextRuleBasicCollection;
-use Shopware\Core\Checkout\Rule\ContextRuleRepository;
+use Shopware\Core\Content\Rule\Collection\ContextRuleBasicCollection;
+use Shopware\Core\Content\Rule\ContextRuleRepository;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Symfony\Component\Serializer\SerializerInterface;
 
@@ -56,7 +56,7 @@ class CustomerContextRuleLoader
     private $cache;
 
     /**
-     * @var \Shopware\Core\Checkout\Rule\ContextRuleRepository
+     * @var \Shopware\Core\Content\Rule\ContextRuleRepository
      */
     private $repository;
 

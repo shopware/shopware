@@ -31,9 +31,9 @@ class ProductContextPriceDetailCollection extends ProductContextPriceBasicCollec
         );
     }
 
-    public function getContextRules(): \Shopware\Core\Checkout\Rule\Collection\ContextRuleBasicCollection
+    public function getContextRules(): \Shopware\Core\Content\Rule\Collection\ContextRuleBasicCollection
     {
-        return new \Shopware\Core\Checkout\Rule\Collection\ContextRuleBasicCollection(
+        return new \Shopware\Core\Content\Rule\Collection\ContextRuleBasicCollection(
             $this->fmap(function (ProductContextPriceDetailStruct $productContextPrice) {
                 return $productContextPrice->getContextRule();
             })

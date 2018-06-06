@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Framework\ORM\Dbal;
 
-use Shopware\Core\Application\Context\Collection\ContextPriceCollection;
-use Shopware\Core\Content\Product\Struct\PriceStruct;
+use Shopware\Core\Framework\Pricing\ContextPriceCollection;
+use Shopware\Core\Framework\Pricing\PriceStruct;
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\Field\AssociationInterface;

@@ -8,8 +8,8 @@ An entire simple rule might look like this:
 <?php declare(strict_types=1);
 
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Core\Checkout\Rule\Specification\Match;
-use Shopware\Core\Checkout\Rule\Specification\Rule;
+use Shopware\Core\Content\Rule\Specification\Match;
+use Shopware\Core\Content\Rule\Specification\Rule;
 use Shopware\Core\Checkout\CustomerContext;
 
 class TrueRule extends Rule

@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Test\Api\Controller;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Content\Product\ProductRepository;
-use Shopware\Core\Content\Product\Struct\PriceStruct;
+use Shopware\Core\Framework\Pricing\PriceStruct;
 use Shopware\Core\Content\Product\Struct\ProductDetailStruct;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\Api\ApiTestCase;

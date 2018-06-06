@@ -4,9 +4,9 @@ namespace Shopware\Core\Framework\ORM\Dbal\Indexing;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Application\Context\Struct\ContextPriceStruct;
+use Shopware\Core\Framework\Pricing\ContextPriceStruct;
 use Shopware\Core\Content\Product\ProductRepository;
-use Shopware\Core\Content\Product\Struct\PriceStruct;
+use Shopware\Core\Framework\Pricing\PriceStruct;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;

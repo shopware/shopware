@@ -47,7 +47,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
-use Shopware\Core\Checkout\Rule\Specification\Container\AndRule;
+use Shopware\Core\Content\Rule\Specification\Container\AndRule;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Content\Product\Cart\ProductProcessor;
 use Shopware\Core\Content\Product\Cart\Struct\CalculatedProduct;

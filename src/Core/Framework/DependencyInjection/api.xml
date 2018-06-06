@@ -22,12 +22,6 @@
             <argument type="service" id="Shopware\Core\Framework\ORM\Dbal\EntitySearcher"/>
         </service>
 
-        <service class="Shopware\Core\Framework\Api\Command\UserCreateCommand" id="Shopware\Core\System\Command\UserCreateCommand">
-            <argument id="Shopware\Core\System\User\UserRepository" type="service"/>
-            <argument id="security.encoder_factory.generic" type="service"/>
-            <tag name="console.command"/>
-        </service>
-
         <service class="Shopware\Core\Framework\Api\Controller\ApiController" id="Shopware\Core\Framework\Api\Controller\ApiController" public="true">
             <argument id="Shopware\Core\Framework\ORM\DefinitionRegistry" type="service"/>
             <argument id="serializer" type="service"/>

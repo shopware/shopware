@@ -6,13 +6,13 @@
 
     <services>
         <!-- Versioning -->
-        <service alias="RuleRepository" id="RuleRepository" public="true" />
+        <service alias="Shopware\Core\Content\Rule\RuleRepository.v1" id="Shopware\Core\Content\Rule\RuleRepository" public="true" />
 
-        <service class="RuleDefinition" id="Shopware\Core\Content\Rule\RuleDefinition" >
+        <service class="Shopware\Core\Content\Rule\RuleDefinition" id="Shopware\Core\Content\Rule\RuleDefinition" >
             <tag name="shopware.entity.definition" entity="rule" />
         </service>
 
-        <service class="RuleRepository" id="Shopware\Core\Content\Rule\RuleRepository.v1" public="true">
+        <service class="Shopware\Core\Content\Rule\RuleRepository" id="Shopware\Core\Content\Rule\RuleRepository.v1" public="true">
             <argument id="Shopware\Core\Framework\ORM\Dbal\EntityReader" type="service"/>
             <argument id="Shopware\Core\Framework\ORM\Version\Service\VersionManager" type="service"/>
             <argument id="Shopware\Core\Framework\ORM\Dbal\EntitySearcher" type="service"/>

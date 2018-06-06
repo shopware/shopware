@@ -18,6 +18,13 @@
           <argument id="Shopware\Core\Framework\ORM\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>
+
+        <service class="Shopware\Core\System\Command\UserCreateCommand" id="Shopware\Core\System\Command\UserCreateCommand">
+            <argument id="Shopware\Core\System\User\UserRepository" type="service"/>
+            <argument id="security.encoder_factory.generic" type="service"/>
+            <tag name="console.command"/>
+        </service>
+
     </services>
 </container>                
                 

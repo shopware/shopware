@@ -8,5 +8,5 @@ export default function initializeLocaleService() {
     localeFactory.register('de-DE', deDEMessages);
     localeFactory.register('en-GB', enGBMessages);
 
-    return true;
+    return localeFactory;
 }

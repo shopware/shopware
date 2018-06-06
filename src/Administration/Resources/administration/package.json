@@ -28,6 +28,7 @@
     "storybook-generate": "build-storybook -s ./static -c .storybook -o ../../../../../../../build/artifacts/storybook"
   },
   "dependencies": {
+    "app-module-path": "^2.2.0",
     "axios": "^0.18.0",
     "bottlejs": "^1.6.3",
     "lodash": "^4.17.5",

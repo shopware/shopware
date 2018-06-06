@@ -2,6 +2,7 @@
  * @module core/factory/locale
  */
 import { warn } from 'src/core/service/utils/debug.utils';
+import { object } from 'src/core/service/util.service';
 
 export default {
     getLocaleByName,
@@ -106,7 +107,7 @@ function extend(localeName, localeMessages = {}) {
     }
 
     const originalMessages = localeRegistry.get(localeName);
-    localeRegistry.set(localeName, Object.assign({}, originalMessages, localeMessages));
+    localeRegistry.set(localeName, object.merge(originalMessages, localeMessages));
 
     return localeName;
 }

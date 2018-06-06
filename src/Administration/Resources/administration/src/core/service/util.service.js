@@ -3,6 +3,7 @@
  */
 import throttle from 'lodash/throttle';
 import debounce from 'lodash/debounce';
+import merge from 'lodash/merge';
 import uuidV4 from 'uuid/v4';
 
 import { deepCopyObject, getObjectChangeSet, getAssociatedDeletions } from './utils/object.utils';
@@ -15,7 +16,8 @@ import typesUtils from './utils/types.utils';
 export const object = {
     deepCopyObject: deepCopyObject,
     getObjectChangeSet: getObjectChangeSet,
-    getAssociatedDeletions: getAssociatedDeletions
+    getAssociatedDeletions: getAssociatedDeletions,
+    merge
 };
 
 export const debug = {

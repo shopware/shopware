@@ -71,7 +71,8 @@ module.exports = {
         extend: ComponentFactory.extend,
         override: ComponentFactory.override,
         build: ComponentFactory.build,
-        getTemplate: ComponentFactory.getComponentTemplate
+        getTemplate: ComponentFactory.getComponentTemplate,
+        getComponentRegistry: ComponentFactory.getComponentRegistry
     },
 
     /**

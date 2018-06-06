@@ -1,31 +1,23 @@
-var path = require('path');
-var utils = require('./utils');
-var webpack = require('webpack');
-var config = require('../config');
-var merge = require('webpack-merge');
-var baseWebpackConfig = require('./webpack.base.conf');
-var CopyWebpackPlugin = require('copy-webpack-plugin');
-var HtmlWebpackPlugin = require('html-webpack-plugin');
-var ExtractTextPlugin = require('extract-text-webpack-plugin');
-var OptimizeCSSPlugin = require('optimize-css-assets-webpack-plugin');
-var WebpackCopyAfterBuildPlugin = require('./plugins/copy-after-build');
-var plugins = {};
+const path = require('path');
+const utils = require('./utils');
+const webpack = require('webpack');
+const config = require('../config');
+const merge = require('webpack-merge');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const OptimizeCSSPlugin = require('optimize-css-assets-webpack-plugin');
+const WebpackCopyAfterBuildPlugin = require('./plugins/copy-after-build');
+const env = process.env.NODE_ENV === 'testing'
+    ? require('../config/test.env')
+    : config.build.env;
 
-var env = process.env.NODE_ENV === 'testing'
-  ? require('../config/test.env')
-  : config.build.env;
+let baseWebpackConfig = require('./webpack.base.conf');
 
-// Try to load plugin definition file
-try {
-    plugins = require('../../../../../var/config_administration_plugins.json');
+const pluginList = utils.getPluginDefinitions('var/config_administration_plugins.json');
+baseWebpackConfig = utils.iteratePluginDefinitions(baseWebpackConfig, pluginList, false);
+baseWebpackConfig = utils.injectIncludePathsToLoader(baseWebpackConfig, utils.getIncludePaths());
 
-    // add hot-reload related code to entry chunks
-    Object.keys(plugins).forEach(function (pluginName) {
-        baseWebpackConfig.entry[pluginName] = path.join('../../../../', plugins[pluginName]);
-    });
-} catch(e) {}
-
-var webpackConfig = merge(baseWebpackConfig, {
+const webpackConfig = merge(baseWebpackConfig, {
   module: {
     rules: utils.styleLoaders({
       sourceMap: config.build.productionSourceMap,
@@ -90,7 +82,7 @@ var webpackConfig = merge(baseWebpackConfig, {
 });
 
 if (config.build.productionGzip) {
-  var CompressionWebpackPlugin = require('compression-webpack-plugin');
+  const CompressionWebpackPlugin = require('compression-webpack-plugin');
 
   webpackConfig.plugins.push(
     new CompressionWebpackPlugin({
@@ -107,8 +99,11 @@ if (config.build.productionGzip) {
   )
 }
 
-if (Object.keys(plugins).length) {
-    Object.keys(plugins).forEach((pluginName) => {
+if (pluginList.length) {
+    pluginList.forEach((plugin) => {
+        const pluginName = plugin.name;
+        const basePath = plugin.basePath;
+
         webpackConfig.plugins.push(
             new webpack.optimize.CommonsChunkPlugin({
                 name: pluginName,
@@ -117,8 +112,7 @@ if (Object.keys(plugins).length) {
             })
         );
 
-        const pluginPath = path.resolve(plugins[pluginName], '../../../../public/administration');
-
+        const pluginPath = `${basePath}Resources/public/administration`;
         webpackConfig.plugins.push(
             new WebpackCopyAfterBuildPlugin({
                 files: [{
@@ -135,7 +129,7 @@ if (Object.keys(plugins).length) {
 }
 
 if (config.build.bundleAnalyzerReport) {
-  var BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+  const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
   webpackConfig.plugins.push(new BundleAnalyzerPlugin())
 }
 

@@ -24,7 +24,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Order;
 
-use Shopware\Core\Checkout\CustomerContext;
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPosition;
@@ -60,14 +60,14 @@ class OrderPersister implements OrderPersisterInterface
         $this->taxDetector = $taxDetector;
     }
 
-    public function persist(CalculatedCart $calculatedCart, CustomerContext $context): GenericWrittenEvent
+    public function persist(CalculatedCart $calculatedCart, CheckoutContext $context): GenericWrittenEvent
     {
         $order = $this->convert($calculatedCart, $context);
 
         return $this->repository->create([$order], $context->getContext());
     }
 
-    private function convert(CalculatedCart $calculatedCart, CustomerContext $context): array
+    private function convert(CalculatedCart $calculatedCart, CheckoutContext $context): array
     {
         $addressId = Uuid::uuid4()->getHex();
         if (!$context->getCustomer()) {

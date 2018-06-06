@@ -26,7 +26,7 @@ declare(strict_types=1);
 namespace Shopware\Core\Checkout\Cart\Cart;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Checkout\CustomerContext;
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
@@ -52,7 +52,7 @@ class CartPersister implements CartPersisterInterface
         $this->serializer = $serializer;
     }
 
-    public function load(string $token, string $name, CustomerContext $context): Cart
+    public function load(string $token, string $name, CheckoutContext $context): Cart
     {
         $content = $this->connection->fetchColumn(
             'SELECT container FROM cart WHERE `token` = :token AND `name` = :name AND tenant_id = :tenant',
@@ -66,7 +66,7 @@ class CartPersister implements CartPersisterInterface
         return $this->serializer->deserialize((string) $content, '', 'json');
     }
 
-    public function loadCalculated(string $token, string $name, CustomerContext $context): CalculatedCart
+    public function loadCalculated(string $token, string $name, CheckoutContext $context): CalculatedCart
     {
         $content = $this->connection->fetchColumn(
             'SELECT calculated FROM cart WHERE `token` = :token AND `name` = :name AND tenant_id = :tenant',
@@ -80,7 +80,7 @@ class CartPersister implements CartPersisterInterface
         return $this->serializer->deserialize((string) $content, '', 'json');
     }
 
-    public function save(CalculatedCart $cart, CustomerContext $context): void
+    public function save(CalculatedCart $cart, CheckoutContext $context): void
     {
         //prevent empty carts
         if ($cart->getCalculatedLineItems()->count() <= 0) {
@@ -129,7 +129,7 @@ class CartPersister implements CartPersisterInterface
         $this->connection->insert('cart', $data);
     }
 
-    public function delete(string $token, ?string $name = null, CustomerContext $context): void
+    public function delete(string $token, ?string $name = null, CheckoutContext $context): void
     {
         if ($name === null) {
             $this->connection->executeUpdate(

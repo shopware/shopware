@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Test\DiscountSurcharge;
 use Shopware\Core\Checkout\DiscountSurcharge\Cart\DiscountSurchargeProcessor;
 use Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeRepository;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Checkout\CustomerContext;
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Cart\CircularCartCalculation;
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
@@ -14,15 +14,15 @@ use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\PercentageTaxRule;
-use Shopware\Core\Content\Rule\ContextRuleRepository;
-use Shopware\Core\Content\Rule\Specification\CalculatedCart\GoodsCountRule;
-use Shopware\Core\Content\Rule\Specification\CalculatedCart\GoodsPriceRule;
-use Shopware\Core\Content\Rule\Specification\CalculatedLineItem\LineItemOfTypeRule;
-use Shopware\Core\Content\Rule\Specification\CalculatedLineItem\LineItemTotalPriceRule;
-use Shopware\Core\Content\Rule\Specification\CalculatedLineItem\LineItemWithQuantityRule;
-use Shopware\Core\Content\Rule\Specification\CalculatedLineItem\ProductOfManufacturerRule;
-use Shopware\Core\Content\Rule\Specification\Container\AndRule;
-use Shopware\Core\Content\Rule\Specification\Rule;
+use Shopware\Core\Content\Rule\RuleRepository;
+use Shopware\Core\Checkout\Cart\Rule\GoodsCountRule;
+use Shopware\Core\Checkout\Cart\Rule\GoodsPriceRule;
+use Shopware\Core\Checkout\Cart\Rule\LineItemOfTypeRule;
+use Shopware\Core\Checkout\Cart\Rule\LineItemTotalPriceRule;
+use Shopware\Core\Checkout\Cart\Rule\LineItemWithQuantityRule;
+use Shopware\Core\Checkout\Cart\Rule\ProductOfManufacturerRule;
+use Shopware\Core\Framework\Rule\Container\AndRule;
+use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Content\Product\Cart\ProductProcessor;
 use Shopware\Core\Content\Product\ProductRepository;
@@ -38,9 +38,9 @@ class DiscountSurchargeTest extends KernelTestCase
     public static $discountSurchargeRepository;
 
     /**
-     * @var \Shopware\Core\Content\Rule\ContextRuleRepository
+     * @var \Shopware\Core\Content\Rule\RuleRepository
      */
-    public static $contextRuleRepository;
+    public static $ruleRepository;
 
     /**
      * @var \Shopware\Core\Content\Product\ProductRepository
@@ -65,11 +65,11 @@ class DiscountSurchargeTest extends KernelTestCase
 <<<<<<< Updated upstream:src/Core/Application/Test/Context/ContextCartModifierTest.php
 
         self::$contextCartModifierRepository = self::$container->get(ContextCartModifierRepository::class);
-        self::$contextRuleRepository = self::$container->get(ContextRuleRepository::class);
+        self::$ruleRepository = self::$container->get(RuleRepository::class);
         self::$productRepository = self::$container->get(ProductRepository::class);
 =======
         self::$discountSurchargeRepository = self::$kernel->getContainer()->get(DiscountSurchargeRepository::class);
-        self::$contextRuleRepository = self::$kernel->getContainer()->get(ContextRuleRepository::class);
+        self::$ruleRepository = self::$kernel->getContainer()->get(RuleRepository::class);
         self::$productRepository = self::$kernel->getContainer()->get(ProductRepository::class);
 >>>>>>> Stashed changes:src/Core/Checkout/Test/DiscountSurcharge/DiscountSurchargeTest.php
         self::$context = Context::createDefaultContext(Defaults::TENANT_ID);
@@ -81,13 +81,13 @@ class DiscountSurchargeTest extends KernelTestCase
         $productA = $this->createProduct('Product A', 10, 11.9, 19);
         $productB = $this->createProduct('Product B', 20, 23.8, 19);
 
-        $contextRuleId = $this->createContextRule([
+        $ruleId = $this->createRule([
             new GoodsPriceRule(25, Rule::OPERATOR_GTE),
             new GoodsPriceRule(60, Rule::OPERATOR_LTE),
         ]);
 
         $id = $this->createDiscountSurcharge(
-            $contextRuleId,
+            $ruleId,
             DiscountSurchargeProcessor::ABSOLUTE_MODIFIER,
             2
         );
@@ -131,13 +131,13 @@ class DiscountSurchargeTest extends KernelTestCase
         $productA = $this->createProduct('Product A', 10, 11.9, 19);
         $productB = $this->createProduct('Product B', 20, 23.8, 19);
 
-        $contextRuleId = $this->createContextRule([
+        $ruleId = $this->createRule([
             new GoodsPriceRule(100, Rule::OPERATOR_GTE),
             new GoodsPriceRule(200, Rule::OPERATOR_LTE),
         ]);
 
         $modifierId = $this->createDiscountSurcharge(
-            $contextRuleId,
+            $ruleId,
             DiscountSurchargeProcessor::ABSOLUTE_MODIFIER,
             2
         );
@@ -178,13 +178,13 @@ class DiscountSurchargeTest extends KernelTestCase
         $productA = $this->createProduct('Product A', 10, 11.9, 19);
         $productB = $this->createProduct('Product B', 20, 23.8, 19);
 
-        $contextRuleId = $this->createContextRule([
+        $ruleId = $this->createRule([
             new GoodsPriceRule(10, Rule::OPERATOR_GTE),
             new GoodsPriceRule(100, Rule::OPERATOR_LTE),
         ]);
 
         $modifierId = $this->createDiscountSurcharge(
-            $contextRuleId,
+            $ruleId,
             DiscountSurchargeProcessor::ABSOLUTE_MODIFIER,
             2
         );
@@ -238,7 +238,7 @@ class DiscountSurchargeTest extends KernelTestCase
         $productB = $this->createProduct('Product B', 20, 23.8, 19);
         $manufacturerA = $this->getManufacturersOfProduct($productA);
 
-        $contextRuleId = $this->createContextRule([
+        $ruleId = $this->createRule([
             new GoodsPriceRule(25, Rule::OPERATOR_GTE),
             new GoodsPriceRule(60, Rule::OPERATOR_LTE),
         ]);
@@ -251,7 +251,7 @@ class DiscountSurchargeTest extends KernelTestCase
         ];
 
         $modifierId = $this->createDiscountSurcharge(
-            $contextRuleId,
+            $ruleId,
             DiscountSurchargeProcessor::PERCENTAL_MODIFIER,
             -20,
             new AndRule($rules)
@@ -301,7 +301,7 @@ class DiscountSurchargeTest extends KernelTestCase
         $rules = [
             new GoodsCountRule(2, Rule::OPERATOR_NEQ),
         ];
-        $contextRuleId = $this->createContextRule($rules, 'Test rule');
+        $ruleId = $this->createRule($rules, 'Test rule');
 
         $rules = [
             new LineItemWithQuantityRule($productA, 3),
@@ -311,7 +311,7 @@ class DiscountSurchargeTest extends KernelTestCase
         ];
 
         $modifierId = $this->createDiscountSurcharge(
-            $contextRuleId,
+            $ruleId,
             DiscountSurchargeProcessor::PERCENTAL_MODIFIER,
             -20,
             new AndRule($rules)
@@ -339,7 +339,7 @@ class DiscountSurchargeTest extends KernelTestCase
         $productB = $this->createProduct('Product B', 20, 23.8, 19);
         $manufacturerA = $this->getManufacturersOfProduct($productA);
 
-        $contextRuleId = $this->createContextRule([
+        $ruleId = $this->createRule([
             new GoodsPriceRule(25, Rule::OPERATOR_GTE),
             new GoodsPriceRule(60, Rule::OPERATOR_LTE),
         ]);
@@ -352,7 +352,7 @@ class DiscountSurchargeTest extends KernelTestCase
         ];
 
         $modifierId = $this->createDiscountSurcharge(
-            $contextRuleId,
+            $ruleId,
             DiscountSurchargeProcessor::PERCENTAL_MODIFIER,
             -20,
             new AndRule($rules)
@@ -385,13 +385,13 @@ class DiscountSurchargeTest extends KernelTestCase
         $productA = $this->createProduct('Product A', 10, 11.9, 19);
         $productB = $this->createProduct('Product B', 20, 23.8, 7);
 
-        $contextRuleId = $this->createContextRule([
+        $ruleId = $this->createRule([
             new GoodsPriceRule(5, Rule::OPERATOR_GTE),
             new GoodsPriceRule(60, Rule::OPERATOR_LTE),
         ]);
 
         $modifierId = $this->createDiscountSurcharge(
-            $contextRuleId,
+            $ruleId,
             DiscountSurchargeProcessor::PERCENTAL_MODIFIER,
             -20
         );
@@ -445,7 +445,7 @@ class DiscountSurchargeTest extends KernelTestCase
         $this->assertEquals(40, $taxRule->getPercentage());
     }
 
-    private function createContextRule(array $rules, string $name = 'Test rule', int $priority = 1): string
+    private function createRule(array $rules, string $name = 'Test rule', int $priority = 1): string
     {
         $id = Uuid::uuid4()->getHex();
         $data = [
@@ -455,13 +455,13 @@ class DiscountSurchargeTest extends KernelTestCase
             'payload' => new AndRule($rules),
         ];
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
-        self::$contextRuleRepository->upsert([$data], $context);
+        self::$ruleRepository->upsert([$data], $context);
 
         return $id;
     }
 
     private function createDiscountSurcharge(
-        string $contextRuleId,
+        string $ruleId,
         string $type,
         float $amount,
         ?Rule $rule = null
@@ -470,7 +470,7 @@ class DiscountSurchargeTest extends KernelTestCase
         $data = [
             'id' => $id,
             'name' => sprintf('Test modifier (%s)', $type),
-            'contextRuleId' => $contextRuleId,
+            'ruleId' => $ruleId,
             'type' => $type,
             'amount' => $amount,
             'rule' => $rule ?? new AndRule(),
@@ -517,7 +517,7 @@ class DiscountSurchargeTest extends KernelTestCase
     private function createContext(
         bool $taxFree,
         bool $displayGross
-    ): CustomerContext {
+    ): CheckoutContext {
         $context = Generator::createContext();
 
         $context->getCurrentCustomerGroup()->setDisplayGross($displayGross);

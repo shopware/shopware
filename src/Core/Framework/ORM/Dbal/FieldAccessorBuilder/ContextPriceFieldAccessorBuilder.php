@@ -15,7 +15,7 @@ class ContextPriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
             return null;
         }
 
-        $keys = $context->getContextRules();
+        $keys = $context->getRules();
 
         $defaultCurrencyId = Defaults::CURRENCY;
         $currencyId = $context->getCurrencyId();

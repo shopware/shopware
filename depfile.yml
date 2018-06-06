@@ -3,55 +3,35 @@ paths:
 exclude_files:
   - .*test.*
   - .*Definition.php
+  - .*Struct.php
+  - .*Collection.php
   - .*Event.php
   - .*DemodataCommand.php
 
 layers:
-  - name: Touchpoint
+  - name: Checkout
     collectors:
       - type: bool
         must:
           - type: className
-            regex: Shopware\Core\\Touchpoint\\
-        must_not:
-          - type: className
-            regex: Shopware\Core\\Framework\\Context
-          - type: className
-            regex: Shopware\Core\\Checkout\\CustomerContext
-          - type: className
-            regex: Shopware\Core\\Touchpoint\\Language\\Struct\\LanguageBasicStruct
-          - type: className
-            regex: Shopware\Core\\Touchpoint\\Language\\Collection\\LanguageBasicCollection
-          - type: className
-            regex: Shopware\Core\\Touchpoint\\Context\\Struct\\ContextPriceStruct
-    collectors:
-      - type: className
-        regex: Shopware\Core\\Touchpoint\\
-  - name: Checkout
-    collectors:
-      - type: className
-        regex: Shopware\Core\\Checkout\\
+            regex: Shopware\\Core\\Checkout\\
   - name: Content
     collectors:
       - type: className
-        regex: Shopware\Core\\Content\\
+        regex: Shopware\\Core\\Content\\
   - name: Framework
     collectors:
       - type: className
-        regex: Shopware\Core\\Framework\\
+        regex: Shopware\\Core\\Framework\\
   - name: Profiling
     collectors:
       - type: className
-        regex: Shopware\Core\\Profiling\\
+        regex: Shopware\\Profiling\\
   - name: System
     collectors:
       - type: className
-        regex: Shopware\Core\\System\\
+        regex: Shopware\\Core\\System\\
 ruleset:
-  Application:
-    - Framework
-    - Content
-    - Checkout
   Checkout:
     - Framework
     - Content # todo change this
@@ -62,8 +42,6 @@ ruleset:
     - System
   Framework:
   Profiling:
-    - Framework
-    - Touchpoint
     - Checkout
     - Content
     - Framework

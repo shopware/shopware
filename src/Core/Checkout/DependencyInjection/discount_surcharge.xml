@@ -6,7 +6,6 @@
 
     <services>
         <!-- Versioning -->
-        <service alias="Shopware\Content\Rule\ContextRuleRepository.v1" id="Shopware\Content\Rule\ContextRuleRepository" public="true" />
         <service alias="Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeRepository.v1" id="Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeRepository" public="true" />
 
         <service class="Shopware\Core\Checkout\DiscountSurcharge\Cart\DiscountSurchargeProcessor" id="Shopware\Core\Checkout\DiscountSurcharge\Cart\DiscountSurchargeProcessor">
@@ -18,18 +17,6 @@
         <service class="Shopware\Core\Checkout\DiscountSurcharge\Cart\DiscountSurchargeCollector" id="Shopware\Core\Checkout\DiscountSurcharge\Cart\DiscountSurchargeCollector">
             <argument id="Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeRepository" type="service"/>
             <tag name="cart.collector"/>
-        </service>
-
-        <service class="Shopware\Core\Content\Rule\ContextRuleDefinition" id="Shopware\Core\Content\Rule\ContextRuleDefinition" >
-            <tag name="shopware.entity.definition" entity="context_rule" />
-        </service>
-
-        <service class="Shopware\Core\Content\Rule\ContextRuleRepository" id="Shopware\Core\Content\Rule\ContextRuleRepository.v1" public="true">
-            <argument id="Shopware\Core\Framework\ORM\Dbal\EntityReader" type="service"/>
-            <argument id="Shopware\Core\Framework\ORM\Version\Service\VersionManager" type="service"/>
-            <argument id="Shopware\Core\Framework\ORM\Dbal\EntitySearcher" type="service"/>
-            <argument id="Shopware\Core\Framework\ORM\Dbal\EntityAggregator" type="service"/>
-            <argument id="event_dispatcher" type="service"/>
         </service>
 
         <service class="Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeDefinition" id="Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeDefinition" >

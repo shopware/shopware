@@ -14,7 +14,7 @@ class ContextPriceStruct extends Entity
     /**
      * @var string
      */
-    protected $contextRuleId;
+    protected $ruleId;
 
     /**
      * @var \Shopware\Core\Framework\Pricing\PriceStruct
@@ -41,14 +41,14 @@ class ContextPriceStruct extends Entity
         $this->currencyId = $currencyId;
     }
 
-    public function getContextRuleId(): string
+    public function getRuleId(): string
     {
-        return $this->contextRuleId;
+        return $this->ruleId;
     }
 
-    public function setContextRuleId(string $contextRuleId): void
+    public function setRuleId(string $ruleId): void
     {
-        $this->contextRuleId = $contextRuleId;
+        $this->ruleId = $ruleId;
     }
 
     public function getPrice(): \Shopware\Core\Framework\Pricing\PriceStruct

@@ -147,7 +147,7 @@
             <tag name="shopware.entity.field_resolver"  priority="-50" />
         </service>
 
-        <service class="Shopware\Core\Framework\ORM\Dbal\FieldResolver\ProductCoverFieldResolver" id="Shopware\Core\Framework\ORM\Dbal\FieldResolver\ProductCoverFieldResolver">
+        <service class="Shopware\Core\Content\Product\ORM\Field\ProductCoverFieldResolver" id="Shopware\Core\Content\Product\ORM\Field\ProductCoverFieldResolver">
             <tag name="shopware.entity.field_resolver" />
         </service>
 
@@ -211,7 +211,7 @@
             <argument id="Doctrine\DBAL\Connection" type="service"/>
         </service>
 
-        <service class="Shopware\Core\Framework\ORM\Dbal\Indexing\Analyzer\SearchAnalyzerRegistry" id="Shopware\Core\Framework\ORM\Dbal\Indexing\Analyzer\SearchAnalyzerRegistry">
+        <service class="Shopware\Core\Framework\ORM\Dbal\Indexing\Analyzer\SearchAnalyzerRegistry" id="Shopware\Core\Content\Product\ORM\Indexing\ProductSearchAnalyzerRegistry">
             <argument type="tagged" tag="shopware.search_analyzer"/>
         </service>
 
@@ -226,13 +226,13 @@
             <tag name="console.command"/>
         </service>
 
-        <service class="Shopware\Core\Framework\ORM\Dbal\Indexing\Analyzer\LanguageAnalyzer" id="Shopware\Core\Framework\ORM\Dbal\Indexing\Analyzer\LanguageAnalyzer">
+        <service class="Shopware\Core\Framework\ORM\Dbal\Indexing\Analyzer\LanguageAnalyzer" id="Shopware\Core\Content\Product\ORM\Indexing\ProductLanguageAnalyzer">
             <argument id="Shopware\Core\Framework\ORM\Search\Term\Tokenizer" type="service"/>
             <argument id="Shopware\Core\Framework\ORM\Search\Term\StopWordFilter" type="service"/>
             <tag name="shopware.search_analyzer" />
         </service>
 
-        <service class="Shopware\Core\Framework\ORM\Dbal\Common\EventIdExtractor" id="Shopware\Core\Framework\ORM\Dbal\Common\EventIdExtractor"/>
+        <service class="Shopware\Core\Framework\ORM\Dbal\Common\EventIdExtractor" id="Shopware\Core\Content\Product\Util\EventIdExtractor"/>
 
         <service class="Shopware\Core\Framework\ORM\Dbal\Indexing\InheritanceIndexer" id="Shopware\Core\Framework\ORM\Dbal\Indexing\InheritanceIndexer">
             <tag name="shopware.dbal_indexing.indexer" priority="1500"/>
@@ -241,7 +241,7 @@
             <argument type="service" id="event_dispatcher" />
         </service>
 
-        <service class="Shopware\Core\Framework\ORM\Dbal\Indexing\CategoryAssignmentIndexer" id="Shopware\Core\Framework\ORM\Dbal\Indexing\CategoryAssignmentIndexer">
+        <service class="Shopware\Core\Framework\ORM\Dbal\Indexing\CategoryAssignmentIndexer" id="Shopware\Core\Content\Product\ORM\Indexing\ProductCategoryTreeIndexer">
             <argument id="Shopware\Core\Content\Product\ProductRepository" type="service"/>
             <argument id="Doctrine\DBAL\Connection" type="service"/>
             <argument id="event_dispatcher" type="service"/>
@@ -258,7 +258,7 @@
             <tag name="shopware.dbal_indexing.indexer" priority="1000"/>
         </service>
 
-        <service class="Shopware\Core\Framework\ORM\Dbal\Indexing\VariationJsonIndexer" id="Shopware\Core\Framework\ORM\Dbal\Indexing\VariationJsonIndexer">
+        <service class="Shopware\Core\Framework\ORM\Dbal\Indexing\VariationJsonIndexer" id="Shopware\Core\Content\Product\ORM\Indexing\ProductVariationIndexer">
             <argument id="Shopware\Core\Content\Product\ProductRepository" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument id="Shopware\Core\Framework\ORM\Dbal\Common\EventIdExtractor" type="service"/>
@@ -266,7 +266,7 @@
             <tag name="shopware.dbal_indexing.indexer" priority="900"/>
         </service>
 
-        <service class="Shopware\Core\Framework\ORM\Dbal\Indexing\DatasheetJsonIndexer" id="Shopware\Core\Framework\ORM\Dbal\Indexing\DatasheetJsonIndexer">
+        <service class="Shopware\Core\Framework\ORM\Dbal\Indexing\DatasheetJsonIndexer" id="Shopware\Core\Content\Product\ORM\Indexing\ProductDatasheetIndexer">
             <argument id="Shopware\Core\Content\Product\ProductRepository" type="service"/>
             <argument id="Doctrine\DBAL\Connection" type="service"/>
             <argument id="event_dispatcher" type="service"/>
@@ -274,7 +274,7 @@
             <tag name="shopware.dbal_indexing.indexer" priority="400"/>
         </service>
 
-        <service class="Shopware\Core\Framework\ORM\Dbal\Indexing\ListingPriceIndexer" id="Shopware\Core\Framework\ORM\Dbal\Indexing\ListingPriceIndexer">
+        <service class="Shopware\Core\Framework\ORM\Dbal\Indexing\ListingPriceIndexer" id="Shopware\Core\Content\Product\ORM\Indexing\ProductListingPriceIndexer">
             <argument id="Shopware\Core\Content\Product\ProductRepository" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument id="Shopware\Core\Framework\ORM\Dbal\Common\EventIdExtractor" type="service"/>
@@ -282,7 +282,7 @@
             <tag name="shopware.dbal_indexing.indexer" priority="300"/>
         </service>
 
-        <service class="Shopware\Core\Framework\ORM\Dbal\Indexing\SearchIndexer" id="Shopware\Core\Framework\ORM\Dbal\Indexing\SearchIndexer">
+        <service class="Shopware\Core\Framework\ORM\Dbal\Indexing\SearchIndexer" id="Shopware\Core\Content\Product\ORM\Indexing\ProductSearchKeywordIndexer">
             <argument id="Doctrine\DBAL\Connection" type="service"/>
             <argument type="service" id="Shopware\Core\Content\Product\ProductRepository"/>
             <argument type="service" id="event_dispatcher"/>

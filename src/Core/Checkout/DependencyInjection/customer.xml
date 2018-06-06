@@ -82,7 +82,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\CustomerGroupDiscountRepository.v1"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Customer\StorefrontCustomerController" id="Shopware\Core\Checkout\Customer\StorefrontCustomerController" public="true">
+        <service class="Shopware\Core\Checkout\Customer\StorefrontCustomerController" id="Shopware\Core\Checkout\Customer\Storefront\CustomerController" public="true">
             <argument id="serializer" type="service"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Util\CustomerContextPersister"/>
             <argument type="service" id="Shopware\Core\Framework\Routing\Firewall\CustomerProvider"/>
@@ -92,11 +92,11 @@
             <argument type="service" id="Shopware\Core\Checkout\Order\OrderRepository.v1"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Customer\Util\CustomerContextPersister" id="Shopware\Core\Checkout\Customer\Util\CustomerContextPersister">
+        <service class="Shopware\Core\Checkout\Customer\Util\CustomerContextPersister" id="Shopware\Core\Checkout\Context\CheckoutContextPersister">
             <argument id="Doctrine\DBAL\Connection" type="service"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Customer\Util\CustomerContextFactory" id="Shopware\Core\Checkout\Customer\Util\CustomerContextFactory">
+        <service class="Shopware\Core\Checkout\Customer\Util\CustomerContextFactory" id="Shopware\Core\Checkout\Context\CheckoutContextFactory">
             <argument type="service" id="Shopware\Core\System\Touchpoint\TouchpointRepository"/>
             <argument type="service" id="Shopware\Core\System\Currency\CurrencyRepository"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\CustomerRepository"/>
@@ -112,7 +112,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\TaxDetector"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Customer\Util\CustomerContextRuleLoader" id="Shopware\Core\Checkout\Customer\Util\CustomerContextRuleLoader">
+        <service class="Shopware\Core\Checkout\Customer\Util\CustomerContextRuleLoader" id="Shopware\Core\Checkout\Context\CheckoutContextRuleLoader">
             <argument id="Shopware\Core\Checkout\Cart\Cart\CartPersister" type="service"/>
             <argument id="Shopware\Core\Checkout\Cart\Tax\TaxDetector" type="service"/>
             <argument id="Shopware\Core\Checkout\Cart\Cart\CartCollector" type="service"/>
@@ -124,14 +124,14 @@
             <argument id="Shopware\Core\Checkout\Cart\StoreFrontCartService" type="service"/>
         </service>
 
-        <service class="Shopware\Core\Checkout\Customer\Util\CustomerContextService" id="Shopware\Core\Checkout\Customer\Util\CustomerContextService">
+        <service class="Shopware\Core\Checkout\Customer\Util\CustomerContextService" id="Shopware\Core\Checkout\Context\CheckoutContextService">
             <argument type="service" id="Shopware\Core\Checkout\Customer\Util\CustomerContextFactory"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Util\CustomerContextRuleLoader"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Util\CustomerContextPersister"/>
             <tag name="shopware.traceable" />
         </service>
 
-        <service class="Shopware\Core\Checkout\Customer\StorefrontCustomerContextController" id="Shopware\Core\Checkout\Customer\StorefrontCustomerContextController" public="true">
+        <service class="Shopware\Core\Checkout\Customer\StorefrontCustomerContextController" id="Shopware\Core\Checkout\Context\Storefront\CheckoutContextController" public="true">
             <argument id="Shopware\Core\Checkout\Payment\PaymentMethodRepository" type="service"/>
             <argument id="Shopware\Core\Checkout\Shipping\ShippingMethodRepository" type="service"/>
             <argument id="Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository" type="service"/>

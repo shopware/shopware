@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Routing;
 
-use Shopware\Core\Checkout\Customer\Util\CustomerContextService;
+use Shopware\Core\Checkout\Context\CheckoutContextService;
 use Shopware\Core\Framework\Routing\Firewall\Touchpoint;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -17,7 +17,7 @@ class TouchpointRequestContextResolver implements RequestContextResolverInterfac
     private $decorated;
 
     /**
-     * @var CustomerContextService
+     * @var CheckoutContextService
      */
     private $contextService;
 
@@ -28,7 +28,7 @@ class TouchpointRequestContextResolver implements RequestContextResolverInterfac
 
     public function __construct(
         RequestContextResolverInterface $decorated,
-        CustomerContextService $contextService,
+        CheckoutContextService $contextService,
         TokenStorageInterface $tokenStorage
     ) {
         $this->decorated = $decorated;

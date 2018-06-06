@@ -30,6 +30,7 @@ class InheritanceIndexer implements IndexerInterface
      * @var Connection
      */
     private $connection;
+
     /**
      * @var DefinitionRegistry
      */

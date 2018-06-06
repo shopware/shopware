@@ -2,10 +2,10 @@
 
 namespace Shopware\Storefront\Page\Detail;
 
-use Shopware\Core\Checkout\CustomerContext;
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\Collection\ProductConfiguratorBasicCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorRepository;
-use Shopware\Core\Content\Product\StorefrontProductRepository;
+use Shopware\Core\Content\Product\Storefront\StorefrontProductRepository;
 use Shopware\Core\Content\Product\Struct\StorefrontProductDetailStruct;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\NestedQuery;
@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 class DetailPageLoader
 {
     /**
-     * @var \Shopware\Core\Content\Product\StorefrontProductRepository
+     * @var \Shopware\Core\Content\Product\Storefront\StorefrontProductRepository
      */
     private $productRepository;
 
@@ -32,7 +32,7 @@ class DetailPageLoader
         $this->configuratorRepository = $configuratorRepository;
     }
 
-    public function load(string $productId, Request $request, CustomerContext $context): DetailPageStruct
+    public function load(string $productId, Request $request, CheckoutContext $context): DetailPageStruct
     {
         $parentId = $this->fetchParentId($productId, $context);
 
@@ -60,7 +60,7 @@ class DetailPageLoader
         string $productId,
         string $parentId,
         Request $request,
-        CustomerContext $context
+        CheckoutContext $context
     ): string {
         $selection = $request->get('group', []);
 
@@ -93,7 +93,7 @@ class DetailPageLoader
         return $productId;
     }
 
-    private function loadConfigurator(StorefrontProductDetailStruct $product, CustomerContext $context): ProductConfiguratorBasicCollection
+    private function loadConfigurator(StorefrontProductDetailStruct $product, CheckoutContext $context): ProductConfiguratorBasicCollection
     {
         $containerId = $product->getParentId() ?? $product->getId();
 
@@ -110,7 +110,7 @@ class DetailPageLoader
         return $configurator;
     }
 
-    private function fetchParentId(string $productId, CustomerContext $context): string
+    private function fetchParentId(string $productId, CheckoutContext $context): string
     {
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('product.children.id', $productId));

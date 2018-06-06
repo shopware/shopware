@@ -181,7 +181,7 @@
             <argument type="service" id="Shopware\Core\Content\Product\Util\KeywordSearchTermInterpreter"/>
         </service>
 
-        <service class="Shopware\Core\Framework\Routing\StorefrontContextValueResolver" id="Shopware\Core\Framework\Routing\StorefrontContextValueResolver">
+        <service class="CheckoutContextValueResolver" id="Shopware\Core\Checkout\Context\CheckoutContextValueResolver">
             <argument id="request_stack" type="service"/>
             <tag name="controller.argument_value_resolver" priority="1000"/>
         </service>

@@ -25,12 +25,12 @@
 namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Rule\Context;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\CustomerContext;
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
 use Shopware\Core\Checkout\Customer\Struct\CustomerBasicStruct;
-use Shopware\Core\Content\Rule\Specification\Context\BillingStreetRule;
-use Shopware\Core\Content\Rule\Specification\Scope\CartRuleScope;
+use Shopware\Core\Checkout\Customer\Rule\BillingStreetRule;
+use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 
 class BillingStreetRuleTest extends TestCase
 {
@@ -40,7 +40,7 @@ class BillingStreetRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(CustomerContext::class);
+        $context = $this->createMock(CheckoutContext::class);
 
         $billing = new CustomerAddressBasicStruct();
         $billing->setStreet('example street');
@@ -63,7 +63,7 @@ class BillingStreetRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(CustomerContext::class);
+        $context = $this->createMock(CheckoutContext::class);
 
         $billing = new CustomerAddressBasicStruct();
         $billing->setStreet('example street');
@@ -86,7 +86,7 @@ class BillingStreetRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(CustomerContext::class);
+        $context = $this->createMock(CheckoutContext::class);
 
         $billing = new CustomerAddressBasicStruct();
         $billing->setStreet('test street');
@@ -109,7 +109,7 @@ class BillingStreetRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(CustomerContext::class);
+        $context = $this->createMock(CheckoutContext::class);
 
         $context->expects($this->any())
             ->method('getCustomer')

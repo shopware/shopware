@@ -9,15 +9,15 @@ use Faker\Generator;
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
-use Shopware\Core\Content\Rule\ContextRuleDefinition;
-use Shopware\Core\Content\Rule\ContextRuleRepository;
-use Shopware\Core\Content\Rule\Specification\CalculatedCart\GoodsPriceRule;
-use Shopware\Core\Content\Rule\Specification\Container\AndRule;
-use Shopware\Core\Content\Rule\Specification\Container\NotRule;
-use Shopware\Core\Content\Rule\Specification\Context\CurrencyRule;
-use Shopware\Core\Content\Rule\Specification\Context\CustomerGroupRule;
-use Shopware\Core\Content\Rule\Specification\Context\DateRangeRule;
-use Shopware\Core\Content\Rule\Specification\Context\IsNewCustomerRule;
+use Shopware\Core\Content\Rule\RuleDefinition;
+use Shopware\Core\Content\Rule\RuleRepository;
+use Shopware\Core\Checkout\Cart\Rule\GoodsPriceRule;
+use Shopware\Core\Framework\Rule\Container\AndRule;
+use Shopware\Core\Framework\Rule\Container\NotRule;
+use Shopware\Core\Framework\Rule\CurrencyRule;
+use Shopware\Core\Checkout\Customer\Rule\CustomerGroupRule;
+use Shopware\Core\Framework\Rule\DateRangeRule;
+use Shopware\Core\Checkout\Customer\Rule\IsNewCustomerRule;
 use Shopware\Core\Content\Category\CategoryRepository;
 use Shopware\Core\Content\Media\Aggregate\MediaAlbum\MediaAlbumRepository;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
@@ -71,9 +71,9 @@ class DemodataCommand extends ContainerAwareCommand
     private $productRepository;
 
     /**
-     * @var ContextRuleRepository
+     * @var RuleRepository
      */
-    private $contextRuleRepository;
+    private $ruleRepository;
 
     /**
      * @var CategoryRepository
@@ -114,7 +114,7 @@ class DemodataCommand extends ContainerAwareCommand
 
         $this->variantGenerator = $variantGenerator;
         $this->productRepository = $container->get(ProductRepository::class);
-        $this->contextRuleRepository = $container->get(ContextRuleRepository::class);
+        $this->ruleRepository = $container->get(RuleRepository::class);
         $this->categoryRepository = $container->get(CategoryRepository::class);
         $this->albumRepository = $container->get(MediaAlbumRepository::class);
     }
@@ -158,7 +158,7 @@ class DemodataCommand extends ContainerAwareCommand
 
         $this->io->title('Demodata Generator');
 
-        $contextRuleIds = $this->createContextRules();
+        $ruleIds = $this->createRules();
 
         $this->createCustomer($input->getOption('customers'));
 
@@ -171,7 +171,7 @@ class DemodataCommand extends ContainerAwareCommand
         $this->createProduct(
             $categories,
             $manufacturer,
-            $contextRuleIds,
+            $ruleIds,
             $input->getOption('products'),
             $input->getOption('with-media') == 1,
             $input->getOption('with-configurator') == 1,
@@ -341,7 +341,7 @@ class DemodataCommand extends ContainerAwareCommand
     private function createProduct(
         array $categories,
         array $manufacturer,
-        array $contextRules,
+        array $rules,
         $count = 500,
         bool $withMedia = false,
         bool $withConfigurator = false,
@@ -369,7 +369,7 @@ class DemodataCommand extends ContainerAwareCommand
         $context = Context::createDefaultContext($this->tenantId);
 
         for ($i = 0; $i < $count; ++$i) {
-            $product = $this->createSimpleProduct($categories, $manufacturer, $contextRules);
+            $product = $this->createSimpleProduct($categories, $manufacturer, $rules);
 
             if ($withMedia) {
                 $imagePath = $this->getRandomImage($product['name']);
@@ -487,9 +487,9 @@ class DemodataCommand extends ContainerAwareCommand
         return array_column($payload, 'id');
     }
 
-    private function createContextRules(): array
+    private function createRules(): array
     {
-        $ids = $this->contextRuleRepository->searchIds(new Criteria(), Context::createDefaultContext($this->tenantId));
+        $ids = $this->ruleRepository->searchIds(new Criteria(), Context::createDefaultContext($this->tenantId));
 
         if (!empty($ids->getIds())) {
             return $ids->getIds();
@@ -515,17 +515,17 @@ class DemodataCommand extends ContainerAwareCommand
             ];
         }
 
-        $this->writer->insert(ContextRuleDefinition::class, $payload, $this->getContext());
+        $this->writer->insert(RuleDefinition::class, $payload, $this->getContext());
 
         return array_column($payload, 'id');
     }
 
-    private function createPrices(array $contextRules)
+    private function createPrices(array $rules)
     {
         $prices = [];
         $rules = \array_slice(
-            $contextRules,
-            random_int(0, count($contextRules) - 5),
+            $rules,
+            random_int(0, count($rules) - 5),
             random_int(1, 5)
         );
 
@@ -534,7 +534,7 @@ class DemodataCommand extends ContainerAwareCommand
 
             $prices[] = [
                 'currencyId' => Defaults::CURRENCY,
-                'contextRuleId' => $ruleId,
+                'ruleId' => $ruleId,
                 'quantityStart' => 1,
                 'quantityEnd' => 10,
                 'price' => ['gross' => $gross, 'net' => $gross / 1.19],
@@ -544,7 +544,7 @@ class DemodataCommand extends ContainerAwareCommand
 
             $prices[] = [
                 'currencyId' => Defaults::CURRENCY,
-                'contextRuleId' => $ruleId,
+                'ruleId' => $ruleId,
                 'quantityStart' => 11,
                 'price' => ['gross' => $gross, 'net' => $gross / 1.19],
             ];
@@ -586,11 +586,11 @@ class DemodataCommand extends ContainerAwareCommand
     /**
      * @param array $categories
      * @param array $manufacturer
-     * @param array $contextRules
+     * @param array $rules
      *
      * @return array
      */
-    private function createSimpleProduct(array $categories, array $manufacturer, array $contextRules): array
+    private function createSimpleProduct(array $categories, array $manufacturer, array $rules): array
     {
         $price = mt_rand(1, 1000);
 
@@ -607,7 +607,7 @@ class DemodataCommand extends ContainerAwareCommand
                 ['id' => $categories[random_int(0, count($categories) - 1)]],
             ],
             'stock' => $this->faker->randomNumber(),
-            'contextPrices' => $this->createPrices($contextRules),
+            'contextPrices' => $this->createPrices($rules),
         ];
 
         return $product;

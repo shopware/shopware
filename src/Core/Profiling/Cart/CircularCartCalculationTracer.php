@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Profiling\Cart;
 
-use Shopware\Core\Checkout\CustomerContext;
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Cart\CircularCartCalculation;
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
@@ -27,7 +27,7 @@ class CircularCartCalculationTracer extends CircularCartCalculation
         $this->actions = $actions;
     }
 
-    public function calculate(Cart $cart, CustomerContext $context): CalculatedCart
+    public function calculate(Cart $cart, CheckoutContext $context): CalculatedCart
     {
         $time = microtime(true);
         $calculatedCart = $this->calculator->calculate($cart, $context);

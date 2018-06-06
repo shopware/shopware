@@ -8,9 +8,9 @@ An entire simple rule might look like this:
 <?php declare(strict_types=1);
 
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Core\Content\Rule\Specification\Match;
-use Shopware\Core\Content\Rule\Specification\Rule;
-use Shopware\Core\Checkout\CustomerContext;
+use Shopware\Core\Framework\Rule\Match;
+use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Checkout\CheckoutContext;
 
 class TrueRule extends Rule
 {
@@ -53,4 +53,4 @@ Assuming the following scenario exists:
 
 As a result, the database is accessed 100 times each time storefront page is requested.
 
-All matching rules of a request state are stored in the `\Shopware\Core\Checkout\CustomerContext` and the `\Shopware\Core\Touchpoint\Context\Struct\ShopContext`.
+All matching rules of a request state are stored in the `\Shopware\Core\Checkout\CheckoutContext` and the `\Shopware\Core\Touchpoint\Context\Struct\ShopContext`.

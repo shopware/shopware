@@ -25,10 +25,10 @@
 namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Rule\CalculatedCart;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\CustomerContext;
-use Shopware\Core\Content\Rule\Specification\CalculatedCart\GoodsCountRule;
-use Shopware\Core\Content\Rule\Specification\Rule;
-use Shopware\Core\Content\Rule\Specification\Scope\CartRuleScope;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Checkout\Cart\Rule\GoodsCountRule;
+use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 
 class GoodsCountRuleTest extends TestCase
@@ -38,7 +38,7 @@ class GoodsCountRuleTest extends TestCase
         $rule = new GoodsCountRule(1, Rule::OPERATOR_EQ);
 
         $calculatedCart = Generator::createCalculatedCart();
-        $context = $this->createMock(CustomerContext::class);
+        $context = $this->createMock(CheckoutContext::class);
 
         $this->assertTrue(
             $rule->match(new CartRuleScope($calculatedCart, $context))->matches()
@@ -50,7 +50,7 @@ class GoodsCountRuleTest extends TestCase
         $rule = new GoodsCountRule(0, Rule::OPERATOR_EQ);
 
         $calculatedCart = Generator::createCalculatedCart();
-        $context = $this->createMock(CustomerContext::class);
+        $context = $this->createMock(CheckoutContext::class);
 
         $this->assertFalse(
             $rule->match(new CartRuleScope($calculatedCart, $context))->matches()
@@ -62,7 +62,7 @@ class GoodsCountRuleTest extends TestCase
         $rule = new GoodsCountRule(1, Rule::OPERATOR_LTE);
 
         $calculatedCart = Generator::createCalculatedCart();
-        $context = $this->createMock(CustomerContext::class);
+        $context = $this->createMock(CheckoutContext::class);
 
         $this->assertTrue(
             $rule->match(new CartRuleScope($calculatedCart, $context))->matches()
@@ -74,7 +74,7 @@ class GoodsCountRuleTest extends TestCase
         $rule = new GoodsCountRule(2, Rule::OPERATOR_LTE);
 
         $calculatedCart = Generator::createCalculatedCart();
-        $context = $this->createMock(CustomerContext::class);
+        $context = $this->createMock(CheckoutContext::class);
 
         $this->assertTrue(
             $rule->match(new CartRuleScope($calculatedCart, $context))->matches()
@@ -86,7 +86,7 @@ class GoodsCountRuleTest extends TestCase
         $rule = new GoodsCountRule(0, Rule::OPERATOR_LTE);
 
         $calculatedCart = Generator::createCalculatedCart();
-        $context = $this->createMock(CustomerContext::class);
+        $context = $this->createMock(CheckoutContext::class);
 
         $this->assertFalse(
             $rule->match(new CartRuleScope($calculatedCart, $context))->matches()
@@ -98,7 +98,7 @@ class GoodsCountRuleTest extends TestCase
         $rule = new GoodsCountRule(1, Rule::OPERATOR_GTE);
 
         $calculatedCart = Generator::createCalculatedCart();
-        $context = $this->createMock(CustomerContext::class);
+        $context = $this->createMock(CheckoutContext::class);
 
         $this->assertTrue(
             $rule->match(new CartRuleScope($calculatedCart, $context))->matches()
@@ -110,7 +110,7 @@ class GoodsCountRuleTest extends TestCase
         $rule = new GoodsCountRule(0, Rule::OPERATOR_GTE);
 
         $calculatedCart = Generator::createCalculatedCart();
-        $context = $this->createMock(CustomerContext::class);
+        $context = $this->createMock(CheckoutContext::class);
 
         $this->assertTrue(
             $rule->match(new CartRuleScope($calculatedCart, $context))->matches()
@@ -122,7 +122,7 @@ class GoodsCountRuleTest extends TestCase
         $rule = new GoodsCountRule(2, Rule::OPERATOR_GTE);
 
         $calculatedCart = Generator::createCalculatedCart();
-        $context = $this->createMock(CustomerContext::class);
+        $context = $this->createMock(CheckoutContext::class);
 
         $this->assertFalse(
             $rule->match(new CartRuleScope($calculatedCart, $context))->matches()
@@ -134,7 +134,7 @@ class GoodsCountRuleTest extends TestCase
         $rule = new GoodsCountRule(2, Rule::OPERATOR_NEQ);
 
         $calculatedCart = Generator::createCalculatedCart();
-        $context = $this->createMock(CustomerContext::class);
+        $context = $this->createMock(CheckoutContext::class);
 
         $this->assertTrue(
             $rule->match(new CartRuleScope($calculatedCart, $context))->matches()
@@ -146,7 +146,7 @@ class GoodsCountRuleTest extends TestCase
         $rule = new GoodsCountRule(1, Rule::OPERATOR_NEQ);
 
         $calculatedCart = Generator::createCalculatedCart();
-        $context = $this->createMock(CustomerContext::class);
+        $context = $this->createMock(CheckoutContext::class);
 
         $this->assertFalse(
             $rule->match(new CartRuleScope($calculatedCart, $context))->matches()

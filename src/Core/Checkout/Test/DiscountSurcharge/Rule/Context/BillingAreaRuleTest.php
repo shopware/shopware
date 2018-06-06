@@ -25,23 +25,23 @@
 namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Rule\Context;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\CustomerContext;
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
 use Shopware\Core\Checkout\Customer\Struct\CustomerBasicStruct;
-use Shopware\Core\Content\Rule\Specification\Context\BillingAreaRule;
-use Shopware\Core\Content\Rule\Specification\Scope\CartRuleScope;
+use Shopware\Core\Checkout\Customer\Rule\BillingAreaRule;
+use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\System\Country\Struct\CountryBasicStruct;
 
 class BillingAreaRuleTest extends TestCase
 {
     public function testWithExactMatch(): void
     {
-        $rule = new BillingAreaRule(['SWAG-AREA-ID-1']);
+        $rule = new \Shopware\Core\Checkout\Customer\Rule\BillingAreaRule(['SWAG-AREA-ID-1']);
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(CustomerContext::class);
+        $context = $this->createMock(CheckoutContext::class);
 
         $country = new CountryBasicStruct();
         $country->setId('SWAG-AREA-COUNTRY-ID-1');
@@ -64,11 +64,11 @@ class BillingAreaRuleTest extends TestCase
 
     public function testWithNotMatch(): void
     {
-        $rule = new BillingAreaRule(['SWAG-AREA-ID-2']);
+        $rule = new \Shopware\Core\Checkout\Customer\Rule\BillingAreaRule(['SWAG-AREA-ID-2']);
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(CustomerContext::class);
+        $context = $this->createMock(CheckoutContext::class);
 
         $country = new CountryBasicStruct();
         $country->setId('SWAG-AREA-COUNTRY-ID-1');
@@ -95,7 +95,7 @@ class BillingAreaRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(CustomerContext::class);
+        $context = $this->createMock(CheckoutContext::class);
 
         $country = new CountryBasicStruct();
         $country->setId('SWAG-AREA-COUNTRY-ID-1');
@@ -118,11 +118,11 @@ class BillingAreaRuleTest extends TestCase
 
     public function testWithoutCustomer(): void
     {
-        $rule = new BillingAreaRule(['SWAG-AREA-ID-1', 'SWAG-AREA-ID-3', 'SWAG-AREA-ID-2']);
+        $rule = new \Shopware\Core\Checkout\Customer\Rule\BillingAreaRule(['SWAG-AREA-ID-1', 'SWAG-AREA-ID-3', 'SWAG-AREA-ID-2']);
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(CustomerContext::class);
+        $context = $this->createMock(CheckoutContext::class);
 
         $context->expects($this->any())
             ->method('getCustomer')

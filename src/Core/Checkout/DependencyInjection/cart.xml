@@ -22,7 +22,7 @@
             <argument type="service" id="serializer" />
         </service>
 
-        <service class="Shopware\Core\Checkout\Cart\StoreFrontCartService" id="Shopware\Core\Checkout\Cart\StoreFrontCartService">
+        <service class="Shopware\Core\Checkout\Cart\StoreFrontCartService" id="Shopware\Core\Checkout\Cart\Storefront\CartService">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Cart\CircularCartCalculation" />
             <argument type="service" id="Shopware\Core\Checkout\Cart\Cart\CartPersister" />
             <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderPersister" />
@@ -129,7 +129,7 @@
             <tag name="cart.processor" priority="-1000" />
         </service>
 
-        <service class="Shopware\Core\Checkout\Cart\StorefrontCartController" id="Shopware\Core\Checkout\Cart\StorefrontCartController" public="true">
+        <service class="Shopware\Core\Checkout\Cart\StorefrontCartController" id="Shopware\Core\Checkout\Cart\Storefront\CartController" public="true">
             <argument id="Shopware\Core\Checkout\Cart\Cart\CircularCartCalculation" type="service"/>
             <argument id="Shopware\Core\Checkout\Cart\Cart\CartPersister" type="service"/>
             <argument id="Shopware\Core\Checkout\Cart\Order\OrderPersister" type="service"/>

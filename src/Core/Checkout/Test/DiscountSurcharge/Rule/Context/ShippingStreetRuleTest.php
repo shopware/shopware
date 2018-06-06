@@ -25,12 +25,12 @@
 namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Rule\Context;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\CustomerContext;
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
-use Shopware\Core\Content\Rule\Specification\Context\ShippingStreetRule;
-use Shopware\Core\Content\Rule\Specification\Scope\CartRuleScope;
+use Shopware\Core\Framework\Rule\Context\ShippingStreetRule;
+use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\System\Country\Aggregate\CountryState\Struct\CountryStateBasicStruct;
 use Shopware\Core\System\Country\Struct\CountryBasicStruct;
 
@@ -42,7 +42,7 @@ class ShippingStreetRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(CustomerContext::class);
+        $context = $this->createMock(CheckoutContext::class);
 
         $context->expects($this->any())
             ->method('getShippingLocation')
@@ -63,7 +63,7 @@ class ShippingStreetRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(CustomerContext::class);
+        $context = $this->createMock(CheckoutContext::class);
 
         $context->expects($this->any())
             ->method('getShippingLocation')
@@ -84,7 +84,7 @@ class ShippingStreetRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(CustomerContext::class);
+        $context = $this->createMock(CheckoutContext::class);
 
         $context->expects($this->any())
             ->method('getShippingLocation')
@@ -105,7 +105,7 @@ class ShippingStreetRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(CustomerContext::class);
+        $context = $this->createMock(CheckoutContext::class);
 
         $context->expects($this->any())
             ->method('getShippingLocation')

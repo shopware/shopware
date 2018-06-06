@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Checkout\Cart\Delivery;
 
-use Shopware\Core\Checkout\CustomerContext;
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
@@ -56,7 +56,7 @@ class StockDeliverySeparator
     public function addItemsToDeliveries(
         DeliveryCollection $deliveries,
         CalculatedLineItemCollection $items,
-        CustomerContext $context
+        CheckoutContext $context
     ): void {
         foreach ($items as $item) {
             if (!$item instanceof DeliverableLineItemInterface) {
@@ -143,7 +143,7 @@ class StockDeliverySeparator
         DeliverableLineItemInterface $item,
         int $quantity,
         DeliveryDate $deliveryDate,
-        CustomerContext $context
+        CheckoutContext $context
     ): DeliveryPosition {
         $definition = new PriceDefinition(
             $item->getPrice()->getUnitPrice(),

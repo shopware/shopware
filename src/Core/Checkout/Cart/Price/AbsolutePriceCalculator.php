@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Checkout\Cart\Price;
 
-use Shopware\Core\Checkout\CustomerContext;
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\DerivedCalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinition;
@@ -54,14 +54,14 @@ class AbsolutePriceCalculator
     /**
      * @param float                     $price
      * @param CalculatedPriceCollection $prices
-     * @param \Shopware\Core\Checkout\CustomerContext         $context
+     * @param \Shopware\Core\Checkout\CheckoutContext         $context
      *
      * @return DerivedCalculatedPrice
      */
     public function calculate(
         float $price,
         CalculatedPriceCollection $prices,
-        CustomerContext $context
+        CheckoutContext $context
     ): DerivedCalculatedPrice {
         $taxRules = $this->percentageTaxRuleBuilder->buildRules($prices->sum());
 

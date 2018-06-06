@@ -33,11 +33,11 @@ Lets start with a simple example: *Add a product to cart*
 ```
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Product\ProductProcessor;
-use Shopware\Core\Checkout\Cart\StoreFrontCartService;
+use Shopware\Core\Checkout\Cart\Storefront\CartService;
 
 public function addProductAction()
 {
-    /** @var StoreFrontCartService $cartService */
+    /** @var CartService $cartService */
     $cartService = $this->container->get('shopware.cart.storefront_service');
 
     $cartService->add(
@@ -53,11 +53,11 @@ public function addProductAction()
 ### Remove a line item
 Next we remove this item again using the cart identifier (see above `SW10239`)
 ```
-use Shopware\Core\Checkout\Cart\StoreFrontCartService;
+use Shopware\Core\Checkout\Cart\Storefront\CartService;
 
 public function removeAction()
 {
-    /** @var CartBundle\Infrastructure\StoreFrontCartService $cartService */
+    /** @var CartBundle\Infrastructure\CartService $cartService */
     $cartService = $this->container->get('shopware.cart.storefront_service');
 
     $cartService->remove('SW10239');
@@ -65,7 +65,7 @@ public function removeAction()
 ```
 
 ### Get line items
-To get access of all line items in cart, the `StoreFrontCartService` allows access on the calculated cart over `getCalculated()`.
+To get access of all line items in cart, the `CartService` allows access on the calculated cart over `getCalculated()`.
 
 ```
 use Shopware\Core\Checkout\Cart\Cart\CalculatedCart;
@@ -73,11 +73,11 @@ use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItemInterface;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Product\ProductProcessor;
 use Shopware\Core\Checkout\Cart\Tax\CalculatedTax;
-use Shopware\Core\Checkout\Cart\StoreFrontCartService;
+use Shopware\Core\Checkout\Cart\Storefront\CartService;
 
 public function showLineItemsAction()
 {
-    /** @var StoreFrontCartService $cartService */
+    /** @var CartService $cartService */
     $cartService = $this->container->get('shopware.cart.storefront_service');
 
     $cartService->add(
@@ -122,11 +122,11 @@ use Shopware\Core\Checkout\Cart\Cart\CalculatedCart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Product\ProductProcessor;
 use Shopware\Core\Checkout\Cart\Tax\CalculatedTax;
-use Shopware\Core\Checkout\Cart\StoreFrontCartService;
+use Shopware\Core\Checkout\Cart\Storefront\CartService;
 
 public function showAmountAction()
 {
-    /** @var StoreFrontCartService $cartService */
+    /** @var CartService $cartService */
     $cartService = $this->container->get('shopware.cart.storefront_service');
 
     $cartService->add(
@@ -168,11 +168,11 @@ use Shopware\Core\Checkout\Cart\Delivery\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryPosition;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Product\ProductProcessor;
-use Shopware\Core\Checkout\Cart\StoreFrontCartService;
+use Shopware\Core\Checkout\Cart\Storefront\CartService;
 
 public function showDeliveriesAction()
 {
-    /** @var StoreFrontCartService $cartService */
+    /** @var CartService $cartService */
     $cartService = $this->container->get('shopware.cart.storefront_service');
     $cartService->add(
         new LineItem(

@@ -43,7 +43,7 @@ class ContextPricesJsonField extends JsonObjectField
             $queryOptimized = array_merge_recursive(
                 $queryOptimized,
                 self::format(
-                    $row['contextRuleId'],
+                    $row['ruleId'],
                     $row['currencyId'],
                     $row['price']['gross'],
                     $row['price']['net']

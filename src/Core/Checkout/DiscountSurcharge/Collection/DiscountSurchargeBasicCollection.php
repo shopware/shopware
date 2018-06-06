@@ -22,17 +22,17 @@ class DiscountSurchargeBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getContextRuleIds(): array
+    public function getRuleIds(): array
     {
         return $this->fmap(function (DiscountSurchargeBasicStruct $discountSurcharge) {
-            return $discountSurcharge->getContextRuleId();
+            return $discountSurcharge->getRuleId();
         });
     }
 
-    public function filterByContextRuleId(string $id): self
+    public function filterByRuleId(string $id): self
     {
         return $this->filter(function (DiscountSurchargeBasicStruct $discountSurcharge) use ($id) {
-            return $discountSurcharge->getContextRuleId() === $id;
+            return $discountSurcharge->getRuleId() === $id;
         });
     }
 

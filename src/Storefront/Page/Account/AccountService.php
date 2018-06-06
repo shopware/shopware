@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Page\Account;
 
-use Shopware\Core\Checkout\CustomerContext;
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
 use Shopware\Core\Checkout\Customer\CustomerRepository;
@@ -43,7 +43,7 @@ class AccountService
         $this->customerRepository = $customerRepository;
     }
 
-    public function getCustomerByLogin(string $email, string $password, CustomerContext $context): CustomerBasicStruct
+    public function getCustomerByLogin(string $email, string $password, CheckoutContext $context): CustomerBasicStruct
     {
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('customer.email', $email));
@@ -67,14 +67,14 @@ class AccountService
     /**
      * @throws \Shopware\Core\Checkout\Order\Exception\NotLoggedInCustomerException
      */
-    public function getCustomerByContext(CustomerContext $context): CustomerBasicStruct
+    public function getCustomerByContext(CheckoutContext $context): CustomerBasicStruct
     {
         $this->validateCustomer($context);
 
         return $context->getCustomer();
     }
 
-    public function changeProfile(array $data, CustomerContext $context)
+    public function changeProfile(array $data, CheckoutContext $context)
     {
         $data = [
             'id' => $context->getCustomer()->getId(),
@@ -89,7 +89,7 @@ class AccountService
         $this->customerRepository->update([$data], $context->getContext());
     }
 
-    public function changePassword(string $password, CustomerContext $context)
+    public function changePassword(string $password, CheckoutContext $context)
     {
         $data = [
             'id' => $context->getCustomer()->getId(),
@@ -99,7 +99,7 @@ class AccountService
         $this->customerRepository->update([$data], $context->getContext());
     }
 
-    public function changeEmail(string $email, CustomerContext $context)
+    public function changeEmail(string $email, CheckoutContext $context)
     {
         $data = [
             'id' => $context->getCustomer()->getId(),
@@ -108,12 +108,12 @@ class AccountService
         $this->customerRepository->update([$data], $context->getContext());
     }
 
-    public function getAddressById(string $addressId, CustomerContext $context): CustomerAddressBasicStruct
+    public function getAddressById(string $addressId, CheckoutContext $context): CustomerAddressBasicStruct
     {
         return $this->validateAddressId($addressId, $context);
     }
 
-    public function getCountryList(CustomerContext $context): array
+    public function getCountryList(CheckoutContext $context): array
     {
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('country.active', true));
@@ -129,7 +129,7 @@ class AccountService
     /**
      * @throws NotLoggedInCustomerException
      */
-    public function getAddressesByCustomer(CustomerContext $context): array
+    public function getAddressesByCustomer(CheckoutContext $context): array
     {
         $this->validateCustomer($context);
         $customer = $context->getCustomer();
@@ -144,7 +144,7 @@ class AccountService
     /**
      * @throws \Shopware\Core\Checkout\Order\Exception\NotLoggedInCustomerException
      */
-    public function saveAddress(array $formData, CustomerContext $context): string
+    public function saveAddress(array $formData, CheckoutContext $context): string
     {
         $this->validateCustomer($context);
         if (!array_key_exists('addressId', $formData)) {
@@ -181,7 +181,7 @@ class AccountService
     /**
      * @throws \Shopware\Core\Checkout\Order\Exception\NotLoggedInCustomerException
      */
-    public function deleteAddress(string $addressId, CustomerContext $context)
+    public function deleteAddress(string $addressId, CheckoutContext $context)
     {
         $this->validateCustomer($context);
         $this->validateAddressId($addressId, $context);
@@ -191,7 +191,7 @@ class AccountService
     /**
      * @throws \Shopware\Core\Checkout\Order\Exception\NotLoggedInCustomerException
      */
-    public function setDefaultBillingAddress(string $addressId, CustomerContext $context)
+    public function setDefaultBillingAddress(string $addressId, CheckoutContext $context)
     {
         $this->validateCustomer($context);
         $this->validateAddressId($addressId, $context);
@@ -206,7 +206,7 @@ class AccountService
     /**
      * @throws \Shopware\Core\Checkout\Order\Exception\NotLoggedInCustomerException
      */
-    public function setDefaultShippingAddress(string $addressId, CustomerContext $context)
+    public function setDefaultShippingAddress(string $addressId, CheckoutContext $context)
     {
         $this->validateCustomer($context);
         $this->validateAddressId($addressId, $context);
@@ -218,7 +218,7 @@ class AccountService
         $this->customerRepository->update([$data], $context->getContext());
     }
 
-    public function createNewCustomer(array $formData, CustomerContext $context): string
+    public function createNewCustomer(array $formData, CheckoutContext $context): string
     {
         $customerId = Uuid::uuid4()->toString();
         $billingAddressId = Uuid::uuid4()->toString();
@@ -302,14 +302,14 @@ class AccountService
     /**
      * @throws \Shopware\Core\Checkout\Order\Exception\NotLoggedInCustomerException
      */
-    private function validateCustomer(CustomerContext $context)
+    private function validateCustomer(CheckoutContext $context)
     {
         if (!$context->getCustomer()) {
             throw new NotLoggedInCustomerException();
         }
     }
 
-    private function validateAddressId(string $addressId, CustomerContext $context): CustomerAddressBasicStruct
+    private function validateAddressId(string $addressId, CheckoutContext $context): CustomerAddressBasicStruct
     {
         $addresses = $this->customerAddressRepository->readBasic([$addressId], $context->getContext());
         $address = $addresses->get($addressId);

@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\DiscountSurcharge\Exception\UnsupportedModifierTypeEx
 
 use Shopware\Core\Checkout\DiscountSurcharge\Struct\DiscountSurchargeBasicStruct;
 use Shopware\Core\Checkout\DiscountSurcharge\Struct\DiscountSurchargeSearchResult;
-use Shopware\Core\Checkout\CustomerContext;
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Cart\CartProcessorInterface;
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
@@ -15,7 +15,7 @@ use Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
-use Shopware\Core\Content\Rule\Specification\Scope\CalculatedLineItemScope;
+use Shopware\Core\Checkout\Cart\Rule\CalculatedLineItemScope;
 use Shopware\Core\Framework\Struct\StructCollection;
 
 class DiscountSurchargeProcessor implements CartProcessorInterface
@@ -51,7 +51,7 @@ class DiscountSurchargeProcessor implements CartProcessorInterface
         Cart $cart,
         CalculatedCart $calculatedCart,
         StructCollection $dataCollection,
-        CustomerContext $context
+        CheckoutContext $context
     ): void {
         /** @var DiscountSurchargeSearchResult $discountSurcharges */
         $discountSurcharges = $dataCollection->get(self::TYPE);
@@ -62,7 +62,7 @@ class DiscountSurchargeProcessor implements CartProcessorInterface
 
         /** @var DiscountSurchargeBasicStruct $modifier */
         foreach ($discountSurcharges->getElements() as $modifier) {
-            if (!in_array($modifier->getContextRuleId(), $context->getContextRuleIds(), true)) {
+            if (!in_array($modifier->getRuleId(), $context->getRuleIds(), true)) {
                 continue;
             }
 
@@ -89,7 +89,7 @@ class DiscountSurchargeProcessor implements CartProcessorInterface
     private function calculate(
         DiscountSurchargeBasicStruct $modifier,
         CalculatedCart $calculatedCart,
-        CustomerContext $context
+        CheckoutContext $context
     ): CalculatedPrice {
         $prices = new CalculatedPriceCollection();
         foreach ($calculatedCart->getCalculatedLineItems() as $calculatedLineItem) {

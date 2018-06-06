@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
-use Shopware\Core\Framework\ORM\Dbal\Common\EventIdExtractor;
+use Shopware\Core\Content\Product\Util\EventIdExtractor;
 use Shopware\Core\Framework\ORM\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\ORM\Dbal\Indexing\IndexerInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
@@ -57,7 +57,7 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
      */
     private $categoryRepository;
     /**
-     * @var \Shopware\Core\Framework\ORM\Dbal\Common\EventIdExtractor
+     * @var \Shopware\Core\Content\Product\Util\EventIdExtractor
      */
     private $eventIdExtractor;
 

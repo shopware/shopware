@@ -216,7 +216,7 @@ class CatalogTest extends KernelTestCase
             Defaults::TENANT_ID,
             $context->getTouchpointId(),
             [$catalogId1, $catalogId2],
-            $context->getContextRules(),
+            $context->getRules(),
             $context->getCurrencyId(),
             $context->getLanguageId()
         );
@@ -457,7 +457,7 @@ class CatalogTest extends KernelTestCase
             Defaults::TENANT_ID,
             $context->getTouchpointId(),
             array_merge($context->getCatalogIds(), [$catalogId]),
-            $context->getContextRules(),
+            $context->getRules(),
             $context->getCurrencyId(),
             $context->getLanguageId(),
             $context->getFallbackLanguageId(),

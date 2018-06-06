@@ -25,10 +25,10 @@
 namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Rule\Context;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\CustomerContext;
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Core\Content\Rule\Specification\Context\CurrencyRule;
-use Shopware\Core\Content\Rule\Specification\Scope\CartRuleScope;
+use Shopware\Core\Framework\Rule\CurrencyRule;
+use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\System\Currency\Struct\CurrencyBasicStruct;
 
 class CurrencyRuleTest extends TestCase
@@ -42,7 +42,7 @@ class CurrencyRuleTest extends TestCase
         $currency = new CurrencyBasicStruct();
         $currency->setId('SWAG-CURRENCY-ID-1');
 
-        $context = $this->createMock(CustomerContext::class);
+        $context = $this->createMock(CheckoutContext::class);
 
         $context->expects($this->any())
             ->method('getCurrency')
@@ -55,14 +55,14 @@ class CurrencyRuleTest extends TestCase
 
     public function testNotMatch(): void
     {
-        $rule = new CurrencyRule(['SWAG-CURRENCY-ID-2', 'SWAG-CURRENCY-ID-3', 'SWAG-CURRENCY-ID-1']);
+        $rule = new \Shopware\Core\Framework\Rule\CurrencyRule(['SWAG-CURRENCY-ID-2', 'SWAG-CURRENCY-ID-3', 'SWAG-CURRENCY-ID-1']);
 
         $cart = $this->createMock(CalculatedCart::class);
 
         $currency = new CurrencyBasicStruct();
         $currency->setId('SWAG-CURRENCY-ID-5');
 
-        $context = $this->createMock(CustomerContext::class);
+        $context = $this->createMock(CheckoutContext::class);
 
         $context->expects($this->any())
             ->method('getCurrency')
@@ -82,7 +82,7 @@ class CurrencyRuleTest extends TestCase
         $currency = new CurrencyBasicStruct();
         $currency->setId('SWAG-CURRENCY-ID-3');
 
-        $context = $this->createMock(CustomerContext::class);
+        $context = $this->createMock(CheckoutContext::class);
 
         $context->expects($this->any())
             ->method('getCurrency')

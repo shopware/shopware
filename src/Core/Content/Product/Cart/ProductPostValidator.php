@@ -2,11 +2,12 @@
 
 namespace Shopware\Core\Content\Product\Cart;
 
-use Shopware\Core\Checkout\CustomerContext;
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Cart\CartProcessorInterface;
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
 use Shopware\Core\Content\Product\Cart\Struct\CalculatedProduct;
+use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Framework\Struct\StructCollection;
 
 class ProductPostValidator implements CartProcessorInterface
@@ -15,7 +16,7 @@ class ProductPostValidator implements CartProcessorInterface
         Cart $cart,
         CalculatedCart $calculatedCart,
         StructCollection $dataCollection,
-        CustomerContext $context
+        CheckoutContext $context
     ): void {
         $products = $calculatedCart->getCalculatedLineItems()->filterInstance(
             CalculatedProduct::class
@@ -31,11 +32,7 @@ class ProductPostValidator implements CartProcessorInterface
                 continue;
             }
 
-            $valid = $product->getRule()->match(
-                $calculatedCart,
-                $context,
-                $dataCollection
-            );
+            $valid = $product->getRule()->match(new CartRuleScope($calculatedCart, $context));
 
             if ($valid) {
                 continue;

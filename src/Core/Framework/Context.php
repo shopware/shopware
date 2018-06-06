@@ -73,13 +73,13 @@ class Context extends Struct
     /**
      * @var array
      */
-    protected $contextRules;
+    protected $rules;
 
     public function __construct(
         string $tenantId,
         string $touchpointId,
         ?array $catalogIds,
-        array $contextRules,
+        array $rules,
         string $currencyId,
         string $languageId,
         ?string $fallbackLanguageId = null,
@@ -89,7 +89,7 @@ class Context extends Struct
         $this->tenantId = $tenantId;
         $this->touchpointId = $touchpointId;
         $this->catalogIds = $catalogIds;
-        $this->contextRules = $contextRules;
+        $this->rules = $rules;
         $this->currencyId = $currencyId;
         $this->languageId = $languageId;
         $this->fallbackLanguageId = $fallbackLanguageId;
@@ -153,9 +153,9 @@ class Context extends Struct
         return $this->currencyFactor;
     }
 
-    public function getContextRules(): array
+    public function getRules(): array
     {
-        return $this->contextRules;
+        return $this->rules;
     }
 
     public function getFallbackLanguageId(): ?string
@@ -174,7 +174,7 @@ class Context extends Struct
             $this->tenantId,
             $this->touchpointId,
             $this->catalogIds,
-            $this->contextRules,
+            $this->rules,
             $this->currencyId,
             $this->languageId,
             $this->fallbackLanguageId,
@@ -189,7 +189,7 @@ class Context extends Struct
             $this->tenantId,
             $this->touchpointId,
             $catalogIds,
-            $this->contextRules,
+            $this->rules,
             $this->currencyId,
             $this->languageId,
             $this->fallbackLanguageId,

@@ -2,8 +2,8 @@
 
 namespace Shopware\Storefront\Page\Search;
 
-use Shopware\Core\Checkout\CustomerContext;
-use Shopware\Core\Content\Product\StorefrontProductRepository;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Content\Product\Storefront\StorefrontProductRepository;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Storefront\Event\ListingPageLoadedEvent;
@@ -38,7 +38,7 @@ class SearchPageLoader
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function load(SearchPageRequest $request, CustomerContext $context): SearchPageStruct
+    public function load(SearchPageRequest $request, CheckoutContext $context): SearchPageStruct
     {
         $config = $this->configService->get($context->getTouchpoint()->getId(), null);
 

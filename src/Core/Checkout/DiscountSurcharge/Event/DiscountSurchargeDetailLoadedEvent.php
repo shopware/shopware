@@ -4,7 +4,7 @@ namespace Shopware\Core\Checkout\DiscountSurcharge\Event;
 
 use Shopware\Core\Checkout\DiscountSurcharge\Collection\DiscountSurchargeDetailCollection;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Content\Rule\Event\ContextRuleBasicLoadedEvent;
+use Shopware\Core\Content\Rule\Event\RuleBasicLoadedEvent;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 
@@ -46,8 +46,8 @@ class DiscountSurchargeDetailLoadedEvent extends NestedEvent
     public function getEvents(): ?NestedEventCollection
     {
         $events = [];
-        if ($this->discountSurcharges->getContextRules()->count() > 0) {
-            $events[] = new ContextRuleBasicLoadedEvent($this->discountSurcharges->getContextRules(), $this->context);
+        if ($this->discountSurcharges->getRules()->count() > 0) {
+            $events[] = new RuleBasicLoadedEvent($this->discountSurcharges->getRules(), $this->context);
         }
 
         return new NestedEventCollection($events);

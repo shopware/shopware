@@ -25,24 +25,24 @@
 namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Rule\Context;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\CustomerContext;
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Core\Checkout\Customer\Struct\CustomerBasicStruct;
-use Shopware\Core\Content\Rule\Specification\Context\LastNameRule;
+use Shopware\Core\Checkout\Customer\Rule\LastNameRule;
 use Shopware\Core\Content\Rule\Specification\Scope\CartRuleScope;
 
 class LastNameRuleTest extends TestCase
 {
     public function testExactMatch(): void
     {
-        $rule = new LastNameRule('shopware');
+        $rule = new \Shopware\Core\Checkout\Customer\Rule\LastNameRule('shopware');
 
         $cart = $this->createMock(CalculatedCart::class);
 
         $customer = new CustomerBasicStruct();
         $customer->setLastName('shopware');
 
-        $context = $this->createMock(CustomerContext::class);
+        $context = $this->createMock(CheckoutContext::class);
 
         $context->expects($this->any())
             ->method('getCustomer')
@@ -55,14 +55,14 @@ class LastNameRuleTest extends TestCase
 
     public function testCaseInsensitive(): void
     {
-        $rule = new LastNameRule('SHOPWARE');
+        $rule = new \Shopware\Core\Checkout\Customer\Rule\LastNameRule('SHOPWARE');
 
         $cart = $this->createMock(CalculatedCart::class);
 
         $customer = new CustomerBasicStruct();
         $customer->setLastName('ShopWare');
 
-        $context = $this->createMock(CustomerContext::class);
+        $context = $this->createMock(CheckoutContext::class);
 
         $context->expects($this->any())
             ->method('getCustomer')
@@ -82,7 +82,7 @@ class LastNameRuleTest extends TestCase
         $customer = new CustomerBasicStruct();
         $customer->setLastName('dolore magna aliquyam');
 
-        $context = $this->createMock(CustomerContext::class);
+        $context = $this->createMock(CheckoutContext::class);
 
         $context->expects($this->any())
             ->method('getCustomer')
@@ -95,11 +95,11 @@ class LastNameRuleTest extends TestCase
 
     public function testWithoutCustomer(): void
     {
-        $rule = new LastNameRule('test');
+        $rule = new \Shopware\Core\Checkout\Customer\Rule\LastNameRule('test');
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(CustomerContext::class);
+        $context = $this->createMock(CheckoutContext::class);
 
         $context->expects($this->any())
             ->method('getCustomer')

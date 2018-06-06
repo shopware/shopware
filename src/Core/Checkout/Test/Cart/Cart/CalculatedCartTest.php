@@ -39,7 +39,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Content\Rule\Specification\Rule;
+use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Checkout\Test\Cart\Common\TestLineItem;
 
 class CalculatedCartTest extends TestCase

@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Content\Product\Cart;
 
-use Shopware\Core\Checkout\CustomerContext;
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Product\Collection\ProductBasicCollection;
 use Shopware\Core\Content\Product\ProductRepository;
 
@@ -41,7 +41,7 @@ class ProductGateway implements ProductGatewayInterface
         $this->repository = $repository;
     }
 
-    public function get(array $ids, CustomerContext $context): ProductBasicCollection
+    public function get(array $ids, CheckoutContext $context): ProductBasicCollection
     {
         return $this->repository->readBasic($ids, $context->getContext());
     }

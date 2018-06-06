@@ -4,7 +4,7 @@ namespace Shopware\Core\Checkout\DiscountSurcharge\Exception;
 
 use Throwable;
 
-class ContextRulesLockedException extends \RuntimeException
+class RulesLockedException extends \RuntimeException
 {
     public const CODE = 200001;
 

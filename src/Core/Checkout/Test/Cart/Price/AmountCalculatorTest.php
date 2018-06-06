@@ -26,7 +26,7 @@ namespace Shopware\Core\Checkout\Test\Cart\Price;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\System\Touchpoint\Struct\TouchpointBasicStruct;
-use Shopware\Core\Checkout\CustomerContext;
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
 use Shopware\Core\Checkout\Cart\Price\PriceRounding;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
@@ -62,7 +62,7 @@ class AmountCalculatorTest extends TestCase
         $shop = $this->createMock(TouchpointBasicStruct::class);
         $shop->method('getTaxCalculationType')->will($this->returnValue(TaxAmountCalculator::CALCULATION_VERTICAL));
 
-        $context = $this->createMock(CustomerContext::class);
+        $context = $this->createMock(CheckoutContext::class);
         $context->method('getTouchpoint')->will($this->returnValue($shop));
 
         $calculator = new AmountCalculator(
@@ -100,7 +100,7 @@ class AmountCalculatorTest extends TestCase
         $shop = $this->createMock(TouchpointBasicStruct::class);
         $shop->method('getTaxCalculationType')->will($this->returnValue(TaxAmountCalculator::CALCULATION_VERTICAL));
 
-        $context = $this->createMock(CustomerContext::class);
+        $context = $this->createMock(CheckoutContext::class);
         $context->method('getTouchpoint')->will($this->returnValue($shop));
 
         $calculator = new AmountCalculator(
@@ -138,7 +138,7 @@ class AmountCalculatorTest extends TestCase
         $shop = $this->createMock(TouchpointBasicStruct::class);
         $shop->method('getTaxCalculationType')->will($this->returnValue(TaxAmountCalculator::CALCULATION_VERTICAL));
 
-        $context = $this->createMock(CustomerContext::class);
+        $context = $this->createMock(CheckoutContext::class);
         $context->method('getTouchpoint')->will($this->returnValue($shop));
 
         $calculator = new AmountCalculator(

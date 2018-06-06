@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\DiscountSurcharge\Collection;
 
 use Shopware\Core\Checkout\DiscountSurcharge\Struct\DiscountSurchargeDetailStruct;
-use Shopware\Core\Content\Rule\Collection\ContextRuleBasicCollection;
+use Shopware\Core\Content\Rule\Collection\RuleBasicCollection;
 
 class DiscountSurchargeDetailCollection extends DiscountSurchargeBasicCollection
 {
@@ -12,11 +12,11 @@ class DiscountSurchargeDetailCollection extends DiscountSurchargeBasicCollection
      */
     protected $elements = [];
 
-    public function getContextRules(): ContextRuleBasicCollection
+    public function getRules(): RuleBasicCollection
     {
-        return new ContextRuleBasicCollection(
+        return new RuleBasicCollection(
             $this->fmap(function (DiscountSurchargeDetailStruct $discountSurcharge) {
-                return $discountSurcharge->getContextRule();
+                return $discountSurcharge->getRule();
             })
         );
     }

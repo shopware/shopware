@@ -17,12 +17,12 @@
         <service alias="Shopware\Core\Content\Product\Aggregate\ProductStream\ProductStreamRepository.v1" id="Shopware\Core\Content\Product\Aggregate\ProductStream\ProductStreamRepository" public="true"/>
         <service alias="Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationRepository.v1" id="Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationRepository" public="true"/>
 
-        <service class="Shopware\Core\Content\Product\StorefrontProductRepository" id="Shopware\Core\Content\Product\StorefrontProductRepository">
+        <service class="Shopware\Core\Content\Product\StorefrontProductRepository" id="Shopware\Core\Content\Product\Storefront\StorefrontProductRepository">
             <argument type="service" id="Shopware\Core\Content\Product\ProductRepository"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\PriceCalculator"/>
             <tag name="shopware.traceable" label="product.storefront-repository" />
         </service>
-        <service class="Shopware\Core\Content\Product\StorefrontProductController" id="Shopware\Core\Content\Product\StorefrontProductController" public="true">
+        <service class="Shopware\Core\Content\Product\StorefrontProductController" id="Shopware\Core\Content\Product\Storefront\ProductController" public="true">
             <argument id="Shopware\Core\Content\Product\StorefrontProductRepository" type="service"/>
             <argument type="service" id="Shopware\Core\Framework\Api\Response\ResponseFactory"/>
             <argument type="service" id="Shopware\Core\Framework\ORM\Search\SearchCriteriaBuilder"/>

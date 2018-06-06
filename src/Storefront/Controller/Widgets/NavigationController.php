@@ -26,7 +26,7 @@ namespace Shopware\Storefront\Controller\Widgets;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Core\Checkout\CustomerContext;
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Storefront\Controller\StorefrontController;
 use Shopware\Storefront\DbalIndexing\SeoUrl\ListingPageSeoUrlIndexer;
 use Shopware\Storefront\Navigation\NavigationService;
@@ -39,11 +39,11 @@ class NavigationController extends StorefrontController
      * @Route("/widgets/navigation/navigation", name="widgets/navigation/main")
      * @Method({"GET"})
      *
-     * @param \Shopware\Core\Checkout\CustomerContext $context
+     * @param \Shopware\Core\Checkout\CheckoutContext $context
      *
      * @return null|Response
      */
-    public function navigationAction(CustomerContext $context): ?Response
+    public function navigationAction(CheckoutContext $context): ?Response
     {
         $request = $this->get('request_stack')->getMasterRequest();
 
@@ -64,11 +64,11 @@ class NavigationController extends StorefrontController
      * @Route("/widgets/navigation/sidebar", name="widgets/navigation/sidebar")
      * @Method({"GET"})
      *
-     * @param CustomerContext $context
+     * @param CheckoutContext $context
      *
      * @return null|Response
      */
-    public function sidebarAction(CustomerContext $context): ?Response
+    public function sidebarAction(CheckoutContext $context): ?Response
     {
         $request = $this->get('request_stack')->getMasterRequest();
 

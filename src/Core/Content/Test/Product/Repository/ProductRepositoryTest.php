@@ -5,8 +5,8 @@ namespace Shopware\Core\Content\Test\Product\Repository;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Pricing\ContextPriceStruct;
-use Shopware\Core\Content\Rule\ContextRuleRepository;
-use Shopware\Core\Content\Rule\Specification\Container\AndRule;
+use Shopware\Core\Content\Rule\RuleRepository;
+use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Content\Category\CategoryRepository;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\Event\ProductManufacturerBasicLoadedEvent;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\Event\ProductManufacturerWrittenEvent;
@@ -290,7 +290,7 @@ class ProductRepositoryTest extends KernelTestCase
         $ruleA = Uuid::uuid4()->getHex();
         $ruleB = Uuid::uuid4()->getHex();
 
-        self::$container->get(ContextRuleRepository::class)->create([
+        self::$container->get(RuleRepository::class)->create([
             ['id' => $ruleA, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 1],
             ['id' => $ruleB, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 2],
         ], Context::createDefaultContext(Defaults::TENANT_ID));
@@ -307,14 +307,14 @@ class ProductRepositoryTest extends KernelTestCase
                     'id' => $ruleA,
                     'currencyId' => Defaults::CURRENCY,
                     'quantityStart' => 1,
-                    'contextRuleId' => $ruleA,
+                    'ruleId' => $ruleA,
                     'price' => ['gross' => 15, 'net' => 10],
                 ],
                 [
                     'id' => $ruleB,
                     'currencyId' => Defaults::CURRENCY,
                     'quantityStart' => 1,
-                    'contextRuleId' => $ruleB,
+                    'ruleId' => $ruleB,
                     'price' => ['gross' => 10, 'net' => 8],
                 ],
             ],
@@ -352,7 +352,7 @@ class ProductRepositoryTest extends KernelTestCase
 
         $ruleA = Uuid::uuid4()->getHex();
 
-        self::$container->get(ContextRuleRepository::class)->create([
+        self::$container->get(RuleRepository::class)->create([
             ['id' => $ruleA, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 1],
         ], Context::createDefaultContext(Defaults::TENANT_ID));
 
@@ -367,7 +367,7 @@ class ProductRepositoryTest extends KernelTestCase
                     [
                         'currencyId' => Defaults::CURRENCY,
                         'quantityStart' => 1,
-                        'contextRuleId' => $ruleA,
+                        'ruleId' => $ruleA,
                         'price' => ['gross' => 15, 'net' => 14],
                     ],
                 ],
@@ -382,7 +382,7 @@ class ProductRepositoryTest extends KernelTestCase
                     [
                         'currencyId' => Defaults::CURRENCY,
                         'quantityStart' => 1,
-                        'contextRuleId' => $ruleA,
+                        'ruleId' => $ruleA,
                         'price' => ['gross' => 5, 'net' => 4],
                     ],
                 ],
@@ -397,7 +397,7 @@ class ProductRepositoryTest extends KernelTestCase
                     [
                         'currencyId' => Defaults::CURRENCY,
                         'quantityStart' => 1,
-                        'contextRuleId' => $ruleA,
+                        'ruleId' => $ruleA,
                         'price' => ['gross' => 10, 'net' => 9],
                     ],
                 ],
@@ -1424,9 +1424,9 @@ class ProductRepositoryTest extends KernelTestCase
         $ruleB = Uuid::uuid4()->getHex();
 
 <<<<<<< Updated upstream
-        self::$container->get(\Shopware\Core\Checkout\Rule\ContextRuleRepository::class)->create([
+        self::$container->get(\Shopware\Core\Checkout\Rule\RuleRepository::class)->create([
 =======
-        $this->container->get(\Shopware\Core\Content\Rule\ContextRuleRepository::class)->create([
+        $this->container->get(\Shopware\Core\Content\Rule\RuleRepository::class)->create([
 >>>>>>> Stashed changes
             ['id' => $ruleA, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 1],
             ['id' => $ruleB, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 2],
@@ -1445,19 +1445,19 @@ class ProductRepositoryTest extends KernelTestCase
                     'currencyId' => Defaults::CURRENCY,
                     'quantityStart' => 1,
                     'quantityEnd' => 20,
-                    'contextRuleId' => $ruleA,
+                    'ruleId' => $ruleA,
                     'price' => ['gross' => 100, 'net' => 100],
                 ],
                 [
                     'currencyId' => Defaults::CURRENCY,
                     'quantityStart' => 21,
-                    'contextRuleId' => $ruleA,
+                    'ruleId' => $ruleA,
                     'price' => ['gross' => 10, 'net' => 50],
                 ],
                 [
                     'currencyId' => Defaults::CURRENCY,
                     'quantityStart' => 1,
-                    'contextRuleId' => $ruleB,
+                    'ruleId' => $ruleB,
                     'price' => ['gross' => 50, 'net' => 50],
                 ],
             ],
@@ -1472,14 +1472,14 @@ class ProductRepositoryTest extends KernelTestCase
 
         $this->assertCount(2, $product->getListingPrices());
 
-        $price = $product->getListingPrices()->filterByContextRuleId($ruleA);
+        $price = $product->getListingPrices()->filterByRuleId($ruleA);
         $this->assertCount(1, $price);
         $price = $price->first();
 
         /* @var ContextPriceStruct $price */
         $this->assertEquals(10, $price->getPrice()->getGross());
 
-        $price = $product->getListingPrices()->filterByContextRuleId($ruleB);
+        $price = $product->getListingPrices()->filterByRuleId($ruleB);
         $this->assertCount(1, $price);
         $price = $price->first();
 

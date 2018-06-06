@@ -22,7 +22,7 @@
             <argument type="service" id="Shopware\Core\Framework\ORM\Dbal\EntitySearcher"/>
         </service>
 
-        <service class="Shopware\Core\Framework\Api\Command\UserCreateCommand" id="Shopware\Core\Framework\Api\Command\UserCreateCommand">
+        <service class="Shopware\Core\Framework\Api\Command\UserCreateCommand" id="Shopware\Core\System\Command\UserCreateCommand">
             <argument id="Shopware\Core\System\User\UserRepository" type="service"/>
             <argument id="security.encoder_factory.generic" type="service"/>
             <tag name="console.command"/>
@@ -83,14 +83,14 @@
             <argument id="Shopware\Core\Framework\Api\ApiDefinition\DefinitionService" type="service"/>
         </service>
 
-        <service class="Shopware\Core\Framework\Api\Controller\ProductActionController" id="Shopware\Core\Framework\Api\Controller\ProductActionController" public="true">
+        <service class="Shopware\Core\Framework\Api\Controller\ProductActionController" id="Shopware\Core\Content\Product\ProductActionController" public="true">
             <argument id="Shopware\Core\Content\Product\Util\VariantGenerator" type="service"/>
             <call method="setContainer">
                 <argument id="service_container" type="service"/>
             </call>
         </service>
 
-        <service class="Shopware\Core\Framework\Api\Controller\PriceActionController" id="Shopware\Core\Framework\Api\Controller\PriceActionController" public="true">
+        <service class="Shopware\Core\Framework\Api\Controller\PriceActionController" id="Shopware\Core\Checkout\Cart\PriceActionController" public="true">
             <argument type="service" id="serializer"/>
             <argument type="service" id="Shopware\Core\System\Tax\TaxRepository"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\NetPriceCalculator"/>

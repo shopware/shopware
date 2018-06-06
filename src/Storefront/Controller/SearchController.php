@@ -3,7 +3,7 @@
 namespace Shopware\Storefront\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Core\Checkout\CustomerContext;
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Storefront\Page\Search\SearchPageLoader;
 use Shopware\Storefront\Page\Search\SearchPageRequest;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,7 +26,7 @@ class SearchController extends StorefrontController
      *
      * @return Response
      */
-    public function index(CustomerContext $context, SearchPageRequest $searchPageRequest): Response
+    public function index(CheckoutContext $context, SearchPageRequest $searchPageRequest): Response
     {
         $listing = $this->searchPageLoader->load($searchPageRequest, $context);
 
@@ -43,12 +43,12 @@ class SearchController extends StorefrontController
     /**
      * @Route("/suggestSearch", name="search_ajax")
      *
-     * @param CustomerContext $context
+     * @param CheckoutContext $context
      * @param SearchPageRequest $searchPageRequest
      *
      * @return Response
      */
-    public function ajax(CustomerContext $context, Request $request, SearchPageRequest $searchPageRequest): Response
+    public function ajax(CheckoutContext $context, Request $request, SearchPageRequest $searchPageRequest): Response
     {
         $searchTerm = $request->get('search');
 

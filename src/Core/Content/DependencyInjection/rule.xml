@@ -1,0 +1,23 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <!-- Versioning -->
+        <service alias="RuleRepository" id="RuleRepository" public="true" />
+
+        <service class="RuleDefinition" id="Shopware\Core\Content\Rule\RuleDefinition" >
+            <tag name="shopware.entity.definition" entity="rule" />
+        </service>
+
+        <service class="RuleRepository" id="Shopware\Core\Content\Rule\RuleRepository.v1" public="true">
+            <argument id="Shopware\Core\Framework\ORM\Dbal\EntityReader" type="service"/>
+            <argument id="Shopware\Core\Framework\ORM\Version\Service\VersionManager" type="service"/>
+            <argument id="Shopware\Core\Framework\ORM\Dbal\EntitySearcher" type="service"/>
+            <argument id="Shopware\Core\Framework\ORM\Dbal\EntityAggregator" type="service"/>
+            <argument id="event_dispatcher" type="service"/>
+        </service>
+    </services>
+</container>

@@ -25,10 +25,10 @@
 namespace Shopware\Core\Checkout\Test\Cart\Validator\Container;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\CustomerContext;
-use Shopware\Core\Content\Rule\Specification\Container\XorRule;
-use Shopware\Core\Content\Rule\Specification\Match;
-use Shopware\Core\Content\Rule\Specification\Scope\StorefrontScope;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Framework\Rule\Container\XorRule;
+use Shopware\Core\Framework\Rule\Match;
+use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Test\Cart\Common\FalseRule;
 use Shopware\Core\Checkout\Test\Cart\Common\TrueRule;
 
@@ -45,8 +45,8 @@ class XorRuleTest extends TestCase
         $this->assertEquals(
             new Match(true),
             $rule->match(
-                new StorefrontScope(
-                    $this->createMock(CustomerContext::class)
+                new CheckoutRuleScope(
+                    $this->createMock(CheckoutContext::class)
                 )
             )
         );
@@ -62,8 +62,8 @@ class XorRuleTest extends TestCase
         $this->assertEquals(
             new Match(false),
             $rule->match(
-                new StorefrontScope(
-                    $this->createMock(CustomerContext::class)
+                new CheckoutRuleScope(
+                    $this->createMock(CheckoutContext::class)
                 )
             )
         );
@@ -80,8 +80,8 @@ class XorRuleTest extends TestCase
         $this->assertEquals(
             new Match(false),
             $rule->match(
-                new StorefrontScope(
-                    $this->createMock(CustomerContext::class)
+                new CheckoutRuleScope(
+                    $this->createMock(CheckoutContext::class)
                 )
             )
         );

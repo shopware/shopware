@@ -25,22 +25,22 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Checkout\Cart\Tax;
 
-use Shopware\Core\Checkout\CustomerContext;
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 
 class TaxDetector
 {
-    public function useGross(CustomerContext $context): bool
+    public function useGross(CheckoutContext $context): bool
     {
         return $context->getCurrentCustomerGroup()->getDisplayGross();
     }
 
-    public function isNetDelivery(CustomerContext $context): bool
+    public function isNetDelivery(CheckoutContext $context): bool
     {
         return $context->getShippingLocation()->getCountry()->getTaxFree();
     }
 
-    public function getTaxState(CustomerContext $context): string
+    public function getTaxState(CheckoutContext $context): string
     {
         if ($this->isNetDelivery($context)) {
             return CartPrice::TAX_STATE_FREE;

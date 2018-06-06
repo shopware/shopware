@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Page\Account;
 
-use Shopware\Core\Checkout\CustomerContext;
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
@@ -19,7 +19,7 @@ class CustomerAddressPageLoader
         $this->customerAddressRepository = $customerAddressRepository;
     }
 
-    public function load(CustomerContext $context): CustomerAddressPageStruct
+    public function load(CheckoutContext $context): CustomerAddressPageStruct
     {
         $criteria = $this->createCriteria($context->getCustomer()->getId());
         $addresses = $this->customerAddressRepository->search($criteria, $context->getContext());

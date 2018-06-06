@@ -25,9 +25,9 @@
 namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Rule\CalculatedCart;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\CustomerContext;
-use Shopware\Core\Content\Rule\Specification\CalculatedCart\LineItemsInCartRule;
-use Shopware\Core\Content\Rule\Specification\Scope\CartRuleScope;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Checkout\Cart\Rule\LineItemsInCartRule;
+use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 
 class LineItemsInCartRuleTest extends TestCase
@@ -37,7 +37,7 @@ class LineItemsInCartRuleTest extends TestCase
         $rule = new LineItemsInCartRule(['A', 'B']);
 
         $calculatedCart = Generator::createCalculatedCart();
-        $context = $this->createMock(CustomerContext::class);
+        $context = $this->createMock(CheckoutContext::class);
 
         $this->assertTrue(
             $rule->match(new CartRuleScope($calculatedCart, $context))->matches()
@@ -49,7 +49,7 @@ class LineItemsInCartRuleTest extends TestCase
         $rule = new LineItemsInCartRule(['C', 'D']);
 
         $calculatedCart = Generator::createCalculatedCart();
-        $context = $this->createMock(CustomerContext::class);
+        $context = $this->createMock(CheckoutContext::class);
 
         $this->assertFalse(
             $rule->match(new CartRuleScope($calculatedCart, $context))->matches()
@@ -61,7 +61,7 @@ class LineItemsInCartRuleTest extends TestCase
         $rule = new LineItemsInCartRule(['B']);
 
         $calculatedCart = Generator::createCalculatedCart();
-        $context = $this->createMock(CustomerContext::class);
+        $context = $this->createMock(CheckoutContext::class);
 
         $this->assertTrue(
             $rule->match(new CartRuleScope($calculatedCart, $context))->matches()

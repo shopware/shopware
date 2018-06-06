@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\Product\Aggregate\ProductContextPrice\Event;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Content\Rule\Event\ContextRuleBasicLoadedEvent;
+use Shopware\Core\Content\Rule\Event\RuleBasicLoadedEvent;
 use Shopware\Core\Content\Product\Aggregate\ProductContextPrice\Collection\ProductContextPriceDetailCollection;
 use Shopware\Core\Content\Product\Event\ProductBasicLoadedEvent;
 use Shopware\Core\Framework\Event\NestedEvent;
@@ -54,8 +54,8 @@ class ProductContextPriceDetailLoadedEvent extends NestedEvent
         if ($this->productContextPrices->getCurrencies()->count() > 0) {
             $events[] = new CurrencyBasicLoadedEvent($this->productContextPrices->getCurrencies(), $this->context);
         }
-        if ($this->productContextPrices->getContextRules()->count() > 0) {
-            $events[] = new ContextRuleBasicLoadedEvent($this->productContextPrices->getContextRules(), $this->context);
+        if ($this->productContextPrices->getRules()->count() > 0) {
+            $events[] = new RuleBasicLoadedEvent($this->productContextPrices->getRules(), $this->context);
         }
 
         return new NestedEventCollection($events);

@@ -25,11 +25,11 @@
 namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Rule\Context;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\CustomerContext;
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Core\Checkout\Customer\Struct\CustomerBasicStruct;
-use Shopware\Core\Content\Rule\Specification\Context\CustomerNumberRule;
-use Shopware\Core\Content\Rule\Specification\Scope\CartRuleScope;
+use Shopware\Core\Checkout\Customer\Rule\CustomerNumberRule;
+use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 
 class CustomerNumberRuleTest extends TestCase
 {
@@ -42,7 +42,7 @@ class CustomerNumberRuleTest extends TestCase
         $customer = new CustomerBasicStruct();
         $customer->setNumber('NO. 1');
 
-        $context = $this->createMock(CustomerContext::class);
+        $context = $this->createMock(CheckoutContext::class);
 
         $context->expects($this->any())
             ->method('getCustomer')
@@ -62,7 +62,7 @@ class CustomerNumberRuleTest extends TestCase
         $customer = new CustomerBasicStruct();
         $customer->setNumber('NO. 2');
 
-        $context = $this->createMock(CustomerContext::class);
+        $context = $this->createMock(CheckoutContext::class);
 
         $context->expects($this->any())
             ->method('getCustomer')
@@ -82,7 +82,7 @@ class CustomerNumberRuleTest extends TestCase
         $customer = new CustomerBasicStruct();
         $customer->setNumber('no. 1');
 
-        $context = $this->createMock(CustomerContext::class);
+        $context = $this->createMock(CheckoutContext::class);
 
         $context->expects($this->any())
             ->method('getCustomer')
@@ -99,7 +99,7 @@ class CustomerNumberRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $context = $this->createMock(CustomerContext::class);
+        $context = $this->createMock(CheckoutContext::class);
 
         $context->expects($this->any())
             ->method('getCustomer')
@@ -119,7 +119,7 @@ class CustomerNumberRuleTest extends TestCase
         $customer = new CustomerBasicStruct();
         $customer->setNumber('no. 2');
 
-        $context = $this->createMock(CustomerContext::class);
+        $context = $this->createMock(CheckoutContext::class);
 
         $context->expects($this->any())
             ->method('getCustomer')

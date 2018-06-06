@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Checkout\Cart\Cart;
 
-use Shopware\Core\Checkout\CustomerContext;
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
@@ -53,7 +53,7 @@ class CartProcessor
         $this->calculator = $calculator;
     }
 
-    public function process(Cart $cart, CustomerContext $context, StructCollection $dataCollection): CalculatedCart
+    public function process(Cart $cart, CheckoutContext $context, StructCollection $dataCollection): CalculatedCart
     {
         $lineItems = new CalculatedLineItemCollection(
             $cart->getLineItems()->filterInstance(CalculatedLineItemInterface::class)->getElements()
@@ -87,7 +87,7 @@ class CartProcessor
         DeliveryCollection $deliveries,
         Cart $container,
         TransactionCollection $transactions,
-        CustomerContext $context
+        CheckoutContext $context
     ): CalculatedCart {
         $price = $this->calculator->calculateAmount(
             $lineItems->getPrices(),

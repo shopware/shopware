@@ -4,8 +4,8 @@ namespace Shopware\Core\Framework\Test\ORM\Reader;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Content\Rule\ContextRuleRepository;
-use Shopware\Core\Content\Rule\Specification\Container\AndRule;
+use Shopware\Core\Content\Rule\RuleRepository;
+use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Content\Product\ProductRepository;
 use Shopware\Core\Content\Product\Struct\ProductBasicStruct;
 use Shopware\Core\Defaults;
@@ -101,7 +101,7 @@ class EntityReaderTest extends KernelTestCase
     {
         $ruleA = Uuid::uuid4()->getHex();
 
-        self::$container->get(ContextRuleRepository::class)->create([
+        self::$container->get(RuleRepository::class)->create([
             [
                 'id' => $ruleA,
                 'name' => 'test',
@@ -125,7 +125,7 @@ class EntityReaderTest extends KernelTestCase
                     [
                         'currencyId' => Defaults::CURRENCY,
                         'quantityStart' => 1,
-                        'contextRuleId' => $ruleA,
+                        'ruleId' => $ruleA,
                         'price' => ['gross' => 15, 'net' => 10],
                     ],
                 ],
@@ -137,7 +137,7 @@ class EntityReaderTest extends KernelTestCase
                     [
                         'currencyId' => Defaults::CURRENCY,
                         'quantityStart' => 1,
-                        'contextRuleId' => $ruleA,
+                        'ruleId' => $ruleA,
                         'price' => ['gross' => 100, 'net' => 90],
                     ],
                 ],

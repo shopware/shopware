@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Checkout\DiscountSurcharge\Struct;
 
-use Shopware\Core\Content\Rule\Specification\Rule;
-use Shopware\Core\Content\Rule\Struct\ContextRuleBasicStruct;
+use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Content\Rule\Struct\RuleBasicStruct;
 use Shopware\Core\Framework\ORM\Entity;
 
 class DiscountSurchargeBasicStruct extends Entity
@@ -21,12 +21,12 @@ class DiscountSurchargeBasicStruct extends Entity
     /**
      * @var string
      */
-    protected $contextRuleId;
+    protected $ruleId;
 
     /**
-     * @var ContextRuleBasicStruct
+     * @var RuleBasicStruct
      */
-    protected $contextRule;
+    protected $rule;
 
     /**
      * @var string
@@ -58,24 +58,24 @@ class DiscountSurchargeBasicStruct extends Entity
         $this->name = $name;
     }
 
-    public function getContextRuleId(): string
+    public function getRuleId(): string
     {
-        return $this->contextRuleId;
+        return $this->ruleId;
     }
 
-    public function setContextRuleId(string $contextRuleId): void
+    public function setRuleId(string $ruleId): void
     {
-        $this->contextRuleId = $contextRuleId;
+        $this->ruleId = $ruleId;
     }
 
-    public function getContextRule(): ContextRuleBasicStruct
+    public function getRule(): RuleBasicStruct
     {
-        return $this->contextRule;
+        return $this->rule;
     }
 
-    public function setContextRule(ContextRuleBasicStruct $contextRule): void
+    public function setRule(RuleBasicStruct $rule): void
     {
-        $this->contextRule = $contextRule;
+        $this->rule = $rule;
     }
 
     public function getType(): string

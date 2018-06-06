@@ -4,9 +4,9 @@ namespace Shopware\Storefront\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Core\Checkout\CustomerContext;
-use Shopware\Core\Checkout\Customer\Util\CustomerContextPersister;
-use Shopware\Core\Checkout\Customer\Util\CustomerContextService;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Checkout\Context\CheckoutContextPersister;
+use Shopware\Core\Checkout\Context\CheckoutContextService;
 use Shopware\Core\System\Language\LanguageRepository;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
@@ -18,12 +18,12 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 class ContextController extends StorefrontController
 {
     /**
-     * @var CustomerContextPersister
+     * @var CheckoutContextPersister
      */
     private $contextPersister;
 
     /**
-     * @var CustomerContextService
+     * @var CheckoutContextService
      */
     private $storefrontContextService;
 
@@ -38,8 +38,8 @@ class ContextController extends StorefrontController
     private $languageRepository;
 
     public function __construct(
-        CustomerContextPersister $contextPersister,
-        CustomerContextService $storefrontContextService,
+        CheckoutContextPersister $contextPersister,
+        CheckoutContextService $storefrontContextService,
         CurrencyRepository $currencyRepository,
         LanguageRepository $languageRepository
     ) {
@@ -53,11 +53,11 @@ class ContextController extends StorefrontController
      * @Route("/context/update", name="context_update")
      * @Method("POST")
      */
-    public function setCurrency(Request $request, CustomerContext $context)
+    public function setCurrency(Request $request, CheckoutContext $context)
     {
         $payload = [
-            CustomerContextService::CURRENCY_ID => $this->validateCurrency($request->get('__currency'), $context),
-            CustomerContextService::LANGUAGE_ID => $this->validateLanguage($request->get('__language'), $context),
+            CheckoutContextService::CURRENCY_ID => $this->validateCurrency($request->get('__currency'), $context),
+            CheckoutContextService::LANGUAGE_ID => $this->validateLanguage($request->get('__language'), $context),
         ];
 
         $payload = array_filter($payload);
@@ -75,7 +75,7 @@ class ContextController extends StorefrontController
     /**
      * @throws BadRequestHttpException
      */
-    private function validateCurrency(?string $currencyId, CustomerContext $context): ?string
+    private function validateCurrency(?string $currencyId, CheckoutContext $context): ?string
     {
         if (!$currencyId) {
             return null;
@@ -96,7 +96,7 @@ class ContextController extends StorefrontController
     /**
      * @throws BadRequestHttpException
      */
-    private function validateLanguage(?string $languageId, CustomerContext $context): ?string
+    private function validateLanguage(?string $languageId, CheckoutContext $context): ?string
     {
         if (!$languageId) {
             return null;

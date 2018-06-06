@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductContextPrice;
 
-use Shopware\Core\Content\Rule\ContextRuleDefinition;
+use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductContextPrice\Collection\ProductContextPriceBasicCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductContextPrice\Collection\ProductContextPriceDetailCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductContextPrice\Event\ProductContextPriceDeletedEvent;
@@ -62,7 +62,7 @@ class ProductContextPriceDefinition extends EntityDefinition
             new ReferenceVersionField(ProductDefinition::class),
             (new FkField('currency_id', 'currencyId', CurrencyDefinition::class))->setFlags(new Required()),
             new ReferenceVersionField(CurrencyDefinition::class),
-            (new FkField('context_rule_id', 'contextRuleId', ContextRuleDefinition::class))->setFlags(new Required()),
+            (new FkField('rule_id', 'ruleId', RuleDefinition::class))->setFlags(new Required()),
             (new PriceField('price', 'price'))->setFlags(new Required()),
             (new IntField('quantity_start', 'quantityStart'))->setFlags(new Required()),
             new IntField('quantity_end', 'quantityEnd'),
@@ -70,7 +70,7 @@ class ProductContextPriceDefinition extends EntityDefinition
             new DateField('updated_at', 'updatedAt'),
             new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, false, 'context_price_join_id'),
             new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, false),
-            new ManyToOneAssociationField('contextRule', 'context_rule_id', ContextRuleDefinition::class, false),
+            new ManyToOneAssociationField('rule', 'rule_id', RuleDefinition::class, false),
         ]);
 
         foreach (self::$extensions as $extension) {

@@ -25,7 +25,7 @@
 namespace Shopware\Core\Checkout\Test\Cart\Cart;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\CustomerContext;
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Cart\CartProcessor;
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
@@ -68,7 +68,7 @@ class CartCalculatorTest extends TestCase
 
         $this->assertEquals(
             $cart,
-            $calculator->process($container, $this->createMock(CustomerContext::class), new StructCollection())
+            $calculator->process($container, $this->createMock(CheckoutContext::class), new StructCollection())
         );
     }
 }

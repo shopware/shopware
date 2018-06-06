@@ -6,10 +6,10 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Checkout\CustomerContext;
-use Shopware\Core\Checkout\Customer\Util\CustomerContextPersister;
-use Shopware\Core\Checkout\Customer\Util\CustomerContextService;
-use Shopware\Core\Checkout\Cart\StoreFrontCartService;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Checkout\Context\CheckoutContextPersister;
+use Shopware\Core\Checkout\Context\CheckoutContextService;
+use Shopware\Core\Checkout\Cart\Storefront\CartService;
 use Shopware\Core\Checkout\Order\OrderRepository;
 use Shopware\Core\Checkout\Order\Struct\OrderBasicStruct;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerInterface;
@@ -31,7 +31,7 @@ use Symfony\Component\Serializer\Serializer;
 class CheckoutController extends StorefrontController
 {
     /**
-     * @var \Shopware\Core\Checkout\Cart\StoreFrontCartService
+     * @var \Shopware\Core\Checkout\Cart\Storefront\CartService
      */
     private $cartService;
 
@@ -61,7 +61,7 @@ class CheckoutController extends StorefrontController
     private $tokenFactory;
 
     /**
-     * @var CustomerContextPersister
+     * @var CheckoutContextPersister
      */
     private $contextPersister;
 
@@ -76,13 +76,13 @@ class CheckoutController extends StorefrontController
     private $serializer;
 
     public function __construct(
-        StoreFrontCartService $cartService,
+        CartService $cartService,
         OrderRepository $orderRepository,
         PaymentMethodLoader $paymentMethodLoader,
         PaymentTransactionChainProcessor $paymentProcessor,
         PaymentTransactionTokenFactory $tokenFactory,
         PaymentMethodRepository $paymentMethodRepository,
-        CustomerContextPersister $contextPersister,
+        CheckoutContextPersister $contextPersister,
         Serializer $serializer,
         PaymentHandlerRegistry $paymentHandlerRegistry
     ) {
@@ -108,7 +108,7 @@ class CheckoutController extends StorefrontController
     /**
      * @Route("/checkout/cart", name="checkout_cart", options={"seo"="false"})
      */
-    public function cart(CustomerContext $context): Response
+    public function cart(CheckoutContext $context): Response
     {
         return $this->renderStorefront('@Storefront/frontend/checkout/cart.html.twig', [
             'cart' => $this->cartService->getCalculatedCart($context),
@@ -118,7 +118,7 @@ class CheckoutController extends StorefrontController
     /**
      * @Route("/checkout/shippingPayment", name="checkout_shipping_payment", options={"seo"="false"})
      */
-    public function shippingPayment(Request $request, CustomerContext $context): Response
+    public function shippingPayment(Request $request, CheckoutContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -133,7 +133,7 @@ class CheckoutController extends StorefrontController
      *
      * @throws UnknownPaymentMethodException
      */
-    public function saveShippingPayment(Request $request, CustomerContext $context): Response
+    public function saveShippingPayment(Request $request, CheckoutContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -145,7 +145,7 @@ class CheckoutController extends StorefrontController
 
         $this->contextPersister->save(
             $context->getToken(),
-            [CustomerContextService::PAYMENT_METHOD_ID => $paymentMethodId],
+            [CheckoutContextService::PAYMENT_METHOD_ID => $paymentMethodId],
             $context->getTenantId()
         );
 
@@ -157,11 +157,11 @@ class CheckoutController extends StorefrontController
      * @Route("/checkout/confirm", name="checkout_confirm", options={"seo"="false"})
      *
      * @param Request           $request
-     * @param CustomerContext $context
+     * @param CheckoutContext $context
      *
      * @return RedirectResponse|Response
      */
-    public function confirm(Request $request, CustomerContext $context): Response
+    public function confirm(Request $request, CheckoutContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -179,7 +179,7 @@ class CheckoutController extends StorefrontController
      * @Route("/checkout/pay", name="checkout_pay", options={"seo"="false"})
      *
      * @param Request           $request
-     * @param CustomerContext $context
+     * @param CheckoutContext $context
      *
      * @throws InvalidOrderException
      * @throws InvalidTransactionException
@@ -187,7 +187,7 @@ class CheckoutController extends StorefrontController
      *
      * @return RedirectResponse
      */
-    public function pay(Request $request, CustomerContext $context): RedirectResponse
+    public function pay(Request $request, CheckoutContext $context): RedirectResponse
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -217,7 +217,7 @@ class CheckoutController extends StorefrontController
      * @Route("/checkout/finalize-transaction", name="checkout_finalize_transaction", options={"seo"="false"})
      *
      * @param Request           $request
-     * @param CustomerContext $context
+     * @param CheckoutContext $context
      *
      * @throws UnknownPaymentMethodException
      * @throws \Doctrine\DBAL\Exception\InvalidArgumentException
@@ -226,7 +226,7 @@ class CheckoutController extends StorefrontController
      *
      * @return RedirectResponse
      */
-    public function finalizeTransaction(Request $request, CustomerContext $context): RedirectResponse
+    public function finalizeTransaction(Request $request, CheckoutContext $context): RedirectResponse
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -252,7 +252,7 @@ class CheckoutController extends StorefrontController
      *
      * @throws \Exception
      */
-    public function finish(Request $request, CustomerContext $context): Response
+    public function finish(Request $request, CheckoutContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -266,7 +266,7 @@ class CheckoutController extends StorefrontController
         ]);
     }
 
-    private function getOrder(string $orderId, CustomerContext $context): OrderBasicStruct
+    private function getOrder(string $orderId, CheckoutContext $context): OrderBasicStruct
     {
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('order.customer.id', $context->getCustomer()->getId()));
@@ -284,7 +284,7 @@ class CheckoutController extends StorefrontController
     /**
      * @throws InvalidTransactionException
      */
-    private function getOrderIdByTransactionId(string $transactionId, CustomerContext $context): string
+    private function getOrderIdByTransactionId(string $transactionId, CheckoutContext $context): string
     {
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('order.customer.id', $context->getCustomer()->getId()));

@@ -10,7 +10,7 @@ use Shopware\Core\Checkout\DiscountSurcharge\Event\DiscountSurchargeWrittenEvent
 
 use Shopware\Core\Checkout\DiscountSurcharge\Struct\DiscountSurchargeBasicStruct;
 use Shopware\Core\Checkout\DiscountSurcharge\Struct\DiscountSurchargeDetailStruct;
-use Shopware\Core\Content\Rule\ContextRuleDefinition;
+use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\DateField;
@@ -61,7 +61,7 @@ class DiscountSurchargeDefinition extends EntityDefinition
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new TranslatedField(new StringField('name', 'name')))->setFlags(new Required()),
-            (new FkField('context_rule_id', 'contextRuleId', ContextRuleDefinition::class))->setFlags(new Required()),
+            (new FkField('rule_id', 'ruleId', RuleDefinition::class))->setFlags(new Required()),
             (new JsonObjectField('rule', 'rule'))->setFlags(new Serialized(), new Required()),
             (new StringField('type', 'type'))->setFlags(new Required()),
             (new FloatField('amount', 'amount'))->setFlags(new Required()),
@@ -69,7 +69,7 @@ class DiscountSurchargeDefinition extends EntityDefinition
             new DateField('updated_at', 'updatedAt'),
 
             (new TranslationsAssociationField('translations', DiscountSurchargeTranslationDefinition::class, 'discount_surcharge_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
-            new ManyToOneAssociationField('contextRule', 'context_rule_id', ContextRuleDefinition::class, true),
+            new ManyToOneAssociationField('rule', 'rule_id', RuleDefinition::class, true),
         ]);
 
         foreach (self::$extensions as $extension) {

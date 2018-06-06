@@ -3,8 +3,8 @@
 namespace Shopware\Core\Checkout\Cart\LineItem;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Core\Content\Rule\Specification\Rule;
-use Shopware\Core\Content\Rule\Specification\Validatable;
+use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\Validatable;
 use Shopware\Core\Content\Media\Struct\MediaBasicStruct;
 use Shopware\Core\Framework\Struct\Struct;
 

@@ -37,24 +37,24 @@ class ContextPriceCollection extends EntityCollection
         });
     }
 
-    public function getContextRuleIds(): array
+    public function getRuleIds(): array
     {
         return $this->fmap(function (ContextPriceStruct $price) {
-            return $price->getContextRuleId();
+            return $price->getRuleId();
         });
     }
 
-    public function filterByContextRuleId(string $id): self
+    public function filterByRuleId(string $id): self
     {
         return $this->filter(function (ContextPriceStruct $contextPrice) use ($id) {
-            return $contextPrice->getContextRuleId() === $id;
+            return $contextPrice->getRuleId() === $id;
         });
     }
 
     public function getPriceRulesForContext(Context $context): ?self
     {
-        foreach ($context->getContextRules() as $ruleId) {
-            $rules = $this->filterByContextRuleId($ruleId);
+        foreach ($context->getRules() as $ruleId) {
+            $rules = $this->filterByRuleId($ruleId);
 
             if ($rules->count() > 0) {
                 return $rules;

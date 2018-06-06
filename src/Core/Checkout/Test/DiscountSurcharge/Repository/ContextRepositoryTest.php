@@ -4,8 +4,8 @@ namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Repository;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Content\Rule\Specification\Container\AndRule;
-use Shopware\Core\Content\Rule\Specification\Container\OrRule;
+use Shopware\Core\Framework\Rule\Container\AndRule;
+use Shopware\Core\Framework\Rule\Container\OrRule;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -32,11 +32,11 @@ class ContextRepositoryTest extends KernelTestCase
     {
         self::bootKernel();
 <<<<<<< Updated upstream:src/Core/Application/Test/Context/Repository/ContextRepositoryTest.php
-        $this->repository = self::$container->get(\Shopware\Core\Checkout\Rule\ContextRuleRepository::class);
+        $this->repository = self::$container->get(\Shopware\Core\Checkout\Rule\RuleRepository::class);
         $this->connection = self::$container->get(Connection::class);
 =======
         $this->container = self::$kernel->getContainer();
-        $this->repository = $this->container->get(\Shopware\Core\Content\Rule\ContextRuleRepository::class);
+        $this->repository = $this->container->get(\Shopware\Core\Content\Rule\RuleRepository::class);
         $this->connection = $this->container->get(Connection::class);
 >>>>>>> Stashed changes:src/Core/Checkout/Test/DiscountSurcharge/Repository/ContextRepositoryTest.php
         $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
@@ -49,7 +49,7 @@ class ContextRepositoryTest extends KernelTestCase
         parent::tearDown();
     }
 
-    public function testWriteContextRuleWithObject()
+    public function testWriteRuleWithObject()
     {
         $id = Uuid::uuid4()->getHex();
 

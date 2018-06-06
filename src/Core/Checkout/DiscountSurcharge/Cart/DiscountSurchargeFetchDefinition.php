@@ -9,21 +9,21 @@ class DiscountSurchargeFetchDefinition extends Struct
     /**
      * @var string[]
      */
-    protected $contextRuleIds;
+    protected $ruleIds;
 
     /**
-     * @param string[] $contextRuleIds
+     * @param string[] $ruleIds
      */
-    public function __construct(array $contextRuleIds)
+    public function __construct(array $ruleIds)
     {
-        $this->contextRuleIds = $contextRuleIds;
+        $this->ruleIds = $ruleIds;
     }
 
     /**
      * @return string[]
      */
-    public function getContextRuleIds(): array
+    public function getRuleIds(): array
     {
-        return $this->contextRuleIds;
+        return $this->ruleIds;
     }
 }

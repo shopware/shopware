@@ -25,11 +25,11 @@
 namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Rule\Context;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Core\Checkout\Customer\Struct\CustomerBasicStruct;
 use Shopware\Core\Checkout\Customer\Rule\LastNameRule;
-use Shopware\Core\Content\Rule\Specification\Scope\CartRuleScope;
 
 class LastNameRuleTest extends TestCase
 {

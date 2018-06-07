@@ -139,7 +139,7 @@ class ShippingAreaRuleTest extends TestCase
             [false],
             [''],
             [Rule::OPERATOR_GTE],
-            [\Shopware\Core\Content\Rule\Specification\Rule::OPERATOR_LTE],
+            [Rule::OPERATOR_LTE],
         ];
     }
 

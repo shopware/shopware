@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Dbal\Common;
+namespace Shopware\Core\Framework\ORM\Dbal\Common;
 
 interface IterableQuery
 {

@@ -29,8 +29,8 @@ use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
-use Shopware\Core\Framework\Rule\Context\ShippingStreetRule;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
+use Shopware\Core\Checkout\Customer\Rule\ShippingStreetRule;
 use Shopware\Core\System\Country\Aggregate\CountryState\Struct\CountryStateBasicStruct;
 use Shopware\Core\System\Country\Struct\CountryBasicStruct;
 

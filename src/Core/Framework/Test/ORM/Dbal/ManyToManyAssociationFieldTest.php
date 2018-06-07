@@ -2,19 +2,19 @@
 
 namespace Shopware\Framework\Test\ORM\Dbal;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Content\Category\Aggregate\CategoryTranslation\Event\CategoryTranslationWrittenEvent;
-use Shopware\Content\Category\CategoryRepository;
-use Shopware\Content\Category\Event\CategoryWrittenEvent;
-use Shopware\Content\Product\Aggregate\ProductCategory\Event\ProductCategoryWrittenEvent;
-use Shopware\Content\Product\Aggregate\ProductManufacturer\Event\ProductManufacturerWrittenEvent;
-use Shopware\Content\Product\Aggregate\ProductManufacturerTranslation\Event\ProductManufacturerTranslationWrittenEvent;
-use Shopware\Content\Product\Aggregate\ProductTranslation\Event\ProductTranslationWrittenEvent;
-use Shopware\Content\Product\Event\ProductWrittenEvent;
-use Shopware\Content\Product\ProductRepository;
-use Shopware\Defaults;
-use Shopware\Framework\Struct\Uuid;
-use Shopware\System\Tax\Event\TaxWrittenEvent;
+use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\Event\CategoryTranslationWrittenEvent;
+use Shopware\Core\Content\Category\CategoryRepository;
+use Shopware\Core\Content\Category\Event\CategoryWrittenEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductCategory\Event\ProductCategoryWrittenEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\Event\ProductManufacturerWrittenEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\Event\ProductManufacturerTranslationWrittenEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductTranslation\Event\ProductTranslationWrittenEvent;
+use Shopware\Core\Content\Product\Event\ProductWrittenEvent;
+use Shopware\Core\Content\Product\ProductRepository;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\System\Tax\Event\TaxWrittenEvent;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class ManyToManyAssociationFieldTest extends KernelTestCase
@@ -25,7 +25,7 @@ class ManyToManyAssociationFieldTest extends KernelTestCase
     private $productRepository;
 
     /**
-     * @var ApplicationContext
+     * @var Context
      */
     private $context;
 
@@ -40,7 +40,7 @@ class ManyToManyAssociationFieldTest extends KernelTestCase
         parent::setUp();
         $this->productRepository = self::$container->get(ProductRepository::class);
         $this->categoryRepository = self::$container->get(CategoryRepository::class);
-        $this->context = ApplicationContext::createDefaultContext(Defaults::TENANT_ID);
+        $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
     }
 
     public function testWriteWithoutData()

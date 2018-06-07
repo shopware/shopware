@@ -3,11 +3,11 @@
 namespace Shopware\Framework\Test\ORM\Dbal;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Content\Category\CategoryRepository;
-use Shopware\Defaults;
-use Shopware\Framework\ORM\Dbal\Indexing\ChildCountIndexer;
-use Shopware\Framework\Struct\Uuid;
+use Shopware\Core\Content\Category\CategoryRepository;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\ORM\Dbal\Indexing\ChildCountIndexer;
+use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -19,7 +19,7 @@ class ChildCountIndexerTest extends KernelTestCase
     private $categoryRepository;
 
     /**
-     * @var ApplicationContext
+     * @var Context
      */
     private $context;
 
@@ -42,7 +42,7 @@ class ChildCountIndexerTest extends KernelTestCase
     {
         self::bootKernel();
         $this->categoryRepository = self::$container->get(CategoryRepository::class);
-        $this->context = ApplicationContext::createDefaultContext(Defaults::TENANT_ID);
+        $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
         $this->childCountIndexer = self::$container->get(ChildCountIndexer::class);
         $this->eventDispatcher = self::$container->get('event_dispatcher');
         $this->connection = self::$container->get(Connection::class);

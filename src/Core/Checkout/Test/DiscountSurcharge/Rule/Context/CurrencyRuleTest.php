@@ -27,6 +27,7 @@ namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Rule\Context;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Rule\CurrencyRule;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\System\Currency\Struct\CurrencyBasicStruct;
@@ -39,17 +40,19 @@ class CurrencyRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $currency = new CurrencyBasicStruct();
-        $currency->setId('SWAG-CURRENCY-ID-1');
+        $checkoutContext = $this->createMock(CheckoutContext::class);
 
-        $context = $this->createMock(CheckoutContext::class);
-
+        $context = $this->createMock(Context::class);
         $context->expects($this->any())
-            ->method('getCurrency')
-            ->will($this->returnValue($currency));
+            ->method('getCurrencyId')
+            ->will($this->returnValue('SWAG-CURRENCY-ID-1'));
+
+        $checkoutContext->expects($this->any())
+            ->method('getContext')
+            ->will($this->returnValue($context));
 
         $this->assertTrue(
-            $rule->match(new CartRuleScope($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $checkoutContext))->matches()
         );
     }
 
@@ -59,17 +62,19 @@ class CurrencyRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $currency = new CurrencyBasicStruct();
-        $currency->setId('SWAG-CURRENCY-ID-5');
+        $checkoutContext = $this->createMock(CheckoutContext::class);
 
-        $context = $this->createMock(CheckoutContext::class);
-
+        $context = $this->createMock(Context::class);
         $context->expects($this->any())
-            ->method('getCurrency')
-            ->will($this->returnValue($currency));
+            ->method('getCurrencyId')
+            ->will($this->returnValue('SWAG-CURRENCY-ID-5'));
+
+        $checkoutContext->expects($this->any())
+            ->method('getContext')
+            ->will($this->returnValue($context));
 
         $this->assertFalse(
-            $rule->match(new CartRuleScope($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $checkoutContext))->matches()
         );
     }
 
@@ -79,17 +84,19 @@ class CurrencyRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $currency = new CurrencyBasicStruct();
-        $currency->setId('SWAG-CURRENCY-ID-3');
+        $checkoutContext = $this->createMock(CheckoutContext::class);
 
-        $context = $this->createMock(CheckoutContext::class);
-
+        $context = $this->createMock(Context::class);
         $context->expects($this->any())
-            ->method('getCurrency')
-            ->will($this->returnValue($currency));
+            ->method('getCurrencyId')
+            ->will($this->returnValue('SWAG-CURRENCY-ID-3'));
+
+        $checkoutContext->expects($this->any())
+            ->method('getContext')
+            ->will($this->returnValue($context));
 
         $this->assertTrue(
-            $rule->match(new CartRuleScope($cart, $context))->matches()
+            $rule->match(new CartRuleScope($cart, $checkoutContext))->matches()
         );
     }
 }

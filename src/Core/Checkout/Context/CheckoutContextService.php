@@ -27,7 +27,6 @@ namespace Shopware\Core\Checkout\Context;
 use Shopware\Core\Checkout\CheckoutContext;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
-use Psr\Log\LoggerInterface;
 
 /**
  * @category  Shopware\Core
@@ -129,7 +128,7 @@ class CheckoutContextService implements CheckoutContextServiceInterface
         }
 
         $rules = $this->ruleLoader->loadMatchingRules($context, $token);
-        $context->setContextRuleIds($rules->getIds());
+        $context->setRuleIds($rules->getIds());
         $context->lockRules();
 
         $this->context[$key] = $context;

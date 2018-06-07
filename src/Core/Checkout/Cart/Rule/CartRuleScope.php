@@ -10,18 +10,13 @@ use Shopware\Core\Framework\Rule\RuleScope;
 class CartRuleScope extends CheckoutRuleScope
 {
     /**
-     * @var CheckoutContext
-     */
-    protected $context;
-
-    /**
      * @var CalculatedCart
      */
     protected $calculatedCart;
 
     public function __construct(CalculatedCart $calculatedCart, CheckoutContext $context)
     {
-        $this->context = $context;
+        parent::__construct($context);
         $this->calculatedCart = $calculatedCart;
     }
 

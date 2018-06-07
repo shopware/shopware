@@ -125,6 +125,7 @@
         </service>
 
         <service class="Shopware\Core\Checkout\Context\CheckoutContextService" id="Shopware\Core\Checkout\Context\CheckoutContextService">
+            <argument type="service" id="shopware.cache" />
             <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextFactory"/>
             <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutRuleLoader"/>
             <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextPersister"/>

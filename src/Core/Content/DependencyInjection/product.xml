@@ -8,7 +8,7 @@
         <!-- Versioning -->
         <service alias="Shopware\Core\Content\Product\ProductRepository.v1" id="Shopware\Core\Content\Product\ProductRepository" public="true"/>
         <service alias="Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorRepository.v1" id="Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorRepository" public="true" />
-        <service alias="ProductPriceRuleRepository" id="ProductPriceRuleRepository" public="true" />
+        <service alias="Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleRepository.v1" id="Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleRepository" public="true" />
         <service alias="Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerRepository.v1" id="Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerRepository" public="true"/>
         <service alias="Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationRepository.v1" id="Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationRepository" public="true"/>
         <service alias="Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaRepository.v1" id="Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaRepository" public="true"/>
@@ -51,10 +51,10 @@
           <argument id="Shopware\Core\Framework\ORM\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>
-         <service class="ProductPriceRuleDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleDefinition" >
+         <service class="Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleDefinition" >
             <tag name="shopware.entity.definition" entity="product_price_rule" />
         </service>
-        <service class="ProductPriceRuleRepository" id="Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleRepository.v1" public="true">
+        <service class="Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleRepository" id="Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleRepository.v1" public="true">
           <argument id="Shopware\Core\Framework\ORM\Dbal\EntityReader" type="service"/>
           <argument id="Shopware\Core\Framework\ORM\Version\Service\VersionManager" type="service"/>
           <argument id="Shopware\Core\Framework\ORM\Dbal\EntitySearcher" type="service"/>

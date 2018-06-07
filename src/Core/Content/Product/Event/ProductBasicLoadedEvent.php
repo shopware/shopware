@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\Product\Event;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Content\Product\Aggregate\ProductContextPrice\Event\ProductContextPriceBasicLoadedEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\Event\ProductPriceRuleBasicLoadedEvent;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\Event\ProductManufacturerBasicLoadedEvent;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\Event\ProductMediaBasicLoadedEvent;
 use Shopware\Core\Content\Product\Collection\ProductBasicCollection;
@@ -65,9 +65,9 @@ class ProductBasicLoadedEvent extends NestedEvent
             $events[] = new UnitBasicLoadedEvent($units, $this->context);
         }
 
-        $prices = $this->products->getContextPrices();
+        $prices = $this->products->getPriceRules();
         if ($prices->count() > 0) {
-            $events[] = new ProductContextPriceBasicLoadedEvent($prices, $this->context);
+            $events[] = new ProductPriceRuleBasicLoadedEvent($prices, $this->context);
         }
 
         $covers = $this->products->getCovers();

@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\ORM\Field;
 use Shopware\Core\Framework\ORM\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\ORM\Write\EntityExistence;
 
-class ContextPricesJsonField extends JsonObjectField
+class PriceRulesJsonField extends JsonObjectField
 {
     public function __invoke(EntityExistence $existence, KeyValuePair $data): \Generator
     {

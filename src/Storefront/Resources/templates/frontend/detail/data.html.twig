@@ -2,7 +2,7 @@
     {# @var product \Shopware\Core\Content\Product\Struct\StorefrontProductBasicStruct #}
     {% set price = product.calculatedPrice %}
 
-    {% if product.calculatedContextPrices.count > 1 %}
+    {% if product.calculatedPriceRules.count > 1 %}
         {% sw_include '@Storefront/frontend/detail/block_price.html.twig' %}
     {% else %}
         <div class="product--price price--default{% if product.pseudoPrice %} price--discount{% endif %}">
@@ -96,8 +96,8 @@
     {% endblock %}
 
     {# @var page \Shopware\Storefront\Page\Detail\DetailPageStruct #}
-    {% if product.calculatedContextPrices and (page.configurator.count <= 0 or product.priceGroupId) %}
-        {% for price in product.calculatedContextPrices %}
+    {% if product.calculatedPriceRules and (page.configurator.count <= 0 or product.priceGroupId) %}
+        {% for price in product.calculatedPriceRules %}
             {% if price.quantity == 1 %}
                 <input id="price_{{ product.id }}" type="hidden" value="{{ price.totalPrice }}">
             {% endif %}

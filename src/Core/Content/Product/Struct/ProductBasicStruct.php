@@ -2,15 +2,15 @@
 
 namespace Shopware\Core\Content\Product\Struct;
 
-use Shopware\Core\Framework\Pricing\ContextPriceCollection;
+use Shopware\Core\Framework\Pricing\PriceRuleCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\PercentageTaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductContextPrice\Collection\ProductContextPriceBasicCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductContextPrice\Struct\ProductContextPriceBasicStruct;
+use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\Collection\ProductPriceRuleBasicCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\Struct\ProductPriceRuleBasicStruct;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\Struct\ProductManufacturerBasicStruct;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\Struct\ProductMediaBasicStruct;
 use Shopware\Core\Framework\ORM\Entity;
@@ -256,12 +256,12 @@ class ProductBasicStruct extends Entity
     protected $unit;
 
     /**
-     * @var ProductContextPriceBasicCollection
+     * @var ProductPriceRuleBasicCollection
      */
-    protected $contextPrices;
+    protected $priceRules;
 
     /**
-     * @var ContextPriceCollection|null
+     * @var PriceRuleCollection|null
      */
     protected $listingPrices;
 
@@ -272,7 +272,7 @@ class ProductBasicStruct extends Entity
 
     public function __construct()
     {
-        $this->contextPrices = new ProductContextPriceBasicCollection();
+        $this->priceRules = new ProductPriceRuleBasicCollection();
     }
 
     public function getParentId(): ?string
@@ -695,22 +695,22 @@ class ProductBasicStruct extends Entity
         $this->unit = $unit;
     }
 
-    public function getContextPrices(): ProductContextPriceBasicCollection
+    public function getPriceRules(): ProductPriceRuleBasicCollection
     {
-        return $this->contextPrices;
+        return $this->priceRules;
     }
 
-    public function setContextPrices(ProductContextPriceBasicCollection $contextPrices): void
+    public function setPriceRules(ProductPriceRuleBasicCollection $priceRules): void
     {
-        $this->contextPrices = $contextPrices;
+        $this->priceRules = $priceRules;
     }
 
-    public function getListingPrices(): ?ContextPriceCollection
+    public function getListingPrices(): ?PriceRuleCollection
     {
         return $this->listingPrices;
     }
 
-    public function setListingPrices(?ContextPriceCollection $listingPrices): void
+    public function setListingPrices(?PriceRuleCollection $listingPrices): void
     {
         $this->listingPrices = $listingPrices;
     }
@@ -745,20 +745,20 @@ class ProductBasicStruct extends Entity
         $this->maxDeliveryTime = $maxDeliveryTime;
     }
 
-    public function getContextPriceDefinitions(\Shopware\Core\Framework\Context $context): PriceDefinitionCollection
+    public function getPriceRuleDefinitions(\Shopware\Core\Framework\Context $context): PriceDefinitionCollection
     {
         $taxRules = $this->getTaxRuleCollection();
 
-        $prices = $this->getContextPrices()->getPriceRulesForContext($context);
+        $prices = $this->getPriceRules()->getPriceRulesForContext($context);
 
         if (!$prices) {
             return new PriceDefinitionCollection();
         }
 
-        /* @var ProductContextPriceBasicCollection $prices */
+        /* @var ProductPriceRuleBasicCollection $prices */
         $prices->sortByQuantity();
 
-        $definitions = $prices->map(function (ProductContextPriceBasicStruct $rule) use ($taxRules) {
+        $definitions = $prices->map(function (ProductPriceRuleBasicStruct $rule) use ($taxRules) {
             $quantity = $rule->getQuantityEnd() ?? $rule->getQuantityStart();
 
             return new PriceDefinition($rule->getPrice()->getGross(), $taxRules, $quantity, true);
@@ -779,8 +779,8 @@ class ProductBasicStruct extends Entity
         if ($this->getListingPrices()) {
             $prices = $this->getListingPrices();
         } else {
-            $prices = $this->getContextPrices()->filter(
-                function (ProductContextPriceBasicStruct $price) {
+            $prices = $this->getPriceRules()->filter(
+                function (ProductPriceRuleBasicStruct $price) {
                     return $price->getQuantityEnd() === null;
                 }
             );
@@ -796,7 +796,7 @@ class ProductBasicStruct extends Entity
             return new PriceDefinition($this->getPrice()->getGross(), $taxRules, 1, true);
         }
 
-        /** @var ProductContextPriceBasicStruct $price */
+        /** @var ProductPriceRuleBasicStruct $price */
         $price = $prices->first();
 
         return new PriceDefinition($price->getPrice()->getGross(), $taxRules, 1, true);
@@ -807,13 +807,13 @@ class ProductBasicStruct extends Entity
         // TODO@DR consider tax state of touchpoint context (NEXT-286)
         $taxRules = $this->getTaxRuleCollection();
 
-        $prices = $this->getContextPrices()->getPriceRulesForContext($context);
+        $prices = $this->getPriceRules()->getPriceRulesForContext($context);
 
         if (!$prices) {
             return new PriceDefinition($this->getPrice()->getGross(), $taxRules, $quantity, true);
         }
 
-        /** @var ProductContextPriceBasicCollection $prices */
+        /** @var ProductPriceRuleBasicCollection $prices */
         $price = $prices->getQuantityPrice($quantity);
 
         return new PriceDefinition($price->getPrice()->getGross(), $taxRules, $quantity, true);

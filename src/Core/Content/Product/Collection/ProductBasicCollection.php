@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Collection;
 
-use Shopware\Core\Content\Product\Aggregate\ProductContextPrice\Collection\ProductContextPriceBasicCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\Collection\ProductPriceRuleBasicCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\Collection\ProductManufacturerBasicCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\Collection\ProductMediaBasicCollection;
 use Shopware\Core\Content\Product\Struct\ProductBasicStruct;
@@ -110,11 +110,11 @@ class ProductBasicCollection extends EntityCollection
         );
     }
 
-    public function getContextPriceIds(): array
+    public function getPriceRuleIds(): array
     {
         $ids = [];
         foreach ($this->elements as $element) {
-            foreach ($element->getContextPrices()->getIds() as $id) {
+            foreach ($element->getPriceRules()->getIds() as $id) {
                 $ids[] = $id;
             }
         }
@@ -122,11 +122,11 @@ class ProductBasicCollection extends EntityCollection
         return $ids;
     }
 
-    public function getContextPrices(): ProductContextPriceBasicCollection
+    public function getPriceRules(): ProductPriceRuleBasicCollection
     {
-        $collection = new ProductContextPriceBasicCollection();
+        $collection = new ProductPriceRuleBasicCollection();
         foreach ($this->elements as $element) {
-            $collection->fill($element->getContextPrices()->getElements());
+            $collection->fill($element->getPriceRules()->getElements());
         }
 
         return $collection;

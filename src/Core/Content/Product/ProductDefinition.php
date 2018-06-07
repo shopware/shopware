@@ -6,7 +6,7 @@ use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategoryTree\ProductCategoryTreeDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductContextPrice\ProductContextPriceDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductDatasheet\ProductDatasheetDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition;
@@ -28,7 +28,7 @@ use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\BoolField;
 use Shopware\Core\Content\Catalog\ORM\CatalogField;
-use Shopware\Core\Framework\ORM\Field\ContextPricesJsonField;
+use Shopware\Core\Framework\ORM\Field\PriceRulesJsonField;
 use Shopware\Core\Framework\ORM\Field\DateField;
 use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\FloatField;
@@ -123,7 +123,7 @@ class ProductDefinition extends EntityDefinition
 
             //inherited data fields
             (new PriceField('price', 'price'))->setFlags(new Inherited(), new Required()),
-            (new ContextPricesJsonField('listing_prices', 'listingPrices'))->setFlags(new Inherited()),
+            (new PriceRulesJsonField('listing_prices', 'listingPrices'))->setFlags(new Inherited()),
             (new StringField('supplier_number', 'supplierNumber'))->setFlags(new Inherited(), new SearchRanking(self::LOW_SEARCH_RAKING)),
             (new StringField('ean', 'ean'))->setFlags(new Inherited(), new SearchRanking(self::LOW_SEARCH_RAKING)),
             (new BoolField('is_closeout', 'isCloseout'))->setFlags(new Inherited()),
@@ -172,7 +172,7 @@ class ProductDefinition extends EntityDefinition
             (new ManyToOneAssociationField('manufacturer', 'product_manufacturer_id', ProductManufacturerDefinition::class, true, 'id'))->setFlags(new Inherited(), new SearchRanking(self::ASSOCIATION_SEARCH_RANKING)),
             (new ManyToOneAssociationField('unit', 'unit_id', UnitDefinition::class, true, 'id'))->setFlags(new Inherited()),
             (new OneToManyAssociationField('media', ProductMediaDefinition::class, 'product_id', false))->setFlags(new CascadeDelete(), new Inherited()),
-            (new OneToManyAssociationField('contextPrices', ProductContextPriceDefinition::class, 'product_id', true))->setFlags(new CascadeDelete(), new Inherited()),
+            (new OneToManyAssociationField('priceRules', ProductPriceRuleDefinition::class, 'product_id', true))->setFlags(new CascadeDelete(), new Inherited()),
             (new OneToManyAssociationField('services', ProductServiceDefinition::class, 'product_id', false, 'id'))->setFlags(new CascadeDelete(), new Inherited()),
             (new ManyToManyAssociationField('datasheet', ConfigurationGroupOptionDefinition::class, ProductDatasheetDefinition::class, false, 'product_id', 'configuration_group_option_id'))->setFlags(new CascadeDelete(), new Inherited()),
             (new ManyToManyAssociationField('categories', CategoryDefinition::class, ProductCategoryDefinition::class, false, 'product_id', 'category_id'))->setFlags(new CascadeDelete(), new Inherited()),

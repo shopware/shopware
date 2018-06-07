@@ -607,7 +607,7 @@ class DemodataCommand extends ContainerAwareCommand
                 ['id' => $categories[random_int(0, count($categories) - 1)]],
             ],
             'stock' => $this->faker->randomNumber(),
-            'contextPrices' => $this->createPrices($rules),
+            'priceRules' => $this->createPrices($rules),
         ];
 
         return $product;

@@ -1,14 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Product\Aggregate\ProductContextPrice;
+namespace Shopware\Core\Content\Product\Aggregate\ProductPriceRule;
 
 use Shopware\Core\Content\Rule\RuleDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductContextPrice\Collection\ProductContextPriceBasicCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductContextPrice\Collection\ProductContextPriceDetailCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductContextPrice\Event\ProductContextPriceDeletedEvent;
-use Shopware\Core\Content\Product\Aggregate\ProductContextPrice\Event\ProductContextPriceWrittenEvent;
-use Shopware\Core\Content\Product\Aggregate\ProductContextPrice\Struct\ProductContextPriceBasicStruct;
-use Shopware\Core\Content\Product\Aggregate\ProductContextPrice\Struct\ProductContextPriceDetailStruct;
+use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\Collection\ProductPriceRuleBasicCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\Collection\ProductPriceRuleDetailCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\Event\ProductPriceRuleDeletedEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\Event\ProductPriceRuleWrittenEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\Struct\ProductPriceRuleBasicStruct;
+use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\Struct\ProductPriceRuleDetailStruct;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
@@ -26,7 +26,7 @@ use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 
-class ProductContextPriceDefinition extends EntityDefinition
+class ProductPriceRuleDefinition extends EntityDefinition
 {
     /**
      * @var FieldCollection
@@ -45,7 +45,7 @@ class ProductContextPriceDefinition extends EntityDefinition
 
     public static function getEntityName(): string
     {
-        return 'product_context_price';
+        return 'product_price_rule';
     }
 
     public static function getFields(): FieldCollection
@@ -82,27 +82,27 @@ class ProductContextPriceDefinition extends EntityDefinition
 
     public static function getRepositoryClass(): string
     {
-        return ProductContextPriceRepository::class;
+        return ProductPriceRuleRepository::class;
     }
 
     public static function getBasicCollectionClass(): string
     {
-        return ProductContextPriceBasicCollection::class;
+        return ProductPriceRuleBasicCollection::class;
     }
 
     public static function getDeletedEventClass(): string
     {
-        return ProductContextPriceDeletedEvent::class;
+        return ProductPriceRuleDeletedEvent::class;
     }
 
     public static function getWrittenEventClass(): string
     {
-        return ProductContextPriceWrittenEvent::class;
+        return ProductPriceRuleWrittenEvent::class;
     }
 
     public static function getBasicStructClass(): string
     {
-        return ProductContextPriceBasicStruct::class;
+        return ProductPriceRuleBasicStruct::class;
     }
 
     public static function getTranslationDefinitionClass(): ?string
@@ -112,11 +112,11 @@ class ProductContextPriceDefinition extends EntityDefinition
 
     public static function getDetailStructClass(): string
     {
-        return ProductContextPriceDetailStruct::class;
+        return ProductPriceRuleDetailStruct::class;
     }
 
     public static function getDetailCollectionClass(): string
     {
-        return ProductContextPriceDetailCollection::class;
+        return ProductPriceRuleDetailCollection::class;
     }
 }

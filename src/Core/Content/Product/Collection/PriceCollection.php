@@ -12,9 +12,9 @@ class PriceCollection extends Collection
      */
     protected $elements = [];
 
-    public function add(PriceStruct $contextPrice): void
+    public function add(PriceStruct $priceRule): void
     {
-        $this->elements[] = $contextPrice;
+        $this->elements[] = $priceRule;
     }
 
     public function get(string $key): ? PriceStruct

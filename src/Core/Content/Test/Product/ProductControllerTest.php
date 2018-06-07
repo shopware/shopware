@@ -50,7 +50,7 @@ class ProductControllerTest extends ApiTestCase
 
         foreach ($content['data'] as $product) {
             $this->assertArrayHasKey('calculatedListingPrice', $product);
-            $this->assertArrayHasKey('calculatedContextPrices', $product);
+            $this->assertArrayHasKey('calculatedPriceRules', $product);
             $this->assertArrayHasKey('calculatedPrice', $product);
             $this->assertArrayHasKey('price', $product);
             $this->assertArrayHasKey('name', $product);

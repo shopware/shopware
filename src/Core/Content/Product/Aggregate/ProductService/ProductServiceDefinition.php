@@ -9,7 +9,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductService\Struct\ProductService
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
-use Shopware\Core\Framework\ORM\Field\ContextPricesJsonField;
+use Shopware\Core\Framework\ORM\Field\PriceRulesJsonField;
 use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\IdField;
 use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
@@ -63,7 +63,7 @@ class ProductServiceDefinition extends EntityDefinition
             (new FkField('tax_id', 'taxId', TaxDefinition::class))->setFlags(new Required()),
             new ReferenceVersionField(TaxDefinition::class),
             new PriceField('price', 'price'),
-            new ContextPricesJsonField('prices', 'prices'),
+            new PriceRulesJsonField('prices', 'prices'),
             (new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, false))->setFlags(new WriteOnly()),
             new ManyToOneAssociationField('option', 'configuration_group_option_id', ConfigurationGroupOptionDefinition::class, true),
             new ManyToOneAssociationField('tax', 'tax_id', TaxDefinition::class, true),

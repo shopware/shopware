@@ -1,21 +1,21 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Product\Aggregate\ProductContextPrice\Event;
+namespace Shopware\Core\Content\Product\Aggregate\ProductPriceRule\Event;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
-use Shopware\Core\Framework\ORM\Search\IdSearchResult;
+use Shopware\Core\Framework\ORM\Search\AggregatorResult;
 
-class ProductContextPriceIdSearchResultLoadedEvent extends NestedEvent
+class ProductPriceRuleAggregationResultLoadedEvent extends NestedEvent
 {
-    public const NAME = 'product_context_price.id.search.result.loaded';
+    public const NAME = 'product_price_rule.aggregation.result.loaded';
 
     /**
-     * @var IdSearchResult
+     * @var AggregatorResult
      */
     protected $result;
 
-    public function __construct(IdSearchResult $result)
+    public function __construct(AggregatorResult $result)
     {
         $this->result = $result;
     }
@@ -30,7 +30,7 @@ class ProductContextPriceIdSearchResultLoadedEvent extends NestedEvent
         return $this->result->getContext();
     }
 
-    public function getResult(): IdSearchResult
+    public function getResult(): AggregatorResult
     {
         return $this->result;
     }

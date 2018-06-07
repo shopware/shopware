@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductService\Struct;
 
-use Shopware\Core\Framework\Pricing\ContextPriceCollection;
+use Shopware\Core\Framework\Pricing\PriceRuleCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\PercentageTaxRule;
@@ -35,9 +35,9 @@ class ProductServiceBasicStruct extends Entity
     protected $price;
 
     /**
-     * @var ContextPriceCollection
+     * @var PriceRuleCollection
      */
-    protected $contextPrices;
+    protected $priceRules;
 
     /**
      * @var \Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupOption\Struct\ConfigurationGroupOptionBasicStruct
@@ -51,7 +51,7 @@ class ProductServiceBasicStruct extends Entity
 
     public function __construct()
     {
-        $this->contextPrices = new ContextPriceCollection();
+        $this->priceRules = new PriceRuleCollection();
     }
 
     public function getProductId(): string
@@ -94,14 +94,14 @@ class ProductServiceBasicStruct extends Entity
         $this->price = $price;
     }
 
-    public function getContextPrices(): ContextPriceCollection
+    public function getPriceRules(): PriceRuleCollection
     {
-        return $this->contextPrices;
+        return $this->priceRules;
     }
 
-    public function setContextPrices(ContextPriceCollection $contextPrices): void
+    public function setPriceRules(PriceRuleCollection $priceRules): void
     {
-        $this->contextPrices = $contextPrices;
+        $this->priceRules = $priceRules;
     }
 
     public function getOption(): ConfigurationGroupOptionBasicStruct
@@ -129,10 +129,10 @@ class ProductServiceBasicStruct extends Entity
     {
         $taxRules = $this->getTaxRuleCollection();
 
-        $prices = $this->getContextPrices()->getPriceRulesForContext($context);
+        $prices = $this->getPriceRules()->getPriceRulesForContext($context);
 
         if ($prices && $prices->count() > 0) {
-            $price = $this->contextPrices->first();
+            $price = $this->priceRules->first();
 
             return new PriceDefinition($price->getPrice()->getGross(), $taxRules, $quantity, true);
         }

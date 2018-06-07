@@ -1,16 +1,16 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Product\Aggregate\ProductContextPrice;
+namespace Shopware\Core\Content\Product\Aggregate\ProductPriceRule;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Content\Product\Aggregate\ProductContextPrice\Collection\ProductContextPriceBasicCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductContextPrice\Collection\ProductContextPriceDetailCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductContextPrice\Event\ProductContextPriceAggregationResultLoadedEvent;
-use Shopware\Core\Content\Product\Aggregate\ProductContextPrice\Event\ProductContextPriceBasicLoadedEvent;
-use Shopware\Core\Content\Product\Aggregate\ProductContextPrice\Event\ProductContextPriceDetailLoadedEvent;
-use Shopware\Core\Content\Product\Aggregate\ProductContextPrice\Event\ProductContextPriceIdSearchResultLoadedEvent;
-use Shopware\Core\Content\Product\Aggregate\ProductContextPrice\Event\ProductContextPriceSearchResultLoadedEvent;
-use Shopware\Core\Content\Product\Aggregate\ProductContextPrice\Struct\ProductContextPriceSearchResult;
+use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\Collection\ProductPriceRuleBasicCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\Collection\ProductPriceRuleDetailCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\Event\ProductPriceRuleAggregationResultLoadedEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\Event\ProductPriceRuleBasicLoadedEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\Event\ProductPriceRuleDetailLoadedEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\Event\ProductPriceRuleIdSearchResultLoadedEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\Event\ProductPriceRuleSearchResultLoadedEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\Struct\ProductPriceRuleSearchResult;
 use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\AggregatorResult;
@@ -23,7 +23,7 @@ use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Core\Framework\ORM\Write\WriteContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class ProductContextPriceRepository implements RepositoryInterface
+class ProductPriceRuleRepository implements RepositoryInterface
 {
     /**
      * @var EntityReaderInterface
@@ -64,7 +64,7 @@ class ProductContextPriceRepository implements RepositoryInterface
         $this->versionManager = $versionManager;
     }
 
-    public function search(Criteria $criteria, Context $context): ProductContextPriceSearchResult
+    public function search(Criteria $criteria, Context $context): ProductPriceRuleSearchResult
     {
         $ids = $this->searchIds($criteria, $context);
 
@@ -75,9 +75,9 @@ class ProductContextPriceRepository implements RepositoryInterface
             $aggregations = $this->aggregate($criteria, $context);
         }
 
-        $result = ProductContextPriceSearchResult::createFromResults($ids, $entities, $aggregations);
+        $result = ProductPriceRuleSearchResult::createFromResults($ids, $entities, $aggregations);
 
-        $event = new ProductContextPriceSearchResultLoadedEvent($result);
+        $event = new ProductPriceRuleSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $result;
@@ -85,9 +85,9 @@ class ProductContextPriceRepository implements RepositoryInterface
 
     public function aggregate(Criteria $criteria, Context $context): AggregatorResult
     {
-        $result = $this->aggregator->aggregate(ProductContextPriceDefinition::class, $criteria, $context);
+        $result = $this->aggregator->aggregate(ProductPriceRuleDefinition::class, $criteria, $context);
 
-        $event = new ProductContextPriceAggregationResultLoadedEvent($result);
+        $event = new ProductPriceRuleAggregationResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $result;
@@ -95,31 +95,31 @@ class ProductContextPriceRepository implements RepositoryInterface
 
     public function searchIds(Criteria $criteria, Context $context): IdSearchResult
     {
-        $result = $this->searcher->search(ProductContextPriceDefinition::class, $criteria, $context);
+        $result = $this->searcher->search(ProductPriceRuleDefinition::class, $criteria, $context);
 
-        $event = new ProductContextPriceIdSearchResultLoadedEvent($result);
+        $event = new ProductPriceRuleIdSearchResultLoadedEvent($result);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $result;
     }
 
-    public function readBasic(array $ids, Context $context): ProductContextPriceBasicCollection
+    public function readBasic(array $ids, Context $context): ProductPriceRuleBasicCollection
     {
-        /** @var \Shopware\Core\Content\Product\Aggregate\ProductContextPrice\Collection\ProductContextPriceBasicCollection $entities */
-        $entities = $this->reader->readBasic(ProductContextPriceDefinition::class, $ids, $context);
+        /** @var \Shopware\Core\Content\Product\Aggregate\ProductPriceRule\Collection\ProductPriceRuleBasicCollection $entities */
+        $entities = $this->reader->readBasic(ProductPriceRuleDefinition::class, $ids, $context);
 
-        $event = new ProductContextPriceBasicLoadedEvent($entities, $context);
+        $event = new ProductPriceRuleBasicLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $entities;
     }
 
-    public function readDetail(array $ids, Context $context): ProductContextPriceDetailCollection
+    public function readDetail(array $ids, Context $context): ProductPriceRuleDetailCollection
     {
-        /** @var ProductContextPriceDetailCollection $entities */
-        $entities = $this->reader->readDetail(ProductContextPriceDefinition::class, $ids, $context);
+        /** @var ProductPriceRuleDetailCollection $entities */
+        $entities = $this->reader->readDetail(ProductPriceRuleDefinition::class, $ids, $context);
 
-        $event = new ProductContextPriceDetailLoadedEvent($entities, $context);
+        $event = new ProductPriceRuleDetailLoadedEvent($entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);
 
         return $entities;
@@ -127,7 +127,7 @@ class ProductContextPriceRepository implements RepositoryInterface
 
     public function update(array $data, Context $context): GenericWrittenEvent
     {
-        $affected = $this->versionManager->update(ProductContextPriceDefinition::class, $data, WriteContext::createFromContext($context));
+        $affected = $this->versionManager->update(ProductPriceRuleDefinition::class, $data, WriteContext::createFromContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
@@ -136,7 +136,7 @@ class ProductContextPriceRepository implements RepositoryInterface
 
     public function upsert(array $data, Context $context): GenericWrittenEvent
     {
-        $affected = $this->versionManager->upsert(ProductContextPriceDefinition::class, $data, WriteContext::createFromContext($context));
+        $affected = $this->versionManager->upsert(ProductPriceRuleDefinition::class, $data, WriteContext::createFromContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
@@ -145,7 +145,7 @@ class ProductContextPriceRepository implements RepositoryInterface
 
     public function create(array $data, Context $context): GenericWrittenEvent
     {
-        $affected = $this->versionManager->insert(ProductContextPriceDefinition::class, $data, WriteContext::createFromContext($context));
+        $affected = $this->versionManager->insert(ProductPriceRuleDefinition::class, $data, WriteContext::createFromContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
@@ -154,7 +154,7 @@ class ProductContextPriceRepository implements RepositoryInterface
 
     public function delete(array $ids, Context $context): GenericWrittenEvent
     {
-        $affected = $this->versionManager->delete(ProductContextPriceDefinition::class, $ids, WriteContext::createFromContext($context));
+        $affected = $this->versionManager->delete(ProductPriceRuleDefinition::class, $ids, WriteContext::createFromContext($context));
         $event = GenericWrittenEvent::createWithDeletedEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
@@ -163,7 +163,7 @@ class ProductContextPriceRepository implements RepositoryInterface
 
     public function createVersion(string $id, Context $context, ?string $name = null, ?string $versionId = null): string
     {
-        return $this->versionManager->createVersion(ProductContextPriceDefinition::class, $id, WriteContext::createFromContext($context), $name, $versionId);
+        return $this->versionManager->createVersion(ProductPriceRuleDefinition::class, $id, WriteContext::createFromContext($context), $name, $versionId);
     }
 
     public function merge(string $versionId, Context $context): void

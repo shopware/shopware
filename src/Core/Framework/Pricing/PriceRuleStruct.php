@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Pricing;
 
 use Shopware\Core\Framework\ORM\Entity;
 
-class ContextPriceStruct extends Entity
+class PriceRuleStruct extends Entity
 {
     /**
      * @var string
@@ -17,7 +17,7 @@ class ContextPriceStruct extends Entity
     protected $ruleId;
 
     /**
-     * @var \Shopware\Core\Framework\Pricing\PriceStruct
+     * @var PriceStruct
      */
     protected $price;
 
@@ -51,12 +51,12 @@ class ContextPriceStruct extends Entity
         $this->ruleId = $ruleId;
     }
 
-    public function getPrice(): \Shopware\Core\Framework\Pricing\PriceStruct
+    public function getPrice(): PriceStruct
     {
         return $this->price;
     }
 
-    public function setPrice(\Shopware\Core\Framework\Pricing\PriceStruct $price): void
+    public function setPrice(PriceStruct $price): void
     {
         $this->price = $price;
     }

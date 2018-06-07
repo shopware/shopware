@@ -15,7 +15,7 @@ trait StorefrontProductBasicTrait
     /**
      * @var CalculatedPriceCollection
      */
-    protected $calculatedContextPrices;
+    protected $calculatedPriceRules;
 
     /**
      * @var CalculatedPrice
@@ -41,14 +41,14 @@ trait StorefrontProductBasicTrait
         $this->calculatedListingPrice = $calculatedListingPrice;
     }
 
-    public function setCalculatedContextPrices(CalculatedPriceCollection $prices): void
+    public function setCalculatedPriceRules(CalculatedPriceCollection $prices): void
     {
-        $this->calculatedContextPrices = $prices;
+        $this->calculatedPriceRules = $prices;
     }
 
-    public function getCalculatedContextPrices(): CalculatedPriceCollection
+    public function getCalculatedPriceRules(): CalculatedPriceCollection
     {
-        return $this->calculatedContextPrices;
+        return $this->calculatedPriceRules;
     }
 
     public function getCalculatedPrice(): CalculatedPrice

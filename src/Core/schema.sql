@@ -1199,7 +1199,7 @@ CREATE TABLE `product` (
   `manufacturer` binary(16) NULL,
   `unit` binary(16) NULL,
   `media` binary(16) NULL,
-  `contextPrices` binary(16) NULL,
+  `priceRules` binary(16) NULL,
   `services` binary(16) NULL,
   `datasheet` binary(16) NULL,
   `categories` binary(16) NULL,
@@ -1248,8 +1248,8 @@ CREATE TABLE `product` (
   CONSTRAINT `fk_product.catalog_id` FOREIGN KEY (`catalog_id`, `catalog_tenant_id`) REFERENCES `catalog` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-DROP TABLE IF EXISTS `product_context_price`;
-CREATE TABLE `product_context_price` (
+DROP TABLE IF EXISTS `product_price_rule`;
+CREATE TABLE `product_price_rule` (
   `id` binary(16) NOT NULL,
   `tenant_id` binary(16) NOT NULL,
   `version_id` binary(16) NOT NULL,
@@ -1267,9 +1267,9 @@ CREATE TABLE `product_context_price` (
   `created_at` datetime NOT NULL,
   `updated_at` datetime NULL DEFAULT NULL,
   PRIMARY KEY (`id`, `version_id`, `tenant_id`),
-  CONSTRAINT `fk_product_context_price.product_id` FOREIGN KEY (`product_id`, `product_version_id`, `product_tenant_id`) REFERENCES `product` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_product_context_price.currency_id` FOREIGN KEY (`currency_id`, `currency_version_id`, `currency_tenant_id`) REFERENCES `currency` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_product_context_price.rule_id` FOREIGN KEY (`rule_id`, `rule_tenant_id`) REFERENCES `rule` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `fk_product_price_rule.product_id` FOREIGN KEY (`product_id`, `product_version_id`, `product_tenant_id`) REFERENCES `product` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_product_price_rule.currency_id` FOREIGN KEY (`currency_id`, `currency_version_id`, `currency_tenant_id`) REFERENCES `currency` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_product_price_rule.rule_id` FOREIGN KEY (`rule_id`, `rule_tenant_id`) REFERENCES `rule` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `product_category`;
@@ -1986,8 +1986,8 @@ CREATE TABLE `rule` (
   CHECK (JSON_VALID (`payload`))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-DROP TABLE IF EXISTS `context_cart_modifier`;
-CREATE TABLE `context_cart_modifier` (
+DROP TABLE IF EXISTS `discount_surchage`;
+CREATE TABLE `discount_surchage` (
   `id` BINARY(16) NOT NULL,
   `tenant_id` BINARY(16) NOT NULL,
   `rule_id` BINARY(16) NOT NULL,
@@ -1999,19 +1999,19 @@ CREATE TABLE `context_cart_modifier` (
   `updated_at` DATETIME NULL DEFAULT NULL,
    PRIMARY KEY (`id`, `tenant_id`),
    CHECK (JSON_VALID (`rule`)),
-   CONSTRAINT `fk_context_cart_modifier.rule_id` FOREIGN KEY (`rule_id`, rule_tenant_id) REFERENCES `rule` (`id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE
+   CONSTRAINT `fk_discount_surchage.rule_id` FOREIGN KEY (`rule_id`, rule_tenant_id) REFERENCES `rule` (`id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-DROP TABLE IF EXISTS `context_cart_modifier_translation`;
-CREATE TABLE `context_cart_modifier_translation` (
-  `context_cart_modifier_id` BINARY(16) NOT NULL,
-  `context_cart_modifier_tenant_id` BINARY(16) NOT NULL,
+DROP TABLE IF EXISTS `discount_surchage_translation`;
+CREATE TABLE `discount_surchage_translation` (
+  `discount_surchage_id` BINARY(16) NOT NULL,
+  `discount_surchage_tenant_id` BINARY(16) NOT NULL,
   `language_id` BINARY(16) NOT NULL,
   `language_tenant_id` BINARY(16) NOT NULL,
   `name` VARCHAR(500) COLLATE utf8mb4_unicode_ci NOT NULL,
-  PRIMARY KEY (`context_cart_modifier_id`, `context_cart_modifier_tenant_id`, `language_id`, `language_tenant_id`),
-  CONSTRAINT `context_cart_modifier_translation_ibfk_1` FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `context_cart_modifier_translation_ibfk_2` FOREIGN KEY (`context_cart_modifier_id`, `context_cart_modifier_tenant_id`) REFERENCES `context_cart_modifier` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
+  PRIMARY KEY (`discount_surchage_id`, `discount_surchage_tenant_id`, `language_id`, `language_tenant_id`),
+  CONSTRAINT `discount_surchage_translation_ibfk_1` FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `discount_surchage_translation_ibfk_2` FOREIGN KEY (`discount_surchage_id`, `discount_surchage_tenant_id`) REFERENCES `discount_surchage` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `version`;

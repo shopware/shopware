@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Product\Aggregate\ProductContextPrice\Struct;
+namespace Shopware\Core\Content\Product\Aggregate\ProductPriceRule\Struct;
 
-use Shopware\Core\Framework\Pricing\ContextPriceStruct;
+use Shopware\Core\Framework\Pricing\PriceRuleStruct;
 
-class ProductContextPriceBasicStruct extends ContextPriceStruct
+class ProductPriceRuleBasicStruct extends PriceRuleStruct
 {
     /**
      * @var string

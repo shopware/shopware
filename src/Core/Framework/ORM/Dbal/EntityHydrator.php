@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\Framework\ORM\Dbal;
 
-use Shopware\Core\Framework\Pricing\ContextPriceCollection;
+use Shopware\Core\Framework\Pricing\PriceRuleCollection;
 use Shopware\Core\Framework\Pricing\PriceStruct;
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\Field\AssociationInterface;
 use Shopware\Core\Framework\ORM\Field\BoolField;
-use Shopware\Core\Framework\ORM\Field\ContextPricesJsonField;
+use Shopware\Core\Framework\ORM\Field\PriceRulesJsonField;
 use Shopware\Core\Framework\ORM\Field\DateField;
 use Shopware\Core\Framework\ORM\Field\Field;
 use Shopware\Core\Framework\ORM\Field\FkField;
@@ -256,7 +256,7 @@ class EntityHydrator
 
                 return new PriceStruct($value['net'], $value['gross']);
 
-            case $field instanceof ContextPricesJsonField:
+            case $field instanceof PriceRulesJsonField:
                 $value = json_decode((string) $value, true);
 
                 $structs = [];
@@ -266,7 +266,7 @@ class EntityHydrator
                     }
                 }
 
-                return new ContextPriceCollection($structs);
+                return new PriceRuleCollection($structs);
 
             case $field instanceof JsonArrayField:
                 if ($value === null) {

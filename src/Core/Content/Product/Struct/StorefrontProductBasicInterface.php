@@ -16,9 +16,9 @@ interface StorefrontProductBasicInterface
 
     public function setCalculatedListingPrice(CalculatedPrice $calculatedListingPrice): void;
 
-    public function setCalculatedContextPrices(CalculatedPriceCollection $prices): void;
+    public function setCalculatedPriceRules(CalculatedPriceCollection $prices): void;
 
-    public function getCalculatedContextPrices(): CalculatedPriceCollection;
+    public function getCalculatedPriceRules(): CalculatedPriceCollection;
 
     public function getCalculatedPrice(): CalculatedPrice;
 
@@ -26,7 +26,7 @@ interface StorefrontProductBasicInterface
 
     public function getListingPriceDefinition(\Shopware\Core\Framework\Context $context): PriceDefinition;
 
-    public function getContextPriceDefinitions(\Shopware\Core\Framework\Context $context): PriceDefinitionCollection;
+    public function getPriceRuleDefinitions(\Shopware\Core\Framework\Context $context): PriceDefinitionCollection;
 
     public function getPriceDefinition(Context $context): PriceDefinition;
 }

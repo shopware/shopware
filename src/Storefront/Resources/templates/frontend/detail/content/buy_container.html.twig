@@ -53,15 +53,15 @@
         {# Product data #}
         {% block frontend_detail_index_buy_container_inner %}
 
-            <div itemprop="offers" itemscope itemtype="{% if product.calculatedContextPrices.count > 0 %}http://schema.org/AggregateOffer{% else %}http://schema.org/Offer{% endif %}" class="buybox--inner">
+            <div itemprop="offers" itemscope itemtype="{% if product.calculatedPriceRules.count > 0 %}http://schema.org/AggregateOffer{% else %}http://schema.org/Offer{% endif %}" class="buybox--inner">
 
                 {% block frontend_detail_index_data %}
-                    {% if product.calculatedContextPrices.count %}
+                    {% if product.calculatedPriceRules.count %}
                         {% set lowestPrice = false %}
                         {% set highestPrice = false %}
 
                         {# @var price \Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice #}
-                        {% for price in product.calculatedContextPrices %}
+                        {% for price in product.calculatedPriceRules %}
                             {% if lowestPrice == false or price.totalPrice < lowestPrice %}
                                 {% set lowestPrice = price.totalPrice %}
                             {% endif %}
@@ -72,7 +72,7 @@
                         {% endfor %}
                         <meta itemprop="lowPrice" content="{{ lowestPrice }}"/>
                         <meta itemprop="highPrice" content="{{ highestPrice }}"/>
-                        <meta itemprop="offerCount" content="{{ product.calculatedContextPrices.count }}"/>
+                        <meta itemprop="offerCount" content="{{ product.calculatedPriceRules.count }}"/>
                     {% else %}
                         <meta itemprop="priceCurrency" content="{{ context.currency.name }}"/>
                     {% endif %}

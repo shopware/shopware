@@ -121,7 +121,7 @@ class EntityReaderTest extends KernelTestCase
                 'price' => ['gross' => 15, 'net' => 10],
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'rate' => 15],
-                'contextPrices' => [
+                'priceRules' => [
                     [
                         'currencyId' => Defaults::CURRENCY,
                         'quantityStart' => 1,
@@ -133,7 +133,7 @@ class EntityReaderTest extends KernelTestCase
             [
                 'id' => $greenId,
                 'parentId' => $parentId,
-                'contextPrices' => [
+                'priceRules' => [
                     [
                         'currencyId' => Defaults::CURRENCY,
                         'quantityStart' => 1,
@@ -165,12 +165,12 @@ class EntityReaderTest extends KernelTestCase
 
         $this->assertTrue($inheritance->get('manufacturerId'));
         $this->assertTrue($inheritance->get('unitId'));
-        $this->assertTrue($inheritance->get('contextPrices'));
+        $this->assertTrue($inheritance->get('priceRules'));
 
         /** @var ProductBasicStruct $green */
         $green = $products->get($greenId);
         $inheritance = $green->getExtension('inherited');
-        $this->assertFalse($inheritance->get('contextPrices'));
+        $this->assertFalse($inheritance->get('priceRules'));
     }
 
     public function testTranslationExtension()

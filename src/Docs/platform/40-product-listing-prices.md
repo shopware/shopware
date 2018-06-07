@@ -1,6 +1,6 @@
 # Product listing prices
 
-Like described in the **Product context prices** chapter, the product prices are stored in the `Shopware\Core\Content\Product\Aggregate\ProductContextPrice\ProductContextPriceDefinition` storage.
+Like described in the **Product context prices** chapter, the product prices are stored in the `Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleDefinition` storage.
 Product listing prices can be seen as **marketing price**, which means it is the cheapest price of a product which can be configured by the customer.
 This configuration considers:
 * different variant of the same product (children shoes, different size or color)

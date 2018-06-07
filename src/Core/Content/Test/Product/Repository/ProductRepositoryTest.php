@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Test\Product\Repository;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Pricing\ContextPriceStruct;
+use Shopware\Core\Framework\Pricing\PriceRuleStruct;
 use Shopware\Core\Content\Rule\RuleRepository;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Content\Category\CategoryRepository;
@@ -302,7 +302,7 @@ class ProductRepositoryTest extends KernelTestCase
             'price' => ['gross' => 15, 'net' => 10],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'rate' => 15],
-            'contextPrices' => [
+            'priceRules' => [
                 [
                     'id' => $ruleA,
                     'currencyId' => Defaults::CURRENCY,
@@ -333,13 +333,13 @@ class ProductRepositoryTest extends KernelTestCase
         $this->assertEquals($id->getHex(), $product->getId());
 
         $this->assertEquals(new PriceStruct(10, 15), $product->getPrice());
-        $this->assertCount(2, $product->getContextPrices());
+        $this->assertCount(2, $product->getPriceRules());
 
-        $price = $product->getContextPrices()->get($ruleA);
+        $price = $product->getPriceRules()->get($ruleA);
         $this->assertEquals(15, $price->getPrice()->getGross());
         $this->assertEquals(10, $price->getPrice()->getNet());
 
-        $price = $product->getContextPrices()->get($ruleB);
+        $price = $product->getPriceRules()->get($ruleB);
         $this->assertEquals(10, $price->getPrice()->getGross());
         $this->assertEquals(8, $price->getPrice()->getNet());
     }
@@ -363,7 +363,7 @@ class ProductRepositoryTest extends KernelTestCase
                 'price' => ['gross' => 500, 'net' => 400],
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'rate' => 15],
-                'contextPrices' => [
+                'priceRules' => [
                     [
                         'currencyId' => Defaults::CURRENCY,
                         'quantityStart' => 1,
@@ -378,7 +378,7 @@ class ProductRepositoryTest extends KernelTestCase
                 'price' => ['gross' => 500, 'net' => 400],
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'rate' => 15],
-                'contextPrices' => [
+                'priceRules' => [
                     [
                         'currencyId' => Defaults::CURRENCY,
                         'quantityStart' => 1,
@@ -393,7 +393,7 @@ class ProductRepositoryTest extends KernelTestCase
                 'price' => ['gross' => 500, 'net' => 400],
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'rate' => 15],
-                'contextPrices' => [
+                'priceRules' => [
                     [
                         'currencyId' => Defaults::CURRENCY,
                         'quantityStart' => 1,
@@ -407,7 +407,7 @@ class ProductRepositoryTest extends KernelTestCase
         $this->repository->create($data, Context::createDefaultContext(Defaults::TENANT_ID));
 
         $criteria = new Criteria();
-        $criteria->addSorting(new FieldSorting('product.contextPrices.price', FieldSorting::ASCENDING));
+        $criteria->addSorting(new FieldSorting('product.priceRules.price', FieldSorting::ASCENDING));
 
         $context = new Context(
             Defaults::TENANT_ID,
@@ -426,7 +426,7 @@ class ProductRepositoryTest extends KernelTestCase
         );
 
         $criteria = new Criteria();
-        $criteria->addSorting(new FieldSorting('product.contextPrices.price', FieldSorting::DESCENDING));
+        $criteria->addSorting(new FieldSorting('product.priceRules.price', FieldSorting::DESCENDING));
 
         /** @var IdSearchResult $products */
         $products = $this->repository->searchIds($criteria, $context);
@@ -1436,7 +1436,7 @@ class ProductRepositoryTest extends KernelTestCase
             'price' => ['gross' => 15, 'net' => 10],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'rate' => 15],
-            'contextPrices' => [
+            'priceRules' => [
                 [
                     'currencyId' => Defaults::CURRENCY,
                     'quantityStart' => 1,
@@ -1472,14 +1472,14 @@ class ProductRepositoryTest extends KernelTestCase
         $this->assertCount(1, $price);
         $price = $price->first();
 
-        /* @var ContextPriceStruct $price */
+        /* @var PriceRuleStruct $price */
         $this->assertEquals(10, $price->getPrice()->getGross());
 
         $price = $product->getListingPrices()->filterByRuleId($ruleB);
         $this->assertCount(1, $price);
         $price = $price->first();
 
-        /* @var ContextPriceStruct $price */
+        /* @var PriceRuleStruct $price */
         $this->assertEquals(50, $price->getPrice()->getGross());
     }
 }

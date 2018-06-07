@@ -153,7 +153,7 @@
             <argument type="tagged" tag="shopware.entity.field_accessor_builder" />
         </service>
 
-        <service class="Shopware\Core\Framework\ORM\Dbal\FieldAccessorBuilder\ContextPriceFieldAccessorBuilder" id="Shopware\Core\Framework\ORM\Dbal\FieldAccessorBuilder\ContextPriceFieldAccessorBuilder">
+        <service class="Shopware\Core\Framework\ORM\Dbal\FieldAccessorBuilder\PriceRuleFieldAccessorBuilder" id="Shopware\Core\Framework\ORM\Dbal\FieldAccessorBuilder\PriceRuleFieldAccessorBuilder">
             <tag name="shopware.entity.field_accessor_builder" priority="-50" />
         </service>
 

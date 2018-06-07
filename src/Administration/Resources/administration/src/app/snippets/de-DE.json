@@ -260,7 +260,7 @@
       "cardTitleSettings": "Einstellungen",
       "linkAdvancedPrices": "Erweitere Preisansicht öffnen"
     },
-    "contextPrices": {
+    "priceRules": {
       "cardTitlePriceRule": "Neue Preisregel",
       "placeholderContextRule": "Bitte wählen...",
       "placeholderQuantityEnd": "unendlich",

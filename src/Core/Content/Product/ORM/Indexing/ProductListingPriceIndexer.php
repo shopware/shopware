@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Product\ORM\Indexing;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Dbal\Indexing\IndexerInterface;
-use Shopware\Core\Framework\Pricing\ContextPriceStruct;
+use Shopware\Core\Framework\Pricing\PriceRuleStruct;
 use Shopware\Core\Content\Product\ProductRepository;
 use Shopware\Core\Framework\Pricing\PriceStruct;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
 use Shopware\Core\Content\Product\Util\EventIdExtractor;
 use Shopware\Core\Framework\ORM\Dbal\Common\LastIdQuery;
-use Shopware\Core\Framework\ORM\Field\ContextPricesJsonField;
+use Shopware\Core\Framework\ORM\Field\PriceRulesJsonField;
 use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -97,7 +97,7 @@ class ProductListingPriceIndexer implements IndexerInterface
 
         $prices = $this->fetchPrices($ids, $context);
 
-        $field = new ContextPricesJsonField('tmp', 'tmp');
+        $field = new PriceRulesJsonField('tmp', 'tmp');
 
         foreach ($prices as $id => $productPrices) {
             $productPrices = $this->convertPrices($productPrices);
@@ -134,7 +134,7 @@ class ProductListingPriceIndexer implements IndexerInterface
         ]);
 
         $query->from('product', 'product');
-        $query->innerJoin('product', 'product_context_price', 'price', 'price.product_id = product.id AND product.tenant_id = price.tenant_id');
+        $query->innerJoin('product', 'product_price_rule', 'price', 'price.product_id = product.id AND product.tenant_id = price.tenant_id');
         $query->andWhere('product.id IN (:ids) OR product.parent_id IN (:ids)');
         $query->andWhere('price.quantity_end IS NULL');
         $query->andWhere('price.tenant_id = :tenant');
@@ -167,7 +167,7 @@ class ProductListingPriceIndexer implements IndexerInterface
                     'ruleId' => Uuid::fromBytesToHex($price['rule_id']),
                     'currencyId' => Uuid::fromBytesToHex($price['currency_id']),
                     'price' => $value,
-                    '_class' => ContextPriceStruct::class,
+                    '_class' => PriceRuleStruct::class,
                 ];
             },
             $productPrices

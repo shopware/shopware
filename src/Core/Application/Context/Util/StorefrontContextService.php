@@ -24,9 +24,11 @@
 
 namespace Shopware\Application\Context\Util;
 
+use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Framework\Struct\Struct;
 use Symfony\Component\Serializer\SerializerInterface;
 
 /**
@@ -120,7 +122,27 @@ class StorefrontContextService implements StorefrontContextServiceInterface
 
         $parameters = $this->contextPersister->load($token, $tenantId);
 
-        $context = $this->factory->create($tenantId, $token, $applicationId, $parameters);
+        $cacheKey = $key . '-' . implode($parameters);
+
+        $item = $this->cache->getItem($cacheKey);
+
+        $context = null;
+        if ($useCache && $item->isHit()) {
+            try {
+                $context = $this->loadFromCache($item, $token);
+            } catch (\Exception $e) {
+            }
+        }
+
+        if (!$context) {
+            $context = $this->factory->create($tenantId, $token, $applicationId, $parameters);
+
+            $item->set(serialize($context));
+
+            $item->expiresAfter(120);
+
+            $this->cache->save($item);
+        }
 
         $rules = $this->contextRuleLoader->loadMatchingRules($context, $token);
         $context->setContextRuleIds($rules->getIds());
@@ -131,14 +153,13 @@ class StorefrontContextService implements StorefrontContextServiceInterface
         return $context;
     }
 
-    private function loadFromCache(string $applicationId, string $token, $serializedContext): StorefrontContext
+    private function loadFromCache(CacheItemInterface $item, string $token): StorefrontContext
     {
-        $key = $applicationId . '-' . $token;
-
-        $cacheContext = $this->serializer->deserialize($serializedContext, '', 'json');
+        $cacheContext = unserialize($item->get(), [Struct::class]);
 
         /** @var StorefrontContext $cacheContext */
-        $context = new StorefrontContext(
+        return new StorefrontContext(
+            $cacheContext->getTenantId(),
             $token,
             $cacheContext->getApplication(),
             $cacheContext->getLanguage(),
@@ -153,15 +174,5 @@ class StorefrontContextService implements StorefrontContextServiceInterface
             $cacheContext->getCustomer(),
             []
         );
-
-        $context->setTaxState($cacheContext->getTaxState());
-
-        $rules = $this->contextRuleLoader->loadMatchingRules($context, $token);
-        $context->setContextRuleIds($rules->getIds());
-        $context->lockRules();
-
-        $this->context[$key] = $context;
-
-        return $context;
     }
 }

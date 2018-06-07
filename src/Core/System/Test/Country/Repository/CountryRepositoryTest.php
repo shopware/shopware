@@ -12,7 +12,6 @@ use Shopware\Framework\ORM\Search\Term\SearchTermInterpreter;
 use Shopware\Framework\Struct\Uuid;
 use Shopware\System\Country\CountryDefinition;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class CountryRepositoryTest extends KernelTestCase
 {

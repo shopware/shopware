@@ -25,6 +25,7 @@
 namespace Shopware\Framework\ORM\Write\Command;
 
 use Shopware\Framework\ORM\EntityDefinition;
+use Shopware\Framework\ORM\Write\EntityExistence;
 
 class InsertCommand implements WriteCommandInterface
 {
@@ -42,12 +43,17 @@ class InsertCommand implements WriteCommandInterface
      * @var array
      */
     private $primaryKey;
+    /**
+     * @var EntityExistence
+     */
+    private $existence;
 
-    public function __construct(string $definition, array $payload, array $primaryKey)
+    public function __construct(string $definition, array $payload, array $primaryKey, EntityExistence $existence)
     {
         $this->payload = $payload;
         $this->definition = $definition;
         $this->primaryKey = $primaryKey;
+        $this->existence = $existence;
     }
 
     public function isValid(): bool
@@ -68,5 +74,13 @@ class InsertCommand implements WriteCommandInterface
     public function getPrimaryKey(): array
     {
         return $this->primaryKey;
+    }
+
+    /**
+     * @return EntityExistence
+     */
+    public function getEntityExistence(): EntityExistence
+    {
+        return $this->existence;
     }
 }

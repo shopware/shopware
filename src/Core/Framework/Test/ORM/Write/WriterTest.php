@@ -16,7 +16,6 @@ use Shopware\Framework\Struct\Uuid;
 use Shopware\System\Country\Aggregate\CountryArea\CountryAreaDefinition;
 use Shopware\System\Locale\LocaleRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class WriterTest extends KernelTestCase
 {

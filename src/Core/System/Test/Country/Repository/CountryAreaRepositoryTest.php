@@ -13,7 +13,6 @@ use Shopware\Framework\Struct\Uuid;
 use Shopware\System\Country\Aggregate\CountryArea\CountryAreaDefinition;
 use Shopware\System\Country\Aggregate\CountryArea\CountryAreaRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class CountryAreaRepositoryTest extends KernelTestCase
 {

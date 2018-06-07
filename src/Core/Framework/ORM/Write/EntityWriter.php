@@ -221,7 +221,14 @@ class EntityWriter implements EntityWriterInterface
                 return Uuid::fromStringToBytes($id);
             }, $mapped);
 
-            $commandQueue->add($definition, new DeleteCommand($definition, $mapped));
+            $commandQueue->add(
+                $definition,
+                new DeleteCommand(
+                    $definition,
+                    $mapped,
+                    $this->gateway->getExistence($definition, $mapped, [], $commandQueue)
+                )
+            );
         }
 
         $identifiers = $this->getWriteIdentifiers($commandQueue);
@@ -252,6 +259,7 @@ class EntityWriter implements EntityWriterInterface
                 $identifiers[$resource][] = [
                     'primaryKey' => $primaryKey,
                     'payload' => $payload,
+                    'existence' => $command->getEntityExistence(),
                 ];
             }
         }

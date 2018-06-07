@@ -34,9 +34,15 @@ abstract class WrittenEvent extends NestedEvent
      */
     protected $payload;
 
+    /**
+     * @var EntityExistence[]
+     */
+    protected $existences;
+
     public function __construct(
         array $ids,
         array $payload,
+        array $existences,
         ApplicationContext $context,
         array $errors = []
     ) {
@@ -45,6 +51,7 @@ abstract class WrittenEvent extends NestedEvent
         $this->errors = $errors;
         $this->ids = $ids;
         $this->payload = $payload;
+        $this->existences = $existences;
     }
 
     /**
@@ -80,5 +87,13 @@ abstract class WrittenEvent extends NestedEvent
     public function getPayload(): array
     {
         return $this->payload;
+    }
+
+    /**
+     * @return EntityExistence[]
+     */
+    public function getExistences(): array
+    {
+        return $this->existences;
     }
 }

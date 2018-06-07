@@ -76,8 +76,7 @@ class ManyToManyAssociationField extends SubresourceField implements Association
         foreach ($value as $keyValue => $subresources) {
             $mapped = $subresources;
             if ($mappingAssociation) {
-                /** @var ManyToOneAssociationField $mappingAssociation */
-                $mapped = [$mappingAssociation->getPropertyName() => $subresources];
+                $mapped = $this->map($mappingAssociation, $subresources);
             }
 
             if (!is_array($mapped)) {
@@ -151,5 +150,41 @@ class ManyToManyAssociationField extends SubresourceField implements Association
         }
 
         return null;
+    }
+
+    private function map(ManyToOneAssociationField $association, $data): array
+    {
+        // not only foreign key provided? data is provided as insert or update command
+        if (count($data) > 1) {
+            return $mapped = [$association->getPropertyName() => $data];
+        }
+
+        // no id provided? data is provided as insert command (like create category in same request with the product)
+        if (!isset($data[$association->getReferenceField()])) {
+            return $mapped = [$association->getPropertyName() => $data];
+        }
+
+        //only foreign key provided? entity should only be linked
+        /*e.g
+            [
+                categories => [
+                    ['id' => {id}],
+                    ['id' => {id}]
+                ]
+            ]
+        */
+        /** @var ManyToOneAssociationField $association */
+        $fk = $this->referenceClass::getFields()->getByStorageName(
+            $association->getStorageName()
+        );
+
+        if (!$fk) {
+            trigger_error(sprintf('Foreign key for association %s not found', $association->getPropertyName()));
+
+            return $mapped = [$association->getPropertyName() => $data];
+        }
+
+        /* @var FkField $fk */
+        return [$fk->getPropertyName() => $data[$association->getReferenceField()]];
     }
 }

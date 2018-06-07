@@ -187,12 +187,12 @@ class WriteCommandExtractor
     {
         /* @var EntityDefinition $definition */
         if ($existence->exists()) {
-            $queue->add($definition, new UpdateCommand($definition, $pkData, $data));
+            $queue->add($definition, new UpdateCommand($definition, $pkData, $data, $existence));
 
             return;
         }
 
-        $queue->add($definition, new InsertCommand($definition, array_merge($pkData, $data), $pkData));
+        $queue->add($definition, new InsertCommand($definition, array_merge($pkData, $data), $pkData, $existence));
     }
 
     private function convertValue(Field $field, KeyValuePair $kvPair): KeyValuePair
@@ -244,7 +244,7 @@ class WriteCommandExtractor
         //this function return additionally, to primary key flagged fields, foreign key fields and many to association
         $mappingFields = $this->getFieldsForPrimaryKeyMapping($fields);
 
-        $existence = new EntityExistence($definition, [], false, false, false);
+        $existence = new EntityExistence($definition, [], false, false, false, []);
 
         //run data extraction for only this fields
         $mapped = $this->map($mappingFields, $rawData, $existence, $exceptionStack, $extender);

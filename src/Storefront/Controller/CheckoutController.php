@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Psr\Container\NotFoundExceptionInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Application\Context\Struct\ApplicationContext;

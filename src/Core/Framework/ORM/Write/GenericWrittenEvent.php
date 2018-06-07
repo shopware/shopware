@@ -73,6 +73,7 @@ class GenericWrittenEvent extends NestedEvent
                 new $class(
                     array_column($data, 'primaryKey'),
                     array_column($data, 'payload'),
+                    array_column($data, 'existence'),
                     $context,
                     $errors
                 )
@@ -93,6 +94,7 @@ class GenericWrittenEvent extends NestedEvent
                 new $class(
                     array_column($data, 'primaryKey'),
                     array_column($data, 'payload'),
+                    array_column($data, 'existence'),
                     $context,
                     $errors
                 )

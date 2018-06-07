@@ -40,7 +40,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
 
         $wasChild = $this->wasChild($definition, $state);
 
-        return new EntityExistence($definition, $primaryKey, $exists, $isChild, $wasChild);
+        return new EntityExistence($definition, $primaryKey, $exists, $isChild, $wasChild, $state);
     }
 
     /**
@@ -222,7 +222,11 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
             $query->setParameter($field->getPropertyName(), $primaryKey[$field->getStorageName()]);
         }
 
-        if (!$definition::getParentPropertyName()) {
+        $query->addSelect('1 as `exists`');
+
+        if ($definition::isChildrenAware()) {
+            $query->addSelect('parent_id');
+        } elseif (!$definition::getParentPropertyName()) {
             $query->addSelect('1 as `exists`');
         } else {
             $parent = $this->getParentField($definition);

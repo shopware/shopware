@@ -10,7 +10,6 @@ use Shopware\Defaults;
 use Shopware\Framework\ORM\RepositoryInterface;
 use Shopware\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class ContextRepositoryTest extends KernelTestCase
 {

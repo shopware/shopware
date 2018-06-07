@@ -12,7 +12,6 @@ use Shopware\Defaults;
 use Shopware\Framework\Struct\ArrayStruct;
 use Shopware\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class EntityReaderTest extends KernelTestCase
 {

@@ -25,6 +25,7 @@
 namespace Shopware\Framework\ORM\Write\Command;
 
 use Shopware\Framework\ORM\EntityDefinition;
+use Shopware\Framework\ORM\Write\EntityExistence;
 
 interface WriteCommandInterface
 {
@@ -36,4 +37,6 @@ interface WriteCommandInterface
     public function getDefinition(): string;
 
     public function getPrimaryKey(): array;
+
+    public function getEntityExistence(): EntityExistence;
 }

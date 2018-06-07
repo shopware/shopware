@@ -92,6 +92,11 @@ class CategoryBasicStruct extends Entity
     protected $facetIds;
 
     /**
+     * @var int
+     */
+    protected $childCount;
+
+    /**
      * @var \DateTime|null
      */
     protected $createdAt;
@@ -299,6 +304,16 @@ class CategoryBasicStruct extends Entity
     public function setFacetIds(?string $facetIds): void
     {
         $this->facetIds = $facetIds;
+    }
+
+    public function getChildCount(): int
+    {
+        return $this->childCount;
+    }
+
+    public function setChildCount(int $childCount): void
+    {
+        $this->childCount = $childCount;
     }
 
     public function getCreatedAt(): ?\DateTime

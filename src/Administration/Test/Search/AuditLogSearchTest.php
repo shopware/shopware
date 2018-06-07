@@ -3,7 +3,6 @@
 namespace Shopware\Administration\Test\Search;
 
 use Doctrine\DBAL\Connection;
-use Psr\Container\ContainerInterface;
 use Shopware\Administration\Search\AdministrationSearch;
 use Shopware\Application\Context\Struct\ApplicationContext;
 use Shopware\Content\Product\ProductDefinition;

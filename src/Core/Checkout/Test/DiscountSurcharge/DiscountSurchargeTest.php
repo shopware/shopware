@@ -466,7 +466,7 @@ class DiscountSurchargeTest extends KernelTestCase
             'ruleId' => $ruleId,
             'type' => $type,
             'amount' => $amount,
-            'rule' => $rule ?? new AndRule(),
+            'filterRule' => $rule ?? new AndRule(),
         ];
         $data = array_filter($data);
 

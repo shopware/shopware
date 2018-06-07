@@ -93,7 +93,7 @@ class DiscountSurchargeProcessor implements CartProcessorInterface
     ): CalculatedPrice {
         $prices = new CalculatedPriceCollection();
         foreach ($calculatedCart->getCalculatedLineItems() as $calculatedLineItem) {
-            $match = $modifier->getRule()->match(
+            $match = $modifier->getFilterRule()->match(
                 new CalculatedLineItemScope($calculatedLineItem, $context)
             );
 

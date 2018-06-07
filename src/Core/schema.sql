@@ -1986,32 +1986,32 @@ CREATE TABLE `rule` (
   CHECK (JSON_VALID (`payload`))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-DROP TABLE IF EXISTS `discount_surchage`;
-CREATE TABLE `discount_surchage` (
+DROP TABLE IF EXISTS `discount_surcharge`;
+CREATE TABLE `discount_surcharge` (
   `id` BINARY(16) NOT NULL,
   `tenant_id` BINARY(16) NOT NULL,
   `rule_id` BINARY(16) NOT NULL,
   `rule_tenant_id` BINARY(16) NOT NULL,
-  `rule` LONGTEXT NOT NULL,
+  `filter_rule` LONGTEXT NOT NULL,
   `type` VARCHAR(255),
   `amount` FLOAT,
   `created_at` DATETIME NOT NULL,
   `updated_at` DATETIME NULL DEFAULT NULL,
    PRIMARY KEY (`id`, `tenant_id`),
    CHECK (JSON_VALID (`rule`)),
-   CONSTRAINT `fk_discount_surchage.rule_id` FOREIGN KEY (`rule_id`, rule_tenant_id) REFERENCES `rule` (`id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE
+   CONSTRAINT `fk_discount_surcharge.rule_id` FOREIGN KEY (`rule_id`, rule_tenant_id) REFERENCES `rule` (`id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-DROP TABLE IF EXISTS `discount_surchage_translation`;
-CREATE TABLE `discount_surchage_translation` (
-  `discount_surchage_id` BINARY(16) NOT NULL,
-  `discount_surchage_tenant_id` BINARY(16) NOT NULL,
+DROP TABLE IF EXISTS `discount_surcharge_translation`;
+CREATE TABLE `discount_surcharge_translation` (
+  `discount_surcharge_id` BINARY(16) NOT NULL,
+  `discount_surcharge_tenant_id` BINARY(16) NOT NULL,
   `language_id` BINARY(16) NOT NULL,
   `language_tenant_id` BINARY(16) NOT NULL,
   `name` VARCHAR(500) COLLATE utf8mb4_unicode_ci NOT NULL,
-  PRIMARY KEY (`discount_surchage_id`, `discount_surchage_tenant_id`, `language_id`, `language_tenant_id`),
-  CONSTRAINT `discount_surchage_translation_ibfk_1` FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `discount_surchage_translation_ibfk_2` FOREIGN KEY (`discount_surchage_id`, `discount_surchage_tenant_id`) REFERENCES `discount_surchage` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
+  PRIMARY KEY (`discount_surcharge_id`, `discount_surcharge_tenant_id`, `language_id`, `language_tenant_id`),
+  CONSTRAINT `discount_surcharge_translation_ibfk_1` FOREIGN KEY (`language_id`, `language_tenant_id`) REFERENCES `language` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `discount_surcharge_translation_ibfk_2` FOREIGN KEY (`discount_surcharge_id`, `discount_surcharge_tenant_id`) REFERENCES `discount_surcharge` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `version`;

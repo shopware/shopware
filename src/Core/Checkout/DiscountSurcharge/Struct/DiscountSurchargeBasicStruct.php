@@ -16,7 +16,7 @@ class DiscountSurchargeBasicStruct extends Entity
     /**
      * @var Rule
      */
-    protected $rule;
+    protected $filterRule;
 
     /**
      * @var string
@@ -98,16 +98,6 @@ class DiscountSurchargeBasicStruct extends Entity
         $this->absolute = $amount;
     }
 
-    public function getRule(): Rule
-    {
-        return $this->rule;
-    }
-
-    public function setRule(Rule $rule): void
-    {
-        $this->rule = $rule;
-    }
-
     public function getCreatedAt(): \DateTime
     {
         return $this->createdAt;
@@ -126,5 +116,15 @@ class DiscountSurchargeBasicStruct extends Entity
     public function setUpdatedAt(\DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
+    }
+
+    public function getFilterRule(): Rule
+    {
+        return $this->filterRule;
+    }
+
+    public function setFilterRule(Rule $filterRule): void
+    {
+        $this->filterRule = $filterRule;
     }
 }

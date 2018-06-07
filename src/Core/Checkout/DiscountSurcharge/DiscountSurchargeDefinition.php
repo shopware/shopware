@@ -7,7 +7,6 @@ use Shopware\Core\Checkout\DiscountSurcharge\Collection\DiscountSurchargeDetailC
 use Shopware\Core\Checkout\DiscountSurcharge\Aggregate\DiscountSurchargeTranslation\DiscountSurchargeTranslationDefinition;
 use Shopware\Core\Checkout\DiscountSurcharge\Event\DiscountSurchargeDeletedEvent;
 use Shopware\Core\Checkout\DiscountSurcharge\Event\DiscountSurchargeWrittenEvent;
-
 use Shopware\Core\Checkout\DiscountSurcharge\Struct\DiscountSurchargeBasicStruct;
 use Shopware\Core\Checkout\DiscountSurcharge\Struct\DiscountSurchargeDetailStruct;
 use Shopware\Core\Content\Rule\RuleDefinition;
@@ -48,7 +47,7 @@ class DiscountSurchargeDefinition extends EntityDefinition
 
     public static function getEntityName(): string
     {
-        return 'discount_surchage';
+        return 'discount_surcharge';
     }
 
     public static function getFields(): FieldCollection
@@ -62,7 +61,7 @@ class DiscountSurchargeDefinition extends EntityDefinition
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new TranslatedField(new StringField('name', 'name')))->setFlags(new Required()),
             (new FkField('rule_id', 'ruleId', RuleDefinition::class))->setFlags(new Required()),
-            (new JsonObjectField('rule', 'rule'))->setFlags(new Serialized(), new Required()),
+            (new JsonObjectField('filter_rule', 'filterRule'))->setFlags(new Serialized(), new Required()),
             (new StringField('type', 'type'))->setFlags(new Required()),
             (new FloatField('amount', 'amount'))->setFlags(new Required()),
             new DateField('created_at', 'createdAt'),

@@ -10,7 +10,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductService\Collection\ProductSer
 use Shopware\Core\Content\Product\Aggregate\ProductStream\Collection\ProductStreamBasicCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\Collection\ProductTranslationBasicCollection;
 use Shopware\Core\Content\Product\Collection\ProductBasicCollection;
-use Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionBasicCollection;
+use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionBasicCollection;
 
 class ProductDetailStruct extends ProductBasicStruct
 {
@@ -60,12 +60,12 @@ class ProductDetailStruct extends ProductBasicStruct
     protected $streams;
 
     /**
-     * @var \Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionBasicCollection
+     * @var \Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionBasicCollection
      */
     protected $datasheet;
 
     /**
-     * @var \Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionBasicCollection
+     * @var \Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionBasicCollection
      */
     protected $variations;
 

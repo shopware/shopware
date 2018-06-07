@@ -10,7 +10,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductService\Collection\ProductSer
 use Shopware\Core\Content\Product\Aggregate\ProductStream\Collection\ProductStreamBasicCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\Collection\ProductTranslationBasicCollection;
 use Shopware\Core\Content\Product\Struct\ProductDetailStruct;
-use Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionBasicCollection;
+use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionBasicCollection;
 
 class ProductDetailCollection extends ProductBasicCollection
 {

@@ -10,7 +10,7 @@
 
 <form method="post" action="{{ url }}" class="configurator--form selection--form">
     {% set groups = page.configurator.groupedOptions %}
-    {# @var group \Shopware\Core\System\Configuration\Struct\ConfigurationGroupDetailStruct #}
+    {# @var group \Shopware\Core\Content\Configuration\Struct\ConfigurationGroupDetailStruct #}
     {% for group in groups %}
         {% block frontend_detail_group_name %}
             <p class="configurator--label">{{ group.name }}:</p>
@@ -49,7 +49,7 @@
                         </option>
                     {% endif %}
 
-                    {# @var option \Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupOption\Struct\ConfigurationGroupOptionBasicStruct #}
+                    {# @var option \Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\Struct\ConfigurationGroupOptionBasicStruct #}
                     {% for option in group.options %}
                         {% set config = page.configurator.byOptionId(option.id) %}
 

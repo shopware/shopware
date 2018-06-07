@@ -4,9 +4,9 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductConfigurator\Collection
 
 use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\Struct\ProductConfiguratorBasicStruct;
 use Shopware\Core\Framework\ORM\EntityCollection;
-use Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionBasicCollection;
-use Shopware\Core\System\Configuration\Collection\ConfigurationGroupDetailCollection;
-use Shopware\Core\System\Configuration\Struct\ConfigurationGroupDetailStruct;
+use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionBasicCollection;
+use Shopware\Core\Content\Configuration\Collection\ConfigurationGroupDetailCollection;
+use Shopware\Core\Content\Configuration\Struct\ConfigurationGroupDetailStruct;
 
 class ProductConfiguratorBasicCollection extends EntityCollection
 {
@@ -55,7 +55,7 @@ class ProductConfiguratorBasicCollection extends EntityCollection
 
     public function getOptions(): ConfigurationGroupOptionBasicCollection
     {
-        return new \Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionBasicCollection(
+        return new \Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionBasicCollection(
             $this->fmap(function (ProductConfiguratorBasicStruct $productConfigurator) {
                 return $productConfigurator->getOption();
             })

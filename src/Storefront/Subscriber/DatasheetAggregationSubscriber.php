@@ -13,8 +13,8 @@ use Shopware\Storefront\Event\PageCriteriaCreatedEvent;
 use Shopware\Storefront\Event\TransformListingPageRequestEvent;
 use Shopware\Storefront\Page\Listing\AggregationView\ListAggregation;
 use Shopware\Storefront\Page\Listing\AggregationView\ListItem;
-use Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
-use Shopware\Core\System\Configuration\Struct\ConfigurationGroupDetailStruct;
+use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
+use Shopware\Core\Content\Configuration\Struct\ConfigurationGroupDetailStruct;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class DatasheetAggregationSubscriber implements EventSubscriberInterface
@@ -108,7 +108,7 @@ class DatasheetAggregationSubscriber implements EventSubscriberInterface
 
         $actives = $filter ? $filter->get('ids') : [];
 
-        /** @var \Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionBasicCollection $values */
+        /** @var \Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionBasicCollection $values */
         $values = $aggregation->getResult();
 
         if (!$values || $values->count() <= 0) {

@@ -15,7 +15,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductTranslation\Event\ProductTran
 use Shopware\Core\Content\Product\Collection\ProductDetailCollection;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
-use Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupOption\Event\ConfigurationGroupOptionBasicLoadedEvent;
+use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\Event\ConfigurationGroupOptionBasicLoadedEvent;
 use Shopware\Core\System\Tax\Event\TaxBasicLoadedEvent;
 use Shopware\Core\System\Unit\Event\UnitBasicLoadedEvent;
 

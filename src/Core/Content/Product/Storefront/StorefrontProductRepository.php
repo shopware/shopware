@@ -14,7 +14,7 @@ use Shopware\Core\Content\Product\Struct\StorefrontProductBasicStruct;
 use Shopware\Core\Content\Product\Struct\StorefrontProductDetailStruct;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\IdSearchResult;
-use Shopware\Core\System\Configuration\Aggregate\ConfigurationGroupOption\Struct\ConfigurationGroupOptionBasicStruct;
+use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\Struct\ConfigurationGroupOptionBasicStruct;
 
 class StorefrontProductRepository
 {

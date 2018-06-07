@@ -10,6 +10,7 @@ use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\Field\Field;
 use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\ORM\Write\Flag\Inherited;
+use Shopware\Core\Framework\ORM\Write\Flag\Required;
 
 class ManyToOneAssociationFieldResolver implements FieldResolverInterface
 {
@@ -71,8 +72,22 @@ class ManyToOneAssociationFieldResolver implements FieldResolverInterface
         $versionAware = ($definition::isVersionAware() && $reference::isVersionAware());
 
         $source = EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getStorageName());
+
         if ($field->is(Inherited::class)) {
-            $source = EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getPropertyName());
+            $inherited = EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getPropertyName());
+
+            $fk = $definition::getFields()->getByStorageName($field->getStorageName());
+            if ($fk && $fk->is(Required::class)) {
+                $parent = $root . '.parent';
+
+                $inherited = sprintf(
+                    'IFNULL(%s, %s)',
+                    $source,
+                    EntityDefinitionQueryHelper::escape($parent) . '.' . EntityDefinitionQueryHelper::escape($field->getStorageName())
+                );
+            }
+
+            $source = $inherited;
         }
 
         //specified version requested, use sub version call to solve live version or specified

@@ -48,7 +48,7 @@ class ArrayStruct extends Entity implements \ArrayAccess
 
     public function set($key, $value)
     {
-        return $this->offsetSet($key, $value);
+        return $this->data[$key] = $value;
     }
 
     public function assign(array $options)

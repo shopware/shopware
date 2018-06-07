@@ -85,6 +85,12 @@ class EntityAggregator implements EntityAggregatorInterface
 
         $query = $this->queryHelper->getBaseQuery(new QueryBuilder($this->connection), $definition, $context);
 
+        if ($definition::isInheritanceAware()) {
+            /** @var EntityDefinition|string $definition */
+            $parent = $definition::getFields()->get('parent');
+            $this->queryHelper->resolveField($parent, $definition, $definition::getEntityName(), $query, $context);
+        }
+
         $fields = array_merge(
             $criteria->getFilterFields(),
             $aggregation->getFields()

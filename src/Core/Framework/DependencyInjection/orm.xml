@@ -11,7 +11,7 @@
             <argument type="service" id="Shopware\Core\Framework\ORM\Dbal\FieldAccessorBuilder\FieldAccessorBuilderRegistry"/>
         </service>
 
-        <service class="Shopware\Core\Framework\ORM\Dbal\EntityHydrator" id="Shopware\Core\Framework\ORM\Dbal\EntityHydrator">
+        <service class="Shopware\Core\Framework\ORM\Dbal\EntityHydrator" id="Shopware\Core\Framework\ORM\Dbal\EntityHydrator" public="true">
             <argument type="service" id="serializer"/>
         </service>
 

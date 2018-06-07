@@ -164,23 +164,23 @@ class ContextRuleLoader
         if ($this->rules !== null) {
             return $this->rules;
         }
-        $key = 'context_rules_key';
+        $key = 'context_rules_key_' . $context->getTenantId();
 
         $cacheItem = $this->cache->getItem($key);
 
-        if ($rules = $cacheItem->get()) {
-            $rules = $this->serializer->deserialize($rules, '', 'json');
-            $this->rules = $rules;
+        try {
+            if ($rules = $cacheItem->isHit()) {
+                $this->rules = unserialize($rules);
 
-            return $this->rules;
+                return $this->rules;
+            }
+        } catch (\Throwable $e) {
         }
 
         $rules = $this->repository->search(new Criteria(), $context);
         $this->rules = $rules;
 
-        $cacheItem->set(
-            $this->serializer->serialize($rules, 'json')
-        );
+        $cacheItem->set(serialize($rules));
         $this->cache->save($cacheItem);
 
         return $rules;

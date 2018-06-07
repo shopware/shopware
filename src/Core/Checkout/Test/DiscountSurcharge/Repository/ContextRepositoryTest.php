@@ -31,14 +31,8 @@ class ContextRepositoryTest extends KernelTestCase
     public function setUp()
     {
         self::bootKernel();
-<<<<<<< Updated upstream:src/Core/Application/Test/Context/Repository/ContextRepositoryTest.php
-        $this->repository = self::$container->get(\Shopware\Core\Checkout\Rule\RuleRepository::class);
+        $this->repository = self::$container->get(\Shopware\Core\Content\Rule\RuleRepository::class);
         $this->connection = self::$container->get(Connection::class);
-=======
-        $this->container = self::$kernel->getContainer();
-        $this->repository = $this->container->get(\Shopware\Core\Content\Rule\RuleRepository::class);
-        $this->connection = $this->container->get(Connection::class);
->>>>>>> Stashed changes:src/Core/Checkout/Test/DiscountSurcharge/Repository/ContextRepositoryTest.php
         $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
         $this->connection->beginTransaction();
     }

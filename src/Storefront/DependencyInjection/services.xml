@@ -50,7 +50,7 @@
             <argument id="Shopware\Core\Content\Product\ProductRepository" type="service"/>
             <argument id="Shopware\Core\System\Touchpoint\TouchpointRepository" type="service"/>
             <argument id="event_dispatcher" type="service"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Dbal\Common\EventIdExtractor"/>
+            <argument type="service" id="Shopware\Core\Content\Product\Util\EventIdExtractor"/>
             <tag name="shopware.dbal_indexing.indexer"/>
         </service>
 
@@ -61,7 +61,7 @@
             <argument id="Shopware\Core\Content\Category\CategoryRepository" type="service"/>
             <argument id="Shopware\Core\System\Touchpoint\TouchpointRepository" type="service"/>
             <argument id="event_dispatcher" type="service"/>
-            <argument type="service" id="Shopware\Core\Framework\ORM\Dbal\Common\EventIdExtractor"/>
+            <argument type="service" id="Shopware\Core\Content\Product\Util\EventIdExtractor"/>
             <tag name="shopware.dbal_indexing.indexer"/>
         </service>
 
@@ -70,18 +70,18 @@
         </service>
 
         <service class="Shopware\Storefront\Page\Detail\DetailPageLoader" id="Shopware\Storefront\Page\Detail\DetailPageLoader">
-            <argument id="Shopware\Core\Content\Product\StorefrontProductRepository" type="service"/>
+            <argument id="Shopware\Core\Content\Product\Storefront\StorefrontProductRepository" type="service"/>
             <argument type="service" id="Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorRepository"/>
         </service>
 
         <service class="Shopware\Storefront\Page\Listing\ListingPageLoader" id="Shopware\Storefront\Page\Listing\ListingPageLoader">
-            <argument id="Shopware\Core\Content\Product\StorefrontProductRepository" type="service"/>
+            <argument id="Shopware\Core\Content\Product\Storefront\StorefrontProductRepository" type="service"/>
             <argument type="service" id="event_dispatcher" />
         </service>
 
         <service class="Shopware\Storefront\Page\Search\SearchPageLoader" id="Shopware\Storefront\Page\Search\SearchPageLoader">
             <argument type="service" id="Shopware\Core\System\Config\Util\ConfigService" />
-            <argument id="Shopware\Core\Content\Product\StorefrontProductRepository" type="service"/>
+            <argument id="Shopware\Core\Content\Product\Storefront\StorefrontProductRepository" type="service"/>
             <argument type="service" id="event_dispatcher" />
         </service>
 
@@ -94,11 +94,11 @@
         <service class="Shopware\Storefront\Controller\AccountController" public="true" id="Shopware\Storefront\Controller\AccountController">
             <argument type="service" id="security.authentication_utils" />
             <argument type="service" id="security.token_storage"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\Util\CustomerContextPersister"/>
+            <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextPersister"/>
             <argument type="service" id="Shopware\Storefront\Page\Account\AccountService"/>
             <argument type="service" id="Shopware\Storefront\Page\Account\CustomerAddressPageLoader"/>
             <argument type="service" id="Shopware\Storefront\Page\Account\CustomerPageLoader"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\Util\CustomerContextService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextService"/>
             <argument type="service" id="Shopware\Storefront\Page\Checkout\PaymentMethodLoader"/>
             <argument type="service" id="Shopware\Storefront\Page\Account\OrderPageLoader"/>
         </service>
@@ -109,7 +109,7 @@
         </service>
 
         <service class="Shopware\Storefront\Controller\Widgets\CheckoutController" public="true" id="Shopware\Storefront\Controller\Widgets\CheckoutController">
-            <argument type="service" id="Shopware\Core\Checkout\Cart\StoreFrontCartService" />
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Storefront\CartService" />
         </service>
 
         <service class="Shopware\Storefront\Controller\ListingController" public="true" id="Shopware\Storefront\Controller\ListingController">
@@ -123,7 +123,7 @@
         <service class="Shopware\Storefront\Page\Account\CustomerPageLoader" id="Shopware\Storefront\Page\Account\CustomerPageLoader"/>
 
         <service class="Shopware\Storefront\Controller\CartController" id="Shopware\Storefront\Controller\CartController" public="true">
-            <argument id="Shopware\Core\Checkout\Cart\StoreFrontCartService" type="service"/>
+            <argument id="Shopware\Core\Checkout\Cart\Storefront\CartService" type="service"/>
         </service>
 
         <service class="Shopware\Storefront\Routing\StorefrontSubscriber" id="shopware.storefront.routing.storefront_subscriber">
@@ -133,13 +133,13 @@
         </service>
 
         <service class="Shopware\Storefront\Controller\CheckoutController" id="Shopware\Storefront\Controller\CheckoutController" public="true">
-            <argument type="service" id="Shopware\Core\Checkout\Cart\StoreFrontCartService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Storefront\CartService"/>
             <argument type="service" id="Shopware\Core\Checkout\Order\OrderRepository"/>
             <argument type="service" id="Shopware\Storefront\Page\Checkout\PaymentMethodLoader"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentTransactionChainProcessor"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\Token\PaymentTransactionTokenFactory"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\PaymentMethodRepository"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\Util\CustomerContextPersister"/>
+            <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextPersister"/>
             <argument type="service" id="serializer"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry"/>
         </service>
@@ -149,7 +149,7 @@
         </service>
 
         <service class="Shopware\Storefront\Controller\Widgets\ListingController" id="Shopware\Storefront\Controller\Widgets\ListingController" public="true">
-            <argument id="Shopware\Core\Content\Product\StorefrontProductRepository" type="service"/>
+            <argument id="Shopware\Core\Content\Product\Storefront\StorefrontProductRepository" type="service"/>
             <argument type="service" id="Shopware\Storefront\Page\Listing\ListingPageLoader"/>
             <argument type="service" id="Shopware\Storefront\Page\Search\SearchPageLoader"/>
         </service>
@@ -181,7 +181,7 @@
             <argument type="service" id="Shopware\Core\Content\Product\Util\KeywordSearchTermInterpreter"/>
         </service>
 
-        <service class="CheckoutContextValueResolver" id="Shopware\Core\Checkout\Context\CheckoutContextValueResolver">
+        <service class="Shopware\Core\Checkout\Context\CheckoutContextValueResolver" id="Shopware\Core\Checkout\Context\CheckoutContextValueResolver">
             <argument id="request_stack" type="service"/>
             <tag name="controller.argument_value_resolver" priority="1000"/>
         </service>

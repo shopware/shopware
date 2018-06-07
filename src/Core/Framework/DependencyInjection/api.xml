@@ -77,20 +77,6 @@
             <argument id="Shopware\Core\Framework\Api\ApiDefinition\DefinitionService" type="service"/>
         </service>
 
-        <service class="Shopware\Core\Framework\Api\Controller\ProductActionController" id="Shopware\Core\Content\Product\ProductActionController" public="true">
-            <argument id="Shopware\Core\Content\Product\Util\VariantGenerator" type="service"/>
-            <call method="setContainer">
-                <argument id="service_container" type="service"/>
-            </call>
-        </service>
-
-        <service class="Shopware\Core\Framework\Api\Controller\PriceActionController" id="Shopware\Core\Checkout\Cart\PriceActionController" public="true">
-            <argument type="service" id="serializer"/>
-            <argument type="service" id="Shopware\Core\System\Tax\TaxRepository"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\NetPriceCalculator"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\GrossPriceCalculator"/>
-        </service>
-
         <service class="Shopware\Core\Framework\Api\Controller\AuthController" id="Shopware\Core\Framework\Api\Controller\AuthController" public="true">
             <argument id="Shopware\Core\Framework\Api\Firewall\JWTAuthenticator" type="service"/>
         </service>

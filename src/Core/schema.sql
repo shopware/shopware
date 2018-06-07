@@ -1253,8 +1253,8 @@ CREATE TABLE `product_context_price` (
   `id` binary(16) NOT NULL,
   `tenant_id` binary(16) NOT NULL,
   `version_id` binary(16) NOT NULL,
-  `context_rule_id` binary(16) NOT NULL,
-  `context_rule_tenant_id` binary(16) NOT NULL,
+  `rule_id` binary(16) NOT NULL,
+  `rule_tenant_id` binary(16) NOT NULL,
   `product_id` binary(16) NOT NULL,
   `product_tenant_id` binary(16) NOT NULL,
   `product_version_id` binary(16) NOT NULL,
@@ -1269,7 +1269,7 @@ CREATE TABLE `product_context_price` (
   PRIMARY KEY (`id`, `version_id`, `tenant_id`),
   CONSTRAINT `fk_product_context_price.product_id` FOREIGN KEY (`product_id`, `product_version_id`, `product_tenant_id`) REFERENCES `product` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_product_context_price.currency_id` FOREIGN KEY (`currency_id`, `currency_version_id`, `currency_tenant_id`) REFERENCES `currency` (`id`, `version_id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_product_context_price.context_rule_id` FOREIGN KEY (`context_rule_id`, `context_rule_tenant_id`) REFERENCES `context_rule` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `fk_product_context_price.rule_id` FOREIGN KEY (`rule_id`, `rule_tenant_id`) REFERENCES `rule` (`id`, `tenant_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `product_category`;
@@ -1973,8 +1973,8 @@ CREATE TABLE `user` (
   CONSTRAINT `fk_user.locale_id` FOREIGN KEY (`locale_id`, `locale_version_id`, `locale_tenant_id`) REFERENCES `locale` (`id`, `version_id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-DROP TABLE IF EXISTS `context_rule`;
-CREATE TABLE `context_rule` (
+DROP TABLE IF EXISTS `rule`;
+CREATE TABLE `rule` (
   `id` binary(16) NOT NULL,
   `tenant_id` binary(16) NOT NULL,
   `name` varchar(500) NOT NULL,
@@ -1990,8 +1990,8 @@ DROP TABLE IF EXISTS `context_cart_modifier`;
 CREATE TABLE `context_cart_modifier` (
   `id` BINARY(16) NOT NULL,
   `tenant_id` BINARY(16) NOT NULL,
-  `context_rule_id` BINARY(16) NOT NULL,
-  `context_rule_tenant_id` BINARY(16) NOT NULL,
+  `rule_id` BINARY(16) NOT NULL,
+  `rule_tenant_id` BINARY(16) NOT NULL,
   `rule` LONGTEXT NOT NULL,
   `type` VARCHAR(255),
   `amount` FLOAT,
@@ -1999,7 +1999,7 @@ CREATE TABLE `context_cart_modifier` (
   `updated_at` DATETIME NULL DEFAULT NULL,
    PRIMARY KEY (`id`, `tenant_id`),
    CHECK (JSON_VALID (`rule`)),
-   CONSTRAINT `fk_context_cart_modifier.context_rule_id` FOREIGN KEY (`context_rule_id`, context_rule_tenant_id) REFERENCES `context_rule` (`id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE
+   CONSTRAINT `fk_context_cart_modifier.rule_id` FOREIGN KEY (`rule_id`, rule_tenant_id) REFERENCES `rule` (`id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `context_cart_modifier_translation`;

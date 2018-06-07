@@ -74,11 +74,6 @@
             <factory service="Shopware\Core\Content\Media\Util\GarbageCollector\GarbageCollectorFactory" method="factory" />
         </service>
 
-        <service class="Shopware\Core\Framework\Filesystem\PrefixFilesystem" id="Shopware\Core\Framework\Filesystem\PrefixFilesystem">
-            <argument type="service" id="shopware.filesystem.public" />
-            <argument>media</argument>
-        </service>
-
         <service class="Shopware\Core\Content\Media\Util\Strategy\StrategyFilesystem" id="Shopware\Core\Content\Media\Util\Strategy\StrategyFilesystem">
             <argument type="service" id="Shopware\Core\Framework\Filesystem\PrefixFilesystem" />
             <argument type="service" id="Shopware\Core\Content\Media\Util\Strategy\StrategyInterface" />

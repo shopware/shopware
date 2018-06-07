@@ -1423,11 +1423,7 @@ class ProductRepositoryTest extends KernelTestCase
         $ruleA = Uuid::uuid4()->getHex();
         $ruleB = Uuid::uuid4()->getHex();
 
-<<<<<<< Updated upstream
-        self::$container->get(\Shopware\Core\Checkout\Rule\RuleRepository::class)->create([
-=======
-        $this->container->get(\Shopware\Core\Content\Rule\RuleRepository::class)->create([
->>>>>>> Stashed changes
+        self::$container->get(\Shopware\Core\Content\Rule\RuleRepository::class)->create([
             ['id' => $ruleA, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 1],
             ['id' => $ruleB, 'name' => 'test', 'payload' => new AndRule(), 'priority' => 2],
         ], Context:: createDefaultContext(\Shopware\Core\Defaults::TENANT_ID));

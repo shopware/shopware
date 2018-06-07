@@ -28,19 +28,11 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
-<<<<<<< Updated upstream:src/Core/Application/Test/Context/Rule/Context/ShippingAreaRuleTest.php
-use Shopware\Core\Checkout\Rule\Specification\Context\ShippingAreaRule;
-use Shopware\Core\Checkout\Rule\Specification\Rule;
-use Shopware\Core\Checkout\Rule\Specification\Scope\CartRuleScope;
 use Shopware\Core\System\Country\Aggregate\CountryArea\Struct\CountryAreaBasicStruct;
 use Shopware\Core\System\Country\Struct\CountryBasicStruct;
-=======
 use Shopware\Core\Checkout\Customer\Rule\ShippingAreaRule;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
-use Shopware\System\Country\Aggregate\CountryArea\Struct\CountryAreaBasicStruct;
-use Shopware\System\Country\Struct\CountryBasicStruct;
->>>>>>> Stashed changes:src/Core/Checkout/Test/DiscountSurcharge/Rule/Context/ShippingAreaRuleTest.php
 
 class ShippingAreaRuleTest extends TestCase
 {

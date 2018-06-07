@@ -62,16 +62,9 @@ class DiscountSurchargeTest extends KernelTestCase
         parent::setUp();
 
         self::bootKernel();
-<<<<<<< Updated upstream:src/Core/Application/Test/Context/ContextCartModifierTest.php
-
-        self::$contextCartModifierRepository = self::$container->get(ContextCartModifierRepository::class);
         self::$ruleRepository = self::$container->get(RuleRepository::class);
         self::$productRepository = self::$container->get(ProductRepository::class);
-=======
         self::$discountSurchargeRepository = self::$kernel->getContainer()->get(DiscountSurchargeRepository::class);
-        self::$ruleRepository = self::$kernel->getContainer()->get(RuleRepository::class);
-        self::$productRepository = self::$kernel->getContainer()->get(ProductRepository::class);
->>>>>>> Stashed changes:src/Core/Checkout/Test/DiscountSurcharge/DiscountSurchargeTest.php
         self::$context = Context::createDefaultContext(Defaults::TENANT_ID);
         self::$calculation = self::$container->get(CircularCartCalculation::class);
     }

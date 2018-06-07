@@ -161,7 +161,7 @@
                  id="Shopware\Core\Framework\Routing\TouchpointRequestContextResolver">
 
             <argument id="Shopware\Core\Framework\Routing\TouchpointRequestContextResolver.inner" type="service"/>
-            <argument id="Shopware\Core\Checkout\Customer\Util\CustomerContextService" type="service"/>
+            <argument id="Shopware\Core\Checkout\Context\CheckoutContextService" type="service"/>
             <argument type="service" id="security.token_storage"/>
         </service>
 

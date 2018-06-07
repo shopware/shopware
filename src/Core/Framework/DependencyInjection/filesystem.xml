@@ -37,5 +37,10 @@
             <tag name="Shopware\Core\Framework\Filesystem\FilesystemFactory" />
         </service>
 
+        <service class="Shopware\Core\Framework\Filesystem\PrefixFilesystem" id="Shopware\Core\Framework\Filesystem\PrefixFilesystem">
+            <argument type="service" id="shopware.filesystem.public" />
+            <argument>media</argument>
+        </service>
+
     </services>
 </container>

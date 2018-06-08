@@ -3,7 +3,7 @@
         {% block sw_customer_base_info_overview %}
             <sw-container class="sw-customer-base-info__overview" grid="80px 1fr 200px" gap="0px 30px">
                 {% block sw_customer_base_info_avatar %}
-                    <sw-avatar color="#f88962" size="80px" :user="customer" :isLoading="isLoading"></sw-avatar>
+                    <sw-avatar color="#f88962" size="80px" :user="customer" :isLoading="customer.isLoading"></sw-avatar>
                 {% endblock %}
 
                 {% block sw_customer_base_info_contact %}

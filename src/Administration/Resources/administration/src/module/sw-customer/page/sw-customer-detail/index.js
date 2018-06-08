@@ -1,4 +1,4 @@
-import { Component, Mixin } from 'src/core/shopware';
+import { Component, Mixin, State } from 'src/core/shopware';
 import template from './sw-customer-detail.html.twig';
 import './sw-customer-detail.less';
 
@@ -6,12 +6,7 @@ Component.register('sw-customer-detail', {
     template,
 
     mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('customer'),
-        Mixin.getByName('applicationList'),
-        Mixin.getByName('customerGroupList'),
-        Mixin.getByName('paymentMethodList'),
-        Mixin.getByName('countryList')
+        Mixin.getByName('notification')
     ],
 
     beforeRouteLeave(to, from, next) {
@@ -21,11 +16,37 @@ Component.register('sw-customer-detail', {
 
     data() {
         return {
-            customerEditMode: false
+            customer: {},
+            customerId: null,
+            customerEditMode: false,
+            customerGroups: [],
+            applications: [],
+            countries: [],
+            paymentMethods: []
         };
     },
 
     computed: {
+        customerStore() {
+            return State.getStore('customer');
+        },
+
+        customerGroupStore() {
+            return State.getStore('customer_group');
+        },
+
+        countryStore() {
+            return State.getStore('country');
+        },
+
+        applicationStore() {
+            return State.getStore('application');
+        },
+
+        paymentMethodStore() {
+            return State.getStore('payment_method');
+        },
+
         customerName() {
             const customer = this.customer;
 
@@ -53,10 +74,23 @@ Component.register('sw-customer-detail', {
         createdComponent() {
             if (this.$route.params.id) {
                 this.customerId = this.$route.params.id;
-            }
+                this.customer = this.customerStore.getById(this.customerId);
 
-            if (this.$route.name.includes('sw.customer.create')) {
-                this.customerEditMode = true;
+                this.applicationStore.getList({ offset: 0, limit: 100 }).then((response) => {
+                    this.applications = response.items;
+                });
+
+                this.customerGroupStore.getList({ offset: 0, limit: 100 }).then((response) => {
+                    this.customerGroups = response.items;
+                });
+
+                this.countryStore.getList({ offset: 0, limit: 100 }).then((response) => {
+                    this.countries = response.items;
+                });
+
+                this.paymentMethodStore.getList({ offset: 0, limit: 100 }).then((response) => {
+                    this.paymentMethods = response.items;
+                });
             }
 
             if (this.$route.params.edit === 'edit') {
@@ -69,12 +103,14 @@ Component.register('sw-customer-detail', {
             const titleSaveSuccess = this.$tc('sw-customer.detail.titleSaveSuccess');
             const messageSaveSuccess = this.$tc('sw-customer.detail.messageSaveSuccess', 0, { name: customerName });
 
-            this.saveCustomer().then(() => {
+            return this.customer.save().then(() => {
                 this.customerEditMode = false;
                 this.createNotificationSuccess({
                     title: titleSaveSuccess,
                     message: messageSaveSuccess
                 });
+            }).catch((exception) => {
+                console.log(exception);
             });
         },
 

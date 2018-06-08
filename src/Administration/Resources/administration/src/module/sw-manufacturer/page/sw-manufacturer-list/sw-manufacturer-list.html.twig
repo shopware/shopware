@@ -3,7 +3,7 @@
         {% block sw_manufacturer_list_header %}
             <template slot="smart-bar-header">
                 {% block sw_manufacturer_list_smart_bar_header %}
-                    <h2>{{ $tc('sw-manufacturer.list.textManufacturerOverview') }} <span v-if="!isLoading">({{ $tc('sw-manufacturer.list.textTotalManufacturer', totalManufacturers, { count: totalManufacturers }) }})</span></h2>
+                    <h2>{{ $tc('sw-manufacturer.list.textManufacturerOverview') }} <span v-if="!isLoading">({{ $tc('sw-manufacturer.list.textTotalManufacturer', total, { count: total }) }})</span></h2>
                 {% endblock %}
             </template>
         {% endblock %}
@@ -142,9 +142,9 @@
                                 {% block sw_manufacturer_list_grid_pagination %}
                                     <sw-pagination :offset="offset"
                                                    :limit="limit"
-                                                   :total="totalManufacturers"
+                                                   :total="total"
                                                    :total-visible="7"
-                                                   @page-change="pageChange">
+                                                   @page-change="onPageChange">
                                     </sw-pagination>
                                 {% endblock %}
                             </template>

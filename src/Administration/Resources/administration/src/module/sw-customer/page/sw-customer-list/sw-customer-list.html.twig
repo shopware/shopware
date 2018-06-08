@@ -3,7 +3,7 @@
         {% block sw_customer_list_smart_bar_header %}
             <template slot="smart-bar-header">
                 {% block sw_customer_list_smart_bar_header_slot %}
-                    <h2>{{ $tc('sw-customer.list.textCustomers') }} <span v-if="!isLoading">({{ $tc('sw-customer.list.textCustomersTotal', totalCustomers, { count: totalCustomers }) }})</span></h2>
+                    <h2>{{ $tc('sw-customer.list.textCustomers') }} <span v-if="!isLoading">({{ $tc('sw-customer.list.textCustomersTotal', total, { count: total }) }})</span></h2>
                 {% endblock %}
             </template>
         {% endblock %}
@@ -22,7 +22,7 @@
             {% block sw_customer_list_content %}
                 <div class="sw-customer-list__content">
                     {% block sw_customer_list_grid %}
-                        <sw-grid v-if="totalCustomers"
+                        <sw-grid v-if="total"
                                  :items="customers"
                                  :pagination="true"
                                  :sortBy="sortBy"
@@ -193,9 +193,9 @@
                                 {% block sw_customer_list_grid_pagination %}
                                     <sw-pagination :offset="offset"
                                                    :limit="limit"
-                                                   :total="totalCustomers"
+                                                   :total="total"
                                                    :total-visible="7"
-                                                   @page-change="pageChange">
+                                                   @page-change="onPageChange">
                                     </sw-pagination>
                                 {% endblock %}
                             </template>
@@ -221,7 +221,7 @@
                     {% endblock %}
 
                     {% block sw_customer_list_empty_state %}
-                        <sw-empty-state v-else-if="!isLoading && !totalCustomers" :title="$tc('sw-customer.list.messageEmpty')"></sw-empty-state>
+                        <sw-empty-state v-else-if="!isLoading && !total" :title="$tc('sw-customer.list.messageEmpty')"></sw-empty-state>
                     {% endblock %}
 
                     {% block sw_customer_list_grid_loader %}

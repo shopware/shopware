@@ -20,7 +20,7 @@
 
                         {% block sw_product_detail_prices_price_card_rule_selection %}
                             <sw-field type="select"
-                                      placeholder="$tc('sw-product.contextPrices.placeholderContextRule')"
+                                      :placeholder="$tc('sw-product.contextPrices.placeholderContextRule')"
                                       validation="required"
                                       :value="priceGroup.contextRuleId"
                                       @change="onContextRuleChange($event, priceGroup.contextRuleId)">

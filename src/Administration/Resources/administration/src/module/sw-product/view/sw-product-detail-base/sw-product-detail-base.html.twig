@@ -2,7 +2,7 @@
     <div class="sw-product-detail-base">
 
         {% block sw_product_detail_base_basic_info_card %}
-            <sw-card :title="$tc('sw-product.detailBase.cardTitleProductInfo')" :isLoading="isLoading">
+            <sw-card :title="$tc('sw-product.detailBase.cardTitleProductInfo')" :isLoading="product.isLoading">
                 {% block sw_product_detail_base_basic_info_form %}
                     <sw-product-basic-form :product="product" :manufacturers="manufacturers"></sw-product-basic-form>
                 {% endblock %}
@@ -10,7 +10,7 @@
         {% endblock %}
 
         {% block sw_product_detail_base_category_card %}
-            <sw-card :title="$tc('sw-product.detailBase.cardTitleAssignment')" :isLoading="isLoading">
+            <sw-card :title="$tc('sw-product.detailBase.cardTitleAssignment')" :isLoading="product.isLoading">
                 {% block sw_product_detail_base_category_form %}
                     <sw-product-category-form :product="product"></sw-product-category-form>
                 {% endblock %}
@@ -18,7 +18,7 @@
         {% endblock %}
 
         {% block sw_product_detail_base_price_card %}
-            <sw-card :title="$tc('sw-product.detailBase.cardTitlePrices')" :isLoading="isLoading">
+            <sw-card :title="$tc('sw-product.detailBase.cardTitlePrices')" :isLoading="product.isLoading">
                 {% block sw_product_detail_base_price_form %}
                     <sw-product-price-form :product="product" :taxRates="taxes" :currencies="currencies"></sw-product-price-form>
                 {% endblock %}
@@ -32,7 +32,7 @@
         {% endblock %}
 
         {% block sw_product_detail_base_settings_card %}
-            <sw-card :title="$tc('sw-product.detailBase.cardTitleSettings')" :isLoading="isLoading">
+            <sw-card :title="$tc('sw-product.detailBase.cardTitleSettings')" :isLoading="product.isLoading">
                 {% block sw_product_detail_base_settings_form %}
                     <sw-product-settings-form :product="product"></sw-product-settings-form>
                 {% endblock %}

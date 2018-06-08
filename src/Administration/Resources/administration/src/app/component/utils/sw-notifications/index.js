@@ -1,4 +1,4 @@
-import { Component } from 'src/core/shopware';
+import { Component, State } from 'src/core/shopware';
 import template from './sw-notifications.html.twig';
 import './sw-notifications.less';
 
@@ -20,32 +20,16 @@ Component.register('sw-notifications', {
         notificationsGap: {
             type: String,
             default: '20px'
-        },
-        limit: {
-            type: Number,
-            default: 5
         }
     },
 
-    methods: {
-        onClose(event) {
-            this.$store.commit('notification/removeNotification', event);
-        }
+    data() {
+        return {
+            notifications: State.getStore('notification').notifications
+        };
     },
 
     computed: {
-        notifications: {
-            get() {
-                const notifications = this.$store.state.notification.notifications;
-
-                if (notifications.length > this.limit) {
-                    this.$store.commit('notification/removeNotification');
-                }
-
-                return notifications;
-            }
-        },
-
         notificationsStyle() {
             let notificationsGap = this.notificationsGap;
 
@@ -68,6 +52,12 @@ Component.register('sw-notifications', {
                 bottom: 'auto',
                 left: 'auto'
             };
+        }
+    },
+
+    methods: {
+        onClose(event) {
+            State.getStore('notification').removeNotification(event);
         }
     }
 });

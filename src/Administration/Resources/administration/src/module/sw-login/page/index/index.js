@@ -1,4 +1,4 @@
-import { Component, Mixin } from 'src/core/shopware';
+import { Component, Mixin, State } from 'src/core/shopware';
 import template from './sw-login.html.twig';
 import './sw-login.less';
 
@@ -18,27 +18,8 @@ Component.register('sw-login', {
     },
 
     computed: {
-        username: {
-            get() {
-                return this.$store.state.login.username;
-            },
-            set(value) {
-                this.$store.commit('login/setUserName', value);
-            }
-        },
-        password: {
-            get() {
-                return this.$store.state.login.password;
-            },
-            set(value) {
-                this.$store.commit('login/setUserPassword', value);
-            }
-        },
-        errorTitle() {
-            return this.$store.state.login.errorTitle;
-        },
-        errorMessage() {
-            return this.$store.state.login.errorMessage;
+        authStore() {
+            return State.getStore('auth');
         }
     },
 
@@ -46,7 +27,7 @@ Component.register('sw-login', {
         loginUserWithPassword() {
             this.isLoading = true;
 
-            return this.$store.dispatch('login/loginUserWithPassword').then((success) => {
+            return this.authStore.loginUserWithPassword().then((success) => {
                 this.isLoading = false;
 
                 if (success === true) {
@@ -74,8 +55,8 @@ Component.register('sw-login', {
             }, 500);
 
             this.createNotificationError({
-                title: this.$store.state.login.errorTitle,
-                message: this.$store.state.login.errorMessage
+                title: this.authStore.errorTitle,
+                message: this.authStore.errorMessage
             });
         },
 
@@ -83,8 +64,7 @@ Component.register('sw-login', {
             const previousRoute = JSON.parse(sessionStorage.getItem('sw-admin-previous-route'));
             sessionStorage.removeItem('sw-admin-previous-route');
 
-            if (!this.$store.state.login.token.length ||
-                this.$store.state.login.expiry === -1) {
+            if (!this.authStore.token.length || this.authStore.expiry === -1) {
                 return;
             }
 
@@ -93,9 +73,7 @@ Component.register('sw-login', {
                 return;
             }
 
-            this.$router.push({
-                name: 'core'
-            });
+            this.$router.push({ name: 'core' });
         }
     }
 });

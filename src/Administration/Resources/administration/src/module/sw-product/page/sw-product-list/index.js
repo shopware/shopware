@@ -1,5 +1,4 @@
-import { Component, Mixin } from 'src/core/shopware';
-import PaginationMixin from 'src/app/component/mixin/pagination.mixin';
+import { Component, Mixin, State } from 'src/core/shopware';
 import template from './sw-product-list.twig';
 import './sw-product-list.less';
 
@@ -7,39 +6,32 @@ Component.register('sw-product-list', {
     template,
 
     mixins: [
-        PaginationMixin,
-        Mixin.getByName('productList')
+        Mixin.getByName('listing')
     ],
 
     data() {
         return {
-            filters: [{
-                active: false,
-                label: 'Preis über 50€',
-                criteria: {
-                    type: 'range',
-                    field: 'product.price',
-                    options: {
-                        '>': 50
-                    }
-                }
-            }, {
-                active: false,
-                label: 'Lagerbestand unter 10',
-                criteria: {
-                    type: 'range',
-                    field: 'product.stock',
-                    options: {
-                        '<': 10
-                    }
-                }
-            }]
+            products: [],
+            isLoading: false
         };
     },
 
-    created() {
-        this.getDataFromRoute();
-        this.updateRoute();
+    computed: {
+        productStore() {
+            return State.getStore('product');
+        },
+
+        filters() {
+            return [{
+                active: false,
+                label: 'Preis über 50€',
+                criteria: { type: 'range', field: 'product.price', options: { '>': 50 } }
+            }, {
+                active: false,
+                label: 'Lagerbestand unter 10',
+                criteria: { type: 'range', field: 'product.stock', options: { '<': 10 } }
+            }];
+        }
     },
 
     filters: {
@@ -56,51 +48,6 @@ Component.register('sw-product-list', {
     },
 
     methods: {
-        updateRoute() {
-            const params = this.getListingParams();
-
-            this.$router.push({
-                name: 'sw.product.index',
-                params
-            });
-        },
-
-        handlePagination() {
-            this.updateRoute();
-            this.getProductList();
-        },
-
-        onSearch(value) {
-            this.term = value;
-
-            this.updateRoute();
-            this.getProductList();
-        },
-
-        onSortColumn(column) {
-            if (this.sortBy === column.dataIndex) {
-                this.sortDirection = (this.sortDirection === 'ASC' ? 'DESC' : 'ASC');
-            } else {
-                this.sortBy = column.dataIndex;
-                this.sortDirection = 'ASC';
-            }
-
-            this.updateRoute();
-            this.getProductList();
-        },
-
-        onSwitchFilter(filter, filterIndex) {
-            this.filters[filterIndex].active = !this.filters[filterIndex].active;
-
-            // Switch back to the first page when a filter was enabled / disabled
-            this.offset = 0;
-            this.getProductList();
-        },
-
-        onRefresh() {
-            this.getProductList();
-        },
-
         onEdit(product) {
             if (product && product.id) {
                 this.$router.push({
@@ -112,13 +59,28 @@ Component.register('sw-product-list', {
             }
         },
 
-        onInlineEditSave(opts) {
+        onInlineEditSave(product) {
             this.isLoading = true;
 
-            return this.$store.dispatch('product/saveProduct', opts.item).then(() => {
+            product.save().then(() => {
                 this.isLoading = false;
             }).catch(() => {
                 this.isLoading = false;
+            });
+        },
+
+        getList() {
+            this.isLoading = true;
+            const params = this.getListingParams();
+
+            this.products = [];
+
+            return this.productStore.getList(params).then((response) => {
+                this.total = response.total;
+                this.products = response.items;
+                this.isLoading = false;
+
+                return this.products;
             });
         }
     }

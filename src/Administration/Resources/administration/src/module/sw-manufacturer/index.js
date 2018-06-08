@@ -17,7 +17,7 @@ Module.register('sw-manufacturer', {
             components: {
                 default: 'sw-manufacturer-list'
             },
-            path: 'index/:offset?/:limit?/:sortBy?/:sortDirection?/:term?/:filters?'
+            path: 'index'
         },
         create: {
             component: 'sw-manufacturer-create',

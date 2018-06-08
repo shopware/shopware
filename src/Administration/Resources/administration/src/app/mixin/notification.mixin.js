@@ -1,6 +1,12 @@
-import { Mixin } from 'src/core/shopware';
+import { Mixin, State } from 'src/core/shopware';
 
 Mixin.register('notification', {
+
+    computed: {
+        notificationStore() {
+            return State.getStore('notification');
+        }
+    },
 
     methods: {
         createNotificationSuccess(config) {
@@ -8,7 +14,7 @@ Mixin.register('notification', {
                 variant: 'success'
             }, config);
 
-            this.$store.dispatch('notification/createNotification', notification);
+            this.notificationStore.createNotification(notification);
         },
 
         createNotificationInfo(config) {
@@ -16,7 +22,7 @@ Mixin.register('notification', {
                 variant: 'info'
             }, config);
 
-            this.$store.dispatch('notification/createNotification', notification);
+            this.notificationStore.createNotification(notification);
         },
 
         createNotificationWarning(config) {
@@ -24,7 +30,7 @@ Mixin.register('notification', {
                 variant: 'warning'
             }, config);
 
-            this.$store.dispatch('notification/createNotification', notification);
+            this.notificationStore.createNotification(notification);
         },
 
         createNotificationError(config) {
@@ -32,7 +38,7 @@ Mixin.register('notification', {
                 variant: 'error'
             }, config);
 
-            this.$store.dispatch('notification/createNotification', notification);
+            this.notificationStore.createNotification(notification);
         },
 
         createSystemNotificationSuccess(config) {
@@ -41,7 +47,7 @@ Mixin.register('notification', {
                 system: true
             }, config);
 
-            this.$store.dispatch('notification/createNotification', notification);
+            this.notificationStore.createNotification(notification);
         },
 
         createSystemNotificationInfo(config) {
@@ -50,7 +56,7 @@ Mixin.register('notification', {
                 system: true
             }, config);
 
-            this.$store.dispatch('notification/createNotification', notification);
+            this.notificationStore.createNotification(notification);
         },
 
         createSystemNotificationWarning(config) {
@@ -59,7 +65,7 @@ Mixin.register('notification', {
                 system: true
             }, config);
 
-            this.$store.dispatch('notification/createNotification', notification);
+            this.notificationStore.createNotification(notification);
         },
 
         createSystemNotificationError(config) {
@@ -68,11 +74,11 @@ Mixin.register('notification', {
                 system: true
             }, config);
 
-            this.$store.dispatch('notification/createNotification', notification);
+            this.notificationStore.createNotification(notification);
         },
 
         createNotification(config) {
-            this.$store.dispatch('notification/createNotification', config);
+            this.notificationStore.createNotification(config);
         },
 
         createSystemNotification(config) {
@@ -80,7 +86,7 @@ Mixin.register('notification', {
                 system: true
             }, config);
 
-            this.$store.dispatch('notification/createNotification', notification);
+            this.notificationStore.createNotification(notification);
         }
     }
 });

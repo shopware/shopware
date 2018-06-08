@@ -11,13 +11,13 @@
         {% block sw_manufacturer_detail_actions %}
             <template slot="smart-bar-actions">
                 {% block sw_manufacturer_detail_actions_abort %}
-                    <sw-button :disabled="isLoading" link="sw.manufacturer.index">
+                    <sw-button :disabled="manufacturer.isLoading" link="sw.manufacturer.index">
                         {{ $tc('sw-manufacturer.detail.buttonCancel') }}
                     </sw-button>
                 {% endblock %}
 
                 {% block sw_manufacturer_detail_actions_save %}
-                    <sw-button variant="primary" :disabled="isLoading" @click.prevent="onSave">
+                    <sw-button variant="primary" :disabled="manufacturer.isLoading" @click.prevent="onSave">
                         {{ $tc('sw-manufacturer.detail.buttonSave') }}
                     </sw-button>
                 {% endblock %}
@@ -27,7 +27,7 @@
         {% block sw_manufacturer_detail_content %}
             <sw-card-view slot="content">
                 {% block sw_manufacturer_detail_base_basic_info_card %}
-                    <sw-card :title="$tc('sw-manufacturer.detail.cardTitleManufacturerInfo')" :isLoading="isLoading">
+                    <sw-card :title="$tc('sw-manufacturer.detail.cardTitleManufacturerInfo')" :isLoading="manufacturer.isLoading">
                         <sw-container grid="1fr 1fr" gap="0 30px">
                             {% block sw_manufacturer_detail_base_info_field_name %}
                                 <sw-field type="text"

@@ -11,13 +11,13 @@
         {% block sw_product_detail_actions %}
             <template slot="smart-bar-actions">
                 {% block sw_product_detail_actions_abort %}
-                    <sw-button :disabled="isLoading" link="sw.product.index">
+                    <sw-button :disabled="product.isLoading" link="sw.product.index">
                         {{ $tc('sw-product.detail.buttonCancel') }}
                     </sw-button>
                 {% endblock %}
 
                 {% block sw_product_detail_actions_save %}
-                    <sw-button variant="primary" :disabled="isLoading" @click.prevent="onSave">
+                    <sw-button variant="primary" :disabled="product.isLoading" @click.prevent="onSave">
                         {{ $tc('sw-product.detail.buttonSave') }}
                     </sw-button>
                 {% endblock %}
@@ -43,8 +43,7 @@
                     <router-view :product="product"
                                  :manufacturers="manufacturers"
                                  :taxes="taxes"
-                                 :currencies="currencies"
-                                 :isLoading="isLoading">
+                                 :currencies="currencies">
                     </router-view>
                 {% endblock %}
             </sw-card-view>

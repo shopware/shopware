@@ -16,7 +16,7 @@ Module.register('sw-order', {
                 default: 'sw-order-list',
                 sidebar: 'sw-order-sidebar'
             },
-            path: 'index/:offset?/:limit?/:sortBy?/:sortDirection?/:term?/:filters?'
+            path: 'index'
         }
     },
 

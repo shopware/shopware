@@ -104,7 +104,9 @@ module.exports = {
      * @type {Object}
      */
     State: {
-        register: StateFactory.registerStateModule
+        registerStore: StateFactory.registerStore,
+        getStore: StateFactory.getStore,
+        getStoreRegistry: StateFactory.getStoreRegistry
     },
 
     /**

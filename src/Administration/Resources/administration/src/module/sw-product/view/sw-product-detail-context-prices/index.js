@@ -1,4 +1,4 @@
-import { Component, Mixin, Entity } from 'src/core/shopware';
+import { Component, Entity } from 'src/core/shopware';
 import { deepCopyObject } from 'src/core/service/utils/object.utils';
 import utils from 'src/core/service/util.service';
 import template from './sw-product-detail-context-prices.html.twig';
@@ -6,10 +6,6 @@ import './sw-product-detail-context-prices.less';
 
 Component.register('sw-product-detail-context-prices', {
     template,
-
-    mixins: [
-        Mixin.getByName('contextRuleList')
-    ],
 
     props: {
         product: {
@@ -32,6 +28,14 @@ Component.register('sw-product-detail-context-prices', {
             required: false,
             default: false
         }
+    },
+
+    data() {
+        return {
+            contextRules: [],
+            totalContextRules: 0,
+            isLoadingContextRules: false
+        };
     },
 
     computed: {
@@ -82,7 +86,24 @@ Component.register('sw-product-detail-context-prices', {
         }
     },
 
+    mounted() {
+        this.mountedComponent();
+    },
+
     methods: {
+        mountedComponent() {
+            this.contextRuleStore = Shopware.State.getStore('context_rule');
+
+            this.isLoadingContextRules = true;
+
+            this.contextRuleStore.getList(0, 200).then((response) => {
+                this.contextRules = response.items;
+                this.totalContextRules = response.total;
+
+                this.isLoadingContextRules = false;
+            });
+        },
+
         onContextRuleChange(value, contextRuleId) {
             this.product.contextPrices.forEach((contextPrice) => {
                 if (contextPrice.contextRuleId === contextRuleId) {

@@ -25,9 +25,6 @@ use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
 use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationDefinition;
 use Shopware\Core\System\Currency\Collection\CurrencyBasicCollection;
-use Shopware\Core\System\Currency\Collection\CurrencyDetailCollection;
-use Shopware\Core\System\Currency\Event\CurrencyDeletedEvent;
-use Shopware\Core\System\Currency\Event\CurrencyWrittenEvent;
 use Shopware\Core\System\Currency\Struct\CurrencyBasicStruct;
 use Shopware\Core\System\Currency\Struct\CurrencyDetailStruct;
 use Shopware\Core\System\Touchpoint\TouchpointDefinition;
@@ -75,24 +72,9 @@ class CurrencyDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getRepositoryClass(): string
-    {
-        return CurrencyRepository::class;
-    }
-
     public static function getBasicCollectionClass(): string
     {
         return CurrencyBasicCollection::class;
-    }
-
-    public static function getDeletedEventClass(): string
-    {
-        return CurrencyDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return CurrencyWrittenEvent::class;
     }
 
     public static function getBasicStructClass(): string
@@ -103,15 +85,5 @@ class CurrencyDefinition extends EntityDefinition
     public static function getTranslationDefinitionClass(): ?string
     {
         return CurrencyTranslationDefinition::class;
-    }
-
-    public static function getDetailStructClass(): string
-    {
-        return CurrencyDetailStruct::class;
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return CurrencyDetailCollection::class;
     }
 }

@@ -3,11 +3,7 @@
 namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Collection\CustomerAddressBasicCollection;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Collection\CustomerAddressDetailCollection;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Event\CustomerAddressDeletedEvent;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Event\CustomerAddressWrittenEvent;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressDetailStruct;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
@@ -48,13 +44,9 @@ class CustomerAddressDefinition extends EntityDefinition
         return 'customer_address';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        self::$fields = new FieldCollection([
+        return new FieldCollection([
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
@@ -87,17 +79,6 @@ class CustomerAddressDefinition extends EntityDefinition
             new ManyToOneAssociationField('country', 'country_id', CountryDefinition::class, true),
             new ManyToOneAssociationField('countryState', 'country_state_id', CountryStateDefinition::class, true),
         ]);
-
-        foreach (self::$extensions as $extension) {
-            $extension->extendFields(self::$fields);
-        }
-
-        return self::$fields;
-    }
-
-    public static function getRepositoryClass(): string
-    {
-        return CustomerAddressRepository::class;
     }
 
     public static function getBasicCollectionClass(): string
@@ -105,33 +86,8 @@ class CustomerAddressDefinition extends EntityDefinition
         return CustomerAddressBasicCollection::class;
     }
 
-    public static function getDeletedEventClass(): string
-    {
-        return CustomerAddressDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return CustomerAddressWrittenEvent::class;
-    }
-
     public static function getBasicStructClass(): string
     {
         return CustomerAddressBasicStruct::class;
-    }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return null;
-    }
-
-    public static function getDetailStructClass(): string
-    {
-        return CustomerAddressDetailStruct::class;
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return CustomerAddressDetailCollection::class;
     }
 }

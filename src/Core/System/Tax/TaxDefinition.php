@@ -21,11 +21,7 @@ use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
 use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleDefinition;
 use Shopware\Core\System\Tax\Collection\TaxBasicCollection;
-use Shopware\Core\System\Tax\Collection\TaxDetailCollection;
-use Shopware\Core\System\Tax\Event\TaxDeletedEvent;
-use Shopware\Core\System\Tax\Event\TaxWrittenEvent;
 use Shopware\Core\System\Tax\Struct\TaxBasicStruct;
-use Shopware\Core\System\Tax\Struct\TaxDetailStruct;
 
 class TaxDefinition extends EntityDefinition
 {
@@ -64,43 +60,13 @@ class TaxDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getRepositoryClass(): string
-    {
-        return TaxRepository::class;
-    }
-
     public static function getBasicCollectionClass(): string
     {
         return TaxBasicCollection::class;
     }
 
-    public static function getDeletedEventClass(): string
-    {
-        return TaxDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return TaxWrittenEvent::class;
-    }
-
     public static function getBasicStructClass(): string
     {
         return TaxBasicStruct::class;
-    }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return null;
-    }
-
-    public static function getDetailStructClass(): string
-    {
-        return TaxDetailStruct::class;
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return TaxDetailCollection::class;
     }
 }

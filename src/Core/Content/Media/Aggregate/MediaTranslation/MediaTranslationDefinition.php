@@ -4,11 +4,7 @@ namespace Shopware\Core\Content\Media\Aggregate\MediaTranslation;
 
 use Shopware\Core\Content\Catalog\ORM\CatalogField;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\Collection\MediaTranslationBasicCollection;
-use Shopware\Core\Content\Media\Aggregate\MediaTranslation\Collection\MediaTranslationDetailCollection;
-use Shopware\Core\Content\Media\Aggregate\MediaTranslation\Event\MediaTranslationDeletedEvent;
-use Shopware\Core\Content\Media\Aggregate\MediaTranslation\Event\MediaTranslationWrittenEvent;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\Struct\MediaTranslationBasicStruct;
-use Shopware\Core\Content\Media\Aggregate\MediaTranslation\Struct\MediaTranslationDetailStruct;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
@@ -44,13 +40,9 @@ class MediaTranslationDefinition extends EntityDefinition
         return 'media_translation';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        self::$fields = new FieldCollection([
+        return new FieldCollection([
             (new FkField('media_id', 'mediaId', MediaDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new ReferenceVersionField(MediaDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             new CatalogField(),
@@ -60,17 +52,6 @@ class MediaTranslationDefinition extends EntityDefinition
             new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, false),
             new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, false),
         ]);
-
-        foreach (self::$extensions as $extension) {
-            $extension->extendFields(self::$fields);
-        }
-
-        return self::$fields;
-    }
-
-    public static function getRepositoryClass(): string
-    {
-        return MediaTranslationRepository::class;
     }
 
     public static function getBasicCollectionClass(): string
@@ -78,33 +59,9 @@ class MediaTranslationDefinition extends EntityDefinition
         return MediaTranslationBasicCollection::class;
     }
 
-    public static function getDeletedEventClass(): string
-    {
-        return MediaTranslationDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return MediaTranslationWrittenEvent::class;
-    }
 
     public static function getBasicStructClass(): string
     {
         return MediaTranslationBasicStruct::class;
-    }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return null;
-    }
-
-    public static function getDetailStructClass(): string
-    {
-        return MediaTranslationDetailStruct::class;
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return MediaTranslationDetailCollection::class;
     }
 }

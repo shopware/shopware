@@ -3,8 +3,6 @@
 namespace Shopware\Core\Content\Product\Aggregate\ProductStreamAssignment;
 
 use Shopware\Core\Content\Product\Aggregate\ProductStream\ProductStreamDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductStreamAssignment\Event\ProductStreamAssignmentDeletedEvent;
-use Shopware\Core\Content\Product\Aggregate\ProductStreamAssignment\Event\ProductStreamAssignmentWrittenEvent;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\ORM\Field\DateField;
 use Shopware\Core\Framework\ORM\Field\FkField;
@@ -45,15 +43,5 @@ class ProductStreamAssignmentDefinition extends MappingEntityDefinition
             new ManyToOneAssociationField('productStream', 'product_stream_id', ProductStreamDefinition::class, false),
             new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, false),
         ]);
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return ProductStreamAssignmentWrittenEvent::class;
-    }
-
-    public static function getDeletedEventClass(): string
-    {
-        return ProductStreamAssignmentDeletedEvent::class;
     }
 }

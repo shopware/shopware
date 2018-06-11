@@ -21,9 +21,4 @@ abstract class MappingEntityDefinition extends EntityDefinition
     {
         throw new MappingEntityStructException();
     }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return null;
-    }
 }

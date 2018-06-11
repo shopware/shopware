@@ -1,25 +1,25 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\Snippet;
+namespace Shopware\Storefront\Api\Seo;
 
-use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+use Shopware\Core\Framework\ORM\Field\BoolField;
 use Shopware\Core\Framework\ORM\Field\DateField;
 use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\IdField;
-use Shopware\Core\Framework\ORM\Field\LongTextField;
 use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\Field\TenantIdField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
-use Shopware\Core\System\Snippet\Collection\SnippetBasicCollection;
-use Shopware\Core\System\Snippet\Struct\SnippetBasicStruct;
-use Shopware\Core\System\Snippet\Struct\SnippetDetailStruct;
+use Shopware\Core\System\Touchpoint\TouchpointDefinition;
+use Shopware\Storefront\Api\Seo\Collection\SeoUrlBasicCollection;
+use Shopware\Storefront\Api\Seo\Repository\SeoUrlRepository;
+use Shopware\Storefront\Api\Seo\Struct\SeoUrlBasicStruct;
 
-class SnippetDefinition extends EntityDefinition
+class SeoUrlDefinition extends EntityDefinition
 {
     /**
      * @var FieldCollection
@@ -38,7 +38,7 @@ class SnippetDefinition extends EntityDefinition
 
     public static function getEntityName(): string
     {
-        return 'snippet';
+        return 'seo_url';
     }
 
     public static function defineFields(): FieldCollection
@@ -46,22 +46,28 @@ class SnippetDefinition extends EntityDefinition
         return new FieldCollection([
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('language_id', 'languageId', LanguageDefinition::class))->setFlags(new PrimaryKey(), new Required()),
-            (new StringField('translation_key', 'translationKey'))->setFlags(new PrimaryKey(), new Required()),
-            (new LongTextField('value', 'value'))->setFlags(new Required()),
+            (new IdField('version_id', 'versionId'))->setFlags(new PrimaryKey(), new Required()),
+            (new FkField('touchpoint_id', 'touchpointId', TouchpointDefinition::class))->setFlags(new Required()),
+            (new StringField('name', 'name'))->setFlags(new Required()),
+            (new IdField('foreign_key', 'foreignKey'))->setFlags(new Required()),
+            (new IdField('foreign_key_version_id', 'foreignKeyVersionId'))->setFlags(new Required()),
+            (new StringField('path_info', 'pathInfo'))->setFlags(new Required()),
+            (new StringField('seo_path_info', 'seoPathInfo'))->setFlags(new Required()),
+            new BoolField('is_canonical', 'isCanonical'),
+            new BoolField('is_modified', 'isModified'),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            new ManyToOneAssociationField('language', 'languageId', LanguageDefinition::class, true),
+            new ManyToOneAssociationField('touchpoint', 'touchpoint_id', \Shopware\Core\System\Touchpoint\TouchpointDefinition::class, false),
         ]);
     }
 
     public static function getBasicCollectionClass(): string
     {
-        return SnippetBasicCollection::class;
+        return SeoUrlBasicCollection::class;
     }
 
     public static function getBasicStructClass(): string
     {
-        return SnippetBasicStruct::class;
+        return SeoUrlBasicStruct::class;
     }
 }

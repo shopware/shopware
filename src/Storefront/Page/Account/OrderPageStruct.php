@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Page\Account;
 
-use Shopware\Core\Checkout\Order\Struct\OrderSearchResult;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\Struct\Struct;
 

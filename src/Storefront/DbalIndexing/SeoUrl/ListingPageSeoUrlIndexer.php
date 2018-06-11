@@ -4,22 +4,21 @@ namespace Shopware\Storefront\DbalIndexing\SeoUrl;
 
 use Cocur\Slugify\SlugifyInterface;
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Content\Category\CategoryRepository;
-use Shopware\Core\Content\Category\Struct\CategorySearchResult;
-use Shopware\Core\Content\Product\Util\EventIdExtractor;
-use Shopware\Core\Defaults;
+use Shopware\Core\System\Touchpoint\TouchpointRepository;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Category\CategoryRepository;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
+use Shopware\Core\Content\Product\Util\EventIdExtractor;
 use Shopware\Core\Framework\ORM\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\ORM\Dbal\Indexing\IndexerInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Struct\Uuid;
-use Shopware\Core\System\Touchpoint\TouchpointRepository;
-use Shopware\Storefront\Api\Seo\Definition\SeoUrlDefinition;
+use Shopware\Storefront\Api\Seo\SeoUrlDefinition;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Routing\RouterInterface;
 

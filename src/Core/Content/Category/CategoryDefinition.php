@@ -5,11 +5,7 @@ namespace Shopware\Core\Content\Category;
 use Shopware\Core\Content\Catalog\ORM\CatalogField;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
 use Shopware\Core\Content\Category\Collection\CategoryBasicCollection;
-use Shopware\Core\Content\Category\Collection\CategoryDetailCollection;
-use Shopware\Core\Content\Category\Event\CategoryDeletedEvent;
-use Shopware\Core\Content\Category\Event\CategoryWrittenEvent;
 use Shopware\Core\Content\Category\Struct\CategoryBasicStruct;
-use Shopware\Core\Content\Category\Struct\CategoryDetailStruct;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductSeoCategory\ProductSeoCategoryDefinition;
@@ -116,24 +112,9 @@ class CategoryDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getRepositoryClass(): string
-    {
-        return CategoryRepository::class;
-    }
-
     public static function getBasicCollectionClass(): string
     {
         return CategoryBasicCollection::class;
-    }
-
-    public static function getDeletedEventClass(): string
-    {
-        return CategoryDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return CategoryWrittenEvent::class;
     }
 
     public static function getBasicStructClass(): string
@@ -144,15 +125,5 @@ class CategoryDefinition extends EntityDefinition
     public static function getTranslationDefinitionClass(): ?string
     {
         return CategoryTranslationDefinition::class;
-    }
-
-    public static function getDetailStructClass(): string
-    {
-        return CategoryDetailStruct::class;
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return CategoryDetailCollection::class;
     }
 }

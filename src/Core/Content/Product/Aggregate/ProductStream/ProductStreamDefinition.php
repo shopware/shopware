@@ -5,11 +5,7 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductStream;
 use Shopware\Core\Content\Catalog\ORM\CatalogField;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductStream\Collection\ProductStreamBasicCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductStream\Collection\ProductStreamDetailCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductStream\Event\ProductStreamDeletedEvent;
-use Shopware\Core\Content\Product\Aggregate\ProductStream\Event\ProductStreamWrittenEvent;
 use Shopware\Core\Content\Product\Aggregate\ProductStream\Struct\ProductStreamBasicStruct;
-use Shopware\Core\Content\Product\Aggregate\ProductStream\Struct\ProductStreamDetailStruct;
 use Shopware\Core\Content\Product\Aggregate\ProductStreamAssignment\ProductStreamAssignmentDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductStreamTab\ProductStreamTabDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -81,43 +77,13 @@ class ProductStreamDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getRepositoryClass(): string
-    {
-        return ProductStreamRepository::class;
-    }
-
     public static function getBasicCollectionClass(): string
     {
         return ProductStreamBasicCollection::class;
     }
 
-    public static function getDeletedEventClass(): string
-    {
-        return ProductStreamDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return ProductStreamWrittenEvent::class;
-    }
-
     public static function getBasicStructClass(): string
     {
         return ProductStreamBasicStruct::class;
-    }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return null;
-    }
-
-    public static function getDetailStructClass(): string
-    {
-        return ProductStreamDetailStruct::class;
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return ProductStreamDetailCollection::class;
     }
 }

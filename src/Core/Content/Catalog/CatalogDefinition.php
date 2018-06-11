@@ -3,8 +3,6 @@
 namespace Shopware\Core\Content\Catalog;
 
 use Shopware\Core\Content\Catalog\Collection\CatalogBasicCollection;
-use Shopware\Core\Content\Catalog\Event\CatalogDeletedEvent;
-use Shopware\Core\Content\Catalog\Event\CatalogWrittenEvent;
 use Shopware\Core\Content\Catalog\Struct\CatalogBasicStruct;
 use Shopware\Core\Content\Media\Aggregate\MediaAlbum\MediaAlbumDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationDefinition;
@@ -49,13 +47,9 @@ class CatalogDefinition extends EntityDefinition
         return 'catalog';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        self::$fields = new FieldCollection([
+        return new FieldCollection([
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new StringField('name', 'name'))->setFlags(new Required()),
@@ -74,17 +68,6 @@ class CatalogDefinition extends EntityDefinition
             (new OneToManyAssociationField('productStreams', ProductStreamDefinition::class, 'catalog_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
             (new OneToManyAssociationField('productTranslations', ProductTranslationDefinition::class, 'catalog_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
         ]);
-
-        foreach (self::$extensions as $extension) {
-            $extension->extendFields(self::$fields);
-        }
-
-        return self::$fields;
-    }
-
-    public static function getRepositoryClass(): string
-    {
-        return CatalogRepository::class;
     }
 
     public static function getBasicCollectionClass(): string
@@ -92,23 +75,8 @@ class CatalogDefinition extends EntityDefinition
         return CatalogBasicCollection::class;
     }
 
-    public static function getDeletedEventClass(): string
-    {
-        return CatalogDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return CatalogWrittenEvent::class;
-    }
-
     public static function getBasicStructClass(): string
     {
         return CatalogBasicStruct::class;
-    }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return null;
     }
 }

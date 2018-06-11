@@ -20,11 +20,7 @@ use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
 use Shopware\Core\System\Country\Aggregate\CountryArea\Collection\CountryAreaBasicCollection;
-use Shopware\Core\System\Country\Aggregate\CountryArea\Collection\CountryAreaDetailCollection;
-use Shopware\Core\System\Country\Aggregate\CountryArea\Event\CountryAreaDeletedEvent;
-use Shopware\Core\System\Country\Aggregate\CountryArea\Event\CountryAreaWrittenEvent;
 use Shopware\Core\System\Country\Aggregate\CountryArea\Struct\CountryAreaBasicStruct;
-use Shopware\Core\System\Country\Aggregate\CountryArea\Struct\CountryAreaDetailStruct;
 use Shopware\Core\System\Country\Aggregate\CountryAreaTranslation\CountryAreaTranslationDefinition;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleDefinition;
@@ -51,13 +47,9 @@ class CountryAreaDefinition extends EntityDefinition
         return 'country_area';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        self::$fields = new FieldCollection([
+        return new FieldCollection([
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
@@ -69,32 +61,11 @@ class CountryAreaDefinition extends EntityDefinition
             (new TranslationsAssociationField('translations', CountryAreaTranslationDefinition::class, 'country_area_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
             (new OneToManyAssociationField('taxAreaRules', TaxAreaRuleDefinition::class, 'country_area_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
         ]);
-
-        foreach (self::$extensions as $extension) {
-            $extension->extendFields(self::$fields);
-        }
-
-        return self::$fields;
-    }
-
-    public static function getRepositoryClass(): string
-    {
-        return CountryAreaRepository::class;
     }
 
     public static function getBasicCollectionClass(): string
     {
         return CountryAreaBasicCollection::class;
-    }
-
-    public static function getDeletedEventClass(): string
-    {
-        return CountryAreaDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return CountryAreaWrittenEvent::class;
     }
 
     public static function getBasicStructClass(): string
@@ -105,15 +76,5 @@ class CountryAreaDefinition extends EntityDefinition
     public static function getTranslationDefinitionClass(): ?string
     {
         return CountryAreaTranslationDefinition::class;
-    }
-
-    public static function getDetailStructClass(): string
-    {
-        return CountryAreaDetailStruct::class;
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return CountryAreaDetailCollection::class;
     }
 }

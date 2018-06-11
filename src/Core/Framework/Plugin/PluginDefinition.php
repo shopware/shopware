@@ -17,12 +17,8 @@ use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\Plugin\Collection\PluginBasicCollection;
-use Shopware\Core\Framework\Plugin\Collection\PluginDetailCollection;
-use Shopware\Core\Framework\Plugin\Event\PluginDeletedEvent;
-use Shopware\Core\Framework\Plugin\Event\PluginWrittenEvent;
 use Shopware\Core\Framework\Plugin\Repository\PluginRepository;
 use Shopware\Core\Framework\Plugin\Struct\PluginBasicStruct;
-use Shopware\Core\Framework\Plugin\Struct\PluginDetailStruct;
 use Shopware\Core\System\Config\ConfigFormDefinition;
 
 class PluginDefinition extends EntityDefinition
@@ -47,13 +43,9 @@ class PluginDefinition extends EntityDefinition
         return 'plugin';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        self::$fields = new FieldCollection([
+        return new FieldCollection([
             new TenantIdField(),
             new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
@@ -85,17 +77,6 @@ class PluginDefinition extends EntityDefinition
             (new OneToManyAssociationField('configForms', ConfigFormDefinition::class, 'plugin_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new OneToManyAssociationField('paymentMethods', \Shopware\Core\Checkout\Payment\PaymentMethodDefinition::class, 'plugin_id', false, 'id'))->setFlags(new CascadeDelete()),
         ]);
-
-        foreach (self::$extensions as $extension) {
-            $extension->extendFields(self::$fields);
-        }
-
-        return self::$fields;
-    }
-
-    public static function getRepositoryClass(): string
-    {
-        return PluginRepository::class;
     }
 
     public static function getBasicCollectionClass(): string
@@ -103,33 +84,8 @@ class PluginDefinition extends EntityDefinition
         return PluginBasicCollection::class;
     }
 
-    public static function getDeletedEventClass(): string
-    {
-        return PluginDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return PluginWrittenEvent::class;
-    }
-
     public static function getBasicStructClass(): string
     {
         return PluginBasicStruct::class;
-    }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return null;
-    }
-
-    public static function getDetailStructClass(): string
-    {
-        return PluginDetailStruct::class;
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return PluginDetailCollection::class;
     }
 }

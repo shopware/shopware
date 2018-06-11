@@ -24,11 +24,7 @@ use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Core\System\Config\Aggregate\ConfigFormField\Collection\ConfigFormFieldBasicCollection;
-use Shopware\Core\System\Config\Aggregate\ConfigFormField\Collection\ConfigFormFieldDetailCollection;
-use Shopware\Core\System\Config\Aggregate\ConfigFormField\Event\ConfigFormFieldDeletedEvent;
-use Shopware\Core\System\Config\Aggregate\ConfigFormField\Event\ConfigFormFieldWrittenEvent;
 use Shopware\Core\System\Config\Aggregate\ConfigFormField\Struct\ConfigFormFieldBasicStruct;
-use Shopware\Core\System\Config\Aggregate\ConfigFormField\Struct\ConfigFormFieldDetailStruct;
 use Shopware\Core\System\Config\Aggregate\ConfigFormFieldTranslation\ConfigFormFieldTranslationDefinition;
 use Shopware\Core\System\Config\Aggregate\ConfigFormFieldValue\ConfigFormFieldValueDefinition;
 use Shopware\Core\System\Config\ConfigFormDefinition;
@@ -55,13 +51,9 @@ class ConfigFormFieldDefinition extends EntityDefinition
         return 'config_form_field';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        self::$fields = new FieldCollection([
+        return new FieldCollection([
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
@@ -84,32 +76,11 @@ class ConfigFormFieldDefinition extends EntityDefinition
             (new TranslationsAssociationField('translations', ConfigFormFieldTranslationDefinition::class, 'config_form_field_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new OneToManyAssociationField('values', ConfigFormFieldValueDefinition::class, 'config_form_field_id', false, 'id'))->setFlags(new CascadeDelete()),
         ]);
-
-        foreach (self::$extensions as $extension) {
-            $extension->extendFields(self::$fields);
-        }
-
-        return self::$fields;
-    }
-
-    public static function getRepositoryClass(): string
-    {
-        return ConfigFormFieldRepository::class;
     }
 
     public static function getBasicCollectionClass(): string
     {
         return ConfigFormFieldBasicCollection::class;
-    }
-
-    public static function getDeletedEventClass(): string
-    {
-        return ConfigFormFieldDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return ConfigFormFieldWrittenEvent::class;
     }
 
     public static function getBasicStructClass(): string
@@ -120,15 +91,5 @@ class ConfigFormFieldDefinition extends EntityDefinition
     public static function getTranslationDefinitionClass(): ?string
     {
         return ConfigFormFieldTranslationDefinition::class;
-    }
-
-    public static function getDetailStructClass(): string
-    {
-        return ConfigFormFieldDetailStruct::class;
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return ConfigFormFieldDetailCollection::class;
     }
 }

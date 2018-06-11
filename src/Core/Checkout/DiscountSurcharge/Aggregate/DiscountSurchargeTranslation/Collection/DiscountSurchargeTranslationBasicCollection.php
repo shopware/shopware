@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Checkout\DiscountSurcharge\Aggregate\DiscountSurchargeTranslation\Collection;
 
-use Shopware\Core\Checkout\DiscountSurcharge\Struct\DiscountSurchargeTranslationBasicStruct;
+use Shopware\Core\Checkout\DiscountSurcharge\Aggregate\DiscountSurchargeTranslation\Struct\DiscountSurchargeTranslationBasicStruct;
 use Shopware\Core\Framework\ORM\EntityCollection;
 
 class DiscountSurchargeTranslationBasicCollection extends EntityCollection

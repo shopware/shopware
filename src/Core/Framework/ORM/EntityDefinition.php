@@ -11,12 +11,9 @@ use Shopware\Core\Framework\ORM\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\ORM\Event\DeletedEventInterface;
-use Shopware\Core\Framework\ORM\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\ORM\Write\EntityExistence;
-use Shopware\Core\Framework\ORM\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\ReadOnly;
-use Shopware\Core\Framework\ORM\Event\WrittenEvent;
 use Shopware\Core\Framework\ORM\Field\ChildCountField;
 use Shopware\Core\Framework\ORM\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\Struct\ArrayStruct;
@@ -53,7 +50,7 @@ abstract class EntityDefinition
 
     abstract protected static function defineFields(): FieldCollection;
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
         if (static::$fields) {
             return static::$fields;
@@ -87,7 +84,7 @@ abstract class EntityDefinition
 
     public static function getWriteOrder(): array
     {
-        $associations = static::getFields()->filter(function (Field $field) {
+        $associations = static::defineFields()->filter(function (Field $field) {
             return $field instanceof AssociationInterface && !$field->is(ReadOnly::class);
         });
 
@@ -123,7 +120,7 @@ abstract class EntityDefinition
             return static::$primaryKeys;
         }
 
-        return static::$primaryKeys = static::getFields()
+        return static::$primaryKeys = static::defineFields()
             ->filter(function (Field $field) {
                 return $field->is(PrimaryKey::class);
             });
@@ -131,12 +128,12 @@ abstract class EntityDefinition
 
     public static function getDefaults(EntityExistence $existence): array
     {
-        if (!$existence->exists() && static::getFields()->has('createdAt')) {
+        if (!$existence->exists() && static::defineFields()->has('createdAt')) {
             return [
                 'createdAt' => (new \DateTime())->format('Y-m-d H:i:s'),
             ];
         }
-        if ($existence->exists() && static::getFields()->has('updatedAt')) {
+        if ($existence->exists() && static::defineFields()->has('updatedAt')) {
             return [
                 'updatedAt' => (new \DateTime())->format('Y-m-d H:i:s'),
             ];
@@ -152,32 +149,32 @@ abstract class EntityDefinition
 
     public static function isChildrenAware(): bool
     {
-        return static::getFields()->get('children') instanceof ChildrenAssociationField;
+        return static::defineFields()->get('children') instanceof ChildrenAssociationField;
     }
 
     public static function isChildCountAware(): bool
     {
-        return static::getFields()->get('childCount') instanceof ChildCountField;
+        return static::defineFields()->get('childCount') instanceof ChildCountField;
     }
 
     public static function isInheritanceAware(): bool
     {
-        return static::allowInheritance() && static::getFields()->get('parent') instanceof ManyToOneAssociationField;
+        return static::allowInheritance() && static::defineFields()->get('parent') instanceof ManyToOneAssociationField;
     }
 
     public static function isVersionAware(): bool
     {
-        return static::getFields()->has('versionId');
+        return static::defineFields()->has('versionId');
     }
 
     public static function isCatalogAware(): bool
     {
-        return static::getFields()->has('catalogId');
+        return static::defineFields()->has('catalogId');
     }
 
     public static function isTenantAware(): bool
     {
-        return static::getFields()->has('tenantId');
+        return static::defineFields()->has('tenantId');
     }
 
     protected static function filterAssociationReferences(string $type, FieldCollection $fields): array

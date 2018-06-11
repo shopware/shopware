@@ -3,11 +3,7 @@
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransaction;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\Collection\OrderTransactionBasicCollection;
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\Collection\OrderTransactionDetailCollection;
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\Event\OrderTransactionDeletedEvent;
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\Event\OrderTransactionWrittenEvent;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\Struct\OrderTransactionBasicStruct;
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\Struct\OrderTransactionDetailStruct;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionState\OrderTransactionStateDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
@@ -51,13 +47,9 @@ class OrderTransactionDefinition extends EntityDefinition
         return 'order_transaction';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        self::$fields = new FieldCollection([
+        return new FieldCollection([
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
@@ -75,17 +67,6 @@ class OrderTransactionDefinition extends EntityDefinition
             new ManyToOneAssociationField('paymentMethod', 'payment_method_id', PaymentMethodDefinition::class, false),
             (new ManyToOneAssociationField('orderTransactionState', 'order_transaction_state_id', OrderTransactionStateDefinition::class, false))->setFlags(new RestrictDelete()),
         ]);
-
-        foreach (self::$extensions as $extension) {
-            $extension->extendFields(self::$fields);
-        }
-
-        return self::$fields;
-    }
-
-    public static function getRepositoryClass(): string
-    {
-        return OrderTransactionRepository::class;
     }
 
     public static function getBasicCollectionClass(): string
@@ -93,33 +74,8 @@ class OrderTransactionDefinition extends EntityDefinition
         return OrderTransactionBasicCollection::class;
     }
 
-    public static function getDeletedEventClass(): string
-    {
-        return OrderTransactionDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return OrderTransactionWrittenEvent::class;
-    }
-
     public static function getBasicStructClass(): string
     {
         return OrderTransactionBasicStruct::class;
-    }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return null;
-    }
-
-    public static function getDetailStructClass(): string
-    {
-        return OrderTransactionDetailStruct::class;
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return OrderTransactionDetailCollection::class;
     }
 }

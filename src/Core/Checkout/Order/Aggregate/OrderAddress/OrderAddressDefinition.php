@@ -3,11 +3,7 @@
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderAddress;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\Collection\OrderAddressBasicCollection;
-use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\Collection\OrderAddressDetailCollection;
-use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\Event\OrderAddressDeletedEvent;
-use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\Event\OrderAddressWrittenEvent;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\Struct\OrderAddressBasicStruct;
-use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\Struct\OrderAddressDetailStruct;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
@@ -49,13 +45,9 @@ class OrderAddressDefinition extends EntityDefinition
         return 'order_address';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        self::$fields = new FieldCollection([
+        return new FieldCollection([
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
@@ -86,17 +78,6 @@ class OrderAddressDefinition extends EntityDefinition
             (new OneToManyAssociationField('orders', OrderDefinition::class, 'billing_address_id', false, 'id'))->setFlags(new RestrictDelete()),
             (new OneToManyAssociationField('orderDeliveries', OrderDeliveryDefinition::class, 'shipping_address_id', false, 'id'))->setFlags(new RestrictDelete()),
         ]);
-
-        foreach (self::$extensions as $extension) {
-            $extension->extendFields(self::$fields);
-        }
-
-        return self::$fields;
-    }
-
-    public static function getRepositoryClass(): string
-    {
-        return OrderAddressRepository::class;
     }
 
     public static function getBasicCollectionClass(): string
@@ -104,33 +85,8 @@ class OrderAddressDefinition extends EntityDefinition
         return OrderAddressBasicCollection::class;
     }
 
-    public static function getDeletedEventClass(): string
-    {
-        return OrderAddressDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return OrderAddressWrittenEvent::class;
-    }
-
     public static function getBasicStructClass(): string
     {
         return OrderAddressBasicStruct::class;
-    }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return null;
-    }
-
-    public static function getDetailStructClass(): string
-    {
-        return OrderAddressDetailStruct::class;
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return OrderAddressDetailCollection::class;
     }
 }

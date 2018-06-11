@@ -5,11 +5,7 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductManufacturer;
 use Shopware\Core\Content\Catalog\ORM\CatalogField;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\Collection\ProductManufacturerBasicCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\Collection\ProductManufacturerDetailCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\Event\ProductManufacturerDeletedEvent;
-use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\Event\ProductManufacturerWrittenEvent;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\Struct\ProductManufacturerBasicStruct;
-use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\Struct\ProductManufacturerDetailStruct;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
@@ -81,24 +77,10 @@ class ProductManufacturerDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getRepositoryClass(): string
-    {
-        return ProductManufacturerRepository::class;
-    }
 
     public static function getBasicCollectionClass(): string
     {
         return ProductManufacturerBasicCollection::class;
-    }
-
-    public static function getDeletedEventClass(): string
-    {
-        return ProductManufacturerDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return ProductManufacturerWrittenEvent::class;
     }
 
     public static function getBasicStructClass(): string
@@ -111,13 +93,4 @@ class ProductManufacturerDefinition extends EntityDefinition
         return ProductManufacturerTranslationDefinition::class;
     }
 
-    public static function getDetailStructClass(): string
-    {
-        return ProductManufacturerDetailStruct::class;
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return ProductManufacturerDetailCollection::class;
-    }
 }

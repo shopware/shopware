@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Test\Api\Serializer;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaAlbum\MediaAlbumDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaAlbum\Struct\MediaAlbumBasicStruct;
-use Shopware\Core\Content\Media\Aggregate\MediaAlbum\Struct\MediaAlbumDetailStruct;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\Api\Serializer\JsonApiEncoder;
 use Shopware\Core\Framework\Struct\Serializer\StructDecoder;

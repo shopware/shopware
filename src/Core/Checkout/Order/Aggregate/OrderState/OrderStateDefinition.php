@@ -4,11 +4,7 @@ namespace Shopware\Core\Checkout\Order\Aggregate\OrderState;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderState\Collection\OrderStateBasicCollection;
-use Shopware\Core\Checkout\Order\Aggregate\OrderState\Collection\OrderStateDetailCollection;
-use Shopware\Core\Checkout\Order\Aggregate\OrderState\Event\OrderStateDeletedEvent;
-use Shopware\Core\Checkout\Order\Aggregate\OrderState\Event\OrderStateWrittenEvent;
 use Shopware\Core\Checkout\Order\Aggregate\OrderState\Struct\OrderStateBasicStruct;
-use Shopware\Core\Checkout\Order\Aggregate\OrderState\Struct\OrderStateDetailStruct;
 use Shopware\Core\Checkout\Order\Aggregate\OrderStateTranslation\OrderStateTranslationDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
@@ -53,13 +49,9 @@ class OrderStateDefinition extends EntityDefinition
         return 'order_state';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        self::$fields = new FieldCollection([
+        return new FieldCollection([
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
@@ -73,32 +65,11 @@ class OrderStateDefinition extends EntityDefinition
             (new OneToManyAssociationField('orderDeliveries', OrderDeliveryDefinition::class, 'order_state_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
             (new TranslationsAssociationField('translations', OrderStateTranslationDefinition::class, 'order_state_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
         ]);
-
-        foreach (self::$extensions as $extension) {
-            $extension->extendFields(self::$fields);
-        }
-
-        return self::$fields;
-    }
-
-    public static function getRepositoryClass(): string
-    {
-        return OrderStateRepository::class;
     }
 
     public static function getBasicCollectionClass(): string
     {
         return OrderStateBasicCollection::class;
-    }
-
-    public static function getDeletedEventClass(): string
-    {
-        return OrderStateDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return OrderStateWrittenEvent::class;
     }
 
     public static function getBasicStructClass(): string
@@ -109,15 +80,5 @@ class OrderStateDefinition extends EntityDefinition
     public static function getTranslationDefinitionClass(): ?string
     {
         return OrderStateTranslationDefinition::class;
-    }
-
-    public static function getDetailStructClass(): string
-    {
-        return OrderStateDetailStruct::class;
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return OrderStateDetailCollection::class;
     }
 }

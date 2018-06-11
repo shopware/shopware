@@ -6,11 +6,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceDefinition;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationDefinition;
 use Shopware\Core\Checkout\Shipping\Collection\ShippingMethodBasicCollection;
-use Shopware\Core\Checkout\Shipping\Collection\ShippingMethodDetailCollection;
-use Shopware\Core\Checkout\Shipping\Event\ShippingMethodDeletedEvent;
-use Shopware\Core\Checkout\Shipping\Event\ShippingMethodWrittenEvent;
 use Shopware\Core\Checkout\Shipping\Struct\ShippingMethodBasicStruct;
-use Shopware\Core\Checkout\Shipping\Struct\ShippingMethodDetailStruct;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\BoolField;
@@ -97,24 +93,9 @@ class ShippingMethodDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getRepositoryClass(): string
-    {
-        return ShippingMethodRepository::class;
-    }
-
     public static function getBasicCollectionClass(): string
     {
         return ShippingMethodBasicCollection::class;
-    }
-
-    public static function getDeletedEventClass(): string
-    {
-        return ShippingMethodDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return ShippingMethodWrittenEvent::class;
     }
 
     public static function getBasicStructClass(): string
@@ -125,15 +106,5 @@ class ShippingMethodDefinition extends EntityDefinition
     public static function getTranslationDefinitionClass(): ?string
     {
         return ShippingMethodTranslationDefinition::class;
-    }
-
-    public static function getDetailStructClass(): string
-    {
-        return ShippingMethodDetailStruct::class;
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return ShippingMethodDetailCollection::class;
     }
 }

@@ -14,11 +14,7 @@ use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\Mail\Aggregate\MailTranslation\Collection\MailTranslationBasicCollection;
-use Shopware\Core\System\Mail\Aggregate\MailTranslation\Collection\MailTranslationDetailCollection;
-use Shopware\Core\System\Mail\Aggregate\MailTranslation\Event\MailTranslationDeletedEvent;
-use Shopware\Core\System\Mail\Aggregate\MailTranslation\Event\MailTranslationWrittenEvent;
 use Shopware\Core\System\Mail\Aggregate\MailTranslation\Struct\MailTranslationBasicStruct;
-use Shopware\Core\System\Mail\Aggregate\MailTranslation\Struct\MailTranslationDetailStruct;
 use Shopware\Core\System\Mail\MailDefinition;
 
 class MailTranslationDefinition extends EntityDefinition
@@ -43,13 +39,9 @@ class MailTranslationDefinition extends EntityDefinition
         return 'mail_translation';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        self::$fields = new FieldCollection([
+        return new FieldCollection([
             (new FkField('mail_id', 'mailId', MailDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new ReferenceVersionField(MailDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('language_id', 'languageId', LanguageDefinition::class))->setFlags(new PrimaryKey(), new Required()),
@@ -61,51 +53,14 @@ class MailTranslationDefinition extends EntityDefinition
             new ManyToOneAssociationField('mail', 'mail_id', MailDefinition::class, false),
             new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, false),
         ]);
-
-        foreach (self::$extensions as $extension) {
-            $extension->extendFields(self::$fields);
-        }
-
-        return self::$fields;
     }
-
-    public static function getRepositoryClass(): string
-    {
-        return MailTranslationRepository::class;
-    }
-
     public static function getBasicCollectionClass(): string
     {
         return MailTranslationBasicCollection::class;
     }
 
-    public static function getDeletedEventClass(): string
-    {
-        return MailTranslationDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return MailTranslationWrittenEvent::class;
-    }
-
     public static function getBasicStructClass(): string
     {
         return MailTranslationBasicStruct::class;
-    }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return null;
-    }
-
-    public static function getDetailStructClass(): string
-    {
-        return MailTranslationDetailStruct::class;
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return MailTranslationDetailCollection::class;
     }
 }

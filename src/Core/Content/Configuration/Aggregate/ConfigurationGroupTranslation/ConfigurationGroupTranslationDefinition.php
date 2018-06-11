@@ -2,13 +2,6 @@
 
 namespace Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation;
 
-use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\Collection\ConfigurationGroupTranslationBasicCollection;
-use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\Collection\ConfigurationGroupTranslationDetailCollection;
-use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\Event\ConfigurationGroupTranslationDeletedEvent;
-use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\Event\ConfigurationGroupTranslationWrittenEvent;
-use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\Struct\ConfigurationGroupTranslationBasicStruct;
-use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\Struct\ConfigurationGroupTranslationDetailStruct;
-use Shopware\Core\Content\Configuration\ConfigurationGroupDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\FkField;
@@ -18,6 +11,9 @@ use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\Collection\ConfigurationGroupTranslationBasicCollection;
+use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\Struct\ConfigurationGroupTranslationBasicStruct;
+use Shopware\Core\Content\Configuration\ConfigurationGroupDefinition;
 use Shopware\Core\System\Language\LanguageDefinition;
 
 class ConfigurationGroupTranslationDefinition extends EntityDefinition
@@ -42,13 +38,9 @@ class ConfigurationGroupTranslationDefinition extends EntityDefinition
         return 'configuration_group_translation';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        self::$fields = new FieldCollection([
+        return new FieldCollection([
             (new FkField('configuration_group_id', 'configurationGroupId', ConfigurationGroupDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new ReferenceVersionField(ConfigurationGroupDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('language_id', 'languageId', LanguageDefinition::class))->setFlags(new PrimaryKey(), new Required()),
@@ -56,17 +48,6 @@ class ConfigurationGroupTranslationDefinition extends EntityDefinition
             new ManyToOneAssociationField('configurationGroup', 'configuration_group_id', ConfigurationGroupDefinition::class, false),
             new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, false),
         ]);
-
-        foreach (self::$extensions as $extension) {
-            $extension->extendFields(self::$fields);
-        }
-
-        return self::$fields;
-    }
-
-    public static function getRepositoryClass(): string
-    {
-        return ConfigurationGroupTranslationRepository::class;
     }
 
     public static function getBasicCollectionClass(): string
@@ -74,33 +55,8 @@ class ConfigurationGroupTranslationDefinition extends EntityDefinition
         return ConfigurationGroupTranslationBasicCollection::class;
     }
 
-    public static function getDeletedEventClass(): string
-    {
-        return ConfigurationGroupTranslationDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return ConfigurationGroupTranslationWrittenEvent::class;
-    }
-
     public static function getBasicStructClass(): string
     {
         return ConfigurationGroupTranslationBasicStruct::class;
-    }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return null;
-    }
-
-    public static function getDetailStructClass(): string
-    {
-        return ConfigurationGroupTranslationDetailStruct::class;
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return ConfigurationGroupTranslationDetailCollection::class;
     }
 }

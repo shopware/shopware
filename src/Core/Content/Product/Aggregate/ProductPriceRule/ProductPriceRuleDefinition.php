@@ -3,11 +3,7 @@
 namespace Shopware\Core\Content\Product\Aggregate\ProductPriceRule;
 
 use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\Collection\ProductPriceRuleBasicCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\Collection\ProductPriceRuleDetailCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\Event\ProductPriceRuleDeletedEvent;
-use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\Event\ProductPriceRuleWrittenEvent;
 use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\Struct\ProductPriceRuleBasicStruct;
-use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\Struct\ProductPriceRuleDetailStruct;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
@@ -70,43 +66,15 @@ class ProductPriceRuleDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getRepositoryClass(): string
-    {
-        return ProductPriceRuleRepository::class;
-    }
-
     public static function getBasicCollectionClass(): string
     {
         return ProductPriceRuleBasicCollection::class;
     }
 
-    public static function getDeletedEventClass(): string
-    {
-        return ProductPriceRuleDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return ProductPriceRuleWrittenEvent::class;
-    }
 
     public static function getBasicStructClass(): string
     {
         return ProductPriceRuleBasicStruct::class;
     }
 
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return null;
-    }
-
-    public static function getDetailStructClass(): string
-    {
-        return ProductPriceRuleDetailStruct::class;
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return ProductPriceRuleDetailCollection::class;
-    }
 }

@@ -25,11 +25,7 @@ use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\Collection\TaxAreaRuleBasicCollection;
-use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\Collection\TaxAreaRuleDetailCollection;
-use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\Event\TaxAreaRuleDeletedEvent;
-use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\Event\TaxAreaRuleWrittenEvent;
 use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\Struct\TaxAreaRuleBasicStruct;
-use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\Struct\TaxAreaRuleDetailStruct;
 use Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTranslation\TaxAreaRuleTranslationDefinition;
 use Shopware\Core\System\Tax\TaxDefinition;
 
@@ -55,13 +51,9 @@ class TaxAreaRuleDefinition extends EntityDefinition
         return 'tax_area_rule';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        self::$fields = new FieldCollection([
+        return new FieldCollection([
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
@@ -93,32 +85,11 @@ class TaxAreaRuleDefinition extends EntityDefinition
             new ManyToOneAssociationField('customerGroup', 'customer_group_id', CustomerGroupDefinition::class, false),
             (new TranslationsAssociationField('translations', TaxAreaRuleTranslationDefinition::class, 'tax_area_rule_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
         ]);
-
-        foreach (self::$extensions as $extension) {
-            $extension->extendFields(self::$fields);
-        }
-
-        return self::$fields;
-    }
-
-    public static function getRepositoryClass(): string
-    {
-        return TaxAreaRuleRepository::class;
     }
 
     public static function getBasicCollectionClass(): string
     {
         return TaxAreaRuleBasicCollection::class;
-    }
-
-    public static function getDeletedEventClass(): string
-    {
-        return TaxAreaRuleDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return TaxAreaRuleWrittenEvent::class;
     }
 
     public static function getBasicStructClass(): string
@@ -129,15 +100,5 @@ class TaxAreaRuleDefinition extends EntityDefinition
     public static function getTranslationDefinitionClass(): ?string
     {
         return TaxAreaRuleTranslationDefinition::class;
-    }
-
-    public static function getDetailStructClass(): string
-    {
-        return TaxAreaRuleDetailStruct::class;
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return TaxAreaRuleDetailCollection::class;
     }
 }

@@ -8,7 +8,6 @@ use Shopware\Core\Framework\Api\Context\RestContext;
 use Shopware\Core\Framework\ORM\DefinitionRegistry;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Write\FieldException\WriteStackException;
-use Shopware\Core\Framework\ORM\Event\WrittenEvent;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;

@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\ORM;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Search\Criteria;
-use Shopware\Core\Framework\ORM\Search\IdSearchResult;
 use Shopware\Core\Framework\ORM\Search\SearchResultInterface;
 use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
 

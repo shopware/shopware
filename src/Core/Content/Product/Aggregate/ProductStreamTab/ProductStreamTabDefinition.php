@@ -3,8 +3,6 @@
 namespace Shopware\Core\Content\Product\Aggregate\ProductStreamTab;
 
 use Shopware\Core\Content\Product\Aggregate\ProductStream\ProductStreamDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductStreamTab\Event\ProductStreamTabDeletedEvent;
-use Shopware\Core\Content\Product\Aggregate\ProductStreamTab\Event\ProductStreamTabWrittenEvent;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\ORM\Field\DateField;
 use Shopware\Core\Framework\ORM\Field\FkField;
@@ -51,13 +49,4 @@ class ProductStreamTabDefinition extends MappingEntityDefinition
         ]);
     }
 
-    public static function getWrittenEventClass(): string
-    {
-        return ProductStreamTabWrittenEvent::class;
-    }
-
-    public static function getDeletedEventClass(): string
-    {
-        return ProductStreamTabDeletedEvent::class;
-    }
 }

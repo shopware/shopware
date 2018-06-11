@@ -3,13 +3,11 @@
 namespace Shopware\Storefront\Seo\Category;
 
 use Shopware\Core\Content\Category\CategoryDefinition;
-use Shopware\Core\Content\Category\Event\CategoryBasicLoadedEvent;
 use Shopware\Core\Content\Category\Struct\CategoryBasicStruct;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Storefront\Api\Entity\Field\CanonicalUrlAssociationField;
 use Shopware\Storefront\Api\Seo\Collection\SeoUrlBasicCollection;
-use Shopware\Storefront\Api\Seo\Event\SeoUrl\SeoUrlBasicLoadedEvent;
 use Shopware\Storefront\DbalIndexing\SeoUrl\ListingPageSeoUrlIndexer;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;

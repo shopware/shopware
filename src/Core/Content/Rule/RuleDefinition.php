@@ -5,8 +5,6 @@ namespace Shopware\Core\Content\Rule;
 use Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleDefinition;
 use Shopware\Core\Content\Rule\Collection\RuleBasicCollection;
-use Shopware\Core\Content\Rule\Event\RuleDeletedEvent;
-use Shopware\Core\Content\Rule\Event\RuleWrittenEvent;
 use Shopware\Core\Content\Rule\Struct\RuleBasicStruct;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
@@ -61,24 +59,10 @@ class RuleDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getRepositoryClass(): string
-    {
-        return RuleRepository::class;
-    }
 
     public static function getBasicCollectionClass(): string
     {
         return RuleBasicCollection::class;
-    }
-
-    public static function getDeletedEventClass(): string
-    {
-        return RuleDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return RuleWrittenEvent::class;
     }
 
     public static function getBasicStructClass(): string
@@ -86,8 +70,4 @@ class RuleDefinition extends EntityDefinition
         return RuleBasicStruct::class;
     }
 
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return null;
-    }
 }

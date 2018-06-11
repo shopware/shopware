@@ -7,7 +7,6 @@ use Shopware\Core\Content\Product\Storefront\StorefrontProductRepository;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Storefront\Event\ListingEvents;
-use Shopware\Storefront\Event\ListingPageLoadedEvent;
 use Shopware\Storefront\Event\PageCriteriaCreatedEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 

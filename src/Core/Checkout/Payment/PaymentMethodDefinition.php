@@ -7,11 +7,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefi
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationDefinition;
 use Shopware\Core\Checkout\Payment\Collection\PaymentMethodBasicCollection;
-use Shopware\Core\Checkout\Payment\Collection\PaymentMethodDetailCollection;
-use Shopware\Core\Checkout\Payment\Event\PaymentMethodDeletedEvent;
-use Shopware\Core\Checkout\Payment\Event\PaymentMethodWrittenEvent;
 use Shopware\Core\Checkout\Payment\Struct\PaymentMethodBasicStruct;
-use Shopware\Core\Checkout\Payment\Struct\PaymentMethodDetailStruct;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\BoolField;
@@ -98,24 +94,9 @@ class PaymentMethodDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getRepositoryClass(): string
-    {
-        return PaymentMethodRepository::class;
-    }
-
     public static function getBasicCollectionClass(): string
     {
         return PaymentMethodBasicCollection::class;
-    }
-
-    public static function getDeletedEventClass(): string
-    {
-        return PaymentMethodDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return PaymentMethodWrittenEvent::class;
     }
 
     public static function getBasicStructClass(): string
@@ -126,15 +107,5 @@ class PaymentMethodDefinition extends EntityDefinition
     public static function getTranslationDefinitionClass(): ?string
     {
         return PaymentMethodTranslationDefinition::class;
-    }
-
-    public static function getDetailStructClass(): string
-    {
-        return PaymentMethodDetailStruct::class;
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return PaymentMethodDetailCollection::class;
     }
 }

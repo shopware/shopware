@@ -20,12 +20,8 @@ use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Core\System\Listing\Collection\ListingFacetBasicCollection;
-use Shopware\Core\System\Listing\Collection\ListingFacetDetailCollection;
 use Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation\ListingFacetTranslationDefinition;
-use Shopware\Core\System\Listing\Event\ListingFacetDeletedEvent;
-use Shopware\Core\System\Listing\Event\ListingFacetWrittenEvent;
 use Shopware\Core\System\Listing\Struct\ListingFacetBasicStruct;
-use Shopware\Core\System\Listing\Struct\ListingFacetDetailStruct;
 
 class ListingFacetDefinition extends EntityDefinition
 {
@@ -49,13 +45,9 @@ class ListingFacetDefinition extends EntityDefinition
         return 'listing_facet';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        self::$fields = new FieldCollection([
+        return new FieldCollection([
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
@@ -70,32 +62,11 @@ class ListingFacetDefinition extends EntityDefinition
             new DateField('updated_at', 'updatedAt'),
             (new TranslationsAssociationField('translations', ListingFacetTranslationDefinition::class, 'listing_facet_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
         ]);
-
-        foreach (self::$extensions as $extension) {
-            $extension->extendFields(self::$fields);
-        }
-
-        return self::$fields;
-    }
-
-    public static function getRepositoryClass(): string
-    {
-        return ListingFacetRepository::class;
     }
 
     public static function getBasicCollectionClass(): string
     {
         return ListingFacetBasicCollection::class;
-    }
-
-    public static function getDeletedEventClass(): string
-    {
-        return ListingFacetDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return ListingFacetWrittenEvent::class;
     }
 
     public static function getBasicStructClass(): string
@@ -106,15 +77,5 @@ class ListingFacetDefinition extends EntityDefinition
     public static function getTranslationDefinitionClass(): ?string
     {
         return ListingFacetTranslationDefinition::class;
-    }
-
-    public static function getDetailStructClass(): string
-    {
-        return ListingFacetDetailStruct::class;
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return ListingFacetDetailCollection::class;
     }
 }

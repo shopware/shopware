@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Subscriber;
 
-use Shopware\Core\Content\Product\Struct\ProductSearchResult;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Storefront\Event\ListingEvents;
 use Shopware\Storefront\Event\ListingPageLoadedEvent;

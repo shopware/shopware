@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Test\Product\Service;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductRepository;
+use Shopware\Core\Framework\Pricing\PriceStruct;
 use Shopware\Core\Content\Product\Struct\ProductDetailStruct;
 use Shopware\Core\Content\Product\Util\VariantGenerator;
 use Shopware\Core\Framework\Context;

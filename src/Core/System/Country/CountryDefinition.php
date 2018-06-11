@@ -30,11 +30,7 @@ use Shopware\Core\System\Country\Aggregate\CountryArea\CountryAreaDefinition;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition;
 use Shopware\Core\System\Country\Aggregate\CountryTranslation\CountryTranslationDefinition;
 use Shopware\Core\System\Country\Collection\CountryBasicCollection;
-use Shopware\Core\System\Country\Collection\CountryDetailCollection;
-use Shopware\Core\System\Country\Event\CountryDeletedEvent;
-use Shopware\Core\System\Country\Event\CountryWrittenEvent;
 use Shopware\Core\System\Country\Struct\CountryBasicStruct;
-use Shopware\Core\System\Country\Struct\CountryDetailStruct;
 use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleDefinition;
 use Shopware\Core\System\Touchpoint\TouchpointDefinition;
 
@@ -92,24 +88,9 @@ class CountryDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getRepositoryClass(): string
-    {
-        return CountryRepository::class;
-    }
-
     public static function getBasicCollectionClass(): string
     {
         return CountryBasicCollection::class;
-    }
-
-    public static function getDeletedEventClass(): string
-    {
-        return CountryDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return CountryWrittenEvent::class;
     }
 
     public static function getBasicStructClass(): string
@@ -120,15 +101,5 @@ class CountryDefinition extends EntityDefinition
     public static function getTranslationDefinitionClass(): ?string
     {
         return CountryTranslationDefinition::class;
-    }
-
-    public static function getDetailStructClass(): string
-    {
-        return CountryDetailStruct::class;
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return CountryDetailCollection::class;
     }
 }

@@ -3,8 +3,6 @@
 namespace Shopware\Core\Content\Product\Aggregate\ProductCategoryTree;
 
 use Shopware\Core\Content\Category\CategoryDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductCategoryTree\Event\ProductCategoryTreeDeletedEvent;
-use Shopware\Core\Content\Product\Aggregate\ProductCategoryTree\Event\ProductCategoryTreeWrittenEvent;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
@@ -48,15 +46,5 @@ class ProductCategoryTreeDefinition extends MappingEntityDefinition
             new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, false),
             new ManyToOneAssociationField('category', 'category_id', CategoryDefinition::class, false),
         ]);
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return ProductCategoryTreeWrittenEvent::class;
-    }
-
-    public static function getDeletedEventClass(): string
-    {
-        return ProductCategoryTreeDeletedEvent::class;
     }
 }

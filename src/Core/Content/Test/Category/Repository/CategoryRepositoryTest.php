@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\Test\Category\Repository;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryRepository;
-use Shopware\Core\Content\Category\Event\CategoryDeletedEvent;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\RepositoryInterface;

@@ -5,11 +5,7 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation
 use Shopware\Core\Content\Catalog\ORM\CatalogField;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\Collection\ProductManufacturerTranslationBasicCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\Collection\ProductManufacturerTranslationDetailCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\Event\ProductManufacturerTranslationDeletedEvent;
-use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\Event\ProductManufacturerTranslationWrittenEvent;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\Struct\ProductManufacturerTranslationBasicStruct;
-use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\Struct\ProductManufacturerTranslationDetailStruct;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\FkField;
@@ -62,24 +58,10 @@ class ProductManufacturerTranslationDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getRepositoryClass(): string
-    {
-        return ProductManufacturerTranslationRepository::class;
-    }
 
     public static function getBasicCollectionClass(): string
     {
         return ProductManufacturerTranslationBasicCollection::class;
-    }
-
-    public static function getDeletedEventClass(): string
-    {
-        return ProductManufacturerTranslationDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return ProductManufacturerTranslationWrittenEvent::class;
     }
 
     public static function getBasicStructClass(): string
@@ -87,18 +69,4 @@ class ProductManufacturerTranslationDefinition extends EntityDefinition
         return ProductManufacturerTranslationBasicStruct::class;
     }
 
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return null;
-    }
-
-    public static function getDetailStructClass(): string
-    {
-        return ProductManufacturerTranslationDetailStruct::class;
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return ProductManufacturerTranslationDetailCollection::class;
-    }
 }

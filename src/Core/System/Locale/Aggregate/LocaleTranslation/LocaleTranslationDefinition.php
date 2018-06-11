@@ -13,11 +13,7 @@ use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\Locale\Aggregate\LocaleTranslation\Collection\LocaleTranslationBasicCollection;
-use Shopware\Core\System\Locale\Aggregate\LocaleTranslation\Collection\LocaleTranslationDetailCollection;
-use Shopware\Core\System\Locale\Aggregate\LocaleTranslation\Event\LocaleTranslationDeletedEvent;
-use Shopware\Core\System\Locale\Aggregate\LocaleTranslation\Event\LocaleTranslationWrittenEvent;
 use Shopware\Core\System\Locale\Aggregate\LocaleTranslation\Struct\LocaleTranslationBasicStruct;
-use Shopware\Core\System\Locale\Aggregate\LocaleTranslation\Struct\LocaleTranslationDetailStruct;
 use Shopware\Core\System\Locale\LocaleDefinition;
 
 class LocaleTranslationDefinition extends EntityDefinition
@@ -55,24 +51,9 @@ class LocaleTranslationDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getRepositoryClass(): string
-    {
-        return LocaleTranslationRepository::class;
-    }
-
     public static function getBasicCollectionClass(): string
     {
         return LocaleTranslationBasicCollection::class;
-    }
-
-    public static function getDeletedEventClass(): string
-    {
-        return LocaleTranslationDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return LocaleTranslationWrittenEvent::class;
     }
 
     public static function getBasicStructClass(): string
@@ -80,18 +61,4 @@ class LocaleTranslationDefinition extends EntityDefinition
         return LocaleTranslationBasicStruct::class;
     }
 
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return null;
-    }
-
-    public static function getDetailStructClass(): string
-    {
-        return LocaleTranslationDetailStruct::class;
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return LocaleTranslationDetailCollection::class;
-    }
 }

@@ -5,11 +5,7 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductMedia;
 use Shopware\Core\Content\Catalog\ORM\CatalogField;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\Collection\ProductMediaBasicCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductMedia\Collection\ProductMediaDetailCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductMedia\Event\ProductMediaDeletedEvent;
-use Shopware\Core\Content\Product\Aggregate\ProductMedia\Event\ProductMediaWrittenEvent;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\Struct\ProductMediaBasicStruct;
-use Shopware\Core\Content\Product\Aggregate\ProductMedia\Struct\ProductMediaDetailStruct;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
@@ -71,43 +67,15 @@ class ProductMediaDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getRepositoryClass(): string
-    {
-        return ProductMediaRepository::class;
-    }
-
     public static function getBasicCollectionClass(): string
     {
         return ProductMediaBasicCollection::class;
     }
 
-    public static function getDeletedEventClass(): string
-    {
-        return ProductMediaDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return ProductMediaWrittenEvent::class;
-    }
 
     public static function getBasicStructClass(): string
     {
         return ProductMediaBasicStruct::class;
     }
 
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return null;
-    }
-
-    public static function getDetailStructClass(): string
-    {
-        return ProductMediaDetailStruct::class;
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return ProductMediaDetailCollection::class;
-    }
 }

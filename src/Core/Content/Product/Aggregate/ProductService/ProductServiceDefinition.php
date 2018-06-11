@@ -4,8 +4,6 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductService;
 
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductService\Collection\ProductServiceBasicCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductService\Event\ProductServiceDeletedEvent;
-use Shopware\Core\Content\Product\Aggregate\ProductService\Event\ProductServiceWrittenEvent;
 use Shopware\Core\Content\Product\Aggregate\ProductService\Struct\ProductServiceBasicStruct;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
@@ -66,33 +64,13 @@ class ProductServiceDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getRepositoryClass(): string
-    {
-        return ProductServiceRepository::class;
-    }
-
     public static function getBasicCollectionClass(): string
     {
         return ProductServiceBasicCollection::class;
     }
 
-    public static function getDeletedEventClass(): string
-    {
-        return ProductServiceDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return ProductServiceWrittenEvent::class;
-    }
-
     public static function getBasicStructClass(): string
     {
         return ProductServiceBasicStruct::class;
-    }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return null;
     }
 }

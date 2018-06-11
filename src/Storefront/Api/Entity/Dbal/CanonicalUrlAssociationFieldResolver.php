@@ -9,7 +9,7 @@ use Shopware\Core\Framework\ORM\Dbal\QueryBuilder;
 use Shopware\Core\Framework\ORM\Field\Field;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Storefront\Api\Entity\Field\CanonicalUrlAssociationField;
-use Shopware\Storefront\Api\Seo\Definition\SeoUrlDefinition;
+use Shopware\Storefront\Api\Seo\SeoUrlDefinition;
 
 class CanonicalUrlAssociationFieldResolver implements FieldResolverInterface
 {

@@ -17,11 +17,7 @@ use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\System\Config\Aggregate\ConfigFormField\ConfigFormFieldDefinition;
 use Shopware\Core\System\Config\Aggregate\ConfigFormFieldValue\Collection\ConfigFormFieldValueBasicCollection;
-use Shopware\Core\System\Config\Aggregate\ConfigFormFieldValue\Collection\ConfigFormFieldValueDetailCollection;
-use Shopware\Core\System\Config\Aggregate\ConfigFormFieldValue\Event\ConfigFormFieldValueDeletedEvent;
-use Shopware\Core\System\Config\Aggregate\ConfigFormFieldValue\Event\ConfigFormFieldValueWrittenEvent;
 use Shopware\Core\System\Config\Aggregate\ConfigFormFieldValue\Struct\ConfigFormFieldValueBasicStruct;
-use Shopware\Core\System\Config\Aggregate\ConfigFormFieldValue\Struct\ConfigFormFieldValueDetailStruct;
 
 class ConfigFormFieldValueDefinition extends EntityDefinition
 {
@@ -45,13 +41,9 @@ class ConfigFormFieldValueDefinition extends EntityDefinition
         return 'config_form_field_value';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        self::$fields = new FieldCollection([
+        return new FieldCollection([
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
@@ -64,12 +56,6 @@ class ConfigFormFieldValueDefinition extends EntityDefinition
             new DateField('updated_at', 'updatedAt'),
             new ManyToOneAssociationField('configFormField', 'config_form_field_id', ConfigFormFieldDefinition::class, false),
         ]);
-
-        foreach (self::$extensions as $extension) {
-            $extension->extendFields(self::$fields);
-        }
-
-        return self::$fields;
     }
 
     public static function getRepositoryClass(): string

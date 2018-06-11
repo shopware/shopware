@@ -3,11 +3,7 @@
 namespace Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword;
 
 use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\Collection\ProductSearchKeywordBasicCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\Collection\ProductSearchKeywordDetailCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\Event\ProductSearchKeywordDeletedEvent;
-use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\Event\ProductSearchKeywordWrittenEvent;
 use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\Struct\ProductSearchKeywordBasicStruct;
-use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\Struct\ProductSearchKeywordDetailStruct;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
@@ -65,24 +61,9 @@ class ProductSearchKeywordDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getRepositoryClass(): string
-    {
-        return ProductSearchKeywordRepository::class;
-    }
-
     public static function getBasicCollectionClass(): string
     {
         return ProductSearchKeywordBasicCollection::class;
-    }
-
-    public static function getDeletedEventClass(): string
-    {
-        return ProductSearchKeywordDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return ProductSearchKeywordWrittenEvent::class;
     }
 
     public static function getBasicStructClass(): string
@@ -90,18 +71,4 @@ class ProductSearchKeywordDefinition extends EntityDefinition
         return ProductSearchKeywordBasicStruct::class;
     }
 
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return null;
-    }
-
-    public static function getDetailStructClass(): string
-    {
-        return ProductSearchKeywordDetailStruct::class;
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return ProductSearchKeywordDetailCollection::class;
-    }
 }

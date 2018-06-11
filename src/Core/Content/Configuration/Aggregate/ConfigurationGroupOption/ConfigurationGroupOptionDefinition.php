@@ -2,14 +2,6 @@
 
 namespace Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption;
 
-use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionBasicCollection;
-use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionDetailCollection;
-use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\Event\ConfigurationGroupOptionDeletedEvent;
-use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\Event\ConfigurationGroupOptionWrittenEvent;
-use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\Struct\ConfigurationGroupOptionBasicStruct;
-use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\Struct\ConfigurationGroupOptionDetailStruct;
-use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOptionTranslation\ConfigurationGroupOptionTranslationDefinition;
-use Shopware\Core\Content\Configuration\ConfigurationGroupDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceDefinition;
@@ -32,6 +24,10 @@ use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
+use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionBasicCollection;
+use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\Struct\ConfigurationGroupOptionBasicStruct;
+use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOptionTranslation\ConfigurationGroupOptionTranslationDefinition;
+use Shopware\Core\Content\Configuration\ConfigurationGroupDefinition;
 
 class ConfigurationGroupOptionDefinition extends EntityDefinition
 {
@@ -55,13 +51,9 @@ class ConfigurationGroupOptionDefinition extends EntityDefinition
         return 'configuration_group_option';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        self::$fields = new FieldCollection([
+        return new FieldCollection([
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
@@ -78,32 +70,11 @@ class ConfigurationGroupOptionDefinition extends EntityDefinition
             (new ManyToManyAssociationField('productDatasheets', ProductDefinition::class, \Shopware\Core\Content\Product\Aggregate\ProductDatasheet\ProductDatasheetDefinition::class, false, 'configuration_group_option_id', 'product_id'))->setFlags(new CascadeDelete(), new WriteOnly()),
             (new ManyToManyAssociationField('productVariations', ProductDefinition::class, \Shopware\Core\Content\Product\Aggregate\ProductVariation\ProductVariationDefinition::class, false, 'configuration_group_option_id', 'product_id'))->setFlags(new CascadeDelete(), new WriteOnly()),
         ]);
-
-        foreach (self::$extensions as $extension) {
-            $extension->extendFields(self::$fields);
-        }
-
-        return self::$fields;
-    }
-
-    public static function getRepositoryClass(): string
-    {
-        return ConfigurationGroupOptionRepository::class;
     }
 
     public static function getBasicCollectionClass(): string
     {
         return ConfigurationGroupOptionBasicCollection::class;
-    }
-
-    public static function getDeletedEventClass(): string
-    {
-        return ConfigurationGroupOptionDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return ConfigurationGroupOptionWrittenEvent::class;
     }
 
     public static function getBasicStructClass(): string
@@ -114,15 +85,5 @@ class ConfigurationGroupOptionDefinition extends EntityDefinition
     public static function getTranslationDefinitionClass(): ?string
     {
         return ConfigurationGroupOptionTranslationDefinition::class;
-    }
-
-    public static function getDetailStructClass(): string
-    {
-        return ConfigurationGroupOptionDetailStruct::class;
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return ConfigurationGroupOptionDetailCollection::class;
     }
 }

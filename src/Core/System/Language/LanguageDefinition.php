@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\System\Language;
 
+use Shopware\Core\System\Language\Collection\LanguageBasicCollection;
+use Shopware\Core\System\Language\Struct\LanguageBasicStruct;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationDefinition;
 use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationDefinition;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationDefinition;
@@ -30,7 +32,7 @@ use Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation\ListingSort
 use Shopware\Core\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationDefinition;
 use Shopware\Core\System\Locale\LocaleDefinition;
 use Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTranslation\TaxAreaRuleTranslationDefinition;
-use Shopware\Core\System\Unit\Definition\UnitTranslationDefinition;
+use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationDefinition;
 
 class LanguageDefinition extends EntityDefinition
 {
@@ -54,13 +56,9 @@ class LanguageDefinition extends EntityDefinition
         return 'language';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        self::$fields = new FieldCollection([
+        return new FieldCollection([
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new ParentField(self::class),
@@ -92,17 +90,6 @@ class LanguageDefinition extends EntityDefinition
             (new TranslationsAssociationField('taxAreaRuleTranslations', TaxAreaRuleTranslationDefinition::class, 'language_id', false, 'id'))->setFlags(new WriteOnly(), new CascadeDelete()),
             (new TranslationsAssociationField('unitTranslations', UnitTranslationDefinition::class, 'language_id', false, 'id'))->setFlags(new WriteOnly(), new CascadeDelete()),
         ]);
-
-        foreach (self::$extensions as $extension) {
-            $extension->extendFields(self::$fields);
-        }
-
-        return self::$fields;
-    }
-
-    public static function getRepositoryClass(): string
-    {
-        return LanguageRepository::class;
     }
 
     public static function getBasicCollectionClass(): string
@@ -110,33 +97,8 @@ class LanguageDefinition extends EntityDefinition
         return LanguageBasicCollection::class;
     }
 
-    public static function getDeletedEventClass(): string
-    {
-        return LanguageDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return LanguageWrittenEvent::class;
-    }
-
     public static function getBasicStructClass(): string
     {
         return LanguageBasicStruct::class;
-    }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return null;
-    }
-
-    public static function getDetailStructClass(): string
-    {
-        return LanguageDetailStruct::class;
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return LanguageDetailCollection::class;
     }
 }

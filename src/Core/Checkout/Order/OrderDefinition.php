@@ -9,11 +9,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition
 use Shopware\Core\Checkout\Order\Aggregate\OrderState\OrderStateDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
 use Shopware\Core\Checkout\Order\Collection\OrderBasicCollection;
-use Shopware\Core\Checkout\Order\Collection\OrderDetailCollection;
-use Shopware\Core\Checkout\Order\Event\OrderDeletedEvent;
-use Shopware\Core\Checkout\Order\Event\OrderWrittenEvent;
 use Shopware\Core\Checkout\Order\Struct\OrderBasicStruct;
-use Shopware\Core\Checkout\Order\Struct\OrderDetailStruct;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
@@ -59,13 +55,9 @@ class OrderDefinition extends EntityDefinition
         return 'order';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        self::$fields = new FieldCollection([
+        return new FieldCollection([
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
@@ -107,17 +99,6 @@ class OrderDefinition extends EntityDefinition
             (new OneToManyAssociationField('lineItems', OrderLineItemDefinition::class, 'order_id', false, 'id'))->setFlags(new CascadeDelete(), new SearchRanking(self::ASSOCIATION_SEARCH_RANKING)),
             (new OneToManyAssociationField('transactions', OrderTransactionDefinition::class, 'order_id', false, 'id'))->setFlags(new CascadeDelete()),
         ]);
-
-        foreach (self::$extensions as $extension) {
-            $extension->extendFields(self::$fields);
-        }
-
-        return self::$fields;
-    }
-
-    public static function getRepositoryClass(): string
-    {
-        return OrderRepository::class;
     }
 
     public static function getBasicCollectionClass(): string
@@ -125,34 +106,9 @@ class OrderDefinition extends EntityDefinition
         return OrderBasicCollection::class;
     }
 
-    public static function getDeletedEventClass(): string
-    {
-        return OrderDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return OrderWrittenEvent::class;
-    }
-
     public static function getBasicStructClass(): string
     {
         return OrderBasicStruct::class;
-    }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return null;
-    }
-
-    public static function getDetailStructClass(): string
-    {
-        return OrderDetailStruct::class;
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return OrderDetailCollection::class;
     }
 
     public static function getWriteOrder(): array

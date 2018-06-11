@@ -4,11 +4,7 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductTranslation;
 
 use Shopware\Core\Content\Catalog\ORM\CatalogField;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\Collection\ProductTranslationBasicCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductTranslation\Collection\ProductTranslationDetailCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductTranslation\Event\ProductTranslationDeletedEvent;
-use Shopware\Core\Content\Product\Aggregate\ProductTranslation\Event\ProductTranslationWrittenEvent;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\Struct\ProductTranslationBasicStruct;
-use Shopware\Core\Content\Product\Aggregate\ProductTranslation\Struct\ProductTranslationDetailStruct;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
@@ -65,24 +61,10 @@ class ProductTranslationDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getRepositoryClass(): string
-    {
-        return ProductTranslationRepository::class;
-    }
 
     public static function getBasicCollectionClass(): string
     {
         return ProductTranslationBasicCollection::class;
-    }
-
-    public static function getDeletedEventClass(): string
-    {
-        return ProductTranslationDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return ProductTranslationWrittenEvent::class;
     }
 
     public static function getBasicStructClass(): string
@@ -90,18 +72,4 @@ class ProductTranslationDefinition extends EntityDefinition
         return ProductTranslationBasicStruct::class;
     }
 
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return null;
-    }
-
-    public static function getDetailStructClass(): string
-    {
-        return ProductTranslationDetailStruct::class;
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return ProductTranslationDetailCollection::class;
-    }
 }

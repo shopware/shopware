@@ -3,8 +3,6 @@
 namespace Shopware\Core\Content\Product\Aggregate\ProductSeoCategory;
 
 use Shopware\Core\Content\Category\CategoryDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductSeoCategory\Event\ProductSeoCategoryDeletedEvent;
-use Shopware\Core\Content\Product\Aggregate\ProductSeoCategory\Event\ProductSeoCategoryWrittenEvent;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\ORM\Field\DateField;
 use Shopware\Core\Framework\ORM\Field\FkField;
@@ -55,15 +53,5 @@ class ProductSeoCategoryDefinition extends MappingEntityDefinition
             new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, false),
             new ManyToOneAssociationField('category', 'category_id', CategoryDefinition::class, false),
         ]);
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return ProductSeoCategoryWrittenEvent::class;
-    }
-
-    public static function getDeletedEventClass(): string
-    {
-        return ProductSeoCategoryDeletedEvent::class;
     }
 }

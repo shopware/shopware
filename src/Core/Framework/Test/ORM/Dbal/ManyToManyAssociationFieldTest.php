@@ -2,19 +2,11 @@
 
 namespace Shopware\Core\Framework\Test\ORM\Dbal;
 
-use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\Event\CategoryTranslationWrittenEvent;
 use Shopware\Core\Content\Category\CategoryRepository;
-use Shopware\Core\Content\Category\Event\CategoryWrittenEvent;
-use Shopware\Core\Content\Product\Aggregate\ProductCategory\Event\ProductCategoryWrittenEvent;
-use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\Event\ProductManufacturerWrittenEvent;
-use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\Event\ProductManufacturerTranslationWrittenEvent;
-use Shopware\Core\Content\Product\Aggregate\ProductTranslation\Event\ProductTranslationWrittenEvent;
-use Shopware\Core\Content\Product\Event\ProductWrittenEvent;
 use Shopware\Core\Content\Product\ProductRepository;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Struct\Uuid;
-use Shopware\Core\System\Tax\Event\TaxWrittenEvent;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class ManyToManyAssociationFieldTest extends KernelTestCase

@@ -3,10 +3,6 @@
 namespace Shopware\Core\Framework\ORM;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\ORM\Event\EntityAggregationResultLoadedEvent;
-use Shopware\Core\Framework\ORM\Event\EntityIdSearchResultLoadedEvent;
-use Shopware\Core\Framework\ORM\Event\EntityLoadedEvent;
-use Shopware\Core\Framework\ORM\Event\EntitySearchResultLoadedEvent;
 use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Core\Framework\ORM\Search\AggregatorResult;
 use Shopware\Core\Framework\ORM\Search\Criteria;

@@ -2,14 +2,12 @@
 
 namespace Shopware\Storefront\Seo\Product;
 
-use Shopware\Core\Content\Product\Event\ProductBasicLoadedEvent;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\Struct\ProductBasicStruct;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Storefront\Api\Entity\Field\CanonicalUrlAssociationField;
 use Shopware\Storefront\Api\Seo\Collection\SeoUrlBasicCollection;
-use Shopware\Storefront\Api\Seo\Event\SeoUrl\SeoUrlBasicLoadedEvent;
 use Shopware\Storefront\DbalIndexing\SeoUrl\DetailPageSeoUrlIndexer;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;

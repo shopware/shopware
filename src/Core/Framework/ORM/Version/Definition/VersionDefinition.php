@@ -11,8 +11,6 @@ use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\Field\TenantIdField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Version\Collection\VersionBasicCollection;
-use Shopware\Core\Framework\ORM\Version\Event\Version\VersionDeletedEvent;
-use Shopware\Core\Framework\ORM\Version\Event\Version\VersionWrittenEvent;
 use Shopware\Core\Framework\ORM\Version\Repository\VersionRepository;
 use Shopware\Core\Framework\ORM\Version\Struct\VersionBasicStruct;
 use Shopware\Core\Framework\ORM\Write\EntityExistence;
@@ -47,13 +45,9 @@ class VersionDefinition extends EntityDefinition
         return false;
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        self::$fields = new FieldCollection([
+        return new FieldCollection([
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new StringField('name', 'name'))->setFlags(new Required(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
@@ -61,17 +55,6 @@ class VersionDefinition extends EntityDefinition
             new DateField('updated_at', 'updatedAt'),
             new OneToManyAssociationField('commits', VersionCommitDefinition::class, 'version_id', true),
         ]);
-
-        foreach (self::$extensions as $extension) {
-            $extension->extendFields(self::$fields);
-        }
-
-        return self::$fields;
-    }
-
-    public static function getRepositoryClass(): string
-    {
-        return VersionRepository::class;
     }
 
     public static function getBasicCollectionClass(): string
@@ -79,24 +62,9 @@ class VersionDefinition extends EntityDefinition
         return VersionBasicCollection::class;
     }
 
-    public static function getDeletedEventClass(): string
-    {
-        return VersionDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return VersionWrittenEvent::class;
-    }
-
     public static function getBasicStructClass(): string
     {
         return VersionBasicStruct::class;
-    }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return null;
     }
 
     public static function getDefaults(EntityExistence $existence): array

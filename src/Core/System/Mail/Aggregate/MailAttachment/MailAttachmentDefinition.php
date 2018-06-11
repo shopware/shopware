@@ -17,11 +17,7 @@ use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Core\System\Mail\Aggregate\MailAttachment\Collection\MailAttachmentBasicCollection;
-use Shopware\Core\System\Mail\Aggregate\MailAttachment\Collection\MailAttachmentDetailCollection;
-use Shopware\Core\System\Mail\Aggregate\MailAttachment\Event\MailAttachmentDeletedEvent;
-use Shopware\Core\System\Mail\Aggregate\MailAttachment\Event\MailAttachmentWrittenEvent;
 use Shopware\Core\System\Mail\Aggregate\MailAttachment\Struct\MailAttachmentBasicStruct;
-use Shopware\Core\System\Mail\Aggregate\MailAttachment\Struct\MailAttachmentDetailStruct;
 use Shopware\Core\System\Mail\MailDefinition;
 
 class MailAttachmentDefinition extends EntityDefinition
@@ -46,13 +42,9 @@ class MailAttachmentDefinition extends EntityDefinition
         return 'mail_attachment';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        self::$fields = new FieldCollection([
+        return new FieldCollection([
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
@@ -65,17 +57,6 @@ class MailAttachmentDefinition extends EntityDefinition
             new ManyToOneAssociationField('mail', 'mail_id', MailDefinition::class, false),
             (new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, false))->setFlags(new SearchRanking(1)),
         ]);
-
-        foreach (self::$extensions as $extension) {
-            $extension->extendFields(self::$fields);
-        }
-
-        return self::$fields;
-    }
-
-    public static function getRepositoryClass(): string
-    {
-        return MailAttachmentRepository::class;
     }
 
     public static function getBasicCollectionClass(): string
@@ -83,33 +64,8 @@ class MailAttachmentDefinition extends EntityDefinition
         return MailAttachmentBasicCollection::class;
     }
 
-    public static function getDeletedEventClass(): string
-    {
-        return MailAttachmentDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return MailAttachmentWrittenEvent::class;
-    }
-
     public static function getBasicStructClass(): string
     {
         return MailAttachmentBasicStruct::class;
-    }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return null;
-    }
-
-    public static function getDetailStructClass(): string
-    {
-        return MailAttachmentDetailStruct::class;
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return MailAttachmentDetailCollection::class;
     }
 }

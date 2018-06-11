@@ -3,11 +3,7 @@
 namespace Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation;
 
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Collection\ShippingMethodTranslationBasicCollection;
-use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Collection\ShippingMethodTranslationDetailCollection;
-use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Event\ShippingMethodTranslationDeletedEvent;
-use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Event\ShippingMethodTranslationWrittenEvent;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Struct\ShippingMethodTranslationBasicStruct;
-use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Struct\ShippingMethodTranslationDetailStruct;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
@@ -43,13 +39,9 @@ class ShippingMethodTranslationDefinition extends EntityDefinition
         return 'shipping_method_translation';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        self::$fields = new FieldCollection([
+        return new FieldCollection([
             (new FkField('shipping_method_id', 'shippingMethodId', ShippingMethodDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new ReferenceVersionField(ShippingMethodDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('language_id', 'languageId', LanguageDefinition::class))->setFlags(new PrimaryKey(), new Required()),
@@ -59,51 +51,16 @@ class ShippingMethodTranslationDefinition extends EntityDefinition
             new ManyToOneAssociationField('shippingMethod', 'shipping_method_id', ShippingMethodDefinition::class, false),
             new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, false),
         ]);
-
-        foreach (self::$extensions as $extension) {
-            $extension->extendFields(self::$fields);
-        }
-
-        return self::$fields;
     }
 
-    public static function getRepositoryClass(): string
-    {
-        return ShippingMethodTranslationRepository::class;
-    }
 
     public static function getBasicCollectionClass(): string
     {
         return ShippingMethodTranslationBasicCollection::class;
     }
 
-    public static function getDeletedEventClass(): string
-    {
-        return ShippingMethodTranslationDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return ShippingMethodTranslationWrittenEvent::class;
-    }
-
     public static function getBasicStructClass(): string
     {
         return ShippingMethodTranslationBasicStruct::class;
-    }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return null;
-    }
-
-    public static function getDetailStructClass(): string
-    {
-        return ShippingMethodTranslationDetailStruct::class;
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return ShippingMethodTranslationDetailCollection::class;
     }
 }

@@ -1,22 +1,22 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation;
+namespace Shopware\Core\System\Unit\Aggregate\UnitTranslation;
 
-use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\Collection\PaymentMethodTranslationBasicCollection;
-use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\Struct\PaymentMethodTranslationBasicStruct;
-use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\FkField;
-use Shopware\Core\Framework\ORM\Field\LongTextField;
 use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
 use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\System\Unit\Aggregate\UnitTranslation\Collection\UnitTranslationBasicCollection;
+use Shopware\Core\System\Unit\Aggregate\UnitTranslation\Struct\UnitTranslationBasicStruct;
+use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationRepository;
+use Shopware\Core\System\Unit\UnitDefinition;
 
-class PaymentMethodTranslationDefinition extends EntityDefinition
+class UnitTranslationDefinition extends EntityDefinition
 {
     /**
      * @var FieldCollection
@@ -35,29 +35,29 @@ class PaymentMethodTranslationDefinition extends EntityDefinition
 
     public static function getEntityName(): string
     {
-        return 'payment_method_translation';
+        return 'unit_translation';
     }
 
     public static function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new FkField('payment_method_id', 'paymentMethodId', PaymentMethodDefinition::class))->setFlags(new PrimaryKey(), new Required()),
-            (new ReferenceVersionField(PaymentMethodDefinition::class))->setFlags(new PrimaryKey(), new Required()),
+            (new FkField('unit_id', 'unitId', UnitDefinition::class))->setFlags(new PrimaryKey(), new Required()),
+            (new ReferenceVersionField(UnitDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('language_id', 'languageId', \Shopware\Core\System\Language\LanguageDefinition::class))->setFlags(new PrimaryKey(), new Required()),
+            (new StringField('short_code', 'shortCode'))->setFlags(new Required()),
             (new StringField('name', 'name'))->setFlags(new Required()),
-            (new LongTextField('additional_description', 'additionalDescription'))->setFlags(new Required()),
-            new ManyToOneAssociationField('paymentMethod', 'payment_method_id', PaymentMethodDefinition::class, false),
+            new ManyToOneAssociationField('unit', 'unit_id', UnitDefinition::class, false),
             new ManyToOneAssociationField('language', 'language_id', \Shopware\Core\System\Language\LanguageDefinition::class, false),
         ]);
     }
 
     public static function getBasicCollectionClass(): string
     {
-        return PaymentMethodTranslationBasicCollection::class;
+        return UnitTranslationBasicCollection::class;
     }
 
     public static function getBasicStructClass(): string
     {
-        return PaymentMethodTranslationBasicStruct::class;
+        return UnitTranslationBasicStruct::class;
     }
 }

@@ -2,9 +2,6 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductVariation;
 
-use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductVariation\Event\ProductVariationDeletedEvent;
-use Shopware\Core\Content\Product\Aggregate\ProductVariation\Event\ProductVariationWrittenEvent;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
@@ -41,15 +38,5 @@ class ProductVariationDefinition extends MappingEntityDefinition
             new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, false),
             new ManyToOneAssociationField('option', 'configuration_group_option_id', ConfigurationGroupOptionDefinition::class, false),
         ]);
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return ProductVariationWrittenEvent::class;
-    }
-
-    public static function getDeletedEventClass(): string
-    {
-        return ProductVariationDeletedEvent::class;
     }
 }

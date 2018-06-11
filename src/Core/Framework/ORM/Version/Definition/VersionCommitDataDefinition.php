@@ -15,9 +15,6 @@ use Shopware\Core\Framework\ORM\Field\TenantIdField;
 use Shopware\Core\Framework\ORM\Field\VersionDataPayloadField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Version\Collection\VersionCommitDataBasicCollection;
-use Shopware\Core\Framework\ORM\Version\Event\VersionCommitData\VersionCommitDataDeletedEvent;
-use Shopware\Core\Framework\ORM\Version\Event\VersionCommitData\VersionCommitDataWrittenEvent;
-use Shopware\Core\Framework\ORM\Version\Repository\VersionCommitDataRepository;
 use Shopware\Core\Framework\ORM\Version\Struct\VersionCommitDataBasicStruct;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
@@ -67,33 +64,13 @@ class VersionCommitDataDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getRepositoryClass(): string
-    {
-        return VersionCommitDataRepository::class;
-    }
-
     public static function getBasicCollectionClass(): string
     {
         return VersionCommitDataBasicCollection::class;
     }
 
-    public static function getDeletedEventClass(): string
-    {
-        return VersionCommitDataDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return VersionCommitDataWrittenEvent::class;
-    }
-
     public static function getBasicStructClass(): string
     {
         return VersionCommitDataBasicStruct::class;
-    }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return null;
     }
 }

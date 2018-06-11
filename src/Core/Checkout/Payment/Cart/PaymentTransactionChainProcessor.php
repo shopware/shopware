@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Payment\Cart;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\Collection\OrderTransactionBasicCollection;
 use Shopware\Core\Checkout\Order\OrderRepository;
-use Shopware\Core\Checkout\Order\Struct\OrderDetailStruct;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
 use Shopware\Core\Checkout\Payment\Cart\Token\PaymentTransactionTokenFactory;

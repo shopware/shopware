@@ -7,8 +7,7 @@ use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\Deferred;
 use Shopware\Core\Framework\ORM\Write\Flag\ReadOnly;
-use Shopware\Storefront\Api\Seo\Definition\SeoUrlDefinition;
-use Shopware\Storefront\Api\Seo\Event\SeoUrl\SeoUrlBasicLoadedEvent;
+use Shopware\Storefront\Api\Seo\SeoUrlDefinition;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 

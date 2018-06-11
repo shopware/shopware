@@ -4,8 +4,6 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductConfigurator;
 
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\Collection\ProductConfiguratorBasicCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\Event\ProductConfiguratorDeletedEvent;
-use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\Event\ProductConfiguratorWrittenEvent;
 use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\Struct\ProductConfiguratorBasicStruct;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
@@ -62,33 +60,16 @@ class ProductConfiguratorDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getRepositoryClass(): string
-    {
-        return ProductConfiguratorRepository::class;
-    }
 
     public static function getBasicCollectionClass(): string
     {
         return ProductConfiguratorBasicCollection::class;
     }
 
-    public static function getDeletedEventClass(): string
-    {
-        return ProductConfiguratorDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return ProductConfiguratorWrittenEvent::class;
-    }
 
     public static function getBasicStructClass(): string
     {
         return ProductConfiguratorBasicStruct::class;
     }
 
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return null;
-    }
 }

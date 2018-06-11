@@ -21,12 +21,8 @@ use Shopware\Core\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
 use Shopware\Core\System\Unit\Collection\UnitBasicCollection;
-use Shopware\Core\System\Unit\Collection\UnitDetailCollection;
-use Shopware\Core\System\Unit\Definition\UnitTranslationDefinition;
-use Shopware\Core\System\Unit\Event\UnitDeletedEvent;
-use Shopware\Core\System\Unit\Event\UnitWrittenEvent;
+use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationDefinition;
 use Shopware\Core\System\Unit\Struct\UnitBasicStruct;
-use Shopware\Core\System\Unit\Struct\UnitDetailStruct;
 
 class UnitDefinition extends EntityDefinition
 {
@@ -65,24 +61,9 @@ class UnitDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getRepositoryClass(): string
-    {
-        return UnitRepository::class;
-    }
-
     public static function getBasicCollectionClass(): string
     {
         return UnitBasicCollection::class;
-    }
-
-    public static function getDeletedEventClass(): string
-    {
-        return UnitDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return UnitWrittenEvent::class;
     }
 
     public static function getBasicStructClass(): string
@@ -93,15 +74,5 @@ class UnitDefinition extends EntityDefinition
     public static function getTranslationDefinitionClass(): ?string
     {
         return UnitTranslationDefinition::class;
-    }
-
-    public static function getDetailStructClass(): string
-    {
-        return UnitDetailStruct::class;
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return UnitDetailCollection::class;
     }
 }

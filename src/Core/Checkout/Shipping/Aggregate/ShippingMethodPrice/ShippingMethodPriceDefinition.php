@@ -3,11 +3,7 @@
 namespace Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice;
 
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\Collection\ShippingMethodPriceBasicCollection;
-use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\Collection\ShippingMethodPriceDetailCollection;
-use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\Event\ShippingMethodPriceDeletedEvent;
-use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\Event\ShippingMethodPriceWrittenEvent;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\Struct\ShippingMethodPriceBasicStruct;
-use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\Struct\ShippingMethodPriceDetailStruct;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
@@ -45,13 +41,9 @@ class ShippingMethodPriceDefinition extends EntityDefinition
         return 'shipping_method_price';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        self::$fields = new FieldCollection([
+        return new FieldCollection([
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
@@ -66,17 +58,6 @@ class ShippingMethodPriceDefinition extends EntityDefinition
             new DateField('updated_at', 'updatedAt'),
             new ManyToOneAssociationField('shippingMethod', 'shipping_method_id', ShippingMethodDefinition::class, false),
         ]);
-
-        foreach (self::$extensions as $extension) {
-            $extension->extendFields(self::$fields);
-        }
-
-        return self::$fields;
-    }
-
-    public static function getRepositoryClass(): string
-    {
-        return ShippingMethodPriceRepository::class;
     }
 
     public static function getBasicCollectionClass(): string
@@ -84,33 +65,8 @@ class ShippingMethodPriceDefinition extends EntityDefinition
         return ShippingMethodPriceBasicCollection::class;
     }
 
-    public static function getDeletedEventClass(): string
-    {
-        return ShippingMethodPriceDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return ShippingMethodPriceWrittenEvent::class;
-    }
-
     public static function getBasicStructClass(): string
     {
         return ShippingMethodPriceBasicStruct::class;
-    }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return null;
-    }
-
-    public static function getDetailStructClass(): string
-    {
-        return ShippingMethodPriceDetailStruct::class;
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return ShippingMethodPriceDetailCollection::class;
     }
 }

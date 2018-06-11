@@ -4,11 +4,7 @@ namespace Shopware\Core\Content\Media\Aggregate\MediaAlbum;
 
 use Shopware\Core\Content\Catalog\ORM\CatalogField;
 use Shopware\Core\Content\Media\Aggregate\MediaAlbum\Collection\MediaAlbumBasicCollection;
-use Shopware\Core\Content\Media\Aggregate\MediaAlbum\Collection\MediaAlbumDetailCollection;
-use Shopware\Core\Content\Media\Aggregate\MediaAlbum\Event\MediaAlbumDeletedEvent;
-use Shopware\Core\Content\Media\Aggregate\MediaAlbum\Event\MediaAlbumWrittenEvent;
 use Shopware\Core\Content\Media\Aggregate\MediaAlbum\Struct\MediaAlbumBasicStruct;
-use Shopware\Core\Content\Media\Aggregate\MediaAlbum\Struct\MediaAlbumDetailStruct;
 use Shopware\Core\Content\Media\Aggregate\MediaAlbumTranslation\MediaAlbumTranslationDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
@@ -82,24 +78,10 @@ class MediaAlbumDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getRepositoryClass(): string
-    {
-        return MediaAlbumRepository::class;
-    }
 
     public static function getBasicCollectionClass(): string
     {
         return MediaAlbumBasicCollection::class;
-    }
-
-    public static function getDeletedEventClass(): string
-    {
-        return MediaAlbumDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return MediaAlbumWrittenEvent::class;
     }
 
     public static function getBasicStructClass(): string
@@ -112,13 +94,4 @@ class MediaAlbumDefinition extends EntityDefinition
         return MediaAlbumTranslationDefinition::class;
     }
 
-    public static function getDetailStructClass(): string
-    {
-        return MediaAlbumDetailStruct::class;
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return MediaAlbumDetailCollection::class;
-    }
 }

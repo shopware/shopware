@@ -16,7 +16,6 @@ use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\Pricing\PriceStruct;
 use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleDefinition;
 use Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTranslation\TaxAreaRuleTranslationDefinition;
-use Shopware\Core\System\Tax\Struct\TaxDetailStruct;
 use Shopware\Core\System\Tax\TaxDefinition;
 use Shopware\Core\System\Tax\TaxRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;

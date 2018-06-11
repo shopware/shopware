@@ -6,7 +6,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\ORM\EntityDefinition;
-use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
 
 class EntityWrittenContainerEvent extends NestedEvent
 {

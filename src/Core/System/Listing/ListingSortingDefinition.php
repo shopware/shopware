@@ -24,12 +24,8 @@ use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
 use Shopware\Core\System\Listing\Collection\ListingSortingBasicCollection;
-use Shopware\Core\System\Listing\Collection\ListingSortingDetailCollection;
 use Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation\ListingSortingTranslationDefinition;
-use Shopware\Core\System\Listing\Event\ListingSortingDeletedEvent;
-use Shopware\Core\System\Listing\Event\ListingSortingWrittenEvent;
 use Shopware\Core\System\Listing\Struct\ListingSortingBasicStruct;
-use Shopware\Core\System\Listing\Struct\ListingSortingDetailStruct;
 
 class ListingSortingDefinition extends EntityDefinition
 {
@@ -53,13 +49,9 @@ class ListingSortingDefinition extends EntityDefinition
         return 'listing_sorting';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        self::$fields = new FieldCollection([
+        return new FieldCollection([
             new TenantIdField(),
             new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
@@ -74,32 +66,11 @@ class ListingSortingDefinition extends EntityDefinition
             (new TranslationsAssociationField('translations', ListingSortingTranslationDefinition::class, 'listing_sorting_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
             (new OneToManyAssociationField('productStreams', ProductStreamDefinition::class, 'listing_sorting_id', false, 'id'))->setFlags(new WriteOnly()),
         ]);
-
-        foreach (self::$extensions as $extension) {
-            $extension->extendFields(self::$fields);
-        }
-
-        return self::$fields;
-    }
-
-    public static function getRepositoryClass(): string
-    {
-        return ListingSortingRepository::class;
     }
 
     public static function getBasicCollectionClass(): string
     {
         return ListingSortingBasicCollection::class;
-    }
-
-    public static function getDeletedEventClass(): string
-    {
-        return ListingSortingDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return ListingSortingWrittenEvent::class;
     }
 
     public static function getBasicStructClass(): string
@@ -110,15 +81,5 @@ class ListingSortingDefinition extends EntityDefinition
     public static function getTranslationDefinitionClass(): ?string
     {
         return ListingSortingTranslationDefinition::class;
-    }
-
-    public static function getDetailStructClass(): string
-    {
-        return ListingSortingDetailStruct::class;
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return ListingSortingDetailCollection::class;
     }
 }

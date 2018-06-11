@@ -4,11 +4,8 @@ namespace Shopware\Core\Checkout\DiscountSurcharge;
 
 use Shopware\Core\Checkout\DiscountSurcharge\Aggregate\DiscountSurchargeTranslation\DiscountSurchargeTranslationDefinition;
 use Shopware\Core\Checkout\DiscountSurcharge\Collection\DiscountSurchargeBasicCollection;
-use Shopware\Core\Checkout\DiscountSurcharge\Collection\DiscountSurchargeDetailCollection;
-use Shopware\Core\Checkout\DiscountSurcharge\Event\DiscountSurchargeDeletedEvent;
-use Shopware\Core\Checkout\DiscountSurcharge\Event\DiscountSurchargeWrittenEvent;
+use Shopware\Core\Checkout\DiscountSurcharge\Aggregate\DiscountSurchargeTranslation\DiscountSurchargeTranslationDefinition;
 use Shopware\Core\Checkout\DiscountSurcharge\Struct\DiscountSurchargeBasicStruct;
-use Shopware\Core\Checkout\DiscountSurcharge\Struct\DiscountSurchargeDetailStruct;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
@@ -49,13 +46,9 @@ class DiscountSurchargeDefinition extends EntityDefinition
         return 'discount_surcharge';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        self::$fields = new FieldCollection([
+        return new FieldCollection([
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new TranslatedField(new StringField('name', 'name')))->setFlags(new Required()),
@@ -69,32 +62,11 @@ class DiscountSurchargeDefinition extends EntityDefinition
             (new TranslationsAssociationField('translations', DiscountSurchargeTranslationDefinition::class, 'discount_surcharge_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
             new ManyToOneAssociationField('rule', 'rule_id', RuleDefinition::class, true),
         ]);
-
-        foreach (self::$extensions as $extension) {
-            $extension->extendFields(self::$fields);
-        }
-
-        return self::$fields;
-    }
-
-    public static function getRepositoryClass(): string
-    {
-        return DiscountSurchargeRepository::class;
     }
 
     public static function getBasicCollectionClass(): string
     {
         return DiscountSurchargeBasicCollection::class;
-    }
-
-    public static function getDeletedEventClass(): string
-    {
-        return DiscountSurchargeDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return DiscountSurchargeWrittenEvent::class;
     }
 
     public static function getBasicStructClass(): string
@@ -105,15 +77,5 @@ class DiscountSurchargeDefinition extends EntityDefinition
     public static function getTranslationDefinitionClass(): ?string
     {
         return DiscountSurchargeTranslationDefinition::class;
-    }
-
-    public static function getDetailStructClass(): string
-    {
-        return DiscountSurchargeDetailStruct::class;
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return DiscountSurchargeDetailCollection::class;
     }
 }

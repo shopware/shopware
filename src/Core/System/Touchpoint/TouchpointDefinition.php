@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\System\Touchpoint;
 
+use Shopware\Core\System\Touchpoint\Collection\TouchpointBasicCollection;
+use Shopware\Core\System\Touchpoint\Struct\TouchpointBasicStruct;
+use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
@@ -83,43 +86,13 @@ class TouchpointDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getRepositoryClass(): string
-    {
-        return TouchpointRepository::class;
-    }
-
     public static function getBasicCollectionClass(): string
     {
         return TouchpointBasicCollection::class;
     }
 
-    public static function getDeletedEventClass(): string
-    {
-        return TouchpointDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return TouchpointWrittenEvent::class;
-    }
-
     public static function getBasicStructClass(): string
     {
         return TouchpointBasicStruct::class;
-    }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return null;
-    }
-
-    public static function getDetailStructClass(): string
-    {
-        return TouchpointDetailStruct::class;
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return TouchpointDetailCollection::class;
     }
 }

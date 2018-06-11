@@ -21,11 +21,7 @@ use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Core\System\Locale\LocaleDefinition;
 use Shopware\Core\System\User\Collection\UserBasicCollection;
-use Shopware\Core\System\User\Collection\UserDetailCollection;
-use Shopware\Core\System\User\Event\UserDeletedEvent;
-use Shopware\Core\System\User\Event\UserWrittenEvent;
 use Shopware\Core\System\User\Struct\UserBasicStruct;
-use Shopware\Core\System\User\Struct\UserDetailStruct;
 
 class UserDefinition extends EntityDefinition
 {
@@ -77,43 +73,13 @@ class UserDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getRepositoryClass(): string
-    {
-        return UserRepository::class;
-    }
-
     public static function getBasicCollectionClass(): string
     {
         return UserBasicCollection::class;
     }
 
-    public static function getDeletedEventClass(): string
-    {
-        return UserDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return UserWrittenEvent::class;
-    }
-
     public static function getBasicStructClass(): string
     {
         return UserBasicStruct::class;
-    }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return null;
-    }
-
-    public static function getDetailStructClass(): string
-    {
-        return UserDetailStruct::class;
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return UserDetailCollection::class;
     }
 }

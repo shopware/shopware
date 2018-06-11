@@ -18,6 +18,7 @@ use Shopware\Core\Framework\ORM\Dbal\Indexing\IndexerInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Storefront\Api\Seo\SeoUrlDefinition;
 use Shopware\Core\System\Touchpoint\TouchpointRepository;
 use Shopware\Storefront\Api\Seo\Definition\SeoUrlDefinition;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;

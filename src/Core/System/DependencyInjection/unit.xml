@@ -19,7 +19,7 @@
           <argument id="Shopware\Core\Framework\ORM\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>
-         <service class="Shopware\Core\System\Unit\Definition\UnitTranslationDefinition" id="Shopware\Core\System\Unit\Definition\UnitTranslationDefinition" >
+         <service class="Shopware\Core\System\Unit\Definition\UnitTranslationDefinition" id="Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationDefinition" >
             <tag name="shopware.entity.definition" entity="unit_translation" />
         </service>
         <service class="Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationRepository" id="Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationRepository.v1" public="true">

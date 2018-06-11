@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Catalog\CatalogRepository;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductRepository;
-use Shopware\Core\Content\Product\Struct\ProductSearchResult;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Doctrine\MultiInsertQueryQueue;

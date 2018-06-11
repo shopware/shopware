@@ -9,7 +9,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\ORM\EntityCollection;
 use Shopware\Core\Framework\ORM\EntityDefinition;
-use Shopware\Core\Framework\ORM\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\ORM\Field\IdField;
 use Shopware\Core\Framework\ORM\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;

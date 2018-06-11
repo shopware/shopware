@@ -21,12 +21,7 @@ use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
 use Shopware\Core\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationDefinition;
 use Shopware\Core\System\Locale\Collection\LocaleBasicCollection;
-use Shopware\Core\System\Locale\Collection\LocaleDetailCollection;
-use Shopware\Core\System\Locale\Event\LocaleDeletedEvent;
-use Shopware\Core\System\Locale\Event\LocaleWrittenEvent;
 use Shopware\Core\System\Locale\Struct\LocaleBasicStruct;
-use Shopware\Core\System\Locale\Struct\LocaleDetailStruct;
-use Shopware\Core\System\Touchpoint\TouchpointDefinition;
 use Shopware\Core\System\User\UserDefinition;
 
 class LocaleDefinition extends EntityDefinition
@@ -69,24 +64,9 @@ class LocaleDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getRepositoryClass(): string
-    {
-        return LocaleRepository::class;
-    }
-
     public static function getBasicCollectionClass(): string
     {
         return LocaleBasicCollection::class;
-    }
-
-    public static function getDeletedEventClass(): string
-    {
-        return LocaleDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return LocaleWrittenEvent::class;
     }
 
     public static function getBasicStructClass(): string
@@ -97,15 +77,5 @@ class LocaleDefinition extends EntityDefinition
     public static function getTranslationDefinitionClass(): ?string
     {
         return LocaleTranslationDefinition::class;
-    }
-
-    public static function getDetailStructClass(): string
-    {
-        return LocaleDetailStruct::class;
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return LocaleDetailCollection::class;
     }
 }

@@ -4,11 +4,7 @@ namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\Collection\CustomerGroupDiscountBasicCollection;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\Collection\CustomerGroupDiscountDetailCollection;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\Event\CustomerGroupDiscountDeletedEvent;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\Event\CustomerGroupDiscountWrittenEvent;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\Struct\CustomerGroupDiscountBasicStruct;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\Struct\CustomerGroupDiscountDetailStruct;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\DateField;
@@ -45,13 +41,9 @@ class CustomerGroupDiscountDefinition extends EntityDefinition
         return 'customer_group_discount';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        self::$fields = new FieldCollection([
+        return new FieldCollection([
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
@@ -63,17 +55,6 @@ class CustomerGroupDiscountDefinition extends EntityDefinition
             new DateField('updated_at', 'updatedAt'),
             new ManyToOneAssociationField('customerGroup', 'customer_group_id', CustomerGroupDefinition::class, false),
         ]);
-
-        foreach (self::$extensions as $extension) {
-            $extension->extendFields(self::$fields);
-        }
-
-        return self::$fields;
-    }
-
-    public static function getRepositoryClass(): string
-    {
-        return CustomerGroupDiscountRepository::class;
     }
 
     public static function getBasicCollectionClass(): string
@@ -81,33 +62,8 @@ class CustomerGroupDiscountDefinition extends EntityDefinition
         return CustomerGroupDiscountBasicCollection::class;
     }
 
-    public static function getDeletedEventClass(): string
-    {
-        return CustomerGroupDiscountDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return CustomerGroupDiscountWrittenEvent::class;
-    }
-
     public static function getBasicStructClass(): string
     {
         return CustomerGroupDiscountBasicStruct::class;
-    }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return null;
-    }
-
-    public static function getDetailStructClass(): string
-    {
-        return CustomerGroupDiscountDetailStruct::class;
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return CustomerGroupDiscountDetailCollection::class;
     }
 }

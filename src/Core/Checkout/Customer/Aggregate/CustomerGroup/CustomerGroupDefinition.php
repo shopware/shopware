@@ -3,11 +3,7 @@
 namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\Collection\CustomerGroupBasicCollection;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\Collection\CustomerGroupDetailCollection;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\Event\CustomerGroupDeletedEvent;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\Event\CustomerGroupWrittenEvent;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\Struct\CustomerGroupBasicStruct;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\Struct\CustomerGroupDetailStruct;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\CustomerGroupDiscountDefinition;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationDefinition;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
@@ -54,13 +50,9 @@ class CustomerGroupDefinition extends EntityDefinition
         return 'customer_group';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        self::$fields = new FieldCollection([
+        return new FieldCollection([
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
@@ -79,32 +71,11 @@ class CustomerGroupDefinition extends EntityDefinition
             (new OneToManyAssociationField('shippingMethods', ShippingMethodDefinition::class, 'customer_group_id', false, 'id'))->setFlags(new WriteOnly()),
             (new OneToManyAssociationField('taxAreaRules', \Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleDefinition::class, 'customer_group_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
         ]);
-
-        foreach (self::$extensions as $extension) {
-            $extension->extendFields(self::$fields);
-        }
-
-        return self::$fields;
-    }
-
-    public static function getRepositoryClass(): string
-    {
-        return CustomerGroupRepository::class;
     }
 
     public static function getBasicCollectionClass(): string
     {
         return CustomerGroupBasicCollection::class;
-    }
-
-    public static function getDeletedEventClass(): string
-    {
-        return CustomerGroupDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return CustomerGroupWrittenEvent::class;
     }
 
     public static function getBasicStructClass(): string
@@ -115,15 +86,5 @@ class CustomerGroupDefinition extends EntityDefinition
     public static function getTranslationDefinitionClass(): ?string
     {
         return CustomerGroupTranslationDefinition::class;
-    }
-
-    public static function getDetailStructClass(): string
-    {
-        return CustomerGroupDetailStruct::class;
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return CustomerGroupDetailCollection::class;
     }
 }

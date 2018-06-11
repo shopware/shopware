@@ -4,11 +4,7 @@ namespace Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\Collection\OrderDeliveryPositionBasicCollection;
-use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\Collection\OrderDeliveryPositionDetailCollection;
-use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\Event\OrderDeliveryPositionDeletedEvent;
-use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\Event\OrderDeliveryPositionWrittenEvent;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\Struct\OrderDeliveryPositionBasicStruct;
-use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\Struct\OrderDeliveryPositionDetailStruct;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
@@ -48,13 +44,9 @@ class OrderDeliveryPositionDefinition extends EntityDefinition
         return 'order_delivery_position';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        self::$fields = new FieldCollection([
+        return new FieldCollection([
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
@@ -74,51 +66,16 @@ class OrderDeliveryPositionDefinition extends EntityDefinition
             new ManyToOneAssociationField('orderDelivery', 'order_delivery_id', OrderDeliveryDefinition::class, false),
             new ManyToOneAssociationField('orderLineItem', 'order_line_item_id', OrderLineItemDefinition::class, true),
         ]);
-
-        foreach (self::$extensions as $extension) {
-            $extension->extendFields(self::$fields);
-        }
-
-        return self::$fields;
     }
 
-    public static function getRepositoryClass(): string
-    {
-        return OrderDeliveryPositionRepository::class;
-    }
 
     public static function getBasicCollectionClass(): string
     {
         return OrderDeliveryPositionBasicCollection::class;
     }
 
-    public static function getDeletedEventClass(): string
-    {
-        return OrderDeliveryPositionDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return OrderDeliveryPositionWrittenEvent::class;
-    }
-
     public static function getBasicStructClass(): string
     {
         return OrderDeliveryPositionBasicStruct::class;
-    }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return null;
-    }
-
-    public static function getDetailStructClass(): string
-    {
-        return OrderDeliveryPositionDetailStruct::class;
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return OrderDeliveryPositionDetailCollection::class;
     }
 }

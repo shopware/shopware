@@ -7,13 +7,11 @@ use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\Struct\ConfigurationGroupOptionBasicStruct;
 use Shopware\Core\Content\Product\Aggregate\ProductService\Struct\ProductServiceBasicStruct;
 use Shopware\Core\Content\Product\Collection\ProductBasicCollection;
-use Shopware\Core\Content\Product\Collection\ProductDetailCollection;
 use Shopware\Core\Content\Product\ProductRepository;
-use Shopware\Core\Content\Product\Struct\ProductSearchResult;
 use Shopware\Core\Content\Product\Struct\StorefrontProductBasicInterface;
 use Shopware\Core\Content\Product\Struct\StorefrontProductBasicStruct;
-use Shopware\Core\Content\Product\Struct\StorefrontProductDetailStruct;
 use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\Struct\ConfigurationGroupOptionBasicStruct;
 use Shopware\Core\Framework\ORM\Search\IdSearchResult;
 
 class StorefrontProductRepository

@@ -4,11 +4,7 @@ namespace Shopware\Core\Checkout\Order\Aggregate\OrderDelivery;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\Collection\OrderDeliveryBasicCollection;
-use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\Collection\OrderDeliveryDetailCollection;
-use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\Event\OrderDeliveryDeletedEvent;
-use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\Event\OrderDeliveryWrittenEvent;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\Struct\OrderDeliveryBasicStruct;
-use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\Struct\OrderDeliveryDetailStruct;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\OrderDeliveryPositionDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderState\OrderStateDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
@@ -53,13 +49,9 @@ class OrderDeliveryDefinition extends EntityDefinition
         return 'order_delivery';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        self::$fields = new FieldCollection([
+        return new FieldCollection([
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
@@ -88,17 +80,6 @@ class OrderDeliveryDefinition extends EntityDefinition
             (new ManyToOneAssociationField('shippingMethod', 'shipping_method_id', ShippingMethodDefinition::class, true))->setFlags(new SearchRanking(self::ASSOCIATION_SEARCH_RANKING)),
             (new OneToManyAssociationField('positions', OrderDeliveryPositionDefinition::class, 'order_delivery_id', false, 'id'))->setFlags(new CascadeDelete(), new SearchRanking(self::ASSOCIATION_SEARCH_RANKING)),
         ]);
-
-        foreach (self::$extensions as $extension) {
-            $extension->extendFields(self::$fields);
-        }
-
-        return self::$fields;
-    }
-
-    public static function getRepositoryClass(): string
-    {
-        return OrderDeliveryRepository::class;
     }
 
     public static function getBasicCollectionClass(): string
@@ -106,33 +87,8 @@ class OrderDeliveryDefinition extends EntityDefinition
         return OrderDeliveryBasicCollection::class;
     }
 
-    public static function getDeletedEventClass(): string
-    {
-        return OrderDeliveryDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return OrderDeliveryWrittenEvent::class;
-    }
-
     public static function getBasicStructClass(): string
     {
         return OrderDeliveryBasicStruct::class;
-    }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return null;
-    }
-
-    public static function getDetailStructClass(): string
-    {
-        return OrderDeliveryDetailStruct::class;
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return OrderDeliveryDetailCollection::class;
     }
 }

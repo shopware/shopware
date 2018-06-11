@@ -4,7 +4,6 @@ namespace Shopware\Storefront\Page\Account;
 
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Order\OrderRepository;
-use Shopware\Core\Checkout\Order\Struct\OrderSearchResult;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\ORM\Search\Sorting\FieldSorting;

@@ -31,9 +31,7 @@ class Entity extends Struct
         try {
             return $this->$property;
         } catch (\Throwable $e) {
-            throw new \InvalidArgumentException(
-                sprintf('Property %s do not exist in class %s', $property, get_class($this))
-            );
+            return null;
         }
     }
 

@@ -20,7 +20,7 @@ class IndexerRegistry implements IndexerInterface, EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            GenericWrittenEvent::NAME => 'refresh',
+            GenericWrittenEvent::NAME => 'refresh'
         ];
     }
 

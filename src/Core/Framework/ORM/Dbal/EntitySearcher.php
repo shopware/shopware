@@ -51,9 +51,9 @@ class EntitySearcher implements EntitySearcherInterface
 
         $query = $this->queryHelper->getBaseQuery($this->connection, $definition, $context);
 
-        if ($definition::getParentPropertyName()) {
+        if ($definition::isInheritanceAware()) {
             /** @var EntityDefinition|string $definition */
-            $parent = $definition::getFields()->get($definition::getParentPropertyName());
+            $parent = $definition::getFields()->get('parent');
             $this->queryHelper->resolveField($parent, $definition, $definition::getEntityName(), $query, $context);
         }
 

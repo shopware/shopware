@@ -6,6 +6,8 @@ use Shopware\Core\Framework\ORM\EntityDefinition;
 
 interface AssociationInterface
 {
+    public function getPropertyName(): string;
+
     public function loadInBasic(): bool;
 
     /**

@@ -40,12 +40,12 @@ class ManyToOneAssociationFieldResolver implements FieldResolverInterface
             return;
         }
 
-        if (!$reference::getParentPropertyName()) {
+        if (!$reference::isInheritanceAware()) {
             return;
         }
 
         /** @var ManyToOneAssociationField $parent */
-        $parent = $reference::getFields()->get($reference::getParentPropertyName());
+        $parent = $reference::getFields()->get('parent');
 
         $queryHelper->resolveField($parent, $reference, $alias, $query, $context);
     }

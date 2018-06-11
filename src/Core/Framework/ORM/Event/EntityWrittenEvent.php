@@ -1,13 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\ORM\Write;
+namespace Shopware\Core\Framework\ORM\Event;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\Write\EntityExistence;
 
-abstract class WrittenEvent extends NestedEvent
+class EntityWrittenEvent extends NestedEvent
 {
     /**
      * @var NestedEventCollection
@@ -39,7 +40,18 @@ abstract class WrittenEvent extends NestedEvent
      */
     protected $existences;
 
+    /**
+     * @var string
+     */
+    protected $definition;
+
+    /**
+     * @var string
+     */
+    protected $name;
+
     public function __construct(
+        string $definition,
         array $ids,
         array $payload,
         array $existences,
@@ -52,12 +64,24 @@ abstract class WrittenEvent extends NestedEvent
         $this->ids = $ids;
         $this->payload = $payload;
         $this->existences = $existences;
+        $this->definition = $definition;
+
+        /** @var string|EntityDefinition $definition */
+        $this->name = $definition::getEntityName() . '.written';
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
     }
 
     /**
      * @return string|EntityDefinition
      */
-    abstract public function getDefinition(): string;
+    public function getDefinition(): string
+    {
+        return $this->definition;
+    }
 
     public function getContext(): Context
     {

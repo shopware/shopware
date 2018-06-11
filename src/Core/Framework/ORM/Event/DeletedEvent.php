@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\ORM\Write;
+namespace Shopware\Core\Framework\ORM\Event;
 
 interface DeletedEvent
 {

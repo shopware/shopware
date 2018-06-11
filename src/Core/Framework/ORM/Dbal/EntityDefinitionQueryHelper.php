@@ -280,7 +280,7 @@ class EntityDefinitionQueryHelper
             $select = self::escape($chain[0]) . '.' . self::escape($field->getStorageName());
 
             /** @var string|EntityDefinition $definition */
-            if ($definition::getParentPropertyName() && $field->is(Inherited::class) && !$raw) {
+            if ($definition::isInheritanceAware() && $field->is(Inherited::class) && !$raw) {
                 $select = sprintf(
                     'COALESCE(%s)',
                     $select . ',' . self::escape($chain[1]) . '.' . self::escape($field->getStorageName())
@@ -356,20 +356,18 @@ class EntityDefinitionQueryHelper
         $chain = [$root . '.translation'];
 
         /** @var string|EntityDefinition $definition */
-        if ($definition::getParentPropertyName() && !$raw) {
+        if ($definition::isInheritanceAware() && !$raw) {
             /** @var EntityDefinition|string $definition */
-            $parentName = $definition::getParentPropertyName();
-            $chain[] = $root . '.' . $parentName . '.translation';
+            $chain[] = $root . '.parent.translation';
         }
 
         if ($context->hasFallback()) {
             $chain[] = $root . '.translation.fallback';
         }
 
-        if ($definition::getParentPropertyName() && $context->hasFallback() && !$raw) {
+        if ($definition::isInheritanceAware() && $context->hasFallback() && !$raw) {
             /** @var EntityDefinition|string $definition */
-            $parentName = $definition::getParentPropertyName();
-            $chain[] = $root . '.' . $parentName . '.translation.fallback';
+            $chain[] = $root . '.parent.translation.fallback';
         }
 
         return $chain;
@@ -391,7 +389,7 @@ class EntityDefinitionQueryHelper
         }
 
         $parentSelect = $this->buildFieldSelector(
-            $root . '.' . $definition::getParentPropertyName(),
+            $root . '.parent',
             $field,
             $context,
             $original

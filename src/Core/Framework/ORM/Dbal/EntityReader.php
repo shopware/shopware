@@ -190,9 +190,9 @@ class EntityReader implements EntityReaderInterface
 
         $parent = null;
 
-        if ($definition::getParentPropertyName() && !$raw) {
+        if ($definition::isInheritanceAware() && !$raw) {
             /** @var EntityDefinition|string $definition */
-            $parent = $definition::getFields()->get($definition::getParentPropertyName());
+            $parent = $definition::getFields()->get('parent');
             $this->queryHelper->resolveField($parent, $definition, $root, $query, $context);
         }
 
@@ -363,9 +363,9 @@ class EntityReader implements EntityReaderInterface
         $ids = array_values($collection->getIds());
         /** @var string|EntityDefinition $definition */
         $parentId = null;
-        if ($definition::getParentPropertyName()) {
+        if ($definition::isInheritanceAware()) {
             /** @var ManyToOneAssociationField $parent */
-            $parent = $definition::getFields()->get($definition::getParentPropertyName());
+            $parent = $definition::getFields()->get('parent');
             $parentId = $definition::getFields()->getByStorageName($parent->getStorageName());
             $parentIds = $collection->map(function (Entity $entity) use ($parentId) {
                 return $entity->get($parentId->getPropertyName());
@@ -389,7 +389,7 @@ class EntityReader implements EntityReaderInterface
 
         $mapping = array_column($flat, $field->getPropertyName(), 'id');
 
-        $hasInheritance = $definition::getParentPropertyName() && $association->is(Inherited::class);
+        $hasInheritance = $definition::isInheritanceAware() && $association->is(Inherited::class);
 
         /** @var Struct|Entity $struct */
         foreach ($collection as $struct) {

@@ -182,7 +182,7 @@ class EntityHydrator
             $this->objects[$objectCacheKey] = $entity;
         }
 
-        if ($definition::getParentPropertyName()) {
+        if ($definition::isInheritanceAware()) {
             $associations = $definition::getFields()->getElements();
             /** @var Field $association */
             foreach ($associations as $association) {

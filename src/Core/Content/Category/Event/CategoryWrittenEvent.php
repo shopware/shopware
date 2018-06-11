@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\Category\Event;
 
 use Shopware\Core\Content\Category\CategoryDefinition;
-use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Framework\ORM\Event\WrittenEvent;
 
 class CategoryWrittenEvent extends WrittenEvent
 {

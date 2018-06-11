@@ -88,13 +88,9 @@ class ProductDefinition extends EntityDefinition
         return 'parent';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        self::$fields = new FieldCollection([
+        return new FieldCollection([
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
@@ -189,12 +185,6 @@ class ProductDefinition extends EntityDefinition
             (new OneToManyAssociationField('configurators', ProductConfiguratorDefinition::class, 'product_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new ManyToManyAssociationField('variations', ConfigurationGroupOptionDefinition::class, ProductVariationDefinition::class, false, 'product_id', 'configuration_group_option_id'))->setFlags(new CascadeDelete()),
         ]);
-
-        foreach (self::$extensions as $extension) {
-            $extension->extendFields(self::$fields);
-        }
-
-        return self::$fields;
     }
 
     public static function getRepositoryClass(): string

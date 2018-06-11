@@ -128,14 +128,12 @@ class WriteContext
      */
     public function isChild(string $definition, array $raw): bool
     {
-        if (array_key_exists($definition::getParentPropertyName(), $raw)) {
+        if (array_key_exists('parent', $raw)) {
             return true;
         }
 
         /** @var ManyToOneAssociationField $parent */
-        $parent = $definition::getFields()->get(
-            $definition::getParentPropertyName()
-        );
+        $parent = $definition::getFields()->get('parent');
 
         $fk = $definition::getFields()->getByStorageName(
             $parent->getStorageName()

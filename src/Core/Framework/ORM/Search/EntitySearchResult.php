@@ -32,6 +32,8 @@ class EntitySearchResult
      */
     protected $context;
 
+    use SearchResultTrait;
+
     public function __construct(
         int $total,
         EntityCollection $entities,

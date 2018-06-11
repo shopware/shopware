@@ -19,8 +19,8 @@ use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\ORM\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\Inherited;
+use Shopware\Core\Framework\ORM\Event\EntityWriterEventContainer;
 use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Core\Framework\ORM\Write\WrittenEvent;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -91,7 +91,7 @@ class InheritanceIndexer implements IndexerInterface
 
     public function refresh(GenericWrittenEvent $event): void
     {
-        /** @var WrittenEvent $nested */
+        /** @var \Shopware\Core\Framework\ORM\Event\WrittenEvent $nested */
         foreach ($event->getEvents() as $nested) {
             $definition = $nested->getDefinition();
 

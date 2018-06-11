@@ -12,9 +12,10 @@ use Shopware\Core\Framework\ORM\Dbal\Common\LastIdQuery;
 use Shopware\Core\Framework\ORM\Dbal\Common\OffsetQuery;
 use Shopware\Core\Framework\ORM\DefinitionRegistry;
 use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\Event\EntityWriterEventContainer;
+use Shopware\Core\Framework\ORM\Event\WrittenEvent;
 use Shopware\Core\Framework\ORM\Write\EntityExistence;
 use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Core\Framework\ORM\Write\WrittenEvent;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 

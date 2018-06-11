@@ -42,13 +42,9 @@ class LocaleTranslationDefinition extends EntityDefinition
         return 'locale_translation';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        self::$fields = new FieldCollection([
+        return new FieldCollection([
             (new FkField('locale_id', 'localeId', LocaleDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new ReferenceVersionField(LocaleDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('language_id', 'languageId', LanguageDefinition::class))->setFlags(new PrimaryKey(), new Required()),
@@ -57,12 +53,6 @@ class LocaleTranslationDefinition extends EntityDefinition
             new ManyToOneAssociationField('locale', 'locale_id', LocaleDefinition::class, false),
             new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, false),
         ]);
-
-        foreach (self::$extensions as $extension) {
-            $extension->extendFields(self::$fields);
-        }
-
-        return self::$fields;
     }
 
     public static function getRepositoryClass(): string

@@ -64,13 +64,9 @@ class CategoryDefinition extends EntityDefinition
         return 'category';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        self::$fields = new FieldCollection([
+        return new FieldCollection([
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
@@ -118,12 +114,6 @@ class CategoryDefinition extends EntityDefinition
             (new ManyToManyAssociationField('products', ProductDefinition::class, ProductCategoryDefinition::class, false, 'category_id', 'product_id', 'id', 'categories'))->setFlags(new CascadeDelete(), new WriteOnly()),
             (new ManyToManyAssociationField('seoProducts', ProductDefinition::class, ProductSeoCategoryDefinition::class, false, 'category_id', 'product_id'))->setFlags(new CascadeDelete(), new WriteOnly()),
         ]);
-
-        foreach (self::$extensions as $extension) {
-            $extension->extendFields(self::$fields);
-        }
-
-        return self::$fields;
     }
 
     public static function getRepositoryClass(): string

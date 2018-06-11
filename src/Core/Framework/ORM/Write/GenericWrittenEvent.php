@@ -48,7 +48,7 @@ class GenericWrittenEvent extends NestedEvent
         return $this->events;
     }
 
-    public function getEventByDefinition(string $definition): ?WrittenEvent
+    public function getEventByDefinition(string $definition)
     {
         foreach ($this->events as $event) {
             if (!$event instanceof WrittenEvent) {

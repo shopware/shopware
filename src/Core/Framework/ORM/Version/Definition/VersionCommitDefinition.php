@@ -53,13 +53,9 @@ class VersionCommitDefinition extends EntityDefinition
         return false;
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        self::$fields = new FieldCollection([
+        return new FieldCollection([
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('version_id', 'versionId', VersionDefinition::class))->setFlags(new Required()),
@@ -71,12 +67,6 @@ class VersionCommitDefinition extends EntityDefinition
             (new OneToManyAssociationField('data', VersionCommitDataDefinition::class, 'version_commit_id', true))->setFlags(new CascadeDelete()),
             new ManyToOneAssociationField('version', 'version_id', VersionDefinition::class, false),
         ]);
-
-        foreach (self::$extensions as $extension) {
-            $extension->extendFields(self::$fields);
-        }
-
-        return self::$fields;
     }
 
     public static function getRepositoryClass(): string

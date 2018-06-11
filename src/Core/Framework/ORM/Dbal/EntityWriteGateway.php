@@ -88,18 +88,18 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
      */
     private function getParentField(string $definition): ?FkField
     {
-        if ($definition::getParentPropertyName() === null) {
+        if (!$definition::isInheritanceAware()) {
             return null;
         }
 
         /** @var ManyToOneAssociationField $parent */
-        $parent = $definition::getFields()->get($definition::getParentPropertyName());
+        $parent = $definition::getFields()->get('parent');
 
         if (!$parent) {
             throw new \RuntimeException(
                 sprintf(
                     'Can not find parent property %s field for definition %s',
-                    $definition::getParentPropertyName(),
+                    'parent',
                     $definition
                 )
             );
@@ -109,7 +109,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
             throw new \RuntimeException(
                 sprintf(
                     'Parent property %s in definition %s expected to be an ManyToOneAssociationField got %s',
-                    $definition::getParentPropertyName(),
+                    'parent',
                     $definition,
                     get_class($parent)
                 )
@@ -122,7 +122,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
             throw new \RuntimeException(
                 sprintf(
                     'Can not find FkField for parent property %s in definition %s',
-                    $definition::getParentPropertyName(),
+                    'parent',
                     $definition
                 )
             );
@@ -132,7 +132,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                 sprintf(
                     'Foreign key property %s of parent association %s in definition %s expected to be an FkField got %s',
                     $fk->getPropertyName(),
-                    $definition::getParentPropertyName(),
+                    'parent',
                     $definition,
                     get_class($fk)
                 )
@@ -226,7 +226,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
 
         if ($definition::isChildrenAware()) {
             $query->addSelect('parent_id');
-        } elseif (!$definition::getParentPropertyName()) {
+        } elseif (!$definition::isInheritanceAware()) {
             $query->addSelect('1 as `exists`');
         } else {
             $parent = $this->getParentField($definition);
@@ -248,7 +248,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
     private function isChild(string $definition, array $data, array $state): bool
     {
         /** @var EntityDefinition $definition */
-        if (!$definition::getParentPropertyName()) {
+        if (!$definition::isInheritanceAware()) {
             return false;
         }
 
@@ -258,7 +258,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
             return isset($data[$fk->getPropertyName()]);
         }
 
-        $association = $definition::getFields()->get($definition::getParentPropertyName());
+        $association = $definition::getFields()->get('parent');
         if (isset($data[$association->getPropertyName()])) {
             return true;
         }
@@ -269,7 +269,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
     private function wasChild(string $definition, array $state): bool
     {
         /** @var EntityDefinition $definition */
-        if (!$definition::getParentPropertyName()) {
+        if (!$definition::isInheritanceAware()) {
             return false;
         }
 

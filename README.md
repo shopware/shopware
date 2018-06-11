@@ -7,7 +7,7 @@ If you want to commit code changes you can only do this to this repository. The 
 ## Further Links
 * [Shopware AG](http://www.shopware.com) - Homepage of shopware AG
 * [Shopware Developer Documentation](https://devdocs.shopware.com/)
-* [Shopware Community](http://community.shopware.com/) - Shopware\Core Community
+* [Shopware Community](http://community.shopware.com/) - Shopware Community
 * [Shopware Forum](http://forum.shopware.com) - Community forum
-* [Shopware Marketplace](http://store.shopware.com) - Shopware\Core Store
+* [Shopware Marketplace](http://store.shopware.com) - Shopware Store
 * [Shopware on Crowdin](https://crowdin.com/project/shopware) - Crowdin (Translations)

@@ -674,7 +674,7 @@ State.register('locale', {
 
     mutations: {
         setLocale(state, locale) {
-            const factoryContainer = Shopware\Core.Touchpoint.getContainer('factory');
+            const factoryContainer = Shopware.Touchpoint.getContainer('factory');
             const localeFactory = factoryContainer.locale;
 
             // The actual state modification
@@ -715,7 +715,7 @@ State.register('manufacturer', {
     actions: {
         getManufacturerList({ commit }, offset = 0, limit = 25) {
             // Get the manufacturer API service
-            const providerContainer = Shopware\Core.Touchpoint.getContainer('service');
+            const providerContainer = Shopware.Touchpoint.getContainer('service');
             const manufacturerService = providerContainer.productManufacturerService;
 
             // Request the list using the manufacturer API service
@@ -741,7 +741,7 @@ State.register('manufacturer', {
             }
             
             // Get the manufacturer API service
-            const providerContainer = Shopware\Core.Touchpoint.getContainer('service');
+            const providerContainer = Shopware.Touchpoint.getContainer('service');
             const manufacturerService = providerContainer.manufacturerService;
             
             // Generate the change set
@@ -833,7 +833,7 @@ These services are so called API services which are an abstraction layer of the 
 It is also possible to register your own service provider using the third-party developer interface:
 
 ```js
-Shopware\Core.Touchpoint.addServiceProvider('exampleService', () => {
+Shopware.Touchpoint.addServiceProvider('exampleService', () => {
     return new ExampleService();
 });
 ```
@@ -974,7 +974,7 @@ State.register('tax', {
 
     actions: {
         getTaxList({ commit }, offset = 0, limit = 25) {
-            const providerContainer = Shopware\Core.Touchpoint.getContainer('service');
+            const providerContainer = Shopware.Touchpoint.getContainer('service');
             const taxService = providerContainer.taxService;
 
             return taxService.getList(offset, limit).then((response) => {
@@ -1018,7 +1018,7 @@ Let us take a closer look on the method `getTaxList`.
 
 ```js
 getTaxList({ commit }, offset = 0, limit = 25) {
-    const providerContainer = Shopware\Core.Touchpoint.getContainer('service');
+    const providerContainer = Shopware.Touchpoint.getContainer('service');
     const taxService = providerContainer.taxService;
 
     return taxService.getList(offset, limit).then((response) => {
@@ -1041,9 +1041,9 @@ getTaxList({ commit }, offset = 0, limit = 25) {
 In there we're using the application-wide dependency management using [Bottle.js](https://github.com/young-steveo/bottlejs). The application exposes the dependency injection containers using the third-party developer interface. This way we're having access to all available factories, initializers and service providers. We're providing three containers - `factory`, `init` and `service`.
 
 ```js
-Shopware\Core.Touchpoint.getContainer('factory');
-Shopware\Core.Touchpoint.getContainer('init');
-Shopware\Core.Touchpoint.getContainer('service');
+Shopware.Touchpoint.getContainer('factory');
+Shopware.Touchpoint.getContainer('init');
+Shopware.Touchpoint.getContainer('service');
 ```
 
 *Example access using the application-wide dependency containers*
@@ -1095,7 +1095,7 @@ The injected HTTP client is a configured [Axios instance](https://github.com/axi
 
 ```js
 // Register your service provider
-Shopware\Core.Touchpoint.addServiceProvider('exampleService', (serviceContainer) =>() {
+Shopware.Touchpoint.addServiceProvider('exampleService', (serviceContainer) =>() {
     const initContainer = application.getContainer('init');
     return new ExampleService(initContainer.httpClient, container.loginService);
 });
@@ -1390,7 +1390,7 @@ Webpack's main purpose is to bundle JavaScript files for usage in a browser. It'
 
 We're using Webpack to bundle all the parts of the administration interface into one handy bundled file for deployment but that's not all. We're using it to expose parts of the application into the global scope to provide an unified interface to interact with the application on the beginner user level. The style definition is written in [LESS](http://lesscss.org/) which will be transformed to plain CSS using Webpack too.
 
-Please keep in mind that Webpack is only used as a tool for development. The application for the administration gets build and is delivered as one complete package. No compiling or build process is necessary in a normal installation of Shopware\Core.
+Please keep in mind that Webpack is only used as a tool for development. The application for the administration gets build and is delivered as one complete package. No compiling or build process is necessary in a normal installation of Shopware.
 
 Webpack has 4 core concepts which enables you to customize it to your needs and process every tasks you want: **entry, output, loaders & plugins.** The core concepts of Webpack enable you as a third-party developer to use all the same tools we are using for developing. Webpack is able to identify the active plugins in the shop and processes the plugins JavaScript and LESS files and dumps out a compiled version into the plugin directory ready for deployment to the community store.
 

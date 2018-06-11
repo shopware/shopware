@@ -5,10 +5,10 @@ import ApiService from './api.service';
  * @class
  * @extends ApiService
  */
-class ApplicationApiService extends ApiService {
-    constructor(httpClient, loginService, apiEndpoint = 'application') {
+class TouchpointApiService extends ApiService {
+    constructor(httpClient, loginService, apiEndpoint = 'touchpoint') {
         super(httpClient, loginService, apiEndpoint);
     }
 }
 
-export default ApplicationApiService;
+export default TouchpointApiService;

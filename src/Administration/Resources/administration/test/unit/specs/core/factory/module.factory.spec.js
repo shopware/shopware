@@ -1,4 +1,4 @@
-/* global Shopware\Core */
+/* global Shopware */
 import ModuleFactory from 'src/core/factory/module.factory';
 
 const register = ModuleFactory.registerModule;

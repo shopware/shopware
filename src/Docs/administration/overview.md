@@ -83,6 +83,6 @@ Webpack's main purpose is to bundle JavaScript files for usage in a browser. It'
 
 We're using Webpack to bundle all the parts of the administration interface into one handy bundled file for deployment but that's not all. We're using it to expose parts of the application into the global scope to provide an unified interface to interact with the application on the beginner user level. The style definition is written in [LESS](http://lesscss.org/) which will be transformed to plain CSS using Webpack too.
 
-Please keep in mind that Webpack is only used as a tool for development. The application for the administration gets build and is delivered as one complete package. No compiling or build process is necessary in a normal installation of Shopware\Core.
+Please keep in mind that Webpack is only used as a tool for development. The application for the administration gets build and is delivered as one complete package. No compiling or build process is necessary in a normal installation of Shopware.
 
 Webpack has 4 core concepts which enables you to customize it to your needs and process every tasks you want: **entry, output, loaders & plugins.** The core concepts of Webpack enable you as a third-party developer to use all the same tools we are using for developing. Webpack is able to identify the active plugins in the shop and processes the plugins JavaScript and LESS files and dumps out a compiled version into the plugin directory ready for deployment to the community store.

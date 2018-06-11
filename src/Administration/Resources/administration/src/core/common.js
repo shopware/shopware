@@ -1,5 +1,5 @@
 /**
- * Shopware\Core End Developer API
+ * Shopware End Developer API
  * @module Shopware
  * @ignore
  */

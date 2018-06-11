@@ -16,7 +16,7 @@ import CurrencyApiService from 'src/core/service/api/currency.api.service';
 import TaxApiService from 'src/core/service/api/tax.api.service';
 import RuleApiService from 'src/core/service/api/rule.api.service';
 import MediaApiService from 'src/core/service/api/media.api.service';
-import ApplicationApiService from 'src/core/service/api/application.api.service';
+import TouchpointApiService from 'src/core/service/api/touchpoint.api.service';
 
 export default {
     shopService: ShopApiService,
@@ -37,5 +37,5 @@ export default {
     taxService: TaxApiService,
     ruleService: RuleApiService,
     mediaService: MediaApiService,
-    applicationService: ApplicationApiService
+    touchpointService: TouchpointApiService
 };

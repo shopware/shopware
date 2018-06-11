@@ -60,7 +60,7 @@ items can be found under the property `global` under the module namespace.
 We're providing an interface to third-party developers to register new locale:
 
 ```
-Shopware\Core.Locale.register('ca-ES', {
+Shopware.Locale.register('ca-ES', {
     'sw-login': {
         'index': {
             'buttonSave': 'Guardar'
@@ -75,7 +75,7 @@ Shopware\Core.Locale.register('ca-ES', {
 It is possible for third-party developers to extend existing locales with translations for their plugin / module:
 
 ```
-Shopware\Core.Locale.extend('en-UK', {
+Shopware.Locale.extend('en-UK', {
     'sw-login': {
         'index': {
             'buttonSave': 'Fancy save'

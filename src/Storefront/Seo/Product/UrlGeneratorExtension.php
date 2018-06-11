@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Seo\Product;
 
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+use Shopware\Core\Framework\ORM\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\Deferred;
@@ -38,11 +39,11 @@ class UrlGeneratorExtension implements EntityExtensionInterface, EventSubscriber
     public static function getSubscribedEvents()
     {
         return [
-            SeoUrlBasicLoadedEvent::NAME => 'seoUrlBasicLoaded',
+            'seo_url.loaded' => 'seoUrlBasicLoaded',
         ];
     }
 
-    public function seoUrlBasicLoaded(SeoUrlBasicLoadedEvent $event): void
+    public function seoUrlBasicLoaded(EntityLoadedEvent $event): void
     {
         $request = $this->requestStack->getMasterRequest();
 
@@ -50,7 +51,7 @@ class UrlGeneratorExtension implements EntityExtensionInterface, EventSubscriber
             return;
         }
 
-        foreach ($event->getSeoUrls() as $seoUrl) {
+        foreach ($event->getEntities() as $seoUrl) {
             $seoUrl->setUrl($request->getSchemeAndHttpHost() . $request->getBaseUrl() . '/' . $seoUrl->getSeoPathInfo());
         }
     }

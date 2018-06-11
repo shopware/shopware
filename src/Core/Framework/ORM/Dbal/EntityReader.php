@@ -89,7 +89,7 @@ class EntityReader implements EntityReaderInterface
         );
     }
 
-    public function readRaw(string $definition, array $ids, Context $context): EntityCollection
+    public function readRaw(string $definition, ReadCriteria $criteria, Context $context): EntityCollection
     {
         /** @var EntityDefinition $definition */
         $collectionClass = EntityCollection::class;
@@ -97,7 +97,7 @@ class EntityReader implements EntityReaderInterface
         $structClass = ArrayStruct::class;
 
         $details = $this->_read(
-            $ids,
+            $criteria->getIds(),
             $definition,
             $context,
             $structClass,

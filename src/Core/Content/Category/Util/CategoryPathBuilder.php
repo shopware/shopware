@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\CategoryRepository;
 use Shopware\Core\Content\Category\Collection\CategoryBasicCollection;
 use Shopware\Core\Content\Category\Struct\CategoryBasicStruct;
+use Shopware\Core\Framework\ORM\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
@@ -40,11 +41,11 @@ class CategoryPathBuilder implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            CategoryWrittenEvent::NAME => 'categoryWritten',
+            'category.written' => 'categoryWritten',
         ];
     }
 
-    public function categoryWritten(CategoryWrittenEvent $event): void
+    public function categoryWritten(EntityWrittenEvent $event): void
     {
         $context = $event->getContext();
 

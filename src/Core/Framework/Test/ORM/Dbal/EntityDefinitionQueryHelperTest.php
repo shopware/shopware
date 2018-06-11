@@ -94,41 +94,11 @@ class JsonObjectTestDefinition extends EntityDefinition
         return 'json_object_test';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
         return new FieldCollection([
             new TenantIdField(),
             new ObjectField('amount', 'amount'),
         ]);
-    }
-
-    public static function getRepositoryClass(): string
-    {
-        return '';
-    }
-
-    public static function getBasicCollectionClass(): string
-    {
-        return '';
-    }
-
-    public static function getBasicStructClass(): string
-    {
-        return '';
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return '';
-    }
-
-    public static function getDeletedEventClass(): string
-    {
-        return '';
-    }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return '';
     }
 }

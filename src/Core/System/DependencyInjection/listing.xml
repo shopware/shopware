@@ -21,7 +21,7 @@
           <argument id="Shopware\Core\Framework\ORM\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>
-         <service class="Shopware\Core\System\Listing\Definition\ListingFacetTranslationDefinition" id="Shopware\Core\System\Listing\Definition\ListingFacetTranslationDefinition" >
+         <service class="Shopware\Core\System\Listing\Definition\ListingFacetTranslationDefinition" id="Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation\ListingFacetTranslationDefinition" >
             <tag name="shopware.entity.definition" entity="listing_facet_translation" />
         </service>
         <service class="Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation\ListingFacetTranslationRepository" id="Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation\ListingFacetTranslationRepository.v1" public="true">
@@ -41,7 +41,7 @@
           <argument id="Shopware\Core\Framework\ORM\Dbal\EntityAggregator" type="service"/>
           <argument id="event_dispatcher" type="service"/>
         </service>
-         <service class="Shopware\Core\System\Listing\Definition\ListingSortingTranslationDefinition" id="Shopware\Core\System\Listing\Definition\ListingSortingTranslationDefinition" >
+         <service class="Shopware\Core\System\Listing\Definition\ListingSortingTranslationDefinition" id="Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation\ListingSortingTranslationDefinition" >
             <tag name="shopware.entity.definition" entity="listing_sorting_translation" />
         </service>
         <service class="Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation\ListingSortingTranslationRepository" id="Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation\ListingSortingTranslationRepository.v1" public="true">

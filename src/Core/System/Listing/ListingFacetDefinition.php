@@ -21,7 +21,7 @@ use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Core\System\Listing\Collection\ListingFacetBasicCollection;
 use Shopware\Core\System\Listing\Collection\ListingFacetDetailCollection;
-use Shopware\Core\System\Listing\Definition\ListingFacetTranslationDefinition;
+use Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation\ListingFacetTranslationDefinition;
 use Shopware\Core\System\Listing\Event\ListingFacetDeletedEvent;
 use Shopware\Core\System\Listing\Event\ListingFacetWrittenEvent;
 use Shopware\Core\System\Listing\Struct\ListingFacetBasicStruct;

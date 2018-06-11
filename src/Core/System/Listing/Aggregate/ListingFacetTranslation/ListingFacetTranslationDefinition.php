@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\Listing\Definition;
+namespace Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation;
 
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;

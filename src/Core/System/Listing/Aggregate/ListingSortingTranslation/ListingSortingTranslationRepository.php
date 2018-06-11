@@ -21,7 +21,7 @@ use Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation\Event\Listi
 use Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation\Event\ListingSortingTranslationIdSearchResultLoadedEvent;
 use Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation\Event\ListingSortingTranslationSearchResultLoadedEvent;
 use Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation\Struct\ListingSortingTranslationSearchResult;
-use Shopware\Core\System\Listing\Definition\ListingSortingTranslationDefinition;
+use Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation\ListingSortingTranslationDefinition;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ListingSortingTranslationRepository implements RepositoryInterface

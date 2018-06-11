@@ -21,7 +21,7 @@ use Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation\Event\Listing
 use Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation\Event\ListingFacetTranslationIdSearchResultLoadedEvent;
 use Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation\Event\ListingFacetTranslationSearchResultLoadedEvent;
 use Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation\Struct\ListingFacetTranslationSearchResult;
-use Shopware\Core\System\Listing\Definition\ListingFacetTranslationDefinition;
+use Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation\ListingFacetTranslationDefinition;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ListingFacetTranslationRepository implements RepositoryInterface

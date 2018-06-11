@@ -25,7 +25,7 @@ use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
 use Shopware\Core\System\Listing\Collection\ListingSortingBasicCollection;
 use Shopware\Core\System\Listing\Collection\ListingSortingDetailCollection;
-use Shopware\Core\System\Listing\Definition\ListingSortingTranslationDefinition;
+use Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation\ListingSortingTranslationDefinition;
 use Shopware\Core\System\Listing\Event\ListingSortingDeletedEvent;
 use Shopware\Core\System\Listing\Event\ListingSortingWrittenEvent;
 use Shopware\Core\System\Listing\Struct\ListingSortingBasicStruct;

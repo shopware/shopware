@@ -15,7 +15,7 @@
         {% block frontend_listing_box_article_hint %}
             {% if product.highlight %}
                 <div class="product--badge badge--recommend">
-                    {% trans from 'frontend/listing/box_article' %}ListingBoxTip{% endtrans %}
+                    {% trans %}frontend.listing.box_article.ListingBoxTip{% endtrans %}
                 </div>
             {% endif %}
         {% endblock %}
@@ -24,7 +24,7 @@
         {% block frontend_listing_box_article_new %}
             {% if product.isNew %}
                 <div class="product--badge badge--newcomer">
-                    {% trans from 'frontend/listing/box_article' %}ListingBoxNew{% endtrans %}
+                    {% trans %}frontend.listing.box_article.ListingBoxNew{% endtrans %}
                 </div>
             {% endif %}
         {% endblock %}

@@ -1,7 +1,7 @@
 {% sw_extends '@Storefront/frontend/listing/index.html.twig' %}
 
 {% block frontend_index_header_meta_tags_opengraph %}
-    {% set description = "{% trans from 'frontend/listing/listing' %}IndexMetaDescriptionStandard{% endtrans %}" %}
+    {% set description = "{% trans %}frontend.listing.listing.IndexMetaDescriptionStandard{% endtrans %}" %}
     {% if manufacturer.description %}
         {% set description = manufacturer.description|striptags|truncate(240,true) %}
     {% endif %}
@@ -33,8 +33,8 @@
             {% if theme.infiniteScrolling %}
             data-infinite-scrolling="true"
             {#data-ajaxUrl="{url module="widgets" controller="Listing" action="ajaxListing" sSupplier=$manufacturer->getId()}"#}
-            data-loadPreviousSnippet="{% trans from 'frontend/listing/listing' %}ListingActionsLoadPrevious{% endtrans %}"
-            data-loadMoreSnippet="{% trans from 'frontend/listing/listing' %}ListingActionsLoadMore{% endtrans %}"
+            data-loadPreviousSnippet="{% trans %}frontend.listing.listing.ListingActionsLoadPrevious{% endtrans %}"
+            data-loadMoreSnippet="{% trans %}frontend.listing.listing.ListingActionsLoadMore{% endtrans %}"
             data-categoryId="{{ listing.navigationId }}"
             data-pages="{{ pages }}"
             data-threshold="{{ theme.infiniteThreshold }}"{% endif %}>
@@ -54,7 +54,7 @@
         {# Vendor headline #}
         {% block frontend_listing_list_filter_supplier_headline %}
             <h1 class="panel--title is--underline">
-                {% trans from 'frontend/listing/listing' %}ListingInfoFilterSupplier{% endtrans %} {{ manufacturer.name }}
+                {% trans %}frontend.listing.listing.ListingInfoFilterSupplier{% endtrans %} {{ manufacturer.name }}
             </h1>
         {% endblock %}
 

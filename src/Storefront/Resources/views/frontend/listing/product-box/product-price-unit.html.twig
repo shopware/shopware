@@ -6,7 +6,7 @@
         {# Unit price label #}
         {% block frontend_listing_box_article_unit_label %}
             <span class="price--label label--purchase-unit is--bold is--nowrap">
-                {% trans from 'frontend/listing/box_article' %}ListingBoxArticleContent{% endtrans %}
+                {% trans %}frontend.listing.box_article.ListingBoxArticleContent{% endtrans %}
             </span>
         {% endblock %}
 
@@ -25,7 +25,7 @@
         {% block frontend_listing_box_article_unit_reference_content %}
             <span class="is--nowrap">
                 ({{ product.referenceprice|localizedcurrency(context.currency.shortName) }}
-                {% trans from 'frontend/listing/box_article' %}Star{% endtrans %} / {{ product.referenceunit }} {{ product.sUnit.description }})
+                {% trans %}frontend.listing.box_article.Star{% endtrans %} / {{ product.referenceunit }} {{ product.sUnit.description }})
             </span>
         {% endblock %}
     {% endif %}

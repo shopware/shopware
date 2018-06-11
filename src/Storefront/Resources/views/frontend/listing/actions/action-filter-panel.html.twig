@@ -12,8 +12,8 @@
     <div class="action--filter-options off-canvas{% if facets|length <= 0 %} is--hidden{% endif %}{% if listingMode != 'full_page_reload' %} is--ajax-reload{% endif %}">
 
         {% block frontend_listing_actions_filter_close_button %}
-            <a href="#" class="filter--close-btn" data-show-products-text="{% trans from 'frontend/listing/listing_actions' %}ListingActionsCloseFilterShowProducts{% endtrans %}">
-                {% trans from 'frontend/listing/listing_actions' %}ListingActionsCloseFilter{% endtrans %} <i class="icon--arrow-right"></i>
+            <a href="#" class="filter--close-btn" data-show-products-text="{% trans %}frontend.listing.listing_actions.ListingActionsCloseFilterShowProducts{% endtrans %}">
+                {% trans %}frontend.listing.listing_actions.ListingActionsCloseFilter{% endtrans %} <i class="icon--arrow-right"></i>
             </a>
         {% endblock %}
 
@@ -69,7 +69,7 @@
 
                         {% block frontend_listing_actions_filter_active_filters %}
                             <div class="filter--active-container"
-                                 data-reset-label="{% trans from 'frontend/listing/listing_actions' %}ListingFilterResetAll{% endtrans %}">
+                                 data-reset-label="{% trans %}frontend.listing.listing_actions.ListingFilterResetAll{% endtrans %}">
                             </div>
                         {% endblock %}
 

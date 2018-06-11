@@ -12,7 +12,7 @@
                 {# Main shop logo #}
                 {% block frontend_index_logo %}
                     <div class="logo--shop block">
-                        <a class="logo--link" href="{{ path('homepage') }}" title="{{ shopware.config.shopName|escape }} - {% trans from 'frontend/index/index' %}IndexLinkDefault{% endtrans %}">
+                        <a class="logo--link" href="{{ path('homepage') }}" title="{{ shopware.config.shopName|escape }} - {% trans %}frontend.index.index.IndexLinkDefault{% endtrans %}">
                             <picture>
                                 {#<source srcset="{link file=$theme.desktopLogo}" media="(min-width: 78.75em)">#}
                                 {#<source srcset="{link file=$theme.tabletLandscapeLogo}" media="(min-width: 64em)">#}
@@ -27,7 +27,7 @@
                 {# Support Info #}
                 {% block frontend_index_logo_supportinfo %}
                     <div class="logo--supportinfo block">
-                        {% trans from 'frontend/register/index' %}RegisterSupportInfo{% endtrans %}
+                        {% trans %}frontend.register.index.RegisterSupportInfo{% endtrans %}
                     </div>
                 {% endblock %}
 

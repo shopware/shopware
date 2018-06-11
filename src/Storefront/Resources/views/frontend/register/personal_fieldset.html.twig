@@ -1,11 +1,9 @@
-{% trans_default_domain 'frontend/register/personal_fieldset' %}
-
 <div class="panel register--personal">
     <h2 class="panel--title is--underline">
         {% if fieldset_title and fieldset_title is not empty %}
             {{ fieldset_title}}
         {% else %}
-            {% trans %}RegisterPersonalMarketingHeadline{% endtrans %}
+            {% trans %}frontend.register.personal_fieldset.RegisterPersonalMarketingHeadline{% endtrans %}
         {% endif %}
     </h2>
     <div class="panel--body is--wide">
@@ -24,16 +22,16 @@
                                 class="is--required{% if error_flags.customerType %} has--error{% endif %}">
 
                             <option value="" disabled="disabled" {% if form_data.customerType == '' %} selected="selected"{% endif %}>
-                                {% trans %}RegisterPersonalLabelType{% endtrans %}
-                                {% trans from 'frontend/register/index' %}RequiredField{% endtrans %}
+                                {% trans %}frontend.register.personal_fieldset.RegisterPersonalLabelType{% endtrans %}
+                                {% trans %}frontend.register.index.RequiredField{% endtrans %}
                             </option>
 
                             <option value="private" {% if form_data.customerType == 'private' or (not form_data.company and context.customer) %} selected="selected"{% endif %}>
-                                {% trans %}RegisterPersonalLabelPrivate{% endtrans %}
+                                {% trans %}frontend.register.personal_fieldset.RegisterPersonalLabelPrivate{% endtrans %}
                             </option>
 
                             <option value="business"{% if form_data.customerType == 'business' or form_data.company%} selected="selected"{% endif %}>
-                                {% trans %}RegisterPersonalLabelPrivate{% endtrans %}
+                                {% trans %}frontend.register.personal_fieldset.RegisterPersonalLabelPrivate{% endtrans %}
                             </option>
                         </select>
                     </div>
@@ -42,7 +40,7 @@
                     <div class="select-field is--hidden">
                         <select id="register_personal_customer_type" name="register[customer_type]">
                             <option value="private" selected="selected">
-                                {% trans %}RegisterPersonalLabelPrivate{% endtrans %}
+                                {% trans %}frontend.register.personal_fieldset.RegisterPersonalLabelPrivate{% endtrans %}
                             </option>
                         </select>
                     </div>
@@ -67,8 +65,8 @@
                     <option value=""
                             disabled="disabled"
                             {% if form_data.salutation == '' %} selected="selected"{% endif %}>
-                        {% trans %}RegisterPlaceholderSalutation{% endtrans %}
-                        {% trans from 'frontend/register/index' %}RequiredField{% endtrans %}
+                        {% trans %}frontend.register.personal_fieldset.RegisterPlaceholderSalutation{% endtrans %}
+                        {% trans %}frontend.register.index.RequiredField{% endtrans %}
                     </option>
 
                     {% for salutation, label in salutations %}
@@ -88,7 +86,7 @@
                     <input autocomplete="section-personal title"
                            name="register[title]"
                            type="text"
-                           placeholder="{% trans %}RegisterPlaceholderTitle{% endtrans %}"
+                           placeholder="{% trans %}frontend.register.personal_fieldset.RegisterPlaceholderTitle{% endtrans %}"
                            id="title"
                            value="{{ form_data.title|escape }}"
                            class="register--field{% if error_flags.title %} has--error{% endif %}" />
@@ -104,7 +102,7 @@
                        type="text"
                        required="required"
                        aria-required="true"
-                       placeholder="{% trans %}RegisterPlaceholderFirstname{% endtrans %}{% trans from 'frontend/register/index' %}RequiredField{% endtrans %}"
+                       placeholder="{% trans %}frontend.register.personal_fieldset.RegisterPlaceholderFirstname{% endtrans %}{% trans %}frontend.register.index.RequiredField{% endtrans %}"
                        id="firstname"
                        value="{{ form_data.firstName|escape }}"
                        class="register--field is--required{% if error_flags.firstName %} has--error{% endif %}" />
@@ -119,7 +117,7 @@
                        type="text"
                        required="required"
                        aria-required="true"
-                       placeholder="{% trans %}RegisterPlaceholderLastname{% endtrans %}{% trans from 'frontend/register/index' %}RequiredField{% endtrans %}"
+                       placeholder="{% trans %}frontend.register.personal_fieldset.RegisterPlaceholderLastname{% endtrans %}{% trans %}frontend.register.index.RequiredField{% endtrans %}"
                        id="lastname" value="{{ form_data.lastName|escape }}"
                        class="register--field is--required{% if error_flags.lastName %} has--error{% endif %}" />
             </div>
@@ -137,7 +135,7 @@
                                class="register--checkbox chkbox" {% if form_data.isGuest or isGuest %}checked="checked" {% endif %}/>
 
                         <label for="register_personal_skipLogin" class="chklabel is--bold">
-                            {% trans %}RegisterLabelNoAccount{% endtrans %}
+                            {% trans %}frontend.register.personal_fieldset.RegisterLabelNoAccount{% endtrans %}
                         </label>
                     </div>
                 {% else %}
@@ -157,7 +155,7 @@
                            type="email"
                            required="required"
                            aria-required="true"
-                           placeholder="{% trans %}RegisterPlaceholderMail{% endtrans %}{% trans from 'frontend/register/index' %}RequiredField{% endtrans %}"
+                           placeholder="{% trans %}frontend.register.personal_fieldset.RegisterPlaceholderMail{% endtrans %}{% trans %}frontend.register.index.RequiredField{% endtrans %}"
                            id="register_personal_email"
                            value="{{ form_data.email|escape }}"
                            class="register--field email is--required{% if error_flags.email %} has--error{% endif %}" />
@@ -170,7 +168,7 @@
                                type="email"
                                required="required"
                                aria-required="true"
-                               placeholder="{% trans %}RegisterPlaceholderMailConfirmation{% endtrans %}{% trans from 'frontend/register/index' %}RequiredField{% endtrans %}"
+                               placeholder="{% trans %}frontend.register.personal_fieldset.RegisterPlaceholderMailConfirmation{% endtrans %}{% trans %}frontend.register.index.RequiredField{% endtrans %}"
                                id="register_personal_emailConfirmation"
                                value="{$form_data.emailConfirmation|escape}"
                                class="register--field emailConfirmation is--required{% if error_flags.emailConfirmation %} has--error{% endif %}" />
@@ -189,7 +187,7 @@
                                autocomplete="new-password"
                                required="required"
                                aria-required="true"
-                               placeholder="{% trans %}RegisterPlaceholderPassword{% endtrans %}{% trans from 'frontend/register/index' %}RequiredField{% endtrans %}"
+                               placeholder="{% trans %}frontend.register.personal_fieldset.RegisterPlaceholderPassword{% endtrans %}{% trans %}frontend.register.index.RequiredField{% endtrans %}"
                                id="register_personal_password"
                                class="register--field password is--required{% if error_flags.password %} has--error{% endif %}" />
                     </div>
@@ -203,7 +201,7 @@
                                    type="password"
                                    autocomplete="new-password"
                                    aria-required="true"
-                                   placeholder="{% trans %}RegisterPlaceholderPasswordRepeat{% endtrans %}{% trans from 'frontend/register/index' %}RequiredField{% endtrans %}"
+                                   placeholder="{% trans %}frontend.register.personal_fieldset.RegisterPlaceholderPasswordRepeat{% endtrans %}{% trans %}frontend.register.index.RequiredField{% endtrans %}"
                                    id="register_personal_passwordConfirmation"
                                    class="register--field passwordConfirmation is--required{% if error_flags.passwordConfirmation %} has--error{% endif %}" />
                         </div>
@@ -213,8 +211,8 @@
                 {# Password description #}
                 {% block frontend_register_personal_fieldset_password_description %}
                     <div class="register--password-description">
-                        {% trans %}RegisterInfoPassword{% endtrans %} {{ shopware.config.passwordRequirements }} {% trans %}RegisterInfoPasswordCharacters{% endtrans %}<br />
-                        {% trans %}RegisterInfoPassword2{% endtrans %}
+                        {% trans %}frontend.register.personal_fieldset.RegisterInfoPassword{% endtrans %} {{ shopware.config.passwordRequirements }} {% trans %}frontend.register.personal_fieldset.RegisterInfoPasswordCharacters{% endtrans %}<br />
+                        {% trans %}frontend.register.personal_fieldset.RegisterInfoPassword2{% endtrans %}
                     </div>
                 {% endblock %}
             </div>
@@ -225,9 +223,9 @@
             {% block frontend_register_personal_fieldset_birthday %}
                 <div class="register--birthdate">
                     <label for="register_personal_birthdate" class="birthday--label">
-                        {% trans %}RegisterPlaceholderBirthday{% endtrans %}
+                        {% trans %}frontend.register.personal_fieldset.RegisterPlaceholderBirthday{% endtrans %}
                         {% if shopware.config.requireBirthdayField %}
-                            {% trans from 'frontend/register/index' %}RequiredField{% endtrans %}
+                            {% trans %}frontend.register.index.RequiredField{% endtrans %}
                         {% endif %}
                     </label>
 
@@ -240,7 +238,7 @@
                                 {% endif %}
                                 class="{% if shopware.config.requireBirthdayField %}is--required{% endif %}{% if error_flags.birthday and shopware.config.requireBirthdayField %} has--error{% endif %}">
                             <option{% if shopware.config.requireBirthdayField and form_data.birthday.day%} disabled="disabled"{% endif %} value="">
-                                {% trans from 'frontend/register/personal_fieldset' %}RegisterBirthdaySelectDay{% endtrans %}
+                                {% trans %}frontend.register.personal_fieldset.RegisterBirthdaySelectDay{% endtrans %}
                             </option>
 
                             {% for day in 1..31 %}
@@ -254,7 +252,7 @@
                                 {% if shopware.config.requireBirthdayField %} required="required" aria-required="true"{% endif %}
                                 class="{% if shopware.config.requireBirthdayField %}is--required{% endif %}{% if error_flags.birthdayMonth and shopware.config.requireBirthdayField %} has--error{% endif %}">
                             <option{% if shopware.config.requireBirthdayField and form_data.birthdayMonth %} disabled="disabled"{% endif %} value="">
-                                {% trans from 'frontend/register/personal_fieldset' %}RegisterBirthdaySelectMonth{% endtrans %}
+                                {% trans %}frontend.register.personal_fieldset.RegisterBirthdaySelectMonth{% endtrans %}
                             </option>
 
                             {% for month in 1..12 %}
@@ -270,7 +268,7 @@
                                 {% endif %}
                                 class="{% if shopware.config.requireBirthdayField %}is--required{% endif %}{% if error_flags.birthdayYear and shopware.config.requireBirthdayField %} has--error{% endif %}">
                             <option{% if shopware.config.requireBirthdayField and form_data.birthdayYear %} disabled="disabled"{% endif %} value="">
-                                {% trans %}RegisterBirthdaySelectYear{% endtrans %}
+                                {% trans %}frontend.register.personal_fieldset.RegisterBirthdaySelectYear{% endtrans %}
                             </option>
 
                             {% for year  in 'now'|date('Y')..'now - 120 years'|date('Y') %}

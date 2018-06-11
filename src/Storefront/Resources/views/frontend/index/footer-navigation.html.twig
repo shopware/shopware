@@ -2,12 +2,12 @@
 {% block frontend_index_footer_column_service_hotline %}
     <div class="footer--column column--hotline is--first block">
         {% block frontend_index_footer_column_service_hotline_headline %}
-            <div class="column--headline">{% trans from 'frontend/index/menu_footer' %}sFooterServiceHotlineHead{% endtrans%}</div>
+            <div class="column--headline">{% trans %}frontend.index.menu_footer.sFooterServiceHotlineHead{% endtrans%}</div>
         {% endblock %}
 
         {% block frontend_index_footer_column_service_hotline_content %}
             <div class="column--content">
-                <p class="column--desc">{% trans from 'frontend/index/menu_footer' %}sFooterServiceHotline{% endtrans %}</p>
+                <p class="column--desc">{% trans %}frontend.index.menu_footer.sFooterServiceHotline{% endtrans %}</p>
             </div>
         {% endblock %}
     </div>
@@ -16,7 +16,7 @@
 {% block frontend_index_footer_column_service_menu %}
     <div class="footer--column column--menu block">
         {% block frontend_index_footer_column_service_menu_headline %}
-            <div class="column--headline">{% trans from 'frontend/index/menu_footer' %}sFooterShopNavi1{% endtrans %}</div>
+            <div class="column--headline">{% trans %}frontend.index.menu_footer.sFooterShopNavi1{% endtrans %}</div>
         {% endblock %}
 
         {% block frontend_index_footer_column_service_menu_content %}
@@ -57,7 +57,7 @@
 {% block frontend_index_footer_column_information_menu %}
     <div class="footer--column column--menu block">
         {% block frontend_index_footer_column_information_menu_headline %}
-            <div class="column--headline">{% trans from 'frontend/index/menu_footer' %}sFooterShopNavi2{% endtrans %}</div>
+            <div class="column--headline">{% trans %}frontend.index.menu_footer.sFooterShopNavi2{% endtrans %}</div>
         {% endblock %}
 
         {% block frontend_index_footer_column_information_menu_content %}
@@ -97,13 +97,13 @@
 {% block frontend_index_footer_column_newsletter %}
     <div class="footer--column column--newsletter is--last block">
         {% block frontend_index_footer_column_newsletter_headline %}
-            <div class="column--headline">{% trans from 'frontend/index/menu_footer' %}sFooterNewsletterHead{% endtrans %}</div>
+            <div class="column--headline">{% trans %}frontend.index.menu_footer.sFooterNewsletterHead{% endtrans %}</div>
         {% endblock %}
 
         {% block frontend_index_footer_column_newsletter_content %}
             <div class="column--content">
                 <p class="column--desc">
-                    {% trans from 'frontend/index/menu_footer' %}sFooterNewsletter{% endtrans %}
+                    {% trans %}frontend.index.menu_footer.sFooterNewsletter{% endtrans %}
                 </p>
 
                 {% block frontend_index_footer_column_newsletter_form %}
@@ -111,12 +111,12 @@
                         <input type="hidden" value="1" name="subscribeToNewsletter" />
 
                         {% block frontend_index_footer_column_newsletter_form_field %}
-                            <input type="email" name="newsletter" class="newsletter--field" placeholder="{% trans from 'frontend/index/menu_footer' %}IndexFooterNewsletterValue{% endtrans %}" />
+                            <input type="email" name="newsletter" class="newsletter--field" placeholder="{% trans %}frontend.index.menu_footer.IndexFooterNewsletterValue{% endtrans %}" />
                         {% endblock %}
 
                         {% block frontend_index_footer_column_newsletter_form_submit %}
                             <button type="submit" class="newsletter--button btn">
-                                <i class="icon--mail"></i> <span class="button--text">{% trans from 'frontend/index/menu_footer' %}IndexFooterNewsletterSubmit{% endtrans %}</span>
+                                <i class="icon--mail"></i> <span class="button--text">{% trans %}frontend.index.menu_footer.IndexFooterNewsletterSubmit{% endtrans %}</span>
                             </button>
                         {% endblock %}
                     </form>

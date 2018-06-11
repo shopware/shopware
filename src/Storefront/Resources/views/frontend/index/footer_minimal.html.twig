@@ -14,9 +14,9 @@
                 <div class="footer--vat-info">
                     <p class="vat-info--text">
                         {% if sOutputNet %}
-                            {% trans from 'frontend/index/footer' %}FooterInfoExcludeVat{% endtrans %}
+                            {% trans %}frontend.index.footer.FooterInfoExcludeVat{% endtrans %}
                         {% else %}
-                            {% trans from 'frontend/index/footer' %}FooterInfoIncludeVat{% endtrans %}
+                            {% trans %}frontend.index.footer.FooterInfoIncludeVat{% endtrans %}
                         {% endif %}
                     </p>
                 </div>
@@ -25,7 +25,7 @@
             {# Copyright #}
             {% block frontend_index_minimal_footer_copyright %}
                 <div class="footer--copyright">
-                    {% trans from 'frontend/index/footer' %}IndexCopyright{% endtrans %}
+                    {% trans %}frontend.index.footer.IndexCopyright{% endtrans %}
                 </div>
             {% endblock %}
         {% endif %}

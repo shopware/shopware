@@ -4,7 +4,7 @@
 {% endblock %}
 
 {% block frontend_index_html %}
-<html class="no-js" lang="{% trans from 'frontend/index/index' %}IndexXmlLang{% endtrans %}" itemscope="itemscope" itemtype="http://schema.org/WebPage">
+<html class="no-js" lang="{% trans %}frontend.index.index.IndexXmlLang{% endtrans %}" itemscope="itemscope" itemtype="http://schema.org/WebPage">
 {% endblock %}
 
 {% block frontend_index_header %}
@@ -27,7 +27,7 @@
             {# Message if javascript is disabled #}
             {% block frontend_index_no_script_message %}
                 <noscript class="noscript-main">
-                    {% sw_include "@Storefront/frontend/_includes/messages.html.twig" with {"type": "warning", "content": 'IndexNoscriptNotice'|trans([], 'frontend/index/index'), "borderRadius": false} %}
+                    {% sw_include "@Storefront/frontend/_includes/messages.html.twig" with {"type": "warning", "content": 'frontend.index.index.IndexNoscriptNotice'|trans, "borderRadius": false} %}
                 </noscript>
             {% endblock %}
 
@@ -127,7 +127,7 @@
                                 {# Last seen products #}
                                 <div class="last-seen-products is--hidden" data-last-seen-products="true">
                                     <div class="last-seen-products--title">
-                                        {% trans from 'frontend/plugins/index/viewlast' %}WidgetsRecentlyViewedHeadline{% endtrans %}
+                                        {% trans %}frontend.plugins.index.viewlast.WidgetsRecentlyViewedHeadline{% endtrans %}
                                     </div>
                                     <div class="last-seen-products--slider product-slider" data-product-slider="true">
                                         <div class="last-seen-products--container product-slider--container"></div>
@@ -184,7 +184,7 @@
             };
 
             var snippets = snippets || {
-                'noCookiesNotice': '{% trans from 'frontend/index/index' %}IndexNoCookiesNotice{% endtrans %}'
+                'noCookiesNotice': '{% trans %}frontend.index.index.IndexNoCookiesNotice{% endtrans %}'
             };
 
             var themeConfig = themeConfig || {

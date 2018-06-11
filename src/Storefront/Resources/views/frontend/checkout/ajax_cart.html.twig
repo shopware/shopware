@@ -1,5 +1,3 @@
-{% trans_default_domain 'frontend/checkout/ajax_cart' %}
-
 {% block frontend_checkout_ajax_cart %}
 
     {# @var cart \Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart#}
@@ -10,7 +8,7 @@
                 {% block frontend_checkout_ajax_cart_buttons_offcanvas_inner %}
                     <a href="#close-categories-menu" class="close--off-canvas">
                         <i class="icon--arrow-left"></i>
-                        {% trans %}AjaxCartContinueShopping{% endtrans %}
+                        {% trans %}frontend.checkout.ajax_cart.AjaxCartContinueShopping{% endtrans %}
                     </a>
                 {% endblock %}
             </div>
@@ -31,7 +29,7 @@
                             <div class="icon--element icon--check"></div>
                         </div>
                         <div class="alert--content">
-                            {% trans %}AjaxCartSuccessText{% endtrans %}
+                            {% trans %}frontend.checkout.ajax_cart.AjaxCartSuccessText{% endtrans %}
                         </div>
                     </div>
                 {% endif %}
@@ -55,7 +53,7 @@
                             <div class="cart--item is--empty">
                                 {% block frontend_checkout_ajax_cart_empty_inner %}
                                     <span class="cart--empty-text">
-                                        {% trans %}AjaxCartInfoEmpty{% endtrans %}
+                                        {% trans %}frontend.checkout.ajax_cart.AjaxCartInfoEmpty{% endtrans %}
                                     </span>
                                 {% endblock %}
                             </div>
@@ -71,7 +69,7 @@
                     {% block frontend_checkout_ajax_cart_prices_container_inner %}
                         <div class="prices--articles">
                             <span class="prices--articles-text">
-                                {% trans %}AjaxCartTotalAmount{% endtrans %}
+                                {% trans %}frontend.checkout.ajax_cart.AjaxCartTotalAmount{% endtrans %}
                             </span>
                             <span class="prices--articles-amount">
                                 {{ cart.price.totalPrice|localizedcurrency(context.currency.shortName) }}
@@ -95,24 +93,24 @@
 
                                 <a href="{{ url }}"
                                    class="btn is--primary button--checkout is--icon-right"
-                                   title="{% trans %}AjaxCartLinkConfirm{% endtrans %}">
+                                   title="{% trans %}frontend.checkout.ajax_cart.AjaxCartLinkConfirm{% endtrans %}">
                                     <i class="icon--arrow-right"></i>
-                                    {% trans %}AjaxCartLinkConfirm{% endtrans %}
+                                    {% trans %}frontend.checkout.ajax_cart.AjaxCartLinkConfirm{% endtrans %}
                                 </a>
                             {% else %}
                                 <span class="btn is--disabled is--primary button--checkout is--icon-right"
-                                      title="{% trans %}AjaxCartLinkConfirm{% endtrans %}">
+                                      title="{% trans %}frontend.checkout.ajax_cart.AjaxCartLinkConfirm{% endtrans %}">
                                     <i class="icon--arrow-right"></i>
-                                    {% trans %}AjaxCartLinkConfirm{% endtrans %}
+                                    {% trans %}frontend.checkout.ajax_cart.AjaxCartLinkConfirm{% endtrans %}
                                 </span>
                             {% endif %}
                         {% endblock %}
                         {% block frontend_checkout_ajax_cart_open_basket %}
                             <a href="{{ path('checkout_cart') }}"
                                class="btn button--open-basket is--icon-right"
-                               title="{% trans %}AjaxCartLinkBasket{% endtrans %}">
+                               title="{% trans %}frontend.checkout.ajax_cart.AjaxCartLinkBasket{% endtrans %}">
                                 <i class="icon--arrow-right"></i>
-                                {% trans %}AjaxCartLinkBasket{% endtrans %}
+                                {% trans %}frontend.checkout.ajax_cart.AjaxCartLinkBasket{% endtrans %}
                             </a>
                         {% endblock %}
                 {% endblock %}

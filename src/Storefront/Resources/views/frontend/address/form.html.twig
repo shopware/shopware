@@ -1,5 +1,3 @@
-{% trans_default_domain 'frontend/address/index' %}
-
 {# Error messages #}
 {% block frontend_address_error_messages %}
     {# TODO #}
@@ -23,10 +21,10 @@
                                         aria-required="true"
                                         class="is--required{% if error_flags.customerType %} has--error{% endif %}">
                                     <option value="private"{% if formData.additional.customer_type or formData.customerType == 'private' %} selected="selected"{% endif %}>
-                                        {% trans from 'frontend/register/personal_fieldset' %}RegisterPersonalLabelPrivate{% endtrans %}
+                                        {% trans %}frontend.register.personal_fieldset.RegisterPersonalLabelPrivate{% endtrans %}
                                     </option>
                                     <option value="business" {% if formData.company or formData.customerType == 'buisiness' %} selected="selected"{% endif %}>
-                                        {% trans from 'frontend/register/personal_fieldset' %}RegisterPersonalLabelBusiness{% endtrans %}
+                                        {% trans %}frontend.register.personal_fieldset.RegisterPersonalLabelBusiness{% endtrans %}
                                     </option>
                                     {% block frontend_address_form_fieldset_customer_type_options %}{% endblock %}
                                 </select>
@@ -51,7 +49,7 @@
                                    type="text"
                                    required="required"
                                    aria-required="true"
-                                   placeholder="{% trans from 'frontend/register/billing_fieldset' %}RegisterPlaceholderCompany{% endtrans %}{% trans from 'frontend/register/index' %}RequiredField{% endtrans %}"
+                                   placeholder="{% trans %}frontend.register.billing_fieldset.RegisterPlaceholderCompany{% endtrans %}{% trans %}frontend.register.index.RequiredField{% endtrans %}"
                                    id="register_billing_company"
                                    value="{{ formData.company|escape }}"
                                    class="address--field {% if error_flags.company %} has--error{% endif %} is--required"/>
@@ -64,7 +62,7 @@
                             <input autocomplete="section-billing billing organization-title"
                                    name="{{ inputPrefix }}[department]"
                                    type="text"
-                                   placeholder="{% trans from 'frontend/register/billing_fieldset' %}RegisterLabelDepartment{% endtrans %}"
+                                   placeholder="{% trans %}frontend.register.billing_fieldset.RegisterLabelDepartment{% endtrans %}"
                                    id="register_billing_department"
                                    value="{{ formData.department|escape }}"
                                    class="address--field{% if error_flags.department %} has--error{% endif %}"/>
@@ -76,7 +74,7 @@
                         <div class="address--vatid">
                             <input name="{{ inputPrefix }}[vatId]"
                                    type="text"
-                                   placeholder="{% trans from 'frontend/register/billing_fieldset' %}RegisterLabelTaxId{% endtrans %}{% if shopware.config.vatcheckrequired %}{% trans from 'frontend/register/index' %}RequiredField{% endtrans %}{% endif %}"
+                                   placeholder="{% trans %}frontend.register.billing_fieldset.RegisterLabelTaxId{% endtrans %}{% if shopware.config.vatcheckrequired %}{% trans %}frontend.register.index.RequiredField{% endtrans %}{% endif %}"
                                    id="register_billing_vatid"
                                    value="{{ formData.vatId|escape }}"
                                    {% if shopware.config.vatcheckrequired %} required="required" aria-required="true"{% endif %}
@@ -101,8 +99,8 @@
                                 {#aria-required="true"#}
                                 class="is--required{% if error_flags.salutation %} has--error{% endif %}">
                             <option value="" disabled="disabled"{% if formData.salutation == "" %} selected="selected"{% endif %}>
-                                {% trans from 'frontend/register/personal_fieldset' %}RegisterPlaceholderSalutation{% endtrans %}
-                                {% trans from 'frontend/register/index' %}RequiredField{% endtrans %}
+                                {% trans %}frontend.register.personal_fieldset.RegisterPlaceholderSalutation{% endtrans %}
+                                {% trans %}frontend.register.index.RequiredField{% endtrans %}
                             </option>
 
                             {% for key, label in salutations %}
@@ -121,7 +119,7 @@
                             <input autocomplete="section-personal title"
                                    name="{{ inputPrefix }}[title]"
                                    type="text"
-                                   placeholder="{% trans from 'frontend/register/personal_fieldset' %}RegisterPlaceholderTitle{% endtrans %}"
+                                   placeholder="{% trans %}frontend.register.personal_fieldset.RegisterPlaceholderTitle{% endtrans %}"
                                    id="title"
                                    value="{{ formData.title|escape }}"
                                    class="address--field{% if error_flags.title %} has--error{% endif %}" />
@@ -137,7 +135,7 @@
                                type="text"
                                required="required"
                                aria-required="true"
-                               placeholder="{% trans from 'frontend/register/shipping_fieldset' %}RegisterShippingPlaceholderFirstname{% endtrans %}{% trans from 'frontend/register/index' %}RequiredField{% endtrans %}"
+                               placeholder="{% trans %}frontend.register.shipping_fieldset.RegisterShippingPlaceholderFirstname{% endtrans %}{% trans %}frontend.register.index.RequiredField{% endtrans %}"
                                id="firstname2"
                                value="{{ formData.firstName|escape }}"
                                class="address--field is--required{% if error_flags.firstName %} has--error{% endif %}"/>
@@ -152,7 +150,7 @@
                                type="text"
                                required="required"
                                aria-required="true"
-                               placeholder="{% trans from 'frontend/register/shipping_fieldset' %}RegisterShippingPlaceholderLastname{% endtrans %}{% trans from 'frontend/register/index' %}RequiredField{% endtrans %}"
+                               placeholder="{% trans %}frontend.register.shipping_fieldset.RegisterShippingPlaceholderLastname{% endtrans %}{% trans %}frontend.register.index.RequiredField{% endtrans %}"
                                id="lastname2"
                                value="{{ formData.lastName|escape }}"
                                class="address--field is--required{% if error_flags.lastName %} has--error{% endif %}"/>
@@ -167,7 +165,7 @@
                                type="text"
                                required="required"
                                aria-required="true"
-                               placeholder="{% trans from 'frontend/register/billing_fieldset' %}RegisterBillingPlaceholderStreet{% endtrans %}{% trans from 'frontend/register/index' %}RequiredField{% endtrans %}"
+                               placeholder="{% trans %}frontend.register.billing_fieldset.RegisterBillingPlaceholderStreet{% endtrans %}{% trans %}frontend.register.index.RequiredField{% endtrans %}"
                                id="street"
                                value="{{ formData.street|escape }}"
                                class="address--field address--field-street is--required{% if error_flags.street %} has--error{% endif %}"/>
@@ -182,7 +180,7 @@
                                    name="{{ inputPrefix }}[additionalAddressLine1]"
                                    type="text"
                                    {% if shopware.config.requireAdditionAddressLine1 %} required="required" aria-required="true"{% endif %}
-                                   placeholder="{% trans from 'frontend/register/shipping_fieldset' %}RegisterLabelAdditionalAddressLine1{% endtrans %}{% if shopware.config.requireAdditionAddressLine1 %}{% trans from 'frontend/register/index' %}RequiredField{% endtrans %}{% endif %}"
+                                   placeholder="{% trans %}frontend.register.shipping_fieldset.RegisterLabelAdditionalAddressLine1{% endtrans %}{% if shopware.config.requireAdditionAddressLine1 %}{% trans %}frontend.register.index.RequiredField{% endtrans %}{% endif %}"
                                    id="additionalAddressLine1"
                                    value="{{ formData.additionalAddressLine1|escape }}"
                                    class="address--field{% if shopware.config.requireAdditionAddressLine1 %} is--required{% endif %}{% if error_flags.additionalAddressLine1 and shopware.config.requireAdditionAddressLine1 %} has--error{% endif %}"/>
@@ -198,7 +196,7 @@
                                    name="{{ inputPrefix }}[additionalAddressLine2]"
                                    type="text"
                                    {% if shopware.config.requireAdditionAddressLine2 %} required="required" aria-required="true"{% endif %}
-                                   placeholder="{% trans from 'frontend/register/shipping_fieldset' %}RegisterLabelAdditionalAddressLine2{% endtrans %}{% if shopware.config.requireAdditionAddressLine2 %}{% trans from 'frontend/register/index' %}RequiredField{% endtrans %}{% endif %}"
+                                   placeholder="{% trans %}frontend.register.shipping_fieldset.RegisterLabelAdditionalAddressLine2{% endtrans %}{% if shopware.config.requireAdditionAddressLine2 %}{% trans %}frontend.register.index.RequiredField{% endtrans %}{% endif %}"
                                    id="additionalAddressLine2"
                                    value="{{ formData.additionalAddressLine2|escape }}"
                                    class="address--field{% if shopware.config.requireAdditionAddressLine2 %} is--required{% endif %}{% if error_flags.additionalAddressLine2 and shopware.config.requireAdditionAddressLine2 %} has--error{% endif %}"/>
@@ -215,7 +213,7 @@
                                    type="text"
                                    required="required"
                                    aria-required="true"
-                                   placeholder="{% trans from 'frontend/register/billing_fieldset' %}RegisterBillingPlaceholderZipcode{% endtrans %}{% trans from 'frontend/register/index' %}RequiredField{% endtrans %}"
+                                   placeholder="{% trans %}frontend.register.billing_fieldset.RegisterBillingPlaceholderZipcode{% endtrans %}{% trans %}frontend.register.index.RequiredField{% endtrans %}"
                                    id="zipcode"
                                    value="{{ formData.zipcode|escape }}"
                                    class="address--field address--spacer address--field-zipcode is--required{% if error_flags.zipcode %} has--error{% endif %}"/>
@@ -224,7 +222,7 @@
                                    type="text"
                                    required="required"
                                    aria-required="true"
-                                   placeholder="{% trans from 'frontend/register/billing_fieldset' %}RegisterBillingPlaceholderCity{% endtrans %}{% trans from 'frontend/register/index' %}RequiredField{% endtrans %}"
+                                   placeholder="{% trans %}frontend.register.billing_fieldset.RegisterBillingPlaceholderCity{% endtrans %}{% trans %}frontend.register.index.RequiredField{% endtrans %}"
                                    id="city"
                                    value="{{ formData.city|escape }}"
                                    size="25"
@@ -235,7 +233,7 @@
                                    type="text"
                                    required="required"
                                    aria-required="true"
-                                   placeholder="{% trans from 'frontend/register/billing_fieldset' %}RegisterBillingPlaceholderCity{% endtrans %}{% trans from 'frontend/register/index' %}RequiredField{% endtrans %}"
+                                   placeholder="{% trans %}frontend.register.billing_fieldset.RegisterBillingPlaceholderCity{% endtrans %}{% trans %}frontend.register.index.RequiredField{% endtrans %}"
                                    id="city"
                                    value="{{ formData.city|escape }}"
                                    size="25"
@@ -245,7 +243,7 @@
                                    type="text"
                                    required="required"
                                    aria-required="true"
-                                   placeholder="{% trans from 'frontend/register/billing_fieldset' %}RegisterBillingPlaceholderZipcode{% endtrans %}{% trans from 'frontend/register/index' %}RequiredField{% endtrans %}"
+                                   placeholder="{% trans %}frontend.register.billing_fieldset.RegisterBillingPlaceholderZipcode{% endtrans %}{% trans %}frontend.register.index.RequiredField{% endtrans %}"
                                    id="zipcode"
                                    value="{{ formData.zipcode|escape }}"
                                    class="address--field address--field-zipcode is--required{% if error_flags.zipcode %} has--error{% endif %}"/>
@@ -263,8 +261,8 @@
                                     aria-required="true"
                                     class="select--country is--required{% if error_flags.country %} has--error{% endif %}">
                                 <option disabled="disabled" value="" selected="selected">
-                                    {% trans from 'frontend/register/billing_fieldset' %}RegisterBillingPlaceholderCountry{% endtrans %}
-                                    {% trans from 'frontend/register/index' %}RequiredField{% endtrans %}
+                                    {% trans %}frontend.register.billing_fieldset.RegisterBillingPlaceholderCountry{% endtrans %}
+                                    {% trans %}frontend.register.index.RequiredField{% endtrans %}
                                 </option>
                                 {% for country in countryList %}
                                     {% set states = country.extensions.states %}
@@ -294,9 +292,9 @@
                                                 aria-required="true"{% endif %}
                                                 class="select--state {% if country.forceStateInRegistration %}is--required{% endif %}{% if error_flags.state %} has--error{% endif %}">
                                             <option value="" selected="selected"{% if country.force_state_in_registration %} disabled="disabled"{% endif %}>
-                                                {% trans from 'frontend/register/billing_fieldset' %}RegisterBillingLabelState{% endtrans %}
+                                                {% trans %}frontend.register.billing_fieldset.RegisterBillingLabelState{% endtrans %}
                                                 {% if country.force_state_in_registration %}
-                                                    {% trans from 'frontend/register/index' %}RequiredField{% endtrans %}
+                                                    {% trans %}frontend.register.index.RequiredField{% endtrans %}
                                                 {% endif %}
                                             </option>
                                             {% for state in states %}
@@ -322,7 +320,7 @@
                                    name="{{ inputPrefix }}[phone]"
                                    type="tel"
                                    {% if shopware.config.requirePhoneField %} required="required" aria-required="true"{% endif %}
-                                   placeholder="{% trans from 'frontend/register/personal_fieldset' %}RegisterPlaceholderPhone{% endtrans %}{% if shopware.config.requirePhoneField %}{% trans from 'frontend/register/index' %}RequiredField{% endtrans %}{% endif %}"
+                                   placeholder="{% trans %}frontend.register.personal_fieldset.RegisterPlaceholderPhone{% endtrans %}{% if shopware.config.requirePhoneField %}{% trans %}frontend.register.index.RequiredField{% endtrans %}{% endif %}"
                                    id="phone"
                                    value="{{ formData.phone|escape }}"
                                    class="address--field{% if shopware.config.requirePhoneField %} is--required{% endif %}{% if error_flags.phone and shopware.config.requirePhoneField %} has--error{% endif %}"/>
@@ -372,7 +370,7 @@
 {% block frontend_address_required %}
     {# Required fields hint #}
     <div class="address--required-info required_fields">
-        {% trans from 'frontend/register/personal_fieldset' %}RegisterPersonalRequiredText{% endtrans %}
+        {% trans %}frontend.register.personal_fieldset.RegisterPersonalRequiredText{% endtrans %}
     </div>
 {% endblock %}
 

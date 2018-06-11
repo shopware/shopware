@@ -6,8 +6,8 @@
                 {# Tab navigation - Accessory products #}
                 {% block frontend_detail_tabs_entry_related %}
                     {% if product.sRelatedArticles and not product.crossbundlelook %}
-                        <a href="#content--related-products" title="{% trans from 'frontend/detail/tabs' %}DetailTabsAccessories{% endtrans %}" class="tab--link">
-                            {% trans from 'frontend/detail/tabs' %}DetailTabsAccessories{% endtrans %}
+                        <a href="#content--related-products" title="{% trans %}frontend.detail.tabs.DetailTabsAccessories{% endtrans %}" class="tab--link">
+                            {% trans %}frontend.detail.tabs.DetailTabsAccessories{% endtrans %}
                             <span class="product--rating-count-wrapper">
                                 <span class="product--rating-count">{{ product.sRelatedArticles|length }}</span>
                             </span>

@@ -5,11 +5,11 @@
     {{ parent() }}
     <a href="{{ path('cart_index') }}"
        class="btn is--small btn--back-top-shop is--icon-left"
-       title="{% trans from 'frontend/checkout/finish' %}FinishButtonBackToShop{% endtrans %}"
+       title="{% trans %}frontend.checkout.finish.FinishButtonBackToShop{% endtrans %}"
        xmlns="http://www.w3.org/1999/html">
 
         <i class="icon--arrow-left"></i>
-        {% trans from 'frontend/checkout/finish' %}FinishButtonBackToShop{% endtrans %}
+        {% trans %}frontend.checkout.finish.FinishButtonBackToShop{% endtrans %}
     </a>
 {% endblock %}
 
@@ -67,7 +67,7 @@
 
                         {% block frontend_checkout_confirm_tos_panel_headline %}
                             <div class="panel--title primary is--underline">
-                                {% trans from 'frontend/checkout/confirm' %}ConfirmHeadlineAGBandRevocation{% endtrans %}
+                                {% trans %}frontend.checkout.confirm.ConfirmHeadlineAGBandRevocation{% endtrans %}
                             </div>
                         {% endblock %}
 
@@ -78,7 +78,7 @@
                                 {% if shopware.config.revocationNotice %}
                                     <div class="body--revocation" data-modalbox="true" data-targetSelector="a"
                                          data-mode="ajax" data-height="500" data-width="750">
-                                        {% trans from 'frontend/checkout/confirm' %}ConfirmTextRightOfRevocationNew{% endtrans %}
+                                        {% trans %}frontend.checkout.confirm.ConfirmTextRightOfRevocationNew{% endtrans %}
                                     </div>
                                 {% endif %}
                             {% endblock %}
@@ -108,7 +108,7 @@
                                             <span class="block column--label">
                                                 <label for="sAGB" data-modalbox="true" data-targetSelector="a"
                                                        data-mode="ajax" data-height="500" data-width="750">
-                                                    {% trans from 'frontend/checkout/confirm' %}ConfirmTerms{% endtrans %}
+                                                    {% trans %}frontend.checkout.confirm.ConfirmTerms{% endtrans %}
                                                 </label>
                                             </span>
                                         {% endblock %}
@@ -135,7 +135,7 @@
 
                                                 {% block frontend_checkout_confirm_information_addresses_equal_panel_title %}
                                                     <div class="panel--title is--underline">
-                                                        {% trans from 'frontend/checkout/confirm' %}ConfirmAddressEqualTitle{% endtrans %}
+                                                        {% trans %}frontend.checkout.confirm.ConfirmAddressEqualTitle{% endtrans %}
                                                     </div>
                                                 {% endblock %}
                                                 {% block frontend_checkout_confirm_information_addresses_equal_panel_body %}
@@ -156,8 +156,8 @@
                                                                        data-address-selection="true"
                                                                        data-setDefaultShippingAddress="true"
                                                                        data-id="{{ context.customer.activeShippingAddress.id }}"
-                                                                       title="{% trans from 'frontend/checkout/confirm' %}ConfirmAddressChooseDifferentShippingAddress{% endtrans %}">
-                                                                        {% trans from 'frontend/checkout/confirm' %}ConfirmAddressChooseDifferentShippingAddress{% endtrans %}
+                                                                       title="{% trans %}frontend.checkout.confirm.ConfirmAddressChooseDifferentShippingAddress{% endtrans %}">
+                                                                        {% trans %}frontend.checkout.confirm.ConfirmAddressChooseDifferentShippingAddress{% endtrans %}
                                                                     </a>
                                                                 {% endblock %}
                                                             </div>
@@ -175,10 +175,10 @@
                                                                            data-id="{{ context.customer.activeBillingAddress.id }}"
                                                                            data-setDefaultShippingAddress="true"
                                                                            data-setDefaultBillingAddress="true"
-                                                                           data-title="{% trans from 'frontend/checkout/confirm' %}ConfirmAddressSelectButton{% endtrans %}"
-                                                                           title="{% trans from 'frontend/checkout/confirm' %}ConfirmAddressSelectButton{% endtrans %}"
+                                                                           data-title="{% trans %}frontend.checkout.confirm.ConfirmAddressSelectButton{% endtrans %}"
+                                                                           title="{% trans %}frontend.checkout.confirm.ConfirmAddressSelectButton{% endtrans %}"
                                                                            class="btn">
-                                                                            {% trans from 'frontend/checkout/confirm' %}ConfirmAddressSelectButton{% endtrans %}
+                                                                            {% trans %}frontend.checkout.confirm.ConfirmAddressSelectButton{% endtrans %}
                                                                         </a>
                                                                     {% endblock %}
 
@@ -188,20 +188,20 @@
                                                                            data-address-selection="true"
                                                                            data-setDefaultShippingAddress="true"
                                                                            data-id="{{ context.customer.activeShippingAddress.id }}"
-                                                                           title="{% trans from 'frontend/checkout/confirm' %}ConfirmAddressChooseDifferentShippingAddress{% endtrans %}">
-                                                                            {% trans from 'frontend/checkout/confirm' %}ConfirmAddressChooseDifferentShippingAddress{% endtrans %}
+                                                                           title="{% trans %}frontend.checkout.confirm.ConfirmAddressChooseDifferentShippingAddress{% endtrans %}">
+                                                                            {% trans %}frontend.checkout.confirm.ConfirmAddressChooseDifferentShippingAddress{% endtrans %}
                                                                         </a>
                                                                     {% endblock %}
                                                                 </div>
                                                             {% endblock %}
                                                             {% block frontend_checkout_confirm_information_addresses_equal_panel_actions_select_address %}
                                                                 <a href="{{ path('address_index') }}"
-                                                                   title="{% trans from 'frontend/checkout/confirm' %}ConfirmAddressSelectLink{% endtrans %}"
+                                                                   title="{% trans %}frontend.checkout.confirm.ConfirmAddressSelectLink{% endtrans %}"
                                                                    data-address-selection="true"
                                                                    data-setDefaultShippingAddress="true"
                                                                    data-setDefaultBillingAddress="true"
                                                                    data-id="{{ context.customer.activeBillingAddress.id }}">
-                                                                    {% trans from 'frontend/checkout/confirm' %}ConfirmAddressSelectLink{% endtrans %}
+                                                                    {% trans %}frontend.checkout.confirm.ConfirmAddressSelectLink{% endtrans %}
                                                                 </a>
                                                             {% endblock %}
                                                         </div>
@@ -222,7 +222,7 @@
                                                 {# Headline #}
                                                 {% block frontend_checkout_confirm_information_addresses_billing_panel_title %}
                                                     <div class="panel--title is--underline">
-                                                        {% trans from 'frontend/checkout/confirm' %}ConfirmHeaderBilling{% endtrans %}
+                                                        {% trans %}frontend.checkout.confirm.ConfirmHeaderBilling{% endtrans %}
                                                     </div>
                                                 {% endblock %}
 
@@ -245,10 +245,10 @@
                                                                        data-address-editor="true"
                                                                        data-setDefaultBillingAddress="true"
                                                                        data-id="{{ context.customer.activeBillingAddress.id }}"
-                                                                       data-title="{% trans from 'frontend/checkout/confirm' %}ConfirmAddressSelectButton{% endtrans %}"
-                                                                       title="{% trans from 'frontend/checkout/confirm' %}ConfirmAddressSelectButton{% endtrans %}"
+                                                                       data-title="{% trans %}frontend.checkout.confirm.ConfirmAddressSelectButton{% endtrans %}"
+                                                                       title="{% trans %}frontend.checkout.confirm.ConfirmAddressSelectButton{% endtrans %}"
                                                                        class="btn">
-                                                                        {% trans from 'frontend/checkout/confirm' %}ConfirmAddressSelectButton{% endtrans %}
+                                                                        {% trans %}frontend.checkout.confirm.ConfirmAddressSelectButton{% endtrans %}
                                                                     </a>
                                                                 {% endblock %}
                                                             </div>
@@ -258,8 +258,8 @@
                                                                data-address-selection="true"
                                                                data-setDefaultBillingAddress="true"
                                                                data-id="{{ context.customer.activeBillingAddress.id }}"
-                                                               title="{% trans from 'frontend/checkout/confirm' %}ConfirmAddressSelectLink{% endtrans %}">
-                                                                {% trans from 'frontend/checkout/confirm' %}ConfirmAddressSelectLink{% endtrans %}
+                                                               title="{% trans %}frontend.checkout.confirm.ConfirmAddressSelectLink{% endtrans %}">
+                                                                {% trans %}frontend.checkout.confirm.ConfirmAddressSelectLink{% endtrans %}
                                                             </a>
                                                         {% endblock %}
                                                     </div>
@@ -277,7 +277,7 @@
                                                 {# Headline #}
                                                 {% block frontend_checkout_confirm_information_addresses_shipping_panel_title %}
                                                     <div class="panel--title is--underline">
-                                                        {% trans from 'frontend/checkout/confirm' %}ConfirmHeaderShipping{% endtrans %}
+                                                        {% trans %}frontend.checkout.confirm.ConfirmHeaderShipping{% endtrans %}
                                                     </div>
                                                 {% endblock %}
 
@@ -297,13 +297,13 @@
                                                             <div class="address--actions-change">
                                                                 {% block frontend_checkout_confirm_information_addresses_shipping_panel_actions_change_address %}
                                                                     <a href="{{ path('address_edit', {'addressId': context.customer.activeShippingAddress.id, 'redirectTo': redirectTo }) }}"
-                                                                       title="{% trans from 'frontend/checkout/confirm' %}ConfirmAddressSelectButton{% endtrans %}"
-                                                                       data-title="{% trans from 'frontend/checkout/confirm' %}ConfirmAddressSelectButton{% endtrans %}"
+                                                                       title="{% trans %}frontend.checkout.confirm.ConfirmAddressSelectButton{% endtrans %}"
+                                                                       data-title="{% trans %}frontend.checkout.confirm.ConfirmAddressSelectButton{% endtrans %}"
                                                                        data-address-editor="true"
                                                                        data-id="{{ context.customer.activeShippingAddress.id }}"
                                                                        data-setDefaultShippingAddress="true"
                                                                        class="btn">
-                                                                        {% trans from 'frontend/checkout/confirm' %}ConfirmAddressSelectButton{% endtrans %}
+                                                                        {% trans %}frontend.checkout.confirm.ConfirmAddressSelectButton{% endtrans %}
                                                                     </a>
                                                                 {% endblock %}
                                                             </div>
@@ -313,8 +313,8 @@
                                                                data-address-selection="true"
                                                                data-setDefaultShippingAddress="true"
                                                                data-id="{{ context.customer.activeShippingAddress.id }}"
-                                                               title="{% trans from 'frontend/checkout/confirm' %}ConfirmAddressSelectLink{% endtrans %}">
-                                                                {% trans from 'frontend/checkout/confirm' %}ConfirmAddressSelectLink{% endtrans %}
+                                                               title="{% trans %}frontend.checkout.confirm.ConfirmAddressSelectLink{% endtrans %}">
+                                                                {% trans %}frontend.checkout.confirm.ConfirmAddressSelectLink{% endtrans %}
                                                             </a>
                                                         {% endblock %}
                                                     </div>
@@ -334,7 +334,7 @@
 
                                         {% block frontend_checkout_confirm_left_payment_method_headline %}
                                             <div class="panel--title is--underline payment--title">
-                                                {% trans from 'frontend/checkout/confirm' %}ConfirmHeaderPaymentShipping{% endtrans %}
+                                                {% trans %}frontend.checkout.confirm.ConfirmHeaderPaymentShipping{% endtrans %}
                                             </div>
                                         {% endblock %}
 
@@ -343,7 +343,7 @@
                                                 {% block frontend_checkout_confirm_left_payment_method %}
                                                     <p class="payment--method-info">
                                                         <strong class="payment--title">
-                                                            {% trans from 'frontend/checkout/confirm' %}ConfirmInfoPaymentMethod{% endtrans %}
+                                                            {% trans %}frontend.checkout.confirm.ConfirmInfoPaymentMethod{% endtrans %}
                                                         </strong>
                                                         <span class="payment--description">{{ context.paymentMethod.name }}</span>
                                                     </p>
@@ -355,7 +355,7 @@
 
                                                 {% block frontend_checkout_confirm_left_shipping_method %}
                                                     <p class="shipping--method-info">
-                                                        <strong class="shipping--title">{% trans from 'frontend/checkout/confirm' %}ConfirmHeadDispatch{% endtrans %}</strong>
+                                                        <strong class="shipping--title">{% trans %}frontend.checkout.confirm.ConfirmHeadDispatch{% endtrans %}</strong>
                                                         {#<span class="shipping--description" title="{$sDispatch.name}">{$sDispatch.name|truncate:25:"...":true}</span>#}
                                                         <span class="shipping--description"
                                                               title="{{ context.shippingMethod.name }}">{{ context.shippingMethod.name }}</span>
@@ -369,7 +369,7 @@
                                                 {# Action buttons #}
                                                 <a href="{{ path('checkout_shipping_payment') }}"
                                                    class="btn is--small btn--change-payment">
-                                                    {% trans from 'frontend/checkout/confirm' %}ConfirmLinkChangePayment{% endtrans %}
+                                                    {% trans %}frontend.checkout.confirm.ConfirmLinkChangePayment{% endtrans %}
                                                 </a>
                                             </div>
                                         {% endblock %}
@@ -483,7 +483,7 @@
 
                                 {% block frontend_checkout_confirm_stockinfo %}
                                     {% set content %}
-                                        {% trans from 'frontend/checkout/confirm' %}ConfirmErrorStock{% endtrans %}
+                                        {% trans %}frontend.checkout.confirm.ConfirmErrorStock{% endtrans %}
                                     {% endset %}
                                     {% sw_include "frontend/_includes/messages.html.twig" with {'type': 'error', 'content': content} %}
                                 {% endblock %}
@@ -492,7 +492,7 @@
 
                                 {% block frontend_checkout_confirm_addressinfo %}
                                     {% set content %}
-                                        {% trans from 'frontend/checkout/confirm' %}ConfirmErrorInvalidAddress{% endtrans %}
+                                        {% trans %}frontend.checkout.confirm.ConfirmErrorInvalidAddress{% endtrans %}
                                     {% endset %}
                                     {% sw_include "frontend/_includes/messages.html.twig" with {'type': 'error', 'content': content} %}
                                 {% endblock %}
@@ -505,14 +505,14 @@
                                         <button type="submit" class="btn is--primary is--large right is--icon-right"
                                                 form="confirm--form" data-preloader-button="true">
                                             {#{s name='ConfirmDoPayment'}{/s}<i class="icon--arrow-right"></i>#}
-                                            {% trans from 'frontend/checkout/confirm' %}ConfirmDoPayment{% endtrans %}<i
+                                            {% trans %}frontend.checkout.confirm.ConfirmDoPayment{% endtrans %}<i
                                                     class="icon--arrow-right"></i>
                                         </button>
                                     {% else %}
                                         <button type="submit" class="btn is--primary is--large right is--icon-right"
                                                 form="confirm--form" data-preloader-button="true">
                                             {#{s name='ConfirmActionSubmit'}{/s}<i class="icon--arrow-right"></i>#}
-                                            {% trans from 'frontend/checkout/confirm' %}ConfirmActionSubmit{% endtrans %}
+                                            {% trans %}frontend.checkout.confirm.ConfirmActionSubmit{% endtrans %}
                                             <i class="icon--arrow-right"></i>
                                         </button>
                                     {% endif %}

@@ -14,16 +14,16 @@
                     <span class="price--pseudo">
 
                         {% block frontend_listing_box_article_price_discount_before %}
-                            {% trans from 'frontend/detail/data' %}priceDiscountLabel{% endtrans %}
+                            {% trans %}frontend.detail.data.priceDiscountLabel{% endtrans %}
                         {% endblock %}
 
                         <span class="price--discount is--nowrap">
                             {{ sArticle.pseudoprice|localizedcurrency(context.currency.shortName) }}
-                            {% trans from 'frontend/listing/box_article' %}Star{% endtrans %}
+                            {% trans %}frontend.listing.box_article.Star{% endtrans %}
                         </span>
 
                         {% block frontend_listing_box_article_price_discount_after %}
-                            {% trans from 'frontend/detail/data' %}priceDiscountInfo{% endtrans %}
+                            {% trans %}frontend.detail.data.priceDiscountInfo{% endtrans %}
                         {% endblock %}
                     </span>
                 {% endif %}
@@ -33,10 +33,10 @@
             {% block frontend_listing_box_article_price_default %}
                 <span class="price--default is--nowrap{% if product.listingPrice.pseudoPrice %} is--discount{% endif %}">
                     {% if product.listingPrice.displayFromPrice %}
-                        {% trans from 'frontend/listing/box_article' %}ListingBoxArticleStartsAt{% endtrans %}
+                        {% trans %}frontend.listing.box_article.ListingBoxArticleStartsAt{% endtrans %}
                     {% endif %}
                     {{ product.calculatedListingPrice.totalPrice|localizedcurrency(context.currency.shortName) }}
-                    {% trans from 'frontend/listing/box_article' %}Star{% endtrans %}
+                    {% trans %}frontend.listing.box_article.Star{% endtrans %}
                 </span>
             {% endblock %}
         </div>

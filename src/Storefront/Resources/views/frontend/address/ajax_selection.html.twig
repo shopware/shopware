@@ -1,11 +1,9 @@
-{% trans_default_domain 'frontend/address/ajax_selection' %}
-
 {% block frontend_address_selection_modal %}
     <div class="panel">
 
         {% block frontend_address_selection_modal_title %}
             <div class="panel--title is--underline">
-                {% trans %}ModalTitle{% endtrans %}
+                {% trans %}frontend.address.ajax_selection.ModalTitle{% endtrans %}
             </div>
         {% endblock %}
 
@@ -14,12 +12,12 @@
 
                 {% block frontend_address_selection_modal_create_text %}
                     <p>
-                        {% trans %}CreateNewAddressText{% endtrans %}
+                        {% trans %}frontend.address.ajax_selection.CreateNewAddressText{% endtrans %}
                         <a href="{{ path('address_create') }}"
-                           title="{% trans %}CreateNewAddressTitle{% endtrans %}"
+                           title="{% trans %}frontend.address.ajax_selection.CreateNewAddressTitle{% endtrans %}"
                            data-address-editor="true"
                            data-showSelectionOnClose="true">
-                            {% trans %}CreateNewAddressLinkText{% endtrans %}</a>.
+                            {% trans %}frontend.address.ajax_selection.CreateNewAddressLinkText{% endtrans %}</a>.
                     </p>
                 {% endblock %}
 
@@ -69,7 +67,7 @@
                                                                     type="submit"
                                                                     data-checkFormIsValid="false"
                                                                     data-preloader-button="true">
-                                                                {% trans %}SelectAddressButton{% endtrans %}
+                                                                {% trans %}frontend.address.ajax_selection.SelectAddressButton{% endtrans %}
                                                                 <span class="icon--arrow-right"></span>
                                                             </button>
                                                         {% endblock %}

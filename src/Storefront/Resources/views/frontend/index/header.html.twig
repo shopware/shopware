@@ -1,5 +1,3 @@
-{% trans_default_domain 'frontend/index/header' %}
-
 <head>
 {# Http-Tags #}
 {% block frontend_index_header_meta_http_tags %}
@@ -8,31 +6,31 @@
 
 {# Meta-Tags #}
 {% block frontend_index_header_meta_tags %}
-    <meta name="author" content="{% trans %}IndexMetaAuthor{% endtrans %}" />
-    {# <meta name="copyright" content="{% trans %}IndexMetaCopyright{% endtrans %}" /> #}
-    <meta name="robots" content="{% block frontend_index_header_meta_robots %}{% trans %}IndexMetaRobots{% endtrans %}{% endblock %}" />
-    <meta name="revisit-after" content="{% trans %}IndexMetaRevisit{% endtrans %}" />
-    <meta name="keywords" content="{% block frontend_index_header_meta_keywords %}{% if sCategoryContent.metaKeywords %}{{ sCategoryContent.metaKeywords|escape('html') }}{% else %}{% trans %}IndexMetaKeywordsStandard{% endtrans %}{% endif %}{% endblock %}" />
-    <meta name="description" content="{% block frontend_index_header_meta_description %}{% trans %}IndexMetaDescriptionStandard{% endtrans %}{% endblock %}" />
+    <meta name="author" content="{% trans %}frontend.index.header.IndexMetaAuthor{% endtrans %}" />
+    {# <meta name="copyright" content="{% trans %}frontend.index.header.IndexMetaCopyright{% endtrans %}" /> #}
+    <meta name="robots" content="{% block frontend_index_header_meta_robots %}{% trans %}frontend.index.header.IndexMetaRobots{% endtrans %}{% endblock %}" />
+    <meta name="revisit-after" content="{% trans %}frontend.index.header.IndexMetaRevisit{% endtrans %}" />
+    <meta name="keywords" content="{% block frontend_index_header_meta_keywords %}{% if sCategoryContent.metaKeywords %}{{ sCategoryContent.metaKeywords|escape('html') }}{% else %}{% trans %}frontend.index.header.IndexMetaKeywordsStandard{% endtrans %}{% endif %}{% endblock %}" />
+    <meta name="description" content="{% block frontend_index_header_meta_description %}{% trans %}frontend.index.header.IndexMetaDescriptionStandard{% endtrans %}{% endblock %}" />
 
     {# Meta opengraph tags #}
     {% block frontend_index_header_meta_tags_opengraph %}
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="{{ shopware.config.shopName|escape('html') }}" />
         <meta property="og:title" content="{{ shopware.config.shopName|escape('html') }}" />
-        <meta property="og:description" content="{% trans %}IndexMetaDescriptionStandard{% endtrans %}" />
+        <meta property="og:description" content="{% trans %}frontend.index.header.IndexMetaDescriptionStandard{% endtrans %}" />
         <meta property="og:image" content="{link file=$theme.desktopLogo fullPath}" />
 
         <meta name="twitter:card" content="website" />
         <meta name="twitter:site" content="{{ shopware.config.shopName|escape('html') }}" />
         <meta name="twitter:title" content="{{ shopware.config.shopName|escape('html') }}" />
-        <meta name="twitter:description" content="{% trans %}IndexMetaDescriptionStandard{% endtrans %}" />
+        <meta name="twitter:description" content="{% trans %}frontend.index.header.IndexMetaDescriptionStandard{% endtrans %}" />
         <meta name="twitter:image" content="{link file=$theme.desktopLogo fullPath}" />
     {% endblock %}
 
     {% block frontend_index_header_meta_tags_schema_webpage %}
         <meta itemprop="copyrightHolder" content="{{ shopware.config.shopName|escape('html') }}" />
-        <meta itemprop="copyrightYear" content="{% trans %}IndexMetaCopyrightYear{% endtrans %}" />
+        <meta itemprop="copyrightYear" content="{% trans %}frontend.index.header.IndexMetaCopyrightYear{% endtrans %}" />
         <meta itemprop="isFamilyFriendly" content="{{ shopware.config.metaisfamilyfriendly ? 'True' : 'False' }}" />
         <meta itemprop="image" content="{link file=$theme.desktopLogo}" />
     {% endblock %}

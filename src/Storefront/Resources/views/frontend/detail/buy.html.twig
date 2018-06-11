@@ -53,11 +53,11 @@
                             {% block frontend_detail_buy_button %}
                                 {% if product.sConfigurator and activeConfiguratorSelection == false %}
                                     <button class="buybox--button block btn is--disabled is--icon-right is--large" disabled="disabled" aria-disabled="true"{% if buy_box_display %} style="{{ buy_box_display }}"{% endif %}>
-                                        {% trans from 'frontend/detail/buy' %}DetailBuyActionAdd{% endtrans %} <i class="icon--arrow-right"></i>
+                                        {% trans %}frontend.detail.buy.DetailBuyActionAdd{% endtrans %} <i class="icon--arrow-right"></i>
                                     </button>
                                 {% else %}
                                     <button class="buybox--button block btn is--primary is--icon-right is--center is--large"{% if buy_box_display %} style="{{ buy_box_display }}"{% endif %}>
-                                        {% trans from 'frontend/detail/buy' %}DetailBuyActionAdd{% endtrans %} <i class="icon--arrow-right"></i>
+                                        {% trans %}frontend.detail.buy.DetailBuyActionAdd{% endtrans %} <i class="icon--arrow-right"></i>
                                     </button>
                                 {% endif %}
                             {% endblock %}

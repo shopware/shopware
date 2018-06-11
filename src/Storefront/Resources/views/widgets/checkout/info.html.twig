@@ -1,7 +1,7 @@
 {# Notepad entry #}
 {% block frontend_index_checkout_actions_notepad %}
     <li class="navigation--entry entry--notepad" role="menuitem">
-        <a href="{url controller='note'}" title="{{ 'IndexLinkNotepad'|trans([], 'frontend/index/checkout_actions')|escape }}" class="btn">
+        <a href="{url controller='note'}" title="{{ 'frontend.index.checkout_actions.IndexLinkNotepad'|trans|escape }}" class="btn">
             <i class="icon--heart"></i>
             {% if sNotesQuantity > 0 %}
                 <span class="badge notes--quantity">
@@ -16,10 +16,10 @@
 {% block frontend_index_checkout_actions_my_options %}
     <li class="navigation--entry entry--account" role="menuitem">
         {% block frontend_index_checkout_actions_account %}
-            <a href="{{ path('account_home') }}" title="{{ 'IndexLinkAccount'|trans([], 'frontend/index/checkout_actions')|escape }}" class="btn is--icon-left entry--link account--link">
+            <a href="{{ path('account_home') }}" title="{{ 'frontend.index.checkout_actions.IndexLinkAccount'|trans|escape }}" class="btn is--icon-left entry--link account--link">
                 <i class="icon--account"></i>
                 <span class="account--display">
-                    {% trans from 'frontend/index/checkout_actions' %}IndexLinkAccount{% endtrans %}
+                    {% trans %}frontend.index.checkout_actions.IndexLinkAccount{% endtrans %}
                 </span>
             </a>
         {% endblock %}
@@ -29,12 +29,12 @@
 {# Cart entry #}
 {% block frontend_index_checkout_actions_cart %}
     <li class="navigation--entry entry--cart" role="menuitem">
-        <a class="btn is--icon-left cart--link" href="{{ url('checkout_cart') }}" title="{{ 'IndexLinkCart'|trans([], 'frontend/index/checkout_actions')|escape }}">
+        <a class="btn is--icon-left cart--link" href="{{ url('checkout_cart') }}" title="{{ 'frontend.index.checkout_actions.IndexLinkCart'|trans|escape }}">
             <span class="cart--display">
                 {% if context.customer %}
-                    {% trans from 'frontend/index/checkout_actions' %}IndexLinkCheckout{% endtrans %}
+                    {% trans %}frontend.index.checkout_actions.IndexLinkCheckout{% endtrans %}
                 {% else %}
-                    {% trans from 'frontend/index/checkout_actions' %}IndexLinkCart{% endtrans %}
+                    {% trans %}frontend.index.checkout_actions.IndexLinkCart{% endtrans %}
                 {% endif %}
             </span>
 

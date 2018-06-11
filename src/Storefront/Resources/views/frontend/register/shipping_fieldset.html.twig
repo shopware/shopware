@@ -1,7 +1,5 @@
-{% trans_default_domain 'frontend/register/shipping_fieldset' %}
-
 <div class="panel register--shipping is--hidden">
-    <h2 class="panel--title is--underline">{% trans %}RegisterShippingHeadline{% endtrans %}</h2>
+    <h2 class="panel--title is--underline">{% trans %}frontend.register.shipping_fieldset.RegisterShippingHeadline{% endtrans %}</h2>
     <div class="panel--body is--wide">
         {# Salutation #}
         {# TODO #}
@@ -15,7 +13,7 @@
                             {% if form_data.salutation is empty %}
                                 selected="selected"
                             {% endif %}>
-                        {% trans %}RegisterShippingPlaceholderSalutation{% endtrans %}
+                        {% trans %}frontend.register.shipping_fieldset.RegisterShippingPlaceholderSalutation{% endtrans %}
                     </option>
                     {% for key, salutation in salutations %}
                         <option value="{{ key }}"{% if form_data.shippingSalutation == key %} selected="selected"{% endif %}>
@@ -32,7 +30,7 @@
                 <input autocomplete="section-shipping shipping organization"
                        name="register[shippingCompany]"
                        type="text"
-                       placeholder="{% trans %}RegisterShippingPlaceholderCompany{% endtrans %}"
+                       placeholder="{% trans %}frontend.register.shipping_fieldset.RegisterShippingPlaceholderCompany{% endtrans %}"
                        id="company2" value="{{ form_data.shippingCompany|escape }}"
                        class="register--field{% if error_flags.shippingCompany %} has--error{% endif %}" />
             </div>
@@ -44,7 +42,7 @@
                 <input autocomplete="section-shipping shipping organization-title"
                        name="register[shippingDepartment]"
                        type="text"
-                       placeholder="{% trans %}RegisterShippingPlaceholderDepartment{% endtrans %}"
+                       placeholder="{% trans %}frontend.register.shipping_fieldset.RegisterShippingPlaceholderDepartment{% endtrans %}"
                        id="department2" value="{{ form_data.shippingDepartment|escape }}"
                        class="register--field {% if error_flags.shippingDepartment %} has--error{% endif %}" />
             </div>
@@ -58,7 +56,7 @@
                        type="text"
                        required="required"
                        aria-required="true"
-                       placeholder="{% trans %}RegisterShippingPlaceholderFirstname{% endtrans %}"
+                       placeholder="{% trans %}frontend.register.shipping_fieldset.RegisterShippingPlaceholderFirstname{% endtrans %}"
                        id="firstname2"
                        value="{{ form_data.shippingFirstName|escape }}"
                        class="register--field is--required{% if error_flags.shippingFirstName %} has--error{% endif %}" />
@@ -73,7 +71,7 @@
                        type="text"
                        required="required"
                        aria-required="true"
-                       placeholder="{% trans %}RegisterShippingPlaceholderLastname{% endtrans %}"
+                       placeholder="{% trans %}frontend.register.shipping_fieldset.RegisterShippingPlaceholderLastname{% endtrans %}"
                        id="lastname2"
                        value="{{ form_data.shippingLastName|escape }}"
                        class="register--field is--required{% if error_flags.shippingLastName %} has--error{% endif %}" />
@@ -88,7 +86,7 @@
                        type="text"
                        required="required"
                        aria-required="true"
-                       placeholder="{% trans %}RegisterShippingPlaceholderStreet{% endtrans %}"
+                       placeholder="{% trans %}frontend.register.shipping_fieldset.RegisterShippingPlaceholderStreet{% endtrans %}"
                        id="street2"
                        value="{{ form_data.shippingStreet|escape }}"
                        class="register--field register--field-street is--required{% if error_flags.shippingStreet %} has--error{% endif %}" />
@@ -103,7 +101,7 @@
                     <input autocomplete="section-shipping shipping address-line2"
                            name="register[shippingAdditionalAddressLine1]"
                            type="text"{% if shopware.config.requireAdditionAddressLine2 %} required="required" aria-required="true"{% endif %}
-                           placeholder="{% trans %}RegisterLabelAdditionalAddressLine1{% endtrans %}{% if shopware.config.requireAdditionAddressLine1 %}{% trans from 'frontend/register/index' %}RequiredField{% endtrans %}{% endif %}"
+                           placeholder="{% trans %}frontend.register.shipping_fieldset.RegisterLabelAdditionalAddressLine1{% endtrans %}{% if shopware.config.requireAdditionAddressLine1 %}{% trans %}frontend.register.shipping_fieldset.frontend.register.index.RequiredField{% endtrans %}{% endif %}"
                            id="additionalAddressLine21"
                            value="{{ form_data.shippingAdditionalAddressLine1|escape }}"
                            class="register--field{% if shopware.config.requireAdditionAddressLine1 %} is--required{% endif %}{% if error_flags.shippingAdditionalAddressLine1 and shopware.config.requireAdditionAddressLine1 %} has--error{% endif %}" />
@@ -119,7 +117,7 @@
                     <input autocomplete="section-shipping shipping address-line3"
                            name="register[shippingAdditionalAddressLine2]"
                            type="text"{% if shopware.config.requireAdditionAddressLine2 %} required="required" aria-required="true"{% endif %}
-                           placeholder="{% trans %}RegisterLabelAdditionalAddressLine2{% endtrans %}{% if shopware.config.requireAdditionAddressLine2 %}{% trans from 'frontend/register/index' %}RequiredField{% endtrans %}{% endif %}"
+                           placeholder="{% trans %}frontend.register.shipping_fieldset.RegisterLabelAdditionalAddressLine2{% endtrans %}{% if shopware.config.requireAdditionAddressLine2 %}{% trans %}frontend.register.shipping_fieldset.frontend.register.index.RequiredField{% endtrans %}{% endif %}"
                            id="additionalAddressLine22"
                            value="{{ form_data.shippingAdditionalAddressLine2|escape }}"
                            class="register--field{% if shopware.config.requireAdditionAddressLine2 %} is--required{% endif %}{% if error_flags.shippingAdditionalAddressLine2 and shopware.config.requireAdditionAddressLine2 %} has--error{% endif %}" />
@@ -136,7 +134,7 @@
                            type="text"
                            required="required"
                            aria-required="true"
-                           placeholder="{% trans %}RegisterShippingPlaceholderZipcode{% endtrans %}"
+                           placeholder="{% trans %}frontend.register.shipping_fieldset.RegisterShippingPlaceholderZipcode{% endtrans %}"
                            id="zipcode2"
                            value="{{ form_data.shippingZipcode|escape }}"
                            class="register--field register--spacer register--field-zipcode is--required{% if error_flags.shippingZipcode %} has--error{% endif %}" />
@@ -146,7 +144,7 @@
                            type="text"
                            required="required"
                            aria-required="true"
-                           placeholder="{% trans %}RegisterShippingPlaceholderCity{% endtrans %}"
+                           placeholder="{% trans %}frontend.register.shipping_fieldset.RegisterShippingPlaceholderCity{% endtrans %}"
                            id="city2"
                            value="{{ form_data.shippingCity|escape }}"
                            size="25"
@@ -157,7 +155,7 @@
                            type="text"
                            required="required"
                            aria-required="true"
-                           placeholder="{% trans %}RegisterShippingPlaceholderCity{% endtrans %}"
+                           placeholder="{% trans %}frontend.register.shipping_fieldset.RegisterShippingPlaceholderCity{% endtrans %}"
                            id="city2"
                            value="{{ form_data.shippingCity|escape }}"
                            size="25"
@@ -168,7 +166,7 @@
                            type="text"
                            required="required"
                            aria-required="true"
-                           placeholder="{% trans %}RegisterShippingPlaceholderZipcode{% endtrans %}"
+                           placeholder="{% trans %}frontend.register.shipping_fieldset.RegisterShippingPlaceholderZipcode{% endtrans %}"
                            id="zipcode2"
                            value="{{ form_data.shippingZipcode|escape }}"
                            class="register--field register--field-zipcode is--required{% if error_flags.shippingZipcode %} has--error{% endif %}" />
@@ -189,7 +187,7 @@
                     <option value=""
                             disabled="disabled"
                             selected="selected">
-                        {% trans %}RegisterShippingPlaceholderCountry{% endtrans %}
+                        {% trans %}frontend.register.shipping_fieldset.RegisterShippingPlaceholderCountry{% endtrans %}
                     </option>
 
                     {% for country in countryList %}
@@ -210,7 +208,7 @@
                     {% if states %}
                         <div data-country-id="{{ country.id }}" data-address-type="shipping" class="register--state-selection field--select select-field{% if country.id != form_data.country %} is--hidden{% endif %}">
                             <select name="register[shippingCountryState]"{% if country.id != form_data.country %} disabled="disabled"{% endif %}{% if country.forceStateInRegistration %} required="required" aria-required="true"{% endif %} class="select--state{% if error_flags.stateID %} has--error{% endif %}">
-                                <option value="" selected="selected">{% trans %}RegisterShippingLabelState{% endtrans %}</option>
+                                <option value="" selected="selected">{% trans %}frontend.register.shipping_fieldset.RegisterShippingLabelState{% endtrans %}</option>
                                 {% for state in states %}
                                     <option value="{{ state.id }}" {% if state.id == form_data[state.id] %}selected="selected"{% endif %}>{{ state.name }}</option>
                                 {% endfor %}

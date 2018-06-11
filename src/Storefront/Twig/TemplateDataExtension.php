@@ -66,15 +66,6 @@ class TemplateDataExtension extends \Twig_Extension implements \Twig_Extension_G
         $this->themeConfigReader = $themeConfigReader;
     }
 
-    public function getFunctions(): array
-    {
-        return [
-            new \Twig_Function('snippet', function ($snippet, $namespace = null) {
-                return $this->translator->trans($snippet, [], $namespace);
-            }),
-        ];
-    }
-
     public function getGlobals(): array
     {
         $request = $this->requestStack->getCurrentRequest();

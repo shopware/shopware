@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\System\Snippet;
 
+use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
-use Shopware\Core\Framework\ORM\Field\BoolField;
 use Shopware\Core\Framework\ORM\Field\DateField;
 use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\IdField;
@@ -15,14 +15,12 @@ use Shopware\Core\Framework\ORM\Field\TenantIdField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
-use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Core\System\Snippet\Collection\SnippetBasicCollection;
 use Shopware\Core\System\Snippet\Collection\SnippetDetailCollection;
 use Shopware\Core\System\Snippet\Event\SnippetDeletedEvent;
 use Shopware\Core\System\Snippet\Event\SnippetWrittenEvent;
 use Shopware\Core\System\Snippet\Struct\SnippetBasicStruct;
 use Shopware\Core\System\Snippet\Struct\SnippetDetailStruct;
-use Shopware\Core\System\Touchpoint\TouchpointDefinition;
 
 class SnippetDefinition extends EntityDefinition
 {
@@ -55,15 +53,12 @@ class SnippetDefinition extends EntityDefinition
         self::$fields = new FieldCollection([
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('touchpoint_id', 'touchpointId', TouchpointDefinition::class))->setFlags(new Required()),
-            (new StringField('namespace', 'namespace'))->setFlags(new Required(), new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
-            (new StringField('locale', 'locale'))->setFlags(new Required()),
-            (new StringField('name', 'name'))->setFlags(new Required(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
+            (new FkField('language_id', 'languageId', LanguageDefinition::class))->setFlags(new PrimaryKey(), new Required()),
+            (new StringField('translation_key', 'translationKey'))->setFlags(new PrimaryKey(), new Required()),
             (new LongTextField('value', 'value'))->setFlags(new Required()),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            new BoolField('dirty', 'dirty'),
-            new ManyToOneAssociationField('touchpoint', 'touchpoint_id', TouchpointDefinition::class, false),
+            new ManyToOneAssociationField('language', 'languageId', LanguageDefinition::class, true),
         ]);
 
         foreach (self::$extensions as $extension) {

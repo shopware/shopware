@@ -3,28 +3,19 @@
 namespace Shopware\Core\System\Snippet\Struct;
 
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\System\Language\Struct\LanguageBasicStruct;
 
 class SnippetBasicStruct extends Entity
 {
     /**
      * @var string
      */
-    protected $touchpointId;
+    protected $languageId;
 
     /**
      * @var string
      */
-    protected $namespace;
-
-    /**
-     * @var string
-     */
-    protected $locale;
-
-    /**
-     * @var string
-     */
-    protected $name;
+    protected $translationKey;
 
     /**
      * @var string
@@ -42,48 +33,28 @@ class SnippetBasicStruct extends Entity
     protected $updatedAt;
 
     /**
-     * @var bool|null
+     * @var LanguageBasicStruct
      */
-    protected $dirty;
+    protected $language;
 
-    public function getTouchpointId(): string
+    public function getLanguageId(): string
     {
-        return $this->touchpointId;
+        return $this->languageId;
     }
 
-    public function setTouchpointId(string $touchpointId): void
+    public function setLanguageId(string $languageId): void
     {
-        $this->touchpointId = $touchpointId;
+        $this->languageId = $languageId;
     }
 
-    public function getNamespace(): string
+    public function getTranslationKey(): string
     {
-        return $this->namespace;
+        return $this->translationKey;
     }
 
-    public function setNamespace(string $namespace): void
+    public function setTranslationKey(string $translationKey): void
     {
-        $this->namespace = $namespace;
-    }
-
-    public function getLocale(): string
-    {
-        return $this->locale;
-    }
-
-    public function setLocale(string $locale): void
-    {
-        $this->locale = $locale;
-    }
-
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    public function setName(string $name): void
-    {
-        $this->name = $name;
+        $this->translationKey = $translationKey;
     }
 
     public function getValue(): string
@@ -116,13 +87,13 @@ class SnippetBasicStruct extends Entity
         $this->updatedAt = $updatedAt;
     }
 
-    public function getDirty(): ?bool
+    public function getLanguage(): LanguageBasicStruct
     {
-        return $this->dirty;
+        return $this->language;
     }
 
-    public function setDirty(?bool $dirty): void
+    public function setLanguage(LanguageBasicStruct $language): void
     {
-        $this->dirty = $dirty;
+        $this->language = $language;
     }
 }

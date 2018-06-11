@@ -22,17 +22,17 @@ class SnippetBasicCollection extends EntityCollection
         return parent::current();
     }
 
-    public function getTouchpointIds(): array
+    public function getLanguageIds(): array
     {
         return $this->fmap(function (SnippetBasicStruct $snippet) {
-            return $snippet->getTouchpointId();
+            return $snippet->getLanguageId();
         });
     }
 
-    public function filterByTouchpointId(string $id): self
+    public function filterByLanguageId(string $id): self
     {
         return $this->filter(function (SnippetBasicStruct $snippet) use ($id) {
-            return $snippet->getTouchpointId() === $id;
+            return $snippet->getLanguageId() === $id;
         });
     }
 

@@ -126,6 +126,20 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <!-- Translation -->
+        <service class="Shopware\Core\Framework\Translation\Translator" id="Shopware\Core\Framework\Translation\Translator" decorates="translator">
+            <argument id="Shopware\Core\Framework\Translation\Translator.inner" type="service"/>
+            <argument id="request_stack" type="service"/>
+            <argument id="Doctrine\DBAL\Connection" type="service"/>
+            <argument id="shopware.cache" type="service"/>
+            <tag name="monolog.logger"/>
+        </service>
+
+        <service class="Shopware\Core\Framework\Translation\TranslatorCacheInvalidate" id="Shopware\Core\Framework\Translation\TranslatorCacheInvalidate">
+            <argument type="service" id="shopware.cache" />
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
 
         <!-- Twig -->
         <service class="Shopware\Core\Framework\Twig\TemplateFinder" public="true" id="Shopware\Core\Framework\Twig\TemplateFinder">
@@ -162,19 +176,6 @@
             <argument id="Shopware\Core\Framework\Routing\TouchpointRequestContextResolver.inner" type="service"/>
             <argument id="Shopware\Core\Checkout\Context\CheckoutContextService" type="service"/>
             <argument type="service" id="security.token_storage"/>
-        </service>
-
-        <service class="Shopware\Core\Framework\Translation\ImportService" id="Shopware\Core\Framework\Translation\ImportService">
-            <argument type="service" id="Doctrine\DBAL\Connection" />
-            <argument type="service" id="event_dispatcher" />
-            <argument type="service" id="logger" />
-        </service>
-
-        <service class="Shopware\Core\Framework\Command\TranslationImportCommand" id="Shopware\Core\Framework\Command\TranslationImportCommand">
-            <tag name="kernel.event_subscriber" />
-            <tag name="console.command" />
-
-            <argument type="service" id="Shopware\Core\Framework\Translation\ImportService" />
         </service>
 
         <service class="Shopware\Core\Framework\Routing\Firewall\CustomerProvider" id="Shopware\Core\Framework\Routing\Firewall\CustomerProvider">

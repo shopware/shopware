@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\ORM;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Field\AssociationInterface;
 use Shopware\Core\Framework\ORM\Field\ChildCountField;
 use Shopware\Core\Framework\ORM\Field\ChildrenAssociationField;
@@ -50,7 +49,7 @@ abstract class EntityDefinition
 
     abstract protected static function defineFields(): FieldCollection;
 
-    public static function defineFields(): FieldCollection
+    public static function getFields(): FieldCollection
     {
         if (static::$fields) {
             return static::$fields;

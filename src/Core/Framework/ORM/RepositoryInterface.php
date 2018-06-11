@@ -39,7 +39,7 @@ interface RepositoryInterface
      *
      * @return EntityCollection
      */
-    public function readBasic(array $ids, Context $context);
+    public function read(array $ids, Context $context);
 
     public function update(array $data, Context $context);
 

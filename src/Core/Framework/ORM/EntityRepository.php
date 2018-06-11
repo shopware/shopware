@@ -3,6 +3,9 @@
 namespace Shopware\Core\Framework\ORM;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Event\EntityAggregationResultLoadedEvent;
+use Shopware\Core\Framework\ORM\Event\EntityIdSearchResultLoadedEvent;
+use Shopware\Core\Framework\ORM\Event\EntitySearchResultLoadedEvent;
 use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Core\Framework\ORM\Search\AggregatorResult;
 use Shopware\Core\Framework\ORM\Search\Criteria;
@@ -65,7 +68,7 @@ class EntityRepository implements RepositoryInterface
     {
         $ids = $this->searchIds($criteria, $context);
 
-        $entities = $this->readBasic($ids->getIds(), $context);
+        $entities = $this->read($ids->getIds(), $context);
 
         $aggregations = null;
         if ($criteria->getAggregations()) {
@@ -152,7 +155,7 @@ class EntityRepository implements RepositoryInterface
         $this->versionManager->merge($versionId, WriteContext::createFromContext($context));
     }
 
-    public function readBasic(array $ids, Context $context)
+    public function read(array $ids, Context $context)
     {
         /** @var EntityCollection $entities */
         $entities = $this->reader->readBasic($this->definition, $ids, $context);

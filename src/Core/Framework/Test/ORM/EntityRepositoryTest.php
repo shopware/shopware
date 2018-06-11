@@ -101,7 +101,7 @@ class EntityRepositoryTest extends KernelTestCase
             $context
         );
 
-        $locale = $repository->readBasic([$id], $context);
+        $locale = $repository->read([$id], $context);
 
         $this->assertInstanceOf(EntityCollection::class, $locale);
         $this->assertCount(1, $locale);
@@ -133,7 +133,7 @@ class EntityRepositoryTest extends KernelTestCase
         $listener->expects($this->exactly(1))->method('__invoke');
         $dispatcher->addListener('locale.loaded', $listener);
 
-        $locale = $repository->readBasic([$id], $context);
+        $locale = $repository->read([$id], $context);
 
         $this->assertInstanceOf(EntityCollection::class, $locale);
         $this->assertCount(1, $locale);
@@ -187,7 +187,7 @@ class EntityRepositoryTest extends KernelTestCase
         $listener->expects($this->exactly(1))->method('__invoke');
         $dispatcher->addListener('tax.loaded', $listener);
 
-        $locale = $repository->readBasic([$id, $id2], $context);
+        $locale = $repository->read([$id, $id2], $context);
 
         $this->assertInstanceOf(EntityCollection::class, $locale);
         $this->assertCount(2, $locale);
@@ -312,7 +312,7 @@ class EntityRepositoryTest extends KernelTestCase
         $listener->expects($this->exactly(1))->method('__invoke');
         $dispatcher->addListener('product_price_rule.loaded', $listener);
 
-        $locale = $repository->readBasic([$id, $id2], $context);
+        $locale = $repository->read([$id, $id2], $context);
 
         $this->assertInstanceOf(EntityCollection::class, $locale);
         $this->assertCount(2, $locale);

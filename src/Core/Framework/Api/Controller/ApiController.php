@@ -401,7 +401,7 @@ class ApiController extends Controller
             if ($responseDataType === self::RESPONSE_DETAIL) {
                 $entities = $repository->readDetail($event->getIds(), $context->getContext());
             } else {
-                $entities = $repository->readBasic($event->getIds(), $context->getContext());
+                $entities = $repository->read($event->getIds(), $context->getContext());
             }
 
             return $this->responseFactory->createDetailResponse($entities->first(), $definition, $context, $appendLocationHeader);
@@ -443,7 +443,7 @@ class ApiController extends Controller
             if ($responseDataType === self::RESPONSE_DETAIL) {
                 $entities = $repository->readDetail($event->getIds(), $context->getContext());
             } else {
-                $entities = $repository->readBasic($event->getIds(), $context->getContext());
+                $entities = $repository->read($event->getIds(), $context->getContext());
             }
 
             return $this->responseFactory->createDetailResponse($entities->first(), $definition, $context, $appendLocationHeader);
@@ -473,7 +473,7 @@ class ApiController extends Controller
             if ($responseDataType === self::RESPONSE_DETAIL) {
                 $entities = $repository->readDetail($event->getIds(), $context->getContext());
             } else {
-                $entities = $repository->readBasic($event->getIds(), $context->getContext());
+                $entities = $repository->read($event->getIds(), $context->getContext());
             }
 
             return $this->responseFactory->createDetailResponse($entities->first(), $definition, $context, $appendLocationHeader);
@@ -492,7 +492,7 @@ class ApiController extends Controller
         if ($responseDataType === self::RESPONSE_DETAIL) {
             $entities = $repository->readDetail($event->getIds(), $context->getContext());
         } else {
-            $entities = $repository->readBasic($event->getIds(), $context->getContext());
+            $entities = $repository->read($event->getIds(), $context->getContext());
         }
 
         $entity = $entities->first();

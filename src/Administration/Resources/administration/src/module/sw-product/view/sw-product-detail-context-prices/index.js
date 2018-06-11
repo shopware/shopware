@@ -32,9 +32,9 @@ Component.register('sw-product-detail-context-prices', {
 
     data() {
         return {
-            contextRules: [],
-            totalContextRules: 0,
-            isLoadingContextRules: false
+            rules: [],
+            totalRules: 0,
+            isLoadingRules: false
         };
     },
 
@@ -43,23 +43,23 @@ Component.register('sw-product-detail-context-prices', {
             const priceRuleGroups = {};
 
             this.product.priceRules.forEach((ctx) => {
-                if (!priceRuleGroups[ctx.contextRuleId]) {
-                    priceRuleGroups[ctx.contextRuleId] = {
-                        contextRuleId: ctx.contextRuleId,
-                        contextRule: this.findContextRuleById(ctx.contextRuleId),
+                if (!priceRuleGroups[ctx.ruleId]) {
+                    priceRuleGroups[ctx.ruleId] = {
+                        ruleId: ctx.ruleId,
+                        rule: this.findRuleById(ctx.ruleId),
                         currencies: {}
                     };
                 }
 
-                if (!priceRuleGroups[ctx.contextRuleId].currencies[ctx.currencyId]) {
-                    priceRuleGroups[ctx.contextRuleId].currencies[ctx.currencyId] = {
+                if (!priceRuleGroups[ctx.ruleId].currencies[ctx.currencyId]) {
+                    priceRuleGroups[ctx.ruleId].currencies[ctx.currencyId] = {
                         currencyId: ctx.currencyId,
                         currency: this.findCurrencyById(ctx.currencyId),
                         prices: []
                     };
                 }
 
-                priceRuleGroups[ctx.contextRuleId].currencies[ctx.currencyId].prices.push(ctx);
+                priceRuleGroups[ctx.ruleId].currencies[ctx.currencyId].prices.push(ctx);
             });
 
             return priceRuleGroups;
@@ -67,7 +67,7 @@ Component.register('sw-product-detail-context-prices', {
 
         isLoaded() {
             return !this.isLoading &&
-                   !this.isLoadingContextRules &&
+                   !this.isLoadingRules &&
                    this.currencies.length &&
                    this.taxes.length &&
                    this.product;
@@ -92,22 +92,22 @@ Component.register('sw-product-detail-context-prices', {
 
     methods: {
         mountedComponent() {
-            this.contextRuleStore = Shopware.State.getStore('context_rule');
+            this.ruleStore = Shopware.State.getStore('rule');
 
-            this.isLoadingContextRules = true;
+            this.isLoadingRules = true;
 
-            this.contextRuleStore.getList(0, 200).then((response) => {
-                this.contextRules = response.items;
-                this.totalContextRules = response.total;
+            this.ruleStore.getList(0, 200).then((response) => {
+                this.rules = response.items;
+                this.totalRules = response.total;
 
-                this.isLoadingContextRules = false;
+                this.isLoadingRules = false;
             });
         },
 
-        onContextRuleChange(value, contextRuleId) {
+        onRuleChange(value, ruleId) {
             this.product.priceRules.forEach((priceRule) => {
-                if (priceRule.contextRuleId === contextRuleId) {
-                    priceRule.contextRuleId = value;
+                if (priceRule.ruleId === ruleId) {
+                    priceRule.ruleId = value;
                 }
             });
         },
@@ -121,7 +121,7 @@ Component.register('sw-product-detail-context-prices', {
 
             newPriceRule.id = utils.createId();
 
-            newPriceRule.contextRuleId = null;
+            newPriceRule.ruleId = null;
             newPriceRule.productId = this.product.id;
             newPriceRule.quantityStart = 1;
             newPriceRule.quantityEnd = null;
@@ -130,8 +130,8 @@ Component.register('sw-product-detail-context-prices', {
             this.product.priceRules.push(newPriceRule);
         },
 
-        onAddCurrency(contextRuleId, currency) {
-            const defaultCurrencyPrices = this.priceRuleGroups[contextRuleId].currencies[this.defaultCurrency.id].prices;
+        onAddCurrency(ruleId, currency) {
+            const defaultCurrencyPrices = this.priceRuleGroups[ruleId].currencies[this.defaultCurrency.id].prices;
 
             defaultCurrencyPrices.forEach((currencyPrice) => {
                 const newPriceRule = deepCopyObject(currencyPrice);
@@ -143,9 +143,9 @@ Component.register('sw-product-detail-context-prices', {
             });
         },
 
-        onPriceGroupDelete(contextRuleId) {
+        onPriceGroupDelete(ruleId) {
             this.product.priceRules = this.product.priceRules.filter((priceRule) => {
-                return priceRule.contextRuleId !== contextRuleId;
+                return priceRule.ruleId !== ruleId;
             });
         },
 
@@ -157,7 +157,7 @@ Component.register('sw-product-detail-context-prices', {
             Object.keys(priceGroup.currencies).forEach((currencyId) => {
                 priceGroup.currencies[currencyId].prices.forEach((price) => {
                     const newPriceRule = deepCopyObject(price);
-                    newPriceRule.contextRuleId = null;
+                    newPriceRule.ruleId = null;
 
                     this.product.priceRules.push(newPriceRule);
                 });
@@ -175,7 +175,7 @@ Component.register('sw-product-detail-context-prices', {
         onPriceRuleDelete(priceRule) {
             // Do not delete the last price of the default currency
             if (priceRule.currencyId === this.defaultCurrency.id) {
-                const priceRuleGroup = this.priceRuleGroups[priceRule.contextRuleId];
+                const priceRuleGroup = this.priceRuleGroups[priceRule.ruleId];
                 const defaultCurrencyPrices = priceRuleGroup.currencies[this.defaultCurrency.id].prices;
 
                 if (defaultCurrencyPrices.length <= 1 && Object.keys(priceRuleGroup.currencies).length > 1) {
@@ -201,7 +201,7 @@ Component.register('sw-product-detail-context-prices', {
                 newPriceRule.id = utils.createId();
 
                 newPriceRule.productId = this.product.id;
-                newPriceRule.contextRuleId = priceGroup.contextRuleId;
+                newPriceRule.ruleId = priceGroup.ruleId;
                 newPriceRule.quantityStart = price.quantityEnd + 1;
                 newPriceRule.quantityEnd = null;
                 newPriceRule.currencyId = price.currencyId;
@@ -210,9 +210,9 @@ Component.register('sw-product-detail-context-prices', {
             }
         },
 
-        findContextRuleById(contextRuleId) {
-            return this.contextRules.find((rule) => {
-                return rule.id === contextRuleId;
+        findRuleById(ruleId) {
+            return this.rules.find((rule) => {
+                return rule.id === ruleId;
             });
         },
 

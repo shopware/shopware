@@ -262,7 +262,7 @@
     },
     "priceRules": {
       "cardTitlePriceRule": "Neue Preisregel",
-      "placeholderContextRule": "Bitte wählen...",
+      "placeholderRule": "Bitte wählen...",
       "placeholderQuantityEnd": "unendlich",
       "buttonPriceRuleDelete": "Preisregel löschen",
       "buttonPriceRuleDuplicate": "Preisregel duplizieren",

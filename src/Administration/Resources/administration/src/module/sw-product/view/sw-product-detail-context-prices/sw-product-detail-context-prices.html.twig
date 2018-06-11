@@ -8,9 +8,9 @@
         {% endblock %}
 
         {% block sw_product_detail_prices_price_card %}
-            <sw-card :title="priceGroup.contextRule ? priceGroup.contextRule.name : $tc('sw-product.priceRules.cardTitlePriceRule')"
+            <sw-card :title="priceGroup.rule ? priceGroup.rule.name : $tc('sw-product.priceRules.cardTitlePriceRule')"
                      v-for="priceGroup in priceRuleGroups"
-                     :key="priceGroup.contextRuleId"
+                     :key="priceGroup.ruleId"
                      class="context-price"
                      :isLoading="isLoading"
                      v-else>
@@ -20,14 +20,14 @@
 
                         {% block sw_product_detail_prices_price_card_rule_selection %}
                             <sw-field type="select"
-                                      :placeholder="$tc('sw-product.priceRules.placeholderContextRule')"
+                                      :placeholder="$tc('sw-product.priceRules.placeholderRule')"
                                       validation="required"
-                                      :value="priceGroup.contextRuleId"
-                                      @change="onContextRuleChange($event, priceGroup.contextRuleId)">
+                                      :value="priceGroup.ruleId"
+                                      @change="onRuleChange($event, priceGroup.ruleId)">
 
                                 {% block sw_product_detail_prices_price_card_rule_selection_options %}
                                     <option slot="options"
-                                            v-for="rule in contextRules"
+                                            v-for="rule in rules"
                                             :key="rule.id"
                                             :value="rule.id"
                                             :disabled="!!priceRuleGroups[rule.id]">{{ rule.name }}</option>
@@ -36,13 +36,13 @@
                         {% endblock %}
 
                         {% block sw_product_detail_prices_price_card_action_delete %}
-                            <sw-button @click="onPriceGroupDelete(priceGroup.contextRuleId)">
+                            <sw-button @click="onPriceGroupDelete(priceGroup.ruleId)">
                                 <sw-icon name="small-default-x-line-medium" size="20"></sw-icon> {{ $tc('sw-product.priceRules.buttonPriceRuleDelete') }}
                             </sw-button>
                         {% endblock %}
 
                         {% block sw_product_detail_prices_price_card_action_duplicate %}
-                            <sw-button @click="onPriceGroupDuplicate(priceGroup)" :disabled="priceGroup.contextRuleId === null">
+                            <sw-button @click="onPriceGroupDuplicate(priceGroup)" :disabled="priceGroup.ruleId === null">
                                 <sw-icon name="small-copy" size="20"></sw-icon> {{ $tc('sw-product.priceRules.buttonPriceRuleDuplicate') }}
                             </sw-button>
                         {% endblock %}
@@ -50,7 +50,7 @@
                         {% block sw_product_detail_prices_price_card_action_currency %}
                             <sw-context-button :menuOffsetLeft="0">
                                 {% block sw_product_detail_prices_price_card_action_currency_button %}
-                                    <sw-button slot="button" :disabled="priceGroup.contextRuleId === null">
+                                    <sw-button slot="button" :disabled="priceGroup.ruleId === null">
                                         <sw-icon name="default-basic-plus-circle" size="20"></sw-icon> {{ $tc('sw-product.priceRules.buttonPriceRuleCurrencyAdd') }}
                                     </sw-button>
                                 {% endblock %}
@@ -58,8 +58,8 @@
                                 {% block sw_product_detail_prices_price_card_action_currency_menu %}
                                     <sw-context-menu-item v-for="currency in currencies"
                                                           :key="currency.id"
-                                                          :disabled="!!priceGroup.currencies[currency.id] || priceGroup.contextRuleId === null"
-                                                          @click="onAddCurrency(priceGroup.contextRuleId, currency)">
+                                                          :disabled="!!priceGroup.currencies[currency.id] || priceGroup.ruleId === null"
+                                                          @click="onAddCurrency(priceGroup.ruleId, currency)">
                                         <span slot="icon" class="currency-symbol">{{ currency.symbol }}</span>
                                         {{ currency.name }}
                                         {{ (currency.isDefault) ? $tc('sw-product.priceRules.textCurrencyDefault') : '' }}

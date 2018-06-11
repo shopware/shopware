@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Test\ORM\Dbal;
+namespace Shopware\Core\Framework\Test\ORM\Dbal;
 
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\Event\CategoryTranslationWrittenEvent;
 use Shopware\Core\Content\Category\CategoryRepository;

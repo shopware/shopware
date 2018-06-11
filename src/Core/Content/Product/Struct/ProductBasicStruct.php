@@ -745,7 +745,7 @@ class ProductBasicStruct extends Entity
         $this->maxDeliveryTime = $maxDeliveryTime;
     }
 
-    public function getPriceRuleDefinitions(\Shopware\Core\Framework\Context $context): PriceDefinitionCollection
+    public function getPriceRuleDefinitions(Context $context): PriceDefinitionCollection
     {
         $taxRules = $this->getTaxRuleCollection();
 

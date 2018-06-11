@@ -1998,7 +1998,7 @@ CREATE TABLE `discount_surcharge` (
   `created_at` DATETIME NOT NULL,
   `updated_at` DATETIME NULL DEFAULT NULL,
    PRIMARY KEY (`id`, `tenant_id`),
-   CHECK (JSON_VALID (`rule`)),
+   CHECK (JSON_VALID (`filter_rule`)),
    CONSTRAINT `fk_discount_surcharge.rule_id` FOREIGN KEY (`rule_id`, rule_tenant_id) REFERENCES `rule` (`id`, `tenant_id`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

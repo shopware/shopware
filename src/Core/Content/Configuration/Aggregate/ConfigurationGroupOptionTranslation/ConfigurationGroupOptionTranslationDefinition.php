@@ -54,7 +54,7 @@ class ConfigurationGroupOptionTranslationDefinition extends EntityDefinition
             (new FkField('language_id', 'languageId', LanguageDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new StringField('name', 'name'))->setFlags(new Required()),
             new ManyToOneAssociationField('configurationGroupOption', 'configuration_group_option_id', ConfigurationGroupOptionDefinition::class, false),
-            new ManyToOneAssociationField('language', 'language_id', \Shopware\Core\System\Language\LanguageDefinition::class, false),
+            new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, false),
         ]);
 
         foreach (self::$extensions as $extension) {

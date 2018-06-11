@@ -16,7 +16,7 @@ The following aggregations are currently supported:
 | SumAggregation | sum | single-value | sum | Sum of all numeric values for the specified field |
 | ValueCountAggregation | value_count | single-value | count | Number of unique values for the specified field |
 
-And can be found under: Shopware\Framework\ORM\Search\Aggregation
+And can be found under: Shopware\Core\Framework\ORM\Search\Aggregation
 
 ## Using aggregations with the repository
 
@@ -46,9 +46,9 @@ We are mostly interested in the AggregationResultCollection. This keys of the co
 
 This is our AggregationResult for the example above:
 ```php
-[product_count] => Shopware\Framework\ORM\Search\Aggregation\AggregationResult Object
+[product_count] => Shopware\Core\Framework\ORM\Search\Aggregation\AggregationResult Object
     (
-        [aggregation:protected] => Shopware\Framework\ORM\Search\Aggregation\CountAggregation Object
+        [aggregation:protected] => Shopware\Core\Framework\ORM\Search\Aggregation\CountAggregation Object
             (
                 [field:protected] => category.products.id
                 [name:protected] => product_count

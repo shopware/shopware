@@ -58,8 +58,8 @@ class ConfigFormTranslationDefinition extends EntityDefinition
             (new FkField('config_form_id', 'configFormId', ConfigFormDefinition::class))->setFlags(new Required()),
             (new ReferenceVersionField(ConfigFormDefinition::class))->setFlags(new Required()),
 
-            (new FkField('locale_id', 'localeId', \Shopware\Core\System\Locale\LocaleDefinition::class))->setFlags(new Required()),
-            (new ReferenceVersionField(\Shopware\Core\System\Locale\LocaleDefinition::class))->setFlags(new Required()),
+            (new FkField('locale_id', 'localeId', LocaleDefinition::class))->setFlags(new Required()),
+            (new ReferenceVersionField(LocaleDefinition::class))->setFlags(new Required()),
 
             new StringField('label', 'label'),
             new LongTextField('description', 'description'),

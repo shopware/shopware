@@ -23,11 +23,11 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Checkout\Cart\Delivery\Struct;
+namespace Shopware\Core\Checkout\Cart\Delivery\Struct;
 
-use Shopware\Checkout\Cart\LineItem\DeliverableLineItemInterface;
-use Shopware\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Framework\Struct\Struct;
+use Shopware\Core\Checkout\Cart\LineItem\DeliverableLineItemInterface;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Framework\Struct\Struct;
 
 class DeliveryPosition extends Struct
 {
@@ -42,7 +42,7 @@ class DeliveryPosition extends Struct
     protected $quantity;
 
     /**
-     * @var \Shopware\Checkout\Cart\Price\Struct\CalculatedPrice
+     * @var \Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice
      */
     protected $price;
 

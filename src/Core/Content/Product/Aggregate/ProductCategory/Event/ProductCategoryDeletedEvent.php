@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Aggregate\ProductCategory\Event;
+namespace Shopware\Core\Content\Product\Aggregate\ProductCategory\Event;
 
-use Shopware\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
-use Shopware\Framework\ORM\Write\DeletedEvent;
-use Shopware\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
+use Shopware\Core\Framework\ORM\Write\DeletedEvent;
+use Shopware\Core\Framework\ORM\Write\WrittenEvent;
 
 class ProductCategoryDeletedEvent extends WrittenEvent implements DeletedEvent
 {

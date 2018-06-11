@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Collection;
+namespace Shopware\Core\Checkout\Order\Aggregate\OrderStateTranslation\Collection;
 
-use Shopware\Checkout\Order\Aggregate\OrderStateTranslation\Struct\OrderStateTranslationBasicStruct;
-use Shopware\Framework\ORM\EntityCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderStateTranslation\Struct\OrderStateTranslationBasicStruct;
+use Shopware\Core\Framework\ORM\EntityCollection;
 
 class OrderStateTranslationBasicCollection extends EntityCollection
 {

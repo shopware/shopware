@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Country\Aggregate\CountryTranslation\Event;
+namespace Shopware\Core\System\Country\Aggregate\CountryTranslation\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\ORM\Search\IdSearchResult;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\ORM\Search\IdSearchResult;
 
 class CountryTranslationIdSearchResultLoadedEvent extends NestedEvent
 {
@@ -25,7 +25,7 @@ class CountryTranslationIdSearchResultLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->result->getContext();
     }

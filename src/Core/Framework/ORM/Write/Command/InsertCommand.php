@@ -22,10 +22,10 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Framework\ORM\Write\Command;
+namespace Shopware\Core\Framework\ORM\Write\Command;
 
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\Write\EntityExistence;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\Write\EntityExistence;
 
 class InsertCommand implements WriteCommandInterface
 {

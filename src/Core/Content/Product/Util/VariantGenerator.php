@@ -1,18 +1,18 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Util;
+namespace Shopware\Core\Content\Product\Util;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Content\Product\Aggregate\ProductConfigurator\Collection\ProductConfiguratorBasicCollection;
-use Shopware\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorRepository;
-use Shopware\Content\Product\Aggregate\ProductConfigurator\Struct\ProductConfiguratorBasicStruct;
-use Shopware\Content\Product\Exception\NoConfiguratorFoundException;
-use Shopware\Content\Product\Exception\ProductNotFoundException;
-use Shopware\Content\Product\ProductRepository;
-use Shopware\Content\Product\Struct\ProductBasicStruct;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\Query\TermQuery;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\Collection\ProductConfiguratorBasicCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorRepository;
+use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\Struct\ProductConfiguratorBasicStruct;
+use Shopware\Core\Content\Product\Exception\NoConfiguratorFoundException;
+use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
+use Shopware\Core\Content\Product\ProductRepository;
+use Shopware\Core\Content\Product\Struct\ProductBasicStruct;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
 
 class VariantGenerator
 {
@@ -34,7 +34,7 @@ class VariantGenerator
         $this->configuratorRepository = $configuratorRepository;
     }
 
-    public function generate(string $productId, ApplicationContext $context, $offset = null, $limit = null): GenericWrittenEvent
+    public function generate(string $productId, Context $context, $offset = null, $limit = null): GenericWrittenEvent
     {
         $products = $this->productRepository->readBasic([$productId], $context);
         $product = $products->get($productId);
@@ -85,7 +85,7 @@ class VariantGenerator
         return $this->productRepository->create($variants, $context);
     }
 
-    private function loadConfigurator(string $productId, ApplicationContext $context): ProductConfiguratorBasicCollection
+    private function loadConfigurator(string $productId, Context $context): ProductConfiguratorBasicCollection
     {
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('product_configurator.productId', $productId));

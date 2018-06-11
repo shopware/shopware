@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Currency\Collection;
+namespace Shopware\Core\System\Currency\Collection;
 
-use Shopware\Framework\ORM\EntityCollection;
-use Shopware\System\Currency\Struct\CurrencyBasicStruct;
+use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\System\Currency\Struct\CurrencyBasicStruct;
 
 class CurrencyBasicCollection extends EntityCollection
 {

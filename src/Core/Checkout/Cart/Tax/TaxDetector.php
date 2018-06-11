@@ -23,24 +23,24 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Checkout\Cart\Tax;
+namespace Shopware\Core\Checkout\Cart\Tax;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 
 class TaxDetector
 {
-    public function useGross(StorefrontContext $context): bool
+    public function useGross(CheckoutContext $context): bool
     {
         return $context->getCurrentCustomerGroup()->getDisplayGross();
     }
 
-    public function isNetDelivery(StorefrontContext $context): bool
+    public function isNetDelivery(CheckoutContext $context): bool
     {
         return $context->getShippingLocation()->getCountry()->getTaxFree();
     }
 
-    public function getTaxState(StorefrontContext $context): string
+    public function getTaxState(CheckoutContext $context): string
     {
         if ($this->isNetDelivery($context)) {
             return CartPrice::TAX_STATE_FREE;

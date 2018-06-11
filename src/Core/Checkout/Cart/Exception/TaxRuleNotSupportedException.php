@@ -22,14 +22,14 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Checkout\Cart\Exception;
+namespace Shopware\Core\Checkout\Cart\Exception;
 
-use Shopware\Checkout\Cart\Tax\Struct\TaxRuleInterface;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleInterface;
 
 class TaxRuleNotSupportedException extends \Exception
 {
     /**
-     * @var \Shopware\Checkout\Cart\Tax\Struct\TaxRuleInterface
+     * @var \Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleInterface
      */
     protected $taxRule;
 

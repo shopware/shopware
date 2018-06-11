@@ -1,20 +1,20 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation\Event;
+namespace Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Application\Language\Event\LanguageBasicLoadedEvent;
-use Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation\Collection\PaymentMethodTranslationDetailCollection;
-use Shopware\Checkout\Payment\Event\PaymentMethodBasicLoadedEvent;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\System\Language\Event\LanguageBasicLoadedEvent;
+use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\Collection\PaymentMethodTranslationDetailCollection;
+use Shopware\Core\Checkout\Payment\Event\PaymentMethodBasicLoadedEvent;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
 
 class PaymentMethodTranslationDetailLoadedEvent extends NestedEvent
 {
     public const NAME = 'payment_method_translation.detail.loaded';
 
     /**
-     * @var ApplicationContext
+     * @var \Shopware\Core\Framework\Context
      */
     protected $context;
 
@@ -23,7 +23,7 @@ class PaymentMethodTranslationDetailLoadedEvent extends NestedEvent
      */
     protected $paymentMethodTranslations;
 
-    public function __construct(PaymentMethodTranslationDetailCollection $paymentMethodTranslations, ApplicationContext $context)
+    public function __construct(PaymentMethodTranslationDetailCollection $paymentMethodTranslations, Context $context)
     {
         $this->context = $context;
         $this->paymentMethodTranslations = $paymentMethodTranslations;
@@ -34,7 +34,7 @@ class PaymentMethodTranslationDetailLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }

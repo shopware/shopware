@@ -1,29 +1,29 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Tax\Aggregate\TaxAreaRuleTranslation\Event;
+namespace Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTranslation\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Application\Language\Event\LanguageBasicLoadedEvent;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\System\Tax\Aggregate\TaxAreaRule\Event\TaxAreaRuleBasicLoadedEvent;
-use Shopware\System\Tax\Aggregate\TaxAreaRuleTranslation\Collection\TaxAreaRuleTranslationDetailCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\System\Language\Event\LanguageBasicLoadedEvent;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\Event\TaxAreaRuleBasicLoadedEvent;
+use Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTranslation\Collection\TaxAreaRuleTranslationDetailCollection;
 
 class TaxAreaRuleTranslationDetailLoadedEvent extends NestedEvent
 {
     public const NAME = 'tax_area_rule_translation.detail.loaded';
 
     /**
-     * @var ApplicationContext
+     * @var Context
      */
     protected $context;
 
     /**
-     * @var \Shopware\System\Tax\Aggregate\TaxAreaRuleTranslation\Collection\TaxAreaRuleTranslationDetailCollection
+     * @var \Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTranslation\Collection\TaxAreaRuleTranslationDetailCollection
      */
     protected $taxAreaRuleTranslations;
 
-    public function __construct(TaxAreaRuleTranslationDetailCollection $taxAreaRuleTranslations, ApplicationContext $context)
+    public function __construct(TaxAreaRuleTranslationDetailCollection $taxAreaRuleTranslations, Context $context)
     {
         $this->context = $context;
         $this->taxAreaRuleTranslations = $taxAreaRuleTranslations;
@@ -34,7 +34,7 @@ class TaxAreaRuleTranslationDetailLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }

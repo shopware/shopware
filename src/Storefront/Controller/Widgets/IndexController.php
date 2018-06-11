@@ -26,14 +26,14 @@ namespace Shopware\Storefront\Controller\Widgets;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\Application\Language\Collection\LanguageBasicCollection;
-use Shopware\Application\Language\LanguageRepository;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\Query\TermsQuery;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\System\Language\Collection\LanguageBasicCollection;
+use Shopware\Core\System\Language\LanguageRepository;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\Query\TermsQuery;
 use Shopware\Storefront\Controller\StorefrontController;
-use Shopware\System\Currency\Collection\CurrencyBasicCollection;
-use Shopware\System\Currency\CurrencyRepository;
+use Shopware\Core\System\Currency\Collection\CurrencyBasicCollection;
+use Shopware\Core\System\Currency\CurrencyRepository;
 
 class IndexController extends StorefrontController
 {
@@ -57,36 +57,36 @@ class IndexController extends StorefrontController
      * @Route("/widgets/index/shopMenu", name="widgets/shopMenu")
      * @Method({"GET"})
      *
-     * @param StorefrontContext $context
+     * @param CheckoutContext $context
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function shopMenuAction(StorefrontContext $context)
+    public function shopMenuAction(CheckoutContext $context)
     {
         $languages = $this->loadLanguages($context);
 
         return $this->render('@Storefront/widgets/index/shop_menu.html.twig', [
-            'application' => $context->getApplication(),
+            'application' => $context->getTouchpoint(),
             'currency' => $context->getCurrency(),
             'languages' => $languages,
-            'language' => $languages->get($context->getApplicationContext()->getLanguageId()),
+            'language' => $languages->get($context->getContext()->getLanguageId()),
             'currencies' => $this->getCurrencies($context),
         ]);
     }
 
-    private function loadLanguages(StorefrontContext $context): LanguageBasicCollection
+    private function loadLanguages(CheckoutContext $context): LanguageBasicCollection
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new TermsQuery('language.id', $context->getApplication()->getLanguageIds()));
+        $criteria->addFilter(new TermsQuery('language.id', $context->getTouchpoint()->getLanguageIds()));
 
-        return $this->languageRepository->search($criteria, $context->getApplicationContext());
+        return $this->languageRepository->search($criteria, $context->getContext());
     }
 
-    private function getCurrencies(StorefrontContext $context): CurrencyBasicCollection
+    private function getCurrencies(CheckoutContext $context): CurrencyBasicCollection
     {
         $criteria = new Criteria();
         $criteria->addFilter(new TermsQuery('currency.id', ['4c8eba11-bd35-46d7-86af-bed481a6e665', '2824ea63-db67-4110-9e23-78ddcc9cec84']));
 
-        return $this->currencyRepository->search($criteria, $context->getApplicationContext());
+        return $this->currencyRepository->search($criteria, $context->getContext());
     }
 }

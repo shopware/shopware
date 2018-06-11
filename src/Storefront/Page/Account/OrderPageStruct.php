@@ -2,9 +2,9 @@
 
 namespace Shopware\Storefront\Page\Account;
 
-use Shopware\Checkout\Order\Struct\OrderSearchResult;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\Struct\Struct;
+use Shopware\Core\Checkout\Order\Struct\OrderSearchResult;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\Struct\Struct;
 
 class OrderPageStruct extends Struct
 {

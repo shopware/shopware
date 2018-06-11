@@ -3,37 +3,26 @@ paths:
 exclude_files:
   - .*test.*
   - .*Definition.php
+  - .*Struct.php
+  - .*Collection.php
   - .*Event.php
+  - .*DemodataCommand.php
 
 layers:
-  - name: Application
+  - name: Checkout
     collectors:
       - type: bool
         must:
           - type: className
-            regex: Shopware\\Application\\
-        must_not:
-          - type: className
-            regex: Shopware\\Application\\Context\\Struct\\ApplicationContext
-          - type: className
-            regex: Shopware\\Application\\Context\\Struct\\StorefrontContext
-          - type: className
-            regex: Shopware\\Application\\Language\\Struct\\LanguageBasicStruct
-    collectors:
-      - type: className
-        regex: Shopware\\Application\\
-  - name: Checkout
-    collectors:
-      - type: className
-        regex: Shopware\\Checkout\\
+            regex: Shopware\\Core\\Checkout\\
   - name: Content
     collectors:
       - type: className
-        regex: Shopware\\Content\\
+        regex: Shopware\\Core\\Content\\
   - name: Framework
     collectors:
       - type: className
-        regex: Shopware\\Framework\\
+        regex: Shopware\\Core\\Framework\\
   - name: Profiling
     collectors:
       - type: className
@@ -41,12 +30,8 @@ layers:
   - name: System
     collectors:
       - type: className
-        regex: Shopware\\System\\
+        regex: Shopware\\Core\\System\\
 ruleset:
-  Application:
-    - Framework
-    - Content
-    - Checkout
   Checkout:
     - Framework
     - Content # todo change this
@@ -57,8 +42,6 @@ ruleset:
     - System
   Framework:
   Profiling:
-    - Framework
-    - Application
     - Checkout
     - Content
     - Framework

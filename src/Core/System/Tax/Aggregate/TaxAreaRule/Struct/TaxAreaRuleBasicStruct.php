@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Tax\Aggregate\TaxAreaRule\Struct;
+namespace Shopware\Core\System\Tax\Aggregate\TaxAreaRule\Struct;
 
-use Shopware\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Entity;
 
 class TaxAreaRuleBasicStruct extends Entity
 {

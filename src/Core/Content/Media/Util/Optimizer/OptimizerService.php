@@ -22,10 +22,10 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Content\Media\Util\Optimizer;
+namespace Shopware\Core\Content\Media\Util\Optimizer;
 
-use Shopware\Content\Media\Exception\OptimizerNotFoundException;
-use Shopware\Content\Media\Util\Strategy\StrategyFilesystem;
+use Shopware\Core\Content\Media\Exception\OptimizerNotFoundException;
+use Shopware\Core\Content\Media\Util\Strategy\StrategyFilesystem;
 
 class OptimizerService implements OptimizerServiceInterface
 {
@@ -41,7 +41,7 @@ class OptimizerService implements OptimizerServiceInterface
 
     /**
      * @param OptimizerInterface[]|iterable                            $optimizers
-     * @param \Shopware\Content\Media\Util\Strategy\StrategyFilesystem $filesystem
+     * @param \Shopware\Core\Content\Media\Util\Strategy\StrategyFilesystem $filesystem
      */
     public function __construct(iterable $optimizers, StrategyFilesystem $filesystem)
     {

@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Version\Collection;
+namespace Shopware\Core\Framework\ORM\Version\Collection;
 
-use Shopware\Framework\ORM\EntityCollection;
-use Shopware\Framework\ORM\Version\Struct\VersionBasicStruct;
+use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\Framework\ORM\Version\Struct\VersionBasicStruct;
 
 class VersionBasicCollection extends EntityCollection
 {

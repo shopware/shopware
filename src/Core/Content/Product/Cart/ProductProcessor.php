@@ -23,13 +23,13 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Content\Product\Cart;
+namespace Shopware\Core\Content\Product\Cart;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\Checkout\Cart\Cart\CartProcessorInterface;
-use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Checkout\Cart\Cart\Struct\Cart;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Checkout\Cart\Cart\CartProcessorInterface;
+use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
+use Shopware\Core\Framework\Struct\StructCollection;
 
 class ProductProcessor implements CartProcessorInterface
 {
@@ -52,7 +52,7 @@ class ProductProcessor implements CartProcessorInterface
         Cart $cart,
         CalculatedCart $calculatedCart,
         StructCollection $dataCollection,
-        StorefrontContext $context
+        CheckoutContext $context
     ): void {
         $collection = $cart->getLineItems()->filterType(self::TYPE_PRODUCT);
 

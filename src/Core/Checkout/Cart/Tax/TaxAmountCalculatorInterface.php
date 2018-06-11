@@ -22,13 +22,13 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Checkout\Cart\Tax;
+namespace Shopware\Core\Checkout\Cart\Tax;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
-use Shopware\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 
 interface TaxAmountCalculatorInterface
 {
-    public function calculate(CalculatedPriceCollection $priceCollection, StorefrontContext $context): CalculatedTaxCollection;
+    public function calculate(CalculatedPriceCollection $priceCollection, CheckoutContext $context): CalculatedTaxCollection;
 }

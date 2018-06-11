@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Search;
+namespace Shopware\Core\Framework\ORM\Search;
 
-use Shopware\Framework\ORM\Search\Aggregation\Aggregation;
-use Shopware\Framework\ORM\Search\Query\NestedQuery;
-use Shopware\Framework\ORM\Search\Query\Query;
-use Shopware\Framework\ORM\Search\Query\ScoreQuery;
-use Shopware\Framework\ORM\Search\Sorting\FieldSorting;
-use Shopware\Framework\Struct\Struct;
+use Shopware\Core\Framework\ORM\Search\Aggregation\Aggregation;
+use Shopware\Core\Framework\ORM\Search\Query\NestedQuery;
+use Shopware\Core\Framework\ORM\Search\Query\Query;
+use Shopware\Core\Framework\ORM\Search\Query\ScoreQuery;
+use Shopware\Core\Framework\ORM\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Struct\Struct;
 
 class Criteria extends Struct
 {

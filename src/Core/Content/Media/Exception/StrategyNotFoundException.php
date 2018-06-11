@@ -24,7 +24,7 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Content\Media\Exception;
+namespace Shopware\Core\Content\Media\Exception;
 
 class StrategyNotFoundException extends \Exception
 {

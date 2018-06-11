@@ -24,8 +24,8 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Framework\Twig\TemplateFinder;
-use Shopware\PlatformRequest;
+use Shopware\Core\Framework\Twig\TemplateFinder;
+use Shopware\Core\PlatformRequest;
 use Shopware\Storefront\Exception\CustomerNotLoggedInException;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\RedirectResponse;

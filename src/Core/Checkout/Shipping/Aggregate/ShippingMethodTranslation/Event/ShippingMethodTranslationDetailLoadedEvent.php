@@ -1,20 +1,20 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Event;
+namespace Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Application\Language\Event\LanguageBasicLoadedEvent;
-use Shopware\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Collection\ShippingMethodTranslationDetailCollection;
-use Shopware\Checkout\Shipping\Event\ShippingMethodBasicLoadedEvent;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\System\Language\Event\LanguageBasicLoadedEvent;
+use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Collection\ShippingMethodTranslationDetailCollection;
+use Shopware\Core\Checkout\Shipping\Event\ShippingMethodBasicLoadedEvent;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
 
 class ShippingMethodTranslationDetailLoadedEvent extends NestedEvent
 {
     public const NAME = 'shipping_method_translation.detail.loaded';
 
     /**
-     * @var ApplicationContext
+     * @var \Shopware\Core\Framework\Context
      */
     protected $context;
 
@@ -23,7 +23,7 @@ class ShippingMethodTranslationDetailLoadedEvent extends NestedEvent
      */
     protected $shippingMethodTranslations;
 
-    public function __construct(ShippingMethodTranslationDetailCollection $shippingMethodTranslations, ApplicationContext $context)
+    public function __construct(ShippingMethodTranslationDetailCollection $shippingMethodTranslations, Context $context)
     {
         $this->context = $context;
         $this->shippingMethodTranslations = $shippingMethodTranslations;
@@ -34,7 +34,7 @@ class ShippingMethodTranslationDetailLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }

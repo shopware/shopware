@@ -1,18 +1,18 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Category\Event;
+namespace Shopware\Core\Content\Category\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Content\Category\Collection\CategoryBasicCollection;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Category\Collection\CategoryBasicCollection;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
 
 class CategoryBasicLoadedEvent extends NestedEvent
 {
     public const NAME = 'category.basic.loaded';
 
     /**
-     * @var ApplicationContext
+     * @var Context
      */
     protected $context;
 
@@ -21,7 +21,7 @@ class CategoryBasicLoadedEvent extends NestedEvent
      */
     protected $categories;
 
-    public function __construct(CategoryBasicCollection $categories, ApplicationContext $context)
+    public function __construct(CategoryBasicCollection $categories, Context $context)
     {
         $this->context = $context;
         $this->categories = $categories;
@@ -32,7 +32,7 @@ class CategoryBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }

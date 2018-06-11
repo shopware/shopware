@@ -4,11 +4,11 @@ namespace Shopware\Storefront\Page\Search;
 
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\ORM\Search\Term\SearchPattern;
-use Shopware\Framework\ORM\Search\Term\SearchTerm;
-use Shopware\Framework\ORM\Search\Term\TokenizerInterface;
-use Shopware\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Search\Term\SearchPattern;
+use Shopware\Core\Framework\ORM\Search\Term\SearchTerm;
+use Shopware\Core\Framework\ORM\Search\Term\TokenizerInterface;
+use Shopware\Core\Framework\Struct\Uuid;
 
 class KeywordSearchTermInterpreter
 {
@@ -34,7 +34,7 @@ class KeywordSearchTermInterpreter
         $this->logger = $logger;
     }
 
-    public function interpret(string $word, ApplicationContext $context): SearchPattern
+    public function interpret(string $word, Context $context): SearchPattern
     {
         $tokens = $this->tokenizer->tokenize($word);
 
@@ -85,7 +85,7 @@ class KeywordSearchTermInterpreter
         return $slops;
     }
 
-    private function fetchKeywords(ApplicationContext $context, array $slops): array
+    private function fetchKeywords(Context $context, array $slops): array
     {
         $query = $this->connection->createQueryBuilder();
         $query->select('keyword');
@@ -106,7 +106,7 @@ class KeywordSearchTermInterpreter
         return $query->execute()->fetchAll(\PDO::FETCH_COLUMN);
     }
 
-    private function score(array $tokens, array $matches, ApplicationContext $context): array
+    private function score(array $tokens, array $matches, Context $context): array
     {
         $scoring = [];
 

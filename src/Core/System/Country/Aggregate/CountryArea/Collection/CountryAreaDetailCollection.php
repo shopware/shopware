@@ -1,15 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Country\Aggregate\CountryArea\Collection;
+namespace Shopware\Core\System\Country\Aggregate\CountryArea\Collection;
 
-use Shopware\System\Country\Aggregate\CountryArea\Struct\CountryAreaDetailStruct;
-use Shopware\System\Country\Aggregate\CountryAreaTranslation\Collection\CountryAreaTranslationBasicCollection;
-use Shopware\System\Country\Collection\CountryBasicCollection;
+use Shopware\Core\System\Country\Aggregate\CountryArea\Struct\CountryAreaDetailStruct;
+use Shopware\Core\System\Country\Aggregate\CountryAreaTranslation\Collection\CountryAreaTranslationBasicCollection;
+use Shopware\Core\System\Country\Collection\CountryBasicCollection;
 
 class CountryAreaDetailCollection extends CountryAreaBasicCollection
 {
     /**
-     * @var \Shopware\System\Country\Aggregate\CountryArea\Struct\CountryAreaDetailStruct[]
+     * @var \Shopware\Core\System\Country\Aggregate\CountryArea\Struct\CountryAreaDetailStruct[]
      */
     protected $elements = [];
 

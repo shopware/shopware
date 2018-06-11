@@ -1,15 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Country\Aggregate\CountryState\Collection;
+namespace Shopware\Core\System\Country\Aggregate\CountryState\Collection;
 
-use Shopware\System\Country\Aggregate\CountryState\Struct\CountryStateDetailStruct;
-use Shopware\System\Country\Aggregate\CountryStateTranslation\Collection\CountryStateTranslationBasicCollection;
-use Shopware\System\Country\Collection\CountryBasicCollection;
+use Shopware\Core\System\Country\Aggregate\CountryState\Struct\CountryStateDetailStruct;
+use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\Collection\CountryStateTranslationBasicCollection;
+use Shopware\Core\System\Country\Collection\CountryBasicCollection;
 
 class CountryStateDetailCollection extends CountryStateBasicCollection
 {
     /**
-     * @var \Shopware\System\Country\Aggregate\CountryState\Struct\CountryStateDetailStruct[]
+     * @var \Shopware\Core\System\Country\Aggregate\CountryState\Struct\CountryStateDetailStruct[]
      */
     protected $elements = [];
 
@@ -36,7 +36,7 @@ class CountryStateDetailCollection extends CountryStateBasicCollection
 
     public function getTranslations(): CountryStateTranslationBasicCollection
     {
-        $collection = new \Shopware\System\Country\Aggregate\CountryStateTranslation\Collection\CountryStateTranslationBasicCollection();
+        $collection = new \Shopware\Core\System\Country\Aggregate\CountryStateTranslation\Collection\CountryStateTranslationBasicCollection();
         foreach ($this->elements as $element) {
             $collection->fill($element->getTranslations()->getElements());
         }

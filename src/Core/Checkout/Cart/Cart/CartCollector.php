@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Cart\Cart;
+namespace Shopware\Core\Checkout\Cart\Cart;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\Checkout\Cart\Cart\Struct\Cart;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
+use Shopware\Core\Framework\Struct\StructCollection;
 
 class CartCollector
 {
@@ -18,7 +18,7 @@ class CartCollector
         $this->collectors = $collectors;
     }
 
-    public function collect(Cart $cart, StorefrontContext $context): StructCollection
+    public function collect(Cart $cart, CheckoutContext $context): StructCollection
     {
         $fetchCollection = new StructCollection();
         foreach ($this->collectors as $collector) {

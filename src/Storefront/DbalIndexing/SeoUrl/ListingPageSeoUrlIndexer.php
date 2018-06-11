@@ -4,21 +4,21 @@ namespace Shopware\Storefront\DbalIndexing\SeoUrl;
 
 use Cocur\Slugify\SlugifyInterface;
 use Doctrine\DBAL\Connection;
-use Shopware\Application\Application\ApplicationRepository;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Content\Category\CategoryRepository;
-use Shopware\Content\Category\Struct\CategorySearchResult;
-use Shopware\Defaults;
-use Shopware\Framework\Doctrine\MultiInsertQueryQueue;
-use Shopware\Framework\Event\ProgressAdvancedEvent;
-use Shopware\Framework\Event\ProgressFinishedEvent;
-use Shopware\Framework\Event\ProgressStartedEvent;
-use Shopware\Framework\ORM\Dbal\Common\EventIdExtractor;
-use Shopware\Framework\ORM\Dbal\Common\RepositoryIterator;
-use Shopware\Framework\ORM\Dbal\Indexing\IndexerInterface;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\Struct\Uuid;
+use Shopware\Core\System\Touchpoint\TouchpointRepository;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Category\CategoryRepository;
+use Shopware\Core\Content\Category\Struct\CategorySearchResult;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Doctrine\MultiInsertQueryQueue;
+use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
+use Shopware\Core\Framework\Event\ProgressFinishedEvent;
+use Shopware\Core\Framework\Event\ProgressStartedEvent;
+use Shopware\Core\Content\Product\Util\EventIdExtractor;
+use Shopware\Core\Framework\ORM\Dbal\Common\RepositoryIterator;
+use Shopware\Core\Framework\ORM\Dbal\Indexing\IndexerInterface;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Storefront\Api\Seo\Definition\SeoUrlDefinition;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Routing\RouterInterface;
@@ -43,7 +43,7 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
     private $router;
 
     /**
-     * @var ApplicationRepository
+     * @var TouchpointRepository
      */
     private $applicationRepository;
 
@@ -57,7 +57,7 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
      */
     private $categoryRepository;
     /**
-     * @var \Shopware\Framework\ORM\Dbal\Common\EventIdExtractor
+     * @var \Shopware\Core\Content\Product\Util\EventIdExtractor
      */
     private $eventIdExtractor;
 
@@ -66,7 +66,7 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
         SlugifyInterface $slugify,
         RouterInterface $router,
         CategoryRepository $categoryRepository,
-        ApplicationRepository $applicationRepository,
+        TouchpointRepository $applicationRepository,
         EventDispatcherInterface $eventDispatcher,
         EventIdExtractor $eventIdExtractor
     ) {
@@ -81,10 +81,10 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
 
     public function index(\DateTime $timestamp, string $tenantId): void
     {
-        $applications = $this->applicationRepository->search(new Criteria(), ApplicationContext::createDefaultContext($tenantId));
+        $applications = $this->applicationRepository->search(new Criteria(), Context::createDefaultContext($tenantId));
 
         foreach ($applications as $application) {
-            $context = ApplicationContext::createFromApplication($application);
+            $context = Context::createFromTouchpoint($application);
 
             $iterator = new RepositoryIterator($this->categoryRepository, $context);
 
@@ -136,7 +136,7 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
         $query->from('seo_url', 'seo_url');
 
         $query->andWhere('seo_url.name = :name');
-        $query->andWhere('seo_url.application_id = :application');
+        $query->andWhere('seo_url.touchpoint_id = :application');
         $query->andWhere('seo_url.is_canonical = 1');
         $query->andWhere('seo_url.tenant_id = :tenant');
         $query->andWhere('seo_url.foreign_key IN (:ids)');
@@ -149,7 +149,7 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
         return $query->execute()->fetchAll(\PDO::FETCH_GROUP | \PDO::FETCH_UNIQUE);
     }
 
-    private function updateCategories(array $ids, ApplicationContext $context): void
+    private function updateCategories(array $ids, Context $context): void
     {
         if (empty($ids)) {
             return;
@@ -157,7 +157,7 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
 
         $categories = $this->categoryRepository->readBasic($ids, $context);
 
-        $canonicals = $this->fetchCanonicals($categories->getIds(), $context->getApplicationId(), $context->getTenantId());
+        $canonicals = $this->fetchCanonicals($categories->getIds(), $context->getTouchpointId(), $context->getTenantId());
 
         $liveVersionId = Uuid::fromStringToBytes(Defaults::LIVE_VERSION);
         $insertQuery = new MultiInsertQueryQueue($this->connection, 250, false, true);
@@ -196,8 +196,8 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
                 'id' => $existing['id'],
                 'tenant_id' => Uuid::fromStringToBytes($context->getTenantId()),
                 'version_id' => $liveVersionId,
-                'application_id' => Uuid::fromStringToBytes($context->getApplicationId()),
-                'application_tenant_id' => Uuid::fromStringToBytes($context->getTenantId()),
+                'touchpoint_id' => Uuid::fromStringToBytes($context->getTouchpointId()),
+                'touchpoint_tenant_id' => Uuid::fromStringToBytes($context->getTenantId()),
                 'name' => self::ROUTE_NAME,
                 'foreign_key' => Uuid::fromStringToBytes($category->getId()),
                 'foreign_key_version_id' => $liveVersionId,

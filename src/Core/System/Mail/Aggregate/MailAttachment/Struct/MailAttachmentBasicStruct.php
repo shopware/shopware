@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Mail\Aggregate\MailAttachment\Struct;
+namespace Shopware\Core\System\Mail\Aggregate\MailAttachment\Struct;
 
-use Shopware\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Entity;
 
 class MailAttachmentBasicStruct extends Entity
 {

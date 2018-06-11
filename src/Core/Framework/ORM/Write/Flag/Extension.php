@@ -22,7 +22,7 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Framework\ORM\Write\Flag;
+namespace Shopware\Core\Framework\ORM\Write\Flag;
 
 /**
  * Defines that the data of this field is stored in an Entity::$extension and are not part of the struct itself.

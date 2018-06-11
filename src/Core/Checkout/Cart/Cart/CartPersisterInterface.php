@@ -23,12 +23,12 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Checkout\Cart\Cart;
+namespace Shopware\Core\Checkout\Cart\Cart;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Checkout\Cart\Cart\Struct\Cart;
-use Shopware\Checkout\Cart\Exception\CartTokenNotFoundException;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
+use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 
 interface CartPersisterInterface
 {
@@ -40,7 +40,7 @@ interface CartPersisterInterface
      *
      * @return Cart
      */
-    public function load(string $token, string $name, StorefrontContext $context): Cart;
+    public function load(string $token, string $name, CheckoutContext $context): Cart;
 
     /**
      * @param string $token
@@ -50,9 +50,9 @@ interface CartPersisterInterface
      *
      * @return CalculatedCart
      */
-    public function loadCalculated(string $token, string $name, StorefrontContext $context): CalculatedCart;
+    public function loadCalculated(string $token, string $name, CheckoutContext $context): CalculatedCart;
 
-    public function save(CalculatedCart $cart, StorefrontContext $context): void;
+    public function save(CalculatedCart $cart, CheckoutContext $context): void;
 
-    public function delete(string $token, ?string $name = null, StorefrontContext $context): void;
+    public function delete(string $token, ?string $name = null, CheckoutContext $context): void;
 }

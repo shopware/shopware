@@ -22,30 +22,30 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Framework\ORM\Write;
+namespace Shopware\Core\Framework\ORM\Write;
 
-use Shopware\Framework\ORM\Dbal\EntityForeignKeyResolver;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\Field\Field;
-use Shopware\Framework\ORM\Field\FkField;
-use Shopware\Framework\ORM\Field\IdField;
-use Shopware\Framework\ORM\Field\ReferenceVersionField;
-use Shopware\Framework\ORM\Field\TenantIdField;
-use Shopware\Framework\ORM\Field\VersionField;
-use Shopware\Framework\ORM\MappingEntityDefinition;
-use Shopware\Framework\ORM\Write\Command\DeleteCommand;
-use Shopware\Framework\ORM\Write\Command\InsertCommand;
-use Shopware\Framework\ORM\Write\Command\UpdateCommand;
-use Shopware\Framework\ORM\Write\Command\WriteCommandInterface;
-use Shopware\Framework\ORM\Write\Command\WriteCommandQueue;
-use Shopware\Framework\ORM\Write\FieldAware\DefaultExtender;
-use Shopware\Framework\ORM\Write\FieldAware\FieldExtenderCollection;
-use Shopware\Framework\ORM\Write\FieldAware\StorageAware;
-use Shopware\Framework\ORM\Write\FieldException\FieldExceptionStack;
-use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
-use Shopware\Framework\ORM\Write\Validation\RestrictDeleteViolation;
-use Shopware\Framework\ORM\Write\Validation\RestrictDeleteViolationException;
-use Shopware\Framework\Struct\Uuid;
+use Shopware\Core\Framework\ORM\Dbal\EntityForeignKeyResolver;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\Field\Field;
+use Shopware\Core\Framework\ORM\Field\FkField;
+use Shopware\Core\Framework\ORM\Field\IdField;
+use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
+use Shopware\Core\Framework\ORM\Field\TenantIdField;
+use Shopware\Core\Framework\ORM\Field\VersionField;
+use Shopware\Core\Framework\ORM\MappingEntityDefinition;
+use Shopware\Core\Framework\ORM\Write\Command\DeleteCommand;
+use Shopware\Core\Framework\ORM\Write\Command\InsertCommand;
+use Shopware\Core\Framework\ORM\Write\Command\UpdateCommand;
+use Shopware\Core\Framework\ORM\Write\Command\WriteCommandInterface;
+use Shopware\Core\Framework\ORM\Write\Command\WriteCommandQueue;
+use Shopware\Core\Framework\ORM\Write\FieldAware\DefaultExtender;
+use Shopware\Core\Framework\ORM\Write\FieldAware\FieldExtenderCollection;
+use Shopware\Core\Framework\ORM\Write\FieldAware\StorageAware;
+use Shopware\Core\Framework\ORM\Write\FieldException\FieldExceptionStack;
+use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
+use Shopware\Core\Framework\ORM\Write\Validation\RestrictDeleteViolation;
+use Shopware\Core\Framework\ORM\Write\Validation\RestrictDeleteViolationException;
+use Shopware\Core\Framework\Struct\Uuid;
 
 /**
  * Handles all write operations in the system.
@@ -159,17 +159,17 @@ class EntityWriter implements EntityWriterInterface
                 }
 
                 if ($field instanceof ReferenceVersionField) {
-                    $mapped[$field->getStorageName()] = $writeContext->getApplicationContext()->getVersionId();
+                    $mapped[$field->getStorageName()] = $writeContext->getContext()->getVersionId();
                     continue;
                 }
 
                 if ($field instanceof VersionField) {
-                    $mapped[$field->getStorageName()] = $writeContext->getApplicationContext()->getVersionId();
+                    $mapped[$field->getStorageName()] = $writeContext->getContext()->getVersionId();
                     continue;
                 }
 
                 if ($field instanceof TenantIdField) {
-                    $mapped[$field->getStorageName()] = $writeContext->getApplicationContext()->getTenantId();
+                    $mapped[$field->getStorageName()] = $writeContext->getContext()->getTenantId();
                     continue;
                 }
 
@@ -183,7 +183,7 @@ class EntityWriter implements EntityWriterInterface
 
         $instance = new $definition();
         if (!$instance instanceof MappingEntityDefinition) {
-            $restrictions = $this->foreignKeyResolver->getAffectedDeleteRestrictions($definition, $resolved, $writeContext->getApplicationContext());
+            $restrictions = $this->foreignKeyResolver->getAffectedDeleteRestrictions($definition, $resolved, $writeContext->getContext());
 
             if (!empty($restrictions)) {
                 $restrictions = array_map(function ($restriction) {
@@ -196,7 +196,7 @@ class EntityWriter implements EntityWriterInterface
 
         $cascades = [];
         if (!$instance instanceof MappingEntityDefinition) {
-            $cascadeDeletes = $this->foreignKeyResolver->getAffectedDeletes($definition, $resolved, $writeContext->getApplicationContext());
+            $cascadeDeletes = $this->foreignKeyResolver->getAffectedDeletes($definition, $resolved, $writeContext->getContext());
 
             $cascadeDeletes = array_column($cascadeDeletes, 'restrictions');
             foreach ($cascadeDeletes as $cascadeDelete) {

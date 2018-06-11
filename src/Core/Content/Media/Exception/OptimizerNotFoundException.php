@@ -22,7 +22,7 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Content\Media\Exception;
+namespace Shopware\Core\Content\Media\Exception;
 
 class OptimizerNotFoundException extends \Exception
 {

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Payment\Exception;
+namespace Shopware\Core\Checkout\Payment\Exception;
 
 class UnknownPaymentMethodException extends \Exception
 {

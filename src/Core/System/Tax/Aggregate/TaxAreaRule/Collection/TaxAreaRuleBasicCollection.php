@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Tax\Aggregate\TaxAreaRule\Collection;
+namespace Shopware\Core\System\Tax\Aggregate\TaxAreaRule\Collection;
 
-use Shopware\Framework\ORM\EntityCollection;
-use Shopware\System\Tax\Aggregate\TaxAreaRule\Struct\TaxAreaRuleBasicStruct;
+use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\Struct\TaxAreaRuleBasicStruct;
 
 class TaxAreaRuleBasicCollection extends EntityCollection
 {

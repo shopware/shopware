@@ -1,18 +1,18 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Payment\Cart\PaymentHandler;
+namespace Shopware\Core\Checkout\Payment\Cart\PaymentHandler;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionRepository;
-use Shopware\Checkout\Payment\Cart\PaymentTransactionStruct;
-use Shopware\Defaults;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionRepository;
+use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
+use Shopware\Core\Defaults;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 class SEPAPayment implements PaymentHandlerInterface
 {
     /**
-     * @var \Shopware\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionRepository
+     * @var \Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionRepository
      */
     private $transactionRepository;
 
@@ -21,7 +21,7 @@ class SEPAPayment implements PaymentHandlerInterface
         $this->transactionRepository = $transactionRepository;
     }
 
-    public function pay(PaymentTransactionStruct $transaction, ApplicationContext $context): ?RedirectResponse
+    public function pay(PaymentTransactionStruct $transaction, Context $context): ?RedirectResponse
     {
         $data = [
             'id' => $transaction->getTransactionId(),
@@ -32,7 +32,7 @@ class SEPAPayment implements PaymentHandlerInterface
         return null;
     }
 
-    public function finalize(string $transactionId, Request $request, ApplicationContext $context): void
+    public function finalize(string $transactionId, Request $request, Context $context): void
     {
     }
 }

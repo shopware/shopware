@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Struct;
+namespace Shopware\Core\Content\Media\Aggregate\MediaAlbumTranslation\Struct;
 
-use Shopware\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Entity;
 
 class MediaAlbumTranslationBasicStruct extends Entity
 {

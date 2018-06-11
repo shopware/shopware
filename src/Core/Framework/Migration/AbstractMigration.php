@@ -22,10 +22,10 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Framework\Migration;
+namespace Shopware\Core\Framework\Migration;
 
 /**
- * @category  Shopware
+ * @category  Shopware\Core
  *
  * @copyright Copyright (c) shopware AG (http://www.shopware.de)
  */

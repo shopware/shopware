@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\User\Event;
+namespace Shopware\Core\System\User\Event;
 
-use Shopware\Framework\ORM\Write\WrittenEvent;
-use Shopware\System\User\UserDefinition;
+use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\System\User\UserDefinition;
 
 class UserWrittenEvent extends WrittenEvent
 {

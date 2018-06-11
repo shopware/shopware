@@ -22,11 +22,11 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Checkout\Cart\Error;
+namespace Shopware\Core\Checkout\Cart\Error;
 
-use Shopware\Framework\Struct\AssignArrayTrait;
-use Shopware\Framework\Struct\CreateFromTrait;
-use Shopware\Framework\Struct\JsonSerializableTrait;
+use Shopware\Core\Framework\Struct\AssignArrayTrait;
+use Shopware\Core\Framework\Struct\CreateFromTrait;
+use Shopware\Core\Framework\Struct\JsonSerializableTrait;
 
 abstract class Error extends \Exception implements \JsonSerializable
 {

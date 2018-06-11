@@ -23,11 +23,11 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Checkout\Cart\Delivery\Struct;
+namespace Shopware\Core\Checkout\Cart\Delivery\Struct;
 
-use Shopware\Checkout\Cart\LineItem\DeliverableLineItemInterface;
-use Shopware\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
-use Shopware\Framework\Struct\Collection;
+use Shopware\Core\Checkout\Cart\LineItem\DeliverableLineItemInterface;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
+use Shopware\Core\Framework\Struct\Collection;
 
 class DeliveryCollection extends Collection
 {

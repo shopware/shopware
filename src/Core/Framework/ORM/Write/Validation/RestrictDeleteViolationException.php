@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Write\Validation;
+namespace Shopware\Core\Framework\ORM\Write\Validation;
 
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ShopwareException;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ShopwareException;
 
 class RestrictDeleteViolationException extends \DomainException implements ShopwareException
 {

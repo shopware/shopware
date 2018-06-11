@@ -23,9 +23,9 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Checkout\Cart\LineItem;
+namespace Shopware\Core\Checkout\Cart\LineItem;
 
-use Shopware\Framework\Struct\Collection;
+use Shopware\Core\Framework\Struct\Collection;
 
 class LineItemCollection extends Collection
 {

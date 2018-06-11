@@ -1,19 +1,19 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Locale\Event;
+namespace Shopware\Core\System\Locale\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\System\Locale\Aggregate\LocaleTranslation\Event\LocaleTranslationBasicLoadedEvent;
-use Shopware\System\Locale\Collection\LocaleDetailCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\System\Locale\Aggregate\LocaleTranslation\Event\LocaleTranslationBasicLoadedEvent;
+use Shopware\Core\System\Locale\Collection\LocaleDetailCollection;
 
 class LocaleDetailLoadedEvent extends NestedEvent
 {
     public const NAME = 'locale.detail.loaded';
 
     /**
-     * @var ApplicationContext
+     * @var Context
      */
     protected $context;
 
@@ -22,7 +22,7 @@ class LocaleDetailLoadedEvent extends NestedEvent
      */
     protected $locales;
 
-    public function __construct(LocaleDetailCollection $locales, ApplicationContext $context)
+    public function __construct(LocaleDetailCollection $locales, Context $context)
     {
         $this->context = $context;
         $this->locales = $locales;
@@ -33,7 +33,7 @@ class LocaleDetailLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }

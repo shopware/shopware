@@ -1,24 +1,24 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Tax\Aggregate\TaxAreaRule\Event;
+namespace Shopware\Core\System\Tax\Aggregate\TaxAreaRule\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Checkout\Customer\Aggregate\CustomerGroup\Event\CustomerGroupBasicLoadedEvent;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\System\Country\Aggregate\CountryArea\Event\CountryAreaBasicLoadedEvent;
-use Shopware\System\Country\Aggregate\CountryState\Event\CountryStateBasicLoadedEvent;
-use Shopware\System\Country\Event\CountryBasicLoadedEvent;
-use Shopware\System\Tax\Aggregate\TaxAreaRule\Collection\TaxAreaRuleDetailCollection;
-use Shopware\System\Tax\Aggregate\TaxAreaRuleTranslation\Event\TaxAreaRuleTranslationBasicLoadedEvent;
-use Shopware\System\Tax\Event\TaxBasicLoadedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\Event\CustomerGroupBasicLoadedEvent;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\System\Country\Aggregate\CountryArea\Event\CountryAreaBasicLoadedEvent;
+use Shopware\Core\System\Country\Aggregate\CountryState\Event\CountryStateBasicLoadedEvent;
+use Shopware\Core\System\Country\Event\CountryBasicLoadedEvent;
+use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\Collection\TaxAreaRuleDetailCollection;
+use Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTranslation\Event\TaxAreaRuleTranslationBasicLoadedEvent;
+use Shopware\Core\System\Tax\Event\TaxBasicLoadedEvent;
 
 class TaxAreaRuleDetailLoadedEvent extends NestedEvent
 {
     public const NAME = 'tax_area_rule.detail.loaded';
 
     /**
-     * @var ApplicationContext
+     * @var \Shopware\Core\Framework\Context
      */
     protected $context;
 
@@ -27,7 +27,7 @@ class TaxAreaRuleDetailLoadedEvent extends NestedEvent
      */
     protected $taxAreaRules;
 
-    public function __construct(TaxAreaRuleDetailCollection $taxAreaRules, ApplicationContext $context)
+    public function __construct(TaxAreaRuleDetailCollection $taxAreaRules, Context $context)
     {
         $this->context = $context;
         $this->taxAreaRules = $taxAreaRules;
@@ -38,7 +38,7 @@ class TaxAreaRuleDetailLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }

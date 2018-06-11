@@ -22,13 +22,13 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Framework\ORM\Write\FieldAware;
+namespace Shopware\Core\Framework\ORM\Write\FieldAware;
 
-use Shopware\Framework\ORM\Field\Field;
-use Shopware\Framework\ORM\Write\Filter\FilterRegistry;
-use Shopware\Framework\ORM\Write\IdGenerator\GeneratorRegistry;
-use Shopware\Framework\ORM\Write\Validation\ConstraintBuilder;
-use Shopware\Framework\ORM\Write\ValueTransformer\ValueTransformerRegistry;
+use Shopware\Core\Framework\ORM\Field\Field;
+use Shopware\Core\Framework\ORM\Write\Filter\FilterRegistry;
+use Shopware\Core\Framework\ORM\Write\IdGenerator\GeneratorRegistry;
+use Shopware\Core\Framework\ORM\Write\Validation\ConstraintBuilder;
+use Shopware\Core\Framework\ORM\Write\ValueTransformer\ValueTransformerRegistry;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class DefaultExtender extends FieldExtender

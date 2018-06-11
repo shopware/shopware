@@ -1,18 +1,18 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Aggregate\ProductCategoryTree;
+namespace Shopware\Core\Content\Product\Aggregate\ProductCategoryTree;
 
-use Shopware\Content\Category\CategoryDefinition;
-use Shopware\Content\Product\Aggregate\ProductCategoryTree\Event\ProductCategoryTreeDeletedEvent;
-use Shopware\Content\Product\Aggregate\ProductCategoryTree\Event\ProductCategoryTreeWrittenEvent;
-use Shopware\Content\Product\ProductDefinition;
-use Shopware\Framework\ORM\Field\FkField;
-use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
-use Shopware\Framework\ORM\Field\ReferenceVersionField;
-use Shopware\Framework\ORM\FieldCollection;
-use Shopware\Framework\ORM\MappingEntityDefinition;
-use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
-use Shopware\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductCategoryTree\Event\ProductCategoryTreeDeletedEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductCategoryTree\Event\ProductCategoryTreeWrittenEvent;
+use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\ORM\Field\FkField;
+use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
+use Shopware\Core\Framework\ORM\FieldCollection;
+use Shopware\Core\Framework\ORM\MappingEntityDefinition;
+use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
+use Shopware\Core\Framework\ORM\Write\Flag\Required;
 
 class ProductCategoryTreeDefinition extends MappingEntityDefinition
 {

@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Order\Aggregate\OrderTransaction\Event;
+namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\Event;
 
-use Shopware\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
-use Shopware\Framework\ORM\Write\DeletedEvent;
-use Shopware\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
+use Shopware\Core\Framework\ORM\Write\DeletedEvent;
+use Shopware\Core\Framework\ORM\Write\WrittenEvent;
 
 class OrderTransactionDeletedEvent extends WrittenEvent implements DeletedEvent
 {

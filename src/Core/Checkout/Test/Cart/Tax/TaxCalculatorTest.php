@@ -22,16 +22,16 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Checkout\Test\Cart\Tax;
+namespace Shopware\Core\Checkout\Test\Cart\Tax;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Checkout\Cart\Exception\TaxRuleNotSupportedException;
-use Shopware\Checkout\Cart\Price\PriceRounding;
-use Shopware\Checkout\Cart\Tax\Struct\TaxRule;
-use Shopware\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Checkout\Cart\Tax\Struct\TaxRuleInterface;
-use Shopware\Checkout\Cart\Tax\TaxCalculator;
-use Shopware\Checkout\Cart\Tax\TaxRuleCalculator;
+use Shopware\Core\Checkout\Cart\Exception\TaxRuleNotSupportedException;
+use Shopware\Core\Checkout\Cart\Price\PriceRounding;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleInterface;
+use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
+use Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator;
 
 class TaxCalculatorTest extends TestCase
 {

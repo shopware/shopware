@@ -1,17 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\User\Event;
+namespace Shopware\Core\System\User\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\System\User\Collection\UserBasicCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\System\User\Collection\UserBasicCollection;
 
 class UserBasicLoadedEvent extends NestedEvent
 {
     public const NAME = 'user.basic.loaded';
 
     /**
-     * @var ApplicationContext
+     * @var Context
      */
     protected $context;
 
@@ -20,7 +20,7 @@ class UserBasicLoadedEvent extends NestedEvent
      */
     protected $users;
 
-    public function __construct(UserBasicCollection $users, ApplicationContext $context)
+    public function __construct(UserBasicCollection $users, Context $context)
     {
         $this->context = $context;
         $this->users = $users;
@@ -31,7 +31,7 @@ class UserBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }

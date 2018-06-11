@@ -1,37 +1,38 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Version\Service;
+namespace Shopware\Core\Framework\ORM\Version\Service;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Defaults;
-use Shopware\Framework\ORM\DefinitionRegistry;
-use Shopware\Framework\ORM\Entity;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\Field\AssociationInterface;
-use Shopware\Framework\ORM\Field\Field;
-use Shopware\Framework\ORM\Field\ReferenceVersionField;
-use Shopware\Framework\ORM\Field\SubresourceField;
-use Shopware\Framework\ORM\Field\VersionField;
-use Shopware\Framework\ORM\Read\EntityReaderInterface;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\EntitySearcherInterface;
-use Shopware\Framework\ORM\Search\Query\TermQuery;
-use Shopware\Framework\ORM\Search\Sorting\FieldSorting;
-use Shopware\Framework\ORM\Version\Collection\VersionCommitBasicCollection;
-use Shopware\Framework\ORM\Version\Definition\VersionCommitDataDefinition;
-use Shopware\Framework\ORM\Version\Definition\VersionCommitDefinition;
-use Shopware\Framework\ORM\Version\Definition\VersionDefinition;
-use Shopware\Framework\ORM\Version\Struct\VersionCommitDataBasicStruct;
-use Shopware\Framework\ORM\Write\Command\InsertCommand;
-use Shopware\Framework\ORM\Write\EntityExistence;
-use Shopware\Framework\ORM\Write\EntityWriteGatewayInterface;
-use Shopware\Framework\ORM\Write\EntityWriterInterface;
-use Shopware\Framework\ORM\Write\Flag\CascadeDelete;
-use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\Framework\Struct\Collection;
-use Shopware\Framework\Struct\Struct;
-use Shopware\Framework\Struct\Uuid;
-use Shopware\System\User\UserDefinition;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\ORM\DefinitionRegistry;
+use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\Field\AssociationInterface;
+use Shopware\Core\Framework\ORM\Field\Field;
+use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
+use Shopware\Core\Framework\ORM\Field\SubresourceField;
+use Shopware\Core\Framework\ORM\Field\SubVersionField;
+use Shopware\Core\Framework\ORM\Field\VersionField;
+use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Core\Framework\ORM\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\ORM\Version\Collection\VersionCommitBasicCollection;
+use Shopware\Core\Framework\ORM\Version\Definition\VersionCommitDataDefinition;
+use Shopware\Core\Framework\ORM\Version\Definition\VersionCommitDefinition;
+use Shopware\Core\Framework\ORM\Version\Definition\VersionDefinition;
+use Shopware\Core\Framework\ORM\Version\Struct\VersionCommitDataBasicStruct;
+use Shopware\Core\Framework\ORM\Write\Command\InsertCommand;
+use Shopware\Core\Framework\ORM\Write\EntityWriteGatewayInterface;
+use Shopware\Core\Framework\ORM\Write\EntityWriterInterface;
+use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
+use Shopware\Core\Framework\ORM\Write\WriteContext;
+use Shopware\Core\Framework\ORM\Write\EntityExistence;
+use Shopware\Core\Framework\Struct\Collection;
+use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\System\User\UserDefinition;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -151,22 +152,20 @@ class VersionManager
         return $versionData['id'];
     }
 
-    public function merge(string $versionId, WriteContext $context): void
+    public function merge(string $versionId, WriteContext $writeContext): void
     {
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('version_commit.versionId', $versionId));
         $criteria->addSorting(new FieldSorting('version_commit.autoIncrement'));
 
-        $applicationContext = $context->getApplicationContext();
-
-        $commitIds = $this->entitySearcher->search(VersionCommitDefinition::class, $criteria, $applicationContext);
-        $commits = $this->entityReader->readBasic(VersionCommitDefinition::class, $commitIds->getIds(), $applicationContext);
+        $commitIds = $this->entitySearcher->search(VersionCommitDefinition::class, $criteria, $writeContext->getContext());
+        $commits = $this->entityReader->readBasic(VersionCommitDefinition::class, $commitIds->getIds(), $writeContext->getContext());
 
         $allChanges = [];
         $entities = [];
 
-        $versionContext = $context->createWithVersionId($versionId);
-        $liveContext = $context->createWithVersionId(Defaults::LIVE_VERSION);
+        $versionContext = $writeContext->createWithVersionId($versionId);
+        $liveContext = $writeContext->createWithVersionId(Defaults::LIVE_VERSION);
 
         /** @var VersionCommitBasicCollection $commits */
         foreach ($commits as $commit) {
@@ -224,13 +223,13 @@ class VersionManager
         $commit = [
             'versionId' => Defaults::LIVE_VERSION,
             'data' => $newData,
-            'userId' => $this->getUserId($applicationContext),
+            'userId' => $this->getUserId($writeContext->getContext()),
             'isMerge' => true,
             'message' => 'merge commit ' . (new \DateTime())->format(\DateTime::ATOM),
         ];
 
-        $this->entityWriter->insert(VersionCommitDefinition::class, [$commit], $context);
-        $this->entityWriter->delete(VersionDefinition::class, [['id' => $versionId]], $context);
+        $this->entityWriter->insert(VersionCommitDefinition::class, [$commit], $writeContext);
+        $this->entityWriter->delete(VersionDefinition::class, [['id' => $versionId]], $writeContext);
 
         foreach ($entities as $entity) {
             $primary = $entity['primary'];
@@ -245,7 +244,7 @@ class VersionManager
     {
         /** @var Entity $detail */
         /** @var string|EntityDefinition $definition */
-        $detail = $this->entityReader->readRaw($definition, [$primaryKey['id']], $context->getApplicationContext())->first();
+        $detail = $this->entityReader->readRaw($definition, [$primaryKey['id']], $context->getContext())->first();
 
         if ($detail === null) {
             throw new \Exception(sprintf('Cannot create new version. %s by id (%s) not found.', $definition::getEntityName(), print_r($primaryKey, true)));
@@ -367,17 +366,17 @@ class VersionManager
 
     private function writeAuditLog(array $writtenEvents, WriteContext $writeContext, string $action, ?string $versionId = null): void
     {
-        $userId = $this->getUserId($writeContext->getApplicationContext());
+        $userId = $this->getUserId($writeContext->getContext());
 
         $userId = $userId ? Uuid::fromStringToBytes($userId) : null;
 
-        $versionId = $versionId ?? $writeContext->getApplicationContext()->getVersionId();
+        $versionId = $versionId ?? $writeContext->getContext()->getVersionId();
 
         $commitId = Uuid::uuid4();
 
         $date = (new \DateTime())->format('Y-m-d H:i:s');
 
-        $tenantId = Uuid::fromStringToBytes($writeContext->getApplicationContext()->getTenantId());
+        $tenantId = Uuid::fromStringToBytes($writeContext->getContext()->getTenantId());
 
         $insert = new InsertCommand(
             VersionCommitDefinition::class,
@@ -456,7 +455,7 @@ class VersionManager
         $this->entityWriteGateway->execute($commands);
     }
 
-    private function getUserId(ApplicationContext $context): ?string
+    private function getUserId(Context $context): ?string
     {
         $token = $this->tokenStorage->getToken();
         if (!$token) {

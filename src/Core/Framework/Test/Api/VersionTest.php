@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Test\Api;
+namespace Shopware\Core\Framework\Test\Api;
 
-use Shopware\Defaults;
-use Shopware\Framework\ORM\DefinitionRegistry;
-use Shopware\Framework\ORM\Exception\MappingEntityRepositoryException;
-use Shopware\PlatformRequest;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\ORM\DefinitionRegistry;
+use Shopware\Core\Framework\ORM\Exception\MappingEntityRepositoryException;
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Client;

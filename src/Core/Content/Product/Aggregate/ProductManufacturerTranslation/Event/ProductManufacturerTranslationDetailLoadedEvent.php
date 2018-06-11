@@ -1,20 +1,20 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Aggregate\ProductManufacturerTranslation\Event;
+namespace Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Application\Language\Event\LanguageBasicLoadedEvent;
-use Shopware\Content\Product\Aggregate\ProductManufacturer\Event\ProductManufacturerBasicLoadedEvent;
-use Shopware\Content\Product\Aggregate\ProductManufacturerTranslation\Collection\ProductManufacturerTranslationDetailCollection;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\System\Language\Event\LanguageBasicLoadedEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\Event\ProductManufacturerBasicLoadedEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\Collection\ProductManufacturerTranslationDetailCollection;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
 
 class ProductManufacturerTranslationDetailLoadedEvent extends NestedEvent
 {
     public const NAME = 'product_manufacturer_translation.detail.loaded';
 
     /**
-     * @var ApplicationContext
+     * @var Context
      */
     protected $context;
 
@@ -23,7 +23,7 @@ class ProductManufacturerTranslationDetailLoadedEvent extends NestedEvent
      */
     protected $productManufacturerTranslations;
 
-    public function __construct(ProductManufacturerTranslationDetailCollection $productManufacturerTranslations, ApplicationContext $context)
+    public function __construct(ProductManufacturerTranslationDetailCollection $productManufacturerTranslations, Context $context)
     {
         $this->context = $context;
         $this->productManufacturerTranslations = $productManufacturerTranslations;
@@ -34,7 +34,7 @@ class ProductManufacturerTranslationDetailLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Plugin;
+namespace Shopware\Core\Framework\Plugin;
 
 use Closure;
 

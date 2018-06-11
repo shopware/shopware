@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Listing\Event;
+namespace Shopware\Core\System\Listing\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\System\Listing\Struct\ListingFacetSearchResult;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\System\Listing\Struct\ListingFacetSearchResult;
 
 class ListingFacetSearchResultLoadedEvent extends NestedEvent
 {
@@ -25,7 +25,7 @@ class ListingFacetSearchResultLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->result->getContext();
     }

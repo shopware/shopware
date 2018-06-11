@@ -1,26 +1,26 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Tax\Aggregate\TaxAreaRule\Event;
+namespace Shopware\Core\System\Tax\Aggregate\TaxAreaRule\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\System\Tax\Aggregate\TaxAreaRule\Collection\TaxAreaRuleBasicCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\Collection\TaxAreaRuleBasicCollection;
 
 class TaxAreaRuleBasicLoadedEvent extends NestedEvent
 {
     public const NAME = 'tax_area_rule.basic.loaded';
 
     /**
-     * @var ApplicationContext
+     * @var Context
      */
     protected $context;
 
     /**
-     * @var \Shopware\System\Tax\Aggregate\TaxAreaRule\Collection\TaxAreaRuleBasicCollection
+     * @var \Shopware\Core\System\Tax\Aggregate\TaxAreaRule\Collection\TaxAreaRuleBasicCollection
      */
     protected $taxAreaRules;
 
-    public function __construct(TaxAreaRuleBasicCollection $taxAreaRules, ApplicationContext $context)
+    public function __construct(TaxAreaRuleBasicCollection $taxAreaRules, Context $context)
     {
         $this->context = $context;
         $this->taxAreaRules = $taxAreaRules;
@@ -31,7 +31,7 @@ class TaxAreaRuleBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }

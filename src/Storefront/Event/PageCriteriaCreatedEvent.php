@@ -2,10 +2,10 @@
 
 namespace Shopware\Storefront\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Storefront\Page\Listing\ListingPageRequest;
 
 class PageCriteriaCreatedEvent extends NestedEvent
@@ -18,7 +18,7 @@ class PageCriteriaCreatedEvent extends NestedEvent
     protected $criteria;
 
     /**
-     * @var StorefrontContext
+     * @var \Shopware\Core\Checkout\CheckoutContext
      */
     protected $context;
 
@@ -27,7 +27,7 @@ class PageCriteriaCreatedEvent extends NestedEvent
      */
     protected $request;
 
-    public function __construct(Criteria $criteria, StorefrontContext $context, ListingPageRequest $request)
+    public function __construct(Criteria $criteria, CheckoutContext $context, ListingPageRequest $request)
     {
         $this->criteria = $criteria;
         $this->context = $context;
@@ -39,12 +39,12 @@ class PageCriteriaCreatedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
-        return $this->context->getApplicationContext();
+        return $this->context->getContext();
     }
 
-    public function getStorefrontContext(): StorefrontContext
+    public function getStorefrontContext(): CheckoutContext
     {
         return $this->context;
     }

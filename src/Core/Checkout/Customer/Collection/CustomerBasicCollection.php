@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Customer\Collection;
+namespace Shopware\Core\Checkout\Customer\Collection;
 
-use Shopware\Application\Application\Collection\ApplicationBasicCollection;
-use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Collection\CustomerAddressBasicCollection;
-use Shopware\Checkout\Customer\Aggregate\CustomerGroup\Collection\CustomerGroupBasicCollection;
-use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
-use Shopware\Checkout\Payment\Collection\PaymentMethodBasicCollection;
-use Shopware\Framework\ORM\EntityCollection;
+use Shopware\Core\System\Touchpoint\Collection\TouchpointBasicCollection;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Collection\CustomerAddressBasicCollection;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\Collection\CustomerGroupBasicCollection;
+use Shopware\Core\Checkout\Customer\Struct\CustomerBasicStruct;
+use Shopware\Core\Checkout\Payment\Collection\PaymentMethodBasicCollection;
+use Shopware\Core\Framework\ORM\EntityCollection;
 
 class CustomerBasicCollection extends EntityCollection
 {
@@ -54,17 +54,17 @@ class CustomerBasicCollection extends EntityCollection
         });
     }
 
-    public function getApplicationIds(): array
+    public function getTouchpointIds(): array
     {
         return $this->fmap(function (CustomerBasicStruct $customer) {
-            return $customer->getApplicationId();
+            return $customer->getTouchpointId();
         });
     }
 
-    public function filterByApplicationId(string $id): self
+    public function filterByTouchpointId(string $id): self
     {
         return $this->filter(function (CustomerBasicStruct $customer) use ($id) {
-            return $customer->getApplicationId() === $id;
+            return $customer->getTouchpointId() === $id;
         });
     }
 
@@ -142,11 +142,11 @@ class CustomerBasicCollection extends EntityCollection
         );
     }
 
-    public function getApplications(): ApplicationBasicCollection
+    public function getTouchpoints(): TouchpointBasicCollection
     {
-        return new ApplicationBasicCollection(
+        return new TouchpointBasicCollection(
             $this->fmap(function (CustomerBasicStruct $customer) {
-                return $customer->getApplication();
+                return $customer->getTouchpoint();
             })
         );
     }

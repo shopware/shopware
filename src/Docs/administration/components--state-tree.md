@@ -1,4 +1,4 @@
-# Shopware Backend components state tree
+# Shopware\Core Backend components state tree
 
 ## Usage
 Register your own state tree using the method `Shopware.State.register`, see the full documentation on how to create a state

@@ -1,17 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Country\Aggregate\CountryArea\Event;
+namespace Shopware\Core\System\Country\Aggregate\CountryArea\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\System\Country\Aggregate\CountryArea\Collection\CountryAreaBasicCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\System\Country\Aggregate\CountryArea\Collection\CountryAreaBasicCollection;
 
 class CountryAreaBasicLoadedEvent extends NestedEvent
 {
     public const NAME = 'country_area.basic.loaded';
 
     /**
-     * @var ApplicationContext
+     * @var Context
      */
     protected $context;
 
@@ -20,7 +20,7 @@ class CountryAreaBasicLoadedEvent extends NestedEvent
      */
     protected $countryAreas;
 
-    public function __construct(CountryAreaBasicCollection $countryAreas, ApplicationContext $context)
+    public function __construct(CountryAreaBasicCollection $countryAreas, Context $context)
     {
         $this->context = $context;
         $this->countryAreas = $countryAreas;
@@ -31,7 +31,7 @@ class CountryAreaBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }

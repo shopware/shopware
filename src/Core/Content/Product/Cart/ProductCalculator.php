@@ -23,18 +23,18 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Content\Product\Cart;
+namespace Shopware\Core\Content\Product\Cart;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\Checkout\Cart\LineItem\CalculatedLineItem;
-use Shopware\Checkout\Cart\LineItem\CalculatedLineItemCollection;
-use Shopware\Checkout\Cart\LineItem\LineItemCollection;
-use Shopware\Checkout\Cart\LineItem\LineItemInterface;
-use Shopware\Checkout\Cart\Price\PriceCalculator;
-use Shopware\Checkout\Cart\Price\Struct\PriceDefinition;
-use Shopware\Content\Product\Cart\Struct\CalculatedProduct;
-use Shopware\Content\Product\Struct\ProductBasicStruct;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItem;
+use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItemCollection;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemInterface;
+use Shopware\Core\Checkout\Cart\Price\PriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinition;
+use Shopware\Core\Content\Product\Cart\Struct\CalculatedProduct;
+use Shopware\Core\Content\Product\Struct\ProductBasicStruct;
+use Shopware\Core\Framework\Struct\StructCollection;
 
 class ProductCalculator
 {
@@ -50,7 +50,7 @@ class ProductCalculator
 
     public function calculate(
         LineItemCollection $collection,
-        StorefrontContext $context,
+        CheckoutContext $context,
         StructCollection $dataCollection
     ): CalculatedLineItemCollection {
         $products = new CalculatedLineItemCollection();
@@ -74,7 +74,7 @@ class ProductCalculator
             $priceDefinition = $lineItem->getPriceDefinition();
             if (!$priceDefinition) {
                 $priceDefinition = $product->getPriceDefinitionForQuantity(
-                    $context->getApplicationContext(),
+                    $context->getContext(),
                     $lineItem->getQuantity()
                 );
             }
@@ -103,13 +103,13 @@ class ProductCalculator
                     continue;
                 }
 
-                /** @var \Shopware\Content\Product\Aggregate\ProductService\Struct\ProductServiceBasicStruct $service */
+                /** @var \Shopware\Core\Content\Product\Aggregate\ProductService\Struct\ProductServiceBasicStruct $service */
                 $service = $dataCollection->get($serviceId);
                 if (!$service) {
                     continue;
                 }
 
-                $priceDefinition = $service->getPriceDefinition($lineItem->getQuantity(), $context->getApplicationContext());
+                $priceDefinition = $service->getPriceDefinition($lineItem->getQuantity(), $context->getContext());
                 $price = $this->priceCalculator->calculate($priceDefinition, $context);
 
                 $calculatedProduct->addChild(

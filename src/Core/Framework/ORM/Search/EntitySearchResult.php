@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Search;
+namespace Shopware\Core\Framework\ORM\Search;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\ORM\EntityCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\EntityCollection;
 
 class EntitySearchResult
 {
@@ -28,7 +28,7 @@ class EntitySearchResult
     protected $criteria;
 
     /**
-     * @var ApplicationContext
+     * @var Context
      */
     protected $context;
 
@@ -37,7 +37,7 @@ class EntitySearchResult
         EntityCollection $entities,
         AggregatorResult $aggregations,
         Criteria $criteria,
-        ApplicationContext $context
+        Context $context
     ) {
         $this->total = $total;
         $this->entities = $entities;

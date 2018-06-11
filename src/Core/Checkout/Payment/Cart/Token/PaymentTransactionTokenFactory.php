@@ -1,15 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Payment\Cart\Token;
+namespace Shopware\Core\Checkout\Payment\Cart\Token;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Checkout\Order\Aggregate\OrderTransaction\Struct\OrderTransactionBasicStruct;
-use Shopware\Checkout\Payment\Exception\InvalidTokenException;
-use Shopware\Checkout\Payment\Exception\TokenExpiredException;
-use Shopware\Framework\Struct\Uuid;
-use Shopware\Framework\Util\Random;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\Struct\OrderTransactionBasicStruct;
+use Shopware\Core\Checkout\Payment\Exception\InvalidTokenException;
+use Shopware\Core\Checkout\Payment\Exception\TokenExpiredException;
+use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Util\Random;
 
 class PaymentTransactionTokenFactory implements PaymentTransactionTokenFactoryInterface
 {
@@ -23,7 +23,7 @@ class PaymentTransactionTokenFactory implements PaymentTransactionTokenFactoryIn
         $this->connection = $connection;
     }
 
-    public function generateToken(OrderTransactionBasicStruct $transaction, ApplicationContext $context): string
+    public function generateToken(OrderTransactionBasicStruct $transaction, Context $context): string
     {
         $expires = (new \DateTime())->modify('+30 minutes');
 
@@ -55,7 +55,7 @@ class PaymentTransactionTokenFactory implements PaymentTransactionTokenFactoryIn
      * @throws InvalidTokenException
      * @throws TokenExpiredException
      */
-    public function validateToken(string $token, ApplicationContext $context): TokenStruct
+    public function validateToken(string $token, Context $context): TokenStruct
     {
         $row = $this->connection->fetchAssoc(
             'SELECT * FROM payment_token WHERE token = :token AND tenant_id = :tenant',
@@ -85,7 +85,7 @@ class PaymentTransactionTokenFactory implements PaymentTransactionTokenFactoryIn
      * @throws InvalidTokenException
      * @throws InvalidArgumentException
      */
-    public function invalidateToken(string $token, ApplicationContext $context): bool
+    public function invalidateToken(string $token, Context $context): bool
     {
         $affectedRows = $this->connection->delete(
             'payment_token',

@@ -24,7 +24,7 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Framework\Filesystem\Adapter;
+namespace Shopware\Core\Framework\Filesystem\Adapter;
 
 use Google\Cloud\Storage\StorageClient;
 use League\Flysystem\AdapterInterface;

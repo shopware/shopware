@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Shipping\Struct;
+namespace Shopware\Core\Checkout\Shipping\Struct;
 
-use Shopware\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Collection\ShippingMethodTranslationBasicCollection;
+use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Collection\ShippingMethodTranslationBasicCollection;
 
 class ShippingMethodDetailStruct extends ShippingMethodBasicStruct
 {

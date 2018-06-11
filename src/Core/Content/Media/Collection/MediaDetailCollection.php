@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Media\Collection;
+namespace Shopware\Core\Content\Media\Collection;
 
-use Shopware\Content\Media\Aggregate\MediaTranslation\Collection\MediaTranslationBasicCollection;
-use Shopware\Content\Media\Struct\MediaDetailStruct;
-use Shopware\System\User\Collection\UserBasicCollection;
+use Shopware\Core\Content\Media\Aggregate\MediaTranslation\Collection\MediaTranslationBasicCollection;
+use Shopware\Core\Content\Media\Struct\MediaDetailStruct;
+use Shopware\Core\System\User\Collection\UserBasicCollection;
 
 class MediaDetailCollection extends MediaBasicCollection
 {

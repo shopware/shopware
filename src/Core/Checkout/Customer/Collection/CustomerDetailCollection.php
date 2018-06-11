@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Customer\Collection;
+namespace Shopware\Core\Checkout\Customer\Collection;
 
-use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Collection\CustomerAddressBasicCollection;
-use Shopware\Checkout\Customer\Struct\CustomerDetailStruct;
-use Shopware\Checkout\Order\Collection\OrderBasicCollection;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Collection\CustomerAddressBasicCollection;
+use Shopware\Core\Checkout\Customer\Struct\CustomerDetailStruct;
+use Shopware\Core\Checkout\Order\Collection\OrderBasicCollection;
 
 class CustomerDetailCollection extends CustomerBasicCollection
 {

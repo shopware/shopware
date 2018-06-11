@@ -1,17 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Order\Aggregate\OrderState\Event;
+namespace Shopware\Core\Checkout\Order\Aggregate\OrderState\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Checkout\Order\Aggregate\OrderState\Struct\OrderStateSearchResult;
-use Shopware\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Order\Aggregate\OrderState\Struct\OrderStateSearchResult;
+use Shopware\Core\Framework\Event\NestedEvent;
 
 class OrderStateSearchResultLoadedEvent extends NestedEvent
 {
     public const NAME = 'order_state.search.result.loaded';
 
     /**
-     * @var \Shopware\Checkout\Order\Aggregate\OrderState\Struct\OrderStateSearchResult
+     * @var \Shopware\Core\Checkout\Order\Aggregate\OrderState\Struct\OrderStateSearchResult
      */
     protected $result;
 
@@ -25,7 +25,7 @@ class OrderStateSearchResultLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->result->getContext();
     }

@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Shipping\Aggregate\ShippingMethodPrice\Collection;
+namespace Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\Collection;
 
-use Shopware\Checkout\Shipping\Aggregate\ShippingMethodPrice\Struct\ShippingMethodPriceBasicStruct;
-use Shopware\Framework\ORM\EntityCollection;
+use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\Struct\ShippingMethodPriceBasicStruct;
+use Shopware\Core\Framework\ORM\EntityCollection;
 
 class ShippingMethodPriceBasicCollection extends EntityCollection
 {

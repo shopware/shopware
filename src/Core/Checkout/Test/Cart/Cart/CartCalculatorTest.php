@@ -22,21 +22,21 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Checkout\Test\Cart\Cart;
+namespace Shopware\Core\Checkout\Test\Cart\Cart;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\Checkout\Cart\Cart\CartProcessor;
-use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Checkout\Cart\Cart\Struct\Cart;
-use Shopware\Checkout\Cart\Delivery\Struct\DeliveryCollection;
-use Shopware\Checkout\Cart\LineItem\CalculatedLineItemCollection;
-use Shopware\Checkout\Cart\Price\AmountCalculator;
-use Shopware\Checkout\Cart\Price\Struct\CartPrice;
-use Shopware\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
-use Shopware\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Content\Product\Cart\ProductProcessor;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Checkout\Cart\Cart\CartProcessor;
+use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
+use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItemCollection;
+use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Content\Product\Cart\ProductProcessor;
+use Shopware\Core\Framework\Struct\StructCollection;
 
 class CartCalculatorTest extends TestCase
 {
@@ -68,7 +68,7 @@ class CartCalculatorTest extends TestCase
 
         $this->assertEquals(
             $cart,
-            $calculator->process($container, $this->createMock(StorefrontContext::class), new StructCollection())
+            $calculator->process($container, $this->createMock(CheckoutContext::class), new StructCollection())
         );
     }
 }

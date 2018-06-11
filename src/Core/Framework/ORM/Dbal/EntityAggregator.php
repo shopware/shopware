@@ -1,28 +1,28 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Dbal;
+namespace Shopware\Core\Framework\ORM\Dbal;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\Read\EntityReaderInterface;
-use Shopware\Framework\ORM\Search\Aggregation\Aggregation;
-use Shopware\Framework\ORM\Search\Aggregation\AggregationResult;
-use Shopware\Framework\ORM\Search\Aggregation\AggregationResultCollection;
-use Shopware\Framework\ORM\Search\Aggregation\AvgAggregation;
-use Shopware\Framework\ORM\Search\Aggregation\CardinalityAggregation;
-use Shopware\Framework\ORM\Search\Aggregation\CountAggregation;
-use Shopware\Framework\ORM\Search\Aggregation\EntityAggregation;
-use Shopware\Framework\ORM\Search\Aggregation\MaxAggregation;
-use Shopware\Framework\ORM\Search\Aggregation\MinAggregation;
-use Shopware\Framework\ORM\Search\Aggregation\StatsAggregation;
-use Shopware\Framework\ORM\Search\Aggregation\SumAggregation;
-use Shopware\Framework\ORM\Search\Aggregation\ValueCountAggregation;
-use Shopware\Framework\ORM\Search\AggregatorResult;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
-use Shopware\Framework\ORM\Search\Parser\SqlQueryParser;
-use Shopware\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Core\Framework\ORM\Search\Aggregation\Aggregation;
+use Shopware\Core\Framework\ORM\Search\Aggregation\AggregationResult;
+use Shopware\Core\Framework\ORM\Search\Aggregation\AggregationResultCollection;
+use Shopware\Core\Framework\ORM\Search\Aggregation\AvgAggregation;
+use Shopware\Core\Framework\ORM\Search\Aggregation\CardinalityAggregation;
+use Shopware\Core\Framework\ORM\Search\Aggregation\CountAggregation;
+use Shopware\Core\Framework\ORM\Search\Aggregation\EntityAggregation;
+use Shopware\Core\Framework\ORM\Search\Aggregation\MaxAggregation;
+use Shopware\Core\Framework\ORM\Search\Aggregation\MinAggregation;
+use Shopware\Core\Framework\ORM\Search\Aggregation\StatsAggregation;
+use Shopware\Core\Framework\ORM\Search\Aggregation\SumAggregation;
+use Shopware\Core\Framework\ORM\Search\Aggregation\ValueCountAggregation;
+use Shopware\Core\Framework\ORM\Search\AggregatorResult;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\ORM\Search\Parser\SqlQueryParser;
+use Shopware\Core\Framework\Struct\Uuid;
 
 /**
  * Allows to execute aggregated queries for all entities in the system
@@ -61,7 +61,7 @@ class EntityAggregator implements EntityAggregatorInterface
         $this->queryHelper = $queryHelper;
     }
 
-    public function aggregate(string $definition, Criteria $criteria, ApplicationContext $context): AggregatorResult
+    public function aggregate(string $definition, Criteria $criteria, Context $context): AggregatorResult
     {
         $aggregations = new AggregationResultCollection();
         foreach ($criteria->getAggregations() as $aggregation) {
@@ -77,7 +77,7 @@ class EntityAggregator implements EntityAggregatorInterface
         return new AggregatorResult($aggregations, $context, $criteria);
     }
 
-    private function createAggregationQuery(Aggregation $aggregation, string $definition, Criteria $criteria, ApplicationContext $context): QueryBuilder
+    private function createAggregationQuery(Aggregation $aggregation, string $definition, Criteria $criteria, Context $context): QueryBuilder
     {
         /** @var EntityDefinition $definition */
         $table = $definition::getEntityName();
@@ -113,7 +113,7 @@ class EntityAggregator implements EntityAggregatorInterface
         return $query;
     }
 
-    private function fetchAggregation(string $definition, QueryBuilder $query, Aggregation $aggregation, ApplicationContext $context)
+    private function fetchAggregation(string $definition, QueryBuilder $query, Aggregation $aggregation, Context $context)
     {
         /** @var EntityDefinition|string $definition */
         $accessor = $this->queryHelper->getFieldAccessor(

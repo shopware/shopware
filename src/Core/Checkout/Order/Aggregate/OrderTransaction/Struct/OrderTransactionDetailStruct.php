@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Order\Aggregate\OrderTransaction\Struct;
+namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\Struct;
 
-use Shopware\Checkout\Payment\Struct\PaymentMethodBasicStruct;
+use Shopware\Core\Checkout\Payment\Struct\PaymentMethodBasicStruct;
 
 class OrderTransactionDetailStruct extends OrderTransactionBasicStruct
 {

@@ -1,19 +1,19 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Shipping\Event;
+namespace Shopware\Core\Checkout\Shipping\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Checkout\Shipping\Aggregate\ShippingMethodPrice\Event\ShippingMethodPriceBasicLoadedEvent;
-use Shopware\Checkout\Shipping\Collection\ShippingMethodBasicCollection;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\Event\ShippingMethodPriceBasicLoadedEvent;
+use Shopware\Core\Checkout\Shipping\Collection\ShippingMethodBasicCollection;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
 
 class ShippingMethodBasicLoadedEvent extends NestedEvent
 {
     public const NAME = 'shipping_method.basic.loaded';
 
     /**
-     * @var ApplicationContext
+     * @var \Shopware\Core\Framework\Context
      */
     protected $context;
 
@@ -22,7 +22,7 @@ class ShippingMethodBasicLoadedEvent extends NestedEvent
      */
     protected $shippingMethods;
 
-    public function __construct(ShippingMethodBasicCollection $shippingMethods, ApplicationContext $context)
+    public function __construct(ShippingMethodBasicCollection $shippingMethods, Context $context)
     {
         $this->context = $context;
         $this->shippingMethods = $shippingMethods;
@@ -33,7 +33,7 @@ class ShippingMethodBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }

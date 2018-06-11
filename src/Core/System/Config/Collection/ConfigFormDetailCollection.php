@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Config\Collection;
+namespace Shopware\Core\System\Config\Collection;
 
-use Shopware\Framework\Plugin\Collection\PluginBasicCollection;
-use Shopware\System\Config\Aggregate\ConfigFormField\Collection\ConfigFormFieldBasicCollection;
-use Shopware\System\Config\Aggregate\ConfigFormTranslation\Collection\ConfigFormTranslationBasicCollection;
-use Shopware\System\Config\Struct\ConfigFormDetailStruct;
+use Shopware\Core\Framework\Plugin\Collection\PluginBasicCollection;
+use Shopware\Core\System\Config\Aggregate\ConfigFormField\Collection\ConfigFormFieldBasicCollection;
+use Shopware\Core\System\Config\Aggregate\ConfigFormTranslation\Collection\ConfigFormTranslationBasicCollection;
+use Shopware\Core\System\Config\Struct\ConfigFormDetailStruct;
 
 class ConfigFormDetailCollection extends ConfigFormBasicCollection
 {

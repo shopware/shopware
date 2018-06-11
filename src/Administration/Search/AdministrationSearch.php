@@ -2,22 +2,22 @@
 
 namespace Shopware\Administration\Search;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Checkout\Customer\CustomerDefinition;
-use Shopware\Checkout\Order\OrderDefinition;
-use Shopware\Content\Product\ProductDefinition;
-use Shopware\Framework\ORM\Entity;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\Query\TermQuery;
-use Shopware\Framework\ORM\Search\Query\TermsQuery;
-use Shopware\Framework\ORM\Search\SearchResultInterface;
-use Shopware\Framework\ORM\Search\Sorting\FieldSorting;
-use Shopware\Framework\ORM\Search\Term\EntityScoreQueryBuilder;
-use Shopware\Framework\ORM\Search\Term\SearchTermInterpreter;
-use Shopware\Framework\ORM\Version\Repository\VersionCommitDataRepository;
-use Shopware\Framework\Struct\ArrayStruct;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Customer\CustomerDefinition;
+use Shopware\Core\Checkout\Order\OrderDefinition;
+use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Core\Framework\ORM\Search\Query\TermsQuery;
+use Shopware\Core\Framework\ORM\Search\SearchResultInterface;
+use Shopware\Core\Framework\ORM\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\ORM\Search\Term\EntityScoreQueryBuilder;
+use Shopware\Core\Framework\ORM\Search\Term\SearchTermInterpreter;
+use Shopware\Core\Framework\ORM\Version\Repository\VersionCommitDataRepository;
+use Shopware\Core\Framework\Struct\ArrayStruct;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class AdministrationSearch
@@ -54,7 +54,7 @@ class AdministrationSearch
         $this->changesRepository = $changesRepository;
     }
 
-    public function search(string $term, int $page, int $limit, ApplicationContext $context, string $userId): array
+    public function search(string $term, int $page, int $limit, Context $context, string $userId): array
     {
         $definitions = [
             ProductDefinition::class,
@@ -99,11 +99,11 @@ class AdministrationSearch
     /**
      * @param string|EntityDefinition $definition
      * @param string                  $term
-     * @param ApplicationContext      $context
+     * @param \Shopware\Core\Framework\Context      $context
      *
      * @return SearchResultInterface
      */
-    private function searchDefinition(string $definition, string $term, ApplicationContext $context): SearchResultInterface
+    private function searchDefinition(string $definition, string $term, Context $context): SearchResultInterface
     {
         $repository = $this->container->get($definition::getRepositoryClass());
 
@@ -127,7 +127,7 @@ class AdministrationSearch
      *
      * @return array
      */
-    private function applyAuditLog(array $results, string $userId, ApplicationContext $context): array
+    private function applyAuditLog(array $results, string $userId, Context $context): array
     {
         $criteria = new Criteria();
         $criteria->addFilter(

@@ -2,7 +2,7 @@
     'use strict';
 
     /**
-     * Shopware Add Article Plugin
+     * Shopware\Core Add Article Plugin
      *
      * @example Button Element (can be pretty much every element)
      *

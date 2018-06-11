@@ -1,14 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Media\Aggregate\MediaAlbum\Collection;
+namespace Shopware\Core\Content\Media\Aggregate\MediaAlbum\Collection;
 
-use Shopware\Content\Media\Aggregate\MediaAlbum\Struct\MediaAlbumDetailStruct;
-use Shopware\Content\Media\Collection\MediaBasicCollection;
+use Shopware\Core\Content\Media\Aggregate\MediaAlbum\Struct\MediaAlbumDetailStruct;
+use Shopware\Core\Content\Media\Collection\MediaBasicCollection;
 
 class MediaAlbumDetailCollection extends MediaAlbumBasicCollection
 {
     /**
-     * @var \Shopware\Content\Media\Aggregate\MediaAlbum\Struct\MediaAlbumDetailStruct[]
+     * @var \Shopware\Core\Content\Media\Aggregate\MediaAlbum\Struct\MediaAlbumDetailStruct[]
      */
     protected $elements = [];
 
@@ -77,9 +77,9 @@ class MediaAlbumDetailCollection extends MediaAlbumBasicCollection
         return $ids;
     }
 
-    public function getTranslations(): \Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Collection\MediaAlbumTranslationBasicCollection
+    public function getTranslations(): \Shopware\Core\Content\Media\Aggregate\MediaAlbumTranslation\Collection\MediaAlbumTranslationBasicCollection
     {
-        $collection = new \Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Collection\MediaAlbumTranslationBasicCollection();
+        $collection = new \Shopware\Core\Content\Media\Aggregate\MediaAlbumTranslation\Collection\MediaAlbumTranslationBasicCollection();
         foreach ($this->elements as $element) {
             $collection->fill($element->getTranslations()->getElements());
         }

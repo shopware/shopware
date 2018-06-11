@@ -1,19 +1,19 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Snippet\Event;
+namespace Shopware\Core\System\Snippet\Event;
 
-use Shopware\Application\Application\Event\ApplicationBasicLoadedEvent;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\System\Snippet\Collection\SnippetDetailCollection;
+use Shopware\Core\System\Touchpoint\Event\TouchpointBasicLoadedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\System\Snippet\Collection\SnippetDetailCollection;
 
 class SnippetDetailLoadedEvent extends NestedEvent
 {
     public const NAME = 'snippet.detail.loaded';
 
     /**
-     * @var ApplicationContext
+     * @var Context
      */
     protected $context;
 
@@ -22,7 +22,7 @@ class SnippetDetailLoadedEvent extends NestedEvent
      */
     protected $snippets;
 
-    public function __construct(SnippetDetailCollection $snippets, ApplicationContext $context)
+    public function __construct(SnippetDetailCollection $snippets, Context $context)
     {
         $this->context = $context;
         $this->snippets = $snippets;
@@ -33,7 +33,7 @@ class SnippetDetailLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }
@@ -46,8 +46,8 @@ class SnippetDetailLoadedEvent extends NestedEvent
     public function getEvents(): ?NestedEventCollection
     {
         $events = [];
-        if ($this->snippets->getApplications()->count() > 0) {
-            $events[] = new ApplicationBasicLoadedEvent($this->snippets->getApplications(), $this->context);
+        if ($this->snippets->getTouchpoints()->count() > 0) {
+            $events[] = new TouchpointBasicLoadedEvent($this->snippets->getTouchpoints(), $this->context);
         }
 
         return new NestedEventCollection($events);

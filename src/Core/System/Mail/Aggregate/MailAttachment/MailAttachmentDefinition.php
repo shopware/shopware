@@ -1,28 +1,28 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Mail\Aggregate\MailAttachment;
+namespace Shopware\Core\System\Mail\Aggregate\MailAttachment;
 
-use Shopware\Content\Media\MediaDefinition;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\EntityExtensionInterface;
-use Shopware\Framework\ORM\Field\DateField;
-use Shopware\Framework\ORM\Field\FkField;
-use Shopware\Framework\ORM\Field\IdField;
-use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
-use Shopware\Framework\ORM\Field\ReferenceVersionField;
-use Shopware\Framework\ORM\Field\TenantIdField;
-use Shopware\Framework\ORM\Field\VersionField;
-use Shopware\Framework\ORM\FieldCollection;
-use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
-use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\Framework\ORM\Write\Flag\SearchRanking;
-use Shopware\System\Mail\Aggregate\MailAttachment\Collection\MailAttachmentBasicCollection;
-use Shopware\System\Mail\Aggregate\MailAttachment\Collection\MailAttachmentDetailCollection;
-use Shopware\System\Mail\Aggregate\MailAttachment\Event\MailAttachmentDeletedEvent;
-use Shopware\System\Mail\Aggregate\MailAttachment\Event\MailAttachmentWrittenEvent;
-use Shopware\System\Mail\Aggregate\MailAttachment\Struct\MailAttachmentBasicStruct;
-use Shopware\System\Mail\Aggregate\MailAttachment\Struct\MailAttachmentDetailStruct;
-use Shopware\System\Mail\MailDefinition;
+use Shopware\Core\Content\Media\MediaDefinition;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+use Shopware\Core\Framework\ORM\Field\DateField;
+use Shopware\Core\Framework\ORM\Field\FkField;
+use Shopware\Core\Framework\ORM\Field\IdField;
+use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
+use Shopware\Core\Framework\ORM\Field\TenantIdField;
+use Shopware\Core\Framework\ORM\Field\VersionField;
+use Shopware\Core\Framework\ORM\FieldCollection;
+use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
+use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
+use Shopware\Core\System\Mail\Aggregate\MailAttachment\Collection\MailAttachmentBasicCollection;
+use Shopware\Core\System\Mail\Aggregate\MailAttachment\Collection\MailAttachmentDetailCollection;
+use Shopware\Core\System\Mail\Aggregate\MailAttachment\Event\MailAttachmentDeletedEvent;
+use Shopware\Core\System\Mail\Aggregate\MailAttachment\Event\MailAttachmentWrittenEvent;
+use Shopware\Core\System\Mail\Aggregate\MailAttachment\Struct\MailAttachmentBasicStruct;
+use Shopware\Core\System\Mail\Aggregate\MailAttachment\Struct\MailAttachmentDetailStruct;
+use Shopware\Core\System\Mail\MailDefinition;
 
 class MailAttachmentDefinition extends EntityDefinition
 {

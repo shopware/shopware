@@ -23,13 +23,13 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Checkout\Cart\Tax;
+namespace Shopware\Core\Checkout\Cart\Tax;
 
-use Shopware\Checkout\Cart\Exception\TaxRuleNotSupportedException;
-use Shopware\Checkout\Cart\Price\PriceRounding;
-use Shopware\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
-use Shopware\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Checkout\Cart\Tax\Struct\TaxRuleInterface;
+use Shopware\Core\Checkout\Cart\Exception\TaxRuleNotSupportedException;
+use Shopware\Core\Checkout\Cart\Price\PriceRounding;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleInterface;
 
 class TaxCalculator
 {

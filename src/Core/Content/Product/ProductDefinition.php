@@ -1,65 +1,65 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product;
+namespace Shopware\Core\Content\Product;
 
-use Shopware\Content\Category\CategoryDefinition;
-use Shopware\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
-use Shopware\Content\Product\Aggregate\ProductCategoryTree\ProductCategoryTreeDefinition;
-use Shopware\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorDefinition;
-use Shopware\Content\Product\Aggregate\ProductContextPrice\ProductContextPriceDefinition;
-use Shopware\Content\Product\Aggregate\ProductDatasheet\ProductDatasheetDefinition;
-use Shopware\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
-use Shopware\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition;
-use Shopware\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordDefinition;
-use Shopware\Content\Product\Aggregate\ProductSeoCategory\ProductSeoCategoryDefinition;
-use Shopware\Content\Product\Aggregate\ProductService\ProductServiceDefinition;
-use Shopware\Content\Product\Aggregate\ProductStream\ProductStreamDefinition;
-use Shopware\Content\Product\Aggregate\ProductStreamAssignment\ProductStreamAssignmentDefinition;
-use Shopware\Content\Product\Aggregate\ProductStreamTab\ProductStreamTabDefinition;
-use Shopware\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
-use Shopware\Content\Product\Aggregate\ProductVariation\ProductVariationDefinition;
-use Shopware\Content\Product\Collection\ProductBasicCollection;
-use Shopware\Content\Product\Collection\ProductDetailCollection;
-use Shopware\Content\Product\Event\ProductDeletedEvent;
-use Shopware\Content\Product\Event\ProductWrittenEvent;
-use Shopware\Content\Product\Struct\ProductBasicStruct;
-use Shopware\Content\Product\Struct\ProductDetailStruct;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\EntityExtensionInterface;
-use Shopware\Framework\ORM\Field\BoolField;
-use Shopware\Framework\ORM\Field\CatalogField;
-use Shopware\Framework\ORM\Field\ContextPricesJsonField;
-use Shopware\Framework\ORM\Field\DateField;
-use Shopware\Framework\ORM\Field\FkField;
-use Shopware\Framework\ORM\Field\FloatField;
-use Shopware\Framework\ORM\Field\IdField;
-use Shopware\Framework\ORM\Field\IntField;
-use Shopware\Framework\ORM\Field\JsonArrayField;
-use Shopware\Framework\ORM\Field\LongTextField;
-use Shopware\Framework\ORM\Field\LongTextWithHtmlField;
-use Shopware\Framework\ORM\Field\ManyToManyAssociationField;
-use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
-use Shopware\Framework\ORM\Field\OneToManyAssociationField;
-use Shopware\Framework\ORM\Field\PriceField;
-use Shopware\Framework\ORM\Field\ProductCoverField;
-use Shopware\Framework\ORM\Field\ReferenceVersionField;
-use Shopware\Framework\ORM\Field\StringField;
-use Shopware\Framework\ORM\Field\TenantIdField;
-use Shopware\Framework\ORM\Field\TranslatedField;
-use Shopware\Framework\ORM\Field\TranslationsAssociationField;
-use Shopware\Framework\ORM\Field\VersionField;
-use Shopware\Framework\ORM\FieldCollection;
-use Shopware\Framework\ORM\Write\EntityExistence;
-use Shopware\Framework\ORM\Write\Flag\CascadeDelete;
-use Shopware\Framework\ORM\Write\Flag\Inherited;
-use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
-use Shopware\Framework\ORM\Write\Flag\ReadOnly;
-use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\Framework\ORM\Write\Flag\SearchRanking;
-use Shopware\Framework\ORM\Write\Flag\WriteOnly;
-use Shopware\System\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
-use Shopware\System\Tax\TaxDefinition;
-use Shopware\System\Unit\UnitDefinition;
+use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductCategoryTree\ProductCategoryTreeDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductDatasheet\ProductDatasheetDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductSeoCategory\ProductSeoCategoryDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductStream\ProductStreamDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductStreamAssignment\ProductStreamAssignmentDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductStreamTab\ProductStreamTabDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductVariation\ProductVariationDefinition;
+use Shopware\Core\Content\Product\Collection\ProductBasicCollection;
+use Shopware\Core\Content\Product\Collection\ProductDetailCollection;
+use Shopware\Core\Content\Product\Event\ProductDeletedEvent;
+use Shopware\Core\Content\Product\Event\ProductWrittenEvent;
+use Shopware\Core\Content\Product\Struct\ProductBasicStruct;
+use Shopware\Core\Content\Product\Struct\ProductDetailStruct;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+use Shopware\Core\Framework\ORM\Field\BoolField;
+use Shopware\Core\Content\Catalog\ORM\CatalogField;
+use Shopware\Core\Framework\ORM\Field\PriceRulesJsonField;
+use Shopware\Core\Framework\ORM\Field\DateField;
+use Shopware\Core\Framework\ORM\Field\FkField;
+use Shopware\Core\Framework\ORM\Field\FloatField;
+use Shopware\Core\Framework\ORM\Field\IdField;
+use Shopware\Core\Framework\ORM\Field\IntField;
+use Shopware\Core\Framework\ORM\Field\JsonArrayField;
+use Shopware\Core\Framework\ORM\Field\LongTextField;
+use Shopware\Core\Framework\ORM\Field\LongTextWithHtmlField;
+use Shopware\Core\Framework\ORM\Field\ManyToManyAssociationField;
+use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\ORM\Field\PriceField;
+use Shopware\Core\Content\Product\ORM\Field\ProductCoverField;
+use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
+use Shopware\Core\Framework\ORM\Field\StringField;
+use Shopware\Core\Framework\ORM\Field\TenantIdField;
+use Shopware\Core\Framework\ORM\Field\TranslatedField;
+use Shopware\Core\Framework\ORM\Field\TranslationsAssociationField;
+use Shopware\Core\Framework\ORM\Field\VersionField;
+use Shopware\Core\Framework\ORM\FieldCollection;
+use Shopware\Core\Framework\ORM\Write\EntityExistence;
+use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
+use Shopware\Core\Framework\ORM\Write\Flag\Inherited;
+use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
+use Shopware\Core\Framework\ORM\Write\Flag\ReadOnly;
+use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
+use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
+use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
+use Shopware\Core\System\Tax\TaxDefinition;
+use Shopware\Core\System\Unit\UnitDefinition;
 
 class ProductDefinition extends EntityDefinition
 {
@@ -123,7 +123,7 @@ class ProductDefinition extends EntityDefinition
 
             //inherited data fields
             (new PriceField('price', 'price'))->setFlags(new Inherited(), new Required()),
-            (new ContextPricesJsonField('listing_prices', 'listingPrices'))->setFlags(new Inherited()),
+            (new PriceRulesJsonField('listing_prices', 'listingPrices'))->setFlags(new Inherited()),
             (new StringField('supplier_number', 'supplierNumber'))->setFlags(new Inherited(), new SearchRanking(self::LOW_SEARCH_RAKING)),
             (new StringField('ean', 'ean'))->setFlags(new Inherited(), new SearchRanking(self::LOW_SEARCH_RAKING)),
             (new BoolField('is_closeout', 'isCloseout'))->setFlags(new Inherited()),
@@ -172,7 +172,7 @@ class ProductDefinition extends EntityDefinition
             (new ManyToOneAssociationField('manufacturer', 'product_manufacturer_id', ProductManufacturerDefinition::class, true, 'id'))->setFlags(new Inherited(), new SearchRanking(self::ASSOCIATION_SEARCH_RANKING)),
             (new ManyToOneAssociationField('unit', 'unit_id', UnitDefinition::class, true, 'id'))->setFlags(new Inherited()),
             (new OneToManyAssociationField('media', ProductMediaDefinition::class, 'product_id', false))->setFlags(new CascadeDelete(), new Inherited()),
-            (new OneToManyAssociationField('contextPrices', ProductContextPriceDefinition::class, 'product_id', true))->setFlags(new CascadeDelete(), new Inherited()),
+            (new OneToManyAssociationField('priceRules', ProductPriceRuleDefinition::class, 'product_id', true))->setFlags(new CascadeDelete(), new Inherited()),
             (new OneToManyAssociationField('services', ProductServiceDefinition::class, 'product_id', false, 'id'))->setFlags(new CascadeDelete(), new Inherited()),
             (new ManyToManyAssociationField('datasheet', ConfigurationGroupOptionDefinition::class, ProductDatasheetDefinition::class, false, 'product_id', 'configuration_group_option_id'))->setFlags(new CascadeDelete(), new Inherited()),
             (new ManyToManyAssociationField('categories', CategoryDefinition::class, ProductCategoryDefinition::class, false, 'product_id', 'category_id'))->setFlags(new CascadeDelete(), new Inherited()),

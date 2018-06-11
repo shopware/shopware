@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Shipping\Aggregate\ShippingMethodPrice\Struct;
+namespace Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\Struct;
 
-use Shopware\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Entity;
 
 class ShippingMethodPriceBasicStruct extends Entity
 {

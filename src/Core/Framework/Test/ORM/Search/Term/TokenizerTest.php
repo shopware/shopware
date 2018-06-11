@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Test\ORM\Search\Term;
+namespace Shopware\Core\Framework\Test\ORM\Search\Term;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Framework\ORM\Search\Term\Tokenizer;
+use Shopware\Core\Framework\ORM\Search\Term\Tokenizer;
 
 class TokenizerTest extends TestCase
 {

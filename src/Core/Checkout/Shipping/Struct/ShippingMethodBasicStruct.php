@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Shipping\Struct;
+namespace Shopware\Core\Checkout\Shipping\Struct;
 
-use Shopware\Checkout\Shipping\Aggregate\ShippingMethodPrice\Collection\ShippingMethodPriceBasicCollection;
-use Shopware\Framework\ORM\Entity;
+use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\Collection\ShippingMethodPriceBasicCollection;
+use Shopware\Core\Framework\ORM\Entity;
 
 class ShippingMethodBasicStruct extends Entity
 {
@@ -138,7 +138,7 @@ class ShippingMethodBasicStruct extends Entity
     protected $comment;
 
     /**
-     * @var \Shopware\Checkout\Shipping\Aggregate\ShippingMethodPrice\Collection\ShippingMethodPriceBasicCollection
+     * @var \Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\Collection\ShippingMethodPriceBasicCollection
      */
     protected $prices;
 

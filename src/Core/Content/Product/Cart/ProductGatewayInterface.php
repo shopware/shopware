@@ -23,12 +23,12 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Content\Product\Cart;
+namespace Shopware\Core\Content\Product\Cart;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\Content\Product\Collection\ProductBasicCollection;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Content\Product\Collection\ProductBasicCollection;
 
 interface ProductGatewayInterface
 {
-    public function get(array $ids, StorefrontContext $context): ProductBasicCollection;
+    public function get(array $ids, CheckoutContext $context): ProductBasicCollection;
 }

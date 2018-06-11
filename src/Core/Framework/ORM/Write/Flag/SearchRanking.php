@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Write\Flag;
+namespace Shopware\Core\Framework\ORM\Write\Flag;
 
 /**
  * Defines the weight for a search query on the entity for this field

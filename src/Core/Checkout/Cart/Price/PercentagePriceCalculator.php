@@ -23,13 +23,13 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Checkout\Cart\Price;
+namespace Shopware\Core\Checkout\Cart\Price;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
-use Shopware\Checkout\Cart\Price\Struct\DerivedCalculatedPrice;
-use Shopware\Checkout\Cart\Price\Struct\PriceDefinition;
-use Shopware\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
+use Shopware\Core\Checkout\Cart\Price\Struct\DerivedCalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinition;
+use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
 
 class PercentagePriceCalculator
 {
@@ -63,14 +63,14 @@ class PercentagePriceCalculator
      *
      * @param float                     $percentage 10.00 for 10%, -10.0 for -10%
      * @param CalculatedPriceCollection $prices
-     * @param StorefrontContext         $context
+     * @param CheckoutContext         $context
      *
      * @return DerivedCalculatedPrice
      */
     public function calculate(
         $percentage,
         CalculatedPriceCollection $prices,
-        StorefrontContext $context
+        CheckoutContext $context
     ): DerivedCalculatedPrice {
         $price = $prices->sum();
 

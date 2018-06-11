@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Order\Aggregate\OrderAddress\Struct;
+namespace Shopware\Core\Checkout\Order\Aggregate\OrderAddress\Struct;
 
-use Shopware\Checkout\Order\Aggregate\OrderDelivery\Collection\OrderDeliveryBasicCollection;
-use Shopware\Checkout\Order\Collection\OrderBasicCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\Collection\OrderDeliveryBasicCollection;
+use Shopware\Core\Checkout\Order\Collection\OrderBasicCollection;
 
 class OrderAddressDetailStruct extends OrderAddressBasicStruct
 {
@@ -13,7 +13,7 @@ class OrderAddressDetailStruct extends OrderAddressBasicStruct
     protected $orders;
 
     /**
-     * @var \Shopware\Checkout\Order\Aggregate\OrderDelivery\Collection\OrderDeliveryBasicCollection
+     * @var \Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\Collection\OrderDeliveryBasicCollection
      */
     protected $orderDeliveries;
 

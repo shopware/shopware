@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Country\Aggregate\CountryTranslation\Collection;
+namespace Shopware\Core\System\Country\Aggregate\CountryTranslation\Collection;
 
-use Shopware\Framework\ORM\EntityCollection;
-use Shopware\System\Country\Aggregate\CountryTranslation\Struct\CountryTranslationBasicStruct;
+use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\System\Country\Aggregate\CountryTranslation\Struct\CountryTranslationBasicStruct;
 
 class CountryTranslationBasicCollection extends EntityCollection
 {

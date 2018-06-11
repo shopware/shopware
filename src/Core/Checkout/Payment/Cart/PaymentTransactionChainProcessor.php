@@ -1,19 +1,19 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Payment\Cart;
+namespace Shopware\Core\Checkout\Payment\Cart;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Checkout\Order\Aggregate\OrderTransaction\Collection\OrderTransactionBasicCollection;
-use Shopware\Checkout\Order\OrderRepository;
-use Shopware\Checkout\Order\Struct\OrderDetailStruct;
-use Shopware\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerInterface;
-use Shopware\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
-use Shopware\Checkout\Payment\Cart\Token\PaymentTransactionTokenFactory;
-use Shopware\Checkout\Payment\Cart\Token\PaymentTransactionTokenFactoryInterface;
-use Shopware\Checkout\Payment\Exception\InvalidOrderException;
-use Shopware\Checkout\Payment\Exception\UnknownPaymentMethodException;
-use Shopware\Checkout\Payment\PaymentMethodRepository;
-use Shopware\Defaults;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\Collection\OrderTransactionBasicCollection;
+use Shopware\Core\Checkout\Order\OrderRepository;
+use Shopware\Core\Checkout\Order\Struct\OrderDetailStruct;
+use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerInterface;
+use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
+use Shopware\Core\Checkout\Payment\Cart\Token\PaymentTransactionTokenFactory;
+use Shopware\Core\Checkout\Payment\Cart\Token\PaymentTransactionTokenFactoryInterface;
+use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
+use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
+use Shopware\Core\Checkout\Payment\PaymentMethodRepository;
+use Shopware\Core\Defaults;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
@@ -61,14 +61,14 @@ class PaymentTransactionChainProcessor
 
     /**
      * @param string             $orderId
-     * @param ApplicationContext $context
+     * @param Context $context
      *
      * @throws InvalidOrderException
      * @throws UnknownPaymentMethodException
      *
      * @return null|RedirectResponse
      */
-    public function process(string $orderId, ApplicationContext $context): ?RedirectResponse
+    public function process(string $orderId, Context $context): ?RedirectResponse
     {
         /** @var OrderDetailStruct $order */
         $order = $this->orderRepository->readDetail([$orderId], $context)->first();
@@ -104,7 +104,7 @@ class PaymentTransactionChainProcessor
         return null;
     }
 
-    private function getPaymentHandlerById(string $paymentMethodId, ApplicationContext $context): PaymentHandlerInterface
+    private function getPaymentHandlerById(string $paymentMethodId, Context $context): PaymentHandlerInterface
     {
         $paymentMethods = $this->paymentMethodRepository->readBasic([$paymentMethodId], $context);
 

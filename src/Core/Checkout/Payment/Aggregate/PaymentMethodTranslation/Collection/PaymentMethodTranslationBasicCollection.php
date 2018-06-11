@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation\Collection;
+namespace Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\Collection;
 
-use Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation\Struct\PaymentMethodTranslationBasicStruct;
-use Shopware\Framework\ORM\EntityCollection;
+use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\Struct\PaymentMethodTranslationBasicStruct;
+use Shopware\Core\Framework\ORM\EntityCollection;
 
 class PaymentMethodTranslationBasicCollection extends EntityCollection
 {

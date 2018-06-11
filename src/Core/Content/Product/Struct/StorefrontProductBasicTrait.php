@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Struct;
+namespace Shopware\Core\Content\Product\Struct;
 
-use Shopware\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
 
 trait StorefrontProductBasicTrait
 {
@@ -15,7 +15,7 @@ trait StorefrontProductBasicTrait
     /**
      * @var CalculatedPriceCollection
      */
-    protected $calculatedContextPrices;
+    protected $calculatedPriceRules;
 
     /**
      * @var CalculatedPrice
@@ -41,14 +41,14 @@ trait StorefrontProductBasicTrait
         $this->calculatedListingPrice = $calculatedListingPrice;
     }
 
-    public function setCalculatedContextPrices(CalculatedPriceCollection $prices): void
+    public function setCalculatedPriceRules(CalculatedPriceCollection $prices): void
     {
-        $this->calculatedContextPrices = $prices;
+        $this->calculatedPriceRules = $prices;
     }
 
-    public function getCalculatedContextPrices(): CalculatedPriceCollection
+    public function getCalculatedPriceRules(): CalculatedPriceCollection
     {
-        return $this->calculatedContextPrices;
+        return $this->calculatedPriceRules;
     }
 
     public function getCalculatedPrice(): CalculatedPrice

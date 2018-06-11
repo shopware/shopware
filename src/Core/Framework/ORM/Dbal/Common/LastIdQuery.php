@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Dbal\Common;
+namespace Shopware\Core\Framework\ORM\Dbal\Common;
 
 use Doctrine\DBAL\Query\QueryBuilder;
 
@@ -14,9 +14,6 @@ class LastIdQuery implements IterableQuery
      */
     private $query;
 
-    /**
-     * @param QueryBuilder $query
-     */
     public function __construct(QueryBuilder $query)
     {
         $this->query = $query;

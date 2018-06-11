@@ -1,22 +1,22 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Customer\Event;
+namespace Shopware\Core\Checkout\Customer\Event;
 
-use Shopware\Application\Application\Event\ApplicationBasicLoadedEvent;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Event\CustomerAddressBasicLoadedEvent;
-use Shopware\Checkout\Customer\Aggregate\CustomerGroup\Event\CustomerGroupBasicLoadedEvent;
-use Shopware\Checkout\Customer\Collection\CustomerBasicCollection;
-use Shopware\Checkout\Payment\Event\PaymentMethodBasicLoadedEvent;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\Core\System\Touchpoint\Event\TouchpointBasicLoadedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Event\CustomerAddressBasicLoadedEvent;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\Event\CustomerGroupBasicLoadedEvent;
+use Shopware\Core\Checkout\Customer\Collection\CustomerBasicCollection;
+use Shopware\Core\Checkout\Payment\Event\PaymentMethodBasicLoadedEvent;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
 
 class CustomerBasicLoadedEvent extends NestedEvent
 {
     public const NAME = 'customer.basic.loaded';
 
     /**
-     * @var ApplicationContext
+     * @var \Shopware\Core\Framework\Context
      */
     protected $context;
 
@@ -25,7 +25,7 @@ class CustomerBasicLoadedEvent extends NestedEvent
      */
     protected $customers;
 
-    public function __construct(CustomerBasicCollection $customers, ApplicationContext $context)
+    public function __construct(CustomerBasicCollection $customers, Context $context)
     {
         $this->context = $context;
         $this->customers = $customers;
@@ -36,7 +36,7 @@ class CustomerBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }
@@ -55,8 +55,8 @@ class CustomerBasicLoadedEvent extends NestedEvent
         if ($this->customers->getDefaultPaymentMethods()->count() > 0) {
             $events[] = new PaymentMethodBasicLoadedEvent($this->customers->getDefaultPaymentMethods(), $this->context);
         }
-        if ($this->customers->getApplications()->count() > 0) {
-            $events[] = new ApplicationBasicLoadedEvent($this->customers->getApplications(), $this->context);
+        if ($this->customers->getTouchpoints()->count() > 0) {
+            $events[] = new TouchpointBasicLoadedEvent($this->customers->getTouchpoints(), $this->context);
         }
         if ($this->customers->getLastPaymentMethods()->count() > 0) {
             $events[] = new PaymentMethodBasicLoadedEvent($this->customers->getLastPaymentMethods(), $this->context);

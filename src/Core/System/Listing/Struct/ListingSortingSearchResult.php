@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Listing\Struct;
+namespace Shopware\Core\System\Listing\Struct;
 
-use Shopware\Framework\ORM\Search\SearchResultInterface;
-use Shopware\Framework\ORM\Search\SearchResultTrait;
-use Shopware\System\Listing\Collection\ListingSortingBasicCollection;
+use Shopware\Core\Framework\ORM\Search\SearchResultInterface;
+use Shopware\Core\Framework\ORM\Search\SearchResultTrait;
+use Shopware\Core\System\Listing\Collection\ListingSortingBasicCollection;
 
 class ListingSortingSearchResult extends ListingSortingBasicCollection implements SearchResultInterface
 {

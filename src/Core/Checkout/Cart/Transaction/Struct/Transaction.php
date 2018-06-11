@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Cart\Transaction\Struct;
+namespace Shopware\Core\Checkout\Cart\Transaction\Struct;
 
-use Shopware\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Framework\Struct\Struct;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Framework\Struct\Struct;
 
 class Transaction extends Struct
 {

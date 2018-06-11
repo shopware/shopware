@@ -2,12 +2,12 @@
 
 namespace Shopware\Storefront\Api\Entity\Dbal;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\ORM\Dbal\EntityDefinitionQueryHelper;
-use Shopware\Framework\ORM\Dbal\FieldResolver\FieldResolverInterface;
-use Shopware\Framework\ORM\Dbal\QueryBuilder;
-use Shopware\Framework\ORM\Field\Field;
-use Shopware\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Dbal\EntityDefinitionQueryHelper;
+use Shopware\Core\Framework\ORM\Dbal\FieldResolver\FieldResolverInterface;
+use Shopware\Core\Framework\ORM\Dbal\QueryBuilder;
+use Shopware\Core\Framework\ORM\Field\Field;
+use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Storefront\Api\Entity\Field\CanonicalUrlAssociationField;
 use Shopware\Storefront\Api\Seo\Definition\SeoUrlDefinition;
 
@@ -18,7 +18,7 @@ class CanonicalUrlAssociationFieldResolver implements FieldResolverInterface
         string $root,
         Field $field,
         QueryBuilder $query,
-        ApplicationContext $context,
+        Context $context,
         EntityDefinitionQueryHelper $queryHelper,
         bool $raw
     ): void {
@@ -50,13 +50,13 @@ class CanonicalUrlAssociationFieldResolver implements FieldResolverInterface
             str_replace(
                 array_keys($parameters),
                 array_values($parameters),
-                '#alias#.application_id = :applicationId
+                '#alias#.`touchpoint_id` = :touchpointId
                  AND #root#.#source_column# = #alias#.#reference_column# 
                  AND #alias#.name = :' . $key . '
                  AND #alias#.is_canonical = 1'
             )
         );
         $query->setParameter($key, $field->getRouteName());
-        $query->setParameter('applicationId', Uuid::fromStringToBytes($context->getApplicationId()));
+        $query->setParameter('touchpointId', Uuid::fromStringToBytes($context->getTouchpointId()));
     }
 }

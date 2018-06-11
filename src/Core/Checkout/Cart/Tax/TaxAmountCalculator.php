@@ -23,11 +23,11 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Checkout\Cart\Tax;
+namespace Shopware\Core\Checkout\Cart\Tax;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
-use Shopware\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 
 class TaxAmountCalculator implements TaxAmountCalculatorInterface
 {
@@ -59,13 +59,13 @@ class TaxAmountCalculator implements TaxAmountCalculatorInterface
         $this->taxDetector = $taxDetector;
     }
 
-    public function calculate(CalculatedPriceCollection $priceCollection, StorefrontContext $context): CalculatedTaxCollection
+    public function calculate(CalculatedPriceCollection $priceCollection, CheckoutContext $context): CalculatedTaxCollection
     {
         if ($this->taxDetector->isNetDelivery($context)) {
             return new CalculatedTaxCollection([]);
         }
 
-        if ($context->getApplication()->getTaxCalculationType() === self::CALCULATION_VERTICAL) {
+        if ($context->getTouchpoint()->getTaxCalculationType() === self::CALCULATION_VERTICAL) {
             return $priceCollection->getCalculatedTaxes();
         }
 

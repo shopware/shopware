@@ -23,17 +23,17 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Checkout\Cart\Cart;
+namespace Shopware\Core\Checkout\Cart\Cart;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Checkout\Cart\Cart\Struct\Cart;
-use Shopware\Checkout\Cart\Delivery\Struct\DeliveryCollection;
-use Shopware\Checkout\Cart\LineItem\CalculatedLineItemCollection;
-use Shopware\Checkout\Cart\LineItem\CalculatedLineItemInterface;
-use Shopware\Checkout\Cart\Price\AmountCalculator;
-use Shopware\Checkout\Cart\Transaction\Struct\TransactionCollection;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
+use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItemCollection;
+use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItemInterface;
+use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
+use Shopware\Core\Checkout\Cart\Transaction\Struct\TransactionCollection;
+use Shopware\Core\Framework\Struct\StructCollection;
 
 class CartProcessor
 {
@@ -53,7 +53,7 @@ class CartProcessor
         $this->calculator = $calculator;
     }
 
-    public function process(Cart $cart, StorefrontContext $context, StructCollection $dataCollection): CalculatedCart
+    public function process(Cart $cart, CheckoutContext $context, StructCollection $dataCollection): CalculatedCart
     {
         $lineItems = new CalculatedLineItemCollection(
             $cart->getLineItems()->filterInstance(CalculatedLineItemInterface::class)->getElements()
@@ -87,7 +87,7 @@ class CartProcessor
         DeliveryCollection $deliveries,
         Cart $container,
         TransactionCollection $transactions,
-        StorefrontContext $context
+        CheckoutContext $context
     ): CalculatedCart {
         $price = $this->calculator->calculateAmount(
             $lineItems->getPrices(),

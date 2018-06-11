@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Profiling\Dbal;
+namespace Shopware\Core\Profiling\Dbal;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\EntitySearcherInterface;
-use Shopware\Framework\ORM\Search\IdSearchResult;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\ORM\Search\IdSearchResult;
 use Symfony\Component\Stopwatch\Stopwatch;
 
 class TraceableEntitySearcher implements EntitySearcherInterface
@@ -27,7 +27,7 @@ class TraceableEntitySearcher implements EntitySearcherInterface
         $this->stopwatch = $stopwatch;
     }
 
-    public function search(string $definition, Criteria $criteria, ApplicationContext $context): IdSearchResult
+    public function search(string $definition, Criteria $criteria, Context $context): IdSearchResult
     {
         /** @var EntityDefinition $definition */
         $entity = $definition::getEntityName();

@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Write;
+namespace Shopware\Core\Framework\ORM\Write;
 
-use Shopware\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\EntityDefinition;
 
 /**
  * Defines the current state of an entity in relation to the parent-child inheritance and

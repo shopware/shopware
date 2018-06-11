@@ -23,7 +23,7 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Checkout\Cart\Price;
+namespace Shopware\Core\Checkout\Cart\Price;
 
 class PriceRounding
 {

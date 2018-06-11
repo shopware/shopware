@@ -2,7 +2,7 @@
     'use strict';
 
     /**
-     * Shopware Article Compare Add Plugin.
+     * Shopware\Core Article Compare Add Plugin.
      *
      * The plugin handles the compare add button on every product box.
      */

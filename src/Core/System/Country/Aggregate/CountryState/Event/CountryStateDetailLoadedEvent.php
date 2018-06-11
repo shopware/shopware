@@ -1,29 +1,29 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Country\Aggregate\CountryState\Event;
+namespace Shopware\Core\System\Country\Aggregate\CountryState\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\System\Country\Aggregate\CountryState\Collection\CountryStateDetailCollection;
-use Shopware\System\Country\Aggregate\CountryStateTranslation\Event\CountryStateTranslationBasicLoadedEvent;
-use Shopware\System\Country\Event\CountryBasicLoadedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\System\Country\Aggregate\CountryState\Collection\CountryStateDetailCollection;
+use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\Event\CountryStateTranslationBasicLoadedEvent;
+use Shopware\Core\System\Country\Event\CountryBasicLoadedEvent;
 
 class CountryStateDetailLoadedEvent extends NestedEvent
 {
     public const NAME = 'country_state.detail.loaded';
 
     /**
-     * @var ApplicationContext
+     * @var \Shopware\Core\Framework\Context
      */
     protected $context;
 
     /**
-     * @var \Shopware\System\Country\Aggregate\CountryState\Collection\CountryStateDetailCollection
+     * @var \Shopware\Core\System\Country\Aggregate\CountryState\Collection\CountryStateDetailCollection
      */
     protected $countryStates;
 
-    public function __construct(CountryStateDetailCollection $countryStates, ApplicationContext $context)
+    public function __construct(CountryStateDetailCollection $countryStates, Context $context)
     {
         $this->context = $context;
         $this->countryStates = $countryStates;
@@ -34,7 +34,7 @@ class CountryStateDetailLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }

@@ -22,7 +22,7 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Framework\ORM\Write\Flag;
+namespace Shopware\Core\Framework\ORM\Write\Flag;
 
 /**
  * Fields with this flag can not be written over the api

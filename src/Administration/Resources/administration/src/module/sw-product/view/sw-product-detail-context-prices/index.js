@@ -32,42 +32,42 @@ Component.register('sw-product-detail-context-prices', {
 
     data() {
         return {
-            contextRules: [],
-            totalContextRules: 0,
-            isLoadingContextRules: false
+            rules: [],
+            totalRules: 0,
+            isLoadingRules: false
         };
     },
 
     computed: {
-        contextPriceGroups() {
-            const contextPriceGroups = {};
+        priceRuleGroups() {
+            const priceRuleGroups = {};
 
-            this.product.contextPrices.forEach((ctx) => {
-                if (!contextPriceGroups[ctx.contextRuleId]) {
-                    contextPriceGroups[ctx.contextRuleId] = {
-                        contextRuleId: ctx.contextRuleId,
-                        contextRule: this.findContextRuleById(ctx.contextRuleId),
+            this.product.priceRules.forEach((ctx) => {
+                if (!priceRuleGroups[ctx.ruleId]) {
+                    priceRuleGroups[ctx.ruleId] = {
+                        ruleId: ctx.ruleId,
+                        rule: this.findRuleById(ctx.ruleId),
                         currencies: {}
                     };
                 }
 
-                if (!contextPriceGroups[ctx.contextRuleId].currencies[ctx.currencyId]) {
-                    contextPriceGroups[ctx.contextRuleId].currencies[ctx.currencyId] = {
+                if (!priceRuleGroups[ctx.ruleId].currencies[ctx.currencyId]) {
+                    priceRuleGroups[ctx.ruleId].currencies[ctx.currencyId] = {
                         currencyId: ctx.currencyId,
                         currency: this.findCurrencyById(ctx.currencyId),
                         prices: []
                     };
                 }
 
-                contextPriceGroups[ctx.contextRuleId].currencies[ctx.currencyId].prices.push(ctx);
+                priceRuleGroups[ctx.ruleId].currencies[ctx.currencyId].prices.push(ctx);
             });
 
-            return contextPriceGroups;
+            return priceRuleGroups;
         },
 
         isLoaded() {
             return !this.isLoading &&
-                   !this.isLoadingContextRules &&
+                   !this.isLoadingRules &&
                    this.currencies.length &&
                    this.taxes.length &&
                    this.product;
@@ -92,99 +92,99 @@ Component.register('sw-product-detail-context-prices', {
 
     methods: {
         mountedComponent() {
-            this.contextRuleStore = Shopware.State.getStore('context_rule');
+            this.ruleStore = Shopware.State.getStore('rule');
 
-            this.isLoadingContextRules = true;
+            this.isLoadingRules = true;
 
-            this.contextRuleStore.getList(0, 200).then((response) => {
-                this.contextRules = response.items;
-                this.totalContextRules = response.total;
+            this.ruleStore.getList(0, 200).then((response) => {
+                this.rules = response.items;
+                this.totalRules = response.total;
 
-                this.isLoadingContextRules = false;
+                this.isLoadingRules = false;
             });
         },
 
-        onContextRuleChange(value, contextRuleId) {
-            this.product.contextPrices.forEach((contextPrice) => {
-                if (contextPrice.contextRuleId === contextRuleId) {
-                    contextPrice.contextRuleId = value;
+        onRuleChange(value, ruleId) {
+            this.product.priceRules.forEach((priceRule) => {
+                if (priceRule.ruleId === ruleId) {
+                    priceRule.ruleId = value;
                 }
             });
         },
 
         onAddNewPriceGroup() {
-            if (typeof this.contextPriceGroups.null !== 'undefined') {
+            if (typeof this.priceRuleGroups.null !== 'undefined') {
                 return;
             }
 
-            const newContextPrice = Entity.getRawEntityObject('product_context_price');
+            const newPriceRule = Entity.getRawEntityObject('product_price_rule');
 
-            newContextPrice.id = utils.createId();
+            newPriceRule.id = utils.createId();
 
-            newContextPrice.contextRuleId = null;
-            newContextPrice.productId = this.product.id;
-            newContextPrice.quantityStart = 1;
-            newContextPrice.quantityEnd = null;
-            newContextPrice.currencyId = this.defaultCurrency.id;
+            newPriceRule.ruleId = null;
+            newPriceRule.productId = this.product.id;
+            newPriceRule.quantityStart = 1;
+            newPriceRule.quantityEnd = null;
+            newPriceRule.currencyId = this.defaultCurrency.id;
 
-            this.product.contextPrices.push(newContextPrice);
+            this.product.priceRules.push(newPriceRule);
         },
 
-        onAddCurrency(contextRuleId, currency) {
-            const defaultCurrencyPrices = this.contextPriceGroups[contextRuleId].currencies[this.defaultCurrency.id].prices;
+        onAddCurrency(ruleId, currency) {
+            const defaultCurrencyPrices = this.priceRuleGroups[ruleId].currencies[this.defaultCurrency.id].prices;
 
             defaultCurrencyPrices.forEach((currencyPrice) => {
-                const newContextPrice = deepCopyObject(currencyPrice);
+                const newPriceRule = deepCopyObject(currencyPrice);
 
-                newContextPrice.id = utils.createId();
-                newContextPrice.currencyId = currency.id;
+                newPriceRule.id = utils.createId();
+                newPriceRule.currencyId = currency.id;
 
-                this.product.contextPrices.push(newContextPrice);
+                this.product.priceRules.push(newPriceRule);
             });
         },
 
-        onPriceGroupDelete(contextRuleId) {
-            this.product.contextPrices = this.product.contextPrices.filter((contextPrice) => {
-                return contextPrice.contextRuleId !== contextRuleId;
+        onPriceGroupDelete(ruleId) {
+            this.product.priceRules = this.product.priceRules.filter((priceRule) => {
+                return priceRule.ruleId !== ruleId;
             });
         },
 
         onPriceGroupDuplicate(priceGroup) {
-            if (typeof this.contextPriceGroups.null !== 'undefined') {
+            if (typeof this.priceRuleGroups.null !== 'undefined') {
                 return;
             }
 
             Object.keys(priceGroup.currencies).forEach((currencyId) => {
                 priceGroup.currencies[currencyId].prices.forEach((price) => {
-                    const newContextPrice = deepCopyObject(price);
-                    newContextPrice.contextRuleId = null;
+                    const newPriceRule = deepCopyObject(price);
+                    newPriceRule.ruleId = null;
 
-                    this.product.contextPrices.push(newContextPrice);
+                    this.product.priceRules.push(newPriceRule);
                 });
             });
         },
 
-        onPriceRuleDuplicate(contextPrice) {
-            const newContextPrice = deepCopyObject(contextPrice);
+        onPriceRuleDuplicate(priceRule) {
+            const newPriceRule = deepCopyObject(priceRule);
 
-            newContextPrice.id = utils.createId();
+            newPriceRule.id = utils.createId();
 
-            this.product.contextPrices.push(newContextPrice);
+            this.product.priceRules.push(newPriceRule);
         },
 
-        onPriceRuleDelete(contextPrice) {
+        onPriceRuleDelete(priceRule) {
             // Do not delete the last price of the default currency
-            if (contextPrice.currencyId === this.defaultCurrency.id) {
-                const contextPriceGroup = this.contextPriceGroups[contextPrice.contextRuleId];
-                const defaultCurrencyPrices = contextPriceGroup.currencies[this.defaultCurrency.id].prices;
+            if (priceRule.currencyId === this.defaultCurrency.id) {
+                const priceRuleGroup = this.priceRuleGroups[priceRule.ruleId];
+                const defaultCurrencyPrices = priceRuleGroup.currencies[this.defaultCurrency.id].prices;
 
-                if (defaultCurrencyPrices.length <= 1 && Object.keys(contextPriceGroup.currencies).length > 1) {
+                if (defaultCurrencyPrices.length <= 1 && Object.keys(priceRuleGroup.currencies).length > 1) {
                     return;
                 }
             }
 
-            this.product.contextPrices = this.product.contextPrices.filter((price) => {
-                return price.id !== contextPrice.id;
+            this.product.priceRules = this.product.priceRules.filter((price) => {
+                return price.id !== priceRule.id;
             });
         },
 
@@ -196,23 +196,23 @@ Component.register('sw-product-detail-context-prices', {
             }
 
             if (currencyPrices[currencyPrices.length - 1].id === price.id && value !== null) {
-                const newContextPrice = Entity.getRawEntityObject('product_context_price');
+                const newPriceRule = Entity.getRawEntityObject('product_price_rule');
 
-                newContextPrice.id = utils.createId();
+                newPriceRule.id = utils.createId();
 
-                newContextPrice.productId = this.product.id;
-                newContextPrice.contextRuleId = priceGroup.contextRuleId;
-                newContextPrice.quantityStart = price.quantityEnd + 1;
-                newContextPrice.quantityEnd = null;
-                newContextPrice.currencyId = price.currencyId;
+                newPriceRule.productId = this.product.id;
+                newPriceRule.ruleId = priceGroup.ruleId;
+                newPriceRule.quantityStart = price.quantityEnd + 1;
+                newPriceRule.quantityEnd = null;
+                newPriceRule.currencyId = price.currencyId;
 
-                this.product.contextPrices.push(newContextPrice);
+                this.product.priceRules.push(newPriceRule);
             }
         },
 
-        findContextRuleById(contextRuleId) {
-            return this.contextRules.find((rule) => {
-                return rule.id === contextRuleId;
+        findRuleById(ruleId) {
+            return this.rules.find((rule) => {
+                return rule.id === ruleId;
             });
         },
 

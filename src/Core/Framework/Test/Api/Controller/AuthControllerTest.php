@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Test\Api\Controller;
+namespace Shopware\Core\Framework\Test\Api\Controller;
 
-use Shopware\Framework\Test\Api\ApiTestCase;
-use Shopware\PlatformRequest;
+use Shopware\Core\Framework\Test\Api\ApiTestCase;
+use Shopware\Core\PlatformRequest;
 
 class AuthControllerTest extends ApiTestCase
 {

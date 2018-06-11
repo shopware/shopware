@@ -1,20 +1,20 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Config\Aggregate\ConfigFormFieldTranslation\Event;
+namespace Shopware\Core\System\Config\Aggregate\ConfigFormFieldTranslation\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\System\Config\Aggregate\ConfigFormField\Event\ConfigFormFieldBasicLoadedEvent;
-use Shopware\System\Config\Aggregate\ConfigFormFieldTranslation\Collection\ConfigFormFieldTranslationDetailCollection;
-use Shopware\System\Locale\Event\LocaleBasicLoadedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\System\Config\Aggregate\ConfigFormField\Event\ConfigFormFieldBasicLoadedEvent;
+use Shopware\Core\System\Config\Aggregate\ConfigFormFieldTranslation\Collection\ConfigFormFieldTranslationDetailCollection;
+use Shopware\Core\System\Locale\Event\LocaleBasicLoadedEvent;
 
 class ConfigFormFieldTranslationDetailLoadedEvent extends NestedEvent
 {
     public const NAME = 'config_form_field_translation.detail.loaded';
 
     /**
-     * @var ApplicationContext
+     * @var Context
      */
     protected $context;
 
@@ -23,7 +23,7 @@ class ConfigFormFieldTranslationDetailLoadedEvent extends NestedEvent
      */
     protected $configFormFieldTranslations;
 
-    public function __construct(ConfigFormFieldTranslationDetailCollection $configFormFieldTranslations, ApplicationContext $context)
+    public function __construct(ConfigFormFieldTranslationDetailCollection $configFormFieldTranslations, Context $context)
     {
         $this->context = $context;
         $this->configFormFieldTranslations = $configFormFieldTranslations;
@@ -34,7 +34,7 @@ class ConfigFormFieldTranslationDetailLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }

@@ -1,15 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Order\Collection;
+namespace Shopware\Core\Checkout\Order\Collection;
 
-use Shopware\Application\Application\Collection\ApplicationBasicCollection;
-use Shopware\Checkout\Customer\Collection\CustomerBasicCollection;
-use Shopware\Checkout\Order\Aggregate\OrderAddress\Collection\OrderAddressBasicCollection;
-use Shopware\Checkout\Order\Aggregate\OrderState\Collection\OrderStateBasicCollection;
-use Shopware\Checkout\Order\Struct\OrderBasicStruct;
-use Shopware\Checkout\Payment\Collection\PaymentMethodBasicCollection;
-use Shopware\Framework\ORM\EntityCollection;
-use Shopware\System\Currency\Collection\CurrencyBasicCollection;
+use Shopware\Core\System\Touchpoint\Collection\TouchpointBasicCollection;
+use Shopware\Core\Checkout\Customer\Collection\CustomerBasicCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\Collection\OrderAddressBasicCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderState\Collection\OrderStateBasicCollection;
+use Shopware\Core\Checkout\Order\Struct\OrderBasicStruct;
+use Shopware\Core\Checkout\Payment\Collection\PaymentMethodBasicCollection;
+use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\System\Currency\Collection\CurrencyBasicCollection;
 
 class OrderBasicCollection extends EntityCollection
 {
@@ -84,17 +84,17 @@ class OrderBasicCollection extends EntityCollection
         });
     }
 
-    public function getApplicationIds(): array
+    public function getTouchpointIs(): array
     {
         return $this->fmap(function (OrderBasicStruct $order) {
-            return $order->getApplicationId();
+            return $order->getTouchpointId();
         });
     }
 
-    public function filterByApplicationId(string $id): self
+    public function filterByTouchpointId(string $id): self
     {
         return $this->filter(function (OrderBasicStruct $order) use ($id) {
-            return $order->getApplicationId() === $id;
+            return $order->getTouchpointId() === $id;
         });
     }
 
@@ -148,11 +148,11 @@ class OrderBasicCollection extends EntityCollection
         );
     }
 
-    public function getApplications(): ApplicationBasicCollection
+    public function getTouchpoints(): TouchpointBasicCollection
     {
-        return new ApplicationBasicCollection(
+        return new TouchpointBasicCollection(
             $this->fmap(function (OrderBasicStruct $order) {
-                return $order->getApplication();
+                return $order->getTouchpoint();
             })
         );
     }

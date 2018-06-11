@@ -22,7 +22,7 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Checkout;
+namespace Shopware\Core\Checkout;
 
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -44,5 +44,6 @@ class Checkout extends Bundle
         $loader->load('payment.xml');
         $loader->load('shipping.xml');
         $loader->load('cart.xml');
+        $loader->load('discount_surcharge.xml');
     }
 }

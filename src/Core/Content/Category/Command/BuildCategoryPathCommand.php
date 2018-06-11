@@ -22,17 +22,17 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Content\Category\Command;
+namespace Shopware\Core\Content\Category\Command;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Content\Category\CategoryRepository;
-use Shopware\Content\Category\Util\CategoryPathBuilder;
-use Shopware\Framework\Event\ProgressAdvancedEvent;
-use Shopware\Framework\Event\ProgressFinishedEvent;
-use Shopware\Framework\Event\ProgressStartedEvent;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\Query\TermQuery;
-use Shopware\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Category\CategoryRepository;
+use Shopware\Core\Content\Category\Util\CategoryPathBuilder;
+use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
+use Shopware\Core\Framework\Event\ProgressFinishedEvent;
+use Shopware\Core\Framework\Event\ProgressStartedEvent;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -117,7 +117,7 @@ class BuildCategoryPathCommand extends ContainerAwareCommand implements EventSub
             throw new \Exception('Invalid uuid provided');
         }
 
-        $context = ApplicationContext::createDefaultContext($tenantId);
+        $context = Context::createDefaultContext($tenantId);
 
         $categoryRepository = $this->getContainer()->get(CategoryRepository::class);
 

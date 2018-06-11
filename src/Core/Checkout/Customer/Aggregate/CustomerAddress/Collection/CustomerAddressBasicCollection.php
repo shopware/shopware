@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Customer\Aggregate\CustomerAddress\Collection;
+namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Collection;
 
-use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
-use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
-use Shopware\Framework\ORM\EntityCollection;
-use Shopware\System\Country\Aggregate\CountryState\Collection\CountryStateBasicCollection;
-use Shopware\System\Country\Collection\CountryBasicCollection;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
+use Shopware\Core\Checkout\Customer\Struct\CustomerBasicStruct;
+use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\System\Country\Aggregate\CountryState\Collection\CountryStateBasicCollection;
+use Shopware\Core\System\Country\Collection\CountryBasicCollection;
 
 class CustomerAddressBasicCollection extends EntityCollection
 {
@@ -90,7 +90,7 @@ class CustomerAddressBasicCollection extends EntityCollection
         );
     }
 
-    public function getCountryStates(): \Shopware\System\Country\Aggregate\CountryState\Collection\CountryStateBasicCollection
+    public function getCountryStates(): \Shopware\Core\System\Country\Aggregate\CountryState\Collection\CountryStateBasicCollection
     {
         return new CountryStateBasicCollection(
             $this->fmap(function (CustomerAddressBasicStruct $customerAddress) {

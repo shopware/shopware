@@ -23,12 +23,12 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Framework\Doctrine;
+namespace Shopware\Core\Framework\Doctrine;
 
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
-use Shopware\Kernel;
+use Shopware\Core\Kernel;
 
 class ConnectionFactory extends \Doctrine\Bundle\DoctrineBundle\ConnectionFactory
 {

@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Order\Aggregate\OrderTransaction\Struct;
+namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\Struct;
 
-use Shopware\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Framework\ORM\Entity;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Framework\ORM\Entity;
 
 class OrderTransactionBasicStruct extends Entity
 {

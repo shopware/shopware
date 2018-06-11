@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Version\Event\VersionCommit;
+namespace Shopware\Core\Framework\ORM\Version\Event\VersionCommit;
 
-use Shopware\Framework\ORM\Version\Definition\VersionCommitDefinition;
-use Shopware\Framework\ORM\Write\DeletedEvent;
-use Shopware\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Framework\ORM\Version\Definition\VersionCommitDefinition;
+use Shopware\Core\Framework\ORM\Write\DeletedEvent;
+use Shopware\Core\Framework\ORM\Write\WrittenEvent;
 
 class VersionCommitDeletedEvent extends WrittenEvent implements DeletedEvent
 {

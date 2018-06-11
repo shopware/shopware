@@ -24,7 +24,7 @@
 
 namespace Shopware\Administration\Command;
 
-use Shopware\Kernel;
+use Shopware\Core\Kernel;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;

@@ -22,7 +22,7 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Framework;
+namespace Shopware\Core\Framework;
 
 interface ShopwareException extends \Throwable
 {

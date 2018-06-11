@@ -23,17 +23,17 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Checkout\Customer\Cart;
+namespace Shopware\Core\Checkout\Customer\Cart;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\Checkout\Cart\Cart\CartCollectorInterface;
-use Shopware\Checkout\Cart\Cart\Struct\Cart;
-use Shopware\Checkout\Customer\Aggregate\CustomerGroupDiscount\Collection\CustomerGroupDiscountBasicCollection;
-use Shopware\Checkout\Customer\Aggregate\CustomerGroupDiscount\CustomerGroupDiscountRepository;
-use Shopware\Checkout\Customer\Aggregate\CustomerGroupDiscount\Struct\CustomerGroupDiscountBasicStruct;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\Query\TermQuery;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Checkout\Cart\Cart\CartCollectorInterface;
+use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\Collection\CustomerGroupDiscountBasicCollection;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\CustomerGroupDiscountRepository;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\Struct\CustomerGroupDiscountBasicStruct;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Core\Framework\Struct\StructCollection;
 
 class CustomerGroupDiscountCartCollector implements CartCollectorInterface
 {
@@ -50,14 +50,14 @@ class CustomerGroupDiscountCartCollector implements CartCollectorInterface
     public function prepare(
         StructCollection $fetchDefinition,
         Cart $cart,
-        StorefrontContext $context
+        CheckoutContext $context
     ): void {
     }
 
     public function fetch(
         StructCollection $dataCollection,
         StructCollection $fetchCollection,
-        StorefrontContext $context
+        CheckoutContext $context
     ): void {
         $criteria = new Criteria();
         $criteria->addFilter(
@@ -66,7 +66,7 @@ class CustomerGroupDiscountCartCollector implements CartCollectorInterface
                 $context->getCurrentCustomerGroup()->getId()
             )
         );
-        $discounts = $this->customerGroupDiscountRepository->search($criteria, $context->getApplicationContext());
+        $discounts = $this->customerGroupDiscountRepository->search($criteria, $context->getContext());
 
         $discounts->sort(function (CustomerGroupDiscountBasicStruct $a, CustomerGroupDiscountBasicStruct $b) {
             if ($a->getMinimumCartAmount() !== $b->getMinimumCartAmount()) {

@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Dbal\FieldResolver;
+namespace Shopware\Core\Framework\ORM\Dbal\FieldResolver;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\ORM\Dbal\EntityDefinitionQueryHelper;
-use Shopware\Framework\ORM\Dbal\QueryBuilder;
-use Shopware\Framework\ORM\Field\Field;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Dbal\EntityDefinitionQueryHelper;
+use Shopware\Core\Framework\ORM\Dbal\QueryBuilder;
+use Shopware\Core\Framework\ORM\Field\Field;
 
 interface FieldResolverInterface
 {
@@ -14,7 +14,7 @@ interface FieldResolverInterface
         string $root,
         Field $field,
         QueryBuilder $query,
-        ApplicationContext $context,
+        Context $context,
         EntityDefinitionQueryHelper $queryHelper,
         bool $raw
     ): void;

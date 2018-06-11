@@ -1,33 +1,33 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Country\Aggregate\CountryArea;
+namespace Shopware\Core\System\Country\Aggregate\CountryArea;
 
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\EntityExtensionInterface;
-use Shopware\Framework\ORM\Field\BoolField;
-use Shopware\Framework\ORM\Field\DateField;
-use Shopware\Framework\ORM\Field\IdField;
-use Shopware\Framework\ORM\Field\OneToManyAssociationField;
-use Shopware\Framework\ORM\Field\StringField;
-use Shopware\Framework\ORM\Field\TenantIdField;
-use Shopware\Framework\ORM\Field\TranslatedField;
-use Shopware\Framework\ORM\Field\TranslationsAssociationField;
-use Shopware\Framework\ORM\Field\VersionField;
-use Shopware\Framework\ORM\FieldCollection;
-use Shopware\Framework\ORM\Write\Flag\CascadeDelete;
-use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
-use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\Framework\ORM\Write\Flag\SearchRanking;
-use Shopware\Framework\ORM\Write\Flag\WriteOnly;
-use Shopware\System\Country\Aggregate\CountryArea\Collection\CountryAreaBasicCollection;
-use Shopware\System\Country\Aggregate\CountryArea\Collection\CountryAreaDetailCollection;
-use Shopware\System\Country\Aggregate\CountryArea\Event\CountryAreaDeletedEvent;
-use Shopware\System\Country\Aggregate\CountryArea\Event\CountryAreaWrittenEvent;
-use Shopware\System\Country\Aggregate\CountryArea\Struct\CountryAreaBasicStruct;
-use Shopware\System\Country\Aggregate\CountryArea\Struct\CountryAreaDetailStruct;
-use Shopware\System\Country\Aggregate\CountryAreaTranslation\CountryAreaTranslationDefinition;
-use Shopware\System\Country\CountryDefinition;
-use Shopware\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleDefinition;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+use Shopware\Core\Framework\ORM\Field\BoolField;
+use Shopware\Core\Framework\ORM\Field\DateField;
+use Shopware\Core\Framework\ORM\Field\IdField;
+use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\ORM\Field\StringField;
+use Shopware\Core\Framework\ORM\Field\TenantIdField;
+use Shopware\Core\Framework\ORM\Field\TranslatedField;
+use Shopware\Core\Framework\ORM\Field\TranslationsAssociationField;
+use Shopware\Core\Framework\ORM\Field\VersionField;
+use Shopware\Core\Framework\ORM\FieldCollection;
+use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
+use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
+use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
+use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
+use Shopware\Core\System\Country\Aggregate\CountryArea\Collection\CountryAreaBasicCollection;
+use Shopware\Core\System\Country\Aggregate\CountryArea\Collection\CountryAreaDetailCollection;
+use Shopware\Core\System\Country\Aggregate\CountryArea\Event\CountryAreaDeletedEvent;
+use Shopware\Core\System\Country\Aggregate\CountryArea\Event\CountryAreaWrittenEvent;
+use Shopware\Core\System\Country\Aggregate\CountryArea\Struct\CountryAreaBasicStruct;
+use Shopware\Core\System\Country\Aggregate\CountryArea\Struct\CountryAreaDetailStruct;
+use Shopware\Core\System\Country\Aggregate\CountryAreaTranslation\CountryAreaTranslationDefinition;
+use Shopware\Core\System\Country\CountryDefinition;
+use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleDefinition;
 
 class CountryAreaDefinition extends EntityDefinition
 {

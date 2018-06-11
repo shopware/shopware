@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Shipping\Event;
+namespace Shopware\Core\Checkout\Shipping\Event;
 
-use Shopware\Checkout\Shipping\ShippingMethodDefinition;
-use Shopware\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
+use Shopware\Core\Framework\ORM\Write\WrittenEvent;
 
 class ShippingMethodWrittenEvent extends WrittenEvent
 {

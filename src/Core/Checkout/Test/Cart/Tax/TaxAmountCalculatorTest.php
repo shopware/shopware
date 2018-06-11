@@ -22,25 +22,25 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Checkout\Test\Cart\Tax;
+namespace Shopware\Core\Checkout\Test\Cart\Tax;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Application\Application\Struct\ApplicationBasicStruct;
-use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\Checkout\Cart\Price\PriceRounding;
-use Shopware\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
-use Shopware\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
-use Shopware\Checkout\Cart\Tax\PercentageTaxRuleCalculator;
-use Shopware\Checkout\Cart\Tax\Struct\CalculatedTax;
-use Shopware\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
-use Shopware\Checkout\Cart\Tax\Struct\PercentageTaxRule;
-use Shopware\Checkout\Cart\Tax\Struct\TaxRule;
-use Shopware\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Checkout\Cart\Tax\TaxAmountCalculator;
-use Shopware\Checkout\Cart\Tax\TaxCalculator;
-use Shopware\Checkout\Cart\Tax\TaxDetector;
-use Shopware\Checkout\Cart\Tax\TaxRuleCalculator;
+use Shopware\Core\System\Touchpoint\Struct\TouchpointBasicStruct;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Checkout\Cart\Price\PriceRounding;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
+use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
+use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleCalculator;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\PercentageTaxRule;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Cart\Tax\TaxAmountCalculator;
+use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
+use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
+use Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator;
 
 class TaxAmountCalculatorTest extends TestCase
 {
@@ -54,11 +54,11 @@ class TaxAmountCalculatorTest extends TestCase
      */
     public function testCalculation(string $calculationType, TaxDetector $taxDetector, CalculatedPriceCollection $prices, CalculatedTaxCollection $expected): void
     {
-        $shop = $this->createMock(ApplicationBasicStruct::class);
+        $shop = $this->createMock(TouchpointBasicStruct::class);
         $shop->method('getTaxCalculationType')->will($this->returnValue($calculationType));
 
-        $context = $this->createMock(StorefrontContext::class);
-        $context->method('getApplication')->will($this->returnValue($shop));
+        $context = $this->createMock(CheckoutContext::class);
+        $context->method('getTouchpoint')->will($this->returnValue($shop));
 
         $taxAmountCalculator = new TaxAmountCalculator(
             new PercentageTaxRuleBuilder(),

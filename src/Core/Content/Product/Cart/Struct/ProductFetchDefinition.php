@@ -23,9 +23,9 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Content\Product\Cart\Struct;
+namespace Shopware\Core\Content\Product\Cart\Struct;
 
-use Shopware\Framework\Struct\Struct;
+use Shopware\Core\Framework\Struct\Struct;
 
 class ProductFetchDefinition extends Struct
 {

@@ -23,17 +23,17 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Checkout\Cart\Price\Struct;
+namespace Shopware\Core\Checkout\Cart\Price\Struct;
 
-use Shopware\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Framework\Struct\Struct;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Framework\Struct\Struct;
 
 class PriceDefinition extends Struct
 {
     /** @var float */
     protected $price;
 
-    /** @var \Shopware\Checkout\Cart\Tax\Struct\TaxRuleCollection */
+    /** @var \Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection */
     protected $taxRules;
 
     /** @var int */

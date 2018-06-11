@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Shipping\Exception;
+namespace Shopware\Core\Checkout\Shipping\Exception;
 
 use Symfony\Component\HttpKernel\Exception\HttpException;
 

@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Search;
+namespace Shopware\Core\Framework\ORM\Search;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\ORM\Entity;
-use Shopware\Framework\ORM\EntityCollection;
-use Shopware\Framework\ORM\Search\Aggregation\AggregationResultCollection;
-use Shopware\Framework\Struct\ArrayStruct;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\Framework\ORM\Search\Aggregation\AggregationResultCollection;
+use Shopware\Core\Framework\Struct\ArrayStruct;
 
 trait SearchResultTrait
 {
@@ -35,7 +35,7 @@ trait SearchResultTrait
         return $this->idResult->getCriteria();
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->idResult->getContext();
     }

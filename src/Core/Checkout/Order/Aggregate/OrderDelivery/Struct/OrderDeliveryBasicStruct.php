@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Order\Aggregate\OrderDelivery\Struct;
+namespace Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\Struct;
 
-use Shopware\Checkout\Order\Aggregate\OrderAddress\Struct\OrderAddressBasicStruct;
-use Shopware\Checkout\Shipping\Struct\ShippingMethodBasicStruct;
-use Shopware\Framework\ORM\Entity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\Struct\OrderAddressBasicStruct;
+use Shopware\Core\Checkout\Shipping\Struct\ShippingMethodBasicStruct;
+use Shopware\Core\Framework\ORM\Entity;
 
 class OrderDeliveryBasicStruct extends Entity
 {
@@ -64,7 +64,7 @@ class OrderDeliveryBasicStruct extends Entity
     protected $shippingAddress;
 
     /**
-     * @var \Shopware\Checkout\Order\Aggregate\OrderState\Struct\OrderStateBasicStruct
+     * @var \Shopware\Core\Checkout\Order\Aggregate\OrderState\Struct\OrderStateBasicStruct
      */
     protected $orderState;
 
@@ -183,12 +183,12 @@ class OrderDeliveryBasicStruct extends Entity
         $this->shippingAddress = $shippingAddress;
     }
 
-    public function getOrderState(): \Shopware\Checkout\Order\Aggregate\OrderState\Struct\OrderStateBasicStruct
+    public function getOrderState(): \Shopware\Core\Checkout\Order\Aggregate\OrderState\Struct\OrderStateBasicStruct
     {
         return $this->orderState;
     }
 
-    public function setOrderState(\Shopware\Checkout\Order\Aggregate\OrderState\Struct\OrderStateBasicStruct $orderState): void
+    public function setOrderState(\Shopware\Core\Checkout\Order\Aggregate\OrderState\Struct\OrderStateBasicStruct $orderState): void
     {
         $this->orderState = $orderState;
     }

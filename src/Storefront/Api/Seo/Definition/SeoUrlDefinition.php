@@ -2,19 +2,19 @@
 
 namespace Shopware\Storefront\Api\Seo\Definition;
 
-use Shopware\Application\Application\ApplicationDefinition;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\EntityExtensionInterface;
-use Shopware\Framework\ORM\Field\BoolField;
-use Shopware\Framework\ORM\Field\DateField;
-use Shopware\Framework\ORM\Field\FkField;
-use Shopware\Framework\ORM\Field\IdField;
-use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
-use Shopware\Framework\ORM\Field\StringField;
-use Shopware\Framework\ORM\Field\TenantIdField;
-use Shopware\Framework\ORM\FieldCollection;
-use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
-use Shopware\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\System\Touchpoint\TouchpointDefinition;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+use Shopware\Core\Framework\ORM\Field\BoolField;
+use Shopware\Core\Framework\ORM\Field\DateField;
+use Shopware\Core\Framework\ORM\Field\FkField;
+use Shopware\Core\Framework\ORM\Field\IdField;
+use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\ORM\Field\StringField;
+use Shopware\Core\Framework\ORM\Field\TenantIdField;
+use Shopware\Core\Framework\ORM\FieldCollection;
+use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
+use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Storefront\Api\Seo\Collection\SeoUrlBasicCollection;
 use Shopware\Storefront\Api\Seo\Collection\SeoUrlDetailCollection;
 use Shopware\Storefront\Api\Seo\Event\SeoUrl\SeoUrlDeletedEvent;
@@ -55,7 +55,7 @@ class SeoUrlDefinition extends EntityDefinition
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new IdField('version_id', 'versionId'))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('application_id', 'applicationId', ApplicationDefinition::class))->setFlags(new Required()),
+            (new FkField('touchpoint_id', 'touchpointId', TouchpointDefinition::class))->setFlags(new Required()),
             (new StringField('name', 'name'))->setFlags(new Required()),
             (new IdField('foreign_key', 'foreignKey'))->setFlags(new Required()),
             (new IdField('foreign_key_version_id', 'foreignKeyVersionId'))->setFlags(new Required()),
@@ -65,7 +65,7 @@ class SeoUrlDefinition extends EntityDefinition
             new BoolField('is_modified', 'isModified'),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            new ManyToOneAssociationField('application', 'application_id', \Shopware\Application\Application\ApplicationDefinition::class, false),
+            new ManyToOneAssociationField('touchpoint', 'touchpoint_id', \Shopware\Core\System\Touchpoint\TouchpointDefinition::class, false),
         ]);
 
         foreach (self::$extensions as $extension) {

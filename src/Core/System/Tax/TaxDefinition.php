@@ -1,31 +1,31 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Tax;
+namespace Shopware\Core\System\Tax;
 
-use Shopware\Content\Product\ProductDefinition;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\EntityExtensionInterface;
-use Shopware\Framework\ORM\Field\DateField;
-use Shopware\Framework\ORM\Field\FloatField;
-use Shopware\Framework\ORM\Field\IdField;
-use Shopware\Framework\ORM\Field\OneToManyAssociationField;
-use Shopware\Framework\ORM\Field\StringField;
-use Shopware\Framework\ORM\Field\TenantIdField;
-use Shopware\Framework\ORM\Field\VersionField;
-use Shopware\Framework\ORM\FieldCollection;
-use Shopware\Framework\ORM\Write\Flag\CascadeDelete;
-use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
-use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\Framework\ORM\Write\Flag\RestrictDelete;
-use Shopware\Framework\ORM\Write\Flag\SearchRanking;
-use Shopware\Framework\ORM\Write\Flag\WriteOnly;
-use Shopware\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleDefinition;
-use Shopware\System\Tax\Collection\TaxBasicCollection;
-use Shopware\System\Tax\Collection\TaxDetailCollection;
-use Shopware\System\Tax\Event\TaxDeletedEvent;
-use Shopware\System\Tax\Event\TaxWrittenEvent;
-use Shopware\System\Tax\Struct\TaxBasicStruct;
-use Shopware\System\Tax\Struct\TaxDetailStruct;
+use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+use Shopware\Core\Framework\ORM\Field\DateField;
+use Shopware\Core\Framework\ORM\Field\FloatField;
+use Shopware\Core\Framework\ORM\Field\IdField;
+use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\ORM\Field\StringField;
+use Shopware\Core\Framework\ORM\Field\TenantIdField;
+use Shopware\Core\Framework\ORM\Field\VersionField;
+use Shopware\Core\Framework\ORM\FieldCollection;
+use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
+use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
+use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\Framework\ORM\Write\Flag\RestrictDelete;
+use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
+use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
+use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleDefinition;
+use Shopware\Core\System\Tax\Collection\TaxBasicCollection;
+use Shopware\Core\System\Tax\Collection\TaxDetailCollection;
+use Shopware\Core\System\Tax\Event\TaxDeletedEvent;
+use Shopware\Core\System\Tax\Event\TaxWrittenEvent;
+use Shopware\Core\System\Tax\Struct\TaxBasicStruct;
+use Shopware\Core\System\Tax\Struct\TaxDetailStruct;
 
 class TaxDefinition extends EntityDefinition
 {

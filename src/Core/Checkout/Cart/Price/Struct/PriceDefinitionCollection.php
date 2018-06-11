@@ -23,10 +23,10 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Checkout\Cart\Price\Struct;
+namespace Shopware\Core\Checkout\Cart\Price\Struct;
 
-use Shopware\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Framework\Struct\Collection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Framework\Struct\Collection;
 
 class PriceDefinitionCollection extends Collection
 {

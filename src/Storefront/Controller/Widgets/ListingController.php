@@ -26,9 +26,9 @@ namespace Shopware\Storefront\Controller\Widgets;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\Content\Product\StorefrontProductRepository;
-use Shopware\Framework\ORM\Search\Criteria;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Content\Product\Storefront\StorefrontProductRepository;
+use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Storefront\Controller\StorefrontController;
 use Shopware\Storefront\Page\Listing\ListingPageLoader;
 use Shopware\Storefront\Page\Listing\ListingPageRequest;
@@ -39,7 +39,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 class ListingController extends StorefrontController
 {
     /**
-     * @var StorefrontProductRepository
+     * @var \Shopware\Core\Content\Product\Storefront\StorefrontProductRepository
      */
     private $repository;
 
@@ -67,7 +67,7 @@ class ListingController extends StorefrontController
      * @Route("/widgets/listing/top_seller", name="widgets_top_seller")
      * @Method({"GET"})
      */
-    public function topSellerAction(StorefrontContext $context)
+    public function topSellerAction(CheckoutContext $context)
     {
         $criteria = new Criteria();
         $criteria->setLimit(10);
@@ -83,7 +83,7 @@ class ListingController extends StorefrontController
      * @Route("/widgets/listing/list/{categoryId}", name="widgets_listing_list")
      * @Method({"GET"})
      */
-    public function listAction(string $categoryId, ListingPageRequest $request, StorefrontContext $context)
+    public function listAction(string $categoryId, ListingPageRequest $request, CheckoutContext $context)
     {
         $request->setNavigationId($categoryId);
 
@@ -108,7 +108,7 @@ class ListingController extends StorefrontController
      * @Route("/widgets/listing/search", name="widgets_listing_search")
      * @Method({"GET"})
      */
-    public function searchAction(SearchPageRequest $request, StorefrontContext $context)
+    public function searchAction(SearchPageRequest $request, CheckoutContext $context)
     {
         $page = $this->searchPageLoader->load($request, $context);
 

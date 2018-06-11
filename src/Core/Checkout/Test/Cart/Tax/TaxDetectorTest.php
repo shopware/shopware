@@ -22,20 +22,20 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Checkout\Test\Cart\Tax;
+namespace Shopware\Core\Checkout\Test\Cart\Tax;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\Checkout\Cart\Delivery\Struct\ShippingLocation;
-use Shopware\Checkout\Cart\Tax\TaxDetector;
-use Shopware\Checkout\Customer\Aggregate\CustomerGroup\Struct\CustomerGroupBasicStruct;
-use Shopware\System\Country\Struct\CountryBasicStruct;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
+use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\Struct\CustomerGroupBasicStruct;
+use Shopware\Core\System\Country\Struct\CountryBasicStruct;
 
 class TaxDetectorTest extends TestCase
 {
     public function testUseGrossPrices(): void
     {
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CheckoutContext::class);
         $customerGroup = $this->createMock(CustomerGroupBasicStruct::class);
         $customerGroup->expects($this->once())->method('getDisplayGross')->will($this->returnValue(true));
         $context->expects($this->once())->method('getCurrentCustomerGroup')->will($this->returnValue($customerGroup));
@@ -46,7 +46,7 @@ class TaxDetectorTest extends TestCase
 
     public function testDoNotUseGrossPrices(): void
     {
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CheckoutContext::class);
         $customerGroup = $this->createMock(CustomerGroupBasicStruct::class);
         $customerGroup->expects($this->once())->method('getDisplayGross')->will($this->returnValue(false));
         $context->expects($this->once())->method('getCurrentCustomerGroup')->will($this->returnValue($customerGroup));
@@ -57,7 +57,7 @@ class TaxDetectorTest extends TestCase
 
     public function testIsNetDelivery(): void
     {
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CheckoutContext::class);
 
         $country = new CountryBasicStruct();
         $country->setTaxFree(true);
@@ -72,7 +72,7 @@ class TaxDetectorTest extends TestCase
 
     public function testIsNotNetDelivery(): void
     {
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CheckoutContext::class);
 
         $country = new CountryBasicStruct();
         $country->setTaxFree(false);

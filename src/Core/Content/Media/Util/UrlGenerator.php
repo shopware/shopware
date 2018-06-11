@@ -22,10 +22,10 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Content\Media\Util;
+namespace Shopware\Core\Content\Media\Util;
 
-use Shopware\Content\Media\Exception\EmptyMediaFilenameException;
-use Shopware\Content\Media\Util\Strategy\StrategyInterface;
+use Shopware\Core\Content\Media\Exception\EmptyMediaFilenameException;
+use Shopware\Core\Content\Media\Util\Strategy\StrategyInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 class UrlGenerator implements UrlGeneratorInterface

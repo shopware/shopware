@@ -39,7 +39,7 @@ Thumbs.db
 /public/media/*
 !/public/media/
 !/public/media/.gitkeep
-
+src/Administration/Resources/public/static/
 
 /files/documents/*
 !/files/documents/.htaccess

@@ -1,37 +1,38 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Dbal;
+namespace Shopware\Core\Framework\ORM\Dbal;
 
-use Shopware\Application\Context\Collection\ContextPriceCollection;
-use Shopware\Content\Product\Struct\PriceStruct;
-use Shopware\Framework\ORM\Entity;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\Field\AssociationInterface;
-use Shopware\Framework\ORM\Field\BoolField;
-use Shopware\Framework\ORM\Field\ContextPricesJsonField;
-use Shopware\Framework\ORM\Field\DateField;
-use Shopware\Framework\ORM\Field\Field;
-use Shopware\Framework\ORM\Field\FkField;
-use Shopware\Framework\ORM\Field\FloatField;
-use Shopware\Framework\ORM\Field\IdField;
-use Shopware\Framework\ORM\Field\IntField;
-use Shopware\Framework\ORM\Field\JsonArrayField;
-use Shopware\Framework\ORM\Field\JsonObjectField;
-use Shopware\Framework\ORM\Field\LongTextField;
-use Shopware\Framework\ORM\Field\LongTextWithHtmlField;
-use Shopware\Framework\ORM\Field\ManyToManyAssociationField;
-use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
-use Shopware\Framework\ORM\Field\OneToManyAssociationField;
-use Shopware\Framework\ORM\Field\PriceField;
-use Shopware\Framework\ORM\Field\ReferenceVersionField;
-use Shopware\Framework\ORM\Field\StringField;
-use Shopware\Framework\ORM\Field\TranslatedField;
-use Shopware\Framework\ORM\Field\VersionField;
-use Shopware\Framework\ORM\Write\Flag\Extension;
-use Shopware\Framework\ORM\Write\Flag\Inherited;
-use Shopware\Framework\ORM\Write\Flag\Serialized;
-use Shopware\Framework\Struct\ArrayStruct;
-use Shopware\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Pricing\PriceRuleCollection;
+use Shopware\Core\Framework\Pricing\PriceStruct;
+use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\Field\AssociationInterface;
+use Shopware\Core\Framework\ORM\Field\BoolField;
+use Shopware\Core\Framework\ORM\Field\PriceRulesJsonField;
+use Shopware\Core\Framework\ORM\Field\DateField;
+use Shopware\Core\Framework\ORM\Field\Field;
+use Shopware\Core\Framework\ORM\Field\FkField;
+use Shopware\Core\Framework\ORM\Field\FloatField;
+use Shopware\Core\Framework\ORM\Field\IdField;
+use Shopware\Core\Framework\ORM\Field\IntField;
+use Shopware\Core\Framework\ORM\Field\JsonArrayField;
+use Shopware\Core\Framework\ORM\Field\JsonObjectField;
+use Shopware\Core\Framework\ORM\Field\LongTextField;
+use Shopware\Core\Framework\ORM\Field\LongTextWithHtmlField;
+use Shopware\Core\Framework\ORM\Field\ManyToManyAssociationField;
+use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\ORM\Field\PriceField;
+use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
+use Shopware\Core\Framework\ORM\Field\StringField;
+use Shopware\Core\Framework\ORM\Field\TranslatedField;
+use Shopware\Core\Framework\ORM\Field\VersionField;
+use Shopware\Core\Framework\ORM\FieldCollection;
+use Shopware\Core\Framework\ORM\Write\Flag\Extension;
+use Shopware\Core\Framework\ORM\Write\Flag\Inherited;
+use Shopware\Core\Framework\ORM\Write\Flag\Serialized;
+use Shopware\Core\Framework\Struct\ArrayStruct;
+use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Component\Serializer\SerializerInterface;
 
 /**
@@ -255,7 +256,7 @@ class EntityHydrator
 
                 return new PriceStruct($value['net'], $value['gross']);
 
-            case $field instanceof ContextPricesJsonField:
+            case $field instanceof PriceRulesJsonField:
                 $value = json_decode((string) $value, true);
 
                 $structs = [];
@@ -265,7 +266,7 @@ class EntityHydrator
                     }
                 }
 
-                return new ContextPriceCollection($structs);
+                return new PriceRuleCollection($structs);
 
             case $field instanceof JsonArrayField:
                 if ($value === null) {

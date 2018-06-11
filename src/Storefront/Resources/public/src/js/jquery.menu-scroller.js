@@ -2,7 +2,7 @@
     'use strict';
 
     /**
-     * Shopware Menu Scroller Plugin
+     * Shopware\Core Menu Scroller Plugin
      *
      * @example
      *

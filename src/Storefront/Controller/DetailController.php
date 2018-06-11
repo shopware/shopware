@@ -24,7 +24,7 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Storefront\Page\Detail\DetailPageLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -44,7 +44,7 @@ class DetailController extends StorefrontController
     /**
      * @Route("/detail/{id}", name="detail_page", options={"seo"="true"})
      */
-    public function index(string $id, StorefrontContext $context, Request $request)
+    public function index(string $id, CheckoutContext $context, Request $request)
     {
         $page = $this->detailPageLoader->load($id, $request, $context);
 

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Search\Query;
+namespace Shopware\Core\Framework\ORM\Search\Query;
 
 class ScoreQuery extends Query
 {

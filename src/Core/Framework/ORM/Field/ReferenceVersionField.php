@@ -22,15 +22,15 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Framework\ORM\Field;
+namespace Shopware\Core\Framework\ORM\Field;
 
-use Shopware\Defaults;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\Version\Definition\VersionDefinition;
-use Shopware\Framework\ORM\Write\DataStack\KeyValuePair;
-use Shopware\Framework\ORM\Write\EntityExistence;
-use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\Framework\Struct\Uuid;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\Version\Definition\VersionDefinition;
+use Shopware\Core\Framework\ORM\Write\DataStack\KeyValuePair;
+use Shopware\Core\Framework\ORM\Write\EntityExistence;
+use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\Framework\Struct\Uuid;
 
 class ReferenceVersionField extends FkField
 {

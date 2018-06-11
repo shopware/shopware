@@ -2,20 +2,20 @@
 
 namespace Shopware\Storefront\Page\Detail;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\Content\Product\Aggregate\ProductConfigurator\Collection\ProductConfiguratorBasicCollection;
-use Shopware\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorRepository;
-use Shopware\Content\Product\StorefrontProductRepository;
-use Shopware\Content\Product\Struct\StorefrontProductDetailStruct;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\Query\NestedQuery;
-use Shopware\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\Collection\ProductConfiguratorBasicCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorRepository;
+use Shopware\Core\Content\Product\Storefront\StorefrontProductRepository;
+use Shopware\Core\Content\Product\Struct\StorefrontProductDetailStruct;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\Query\NestedQuery;
+use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Symfony\Component\HttpFoundation\Request;
 
 class DetailPageLoader
 {
     /**
-     * @var \Shopware\Content\Product\StorefrontProductRepository
+     * @var \Shopware\Core\Content\Product\Storefront\StorefrontProductRepository
      */
     private $productRepository;
 
@@ -32,7 +32,7 @@ class DetailPageLoader
         $this->configuratorRepository = $configuratorRepository;
     }
 
-    public function load(string $productId, Request $request, StorefrontContext $context): DetailPageStruct
+    public function load(string $productId, Request $request, CheckoutContext $context): DetailPageStruct
     {
         $parentId = $this->fetchParentId($productId, $context);
 
@@ -44,7 +44,7 @@ class DetailPageLoader
             throw new \RuntimeException('Product was not found.');
         }
 
-        /** @var \Shopware\Content\Product\Struct\StorefrontProductBasicStruct $product */
+        /** @var \Shopware\Core\Content\Product\Struct\StorefrontProductBasicStruct $product */
         $product = $collection->get($productId);
 
         $page = new DetailPageStruct($product);
@@ -60,7 +60,7 @@ class DetailPageLoader
         string $productId,
         string $parentId,
         Request $request,
-        StorefrontContext $context
+        CheckoutContext $context
     ): string {
         $selection = $request->get('group', []);
 
@@ -93,14 +93,14 @@ class DetailPageLoader
         return $productId;
     }
 
-    private function loadConfigurator(StorefrontProductDetailStruct $product, StorefrontContext $context): ProductConfiguratorBasicCollection
+    private function loadConfigurator(StorefrontProductDetailStruct $product, CheckoutContext $context): ProductConfiguratorBasicCollection
     {
         $containerId = $product->getParentId() ?? $product->getId();
 
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('product_configurator.productId', $containerId));
 
-        $configurator = $this->configuratorRepository->search($criteria, $context->getApplicationContext());
+        $configurator = $this->configuratorRepository->search($criteria, $context->getContext());
         $variationIds = $product->getVariationIds() ?? [];
 
         foreach ($configurator as $config) {
@@ -110,7 +110,7 @@ class DetailPageLoader
         return $configurator;
     }
 
-    private function fetchParentId(string $productId, StorefrontContext $context): string
+    private function fetchParentId(string $productId, CheckoutContext $context): string
     {
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('product.children.id', $productId));

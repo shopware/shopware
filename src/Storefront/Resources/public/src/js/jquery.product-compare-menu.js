@@ -2,7 +2,7 @@
     'use strict';
 
     /**
-     * Shopware product Compare Plugin.
+     * Shopware\Core product Compare Plugin.
      *
      * The plugin controlls the topbar-navigation dropdown menu für product comparisons.
      */

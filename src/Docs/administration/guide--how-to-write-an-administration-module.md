@@ -1,6 +1,6 @@
 # Guide: Administration module from scratch
 
-The Shopware administration is a completely new project based on the [Vue.js ecosystem](https://vuejs.org) and [ECMAScript 6](http://es6-features.org/). The system is based on a so called thin layer architecture which abstracts the different application parts. The approach provides us with the ability to create independent components which can be easily nested together to create rich interfaces.
+The Shopware\Core administration is a completely new project based on the [Vue.js ecosystem](https://vuejs.org) and [ECMAScript 6](http://es6-features.org/). The system is based on a so called thin layer architecture which abstracts the different application parts. The approach provides us with the ability to create independent components which can be easily nested together to create rich interfaces.
 
 This guide assumes you're having a basic understanding of [Vue.js' component system](https://vuejs.org) and how to write a component.
 
@@ -36,7 +36,7 @@ This guide assumes you're having a basic understanding of [Vue.js' component sys
     + [Tooling](#tooling)
 
 ## Write your first component
-Components are the fundamental part of the Shopware administration. Literally everything is a component. The thin layer architecture provides the interfaces to register new components or to extend and override existing components.
+Components are the fundamental part of the Shopware\Core administration. Literally everything is a component. The thin layer architecture provides the interfaces to register new components or to extend and override existing components.
 
 ```js
 // Import the shopware object, more later on
@@ -118,7 +118,7 @@ Components should always contain Twig blocks in order to allow the creation of e
 *Examplary depiction of Component Twig blocks*
 
 #### Why are you using Twig instead of plain templates?
-You are probably wondering why the heck we are using Twig template files? The answer is simple: It gives us the ability to override and extend Twig blocks. This way it is super simple and very convenient to modify any part of the template. An added benefit is that you don't have to copy and paste large chunks of code you don't want to touch anyways. Furthermore, the technology is well-known and has already been part of Shopware's storefront. Lastly overriding templates works consistently throughout the application.
+You are probably wondering why the heck we are using Twig template files? The answer is simple: It gives us the ability to override and extend Twig blocks. This way it is super simple and very convenient to modify any part of the template. An added benefit is that you don't have to copy and paste large chunks of code you don't want to touch anyways. Furthermore, the technology is well-known and has already been part of Shopware\Core's storefront. Lastly overriding templates works consistently throughout the application.
 
 ### Styling the component
 
@@ -138,7 +138,7 @@ Import our global variables to the newly created file in order to achieve a cons
 
 #### Naming scheme
 
-Because the Shopware administration is a component based application with rescuable components, the CSS structure and naming scheme of classes should also be component-driven. Therefore we're using the well-known [BEM naming scheme](http://getbem.com/):
+Because the Shopware\Core administration is a component based application with rescuable components, the CSS structure and naming scheme of classes should also be component-driven. Therefore we're using the well-known [BEM naming scheme](http://getbem.com/):
 
 * BEM stands for "Block Element Modifier".
 * In our case "Block" equals the "root" element of a Vue component.
@@ -441,7 +441,7 @@ Locale.register('es-ES', esESLocales);
 
 ## Using the component system
 
-The Shopware administration comes with predefined components which are used throughout the application. You can use these components in your own component / module as well. Our components can be found in the [`administration` repository](https://github.com/shopware/administration) under [`Resources/administration/src/app/components/`](https://github.com/shopware/administration/tree/master/Resources/administration/src/app/component). The following components are available at the time of writing this guide:
+The Shopware\Core administration comes with predefined components which are used throughout the application. You can use these components in your own component / module as well. Our components can be found in the [`administration` repository](https://github.com/shopware/administration) under [`Resources/administration/src/app/components/`](https://github.com/shopware/administration/tree/master/Resources/administration/src/app/component). The following components are available at the time of writing this guide:
 
 - `sw-alert`
     - Notification component supporting different variants based on the type of the notification, e.g. `success`, `error`, `info` and `warning`.
@@ -674,7 +674,7 @@ State.register('locale', {
 
     mutations: {
         setLocale(state, locale) {
-            const factoryContainer = Shopware.Application.getContainer('factory');
+            const factoryContainer = Shopware.Touchpoint.getContainer('factory');
             const localeFactory = factoryContainer.locale;
 
             // The actual state modification
@@ -715,7 +715,7 @@ State.register('manufacturer', {
     actions: {
         getManufacturerList({ commit }, offset = 0, limit = 25) {
             // Get the manufacturer API service
-            const providerContainer = Shopware.Application.getContainer('service');
+            const providerContainer = Shopware.Touchpoint.getContainer('service');
             const manufacturerService = providerContainer.productManufacturerService;
 
             // Request the list using the manufacturer API service
@@ -741,7 +741,7 @@ State.register('manufacturer', {
             }
             
             // Get the manufacturer API service
-            const providerContainer = Shopware.Application.getContainer('service');
+            const providerContainer = Shopware.Touchpoint.getContainer('service');
             const manufacturerService = providerContainer.manufacturerService;
             
             // Generate the change set
@@ -833,7 +833,7 @@ These services are so called API services which are an abstraction layer of the 
 It is also possible to register your own service provider using the third-party developer interface:
 
 ```js
-Shopware.Application.addServiceProvider('exampleService', () => {
+Shopware.Touchpoint.addServiceProvider('exampleService', () => {
     return new ExampleService();
 });
 ```
@@ -974,7 +974,7 @@ State.register('tax', {
 
     actions: {
         getTaxList({ commit }, offset = 0, limit = 25) {
-            const providerContainer = Shopware.Application.getContainer('service');
+            const providerContainer = Shopware.Touchpoint.getContainer('service');
             const taxService = providerContainer.taxService;
 
             return taxService.getList(offset, limit).then((response) => {
@@ -1018,7 +1018,7 @@ Let us take a closer look on the method `getTaxList`.
 
 ```js
 getTaxList({ commit }, offset = 0, limit = 25) {
-    const providerContainer = Shopware.Application.getContainer('service');
+    const providerContainer = Shopware.Touchpoint.getContainer('service');
     const taxService = providerContainer.taxService;
 
     return taxService.getList(offset, limit).then((response) => {
@@ -1041,9 +1041,9 @@ getTaxList({ commit }, offset = 0, limit = 25) {
 In there we're using the application-wide dependency management using [Bottle.js](https://github.com/young-steveo/bottlejs). The application exposes the dependency injection containers using the third-party developer interface. This way we're having access to all available factories, initializers and service providers. We're providing three containers - `factory`, `init` and `service`.
 
 ```js
-Shopware.Application.getContainer('factory');
-Shopware.Application.getContainer('init');
-Shopware.Application.getContainer('service');
+Shopware.Touchpoint.getContainer('factory');
+Shopware.Touchpoint.getContainer('init');
+Shopware.Touchpoint.getContainer('service');
 ```
 
 *Example access using the application-wide dependency containers*
@@ -1095,7 +1095,7 @@ The injected HTTP client is a configured [Axios instance](https://github.com/axi
 
 ```js
 // Register your service provider
-Shopware.Application.addServiceProvider('exampleService', (serviceContainer) =>() {
+Shopware.Touchpoint.addServiceProvider('exampleService', (serviceContainer) =>() {
     const initContainer = application.getContainer('init');
     return new ExampleService(initContainer.httpClient, container.loginService);
 });
@@ -1144,7 +1144,7 @@ Module.register('<module-name>', {
 
 ### Routing and routes definition
 
-In the Shopware administration we're using the [`vue-router` plugin](https://router.vuejs.org/en/) which is nicely integrated into Vue.js and abstracted using our module manifest. Please keep in mind that your module isn't accessible in the administration interface when no route is defined. The module factory which registers the module will throw warnings in the developer console. 
+In the Shopware\Core administration we're using the [`vue-router` plugin](https://router.vuejs.org/en/) which is nicely integrated into Vue.js and abstracted using our module manifest. Please keep in mind that your module isn't accessible in the administration interface when no route is defined. The module factory which registers the module will throw warnings in the developer console. 
 
 ```js
 import { Module } from 'src/core/shopware';
@@ -1333,7 +1333,7 @@ The following features and methods are available to you:
         * Tries to find a `<template>` tag where the attribute `component` is equal to the name of the component in the `document`.
     * `findOverride`
         *  Tries to find a `<template>` tag where the attribute `override` is equal to the name of the component in the `document`.
-* `Application` - The application bootstrapping which takes care of the dependency management and bootstrapping of the application
+* `Touchpoint` - The application bootstrapping which takes care of the dependency management and bootstrapping of the application
     * `addFactory`
         * Adds a factory to the application. A factory creates objects for the domain. The factory will be registered in a nested DI container.
     * `addFactoryDecorator`

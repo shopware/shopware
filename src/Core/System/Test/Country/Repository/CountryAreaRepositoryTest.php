@@ -1,17 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Test\Country\Repository;
+namespace Shopware\Core\System\Test\Country\Repository;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Defaults;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\Term\EntityScoreQueryBuilder;
-use Shopware\Framework\ORM\Search\Term\SearchTermInterpreter;
-use Shopware\Framework\Struct\Uuid;
-use Shopware\System\Country\Aggregate\CountryArea\CountryAreaDefinition;
-use Shopware\System\Country\Aggregate\CountryArea\CountryAreaRepository;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\Term\EntityScoreQueryBuilder;
+use Shopware\Core\Framework\ORM\Search\Term\SearchTermInterpreter;
+use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\System\Country\Aggregate\CountryArea\CountryAreaDefinition;
+use Shopware\Core\System\Country\Aggregate\CountryArea\CountryAreaRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class CountryAreaRepositoryTest extends KernelTestCase
@@ -50,16 +50,16 @@ class CountryAreaRepositoryTest extends KernelTestCase
             ['id' => $recordB, 'name' => 'match not exact'],
         ];
 
-        $this->repository->create($records, ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
+        $this->repository->create($records, Context::createDefaultContext(Defaults::TENANT_ID));
 
         $criteria = new Criteria();
 
         $builder = self::$container->get(EntityScoreQueryBuilder::class);
-        $pattern = self::$container->get(SearchTermInterpreter::class)->interpret('match', ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
+        $pattern = self::$container->get(SearchTermInterpreter::class)->interpret('match', Context::createDefaultContext(Defaults::TENANT_ID));
         $queries = $builder->buildScoreQueries($pattern, CountryAreaDefinition::class, CountryAreaDefinition::getEntityName());
         $criteria->addQueries($queries);
 
-        $result = $this->repository->searchIds($criteria, ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
+        $result = $this->repository->searchIds($criteria, Context::createDefaultContext(Defaults::TENANT_ID));
 
         $this->assertCount(2, $result->getIds());
 

@@ -22,11 +22,11 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Checkout\Test\Cart\Common;
+namespace Shopware\Core\Checkout\Test\Cart\Common;
 
-use Shopware\Checkout\Rule\Specification\Match;
-use Shopware\Checkout\Rule\Specification\Rule;
-use Shopware\Checkout\Rule\Specification\Scope\RuleScope;
+use Shopware\Core\Framework\Rule\Match;
+use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleScope;
 
 class FalseRule extends Rule
 {

@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation\Struct;
+namespace Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\Struct;
 
-use Shopware\Application\Language\Struct\LanguageBasicStruct;
-use Shopware\Checkout\Payment\Struct\PaymentMethodBasicStruct;
+use Shopware\Core\System\Language\Struct\LanguageBasicStruct;
+use Shopware\Core\Checkout\Payment\Struct\PaymentMethodBasicStruct;
 
 class PaymentMethodTranslationDetailStruct extends PaymentMethodTranslationBasicStruct
 {

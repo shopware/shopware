@@ -1,24 +1,24 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Test\Catalog;
+namespace Shopware\Core\Content\Test\Catalog;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Content\Catalog\CatalogRepository;
-use Shopware\Content\Category\CategoryRepository;
-use Shopware\Content\Category\Struct\CategoryBasicStruct;
-use Shopware\Content\Product\ProductRepository;
-use Shopware\Defaults;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\Query\TermQuery;
-use Shopware\Framework\ORM\Write\FieldException\WriteStackException;
-use Shopware\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Catalog\CatalogRepository;
+use Shopware\Core\Content\Category\CategoryRepository;
+use Shopware\Core\Content\Category\Struct\CategoryBasicStruct;
+use Shopware\Core\Content\Product\ProductRepository;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Core\Framework\ORM\Write\FieldException\WriteStackException;
+use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class CatalogTest extends KernelTestCase
 {
     /**
-     * @var \Shopware\Content\Category\CategoryRepository
+     * @var \Shopware\Core\Content\Category\CategoryRepository
      */
     private $categoryRepository;
 
@@ -33,7 +33,7 @@ class CatalogTest extends KernelTestCase
     private $catalogRepository;
 
     /**
-     * @var \Shopware\Content\Product\ProductRepository
+     * @var \Shopware\Core\Content\Product\ProductRepository
      */
     private $productRepository;
 
@@ -57,7 +57,7 @@ class CatalogTest extends KernelTestCase
     public function testCreateWithoutCatalogProvided(): void
     {
         $id = Uuid::uuid4();
-        $context = ApplicationContext::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext(Defaults::TENANT_ID);
         $category = ['id' => $id->getHex(), 'name' => 'catalog test category'];
 
         $this->categoryRepository->create([$category], $context);
@@ -72,7 +72,7 @@ class CatalogTest extends KernelTestCase
         $this->expectException(WriteStackException::class);
 
         $id = Uuid::uuid4();
-        $context = ApplicationContext::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext(Defaults::TENANT_ID);
         $catalogId = $this->createCatalog($context);
         $category = [
             'id' => $id->getHex(),
@@ -90,7 +90,7 @@ class CatalogTest extends KernelTestCase
     public function testWithCatalogProvided(): void
     {
         $id = Uuid::uuid4();
-        $context = ApplicationContext::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext(Defaults::TENANT_ID);
         $catalogId = $this->createCatalog($context);
         $category = [
             'id' => $id->getHex(),
@@ -112,11 +112,11 @@ class CatalogTest extends KernelTestCase
         $this->expectException(WriteStackException::class);
 
         $id = Uuid::uuid4();
-        $context = ApplicationContext::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext(Defaults::TENANT_ID);
 
-        $readContext = new ApplicationContext(
+        $readContext = new Context(
             Defaults::TENANT_ID,
-            $context->getApplicationId(),
+            $context->getTouchpointId(),
             [],
             [],
             $context->getCurrencyId(),
@@ -144,7 +144,7 @@ class CatalogTest extends KernelTestCase
     public function testReadWithDefaultCatalogContext(): void
     {
         $id = Uuid::uuid4();
-        $context = ApplicationContext::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext(Defaults::TENANT_ID);
         $catalogId = $this->createCatalog($context);
         $catalogContext = $this->addCatalogIdToContext($context, $catalogId);
         $category = [
@@ -167,7 +167,7 @@ class CatalogTest extends KernelTestCase
     public function testReadWithCorrectCatalogContext(): void
     {
         $id = Uuid::uuid4();
-        $context = ApplicationContext::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext(Defaults::TENANT_ID);
         $catalogId = $this->createCatalog($context);
 
         $context = $this->addCatalogIdToContext($context, $catalogId);
@@ -191,7 +191,7 @@ class CatalogTest extends KernelTestCase
 
     public function testReadWithMultipleCatalogs(): void
     {
-        $context = ApplicationContext::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext(Defaults::TENANT_ID);
 
         $id1 = Uuid::uuid4();
         $id2 = Uuid::uuid4();
@@ -199,7 +199,7 @@ class CatalogTest extends KernelTestCase
         $catalogId1 = $this->createCatalog($context);
         $catalogId2 = $this->createCatalog($context);
 
-        $fullContext = ApplicationContext::createDefaultContext(Defaults::TENANT_ID);
+        $fullContext = Context::createDefaultContext(Defaults::TENANT_ID);
         $fullContext = $this->addCatalogIdToContext($fullContext, $catalogId1);
         $fullContext = $this->addCatalogIdToContext($fullContext, $catalogId2);
 
@@ -212,11 +212,11 @@ class CatalogTest extends KernelTestCase
         $this->categoryRepository->create($categories, $fullContext);
 
         // read with two enabled catalogs
-        $context = new ApplicationContext(
+        $context = new Context(
             Defaults::TENANT_ID,
-            $context->getApplicationId(),
+            $context->getTouchpointId(),
             [$catalogId1, $catalogId2],
-            $context->getContextRules(),
+            $context->getRules(),
             $context->getCurrencyId(),
             $context->getLanguageId()
         );
@@ -225,9 +225,9 @@ class CatalogTest extends KernelTestCase
         $this->assertEquals(2, $foundCategories->count());
 
         // read with default and another two enabled catalogs
-        $context = new ApplicationContext(
+        $context = new Context(
             Defaults::TENANT_ID,
-            $context->getApplicationId(),
+            $context->getTouchpointId(),
             [$catalogId1, $catalogId2, Defaults::CATALOG],
             [],
             $context->getCurrencyId(),
@@ -243,12 +243,12 @@ class CatalogTest extends KernelTestCase
         $id = Uuid::uuid4();
         $id2 = Uuid::uuid4();
         $parentId = Uuid::uuid4();
-        $context = ApplicationContext::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext(Defaults::TENANT_ID);
         $catalogId = $this->createCatalog($context);
 
-        $context = new ApplicationContext(
+        $context = new Context(
             Defaults::TENANT_ID,
-            $context->getApplicationId(),
+            $context->getTouchpointId(),
             [$catalogId],
             [],
             $context->getCurrencyId(),
@@ -314,12 +314,12 @@ class CatalogTest extends KernelTestCase
         $categoryId = Uuid::uuid4();
         $manufacturerId = Uuid::uuid4();
         $taxId = Uuid::uuid4();
-        $context = ApplicationContext::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext(Defaults::TENANT_ID);
         $catalogId = $this->createCatalog($context);
 
-        $context = new ApplicationContext(
+        $context = new Context(
             Defaults::TENANT_ID,
-            $context->getApplicationId(),
+            $context->getTouchpointId(),
             [$catalogId],
             [],
             $context->getCurrencyId(),
@@ -368,7 +368,7 @@ class CatalogTest extends KernelTestCase
         $this->assertEquals(2, $products->count(), 'Products were not fetched correctly');
 
         // should not work as catalog differs from the default
-        $context = ApplicationContext::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext(Defaults::TENANT_ID);
         $products = $this->productRepository->readBasic([$productId1->getHex(), $productId2->getHex()], $context);
         $this->assertEquals(0, $products->count(), 'Products should not be fetched');
     }
@@ -380,12 +380,12 @@ class CatalogTest extends KernelTestCase
         $categoryId = Uuid::uuid4();
         $manufacturerId = Uuid::uuid4();
         $taxId = Uuid::uuid4();
-        $context = ApplicationContext::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext(Defaults::TENANT_ID);
         $catalogId = $this->createCatalog($context);
 
-        $context = new ApplicationContext(
+        $context = new Context(
             Defaults::TENANT_ID,
-            $context->getApplicationId(),
+            $context->getTouchpointId(),
             [$catalogId],
             [],
             $context->getCurrencyId(),
@@ -437,12 +437,12 @@ class CatalogTest extends KernelTestCase
         $this->assertEquals(2, $products->count(), 'Products were not fetched correctly');
 
         // should not work as catalog differs from the default
-        $context = ApplicationContext::createDefaultContext(Defaults::TENANT_ID);
+        $context = Context::createDefaultContext(Defaults::TENANT_ID);
         $products = $this->productRepository->search($criteria, $context);
         $this->assertEquals(0, $products->count(), 'Products should not be fetched');
     }
 
-    private function createCatalog(ApplicationContext $context): string
+    private function createCatalog(Context $context): string
     {
         $catalogId = Uuid::uuid4();
         $catalog = ['id' => $catalogId->getHex(), 'name' => 'unit test catalog'];
@@ -451,13 +451,13 @@ class CatalogTest extends KernelTestCase
         return $catalogId->getHex();
     }
 
-    private function addCatalogIdToContext(ApplicationContext $context, string $catalogId): ApplicationContext
+    private function addCatalogIdToContext(Context $context, string $catalogId): Context
     {
-        return new ApplicationContext(
+        return new Context(
             Defaults::TENANT_ID,
-            $context->getApplicationId(),
+            $context->getTouchpointId(),
             array_merge($context->getCatalogIds(), [$catalogId]),
-            $context->getContextRules(),
+            $context->getRules(),
             $context->getCurrencyId(),
             $context->getLanguageId(),
             $context->getFallbackLanguageId(),

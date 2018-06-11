@@ -11,14 +11,14 @@ In order to prevent duplicate data queries to the storage, we defined the collec
 Collectors get cart access before the calculation loop starts. This pattern is implemented in the CartProcessor:
 https://github.com/shopware/shopware/blob/labs/src/Cart/Cart/CartProcessor.php#L72
 
-Each collector has to implement the `\Shopware\Checkout\Cart\Cart\CartCollectorInterface` which expects the following functions to be implemented:
+Each collector has to implement the `\Shopware\Core\Checkout\Cart\Cart\CartCollectorInterface` which expects the following functions to be implemented:
 
 ```php
 <?php
 
-namespace Shopware\Checkout\Cart\Cart;
-use Shopware\Application\Context\Struct\ShopContext;
-use Shopware\Framework\Struct\StructCollection;
+namespace Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Touchpoint\Context\Struct\ShopContext;
+use Shopware\Core\Framework\Struct\StructCollection;
 
 interface CartCollectorInterface
 {
@@ -44,7 +44,7 @@ For example:
 - The core product processor requires **validation** and **product data** for each line item of type `product`
 - The plugin live shopping processor requires **validation**, **live shopping** and **product data** for each line item of type `liveShopping`
 
-Both implementations can add a `\Shopware\Content\Product\Cart\ProductFetchDefinition` to the `$fetchCollection` parameter which allows to merge this definitions and only execute a single
+Both implementations can add a `\Shopware\Core\Content\Product\Cart\ProductFetchDefinition` to the `$fetchCollection` parameter which allows to merge this definitions and only execute a single
 request to the `product data gateway`. 
 
 The collector pattern provides two benefits:

@@ -24,7 +24,7 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Framework\Filesystem\Exception;
+namespace Shopware\Core\Framework\Filesystem\Exception;
 
 class DuplicateFilesystemFactoryException extends \Exception
 {

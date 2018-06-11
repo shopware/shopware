@@ -1,21 +1,21 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Dbal\Indexing;
+namespace Shopware\Core\Framework\ORM\Dbal\Indexing;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\Event\ProgressAdvancedEvent;
-use Shopware\Framework\Event\ProgressFinishedEvent;
-use Shopware\Framework\Event\ProgressStartedEvent;
-use Shopware\Framework\ORM\Dbal\Common\IterableQuery;
-use Shopware\Framework\ORM\Dbal\Common\LastIdQuery;
-use Shopware\Framework\ORM\Dbal\Common\OffsetQuery;
-use Shopware\Framework\ORM\DefinitionRegistry;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\Write\EntityExistence;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\ORM\Write\WrittenEvent;
-use Shopware\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
+use Shopware\Core\Framework\Event\ProgressFinishedEvent;
+use Shopware\Core\Framework\Event\ProgressStartedEvent;
+use Shopware\Core\Framework\ORM\Dbal\Common\IterableQuery;
+use Shopware\Core\Framework\ORM\Dbal\Common\LastIdQuery;
+use Shopware\Core\Framework\ORM\Dbal\Common\OffsetQuery;
+use Shopware\Core\Framework\ORM\DefinitionRegistry;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\Write\EntityExistence;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ChildCountIndexer implements IndexerInterface
@@ -47,16 +47,16 @@ class ChildCountIndexer implements IndexerInterface
 
     public function index(\DateTime $timestamp, string $tenantId): void
     {
-        $context = ApplicationContext::createDefaultContext($tenantId);
+        $context = Context::createDefaultContext($tenantId);
 
-        /** @var EntityDefinition $entityDefinition */
-        foreach ($this->definitionRegistry->getElements() as $entityDefinition) {
-            if (!$entityDefinition::isChildrenAware() || !$entityDefinition::isChildCountAware()) {
+        /** @var EntityDefinition|string $definition */
+        foreach ($this->definitionRegistry->getElements() as $definition) {
+            if (!$definition::isChildrenAware() || !$definition::isChildCountAware()) {
                 continue;
             }
 
-            $entityName = $entityDefinition::getEntityName();
-            $iterator = $this->createIterator($tenantId, $entityName, $entityDefinition);
+            $entityName = $definition::getEntityName();
+            $iterator = $this->createIterator($tenantId, $entityName, $definition);
 
             $this->eventDispatcher->dispatch(
                 ProgressStartedEvent::NAME,
@@ -95,7 +95,7 @@ class ChildCountIndexer implements IndexerInterface
         }
     }
 
-    private function update(WrittenEvent $event, array $ids, ApplicationContext $context)
+    private function update(WrittenEvent $event, array $ids, Context $context)
     {
         $entityParents = array_map(function (EntityExistence $existence) {
             if (!array_key_exists('parent_id', $existence->getState()) || !$existence->getState()['parent_id']) {
@@ -113,7 +113,7 @@ class ChildCountIndexer implements IndexerInterface
         $this->updateChildCount($entityName, $parentIds, $context);
     }
 
-    private function updateChildCount(string $entityName, array $parentIds, ApplicationContext $context): void
+    private function updateChildCount(string $entityName, array $parentIds, Context $context): void
     {
         if (empty($parentIds)) {
             return;
@@ -150,7 +150,7 @@ class ChildCountIndexer implements IndexerInterface
         );
     }
 
-    private function fetchParentIds(string $entityName, array $ids, ApplicationContext $context): array
+    private function fetchParentIds(string $entityName, array $ids, Context $context): array
     {
         $ids = array_map(function ($id) {
             return Uuid::fromStringToBytes($id);
@@ -177,7 +177,7 @@ class ChildCountIndexer implements IndexerInterface
         }, $parents);
     }
 
-    private function createIterator(string $tenantId, string $entityName, $entityDefinition): IterableQuery
+    private function createIterator(string $tenantId, string $entityName, string $definition): IterableQuery
     {
         $query = $this->connection->createQueryBuilder();
 
@@ -188,7 +188,8 @@ class ChildCountIndexer implements IndexerInterface
 
         $query->setParameter('tenantId', Uuid::fromHexToBytes($tenantId));
 
-        if ($entityDefinition::getFields()->has('autoIncrement')) {
+        /** @var EntityDefinition|string $definition */
+        if ($definition::getFields()->has('autoIncrement')) {
             $query->select(['auto_increment', 'id']);
             $query->andWhere('auto_increment > :lastId');
             $query->addOrderBy('auto_increment');

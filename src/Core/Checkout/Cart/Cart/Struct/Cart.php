@@ -23,12 +23,12 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Checkout\Cart\Cart\Struct;
+namespace Shopware\Core\Checkout\Cart\Cart\Struct;
 
-use Shopware\Checkout\Cart\Error\ErrorCollection;
-use Shopware\Checkout\Cart\LineItem\LineItemCollection;
-use Shopware\Framework\Struct\Struct;
-use Shopware\Framework\Struct\Uuid;
+use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\Framework\Struct\Uuid;
 
 class Cart extends Struct
 {

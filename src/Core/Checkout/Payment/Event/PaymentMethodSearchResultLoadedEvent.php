@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Payment\Event;
+namespace Shopware\Core\Checkout\Payment\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Checkout\Payment\Struct\PaymentMethodSearchResult;
-use Shopware\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Payment\Struct\PaymentMethodSearchResult;
+use Shopware\Core\Framework\Event\NestedEvent;
 
 class PaymentMethodSearchResultLoadedEvent extends NestedEvent
 {
@@ -25,7 +25,7 @@ class PaymentMethodSearchResultLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->result->getContext();
     }

@@ -22,9 +22,9 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Content\Media\Util\Strategy;
+namespace Shopware\Core\Content\Media\Util\Strategy;
 
-use Shopware\Content\Media\Exception\EmptyMediaFilenameException;
+use Shopware\Core\Content\Media\Exception\EmptyMediaFilenameException;
 
 class Md5Strategy implements StrategyInterface
 {

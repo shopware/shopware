@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Unit\Aggregate\UnitTranslation\Struct;
+namespace Shopware\Core\System\Unit\Aggregate\UnitTranslation\Struct;
 
-use Shopware\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Entity;
 
 class UnitTranslationBasicStruct extends Entity
 {

@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Media\Extension;
+namespace Shopware\Core\Content\Media\Extension;
 
-use Shopware\Content\Media\Event\MediaBasicLoadedEvent;
-use Shopware\Content\Media\Util\UrlGeneratorInterface;
-use Shopware\Framework\Struct\ArrayStruct;
+use Shopware\Core\Content\Media\Event\MediaBasicLoadedEvent;
+use Shopware\Core\Content\Media\Util\UrlGeneratorInterface;
+use Shopware\Core\Framework\Struct\ArrayStruct;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class UrlExtension implements EventSubscriberInterface

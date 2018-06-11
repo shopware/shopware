@@ -2,13 +2,13 @@
 
 namespace Shopware\Storefront\Page\Search;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\Content\Product\StorefrontProductRepository;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Content\Product\Storefront\StorefrontProductRepository;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Storefront\Event\ListingPageLoadedEvent;
 use Shopware\Storefront\Event\PageCriteriaCreatedEvent;
-use Shopware\System\Config\Util\ConfigServiceInterface;
+use Shopware\Core\System\Config\Util\ConfigServiceInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class SearchPageLoader
@@ -38,9 +38,9 @@ class SearchPageLoader
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function load(SearchPageRequest $request, StorefrontContext $context): SearchPageStruct
+    public function load(SearchPageRequest $request, CheckoutContext $context): SearchPageStruct
     {
-        $config = $this->configService->get($context->getApplication()->getId(), null);
+        $config = $this->configService->get($context->getTouchpoint()->getId(), null);
 
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('product.active', 1));

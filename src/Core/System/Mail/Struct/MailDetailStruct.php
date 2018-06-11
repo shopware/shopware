@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Mail\Struct;
+namespace Shopware\Core\System\Mail\Struct;
 
-use Shopware\Checkout\Order\Aggregate\OrderState\Struct\OrderStateBasicStruct;
-use Shopware\System\Mail\Aggregate\MailAttachment\Collection\MailAttachmentBasicCollection;
-use Shopware\System\Mail\Aggregate\MailTranslation\Collection\MailTranslationBasicCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderState\Struct\OrderStateBasicStruct;
+use Shopware\Core\System\Mail\Aggregate\MailAttachment\Collection\MailAttachmentBasicCollection;
+use Shopware\Core\System\Mail\Aggregate\MailTranslation\Collection\MailTranslationBasicCollection;
 
 class MailDetailStruct extends MailBasicStruct
 {
@@ -14,7 +14,7 @@ class MailDetailStruct extends MailBasicStruct
     protected $orderState;
 
     /**
-     * @var \Shopware\System\Mail\Aggregate\MailAttachment\Collection\MailAttachmentBasicCollection
+     * @var \Shopware\Core\System\Mail\Aggregate\MailAttachment\Collection\MailAttachmentBasicCollection
      */
     protected $attachments;
 
@@ -30,12 +30,12 @@ class MailDetailStruct extends MailBasicStruct
         $this->translations = new MailTranslationBasicCollection();
     }
 
-    public function getOrderState(): ?\Shopware\Checkout\Order\Aggregate\OrderState\Struct\OrderStateBasicStruct
+    public function getOrderState(): ?\Shopware\Core\Checkout\Order\Aggregate\OrderState\Struct\OrderStateBasicStruct
     {
         return $this->orderState;
     }
 
-    public function setOrderState(?\Shopware\Checkout\Order\Aggregate\OrderState\Struct\OrderStateBasicStruct $orderState): void
+    public function setOrderState(?\Shopware\Core\Checkout\Order\Aggregate\OrderState\Struct\OrderStateBasicStruct $orderState): void
     {
         $this->orderState = $orderState;
     }

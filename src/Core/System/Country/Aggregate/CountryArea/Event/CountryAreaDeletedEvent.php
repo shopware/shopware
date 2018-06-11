@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Country\Aggregate\CountryArea\Event;
+namespace Shopware\Core\System\Country\Aggregate\CountryArea\Event;
 
-use Shopware\Framework\ORM\Write\DeletedEvent;
-use Shopware\Framework\ORM\Write\WrittenEvent;
-use Shopware\System\Country\Aggregate\CountryArea\CountryAreaDefinition;
+use Shopware\Core\Framework\ORM\Write\DeletedEvent;
+use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\System\Country\Aggregate\CountryArea\CountryAreaDefinition;
 
 class CountryAreaDeletedEvent extends WrittenEvent implements DeletedEvent
 {

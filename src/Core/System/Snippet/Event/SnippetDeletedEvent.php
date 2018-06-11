@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Snippet\Event;
+namespace Shopware\Core\System\Snippet\Event;
 
-use Shopware\Framework\ORM\Write\DeletedEvent;
-use Shopware\Framework\ORM\Write\WrittenEvent;
-use Shopware\System\Snippet\SnippetDefinition;
+use Shopware\Core\Framework\ORM\Write\DeletedEvent;
+use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\System\Snippet\SnippetDefinition;
 
 class SnippetDeletedEvent extends WrittenEvent implements DeletedEvent
 {

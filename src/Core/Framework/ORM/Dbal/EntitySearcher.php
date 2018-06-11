@@ -1,16 +1,16 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Dbal;
+namespace Shopware\Core\Framework\ORM\Dbal;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\EntitySearcherInterface;
-use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Framework\ORM\Search\Parser\SqlQueryParser;
-use Shopware\Framework\ORM\Search\Query\ScoreQuery;
-use Shopware\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\ORM\Search\IdSearchResult;
+use Shopware\Core\Framework\ORM\Search\Parser\SqlQueryParser;
+use Shopware\Core\Framework\ORM\Search\Query\ScoreQuery;
+use Shopware\Core\Framework\Struct\Uuid;
 
 /**
  * Used for all search operations in the system.
@@ -44,7 +44,7 @@ class EntitySearcher implements EntitySearcherInterface
         $this->queryHelper = $queryHelper;
     }
 
-    public function search(string $definition, Criteria $criteria, ApplicationContext $context): IdSearchResult
+    public function search(string $definition, Criteria $criteria, Context $context): IdSearchResult
     {
         /** @var EntityDefinition $definition */
         $table = $definition::getEntityName();
@@ -115,7 +115,7 @@ class EntitySearcher implements EntitySearcherInterface
         return new IdSearchResult($total, $converted, $criteria, $context);
     }
 
-    private function addQueries(string $definition, Criteria $criteria, QueryBuilder $query, ApplicationContext $context): void
+    private function addQueries(string $definition, Criteria $criteria, QueryBuilder $query, Context $context): void
     {
         /** @var string|EntityDefinition $definition */
         $queries = $this->queryParser->parseRanking(
@@ -151,7 +151,7 @@ class EntitySearcher implements EntitySearcherInterface
         }
     }
 
-    private function addFilters(string $definition, Criteria $criteria, QueryBuilder $query, ApplicationContext $context): void
+    private function addFilters(string $definition, Criteria $criteria, QueryBuilder $query, Context $context): void
     {
         $parsed = $this->queryParser->parse($criteria->getAllFilters(), $definition, $context);
 
@@ -165,7 +165,7 @@ class EntitySearcher implements EntitySearcherInterface
         }
     }
 
-    private function addSortings(string $definition, Criteria $criteria, QueryBuilder $query, ApplicationContext $context): void
+    private function addSortings(string $definition, Criteria $criteria, QueryBuilder $query, Context $context): void
     {
         /* @var string|EntityDefinition $definition */
         foreach ($criteria->getSortings() as $sorting) {
@@ -203,7 +203,7 @@ class EntitySearcher implements EntitySearcherInterface
         $query->select($selects);
     }
 
-    private function addGroupBy(string $definition, Criteria $criteria, QueryBuilder $query, ApplicationContext $context): void
+    private function addGroupBy(string $definition, Criteria $criteria, QueryBuilder $query, Context $context): void
     {
         /** @var string|EntityDefinition $definition */
         $table = $definition::getEntityName();

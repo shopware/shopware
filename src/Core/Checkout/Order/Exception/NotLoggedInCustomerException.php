@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Order\Exception;
+namespace Shopware\Core\Checkout\Order\Exception;
 
-use Shopware\Framework\HttpExceptionInterface;
+use Shopware\Core\Framework\HttpExceptionInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 

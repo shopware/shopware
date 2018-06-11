@@ -23,22 +23,22 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Content\Product\Cart\Struct;
+namespace Shopware\Core\Content\Product\Cart\Struct;
 
-use Shopware\Checkout\Cart\Delivery\Struct\Delivery;
-use Shopware\Checkout\Cart\Delivery\Struct\DeliveryDate;
-use Shopware\Checkout\Cart\LineItem\CalculatedLineItemCollection;
-use Shopware\Checkout\Cart\LineItem\CalculatedLineItemInterface;
-use Shopware\Checkout\Cart\LineItem\DeliverableLineItemInterface;
-use Shopware\Checkout\Cart\LineItem\GoodsInterface;
-use Shopware\Checkout\Cart\LineItem\LineItemInterface;
-use Shopware\Checkout\Cart\LineItem\NestedInterface;
-use Shopware\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Checkout\Rule\Specification\Rule;
-use Shopware\Checkout\Rule\Specification\Validatable;
-use Shopware\Content\Media\Struct\MediaBasicStruct;
-use Shopware\Content\Product\Struct\ProductBasicStruct;
-use Shopware\Framework\Struct\Struct;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
+use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItemCollection;
+use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItemInterface;
+use Shopware\Core\Checkout\Cart\LineItem\DeliverableLineItemInterface;
+use Shopware\Core\Checkout\Cart\LineItem\GoodsInterface;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemInterface;
+use Shopware\Core\Checkout\Cart\LineItem\NestedInterface;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\Validatable;
+use Shopware\Core\Content\Media\Struct\MediaBasicStruct;
+use Shopware\Core\Content\Product\Struct\ProductBasicStruct;
+use Shopware\Core\Framework\Struct\Struct;
 
 class CalculatedProduct extends Struct implements DeliverableLineItemInterface, GoodsInterface, Validatable, NestedInterface
 {
@@ -78,12 +78,12 @@ class CalculatedProduct extends Struct implements DeliverableLineItemInterface, 
     protected $cover;
 
     /**
-     * @var \Shopware\Checkout\Cart\Delivery\Struct\DeliveryDate
+     * @var \Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate
      */
     protected $inStockDeliveryDate;
 
     /**
-     * @var \Shopware\Checkout\Cart\Delivery\Struct\DeliveryDate
+     * @var \Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate
      */
     protected $outOfStockDeliveryDate;
 

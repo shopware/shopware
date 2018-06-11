@@ -1,17 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Snippet\Event;
+namespace Shopware\Core\System\Snippet\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\System\Snippet\Collection\SnippetBasicCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\System\Snippet\Collection\SnippetBasicCollection;
 
 class SnippetBasicLoadedEvent extends NestedEvent
 {
     public const NAME = 'snippet.basic.loaded';
 
     /**
-     * @var ApplicationContext
+     * @var \Shopware\Core\Framework\Context
      */
     protected $context;
 
@@ -20,7 +20,7 @@ class SnippetBasicLoadedEvent extends NestedEvent
      */
     protected $snippets;
 
-    public function __construct(SnippetBasicCollection $snippets, ApplicationContext $context)
+    public function __construct(SnippetBasicCollection $snippets, Context $context)
     {
         $this->context = $context;
         $this->snippets = $snippets;
@@ -31,7 +31,7 @@ class SnippetBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }

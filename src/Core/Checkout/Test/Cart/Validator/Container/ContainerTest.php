@@ -22,12 +22,12 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Checkout\Test\Cart\Validator\Container;
+namespace Shopware\Core\Checkout\Test\Cart\Validator\Container;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Checkout\Rule\Specification\Container\AndRule;
-use Shopware\Checkout\Test\Cart\Common\FalseRule;
-use Shopware\Checkout\Test\Cart\Common\TrueRule;
+use Shopware\Core\Framework\Rule\Container\AndRule;
+use Shopware\Core\Checkout\Test\Cart\Common\FalseRule;
+use Shopware\Core\Checkout\Test\Cart\Common\TrueRule;
 
 class ContainerTest extends TestCase
 {

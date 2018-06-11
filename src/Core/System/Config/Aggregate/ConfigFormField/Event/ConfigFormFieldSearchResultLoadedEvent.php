@@ -1,17 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Config\Aggregate\ConfigFormField\Event;
+namespace Shopware\Core\System\Config\Aggregate\ConfigFormField\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\System\Config\Aggregate\ConfigFormField\Struct\ConfigFormFieldSearchResult;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\System\Config\Aggregate\ConfigFormField\Struct\ConfigFormFieldSearchResult;
 
 class ConfigFormFieldSearchResultLoadedEvent extends NestedEvent
 {
     public const NAME = 'config_form_field.search.result.loaded';
 
     /**
-     * @var \Shopware\System\Config\Aggregate\ConfigFormField\Struct\ConfigFormFieldSearchResult
+     * @var \Shopware\Core\System\Config\Aggregate\ConfigFormField\Struct\ConfigFormFieldSearchResult
      */
     protected $result;
 
@@ -25,7 +25,7 @@ class ConfigFormFieldSearchResultLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->result->getContext();
     }

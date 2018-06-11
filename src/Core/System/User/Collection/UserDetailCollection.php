@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\User\Collection;
+namespace Shopware\Core\System\User\Collection;
 
-use Shopware\Content\Media\Collection\MediaBasicCollection;
-use Shopware\System\Locale\Collection\LocaleBasicCollection;
-use Shopware\System\User\Struct\UserDetailStruct;
+use Shopware\Core\Content\Media\Collection\MediaBasicCollection;
+use Shopware\Core\System\Locale\Collection\LocaleBasicCollection;
+use Shopware\Core\System\User\Struct\UserDetailStruct;
 
 class UserDetailCollection extends UserBasicCollection
 {

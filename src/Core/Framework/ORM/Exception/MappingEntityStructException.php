@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Exception;
+namespace Shopware\Core\Framework\ORM\Exception;
 
-use Shopware\Framework\ShopwareException;
+use Shopware\Core\Framework\ShopwareException;
 use Throwable;
 
 class MappingEntityStructException extends \RuntimeException implements ShopwareException

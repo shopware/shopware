@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Media\Aggregate\MediaAlbum\Struct;
+namespace Shopware\Core\Content\Media\Aggregate\MediaAlbum\Struct;
 
-use Shopware\Content\Media\Aggregate\MediaAlbum\Collection\MediaAlbumBasicCollection;
-use Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Collection\MediaAlbumTranslationBasicCollection;
-use Shopware\Content\Media\Collection\MediaBasicCollection;
+use Shopware\Core\Content\Media\Aggregate\MediaAlbum\Collection\MediaAlbumBasicCollection;
+use Shopware\Core\Content\Media\Aggregate\MediaAlbumTranslation\Collection\MediaAlbumTranslationBasicCollection;
+use Shopware\Core\Content\Media\Collection\MediaBasicCollection;
 
 class MediaAlbumDetailStruct extends MediaAlbumBasicStruct
 {
@@ -24,7 +24,7 @@ class MediaAlbumDetailStruct extends MediaAlbumBasicStruct
     protected $children;
 
     /**
-     * @var \Shopware\Content\Media\Aggregate\MediaAlbumTranslation\Collection\MediaAlbumTranslationBasicCollection
+     * @var \Shopware\Core\Content\Media\Aggregate\MediaAlbumTranslation\Collection\MediaAlbumTranslationBasicCollection
      */
     protected $translations;
 

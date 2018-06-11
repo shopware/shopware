@@ -1,29 +1,29 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Listing\Aggregate\ListingFacetTranslation\Event;
+namespace Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Application\Language\Event\LanguageBasicLoadedEvent;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\System\Listing\Aggregate\ListingFacetTranslation\Collection\ListingFacetTranslationDetailCollection;
-use Shopware\System\Listing\Event\ListingFacetBasicLoadedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\System\Language\Event\LanguageBasicLoadedEvent;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation\Collection\ListingFacetTranslationDetailCollection;
+use Shopware\Core\System\Listing\Event\ListingFacetBasicLoadedEvent;
 
 class ListingFacetTranslationDetailLoadedEvent extends NestedEvent
 {
     public const NAME = 'listing_facet_translation.detail.loaded';
 
     /**
-     * @var ApplicationContext
+     * @var Context
      */
     protected $context;
 
     /**
-     * @var \Shopware\System\Listing\Aggregate\ListingFacetTranslation\Collection\ListingFacetTranslationDetailCollection
+     * @var \Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation\Collection\ListingFacetTranslationDetailCollection
      */
     protected $listingFacetTranslations;
 
-    public function __construct(ListingFacetTranslationDetailCollection $listingFacetTranslations, ApplicationContext $context)
+    public function __construct(ListingFacetTranslationDetailCollection $listingFacetTranslations, Context $context)
     {
         $this->context = $context;
         $this->listingFacetTranslations = $listingFacetTranslations;
@@ -34,7 +34,7 @@ class ListingFacetTranslationDetailLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }

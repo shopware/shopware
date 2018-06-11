@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Profiling\Cart;
+namespace Shopware\Core\Profiling\Cart;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Checkout\Cart\Cart\Struct\Cart;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
 
 class TracedCartActions
 {
@@ -24,7 +24,7 @@ class TracedCartActions
     public $cart;
 
     /**
-     * @var StorefrontContext
+     * @var CheckoutContext
      */
     public $context;
 

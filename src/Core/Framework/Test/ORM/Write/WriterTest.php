@@ -1,20 +1,20 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Test\ORM\Write;
+namespace Shopware\Core\Framework\Test\ORM\Write;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Application\Language\LanguageRepository;
-use Shopware\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
-use Shopware\Content\Product\ProductDefinition;
-use Shopware\Defaults;
-use Shopware\Framework\ORM\Write\EntityWriter;
-use Shopware\Framework\ORM\Write\EntityWriterInterface;
-use Shopware\Framework\ORM\Write\FieldException\WriteStackException;
-use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\Framework\Struct\Uuid;
-use Shopware\System\Country\Aggregate\CountryArea\CountryAreaDefinition;
-use Shopware\System\Locale\LocaleRepository;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\System\Language\LanguageRepository;
+use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
+use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\ORM\Write\EntityWriter;
+use Shopware\Core\Framework\ORM\Write\EntityWriterInterface;
+use Shopware\Core\Framework\ORM\Write\FieldException\WriteStackException;
+use Shopware\Core\Framework\ORM\Write\WriteContext;
+use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\System\Country\Aggregate\CountryArea\CountryAreaDefinition;
+use Shopware\Core\System\Locale\LocaleRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class WriterTest extends KernelTestCase
@@ -433,11 +433,11 @@ class WriterTest extends KernelTestCase
         $localeId = Uuid::uuid4()->getHex();
         self::$container->get(LocaleRepository::class)->upsert([
             ['id' => $localeId, 'name' => 'test', 'territory' => 'tmp', 'code' => Uuid::uuid4()->getHex()],
-        ], ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
+        ], Context::createDefaultContext(Defaults::TENANT_ID));
 
         self::$container->get(LanguageRepository::class)->upsert([
             ['id' => '2d905256-e751-4967-8dd5-a32a81b94f1f', 'name' => 'language 2', 'localeId' => $localeId, 'localeVersionId' => Defaults::LIVE_VERSION],
-        ], ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
+        ], Context::createDefaultContext(Defaults::TENANT_ID));
 
         $this->getWriter()->update(
             ProductDefinition::class,
@@ -549,7 +549,7 @@ class WriterTest extends KernelTestCase
      */
     protected function createWriteContext(): WriteContext
     {
-        $context = WriteContext::createFromApplicationContext(ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
+        $context = WriteContext::createFromContext(Context::createDefaultContext(Defaults::TENANT_ID));
 
         return $context;
     }

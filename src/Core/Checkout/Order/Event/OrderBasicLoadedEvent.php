@@ -1,24 +1,24 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Order\Event;
+namespace Shopware\Core\Checkout\Order\Event;
 
-use Shopware\Application\Application\Event\ApplicationBasicLoadedEvent;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Checkout\Customer\Event\CustomerBasicLoadedEvent;
-use Shopware\Checkout\Order\Aggregate\OrderAddress\Event\OrderAddressBasicLoadedEvent;
-use Shopware\Checkout\Order\Aggregate\OrderState\Event\OrderStateBasicLoadedEvent;
-use Shopware\Checkout\Order\Collection\OrderBasicCollection;
-use Shopware\Checkout\Payment\Event\PaymentMethodBasicLoadedEvent;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\System\Currency\Event\CurrencyBasicLoadedEvent;
+use Shopware\Core\System\Touchpoint\Event\TouchpointBasicLoadedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Customer\Event\CustomerBasicLoadedEvent;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\Event\OrderAddressBasicLoadedEvent;
+use Shopware\Core\Checkout\Order\Aggregate\OrderState\Event\OrderStateBasicLoadedEvent;
+use Shopware\Core\Checkout\Order\Collection\OrderBasicCollection;
+use Shopware\Core\Checkout\Payment\Event\PaymentMethodBasicLoadedEvent;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\System\Currency\Event\CurrencyBasicLoadedEvent;
 
 class OrderBasicLoadedEvent extends NestedEvent
 {
     public const NAME = 'order.basic.loaded';
 
     /**
-     * @var ApplicationContext
+     * @var Context
      */
     protected $context;
 
@@ -27,7 +27,7 @@ class OrderBasicLoadedEvent extends NestedEvent
      */
     protected $orders;
 
-    public function __construct(OrderBasicCollection $orders, ApplicationContext $context)
+    public function __construct(OrderBasicCollection $orders, Context $context)
     {
         $this->context = $context;
         $this->orders = $orders;
@@ -38,7 +38,7 @@ class OrderBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }
@@ -63,8 +63,8 @@ class OrderBasicLoadedEvent extends NestedEvent
         if ($this->orders->getCurrencies()->count() > 0) {
             $events[] = new CurrencyBasicLoadedEvent($this->orders->getCurrencies(), $this->context);
         }
-        if ($this->orders->getApplications()->count() > 0) {
-            $events[] = new ApplicationBasicLoadedEvent($this->orders->getApplications(), $this->context);
+        if ($this->orders->getTouchpoints()->count() > 0) {
+            $events[] = new TouchpointBasicLoadedEvent($this->orders->getTouchpoints(), $this->context);
         }
         if ($this->orders->getBillingAddress()->count() > 0) {
             $events[] = new OrderAddressBasicLoadedEvent($this->orders->getBillingAddress(), $this->context);

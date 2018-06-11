@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Twig\TokenParser;
+namespace Shopware\Core\Framework\Twig\TokenParser;
 
-use Shopware\Framework\Twig\TemplateFinder;
+use Shopware\Core\Framework\Twig\TemplateFinder;
 use Twig_Token;
 
 final class ExtendsTokenParser extends \Twig_TokenParser

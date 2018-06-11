@@ -24,10 +24,10 @@
 
 namespace Shopware\Storefront\Twig;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\PlatformRequest;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\PlatformRequest;
 use Shopware\Storefront\Theme\ThemeConfigReader;
-use Shopware\System\Config\Util\ConfigServiceInterface;
+use Shopware\Core\System\Config\Util\ConfigServiceInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Translation\TranslatorInterface;
@@ -83,7 +83,7 @@ class TemplateDataExtension extends \Twig_Extension implements \Twig_Extension_G
             return [];
         }
 
-        /** @var StorefrontContext $context */
+        /** @var CheckoutContext $context */
         $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_STOREFRONT_CONTEXT_OBJECT);
 
         if (!$context) {
@@ -96,7 +96,7 @@ class TemplateDataExtension extends \Twig_Extension implements \Twig_Extension_G
             'shopware' => [
                 'config' => array_merge(
                     $this->getDefaultConfiguration(),
-                    $this->configService->get($context->getApplication()->getId(), null)
+                    $this->configService->get($context->getTouchpoint()->getId(), null)
                 ),
                 'theme' => $this->getThemeConfig(),
             ],

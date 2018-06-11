@@ -22,24 +22,24 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Checkout\Test\Cart\Price;
+namespace Shopware\Core\Checkout\Test\Cart\Price;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\Checkout\Cart\Price\GrossPriceCalculator;
-use Shopware\Checkout\Cart\Price\NetPriceCalculator;
-use Shopware\Checkout\Cart\Price\PriceCalculator;
-use Shopware\Checkout\Cart\Price\PriceRounding;
-use Shopware\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Checkout\Cart\Price\Struct\PriceDefinition;
-use Shopware\Checkout\Cart\Tax\Struct\CalculatedTax;
-use Shopware\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
-use Shopware\Checkout\Cart\Tax\Struct\TaxRule;
-use Shopware\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Checkout\Cart\Tax\TaxCalculator;
-use Shopware\Checkout\Cart\Tax\TaxDetector;
-use Shopware\Checkout\Cart\Tax\TaxRuleCalculator;
-use Shopware\Checkout\Test\Cart\Common\Generator;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Checkout\Cart\Price\GrossPriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\NetPriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\PriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\PriceRounding;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinition;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
+use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
+use Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator;
+use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 
 /**
  * Class PriceCalculatorTest
@@ -102,7 +102,7 @@ class PriceCalculatorTest extends TestCase
             $detector
         );
 
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CheckoutContext::class);
 
         $lineItemPrice = $calculator->calculate($priceDefinition, $context);
 
@@ -134,7 +134,7 @@ class PriceCalculatorTest extends TestCase
             $detector
         );
 
-        $context = $this->createMock(StorefrontContext::class);
+        $context = $this->createMock(CheckoutContext::class);
 
         $lineItemPrice = $calculator->calculate($priceDefinition, $context);
 

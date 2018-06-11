@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Profiling\Cart;
+namespace Shopware\Core\Profiling\Cart;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\Checkout\Cart\Cart\CartCollectorInterface;
-use Shopware\Checkout\Cart\Cart\Struct\Cart;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Checkout\Cart\Cart\CartCollectorInterface;
+use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
+use Shopware\Core\Framework\Struct\StructCollection;
 
 class CartCollectorTracer implements CartCollectorInterface
 {
@@ -28,7 +28,7 @@ class CartCollectorTracer implements CartCollectorInterface
     public function prepare(
         StructCollection $fetchDefinition,
         Cart $cart,
-        StorefrontContext $context
+        CheckoutContext $context
     ): void {
         $before = clone $fetchDefinition;
         $this->decorated->prepare($fetchDefinition, $cart, $context);
@@ -53,7 +53,7 @@ class CartCollectorTracer implements CartCollectorInterface
     public function fetch(
         StructCollection $dataCollection,
         StructCollection $fetchCollection,
-        StorefrontContext $context
+        CheckoutContext $context
     ): void {
         $before = clone $dataCollection;
 

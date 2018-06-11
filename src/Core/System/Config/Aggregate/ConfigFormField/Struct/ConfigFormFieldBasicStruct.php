@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Config\Aggregate\ConfigFormField\Struct;
+namespace Shopware\Core\System\Config\Aggregate\ConfigFormField\Struct;
 
-use Shopware\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Entity;
 
 class ConfigFormFieldBasicStruct extends Entity
 {

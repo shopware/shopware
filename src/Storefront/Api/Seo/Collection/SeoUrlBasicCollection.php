@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Api\Seo\Collection;
 
-use Shopware\Framework\ORM\EntityCollection;
+use Shopware\Core\Framework\ORM\EntityCollection;
 use Shopware\Storefront\Api\Seo\Struct\SeoUrlBasicStruct;
 
 class SeoUrlBasicCollection extends EntityCollection

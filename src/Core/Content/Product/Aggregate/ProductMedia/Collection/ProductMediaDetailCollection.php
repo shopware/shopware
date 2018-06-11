@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Aggregate\ProductMedia\Collection;
+namespace Shopware\Core\Content\Product\Aggregate\ProductMedia\Collection;
 
-use Shopware\Content\Product\Aggregate\ProductMedia\Struct\ProductMediaDetailStruct;
-use Shopware\Content\Product\Collection\ProductBasicCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\Struct\ProductMediaDetailStruct;
+use Shopware\Core\Content\Product\Collection\ProductBasicCollection;
 
 class ProductMediaDetailCollection extends ProductMediaBasicCollection
 {

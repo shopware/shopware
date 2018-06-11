@@ -1,17 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Test\Customer\Repository;
+namespace Shopware\Core\Checkout\Test\Customer\Repository;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Checkout\Customer\CustomerDefinition;
-use Shopware\Checkout\Customer\CustomerRepository;
-use Shopware\Defaults;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\Term\EntityScoreQueryBuilder;
-use Shopware\Framework\ORM\Search\Term\SearchTermInterpreter;
-use Shopware\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Customer\CustomerDefinition;
+use Shopware\Core\Checkout\Customer\CustomerRepository;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\Term\EntityScoreQueryBuilder;
+use Shopware\Core\Framework\ORM\Search\Term\SearchTermInterpreter;
+use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class CustomerRepositoryTest extends KernelTestCase
@@ -62,7 +62,7 @@ class CustomerRepositoryTest extends KernelTestCase
         $records = [
             [
                 'id' => $recordA,
-                'applicationId' => Defaults::APPLICATION,
+                'touchpointId' => Defaults::TOUCHPOINT,
                 'defaultShippingAddress' => $address,
                 'defaultPaymentMethodId' => 'e84976ac-e9ab-4928-a3dc-c387b66dbaa6',
                 'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
@@ -75,7 +75,7 @@ class CustomerRepositoryTest extends KernelTestCase
             ],
             [
                 'id' => $recordB,
-                'applicationId' => Defaults::APPLICATION,
+                'touchpointId' => Defaults::TOUCHPOINT,
                 'defaultShippingAddress' => $address,
                 'defaultPaymentMethodId' => 'e84976ac-e9ab-4928-a3dc-c387b66dbaa6',
                 'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
@@ -88,7 +88,7 @@ class CustomerRepositoryTest extends KernelTestCase
             ],
             [
                 'id' => $recordC,
-                'applicationId' => Defaults::APPLICATION,
+                'touchpointId' => Defaults::TOUCHPOINT,
                 'defaultShippingAddress' => $address,
                 'defaultPaymentMethodId' => 'e84976ac-e9ab-4928-a3dc-c387b66dbaa6',
                 'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
@@ -101,7 +101,7 @@ class CustomerRepositoryTest extends KernelTestCase
             ],
             [
                 'id' => $recordD,
-                'applicationId' => Defaults::APPLICATION,
+                'touchpointId' => Defaults::TOUCHPOINT,
                 'defaultShippingAddress' => $address,
                 'defaultPaymentMethodId' => 'e84976ac-e9ab-4928-a3dc-c387b66dbaa6',
                 'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
@@ -114,16 +114,16 @@ class CustomerRepositoryTest extends KernelTestCase
             ],
         ];
 
-        $this->repository->create($records, ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
+        $this->repository->create($records, Context::createDefaultContext(Defaults::TENANT_ID));
 
         $criteria = new Criteria();
 
         $builder = self::$container->get(EntityScoreQueryBuilder::class);
-        $pattern = self::$container->get(SearchTermInterpreter::class)->interpret('match', ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
+        $pattern = self::$container->get(SearchTermInterpreter::class)->interpret('match', Context::createDefaultContext(Defaults::TENANT_ID));
         $queries = $builder->buildScoreQueries($pattern, CustomerDefinition::class, CustomerDefinition::getEntityName());
         $criteria->addQueries($queries);
 
-        $result = $this->repository->searchIds($criteria, ApplicationContext::createDefaultContext(Defaults::TENANT_ID));
+        $result = $this->repository->searchIds($criteria, Context::createDefaultContext(Defaults::TENANT_ID));
 
         $this->assertCount(4, $result->getIds());
 

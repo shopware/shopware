@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Order\Aggregate\OrderDeliveryPosition\Struct;
+namespace Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\Struct;
 
-use Shopware\Checkout\Order\Aggregate\OrderDelivery\Struct\OrderDeliveryBasicStruct;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\Struct\OrderDeliveryBasicStruct;
 
 class OrderDeliveryPositionDetailStruct extends OrderDeliveryPositionBasicStruct
 {

@@ -22,14 +22,14 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Framework\ORM\Field;
+namespace Shopware\Core\Framework\ORM\Field;
 
-use Shopware\Framework\ORM\Version\Definition\VersionDefinition;
-use Shopware\Framework\ORM\Write\DataStack\KeyValuePair;
-use Shopware\Framework\ORM\Write\EntityExistence;
-use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
-use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\Framework\Struct\Uuid;
+use Shopware\Core\Framework\ORM\Version\Definition\VersionDefinition;
+use Shopware\Core\Framework\ORM\Write\DataStack\KeyValuePair;
+use Shopware\Core\Framework\ORM\Write\EntityExistence;
+use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
+use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\Framework\Struct\Uuid;
 
 class VersionField extends FkField
 {
@@ -45,7 +45,7 @@ class VersionField extends FkField
      */
     public function __invoke(EntityExistence $existence, KeyValuePair $kvPair): \Generator
     {
-        $value = $this->writeContext->getApplicationContext()->getVersionId();
+        $value = $this->writeContext->getContext()->getVersionId();
 
         //write version id of current object to write context
         $this->writeContext->set($this->definition, 'versionId', $value);

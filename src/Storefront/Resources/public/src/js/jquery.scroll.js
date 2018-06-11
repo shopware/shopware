@@ -2,7 +2,7 @@
     'use strict';
 
     /**
-     * Shopware Scroll Plugin.
+     * Shopware\Core Scroll Plugin.
      *
      * This plugin scrolls the page or given element to a certain point when the
      * plugin element was clicked.

@@ -1,26 +1,26 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Country\Aggregate\CountryStateTranslation;
+namespace Shopware\Core\System\Country\Aggregate\CountryStateTranslation;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\ORM\Read\EntityReaderInterface;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\AggregatorResult;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\EntityAggregatorInterface;
-use Shopware\Framework\ORM\Search\EntitySearcherInterface;
-use Shopware\Framework\ORM\Search\IdSearchResult;
-use Shopware\Framework\ORM\Version\Service\VersionManager;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\System\Country\Aggregate\CountryStateTranslation\Collection\CountryStateTranslationBasicCollection;
-use Shopware\System\Country\Aggregate\CountryStateTranslation\Collection\CountryStateTranslationDetailCollection;
-use Shopware\System\Country\Aggregate\CountryStateTranslation\Event\CountryStateTranslationAggregationResultLoadedEvent;
-use Shopware\System\Country\Aggregate\CountryStateTranslation\Event\CountryStateTranslationBasicLoadedEvent;
-use Shopware\System\Country\Aggregate\CountryStateTranslation\Event\CountryStateTranslationDetailLoadedEvent;
-use Shopware\System\Country\Aggregate\CountryStateTranslation\Event\CountryStateTranslationIdSearchResultLoadedEvent;
-use Shopware\System\Country\Aggregate\CountryStateTranslation\Event\CountryStateTranslationSearchResultLoadedEvent;
-use Shopware\System\Country\Aggregate\CountryStateTranslation\Struct\CountryStateTranslationSearchResult;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\AggregatorResult;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\ORM\Search\IdSearchResult;
+use Shopware\Core\Framework\ORM\Version\Service\VersionManager;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Write\WriteContext;
+use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\Collection\CountryStateTranslationBasicCollection;
+use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\Collection\CountryStateTranslationDetailCollection;
+use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\Event\CountryStateTranslationAggregationResultLoadedEvent;
+use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\Event\CountryStateTranslationBasicLoadedEvent;
+use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\Event\CountryStateTranslationDetailLoadedEvent;
+use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\Event\CountryStateTranslationIdSearchResultLoadedEvent;
+use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\Event\CountryStateTranslationSearchResultLoadedEvent;
+use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\Struct\CountryStateTranslationSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class CountryStateTranslationRepository implements RepositoryInterface
@@ -46,7 +46,7 @@ class CountryStateTranslationRepository implements RepositoryInterface
     private $eventDispatcher;
 
     /**
-     * @var \Shopware\Framework\ORM\Version\Service\VersionManager
+     * @var \Shopware\Core\Framework\ORM\Version\Service\VersionManager
      */
     private $versionManager;
 
@@ -64,7 +64,7 @@ class CountryStateTranslationRepository implements RepositoryInterface
         $this->versionManager = $versionManager;
     }
 
-    public function search(Criteria $criteria, ApplicationContext $context): CountryStateTranslationSearchResult
+    public function search(Criteria $criteria, Context $context): CountryStateTranslationSearchResult
     {
         $ids = $this->searchIds($criteria, $context);
 
@@ -83,7 +83,7 @@ class CountryStateTranslationRepository implements RepositoryInterface
         return $result;
     }
 
-    public function aggregate(Criteria $criteria, ApplicationContext $context): AggregatorResult
+    public function aggregate(Criteria $criteria, Context $context): AggregatorResult
     {
         $result = $this->aggregator->aggregate(CountryStateTranslationDefinition::class, $criteria, $context);
 
@@ -93,7 +93,7 @@ class CountryStateTranslationRepository implements RepositoryInterface
         return $result;
     }
 
-    public function searchIds(Criteria $criteria, ApplicationContext $context): IdSearchResult
+    public function searchIds(Criteria $criteria, Context $context): IdSearchResult
     {
         $result = $this->searcher->search(CountryStateTranslationDefinition::class, $criteria, $context);
 
@@ -103,7 +103,7 @@ class CountryStateTranslationRepository implements RepositoryInterface
         return $result;
     }
 
-    public function readBasic(array $ids, ApplicationContext $context): CountryStateTranslationBasicCollection
+    public function readBasic(array $ids, Context $context): CountryStateTranslationBasicCollection
     {
         /** @var CountryStateTranslationBasicCollection $entities */
         $entities = $this->reader->readBasic(CountryStateTranslationDefinition::class, $ids, $context);
@@ -114,9 +114,9 @@ class CountryStateTranslationRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function readDetail(array $ids, ApplicationContext $context): CountryStateTranslationDetailCollection
+    public function readDetail(array $ids, Context $context): CountryStateTranslationDetailCollection
     {
-        /** @var \Shopware\System\Country\Aggregate\CountryStateTranslation\Collection\CountryStateTranslationDetailCollection $entities */
+        /** @var \Shopware\Core\System\Country\Aggregate\CountryStateTranslation\Collection\CountryStateTranslationDetailCollection $entities */
         $entities = $this->reader->readDetail(CountryStateTranslationDefinition::class, $ids, $context);
 
         $event = new CountryStateTranslationDetailLoadedEvent($entities, $context);
@@ -125,49 +125,49 @@ class CountryStateTranslationRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function update(array $data, ApplicationContext $context): GenericWrittenEvent
+    public function update(array $data, Context $context): GenericWrittenEvent
     {
-        $affected = $this->versionManager->update(CountryStateTranslationDefinition::class, $data, WriteContext::createFromApplicationContext($context));
+        $affected = $this->versionManager->update(CountryStateTranslationDefinition::class, $data, WriteContext::createFromContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function upsert(array $data, ApplicationContext $context): GenericWrittenEvent
+    public function upsert(array $data, Context $context): GenericWrittenEvent
     {
-        $affected = $this->versionManager->upsert(CountryStateTranslationDefinition::class, $data, WriteContext::createFromApplicationContext($context));
+        $affected = $this->versionManager->upsert(CountryStateTranslationDefinition::class, $data, WriteContext::createFromContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function create(array $data, ApplicationContext $context): GenericWrittenEvent
+    public function create(array $data, Context $context): GenericWrittenEvent
     {
-        $affected = $this->versionManager->insert(CountryStateTranslationDefinition::class, $data, WriteContext::createFromApplicationContext($context));
+        $affected = $this->versionManager->insert(CountryStateTranslationDefinition::class, $data, WriteContext::createFromContext($context));
         $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function delete(array $ids, ApplicationContext $context): GenericWrittenEvent
+    public function delete(array $ids, Context $context): GenericWrittenEvent
     {
-        $affected = $this->versionManager->delete(CountryStateTranslationDefinition::class, $ids, WriteContext::createFromApplicationContext($context));
+        $affected = $this->versionManager->delete(CountryStateTranslationDefinition::class, $ids, WriteContext::createFromContext($context));
         $event = GenericWrittenEvent::createWithDeletedEvents($affected, $context, []);
         $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
 
         return $event;
     }
 
-    public function createVersion(string $id, ApplicationContext $context, ?string $name = null, ?string $versionId = null): string
+    public function createVersion(string $id, Context $context, ?string $name = null, ?string $versionId = null): string
     {
-        return $this->versionManager->createVersion(CountryStateTranslationDefinition::class, $id, WriteContext::createFromApplicationContext($context), $name, $versionId);
+        return $this->versionManager->createVersion(CountryStateTranslationDefinition::class, $id, WriteContext::createFromContext($context), $name, $versionId);
     }
 
-    public function merge(string $versionId, ApplicationContext $context): void
+    public function merge(string $versionId, Context $context): void
     {
-        $this->versionManager->merge($versionId, WriteContext::createFromApplicationContext($context));
+        $this->versionManager->merge($versionId, WriteContext::createFromContext($context));
     }
 }

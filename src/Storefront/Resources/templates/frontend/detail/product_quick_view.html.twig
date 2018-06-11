@@ -1,5 +1,5 @@
 {% block frontend_detail_product_quick_view %}
-    {# @var product \Shopware\Content\Product\Struct\StorefrontProductDetailStruct#}
+    {# @var product \Shopware\Core\Content\Product\Struct\StorefrontProductDetailStruct#}
     <div class="product--quick-view">
         {% set url = path('detail_page', { id: product.id }) %}
 
@@ -9,10 +9,10 @@
 
         {% block frontend_detail_product_quick_view_inner %}
 
-            {# @var cover \Shopware\Content\Product\Aggregate\ProductMedia\Struct\ProductMediaBasicStruct #}
+            {# @var cover \Shopware\Core\Content\Product\Aggregate\ProductMedia\Struct\ProductMediaBasicStruct #}
             {% set cover = product.cover %}
 
-            {# @var thumbnails \Shopware\Content\Media\Struct\ThumbnailStruct[] #}
+            {# @var thumbnails \Shopware\Core\Content\Media\Struct\ThumbnailStruct[] #}
             {% set thumbnails = cover.media.extension('thumbnails') %}
 
             {% block frontend_detail_product_quick_view_image_link %}

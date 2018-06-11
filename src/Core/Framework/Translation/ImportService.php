@@ -1,15 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Translation;
+namespace Shopware\Core\Framework\Translation;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use Psr\Log\LoggerInterface;
-use Shopware\Defaults;
-use Shopware\Framework\Struct\Uuid;
-use Shopware\Framework\Translation\Event\ImportAdvanceEvent;
-use Shopware\Framework\Translation\Event\ImportFinishEvent;
-use Shopware\Framework\Translation\Event\ImportStartEvent;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Event\ImportAdvanceEvent;
+use Shopware\Core\Framework\Event\ImportFinishEvent;
+use Shopware\Core\Framework\Event\ImportStartEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
@@ -81,7 +81,7 @@ class ImportService implements ImportServiceInterface
         $tenantId = hex2bin($tenantId);
 
         $this->connection->transactional(function () use ($content, $namespace, $today, $tenantId) {
-            $applicationId = Uuid::fromStringToBytes(Defaults::APPLICATION);
+            $touchpointId = Uuid::fromStringToBytes(Defaults::TOUCHPOINT);
 
             foreach ($content as $locale => $translations) {
                 foreach ($translations as $name => $value) {
@@ -89,8 +89,8 @@ class ImportService implements ImportServiceInterface
                         'id' => Uuid::uuid4()->getBytes(),
                         'tenant_id' => $tenantId,
                         'namespace' => $namespace,
-                        'application_id' => $applicationId,
-                        'application_tenant_id' => $tenantId,
+                        'touchpoint_id' => $touchpointId,
+                        'touchpoint_tenant_id' => $tenantId,
                         'locale' => $locale,
                         'name' => $name,
                         'value' => $value,

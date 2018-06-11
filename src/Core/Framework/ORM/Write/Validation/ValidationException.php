@@ -22,10 +22,10 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Framework\ORM\Write\Validation;
+namespace Shopware\Core\Framework\ORM\Write\Validation;
 
 use Exception;
-use Shopware\Framework\ShopwareException;
+use Shopware\Core\Framework\ShopwareException;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 

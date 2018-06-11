@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Listing\Aggregate\ListingSortingTranslation\Struct;
+namespace Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation\Struct;
 
-use Shopware\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Entity;
 
 class ListingSortingTranslationBasicStruct extends Entity
 {

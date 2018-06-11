@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Search\Sorting;
+namespace Shopware\Core\Framework\ORM\Search\Sorting;
 
-use Shopware\Framework\ORM\Search\CriteriaPartInterface;
-use Shopware\Framework\Struct\Struct;
+use Shopware\Core\Framework\ORM\Search\CriteriaPartInterface;
+use Shopware\Core\Framework\Struct\Struct;
 
 class FieldSorting extends Struct implements CriteriaPartInterface
 {

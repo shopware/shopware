@@ -4,13 +4,13 @@ namespace Shopware\Storefront\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\Application\Context\Util\StorefrontContextPersister;
-use Shopware\Application\Context\Util\StorefrontContextService;
-use Shopware\Application\Language\LanguageRepository;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\Query\TermQuery;
-use Shopware\System\Currency\CurrencyRepository;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Checkout\Context\CheckoutContextPersister;
+use Shopware\Core\Checkout\Context\CheckoutContextService;
+use Shopware\Core\System\Language\LanguageRepository;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Core\System\Currency\CurrencyRepository;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -18,12 +18,12 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 class ContextController extends StorefrontController
 {
     /**
-     * @var StorefrontContextPersister
+     * @var CheckoutContextPersister
      */
     private $contextPersister;
 
     /**
-     * @var StorefrontContextService
+     * @var CheckoutContextService
      */
     private $storefrontContextService;
 
@@ -33,13 +33,13 @@ class ContextController extends StorefrontController
     private $currencyRepository;
 
     /**
-     * @var \Shopware\Application\Language\LanguageRepository
+     * @var \Shopware\Core\System\Language\LanguageRepository
      */
     private $languageRepository;
 
     public function __construct(
-        StorefrontContextPersister $contextPersister,
-        StorefrontContextService $storefrontContextService,
+        CheckoutContextPersister $contextPersister,
+        CheckoutContextService $storefrontContextService,
         CurrencyRepository $currencyRepository,
         LanguageRepository $languageRepository
     ) {
@@ -53,18 +53,18 @@ class ContextController extends StorefrontController
      * @Route("/context/update", name="context_update")
      * @Method("POST")
      */
-    public function setCurrency(Request $request, StorefrontContext $context)
+    public function setCurrency(Request $request, CheckoutContext $context)
     {
         $payload = [
-            StorefrontContextService::CURRENCY_ID => $this->validateCurrency($request->get('__currency'), $context),
-            StorefrontContextService::LANGUAGE_ID => $this->validateLanguage($request->get('__language'), $context),
+            CheckoutContextService::CURRENCY_ID => $this->validateCurrency($request->get('__currency'), $context),
+            CheckoutContextService::LANGUAGE_ID => $this->validateLanguage($request->get('__language'), $context),
         ];
 
         $payload = array_filter($payload);
 
         if (!empty($payload)) {
             $this->contextPersister->save($context->getToken(), $payload, $context->getTenantId());
-            $this->storefrontContextService->refresh($context->getTenantId(), $context->getApplicationContext()->getApplicationId(), $context->getToken());
+            $this->storefrontContextService->refresh($context->getTenantId(), $context->getContext()->getTouchpointId(), $context->getToken());
         }
 
         $target = $request->request->get('target') ?? $request->headers->get('referer');
@@ -75,7 +75,7 @@ class ContextController extends StorefrontController
     /**
      * @throws BadRequestHttpException
      */
-    private function validateCurrency(?string $currencyId, StorefrontContext $context): ?string
+    private function validateCurrency(?string $currencyId, CheckoutContext $context): ?string
     {
         if (!$currencyId) {
             return null;
@@ -84,7 +84,7 @@ class ContextController extends StorefrontController
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('currency.id', $currencyId));
 
-        $currencies = $this->currencyRepository->searchIds($criteria, $context->getApplicationContext());
+        $currencies = $this->currencyRepository->searchIds($criteria, $context->getContext());
 
         if ($currencies->getTotal() !== 0) {
             return $currencyId;
@@ -96,7 +96,7 @@ class ContextController extends StorefrontController
     /**
      * @throws BadRequestHttpException
      */
-    private function validateLanguage(?string $languageId, StorefrontContext $context): ?string
+    private function validateLanguage(?string $languageId, CheckoutContext $context): ?string
     {
         if (!$languageId) {
             return null;
@@ -105,7 +105,7 @@ class ContextController extends StorefrontController
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('language.id', $languageId));
 
-        $currencies = $this->languageRepository->searchIds($criteria, $context->getApplicationContext());
+        $currencies = $this->languageRepository->searchIds($criteria, $context->getContext());
 
         if ($currencies->getTotal() !== 0) {
             return $languageId;

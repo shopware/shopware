@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Customer\Aggregate\CustomerAddress\Struct;
+namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Struct;
 
-use Shopware\Framework\ORM\Entity;
-use Shopware\System\Country\Aggregate\CountryState\Struct\CountryStateBasicStruct;
-use Shopware\System\Country\Struct\CountryBasicStruct;
+use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\System\Country\Aggregate\CountryState\Struct\CountryStateBasicStruct;
+use Shopware\Core\System\Country\Struct\CountryBasicStruct;
 
 class CustomerAddressBasicStruct extends Entity
 {

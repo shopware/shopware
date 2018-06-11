@@ -11,7 +11,7 @@
   ],
   "autoload": {
     "psr-4": {
-      "Shopware\\": "src/"
+      "Shopware\\Core\\": "src/"
     }
   },
   "require": {

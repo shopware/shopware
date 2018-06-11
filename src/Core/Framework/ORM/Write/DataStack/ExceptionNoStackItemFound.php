@@ -22,9 +22,9 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Framework\ORM\Write\DataStack;
+namespace Shopware\Core\Framework\ORM\Write\DataStack;
 
-use Shopware\Framework\ShopwareException;
+use Shopware\Core\Framework\ShopwareException;
 
 class ExceptionNoStackItemFound extends \InvalidArgumentException implements ShopwareException
 {

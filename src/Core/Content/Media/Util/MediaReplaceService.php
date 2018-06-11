@@ -22,13 +22,13 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Content\Media\Util;
+namespace Shopware\Core\Content\Media\Util;
 
-use Shopware\Components\Model\ModelManager;
-use Shopware\Components\Thumbnail\Manager;
-use Shopware\Content\Media\Exception\ReplaceTypeMismatchException;
-use Shopware\Content\Media\Util\Strategy\StrategyFilesystem;
-use Shopware\Models\Media\Media;
+use Shopware\Core\Components\Model\ModelManager;
+use Shopware\Core\Components\Thumbnail\Manager;
+use Shopware\Core\Content\Media\Exception\ReplaceTypeMismatchException;
+use Shopware\Core\Content\Media\Util\Strategy\StrategyFilesystem;
+use Shopware\Core\Models\Media\Media;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class MediaReplaceService implements MediaReplaceServiceInterface

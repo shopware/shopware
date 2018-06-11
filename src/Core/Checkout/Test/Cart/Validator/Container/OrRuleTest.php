@@ -22,15 +22,15 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Checkout\Test\Cart\Validator\Container;
+namespace Shopware\Core\Checkout\Test\Cart\Validator\Container;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\Checkout\Rule\Specification\Container\OrRule;
-use Shopware\Checkout\Rule\Specification\Match;
-use Shopware\Checkout\Rule\Specification\Scope\StorefrontScope;
-use Shopware\Checkout\Test\Cart\Common\FalseRule;
-use Shopware\Checkout\Test\Cart\Common\TrueRule;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Framework\Rule\Container\OrRule;
+use Shopware\Core\Framework\Rule\Match;
+use Shopware\Core\Checkout\CheckoutRuleScope;
+use Shopware\Core\Checkout\Test\Cart\Common\FalseRule;
+use Shopware\Core\Checkout\Test\Cart\Common\TrueRule;
 
 class OrRuleTest extends TestCase
 {
@@ -44,8 +44,8 @@ class OrRuleTest extends TestCase
         $this->assertEquals(
             new Match(true),
             $rule->match(
-                new StorefrontScope(
-                    $this->createMock(StorefrontContext::class)
+                new CheckoutRuleScope(
+                    $this->createMock(CheckoutContext::class)
                 )
             )
         );
@@ -61,8 +61,8 @@ class OrRuleTest extends TestCase
         $this->assertEquals(
             new Match(false),
             $rule->match(
-                new StorefrontScope(
-                    $this->createMock(StorefrontContext::class)
+                new CheckoutRuleScope(
+                    $this->createMock(CheckoutContext::class)
                 )
             )
         );

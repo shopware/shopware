@@ -23,8 +23,10 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Framework\DependencyInjection;
+namespace Shopware\Core\Framework\DependencyInjection;
 
+use Shopware\Core\Framework\Event\NestedEventDispatcher;
+use Shopware\Core\Framework\Event\TraceableNestedEventDispatcher;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 

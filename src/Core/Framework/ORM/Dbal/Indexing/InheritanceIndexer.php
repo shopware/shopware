@@ -1,27 +1,27 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Dbal\Indexing;
+namespace Shopware\Core\Framework\ORM\Dbal\Indexing;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\Event\ProgressAdvancedEvent;
-use Shopware\Framework\Event\ProgressFinishedEvent;
-use Shopware\Framework\Event\ProgressStartedEvent;
-use Shopware\Framework\ORM\Dbal\Common\LastIdQuery;
-use Shopware\Framework\ORM\Dbal\EntityDefinitionQueryHelper;
-use Shopware\Framework\ORM\DefinitionRegistry;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\Field\AssociationInterface;
-use Shopware\Framework\ORM\Field\Field;
-use Shopware\Framework\ORM\Field\ManyToManyAssociationField;
-use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
-use Shopware\Framework\ORM\Field\OneToManyAssociationField;
-use Shopware\Framework\ORM\Field\TranslationsAssociationField;
-use Shopware\Framework\ORM\FieldCollection;
-use Shopware\Framework\ORM\Write\Flag\Inherited;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\ORM\Write\WrittenEvent;
-use Shopware\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
+use Shopware\Core\Framework\Event\ProgressFinishedEvent;
+use Shopware\Core\Framework\Event\ProgressStartedEvent;
+use Shopware\Core\Framework\ORM\Dbal\Common\LastIdQuery;
+use Shopware\Core\Framework\ORM\Dbal\EntityDefinitionQueryHelper;
+use Shopware\Core\Framework\ORM\DefinitionRegistry;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\Field\AssociationInterface;
+use Shopware\Core\Framework\ORM\Field\Field;
+use Shopware\Core\Framework\ORM\Field\ManyToManyAssociationField;
+use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\ORM\Field\TranslationsAssociationField;
+use Shopware\Core\Framework\ORM\FieldCollection;
+use Shopware\Core\Framework\ORM\Write\Flag\Inherited;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class InheritanceIndexer implements IndexerInterface
@@ -30,6 +30,7 @@ class InheritanceIndexer implements IndexerInterface
      * @var Connection
      */
     private $connection;
+
     /**
      * @var DefinitionRegistry
      */
@@ -49,7 +50,7 @@ class InheritanceIndexer implements IndexerInterface
 
     public function index(\DateTime $timestamp, string $tenantId): void
     {
-        $context = ApplicationContext::createDefaultContext($tenantId);
+        $context = Context::createDefaultContext($tenantId);
 
         foreach ($this->registry->getElements() as $definition) {
             /** @var string|EntityDefinition $definition */
@@ -100,7 +101,7 @@ class InheritanceIndexer implements IndexerInterface
         }
     }
 
-    private function update(string $definition, array $ids, ApplicationContext $context): void
+    private function update(string $definition, array $ids, Context $context): void
     {
         /** @var string|EntityDefinition $definition */
         $inherited = $definition::getFields()->filter(function (Field $field) {
@@ -128,7 +129,7 @@ class InheritanceIndexer implements IndexerInterface
         string $definition,
         array $ids,
         FieldCollection $associations,
-        ApplicationContext $context
+        Context $context
     ): void {
         $tenantId = Uuid::fromHexToBytes($context->getTenantId());
         $versionId = Uuid::fromHexToBytes($context->getVersionId());
@@ -183,7 +184,7 @@ class InheritanceIndexer implements IndexerInterface
         string $definition,
         array $ids,
         FieldCollection $associations,
-        ApplicationContext $context
+        Context $context
     ): void {
         $tenantId = Uuid::fromHexToBytes($context->getTenantId());
         $versionId = Uuid::fromHexToBytes($context->getVersionId());

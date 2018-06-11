@@ -22,7 +22,7 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Framework\ORM\Write\Command;
+namespace Shopware\Core\Framework\ORM\Write\Command;
 
 class WriteCommandQueue
 {

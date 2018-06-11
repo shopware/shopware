@@ -22,7 +22,7 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Framework\ORM\Write\DataStack;
+namespace Shopware\Core\Framework\ORM\Write\DataStack;
 
 /**
  * Start with original raw result

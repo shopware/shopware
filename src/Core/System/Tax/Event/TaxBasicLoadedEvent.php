@@ -1,17 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Tax\Event;
+namespace Shopware\Core\System\Tax\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\System\Tax\Collection\TaxBasicCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\System\Tax\Collection\TaxBasicCollection;
 
 class TaxBasicLoadedEvent extends NestedEvent
 {
     public const NAME = 'tax.basic.loaded';
 
     /**
-     * @var ApplicationContext
+     * @var Context
      */
     protected $context;
 
@@ -20,7 +20,7 @@ class TaxBasicLoadedEvent extends NestedEvent
      */
     protected $taxes;
 
-    public function __construct(TaxBasicCollection $taxes, ApplicationContext $context)
+    public function __construct(TaxBasicCollection $taxes, Context $context)
     {
         $this->context = $context;
         $this->taxes = $taxes;
@@ -31,7 +31,7 @@ class TaxBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }

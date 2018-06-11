@@ -4,12 +4,12 @@ namespace Shopware\Storefront\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\Application\Context\Util\StorefrontContextPersister;
-use Shopware\Application\Context\Util\StorefrontContextService;
-use Shopware\Checkout\Payment\Exception\PaymentMethodNotFoundHttpException;
-use Shopware\Checkout\Payment\Exception\UnknownPaymentMethodException;
-use Shopware\Framework\Struct\Uuid;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Checkout\Context\CheckoutContextPersister;
+use Shopware\Core\Checkout\Context\CheckoutContextService;
+use Shopware\Core\Checkout\Payment\Exception\PaymentMethodNotFoundHttpException;
+use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
+use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Storefront\Exception\CustomerNotFoundException;
 use Shopware\Storefront\Page\Account\AccountService;
 use Shopware\Storefront\Page\Account\CustomerAddressPageLoader;
@@ -39,12 +39,12 @@ class AccountController extends StorefrontController
     private $tokenStorage;
 
     /**
-     * @var StorefrontContextPersister
+     * @var CheckoutContextPersister
      */
     private $contextPersister;
 
     /**
-     * @var StorefrontContextService
+     * @var CheckoutContextService
      */
     private $storefrontContextService;
 
@@ -74,11 +74,11 @@ class AccountController extends StorefrontController
     public function __construct(
         AuthenticationUtils $authUtils,
         TokenStorageInterface $tokenStorage,
-        StorefrontContextPersister $contextPersister,
+        CheckoutContextPersister $contextPersister,
         AccountService $accountService,
         CustomerAddressPageLoader $customerAddressPageLoader,
         CustomerPageLoader $customerPageLoader,
-        StorefrontContextService $storefrontContextService,
+        CheckoutContextService $storefrontContextService,
         PaymentMethodLoader $paymentMethodLoader,
         OrderPageLoader $orderPageLoader
     ) {
@@ -96,7 +96,7 @@ class AccountController extends StorefrontController
     /**
      * @Route("/account", name="account_home")
      */
-    public function index(Request $request, StorefrontContext $context): Response
+    public function index(Request $request, CheckoutContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -107,7 +107,7 @@ class AccountController extends StorefrontController
      * @Route("/account/login", name="account_login")
      * @Method({"GET"})
      */
-    public function login(Request $request, StorefrontContext $context): Response
+    public function login(Request $request, CheckoutContext $context): Response
     {
         if ($context->getCustomer()) {
             return $this->redirectToRoute('account_home');
@@ -122,7 +122,7 @@ class AccountController extends StorefrontController
     /**
      * @Route("/account/login", name="account_login_check", methods={"POST"})
      */
-    public function checkLogin(Request $request, StorefrontContext $context)
+    public function checkLogin(Request $request, CheckoutContext $context)
     {
         try {
             $customer = $this->accountService->getCustomerByLogin(
@@ -138,11 +138,11 @@ class AccountController extends StorefrontController
 
         $this->contextPersister->save(
             $context->getToken(),
-            [StorefrontContextService::CUSTOMER_ID => $customer->getId()],
+            [CheckoutContextService::CUSTOMER_ID => $customer->getId()],
             $context->getTenantId()
         );
 
-        $this->storefrontContextService->refresh($context->getTenantId(), $context->getApplication()->getId(), $context->getToken());
+        $this->storefrontContextService->refresh($context->getTenantId(), $context->getTouchpoint()->getId(), $context->getToken());
 
         if ($url = $request->query->get('redirectTo')) {
             return $this->handleRedirectTo($url);
@@ -154,13 +154,13 @@ class AccountController extends StorefrontController
     /**
      * @Route("/account/logout", name="account_logout")
      */
-    public function logout(StorefrontContext $context): Response
+    public function logout(CheckoutContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
         $this->contextPersister->save(
             $context->getToken(),
-            [StorefrontContextService::CUSTOMER_ID => null],
+            [CheckoutContextService::CUSTOMER_ID => null],
             $context->getTenantId()
         );
 
@@ -171,7 +171,7 @@ class AccountController extends StorefrontController
      * @Route("/account/saveRegistration", name="account_save_registration")
      * @Method({"POST"})
      */
-    public function saveRegistration(Request $request, StorefrontContext $context): Response
+    public function saveRegistration(Request $request, CheckoutContext $context): Response
     {
         $formData = $request->request->get('register');
 
@@ -187,11 +187,11 @@ class AccountController extends StorefrontController
 
             $this->contextPersister->save(
                 $context->getToken(),
-                [StorefrontContextService::CUSTOMER_ID => $customer->getId()],
+                [CheckoutContextService::CUSTOMER_ID => $customer->getId()],
                 $context->getTenantId()
             );
 
-            $this->storefrontContextService->refresh($context->getTenantId(), $context->getApplication()->getId(), $context->getToken());
+            $this->storefrontContextService->refresh($context->getTenantId(), $context->getTouchpoint()->getId(), $context->getToken());
         } catch (CustomerNotFoundException | BadCredentialsException $exception) {
             return $this->redirectToRoute('account_login');
         }
@@ -207,12 +207,12 @@ class AccountController extends StorefrontController
      * @Route("/account/payment", name="account_payment", options={"seo"="false"})
      * @Method({"GET"})
      */
-    public function payment(Request $request, StorefrontContext $context): Response
+    public function payment(Request $request, CheckoutContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
         return $this->renderStorefront('@Storefront/frontend/account/payment.html.twig', [
-            'paymentMethods' => $this->paymentMethodLoader->load($request, $context->getApplicationContext()),
+            'paymentMethods' => $this->paymentMethodLoader->load($request, $context->getContext()),
         ]);
     }
 
@@ -222,7 +222,7 @@ class AccountController extends StorefrontController
      *
      * @throws UnknownPaymentMethodException
      */
-    public function savePayment(Request $request, StorefrontContext $context): Response
+    public function savePayment(Request $request, CheckoutContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -234,7 +234,7 @@ class AccountController extends StorefrontController
 
         $this->contextPersister->save(
             $context->getToken(),
-            [StorefrontContextService::PAYMENT_METHOD_ID => $data['payment']],
+            [CheckoutContextService::PAYMENT_METHOD_ID => $data['payment']],
             $context->getTenantId()
         );
 
@@ -245,7 +245,7 @@ class AccountController extends StorefrontController
      * @Route("/account/orders", name="account_orders", options={"seo"="false"}, methods={"GET"})
      * @Method({"GET"})
      */
-    public function orders(Request $request, StorefrontContext $context): Response
+    public function orders(Request $request, CheckoutContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -257,7 +257,7 @@ class AccountController extends StorefrontController
     /**
      * @Route("/account/profile", name="account_profile")
      */
-    public function profile(Request $request, StorefrontContext $context): Response
+    public function profile(Request $request, CheckoutContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -287,14 +287,14 @@ class AccountController extends StorefrontController
      * @Route("/account/saveProfile", name="account_save_profile")
      * @Method({"POST"})
      */
-    public function saveProfile(Request $request, StorefrontContext $context): Response
+    public function saveProfile(Request $request, CheckoutContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
         // todo validate user input and persist salutation
         $profile = $request->request->get('profile');
         $this->accountService->changeProfile($profile, $context);
-        $this->storefrontContextService->refresh($context->getTenantId(), $context->getApplication()->getId(), $context->getToken());
+        $this->storefrontContextService->refresh($context->getTenantId(), $context->getTouchpoint()->getId(), $context->getToken());
 
         return $this->redirectToRoute('account_profile', [
             'success' => true,
@@ -305,14 +305,14 @@ class AccountController extends StorefrontController
     /**
      * @Route("/account/savePassword", name="account_save_password", methods={"POST"})
      */
-    public function savePassword(Request $request, StorefrontContext $context): Response
+    public function savePassword(Request $request, CheckoutContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
         // todo validate user input
         $password = $request->request->get('password');
         $this->accountService->changePassword($password['password'], $context);
-        $this->storefrontContextService->refresh($context->getTenantId(), $context->getApplication()->getId(), $context->getToken());
+        $this->storefrontContextService->refresh($context->getTenantId(), $context->getTouchpoint()->getId(), $context->getToken());
 
         return $this->redirectToRoute('account_profile', [
             'success' => true,
@@ -323,14 +323,14 @@ class AccountController extends StorefrontController
     /**
      * @Route("/account/saveEmail", name="account_save_email", methods={"POST"})
      */
-    public function saveEmail(Request $request, StorefrontContext $context): Response
+    public function saveEmail(Request $request, CheckoutContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
         // todo validate user input
         $email = $request->request->get('email');
         $this->accountService->changeEmail($email['email'], $context);
-        $this->storefrontContextService->refresh($context->getTenantId(), $context->getApplication()->getId(), $context->getToken());
+        $this->storefrontContextService->refresh($context->getTenantId(), $context->getTouchpoint()->getId(), $context->getToken());
 
         return $this->redirectToRoute('account_profile', [
             'success' => true,
@@ -342,7 +342,7 @@ class AccountController extends StorefrontController
      * @Route("/account/address", name="address_index", options={"seo"="false"})
      * @Method({"GET"})
      */
-    public function addressIndex(StorefrontContext $context)
+    public function addressIndex(CheckoutContext $context)
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -354,7 +354,7 @@ class AccountController extends StorefrontController
     /**
      * @Route("/account/address/create", name="address_create", options={"seo"="false"})
      */
-    public function addressCreate(Request $request, StorefrontContext $context): Response
+    public function addressCreate(Request $request, CheckoutContext $context): Response
     {
         return $this->renderStorefront('@Storefront/frontend/address/create.html.twig', [
             'countryList' => $this->accountService->getCountryList($context),
@@ -365,9 +365,9 @@ class AccountController extends StorefrontController
      * @Route("/account/address/save", name="address_save", options={"seo"="false"})
      * @Method({"POST"})
      *
-     * @throws \Shopware\Checkout\Order\Exception\NotLoggedInCustomerException
+     * @throws \Shopware\Core\Checkout\Order\Exception\NotLoggedInCustomerException
      */
-    public function addressSave(Request $request, StorefrontContext $context): Response
+    public function addressSave(Request $request, CheckoutContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -384,7 +384,7 @@ class AccountController extends StorefrontController
                 $this->accountService->setDefaultBillingAddress($addressId, $context);
             }
         }
-        $this->storefrontContextService->refresh($context->getTenantId(), $context->getApplication()->getId(), $context->getToken());
+        $this->storefrontContextService->refresh($context->getTenantId(), $context->getTouchpoint()->getId(), $context->getToken());
 
         if ($url = $request->query->get('redirectTo')) {
             return $this->handleRedirectTo($url);
@@ -396,7 +396,7 @@ class AccountController extends StorefrontController
     /**
      * @Route("/account/address/edit", name="address_edit", options={"seo"="false"})
      */
-    public function addressEdit(Request $request, StorefrontContext $context): Response
+    public function addressEdit(Request $request, CheckoutContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -414,7 +414,7 @@ class AccountController extends StorefrontController
      * @Route("/account/address/delete_confirm", name="address_delete_confirm", options={"seo"="false"})
      * @Method({"GET"})
      */
-    public function addressDeleteConfirm(Request $request, StorefrontContext $context): Response
+    public function addressDeleteConfirm(Request $request, CheckoutContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -428,9 +428,9 @@ class AccountController extends StorefrontController
      * @Route("/account/address/delete", name="address_delete", options={"seo"="false"})
      * @Method({"POST"})
      *
-     * @throws \Shopware\Checkout\Order\Exception\NotLoggedInCustomerException
+     * @throws \Shopware\Core\Checkout\Order\Exception\NotLoggedInCustomerException
      */
-    public function addressDelete(Request $request, StorefrontContext $context): Response
+    public function addressDelete(Request $request, CheckoutContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -444,15 +444,15 @@ class AccountController extends StorefrontController
      * @Route("/account/address/setDefaultBillingAddress", name="address_set_default_billing", options={"seo"="false"})
      * @Method({"POST"})
      *
-     * @throws \Shopware\Checkout\Order\Exception\NotLoggedInCustomerException
+     * @throws \Shopware\Core\Checkout\Order\Exception\NotLoggedInCustomerException
      */
-    public function addressSetDefaultBillingAddress(Request $request, StorefrontContext $context): Response
+    public function addressSetDefaultBillingAddress(Request $request, CheckoutContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
         $addressId = $request->request->get('addressId');
         $this->accountService->setDefaultBillingAddress($addressId, $context);
-        $this->storefrontContextService->refresh($context->getTenantId(), $context->getApplication()->getId(), $context->getToken());
+        $this->storefrontContextService->refresh($context->getTenantId(), $context->getTouchpoint()->getId(), $context->getToken());
 
         return $this->redirectToRoute('address_index', ['success' => 'default_billing']);
     }
@@ -461,15 +461,15 @@ class AccountController extends StorefrontController
      * @Route("/account/address/setDefaultShippingAddress", name="address_set_default_shipping", options={"seo"="false"})
      * @Method({"POST"})
      *
-     * @throws \Shopware\Checkout\Order\Exception\NotLoggedInCustomerException
+     * @throws \Shopware\Core\Checkout\Order\Exception\NotLoggedInCustomerException
      */
-    public function addressSetDefaultShippingAddress(Request $request, StorefrontContext $context): Response
+    public function addressSetDefaultShippingAddress(Request $request, CheckoutContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
         $addressId = $request->request->get('addressId');
         $this->accountService->setDefaultShippingAddress($addressId, $context);
-        $this->storefrontContextService->refresh($context->getTenantId(), $context->getApplication()->getId(), $context->getToken());
+        $this->storefrontContextService->refresh($context->getTenantId(), $context->getTouchpoint()->getId(), $context->getToken());
 
         return $this->redirectToRoute('address_index', ['success' => 'default_shipping']);
     }
@@ -478,9 +478,9 @@ class AccountController extends StorefrontController
      * @Route("/account/address/ajaxSelection", name="address_ajax_selection", options={"seo"="false"})
      * @Method({"GET"})
      *
-     * @throws \Shopware\Checkout\Order\Exception\NotLoggedInCustomerException
+     * @throws \Shopware\Core\Checkout\Order\Exception\NotLoggedInCustomerException
      */
-    public function addressAjaxSelection(Request $request, StorefrontContext $context): Response
+    public function addressAjaxSelection(Request $request, CheckoutContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -490,7 +490,7 @@ class AccountController extends StorefrontController
         $addresses = $this->accountService->getAddressesByCustomer($context);
 
         if (!empty($addressId)) {
-            /** @var \Shopware\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct $address */
+            /** @var \Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct $address */
             foreach ($addresses as $key => $address) {
                 if ($address->getId() === $addressId) {
                     unset($addresses[$key]);
@@ -510,7 +510,7 @@ class AccountController extends StorefrontController
      * @Route("/account/address/ajaxEditor", name="address_ajax_editor", options={"seo"="false"})
      * @Method("GET")
      */
-    public function addressAjaxEdit(Request $request, StorefrontContext $context): Response
+    public function addressAjaxEdit(Request $request, CheckoutContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -529,9 +529,9 @@ class AccountController extends StorefrontController
      * @Route("/account/address/ajaxSave", name="address_ajax_save", options={"seo"="false"})
      * @Method("POST")
      *
-     * @throws \Shopware\Checkout\Order\Exception\NotLoggedInCustomerException
+     * @throws \Shopware\Core\Checkout\Order\Exception\NotLoggedInCustomerException
      */
-    public function addressAjaxSave(Request $request, StorefrontContext $context): Response
+    public function addressAjaxSave(Request $request, CheckoutContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
@@ -546,7 +546,7 @@ class AccountController extends StorefrontController
             $this->accountService->setDefaultBillingAddress($addressId, $context);
         }
 
-        $this->storefrontContextService->refresh($context->getTenantId(), $context->getApplication()->getId(), $context->getToken());
+        $this->storefrontContextService->refresh($context->getTenantId(), $context->getTouchpoint()->getId(), $context->getToken());
 
         return new JsonResponse([
             'success' => true,

@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Routing;
+namespace Shopware\Core\Framework\Routing;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Defaults;
-use Shopware\Framework\Api\Firewall\User;
-use Shopware\PlatformRequest;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Firewall\User;
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
@@ -49,9 +49,9 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
 
         $currencyFactory = 1.0;
 
-        $context = new ApplicationContext(
+        $context = new Context(
             $master->headers->get(PlatformRequest::HEADER_TENANT_ID),
-            Defaults::APPLICATION,
+            Defaults::TOUCHPOINT,
             null,
             [],
             $config['currencyId'],

@@ -22,9 +22,9 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Content\Media\Util\Optimizer;
+namespace Shopware\Core\Content\Media\Util\Optimizer;
 
-use Shopware\Content\Media\Exception\OptimizerNotFoundException;
+use Shopware\Core\Content\Media\Exception\OptimizerNotFoundException;
 
 interface OptimizerServiceInterface
 {

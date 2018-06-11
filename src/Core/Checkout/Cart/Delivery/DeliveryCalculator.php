@@ -23,19 +23,19 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Checkout\Cart\Delivery;
+namespace Shopware\Core\Checkout\Cart\Delivery;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\Checkout\Cart\Delivery\Struct\Delivery;
-use Shopware\Checkout\Cart\LineItem\CalculatedLineItemCollection;
-use Shopware\Checkout\Cart\Price\PriceCalculator;
-use Shopware\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Checkout\Cart\Price\Struct\PriceDefinition;
-use Shopware\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
-use Shopware\Checkout\Shipping\Struct\ShippingMethodBasicStruct;
-use Shopware\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
+use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItemCollection;
+use Shopware\Core\Checkout\Cart\Price\PriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinition;
+use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
+use Shopware\Core\Checkout\Shipping\Struct\ShippingMethodBasicStruct;
+use Shopware\Core\Framework\Struct\Uuid;
 
 class DeliveryCalculator
 {
@@ -72,7 +72,7 @@ class DeliveryCalculator
         $this->percentageTaxRuleBuilder = $percentageTaxRuleBuilder;
     }
 
-    public function calculate(Delivery $delivery, StorefrontContext $context): void
+    public function calculate(Delivery $delivery, CheckoutContext $context): void
     {
         switch ($delivery->getShippingMethod()->getCalculation()) {
             case self::CALCULATION_BY_WEIGHT:
@@ -80,7 +80,7 @@ class DeliveryCalculator
                     $this->findShippingCosts(
                         $delivery->getShippingMethod(),
                         $delivery->getPositions()->getWeight(),
-                        $context->getApplicationContext()
+                        $context->getContext()
                     ),
                     $delivery->getPositions()->getLineItems(),
                     $context
@@ -92,7 +92,7 @@ class DeliveryCalculator
                     $this->findShippingCosts(
                         $delivery->getShippingMethod(),
                         $delivery->getPositions()->getPrices()->sum()->getTotalPrice(),
-                        $context->getApplicationContext()
+                        $context->getContext()
                     ),
                     $delivery->getPositions()->getLineItems(),
                     $context
@@ -105,7 +105,7 @@ class DeliveryCalculator
                     $this->findShippingCosts(
                         $delivery->getShippingMethod(),
                         $delivery->getPositions()->getQuantity(),
-                        $context->getApplicationContext()
+                        $context->getContext()
                     ),
                     $delivery->getPositions()->getLineItems(),
                     $context
@@ -126,7 +126,7 @@ class DeliveryCalculator
         $delivery->setShippingCosts($costs);
     }
 
-    private function calculateShippingCosts(float $price, CalculatedLineItemCollection $calculatedLineItems, StorefrontContext $context): CalculatedPrice
+    private function calculateShippingCosts(float $price, CalculatedLineItemCollection $calculatedLineItems, CheckoutContext $context): CalculatedPrice
     {
         $rules = $this->percentageTaxRuleBuilder->buildRules(
             $calculatedLineItems->getPrices()->sum()
@@ -137,7 +137,7 @@ class DeliveryCalculator
         return $this->priceCalculator->calculate($definition, $context);
     }
 
-    private function findShippingCosts(ShippingMethodBasicStruct $shippingMethod, float $value, ApplicationContext $context): float
+    private function findShippingCosts(ShippingMethodBasicStruct $shippingMethod, float $value, Context $context): float
     {
         $query = $this->connection->createQueryBuilder();
         $query->select('costs.price');

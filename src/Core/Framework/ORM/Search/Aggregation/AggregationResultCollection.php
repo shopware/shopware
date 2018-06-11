@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Search\Aggregation;
+namespace Shopware\Core\Framework\ORM\Search\Aggregation;
 
-use Shopware\Framework\Struct\Collection;
+use Shopware\Core\Framework\Struct\Collection;
 
 class AggregationResultCollection extends Collection
 {

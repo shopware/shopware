@@ -1,19 +1,19 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Plugin;
+namespace Shopware\Core\Framework\Plugin;
 
 use Doctrine\DBAL\Connection;
 use Psr\Container\ContainerInterface;
-use Shopware\Framework\Framework;
-use Shopware\Framework\Plugin\Context\ActivateContext;
-use Shopware\Framework\Plugin\Context\DeactivateContext;
-use Shopware\Framework\Plugin\Context\InstallContext;
-use Shopware\Framework\Plugin\Context\UninstallContext;
-use Shopware\Framework\Plugin\Context\UpdateContext;
-use Shopware\Framework\Plugin\Exception\PluginNotActivatedException;
-use Shopware\Framework\Plugin\Exception\PluginNotFoundException;
-use Shopware\Framework\Plugin\Exception\PluginNotInstalledException;
-use Shopware\Kernel;
+use Shopware\Core\Framework\Framework;
+use Shopware\Core\Framework\Plugin\Context\ActivateContext;
+use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
+use Shopware\Core\Framework\Plugin\Context\InstallContext;
+use Shopware\Core\Framework\Plugin\Context\UninstallContext;
+use Shopware\Core\Framework\Plugin\Context\UpdateContext;
+use Shopware\Core\Framework\Plugin\Exception\PluginNotActivatedException;
+use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
+use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
+use Shopware\Core\Kernel;
 use Symfony\Component\Finder\Finder;
 
 class PluginManager

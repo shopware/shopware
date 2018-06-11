@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Mail\Collection;
+namespace Shopware\Core\System\Mail\Collection;
 
-use Shopware\Checkout\Order\Aggregate\OrderState\Collection\OrderStateBasicCollection;
-use Shopware\System\Mail\Aggregate\MailAttachment\Collection\MailAttachmentBasicCollection;
-use Shopware\System\Mail\Aggregate\MailTranslation\Collection\MailTranslationBasicCollection;
-use Shopware\System\Mail\Struct\MailDetailStruct;
+use Shopware\Core\Checkout\Order\Aggregate\OrderState\Collection\OrderStateBasicCollection;
+use Shopware\Core\System\Mail\Aggregate\MailAttachment\Collection\MailAttachmentBasicCollection;
+use Shopware\Core\System\Mail\Aggregate\MailTranslation\Collection\MailTranslationBasicCollection;
+use Shopware\Core\System\Mail\Struct\MailDetailStruct;
 
 class MailDetailCollection extends MailBasicCollection
 {
@@ -16,7 +16,7 @@ class MailDetailCollection extends MailBasicCollection
 
     public function getOrderStates(): OrderStateBasicCollection
     {
-        return new \Shopware\Checkout\Order\Aggregate\OrderState\Collection\OrderStateBasicCollection(
+        return new \Shopware\Core\Checkout\Order\Aggregate\OrderState\Collection\OrderStateBasicCollection(
             $this->fmap(function (MailDetailStruct $mail) {
                 return $mail->getOrderState();
             })

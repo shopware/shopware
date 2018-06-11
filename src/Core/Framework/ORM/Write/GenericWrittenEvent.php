@@ -1,18 +1,18 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Write;
+namespace Shopware\Core\Framework\ORM\Write;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\ORM\EntityDefinition;
 
 class GenericWrittenEvent extends NestedEvent
 {
     public const NAME = 'entity.written';
 
     /**
-     * @var ApplicationContext
+     * @var Context
      */
     protected $context;
 
@@ -26,7 +26,7 @@ class GenericWrittenEvent extends NestedEvent
      */
     private $errors;
 
-    public function __construct(ApplicationContext $context, NestedEventCollection $events, array $errors)
+    public function __construct(Context $context, NestedEventCollection $events, array $errors)
     {
         $this->context = $context;
         $this->events = $events;
@@ -38,7 +38,7 @@ class GenericWrittenEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }
@@ -62,7 +62,7 @@ class GenericWrittenEvent extends NestedEvent
         return null;
     }
 
-    public static function createWithWrittenEvents(array $identifiers, ApplicationContext $context, array $errors): self
+    public static function createWithWrittenEvents(array $identifiers, Context $context, array $errors): self
     {
         $events = new NestedEventCollection();
 
@@ -83,7 +83,7 @@ class GenericWrittenEvent extends NestedEvent
         return new self($context, $events, $errors);
     }
 
-    public static function createWithDeletedEvents(array $identifiers, ApplicationContext $context, array $errors): self
+    public static function createWithDeletedEvents(array $identifiers, Context $context, array $errors): self
     {
         $events = new NestedEventCollection();
 

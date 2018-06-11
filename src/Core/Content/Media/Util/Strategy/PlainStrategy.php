@@ -22,7 +22,7 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Content\Media\Util\Strategy;
+namespace Shopware\Core\Content\Media\Util\Strategy;
 
 class PlainStrategy implements StrategyInterface
 {

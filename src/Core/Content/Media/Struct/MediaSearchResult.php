@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Media\Struct;
+namespace Shopware\Core\Content\Media\Struct;
 
-use Shopware\Content\Media\Collection\MediaBasicCollection;
-use Shopware\Framework\ORM\Search\SearchResultInterface;
-use Shopware\Framework\ORM\Search\SearchResultTrait;
+use Shopware\Core\Content\Media\Collection\MediaBasicCollection;
+use Shopware\Core\Framework\ORM\Search\SearchResultInterface;
+use Shopware\Core\Framework\ORM\Search\SearchResultTrait;
 
 class MediaSearchResult extends MediaBasicCollection implements SearchResultInterface
 {

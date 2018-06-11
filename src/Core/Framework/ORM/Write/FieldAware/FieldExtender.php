@@ -22,9 +22,9 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Framework\ORM\Write\FieldAware;
+namespace Shopware\Core\Framework\ORM\Write\FieldAware;
 
-use Shopware\Framework\ORM\Field\Field;
+use Shopware\Core\Framework\ORM\Field\Field;
 
 abstract class FieldExtender
 {

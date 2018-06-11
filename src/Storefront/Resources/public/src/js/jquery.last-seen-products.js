@@ -2,7 +2,7 @@
     var emptyObj = {};
 
     /**
-     * Shopware Last Seen Products Plugin
+     * Shopware\Core Last Seen Products Plugin
      *
      * This plugin creates a list of collected articles.
      * Those articles will be collected, when the user opens a detail page.

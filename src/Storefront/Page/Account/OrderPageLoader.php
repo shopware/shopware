@@ -2,12 +2,12 @@
 
 namespace Shopware\Storefront\Page\Account;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\Checkout\Order\OrderRepository;
-use Shopware\Checkout\Order\Struct\OrderSearchResult;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\Query\TermQuery;
-use Shopware\Framework\ORM\Search\Sorting\FieldSorting;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Checkout\Order\OrderRepository;
+use Shopware\Core\Checkout\Order\Struct\OrderSearchResult;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Core\Framework\ORM\Search\Sorting\FieldSorting;
 use Symfony\Component\HttpFoundation\Request;
 
 class OrderPageLoader
@@ -16,7 +16,7 @@ class OrderPageLoader
 
     const PAGE_PARAMETER = 'page';
     /**
-     * @var \Shopware\Checkout\Order\OrderRepository
+     * @var \Shopware\Core\Checkout\Order\OrderRepository
      */
     private $orderRepository;
 
@@ -25,13 +25,13 @@ class OrderPageLoader
         $this->orderRepository = $orderRepository;
     }
 
-    public function load(Request $request, StorefrontContext $context): OrderPageStruct
+    public function load(Request $request, CheckoutContext $context): OrderPageStruct
     {
         $limit = $request->query->getInt(self::LIMIT_PARAMETER, 10);
         $page = $request->query->getInt(self::PAGE_PARAMETER, 1);
 
         $criteria = $this->createCriteria($context->getCustomer()->getId(), $limit, $page);
-        $orders = $this->orderRepository->search($criteria, $context->getApplicationContext());
+        $orders = $this->orderRepository->search($criteria, $context->getContext());
 
         return new OrderPageStruct(
             $orders,

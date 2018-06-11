@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Aggregate\ProductStream\Struct;
+namespace Shopware\Core\Content\Product\Aggregate\ProductStream\Struct;
 
-use Shopware\Framework\ORM\Entity;
-use Shopware\System\Listing\Struct\ListingSortingBasicStruct;
+use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\System\Listing\Struct\ListingSortingBasicStruct;
 
 class ProductStreamBasicStruct extends Entity
 {

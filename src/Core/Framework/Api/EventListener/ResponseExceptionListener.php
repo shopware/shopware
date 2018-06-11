@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Api\EventListener;
+namespace Shopware\Core\Framework\Api\EventListener;
 
 use Psr\Log\LoggerInterface;
-use Shopware\Framework\Api\Response\ResponseFactory;
-use Shopware\Framework\ShopwareException;
+use Shopware\Core\Framework\Api\Response\ResponseFactory;
+use Shopware\Core\Framework\ShopwareException;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
 use Symfony\Component\HttpKernel\EventListener\ExceptionListener;
 use Symfony\Component\HttpKernel\Exception\HttpException;

@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Payment\Cart\Token;
+namespace Shopware\Core\Checkout\Payment\Cart\Token;
 
-use Shopware\Framework\Struct\Struct;
+use Shopware\Core\Framework\Struct\Struct;
 
 class TokenStruct extends Struct
 {

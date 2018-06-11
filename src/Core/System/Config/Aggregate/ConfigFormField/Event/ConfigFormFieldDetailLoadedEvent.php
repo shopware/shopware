@@ -1,30 +1,30 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Config\Aggregate\ConfigFormField\Event;
+namespace Shopware\Core\System\Config\Aggregate\ConfigFormField\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\System\Config\Aggregate\ConfigFormField\Collection\ConfigFormFieldDetailCollection;
-use Shopware\System\Config\Aggregate\ConfigFormFieldTranslation\Event\ConfigFormFieldTranslationBasicLoadedEvent;
-use Shopware\System\Config\Aggregate\ConfigFormFieldValue\Event\ConfigFormFieldValueBasicLoadedEvent;
-use Shopware\System\Config\Event\ConfigFormBasicLoadedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\System\Config\Aggregate\ConfigFormField\Collection\ConfigFormFieldDetailCollection;
+use Shopware\Core\System\Config\Aggregate\ConfigFormFieldTranslation\Event\ConfigFormFieldTranslationBasicLoadedEvent;
+use Shopware\Core\System\Config\Aggregate\ConfigFormFieldValue\Event\ConfigFormFieldValueBasicLoadedEvent;
+use Shopware\Core\System\Config\Event\ConfigFormBasicLoadedEvent;
 
 class ConfigFormFieldDetailLoadedEvent extends NestedEvent
 {
     public const NAME = 'config_form_field.detail.loaded';
 
     /**
-     * @var ApplicationContext
+     * @var \Shopware\Core\Framework\Context
      */
     protected $context;
 
     /**
-     * @var \Shopware\System\Config\Aggregate\ConfigFormField\Collection\ConfigFormFieldDetailCollection
+     * @var \Shopware\Core\System\Config\Aggregate\ConfigFormField\Collection\ConfigFormFieldDetailCollection
      */
     protected $configFormFields;
 
-    public function __construct(ConfigFormFieldDetailCollection $configFormFields, ApplicationContext $context)
+    public function __construct(ConfigFormFieldDetailCollection $configFormFields, Context $context)
     {
         $this->context = $context;
         $this->configFormFields = $configFormFields;
@@ -35,7 +35,7 @@ class ConfigFormFieldDetailLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }

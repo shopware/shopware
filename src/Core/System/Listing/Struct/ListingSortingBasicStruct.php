@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Listing\Struct;
+namespace Shopware\Core\System\Listing\Struct;
 
-use Shopware\Framework\ORM\Entity;
-use Shopware\Framework\ORM\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Search\Sorting\FieldSorting;
 
 class ListingSortingBasicStruct extends Entity
 {

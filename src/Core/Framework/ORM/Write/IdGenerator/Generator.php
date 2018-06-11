@@ -22,7 +22,7 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Framework\ORM\Write\IdGenerator;
+namespace Shopware\Core\Framework\ORM\Write\IdGenerator;
 
 interface Generator
 {

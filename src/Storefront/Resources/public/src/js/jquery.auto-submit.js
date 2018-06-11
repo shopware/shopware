@@ -2,7 +2,7 @@
     'use strict';
 
     /**
-     * Shopware Auto Submit Plugin
+     * Shopware\Core Auto Submit Plugin
      *
      * @example
      *

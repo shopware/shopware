@@ -2,34 +2,34 @@
 
 namespace Shopware\Storefront\Page\Account;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository;
-use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
-use Shopware\Checkout\Customer\CustomerRepository;
-use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
-use Shopware\Checkout\Order\Exception\NotLoggedInCustomerException;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\Query\TermQuery;
-use Shopware\Framework\Struct\Uuid;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
+use Shopware\Core\Checkout\Customer\CustomerRepository;
+use Shopware\Core\Checkout\Customer\Struct\CustomerBasicStruct;
+use Shopware\Core\Checkout\Order\Exception\NotLoggedInCustomerException;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Storefront\Exception\AddressNotFoundHttpException;
 use Shopware\Storefront\Exception\CustomerNotFoundException;
-use Shopware\System\Country\CountryRepository;
+use Shopware\Core\System\Country\CountryRepository;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 
 class AccountService
 {
     /**
-     * @var \Shopware\System\Country\CountryRepository
+     * @var \Shopware\Core\System\Country\CountryRepository
      */
     private $countryRepository;
 
     /**
-     * @var \Shopware\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository
+     * @var \Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository
      */
     private $customerAddressRepository;
 
     /**
-     * @var \Shopware\Checkout\Customer\CustomerRepository
+     * @var \Shopware\Core\Checkout\Customer\CustomerRepository
      */
     private $customerRepository;
 
@@ -43,12 +43,12 @@ class AccountService
         $this->customerRepository = $customerRepository;
     }
 
-    public function getCustomerByLogin(string $email, string $password, StorefrontContext $context): CustomerBasicStruct
+    public function getCustomerByLogin(string $email, string $password, CheckoutContext $context): CustomerBasicStruct
     {
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('customer.email', $email));
 
-        $customers = $this->customerRepository->search($criteria, $context->getApplicationContext());
+        $customers = $this->customerRepository->search($criteria, $context->getContext());
 
         if ($customers->count() === 0) {
             throw new CustomerNotFoundException($email);
@@ -65,16 +65,16 @@ class AccountService
     }
 
     /**
-     * @throws \Shopware\Checkout\Order\Exception\NotLoggedInCustomerException
+     * @throws \Shopware\Core\Checkout\Order\Exception\NotLoggedInCustomerException
      */
-    public function getCustomerByContext(StorefrontContext $context): CustomerBasicStruct
+    public function getCustomerByContext(CheckoutContext $context): CustomerBasicStruct
     {
         $this->validateCustomer($context);
 
         return $context->getCustomer();
     }
 
-    public function changeProfile(array $data, StorefrontContext $context)
+    public function changeProfile(array $data, CheckoutContext $context)
     {
         $data = [
             'id' => $context->getCustomer()->getId(),
@@ -86,40 +86,40 @@ class AccountService
         ];
 
         $data = array_filter($data);
-        $this->customerRepository->update([$data], $context->getApplicationContext());
+        $this->customerRepository->update([$data], $context->getContext());
     }
 
-    public function changePassword(string $password, StorefrontContext $context)
+    public function changePassword(string $password, CheckoutContext $context)
     {
         $data = [
             'id' => $context->getCustomer()->getId(),
             'password' => password_hash($password, PASSWORD_BCRYPT, ['cost' => 13]),
             'encoder' => 'bcrypt',
         ];
-        $this->customerRepository->update([$data], $context->getApplicationContext());
+        $this->customerRepository->update([$data], $context->getContext());
     }
 
-    public function changeEmail(string $email, StorefrontContext $context)
+    public function changeEmail(string $email, CheckoutContext $context)
     {
         $data = [
             'id' => $context->getCustomer()->getId(),
             'email' => $email,
         ];
-        $this->customerRepository->update([$data], $context->getApplicationContext());
+        $this->customerRepository->update([$data], $context->getContext());
     }
 
-    public function getAddressById(string $addressId, StorefrontContext $context): CustomerAddressBasicStruct
+    public function getAddressById(string $addressId, CheckoutContext $context): CustomerAddressBasicStruct
     {
         return $this->validateAddressId($addressId, $context);
     }
 
-    public function getCountryList(StorefrontContext $context): array
+    public function getCountryList(CheckoutContext $context): array
     {
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('country.active', true));
         $countries = $this->countryRepository->readDetail(
-            $this->countryRepository->searchIds($criteria, $context->getApplicationContext())->getIds(),
-            $context->getApplicationContext()
+            $this->countryRepository->searchIds($criteria, $context->getContext())->getIds(),
+            $context->getContext()
         );
         $countries->sortCountryAndStates();
 
@@ -129,22 +129,22 @@ class AccountService
     /**
      * @throws NotLoggedInCustomerException
      */
-    public function getAddressesByCustomer(StorefrontContext $context): array
+    public function getAddressesByCustomer(CheckoutContext $context): array
     {
         $this->validateCustomer($context);
         $customer = $context->getCustomer();
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('customer_address.customerId', $context->getCustomer()->getId()));
 
-        $addresses = $this->customerAddressRepository->search($criteria, $context->getApplicationContext());
+        $addresses = $this->customerAddressRepository->search($criteria, $context->getContext());
 
         return $addresses->sortByDefaultAddress($customer)->getElements();
     }
 
     /**
-     * @throws \Shopware\Checkout\Order\Exception\NotLoggedInCustomerException
+     * @throws \Shopware\Core\Checkout\Order\Exception\NotLoggedInCustomerException
      */
-    public function saveAddress(array $formData, StorefrontContext $context): string
+    public function saveAddress(array $formData, CheckoutContext $context): string
     {
         $this->validateCustomer($context);
         if (!array_key_exists('addressId', $formData)) {
@@ -173,25 +173,25 @@ class AccountService
         ];
         $data = array_filter($data);
 
-        $this->customerAddressRepository->upsert([$data], $context->getApplicationContext());
+        $this->customerAddressRepository->upsert([$data], $context->getContext());
 
         return $id;
     }
 
     /**
-     * @throws \Shopware\Checkout\Order\Exception\NotLoggedInCustomerException
+     * @throws \Shopware\Core\Checkout\Order\Exception\NotLoggedInCustomerException
      */
-    public function deleteAddress(string $addressId, StorefrontContext $context)
+    public function deleteAddress(string $addressId, CheckoutContext $context)
     {
         $this->validateCustomer($context);
         $this->validateAddressId($addressId, $context);
-        $this->customerAddressRepository->delete([['id' => $addressId]], $context->getApplicationContext());
+        $this->customerAddressRepository->delete([['id' => $addressId]], $context->getContext());
     }
 
     /**
-     * @throws \Shopware\Checkout\Order\Exception\NotLoggedInCustomerException
+     * @throws \Shopware\Core\Checkout\Order\Exception\NotLoggedInCustomerException
      */
-    public function setDefaultBillingAddress(string $addressId, StorefrontContext $context)
+    public function setDefaultBillingAddress(string $addressId, CheckoutContext $context)
     {
         $this->validateCustomer($context);
         $this->validateAddressId($addressId, $context);
@@ -200,13 +200,13 @@ class AccountService
             'id' => $context->getCustomer()->getId(),
             'defaultBillingAddressId' => $addressId,
         ];
-        $this->customerRepository->update([$data], $context->getApplicationContext());
+        $this->customerRepository->update([$data], $context->getContext());
     }
 
     /**
-     * @throws \Shopware\Checkout\Order\Exception\NotLoggedInCustomerException
+     * @throws \Shopware\Core\Checkout\Order\Exception\NotLoggedInCustomerException
      */
-    public function setDefaultShippingAddress(string $addressId, StorefrontContext $context)
+    public function setDefaultShippingAddress(string $addressId, CheckoutContext $context)
     {
         $this->validateCustomer($context);
         $this->validateAddressId($addressId, $context);
@@ -215,10 +215,10 @@ class AccountService
             'id' => $context->getCustomer()->getId(),
             'defaultShippingAddressId' => $addressId,
         ];
-        $this->customerRepository->update([$data], $context->getApplicationContext());
+        $this->customerRepository->update([$data], $context->getContext());
     }
 
-    public function createNewCustomer(array $formData, StorefrontContext $context): string
+    public function createNewCustomer(array $formData, CheckoutContext $context): string
     {
         $customerId = Uuid::uuid4()->toString();
         $billingAddressId = Uuid::uuid4()->toString();
@@ -232,6 +232,7 @@ class AccountService
         $addresses[] = array_filter([
             'id' => $billingAddressId,
             'customerId' => $customerId,
+
             'countryId' => $billing['country'],
             'salutation' => $billing['salutation'] ?? $personal['salutation'],
             'firstName' => $billing['firstname'] ?? $personal['firstname'],
@@ -269,7 +270,7 @@ class AccountService
         // todo implement customer number generator
         $data = [
             'id' => $customerId,
-            'applicationId' => $context->getApplication()->getId(),
+            'touchpointId' => $context->getTouchpoint()->getId(),
             'customerGroupId' => $context->getCurrentCustomerGroup()->getId(),
             'defaultPaymentMethodId' => $context->getPaymentMethod()->getId(),
             'groupId' => $context->getCurrentCustomerGroup()->getId(),
@@ -293,24 +294,24 @@ class AccountService
         ];
 
         $data = array_filter($data);
-        $this->customerRepository->create([$data], $context->getApplicationContext());
+        $this->customerRepository->create([$data], $context->getContext());
 
         return $customerId;
     }
 
     /**
-     * @throws \Shopware\Checkout\Order\Exception\NotLoggedInCustomerException
+     * @throws \Shopware\Core\Checkout\Order\Exception\NotLoggedInCustomerException
      */
-    private function validateCustomer(StorefrontContext $context)
+    private function validateCustomer(CheckoutContext $context)
     {
         if (!$context->getCustomer()) {
             throw new NotLoggedInCustomerException();
         }
     }
 
-    private function validateAddressId(string $addressId, StorefrontContext $context): CustomerAddressBasicStruct
+    private function validateAddressId(string $addressId, CheckoutContext $context): CustomerAddressBasicStruct
     {
-        $addresses = $this->customerAddressRepository->readBasic([$addressId], $context->getApplicationContext());
+        $addresses = $this->customerAddressRepository->readBasic([$addressId], $context->getContext());
         $address = $addresses->get($addressId);
 
         if (!$address) {

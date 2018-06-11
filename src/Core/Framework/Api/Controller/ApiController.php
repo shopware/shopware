@@ -1,32 +1,32 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Api\Controller;
+namespace Shopware\Core\Framework\Api\Controller;
 
-use Shopware\Framework\Api\Context\RestContext;
-use Shopware\Framework\Api\Exception\ResourceNotFoundException;
-use Shopware\Framework\Api\Exception\UnknownRepositoryVersionException;
-use Shopware\Framework\Api\Exception\WriteStackHttpException;
-use Shopware\Framework\Api\Response\ResponseFactory;
-use Shopware\Framework\ORM\DefinitionRegistry;
-use Shopware\Framework\ORM\Entity;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\Field\AssociationInterface;
-use Shopware\Framework\ORM\Field\Field;
-use Shopware\Framework\ORM\Field\ManyToManyAssociationField;
-use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
-use Shopware\Framework\ORM\Field\OneToManyAssociationField;
-use Shopware\Framework\ORM\Field\ReferenceVersionField;
-use Shopware\Framework\ORM\Field\TenantIdField;
-use Shopware\Framework\ORM\Field\VersionField;
-use Shopware\Framework\ORM\FieldCollection;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\Query\TermQuery;
-use Shopware\Framework\ORM\Search\SearchCriteriaBuilder;
-use Shopware\Framework\ORM\Write\EntityWriterInterface;
-use Shopware\Framework\ORM\Write\FieldException\WriteStackException;
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
-use Shopware\Framework\ORM\Write\WriteContext;
+use Shopware\Core\Framework\Api\Context\RestContext;
+use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
+use Shopware\Core\Framework\Api\Exception\UnknownRepositoryVersionException;
+use Shopware\Core\Framework\Api\Exception\WriteStackHttpException;
+use Shopware\Core\Framework\Api\Response\ResponseFactory;
+use Shopware\Core\Framework\ORM\DefinitionRegistry;
+use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\Field\AssociationInterface;
+use Shopware\Core\Framework\ORM\Field\Field;
+use Shopware\Core\Framework\ORM\Field\ManyToManyAssociationField;
+use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
+use Shopware\Core\Framework\ORM\Field\TenantIdField;
+use Shopware\Core\Framework\ORM\Field\VersionField;
+use Shopware\Core\Framework\ORM\FieldCollection;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Core\Framework\ORM\Search\SearchCriteriaBuilder;
+use Shopware\Core\Framework\ORM\Write\EntityWriterInterface;
+use Shopware\Core\Framework\ORM\Write\FieldException\WriteStackException;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Write\WriteContext;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -112,7 +112,7 @@ class ApiController extends Controller
         }
 
         /** @var RepositoryInterface $repository */
-        $entities = $repository->readDetail([$id], $context->getApplicationContext());
+        $entities = $repository->readDetail([$id], $context->getContext());
 
         $entity = $entities->get($id);
 
@@ -145,10 +145,10 @@ class ApiController extends Controller
                 $request,
                 $criteria,
                 $definition,
-                $context->getApplicationContext()
+                $context->getContext()
             );
 
-            $data = $repository->search($criteria, $context->getApplicationContext());
+            $data = $repository->search($criteria, $context->getContext());
 
             return $this->responseFactory->createListingResponse($data, (string) $definition, $context);
         }
@@ -164,7 +164,7 @@ class ApiController extends Controller
             $request,
             $criteria,
             $definition,
-            $context->getApplicationContext()
+            $context->getContext()
         );
 
         $association = $child['field'];
@@ -177,7 +177,7 @@ class ApiController extends Controller
             /*
              * Example:
              * route:           /api/product/SW1/categories
-             * $definition:     \Shopware\Content\Category\CategoryDefinition
+             * $definition:     \Shopware\Core\Content\Category\CategoryDefinition
              */
             $definition = $association->getReferenceDefinition();
 
@@ -202,7 +202,7 @@ class ApiController extends Controller
             /*
              * Example
              * Route:           /api/product/SW1/prices
-             * $definition:     \Shopware\Content\Product\Definition\ProductPriceDefinition
+             * $definition:     \Shopware\Core\Content\Product\Definition\ProductPriceDefinition
              */
 
             //get foreign key definition of reference
@@ -221,7 +221,7 @@ class ApiController extends Controller
             /*
              * Example
              * Route:           /api/product/SW1/manufacturer
-             * $definition:     \Shopware\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition
+             * $definition:     \Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition
              */
 
             //get inverse association to filter to parent value
@@ -244,7 +244,7 @@ class ApiController extends Controller
 
         $repository = $this->getRepository($definition, $context->getVersion());
 
-        $result = $repository->search($criteria, $context->getApplicationContext());
+        $result = $repository->search($criteria, $context->getContext());
 
         return $this->responseFactory->createListingResponse($result, (string) $definition, $context);
     }
@@ -321,7 +321,7 @@ class ApiController extends Controller
             $this->entityWriter->delete(
                 $definition,
                 [$mapping],
-                WriteContext::createFromApplicationContext($context->getApplicationContext())
+                WriteContext::createFromContext($context->getContext())
             );
 
             return $this->responseFactory->createRedirectResponse($definition, $id, $context);
@@ -355,9 +355,9 @@ class ApiController extends Controller
                 $request,
                 $criteria,
                 $definition,
-                $context->getApplicationContext()
+                $context->getContext()
             ),
-            $context->getApplicationContext()
+            $context->getContext()
         );
 
         return $this->responseFactory->createListingResponse($data, (string) $definition, $context);
@@ -399,9 +399,9 @@ class ApiController extends Controller
             }
 
             if ($responseDataType === self::RESPONSE_DETAIL) {
-                $entities = $repository->readDetail($event->getIds(), $context->getApplicationContext());
+                $entities = $repository->readDetail($event->getIds(), $context->getContext());
             } else {
-                $entities = $repository->readBasic($event->getIds(), $context->getApplicationContext());
+                $entities = $repository->readBasic($event->getIds(), $context->getContext());
             }
 
             return $this->responseFactory->createDetailResponse($entities->first(), $definition, $context, $appendLocationHeader);
@@ -441,9 +441,9 @@ class ApiController extends Controller
             $repository = $this->getRepository($definition, $context->getVersion());
 
             if ($responseDataType === self::RESPONSE_DETAIL) {
-                $entities = $repository->readDetail($event->getIds(), $context->getApplicationContext());
+                $entities = $repository->readDetail($event->getIds(), $context->getContext());
             } else {
-                $entities = $repository->readBasic($event->getIds(), $context->getApplicationContext());
+                $entities = $repository->readBasic($event->getIds(), $context->getContext());
             }
 
             return $this->responseFactory->createDetailResponse($entities->first(), $definition, $context, $appendLocationHeader);
@@ -464,16 +464,16 @@ class ApiController extends Controller
             ];
 
             $repository = $this->getRepository($parentDefinition, $context->getVersion());
-            $repository->update([$payload], $context->getApplicationContext());
+            $repository->update([$payload], $context->getContext());
 
             if (!$responseDataType) {
                 return $this->responseFactory->createRedirectResponse($definition, $entityId, $context);
             }
 
             if ($responseDataType === self::RESPONSE_DETAIL) {
-                $entities = $repository->readDetail($event->getIds(), $context->getApplicationContext());
+                $entities = $repository->readDetail($event->getIds(), $context->getContext());
             } else {
-                $entities = $repository->readBasic($event->getIds(), $context->getApplicationContext());
+                $entities = $repository->readBasic($event->getIds(), $context->getContext());
             }
 
             return $this->responseFactory->createDetailResponse($entities->first(), $definition, $context, $appendLocationHeader);
@@ -490,9 +490,9 @@ class ApiController extends Controller
         $repository = $this->getRepository($reference, $context->getVersion());
 
         if ($responseDataType === self::RESPONSE_DETAIL) {
-            $entities = $repository->readDetail($event->getIds(), $context->getApplicationContext());
+            $entities = $repository->readDetail($event->getIds(), $context->getContext());
         } else {
-            $entities = $repository->readBasic($event->getIds(), $context->getApplicationContext());
+            $entities = $repository->readBasic($event->getIds(), $context->getContext());
         }
 
         $entity = $entities->first();
@@ -506,7 +506,7 @@ class ApiController extends Controller
             ],
         ];
 
-        $repository->update([$payload], $context->getApplicationContext());
+        $repository->update([$payload], $context->getContext());
 
         if (!$responseDataType) {
             return $this->responseFactory->createRedirectResponse($reference, $entity->getId(), $context);
@@ -532,11 +532,11 @@ class ApiController extends Controller
             switch ($type) {
                 case self::WRITE_CREATE:
 
-                    return $repository->create([$payload], $context->getApplicationContext());
+                    return $repository->create([$payload], $context->getContext());
 
                 case self::WRITE_UPDATE:
                 default:
-                    return $repository->update([$payload], $context->getApplicationContext());
+                    return $repository->update([$payload], $context->getContext());
             }
         } catch (WriteStackException $exceptionStack) {
             throw new WriteStackHttpException($exceptionStack);
@@ -712,7 +712,7 @@ class ApiController extends Controller
             $mapping = [$pk->getPropertyName() => $id];
         }
 
-        $repository->delete([$mapping], $context->getApplicationContext());
+        $repository->delete([$mapping], $context->getContext());
     }
 
     private function getResponseDataType(Request $request): ?string

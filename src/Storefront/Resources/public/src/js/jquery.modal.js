@@ -5,7 +5,7 @@
         $html = $('html');
 
     /**
-     * Shopware Modal Module
+     * Shopware\Core Modal Module
      *
      * The modalbox is "session based".
      * That means, that an .open() call will completely override the settings of the previous .open() calls.
@@ -678,7 +678,7 @@
     };
 
     /**
-     * Shopware Modalbox Plugin
+     * Shopware\Core Modalbox Plugin
      *
      * This plugin opens a offcanvas menu on click.
      * The content of the offcanvas can either be passed to the plugin

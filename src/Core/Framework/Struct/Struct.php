@@ -24,10 +24,10 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Framework\Struct;
+namespace Shopware\Core\Framework\Struct;
 
 /**
- * @category  Shopware
+ * @category  Shopware\Core
  *
  * @copyright Copyright (c) shopware AG (http://www.shopware.de)
  */

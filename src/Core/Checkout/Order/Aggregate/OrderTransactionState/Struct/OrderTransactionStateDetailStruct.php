@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Order\Aggregate\OrderTransactionState\Struct;
+namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransactionState\Struct;
 
-use Shopware\Checkout\Order\Aggregate\OrderTransactionStateTranslation\Collection\OrderTransactionStateTranslationBasicCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionStateTranslation\Collection\OrderTransactionStateTranslationBasicCollection;
 
 class OrderTransactionStateDetailStruct extends OrderTransactionStateBasicStruct
 {

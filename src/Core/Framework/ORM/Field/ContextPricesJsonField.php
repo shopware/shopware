@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Field;
+namespace Shopware\Core\Framework\ORM\Field;
 
-use Shopware\Framework\ORM\Write\DataStack\KeyValuePair;
-use Shopware\Framework\ORM\Write\EntityExistence;
+use Shopware\Core\Framework\ORM\Write\DataStack\KeyValuePair;
+use Shopware\Core\Framework\ORM\Write\EntityExistence;
 
-class ContextPricesJsonField extends JsonObjectField
+class PriceRulesJsonField extends JsonObjectField
 {
     public function __invoke(EntityExistence $existence, KeyValuePair $data): \Generator
     {
@@ -43,7 +43,7 @@ class ContextPricesJsonField extends JsonObjectField
             $queryOptimized = array_merge_recursive(
                 $queryOptimized,
                 self::format(
-                    $row['contextRuleId'],
+                    $row['ruleId'],
                     $row['currencyId'],
                     $row['price']['gross'],
                     $row['price']['net']

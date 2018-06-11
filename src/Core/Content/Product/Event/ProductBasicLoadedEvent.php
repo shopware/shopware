@@ -1,23 +1,23 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Event;
+namespace Shopware\Core\Content\Product\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Content\Product\Aggregate\ProductContextPrice\Event\ProductContextPriceBasicLoadedEvent;
-use Shopware\Content\Product\Aggregate\ProductManufacturer\Event\ProductManufacturerBasicLoadedEvent;
-use Shopware\Content\Product\Aggregate\ProductMedia\Event\ProductMediaBasicLoadedEvent;
-use Shopware\Content\Product\Collection\ProductBasicCollection;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\System\Tax\Event\TaxBasicLoadedEvent;
-use Shopware\System\Unit\Event\UnitBasicLoadedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\Event\ProductPriceRuleBasicLoadedEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\Event\ProductManufacturerBasicLoadedEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\Event\ProductMediaBasicLoadedEvent;
+use Shopware\Core\Content\Product\Collection\ProductBasicCollection;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\System\Tax\Event\TaxBasicLoadedEvent;
+use Shopware\Core\System\Unit\Event\UnitBasicLoadedEvent;
 
 class ProductBasicLoadedEvent extends NestedEvent
 {
     public const NAME = 'product.basic.loaded';
 
     /**
-     * @var ApplicationContext
+     * @var Context
      */
     protected $context;
 
@@ -26,7 +26,7 @@ class ProductBasicLoadedEvent extends NestedEvent
      */
     protected $products;
 
-    public function __construct(ProductBasicCollection $products, ApplicationContext $context)
+    public function __construct(ProductBasicCollection $products, Context $context)
     {
         $this->context = $context;
         $this->products = $products;
@@ -37,7 +37,7 @@ class ProductBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }
@@ -65,9 +65,9 @@ class ProductBasicLoadedEvent extends NestedEvent
             $events[] = new UnitBasicLoadedEvent($units, $this->context);
         }
 
-        $prices = $this->products->getContextPrices();
+        $prices = $this->products->getPriceRules();
         if ($prices->count() > 0) {
-            $events[] = new ProductContextPriceBasicLoadedEvent($prices, $this->context);
+            $events[] = new ProductPriceRuleBasicLoadedEvent($prices, $this->context);
         }
 
         $covers = $this->products->getCovers();

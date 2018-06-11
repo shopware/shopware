@@ -2,8 +2,8 @@
 
 namespace Shopware\Storefront\Page\Account;
 
-use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
-use Shopware\Framework\Struct\Struct;
+use Shopware\Core\Checkout\Customer\Struct\CustomerBasicStruct;
+use Shopware\Core\Framework\Struct\Struct;
 
 class CustomerPageStruct extends Struct
 {

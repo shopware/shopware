@@ -22,17 +22,17 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Framework\Migration;
+namespace Shopware\Core\Framework\Migration;
 
 /**
- * Shopware migration manager
+ * Shopware\Core migration manager
  *
  * <code>
  * $migrationManager = new Manager($conn, '/path/to/migrations');
  * $migrationManager->run();
  * </code>
  *
- * @category  Shopware
+ * @category  Shopware\Core
  *
  * @copyright Copyright (c) shopware AG (http://www.shopware.de)
  */

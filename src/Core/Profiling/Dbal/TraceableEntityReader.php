@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Profiling\Dbal;
+namespace Shopware\Core\Profiling\Dbal;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\ORM\EntityCollection;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
 use Symfony\Component\Stopwatch\Stopwatch;
 
 class TraceableEntityReader implements EntityReaderInterface
@@ -26,7 +26,7 @@ class TraceableEntityReader implements EntityReaderInterface
         $this->stopwatch = $stopwatch;
     }
 
-    public function readRaw(string $definition, array $ids, ApplicationContext $context): EntityCollection
+    public function readRaw(string $definition, array $ids, Context $context): EntityCollection
     {
         /** @var EntityDefinition $definition */
         $entity = $definition::getEntityName();
@@ -42,7 +42,7 @@ class TraceableEntityReader implements EntityReaderInterface
         return $result;
     }
 
-    public function readDetail(string $definition, array $ids, ApplicationContext $context): EntityCollection
+    public function readDetail(string $definition, array $ids, Context $context): EntityCollection
     {
         /** @var EntityDefinition $definition */
         $entity = $definition::getEntityName();
@@ -58,7 +58,7 @@ class TraceableEntityReader implements EntityReaderInterface
         return $result;
     }
 
-    public function readBasic(string $definition, array $ids, ApplicationContext $context): EntityCollection
+    public function readBasic(string $definition, array $ids, Context $context): EntityCollection
     {
         /** @var EntityDefinition $definition */
         $entity = $definition::getEntityName();

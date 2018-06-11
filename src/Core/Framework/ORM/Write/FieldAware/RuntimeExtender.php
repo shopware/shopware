@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Write\FieldAware;
+namespace Shopware\Core\Framework\ORM\Write\FieldAware;
 
-use Shopware\Framework\ORM\Field\Field;
-use Shopware\Framework\ORM\Write\Command\WriteCommandQueue;
-use Shopware\Framework\ORM\Write\FieldException\FieldExceptionStack;
-use Shopware\Framework\ORM\Write\WriteCommandExtractor;
-use Shopware\Framework\ORM\Write\WriteContext;
+use Shopware\Core\Framework\ORM\Field\Field;
+use Shopware\Core\Framework\ORM\Write\Command\WriteCommandQueue;
+use Shopware\Core\Framework\ORM\Write\FieldException\FieldExceptionStack;
+use Shopware\Core\Framework\ORM\Write\WriteCommandExtractor;
+use Shopware\Core\Framework\ORM\Write\WriteContext;
 
 class RuntimeExtender extends FieldExtender
 {

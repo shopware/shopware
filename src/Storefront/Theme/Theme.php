@@ -32,7 +32,7 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
  * Used as meta information container for a theme.
  * Contains the inheritance and config definition of a theme.
  *
- * @category  Shopware
+ * @category  Shopware\Core
  *
  * @copyright Copyright (c) shopware AG (http://www.shopware.de)
  */

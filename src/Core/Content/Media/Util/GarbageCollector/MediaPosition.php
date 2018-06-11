@@ -22,7 +22,7 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Content\Media\Util\GarbageCollector;
+namespace Shopware\Core\Content\Media\Util\GarbageCollector;
 
 class MediaPosition
 {

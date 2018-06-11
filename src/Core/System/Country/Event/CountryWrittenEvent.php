@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Country\Event;
+namespace Shopware\Core\System\Country\Event;
 
-use Shopware\Framework\ORM\Write\WrittenEvent;
-use Shopware\System\Country\CountryDefinition;
+use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\System\Country\CountryDefinition;
 
 class CountryWrittenEvent extends WrittenEvent
 {

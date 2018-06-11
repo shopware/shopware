@@ -23,14 +23,14 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Framework\Plugin;
+namespace Shopware\Core\Framework\Plugin;
 
-use Shopware\Framework\Filesystem\PrefixFilesystem;
-use Shopware\Framework\Plugin\Context\ActivateContext;
-use Shopware\Framework\Plugin\Context\DeactivateContext;
-use Shopware\Framework\Plugin\Context\InstallContext;
-use Shopware\Framework\Plugin\Context\UninstallContext;
-use Shopware\Framework\Plugin\Context\UpdateContext;
+use Shopware\Core\Framework\Filesystem\PrefixFilesystem;
+use Shopware\Core\Framework\Plugin\Context\ActivateContext;
+use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
+use Shopware\Core\Framework\Plugin\Context\InstallContext;
+use Shopware\Core\Framework\Plugin\Context\UninstallContext;
+use Shopware\Core\Framework\Plugin\Context\UpdateContext;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;

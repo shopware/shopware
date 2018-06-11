@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Collection;
+namespace Shopware\Core\Content\Product\Collection;
 
-use Shopware\Content\Product\Struct\PriceStruct;
-use Shopware\Framework\Struct\Collection;
+use Shopware\Core\Framework\Pricing\PriceStruct;
+use Shopware\Core\Framework\Struct\Collection;
 
 class PriceCollection extends Collection
 {
@@ -12,9 +12,9 @@ class PriceCollection extends Collection
      */
     protected $elements = [];
 
-    public function add(PriceStruct $contextPrice): void
+    public function add(PriceStruct $priceRule): void
     {
-        $this->elements[] = $contextPrice;
+        $this->elements[] = $priceRule;
     }
 
     public function get(string $key): ? PriceStruct

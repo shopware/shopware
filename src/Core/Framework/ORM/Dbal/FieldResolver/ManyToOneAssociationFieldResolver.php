@@ -1,15 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Dbal\FieldResolver;
+namespace Shopware\Core\Framework\ORM\Dbal\FieldResolver;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Defaults;
-use Shopware\Framework\ORM\Dbal\EntityDefinitionQueryHelper;
-use Shopware\Framework\ORM\Dbal\QueryBuilder;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\Field\Field;
-use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
-use Shopware\Framework\ORM\Write\Flag\Inherited;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\ORM\Dbal\EntityDefinitionQueryHelper;
+use Shopware\Core\Framework\ORM\Dbal\QueryBuilder;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\Field\Field;
+use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\ORM\Write\Flag\Inherited;
 
 class ManyToOneAssociationFieldResolver implements FieldResolverInterface
 {
@@ -18,7 +18,7 @@ class ManyToOneAssociationFieldResolver implements FieldResolverInterface
         string $root,
         Field $field,
         QueryBuilder $query,
-        ApplicationContext $context,
+        Context $context,
         EntityDefinitionQueryHelper $queryHelper,
         bool $raw
     ): void {
@@ -50,7 +50,7 @@ class ManyToOneAssociationFieldResolver implements FieldResolverInterface
         $queryHelper->resolveField($parent, $reference, $alias, $query, $context);
     }
 
-    private function join(string $definition, string $root, ManyToOneAssociationField $field, QueryBuilder $query, ApplicationContext $context, EntityDefinitionQueryHelper $queryHelper): void
+    private function join(string $definition, string $root, ManyToOneAssociationField $field, QueryBuilder $query, Context $context, EntityDefinitionQueryHelper $queryHelper): void
     {
         /** @var EntityDefinition|string $reference */
         /** @var EntityDefinition|string $definition */
@@ -147,7 +147,7 @@ class ManyToOneAssociationFieldResolver implements FieldResolverInterface
         );
     }
 
-    private function createSubVersionQuery(ManyToOneAssociationField $field, QueryBuilder $query, ApplicationContext $context, EntityDefinitionQueryHelper $queryHelper): QueryBuilder
+    private function createSubVersionQuery(ManyToOneAssociationField $field, QueryBuilder $query, Context $context, EntityDefinitionQueryHelper $queryHelper): QueryBuilder
     {
         $subRoot = $field->getReferenceClass()::getEntityName();
 

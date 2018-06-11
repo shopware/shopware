@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Tax\Collection;
+namespace Shopware\Core\System\Tax\Collection;
 
-use Shopware\Framework\ORM\EntityCollection;
-use Shopware\System\Tax\Struct\TaxBasicStruct;
+use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\System\Tax\Struct\TaxBasicStruct;
 
 class TaxBasicCollection extends EntityCollection
 {

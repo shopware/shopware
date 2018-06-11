@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Media\Aggregate\MediaAlbum\Collection;
+namespace Shopware\Core\Content\Media\Aggregate\MediaAlbum\Collection;
 
-use Shopware\Content\Media\Aggregate\MediaAlbum\Struct\MediaAlbumBasicStruct;
-use Shopware\Framework\ORM\EntityCollection;
+use Shopware\Core\Content\Media\Aggregate\MediaAlbum\Struct\MediaAlbumBasicStruct;
+use Shopware\Core\Framework\ORM\EntityCollection;
 
 class MediaAlbumBasicCollection extends EntityCollection
 {

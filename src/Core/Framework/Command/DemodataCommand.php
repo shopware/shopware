@@ -1,35 +1,35 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Command;
+namespace Shopware\Core\Framework\Command;
 
 use Bezhanov\Faker\Provider\Commerce;
 use bheller\ImagesGenerator\ImagesGeneratorProvider;
 use Faker\Factory;
 use Faker\Generator;
 use League\Flysystem\FilesystemInterface;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Checkout\Customer\CustomerDefinition;
-use Shopware\Checkout\Rule\ContextRuleDefinition;
-use Shopware\Checkout\Rule\ContextRuleRepository;
-use Shopware\Checkout\Rule\Specification\CalculatedCart\GoodsPriceRule;
-use Shopware\Checkout\Rule\Specification\Container\AndRule;
-use Shopware\Checkout\Rule\Specification\Container\NotRule;
-use Shopware\Checkout\Rule\Specification\Context\CurrencyRule;
-use Shopware\Checkout\Rule\Specification\Context\CustomerGroupRule;
-use Shopware\Checkout\Rule\Specification\Context\DateRangeRule;
-use Shopware\Checkout\Rule\Specification\Context\IsNewCustomerRule;
-use Shopware\Content\Category\CategoryRepository;
-use Shopware\Content\Media\Aggregate\MediaAlbum\MediaAlbumRepository;
-use Shopware\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
-use Shopware\Content\Product\ProductDefinition;
-use Shopware\Content\Product\ProductRepository;
-use Shopware\Content\Product\Util\VariantGenerator;
-use Shopware\Defaults;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Write\EntityWriterInterface;
-use Shopware\Framework\ORM\Write\WriteContext;
-use Shopware\Framework\Struct\Uuid;
-use Shopware\System\Configuration\ConfigurationGroupDefinition;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Customer\CustomerDefinition;
+use Shopware\Core\Content\Rule\RuleDefinition;
+use Shopware\Core\Content\Rule\RuleRepository;
+use Shopware\Core\Checkout\Cart\Rule\GoodsPriceRule;
+use Shopware\Core\Framework\Rule\Container\AndRule;
+use Shopware\Core\Framework\Rule\Container\NotRule;
+use Shopware\Core\Framework\Rule\CurrencyRule;
+use Shopware\Core\Checkout\Customer\Rule\CustomerGroupRule;
+use Shopware\Core\Framework\Rule\DateRangeRule;
+use Shopware\Core\Checkout\Customer\Rule\IsNewCustomerRule;
+use Shopware\Core\Content\Category\CategoryRepository;
+use Shopware\Core\Content\Media\Aggregate\MediaAlbum\MediaAlbumRepository;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
+use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\ProductRepository;
+use Shopware\Core\Content\Product\Util\VariantGenerator;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Write\EntityWriterInterface;
+use Shopware\Core\Framework\ORM\Write\WriteContext;
+use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Content\Configuration\ConfigurationGroupDefinition;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -71,9 +71,9 @@ class DemodataCommand extends ContainerAwareCommand
     private $productRepository;
 
     /**
-     * @var ContextRuleRepository
+     * @var RuleRepository
      */
-    private $contextRuleRepository;
+    private $ruleRepository;
 
     /**
      * @var CategoryRepository
@@ -114,7 +114,7 @@ class DemodataCommand extends ContainerAwareCommand
 
         $this->variantGenerator = $variantGenerator;
         $this->productRepository = $container->get(ProductRepository::class);
-        $this->contextRuleRepository = $container->get(ContextRuleRepository::class);
+        $this->ruleRepository = $container->get(RuleRepository::class);
         $this->categoryRepository = $container->get(CategoryRepository::class);
         $this->albumRepository = $container->get(MediaAlbumRepository::class);
     }
@@ -158,7 +158,7 @@ class DemodataCommand extends ContainerAwareCommand
 
         $this->io->title('Demodata Generator');
 
-        $contextRuleIds = $this->createContextRules();
+        $ruleIds = $this->createRules();
 
         $this->createCustomer($input->getOption('customers'));
 
@@ -171,7 +171,7 @@ class DemodataCommand extends ContainerAwareCommand
         $this->createProduct(
             $categories,
             $manufacturer,
-            $contextRuleIds,
+            $ruleIds,
             $input->getOption('products'),
             $input->getOption('with-media') == 1,
             $input->getOption('with-configurator') == 1,
@@ -187,8 +187,8 @@ class DemodataCommand extends ContainerAwareCommand
 
     private function getContext()
     {
-        return WriteContext::createFromApplicationContext(
-            ApplicationContext::createDefaultContext($this->tenantId)
+        return WriteContext::createFromContext(
+            Context::createDefaultContext($this->tenantId)
         );
     }
 
@@ -223,7 +223,7 @@ class DemodataCommand extends ContainerAwareCommand
 
         $chunks = array_chunk($payload, 100);
         foreach ($chunks as $chunk) {
-            $this->categoryRepository->upsert($chunk, ApplicationContext::createDefaultContext($this->tenantId));
+            $this->categoryRepository->upsert($chunk, Context::createDefaultContext($this->tenantId));
             $this->io->progressAdvance(count($chunk));
         }
 
@@ -256,7 +256,7 @@ class DemodataCommand extends ContainerAwareCommand
                 'password' => $password,
                 'defaultPaymentMethodId' => '47160b00-cd06-4b01-8817-6451f9f3c247',
                 'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-                'applicationId' => Defaults::APPLICATION,
+                'touchpointId' => Defaults::TOUCHPOINT,
                 'defaultBillingAddressId' => $addressId,
                 'defaultShippingAddressId' => $addressId,
                 'addresses' => [
@@ -306,7 +306,7 @@ class DemodataCommand extends ContainerAwareCommand
             'password' => password_hash('shopware', PASSWORD_BCRYPT, ['cost' => 13]),
             'defaultPaymentMethodId' => '47160b00cd064b0188176451f9f3c247',
             'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-            'applicationId' => Defaults::APPLICATION,
+            'touchpointId' => Defaults::TOUCHPOINT,
             'defaultBillingAddressId' => $billingAddressId,
             'defaultShippingAddressId' => $shippingAddressId,
             'addresses' => [
@@ -341,7 +341,7 @@ class DemodataCommand extends ContainerAwareCommand
     private function createProduct(
         array $categories,
         array $manufacturer,
-        array $contextRules,
+        array $rules,
         $count = 500,
         bool $withMedia = false,
         bool $withConfigurator = false,
@@ -351,7 +351,7 @@ class DemodataCommand extends ContainerAwareCommand
 
         $albumId = Uuid::uuid4()->getHex();
         $this->io->section('Creating default media album.');
-        $this->albumRepository->create([['id' => $albumId, 'name' => 'Products']], ApplicationContext::createDefaultContext($this->tenantId));
+        $this->albumRepository->create([['id' => $albumId, 'name' => 'Products']], Context::createDefaultContext($this->tenantId));
 
         $this->io->section(sprintf('Generating %d products...', $count));
         $this->io->progressStart($count);
@@ -366,10 +366,10 @@ class DemodataCommand extends ContainerAwareCommand
             $services = $this->createServices();
         }
 
-        $context = ApplicationContext::createDefaultContext($this->tenantId);
+        $context = Context::createDefaultContext($this->tenantId);
 
         for ($i = 0; $i < $count; ++$i) {
-            $product = $this->createSimpleProduct($categories, $manufacturer, $contextRules);
+            $product = $this->createSimpleProduct($categories, $manufacturer, $rules);
 
             if ($withMedia) {
                 $imagePath = $this->getRandomImage($product['name']);
@@ -409,9 +409,9 @@ class DemodataCommand extends ContainerAwareCommand
             if ($isConfigurator) {
                 $this->io->progressAdvance();
 
-                $this->productRepository->upsert([$product], ApplicationContext::createDefaultContext($this->tenantId));
+                $this->productRepository->upsert([$product], Context::createDefaultContext($this->tenantId));
 
-                $variantEvent = $this->variantGenerator->generate($product['id'], ApplicationContext::createDefaultContext($this->tenantId));
+                $variantEvent = $this->variantGenerator->generate($product['id'], Context::createDefaultContext($this->tenantId));
                 $productEvents = $variantEvent->getEventByDefinition(ProductDefinition::class);
                 $variantProductIds = $productEvents->getIds();
 
@@ -440,7 +440,7 @@ class DemodataCommand extends ContainerAwareCommand
                     fclose($mediaFile);
                 }
 
-                $this->productRepository->update($variantImagePayload, ApplicationContext::createDefaultContext($this->tenantId));
+                $this->productRepository->update($variantImagePayload, Context::createDefaultContext($this->tenantId));
 
                 continue;
             }
@@ -449,13 +449,13 @@ class DemodataCommand extends ContainerAwareCommand
 
             if (count($payload) >= 50) {
                 $this->io->progressAdvance(count($payload));
-                $this->writer->upsert(ProductDefinition::class, $payload, WriteContext::createFromApplicationContext($context));
+                $this->writer->upsert(ProductDefinition::class, $payload, WriteContext::createFromContext($context));
                 $payload = [];
             }
         }
 
         if (!empty($payload)) {
-            $this->writer->upsert(ProductDefinition::class, $payload, WriteContext::createFromApplicationContext($context));
+            $this->writer->upsert(ProductDefinition::class, $payload, WriteContext::createFromContext($context));
         }
 
         $this->io->progressFinish();
@@ -487,9 +487,9 @@ class DemodataCommand extends ContainerAwareCommand
         return array_column($payload, 'id');
     }
 
-    private function createContextRules(): array
+    private function createRules(): array
     {
-        $ids = $this->contextRuleRepository->searchIds(new Criteria(), ApplicationContext::createDefaultContext($this->tenantId));
+        $ids = $this->ruleRepository->searchIds(new Criteria(), Context::createDefaultContext($this->tenantId));
 
         if (!empty($ids->getIds())) {
             return $ids->getIds();
@@ -515,17 +515,17 @@ class DemodataCommand extends ContainerAwareCommand
             ];
         }
 
-        $this->writer->insert(ContextRuleDefinition::class, $payload, $this->getContext());
+        $this->writer->insert(RuleDefinition::class, $payload, $this->getContext());
 
         return array_column($payload, 'id');
     }
 
-    private function createPrices(array $contextRules)
+    private function createPrices(array $rules)
     {
         $prices = [];
         $rules = \array_slice(
-            $contextRules,
-            random_int(0, count($contextRules) - 5),
+            $rules,
+            random_int(0, count($rules) - 5),
             random_int(1, 5)
         );
 
@@ -534,7 +534,7 @@ class DemodataCommand extends ContainerAwareCommand
 
             $prices[] = [
                 'currencyId' => Defaults::CURRENCY,
-                'contextRuleId' => $ruleId,
+                'ruleId' => $ruleId,
                 'quantityStart' => 1,
                 'quantityEnd' => 10,
                 'price' => ['gross' => $gross, 'net' => $gross / 1.19],
@@ -544,7 +544,7 @@ class DemodataCommand extends ContainerAwareCommand
 
             $prices[] = [
                 'currencyId' => Defaults::CURRENCY,
-                'contextRuleId' => $ruleId,
+                'ruleId' => $ruleId,
                 'quantityStart' => 11,
                 'price' => ['gross' => $gross, 'net' => $gross / 1.19],
             ];
@@ -586,11 +586,11 @@ class DemodataCommand extends ContainerAwareCommand
     /**
      * @param array $categories
      * @param array $manufacturer
-     * @param array $contextRules
+     * @param array $rules
      *
      * @return array
      */
-    private function createSimpleProduct(array $categories, array $manufacturer, array $contextRules): array
+    private function createSimpleProduct(array $categories, array $manufacturer, array $rules): array
     {
         $price = mt_rand(1, 1000);
 
@@ -607,7 +607,7 @@ class DemodataCommand extends ContainerAwareCommand
                 ['id' => $categories[random_int(0, count($categories) - 1)]],
             ],
             'stock' => $this->faker->randomNumber(),
-            'contextPrices' => $this->createPrices($contextRules),
+            'priceRules' => $this->createPrices($rules),
         ];
 
         return $product;

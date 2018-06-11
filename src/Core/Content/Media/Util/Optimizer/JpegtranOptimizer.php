@@ -22,7 +22,7 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Content\Media\Util\Optimizer;
+namespace Shopware\Core\Content\Media\Util\Optimizer;
 
 class JpegtranOptimizer extends BinaryOptimizer
 {

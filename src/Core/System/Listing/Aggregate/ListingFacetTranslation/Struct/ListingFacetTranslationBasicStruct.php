@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Listing\Aggregate\ListingFacetTranslation\Struct;
+namespace Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation\Struct;
 
-use Shopware\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Entity;
 
 class ListingFacetTranslationBasicStruct extends Entity
 {

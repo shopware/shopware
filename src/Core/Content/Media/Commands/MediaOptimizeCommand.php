@@ -22,10 +22,10 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Content\Media\Commands;
+namespace Shopware\Core\Content\Media\Commands;
 
-use Shopware\Content\Media\Exception\OptimizerNotFoundException;
-use Shopware\Content\Media\Util\Optimizer\OptimizerServiceInterface;
+use Shopware\Core\Content\Media\Exception\OptimizerNotFoundException;
+use Shopware\Core\Content\Media\Util\Optimizer\OptimizerServiceInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;

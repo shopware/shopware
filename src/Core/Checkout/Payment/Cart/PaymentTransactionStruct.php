@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Payment\Cart;
+namespace Shopware\Core\Checkout\Payment\Cart;
 
-use Shopware\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Checkout\Order\Struct\OrderDetailStruct;
-use Shopware\Framework\Struct\Struct;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Order\Struct\OrderDetailStruct;
+use Shopware\Core\Framework\Struct\Struct;
 
 class PaymentTransactionStruct extends Struct
 {

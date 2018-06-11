@@ -22,11 +22,11 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Checkout\Test\Cart\Common;
+namespace Shopware\Core\Checkout\Test\Cart\Common;
 
-use Shopware\Checkout\Rule\Specification\Rule;
-use Shopware\Checkout\Rule\Specification\Validatable;
-use Shopware\Framework\Struct\Struct;
+use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\Validatable;
+use Shopware\Core\Framework\Struct\Struct;
 
 class ValidatableDefinition extends Struct implements Validatable
 {

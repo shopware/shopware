@@ -23,7 +23,7 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Framework\Struct;
+namespace Shopware\Core\Framework\Struct;
 
 abstract class Collection extends Struct implements \Countable, \ArrayAccess, \Iterator
 {

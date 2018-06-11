@@ -1,14 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Order\Aggregate\OrderDelivery\Collection;
+namespace Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\Collection;
 
-use Shopware\Checkout\Order\Aggregate\OrderDelivery\Struct\OrderDeliveryDetailStruct;
-use Shopware\Checkout\Order\Collection\OrderBasicCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\Struct\OrderDeliveryDetailStruct;
+use Shopware\Core\Checkout\Order\Collection\OrderBasicCollection;
 
 class OrderDeliveryDetailCollection extends OrderDeliveryBasicCollection
 {
     /**
-     * @var \Shopware\Checkout\Order\Aggregate\OrderDelivery\Struct\OrderDeliveryDetailStruct[]
+     * @var \Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\Struct\OrderDeliveryDetailStruct[]
      */
     protected $elements = [];
 
@@ -33,9 +33,9 @@ class OrderDeliveryDetailCollection extends OrderDeliveryBasicCollection
         return $ids;
     }
 
-    public function getPositions(): \Shopware\Checkout\Order\Aggregate\OrderDeliveryPosition\Collection\OrderDeliveryPositionBasicCollection
+    public function getPositions(): \Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\Collection\OrderDeliveryPositionBasicCollection
     {
-        $collection = new \Shopware\Checkout\Order\Aggregate\OrderDeliveryPosition\Collection\OrderDeliveryPositionBasicCollection();
+        $collection = new \Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\Collection\OrderDeliveryPositionBasicCollection();
         foreach ($this->elements as $element) {
             $collection->fill($element->getPositions()->getElements());
         }

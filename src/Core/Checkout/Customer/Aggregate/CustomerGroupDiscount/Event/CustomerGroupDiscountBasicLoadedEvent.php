@@ -1,26 +1,26 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Customer\Aggregate\CustomerGroupDiscount\Event;
+namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Checkout\Customer\Aggregate\CustomerGroupDiscount\Collection\CustomerGroupDiscountBasicCollection;
-use Shopware\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\Collection\CustomerGroupDiscountBasicCollection;
+use Shopware\Core\Framework\Event\NestedEvent;
 
 class CustomerGroupDiscountBasicLoadedEvent extends NestedEvent
 {
     public const NAME = 'customer_group_discount.basic.loaded';
 
     /**
-     * @var ApplicationContext
+     * @var Context
      */
     protected $context;
 
     /**
-     * @var \Shopware\Checkout\Customer\Aggregate\CustomerGroupDiscount\Collection\CustomerGroupDiscountBasicCollection
+     * @var \Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\Collection\CustomerGroupDiscountBasicCollection
      */
     protected $customerGroupDiscounts;
 
-    public function __construct(CustomerGroupDiscountBasicCollection $customerGroupDiscounts, ApplicationContext $context)
+    public function __construct(CustomerGroupDiscountBasicCollection $customerGroupDiscounts, Context $context)
     {
         $this->context = $context;
         $this->customerGroupDiscounts = $customerGroupDiscounts;
@@ -31,7 +31,7 @@ class CustomerGroupDiscountBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }

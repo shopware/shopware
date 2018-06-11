@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Search;
+namespace Shopware\Core\Framework\ORM\Search;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Core\Framework\Context;
 
 interface EntitySearcherInterface
 {
-    public function search(string $definition, Criteria $criteria, ApplicationContext $context): IdSearchResult;
+    public function search(string $definition, Criteria $criteria, Context $context): IdSearchResult;
 }

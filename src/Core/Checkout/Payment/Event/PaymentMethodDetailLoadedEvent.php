@@ -1,20 +1,20 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Payment\Event;
+namespace Shopware\Core\Checkout\Payment\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation\Event\PaymentMethodTranslationBasicLoadedEvent;
-use Shopware\Checkout\Payment\Collection\PaymentMethodDetailCollection;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\Framework\Plugin\Event\Plugin\PluginBasicLoadedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\Event\PaymentMethodTranslationBasicLoadedEvent;
+use Shopware\Core\Checkout\Payment\Collection\PaymentMethodDetailCollection;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Plugin\Event\PluginBasicLoadedEvent;
 
 class PaymentMethodDetailLoadedEvent extends NestedEvent
 {
     public const NAME = 'payment_method.detail.loaded';
 
     /**
-     * @var ApplicationContext
+     * @var Context
      */
     protected $context;
 
@@ -23,7 +23,7 @@ class PaymentMethodDetailLoadedEvent extends NestedEvent
      */
     protected $paymentMethods;
 
-    public function __construct(PaymentMethodDetailCollection $paymentMethods, ApplicationContext $context)
+    public function __construct(PaymentMethodDetailCollection $paymentMethods, Context $context)
     {
         $this->context = $context;
         $this->paymentMethods = $paymentMethods;
@@ -34,7 +34,7 @@ class PaymentMethodDetailLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }

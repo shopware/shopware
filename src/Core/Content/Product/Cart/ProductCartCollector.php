@@ -23,17 +23,17 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Content\Product\Cart;
+namespace Shopware\Core\Content\Product\Cart;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\Checkout\Cart\Cart\CartCollectorInterface;
-use Shopware\Checkout\Cart\Cart\Struct\Cart;
-use Shopware\Content\Product\Aggregate\ProductService\Collection\ProductServiceBasicCollection;
-use Shopware\Content\Product\Aggregate\ProductService\ProductServiceRepository;
-use Shopware\Content\Product\Cart\Struct\ProductFetchDefinition;
-use Shopware\Content\Product\Cart\Struct\ProductServiceFetchDefinition;
-use Shopware\Content\Product\Collection\ProductBasicCollection;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Checkout\Cart\Cart\CartCollectorInterface;
+use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
+use Shopware\Core\Content\Product\Aggregate\ProductService\Collection\ProductServiceBasicCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceRepository;
+use Shopware\Core\Content\Product\Cart\Struct\ProductFetchDefinition;
+use Shopware\Core\Content\Product\Cart\Struct\ProductServiceFetchDefinition;
+use Shopware\Core\Content\Product\Collection\ProductBasicCollection;
+use Shopware\Core\Framework\Struct\StructCollection;
 
 class ProductCartCollector implements CartCollectorInterface
 {
@@ -53,7 +53,7 @@ class ProductCartCollector implements CartCollectorInterface
         $this->serviceGateway = $serviceGateway;
     }
 
-    public function prepare(StructCollection $fetchDefinition, Cart $cart, StorefrontContext $context): void
+    public function prepare(StructCollection $fetchDefinition, Cart $cart, CheckoutContext $context): void
     {
         $lineItems = $cart->getLineItems()->filterType(ProductProcessor::TYPE_PRODUCT);
         if ($lineItems->count() === 0) {
@@ -72,7 +72,7 @@ class ProductCartCollector implements CartCollectorInterface
         }
     }
 
-    public function fetch(StructCollection $dataCollection, StructCollection $fetchCollection, StorefrontContext $context): void
+    public function fetch(StructCollection $dataCollection, StructCollection $fetchCollection, CheckoutContext $context): void
     {
         $definitions = $fetchCollection->filterInstance(ProductFetchDefinition::class);
         if ($definitions->count() > 0) {
@@ -98,7 +98,7 @@ class ProductCartCollector implements CartCollectorInterface
         return array_filter(array_keys(array_flip($flat)));
     }
 
-    private function fetchProducts(StorefrontContext $context, StructCollection $definitions): ProductBasicCollection
+    private function fetchProducts(CheckoutContext $context, StructCollection $definitions): ProductBasicCollection
     {
         $ids = [];
         /** @var ProductFetchDefinition[] $definitions */
@@ -111,7 +111,7 @@ class ProductCartCollector implements CartCollectorInterface
         return $this->productGateway->get($ids, $context);
     }
 
-    private function fetchServices(StorefrontContext $context, StructCollection $definitions): ProductServiceBasicCollection
+    private function fetchServices(CheckoutContext $context, StructCollection $definitions): ProductServiceBasicCollection
     {
         $ids = [];
         /** @var ProductServiceFetchDefinition[] $definitions */
@@ -121,6 +121,6 @@ class ProductCartCollector implements CartCollectorInterface
 
         $ids = array_keys(array_flip($ids));
 
-        return $this->serviceGateway->readBasic($ids, $context->getApplicationContext());
+        return $this->serviceGateway->readBasic($ids, $context->getContext());
     }
 }

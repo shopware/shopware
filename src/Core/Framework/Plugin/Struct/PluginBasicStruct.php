@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Plugin\Struct;
+namespace Shopware\Core\Framework\Plugin\Struct;
 
-use Shopware\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Entity;
 
 class PluginBasicStruct extends Entity
 {

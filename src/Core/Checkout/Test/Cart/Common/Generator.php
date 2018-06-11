@@ -22,52 +22,52 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Checkout\Test\Cart\Common;
+namespace Shopware\Core\Checkout\Test\Cart\Common;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Application\Application\Struct\ApplicationBasicStruct;
-use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\Application\Language\Struct\LanguageBasicStruct;
-use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Checkout\Cart\Cart\Struct\Cart;
-use Shopware\Checkout\Cart\Delivery\DeliveryCalculator;
-use Shopware\Checkout\Cart\Delivery\Struct\DeliveryCollection;
-use Shopware\Checkout\Cart\Delivery\Struct\DeliveryDate;
-use Shopware\Checkout\Cart\Delivery\Struct\ShippingLocation;
-use Shopware\Checkout\Cart\Error\ErrorCollection;
-use Shopware\Checkout\Cart\LineItem\CalculatedLineItemCollection;
-use Shopware\Checkout\Cart\LineItem\LineItem;
-use Shopware\Checkout\Cart\LineItem\LineItemCollection;
-use Shopware\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Checkout\Cart\Price\Struct\CartPrice;
-use Shopware\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
-use Shopware\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Checkout\Cart\Tax\TaxAmountCalculator;
-use Shopware\Checkout\Cart\Tax\TaxDetector;
-use Shopware\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
-use Shopware\Checkout\Customer\Aggregate\CustomerGroup\Struct\CustomerGroupBasicStruct;
-use Shopware\Checkout\Customer\Struct\CustomerBasicStruct;
-use Shopware\Checkout\Payment\Struct\PaymentMethodBasicStruct;
-use Shopware\Checkout\Shipping\Struct\ShippingMethodBasicStruct;
-use Shopware\Content\Product\Cart\ProductProcessor;
-use Shopware\Content\Product\Cart\Struct\CalculatedProduct;
-use Shopware\Content\Product\Struct\ProductBasicStruct;
-use Shopware\Defaults;
-use Shopware\Framework\Struct\Uuid;
-use Shopware\System\Country\Aggregate\CountryArea\Struct\CountryAreaBasicStruct;
-use Shopware\System\Country\Aggregate\CountryState\Struct\CountryStateBasicStruct;
-use Shopware\System\Country\Struct\CountryBasicStruct;
-use Shopware\System\Currency\Struct\CurrencyBasicStruct;
-use Shopware\System\Locale\Struct\LocaleBasicStruct;
-use Shopware\System\Tax\Collection\TaxBasicCollection;
-use Shopware\System\Tax\Struct\TaxBasicStruct;
+use Shopware\Core\System\Touchpoint\Struct\TouchpointBasicStruct;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\System\Language\Struct\LanguageBasicStruct;
+use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
+use Shopware\Core\Checkout\Cart\Delivery\DeliveryCalculator;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
+use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
+use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItemCollection;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Cart\Tax\TaxAmountCalculator;
+use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\Struct\CustomerGroupBasicStruct;
+use Shopware\Core\Checkout\Customer\Struct\CustomerBasicStruct;
+use Shopware\Core\Checkout\Payment\Struct\PaymentMethodBasicStruct;
+use Shopware\Core\Checkout\Shipping\Struct\ShippingMethodBasicStruct;
+use Shopware\Core\Content\Product\Cart\ProductProcessor;
+use Shopware\Core\Content\Product\Cart\Struct\CalculatedProduct;
+use Shopware\Core\Content\Product\Struct\ProductBasicStruct;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\System\Country\Aggregate\CountryArea\Struct\CountryAreaBasicStruct;
+use Shopware\Core\System\Country\Aggregate\CountryState\Struct\CountryStateBasicStruct;
+use Shopware\Core\System\Country\Struct\CountryBasicStruct;
+use Shopware\Core\System\Currency\Struct\CurrencyBasicStruct;
+use Shopware\Core\System\Locale\Struct\LocaleBasicStruct;
+use Shopware\Core\System\Tax\Collection\TaxBasicCollection;
+use Shopware\Core\System\Tax\Struct\TaxBasicStruct;
 
 class Generator extends TestCase
 {
     public static function createContext(
         $currentCustomerGroup = null,
         $fallbackCustomerGroup = null,
-        $application = null,
+        $touchpoint = null,
         $currency = null,
         $priceGroupDiscounts = null,
         $taxes = null,
@@ -78,11 +78,11 @@ class Generator extends TestCase
         $language = null,
         $fallbackLanguage = null
     ) {
-        if ($application === null) {
-            $application = new ApplicationBasicStruct();
-            $application->setId('ffa32a50e2d04cf38389a53f8d6cd594');
-            $application->setTaxCalculationType(TaxAmountCalculator::CALCULATION_HORIZONTAL);
-            $application->setCatalogIds([Defaults::CATALOG]);
+        if ($touchpoint === null) {
+            $touchpoint = new TouchpointBasicStruct();
+            $touchpoint->setId('ffa32a50e2d04cf38389a53f8d6cd594');
+            $touchpoint->setTaxCalculationType(TaxAmountCalculator::CALCULATION_HORIZONTAL);
+            $touchpoint->setCatalogIds([Defaults::CATALOG]);
         }
 
         $currency = $currency ?: (new CurrencyBasicStruct())->assign([
@@ -167,10 +167,10 @@ class Generator extends TestCase
         $customer->setId(Uuid::uuid4()->getHex());
         $customer->setGroup($currentCustomerGroup);
 
-        return new StorefrontContext(
+        return new CheckoutContext(
             Defaults::TENANT_ID,
             Uuid::uuid4()->toString(),
-            $application,
+            $touchpoint,
             $language,
             $fallbackLanguage,
             $currency,
@@ -207,7 +207,7 @@ class Generator extends TestCase
     }
 
     /**
-     * @param \Shopware\Checkout\Cart\Price\Struct\PriceDefinition[] $priceDefinitions indexed by product number
+     * @param \Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinition[] $priceDefinitions indexed by product number
      *
      * @return \PHPUnit_Framework_MockObject_MockObject|ProductPriceGateway
      */

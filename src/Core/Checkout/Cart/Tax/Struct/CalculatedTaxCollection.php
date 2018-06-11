@@ -23,9 +23,9 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Checkout\Cart\Tax\Struct;
+namespace Shopware\Core\Checkout\Cart\Tax\Struct;
 
-use Shopware\Framework\Struct\Collection;
+use Shopware\Core\Framework\Struct\Collection;
 
 class CalculatedTaxCollection extends Collection
 {

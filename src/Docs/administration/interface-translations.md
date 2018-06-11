@@ -1,5 +1,5 @@
 # Interface translations
-In the new Shopware administration we switched from an `*.ini` file / database based hybrid system to a JavaScript based
+In the new Shopware\Core administration we switched from an `*.ini` file / database based hybrid system to a JavaScript based
 i18n system suited for [`vue.js`](https://vuejs.org/) called [`vue-i18n`](https://github.com/kazupon/vue-i18n). The new
 system provides us with a bunch of useful features.
 

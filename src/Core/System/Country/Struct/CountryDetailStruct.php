@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Country\Struct;
+namespace Shopware\Core\System\Country\Struct;
 
-use Shopware\System\Country\Aggregate\CountryArea\Struct\CountryAreaBasicStruct;
-use Shopware\System\Country\Aggregate\CountryState\Collection\CountryStateBasicCollection;
-use Shopware\System\Country\Aggregate\CountryTranslation\Collection\CountryTranslationBasicCollection;
+use Shopware\Core\System\Country\Aggregate\CountryArea\Struct\CountryAreaBasicStruct;
+use Shopware\Core\System\Country\Aggregate\CountryState\Collection\CountryStateBasicCollection;
+use Shopware\Core\System\Country\Aggregate\CountryTranslation\Collection\CountryTranslationBasicCollection;
 
 class CountryDetailStruct extends CountryBasicStruct
 {
@@ -14,12 +14,12 @@ class CountryDetailStruct extends CountryBasicStruct
     protected $area;
 
     /**
-     * @var \Shopware\System\Country\Aggregate\CountryState\Collection\CountryStateBasicCollection
+     * @var \Shopware\Core\System\Country\Aggregate\CountryState\Collection\CountryStateBasicCollection
      */
     protected $states;
 
     /**
-     * @var \Shopware\System\Country\Aggregate\CountryTranslation\Collection\CountryTranslationBasicCollection
+     * @var \Shopware\Core\System\Country\Aggregate\CountryTranslation\Collection\CountryTranslationBasicCollection
      */
     protected $translations;
 

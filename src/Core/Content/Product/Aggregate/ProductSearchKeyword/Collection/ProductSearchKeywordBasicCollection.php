@@ -1,14 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Aggregate\ProductSearchKeyword\Collection;
+namespace Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\Collection;
 
-use Shopware\Content\Product\Aggregate\ProductSearchKeyword\Struct\ProductSearchKeywordBasicStruct;
-use Shopware\Framework\ORM\EntityCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\Struct\ProductSearchKeywordBasicStruct;
+use Shopware\Core\Framework\ORM\EntityCollection;
 
 class ProductSearchKeywordBasicCollection extends EntityCollection
 {
     /**
-     * @var \Shopware\Content\Product\Aggregate\ProductSearchKeyword\Struct\ProductSearchKeywordBasicStruct[]
+     * @var \Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\Struct\ProductSearchKeywordBasicStruct[]
      */
     protected $elements = [];
 

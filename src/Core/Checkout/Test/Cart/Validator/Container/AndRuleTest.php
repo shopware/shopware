@@ -22,17 +22,17 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Checkout\Test\Cart\Validator\Container;
+namespace Shopware\Core\Checkout\Test\Cart\Validator\Container;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Checkout\Rule\Specification\Container\AndRule;
-use Shopware\Checkout\Rule\Specification\Match;
-use Shopware\Checkout\Rule\Specification\Scope\CartRuleScope;
-use Shopware\Checkout\Rule\Specification\Scope\StorefrontScope;
-use Shopware\Checkout\Test\Cart\Common\FalseRule;
-use Shopware\Checkout\Test\Cart\Common\TrueRule;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Core\Framework\Rule\Container\AndRule;
+use Shopware\Core\Framework\Rule\Match;
+use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
+use Shopware\Core\Checkout\CheckoutRuleScope;
+use Shopware\Core\Checkout\Test\Cart\Common\FalseRule;
+use Shopware\Core\Checkout\Test\Cart\Common\TrueRule;
 
 class AndRuleTest extends TestCase
 {
@@ -46,8 +46,8 @@ class AndRuleTest extends TestCase
         $this->assertEquals(
             new Match(true),
             $rule->match(
-                new StorefrontScope(
-                    $this->createMock(StorefrontContext::class)
+                new CheckoutRuleScope(
+                    $this->createMock(CheckoutContext::class)
                 )
             )
         );
@@ -65,7 +65,7 @@ class AndRuleTest extends TestCase
             $rule->match(
                 new CartRuleScope(
                     $this->createMock(CalculatedCart::class),
-                    $this->createMock(StorefrontContext::class)
+                    $this->createMock(CheckoutContext::class)
                 )
             )
         );

@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Test\Writer;
+namespace Shopware\Core\Framework\Test\Writer;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Framework\ORM\Write\Command\WriteCommandQueue;
+use Shopware\Core\Framework\ORM\Write\Command\WriteCommandQueue;
 
 class WriteQueryQueueTest extends TestCase
 {

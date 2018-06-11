@@ -22,10 +22,10 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Checkout\Test\Cart\Price;
+namespace Shopware\Core\Checkout\Test\Cart\Price;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Checkout\Cart\Price\PriceRounding;
+use Shopware\Core\Checkout\Cart\Price\PriceRounding;
 
 class PriceRoundingTest extends TestCase
 {

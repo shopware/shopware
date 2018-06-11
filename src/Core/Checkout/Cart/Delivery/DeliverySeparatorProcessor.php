@@ -23,14 +23,14 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Checkout\Cart\Delivery;
+namespace Shopware\Core\Checkout\Cart\Delivery;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\Checkout\Cart\Cart\CartProcessorInterface;
-use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Checkout\Cart\Cart\Struct\Cart;
-use Shopware\Checkout\Cart\LineItem\DeliverableLineItemInterface;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Checkout\Cart\Cart\CartProcessorInterface;
+use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
+use Shopware\Core\Checkout\Cart\LineItem\DeliverableLineItemInterface;
+use Shopware\Core\Framework\Struct\StructCollection;
 
 class DeliverySeparatorProcessor implements CartProcessorInterface
 {
@@ -48,7 +48,7 @@ class DeliverySeparatorProcessor implements CartProcessorInterface
         Cart $cart,
         CalculatedCart $calculatedCart,
         StructCollection $dataCollection,
-        StorefrontContext $context
+        CheckoutContext $context
     ): void {
         $items = $calculatedCart
             ->getCalculatedLineItems()

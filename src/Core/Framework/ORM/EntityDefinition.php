@@ -1,19 +1,19 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM;
+namespace Shopware\Core\Framework\ORM;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\ORM\Field\AssociationInterface;
-use Shopware\Framework\ORM\Field\ChildCountField;
-use Shopware\Framework\ORM\Field\ChildrenAssociationField;
-use Shopware\Framework\ORM\Field\Field;
-use Shopware\Framework\ORM\Field\ManyToManyAssociationField;
-use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
-use Shopware\Framework\ORM\Field\OneToManyAssociationField;
-use Shopware\Framework\ORM\Write\EntityExistence;
-use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
-use Shopware\Framework\ORM\Write\Flag\ReadOnly;
-use Shopware\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Field\AssociationInterface;
+use Shopware\Core\Framework\ORM\Field\Field;
+use Shopware\Core\Framework\ORM\Field\ManyToManyAssociationField;
+use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\ORM\Write\EntityExistence;
+use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
+use Shopware\Core\Framework\ORM\Write\Flag\ReadOnly;
+use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Framework\ORM\Field\ChildCountField;
+use Shopware\Core\Framework\ORM\Field\ChildrenAssociationField;
 
 abstract class EntityDefinition
 {
@@ -103,7 +103,7 @@ abstract class EntityDefinition
             });
     }
 
-    public static function createWrittenEvent(array $identifiers, ApplicationContext $context, array $errors): ?WrittenEvent
+    public static function createWrittenEvent(array $identifiers, Context $context, array $errors): ?WrittenEvent
     {
         if (!array_key_exists(static::class, $identifiers)) {
             return null;

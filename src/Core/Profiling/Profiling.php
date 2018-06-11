@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Profiling;
+namespace Shopware\Core\Profiling;
 
-use Shopware\Profiling\DependencyInjection\CartTracerCompilerPass;
-use Shopware\Profiling\DependencyInjection\TracerCompilerPass;
+use Shopware\Core\Profiling\DependencyInjection\CartTracerCompilerPass;
+use Shopware\Core\Profiling\DependencyInjection\TracerCompilerPass;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;

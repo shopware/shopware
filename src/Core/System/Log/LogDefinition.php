@@ -1,22 +1,22 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Log;
+namespace Shopware\Core\System\Log;
 
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\EntityExtensionInterface;
-use Shopware\Framework\ORM\Field\DateField;
-use Shopware\Framework\ORM\Field\IdField;
-use Shopware\Framework\ORM\Field\LongTextField;
-use Shopware\Framework\ORM\Field\StringField;
-use Shopware\Framework\ORM\Field\TenantIdField;
-use Shopware\Framework\ORM\Field\VersionField;
-use Shopware\Framework\ORM\FieldCollection;
-use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
-use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\System\Log\Collection\LogBasicCollection;
-use Shopware\System\Log\Event\Log\LogDeletedEvent;
-use Shopware\System\Log\Event\Log\LogWrittenEvent;
-use Shopware\System\Log\Struct\LogBasicStruct;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+use Shopware\Core\Framework\ORM\Field\DateField;
+use Shopware\Core\Framework\ORM\Field\IdField;
+use Shopware\Core\Framework\ORM\Field\LongTextField;
+use Shopware\Core\Framework\ORM\Field\StringField;
+use Shopware\Core\Framework\ORM\Field\TenantIdField;
+use Shopware\Core\Framework\ORM\Field\VersionField;
+use Shopware\Core\Framework\ORM\FieldCollection;
+use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
+use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\System\Log\Collection\LogBasicCollection;
+use Shopware\Core\System\Log\Event\Log\LogDeletedEvent;
+use Shopware\Core\System\Log\Event\Log\LogWrittenEvent;
+use Shopware\Core\System\Log\Struct\LogBasicStruct;
 
 class LogDefinition extends EntityDefinition
 {

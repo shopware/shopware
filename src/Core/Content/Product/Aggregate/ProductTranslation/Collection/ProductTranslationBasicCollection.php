@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Aggregate\ProductTranslation\Collection;
+namespace Shopware\Core\Content\Product\Aggregate\ProductTranslation\Collection;
 
-use Shopware\Content\Product\Aggregate\ProductTranslation\Struct\ProductTranslationBasicStruct;
-use Shopware\Framework\ORM\EntityCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductTranslation\Struct\ProductTranslationBasicStruct;
+use Shopware\Core\Framework\ORM\EntityCollection;
 
 class ProductTranslationBasicCollection extends EntityCollection
 {

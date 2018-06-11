@@ -1,17 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Unit\Aggregate\UnitTranslation\Event;
+namespace Shopware\Core\System\Unit\Aggregate\UnitTranslation\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\System\Unit\Aggregate\UnitTranslation\Struct\UnitTranslationSearchResult;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\System\Unit\Aggregate\UnitTranslation\Struct\UnitTranslationSearchResult;
 
 class UnitTranslationSearchResultLoadedEvent extends NestedEvent
 {
     public const NAME = 'unit_translation.search.result.loaded';
 
     /**
-     * @var \Shopware\System\Unit\Aggregate\UnitTranslation\Struct\UnitTranslationSearchResult
+     * @var \Shopware\Core\System\Unit\Aggregate\UnitTranslation\Struct\UnitTranslationSearchResult
      */
     protected $result;
 
@@ -25,7 +25,7 @@ class UnitTranslationSearchResultLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->result->getContext();
     }

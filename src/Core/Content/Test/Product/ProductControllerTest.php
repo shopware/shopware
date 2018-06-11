@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Test\Product;
+namespace Shopware\Core\Content\Test\Product;
 
 use Ramsey\Uuid\Uuid;
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Content\Product\ProductRepository;
-use Shopware\Framework\Test\Api\ApiTestCase;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Product\ProductRepository;
+use Shopware\Core\Framework\Test\Api\ApiTestCase;
 
 class ProductControllerTest extends ApiTestCase
 {
@@ -34,7 +34,7 @@ class ProductControllerTest extends ApiTestCase
                 'manufacturer' => ['id' => $manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $taxId, 'rate' => 17, 'name' => 'with id'],
             ],
-        ], ApplicationContext::createDefaultContext(\Shopware\Defaults::TENANT_ID));
+        ], Context::createDefaultContext(\Shopware\Core\Defaults::TENANT_ID));
 
         $this->storefrontApiClient->request('GET', '/storefront-api/product');
 
@@ -50,7 +50,7 @@ class ProductControllerTest extends ApiTestCase
 
         foreach ($content['data'] as $product) {
             $this->assertArrayHasKey('calculatedListingPrice', $product);
-            $this->assertArrayHasKey('calculatedContextPrices', $product);
+            $this->assertArrayHasKey('calculatedPriceRules', $product);
             $this->assertArrayHasKey('calculatedPrice', $product);
             $this->assertArrayHasKey('price', $product);
             $this->assertArrayHasKey('name', $product);

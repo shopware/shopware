@@ -22,7 +22,7 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Checkout\Cart\Exception;
+namespace Shopware\Core\Checkout\Cart\Exception;
 
 class CartTokenNotFoundException extends \Exception
 {

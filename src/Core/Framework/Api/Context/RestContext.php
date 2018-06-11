@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Api\Context;
+namespace Shopware\Core\Framework\Api\Context;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Core\Framework\Context;
 use Symfony\Component\HttpFoundation\Request;
 
 class RestContext
@@ -18,9 +18,9 @@ class RestContext
     private $userId;
 
     /**
-     * @var ApplicationContext
+     * @var \Shopware\Core\Framework\Context
      */
-    private $applicationContext;
+    private $context;
 
     /**
      * @var int
@@ -29,18 +29,18 @@ class RestContext
 
     public function __construct(
         Request $request,
-        ApplicationContext $applicationContext,
+        Context $context,
         ?string $userId
     ) {
         $this->request = $request;
-        $this->applicationContext = $applicationContext;
+        $this->context = $context;
         $this->userId = $userId;
         $this->version = (int) $this->getRequest()->get('version');
     }
 
-    public function getApplicationContext(): ApplicationContext
+    public function getContext(): Context
     {
-        return $this->applicationContext;
+        return $this->context;
     }
 
     public function getUserId(): ?string

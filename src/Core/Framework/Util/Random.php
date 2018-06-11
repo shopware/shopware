@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Util;
+namespace Shopware\Core\Framework\Util;
 
 /* This class is based on Rand.php of Component_ZendMath
  *

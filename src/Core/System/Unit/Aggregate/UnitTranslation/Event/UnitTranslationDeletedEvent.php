@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Unit\Aggregate\UnitTranslation\Event;
+namespace Shopware\Core\System\Unit\Aggregate\UnitTranslation\Event;
 
-use Shopware\Framework\ORM\Write\DeletedEvent;
-use Shopware\Framework\ORM\Write\WrittenEvent;
-use Shopware\System\Unit\Definition\UnitTranslationDefinition;
+use Shopware\Core\Framework\ORM\Write\DeletedEvent;
+use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\System\Unit\Definition\UnitTranslationDefinition;
 
 class UnitTranslationDeletedEvent extends WrittenEvent implements DeletedEvent
 {

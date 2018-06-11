@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Shipping\Event;
+namespace Shopware\Core\Checkout\Shipping\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Checkout\Shipping\Struct\ShippingMethodSearchResult;
-use Shopware\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Shipping\Struct\ShippingMethodSearchResult;
+use Shopware\Core\Framework\Event\NestedEvent;
 
 class ShippingMethodSearchResultLoadedEvent extends NestedEvent
 {
@@ -25,7 +25,7 @@ class ShippingMethodSearchResultLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->result->getContext();
     }

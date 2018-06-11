@@ -1,20 +1,20 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Aggregate\ProductSearchKeyword\Event;
+namespace Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Application\Language\Event\LanguageBasicLoadedEvent;
-use Shopware\Content\Product\Aggregate\ProductSearchKeyword\Collection\ProductSearchKeywordDetailCollection;
-use Shopware\Content\Product\Event\ProductBasicLoadedEvent;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\System\Language\Event\LanguageBasicLoadedEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\Collection\ProductSearchKeywordDetailCollection;
+use Shopware\Core\Content\Product\Event\ProductBasicLoadedEvent;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
 
 class ProductSearchKeywordDetailLoadedEvent extends NestedEvent
 {
     public const NAME = 'product_search_keyword.detail.loaded';
 
     /**
-     * @var ApplicationContext
+     * @var Context
      */
     protected $context;
 
@@ -23,7 +23,7 @@ class ProductSearchKeywordDetailLoadedEvent extends NestedEvent
      */
     protected $productSearchKeywords;
 
-    public function __construct(ProductSearchKeywordDetailCollection $productSearchKeywords, ApplicationContext $context)
+    public function __construct(ProductSearchKeywordDetailCollection $productSearchKeywords, Context $context)
     {
         $this->context = $context;
         $this->productSearchKeywords = $productSearchKeywords;
@@ -34,7 +34,7 @@ class ProductSearchKeywordDetailLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }

@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Category\Util\Tree;
+namespace Shopware\Core\Content\Category\Util\Tree;
 
-use Shopware\Content\Category\Collection\CategoryBasicCollection;
-use Shopware\Content\Category\Struct\CategoryBasicStruct;
+use Shopware\Core\Content\Category\Collection\CategoryBasicCollection;
+use Shopware\Core\Content\Category\Struct\CategoryBasicStruct;
 
 class TreeBuilder
 {

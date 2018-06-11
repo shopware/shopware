@@ -1,17 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Listing\Aggregate\ListingFacetTranslation\Event;
+namespace Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\System\Listing\Aggregate\ListingFacetTranslation\Collection\ListingFacetTranslationBasicCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation\Collection\ListingFacetTranslationBasicCollection;
 
 class ListingFacetTranslationBasicLoadedEvent extends NestedEvent
 {
     public const NAME = 'listing_facet_translation.basic.loaded';
 
     /**
-     * @var ApplicationContext
+     * @var \Shopware\Core\Framework\Context
      */
     protected $context;
 
@@ -20,7 +20,7 @@ class ListingFacetTranslationBasicLoadedEvent extends NestedEvent
      */
     protected $listingFacetTranslations;
 
-    public function __construct(ListingFacetTranslationBasicCollection $listingFacetTranslations, ApplicationContext $context)
+    public function __construct(ListingFacetTranslationBasicCollection $listingFacetTranslations, Context $context)
     {
         $this->context = $context;
         $this->listingFacetTranslations = $listingFacetTranslations;
@@ -31,7 +31,7 @@ class ListingFacetTranslationBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }

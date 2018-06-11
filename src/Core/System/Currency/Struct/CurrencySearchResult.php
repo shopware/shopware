@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Currency\Struct;
+namespace Shopware\Core\System\Currency\Struct;
 
-use Shopware\Framework\ORM\Search\SearchResultInterface;
-use Shopware\Framework\ORM\Search\SearchResultTrait;
-use Shopware\System\Currency\Collection\CurrencyBasicCollection;
+use Shopware\Core\Framework\ORM\Search\SearchResultInterface;
+use Shopware\Core\Framework\ORM\Search\SearchResultTrait;
+use Shopware\Core\System\Currency\Collection\CurrencyBasicCollection;
 
 class CurrencySearchResult extends CurrencyBasicCollection implements SearchResultInterface
 {

@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Dbal\Common;
+namespace Shopware\Core\Framework\ORM\Dbal\Common;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\ORM\RepositoryInterface;
-use Shopware\Framework\ORM\Search\Criteria;
-use Shopware\Framework\ORM\Search\SearchResultInterface;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\SearchResultInterface;
 
 class RepositoryIterator
 {
@@ -20,11 +20,11 @@ class RepositoryIterator
     private $repository;
 
     /**
-     * @var ApplicationContext
+     * @var \Shopware\Core\Framework\Context
      */
     private $context;
 
-    public function __construct(RepositoryInterface $repository, ApplicationContext $context, Criteria $criteria = null)
+    public function __construct(RepositoryInterface $repository, Context $context, Criteria $criteria = null)
     {
         if ($criteria === null) {
             $criteria = new Criteria();

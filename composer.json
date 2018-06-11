@@ -67,7 +67,7 @@
     "psr-4": {
       "Shopware\\Administration\\": "src/Administration/",
       "Shopware\\Storefront\\": "src/Storefront/",
-      "Shopware\\": "src/Core/"
+      "Shopware\\Core\\": "src/Core/"
     },
     "exclude-from-classmap": [
       "src/**/Test/"

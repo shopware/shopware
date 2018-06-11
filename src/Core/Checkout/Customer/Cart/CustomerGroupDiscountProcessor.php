@@ -23,16 +23,16 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Checkout\Customer\Cart;
+namespace Shopware\Core\Checkout\Customer\Cart;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\Checkout\Cart\Cart\CartProcessorInterface;
-use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Checkout\Cart\Cart\Struct\Cart;
-use Shopware\Checkout\Cart\LineItem\CalculatedLineItem;
-use Shopware\Checkout\Cart\LineItem\Discount;
-use Shopware\Checkout\Cart\Price\PercentagePriceCalculator;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Checkout\Cart\Cart\CartProcessorInterface;
+use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
+use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItem;
+use Shopware\Core\Checkout\Cart\LineItem\Discount;
+use Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator;
+use Shopware\Core\Framework\Struct\StructCollection;
 
 class CustomerGroupDiscountProcessor implements CartProcessorInterface
 {
@@ -50,7 +50,7 @@ class CustomerGroupDiscountProcessor implements CartProcessorInterface
         Cart $cart,
         CalculatedCart $calculatedCart,
         StructCollection $dataCollection,
-        StorefrontContext $context
+        CheckoutContext $context
     ): void {
         if (!$context->getCustomer()) {
             return;
@@ -64,7 +64,7 @@ class CustomerGroupDiscountProcessor implements CartProcessorInterface
 
         $prices = $goods->getPrices();
 
-        /** @var \Shopware\Checkout\Customer\Aggregate\CustomerGroupDiscount\Collection\CustomerGroupDiscountBasicCollection $discountCollection */
+        /** @var \Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\Collection\CustomerGroupDiscountBasicCollection $discountCollection */
         $discountCollection = $dataCollection->get(self::class);
 
         if (!$discountCollection) {

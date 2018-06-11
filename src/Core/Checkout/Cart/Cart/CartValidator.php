@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Cart\Cart;
+namespace Shopware\Core\Checkout\Cart\Cart;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
 
 class CartValidator
 {
@@ -17,7 +17,7 @@ class CartValidator
         $this->validators = $validators;
     }
 
-    public function isValid(CalculatedCart $cart, StorefrontContext $context): bool
+    public function isValid(CalculatedCart $cart, CheckoutContext $context): bool
     {
         $valid = true;
 

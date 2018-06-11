@@ -1,6 +1,6 @@
 ;(function($, window) {
     /**
-     * Shopware AJAX variant
+     * Shopware\Core AJAX variant
      *
      * @example
      * HTML:

@@ -1,14 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Dbal\FieldResolver;
+namespace Shopware\Core\Framework\ORM\Dbal\FieldResolver;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\ORM\Dbal\EntityDefinitionQueryHelper;
-use Shopware\Framework\ORM\Dbal\QueryBuilder;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\Field\Field;
-use Shopware\Framework\ORM\Field\TranslatedField;
-use Shopware\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Dbal\EntityDefinitionQueryHelper;
+use Shopware\Core\Framework\ORM\Dbal\QueryBuilder;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\Field\Field;
+use Shopware\Core\Framework\ORM\Field\TranslatedField;
+use Shopware\Core\Framework\Struct\Uuid;
 
 class TranslationFieldResolver implements FieldResolverInterface
 {
@@ -17,7 +17,7 @@ class TranslationFieldResolver implements FieldResolverInterface
         string $root,
         Field $field,
         QueryBuilder $query,
-        ApplicationContext $context,
+        Context $context,
         EntityDefinitionQueryHelper $queryHelper,
         bool $raw
     ): void {
@@ -39,7 +39,7 @@ class TranslationFieldResolver implements FieldResolverInterface
         $this->joinTranslationTable($alias, $definition, $query, $context);
     }
 
-    private function joinTranslationTable(string $root, string $definition, QueryBuilder $query, ApplicationContext $context): void
+    private function joinTranslationTable(string $root, string $definition, QueryBuilder $query, Context $context): void
     {
         $alias = $root . '.translation';
         if ($query->hasState($alias)) {

@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Tax\Collection;
+namespace Shopware\Core\System\Tax\Collection;
 
-use Shopware\System\Tax\Aggregate\TaxAreaRule\Collection\TaxAreaRuleBasicCollection;
-use Shopware\System\Tax\Struct\TaxDetailStruct;
+use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\Collection\TaxAreaRuleBasicCollection;
+use Shopware\Core\System\Tax\Struct\TaxDetailStruct;
 
 class TaxDetailCollection extends TaxBasicCollection
 {

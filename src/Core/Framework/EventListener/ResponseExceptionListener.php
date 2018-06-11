@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\EventListener;
+namespace Shopware\Core\Framework\EventListener;
 
-use Shopware\Framework\HttpExceptionInterface;
+use Shopware\Core\Framework\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
 
 class ResponseExceptionListener

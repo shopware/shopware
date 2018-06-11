@@ -22,12 +22,12 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Content\Media\Util\GarbageCollector;
+namespace Shopware\Core\Content\Media\Util\GarbageCollector;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Connection;
-use Shopware\Content\Media\Media;
-use Shopware\Content\Media\Util\Strategy\StrategyInterface;
+use Shopware\Core\Content\Media\Media;
+use Shopware\Core\Content\Media\Util\Strategy\StrategyInterface;
 
 /**
  * Class GarbageCollectorFactory

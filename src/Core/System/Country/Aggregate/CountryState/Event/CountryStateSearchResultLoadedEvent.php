@@ -1,17 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Country\Aggregate\CountryState\Event;
+namespace Shopware\Core\System\Country\Aggregate\CountryState\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\System\Country\Aggregate\CountryState\Struct\CountryStateSearchResult;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\System\Country\Aggregate\CountryState\Struct\CountryStateSearchResult;
 
 class CountryStateSearchResultLoadedEvent extends NestedEvent
 {
     public const NAME = 'country_state.search.result.loaded';
 
     /**
-     * @var \Shopware\System\Country\Aggregate\CountryState\Struct\CountryStateSearchResult
+     * @var \Shopware\Core\System\Country\Aggregate\CountryState\Struct\CountryStateSearchResult
      */
     protected $result;
 
@@ -25,7 +25,7 @@ class CountryStateSearchResultLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->result->getContext();
     }

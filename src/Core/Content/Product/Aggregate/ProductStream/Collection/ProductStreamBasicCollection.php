@@ -1,15 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Aggregate\ProductStream\Collection;
+namespace Shopware\Core\Content\Product\Aggregate\ProductStream\Collection;
 
-use Shopware\Content\Product\Aggregate\ProductStream\Struct\ProductStreamBasicStruct;
-use Shopware\Framework\ORM\EntityCollection;
-use Shopware\System\Listing\Collection\ListingSortingBasicCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductStream\Struct\ProductStreamBasicStruct;
+use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\System\Listing\Collection\ListingSortingBasicCollection;
 
 class ProductStreamBasicCollection extends EntityCollection
 {
     /**
-     * @var \Shopware\Content\Product\Aggregate\ProductStream\Struct\ProductStreamBasicStruct[]
+     * @var \Shopware\Core\Content\Product\Aggregate\ProductStream\Struct\ProductStreamBasicStruct[]
      */
     protected $elements = [];
 

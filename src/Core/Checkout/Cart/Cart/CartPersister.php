@@ -23,15 +23,15 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Checkout\Cart\Cart;
+namespace Shopware\Core\Checkout\Cart\Cart;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\Checkout\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Checkout\Cart\Cart\Struct\Cart;
-use Shopware\Checkout\Cart\Exception\CartTokenNotFoundException;
-use Shopware\Defaults;
-use Shopware\Framework\Struct\Uuid;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
+use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Component\Serializer\SerializerInterface;
 
 class CartPersister implements CartPersisterInterface
@@ -52,7 +52,7 @@ class CartPersister implements CartPersisterInterface
         $this->serializer = $serializer;
     }
 
-    public function load(string $token, string $name, StorefrontContext $context): Cart
+    public function load(string $token, string $name, CheckoutContext $context): Cart
     {
         $content = $this->connection->fetchColumn(
             'SELECT container FROM cart WHERE `token` = :token AND `name` = :name AND tenant_id = :tenant',
@@ -66,7 +66,7 @@ class CartPersister implements CartPersisterInterface
         return $this->serializer->deserialize((string) $content, '', 'json');
     }
 
-    public function loadCalculated(string $token, string $name, StorefrontContext $context): CalculatedCart
+    public function loadCalculated(string $token, string $name, CheckoutContext $context): CalculatedCart
     {
         $content = $this->connection->fetchColumn(
             'SELECT calculated FROM cart WHERE `token` = :token AND `name` = :name AND tenant_id = :tenant',
@@ -80,7 +80,7 @@ class CartPersister implements CartPersisterInterface
         return $this->serializer->deserialize((string) $content, '', 'json');
     }
 
-    public function save(CalculatedCart $cart, StorefrontContext $context): void
+    public function save(CalculatedCart $cart, CheckoutContext $context): void
     {
         //prevent empty carts
         if ($cart->getCalculatedLineItems()->count() <= 0) {
@@ -114,8 +114,8 @@ class CartPersister implements CartPersisterInterface
             'country_id' => Uuid::fromStringToBytes($context->getShippingLocation()->getCountry()->getId()),
             'country_tenant_id' => $tenantId,
             'country_version_id' => $liveVersion,
-            'application_id' => Uuid::fromStringToBytes($context->getApplication()->getId()),
-            'application_tenant_id' => $tenantId,
+            'touchpoint_id' => Uuid::fromStringToBytes($context->getTouchpoint()->getId()),
+            'touchpoint_tenant_id' => $tenantId,
             'customer_id' => $customerId,
             'customer_tenant_id' => $tenantId,
             'customer_version_id' => $context->getCustomer() ? $liveVersion : null,
@@ -129,7 +129,7 @@ class CartPersister implements CartPersisterInterface
         $this->connection->insert('cart', $data);
     }
 
-    public function delete(string $token, ?string $name = null, StorefrontContext $context): void
+    public function delete(string $token, ?string $name = null, CheckoutContext $context): void
     {
         if ($name === null) {
             $this->connection->executeUpdate(

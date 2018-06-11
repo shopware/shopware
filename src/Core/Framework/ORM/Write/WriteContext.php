@@ -22,12 +22,12 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Framework\ORM\Write;
+namespace Shopware\Core\Framework\ORM\Write;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Application\Language\LanguageDefinition;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\System\Language\LanguageDefinition;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
 
 class WriteContext
 {
@@ -39,9 +39,9 @@ class WriteContext
     public $paths = [];
 
     /**
-     * @var ApplicationContext
+     * @var \Shopware\Core\Framework\Context
      */
-    private $applicationContext;
+    private $context;
 
     /**
      * @var array[]
@@ -55,9 +55,9 @@ class WriteContext
      */
     private $inheritance = [];
 
-    private function __construct(ApplicationContext $applicationContext)
+    private function __construct(Context $context)
     {
-        $this->applicationContext = $applicationContext;
+        $this->context = $context;
     }
 
     public function addInheritance(string $definition, array $inheritance): void
@@ -72,7 +72,7 @@ class WriteContext
         );
     }
 
-    public static function createFromApplicationContext(ApplicationContext $context): self
+    public static function createFromContext(Context $context): self
     {
         $self = new self($context);
         $self->set(LanguageDefinition::class, 'id', $context->getLanguageId());
@@ -154,20 +154,20 @@ class WriteContext
         return isset($inheritance[$raw['id']]);
     }
 
-    public function getApplicationContext(): ApplicationContext
+    public function getContext(): Context
     {
-        return $this->applicationContext;
+        return $this->context;
     }
 
     public function resetPaths(): void
     {
         $this->paths = [];
-        $this->set(LanguageDefinition::class, 'id', $this->applicationContext->getLanguageId());
+        $this->set(LanguageDefinition::class, 'id', $this->context->getLanguageId());
     }
 
     public function createWithVersionId(string $versionId): self
     {
-        return self::createFromApplicationContext($this->getApplicationContext()->createWithVersionId($versionId));
+        return self::createFromContext($this->getContext()->createWithVersionId($versionId));
     }
 
     /**

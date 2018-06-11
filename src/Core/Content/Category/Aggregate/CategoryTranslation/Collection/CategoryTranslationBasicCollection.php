@@ -1,14 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Category\Aggregate\CategoryTranslation\Collection;
+namespace Shopware\Core\Content\Category\Aggregate\CategoryTranslation\Collection;
 
-use Shopware\Content\Category\Aggregate\CategoryTranslation\Struct\CategoryTranslationBasicStruct;
-use Shopware\Framework\ORM\EntityCollection;
+use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\Struct\CategoryTranslationBasicStruct;
+use Shopware\Core\Framework\ORM\EntityCollection;
 
 class CategoryTranslationBasicCollection extends EntityCollection
 {
     /**
-     * @var \Shopware\Content\Category\Aggregate\CategoryTranslation\Struct\CategoryTranslationBasicStruct[]
+     * @var \Shopware\Core\Content\Category\Aggregate\CategoryTranslation\Struct\CategoryTranslationBasicStruct[]
      */
     protected $elements = [];
 

@@ -23,15 +23,15 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Checkout\Cart\Price;
+namespace Shopware\Core\Checkout\Cart\Price;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
-use Shopware\Checkout\Cart\Price\Struct\CartPrice;
-use Shopware\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
-use Shopware\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Checkout\Cart\Tax\TaxAmountCalculatorInterface;
-use Shopware\Checkout\Cart\Tax\TaxDetector;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Cart\Tax\TaxAmountCalculatorInterface;
+use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
 
 class AmountCalculator
 {
@@ -60,7 +60,7 @@ class AmountCalculator
         $this->taxAmountCalculator = $taxAmountCalculator;
     }
 
-    public function calculateAmount(CalculatedPriceCollection $prices, CalculatedPriceCollection $shippingCosts, StorefrontContext $context): CartPrice
+    public function calculateAmount(CalculatedPriceCollection $prices, CalculatedPriceCollection $shippingCosts, CheckoutContext $context): CartPrice
     {
         if ($this->taxDetector->isNetDelivery($context)) {
             return $this->calculateNetDeliveryAmount($prices, $shippingCosts);
@@ -105,11 +105,11 @@ class AmountCalculator
      *
      * @param CalculatedPriceCollection                              $prices
      * @param CalculatedPriceCollection                              $shippingCosts
-     * @param \Shopware\Application\Context\Struct\StorefrontContext $context
+     * @param \Shopware\Core\Checkout\CheckoutContext $context
      *
      * @return CartPrice
      */
-    private function calculateGrossAmount(CalculatedPriceCollection $prices, CalculatedPriceCollection $shippingCosts, StorefrontContext $context): CartPrice
+    private function calculateGrossAmount(CalculatedPriceCollection $prices, CalculatedPriceCollection $shippingCosts, CheckoutContext $context): CartPrice
     {
         $allPrices = $prices->merge($shippingCosts);
 
@@ -140,11 +140,11 @@ class AmountCalculator
      *
      * @param CalculatedPriceCollection                              $prices
      * @param CalculatedPriceCollection                              $shippingCosts
-     * @param \Shopware\Application\Context\Struct\StorefrontContext $context
+     * @param \Shopware\Core\Checkout\CheckoutContext $context
      *
      * @return CartPrice
      */
-    private function calculateNetAmount(CalculatedPriceCollection $prices, CalculatedPriceCollection $shippingCosts, StorefrontContext $context): CartPrice
+    private function calculateNetAmount(CalculatedPriceCollection $prices, CalculatedPriceCollection $shippingCosts, CheckoutContext $context): CartPrice
     {
         $all = $prices->merge($shippingCosts);
 

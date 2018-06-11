@@ -1,7 +1,7 @@
 # Changelog
 
 ## Update (2017-10-25)
-We updated the article and our code examples to match the current Shopware version.
+We updated the article and our code examples to match the current Shopware\Core version.
 We also created a plugin which shows how to extend the administration interface, the frontend and the cart process. When the plugin is installed, you can define a percental discount in the administration interface.
 For every discounted product a badge will the be shown in the frontend.
 When you add an discounted product to the cart, a voucher (representing the discount) will be added to the cart.
@@ -11,7 +11,7 @@ You can download the plugin
 If you want to learn more about the cart architecture and the different pattern, take a look at our [documentation](https://github.com/shopware/shopware/tree/labs/docs).
 
 ## Update (2017-09-27)
-The basic functions of the cart bundle are now implemented in Shopware's frontend.
+The basic functions of the cart bundle are now implemented in Shopware\Core's frontend.
 You can add products to the cart, change their quantity, remove them from the cart and finish the order process.
 The order will be persisted and is visible in the backend.
 The cart widget in the top right corner now shows how many positions are in the cart and the total value.
@@ -22,7 +22,7 @@ An order confirm page shows all cart items as well as the calculated (separate) 
 ## First concept
 On September 12th of 2016, we released a first concept for a new cart bundle.
 You can see the development process on <a href="https://github.com/shopware/shopware-cart-poc">Github</a>, where we created a new repository which allows the community to create pull requests and issues.
-The new repository contains a new bundle in `/engine/Shopware/Bundle/CartBundle` which contains a first proof of concept for a new cart process.
+The new repository contains a new bundle in `/engine/Shopware\Core/Bundle/CartBundle` which contains a first proof of concept for a new cart process.
 This article documents the current implementation and how it can be used. 
 
 ## Usage
@@ -31,13 +31,13 @@ This article documents the current implementation and how it can be used.
 Lets start with a simple example: *Add a product to cart*
 
 ```
-use Shopware\Checkout\Cart\LineItem\LineItem;
-use Shopware\Checkout\Cart\Product\ProductProcessor;
-use Shopware\Checkout\Cart\StoreFrontCartService;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\Product\ProductProcessor;
+use Shopware\Core\Checkout\Cart\Storefront\CartService;
 
 public function addProductAction()
 {
-    /** @var StoreFrontCartService $cartService */
+    /** @var CartService $cartService */
     $cartService = $this->container->get('shopware.cart.storefront_service');
 
     $cartService->add(
@@ -53,11 +53,11 @@ public function addProductAction()
 ### Remove a line item
 Next we remove this item again using the cart identifier (see above `SW10239`)
 ```
-use Shopware\Checkout\Cart\StoreFrontCartService;
+use Shopware\Core\Checkout\Cart\Storefront\CartService;
 
 public function removeAction()
 {
-    /** @var CartBundle\Infrastructure\StoreFrontCartService $cartService */
+    /** @var CartBundle\Infrastructure\CartService $cartService */
     $cartService = $this->container->get('shopware.cart.storefront_service');
 
     $cartService->remove('SW10239');
@@ -65,19 +65,19 @@ public function removeAction()
 ```
 
 ### Get line items
-To get access of all line items in cart, the `StoreFrontCartService` allows access on the calculated cart over `getCalculated()`.
+To get access of all line items in cart, the `CartService` allows access on the calculated cart over `getCalculated()`.
 
 ```
-use Shopware\Checkout\Cart\Cart\CalculatedCart;
-use Shopware\Checkout\Cart\LineItem\CalculatedLineItemInterface;
-use Shopware\Checkout\Cart\LineItem\LineItem;
-use Shopware\Checkout\Cart\Product\ProductProcessor;
-use Shopware\Checkout\Cart\Tax\CalculatedTax;
-use Shopware\Checkout\Cart\StoreFrontCartService;
+use Shopware\Core\Checkout\Cart\Cart\CalculatedCart;
+use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItemInterface;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\Product\ProductProcessor;
+use Shopware\Core\Checkout\Cart\Tax\CalculatedTax;
+use Shopware\Core\Checkout\Cart\Storefront\CartService;
 
 public function showLineItemsAction()
 {
-    /** @var StoreFrontCartService $cartService */
+    /** @var CartService $cartService */
     $cartService = $this->container->get('shopware.cart.storefront_service');
 
     $cartService->add(
@@ -118,15 +118,15 @@ public function showLineItemsAction()
 The cart amount is stored inside the `CalculatedCart` and can be accessed over `getPrice()`.
 
 ```php
-use Shopware\Checkout\Cart\Cart\CalculatedCart;
-use Shopware\Checkout\Cart\LineItem\LineItem;
-use Shopware\Checkout\Cart\Product\ProductProcessor;
-use Shopware\Checkout\Cart\Tax\CalculatedTax;
-use Shopware\Checkout\Cart\StoreFrontCartService;
+use Shopware\Core\Checkout\Cart\Cart\CalculatedCart;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\Product\ProductProcessor;
+use Shopware\Core\Checkout\Cart\Tax\CalculatedTax;
+use Shopware\Core\Checkout\Cart\Storefront\CartService;
 
 public function showAmountAction()
 {
-    /** @var StoreFrontCartService $cartService */
+    /** @var CartService $cartService */
     $cartService = $this->container->get('shopware.cart.storefront_service');
 
     $cartService->add(
@@ -163,16 +163,16 @@ Each cart contains a collection of deliveries, in case that the customer is logg
 This deliveries can be accessed over `getDeliveries()`. 
 
 ```
-use Shopware\Checkout\Cart\Cart\CalculatedCart;
-use Shopware\Checkout\Cart\Delivery\Delivery;
-use Shopware\Checkout\Cart\Delivery\DeliveryPosition;
-use Shopware\Checkout\Cart\LineItem\LineItem;
-use Shopware\Checkout\Cart\Product\ProductProcessor;
-use Shopware\Checkout\Cart\StoreFrontCartService;
+use Shopware\Core\Checkout\Cart\Cart\CalculatedCart;
+use Shopware\Core\Checkout\Cart\Delivery\Delivery;
+use Shopware\Core\Checkout\Cart\Delivery\DeliveryPosition;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\Product\ProductProcessor;
+use Shopware\Core\Checkout\Cart\Storefront\CartService;
 
 public function showDeliveriesAction()
 {
-    /** @var StoreFrontCartService $cartService */
+    /** @var CartService $cartService */
     $cartService = $this->container->get('shopware.cart.storefront_service');
     $cartService->add(
         new LineItem(
@@ -228,11 +228,11 @@ public function showDeliveriesAction()
 The cart passes through different states during the calculation process.
 In order to provide a valid state for each service layer, the states are reflected in different classes:
 
-* `Shopware\Checkout\Cart\Cart\Cart`
+* `Shopware\Core\Checkout\Cart\Cart\Cart`
     * Defines which line items have to be calculated inside the process
-* `Shopware\Checkout\Cart\Cart\ProcessorCart`
+* `Shopware\Core\Checkout\Cart\Cart\ProcessorCart`
     * Defines which line items have already been calculated and which deliveries have been generated 
-* `Shopware\Checkout\Cart\Cart\CalculatedCart`
+* `Shopware\Core\Checkout\Cart\Cart\CalculatedCart`
     * Contains a list of all calculated line items 
     * Contains a collection of all deliveries
     * Has a calculated price with total tax amounts, tax rules and net or gross prices
@@ -244,12 +244,12 @@ The following diagram shows the architecture behind the cart process for product
 
 ![image](img/img.001.png)
 
-The cart calculation is done in the `Shopware\Checkout\Cart\Cart\CartProcessor` class.  
-This class contains a list of `Shopware\Checkout\Cart\Cart\CartProcessorInterface`, which are the access points for the Shopware core and third party developers in the cart process. 
+The cart calculation is done in the `Shopware\Core\Checkout\Cart\Cart\CartProcessor` class.  
+This class contains a list of `Shopware\Core\Checkout\Cart\Cart\CartProcessorInterface`, which are the access points for the Shopware\Core core and third party developers in the cart process. 
 
 ```php
-use Shopware\Application\Context\Struct\ShopContext;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Core\Touchpoint\Context\Struct\ShopContext;
+use Shopware\Core\Framework\Struct\StructCollection;
 
 interface CartProcessorInterface
 {
@@ -264,26 +264,26 @@ interface CartProcessorInterface
 ```
 
 ### Domain and Infrastructure layers
-For the architecture design, we took great care to separate business logic from the database and Shopware dependencies.
+For the architecture design, we took great care to separate business logic from the database and Shopware\Core dependencies.
 
-That means all Shopware-specific operations such as database access, delivery information or price selections (with graduated prices or price groups) are separated into individual gateways that can be replaced with other data sources.
+That means all Shopware\Core-specific operations such as database access, delivery information or price selections (with graduated prices or price groups) are separated into individual gateways that can be replaced with other data sources.
 
 These layers are named **Cart** and **CartBridge** which are placed on the first level of the `src` folder.
-The Cart layer should not have any dependencies to the Shopware core.
+The Cart layer should not have any dependencies to the Shopware\Core core.
 That's the infrastructure layer.
-Interactions with Shopware are defined in the CartBridge.
+Interactions with Shopware\Core are defined in the CartBridge.
 
 ![image](img/img.002.png)
 
 
 ## Price calculations
 At the moment, the `Cart` contains the following calculation classes:
-* `\Shopware\Checkout\Cart\Price\PriceCalculator`
+* `\Shopware\Core\Checkout\Cart\Price\PriceCalculator`
     * Calculates a total price for a provided `PriceDefinition`
     * Calculates the gross/net unit price and total price
     * Uses tax calculation services for including/excluding taxes
 
-* `\Shopware\Checkout\Cart\Price\PercentagePriceCalculator`
+* `\Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator`
     * Calculates a percentage price based on a provided collection of prices (`PriceCollection`)
     * Sums all prices to a total amount and calculates a percentage price value
     * Calculates the percentage share of tax rules inside the provided prices and calculates the taxes percentage 
@@ -295,12 +295,12 @@ At the moment, the `Cart` contains the following calculation classes:
         * 50% of the price is based on  7% tax calculation
         
 And the following tax calculation services:
-* `\Shopware\Checkout\Cart\Tax\TaxRuleCalculator`
+* `\Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator`
     * Tax calculation is based on a price with a simple tax rate
     * Example
         * 100.00 € should be calculated with a 19% tax rate
     
-* `\Shopware\Checkout\Cart\Tax\PercentageTaxRuleCalculator`
+* `\Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleCalculator`
     * Tax calculation is based on a percentage price value
     * Example: 
         * total price: 100.00 €
@@ -316,13 +316,13 @@ The following examples shows one possible solution for creating dynamic discount
 namespace SwagCartExtension\Cart;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Checkout\Cart\Cart\Cart;
-use Shopware\Checkout\Cart\Cart\CartProcessorInterface;
-use Shopware\Checkout\Cart\Cart\ProcessorCart;
-use Shopware\Checkout\Cart\LineItem\Discount;
-use Shopware\Checkout\Cart\Price\PercentagePriceCalculator;
-use Shopware\Application\Context\Struct\ShopContext;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Core\Checkout\Cart\Cart\Cart;
+use Shopware\Core\Checkout\Cart\Cart\CartProcessorInterface;
+use Shopware\Core\Checkout\Cart\Cart\ProcessorCart;
+use Shopware\Core\Checkout\Cart\LineItem\Discount;
+use Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator;
+use Shopware\Core\Touchpoint\Context\Struct\ShopContext;
+use Shopware\Core\Framework\Struct\StructCollection;
 
 class NewCustomerDiscountProcessor implements CartProcessorInterface
 {
@@ -406,7 +406,7 @@ class NewCustomerDiscountProcessor implements CartProcessorInterface
 ```
 The first two conditions validate if a customer is logged in and if the customer has already made an order.
 After the validation passes that the customer is a new customer, the processor first collects all calculated goods in the cart `$goods = $processorCart->getCalculatedLineItems()->filterGoods();`.
-To calculate the percentage discount for the `new customer discount` the processor uses the Shopware core calculator `\Shopware\Checkout\Cart\Price\PercentagePriceCalculator`.
+To calculate the percentage discount for the `new customer discount` the processor uses the Shopware\Core core calculator `\Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator`.
 
 The processor has to be registered over the `cart_processor` container tag.
  The priority defines at which position the calculator has to be executed (after product calculation, before voucher, ...).
@@ -425,14 +425,14 @@ The following examples shows a possible solution for preventing some products fr
 namespace SwagBlacklist\Cart;
 
 
-use Shopware\Checkout\Cart\Cart\Cart;
-use Shopware\Checkout\Cart\Cart\CartProcessorInterface;
-use Shopware\Checkout\Cart\Cart\ProcessorCart;
-use Shopware\Checkout\Cart\LineItem\LineItem;
-use Shopware\Checkout\Cart\LineItem\LineItemCollection;
-use Shopware\Checkout\Cart\Product\ProductProcessor;
-use Shopware\Application\Context\Struct\ShopContext;
-use Shopware\Framework\Struct\StructCollection;
+use Shopware\Core\Checkout\Cart\Cart\Cart;
+use Shopware\Core\Checkout\Cart\Cart\CartProcessorInterface;
+use Shopware\Core\Checkout\Cart\Cart\ProcessorCart;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Cart\Product\ProductProcessor;
+use Shopware\Core\Touchpoint\Context\Struct\ShopContext;
+use Shopware\Core\Framework\Struct\StructCollection;
 
 class BlacklistedProductProcessor implements CartProcessorInterface
 {
@@ -467,4 +467,4 @@ The service is registered as follow:
 </service>
 ```
 Using a high priority defines an early position inside the cart calculation for this processor.
-The `\Shopware\Checkout\Cart\Product\ProductProcessor` is registered with priority 1000, which means it is executed after this blacklist processor.
+The `\Shopware\Core\Checkout\Cart\Product\ProductProcessor` is registered with priority 1000, which means it is executed after this blacklist processor.

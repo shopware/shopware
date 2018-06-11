@@ -1,17 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Aggregate\ProductManufacturer\Event;
+namespace Shopware\Core\Content\Product\Aggregate\ProductManufacturer\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Content\Product\Aggregate\ProductManufacturer\Struct\ProductManufacturerSearchResult;
-use Shopware\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\Struct\ProductManufacturerSearchResult;
+use Shopware\Core\Framework\Event\NestedEvent;
 
 class ProductManufacturerSearchResultLoadedEvent extends NestedEvent
 {
     public const NAME = 'product_manufacturer.search.result.loaded';
 
     /**
-     * @var \Shopware\Content\Product\Aggregate\ProductManufacturer\Struct\ProductManufacturerSearchResult
+     * @var \Shopware\Core\Content\Product\Aggregate\ProductManufacturer\Struct\ProductManufacturerSearchResult
      */
     protected $result;
 
@@ -25,7 +25,7 @@ class ProductManufacturerSearchResultLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->result->getContext();
     }

@@ -10,7 +10,7 @@ class MyCustomerIndexer implements IndexerInterface
     public function index(\DateTime $timestamp, string $tenantId): void
     {
         // will only be executed if called directly or 
-        // via Shopware\Framework\ORM\Dbal\Indexing\IndexerRegistry->index() 
+        // via Shopware\Core\Framework\ORM\Dbal\Indexing\IndexerRegistry->index() 
     }
 
     public function refresh(GenericWrittenEvent $event): void
@@ -35,7 +35,7 @@ You can define an priority if needed.
 The child count indexer is helpful when your entity has parent/child relations. 
 To make use of the child count indexer, your entity has to have a `ChildrenAssociationField` 
 and an `ChildCountField`. If these two requirements are met, the 
-`Shopware\Framework\ORM\Dbal\Indexing\ChildCountIndexer` will automatically update
+`Shopware\Core\Framework\ORM\Dbal\Indexing\ChildCountIndexer` will automatically update
 the child_count for your enties if you create a new entity one or change an existing one.
 
 Note: Please be aware, that the child count will only consider direct children 

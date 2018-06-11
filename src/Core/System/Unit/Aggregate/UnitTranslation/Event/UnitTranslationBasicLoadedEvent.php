@@ -1,17 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Unit\Aggregate\UnitTranslation\Event;
+namespace Shopware\Core\System\Unit\Aggregate\UnitTranslation\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\System\Unit\Aggregate\UnitTranslation\Collection\UnitTranslationBasicCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\System\Unit\Aggregate\UnitTranslation\Collection\UnitTranslationBasicCollection;
 
 class UnitTranslationBasicLoadedEvent extends NestedEvent
 {
     public const NAME = 'unit_translation.basic.loaded';
 
     /**
-     * @var ApplicationContext
+     * @var \Shopware\Core\Framework\Context
      */
     protected $context;
 
@@ -20,7 +20,7 @@ class UnitTranslationBasicLoadedEvent extends NestedEvent
      */
     protected $unitTranslations;
 
-    public function __construct(UnitTranslationBasicCollection $unitTranslations, ApplicationContext $context)
+    public function __construct(UnitTranslationBasicCollection $unitTranslations, Context $context)
     {
         $this->context = $context;
         $this->unitTranslations = $unitTranslations;
@@ -31,7 +31,7 @@ class UnitTranslationBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }

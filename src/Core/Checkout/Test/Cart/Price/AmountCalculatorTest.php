@@ -22,26 +22,26 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Checkout\Test\Cart\Price;
+namespace Shopware\Core\Checkout\Test\Cart\Price;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Application\Application\Struct\ApplicationBasicStruct;
-use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\Checkout\Cart\Price\AmountCalculator;
-use Shopware\Checkout\Cart\Price\PriceRounding;
-use Shopware\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
-use Shopware\Checkout\Cart\Price\Struct\CartPrice;
-use Shopware\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
-use Shopware\Checkout\Cart\Tax\PercentageTaxRuleCalculator;
-use Shopware\Checkout\Cart\Tax\Struct\CalculatedTax;
-use Shopware\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
-use Shopware\Checkout\Cart\Tax\Struct\TaxRule;
-use Shopware\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Checkout\Cart\Tax\TaxAmountCalculator;
-use Shopware\Checkout\Cart\Tax\TaxCalculator;
-use Shopware\Checkout\Cart\Tax\TaxDetector;
-use Shopware\Checkout\Cart\Tax\TaxRuleCalculator;
+use Shopware\Core\System\Touchpoint\Struct\TouchpointBasicStruct;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
+use Shopware\Core\Checkout\Cart\Price\PriceRounding;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPriceCollection;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
+use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleCalculator;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Cart\Tax\TaxAmountCalculator;
+use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
+use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
+use Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator;
 
 /**
  * Class PriceCalculatorTest
@@ -59,11 +59,11 @@ class AmountCalculatorTest extends TestCase
         $detector = $this->createMock(TaxDetector::class);
         $detector->method('useGross')->will($this->returnValue(true));
 
-        $shop = $this->createMock(ApplicationBasicStruct::class);
+        $shop = $this->createMock(TouchpointBasicStruct::class);
         $shop->method('getTaxCalculationType')->will($this->returnValue(TaxAmountCalculator::CALCULATION_VERTICAL));
 
-        $context = $this->createMock(StorefrontContext::class);
-        $context->method('getApplication')->will($this->returnValue($shop));
+        $context = $this->createMock(CheckoutContext::class);
+        $context->method('getTouchpoint')->will($this->returnValue($shop));
 
         $calculator = new AmountCalculator(
             $detector,
@@ -97,11 +97,11 @@ class AmountCalculatorTest extends TestCase
         $detector->method('useGross')->will($this->returnValue(false));
         $detector->method('isNetDelivery')->will($this->returnValue(false));
 
-        $shop = $this->createMock(ApplicationBasicStruct::class);
+        $shop = $this->createMock(TouchpointBasicStruct::class);
         $shop->method('getTaxCalculationType')->will($this->returnValue(TaxAmountCalculator::CALCULATION_VERTICAL));
 
-        $context = $this->createMock(StorefrontContext::class);
-        $context->method('getApplication')->will($this->returnValue($shop));
+        $context = $this->createMock(CheckoutContext::class);
+        $context->method('getTouchpoint')->will($this->returnValue($shop));
 
         $calculator = new AmountCalculator(
             $detector,
@@ -135,11 +135,11 @@ class AmountCalculatorTest extends TestCase
         $detector->method('useGross')->will($this->returnValue(false));
         $detector->method('isNetDelivery')->will($this->returnValue(true));
 
-        $shop = $this->createMock(ApplicationBasicStruct::class);
+        $shop = $this->createMock(TouchpointBasicStruct::class);
         $shop->method('getTaxCalculationType')->will($this->returnValue(TaxAmountCalculator::CALCULATION_VERTICAL));
 
-        $context = $this->createMock(StorefrontContext::class);
-        $context->method('getApplication')->will($this->returnValue($shop));
+        $context = $this->createMock(CheckoutContext::class);
+        $context->method('getTouchpoint')->will($this->returnValue($shop));
 
         $calculator = new AmountCalculator(
             $detector,

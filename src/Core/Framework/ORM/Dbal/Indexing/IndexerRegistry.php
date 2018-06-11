@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Dbal\Indexing;
+namespace Shopware\Core\Framework\ORM\Dbal\Indexing;
 
-use Shopware\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class IndexerRegistry implements IndexerInterface, EventSubscriberInterface

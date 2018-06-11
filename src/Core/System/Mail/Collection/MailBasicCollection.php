@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Mail\Collection;
+namespace Shopware\Core\System\Mail\Collection;
 
-use Shopware\Framework\ORM\EntityCollection;
-use Shopware\System\Mail\Struct\MailBasicStruct;
+use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\System\Mail\Struct\MailBasicStruct;
 
 class MailBasicCollection extends EntityCollection
 {

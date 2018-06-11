@@ -22,7 +22,7 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\System;
+namespace Shopware\Core\System;
 
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -39,8 +39,8 @@ class System extends Bundle
         parent::build($container);
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
+        $loader->load('touchpoint.xml');
         $loader->load('config.xml');
-        $loader->load('configuration.xml');
         $loader->load('country.xml');
         $loader->load('currency.xml');
         $loader->load('locale.xml');
@@ -51,5 +51,6 @@ class System extends Bundle
         $loader->load('tax.xml');
         $loader->load('unit.xml');
         $loader->load('user.xml');
+        $loader->load('language.xml');
     }
 }

@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Aggregate\ProductStream\Struct;
+namespace Shopware\Core\Content\Product\Aggregate\ProductStream\Struct;
 
-use Shopware\Content\Product\Collection\ProductBasicCollection;
+use Shopware\Core\Content\Product\Collection\ProductBasicCollection;
 
 class ProductStreamDetailStruct extends ProductStreamBasicStruct
 {

@@ -1,19 +1,19 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Listing\Event;
+namespace Shopware\Core\System\Listing\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\Event\NestedEvent;
-use Shopware\Framework\Event\NestedEventCollection;
-use Shopware\System\Listing\Aggregate\ListingFacetTranslation\Event\ListingFacetTranslationBasicLoadedEvent;
-use Shopware\System\Listing\Collection\ListingFacetDetailCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation\Event\ListingFacetTranslationBasicLoadedEvent;
+use Shopware\Core\System\Listing\Collection\ListingFacetDetailCollection;
 
 class ListingFacetDetailLoadedEvent extends NestedEvent
 {
     public const NAME = 'listing_facet.detail.loaded';
 
     /**
-     * @var ApplicationContext
+     * @var \Shopware\Core\Framework\Context
      */
     protected $context;
 
@@ -22,7 +22,7 @@ class ListingFacetDetailLoadedEvent extends NestedEvent
      */
     protected $listingFacets;
 
-    public function __construct(ListingFacetDetailCollection $listingFacets, ApplicationContext $context)
+    public function __construct(ListingFacetDetailCollection $listingFacets, Context $context)
     {
         $this->context = $context;
         $this->listingFacets = $listingFacets;
@@ -33,7 +33,7 @@ class ListingFacetDetailLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }

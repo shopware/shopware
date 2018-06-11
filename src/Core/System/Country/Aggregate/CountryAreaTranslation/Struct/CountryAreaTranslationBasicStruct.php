@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Country\Aggregate\CountryAreaTranslation\Struct;
+namespace Shopware\Core\System\Country\Aggregate\CountryAreaTranslation\Struct;
 
-use Shopware\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Entity;
 
 class CountryAreaTranslationBasicStruct extends Entity
 {

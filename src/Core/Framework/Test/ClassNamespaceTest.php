@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\Test;
+namespace Shopware\Core\Framework\Test;
 
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Finder\Finder;
@@ -23,7 +23,7 @@ class ClassNamespaceTest extends TestCase
 
             $parts = $this->extractProductionNamespaceParts($file, $basePathParts);
 
-            $namespace = rtrim('namespace Shopware\\' . implode('\\', $parts), '\\');
+            $namespace = rtrim('namespace Shopware\Core\\' . implode('\\', $parts), '\\');
 
             if (strpos($file->getContents(), $namespace) === false) {
                 $relativePath = str_replace($basePath, '', $file->getPathname());
@@ -58,7 +58,7 @@ class ClassNamespaceTest extends TestCase
         $lines = explode("\n", $file->getContents());
 
         foreach ($lines as $line) {
-            if (preg_match('#^namespace\sShopware\\\.*;$#m', $line)) {
+            if (preg_match('#^namespace\sShopware\Core\\\.*;$#m', $line)) {
                 return true;
             }
         }

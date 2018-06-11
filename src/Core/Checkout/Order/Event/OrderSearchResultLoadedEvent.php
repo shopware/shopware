@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Order\Event;
+namespace Shopware\Core\Checkout\Order\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Checkout\Order\Struct\OrderSearchResult;
-use Shopware\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Order\Struct\OrderSearchResult;
+use Shopware\Core\Framework\Event\NestedEvent;
 
 class OrderSearchResultLoadedEvent extends NestedEvent
 {
@@ -25,7 +25,7 @@ class OrderSearchResultLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->result->getContext();
     }

@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Tax\Aggregate\TaxAreaRule\Collection;
+namespace Shopware\Core\System\Tax\Aggregate\TaxAreaRule\Collection;
 
-use Shopware\Checkout\Customer\Aggregate\CustomerGroup\Collection\CustomerGroupBasicCollection;
-use Shopware\System\Country\Aggregate\CountryArea\Collection\CountryAreaBasicCollection;
-use Shopware\System\Country\Collection\CountryBasicCollection;
-use Shopware\System\Tax\Aggregate\TaxAreaRule\Struct\TaxAreaRuleDetailStruct;
-use Shopware\System\Tax\Aggregate\TaxAreaRuleTranslation\Collection\TaxAreaRuleTranslationBasicCollection;
-use Shopware\System\Tax\Collection\TaxBasicCollection;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\Collection\CustomerGroupBasicCollection;
+use Shopware\Core\System\Country\Aggregate\CountryArea\Collection\CountryAreaBasicCollection;
+use Shopware\Core\System\Country\Collection\CountryBasicCollection;
+use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\Struct\TaxAreaRuleDetailStruct;
+use Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTranslation\Collection\TaxAreaRuleTranslationBasicCollection;
+use Shopware\Core\System\Tax\Collection\TaxBasicCollection;
 
 class TaxAreaRuleDetailCollection extends TaxAreaRuleBasicCollection
 {
@@ -18,7 +18,7 @@ class TaxAreaRuleDetailCollection extends TaxAreaRuleBasicCollection
 
     public function getCountryAreas(): CountryAreaBasicCollection
     {
-        return new \Shopware\System\Country\Aggregate\CountryArea\Collection\CountryAreaBasicCollection(
+        return new \Shopware\Core\System\Country\Aggregate\CountryArea\Collection\CountryAreaBasicCollection(
             $this->fmap(function (TaxAreaRuleDetailStruct $taxAreaRule) {
                 return $taxAreaRule->getCountryArea();
             })
@@ -34,9 +34,9 @@ class TaxAreaRuleDetailCollection extends TaxAreaRuleBasicCollection
         );
     }
 
-    public function getCountryStates(): \Shopware\System\Country\Aggregate\CountryState\Collection\CountryStateBasicCollection
+    public function getCountryStates(): \Shopware\Core\System\Country\Aggregate\CountryState\Collection\CountryStateBasicCollection
     {
-        return new \Shopware\System\Country\Aggregate\CountryState\Collection\CountryStateBasicCollection(
+        return new \Shopware\Core\System\Country\Aggregate\CountryState\Collection\CountryStateBasicCollection(
             $this->fmap(function (TaxAreaRuleDetailStruct $taxAreaRule) {
                 return $taxAreaRule->getCountryState();
             })
@@ -54,7 +54,7 @@ class TaxAreaRuleDetailCollection extends TaxAreaRuleBasicCollection
 
     public function getCustomerGroups(): CustomerGroupBasicCollection
     {
-        return new \Shopware\Checkout\Customer\Aggregate\CustomerGroup\Collection\CustomerGroupBasicCollection(
+        return new \Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\Collection\CustomerGroupBasicCollection(
             $this->fmap(function (TaxAreaRuleDetailStruct $taxAreaRule) {
                 return $taxAreaRule->getCustomerGroup();
             })
@@ -75,7 +75,7 @@ class TaxAreaRuleDetailCollection extends TaxAreaRuleBasicCollection
 
     public function getTranslations(): TaxAreaRuleTranslationBasicCollection
     {
-        $collection = new \Shopware\System\Tax\Aggregate\TaxAreaRuleTranslation\Collection\TaxAreaRuleTranslationBasicCollection();
+        $collection = new \Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTranslation\Collection\TaxAreaRuleTranslationBasicCollection();
         foreach ($this->elements as $element) {
             $collection->fill($element->getTranslations()->getElements());
         }

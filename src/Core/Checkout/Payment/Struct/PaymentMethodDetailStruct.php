@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Payment\Struct;
+namespace Shopware\Core\Checkout\Payment\Struct;
 
-use Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation\Collection\PaymentMethodTranslationBasicCollection;
-use Shopware\Framework\Plugin\Struct\PluginBasicStruct;
+use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\Collection\PaymentMethodTranslationBasicCollection;
+use Shopware\Core\Framework\Plugin\Struct\PluginBasicStruct;
 
 class PaymentMethodDetailStruct extends PaymentMethodBasicStruct
 {
@@ -13,7 +13,7 @@ class PaymentMethodDetailStruct extends PaymentMethodBasicStruct
     protected $plugin;
 
     /**
-     * @var \Shopware\Checkout\Payment\Aggregate\PaymentMethodTranslation\Collection\PaymentMethodTranslationBasicCollection
+     * @var \Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\Collection\PaymentMethodTranslationBasicCollection
      */
     protected $translations;
 

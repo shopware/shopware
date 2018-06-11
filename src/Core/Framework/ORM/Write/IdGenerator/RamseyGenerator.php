@@ -22,9 +22,9 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Framework\ORM\Write\IdGenerator;
+namespace Shopware\Core\Framework\ORM\Write\IdGenerator;
 
-use Shopware\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Struct\Uuid;
 
 class RamseyGenerator implements Generator
 {

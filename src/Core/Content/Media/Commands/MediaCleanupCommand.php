@@ -22,13 +22,13 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Content\Media\Commands;
+namespace Shopware\Core\Content\Media\Commands;
 
 use Doctrine\ORM\AbstractQuery;
 use Doctrine\ORM\ORMException;
-use Shopware\Components\Model\ModelManager;
-use Shopware\Content\Media\Util\GarbageCollector\GarbageCollector;
-use Shopware\Models\Media\Media;
+use Shopware\Core\Components\Model\ModelManager;
+use Shopware\Core\Content\Media\Util\GarbageCollector\GarbageCollector;
+use Shopware\Core\Models\Media\Media;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -38,12 +38,12 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class MediaCleanupCommand extends Command
 {
     /**
-     * @var \Shopware\Content\Media\Util\GarbageCollector\GarbageCollector
+     * @var \Shopware\Core\Content\Media\Util\GarbageCollector\GarbageCollector
      */
     private $garbageCollector;
 
     /**
-     * @param \Shopware\Content\Media\Util\GarbageCollector\GarbageCollector $garbageCollector
+     * @param \Shopware\Core\Content\Media\Util\GarbageCollector\GarbageCollector $garbageCollector
      */
     public function __construct(GarbageCollector $garbageCollector)
     {
@@ -105,7 +105,7 @@ class MediaCleanupCommand extends Command
         /** @var ModelManager $modelManager */
         $modelManager = $this->getContainer()->get('models');
 
-        /** @var \Shopware\Models\Media\Repository $repository */
+        /** @var \Shopware\Core\Models\Media\Repository $repository */
         $repository = $modelManager->getRepository(Media::class);
 
         $query = $repository->getAlbumMediaQuery(-13);

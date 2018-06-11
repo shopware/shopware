@@ -1,12 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware;
+namespace Shopware\Core;
 
-use Shopware\Framework\Api\Controller\ApiController;
-use Shopware\Framework\Doctrine\DatabaseConnector;
-use Shopware\Framework\Framework;
-use Shopware\Framework\Plugin\Plugin;
-use Shopware\Framework\Plugin\PluginCollection;
+use Shopware\Core\Framework\Api\Controller\ApiController;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\TestingCompilerPass;
+use Shopware\Core\Framework\Doctrine\DatabaseConnector;
+use Shopware\Core\Framework\Framework;
+use Shopware\Core\Framework\Plugin\Plugin;
+use Shopware\Core\Framework\Plugin\PluginCollection;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;

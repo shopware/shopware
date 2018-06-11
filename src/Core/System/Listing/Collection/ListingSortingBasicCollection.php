@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Listing\Collection;
+namespace Shopware\Core\System\Listing\Collection;
 
-use Shopware\Framework\ORM\EntityCollection;
-use Shopware\System\Listing\Struct\ListingSortingBasicStruct;
+use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\System\Listing\Struct\ListingSortingBasicStruct;
 
 class ListingSortingBasicCollection extends EntityCollection
 {

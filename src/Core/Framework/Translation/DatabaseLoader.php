@@ -23,7 +23,7 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Framework\Translation;
+namespace Shopware\Core\Framework\Translation;
 
 use Doctrine\DBAL\Connection;
 use Symfony\Component\Translation\Exception\InvalidResourceException;

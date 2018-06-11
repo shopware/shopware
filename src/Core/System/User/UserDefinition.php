@@ -1,31 +1,31 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\User;
+namespace Shopware\Core\System\User;
 
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\EntityExtensionInterface;
-use Shopware\Framework\ORM\Field\BoolField;
-use Shopware\Framework\ORM\Field\DateField;
-use Shopware\Framework\ORM\Field\FkField;
-use Shopware\Framework\ORM\Field\IdField;
-use Shopware\Framework\ORM\Field\IntField;
-use Shopware\Framework\ORM\Field\ManyToOneAssociationField;
-use Shopware\Framework\ORM\Field\OneToManyAssociationField;
-use Shopware\Framework\ORM\Field\ReferenceVersionField;
-use Shopware\Framework\ORM\Field\StringField;
-use Shopware\Framework\ORM\Field\TenantIdField;
-use Shopware\Framework\ORM\Field\VersionField;
-use Shopware\Framework\ORM\FieldCollection;
-use Shopware\Framework\ORM\Write\Flag\PrimaryKey;
-use Shopware\Framework\ORM\Write\Flag\Required;
-use Shopware\Framework\ORM\Write\Flag\SearchRanking;
-use Shopware\System\Locale\LocaleDefinition;
-use Shopware\System\User\Collection\UserBasicCollection;
-use Shopware\System\User\Collection\UserDetailCollection;
-use Shopware\System\User\Event\UserDeletedEvent;
-use Shopware\System\User\Event\UserWrittenEvent;
-use Shopware\System\User\Struct\UserBasicStruct;
-use Shopware\System\User\Struct\UserDetailStruct;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\EntityExtensionInterface;
+use Shopware\Core\Framework\ORM\Field\BoolField;
+use Shopware\Core\Framework\ORM\Field\DateField;
+use Shopware\Core\Framework\ORM\Field\FkField;
+use Shopware\Core\Framework\ORM\Field\IdField;
+use Shopware\Core\Framework\ORM\Field\IntField;
+use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
+use Shopware\Core\Framework\ORM\Field\StringField;
+use Shopware\Core\Framework\ORM\Field\TenantIdField;
+use Shopware\Core\Framework\ORM\Field\VersionField;
+use Shopware\Core\Framework\ORM\FieldCollection;
+use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
+use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
+use Shopware\Core\System\Locale\LocaleDefinition;
+use Shopware\Core\System\User\Collection\UserBasicCollection;
+use Shopware\Core\System\User\Collection\UserDetailCollection;
+use Shopware\Core\System\User\Event\UserDeletedEvent;
+use Shopware\Core\System\User\Event\UserWrittenEvent;
+use Shopware\Core\System\User\Struct\UserBasicStruct;
+use Shopware\Core\System\User\Struct\UserDetailStruct;
 
 class UserDefinition extends EntityDefinition
 {
@@ -77,7 +77,7 @@ class UserDefinition extends EntityDefinition
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
             new ManyToOneAssociationField('locale', 'locale_id', LocaleDefinition::class, false),
-            new OneToManyAssociationField('media', \Shopware\Content\Media\MediaDefinition::class, 'user_id', false, 'id'),
+            new OneToManyAssociationField('media', \Shopware\Core\Content\Media\MediaDefinition::class, 'user_id', false, 'id'),
         ]);
 
         foreach (self::$extensions as $extension) {

@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Mail\Aggregate\MailAttachment\Event;
+namespace Shopware\Core\System\Mail\Aggregate\MailAttachment\Event;
 
-use Shopware\Framework\ORM\Write\WrittenEvent;
-use Shopware\System\Mail\Aggregate\MailAttachment\MailAttachmentDefinition;
+use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\System\Mail\Aggregate\MailAttachment\MailAttachmentDefinition;
 
 class MailAttachmentWrittenEvent extends WrittenEvent
 {

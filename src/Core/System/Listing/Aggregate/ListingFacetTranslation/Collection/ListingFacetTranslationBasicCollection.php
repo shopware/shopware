@@ -1,14 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Listing\Aggregate\ListingFacetTranslation\Collection;
+namespace Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation\Collection;
 
-use Shopware\Framework\ORM\EntityCollection;
-use Shopware\System\Listing\Aggregate\ListingFacetTranslation\Struct\ListingFacetTranslationBasicStruct;
+use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation\Struct\ListingFacetTranslationBasicStruct;
 
 class ListingFacetTranslationBasicCollection extends EntityCollection
 {
     /**
-     * @var \Shopware\System\Listing\Aggregate\ListingFacetTranslation\Struct\ListingFacetTranslationBasicStruct[]
+     * @var \Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation\Struct\ListingFacetTranslationBasicStruct[]
      */
     protected $elements = [];
 

@@ -1,17 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Search\Term;
+namespace Shopware\Core\Framework\ORM\Search\Term;
 
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\Field\AssociationInterface;
-use Shopware\Framework\ORM\Field\ManyToManyAssociationField;
-use Shopware\Framework\ORM\Field\StringField;
-use Shopware\Framework\ORM\Field\TranslatedField;
-use Shopware\Framework\ORM\FieldCollection;
-use Shopware\Framework\ORM\Search\Query\MatchQuery;
-use Shopware\Framework\ORM\Search\Query\ScoreQuery;
-use Shopware\Framework\ORM\Search\Query\TermQuery;
-use Shopware\Framework\ORM\Write\Flag\SearchRanking;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\Field\AssociationInterface;
+use Shopware\Core\Framework\ORM\Field\ManyToManyAssociationField;
+use Shopware\Core\Framework\ORM\Field\StringField;
+use Shopware\Core\Framework\ORM\Field\TranslatedField;
+use Shopware\Core\Framework\ORM\FieldCollection;
+use Shopware\Core\Framework\ORM\Search\Query\MatchQuery;
+use Shopware\Core\Framework\ORM\Search\Query\ScoreQuery;
+use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
 
 class EntityScoreQueryBuilder
 {

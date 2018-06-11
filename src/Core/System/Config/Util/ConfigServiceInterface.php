@@ -23,7 +23,7 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\System\Config\Util;
+namespace Shopware\Core\System\Config\Util;
 
 interface ConfigServiceInterface
 {

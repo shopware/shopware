@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Order\Aggregate\OrderAddress\Collection;
+namespace Shopware\Core\Checkout\Order\Aggregate\OrderAddress\Collection;
 
-use Shopware\Checkout\Order\Aggregate\OrderAddress\Struct\OrderAddressBasicStruct;
-use Shopware\Framework\ORM\EntityCollection;
-use Shopware\System\Country\Aggregate\CountryState\Collection\CountryStateBasicCollection;
-use Shopware\System\Country\Collection\CountryBasicCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\Struct\OrderAddressBasicStruct;
+use Shopware\Core\Framework\ORM\EntityCollection;
+use Shopware\Core\System\Country\Aggregate\CountryState\Collection\CountryStateBasicCollection;
+use Shopware\Core\System\Country\Collection\CountryBasicCollection;
 
 class OrderAddressBasicCollection extends EntityCollection
 {
@@ -77,7 +77,7 @@ class OrderAddressBasicCollection extends EntityCollection
 
     public function getCountryStates(): CountryStateBasicCollection
     {
-        return new \Shopware\System\Country\Aggregate\CountryState\Collection\CountryStateBasicCollection(
+        return new \Shopware\Core\System\Country\Aggregate\CountryState\Collection\CountryStateBasicCollection(
             $this->fmap(function (OrderAddressBasicStruct $orderAddress) {
                 return $orderAddress->getCountryState();
             })

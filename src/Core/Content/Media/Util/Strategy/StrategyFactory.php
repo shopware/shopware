@@ -22,9 +22,9 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Content\Media\Util\Strategy;
+namespace Shopware\Core\Content\Media\Util\Strategy;
 
-use Shopware\Content\Media\Exception\StrategyNotFoundException;
+use Shopware\Core\Content\Media\Exception\StrategyNotFoundException;
 
 class StrategyFactory implements StrategyFactoryInterface
 {

@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Search\Term;
+namespace Shopware\Core\Framework\ORM\Search\Term;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
+use Shopware\Core\Framework\Context;
 
 class SearchTermInterpreter
 {
@@ -16,7 +16,7 @@ class SearchTermInterpreter
         $this->tokenizer = $tokenizer;
     }
 
-    public function interpret(string $term, ApplicationContext $context): SearchPattern
+    public function interpret(string $term, Context $context): SearchPattern
     {
         $terms = $this->tokenizer->tokenize($term);
 

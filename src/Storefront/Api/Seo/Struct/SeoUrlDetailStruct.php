@@ -2,16 +2,16 @@
 
 namespace Shopware\Storefront\Api\Seo\Struct;
 
-use Shopware\Application\Application\Struct\ApplicationBasicStruct;
+use Shopware\Core\System\Touchpoint\Struct\TouchpointBasicStruct;
 
 class SeoUrlDetailStruct extends SeoUrlBasicStruct
 {
     /**
-     * @var ApplicationBasicStruct
+     * @var TouchpointBasicStruct
      */
     protected $application;
 
-    public function getApplication(): ApplicationBasicStruct
+    public function getApplication(): TouchpointBasicStruct
     {
         return $this->application;
     }

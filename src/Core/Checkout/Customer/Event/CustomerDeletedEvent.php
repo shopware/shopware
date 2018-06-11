@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Customer\Event;
+namespace Shopware\Core\Checkout\Customer\Event;
 
-use Shopware\Checkout\Customer\CustomerDefinition;
-use Shopware\Framework\ORM\Write\DeletedEvent;
-use Shopware\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Checkout\Customer\CustomerDefinition;
+use Shopware\Core\Framework\ORM\Write\DeletedEvent;
+use Shopware\Core\Framework\ORM\Write\WrittenEvent;
 
 class CustomerDeletedEvent extends WrittenEvent implements DeletedEvent
 {

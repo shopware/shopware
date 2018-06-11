@@ -23,16 +23,16 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Content\Product\Cart;
+namespace Shopware\Core\Content\Product\Cart;
 
-use Shopware\Application\Context\Struct\StorefrontContext;
-use Shopware\Content\Product\Collection\ProductBasicCollection;
-use Shopware\Content\Product\ProductRepository;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Content\Product\Collection\ProductBasicCollection;
+use Shopware\Core\Content\Product\ProductRepository;
 
 class ProductGateway implements ProductGatewayInterface
 {
     /**
-     * @var \Shopware\Content\Product\ProductRepository
+     * @var \Shopware\Core\Content\Product\ProductRepository
      */
     private $repository;
 
@@ -41,8 +41,8 @@ class ProductGateway implements ProductGatewayInterface
         $this->repository = $repository;
     }
 
-    public function get(array $ids, StorefrontContext $context): ProductBasicCollection
+    public function get(array $ids, CheckoutContext $context): ProductBasicCollection
     {
-        return $this->repository->readBasic($ids, $context->getApplicationContext());
+        return $this->repository->readBasic($ids, $context->getContext());
     }
 }

@@ -23,7 +23,7 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Checkout\Cart\Tax\Struct;
+namespace Shopware\Core\Checkout\Cart\Tax\Struct;
 
 interface TaxRuleInterface extends \JsonSerializable
 {

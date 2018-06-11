@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware;
+namespace Shopware\Core;
 
 final class Defaults
 {
     public const TENANT_ID = 'ffffffffffffffffffffffffffffffff';
 
-    public const APPLICATION = 'ffffffffffffffffffffffffffffffff';
+    public const TOUCHPOINT = 'ffffffffffffffffffffffffffffffff';
 
     public const LANGUAGE = 'ffffffffffffffffffffffffffffffff';
 

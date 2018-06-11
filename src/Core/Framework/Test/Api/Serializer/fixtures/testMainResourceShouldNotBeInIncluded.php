@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
 $albumId = 'f343a3c1-19cf-42a7-841a-a0ac5094908c';
-$mediaCollection = new \Shopware\Content\Media\Collection\MediaBasicCollection();
+$mediaCollection = new \Shopware\Core\Content\Media\Collection\MediaBasicCollection();
 
-$album = new \Shopware\Content\Media\Aggregate\MediaAlbum\Struct\MediaAlbumDetailStruct();
+$album = new \Shopware\Core\Content\Media\Aggregate\MediaAlbum\Struct\MediaAlbumDetailStruct();
 $album->setId($albumId);
 $album->setName('Manufacturer');
 $album->setPosition(12);
@@ -15,7 +15,7 @@ $album->setThumbnailHighDpi(true);
 $album->setThumbnailHighDpiQuality(60);
 $album->setIcon('sprite-blue-folder');
 
-$media = new \Shopware\Content\Media\Struct\MediaBasicStruct();
+$media = new \Shopware\Core\Content\Media\Struct\MediaBasicStruct();
 $media->setId('3e352be2-d858-46dd-9752-9c0f6b544870');
 $media->setAlbumId($albumId);
 $media->setAlbum(clone $album);

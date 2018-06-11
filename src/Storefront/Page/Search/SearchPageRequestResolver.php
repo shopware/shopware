@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Page\Search;
 
-use Shopware\PlatformRequest;
+use Shopware\Core\PlatformRequest;
 use Shopware\Storefront\Event\TransformListingPageRequestEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;

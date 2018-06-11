@@ -6,7 +6,7 @@
         isTouchIE = $html.hasClass('is--ie-touch');
 
     /**
-     * Shopware Advanced Menu Plugin
+     * Shopware\Core Advanced Menu Plugin
      */
     $.plugin('advancedMenu', {
         /**

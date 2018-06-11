@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Search\Aggregation;
+namespace Shopware\Core\Framework\ORM\Search\Aggregation;
 
-use Shopware\Framework\ORM\Search\CriteriaPartInterface;
+use Shopware\Core\Framework\ORM\Search\CriteriaPartInterface;
 
 interface Aggregation extends CriteriaPartInterface
 {

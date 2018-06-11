@@ -23,11 +23,11 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Checkout\Cart\Price\Struct;
+namespace Shopware\Core\Checkout\Cart\Price\Struct;
 
-use Shopware\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
-use Shopware\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Framework\Struct\Struct;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Framework\Struct\Struct;
 
 class CalculatedPrice extends Struct
 {
@@ -47,12 +47,12 @@ class CalculatedPrice extends Struct
     protected $totalPrice;
 
     /**
-     * @var \Shopware\Checkout\Cart\Tax\Struct\CalculatedTaxCollection
+     * @var \Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection
      */
     protected $calculatedTaxes;
 
     /**
-     * @var \Shopware\Checkout\Cart\Tax\Struct\TaxRuleCollection
+     * @var \Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection
      */
     protected $taxRules;
 

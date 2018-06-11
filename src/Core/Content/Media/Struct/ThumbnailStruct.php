@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Media\Struct;
+namespace Shopware\Core\Content\Media\Struct;
 
-use Shopware\Framework\Struct\Struct;
+use Shopware\Core\Framework\Struct\Struct;
 
 class ThumbnailStruct extends Struct
 {

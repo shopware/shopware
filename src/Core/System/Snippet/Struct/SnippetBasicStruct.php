@@ -1,15 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\System\Snippet\Struct;
+namespace Shopware\Core\System\Snippet\Struct;
 
-use Shopware\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Entity;
 
 class SnippetBasicStruct extends Entity
 {
     /**
      * @var string
      */
-    protected $applicationId;
+    protected $touchpointId;
 
     /**
      * @var string
@@ -46,14 +46,14 @@ class SnippetBasicStruct extends Entity
      */
     protected $dirty;
 
-    public function getApplicationId(): string
+    public function getTouchpointId(): string
     {
-        return $this->applicationId;
+        return $this->touchpointId;
     }
 
-    public function setApplicationId(string $applicationId): void
+    public function setTouchpointId(string $touchpointId): void
     {
-        $this->applicationId = $applicationId;
+        $this->touchpointId = $touchpointId;
     }
 
     public function getNamespace(): string

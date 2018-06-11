@@ -24,14 +24,14 @@ declare(strict_types=1);
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Content\Media\Util;
+namespace Shopware\Core\Content\Media\Util;
 
 use League\Flysystem\FilesystemInterface;
 use Psr\Log\LoggerInterface;
-use Shopware\Content\Media\Event\MigrateAdvanceEvent;
-use Shopware\Content\Media\Event\MigrateFinishEvent;
-use Shopware\Content\Media\Event\MigrateStartEvent;
-use Shopware\Content\Media\Util\Strategy\StrategyInterface;
+use Shopware\Core\Content\Media\Event\MigrateAdvanceEvent;
+use Shopware\Core\Content\Media\Event\MigrateFinishEvent;
+use Shopware\Core\Content\Media\Event\MigrateStartEvent;
+use Shopware\Core\Content\Media\Util\Strategy\StrategyInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class MediaMigration implements MediaMigrationInterface

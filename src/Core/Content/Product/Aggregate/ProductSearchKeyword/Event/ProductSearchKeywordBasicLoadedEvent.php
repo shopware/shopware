@@ -1,17 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Content\Product\Aggregate\ProductSearchKeyword\Event;
+namespace Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\Event;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Content\Product\Aggregate\ProductSearchKeyword\Collection\ProductSearchKeywordBasicCollection;
-use Shopware\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\Collection\ProductSearchKeywordBasicCollection;
+use Shopware\Core\Framework\Event\NestedEvent;
 
 class ProductSearchKeywordBasicLoadedEvent extends NestedEvent
 {
     public const NAME = 'product_search_keyword.basic.loaded';
 
     /**
-     * @var ApplicationContext
+     * @var Context
      */
     protected $context;
 
@@ -20,7 +20,7 @@ class ProductSearchKeywordBasicLoadedEvent extends NestedEvent
      */
     protected $productSearchKeywords;
 
-    public function __construct(ProductSearchKeywordBasicCollection $productSearchKeywords, ApplicationContext $context)
+    public function __construct(ProductSearchKeywordBasicCollection $productSearchKeywords, Context $context)
     {
         $this->context = $context;
         $this->productSearchKeywords = $productSearchKeywords;
@@ -31,7 +31,7 @@ class ProductSearchKeywordBasicLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): ApplicationContext
+    public function getContext(): Context
     {
         return $this->context;
     }

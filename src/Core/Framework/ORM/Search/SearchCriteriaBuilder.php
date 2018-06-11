@@ -1,24 +1,24 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Framework\ORM\Search;
+namespace Shopware\Core\Framework\ORM\Search;
 
-use Shopware\Application\Context\Struct\ApplicationContext;
-use Shopware\Framework\ORM\EntityDefinition;
-use Shopware\Framework\ORM\Search\Aggregation\AvgAggregation;
-use Shopware\Framework\ORM\Search\Aggregation\CardinalityAggregation;
-use Shopware\Framework\ORM\Search\Aggregation\CountAggregation;
-use Shopware\Framework\ORM\Search\Aggregation\MaxAggregation;
-use Shopware\Framework\ORM\Search\Aggregation\MinAggregation;
-use Shopware\Framework\ORM\Search\Aggregation\StatsAggregation;
-use Shopware\Framework\ORM\Search\Aggregation\SumAggregation;
-use Shopware\Framework\ORM\Search\Aggregation\ValueCountAggregation;
-use Shopware\Framework\ORM\Search\Parser\QueryStringParser;
-use Shopware\Framework\ORM\Search\Query\NestedQuery;
-use Shopware\Framework\ORM\Search\Query\ScoreQuery;
-use Shopware\Framework\ORM\Search\Query\TermQuery;
-use Shopware\Framework\ORM\Search\Sorting\FieldSorting;
-use Shopware\Framework\ORM\Search\Term\EntityScoreQueryBuilder;
-use Shopware\Framework\ORM\Search\Term\SearchTermInterpreter;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\Search\Aggregation\AvgAggregation;
+use Shopware\Core\Framework\ORM\Search\Aggregation\CardinalityAggregation;
+use Shopware\Core\Framework\ORM\Search\Aggregation\MaxAggregation;
+use Shopware\Core\Framework\ORM\Search\Aggregation\MinAggregation;
+use Shopware\Core\Framework\ORM\Search\Aggregation\StatsAggregation;
+use Shopware\Core\Framework\ORM\Search\Aggregation\SumAggregation;
+use Shopware\Core\Framework\ORM\Search\Aggregation\ValueCountAggregation;
+use Shopware\Core\Framework\ORM\Search\Parser\QueryStringParser;
+use Shopware\Core\Framework\ORM\Search\Query\NestedQuery;
+use Shopware\Core\Framework\ORM\Search\Query\ScoreQuery;
+use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Core\Framework\ORM\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\ORM\Search\Term\EntityScoreQueryBuilder;
+use Shopware\Core\Framework\ORM\Search\Term\SearchTermInterpreter;
+use Shopware\Core\Framework\ORM\Search\Aggregation\CountAggregation;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
@@ -42,7 +42,7 @@ class SearchCriteriaBuilder
         $this->entityScoreQueryBuilder = $entityScoreQueryBuilder;
     }
 
-    public function handleRequest(Request $request, Criteria $criteria, string $definition, ApplicationContext $context): Criteria
+    public function handleRequest(Request $request, Criteria $criteria, string $definition, Context $context): Criteria
     {
         switch ($request->getMethod()) {
             case 'POST':
@@ -61,7 +61,7 @@ class SearchCriteriaBuilder
         return $criteria;
     }
 
-    private function fromArray(array $payload, Criteria $criteria, string $definition, ApplicationContext $context): Criteria
+    private function fromArray(array $payload, Criteria $criteria, string $definition, Context $context): Criteria
     {
         $criteria->setFetchCount(Criteria::FETCH_COUNT_TOTAL);
         $criteria->setLimit(10);

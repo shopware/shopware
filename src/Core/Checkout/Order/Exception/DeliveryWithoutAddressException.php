@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Checkout\Order\Exception;
+namespace Shopware\Core\Checkout\Order\Exception;
 
 class DeliveryWithoutAddressException extends \Exception
 {

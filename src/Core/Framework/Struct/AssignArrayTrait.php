@@ -22,7 +22,7 @@
  * our trademarks remain entirely with us.
  */
 
-namespace Shopware\Framework\Struct;
+namespace Shopware\Core\Framework\Struct;
 
 trait AssignArrayTrait
 {

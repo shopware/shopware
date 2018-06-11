@@ -56,13 +56,9 @@ class ShippingMethodDefinition extends EntityDefinition
         return 'shipping_method';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        self::$fields = new FieldCollection([
+        return new FieldCollection([
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
@@ -99,12 +95,6 @@ class ShippingMethodDefinition extends EntityDefinition
             (new OneToManyAssociationField('prices', ShippingMethodPriceDefinition::class, 'shipping_method_id', true, 'id'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField('translations', ShippingMethodTranslationDefinition::class, 'shipping_method_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
         ]);
-
-        foreach (self::$extensions as $extension) {
-            $extension->extendFields(self::$fields);
-        }
-
-        return self::$fields;
     }
 
     public static function getRepositoryClass(): string

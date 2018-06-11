@@ -60,13 +60,9 @@ class PaymentMethodDefinition extends EntityDefinition
         return 'payment_method';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        self::$fields = new FieldCollection([
+        return new FieldCollection([
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
@@ -100,12 +96,6 @@ class PaymentMethodDefinition extends EntityDefinition
             (new OneToManyAssociationField('transactions', OrderTransactionDefinition::class, 'payment_method_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
             (new TranslationsAssociationField('translations', PaymentMethodTranslationDefinition::class, 'payment_method_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
         ]);
-
-        foreach (self::$extensions as $extension) {
-            $extension->extendFields(self::$fields);
-        }
-
-        return self::$fields;
     }
 
     public static function getRepositoryClass(): string

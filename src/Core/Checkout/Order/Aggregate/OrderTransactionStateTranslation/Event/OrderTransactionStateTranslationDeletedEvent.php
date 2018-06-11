@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransactionStateTranslation\Event;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionStateTranslation\OrderTransactionStateTranslationDefinition;
-use Shopware\Core\Framework\ORM\Write\DeletedEvent;
+use Shopware\Core\Framework\ORM\Event\DeletedEvent;
 use Shopware\Core\Framework\ORM\Event\WrittenEvent;
 
 class OrderTransactionStateTranslationDeletedEvent extends WrittenEvent implements DeletedEvent

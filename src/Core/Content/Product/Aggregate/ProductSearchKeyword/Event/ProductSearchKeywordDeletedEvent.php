@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\Event;
 
 use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordDefinition;
-use Shopware\Core\Framework\ORM\Write\DeletedEvent;
+use Shopware\Core\Framework\ORM\Event\DeletedEvent;
 use Shopware\Core\Framework\ORM\Event\WrittenEvent;
 
 class ProductSearchKeywordDeletedEvent extends WrittenEvent implements DeletedEvent

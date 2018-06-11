@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\Category\Event;
 
 use Shopware\Core\Content\Category\CategoryDefinition;
-use Shopware\Core\Framework\ORM\Write\DeletedEvent;
+use Shopware\Core\Framework\ORM\Event\DeletedEvent;
 use Shopware\Core\Framework\ORM\Event\WrittenEvent;
 
 class CategoryDeletedEvent extends WrittenEvent implements DeletedEvent

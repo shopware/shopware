@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\Product\Aggregate\ProductStream\Event;
 
 use Shopware\Core\Content\Product\Aggregate\ProductStream\ProductStreamDefinition;
-use Shopware\Core\Framework\ORM\Write\DeletedEvent;
+use Shopware\Core\Framework\ORM\Event\DeletedEvent;
 use Shopware\Core\Framework\ORM\Event\WrittenEvent;
 
 class ProductStreamDeletedEvent extends WrittenEvent implements DeletedEvent

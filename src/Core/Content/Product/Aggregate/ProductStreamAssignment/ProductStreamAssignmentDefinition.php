@@ -31,13 +31,9 @@ class ProductStreamAssignmentDefinition extends MappingEntityDefinition
         return 'product_stream_assignment';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        return self::$fields = new FieldCollection([
+        return new FieldCollection([
             (new FkField('product_stream_id', 'productStreamId', ProductStreamDefinition::class))->setFlags(new Required()),
             (new ReferenceVersionField(ProductStreamDefinition::class))->setFlags(new Required()),
 

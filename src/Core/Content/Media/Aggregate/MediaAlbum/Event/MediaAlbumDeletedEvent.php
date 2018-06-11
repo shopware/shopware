@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\Media\Aggregate\MediaAlbum\Event;
 
 use Shopware\Core\Content\Media\Aggregate\MediaAlbum\MediaAlbumDefinition;
-use Shopware\Core\Framework\ORM\Write\DeletedEvent;
+use Shopware\Core\Framework\ORM\Event\DeletedEvent;
 use Shopware\Core\Framework\ORM\Event\WrittenEvent;
 
 class MediaAlbumDeletedEvent extends WrittenEvent implements DeletedEvent

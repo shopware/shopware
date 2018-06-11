@@ -49,13 +49,9 @@ class TouchpointDefinition extends EntityDefinition
         return 'touchpoint';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        self::$fields = new FieldCollection([
+        return new FieldCollection([
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('language_id', 'languageId', LanguageDefinition::class))->setFlags(new Required()),
@@ -85,12 +81,6 @@ class TouchpointDefinition extends EntityDefinition
             new ManyToOneAssociationField('shippingMethod', 'shipping_method_id', ShippingMethodDefinition::class, false),
             new ManyToOneAssociationField('country', 'country_id', \Shopware\Core\System\Country\CountryDefinition::class, false),
         ]);
-
-        foreach (self::$extensions as $extension) {
-            $extension->extendFields(self::$fields);
-        }
-
-        return self::$fields;
     }
 
     public static function getRepositoryClass(): string

@@ -38,13 +38,9 @@ class ProductSeoCategoryDefinition extends MappingEntityDefinition
         return true;
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        return self::$fields = new FieldCollection([
+        return new FieldCollection([
             (new FkField('touchpoint_id', 'touchpointId', TouchpointDefinition::class))->setFlags(new PrimaryKey(), new Required()),
 
             (new FkField('product_id', 'productId', ProductDefinition::class))->setFlags(new PrimaryKey(), new Required()),

@@ -56,13 +56,9 @@ class MediaAlbumDefinition extends EntityDefinition
         return 'media_album';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        self::$fields = new FieldCollection([
+        return new FieldCollection([
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
@@ -84,12 +80,6 @@ class MediaAlbumDefinition extends EntityDefinition
             (new OneToManyAssociationField('children', self::class, 'parent_id', false, 'id'))->setFlags(new CascadeDelete()),
             (new TranslationsAssociationField('translations', MediaAlbumTranslationDefinition::class, 'media_album_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
         ]);
-
-        foreach (self::$extensions as $extension) {
-            $extension->extendFields(self::$fields);
-        }
-
-        return self::$fields;
     }
 
     public static function getRepositoryClass(): string

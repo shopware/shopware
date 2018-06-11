@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\DiscountSurcharge\Event;
 
 use Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeDefinition;
-use Shopware\Core\Framework\ORM\Write\DeletedEvent;
+use Shopware\Core\Framework\ORM\Event\DeletedEvent;
 use Shopware\Core\Framework\ORM\Event\WrittenEvent;
 
 class DiscountSurchargeDeletedEvent extends WrittenEvent implements DeletedEvent

@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\Event;
 
-use Shopware\Core\Framework\ORM\Write\DeletedEvent;
+use Shopware\Core\Framework\ORM\Event\DeletedEvent;
 use Shopware\Core\Framework\ORM\Event\WrittenEvent;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\ConfigurationGroupTranslationDefinition;
 

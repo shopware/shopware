@@ -59,13 +59,9 @@ class MediaDefinition extends EntityDefinition
         return 'media';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        self::$fields = new FieldCollection([
+        return new FieldCollection([
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
@@ -95,12 +91,6 @@ class MediaDefinition extends EntityDefinition
             (new OneToManyAssociationField('productMedia', \Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition::class, 'media_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
             (new TranslationsAssociationField('translations', MediaTranslationDefinition::class, 'media_id', false, 'id'))->setFlags(new Required(), new CascadeDelete(), new WriteOnly()),
         ]);
-
-        foreach (self::$extensions as $extension) {
-            $extension->extendFields(self::$fields);
-        }
-
-        return self::$fields;
     }
 
     public static function getRepositoryClass(): string

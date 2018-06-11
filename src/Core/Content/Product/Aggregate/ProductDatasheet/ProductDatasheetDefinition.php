@@ -31,13 +31,9 @@ class ProductDatasheetDefinition extends MappingEntityDefinition
         return 'product_datasheet';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        return self::$fields = new FieldCollection([
+        return new FieldCollection([
             (new FkField('product_id', 'productId', ProductDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             new ReferenceVersionField(ProductDefinition::class),
             (new FkField('configuration_group_option_id', 'optionId', ConfigurationGroupOptionDefinition::class))->setFlags(new PrimaryKey(), new Required()),

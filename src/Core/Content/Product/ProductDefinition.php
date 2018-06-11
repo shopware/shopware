@@ -83,9 +83,9 @@ class ProductDefinition extends EntityDefinition
         return 'product';
     }
 
-    public static function getParentPropertyName(): string
+    public static function isInheritanceAware(): bool
     {
-        return 'parent';
+        return true;
     }
 
     public static function defineFields(): FieldCollection

@@ -48,13 +48,9 @@ class ProductMediaDefinition extends EntityDefinition
         return 'product_media';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        self::$fields = new FieldCollection([
+        return new FieldCollection([
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
@@ -73,12 +69,6 @@ class ProductMediaDefinition extends EntityDefinition
             new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, false),
             new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, true),
         ]);
-
-        foreach (self::$extensions as $extension) {
-            $extension->extendFields(self::$fields);
-        }
-
-        return self::$fields;
     }
 
     public static function getRepositoryClass(): string

@@ -3,7 +3,7 @@
 namespace Shopware\Core\System\Language\Event;
 
 use Shopware\Core\System\Language\LanguageDefinition;
-use Shopware\Core\Framework\ORM\Write\DeletedEvent;
+use Shopware\Core\Framework\ORM\Event\DeletedEvent;
 use Shopware\Core\Framework\ORM\Event\WrittenEvent;
 
 class LanguageDeletedEvent extends WrittenEvent implements DeletedEvent

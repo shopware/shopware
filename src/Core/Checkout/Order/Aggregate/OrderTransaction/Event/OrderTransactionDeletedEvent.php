@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\Event;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
-use Shopware\Core\Framework\ORM\Write\DeletedEvent;
+use Shopware\Core\Framework\ORM\Event\DeletedEvent;
 use Shopware\Core\Framework\ORM\Event\WrittenEvent;
 
 class OrderTransactionDeletedEvent extends WrittenEvent implements DeletedEvent

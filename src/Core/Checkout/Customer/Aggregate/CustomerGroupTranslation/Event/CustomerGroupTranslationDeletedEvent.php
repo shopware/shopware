@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\Event;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationDefinition;
-use Shopware\Core\Framework\ORM\Write\DeletedEvent;
+use Shopware\Core\Framework\ORM\Event\DeletedEvent;
 use Shopware\Core\Framework\ORM\Event\WrittenEvent;
 
 class CustomerGroupTranslationDeletedEvent extends WrittenEvent implements DeletedEvent

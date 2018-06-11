@@ -15,6 +15,7 @@ use Shopware\Core\Framework\ORM\EntityRepository;
 use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\ORM\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\ORM\Version\Service\VersionManager;
+use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Locale\LocaleDefinition;
@@ -190,13 +191,139 @@ class EntityRepositoryTest extends KernelTestCase
         $locale = $repository->readBasic([$id, $id2], $context);
 
         $this->assertInstanceOf(EntityCollection::class, $locale);
-        $this->assertCount(1, $locale);
+        $this->assertCount(2, $locale);
 
         $this->assertTrue($locale->has($id));
         $this->assertInstanceOf(Entity::class, $locale->get($id));
 
         $this->assertSame('Test', $locale->get($id)->getName());
     }
+
+
+    public function testReadAndWriteWithOneToMany()
+    {
+        $repository = $this->createRepository(ProductDefinition::class);
+
+        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+
+        $id = Uuid::uuid4()->getHex();
+        $id2 = Uuid::uuid4()->getHex();
+
+        $dispatcher = self::$container->get('event_dispatcher');
+
+        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener->expects($this->exactly(1))->method('__invoke');
+        $dispatcher->addListener('product.written', $listener);
+
+        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener->expects($this->exactly(1))->method('__invoke');
+        $dispatcher->addListener('product_manufacturer.written', $listener);
+
+        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener->expects($this->exactly(1))->method('__invoke');
+        $dispatcher->addListener('tax.written', $listener);
+
+        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener->expects($this->exactly(1))->method('__invoke');
+        $dispatcher->addListener('product_price_rule.written', $listener);
+
+        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener->expects($this->exactly(1))->method('__invoke');
+        $dispatcher->addListener('rule.written', $listener);
+
+        $repository->create(
+            [
+                [
+                    'id' => $id,
+                    'name' => 'Test',
+                    'tax' => ['name' => 'test', 'rate' => 5],
+                    'manufacturer' => ['name' => 'test'],
+                    'price' => ['gross' => 10, 'net' => 5],
+                    'priceRules' => [
+                        [
+                            'price' => ['gross' => 10, 'net' => 5],
+                            'currencyId' => Defaults::CURRENCY,
+                            'quantityStart' => 1,
+                            'quantityEnd' => 9,
+                            'rule' => [
+                                'name' => 'rule 1',
+                                'priority' => 1,
+                                'payload' => new AndRule()
+                            ]
+                        ],
+                        [
+                            'price' => ['gross' => 10, 'net' => 5],
+                            'currencyId' => Defaults::CURRENCY,
+                            'quantityStart' => 10,
+                            'rule' => [
+                                'name' => 'rule 2',
+                                'priority' => 1,
+                                'payload' => new AndRule()
+                            ]
+                        ],
+                    ]
+                ],
+                [
+                    'id' => $id2,
+                    'name' => 'Test',
+                    'tax' => ['name' => 'test', 'rate' => 5],
+                    'manufacturer' => ['name' => 'test'],
+                    'price' => ['gross' => 10, 'net' => 5],
+                    'priceRules' => [
+                        [
+                            'price' => ['gross' => 10, 'net' => 5],
+                            'currencyId' => Defaults::CURRENCY,
+                            'quantityStart' => 1,
+                            'quantityEnd' => 9,
+                            'rule' => [
+                                'name' => 'rule 3',
+                                'priority' => 1,
+                                'payload' => new AndRule()
+                            ]
+                        ],
+                        [
+                            'price' => ['gross' => 10, 'net' => 5],
+                            'currencyId' => Defaults::CURRENCY,
+                            'quantityStart' => 10,
+                            'rule' => [
+                                'name' => 'rule 4',
+                                'priority' => 1,
+                                'payload' => new AndRule()
+                            ]
+                        ],
+                    ]
+                ]
+            ],
+            $context
+        );
+
+        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener->expects($this->exactly(1))->method('__invoke');
+        $dispatcher->addListener('product.loaded', $listener);
+
+        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener->expects($this->exactly(1))->method('__invoke');
+        $dispatcher->addListener('product_manufacturer.loaded', $listener);
+
+        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener->expects($this->exactly(1))->method('__invoke');
+        $dispatcher->addListener('tax.loaded', $listener);
+
+        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener->expects($this->exactly(1))->method('__invoke');
+        $dispatcher->addListener('product_price_rule.loaded', $listener);
+
+        $locale = $repository->readBasic([$id, $id2], $context);
+
+        $this->assertInstanceOf(EntityCollection::class, $locale);
+        $this->assertCount(2, $locale);
+
+        $this->assertTrue($locale->has($id));
+        $this->assertInstanceOf(Entity::class, $locale->get($id));
+
+        $this->assertSame('Test', $locale->get($id)->getName());
+    }
+
 
     protected function createRepository(string $definition)
     {

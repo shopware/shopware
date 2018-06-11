@@ -10,7 +10,7 @@ use Shopware\Core\Framework\ORM\Field\Field;
 use Shopware\Core\Framework\ORM\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
-use Shopware\Core\Framework\ORM\Write\DeletedEventInterface;
+use Shopware\Core\Framework\ORM\Event\DeletedEventInterface;
 use Shopware\Core\Framework\ORM\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\ORM\Write\EntityExistence;
 use Shopware\Core\Framework\ORM\Event\EntityWrittenEvent;

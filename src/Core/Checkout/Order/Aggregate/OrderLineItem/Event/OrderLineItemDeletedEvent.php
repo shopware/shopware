@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\Event;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition;
-use Shopware\Core\Framework\ORM\Write\DeletedEvent;
+use Shopware\Core\Framework\ORM\Event\DeletedEvent;
 use Shopware\Core\Framework\ORM\Event\WrittenEvent;
 
 class OrderLineItemDeletedEvent extends WrittenEvent implements DeletedEvent

@@ -45,13 +45,9 @@ class SeoUrlDefinition extends EntityDefinition
         return 'seo_url';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        self::$fields = new FieldCollection([
+        return new FieldCollection([
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new IdField('version_id', 'versionId'))->setFlags(new PrimaryKey(), new Required()),
@@ -67,12 +63,6 @@ class SeoUrlDefinition extends EntityDefinition
             new DateField('updated_at', 'updatedAt'),
             new ManyToOneAssociationField('touchpoint', 'touchpoint_id', \Shopware\Core\System\Touchpoint\TouchpointDefinition::class, false),
         ]);
-
-        foreach (self::$extensions as $extension) {
-            $extension->extendFields(self::$fields);
-        }
-
-        return self::$fields;
     }
 
     public static function getRepositoryClass(): string

@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderAddress\Event;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressDefinition;
-use Shopware\Core\Framework\ORM\Write\DeletedEvent;
+use Shopware\Core\Framework\ORM\Event\DeletedEvent;
 use Shopware\Core\Framework\ORM\Event\WrittenEvent;
 
 class OrderAddressDeletedEvent extends WrittenEvent implements DeletedEvent

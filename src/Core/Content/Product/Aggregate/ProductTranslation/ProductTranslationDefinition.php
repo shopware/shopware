@@ -45,13 +45,9 @@ class ProductTranslationDefinition extends EntityDefinition
         return 'product_translation';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        self::$fields = new FieldCollection([
+        return new FieldCollection([
             (new FkField('product_id', 'productId', ProductDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new ReferenceVersionField(ProductDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             new CatalogField(),
@@ -67,12 +63,6 @@ class ProductTranslationDefinition extends EntityDefinition
             new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, false),
             new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, false),
         ]);
-
-        foreach (self::$extensions as $extension) {
-            $extension->extendFields(self::$fields);
-        }
-
-        return self::$fields;
     }
 
     public static function getRepositoryClass(): string

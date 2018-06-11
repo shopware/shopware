@@ -13,6 +13,7 @@ use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\Framework\ORM\EntityCollection;
 use Shopware\Core\Framework\ORM\EntityRepository;
 use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\Version\Service\VersionManager;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -101,7 +102,7 @@ class EntityRepositoryTest extends KernelTestCase
             $context
         );
 
-        $locale = $repository->read([$id], $context);
+        $locale = $repository->read(new ReadCriteria([$id]), $context);
 
         $this->assertInstanceOf(EntityCollection::class, $locale);
         $this->assertCount(1, $locale);
@@ -133,7 +134,7 @@ class EntityRepositoryTest extends KernelTestCase
         $listener->expects($this->exactly(1))->method('__invoke');
         $dispatcher->addListener('locale.loaded', $listener);
 
-        $locale = $repository->read([$id], $context);
+        $locale = $repository->read(new ReadCriteria([$id]), $context);
 
         $this->assertInstanceOf(EntityCollection::class, $locale);
         $this->assertCount(1, $locale);
@@ -187,7 +188,7 @@ class EntityRepositoryTest extends KernelTestCase
         $listener->expects($this->exactly(1))->method('__invoke');
         $dispatcher->addListener('tax.loaded', $listener);
 
-        $locale = $repository->read([$id, $id2], $context);
+        $locale = $repository->read(new ReadCriteria([$id, $id2]), $context);
 
         $this->assertInstanceOf(EntityCollection::class, $locale);
         $this->assertCount(2, $locale);
@@ -312,7 +313,7 @@ class EntityRepositoryTest extends KernelTestCase
         $listener->expects($this->exactly(1))->method('__invoke');
         $dispatcher->addListener('product_price_rule.loaded', $listener);
 
-        $locale = $repository->read([$id, $id2], $context);
+        $locale = $repository->read(new ReadCriteria([$id, $id2]), $context);
 
         $this->assertInstanceOf(EntityCollection::class, $locale);
         $this->assertCount(2, $locale);

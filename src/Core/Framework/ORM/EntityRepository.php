@@ -7,10 +7,12 @@ use Shopware\Core\Framework\ORM\Event\EntityAggregationResultLoadedEvent;
 use Shopware\Core\Framework\ORM\Event\EntityIdSearchResultLoadedEvent;
 use Shopware\Core\Framework\ORM\Event\EntitySearchResultLoadedEvent;
 use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\Search\AggregatorResult;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\ORM\Search\Query\TermsQuery;
 use Shopware\Core\Framework\ORM\Version\Service\VersionManager;
 use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\ORM\Write\WriteContext;
@@ -68,7 +70,7 @@ class EntityRepository implements RepositoryInterface
     {
         $ids = $this->searchIds($criteria, $context);
 
-        $entities = $this->read($ids->getIds(), $context);
+        $entities = $this->read(new ReadCriteria($ids->getIds()), $context);
 
         $aggregations = null;
         if ($criteria->getAggregations()) {
@@ -155,10 +157,12 @@ class EntityRepository implements RepositoryInterface
         $this->versionManager->merge($versionId, WriteContext::createFromContext($context));
     }
 
-    public function read(array $ids, Context $context)
+    public function read(ReadCriteria $criteria, Context $context)
     {
+        $criteria->addFilter(new TermsQuery($this->definition::getEntityName() . 'id', $criteria->getIds()));
+
         /** @var EntityCollection $entities */
-        $entities = $this->reader->readBasic($this->definition, $ids, $context);
+        $entities = $this->reader->read($this->definition, $criteria, $context);
 
         $event = new EntityLoadedEvent($this->definition, $entities, $context);
         $this->eventDispatcher->dispatch($event->getName(), $event);

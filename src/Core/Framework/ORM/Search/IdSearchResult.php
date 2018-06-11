@@ -41,6 +41,9 @@ class IdSearchResult extends Struct
         $this->context = $context;
     }
 
+    /**
+     * @return string[]
+     */
     public function getIds(): array
     {
         return $this->ids;

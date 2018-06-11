@@ -3,15 +3,15 @@
 namespace Shopware\Core\Framework\ORM;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\SearchResultInterface;
-use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
 
 interface RepositoryInterface
 {
     /**
      * @param Criteria           $criteria
-     * @param \Shopware\Core\Framework\Context $context
+     * @param Context $context
      *
      * @return AggregationResult
      */
@@ -19,7 +19,7 @@ interface RepositoryInterface
 
     /**
      * @param Criteria           $criteria
-     * @param \Shopware\Core\Framework\Context $context
+     * @param Context $context
      *
      * @return IdSearchResult
      */
@@ -27,19 +27,19 @@ interface RepositoryInterface
 
     /**
      * @param Criteria           $criteria
-     * @param \Shopware\Core\Framework\Context $context
+     * @param Context $context
      *
      * @return SearchResultInterface
      */
     public function search(Criteria $criteria, Context $context);
 
     /**
-     * @param array              $ids
-     * @param \Shopware\Core\Framework\Context $context
+     * @param ReadCriteria $criteria
+     * @param Context $context
      *
      * @return EntityCollection
      */
-    public function read(array $ids, Context $context);
+    public function read(ReadCriteria $criteria, Context $context);
 
     public function update(array $data, Context $context);
 

@@ -19,6 +19,7 @@ use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
 use Shopware\Core\Framework\ORM\Field\TenantIdField;
 use Shopware\Core\Framework\ORM\Field\VersionField;
 use Shopware\Core\Framework\ORM\FieldCollection;
+use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
@@ -399,9 +400,7 @@ class ApiController extends Controller
             }
 
             if ($responseDataType === self::RESPONSE_DETAIL) {
-                $entities = $repository->readDetail($event->getIds(), $context->getContext());
-            } else {
-                $entities = $repository->read($event->getIds(), $context->getContext());
+                $entities = $repository->read(new ReadCriteria($event->getIds()), $context->getContext());
             }
 
             return $this->responseFactory->createDetailResponse($entities->first(), $definition, $context, $appendLocationHeader);
@@ -441,9 +440,7 @@ class ApiController extends Controller
             $repository = $this->getRepository($definition, $context->getVersion());
 
             if ($responseDataType === self::RESPONSE_DETAIL) {
-                $entities = $repository->readDetail($event->getIds(), $context->getContext());
-            } else {
-                $entities = $repository->read($event->getIds(), $context->getContext());
+                $entities = $repository->read(new ReadCriteria($event->getIds()), $context->getContext());
             }
 
             return $this->responseFactory->createDetailResponse($entities->first(), $definition, $context, $appendLocationHeader);
@@ -471,9 +468,7 @@ class ApiController extends Controller
             }
 
             if ($responseDataType === self::RESPONSE_DETAIL) {
-                $entities = $repository->readDetail($event->getIds(), $context->getContext());
-            } else {
-                $entities = $repository->read($event->getIds(), $context->getContext());
+                $entities = $repository->read(new ReadCriteria($event->getIds()), $context->getContext());
             }
 
             return $this->responseFactory->createDetailResponse($entities->first(), $definition, $context, $appendLocationHeader);
@@ -490,9 +485,7 @@ class ApiController extends Controller
         $repository = $this->getRepository($reference, $context->getVersion());
 
         if ($responseDataType === self::RESPONSE_DETAIL) {
-            $entities = $repository->readDetail($event->getIds(), $context->getContext());
-        } else {
-            $entities = $repository->read($event->getIds(), $context->getContext());
+            $entities = $repository->read(new ReadCriteria($event->getIds()), $context->getContext());
         }
 
         $entity = $entities->first();

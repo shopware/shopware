@@ -13,6 +13,7 @@ use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
 use Shopware\Core\Framework\ORM\Field\SubresourceField;
 use Shopware\Core\Framework\ORM\Field\VersionField;
 use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
@@ -158,7 +159,7 @@ class VersionManager
         $criteria->addSorting(new FieldSorting('version_commit.autoIncrement'));
 
         $commitIds = $this->entitySearcher->search(VersionCommitDefinition::class, $criteria, $writeContext->getContext());
-        $commits = $this->entityReader->readBasic(VersionCommitDefinition::class, $commitIds->getIds(), $writeContext->getContext());
+        $commits = $this->entityReader->read(VersionCommitDefinition::class, new ReadCriteria($commitIds->getIds()), $writeContext->getContext());
 
         $allChanges = [];
         $entities = [];
@@ -241,7 +242,7 @@ class VersionManager
     {
         /** @var Entity $detail */
         /** @var string|EntityDefinition $definition */
-        $detail = $this->entityReader->readRaw($definition, [$primaryKey['id']], $context->getContext())->first();
+        $detail = $this->entityReader->readRaw($definition, new ReadCriteria([$primaryKey['id']]), $context->getContext())->first();
 
         if ($detail === null) {
             throw new \Exception(sprintf('Cannot create new version. %s by id (%s) not found.', $definition::getEntityName(), print_r($primaryKey, true)));

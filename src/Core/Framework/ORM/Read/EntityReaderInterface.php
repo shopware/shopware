@@ -7,7 +7,7 @@ use Shopware\Core\Framework\ORM\EntityCollection;
 
 interface EntityReaderInterface
 {
-    public function readBasic(string $definition, array $ids, Context $context): EntityCollection;
+    public function read(string $definition, ReadCriteria $criteria, Context $context): EntityCollection;
 
-    public function readRaw(string $definition, array $ids, Context $context): EntityCollection;
+    public function readRaw(string $definition, ReadCriteria $criteria, Context $context): EntityCollection;
 }

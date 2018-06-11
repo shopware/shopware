@@ -15,6 +15,7 @@ use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\ORM\Field\TranslatedField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\ORM\Search\Query\TermsQuery;
@@ -71,32 +72,15 @@ class EntityReader implements EntityReaderInterface
         $this->queryHelper = $queryHelper;
     }
 
-    public function readDetail(string $definition, array $ids, Context $context): EntityCollection
-    {
-        /** @var EntityDefinition $definition */
-        $collectionClass = $definition::getDetailCollectionClass();
-
-        $structClass = $definition::getDetailStructClass();
-
-        return $this->read(
-            $ids,
-            $definition,
-            $context,
-            $structClass,
-            new $collectionClass(),
-            $definition::getFields()->getDetailProperties()
-        );
-    }
-
-    public function readBasic(string $definition, array $ids, Context $context): EntityCollection
+    public function read(string $definition, ReadCriteria $criteria, Context $context): EntityCollection
     {
         /** @var EntityDefinition $definition */
         $collectionClass = $definition::getBasicCollectionClass();
 
         $structClass = $definition::getBasicStructClass();
 
-        return $this->read(
-            $ids,
+        return $this->_read(
+            $criteria->getIds(),
             $definition,
             $context,
             $structClass,
@@ -112,7 +96,7 @@ class EntityReader implements EntityReaderInterface
 
         $structClass = ArrayStruct::class;
 
-        $details = $this->read(
+        $details = $this->_read(
             $ids,
             $definition,
             $context,
@@ -127,7 +111,7 @@ class EntityReader implements EntityReaderInterface
         return $details;
     }
 
-    private function read(array $ids, string $definition, Context $context, string $entity, EntityCollection $collection, FieldCollection $fields, bool $raw = false): EntityCollection
+    private function _read(array $ids, string $definition, Context $context, string $entity, EntityCollection $collection, FieldCollection $fields, bool $raw = false): EntityCollection
     {
         $ids = array_filter($ids);
 
@@ -341,7 +325,7 @@ class EntityReader implements EntityReaderInterface
             return $entity->get($field->getPropertyName());
         });
 
-        $data = $this->readBasic($association->getReferenceClass(), $ids, $context);
+        $data = $this->read($association->getReferenceClass(), new ReadCriteria($ids), $context);
 
         /** @var Entity $struct */
         foreach ($collection as $struct) {
@@ -383,7 +367,7 @@ class EntityReader implements EntityReaderInterface
 
         $associationIds = $this->searcher->search($reference, $criteria, $context);
 
-        $data = $this->readBasic($reference, $associationIds->getIds(), $context);
+        $data = $this->read($reference, new ReadCriteria($associationIds->getIds()), $context);
 
         $flat = json_decode(json_encode($data->getElements()), true);
 
@@ -417,7 +401,7 @@ class EntityReader implements EntityReaderInterface
         //collect all ids of many to many association which already stored inside the struct instances
         $ids = $this->collectManyToManyIds($collection, $association);
 
-        $data = $this->readBasic($association->getReferenceDefinition(), $ids, $context);
+        $data = $this->read($association->getReferenceDefinition(), new ReadCriteria($ids), $context);
 
         /** @var Entity $struct */
         foreach ($collection as $struct) {

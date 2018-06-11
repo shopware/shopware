@@ -58,14 +58,14 @@ class TraceableEntityReader implements EntityReaderInterface
         return $result;
     }
 
-    public function readBasic(string $definition, array $ids, Context $context): EntityCollection
+    public function read(string $definition, array $ids, Context $context): EntityCollection
     {
         /** @var EntityDefinition $definition */
         $entity = $definition::getEntityName();
 
         $e = $this->stopwatch->start($entity . '.read_basic', 'section');
 
-        $result = $this->decorated->readBasic($definition, $ids, $context);
+        $result = $this->decorated->read($definition, $ids, $context);
 
         if ($e->isStarted()) {
             $e->stop();

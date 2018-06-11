@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransactionState\Event;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionState\OrderTransactionStateDefinition;
-use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Framework\ORM\Event\WrittenEvent;
 
 class OrderTransactionStateWrittenEvent extends WrittenEvent
 {

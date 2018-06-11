@@ -3,7 +3,7 @@
 namespace Shopware\Core\System\User\Event;
 
 use Shopware\Core\Framework\ORM\Write\DeletedEvent;
-use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Framework\ORM\Event\WrittenEvent;
 use Shopware\Core\System\User\UserDefinition;
 
 class UserDeletedEvent extends WrittenEvent implements DeletedEvent

@@ -4,7 +4,7 @@ namespace Shopware\Core\Checkout\DiscountSurcharge\Aggregate\DiscountSurchargeTr
 
 use Shopware\Core\Checkout\DiscountSurcharge\Aggregate\DiscountSurchargeTranslation\DiscountSurchargeTranslationDefinition;
 use Shopware\Core\Framework\ORM\Write\DeletedEvent;
-use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Framework\ORM\Event\WrittenEvent;
 
 class DiscountSurchargeTranslationDeletedEvent extends WrittenEvent implements DeletedEvent
 {

@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\ORM\Version\Event\VersionCommitData;
 
 use Shopware\Core\Framework\ORM\Version\Definition\VersionCommitDataDefinition;
 use Shopware\Core\Framework\ORM\Write\DeletedEvent;
-use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Framework\ORM\Event\WrittenEvent;
 
 class VersionCommitDataDeletedEvent extends WrittenEvent implements DeletedEvent
 {

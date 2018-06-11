@@ -11,7 +11,7 @@ use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\ORM\Search\IdSearchResult;
 use Shopware\Core\Framework\ORM\Version\Service\VersionManager;
-use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\ORM\Write\WriteContext;
 use Shopware\Core\System\Country\Aggregate\CountryAreaTranslation\Collection\CountryAreaTranslationBasicCollection;
 use Shopware\Core\System\Country\Aggregate\CountryAreaTranslation\Collection\CountryAreaTranslationDetailCollection;
@@ -125,38 +125,38 @@ class CountryAreaTranslationRepository implements RepositoryInterface
         return $entities;
     }
 
-    public function update(array $data, Context $context): GenericWrittenEvent
+    public function update(array $data, Context $context): EntityWrittenContainerEvent
     {
         $affected = $this->versionManager->update(CountryAreaTranslationDefinition::class, $data, WriteContext::createFromContext($context));
-        $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
-        $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
+        $event = EntityWrittenContainerEvent::createWithWrittenEvents($affected, $context, []);
+        $this->eventDispatcher->dispatch(EntityWrittenContainerEvent::NAME, $event);
 
         return $event;
     }
 
-    public function upsert(array $data, Context $context): GenericWrittenEvent
+    public function upsert(array $data, Context $context): EntityWrittenContainerEvent
     {
         $affected = $this->versionManager->upsert(CountryAreaTranslationDefinition::class, $data, WriteContext::createFromContext($context));
-        $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
-        $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
+        $event = EntityWrittenContainerEvent::createWithWrittenEvents($affected, $context, []);
+        $this->eventDispatcher->dispatch(EntityWrittenContainerEvent::NAME, $event);
 
         return $event;
     }
 
-    public function create(array $data, Context $context): GenericWrittenEvent
+    public function create(array $data, Context $context): EntityWrittenContainerEvent
     {
         $affected = $this->versionManager->insert(CountryAreaTranslationDefinition::class, $data, WriteContext::createFromContext($context));
-        $event = GenericWrittenEvent::createWithWrittenEvents($affected, $context, []);
-        $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
+        $event = EntityWrittenContainerEvent::createWithWrittenEvents($affected, $context, []);
+        $this->eventDispatcher->dispatch(EntityWrittenContainerEvent::NAME, $event);
 
         return $event;
     }
 
-    public function delete(array $ids, Context $context): GenericWrittenEvent
+    public function delete(array $ids, Context $context): EntityWrittenContainerEvent
     {
         $affected = $this->versionManager->delete(CountryAreaTranslationDefinition::class, $ids, WriteContext::createFromContext($context));
-        $event = GenericWrittenEvent::createWithDeletedEvents($affected, $context, []);
-        $this->eventDispatcher->dispatch(GenericWrittenEvent::NAME, $event);
+        $event = EntityWrittenContainerEvent::createWithDeletedEvents($affected, $context, []);
+        $this->eventDispatcher->dispatch(EntityWrittenContainerEvent::NAME, $event);
 
         return $event;
     }

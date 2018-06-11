@@ -17,7 +17,7 @@ use Shopware\Core\Framework\ORM\Dbal\Common\IndexTableOperator;
 use Shopware\Core\Framework\ORM\Dbal\Common\LastIdQuery;
 use Shopware\Core\Framework\ORM\Dbal\Indexing\IndexerInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
-use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\System\Language\LanguageRepository;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -128,7 +128,7 @@ class ProductSearchKeywordIndexer implements IndexerInterface
         });
     }
 
-    public function refresh(GenericWrittenEvent $event): void
+    public function refresh(EntityWrittenContainerEvent $event): void
     {
         $productEvent = $event->getEventByDefinition(ProductDefinition::class);
         if (!$productEvent) {

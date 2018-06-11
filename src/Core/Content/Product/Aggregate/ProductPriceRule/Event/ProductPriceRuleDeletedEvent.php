@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductPriceRule\Event;
 
 use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleDefinition;
 use Shopware\Core\Framework\ORM\Write\DeletedEvent;
-use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Framework\ORM\Event\WrittenEvent;
 
 class ProductPriceRuleDeletedEvent extends WrittenEvent implements DeletedEvent
 {

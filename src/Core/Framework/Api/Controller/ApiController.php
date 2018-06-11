@@ -25,7 +25,7 @@ use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\ORM\Search\SearchCriteriaBuilder;
 use Shopware\Core\Framework\ORM\Write\EntityWriterInterface;
 use Shopware\Core\Framework\ORM\Write\FieldException\WriteStackException;
-use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\ORM\Write\WriteContext;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
@@ -521,9 +521,9 @@ class ApiController extends Controller
      * @param RestContext             $context
      * @param string                  $type
      *
-     * @return GenericWrittenEvent
+     * @return EntityWrittenContainerEvent
      */
-    private function executeWriteOperation(string $definition, array $payload, RestContext $context, string $type): GenericWrittenEvent
+    private function executeWriteOperation(string $definition, array $payload, RestContext $context, string $type): EntityWrittenContainerEvent
     {
         $repository = $this->getRepository($definition, $context->getVersion());
 

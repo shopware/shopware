@@ -12,7 +12,7 @@ use Shopware\Core\Content\Product\Struct\ProductBasicStruct;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
-use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
 
 class VariantGenerator
 {
@@ -34,7 +34,7 @@ class VariantGenerator
         $this->configuratorRepository = $configuratorRepository;
     }
 
-    public function generate(string $productId, Context $context, $offset = null, $limit = null): GenericWrittenEvent
+    public function generate(string $productId, Context $context, $offset = null, $limit = null): EntityWrittenContainerEvent
     {
         $products = $this->productRepository->readBasic([$productId], $context);
         $product = $products->get($productId);

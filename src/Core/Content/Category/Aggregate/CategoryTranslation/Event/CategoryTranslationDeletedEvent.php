@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Category\Aggregate\CategoryTranslation\Event;
 
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
 use Shopware\Core\Framework\ORM\Write\DeletedEvent;
-use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Framework\ORM\Event\WrittenEvent;
 
 class CategoryTranslationDeletedEvent extends WrittenEvent implements DeletedEvent
 {

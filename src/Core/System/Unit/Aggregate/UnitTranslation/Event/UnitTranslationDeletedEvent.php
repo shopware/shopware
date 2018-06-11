@@ -3,7 +3,7 @@
 namespace Shopware\Core\System\Unit\Aggregate\UnitTranslation\Event;
 
 use Shopware\Core\Framework\ORM\Write\DeletedEvent;
-use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Framework\ORM\Event\WrittenEvent;
 use Shopware\Core\System\Unit\Definition\UnitTranslationDefinition;
 
 class UnitTranslationDeletedEvent extends WrittenEvent implements DeletedEvent

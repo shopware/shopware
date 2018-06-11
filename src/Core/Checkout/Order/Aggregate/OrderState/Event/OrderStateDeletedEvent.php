@@ -4,7 +4,7 @@ namespace Shopware\Core\Checkout\Order\Aggregate\OrderState\Event;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderState\OrderStateDefinition;
 use Shopware\Core\Framework\ORM\Write\DeletedEvent;
-use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Framework\ORM\Event\WrittenEvent;
 
 class OrderStateDeletedEvent extends WrittenEvent implements DeletedEvent
 {

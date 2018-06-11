@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\Catalog\Event;
 
 use Shopware\Core\Content\Catalog\CatalogDefinition;
-use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Framework\ORM\Event\WrittenEvent;
 
 class CatalogWrittenEvent extends WrittenEvent
 {

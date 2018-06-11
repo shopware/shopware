@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\Media\Event;
 
 use Shopware\Core\Content\Media\MediaDefinition;
-use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Framework\ORM\Event\WrittenEvent;
 
 class MediaWrittenEvent extends WrittenEvent
 {

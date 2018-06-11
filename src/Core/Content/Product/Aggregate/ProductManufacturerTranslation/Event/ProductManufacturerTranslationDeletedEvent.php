@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation
 
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition;
 use Shopware\Core\Framework\ORM\Write\DeletedEvent;
-use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Framework\ORM\Event\WrittenEvent;
 
 class ProductManufacturerTranslationDeletedEvent extends WrittenEvent implements DeletedEvent
 {

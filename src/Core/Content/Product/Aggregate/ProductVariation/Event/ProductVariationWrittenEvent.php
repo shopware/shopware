@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\Product\Aggregate\ProductVariation\Event;
 
 use Shopware\Core\Content\Product\Aggregate\ProductVariation\ProductVariationDefinition;
-use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Framework\ORM\Event\WrittenEvent;
 
 class ProductVariationWrittenEvent extends WrittenEvent
 {

@@ -39,7 +39,7 @@ use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
 use Shopware\Core\Checkout\Order\Exception\NotLoggedInCustomerException;
 use Shopware\Core\Checkout\Order\OrderRepository;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Struct\Uuid;
 
 class OrderPersister implements OrderPersisterInterface
@@ -60,7 +60,7 @@ class OrderPersister implements OrderPersisterInterface
         $this->taxDetector = $taxDetector;
     }
 
-    public function persist(CalculatedCart $calculatedCart, CheckoutContext $context): GenericWrittenEvent
+    public function persist(CalculatedCart $calculatedCart, CheckoutContext $context): EntityWrittenContainerEvent
     {
         $order = $this->convert($calculatedCart, $context);
 

@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Event;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
-use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Framework\ORM\Event\WrittenEvent;
 
 class CustomerAddressWrittenEvent extends WrittenEvent
 {

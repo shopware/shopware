@@ -3,7 +3,7 @@
 namespace Shopware\Core\System\Config\Aggregate\ConfigFormFieldValue\Event;
 
 use Shopware\Core\Framework\ORM\Write\DeletedEvent;
-use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Framework\ORM\Event\WrittenEvent;
 use Shopware\Core\System\Config\Aggregate\ConfigFormFieldValue\ConfigFormFieldValueDefinition;
 
 class ConfigFormFieldValueDeletedEvent extends WrittenEvent implements DeletedEvent

@@ -12,10 +12,9 @@ use Shopware\Core\Framework\ORM\Dbal\Common\LastIdQuery;
 use Shopware\Core\Framework\ORM\Dbal\Common\OffsetQuery;
 use Shopware\Core\Framework\ORM\DefinitionRegistry;
 use Shopware\Core\Framework\ORM\EntityDefinition;
-use Shopware\Core\Framework\ORM\Event\EntityWriterEventContainer;
+use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\ORM\Event\WrittenEvent;
 use Shopware\Core\Framework\ORM\Write\EntityExistence;
-use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -84,7 +83,7 @@ class ChildCountIndexer implements IndexerInterface
         }
     }
 
-    public function refresh(GenericWrittenEvent $event): void
+    public function refresh(EntityWrittenContainerEvent $event): void
     {
         /** @var WrittenEvent $nested */
         foreach ($event->getEvents() as $nested) {

@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Event\ProgressStartedEvent;
 use Shopware\Core\Framework\ORM\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\ORM\Dbal\Indexing\IndexerInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
-use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\System\Touchpoint\TouchpointRepository;
 use Shopware\Storefront\Api\Seo\Definition\SeoUrlDefinition;
@@ -113,7 +113,7 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
         }
     }
 
-    public function refresh(GenericWrittenEvent $event): void
+    public function refresh(EntityWrittenContainerEvent $event): void
     {
         $ids = $this->eventIdExtractor->getCategoryIds($event);
 

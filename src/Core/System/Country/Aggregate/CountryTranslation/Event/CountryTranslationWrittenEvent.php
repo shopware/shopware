@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\System\Country\Aggregate\CountryTranslation\Event;
 
-use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Framework\ORM\Event\WrittenEvent;
 use Shopware\Core\System\Country\Aggregate\CountryTranslation\CountryTranslationDefinition;
 
 class CountryTranslationWrittenEvent extends WrittenEvent

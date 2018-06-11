@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductSeoCategory\Event;
 
 use Shopware\Core\Content\Product\Aggregate\ProductSeoCategory\ProductSeoCategoryDefinition;
 use Shopware\Core\Framework\ORM\Write\DeletedEvent;
-use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Framework\ORM\Event\WrittenEvent;
 
 class ProductSeoCategoryDeletedEvent extends WrittenEvent implements DeletedEvent
 {

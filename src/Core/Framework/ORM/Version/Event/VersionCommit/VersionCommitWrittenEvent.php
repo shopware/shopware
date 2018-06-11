@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\ORM\Version\Event\VersionCommit;
 
 use Shopware\Core\Framework\ORM\Version\Definition\VersionCommitDefinition;
-use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Framework\ORM\Event\WrittenEvent;
 
 class VersionCommitWrittenEvent extends WrittenEvent
 {

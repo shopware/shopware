@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\System\Unit\Event;
 
-use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Framework\ORM\Event\WrittenEvent;
 use Shopware\Core\System\Unit\UnitDefinition;
 
 class UnitWrittenEvent extends WrittenEvent

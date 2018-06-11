@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Media\Aggregate\MediaTranslation\Event;
 
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationDefinition;
 use Shopware\Core\Framework\ORM\Write\DeletedEvent;
-use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Framework\ORM\Event\WrittenEvent;
 
 class MediaTranslationDeletedEvent extends WrittenEvent implements DeletedEvent
 {

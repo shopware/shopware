@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Event;
 
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationDefinition;
-use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Framework\ORM\Event\WrittenEvent;
 
 class ShippingMethodTranslationWrittenEvent extends WrittenEvent
 {

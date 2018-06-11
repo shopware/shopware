@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\DiscountSurcharge\Event;
 
 use Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeDefinition;
-use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Framework\ORM\Event\WrittenEvent;
 
 class DiscountSurchargeWrittenEvent extends WrittenEvent
 {

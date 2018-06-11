@@ -13,7 +13,7 @@ use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\ORM\Version\Service\VersionManager;
-use Shopware\Core\Framework\ORM\Event\EntityWriterEventContainer;
+use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\ORM\Write\WriteContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -104,38 +104,38 @@ class EntityRepository implements RepositoryInterface
         return $result;
     }
 
-    public function update(array $data, Context $context): EntityWriterEventContainer
+    public function update(array $data, Context $context): EntityWrittenContainerEvent
     {
         $affected = $this->versionManager->update($this->definition, $data, WriteContext::createFromContext($context));
-        $event = EntityWriterEventContainer::createWithWrittenEvents($affected, $context, []);
-        $this->eventDispatcher->dispatch(EntityWriterEventContainer::NAME, $event);
+        $event = EntityWrittenContainerEvent::createWithWrittenEvents($affected, $context, []);
+        $this->eventDispatcher->dispatch(EntityWrittenContainerEvent::NAME, $event);
 
         return $event;
     }
 
-    public function upsert(array $data, Context $context): EntityWriterEventContainer
+    public function upsert(array $data, Context $context): EntityWrittenContainerEvent
     {
         $affected = $this->versionManager->upsert($this->definition, $data, WriteContext::createFromContext($context));
-        $event = EntityWriterEventContainer::createWithWrittenEvents($affected, $context, []);
-        $this->eventDispatcher->dispatch(EntityWriterEventContainer::NAME, $event);
+        $event = EntityWrittenContainerEvent::createWithWrittenEvents($affected, $context, []);
+        $this->eventDispatcher->dispatch(EntityWrittenContainerEvent::NAME, $event);
 
         return $event;
     }
 
-    public function create(array $data, Context $context): EntityWriterEventContainer
+    public function create(array $data, Context $context): EntityWrittenContainerEvent
     {
         $affected = $this->versionManager->insert($this->definition, $data, WriteContext::createFromContext($context));
-        $event = EntityWriterEventContainer::createWithWrittenEvents($affected, $context, []);
-        $this->eventDispatcher->dispatch(EntityWriterEventContainer::NAME, $event);
+        $event = EntityWrittenContainerEvent::createWithWrittenEvents($affected, $context, []);
+        $this->eventDispatcher->dispatch(EntityWrittenContainerEvent::NAME, $event);
 
         return $event;
     }
 
-    public function delete(array $ids, Context $context): EntityWriterEventContainer
+    public function delete(array $ids, Context $context): EntityWrittenContainerEvent
     {
         $affected = $this->versionManager->delete($this->definition, $ids, WriteContext::createFromContext($context));
-        $event = EntityWriterEventContainer::createWithDeletedEvents($affected, $context, []);
-        $this->eventDispatcher->dispatch(EntityWriterEventContainer::NAME, $event);
+        $event = EntityWrittenContainerEvent::createWithDeletedEvents($affected, $context, []);
+        $this->eventDispatcher->dispatch(EntityWrittenContainerEvent::NAME, $event);
 
         return $event;
     }

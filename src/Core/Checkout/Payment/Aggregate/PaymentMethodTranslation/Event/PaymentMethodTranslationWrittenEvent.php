@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\Event;
 
 use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationDefinition;
-use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Framework\ORM\Event\WrittenEvent;
 
 class PaymentMethodTranslationWrittenEvent extends WrittenEvent
 {

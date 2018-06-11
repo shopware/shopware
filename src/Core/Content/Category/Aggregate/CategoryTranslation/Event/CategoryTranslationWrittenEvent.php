@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\Category\Aggregate\CategoryTranslation\Event;
 
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
-use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Framework\ORM\Event\WrittenEvent;
 
 class CategoryTranslationWrittenEvent extends WrittenEvent
 {

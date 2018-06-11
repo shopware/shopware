@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\System\Touchpoint\Event;
 
-use Shopware\Core\Framework\ORM\Write\DeletedEvent;
-use Shopware\Core\Framework\ORM\Write\WrittenEvent;
 use Shopware\Core\System\Touchpoint\TouchpointDefinition;
+use Shopware\Core\Framework\ORM\Write\DeletedEvent;
+use Shopware\Core\Framework\ORM\Event\WrittenEvent;
 
 class TouchpointDeletedEvent extends WrittenEvent implements DeletedEvent
 {

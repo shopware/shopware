@@ -3,7 +3,7 @@
 namespace Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation\Event;
 
 use Shopware\Core\Framework\ORM\Write\DeletedEvent;
-use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Framework\ORM\Event\WrittenEvent;
 use Shopware\Core\System\Listing\Definition\ListingSortingTranslationDefinition;
 
 class ListingSortingTranslationDeletedEvent extends WrittenEvent implements DeletedEvent

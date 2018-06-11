@@ -3,7 +3,7 @@
 namespace Shopware\Storefront\Api\Seo\Event\SeoUrl;
 
 use Shopware\Core\Framework\ORM\Write\DeletedEvent;
-use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Framework\ORM\Event\WrittenEvent;
 use Shopware\Storefront\Api\Seo\Definition\SeoUrlDefinition;
 
 class SeoUrlDeletedEvent extends WrittenEvent implements DeletedEvent

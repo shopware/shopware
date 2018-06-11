@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Shipping\Event;
 
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
-use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Framework\ORM\Event\WrittenEvent;
 
 class ShippingMethodWrittenEvent extends WrittenEvent
 {

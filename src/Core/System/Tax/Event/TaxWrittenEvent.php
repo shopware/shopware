@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\System\Tax\Event;
 
-use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Framework\ORM\Event\WrittenEvent;
 use Shopware\Core\System\Tax\TaxDefinition;
 
 class TaxWrittenEvent extends WrittenEvent

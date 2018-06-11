@@ -13,7 +13,7 @@ use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\ORM\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Core\Framework\ORM\Search\Term\SearchTermInterpreter;
-use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
@@ -75,7 +75,7 @@ class CategoryRepositoryTest extends KernelTestCase
             Context::createDefaultContext(Defaults::TENANT_ID)
         );
 
-        $this->assertInstanceOf(GenericWrittenEvent::class, $result);
+        $this->assertInstanceOf(EntityWrittenContainerEvent::class, $result);
 
         $event = $result->getEventByDefinition(CategoryDefinition::class);
 
@@ -125,7 +125,7 @@ class CategoryRepositoryTest extends KernelTestCase
             Context::createDefaultContext(Defaults::TENANT_ID)
         );
 
-        $this->assertInstanceOf(GenericWrittenEvent::class, $result);
+        $this->assertInstanceOf(EntityWrittenContainerEvent::class, $result);
         $event = $result->getEventByDefinition(CategoryDefinition::class);
 
         $this->assertInstanceOf(CategoryDeletedEvent::class, $event);
@@ -177,7 +177,7 @@ class CategoryRepositoryTest extends KernelTestCase
             ['id' => $parentId->getHex()],
         ], Context::createDefaultContext(Defaults::TENANT_ID));
 
-        $this->assertInstanceOf(GenericWrittenEvent::class, $result);
+        $this->assertInstanceOf(EntityWrittenContainerEvent::class, $result);
 
         $event = $result->getEventByDefinition(CategoryDefinition::class);
         $this->assertInstanceOf(CategoryDeletedEvent::class, $event);

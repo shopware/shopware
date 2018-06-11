@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\Product\Aggregate\ProductStreamAssignment\Event;
 
 use Shopware\Core\Content\Product\Aggregate\ProductStreamAssignment\ProductStreamAssignmentDefinition;
-use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Framework\ORM\Event\WrittenEvent;
 
 class ProductStreamAssignmentWrittenEvent extends WrittenEvent
 {

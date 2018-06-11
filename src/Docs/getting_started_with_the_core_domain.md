@@ -499,11 +499,11 @@ dependencies on entities and that they are processed in the right order.
 Therefore, all write operations are accepted by the ORM as a batch operation 
 and all associated data can be processed in the same operation. The following three functions 
 allow you to write data: 
-* `update(array[] $data, Context $context): GenericWrittenEvent;`
+* `update(array[] $data, Context $context): EntityWrittenContainerEvent;`
     * Updates records. If a record does not exist, an exception is thrown
-* `create(array[] $data, Context $context): GenericWrittenEvent;`
+* `create(array[] $data, Context $context): EntityWrittenContainerEvent;`
     * Creates records. If a record already exists, an exception is thrown
-* `upsert(array[] $data, Context $context): GenericWrittenEvent;`
+* `upsert(array[] $data, Context $context): EntityWrittenContainerEvent;`
     * Creates or updates records. If the record does not exist, it will be created, 
       if it already exists, it will be updated.
 

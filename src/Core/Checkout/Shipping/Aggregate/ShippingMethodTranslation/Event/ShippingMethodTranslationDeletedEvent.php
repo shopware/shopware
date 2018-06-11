@@ -4,7 +4,7 @@ namespace Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Ev
 
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationDefinition;
 use Shopware\Core\Framework\ORM\Write\DeletedEvent;
-use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Framework\ORM\Event\WrittenEvent;
 
 class ShippingMethodTranslationDeletedEvent extends WrittenEvent implements DeletedEvent
 {

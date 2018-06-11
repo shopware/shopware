@@ -4,7 +4,7 @@ namespace Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\Even
 
 use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationDefinition;
 use Shopware\Core\Framework\ORM\Write\DeletedEvent;
-use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Framework\ORM\Event\WrittenEvent;
 
 class PaymentMethodTranslationDeletedEvent extends WrittenEvent implements DeletedEvent
 {

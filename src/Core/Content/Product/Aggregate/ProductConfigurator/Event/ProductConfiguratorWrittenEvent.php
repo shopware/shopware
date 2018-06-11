@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\Product\Aggregate\ProductConfigurator\Event;
 
 use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorDefinition;
-use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Framework\ORM\Event\WrittenEvent;
 
 class ProductConfiguratorWrittenEvent extends WrittenEvent
 {

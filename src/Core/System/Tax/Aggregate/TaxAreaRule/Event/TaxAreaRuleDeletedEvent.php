@@ -3,7 +3,7 @@
 namespace Shopware\Core\System\Tax\Aggregate\TaxAreaRule\Event;
 
 use Shopware\Core\Framework\ORM\Write\DeletedEvent;
-use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Framework\ORM\Event\WrittenEvent;
 use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleDefinition;
 
 class TaxAreaRuleDeletedEvent extends WrittenEvent implements DeletedEvent

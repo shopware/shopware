@@ -12,11 +12,11 @@ use Shopware\Core\Framework\ORM\Dbal\EntitySearcher;
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\Framework\ORM\EntityCollection;
 use Shopware\Core\Framework\ORM\EntityRepository;
-use Shopware\Core\Framework\ORM\Event\EntityWriterEventContainer;
+use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\ORM\Event\EntityWrittenEvent;
-use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Core\Framework\ORM\Version\Service\VersionManager;
 use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Locale\LocaleDefinition;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
@@ -56,8 +56,34 @@ class EntityRepositoryTest extends KernelTestCase
             $context
         );
 
-        $this->assertInstanceOf(EntityWriterEventContainer::class, $event);
+        $this->assertInstanceOf(EntityWrittenContainerEvent::class, $event);
         $this->assertInstanceOf(EntityWrittenEvent::class, $event->getEventByDefinition(LocaleDefinition::class));
+    }
+
+    public function testWrittenEventsFired()
+    {
+        $repository = $this->createRepository(LocaleDefinition::class);
+
+        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+
+        $id = Uuid::uuid4()->getHex();
+
+        $dispatcher = self::$container->get('event_dispatcher');
+
+        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener->expects($this->exactly(1))->method('__invoke');
+        $dispatcher->addListener('locale.written', $listener);
+
+        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener->expects($this->exactly(1))->method('__invoke');
+        $dispatcher->addListener('locale_translation.written', $listener);
+
+        $repository->create(
+            [
+                ['id' => $id, 'name' => 'Test', 'territory' => 'test', 'code' => 'test' . $id]
+            ],
+            $context
+        );
     }
 
     public function testRead()
@@ -101,15 +127,67 @@ class EntityRepositoryTest extends KernelTestCase
             $context
         );
 
-        //check nested events are triggered
         $dispatcher = self::$container->get('event_dispatcher');
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects($this->exactly(1))->method('__invoke');
-
         $dispatcher->addListener('locale.loaded', $listener);
 
         $locale = $repository->readBasic([$id], $context);
+
+        $this->assertInstanceOf(EntityCollection::class, $locale);
+        $this->assertCount(1, $locale);
+
+        $this->assertTrue($locale->has($id));
+        $this->assertInstanceOf(Entity::class, $locale->get($id));
+
+        $this->assertSame('Test', $locale->get($id)->getName());
+    }
+
+    public function testReadWithManyToOneAssociation()
+    {
+        $repository = $this->createRepository(ProductDefinition::class);
+
+        $context = Context::createDefaultContext(Defaults::TENANT_ID);
+
+        $id = Uuid::uuid4()->getHex();
+        $id2 = Uuid::uuid4()->getHex();
+
+        $repository->create(
+            [
+                [
+                    'id' => $id,
+                    'name' => 'Test',
+                    'tax' => ['name' => 'test', 'rate' => 5],
+                    'manufacturer' => ['name' => 'test'],
+                    'price' => ['gross' => 10, 'net' => 5]
+                ],
+                [
+                    'id' => $id2,
+                    'name' => 'Test',
+                    'tax' => ['name' => 'test', 'rate' => 5],
+                    'manufacturer' => ['name' => 'test'],
+                    'price' => ['gross' => 10, 'net' => 5]
+                ]
+            ],
+            $context
+        );
+
+        $dispatcher = self::$container->get('event_dispatcher');
+
+        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener->expects($this->exactly(1))->method('__invoke');
+        $dispatcher->addListener('product.loaded', $listener);
+
+        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener->expects($this->exactly(1))->method('__invoke');
+        $dispatcher->addListener('product_manufacturer.loaded', $listener);
+
+        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener->expects($this->exactly(1))->method('__invoke');
+        $dispatcher->addListener('tax.loaded', $listener);
+
+        $locale = $repository->readBasic([$id, $id2], $context);
 
         $this->assertInstanceOf(EntityCollection::class, $locale);
         $this->assertCount(1, $locale);
@@ -130,5 +208,12 @@ class EntityRepositoryTest extends KernelTestCase
             self::$container->get(EntityAggregator::class),
             self::$container->get('event_dispatcher')
         );
+    }
+}
+
+class CallableClass
+{
+    public function __invoke()
+    {
     }
 }

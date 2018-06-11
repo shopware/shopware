@@ -56,13 +56,9 @@ class ProductManufacturerDefinition extends EntityDefinition
         return 'product_manufacturer';
     }
 
-    public static function getFields(): FieldCollection
+    public static function defineFields(): FieldCollection
     {
-        if (self::$fields) {
-            return self::$fields;
-        }
-
-        self::$fields = new FieldCollection([
+        return new FieldCollection([
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
@@ -83,12 +79,6 @@ class ProductManufacturerDefinition extends EntityDefinition
             (new OneToManyAssociationField('products', ProductDefinition::class, 'manufacturer', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
             (new TranslationsAssociationField('translations', ProductManufacturerTranslationDefinition::class, 'product_manufacturer_id', false, 'id'))->setFlags(new CascadeDelete(), new Required()),
         ]);
-
-        foreach (self::$extensions as $extension) {
-            $extension->extendFields(self::$fields);
-        }
-
-        return self::$fields;
     }
 
     public static function getRepositoryClass(): string

@@ -16,7 +16,7 @@ use Shopware\Core\Framework\ORM\Dbal\Common\LastIdQuery;
 use Shopware\Core\Framework\ORM\Dbal\Indexing\IndexerInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
-use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -112,7 +112,7 @@ class ProductCategoryTreeIndexer implements IndexerInterface
         );
     }
 
-    public function refresh(GenericWrittenEvent $event): void
+    public function refresh(EntityWrittenContainerEvent $event): void
     {
         $ids = $this->eventIdExtractor->getProductIds($event);
         $this->update($ids, $event->getContext());

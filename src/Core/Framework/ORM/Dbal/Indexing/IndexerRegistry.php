@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\ORM\Dbal\Indexing;
 
-use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
+use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class IndexerRegistry implements IndexerInterface, EventSubscriberInterface
@@ -20,7 +20,7 @@ class IndexerRegistry implements IndexerInterface, EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            GenericWrittenEvent::NAME => 'refresh'
+            EntityWrittenContainerEvent::NAME => 'refresh'
         ];
     }
 
@@ -31,7 +31,7 @@ class IndexerRegistry implements IndexerInterface, EventSubscriberInterface
         }
     }
 
-    public function refresh(GenericWrittenEvent $event): void
+    public function refresh(EntityWrittenContainerEvent $event): void
     {
         foreach ($this->indexer as $indexer) {
             $indexer->refresh($event);

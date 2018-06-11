@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\Rule\Event;
 
 use Shopware\Core\Content\Rule\RuleDefinition;
-use Shopware\Core\Framework\ORM\Write\WrittenEvent;
+use Shopware\Core\Framework\ORM\Event\WrittenEvent;
 
 class RuleWrittenEvent extends WrittenEvent
 {

@@ -1,13 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\ORM\Write;
+namespace Shopware\Core\Framework\ORM\Event;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\Write\GenericWrittenEvent;
 
-class GenericWrittenEvent extends NestedEvent
+class EntityWrittenContainerEvent extends NestedEvent
 {
     public const NAME = 'entity.written';
 
@@ -48,10 +49,10 @@ class GenericWrittenEvent extends NestedEvent
         return $this->events;
     }
 
-    public function getEventByDefinition(string $definition)
+    public function getEventByDefinition(string $definition): ?EntityWrittenEvent
     {
         foreach ($this->events as $event) {
-            if (!$event instanceof WrittenEvent) {
+            if (!$event instanceof EntityWrittenEvent) {
                 continue;
             }
             if ($event->getDefinition() === $definition) {
@@ -66,11 +67,11 @@ class GenericWrittenEvent extends NestedEvent
     {
         $events = new NestedEventCollection();
 
-        /** @var EntityDefinition $definition */
+        /** @var EntityDefinition|string $definition */
         foreach ($identifiers as $definition => $data) {
-            $class = $definition::getWrittenEventClass();
             $events->add(
-                new $class(
+                new EntityWrittenEvent(
+                    $definition,
                     array_column($data, 'primaryKey'),
                     array_column($data, 'payload'),
                     array_column($data, 'existence'),
@@ -87,11 +88,11 @@ class GenericWrittenEvent extends NestedEvent
     {
         $events = new NestedEventCollection();
 
-        /** @var EntityDefinition $definition */
+        /** @var EntityDefinition|string $definition */
         foreach ($identifiers as $definition => $data) {
-            $class = $definition::getDeletedEventClass();
             $events->add(
-                new $class(
+                new EntityDeletedEvent(
+                    $definition,
                     array_column($data, 'primaryKey'),
                     array_column($data, 'payload'),
                     array_column($data, 'existence'),

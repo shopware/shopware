@@ -1,0 +1,1581 @@
+{
+    "frontend": {
+        "AccountCurrentPassword": "Login",
+        "AccountLoginTitle": "Die Passwörter stimmen nicht überein.",
+        "AccountPasswordNotEqual": "Leider können wir den von Ihnen gewünschten Artikel nicht mehr in ausreichender Stückzahl liefern. (#0 von #1 lieferbar).",
+        "CheckoutArticleLessStock": "Leider können wir den von Ihnen gewünschten Artikel nicht mehr in ausreichender Stückzahl liefern.",
+        "CheckoutArticleNoStock": "Das Produkt konnte nicht gefunden werden.",
+        "CheckoutArticleNotFound": "Bitte wählen Sie eine Variante aus, um die gewünschte Prämie in den Warenkorb zu legen.",
+        "CheckoutSelectPremiumVariant": "Bitte wählen Sie eine Variante aus, um den gewünschten Artikel in den Warenkorb zu legen.",
+        "CheckoutSelectVariant": "Diese E-Mail-Adresse ist bereits registriert.",
+        "RegisterAjaxEmailForgiven": "Die E-Mail-Adressen stimmen nicht &uuml;berein.",
+        "RegisterAjaxEmailNotEqual": "Bitte geben Sie eine g&uuml;ltige E-Mail-Adresse ein.",
+        "RegisterAjaxEmailNotValid": "Bitte w&auml;hlen Sie ein Passwort, welches aus mindestens {config name=\"MinPassword\"} Zeichen besteht.",
+        "RegisterPasswordLength": "Die Passw&ouml;rter stimmen nicht &uuml;berein.",
+        "RegisterPasswordNotEqual": "Vielen Dank. Wir haben Ihnen eine Bestätigungs-E-Mail gesendet. Klicken Sie auf den enthaltenen Link, um Ihre Anmeldung zu bestätigen.",
+        "sMailConfirmation": "Das aktuelle Passwort stimmt nicht!",
+        "note": {
+            "item": {
+                "NoteInfoDate": "Hinzugef\u00fcgt am:",
+                "NoteInfoId": "Bestellnummer:",
+                "NoteInfoSupplier": "Hersteller:",
+                "NoteLinkDelete": "L\u00f6schen",
+                "NoteLinkZoom": "Vergr\u00f6\u00dfern",
+                "NoteUnitPriceBaseprice": "Grundpreis",
+                "NoteUnitPriceContent": "Inhalt",
+                "ListingBoxLinkCompare": "Vergleichen"
+            },
+            "index": {
+                "NoteHeadline": "Merkzettel",
+                "NoteText": "Speichern Sie hier Ihre pers\u00f6nlichen Favoriten - bis Sie das n\u00e4chste Mal bei uns sind.",
+                "NoteText2": "Einfach den gew\u00fcnschten Artikel auf die Merkliste setzen und {$sShopname} speichert f\u00fcr Sie automatisch Ihre pers\u00f6nliche Merkliste. So k\u00f6nnen Sie bequem bei einem sp\u00e4teren Besuch Ihre vorgemerkten Artikel wieder abrufen.",
+                "NoteTitle": "Merkzettel"
+            }
+        },
+        "home": {
+            "index": {
+                "WidgetsBlogHeadline": "Blog"
+            }
+        },
+        "basket": {
+            "internalMessages": {
+                "VoucherFailureAlreadyUsed": "Dieser Gutschein wurde bereits bei einer vorherigen Bestellung eingel\u00f6st",
+                "VoucherFailureCustomerGroup": "Dieser Gutschein ist f\u00fcr Ihre Kundengruppe nicht verf\u00fcgbar",
+                "VoucherFailureMinimumCharge": "Der Mindestumsatz f\u00fcr diesen Gutschein betr\u00e4gt {sMinimumCharge} \u20ac",
+                "VoucherFailureNotFound": "Gutschein konnte nicht gefunden werden oder ist nicht mehr g\u00fcltig",
+                "VoucherFailureOnlyOnes": "Pro Bestellung kann nur ein Gutschein eingel\u00f6st werden",
+                "VoucherFailureProducts": "Dieser Gutschein ist nur f\u00fcr bestimmte Produkte g\u00fcltig.",
+                "VoucherFailureSupplier": "Dieser Gutschein ist nur f\u00fcr Produkte von {sSupplier} g\u00fcltig"
+            }
+        },
+        "forms": {
+            "elements": {
+                "SupportActionSubmit": "Senden",
+                "SupportInfoFillRedFields": "Bitte f\u00fcllen Sie alle rot markierten Felder aus.",
+                "SupportInfoFillCaptcha": "Bitte f\u00fcllen Sie das Captcha-Feld korrekt aus.",
+                "SupportLabelCaptcha": "Bitte geben Sie die Zeichenfolge in das nachfolgende Textfeld ein",
+                "SupportLabelInfoFields": "Die mit einem * markierten Felder sind Pflichtfelder."
+            }
+        },
+        "advancedmenu": {
+            "index": {
+                "IndexLinkHome": "Home",
+                "toCategoryBtn": "Zur Kategorie ",
+                "learnMoreLink": "mehr erfahren"
+            }
+        },
+        "plugins": {
+            "recommendation": {
+                "slide_articles": {
+                    "ListingBoxArticleStartsAt": "ab",
+                    "SlideArticleInfoBaseprice": "Grundpreis"
+                },
+                "blocks_index": {
+                    "IndexNewArticlesSlider": "Neu im Sortiment:",
+                    "IndexSimilaryArticlesSlider": "\u00c4hnliche Artikel wie die, die Sie sich angesehen haben:",
+                    "IndexSupplierSlider": "Unsere Top Marken"
+                },
+                "blocks_listing": {
+                    "IndexNewArticlesSlider": "Neu im Sortiment:",
+                    "IndexSimilaryArticlesSlider": "\u00c4hnliche Artikel wie die, die Sie sich angesehen haben:",
+                    "IndexSupplierSlider": "Unsere Top Marken"
+                }
+            },
+            "advanced_menu": {
+                "advanced_menu": {
+                    "IndexLinkHome": "Home",
+                    "toCategoryBtn": "Zur Kategorie ",
+                    "learnMoreLink": "mehr erfahren"
+                }
+            },
+            "notification": {
+                "index": {
+                    "DetailNotifyAlreadyRegistered": "Sie haben sich bereits f\u00fcr eine Benachrichtigung eingetragen!",
+                    "DetailNotifyHeader": "Benachrichtigen Sie mich, wenn der Artikel lieferbar ist.",
+                    "DetailNotifyInfoErrorMail": "Bitte geben Sie eine g\u00fcltige E-Mail-Adresse ein",
+                    "DetailNotifyInfoInvalid": "Bei der Validierung Ihrer E-Mail-Benachrichtigung ist ein Fehler aufgetreten. Eventuell wurde Ihre E-Mail-Adresse bereits validiert.",
+                    "DetailNotifyInfoSuccess": "Best\u00e4tigen Sie den Link der E-Mail die Sie gerade erhalten haben. Sie erhalten dann eine E-Mail sobald der Artikel wieder verf\u00fcgbar ist",
+                    "DetailNotifyInfoValid": "Vielen Dank! Wir haben Ihre Anfrage gespeichert! Sie werden benachrichtigt sobald der Artikel wieder verf\u00fcgbar ist.",
+                    "DetailNotifyLabelMail": "Ihre E-Mail-Adresse"
+                }
+            },
+            "payment": {
+                "debit": {
+                    "PaymentDebitInfoFields": "Die mit einem * markierten Felder sind Pflichtfelder.",
+                    "PaymentDebitLabelAccount": "Kontonummer*:",
+                    "PaymentDebitLabelBankcode": "Bankleitzahl*:",
+                    "PaymentDebitLabelBankname": "Ihre Bank*:",
+                    "PaymentDebitLabelName": "Konto-Inhaber*:",
+                    "PaymentDebitPlaceholderAccount": "Kontonummer",
+                    "PaymentDebitPlaceholderBankcode": "Bankleitzahl",
+                    "PaymentDebitPlaceholderBankname": "Ihre Bank",
+                    "PaymentDebitPlaceholderName": "Konto-Inhaber"
+                },
+                "sepaemail": {
+                    "SepaEmailAddress": "Stra\u00dfe und Hausnummer",
+                    "SepaEmailBankName": "Kreditinstitut",
+                    "SepaEmailBic": "BIC",
+                    "SepaEmailBody": "Ich erm\u00e4chtige den {$config.sepaCompany}, Zahlungen von meinem Konto mittels Lastschrift einzuziehen. Zugleich weise ich mein Kreditinstitut an, die von dem {$config.sepaCompany} auf mein Konto gezogenen Lastschriften einzul\u00f6sen.<\/p><p> Hinweis: Ich kann innerhalb von acht Wochen, beginnend mit dem Belastungsdatum, die Erstattung des belasteten Betrages verlangen. Es gelten dabei die mit meinem Kreditinstitut vereinbarten Bedingungen.",
+                    "SepaEmailCreditorNumber": "Gl\u00e4ubiger-Identifikationsnummer:",
+                    "SepaEmailDirectDebitMandate": "SEPA-Lastschriftmandat",
+                    "SepaEmailIban": "IBAN",
+                    "SepaEmailMandateReference": "Mandatsreferenz: <strong>{$data.orderNumber}<\/strong>",
+                    "SepaEmailName": "Vorname und Name (Kontoinhaber)",
+                    "SepaEmailSignature": "Datum, Ort und Unterschrift",
+                    "SepaEmailZip": "Postleitzahl und Ort"
+                },
+                "sepa": {
+                    "ErrorIBAN": "Ung\u00fcltige IBAN",
+                    "PaymentSepaInfoFields": "Die mit einem * markierten Felder sind Pflichtfelder.",
+                    "PaymentSepaLabelBankName": "Ihre Bank",
+                    "PaymentSepaLabelBic": "BIC",
+                    "PaymentSepaLabelIban": "IBAN",
+                    "PaymentSepaLabelUseBillingData": "Rechnungs-Adresse in Mandat \u00fcbernehmen?"
+                }
+            },
+            "paypal": {
+                "logo": {
+                    "PaypalLogoAlt": "Paypal",
+                    "PaypalLogoText": "Paypal",
+                    "PaypalLogoText2": "Einfaches Kaufen und bezahlen"
+                }
+            },
+            "compare": {
+                "index": {
+                    "DetailActionLinkCompare": "Vergleichen",
+                    "ListingBoxLinkCompare": "Vergleichen"
+                }
+            },
+            "index": {
+                "topseller": {
+                    "TopsellerHeading": "Topseller",
+                    "WidgetsTopsellerNoPicture": "Kein Bild vorhanden"
+                },
+                "viewlast": {
+                    "WidgetsRecentlyViewedHeadline": "Zuletzt angesehen",
+                    "WidgetsRecentlyViewedLinkDetails": "Mehr Informationen"
+                },
+                "delivery_informations": {
+                    "DetailDataInfoInstantDownload": "Als Sofortdownload verf\u00fcgbar",
+                    "DetailDataInfoInstock": "Sofort versandfertig, Lieferzeit ca. 1-3 Werktage",
+                    "DetailDataInfoNotAvailable": "Diese Auswahl steht nicht zur Verf\u00fcgung!",
+                    "DetailDataInfoShipping": "Dieser Artikel erscheint am",
+                    "DetailDataInfoShippingfree": "Versandkostenfreie Lieferung!",
+                    "DetailDataNotAvailable": "Lieferzeit ca. 5 Tage",
+                    "DetailDataShippingDays": "Werktage",
+                    "DetailDataShippingtime": "Lieferzeit",
+                    "DetailDataInfoPartialStock": "Nur {$sArticle.instock} von {$sArticle.quantity} ab Lager lieferbar {if $sArticle.shippingtime}- Lieferzeit f\u00fcr nicht vorr\u00e4tigen Artikel: {$sArticle.shippingtime} Werktag(e){\/if}"
+                }
+            }
+        },
+        "tellafriend": {
+            "index": {
+                "TellAFriendActionSubmit": "Senden",
+                "TellAFriendHeaderSuccess": "Vielen Dank. Die Weiterempfehlung wurde erfolgreich verschickt.",
+                "TellAFriendHeadline": "weiterempfehlen.",
+                "TellAFriendInfoFields": "Bitte f\u00fcllen Sie alle ben\u00f6tigten Felder aus.",
+                "TellAFriendLabelCaptchaInfo": "Bitte f\u00fcllen Sie das Captcha-Feld korrekt aus.",
+                "TellAFriendLabelFriendsMail": "Empf\u00e4nger E-Mail-Adresse",
+                "TellAFriendLabelName": "Ihr Name",
+                "TellAFriendLinkBack": "Zur\u00fcck",
+                "TellAFriendMarkedInfoFields": "* hierbei handelt es sich um ein Pflichtfeld",
+                "TellAFriendPlaceholderMail": "Ihre E-Mail-Adresse",
+                "TellAFriendPlaceholderComment": "Ihr Kommentar"
+            }
+        },
+        "sitemap": {
+            "index": {
+                "SitemapSubHeader": "Alle Kategorien auf einen Blick",
+                "SitemapTitle": "Sitemap",
+                "SitemapStaticPages": "Statische Seiten",
+                "SitemapSupplierPages": "Herstellerseiten",
+                "SitemapLandingPages": "Landingpages"
+            }
+        },
+        "content": {
+            "detail": {
+                "ContentHeaderDownloads": "Dateianhang:",
+                "ContentHeaderInformation": "Weitere Informationen:",
+                "ContentInfoNotFound": "Inhalt konnte nicht gefunden werden",
+                "ContentInfoPicture": "Auf dem Bild zu sehen:",
+                "ContentLinkBack": "Zur\u00fcck",
+                "ContentLinkDownload": "Herunterladen"
+            },
+            "paging": {
+                "ListingLinkNext": "Weiter",
+                "ListingLinkPrevious": "Zur\u00fcck"
+            },
+            "index": {
+                "ContentInfoEmpty": "Derzeit keine Eintr\u00e4ge vorhanden",
+                "ContentLinkDetails": "[mehr]"
+            }
+        },
+        "checkout": {
+            "cart_footer_left": {
+                "CheckoutFooterAddVoucherLabelInline": "Gutschein-Nummer",
+                "CheckoutFooterAddProductPlaceholder": "Artikelnummer eingeben"
+            },
+            "shipping_payment": {
+                "NextButton": "Weiter",
+                "ChangePaymentTitle": "Zahlungsart w\u00e4hlen",
+                "ChangeShippingTitle": "Versandart w\u00e4hlen"
+            },
+            "finish": {
+                "FinishHeaderInformation": "Informationen",
+                "FinishHeaderThankYou": "Vielen Dank f\u00fcr Ihre Bestellung bei",
+                "FinishInfoConfirmationMail": "Wir haben Ihnen eine Bestellbest\u00e4tigung per E-Mail geschickt.",
+                "FinishInfoConfirmationMailFailed": "Die Bestellbest\u00e4tigungs-E-Mail konnte nicht versendet werden, bitte kontaktieren Sie den Shopbetreiber",
+                "FinishInfoId": "Bestellnummer:",
+                "FinishInfoPrintOrder": "Wir empfehlen die unten aufgef\u00fchrte Bestellbest\u00e4tigung auszudrucken.",
+                "FinishInfoTransaction": "Transaktionsnummer:",
+                "FinishLinkPrint": "Bestellbest\u00e4tigung jetzt ausdrucken!",
+                "FinishTextRightOfRevocation": "Informationen zum Widerrufsrecht",
+                "FinishTitleRightOfRevocation": "Widerrufsrecht",
+                "FinishButtonBackToShop": "Zur\u00fcck zum Shop",
+                "FinishPrintNotice": "Bitte beachten Sie, dass die Druck-Funktion nicht auf allen verf\u00fcgbaren Endger\u00e4ten zur Verf\u00fcgung steht.",
+                "FinishDeliveries": "Lieferungen",
+                "FinishDelivery": "Lieferung",
+                "FinishDeliveryAddress": "Lieferadresse"
+            },
+            "shipping_costs": {
+                "RegisterBillingLabelState": "Bundesstaat:",
+                "ShippingLabelDeliveryCountry": "1. Lieferland:",
+                "ShippingLabelPayment": "2. Zahlungsart:",
+                "ShipppingLabelDispatch": "3. Versandart:",
+                "StateSelection": "Bitte w\u00e4hlen:"
+            },
+            "added": {
+                "AddArticleLinkBack": "Weiter shoppen",
+                "CheckoutAddArticleInfoAdded": "\"{$sArticleName}\" wurde in den Warenkorb gelegt!",
+                "CheckoutAddArticleLinkBack": "Zur\u00fcck"
+            },
+            "ajax_cart": {
+                "AjaxCartInfoBundle": "BUNDLE RABATT",
+                "AjaxCartInfoEmpty": "Ihr Warenkorb ist leer",
+                "AjaxCartInfoFree": "GRATIS!",
+                "AjaxCartLinkBasket": "Warenkorb bearbeiten",
+                "AjaxCartLinkConfirm": "Zur Kasse",
+                "AjaxCartContinueShopping": "Weiter einkaufen",
+                "AjaxCartTotalAmount": "Zwischensumme",
+                "AjaxCartRemoveArticle": "Artikel entfernen",
+                "AjaxCartSuccessText": "Der Artikel wurde erfolgreich in den Warenkorb gelegt",
+                "Star": "*"
+            },
+            "confirm": {
+                "ConfirmActionSubmit": "Zahlungspflichtig bestellen",
+                "ConfirmDoPayment": "Zahlungspflichtig bestellen",
+                "ConfirmErrorStock": "Ein Artikel aus Ihrer Bestellung ist nicht mehr verf\u00fcgbar! Bitte entfernen Sie die Position aus dem Warenkorb!",
+                "ConfirmHeadDispatch": "Versandart:",
+                "ConfirmHeadDispatchNotice": "Versandinformationen",
+                "ConfirmHeader": "Bitte \u00fcberpr\u00fcfen Sie Ihre Bestellung nochmals, bevor Sie sie senden.",
+                "ConfirmHeaderNewsletter": "M\u00f6chten Sie mehr Informationen?",
+                "ConfirmReturn": "Weiter einkaufen",
+                "ConfirmHeadlineAGBandRevocation": "AGB und Widerrufsbelehrung",
+                "ConfirmInfoChange": "Rechnungsadresse, Lieferadresse und Zahlungsart k&ouml;nnen Sie jetzt noch &auml;ndern.",
+                "ConfirmInfoPaymentData": "<strong>Unsere Bankverbindung:<\/strong><br>Volksbank Musterstadt<br>BLZ:<br>Kto.-Nr.:",
+                "ConfirmPlaceholderComment": "Kommentar",
+                "ConfirmLabelDispatch": "Aktuell ausgew\u00e4hlte Versandart",
+                "ConfirmLabelNewsletter": "Ja, ich m\u00f6chte den kostenlosen {$sShopname} Newsletter erhalten! Sie k\u00f6nnen sich jederzeit wieder abmelden!",
+                "ConfirmLinkChangeDispatch": "\u00c4ndern",
+                "ConfirmTerms": "Ich habe die <a href=\"{url controller=custom sCustom=4}\" title=\"AGB\"><span style=\"text-decoration:underline;\">AGB<\/span><\/a> Ihres Shops gelesen und bin mit deren Geltung einverstanden.",
+                "ConfirmTextOrderDefault": "Optionaler Freitext: Bei Zahlung per Bankeinzug oder per Kreditkarte erfolgt die Belastung Ihres Kontos f\u00fcnf Tage nach Bestellung der Ware.",
+                "ConfirmTextRightOfRevocation": "<h3 class=\"underline\">Widerrufsbelehrung<\/h3><p>Bitte beachten Sie bei Ihrer Bestellung auch unsere <a href=\"{url controller=custom sCustom=8}\" data-modal-height=\"500\" data-modal-width=\"800\">Widerrufsbelehrung<\/a>.<\/p>",
+                "ConfirmTextRightOfRevocationNew": "<p>Bitte beachten Sie bei Ihrer Bestellung auch unsere <a href=\"{url controller=custom sCustom=8}\" data-modal-height=\"500\" data-modal-width=\"800\">Widerrufsbelehrung<\/a>.<\/p>",
+                "ConfirmTextShippingPayment": "Versand- und Zahlarten",
+                "ConfirmLinkChangeShippingPayment": "\u00c4ndern",
+                "ConfirmHeadlineAdditionalOptions": "Weitere Optionen",
+                "AcceptServiceMessage": "Ja, bitte beginnen Sie sofort mit der Dienstleistung. Mein Widerrufsrecht erlischt mit vollst\u00e4ndiger Ausf\u00fchrung.",
+                "AcceptEsdMessage": "Ja, ich m\u00f6chte sofort Zugang zu dem digitalen Inhalt und wei\u00df, dass mein Widerrufsrecht mit dem Zugang erlischt.",
+                "ConfirmAddressSelectButton": "Adresse \u00e4ndern",
+                "ConfirmAddressSelectLink": "oder andere Adresse w\u00e4hlen",
+                "ConfirmHeaderBilling": "Rechnungsadresse",
+                "ConfirmHeaderPayment": "Gew\u00e4hlte Zahlungsart",
+                "ConfirmHeaderPaymentShipping": "Zahlung und Versand",
+                "ConfirmHeaderShipping": "Lieferadresse",
+                "ConfirmInfoInstantDownload": "Kauf von Direktdownloads nur per Lastschrift oder Kreditkarte m\u00f6glich",
+                "ConfirmInfoPaymentMethod": "Zahlungsart:",
+                "ConfirmLinkChangePayment": "\u00c4ndern",
+                "ConfirmSalutationMr": "Herr",
+                "ConfirmSalutationMs": "Frau",
+                "ConfirmAddressChooseDifferentShippingAddress": "Separate Lieferadresse hinzuf\u00fcgen",
+                "ConfirmAddressEqualTitle": "Rechnungs- und Lieferadresse",
+                "ConfirmErrorInvalidAddress": "Mindestens eine Adresse ist unvollst\u00e4ndig und muss bearbeitet werden.",
+                "ConfirmAddressInvalidBillingAddress": "Die gew\u00e4hlte Rechnungsadresse ist unvollst\u00e4ndig. Bitte aktualisieren Sie die Adresse.",
+                "ConfirmAddressInvalidShippingAddress": "Die gew\u00e4hlte Lieferadresse ist unvollst\u00e4ndig. Bitte aktualisieren Sie die Adresse.",
+                "ConfirmAddressInvalidAddress": "Die gew\u00e4hlte Adresse ist unvollst\u00e4ndig. Bitte aktualisieren Sie die Adresse."
+            },
+            "confirm_item": {
+                "CartItemInfoFree": "Kostenlos"
+            },
+            "confirm_dispatch": {
+                "CheckoutDispatchHeadline": "Versandart"
+            },
+            "finish_header": {
+                "CartColumnTotal": "Summe"
+            },
+            "finish_footer": {
+                "CheckoutFinishTaxInformation": "Der Empf\u00e4nger der Leistung schuldet die Steuer"
+            },
+            "ajax_add_article": {
+                "AjaxAddErrorHeader": "Artikel konnte nicht in den Warenkorb gelegt werden",
+                "AjaxAddHeader": "Der Artikel wurde erfolgreich in den Warenkorb gelegt",
+                "AjaxAddHeaderCrossSelling": "Diese Artikel k\u00f6nnten Ihnen gefallen",
+                "AjaxAddHeaderError": "Hinweis:",
+                "AjaxAddLabelOrdernumber": "Artikel-Nr.",
+                "AjaxAddLabelQuantity": "Menge",
+                "AjaxAddLinkBack": "Weiter shoppen",
+                "AjaxAddLinkCart": "Warenkorb anzeigen",
+                "AjaxAddLinkConfirm": "Zur Kasse",
+                "ListingBoxArticleStartsAt": "ab",
+                "ListingBoxNoPicture": "Kein Bild",
+                "SlideArticleInfoBaseprice": "Grundpreis"
+            },
+            "cart_item": {
+                "CartItemInfoFree": "GRATIS!",
+                "CartItemInfoId": "Artikel-Nr.:",
+                "CartItemLinkDelete": "L\u00f6schen",
+                "CartColumnQuantityEmpty": "ausverkauft"
+            },
+            "confirm_payment": {
+                "CheckoutPaymentLinkSend": "\u00c4ndern"
+            },
+            "error_messages": {
+                "ConfirmInfoMinimumSurcharge": "Mindestbestellwert nicht erreicht",
+                "ConfirmInfoNoDispatch": "Keine Versandart",
+                "ConfirmInfoPaymentNotCompatibleWithESD": "Diese Zahlungsart steht f\u00fcr Sofortdownloads nicht zur Verf\u00fcgung",
+                "ConfirmInfoPaymentBlocked": "Die Zahlungsart wurde automatisch ge\u00e4ndert, da f\u00fcr den aktuellen Warenkorb die ausgew\u00e4hlte Zahlungsart nicht zur Verf\u00fcgung steht. Bitte pr\u00fcfen Sie die zur Verf\u00fcgung stehenden Zahlungsarten, falls Sie eine andere verwenden m\u00f6chten.",
+                "ShippingPaymentSelectShipping": "Bitte w\u00e4hlen Sie eine Versandart aus",
+                "ShippingPaymentSelectPayment": "Bitte w\u00e4hlen Sie eine Zahlungsart aus",
+                "ServiceErrorMessage": "Bitte best\u00e4tigen Sie die Wiederrufsbelehrung bez\u00fcglich der Dienstleistungen.",
+                "EsdErrorMessage": "Bitte best\u00e4tigen Sie die Wiederrufsbelehrung bez\u00fcglich der digitalen Inhalte."
+            },
+            "cart": {
+                "CartInfoEmpty": "Sie haben keine Artikel im Warenkorb",
+                "CartInfoFreeShipping": "VERSANDKOSTENFREI",
+                "CartInfoFreeShippingDifference": "- Bestellen Sie f\u00fcr weitere {$sShippingcostsDifference|currency}, um Ihre Bestellung versandkostenfrei in {$sCountry.countryname} zu erhalten!",
+                "CartInfoMinimumSurcharge": "Achtung: Sie haben den Mindestbestellwert von {$sMinimumSurcharge|currency} noch nicht erreicht! ",
+                "CartInfoNoDispatch": "Achtung: F\u00fcr Ihren Warenkorb\/Ihre Adresse wurde keine Versandart hinterlegt.<br \/> Bitte kontaktieren Sie den Shopbetreiber.<br \/>",
+                "CartTitle": "Warenkorb",
+                "CartPremiumsHeadline": "Pr\u00e4mie w\u00e4hlen",
+                "CheckoutFooterBenefitHeadlineForYou": "Unsere Vorteile f\u00fcr Sie",
+                "CheckoutFooterBenefitHeadlineDispatch": "Wir verschicken mit",
+                "CheckoutFooterBenefitTextDispatch": "Ihre Versandanbieter-Logos",
+                "CheckoutFooterBenefitHeadlinePayment": "Zahlungsmethoden",
+                "CheckoutFooterBenefitTextPayment": "Ihre Zahlungsanbieter-Logos",
+                "sPremiumsHead": "Bitte w\u00e4hlen Sie zwischen den folgenden Pr\u00e4mien"
+            },
+            "actions": {
+                "CheckoutActionsLinkOffer": "Angebot anfordern",
+                "CheckoutActionsLinkProceed": "Zur Kasse gehen!",
+                "CheckoutActionsLinkProceedShort": "Zur Kasse"
+            },
+            "ajax_amount": {
+                "AjaxAmountInfoCountArticles": "Artikel",
+                "IndexLinkCheckout": "Zur Kasse"
+            },
+            "cart_footer": {
+                "CartFooterLabelShipping": "Versandkosten:",
+                "CartFooterLabelSum": "Summe:",
+                "CartFooterLabelTotal": "Gesamtsumme:",
+                "CartFooterTotalNet": "Gesamtsumme ohne MwSt.:",
+                "CartFooterTotalTax": "zzgl. %rate%&nbsp;% MwSt.:",
+                "CartFooterDeliveryDate": "Lieferdatum:",
+                "CartFooterPaymentMethod": "Zahlungsart:",
+                "CartFooterShippingMethod": "Versandart:",
+                "CartFooterDeliveryDetail": "Zwischen dem",
+                "CartFooterDeliveryDetailAnd": "und",
+                "CheckoutFooterAddVoucherLabelInline": "Gutschein-Code eingeben",
+                "CheckoutFooterVoucherTrigger": "Ich habe einen Gutschein",
+                "CheckoutFooterEstimatedShippingCosts": "Versandkosten",
+                "CheckoutDeliveryAddress": "Lieferadresse"
+            },
+            "confirm_header": {
+                "CartColumnTotal": "Summe",
+                "CheckoutColumnExcludeTax": "zzgl. Mwst.",
+                "CheckoutColumnTax": "Enthaltene MwSt."
+            },
+            "confirm_footer": {
+                "CheckoutFinishTaxInformation": "Der Empf\u00e4nger der Leistung schuldet die Steuer"
+            },
+            "finish_item": {
+                "CartItemInfoFree": "Kostenlos"
+            },
+            "cart_header": {
+                "CartColumnName": "Artikel",
+                "CartColumnPrice": "St\u00fcckpreis",
+                "CartColumnQuantity": "Anzahl",
+                "CartColumnTotal": "Summe"
+            },
+            "premiums": {
+                "PremiumActionAdd": "Pr\u00e4mie ausw\u00e4hlen",
+                "PremiumInfoNoPicture": "Kein Bild vorhanden",
+                "PremiumInfoSelect": "Bitte w\u00e4hlen",
+                "PremiumsHeader": "Bitte w\u00e4hlen Sie zwischen den folgenden Pr\u00e4mien",
+                "PremiumsInfoAtAmount": "ab",
+                "PremiumsInfoDifference": "noch",
+                "PremiumFreeProduct": "Gratis",
+                "PremiumInfoFreeProduct": "Jetzt Gratis verf\u00fcgbar",
+                "PremiumInfoBasketValue": "Warenkorbwert"
+            }
+        },
+        "blog": {
+            "box": {
+                "BlogInfoComments": "Kommentare",
+                "BlogInfoFrom": "Von:",
+                "BlogInfoTags": "Tags:",
+                "BlogLinkMore": "Mehr lesen"
+            },
+            "bookmarks": {
+                "BookmarkDeliciousShare": "Empfehle diesen Artikel bei del.icio.us",
+                "BookmarkDiggitShare": "Digg this!",
+                "BookmarkFacebookShare": "Empfehle diesen Artikel bei Facebook",
+                "BookmarkTwitterShare": "Twittere diesen Artikel"
+            },
+            "detail": {
+                "BlogHeaderCrossSelling": "Passende Artikel",
+                "BlogHeaderDownloads": "Verf\u00fcgbare Downloads:",
+                "BlogHeaderLinks": "Weitere Informationen zu",
+                "BlogHeaderRating": "Bewertung",
+                "BlogHeaderSocialmedia": "Weiterempfehlen",
+                "BlogInfoCategories": "Kategoriezuordnung",
+                "BlogInfoComment": "Unser Kommentar zu",
+                "BlogInfoComments": "Kommentare",
+                "BlogInfoFrom": "von",
+                "BlogInfoTags": "Tags",
+                "BlogLinkComments": "Zu den Kommentaren des Artikels",
+                "BlogLinkDownload": "Download",
+                "BlogThumbnailText": "Vorschau"
+            },
+            "listing_sidebar": {
+                "ListingActionsCloseFilter": "Filter schlie\u00dfen",
+                "FilterHeadline": "Filtern nach:",
+                "BlogSubscribe": "Anmelden"
+            },
+            "filter": {
+                "BlogHeaderFilterAuthor": "Autoren",
+                "BlogHeaderFilterCategories": "Kategorien",
+                "BlogHeaderFilterDate": "Datum",
+                "BlogHeaderFilterDateFormat": "%m.%Y",
+                "BlogHeaderFilterProperties": "Filter",
+                "BlogHeaderFilterTags": "Tags"
+            },
+            "atom": {
+                "BlogAtomFeedHeader": "Blog \/ Atom Feed"
+            },
+            "comments": {
+                "BlogHeaderWriteComment": "Kommentar schreiben",
+                "BlogInfoComments": "Kommentare",
+                "BlogInfoFailureFields": "Bitte f\u00fcllen Sie alle rot markierten Felder aus",
+                "BlogInfoFailureCaptcha": "Bitte f\u00fcllen Sie das Captcha-Feld korrekt aus.",
+                "BlogInfoFields": "Die mit einem * markierten Felder sind Pflichtfelder.",
+                "BlogInfoSuccess": "Vielen Dank f\u00fcr die Abgabe Ihrer Bewertung! Ihre Bewertung wird nach \u00dcberpr\u00fcfung freigeschaltet.",
+                "BlogInfoSuccessOptin": "Vielen Dank f\u00fcr die Abgabe Ihrer Bewertung!\tSie erhalten in wenigen Minuten eine Best\u00e4tigungs-E-Mail.   Best\u00e4tigen Sie den Link in dieser E-Mail um die Bewertung freizugeben.",
+                "BlogLabelCaptcha": "Bitte geben Sie die Zeichenfolge in das nachfolgende Textfeld ein",
+                "BlogLabelComment": "Ihre Meinung:",
+                "BlogLabelMail": "Ihre E-Mail-Adresse",
+                "BlogLabelName": "Ihr Name",
+                "BlogLabelRating": "Bewertung",
+                "BlogLabelSummary": "Zusammenfassung",
+                "BlogLinkSaveComment": "Speichern",
+                "DetailCommentTextReview": "Kommentare werden nach \u00dcberpr\u00fcfung freigeschaltet.",
+                "rate1": "1 sehr schlecht",
+                "rate10": "10 sehr gut",
+                "rate2": "2",
+                "rate3": "3",
+                "rate4": "4",
+                "rate5": "5",
+                "rate6": "6",
+                "rate7": "7",
+                "rate8": "8",
+                "rate9": "9"
+            },
+            "index": {
+                "BlogLinkAtom": "Atom-Feed",
+                "BlogLinkRSS": "RSS-Feed",
+                "ListingInfoFilterSupplier": "Filter nach Autor",
+                "BlogSubscribe": "Anmelden"
+            },
+            "rss": {
+                "BlogRssFeedHeader": "Blog \/ RSS Feed"
+            }
+        },
+        "search": {
+            "paging": {
+                "ListingLabelItemsPerPage": "Artikel pro Seite:",
+                "ListingLabelSort": "Sortierung",
+                "ListingLinkNext": "Seite vor",
+                "ListingLinkPrevious": "Seite zur\u00fcck",
+                "ListingSortName": "Bezeichnung",
+                "ListingSortPriceHighest": "H\u00f6chster Preis",
+                "ListingSortPriceLowest": "Niedrigster Preis",
+                "ListingSortRating": "Beliebtheit",
+                "ListingSortRelease": "Datum",
+                "ListingSortRelevance": "Relevanz"
+            },
+            "filter_category": {
+                "SearchFilterLinkDefault": "Alle Kategorien anzeigen",
+                "SearchFilterByCategory": "Filtern nach Kategorien",
+                "SearchFilterBySupplier": "Filtern nach Herstellern",
+                "SearchFilterByPrice": "Filtern nach Preisen",
+                "SearchFilterMainCategories": "Hauptkategorien",
+                "SaerchFilterActivePathLabel": "Aktuell in:"
+            },
+            "index": {
+                "SearchHeadline": "Zu \"%searchTerm%\" wurden %searchResultProductsCount% Artikel gefunden"
+            },
+            "ajax": {
+                "ListingBoxNoPicture": "Kein Bild",
+                "SearchAjaxInfoResults": "Treffer",
+                "SearchAjaxLinkAllResults": "Alle Ergebnisse anzeigen",
+                "SearchAjaxNoResults": "Keine Suchergebnisse gefunden"
+            },
+            "fuzzy": {
+                "SearchFuzzyHeadlineNoResult": "Leider wurden zu Ihrer Suchanfrage keine Artikel gefunden",
+                "SearchFuzzyInfoShortTerm": "Der eingegebene Suchbegriff ist leider zu kurz.",
+                "SearchHeadline": "Zu \"%searchTerm%\" wurden <span class=\"headline--product-count\">%searchResultProductsCount%<\/span> Artikel gefunden!",
+                "SearchResultsFor": "Suchergebnis f\u00fcr {$sRequests.sSearch}",
+                "SearchResultsEmpty": "Suchergebnisse"
+            }
+        },
+        "salutation": {
+            "mr": "Herr",
+            "ms": "Frau"
+        },
+        "register": {
+            "payment_fieldset": {
+                "RegisterPaymentHeadline": "Bitte w\u00e4hlen Sie die von Ihnen bevorzugte Zahlungsart"
+            },
+            "shipping_fieldset": {
+                "RegisterShippingHeadline": "Ihre abweichende Lieferadresse",
+                "RegisterShippingLabelMr": "Herr",
+                "RegisterShippingLabelMrs": "Frau",
+                "RegisterShippingLabelState": "Bundesstaat",
+                "RegisterLabelAdditionalAddressLine1": "Adresszusatz 1",
+                "RegisterLabelAdditionalAddressLine2": "Adresszusatz 2",
+                "RegisterShippingPlaceholderSalutation": "Anrede",
+                "RegisterShippingPlaceholderCompany": "Firma",
+                "RegisterShippingPlaceholderDepartment": "Abteilung",
+                "RegisterShippingPlaceholderFirstname": "Vorname",
+                "RegisterShippingPlaceholderLastname": "Nachname",
+                "RegisterShippingPlaceholderStreet": "Stra\u00dfe und Nr.",
+                "RegisterShippingPlaceholderCity": "Ort",
+                "RegisterShippingPlaceholderZipcode": "PLZ",
+                "RegisterShippingPlaceholderCountry": "Land"
+            },
+            "personal_fieldset": {
+                "RegisterInfoPassword": "Ihr Passwort muss mindestens",
+                "RegisterInfoPassword2": "Ber\u00fccksichtigen Sie Gro\u00df- und Kleinschreibung.",
+                "RegisterInfoPasswordCharacters": "Zeichen umfassen.",
+                "RegisterLabelMail": "Ihre E-Mail-Adresse*:",
+                "RegisterLabelMr": "Herr",
+                "RegisterLabelMs": "Frau",
+                "RegisterLabelNoAccount": "Kein Kundenkonto anlegen",
+                "RegisterPersonalMarketingHeadline": "Ich bin Neukunde",
+                "RegisterPersonalBaseDataHeadline": "Stammdaten",
+                "RegisterPersonalLabelBusiness": "Firma",
+                "RegisterPersonalLabelPrivate": "Privatkunde",
+                "RegisterPersonalLabelType": "Ich bin",
+                "RegisterPersonalRequiredText": "* hierbei handelt es sich um ein Pflichtfeld",
+                "RegisterBirthdaySelectDay": "Tag",
+                "RegisterBirthdaySelectMonth": "Monat",
+                "RegisterBirthdaySelectYear": "Jahr",
+                "RegisterPlaceholderSalutation": "Anrede",
+                "RegisterPlaceholderTitle": "Titel",
+                "RegisterPlaceholderFirstname": "Vorname",
+                "RegisterPlaceholderLastname": "Nachname",
+                "RegisterPlaceholderMail": "Ihre E-Mail-Adresse",
+                "RegisterPlaceholderMailConfirmation": "Wiederholen Sie Ihre E-Mail-Adresse",
+                "RegisterPlaceholderPassword": "Ihr Passwort",
+                "RegisterPlaceholderPasswordRepeat": "Wiederholen Sie Ihr Passwort",
+                "RegisterPlaceholderPhone": "Telefon",
+                "RegisterPlaceholderBirthday": "Geburtsdatum"
+            },
+            "billing_fieldset": {
+                "RegisterBillingHeadline": "Ihre Adresse",
+                "RegisterBillingLabelShipping": "Die <strong>Lieferadresse<\/strong> weicht von der Rechnungsadresse ab.",
+                "RegisterBillingLabelState": "Bundesstaat",
+                "RegisterHeaderCompany": "Firma",
+                "RegisterLabelDepartment": "Abteilung",
+                "RegisterLabelTaxId": "Umsatzsteuer-ID",
+                "RegisterLabelAdditionalAddressLine1": "Adresszusatz 1",
+                "RegisterLabelAdditionalAddressLine2": "Adresszusatz 2",
+                "RegisterPlaceholderCompany": "Firmenname",
+                "RegisterBillingPlaceholderStreet": "Stra\u00dfe und Nr.",
+                "RegisterBillingPlaceholderCity": "Ort",
+                "RegisterBillingPlaceholderZipcode": "PLZ",
+                "RegisterBillingPlaceholderCountry": "Land"
+            },
+            "index": {
+                "RegisterSupportInfo": "<strong>Fragen zu Ihrer Bestellung?<\/strong><br \/><strong>12345-123456789<\/strong> <small>T\u00e4glich 7:30 bis 22:00 Uhr<\/small>",
+                "RegisterHeadlineSupplier": "H\u00e4ndler-Anmeldung",
+                "RegisterIndexNewActionSubmit": "Weiter",
+                "RegisterInfoAdvantagesTitle": "Meine Vorteile",
+                "RegisterInfoAdvantagesEntry1": "Schnelles Einkaufen",
+                "RegisterInfoAdvantagesEntry2": "Speichern Sie Ihre Benutzerdaten und Einstellungen",
+                "RegisterInfoAdvantagesEntry3": "Einblick in Ihre Bestellungen inkl. Sendungsauskunft",
+                "RegisterInfoAdvantagesEntry4": "Verwalten Sie Ihr Newsletter-Abo",
+                "RegisterInfoSupplier3": "Nach der Anmeldung sehen Sie bis zur Freischaltung Endkunden-Preise",
+                "RegisterInfoSupplier4": "Senden Sie uns Ihren Gewerbenachweis per Fax!",
+                "RegisterInfoSupplier5": "Senden Sie Ihren Gewerbenachweis per Fax an +49 2555 92 95 61. Wenn Sie bereits H\u00e4ndler bei uns sind, k\u00f6nnen Sie diesen Schritt \u00fcberspringen und m\u00fcssen nat\u00fcrlich keinen Gewerbenachweis senden.",
+                "RegisterInfoSupplier6": "Wir pr\u00fcfen Ihre Angaben und schalten Sie frei!",
+                "RegisterInfoSupplier7": "Wir schalten Sie nach Pr\u00fcfung als H\u00e4ndler frei. Sie erhalten dann von uns eine Info per E-Mail. Von nun an sehen Sie direkt Ihren H\u00e4ndler-EK, auf den Produkt und \u00dcbersichtsseiten.",
+                "RegisterLabelDataCheckbox": "Hiermit akzeptiere ich die Datenschutz-Bestimmungen",
+                "RegisterTitle": "Registrierung",
+                "RequiredField": "*"
+            },
+            "steps": {
+                "CheckoutStepAddressNumber": "1",
+                "CheckoutStepAddressText": "Ihre Adresse",
+                "CheckoutStepConfirmNumber": "3",
+                "CheckoutStepConfirmText": "Pr\u00fcfen und Bestellen",
+                "CheckoutStepPaymentShippingNumber": "2",
+                "CheckoutStepPaymentShippingText": "Zahlungsart & Versandart",
+                "CheckoutStepLoginNumber": "1",
+                "CheckoutStepPaymentNumber": "2",
+                "CheckoutStepPaymentText": "Zahlungsart & Versandart"
+            }
+        },
+        "detail": {
+            "navigation": {
+                "DetailNavCount": "von",
+                "DetailNavIndex": "\u00dcbersicht",
+                "DetailNavNext": "Weiter",
+                "DetailNavPrevious": "Zur\u00fcck"
+            },
+            "comment": {
+                "DetailCommentActionSave": "Speichern",
+                "DetailCommentHeader": "Kundenbewertungen f\u00fcr",
+                "DetailCommentHeaderWriteReview": "Bewertung schreiben",
+                "DetailCommentInfoFields": "Die mit einem * markierten Felder sind Pflichtfelder.",
+                "DetailCommentInfoFillOutCaptcha": "Bitte f\u00fcllen Sie das Captcha-Feld korrekt aus.",
+                "DetailCommentInfoFrom": "Von:",
+                "DetailCommentInfoSuccess": "Vielen Dank f\u00fcr die Abgabe Ihrer Bewertung! Ihre Bewertung wird nach \u00dcberpr\u00fcfung freigeschaltet.",
+                "DetailCommentInfoSuccessOptin": "Vielen Dank f\u00fcr die Abgabe Ihrer Bewertung! Sie erhalten in wenigen Minuten eine Best\u00e4tigungs-E-Mail. Best\u00e4tigen Sie den Link in dieser E-Mail um die Bewertung freizugeben.",
+                "DetailCommentLabelCaptcha": "Bitte geben Sie die Zeichenfolge in das nachfolgende Textfeld ein.",
+                "DetailCommentLabelMail": "Ihre E-Mail-Adresse",
+                "DetailCommentLabelName": "Ihr Name",
+                "DetailCommentLabelSummary": "Zusammenfassung",
+                "DetailCommentPlaceholderText": "Ihre Meinung",
+                "DetailCommentTextReview": "Bewertungen werden nach \u00dcberpr\u00fcfung freigeschaltet.",
+                "InquiryTextArticle": "Ich habe folgende Fragen zum Artikel",
+                "InquiryTextBasket": "Bitte unterbreiten Sie mir ein Angebot \u00fcber die nachfolgenden Positionen",
+                "Rate1": "1 sehr schlecht",
+                "Rate10": "10 sehr gut",
+                "Rate2": "2",
+                "Rate3": "3",
+                "Rate4": "4",
+                "Rate5": "5",
+                "Rate6": "6",
+                "Rate7": "7",
+                "Rate8": "8",
+                "Rate9": "9",
+                "DetailCommentInfoFromAdmin": "Admin",
+                "DetailCommentInfoAt": "Am:"
+            },
+            "description": {
+                "ArticleTipMoreInformation": "Weiterf\u00fchrende Links zu",
+                "DetailDescriptionComment": "Unser Kommentar zu",
+                "DetailDescriptionHeader": "Produktinformationen",
+                "DetailDescriptionHeaderDownloads": "Verf\u00fcgbare Downloads:",
+                "DetailDescriptionLinkDownload": "Download",
+                "DetailDescriptionLinkInformation": "Weitere Artikel von {$sArticle.supplierName|escape}",
+                "OffcanvasCloseMenu": "Men\u00fc schlie\u00dfen"
+            },
+            "related": {
+                "DetailRelatedHeader": "Hierzu passende Artikel:"
+            },
+            "data": {
+                "DetailDataColumnPrice": "St\u00fcckpreis",
+                "DetailDataColumnQuantity": "Menge",
+                "DetailDataId": "Artikel-Nr.:",
+                "DetailDataInfoArticleStartsAt": "ab",
+                "DetailDataInfoBaseprice": "Grundpreis:",
+                "DetailDataInfoContent": "Inhalt:",
+                "DetailDataInfoFrom": "ab",
+                "DetailDataInfoSavePercent": "gespart",
+                "DetailDataInfoUntil": "bis",
+                "DetailDataPriceInfo": " MwSt. <a title=\"Versandkosten\" href=\"{url controller=custom sCustom=6}\" style=\"text-decoration:underline\">zzgl. Versandkosten<\/a>",
+                "DetailDataColumnReferencePrice": "Grundpreis",
+                "priceDiscountLabel": "",
+                "priceDiscountInfo": "",
+                "TaxInclusive": "inkl.",
+                "TaxExclusive": "zzgl."
+            },
+            "error": {
+                "DetailRelatedHeader": "Dieser Artikel ist leider nicht mehr verf\u00fcgbar!",
+                "DetailRelatedHeaderSimilarArticles": "\u00c4hnliche Artikel:"
+            },
+            "article_config_upprice": {
+                "DetailConfigActionSubmit": "Jetzt aktualisieren"
+            },
+            "config_upprice": {
+                "DetailConfigActionSubmit": "Ausw\u00e4hlen"
+            },
+            "index": {
+                "DetailNavPrevious": "Zur\u00fcck",
+                "DetailNavNext": "Vor",
+                "DetailLinkReview": "Bewertung abgeben",
+                "DetailRecommendationSimilarLabel": "\u00c4hnliche Artikel",
+                "DetailRecommendationAlsoBoughtLabel": "Kunden kauften auch",
+                "DetailRecommendationAlsoViewedLabel": "Kunden haben sich ebenfalls angesehen",
+                "DetailNavIndex": "\u00dcbersicht",
+                "DetailAttributeField1Label": "Freitextfeld 1",
+                "DetailAttributeField2Label": "Freitextfeld 2",
+                "DetailThumbnailText": "Vorschau",
+                "DetailConfiguratorReset": "Auswahl zur\u00fccksetzen"
+            },
+            "actions": {
+                "DetailLinkContact": "Fragen zum Artikel?",
+                "DetailLinkNotepad": "Auf den Merkzettel",
+                "DetailLinkNotepadShort": "Merken",
+                "DetailLinkReview": "Bewertung abgeben",
+                "DetailLinkReviewShort": "Bewerten",
+                "DetailLinkVoucher": "Artikel weiterempfehlen",
+                "DetailLinkVoucherShort": "Empfehlen",
+                "DetailActionLinkCompare": "Vergleichen",
+                "DetailNotepadMarked": "Gemerkt"
+            },
+            "config_step": {
+                "DetailConfigActionSubmit": "Ausw\u00e4hlen",
+                "DetailConfigValueSelect": "Bitte w\u00e4hlen",
+                "DetailConfigValueReset": "Auswahl zur\u00fccksetzen",
+                "VariantAreNotAvailable": "Die ausgew\u00e4hlte Variante steht aktuell nicht zur Verf\u00fcgung",
+                "DetailConfigValueNotAvailable": " - Nicht verf\u00fcgbar"
+            },
+            "article_config_step": {
+                "DetailConfigActionSubmit": "Jetzt aktualisieren",
+                "DetailConfigValueSelect": "Bitte w\u00e4hlen...",
+                "DetailConfigValueReset": "Auswahl zur\u00fccksetzen"
+            },
+            "tabs": {
+                "DetailTabsAccessories": "Zubeh\u00f6r",
+                "DetailTabsDescription": "Beschreibung",
+                "DetailTabsRating": "Bewertungen",
+                "RatingPreviewText": "Bewertungen lesen, schreiben und diskutieren...",
+                "PreviewTextMore": " mehr"
+            },
+            "buy": {
+                "DetailBuyActionAdd": "In den Warenkorb",
+                "DetailBuyInfoNotAvailable": "Dieser Artikel steht derzeit nicht zur Verf\u00fcgung!",
+                "DetailBuyLabelSurcharge": "Aufpreis"
+            }
+        },
+        "address": {
+            "ajax_selection": {
+                "ModalTitle": "Adressbuch",
+                "SelectAddressButton": "Diese Adresse verwenden",
+                "EmptyAddressesText": "Sie haben aktuell keine weiteren Adressen in Ihrem Adressbuch die Sie w\u00e4hlen k\u00f6nnen.",
+                "CreateNewAddressText": "Falls Sie eine neue Adresse hinzuf\u00fcgen m\u00f6chten, k\u00f6nnen Sie",
+                "CreateNewAddressLinkText": "hier eine neue erstellen",
+                "CreateNewAddressTitle": "Neue Adresse erstellen"
+            },
+            "index": {
+                "AddressesContentItemActionEdit": "Bearbeiten",
+                "AddressesContentItemActionCreate": "Neue Adresse hinzuf\u00fcgen",
+                "AddressesTitle": "Adressen",
+                "AddressesActionButtonSend": "Adresse speichern",
+                "AddressesTitleCreate": "Neue Adresse erstellen",
+                "AddressesTitleEdit": "Adresse bearbeiten",
+                "AddressesCreateSuccess": "Die Adresse wurde erfolgreich erstellt",
+                "AddressesUpdateSuccess": "Die Adresse wurde erfolgreich gespeichert",
+                "AddressesSetDefaultBillingSuccess": "Die Adresse wird nun als Standard-Rechnungsadresse verwendet",
+                "AddressesSetDefaultShippingSuccess": "Die Adresse wird nun als Standard-Lieferadresse verwendet",
+                "AddressesDeleteErrorMessage": "Die Adresse konnte nicht gel\u00f6scht werden",
+                "AddressesDeleteNotice": "<b>Hinweis:<\/b> Das L\u00f6schen dieser Adresse wirkt sich nicht auf bestehende Bestellungen zu dieser Adresse aus.",
+                "AddressesDeleteConfirmText": "Um diese Adresse permanent aus Ihrem Adressbuch zu entfernen, klicken Sie auf <b>Best\u00e4tigen<\/b>.",
+                "AddressesDeleteTitle": "Adresse l\u00f6schen",
+                "AddressesDeleteButtonText": "Best\u00e4tigen",
+                "AddressesContentItemActionDelete": "L\u00f6schen",
+                "AddressesDeleteSuccess": "Die Adresse wurde erfolgreich gel\u00f6scht",
+                "AddressesDeleteCancelText": "Abbrechen",
+                "AddressesSetAsDefaultShippingAction": "Als Standard-Lieferadresse verwenden",
+                "AddressesSetAsDefaultBillingAction": "Als Standard-Rechnungsadresse verwenden",
+                "AddressesTitleDefaultBillingAddress": "Standard-Rechnungsadresse",
+                "AddressesTitleDefaultShippingAddress": "Standard-Lieferadresse",
+                "AddressesActionButtonCreate": "Als neue Adresse speichern"
+            }
+        },
+        "cookiepermission": {
+            "index": {
+                "cookiePermission": {
+                    "text": "Diese Website verwendet Cookies, um Ihnen die bestm\u00f6gliche Funktionalit\u00e4t bieten zu k\u00f6nnen.",
+                    "buttonText": "Ok, verstanden",
+                    "linkText": "Mehr&nbsp;Informationen"
+                }
+            }
+        },
+        "compare": {
+            "overlay": {
+                "CompareLinkPrint": "Drucken"
+            },
+            "add_article": {
+                "CompareHeaderTitle": "Artikel vergleichen",
+                "CompareInfoMaxReached": "Es k\u00f6nnen maximal {config name=maxComparisons} Artikel in einem Schritt verglichen werden"
+            },
+            "col": {
+                "CompareBaseprice": "Grundpreis",
+                "CompareContent": "Inhalt",
+                "ComparePriceFrom": "ab"
+            },
+            "col_description": {
+                "CompareColumnDescription": "Beschreibung",
+                "CompareColumnName": "Name",
+                "CompareColumnPicture": "Bild",
+                "CompareColumnPrice": "Preis",
+                "CompareColumnRating": "Bewertung"
+            },
+            "added": {
+                "CompareHeaderTitle": "Artikel vergleichen",
+                "CompareInfoMaxReached": "Es k\u00f6nnen maximal {config name=maxComparisons} Artikel in einem Schritt verglichen werden"
+            },
+            "index": {
+                "CompareActionDelete": "Vergleich l\u00f6schen",
+                "CompareActionStart": "Vergleich starten",
+                "CompareInfoCount": "Vergleichen"
+            }
+        },
+        "ticket": {
+            "navigation": {
+                "TicketHeader": "Supportverwaltung",
+                "TicketLinkBack": "Zur\u00fcck",
+                "TicketLinkIndex": "Support\u00fcbersicht",
+                "TicketLinkLogout": "Abmelden Logout",
+                "TicketLinkSupport": "Support beantragen"
+            },
+            "detail": {
+                "TicketDetailInfoAnswer": "Ihre Antwort",
+                "TicketDetailInfoEmpty": "Es existiert kein Ticket mit dieser ID.",
+                "TicketDetailInfoQuestion": "Ihre Ticketanfrage:",
+                "TicketDetailInfoShopAnswer": "Unsere Antwort",
+                "TicketDetailInfoStatusClose": "Dieses Ticket wurde geschlossen.",
+                "TicketDetailInfoStatusProgress": "Dieses Ticket wird zur Zeit noch bearbeitet.",
+                "TicketDetailInfoTicket": "Details zu dem Ticket",
+                "TicketDetailLinkBack": "Zur\u00fcck"
+            },
+            "internalMessages": {
+                "TicketFailureFields": "Bitte f\u00fcllen Sie alle Felder aus!",
+                "TicketReplySuccessful": "Ihre Antwort wurde erfolgreich \u00fcbertragen!"
+            },
+            "listing": {
+                "TicketHeadline": "Supportverwaltung",
+                "TicketInfoDate": "Datum",
+                "TicketInfoId": "TicketID",
+                "TicketInfoStatus": "Status",
+                "TicketLinkDetails": "[Details anzeigen]",
+                "TicketTitle": "Ticketsystem"
+            }
+        },
+        "index": {
+            "shop-navigation": {
+                "IndexTitleSearchToggle": "Suche anzeigen \/ schlie\u00dfen",
+                "IndexSearchFieldSubmit": "Suchen"
+            },
+            "footer": {
+                "FooterInfoExcludeVat": "* Alle Preise verstehen sich zzgl. Mehrwertsteuer und <a title=\"Versandkosten\" href=\"{url controller=custom sCustom=6}\">Versandkosten<\/a> und ggf. Nachnahmegeb\u00fchren, wenn nicht anders beschrieben",
+                "FooterInfoIncludeVat": "* Alle Preise inkl. gesetzl. Mehrwertsteuer zzgl. <a title=\"Versandkosten\" href=\"{url controller=custom sCustom=6}\">Versandkosten<\/a> und ggf. Nachnahmegeb\u00fchren, wenn nicht anders beschrieben",
+                "IndexCopyright": "Realisiert mit Shopware"
+            },
+            "breadcrumb": {
+                "BreadcrumbDefault": "Sie sind hier:"
+            },
+            "menu_left": {
+                "IndexActionCloseMenu": "Men\u00fc schlie\u00dfen",
+                "IndexSidebarCategoryHeadline": "Kategorien",
+                "MenuLeftHeadingInformation": "Informationen",
+                "IndexLinkMenu": "Men\u00fc"
+            },
+            "categories_top": {
+                "IndexLinkHome": "Home"
+            },
+            "header": {
+                "IndexMetaAuthor": "",
+                "IndexMetaRobots": "index,follow",
+                "IndexMetaRevisit": "15 days",
+                "IndexMetaKeywordsStandard": "",
+                "IndexMetaDescriptionStandard": "",
+                "IndexMetaHttpContentType": "text\/html; charset=iso-8859-1",
+                "IndexMetaCopyright": "",
+                "IndexMetaCopyrightYear": "2014"
+            },
+            "topbar-navigation": {
+                "IndexLinkService": "Service\/Hilfe"
+            },
+            "search": {
+                "IndexSearchFieldPlaceholder": "Suchbegriff...",
+                "IndexSearchFieldSubmit": "Suchen",
+                "IndexTitleSearchToggle": "Suche anzeigen \/ schlie\u00dfen"
+            },
+            "checkout_actions": {
+                "IndexInfoArticles": "Artikel",
+                "IndexLinkAccount": "Mein Konto",
+                "IndexLinkCart": "Warenkorb",
+                "IndexLinkCheckout": "Zur Kasse",
+                "IndexLinkNotepad": "Merkzettel",
+                "IndexLinkService": "Service\/Hilfe"
+            },
+            "logo-container": {
+                "IndexLinkDefault": "zur Startseite wechseln"
+            },
+            "menu_footer": {
+                "IndexFooterNewsletterSubmit": "Newsletter abonnieren",
+                "IndexFooterNewsletterValue": "Ihre E-Mail Adresse",
+                "sFooterNewsletter": "Abonnieren Sie den kostenlosen DemoShop Newsletter und verpassen Sie keine Neuigkeit oder Aktion mehr aus dem DemoShop.",
+                "sFooterNewsletterHead": "Newsletter",
+                "sFooterServiceHotline": "Telefonische Unterst&uuml;tzung und Beratung unter:<br \/><br \/><a href=\"tel:+49180000000\" class=\"footer--phone-link\">0180 - 000000<\/a><br\/>Mo-Fr, 09:00 - 17:00 Uhr",
+                "sFooterServiceHotlineHead": "Service Hotline",
+                "sFooterShopNavi1": "Shop Service",
+                "sFooterShopNavi2": "Informationen"
+            },
+            "index": {
+                "IndexLinkDefault": "zur Startseite wechseln",
+                "IndexNoscriptNotice": "Um {$sShopname|escapeHtmlAttr} in vollem Umfang nutzen zu k&ouml;nnen, empfehlen wir Ihnen Javascript in Ihrem Browser zu aktiveren.",
+                "IndexNoCookiesNotice": "Es wurde festgestellt, dass Cookies in Ihrem Browser deaktiviert sind. Um {$sShopname|escapeJs} in vollem Umfang nutzen zu k\u00f6nnen, empfehlen wir Ihnen, Cookies in Ihrem Browser zu aktiveren.",
+                "IndexXmlLang": "de"
+            }
+        },
+        "newsletter": {
+            "detail": {
+                "NewsletterDetailInfoEmpty": "Eintrag nicht gefunden",
+                "NewsletterDetailLinkBack": "Zur\u00fcck",
+                "NewsletterDetailLinkOpenNewWindow": "In neuem Fenster \u00f6ffnen"
+            },
+            "listing": {
+                "NewsletterListingHeaderName": "Name",
+                "NewsletterListingInfoEmpty": "Derzeit keine Eintr\u00e4ge vorhanden",
+                "NewsletterListingLinkDetails": "[mehr]"
+            },
+            "index": {
+                "NewsletterMetaDescriptionStandard": "Abonnieren Sie jetzt einfach unseren regelm\u00e4\u00dfig erscheinenden Newsletter und Sie werden stets als Erster \u00fcber neue Artikel und Angebote informiert",
+                "NewsletterRegisterHeadline": "Newsletter abonnieren",
+                "NewsletterRegisterLabelMr": "Herr",
+                "NewsletterRegisterLabelMs": "Frau",
+                "NewsletterTitle": "Newsletter",
+                "sNewsletterButton": "Speichern",
+                "sNewsletterInfo": "Abonnieren Sie jetzt einfach unseren regelm\u00e4\u00dfig erscheinenden Newsletter und Sie werden stets als Erster \u00fcber neue Artikel und Angebote informiert.<br \/>Der Newsletter ist nat\u00fcrlich jederzeit \u00fcber einen Link in der E-Mail oder dieser Seite wieder abbestellbar.",
+                "sNewsletterOptionSubscribe": "Newsletter abonnieren",
+                "sNewsletterOptionUnsubscribe": "Newsletter abbestellen",
+                "sNewsletterPlaceholderMail": "Ihre E-Mail-Adresse",
+                "NewsletterRegisterPlaceholderSalutation": "Anrede",
+                "NewsletterRegisterPlaceholderTitle": "Titel",
+                "NewsletterRegisterPlaceholderFirstname": "Vorname",
+                "NewsletterRegisterPlaceholderLastname": "Nachname",
+                "NewsletterRegisterBillingPlaceholderStreet": "Stra\u00dfe und Nr.",
+                "NewsletterRegisterBillingPlaceholderZipcode": "PLZ",
+                "NewsletterRegisterBillingPlaceholderCityname": "Ort"
+            }
+        },
+        "listing": {
+            "get_category": {
+                "MainMenu": "Hauptmen\u00fc",
+                "ButtonBack": "Zur\u00fcck",
+                "ButtonShowAppend": "anzeigen",
+                "ButtonShowPrepend": " "
+            },
+            "right": {
+                "FilterHeadline": "Filtern nach:"
+            },
+            "box_article": {
+                "ListingBoxArticleContent": "Inhalt",
+                "ListingBoxArticleStartsAt": "ab",
+                "ListingBoxBaseprice": "Grundpreis",
+                "ListingBoxLinkDetails": "Zum Produkt",
+                "DetailActionLinkCompare": "Vergleichen",
+                "ListingBoxLinkCompare": "Vergleichen",
+                "ListingBoxNew": "NEU",
+                "ListingBoxNoPicture": "Kein Bild vorhanden",
+                "ListingBoxTip": "TIPP!",
+                "Star": "*",
+                "DetailNotepadMarked": "Gemerkt",
+                "ListingButtonDetail": "Details",
+                "ListingBuyActionAdd": "In den <span class=\"buy-btn--cart-text\">Warenkorb<\/span>"
+            },
+            "filter_supplier": {
+                "FilterLinkDefault": "Alle Anzeigen"
+            },
+            "facet_labels": {
+                "category": "Kategorie",
+                "immediate_delivery": "Sofort lieferbar",
+                "manufacturer": "Hersteller",
+                "price": "Preis",
+                "shipping_free": "Versandkostenfrei",
+                "vote_average": "Bewertung"
+            },
+            "listing_actions": {
+                "ListingActionsOffersLink": "Weitere Artikel in dieser Kategorie &raquo;",
+                "ListingActionsCloseFilter": "Filter schlie\u00dfen",
+                "ListingActionsCloseFilterShowProducts": "%s Produkt(e) anzeigen",
+                "ListingLabelItemsPerPage": "Artikel pro Seite:",
+                "ListingLabelSort": "Sortierung:",
+                "ListingLabelView": "Ansicht:",
+                "ListingLinkNext": "N\u00e4chste Seite",
+                "ListingLinkPrevious": "Vorherige Seite",
+                "ListingLinkFirst": "Erste Seite",
+                "ListingLinkLast": "Letzte Seite",
+                "ListingSortName": "Artikelbezeichnung",
+                "ListingSortPriceHighest": "H\u00f6chster Preis",
+                "ListingSortPriceLowest": "Niedrigster Preis",
+                "ListingSortRating": "Beliebtheit",
+                "ListingSortRelease": "Erscheinungsdatum",
+                "ListingSortRelevance": "Relevanz",
+                "ListingTextFrom": "von",
+                "ListingTextSite": "Seite",
+                "ListingView2Cols": "Zweispaltig",
+                "ListingView3Cols": "Dreispaltig",
+                "ListingView4Cols": "Vierspaltig",
+                "ListingViewTable": "Liste",
+                "listingFilterHeadline": "Filtern nach:",
+                "ListingFilterApplyButton": "Produkte anzeigen",
+                "ListingFilterPrice": "Preis",
+                "ListingFilterShippingFree": "Versandkostenfrei",
+                "ListingFilterImmediateDelivery": "Direkter Versand",
+                "ListingFilterManufacturer": "Hersteller",
+                "ListingFilterRangeFrom": "von",
+                "ListingFilterRangeTo": "bis",
+                "ListingFilterVoteAverageTitle": "Bewertungen",
+                "ListingFilterVoteReset": "Alle Produkte",
+                "ListingFilterResetAll": "Alle Filter zur\u00fccksetzen",
+                "ListingFilterButton": "Filtern",
+                "RatingStarSuffix": "& mehr"
+            },
+            "filter_properties": {
+                "FilterHeadline": "Filter",
+                "FilterHeadlineCategory": "Filtern nach",
+                "FilterLinkDefault": "Alle anzeigen"
+            },
+            "listing": {
+                "ListingInfoFilterSupplier": "Produkte von",
+                "ListingCategoryTeaserShowMore": "Mehr lesen",
+                "ListingCategoryTeaserShowLess": "Weniger anzeigen",
+                "ListingActionsLoadMore": "Weitere Artikel laden",
+                "ListingActionsLoadPrevious": "Vorherige Artikel laden",
+                "ListingActionsCloseOffCanvas": "Fenster schlie\u00dfen",
+                "ListingActionsOpenOffCanvas": "mehr erfahren",
+                "ListingActionsOffersLink": "Weitere Artikel in dieser Kategorie &raquo;",
+                "noFilterResult": "F\u00fcr die Filterung wurden keine Ergebnisse gefunden!"
+            },
+            "index": {
+                "ListingActionsOffersLink": "Weitere Artikel in dieser Kategorie"
+            },
+            "box_similar": {
+                "SimilarBoxLinkCompare": "Vergleichen"
+            }
+        },
+        "account": {
+            "sidebar": {
+                "AccountHeaderNavigation": "Mein Konto",
+                "AccountLinkDownloads": "Sofortdownloads",
+                "AccountLinkLogout": "Abmelden Logout",
+                "AccountLinkLogout2": "Abmelden",
+                "AccountLinkNotepad": "Merkzettel",
+                "AccountLinkOverview": "\u00dcbersicht",
+                "AccountLinkPartnerStatistic": "Provisionen",
+                "AccountLinkPayment": "Zahlungsarten",
+                "AccountLinkPreviousOrders": "Bestellungen",
+                "sTicketSysSupportManagement": "Supportverwaltung",
+                "TicketLinkSupport": "Support-Anfrage",
+                "AccountLinkAddresses": "Adressen",
+                "AccountLinkProfile": "Pers\u00f6nliche Daten"
+            },
+            "billing": {
+                "BillingLinkBack": "Zur\u00fcck",
+                "BillingLinkSend": "\u00c4ndern",
+                "ChangeBillingTitle": "Rechnungsadresse \u00e4ndern",
+                "BillingHeadline": "Rechnungsadresse \u00e4ndern"
+            },
+            "orders": {
+                "AccountTitle": "Kundenkonto",
+                "MyOrdersTitle": "Bestellungen",
+                "OrderColumnActions": "Aktionen",
+                "OrderColumnDate": "Datum",
+                "OrderColumnDispatch": "Versandart",
+                "OrderColumnAmount": "Betrag",
+                "OrderColumnId": "Bestellnummer",
+                "OrderColumnStatus": "Bestellstatus",
+                "OrdersHeader": "Bestellungen",
+                "OrdersWelcomeText": "Hier finden Sie ihre Bestellungen nach Datum sortiert.",
+                "OrdersInfoEmpty": "Sie haben noch keine Bestellung durchgef\u00fchrt."
+            },
+            "success_messages": {
+                "AccountAccountSuccess": "Zugangsdaten wurden erfolgreich gespeichert",
+                "AccountAddressSuccess": "Die Adresse wurde erfolgreich gespeichert.",
+                "AccountNewsletterSuccess": "Erfolgreich gespeichert",
+                "AccountPaymentSuccess": "Ihre Zahlungsweise wurde erfolgreich gespeichert"
+            },
+            "order_item.tpl": {
+                "OrderItemComment": "Unser Kommentar",
+                "OrderItemCustomerComment": "Ihr Kommentar"
+            },
+            "ajax_logout": {
+                "AccountLogoutTitle": "Logout",
+                "AccountLogoutButton": "Zur\u00fcck",
+                "AccountLogoutAccountButton": "Erneut Anmelden",
+                "AccountLogoutHeader": "Logout erfolgreich!",
+                "AccountLogoutText": "Sie wurden erfolgreich ausgeloggt"
+            },
+            "partner_statistic_item": {
+                "PartnerStatisticItemSum": "Gesamtsumme:"
+            },
+            "profile": {
+                "ProfileHeadline": "Pers\u00f6nliche Daten",
+                "ProfileSaveSuccessMessage": "Die pers\u00f6nlichen Daten wurden erfolgreich gespeichert.",
+                "ProfileSaveButton": "\u00c4nderungen speichern",
+                "EmailHeadline": "E-Mail Adresse",
+                "EmailSaveSuccessMessage": "Die E-Mail Adresse wurde erfolgreich ge\u00e4ndert.",
+                "EmailCurrentEmailLabel": "Aktuelle E-Mail Adresse",
+                "EmailSaveButton": "\u00c4nderungen speichern",
+                "PasswordHeadline": "Passwort",
+                "PasswordSaveSuccessMessage": "Das Passwort wurde erfolgreich ge\u00e4ndert.",
+                "PasswordSaveButton": "\u00c4nderungen speichern"
+            },
+            "internalMessages": {
+                "ErrorFillIn": "Bitte f\u00fcllen Sie alle rot markierten Felder aus",
+                "LoginFailure": "Ihre Zugangsdaten konnten keinem Benutzer zugeordnet werden",
+                "LoginFailureActive": "Ihr Kundenkonto wurde deaktiviert, bitte wenden Sie sich zwecks Kl\u00e4rung pers\u00f6nlich an uns!",
+                "LoginFailureLocked": "Zu viele fehlgeschlagene Versuche. Ihr Account wurde vor\u00fcbergehend deaktiviert - bitte probieren Sie es in einigen Minuten erneut!",
+                "MailFailure": "Bitte geben Sie eine g\u00fcltige E-Mail-Adresse ein",
+                "MailFailureAlreadyRegistered": "Diese E-Mail-Adresse ist bereits registriert",
+                "MailFailureNotEqual": "Die E-Mail-Adressen stimmen nicht \u00fcberein.",
+                "NewsletterFailureInvalid": "Bitte geben Sie eine g\u00fcltige E-Mail-Adresse ein",
+                "NewsletterFailureMail": "Bitte geben sie eine E-Mail-Adresse an",
+                "NewsletterFailureNotFound": "Diese E-Mail-Adresse wurde nicht gefunden",
+                "NewsletterMailDeleted": "Ihre E-Mail-Adresse wurde gel\u00f6scht",
+                "NewsletterSuccess": "Vielen Dank. Wir haben Ihre Adresse eingetragen.",
+                "UnknownError": "Ein unbekannter Fehler ist aufgetreten",
+                "DateFailure": "Bitte geben Sie ein g\u00fcltiges Geburtsdatum an"
+            },
+            "password": {
+                "ErrorForgotMail": "Bitte geben Sie Ihre E-Mail-Adresse ein.",
+                "ErrorForgotMailUnknown": "Diese E-Mail-Adresse ist uns nicht bekannt.",
+                "LoginBack": "Zur\u00fcck",
+                "PasswordHeader": "Passwort vergessen?",
+                "PasswordInfoSuccess": "Wir haben Ihnen eine Best\u00e4tigungs-E-Mail gesendet.",
+                "PasswordLabelMail": "Ihre E-Mail-Adresse:",
+                "PasswordLinkBack": "Zur\u00fcck",
+                "PasswordSendAction": "E-Mail senden",
+                "PasswordText": "Wir senden Ihnen eine Best\u00e4tigungs-E-Mail. Klicken Sie auf den darin enthaltenen Link, um Ihr Passwort zu \u00e4ndern.",
+                "PasswordPlaceholderMail": "Ihre E-Mail-Adresse"
+            },
+            "payment": {
+                "ChangePaymentTitle": "Zahlungsarten",
+                "PaymentLinkBack": "Zur\u00fcck",
+                "PaymentLinkSend": "\u00c4ndern",
+                "PaymentHeadline": "Zahlungsarten"
+            },
+            "ajax_login": {
+                "LoginHeader": "Eine Online-Bestellung ist einfach",
+                "LoginInfoNew": "Kein Problem, eine Shopbestellung ist einfach und sicher. Die Anmeldung dauert nur wenige Augenblicke.",
+                "LoginLabelMail": "Ihre E-Mail-Adresse:",
+                "LoginLabelNoAccount": "Kein Kundenkonto erstellen",
+                "LoginLabelPassword": "Ihr Passwort:",
+                "LoginLinkLostPassword": "Passwort vergessen?"
+            },
+            "reset_password": {
+                "PasswordResetNewHeadline": "Ein neues Passwort definieren",
+                "PasswordResetNewHelpText": "Wenn Sie das Passwort f\u00fcr Ihr Konto vergessen haben, k\u00f6nnen Sie hier ein neues definieren. Wenn Sie das neue Passwort speichern, wird Ihr altes Passwort ung\u00fcltig.",
+                "PasswordResetNewLinkError": "Best\u00e4tigungslink nicht gefunden. Bedenken Sie, dass der Best\u00e4tigungslink nur 2 Stunden g\u00fcltig ist. Danach m\u00fcssen Sie sich einen neuen Best\u00e4tigungslink zusenden lassen.",
+                "PasswordResetNewMissingId": "Konnte den Benutzer mit der ID \"%s\" nicht finden.",
+                "PasswordResetNewSuccess": "Ihr Passwort wurde erfolgreich ge\u00e4ndert."
+            },
+            "logout": {
+                "LogoutInfoFinished": "Sie wurden erfolgreich ausgeloggt!",
+                "LogoutLinkHomepage": "zur Startseite wechseln"
+            },
+            "downloads": {
+                "DownloadsColumnDate": "Datum",
+                "DownloadsColumnLink": "Download",
+                "DownloadsColumnName": "Artikel",
+                "DownloadsHeader": "Downloads",
+                "DownloadsInfoText": "Hier finden Sie ihre Sofortdownloads nach Datum sortiert.",
+                "DownloadsInfoAccessDenied": "Dieser Download steht Ihnen nicht zur Verf\u00fcgung!",
+                "DownloadsInfoEmpty": "Sie haben noch keine Sofortdownloadartikel gekauft",
+                "DownloadsInfoNotFound": "Keine Downloads verf\u00fcgbar",
+                "DownloadsLink": "Downloaden",
+                "DownloadsSerialnumber": "Ihre Seriennummer:",
+                "MyDownloadsTitle": "Meine Sofortdownloads"
+            },
+            "index": {
+                "AccountHeaderBasic": "Pers\u00f6nliche Daten",
+                "AccountHeaderInfo": "Dies ist Ihr Konto Dashboard, wo Sie die M\u00f6glichkeit haben, Ihre letzten Kontoaktivit\u00e4ten einzusehen",
+                "AccountHeaderNewsletter": "Ihre Newslettereinstellungen",
+                "AccountHeaderPayment": "Gew\u00e4hlte Zahlungsart",
+                "AccountHeaderPrimaryBilling": "Prim\u00e4re Rechnungsadresse",
+                "AccountHeaderPrimaryShipping": "Prim\u00e4re Lieferadresse",
+                "AccountHeaderPrimaryBillingShipping": "Prim\u00e4re Rechnungs- und Lieferadresse",
+                "AccountHeaderWelcome": "Willkommen",
+                "AccountInfoInstantDownloads": "Kauf von Direktdownloads nur per Lastschrift oder Kreditkarte m\u00f6glich",
+                "AccountLabelMail": "E-Mail-Wiederholung",
+                "AccountLabelNewMail": "Neue E-Mail-Adresse",
+                "AccountLabelWantNewsletter": "Ja, ich m\u00f6chte den kostenlosen {$sShopname} Newsletter erhalten. Sie k\u00f6nnen sich jederzeit wieder abmelden!",
+                "AccountLinkChangeBilling": "Rechnungsadresse \u00e4ndern",
+                "AccountLinkChangePassword": "Passwort \u00e4ndern",
+                "AccountLinkChangePayment": "Zahlungsart \u00e4ndern",
+                "AccountLinkChangeShipping": "Lieferadresse \u00e4ndern",
+                "AccountSalutationMr": "Herr",
+                "AccountSalutationMs": "Frau",
+                "AccountTitle": "Kundenkonto",
+                "AccountLabelCurrentPassword2": "Ihr aktuelles Passwort",
+                "AccountLabelNewPassword2": "Neues Passwort",
+                "AccountLabelRepeatPassword2": "Passwort-Wiederholung",
+                "AccountLinkSelectBilling": "oder andere Adresse w\u00e4hlen",
+                "AccountLinkSelectShipping": "oder andere Adresse w\u00e4hlen",
+                "AccountLinkChangeProfile": "Pers\u00f6nliche Daten \u00e4ndern",
+                "AccountAddressEqualsBilling": "Entspricht der Rechnungsadresse"
+            },
+            "partner_statistic": {
+                "PartnerStatisticColumnDate": "Datum",
+                "PartnerStatisticColumnId": "Bestellnummer",
+                "PartnerStatisticColumnNetAmount": "Netto Umsatz",
+                "PartnerStatisticColumnProvision": "Provision",
+                "PartnerStatisticHeader": "Provisions \u00dcbersicht",
+                "PartnerStatisticInfoEmpty": "Keine Auswertung vorhanden",
+                "PartnerStatisticLabelFromDate": "Von:",
+                "PartnerStatisticLabelNetTurnover": "Netto-Umsatz",
+                "PartnerStatisticLabelTimeUnit": "KW",
+                "PartnerStatisticLabelToDate": "Bis:",
+                "PartnerStatisticSubmitFilter": "Filtern",
+                "Provisions": "Provisionen",
+                "PartnerDatePickerCloseText": "Fertig",
+                "PartnerDatePickerPrevText": "Zur\u00fcck",
+                "PartnerDatePickerNextText": "Vor",
+                "PartnerDatePickerCurrentText": "Heute",
+                "PartnerDatePickerMonthNames": "'Januar','Februar','M\u00e4rz','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'",
+                "PartnerDatePickerMonthShortNames": "'Jan','Feb','M\u00e4r','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'",
+                "PartnerDatePickerDayNames": "'Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'",
+                "PartnerDatePickerDayShortNames": "'So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'",
+                "PartnerDatePickerDayMinNames": "'So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'",
+                "PartnerDatePickerWeekHeader": "KW",
+                "PartnerDatePickerDateFormat": "dd.mm.yy"
+            },
+            "shipping": {
+                "ChangeShippingTitle": "Lieferadresse \u00e4ndern",
+                "ShippingLinkBack": "Zur\u00fcck",
+                "ShippingLinkSend": "\u00c4ndern",
+                "ShippingHeadline": "Lieferadresse \u00e4ndern"
+            },
+            "order_item": {
+                "OrderActionSlide": "Anzeigen",
+                "OrderInfoNoDispatch": "Nicht angegeben",
+                "OrderItemColumnDate": "Vom:",
+                "OrderItemColumnDispatch": "Versandart",
+                "OrderItemColumnId": "Bestellnummer:",
+                "OrderItemColumnName": "Artikel",
+                "OrderItemColumnPrice": "St\u00fcckpreis",
+                "OrderItemColumnQuantity": "Anzahl",
+                "OrderItemColumnTotal": "Summe",
+                "OrderItemColumnTracking": "Paket-Tracking:",
+                "OrderItemComment": "Unser Kommentar",
+                "OrderItemCustomerComment": "Ihr Kommentar",
+                "OrderItemInfoBaseprice": "Grundpreis",
+                "OrderItemInfoBundle": "BUNDLE RABATT",
+                "OrderItemInfoCanceled": "Bestellung wurde storniert",
+                "OrderItemInfoClarificationNeeded": "Kl\u00e4rung notwendig",
+                "OrderItemInfoCompleted": "Komplett abgeschlossen",
+                "OrderItemInfoContent": "Inhalt",
+                "OrderItemInfoCurrentPrice": "Aktueller Einzelpreis",
+                "OrderItemInfoFree": "GRATIS",
+                "OrderItemInfoInProgress": "Bestellung ist in Bearbeitung",
+                "OrderItemInfoInstantDownload": "Jetzt downloaden",
+                "OrderItemInfoNotProcessed": "Bestellung wurde noch nicht bearbeitet",
+                "OrderItemInfoPartiallyCompleted": "Teilweise abgeschlossen",
+                "OrderItemInfoPartiallyShipped": "Bestellung wurde teilweise verschickt",
+                "OrderItemInfoReadyForShipping": "Zur Lieferung bereit",
+                "OrderItemInfoShipped": "Bestellung wurde verschickt",
+                "OrderItemNetTotal": "Gesamtsumme Netto:",
+                "OrderItemShippingcosts": "Versandkosten:",
+                "OrderItemTotal": "Gesamtsumme:",
+                "OrderLinkRepeat": "Bestellung wiederholen",
+                "OrderItemInfoNotAvailable": "Artikel ist f\u00fcr eine Folgebestellung nicht mehr verf\u00fcgbar"
+            },
+            "login": {
+                "AccountLoginTitle": "Login",
+                "LoginHeaderExistingCustomer": "Ich bin bereits Kunde",
+                "LoginHeaderFields": "Einloggen mit Ihrer E-Mail-Adresse und Ihrem Passwort",
+                "LoginHeaderNew": "Sie sind neu bei",
+                "LoginInfoNew": "Kein Problem, eine Shopbestellung ist einfach und sicher. Die Anmeldung dauert nur wenige Augenblicke.",
+                "LoginLabelMail": "Ihre E-Mail-Adresse:",
+                "LoginLabelNoAccount": "Kein Kundenkonto erstellen",
+                "LoginLabelPassword": "Ihr Passwort:",
+                "LoginLinkLogon": "Anmelden",
+                "LoginLinkLostPassword": "Passwort vergessen?",
+                "LoginLinkRegister": "Neuer Kunde",
+                "LoginLinkRegister2": "Ich bin Neukunde",
+                "LoginPlaceholderMail": "Ihre E-Mail-Adresse",
+                "LoginPlaceholderPassword": "Ihr Passwort"
+            }
+        },
+        "custom": {
+            "right": {
+                "CustomHeader": "Direkter Kontakt",
+                "CustomTextContact": "Ihre Adresse"
+            },
+            "ajax": {
+                "CustomAjaxActionClose": "Schliessen",
+                "CustomAjaxActionNewWindow": "Im neuen Fenster \u00f6ffnen"
+            },
+            "right.tpl": {
+                "CustomHeader": "Direkter Kontakt",
+                "CustomTextContact": "<strong>Demoshop<br \/><\/strong><br \/>F\u00fcgen Sie hier Ihre Kontaktdaten ein"
+            }
+        },
+        "error": {
+            "exception": {
+                "ExceptionHeader": "Ups! Ein Fehler ist aufgetreten!",
+                "ExceptionText": "Die nachfolgenden Hinweise sollten Ihnen weiterhelfen.",
+                "InformText": "Wir wurden bereits \u00fcber das Problem informiert und arbeiten an einer L\u00f6sung, bitte versuchen Sie es in K\u00fcrze erneut."
+            },
+            "service": {
+                "ServiceHeader": "Wegen Wartungsarbeiten nicht erreichbar!",
+                "ServiceIndexTitle": "Wartungsarbeiten",
+                "ServiceText": "Aufgrund n\u00f6tiger Wartungsarbeiten ist der Shop zur Zeit nicht erreichbar."
+            },
+            "index": {
+                "ErrorIndexTitle": "Es ist ein Fehler aufgetreten"
+            }
+        },
+        "widgets": {
+            "advanced_menu": {
+                "advanced_menu": {
+                    "IndexLinkHome": "Home"
+                },
+                "index": {
+                    "IndexLinkHome": "Home"
+                }
+            },
+            "topseller": {
+                "TopsellerHeading": "Topseller",
+                "WidgetsTopsellerNoPicture": "Kein Bild vorhanden"
+            },
+            "blog": {
+                "listing": {
+                    "WidgetsBlogHeadline": "Neu in unserem Blog"
+                }
+            },
+            "paypal": {
+                "logo": {
+                    "WidgetPaypalText": "PayPal",
+                    "WidgetsPayPalLogo": "Paypal-Sicherheit f\u00fcr K\u00e4ufer"
+                }
+            },
+            "compare": {
+                "index": {
+                    "DetailActionLinkCompare": "Artikel vergleichen",
+                    "ListingBoxLinkCompare": "Vergleichen"
+                }
+            }
+        }
+    },
+    "documents": {
+        "index_ls": {
+            "DocumentIndexInvoiceID": "Zur Rechnung:",
+            "DocumentIndexPageCounter": "Seite {$page+1} von {$Pages|@count}",
+            "DocumentIndexShippingNumber": "Lieferschein Nr."
+        },
+        "index_sr": {
+            "DocumentIndexCancelationNumber": "Stornorechnung zur Rechnung Nr. {$Document.bid}",
+            "DocumentIndexPageCounter": "Seite {$page+1} von {$Pages|@count}",
+            "DocumentIndexTax": "zzgl. {$key|tax}&nbsp;% MwSt:",
+            "DocumentIndexTotal": "Gesamtkosten:",
+            "DocumentIndexTotalNet": "Gesamtkosten Netto:"
+        },
+        "index_gs": {
+            "DocumentIndexCreditNumber": "Gutschrift Nr."
+        },
+        "index": {
+            "DocumentIndexAdviceNet": "Hinweis: Der Empf\u00e4nger der Leistung schuldet die Steuer.",
+            "DocumentIndexComment": "Kommentar:",
+            "DocumentIndexCurrency": "<br>Euro Umrechnungsfaktor: {$Order._currency.factor|replace:\".\":\",\"}",
+            "DocumentIndexCustomerID": "Kunden-Nr.:",
+            "DocumentIndexDate": "Datum:",
+            "DocumentIndexDeliveryDate": "Liefertermin:",
+            "DocumentIndexHeadAmount": "Brutto Gesamt",
+            "DocumentIndexHeadArticleID": "Art-Nr.",
+            "DocumentIndexHeadName": "Bezeichnung",
+            "DocumentIndexHeadNet": "Netto Preis",
+            "DocumentIndexHeadNetAmount": "Netto Gesamt",
+            "DocumentIndexHeadPosition": "Pos.",
+            "DocumentIndexHeadPrice": "Brutto Preis",
+            "DocumentIndexHeadQuantity": "Anz.",
+            "DocumentIndexHeadTax": "MwSt.",
+            "DocumentIndexInvoiceNumber": "Rechnung Nr. {$Document.id}",
+            "DocumentIndexOrderID": "Bestell-Nr.:",
+            "DocumentIndexPageCounter": "Seite {$page+1} von {$Pages|@count}",
+            "DocumentIndexSelectedDispatch": "Gew\u00e4hlte Versandart:",
+            "DocumentIndexSelectedPayment": "Gew&auml;hlte Zahlungsart",
+            "DocumentIndexTax": "zzgl. {$key|tax}&nbsp;% MwSt:",
+            "DocumentIndexTotal": "Gesamtkosten:",
+            "DocumentIndexTotalNet": "Gesamtkosten Netto:",
+            "DocumentIndexUstID": "USt-IdNr.:",
+            "DocumentIndexVoucher": "F\u00fcr den n\u00e4chsten Einkauf schenken wir Ihnen einen {$Document.voucher.value} {$Document.voucher.prefix} Gutschein mit dem Code \"{$Document.voucher.code}\".<br \/>"
+        }
+    },
+    "newsletter": {
+        "container": {
+            "article": {
+                "NewsletterBoxArticleLinkDetails": "Mehr Infos",
+                "NewsletterBoxArticleStartsAt": "ab"
+            }
+        },
+        "index": {
+            "footer": {
+                "NewsletterFooterCopyright": "Copyright \u00a9  - Alle Rechte vorbehalten",
+                "NewsletterFooterInfoExcludeVat": "* Alle Preise verstehen sich zzgl. Mehrwertsteuer  und <span style=\"text-decoration: underline;\"><a title=\"Versandkosten\" href=\"{url controller=custom sCustom=6}\">Versandkosten<\/a><\/span> und ggf. Nachnahmegeb\u00fchren, wenn nicht anders beschrieben",
+                "NewsletterFooterInfoIncludeVat": "* Alle Preise inkl. gesetzl. Mehrwertsteuer und <span style=\"text-decoration: underline;\"><a title=\"Versandkosten\" href=\"{url controller=custom sCustom=6}\">Versandkosten<\/a><\/span> und ggf. Nachnahmegeb\u00fchren, wenn nicht anders beschrieben",
+                "NewsletterFooterLinkNewWindow": "Newsletter im Browser \u00f6ffnen",
+                "NewsletterFooterLinkUnsubscribe": "Vom Newsletter abmelden",
+                "NewsletterFooterNavigation": "<a href=\"#\" target=\"_blank\" style=\"font-size:10px;\">Kontakt<\/a> | <a href=\"#\" target=\"_blank\" style=\"font-size:10px;\">Impressum<\/a>"
+            },
+            "header": {
+                "NewsletterHeaderLinkHome": "Home"
+            }
+        },
+        "alt": {
+            "index": {
+                "NewsletterIndexCopyright": "Copyright \u00a9 shopware AG - Alle Rechte vorbehalten",
+                "NewsletterIndexInfoExcludeVat": "* Alle Preise verstehen sich zzgl. Mehrwertsteuer  und Versandkosten und ggf. Nachnahmegeb\u00fchren, wenn nicht anders beschrieben",
+                "NewsletterIndexInfoIncludeVat": "* Alle Preise inkl. gesetzl. Mehrwertsteuer und Versandkosten und ggf. Nachnahmegeb\u00fchren, wenn nicht anders beschrieben",
+                "NewsletterIndexInfoPlain": "Sie erhalten diesen Newsletter in der Text-Darstellung, besuchen Sie bitte unseren Shop um auf die Angebote zugreifen zu k\u00f6nnen",
+                "NewsletterIndexPseudoInsteadOf": "statt "
+            }
+        }
+    },
+    "themes": {
+        "bare": {
+            "backend": {
+                "config": {
+                    "theme_name": "Bare",
+                    "theme_description": "Theme-Struktur ohne CSS und JavaScript",
+                    "author": "shopware AG",
+                    "license": "MIT",
+                    "bare_tab_header": "Icons & Logos",
+                    "advanced_settings": "Erweiterte Einstellungen",
+                    "offcanvas_cart": "Offcanvas Warenkorb",
+                    "focus_search": "Suche fokussieren",
+                    "display_sidebar": "Sidebar anzeigen",
+                    "display_sidebar_description": "Wenn aktiv, wird die Navigation im Produkt-Listing auf der linken Seite in einer Sidebar angezeigt.",
+                    "checkout_header": "Checkoutstep Header anzeigen",
+                    "checkout_header_description": "Wenn aktiv, wird ein minimaler Header angezeigt, der den Kunden durch den Checkout f\u00fchrt. Andernfalls wird der normale Shop-Header angezeigt.",
+                    "checkout_footer": "Checkoutstep Footer anzeigen",
+                    "checkout_footer_description": "Wenn aktiv, wird ein minimaler Footer angezeigt, der nur die wichtigsten Informationen anzeigt.",
+                    "enable_infinite_scrolling": "Infinite Scrolling",
+                    "enable_infinite_scrolling_description": "Wenn aktiv, wird das Listing live nachgeladen, sobald der Besucher nach unten scrollt.",
+                    "infinite_threshold": "Seitenanzahl f\u00fcr Infinite Scrolling",
+                    "infinite_threshold_description": "Anzahl der Seiten, die durch Infinite Scrolling automatisch nachgeladen werden sollen.",
+                    "lightbox_zoom_factor": "Zoomfaktor der Bildbox (Lightbox)",
+                    "lightbox_zoom_factor_description": "Maximaler Zoomfaktor in der Fullscreen-Bildbox (Lightbox). Bei der automatischen Skalierung kann das Bild bis zu seiner Originalgr\u00f6\u00dfe gezoomt werden.",
+                    "lightbox_zoom_factor_auto": "Automatisch (Originalgr\u00f6\u00dfe)",
+                    "lightbox_zoom_factor_none": "Kein Zoom",
+                    "lightbox_zoom_factor_2x": "2-fach",
+                    "lightbox_zoom_factor_3x": "3-fach",
+                    "lightbox_zoom_factor_5x": "5-fach",
+                    "offcanvas_cart_description": "Wenn aktiv, wird der Offcanvas Warenkorb verwendet.",
+                    "focus_search_description": "Wenn aktiv, wird die Suche in der mobilen Ansicht auf der Startseite automatisch ausgeklappt.",
+                    "logos": "Logos",
+                    "smartphone": "Smartphone",
+                    "tablet": "Tablet",
+                    "tablet_landscape": "Tablet Landscape",
+                    "desktop": "Desktop",
+                    "icons": "Icons",
+                    "apple_web_app_title": "Apple Web App Title",
+                    "ajax_variant_switch": "Variaten Wechsel \u00fcber AJAX",
+                    "ajax_variant_switch_description": "Wenn aktiv, dann werden Varianten per AJAX nachgeladen, statt die komplette Seite neuzuladen.",
+                    "apple_touch_icon": "Apple Touch Icon<br \/>(180 x 180px, *.png)",
+                    "apple_touch_icon_precomposed": "Wenn aktiv, wird iOS keine Glaseffekte auf das Apple Touch Icon anwenden.",
+                    "win8_tile_image": "Windows Kachel Icon<br \/>(150 x 150px, *.png)",
+                    "favicon": "Favicon (16 x 16px)<br \/>(Empfohlen: '*\/favicon.ico')",
+                    "bare_min_appearance": "Minimale Darstellung",
+                    "bare_min_appearance_description": "Deaktiviert alle nicht notwendigen Features des Bare Themes. Dadurch werden Sidebar Element und Slider deaktiviert.",
+                    "bare_max_appearance": "Maximale Darstellung",
+                    "bare_max_appearance_description": "Aktiviert alle zus\u00e4tzlichen Features des Bare Themes. Slider, Einkaufswelten und Sidebars werden in der Storefront darstellt.",
+                    "offcanvas_move_method": "Offcanvas Men\u00fc \u00fcberlagern",
+                    "offcanvas_move_method_description": "Wenn aktiv, \u00fcberlagern die Offcanvas Men\u00fcs die Shopseite. Andernfalls wird die Shopseite mit verschoben.",
+                    "show_filter_in_sidebar": "Filter in der Sidebar anzeigen",
+                    "show_filter_in_sidebar_description": "Zeigt die Listing Filter in der Sidebar unter dem Men\u00fc an. Wenn die Sidebar nicht aktiv ist werden die Filter auch nicht angezeigt.",
+                    "async_javascript_loading": "JavaScript asynchron laden",
+                    "async_javascript_loading_description": "Wenn aktiv, werden die JavaScript Dateien asynchron geladen."
+                }
+            }
+        },
+        "responsive": {
+            "backend": {
+                "config": {
+                    "theme_name": "Responsive",
+                    "theme_description": "Emotionales Shopping auf jedem Ger\u00e4t",
+                    "author": "shopware AG",
+                    "license": "MIT",
+                    "responsive_tab_header": "Konfiguration",
+                    "responsive_colors": "Farb-Konfiguration",
+                    "responsive_tab_general": "Allgemein",
+                    "responsive_tab_general_fieldset_base": "Basiskonfiguration",
+                    "responsive_tab_general_fieldset_grey": "Graut\u00f6ne",
+                    "responsive_tab_general_fieldset_highlight": "Hinweis-Farben",
+                    "responsive_tab_general_fieldset_scaffolding": "Grundger\u00fcst",
+                    "responsive_tab_typo": "Typografie",
+                    "responsive_tab_typo_fieldset_base": "Basiskonfiguration",
+                    "responsive_tab_typo_fieldset_headlines": "\u00dcberschriften Schriftgr\u00f6\u00dfen",
+                    "responsive_tab_buttons": "Buttons & Panels",
+                    "responsive_tab_buttons_fieldset_global": "Globales Button-Styling",
+                    "responsive_tab_buttons_fieldset_default": "Default Button",
+                    "responsive_tab_buttons_fieldset_primary": "Primary Button",
+                    "responsive_tab_buttons_fieldset_secondary": "Secondary Button",
+                    "responsive_tab_buttons_fieldset_panels": "Panels",
+                    "responsive_tab_forms": "Formulare",
+                    "responsive_tab_forms_fieldset_labels": "Labels",
+                    "responsive_tab_forms_fieldset_global": "Globales Formular-Styling",
+                    "responsive_tab_forms_fieldset_states": "Formular Status",
+                    "responsive_tab_tables": "Tabellen & Badges",
+                    "responsive_tab_tables_fieldset_tables": "Tabellen",
+                    "responsive_tab_tables_fieldset_badges": "Badges & Hinweise",
+                    "global_configuration": "Globale Konfiguration",
+                    "additional_css_data": "Weitere CSS-Dateien",
+                    "additional_css_data_description": "Das Feld dient dazu CSS-Dateien von externen Diensten einzubinden. Z.B. um Google Fonts einzubinden.",
+                    "additional_js_libraries": "Weitere JavaScript-Bibliotheken",
+                    "additional_js_libraries_description": "Hier k\u00f6nnen externe Skripte eingebunden werden. Z.B. f\u00fcr Google Analytics oder andere externe Dienste. Lokale Javascript Komponenten sollten mithilfe des $javascript-Arrays eingebunden werden.",
+                    "color_scheme_turquoise": "T\u00fcrkises Farbschema",
+                    "color_scheme_turquoise_description": "Konfiguriert die Farben des Responsive Themes mit unterschiedlichen T\u00fcrkis-T\u00f6nen",
+                    "color_scheme_green": "Gr\u00fcnes Farbschema",
+                    "color_scheme_green_description": "Konfiguriert die Farben des Responsive Themes mit unterschiedlichen Gr\u00fcn-T\u00f6nen",
+                    "color_scheme_red": "Rotes Farbschema",
+                    "color_scheme_red_description": "Konfiguriert die Farben des Responsive Themes mit unterschiedlichen Rot-T\u00f6nen",
+                    "color_scheme_pink": "Pinkes Farbschema",
+                    "color_scheme_pink_description": "Konfiguriert die Farben des Responsive Themes mit unterschiedlichen Pink-T\u00f6nen",
+                    "color_scheme_gray": "Graues Farbschema",
+                    "color_scheme_gray_description": "Konfiguriert die Farben des Responsive Themes mit unterschiedlichen Grau-T\u00f6nen",
+                    "color_scheme_brown": "Braunes Farbschema",
+                    "color_scheme_brown_description": "Konfiguriert die Farben des Responsive Themes mit unterschiedlichen Braun-T\u00f6nen",
+                    "color_scheme_blue": "Blaues Farbschema",
+                    "color_scheme_blue_description": "Konfiguriert die Farben des Responsive Themes mit unterschiedlichen Blau-T\u00f6nen",
+                    "color_scheme_black": "Schwarzes Farbschema",
+                    "color_scheme_black_description": "Konfiguriert die Farben des Responsive Themes mit unterschiedlichen Schwarz-T\u00f6nen",
+                    "color_scheme_orange": "Orangenes Farbschema (Standard)",
+                    "color_scheme_orange_description": "Konfiguriert die Farben des Responsive Themes mit unterschiedlichen Orange-T\u00f6nen"
+                }
+            }
+        }
+    },
+    "widgets": {
+        "recommendation": {
+            "slide_articles": {
+                "reducedPrice": "Statt:"
+            }
+        },
+        "captcha": {
+            "custom_captcha": {
+                "invalidCaptchaMessage": "Bitte f\u00fcllen Sie das Captcha-Feld korrekt aus."
+            }
+        },
+        "emotion": {
+            "slide_articles": {
+                "reducedPrice": "Statt:",
+                "Star": "*"
+            },
+            "components": {
+                "component_blog": {
+                    "EmotionBlogPreviewNopic": "Kein Bild vorhanden"
+                },
+                "component_article": {
+                    "ListingBoxNoPicture": "No image"
+                }
+            }
+        }
+    }
+}

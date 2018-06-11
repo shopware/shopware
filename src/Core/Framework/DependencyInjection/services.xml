@@ -177,13 +177,6 @@
             <argument type="service" id="Shopware\Core\Framework\Translation\ImportService" />
         </service>
 
-        <!-- Translation / Snippet -->
-        <service class="Shopware\Core\Framework\Translation\DatabaseLoader" id="Shopware\Core\Framework\Translation\DatabaseLoader">
-            <tag name="translation.loader" alias="database" />
-
-            <argument type="service" id="Doctrine\DBAL\Connection" />
-        </service>
-
         <service class="Shopware\Core\Framework\Routing\Firewall\CustomerProvider" id="Shopware\Core\Framework\Routing\Firewall\CustomerProvider">
             <argument type="service" id="Shopware\Core\Checkout\Customer\CustomerRepository"/>
         </service>

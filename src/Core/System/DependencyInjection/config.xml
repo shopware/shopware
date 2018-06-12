@@ -6,69 +6,34 @@
 
     <services>
         <!-- Versioning -->
-        <service alias="Shopware\Core\System\Config\ConfigFormRepository.v1" id="Shopware\Core\System\Config\ConfigFormRepository" public="true" />
-        <service alias="Shopware\Core\System\Config\Aggregate\ConfigFormField\ConfigFormFieldRepository.v1" id="Shopware\Core\System\Config\Aggregate\ConfigFormField\ConfigFormFieldRepository" public="true" />
-        <service alias="Shopware\Core\System\Config\Aggregate\ConfigFormFieldTranslation\ConfigFormFieldTranslationRepository.v1" id="Shopware\Core\System\Config\Aggregate\ConfigFormFieldTranslation\ConfigFormFieldTranslationRepository" public="true" />
-        <service alias="Shopware\Core\System\Config\Aggregate\ConfigFormFieldValue\ConfigFormFieldValueRepository.v1" id="Shopware\Core\System\Config\Aggregate\ConfigFormFieldValue\ConfigFormFieldValueRepository" public="true" />
-        <service alias="Shopware\Core\System\Config\Aggregate\ConfigFormTranslation\ConfigFormTranslationRepository.v1" id="Shopware\Core\System\Config\Aggregate\ConfigFormTranslation\ConfigFormTranslationRepository" public="true"/>
 
         <service class="Shopware\Core\System\Config\ConfigFormDefinition" id="Shopware\Core\System\Config\ConfigFormDefinition" >
             <tag name="shopware.entity.definition" entity="config_form" />
         </service>
 
-        <service class="Shopware\Core\System\Config\ConfigFormRepository" id="Shopware\Core\System\Config\ConfigFormRepository.v1" public="true">
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntityReader" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Version\Service\VersionManager" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntitySearcher" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntityAggregator" type="service"/>
-          <argument id="event_dispatcher" type="service"/>
-        </service>
+
          <service class="Shopware\Core\System\Config\Aggregate\ConfigFormField\ConfigFormFieldDefinition" id="Shopware\Core\System\Config\Aggregate\ConfigFormField\ConfigFormFieldDefinition" >
             <tag name="shopware.entity.definition" entity="config_form_field" />
         </service>
 
-        <service class="Shopware\Core\System\Config\Aggregate\ConfigFormField\ConfigFormFieldRepository" id="Shopware\Core\System\Config\Aggregate\ConfigFormField\ConfigFormFieldRepository.v1" public="true">
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntityReader" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Version\Service\VersionManager" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntitySearcher" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntityAggregator" type="service"/>
-          <argument id="event_dispatcher" type="service"/>
-        </service>
+
          <service class="Shopware\Core\System\Config\Aggregate\ConfigFormFieldTranslation\ConfigFormFieldTranslationDefinition" id="Shopware\Core\System\Config\Aggregate\ConfigFormFieldTranslation\ConfigFormFieldTranslationDefinition" >
             <tag name="shopware.entity.definition" entity="config_form_field_translation" />
         </service>
 
-        <service class="Shopware\Core\System\Config\Aggregate\ConfigFormFieldTranslation\ConfigFormFieldTranslationRepository" id="Shopware\Core\System\Config\Aggregate\ConfigFormFieldTranslation\ConfigFormFieldTranslationRepository.v1" public="true">
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntityReader" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Version\Service\VersionManager" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntitySearcher" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntityAggregator" type="service"/>
-          <argument id="event_dispatcher" type="service"/>
-        </service>
+
 
          <service class="Shopware\Core\System\Config\Aggregate\ConfigFormFieldValue\ConfigFormFieldValueDefinition" id="Shopware\Core\System\Config\Aggregate\ConfigFormFieldValue\ConfigFormFieldValueDefinition" >
             <tag name="shopware.entity.definition" entity="config_form_field_value" />
         </service>
 
-        <service class="Shopware\Core\System\Config\Aggregate\ConfigFormFieldValue\ConfigFormFieldValueRepository" id="Shopware\Core\System\Config\Aggregate\ConfigFormFieldValue\ConfigFormFieldValueRepository.v1" public="true">
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntityReader" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Version\Service\VersionManager" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntitySearcher" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntityAggregator" type="service"/>
-          <argument id="event_dispatcher" type="service"/>
-        </service>
+
          <service class="Shopware\Core\System\Config\Aggregate\ConfigFormTranslation\ConfigFormTranslationDefinition" id="Shopware\Core\System\Config\Aggregate\ConfigFormTranslation\ConfigFormTranslationDefinition" >
             <tag name="shopware.entity.definition" entity="config_form_translation" />
         </service>
 
 
-        <service class="Shopware\Core\System\Config\Aggregate\ConfigFormTranslation\ConfigFormTranslationRepository" id="Shopware\Core\System\Config\Aggregate\ConfigFormTranslation\ConfigFormTranslationRepository.v1" public="true">
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntityReader" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Version\Service\VersionManager" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntitySearcher" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntityAggregator" type="service"/>
-          <argument id="event_dispatcher" type="service"/>
-        </service>
+
 
         <!-- Config -->
         <service class="Shopware\Core\System\Config\Util\CacheWarmer" id="Shopware\Core\System\Config\Util\CacheWarmer">

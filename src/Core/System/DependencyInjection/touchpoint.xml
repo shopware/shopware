@@ -6,19 +6,12 @@
 
     <services>
         <!-- Versioning -->
-        <service alias="Shopware\Core\System\Touchpoint\TouchpointRepository.v1" id="Shopware\Core\System\Touchpoint\TouchpointRepository" public="true" />
 
          <service class="Shopware\Core\System\Touchpoint\TouchpointDefinition" id="Shopware\Core\System\Touchpoint\TouchpointDefinition" >
             <tag name="shopware.entity.definition" entity="application" />
         </service>
 
-        <service class="Shopware\Core\System\Touchpoint\TouchpointRepository" id="Shopware\Core\System\Touchpoint\TouchpointRepository.v1" public="true">
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntityReader" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Version\Service\VersionManager" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntitySearcher" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntityAggregator" type="service"/>
-          <argument id="event_dispatcher" type="service"/>
-        </service>
+
     </services>
 </container>                
                 

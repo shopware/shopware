@@ -6,7 +6,6 @@
 
     <services>
         <!-- Versioning -->
-        <service alias="Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeRepository.v1" id="Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeRepository" public="true" />
 
         <service class="Shopware\Core\Checkout\DiscountSurcharge\Cart\DiscountSurchargeProcessor" id="Shopware\Core\Checkout\DiscountSurcharge\Cart\DiscountSurchargeProcessor">
             <argument id="Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator" type="service"/>
@@ -23,12 +22,6 @@
             <tag name="shopware.entity.definition" entity="discount_surcharge" />
         </service>
 
-        <service class="Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeRepository" id="Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeRepository.v1" public="true">
-            <argument id="Shopware\Core\Framework\ORM\Dbal\EntityReader" type="service"/>
-            <argument id="Shopware\Core\Framework\ORM\Version\Service\VersionManager" type="service"/>
-            <argument id="Shopware\Core\Framework\ORM\Dbal\EntitySearcher" type="service"/>
-            <argument id="Shopware\Core\Framework\ORM\Dbal\EntityAggregator" type="service"/>
-            <argument id="event_dispatcher" type="service"/>
-        </service>
+
     </services>
 </container>

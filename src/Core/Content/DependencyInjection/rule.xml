@@ -6,18 +6,11 @@
 
     <services>
         <!-- Versioning -->
-        <service alias="Shopware\Core\Content\Rule\RuleRepository.v1" id="Shopware\Core\Content\Rule\RuleRepository" public="true" />
 
         <service class="Shopware\Core\Content\Rule\RuleDefinition" id="Shopware\Core\Content\Rule\RuleDefinition" >
             <tag name="shopware.entity.definition" entity="rule" />
         </service>
 
-        <service class="Shopware\Core\Content\Rule\RuleRepository" id="Shopware\Core\Content\Rule\RuleRepository.v1" public="true">
-            <argument id="Shopware\Core\Framework\ORM\Dbal\EntityReader" type="service"/>
-            <argument id="Shopware\Core\Framework\ORM\Version\Service\VersionManager" type="service"/>
-            <argument id="Shopware\Core\Framework\ORM\Dbal\EntitySearcher" type="service"/>
-            <argument id="Shopware\Core\Framework\ORM\Dbal\EntityAggregator" type="service"/>
-            <argument id="event_dispatcher" type="service"/>
-        </service>
+
     </services>
 </container>

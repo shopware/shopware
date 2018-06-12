@@ -6,29 +6,15 @@
 
     <services>
         <!-- Versioning -->
-        <service alias="Shopware\Core\System\Unit\UnitRepository.v1" id="Shopware\Core\System\Unit\UnitRepository" public="true"/>
-        <service alias="Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationRepository.v1" id="Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationRepository" public="true"/>
 
         <service class="Shopware\Core\System\Unit\UnitDefinition" id="Shopware\Core\System\Unit\UnitDefinition" >
             <tag name="shopware.entity.definition" entity="unit" />
         </service>
-        <service class="Shopware\Core\System\Unit\UnitRepository" id="Shopware\Core\System\Unit\UnitRepository.v1" public="true">
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntityReader" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Version\Service\VersionManager" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntitySearcher" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntityAggregator" type="service"/>
-          <argument id="event_dispatcher" type="service"/>
-        </service>
+
          <service class="Shopware\Core\System\Unit\Definition\UnitTranslationDefinition" id="Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationDefinition" >
             <tag name="shopware.entity.definition" entity="unit_translation" />
         </service>
-        <service class="Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationRepository" id="Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationRepository.v1" public="true">
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntityReader" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Version\Service\VersionManager" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntitySearcher" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntityAggregator" type="service"/>
-          <argument id="event_dispatcher" type="service"/>
-        </service>
+
     </services>
 </container>                
                 

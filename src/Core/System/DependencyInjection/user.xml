@@ -6,18 +6,11 @@
 
     <services>
         <!-- Versioning -->
-        <service alias="Shopware\Core\System\User\UserRepository.v1" id="Shopware\Core\System\User\UserRepository" public="true"/>
 
         <service class="Shopware\Core\System\User\UserDefinition" id="shopware.user.user_definition" >
             <tag name="shopware.entity.definition" entity="user" />
         </service>
-        <service class="Shopware\Core\System\User\UserRepository" id="Shopware\Core\System\User\UserRepository.v1" public="true">
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntityReader" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Version\Service\VersionManager" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntitySearcher" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntityAggregator" type="service"/>
-          <argument id="event_dispatcher" type="service"/>
-        </service>
+
 
         <service class="Shopware\Core\System\Command\UserCreateCommand" id="Shopware\Core\System\Command\UserCreateCommand">
             <argument id="Shopware\Core\System\User\UserRepository" type="service"/>

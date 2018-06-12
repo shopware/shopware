@@ -6,17 +6,6 @@
 
     <services>
         <!-- Versioning -->
-        <service alias="Shopware\Core\Content\Product\ProductRepository.v1" id="Shopware\Core\Content\Product\ProductRepository" public="true"/>
-        <service alias="Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorRepository.v1" id="Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorRepository" public="true" />
-        <service alias="Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleRepository.v1" id="Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleRepository" public="true" />
-        <service alias="Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerRepository.v1" id="Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerRepository" public="true"/>
-        <service alias="Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationRepository.v1" id="Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationRepository" public="true"/>
-        <service alias="Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaRepository.v1" id="Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaRepository" public="true"/>
-        <service alias="Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordRepository.v1" id="Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordRepository" public="true"/>
-        <service alias="Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceRepository.v1" id="Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceRepository" public="true" />
-        <service alias="Shopware\Core\Content\Product\Aggregate\ProductStream\ProductStreamRepository.v1" id="Shopware\Core\Content\Product\Aggregate\ProductStream\ProductStreamRepository" public="true"/>
-        <service alias="Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationRepository.v1" id="Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationRepository" public="true"/>
-
         <service class="Shopware\Core\Content\Product\Storefront\StorefrontProductRepository" id="Shopware\Core\Content\Product\Storefront\StorefrontProductRepository">
             <argument type="service" id="Shopware\Core\Content\Product\ProductRepository"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\PriceCalculator"/>
@@ -31,102 +20,48 @@
         <service class="Shopware\Core\Content\Product\ProductDefinition" id="Shopware\Core\Content\Product\ProductDefinition" >
             <tag name="shopware.entity.definition" entity="product" />
         </service>
-        <service class="Shopware\Core\Content\Product\ProductRepository" id="Shopware\Core\Content\Product\ProductRepository.v1" public="true">
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntityReader" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Version\Service\VersionManager" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntitySearcher" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntityAggregator" type="service"/>
-          <argument id="event_dispatcher" type="service"/>
-        </service>
+
          <service class="Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition" >
             <tag name="shopware.entity.definition" entity="product_category" />
         </service>
          <service class="Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorDefinition" >
             <tag name="shopware.entity.definition" entity="product_configurator" />
         </service>
-        <service class="Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorRepository" id="Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorRepository.v1" public="true">
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntityReader" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Version\Service\VersionManager" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntitySearcher" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntityAggregator" type="service"/>
-          <argument id="event_dispatcher" type="service"/>
-        </service>
+
          <service class="Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleDefinition" >
             <tag name="shopware.entity.definition" entity="product_price_rule" />
         </service>
-        <service class="Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleRepository" id="Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleRepository.v1" public="true">
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntityReader" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Version\Service\VersionManager" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntitySearcher" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntityAggregator" type="service"/>
-          <argument id="event_dispatcher" type="service"/>
-        </service>
+
          <service class="Shopware\Core\Content\Product\Aggregate\ProductDatasheet\ProductDatasheetDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductDatasheet\ProductDatasheetDefinition" >
             <tag name="shopware.entity.definition" entity="product_datasheet" />
         </service>
          <service class="Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition" >
             <tag name="shopware.entity.definition" entity="product_manufacturer" />
         </service>
-        <service class="Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerRepository" id="Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerRepository.v1" public="true">
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntityReader" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Version\Service\VersionManager" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntitySearcher" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntityAggregator" type="service"/>
-          <argument id="event_dispatcher" type="service"/>
-        </service>
+
          <service class="Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition" >
             <tag name="shopware.entity.definition" entity="product_manufacturer_translation" />
         </service>
-        <service class="Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationRepository" id="Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationRepository.v1" public="true">
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntityReader" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Version\Service\VersionManager" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntitySearcher" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntityAggregator" type="service"/>
-          <argument id="event_dispatcher" type="service"/>
-        </service>
+
          <service class="Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition" >
             <tag name="shopware.entity.definition" entity="product_media" />
         </service>
-        <service class="Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaRepository" id="Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaRepository.v1" public="true">
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntityReader" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Version\Service\VersionManager" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntitySearcher" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntityAggregator" type="service"/>
-          <argument id="event_dispatcher" type="service"/>
-        </service>
+
          <service class="Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordDefinition" >
             <tag name="shopware.entity.definition" entity="product_search_keyword" />
         </service>
-        <service class="Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordRepository" id="Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordRepository.v1" public="true">
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntityReader" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Version\Service\VersionManager" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntitySearcher" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntityAggregator" type="service"/>
-          <argument id="event_dispatcher" type="service"/>
-        </service>
+
          <service class="Shopware\Core\Content\Product\Aggregate\ProductSeoCategory\ProductSeoCategoryDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductSeoCategory\ProductSeoCategoryDefinition" >
             <tag name="shopware.entity.definition" entity="product_seo_category" />
         </service>
          <service class="Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceDefinition" >
             <tag name="shopware.entity.definition" entity="product_service" />
         </service>
-        <service class="Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceRepository" id="Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceRepository.v1" public="true">
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntityReader" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Version\Service\VersionManager" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntitySearcher" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntityAggregator" type="service"/>
-          <argument id="event_dispatcher" type="service"/>
-        </service>
+
          <service class="Shopware\Core\Content\Product\Aggregate\ProductStream\ProductStreamDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductStream\ProductStreamDefinition" >
             <tag name="shopware.entity.definition" entity="product_stream" />
         </service>
-        <service class="Shopware\Core\Content\Product\Aggregate\ProductStream\ProductStreamRepository" id="Shopware\Core\Content\Product\Aggregate\ProductStream\ProductStreamRepository.v1" public="true">
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntityReader" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Version\Service\VersionManager" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntitySearcher" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntityAggregator" type="service"/>
-          <argument id="event_dispatcher" type="service"/>
-        </service>
+
          <service class="Shopware\Core\Content\Product\Aggregate\ProductStreamAssignment\ProductStreamAssignmentDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductStreamAssignment\ProductStreamAssignmentDefinition" >
             <tag name="shopware.entity.definition" entity="product_stream_assignment" />
         </service>
@@ -136,13 +71,7 @@
          <service class="Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition" >
             <tag name="shopware.entity.definition" entity="product_translation" />
         </service>
-        <service class="Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationRepository" id="Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationRepository.v1" public="true">
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntityReader" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Version\Service\VersionManager" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntitySearcher" type="service"/>
-          <argument id="Shopware\Core\Framework\ORM\Dbal\EntityAggregator" type="service"/>
-          <argument id="event_dispatcher" type="service"/>
-        </service>
+
          <service class="Shopware\Core\Content\Product\Aggregate\ProductVariation\ProductVariationDefinition" id="Shopware\Core\Content\Product\Aggregate\ProductVariation\ProductVariationDefinition" >
             <tag name="shopware.entity.definition" entity="product_variation" />
         </service>

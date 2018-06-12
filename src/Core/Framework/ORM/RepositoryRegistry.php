@@ -58,7 +58,7 @@ class RepositoryRegistry
 
     public function get(string $definition, int $version = 1)
     {
-        for ($i = $version; $i > 1; $i--) {
+        for ($i = $version; $i >= 1; $i--) {
             if (array_key_exists($definition, $this->repositories)) {
                 return $this->repositories[$definition];
             }

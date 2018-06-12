@@ -286,5 +286,9 @@
             <tag name="shopware.entity.extension"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
+
+        <service class="Shopware\Storefront\Api\Seo\SeoUrlDefinition" id="Shopware\Storefront\Api\Seo\SeoUrlDefinition" >
+            <tag name="shopware.entity.definition" entity="seo_url" />
+        </service>
     </services>
 </container>

@@ -27,22 +27,23 @@ namespace Shopware\Core\Content\Product\Cart;
 
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Product\Collection\ProductBasicCollection;
-use Shopware\Core\Content\Product\ProductRepository;
+use Shopware\Core\Framework\ORM\Read\ReadCriteria;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 
 class ProductGateway implements ProductGatewayInterface
 {
     /**
-     * @var \Shopware\Core\Content\Product\ProductRepository
+     * @var RepositoryInterface
      */
     private $repository;
 
-    public function __construct(ProductRepository $repository)
+    public function __construct(RepositoryInterface $repository)
     {
         $this->repository = $repository;
     }
 
     public function get(array $ids, CheckoutContext $context): ProductBasicCollection
     {
-        return $this->repository->readBasic($ids, $context->getContext());
+        return $this->repository->read(new ReadCriteria($ids), $context->getContext());
     }
 }

@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Checkout\Test\DiscountSurcharge;
 
+use Shopware\Core\Checkout\DiscountSurcharge\Cart\DiscountSurchargeProcessor;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Cart\CircularCartCalculation;
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
@@ -9,41 +12,37 @@ use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\PercentageTaxRule;
 use Shopware\Core\Checkout\Cart\Rule\GoodsCountRule;
 use Shopware\Core\Checkout\Cart\Rule\GoodsPriceRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemOfTypeRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemTotalPriceRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemWithQuantityRule;
 use Shopware\Core\Checkout\Cart\Rule\ProductOfManufacturerRule;
-use Shopware\Core\Checkout\Cart\Tax\Struct\PercentageTaxRule;
-use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Checkout\DiscountSurcharge\Cart\DiscountSurchargeProcessor;
-use Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeRepository;
-use Shopware\Core\Checkout\Test\Cart\Common\Generator;
-use Shopware\Core\Content\Product\Cart\ProductProcessor;
-use Shopware\Core\Content\Product\ProductRepository;
-use Shopware\Core\Content\Rule\RuleRepository;
-use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Read\ReadCriteria;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Checkout\Test\Cart\Common\Generator;
+use Shopware\Core\Content\Product\Cart\ProductProcessor;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class DiscountSurchargeTest extends KernelTestCase
 {
     /**
-     * @var \Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeRepository
+     * @var RepositoryInterface
      */
     public static $discountSurchargeRepository;
 
     /**
-     * @var \Shopware\Core\Content\Rule\RuleRepository
+     * @var RepositoryInterface
      */
     public static $ruleRepository;
 
     /**
-     * @var \Shopware\Core\Content\Product\ProductRepository
+     * @var RepositoryInterface
      */
     public static $productRepository;
 
@@ -62,9 +61,9 @@ class DiscountSurchargeTest extends KernelTestCase
         parent::setUp();
 
         self::bootKernel();
-        self::$ruleRepository = self::$container->get(RuleRepository::class);
-        self::$productRepository = self::$container->get(ProductRepository::class);
-        self::$discountSurchargeRepository = self::$kernel->getContainer()->get(DiscountSurchargeRepository::class);
+        self::$ruleRepository = self::$container->get('rule.repository');
+        self::$productRepository = self::$container->get('product.repository');
+        self::$discountSurchargeRepository = self::$kernel->getContainer()->get('discount_surcharge.repository');
         self::$context = Context::createDefaultContext(Defaults::TENANT_ID);
         self::$calculation = self::$container->get(CircularCartCalculation::class);
     }
@@ -502,7 +501,7 @@ class DiscountSurchargeTest extends KernelTestCase
 
     private function getManufacturersOfProduct(string $productId): string
     {
-        $product = self::$productRepository->readBasic([$productId], self::$context)->get($productId);
+        $product = self::$productRepository->read(new ReadCriteria([$productId]), self::$context)->get($productId);
 
         return $product->getManufacturer()->getId();
     }

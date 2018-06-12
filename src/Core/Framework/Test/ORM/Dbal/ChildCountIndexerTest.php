@@ -3,10 +3,12 @@
 namespace Shopware\Core\Framework\Test\ORM\Dbal;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Content\Category\CategoryRepository;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Dbal\Indexing\ChildCountIndexer;
+use Shopware\Core\Framework\ORM\Read\ReadCriteria;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -14,7 +16,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class ChildCountIndexerTest extends KernelTestCase
 {
     /**
-     * @var CategoryRepository
+     * @var RepositoryInterface
      */
     private $categoryRepository;
 
@@ -41,7 +43,7 @@ class ChildCountIndexerTest extends KernelTestCase
     public function setUp()
     {
         self::bootKernel();
-        $this->categoryRepository = self::$container->get(CategoryRepository::class);
+        $this->categoryRepository = self::$container->get('category.repository');
         $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
         $this->childCountIndexer = self::$container->get(ChildCountIndexer::class);
         $this->eventDispatcher = self::$container->get('event_dispatcher');
@@ -63,7 +65,7 @@ class ChildCountIndexerTest extends KernelTestCase
 
         $categoryD = $this->createCategory($categoryC);
 
-        $categories = $this->categoryRepository->readBasic([$categoryA, $categoryB, $categoryC, $categoryD], $this->context);
+        $categories = $this->categoryRepository->read(new ReadCriteria([$categoryA, $categoryB, $categoryC, $categoryD]), $this->context);
 
         $this->assertEquals(2, $categories->get($categoryA)->getChildCount());
         $this->assertEquals(0, $categories->get($categoryB)->getChildCount());
@@ -82,7 +84,7 @@ class ChildCountIndexerTest extends KernelTestCase
         ├── Category D
         */
 
-        $categories = $this->categoryRepository->readBasic([$categoryA, $categoryB, $categoryC, $categoryD], $this->context);
+        $categories = $this->categoryRepository->read(new ReadCriteria([$categoryA, $categoryB, $categoryC, $categoryD]), $this->context);
 
         $this->assertEquals(3, $categories->get($categoryA)->getChildCount());
         $this->assertEquals(0, $categories->get($categoryB)->getChildCount());
@@ -106,8 +108,8 @@ class ChildCountIndexerTest extends KernelTestCase
         $categoryD = $this->createCategory($categoryA);
         $categoryE = $this->createCategory($categoryD);
 
-        $categories = $this->categoryRepository->readBasic(
-            [$categoryA, $categoryB, $categoryC, $categoryD, $categoryE],
+        $categories = $this->categoryRepository->read(
+            new ReadCriteria([$categoryA, $categoryB, $categoryC, $categoryD, $categoryE]),
             $this->context
         );
 
@@ -139,8 +141,8 @@ class ChildCountIndexerTest extends KernelTestCase
         │  └── Category D
         │  └── Category E
          */
-        $categories = $this->categoryRepository->readBasic(
-            [$categoryA, $categoryB, $categoryC, $categoryD, $categoryE],
+        $categories = $this->categoryRepository->read(
+            new ReadCriteria([$categoryA, $categoryB, $categoryC, $categoryD, $categoryE]),
             $this->context
         );
 
@@ -179,14 +181,14 @@ class ChildCountIndexerTest extends KernelTestCase
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
 
-        $categories = $this->categoryRepository->readBasic([$categoryA, $categoryB, $categoryC, $categoryD], $this->context);
+        $categories = $this->categoryRepository->read(new ReadCriteria([$categoryA, $categoryB, $categoryC, $categoryD]), $this->context);
         foreach ($categories as $category) {
             $this->assertEquals(0, $category->getChildCount());
         }
 
         $this->childCountIndexer->index(new \DateTime(), $this->context->getTenantId());
 
-        $categories = $this->categoryRepository->readBasic([$categoryA, $categoryB, $categoryC, $categoryD], $this->context);
+        $categories = $this->categoryRepository->read(new ReadCriteria([$categoryA, $categoryB, $categoryC, $categoryD]), $this->context);
 
         $this->assertEquals(2, $categories->get($categoryA)->getChildCount());
         $this->assertEquals(0, $categories->get($categoryB)->getChildCount());

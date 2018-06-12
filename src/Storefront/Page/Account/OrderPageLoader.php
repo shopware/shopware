@@ -3,7 +3,7 @@
 namespace Shopware\Storefront\Page\Account;
 
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Checkout\Order\OrderRepository;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\ORM\Search\Sorting\FieldSorting;
@@ -14,12 +14,13 @@ class OrderPageLoader
     const LIMIT_PARAMETER = 'limit';
 
     const PAGE_PARAMETER = 'page';
+
     /**
-     * @var \Shopware\Core\Checkout\Order\OrderRepository
+     * @var RepositoryInterface
      */
     private $orderRepository;
 
-    public function __construct(OrderRepository $orderRepository)
+    public function __construct(RepositoryInterface $orderRepository)
     {
         $this->orderRepository = $orderRepository;
     }

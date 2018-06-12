@@ -150,7 +150,7 @@ In the PHP stack we can get access to the repository via di container.
 Each repository uses its class name as di container id. 
 To search for entities, a `\Shopware\Core\Framework\ORM\Search\Criteria` object is always used
 ```php
-$repository = $this->container->get(ProductRepository::class);
+$repository = $this->container->get('product.repository');
 
 $criteria = new Criteria();
 $criteria->setOffset(0);
@@ -217,7 +217,7 @@ which allow you to link queries with each other or to negate them:
 
 Lets start with a simple filtered list of products and filter products which are not active:
 ```php
-$repository = $this->container->get(ProductRepository::class);
+$repository = $this->container->get('product.repository');
 
 $criteria = new Criteria();
 $criteria->setOffset(0);
@@ -431,28 +431,28 @@ Suppose we have to select 15 products on a system. We just get the ids back from
 Now there are several ways to determine the data for these 15 products. 
 The following script shows two ways:
 ```
-$repository = $this->container->get(ProductRepository::class);
+$repository = $this->container->get('product.repository');
  
 $criteria = new Criteria();
 $criteria->setLimit(15);
 
 $ids = $repository->searchIds(
     $criteria, 
-    $context->getApplicationContext()
+    $context->getContext()
 );
 
 // batch variant
-$basics = $repository->readBasic(
-    $ids->getIds(), 
-    $context->getApplicationContext()
+$basics = $repository->read(
+    new ReadCriteria($ids->getIds()), 
+    $context->getContext()
 );
 
 
 // loop variant
 foreach ($ids->getIds() as $id) {
-    $basics = $repository->readBasic(
-        [$id], 
-        $context->getApplicationContext()
+    $basics = $repository->read(
+        new ReadCriteria([$id]), 
+        $context->getContext()
     );
 }
 ```
@@ -512,7 +512,7 @@ Unlike some other ORMs, the platform does not work with entity/model classes whe
 Instead the platform works with simple arrays. This has the advantage,
 that no read operation must take place before:  
 ```
-$repository = $this->container->get(ProductRepository::class);
+$repository = $this->container->get('product.repository');
 
 $id = Uuid::uuid4()->getHex();
 
@@ -526,7 +526,7 @@ $repository->upsert(
             'tax' => ['name' => 'test', 'rate' => 15]
         ]
     ],
-    $context->getApplicationContext()
+    $context->getContext()
 );
 ```
 In the example above, a new product is created. At the same time, a new tax rate 
@@ -534,7 +534,7 @@ and a new manufacturer will be created because they were not sent with a corresp
 
 To link an existing manufacturer or tax rate, you can simply supply the corresponding foreign key:
 ```
-$repository = $this->container->get(ProductRepository::class);
+$repository = $this->container->get('product.repository');
 
 $id = Uuid::uuid4()->getHex();
 
@@ -548,14 +548,14 @@ $repository->upsert(
             'taxId' => '4926035368E34D9FA695E017D7A231B9'
         ]
     ],
-    $context->getApplicationContext()
+    $context->getContext()
 );
 ```
 
 In order to link an existing manufacturer or tax rate and to update it at the same time, 
 the corresponding foreign key must be sent along with the associated data array:
 ```
-$repository = $this->container->get(ProductRepository::class);
+$repository = $this->container->get('product.repository');
 
 $id = Uuid::uuid4()->getHex();
 
@@ -569,7 +569,7 @@ $repository->upsert(
             'tax' => ['id' => 4926035368E34D9FA695E017D7A231B9', 'name' => 'test', 'rate' => 15]
         ],
     ],
-    $context->getApplicationContext()
+    $context->getContext()
 );
 ```
  
@@ -941,9 +941,9 @@ These classes can be iterated to easily handle all records:
 ```php
 <?php
 
-$repository = $this->container->get(ProductRepository::class);
+$repository = $this->container->get('product.repository');
 
-$basics = $repository->readBasic($ids, $context->getApplicationContext());
+$basics = $repository->read(new ReadCriteria($ids), $context->getContext());
 
 foreach ($basics as $productBasicStruct) {
     echo $productBasicStruct->getName();
@@ -954,9 +954,9 @@ collection's aggregated data:
 ```php
 <?php
 
-$repository = $this->container->get(ProductRepository::class);
+$repository = $this->container->get('product.repository');
 
-$basics = $repository->readBasic($ids, $context->getApplicationContext());
+$basics = $repository->read(new ReadCriteria($ids), $context->getContext());
 
 $taxes = $basics->getTaxes();
 

@@ -61,7 +61,7 @@ class SyncController extends Controller
             $definition = $this->registry->get($entity);
 
             /** @var RepositoryInterface $repository */
-            $repository = $this->container->get($definition::getRepositoryClass());
+            $repository = $this->container->get($definition::getEntityName() . '.repository');
 
             switch ($action) {
                 case self::ACTION_DELETE:

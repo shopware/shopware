@@ -3,12 +3,12 @@
 namespace Shopware\Core\Framework\Test\ORM\Reader;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Content\Product\ProductRepository;
-use Shopware\Core\Content\Product\Struct\ProductBasicStruct;
-use Shopware\Core\Content\Rule\RuleRepository;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Read\ReadCriteria;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Rule\Container\AndRule;
+use Shopware\Core\Content\Product\Struct\ProductBasicStruct;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -21,7 +21,7 @@ class EntityReaderTest extends KernelTestCase
     private $connection;
 
     /**
-     * @var ProductRepository
+     * @var RepositoryInterface
      */
     private $repository;
 
@@ -34,7 +34,7 @@ class EntityReaderTest extends KernelTestCase
         $this->connection->beginTransaction();
         $this->connection->executeUpdate('DELETE FROM product');
 
-        $this->repository = self::$container->get(ProductRepository::class);
+        $this->repository = self::$container->get('product.repository');
     }
 
     protected function tearDown()
@@ -74,7 +74,7 @@ class EntityReaderTest extends KernelTestCase
 
         $this->repository->create($products, Context::createDefaultContext(Defaults::TENANT_ID));
 
-        $products = $this->repository->readBasic([$redId, $greenId], Context::createDefaultContext(Defaults::TENANT_ID));
+        $products = $this->repository->read(new ReadCriteria([$redId, $greenId]), Context::createDefaultContext(Defaults::TENANT_ID));
 
         $this->assertTrue($products->has($redId));
         $this->assertTrue($products->has($greenId));
@@ -101,7 +101,7 @@ class EntityReaderTest extends KernelTestCase
     {
         $ruleA = Uuid::uuid4()->getHex();
 
-        self::$container->get(RuleRepository::class)->create([
+        self::$container->get('rule.repository')->create([
             [
                 'id' => $ruleA,
                 'name' => 'test',
@@ -150,7 +150,7 @@ class EntityReaderTest extends KernelTestCase
 
         $this->repository->create($data, Context::createDefaultContext(Defaults::TENANT_ID));
 
-        $products = $this->repository->readBasic([$redId, $greenId], Context::createDefaultContext(Defaults::TENANT_ID));
+        $products = $this->repository->read(new ReadCriteria([$redId, $greenId]), Context::createDefaultContext(Defaults::TENANT_ID));
 
         $this->assertTrue($products->has($redId));
         $this->assertTrue($products->has($greenId));
@@ -201,7 +201,7 @@ class EntityReaderTest extends KernelTestCase
 
         $this->repository->create($products, Context::createDefaultContext(Defaults::TENANT_ID));
 
-        $products = $this->repository->readBasic([$redId, $greenId], Context::createDefaultContext(Defaults::TENANT_ID));
+        $products = $this->repository->read(new ReadCriteria([$redId, $greenId]), Context::createDefaultContext(Defaults::TENANT_ID));
 
         $this->assertTrue($products->has($redId));
         $this->assertTrue($products->has($greenId));

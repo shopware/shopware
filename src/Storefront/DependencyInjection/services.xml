@@ -16,7 +16,7 @@
         </service>
 
         <service class="Shopware\Storefront\Command\TouchpointCreateStorefrontCommand" id="Shopware\Storefront\Command\TouchpointCreateStorefrontCommand">
-            <argument id="Shopware\Core\System\Touchpoint\TouchpointRepository" type="service"/>
+            <argument id="touchpoint.repository" type="service"/>
             <argument id="Doctrine\DBAL\Connection" type="service"/>
             <tag name="console.command"/>
         </service>
@@ -33,23 +33,23 @@
         </service>
 
         <service class="Shopware\Storefront\Navigation\NavigationService" id="Shopware\Storefront\Navigation\NavigationService" public="true">
-            <argument type="service" id="Shopware\Core\Content\Category\CategoryRepository"/>
+            <argument type="service" id="category.repository"/>
         </service>
 
         <service class="Shopware\Storefront\Page\Account\CustomerAddressPageLoader" id="Shopware\Storefront\Page\Account\CustomerAddressPageLoader">
-            <argument id="Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository" type="service"/>
+            <argument id="customer_address.repository" type="service"/>
         </service>
 
         <service class="Shopware\Storefront\Page\Account\OrderPageLoader" id="Shopware\Storefront\Page\Account\OrderPageLoader">
-            <argument id="Shopware\Core\Checkout\Order\OrderRepository" type="service"/>
+            <argument id="order.repository" type="service"/>
         </service>
 
         <service class="Shopware\Storefront\DbalIndexing\SeoUrl\DetailPageSeoUrlIndexer" id="Shopware\Storefront\DbalIndexing\SeoUrl\DetailPageSeoUrlIndexer">
             <argument id="Doctrine\DBAL\Connection" type="service"/>
             <argument id="slugify" type="service"/>
             <argument id="router" type="service"/>
-            <argument id="Shopware\Core\Content\Product\ProductRepository" type="service"/>
-            <argument id="Shopware\Core\System\Touchpoint\TouchpointRepository" type="service"/>
+            <argument id="product.repository" type="service"/>
+            <argument id="touchpoint.repository" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument type="service" id="Shopware\Core\Content\Product\Util\EventIdExtractor"/>
             <!--<tag name="shopware.dbal_indexing.indexer"/>-->
@@ -59,20 +59,20 @@
             <argument id="Doctrine\DBAL\Connection" type="service"/>
             <argument id="slugify" type="service"/>
             <argument id="router" type="service"/>
-            <argument id="Shopware\Core\Content\Category\CategoryRepository" type="service"/>
-            <argument id="Shopware\Core\System\Touchpoint\TouchpointRepository" type="service"/>
+            <argument id="category.repository" type="service"/>
+            <argument id="touchpoint.repository" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument type="service" id="Shopware\Core\Content\Product\Util\EventIdExtractor"/>
             <!--<tag name="shopware.dbal_indexing.indexer"/>-->
         </service>
 
         <service id="Shopware\Storefront\Page\Checkout\PaymentMethodLoader">
-            <argument id="Shopware\Core\Checkout\Payment\PaymentMethodRepository" type="service"/>
+            <argument id="payment_method.repository" type="service"/>
         </service>
 
         <service class="Shopware\Storefront\Page\Detail\DetailPageLoader" id="Shopware\Storefront\Page\Detail\DetailPageLoader">
             <argument id="Shopware\Core\Content\Product\Storefront\StorefrontProductRepository" type="service"/>
-            <argument type="service" id="Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorRepository"/>
+            <argument type="service" id="product_configurator.repository"/>
         </service>
 
         <service class="Shopware\Storefront\Page\Listing\ListingPageLoader" id="Shopware\Storefront\Page\Listing\ListingPageLoader">
@@ -87,12 +87,9 @@
         </service>
 
         <service class="Shopware\Storefront\Page\Account\AccountService" id="Shopware\Storefront\Page\Account\AccountService">
-            <argument id="Shopware\Core\System\Country\CountryRepository" type="service"/>
-            <argument id="Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository" type="service"/>
-            <argument id="Shopware\Core\Checkout\Customer\CustomerRepository" type="service"/>
-            <argument type="service" id="security.authentication.manager"/>
-            <argument type="service" id="security.token_storage"/>
-            <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextPersister"/>
+            <argument id="country.repository" type="service"/>
+            <argument id="customer_address.repository" type="service"/>
+            <argument id="customer.repository" type="service"/>
         </service>
 
         <service class="Shopware\Storefront\Controller\AccountController" public="true" id="Shopware\Storefront\Controller\AccountController">
@@ -108,8 +105,8 @@
         </service>
 
         <service class="Shopware\Storefront\Controller\Widgets\IndexController" public="true" id="Shopware\Storefront\Controller\Widgets\IndexController">
-            <argument type="service" id="Shopware\Core\System\Currency\CurrencyRepository"/>
-            <argument type="service" id="Shopware\Core\System\Language\LanguageRepository"/>
+            <argument type="service" id="currency.repository"/>
+            <argument type="service" id="language.repository"/>
         </service>
 
         <service class="Shopware\Storefront\Controller\Widgets\CheckoutController" public="true" id="Shopware\Storefront\Controller\Widgets\CheckoutController">
@@ -138,11 +135,11 @@
 
         <service class="Shopware\Storefront\Controller\CheckoutController" id="Shopware\Storefront\Controller\CheckoutController" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Storefront\CartService"/>
-            <argument type="service" id="Shopware\Core\Checkout\Order\OrderRepository"/>
+            <argument type="service" id="order.repository"/>
             <argument type="service" id="Shopware\Storefront\Page\Checkout\PaymentMethodLoader"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentTransactionChainProcessor"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\Token\PaymentTransactionTokenFactory"/>
-            <argument type="service" id="Shopware\Core\Checkout\Payment\PaymentMethodRepository"/>
+            <argument type="service" id="payment_method.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextPersister"/>
             <argument type="service" id="serializer"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry"/>
@@ -184,7 +181,7 @@
         </service>
 
         <service class="Shopware\Storefront\Subscriber\SortingSubscriber" id="Shopware\Storefront\Subscriber\SortingSubscriber">
-            <argument id="Shopware\Core\System\Listing\ListingSortingRepository" type="service"/>
+            <argument id="listing_sorting.repository" type="service"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
@@ -197,7 +194,7 @@
         </service>
 
         <service class="Shopware\Storefront\Subscriber\ManufacturerAggregationSubscriber" id="Shopware\Storefront\Subscriber\ManufacturerAggregationSubscriber">
-            <argument id="Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerRepository" type="service"/>
+            <argument id="product_manufacturer.repository" type="service"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 

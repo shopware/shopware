@@ -11,7 +11,7 @@
             <tag name="shopware.entity.definition" entity="listing_facet" />
         </service>
 
-         <service class="Shopware\Core\System\Listing\Definition\ListingFacetTranslationDefinition" id="Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation\ListingFacetTranslationDefinition" >
+         <service class="Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation\ListingFacetTranslationDefinition" id="Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation\ListingFacetTranslationDefinition" >
             <tag name="shopware.entity.definition" entity="listing_facet_translation" />
         </service>
 
@@ -19,7 +19,7 @@
             <tag name="shopware.entity.definition" entity="listing_sorting" />
         </service>
 
-         <service class="Shopware\Core\System\Listing\Definition\ListingSortingTranslationDefinition" id="Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation\ListingSortingTranslationDefinition" >
+         <service class="Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation\ListingSortingTranslationDefinition" id="Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation\ListingSortingTranslationDefinition" >
             <tag name="shopware.entity.definition" entity="listing_sorting_translation" />
         </service>
 

@@ -4,9 +4,9 @@ namespace Shopware\Storefront\DbalIndexing\SeoUrl;
 
 use Cocur\Slugify\SlugifyInterface;
 use Doctrine\DBAL\Connection;
-use Shopware\Core\System\Touchpoint\TouchpointRepository;
+use Shopware\Core\Framework\ORM\Read\ReadCriteria;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Content\Category\CategoryRepository;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
@@ -42,7 +42,7 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
     private $router;
 
     /**
-     * @var TouchpointRepository
+     * @var RepositoryInterface
      */
     private $applicationRepository;
 
@@ -52,9 +52,10 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
     private $eventDispatcher;
 
     /**
-     * @var CategoryRepository
+     * @var RepositoryInterface
      */
     private $categoryRepository;
+
     /**
      * @var \Shopware\Core\Content\Product\Util\EventIdExtractor
      */
@@ -64,8 +65,8 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
         Connection $connection,
         SlugifyInterface $slugify,
         RouterInterface $router,
-        CategoryRepository $categoryRepository,
-        TouchpointRepository $applicationRepository,
+        RepositoryInterface $categoryRepository,
+        RepositoryInterface $applicationRepository,
         EventDispatcherInterface $eventDispatcher,
         EventIdExtractor $eventIdExtractor
     ) {
@@ -154,7 +155,7 @@ class ListingPageSeoUrlIndexer implements IndexerInterface
             return;
         }
 
-        $categories = $this->categoryRepository->readBasic($ids, $context);
+        $categories = $this->categoryRepository->read(new ReadCriteria($ids), $context);
 
         $canonicals = $this->fetchCanonicals($categories->getIds(), $context->getTouchpointId(), $context->getTenantId());
 

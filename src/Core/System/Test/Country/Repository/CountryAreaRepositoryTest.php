@@ -11,7 +11,6 @@ use Shopware\Core\Framework\ORM\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Core\Framework\ORM\Search\Term\SearchTermInterpreter;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\System\Country\Aggregate\CountryArea\CountryAreaDefinition;
-use Shopware\Core\System\Country\Aggregate\CountryArea\CountryAreaRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class CountryAreaRepositoryTest extends KernelTestCase
@@ -29,7 +28,7 @@ class CountryAreaRepositoryTest extends KernelTestCase
     public function setUp()
     {
         self::bootKernel();
-        $this->repository = self::$container->get(CountryAreaRepository::class);
+        $this->repository = self::$container->get('country_area.repository');
         $this->connection = self::$container->get(Connection::class);
         $this->connection->beginTransaction();
     }

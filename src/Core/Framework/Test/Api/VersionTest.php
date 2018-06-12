@@ -92,7 +92,7 @@ class VersionTest extends ApiTestCase
 
         foreach ($registry->getElements() as $definition) {
             try {
-                $repositoryClass = $definition::getRepositoryClass();
+                $repositoryClass = $definition::getEntityName() . '.repository';
             } catch (MappingEntityRepositoryException $ex) {
                 return;
             }

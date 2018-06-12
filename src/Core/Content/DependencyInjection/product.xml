@@ -7,7 +7,7 @@
     <services>
         <!-- Versioning -->
         <service class="Shopware\Core\Content\Product\Storefront\StorefrontProductRepository" id="Shopware\Core\Content\Product\Storefront\StorefrontProductRepository">
-            <argument type="service" id="Shopware\Core\Content\Product\ProductRepository"/>
+            <argument type="service" id="product.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\PriceCalculator"/>
             <tag name="shopware.traceable" label="product.storefront-repository" />
         </service>
@@ -79,19 +79,19 @@
             <tag name="shopware.entity.definition" entity="product_category_tree" />
         </service>
         <service class="Shopware\Core\Content\Product\Util\VariantGenerator" id="Shopware\Core\Content\Product\Util\VariantGenerator" public="true">
-            <argument id="Shopware\Core\Content\Product\ProductRepository" type="service"/>
-            <argument id="Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorRepository" type="service"/>
+            <argument id="product.repository" type="service"/>
+            <argument id="product_configurator.repository" type="service"/>
         </service>
 
         <!--cart implementations-->
         <service class="Shopware\Core\Content\Product\Cart\ProductCartCollector" id="Shopware\Core\Content\Product\Cart\ProductCartCollector">
             <argument id="Shopware\Core\Content\Product\Cart\ProductGateway" type="service"/>
             <tag name="cart.collector" priority="1000" />
-            <argument type="service" id="Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceRepository"/>
+            <argument type="service" id="product_service.repository"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Cart\ProductGateway" class="Shopware\Core\Content\Product\Cart\ProductGateway" >
-            <argument type="service" id="Shopware\Core\Content\Product\ProductRepository"/>
+            <argument type="service" id="product.repository"/>
         </service>
 
         <service class="Shopware\Core\Content\Product\Cart\ProductCalculator" id="Shopware\Core\Content\Product\Cart\ProductCalculator">
@@ -124,7 +124,6 @@
         </service>
 
         <service class="Shopware\Core\Content\Product\ORM\Indexing\ProductVariationIndexer" id="Shopware\Core\Content\Product\ORM\Indexing\ProductVariationIndexer">
-            <argument id="Shopware\Core\Content\Product\ProductRepository" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument id="Shopware\Core\Content\Product\Util\EventIdExtractor" type="service"/>
             <argument id="Doctrine\DBAL\Connection" type="service"/>
@@ -132,7 +131,7 @@
         </service>
 
         <service class="Shopware\Core\Content\Product\ORM\Indexing\ProductDatasheetIndexer" id="Shopware\Core\Content\Product\ORM\Indexing\ProductDatasheetIndexer">
-            <argument id="Shopware\Core\Content\Product\ProductRepository" type="service"/>
+            <argument id="product.repository" type="service"/>
             <argument id="Doctrine\DBAL\Connection" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument id="Shopware\Core\Content\Product\Util\EventIdExtractor" type="service"/>
@@ -140,7 +139,6 @@
         </service>
 
         <service class="Shopware\Core\Content\Product\ORM\Indexing\ProductListingPriceIndexer" id="Shopware\Core\Content\Product\ORM\Indexing\ProductListingPriceIndexer">
-            <argument id="Shopware\Core\Content\Product\ProductRepository" type="service"/>
             <argument id="event_dispatcher" type="service"/>
             <argument id="Shopware\Core\Content\Product\Util\EventIdExtractor" type="service"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
@@ -149,12 +147,12 @@
 
         <service class="Shopware\Core\Content\Product\ORM\Indexing\ProductSearchKeywordIndexer" id="Shopware\Core\Content\Product\ORM\Indexing\ProductSearchKeywordIndexer">
             <argument id="Doctrine\DBAL\Connection" type="service"/>
-            <argument type="service" id="Shopware\Core\Content\Product\ProductRepository"/>
+            <argument type="service" id="product.repository"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Product\ORM\Indexing\ProductSearchAnalyzerRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\ORM\Dbal\Common\IndexTableOperator"/>
-            <argument type="service" id="Shopware\Core\System\Language\LanguageRepository"/>
-            <argument type="service" id="Shopware\Core\Content\Catalog\CatalogRepository"/>
+            <argument type="service" id="language.repository"/>
+            <argument type="service" id="catalog.repository"/>
             <!--<tag name="shopware.dbal_indexing.indexer" priority="200"/>-->
         </service>
 
@@ -172,7 +170,7 @@
             <argument id="event_dispatcher" type="service"/>
             <argument id="Shopware\Core\Content\Category\Util\CategoryPathBuilder" type="service"/>
             <argument id="Shopware\Core\Content\Product\Util\EventIdExtractor" type="service"/>
-            <argument id="Shopware\Core\Content\Category\CategoryRepository" type="service"/>
+            <argument id="category.repository" type="service"/>
             <tag name="shopware.dbal_indexing.indexer" priority="1000"/>
         </service>
 

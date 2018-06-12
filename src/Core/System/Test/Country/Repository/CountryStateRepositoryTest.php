@@ -11,7 +11,6 @@ use Shopware\Core\Framework\ORM\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Core\Framework\ORM\Search\Term\SearchTermInterpreter;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition;
-use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class CountryStateRepositoryTest extends KernelTestCase
@@ -29,7 +28,7 @@ class CountryStateRepositoryTest extends KernelTestCase
     public function setUp()
     {
         self::bootKernel();
-        $this->repository = self::$container->get(CountryStateRepository::class);
+        $this->repository = self::$container->get('country_state.repository');
         $this->connection = self::$container->get(Connection::class);
         $this->connection->beginTransaction();
     }
@@ -44,7 +43,7 @@ class CountryStateRepositoryTest extends KernelTestCase
     {
         $country = Uuid::uuid4()->getHex();
 
-        self::$container->get(\Shopware\Core\System\Country\CountryRepository::class)->create([
+        self::$container->get('country.repository')->create([
             ['id' => $country, 'name' => 'test'],
         ], Context::createDefaultContext(Defaults::TENANT_ID));
 

@@ -13,7 +13,6 @@ use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation\Collection\ListingSortingTranslationBasicCollection;
-use Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation\ListingSortingTranslationRepository;
 use Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation\Struct\ListingSortingTranslationBasicStruct;
 use Shopware\Core\System\Listing\ListingSortingDefinition;
 

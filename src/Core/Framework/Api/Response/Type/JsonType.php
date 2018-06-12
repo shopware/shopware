@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Api\Context\RestContext;
 use Shopware\Core\Framework\Api\Response\ResponseTypeInterface;
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 use Shopware\Core\Framework\ORM\Search\SearchResultInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -52,7 +53,7 @@ class JsonType implements ResponseTypeInterface
         return new JsonResponse($response);
     }
 
-    public function createListingResponse(SearchResultInterface $searchResult, string $definition, RestContext $context): Response
+    public function createListingResponse(EntitySearchResult $searchResult, string $definition, RestContext $context): Response
     {
         $decoded = $this->serializer->normalize($searchResult);
 
@@ -61,9 +62,9 @@ class JsonType implements ResponseTypeInterface
             'data' => $this->format($decoded),
         ];
 
-        if ($searchResult && $searchResult->getAggregationResult()) {
+        if ($searchResult && $searchResult->getAggregations()) {
             $aggregations = [];
-            foreach ($searchResult->getAggregationResult()->getAggregations() as $aggregation) {
+            foreach ($searchResult->getAggregations()->getAggregations() as $aggregation) {
                 $aggregations[$aggregation->getName()] = $aggregation->getResult();
             }
 

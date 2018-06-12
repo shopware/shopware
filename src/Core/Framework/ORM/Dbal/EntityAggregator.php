@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
+use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\Search\Aggregation\Aggregation;
 use Shopware\Core\Framework\ORM\Search\Aggregation\AggregationResult;
 use Shopware\Core\Framework\ORM\Search\Aggregation\AggregationResultCollection;
@@ -134,7 +135,7 @@ class EntityAggregator implements EntityAggregatorInterface
                 return Uuid::fromBytesToHex($bytes);
             }, $ids);
 
-            return $this->reader->readBasic($aggregation->getDefinition(), $ids, $context);
+            return $this->reader->read($aggregation->getDefinition(), new ReadCriteria($ids), $context);
         }
 
         if ($aggregation instanceof ValueCountAggregation) {

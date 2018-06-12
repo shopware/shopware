@@ -3,12 +3,11 @@
 namespace Shopware\Core\Content\Product\ORM\Indexing;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Content\Product\ProductRepository;
-use Shopware\Core\Content\Product\Util\EventIdExtractor;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
+use Shopware\Core\Content\Product\Util\EventIdExtractor;
 use Shopware\Core\Framework\ORM\Dbal\Common\LastIdQuery;
 use Shopware\Core\Framework\ORM\Dbal\Indexing\IndexerInterface;
 use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
@@ -17,11 +16,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductVariationIndexer implements IndexerInterface
 {
-    /**
-     * @var \Shopware\Core\Content\Product\ProductRepository
-     */
-    private $productRepository;
-
     /**
      * @var EventDispatcherInterface
      */
@@ -38,12 +32,10 @@ class ProductVariationIndexer implements IndexerInterface
     private $connection;
 
     public function __construct(
-        ProductRepository $productRepository,
         EventDispatcherInterface $eventDispatcher,
         EventIdExtractor $eventIdExtractor,
         Connection $connection
     ) {
-        $this->productRepository = $productRepository;
         $this->eventDispatcher = $eventDispatcher;
         $this->eventIdExtractor = $eventIdExtractor;
         $this->connection = $connection;

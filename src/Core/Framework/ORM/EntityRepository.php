@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\ORM;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Event\EntityAggregationResultLoadedEvent;
 use Shopware\Core\Framework\ORM\Event\EntityIdSearchResultLoadedEvent;
+use Shopware\Core\Framework\ORM\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\ORM\Event\EntitySearchResultLoadedEvent;
 use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\ORM\Search\AggregatorResult;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 use Shopware\Core\Framework\ORM\Search\Query\TermsQuery;
 use Shopware\Core\Framework\ORM\Version\Service\VersionManager;
 use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
@@ -77,7 +79,7 @@ class EntityRepository implements RepositoryInterface
             $aggregations = $this->aggregate($criteria, $context);
         }
 
-        $result = EntitySearchResult::createFromResults($ids, $entities, $aggregations);
+        $result = new EntitySearchResult($ids, $entities, $aggregations, $criteria, $context);
 
         $event = new EntitySearchResultLoadedEvent($this->definition, $result);
         $this->eventDispatcher->dispatch($event->getName(), $event);

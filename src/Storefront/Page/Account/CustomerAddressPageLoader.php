@@ -3,18 +3,18 @@
 namespace Shopware\Storefront\Page\Account;
 
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 
 class CustomerAddressPageLoader
 {
     /**
-     * @var \Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository
+     * @var RepositoryInterface
      */
     private $customerAddressRepository;
 
-    public function __construct(CustomerAddressRepository $customerAddressRepository)
+    public function __construct(RepositoryInterface $customerAddressRepository)
     {
         $this->customerAddressRepository = $customerAddressRepository;
     }

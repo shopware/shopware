@@ -2,17 +2,25 @@
 
 namespace Shopware\Core\Framework\Test\ORM\Dbal;
 
-use Shopware\Core\Content\Category\CategoryRepository;
-use Shopware\Core\Content\Product\ProductRepository;
-use Shopware\Core\Defaults;
+use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
+use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\ORM\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\System\Tax\TaxDefinition;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class ManyToManyAssociationFieldTest extends KernelTestCase
 {
     /**
-     * @var ProductRepository
+     * @var RepositoryInterface
      */
     private $productRepository;
 
@@ -22,7 +30,7 @@ class ManyToManyAssociationFieldTest extends KernelTestCase
     private $context;
 
     /**
-     * @var CategoryRepository
+     * @var RepositoryInterface
      */
     private $categoryRepository;
 
@@ -30,8 +38,8 @@ class ManyToManyAssociationFieldTest extends KernelTestCase
     {
         self::bootKernel();
         parent::setUp();
-        $this->productRepository = self::$container->get(ProductRepository::class);
-        $this->categoryRepository = self::$container->get(CategoryRepository::class);
+        $this->productRepository = self::$container->get('product.repository');
+        $this->categoryRepository = self::$container->get('category.repository');
         $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
     }
 
@@ -58,16 +66,15 @@ class ManyToManyAssociationFieldTest extends KernelTestCase
         ];
 
         $writtenEvent = $this->productRepository->create([$data], $this->context);
-        $events = $writtenEvent->getEvents()->getElements();
 
-        $this->assertTrue($this->containsInstance(TaxWrittenEvent::class, $events));
-        $this->assertTrue($this->containsInstance(ProductManufacturerWrittenEvent::class, $events));
-        $this->assertTrue($this->containsInstance(ProductCategoryWrittenEvent::class, $events));
-        $this->assertTrue($this->containsInstance(ProductManufacturerTranslationWrittenEvent::class, $events));
-        $this->assertTrue($this->containsInstance(ProductWrittenEvent::class, $events));
-        $this->assertTrue($this->containsInstance(ProductTranslationWrittenEvent::class, $events));
-        $this->assertFalse($this->containsInstance(CategoryWrittenEvent::class, $events));
-        $this->assertFalse($this->containsInstance(CategoryTranslationWrittenEvent::class, $events));
+        $this->assertInstanceOf(EntityWrittenEvent::class, $writtenEvent->getEventByDefinition(TaxDefinition::class));
+        $this->assertInstanceOf(EntityWrittenEvent::class, $writtenEvent->getEventByDefinition(ProductManufacturerDefinition::class));
+        $this->assertInstanceOf(EntityWrittenEvent::class, $writtenEvent->getEventByDefinition(ProductCategoryDefinition::class));
+        $this->assertInstanceOf(EntityWrittenEvent::class, $writtenEvent->getEventByDefinition(ProductManufacturerTranslationDefinition::class));
+        $this->assertInstanceOf(EntityWrittenEvent::class, $writtenEvent->getEventByDefinition(ProductDefinition::class));
+        $this->assertInstanceOf(EntityWrittenEvent::class, $writtenEvent->getEventByDefinition(ProductTranslationDefinition::class));
+        $this->assertInstanceOf(EntityWrittenEvent::class, $writtenEvent->getEventByDefinition(CategoryDefinition::class));
+        $this->assertInstanceOf(EntityWrittenEvent::class, $writtenEvent->getEventByDefinition(CategoryTranslationDefinition::class));
     }
 
     public function testWriteWithData()
@@ -85,16 +92,15 @@ class ManyToManyAssociationFieldTest extends KernelTestCase
         ];
 
         $writtenEvent = $this->productRepository->create([$data], $this->context);
-        $events = $writtenEvent->getEvents()->getElements();
 
-        $this->assertTrue($this->containsInstance(TaxWrittenEvent::class, $events));
-        $this->assertTrue($this->containsInstance(CategoryWrittenEvent::class, $events));
-        $this->assertTrue($this->containsInstance(CategoryTranslationWrittenEvent::class, $events));
-        $this->assertTrue($this->containsInstance(ProductManufacturerWrittenEvent::class, $events));
-        $this->assertTrue($this->containsInstance(ProductManufacturerTranslationWrittenEvent::class, $events));
-        $this->assertTrue($this->containsInstance(ProductCategoryWrittenEvent::class, $events));
-        $this->assertTrue($this->containsInstance(ProductWrittenEvent::class, $events));
-        $this->assertTrue($this->containsInstance(ProductTranslationWrittenEvent::class, $events));
+        $this->assertInstanceOf(EntityWrittenEvent::class, $writtenEvent->getEventByDefinition(TaxDefinition::class));
+        $this->assertInstanceOf(EntityWrittenEvent::class, $writtenEvent->getEventByDefinition(CategoryDefinition::class));
+        $this->assertInstanceOf(EntityWrittenEvent::class, $writtenEvent->getEventByDefinition(CategoryTranslationDefinition::class));
+        $this->assertInstanceOf(EntityWrittenEvent::class, $writtenEvent->getEventByDefinition(ProductManufacturerDefinition::class));
+        $this->assertInstanceOf(EntityWrittenEvent::class, $writtenEvent->getEventByDefinition(ProductManufacturerTranslationDefinition::class));
+        $this->assertInstanceOf(EntityWrittenEvent::class, $writtenEvent->getEventByDefinition(ProductCategoryDefinition::class));
+        $this->assertInstanceOf(EntityWrittenEvent::class, $writtenEvent->getEventByDefinition(ProductDefinition::class));
+        $this->assertInstanceOf(EntityWrittenEvent::class, $writtenEvent->getEventByDefinition(ProductTranslationDefinition::class));
     }
 
     private function containsInstance(string $needle, array $haystack): bool

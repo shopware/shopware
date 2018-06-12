@@ -27,27 +27,26 @@ namespace Shopware\Storefront\Controller\Widgets;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\System\Language\Collection\LanguageBasicCollection;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermsQuery;
-use Shopware\Core\System\Currency\Collection\CurrencyBasicCollection;
-use Shopware\Core\System\Currency\CurrencyRepository;
-use Shopware\Core\System\Language\Collection\LanguageBasicCollection;
-use Shopware\Core\System\Language\LanguageRepository;
 use Shopware\Storefront\Controller\StorefrontController;
+use Shopware\Core\System\Currency\Collection\CurrencyBasicCollection;
 
 class IndexController extends StorefrontController
 {
     /**
-     * @var CurrencyRepository
+     * @var RepositoryInterface
      */
     private $currencyRepository;
 
     /**
-     * @var LanguageRepository
+     * @var RepositoryInterface
      */
     private $languageRepository;
 
-    public function __construct(CurrencyRepository $currencyRepository, LanguageRepository $languageRepository)
+    public function __construct(RepositoryInterface $currencyRepository, RepositoryInterface $languageRepository)
     {
         $this->currencyRepository = $currencyRepository;
         $this->languageRepository = $languageRepository;

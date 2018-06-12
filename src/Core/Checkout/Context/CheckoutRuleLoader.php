@@ -3,6 +3,8 @@
 namespace Shopware\Core\Checkout\Context;
 
 use Psr\Cache\CacheItemPoolInterface;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Cart\CartCollector;
 use Shopware\Core\Checkout\Cart\Cart\CartPersisterInterface;
 use Shopware\Core\Checkout\Cart\Cart\CartProcessor;
@@ -16,10 +18,8 @@ use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Storefront\CartService;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Rule\Collection\RuleBasicCollection;
-use Shopware\Core\Content\Rule\RuleRepository;
-use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Symfony\Component\Serializer\SerializerInterface;
 
@@ -56,7 +56,7 @@ class CheckoutRuleLoader
     private $cache;
 
     /**
-     * @var \Shopware\Core\Content\Rule\RuleRepository
+     * @var RepositoryInterface
      */
     private $repository;
 
@@ -82,7 +82,7 @@ class CheckoutRuleLoader
         CartProcessor $cartProcessor,
         CartValidator $cartValidator,
         CacheItemPoolInterface $cache,
-        RuleRepository $repository,
+        RepositoryInterface $repository,
         SerializerInterface $serializer,
         CartService $storeFrontCartService
     ) {
@@ -178,12 +178,12 @@ class CheckoutRuleLoader
         }
 
         $rules = $this->repository->search(new Criteria(), $context);
-        $this->rules = $rules;
+        $this->rules = $rules->getEntities();
 
-        $cacheItem->set(serialize($rules));
+        $cacheItem->set(serialize($this->rules));
         $this->cache->save($cacheItem);
 
-        return $rules;
+        return $this->rules;
     }
 
     private function cartChanged(CalculatedCart $previous, CalculatedCart $current): bool

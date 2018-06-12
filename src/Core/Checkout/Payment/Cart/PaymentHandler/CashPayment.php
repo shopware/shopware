@@ -2,21 +2,21 @@
 
 namespace Shopware\Core\Checkout\Payment\Cart\PaymentHandler;
 
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionRepository;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 class CashPayment implements PaymentHandlerInterface
 {
     /**
-     * @var OrderTransactionRepository
+     * @var RepositoryInterface
      */
     private $transactionRepository;
 
-    public function __construct(OrderTransactionRepository $transactionRepository)
+    public function __construct(RepositoryInterface $transactionRepository)
     {
         $this->transactionRepository = $transactionRepository;
     }

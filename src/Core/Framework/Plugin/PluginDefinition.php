@@ -17,7 +17,6 @@ use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\Plugin\Collection\PluginBasicCollection;
-use Shopware\Core\Framework\Plugin\Repository\PluginRepository;
 use Shopware\Core\Framework\Plugin\Struct\PluginBasicStruct;
 use Shopware\Core\System\Config\ConfigFormDefinition;
 

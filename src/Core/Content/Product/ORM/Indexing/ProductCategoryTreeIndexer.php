@@ -3,17 +3,17 @@
 namespace Shopware\Core\Content\Product\ORM\Indexing;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Content\Category\CategoryRepository;
-use Shopware\Core\Content\Category\Util\CategoryPathBuilder;
-use Shopware\Core\Content\Product\Util\EventIdExtractor;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Category\Util\CategoryPathBuilder;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
+use Shopware\Core\Content\Product\Util\EventIdExtractor;
 use Shopware\Core\Framework\ORM\Dbal\Common\LastIdQuery;
 use Shopware\Core\Framework\ORM\Dbal\Indexing\IndexerInterface;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
@@ -43,7 +43,7 @@ class ProductCategoryTreeIndexer implements IndexerInterface
     private $connection;
 
     /**
-     * @var \Shopware\Core\Content\Category\CategoryRepository
+     * @var RepositoryInterface
      */
     private $categoryRepository;
 
@@ -52,7 +52,7 @@ class ProductCategoryTreeIndexer implements IndexerInterface
         EventDispatcherInterface $eventDispatcher,
         CategoryPathBuilder $pathBuilder,
         EventIdExtractor $eventIdExtractor,
-        CategoryRepository $categoryRepository
+        RepositoryInterface $categoryRepository
     ) {
         $this->eventDispatcher = $eventDispatcher;
         $this->pathBuilder = $pathBuilder;

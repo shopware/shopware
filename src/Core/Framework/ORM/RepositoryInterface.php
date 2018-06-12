@@ -3,8 +3,10 @@
 namespace Shopware\Core\Framework\ORM;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\Search\Criteria;
+use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 use Shopware\Core\Framework\ORM\Search\SearchResultInterface;
 
 interface RepositoryInterface
@@ -29,7 +31,7 @@ interface RepositoryInterface
      * @param Criteria           $criteria
      * @param Context $context
      *
-     * @return SearchResultInterface
+     * @return EntitySearchResult
      */
     public function search(Criteria $criteria, Context $context);
 
@@ -41,11 +43,11 @@ interface RepositoryInterface
      */
     public function read(ReadCriteria $criteria, Context $context);
 
-    public function update(array $data, Context $context);
+    public function update(array $data, Context $context): EntityWrittenContainerEvent;
 
-    public function upsert(array $data, Context $context);
+    public function upsert(array $data, Context $context): EntityWrittenContainerEvent;
 
-    public function create(array $data, Context $context);
+    public function create(array $data, Context $context): EntityWrittenContainerEvent;
 
     public function delete(array $data, Context $context);
 

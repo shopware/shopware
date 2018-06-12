@@ -4,11 +4,11 @@ namespace Shopware\Storefront\Page\Account;
 
 use Shopware\Core\Checkout\Context\CheckoutContextPersister;
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
-use Shopware\Core\Checkout\Customer\CustomerRepository;
 use Shopware\Core\Checkout\Customer\Struct\CustomerBasicStruct;
 use Shopware\Core\Checkout\Order\Exception\NotLoggedInCustomerException;
+use Shopware\Core\Framework\ORM\Read\ReadCriteria;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -22,17 +22,17 @@ use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 class AccountService
 {
     /**
-     * @var \Shopware\Core\System\Country\CountryRepository
+     * @var RepositoryInterface
      */
     private $countryRepository;
 
     /**
-     * @var \Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository
+     * @var RepositoryInterface
      */
     private $customerAddressRepository;
 
     /**
-     * @var \Shopware\Core\Checkout\Customer\CustomerRepository
+     * @var RepositoryInterface
      */
     private $customerRepository;
 
@@ -52,9 +52,9 @@ class AccountService
     private $contextPersister;
 
     public function __construct(
-        CountryRepository $countryRepository,
-        CustomerAddressRepository $customerAddressRepository,
-        CustomerRepository $customerRepository,
+        RepositoryInterface $countryRepository,
+        RepositoryInterface $customerAddressRepository,
+        RepositoryInterface $customerRepository,
         AuthenticationManagerInterface $authenticationManager,
         TokenStorageInterface $tokenStorage,
         CheckoutContextPersister $contextPersister
@@ -159,11 +159,10 @@ class AccountService
     {
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('country.active', true));
-        $countries = $this->countryRepository->readDetail(
-            $this->countryRepository->searchIds($criteria, $context->getContext())->getIds(),
-            $context->getContext()
-        );
-        $countries->sortCountryAndStates();
+
+        $countries = $this->countryRepository->search($criteria, $context->getContext());
+
+        $countries->getEntities()->sortCountryAndStates();
 
         return $countries->getElements();
     }
@@ -179,6 +178,7 @@ class AccountService
         $criteria->addFilter(new TermQuery('customer_address.customerId', $context->getCustomer()->getId()));
 
         $addresses = $this->customerAddressRepository->search($criteria, $context->getContext());
+        $addresses = $addresses->getEntities();
 
         return $addresses->sortByDefaultAddress($customer)->getElements();
     }
@@ -350,7 +350,7 @@ class AccountService
 
     private function validateAddressId(string $addressId, CheckoutContext $context): CustomerAddressBasicStruct
     {
-        $addresses = $this->customerAddressRepository->readBasic([$addressId], $context->getContext());
+        $addresses = $this->customerAddressRepository->read(new ReadCriteria([$addressId]), $context->getContext());
         $address = $addresses->get($addressId);
 
         if (!$address) {

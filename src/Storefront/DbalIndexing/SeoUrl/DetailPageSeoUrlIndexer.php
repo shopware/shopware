@@ -4,23 +4,21 @@ namespace Shopware\Storefront\DbalIndexing\SeoUrl;
 
 use Cocur\Slugify\SlugifyInterface;
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Content\Product\ProductRepository;
-use Shopware\Core\Content\Product\Struct\ProductSearchResult;
-use Shopware\Core\Content\Product\Util\EventIdExtractor;
-use Shopware\Core\Defaults;
+use Shopware\Core\Framework\ORM\Read\ReadCriteria;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
+use Shopware\Core\Content\Product\Util\EventIdExtractor;
 use Shopware\Core\Framework\ORM\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\ORM\Dbal\Indexing\IndexerInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Storefront\Api\Seo\SeoUrlDefinition;
-use Shopware\Core\System\Touchpoint\TouchpointRepository;
-use Shopware\Storefront\Api\Seo\Definition\SeoUrlDefinition;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -45,12 +43,12 @@ class DetailPageSeoUrlIndexer implements IndexerInterface
     private $router;
 
     /**
-     * @var \Shopware\Core\Content\Product\ProductRepository
+     * @var RepositoryInterface
      */
     private $productRepository;
 
     /**
-     * @var TouchpointRepository
+     * @var RepositoryInterface
      */
     private $touchpointRepository;
 
@@ -68,8 +66,8 @@ class DetailPageSeoUrlIndexer implements IndexerInterface
         Connection $connection,
         SlugifyInterface $slugify,
         RouterInterface $router,
-        ProductRepository $productRepository,
-        TouchpointRepository $touchpointRepository,
+        RepositoryInterface $productRepository,
+        RepositoryInterface $touchpointRepository,
         EventDispatcherInterface $eventDispatcher,
         EventIdExtractor $eventIdExtractor
     ) {
@@ -162,7 +160,7 @@ class DetailPageSeoUrlIndexer implements IndexerInterface
 
         $liveVersionId = Uuid::fromStringToBytes(Defaults::LIVE_VERSION);
 
-        $products = $this->productRepository->readBasic($ids, $context);
+        $products = $this->productRepository->read(new ReadCriteria($ids), $context);
 
         $canonicals = $this->fetchCanonicals($products->getIds(), $context->getTouchpointId(), $context->getTenantId());
         $timestamp = new \DateTime();

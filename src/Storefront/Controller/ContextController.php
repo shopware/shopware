@@ -7,10 +7,9 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextPersister;
 use Shopware\Core\Checkout\Context\CheckoutContextService;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
-use Shopware\Core\System\Currency\CurrencyRepository;
-use Shopware\Core\System\Language\LanguageRepository;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -28,20 +27,20 @@ class ContextController extends StorefrontController
     private $checkoutContextService;
 
     /**
-     * @var CurrencyRepository
+     * @var RepositoryInterface
      */
     private $currencyRepository;
 
     /**
-     * @var \Shopware\Core\System\Language\LanguageRepository
+     * @var RepositoryInterface
      */
     private $languageRepository;
 
     public function __construct(
         CheckoutContextPersister $contextPersister,
-        CheckoutContextService $checkoutContextService,
-        CurrencyRepository $currencyRepository,
-        LanguageRepository $languageRepository
+        CheckoutContextService $storefrontContextService,
+        RepositoryInterface $currencyRepository,
+        RepositoryInterface $languageRepository
     ) {
         $this->contextPersister = $contextPersister;
         $this->checkoutContextService = $checkoutContextService;

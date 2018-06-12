@@ -16,7 +16,6 @@ use Shopware\Core\Framework\ORM\Search\SearchResultInterface;
 use Shopware\Core\Framework\ORM\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\ORM\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Core\Framework\ORM\Search\Term\SearchTermInterpreter;
-use Shopware\Core\Framework\ORM\Version\Repository\VersionCommitDataRepository;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -38,7 +37,7 @@ class AdministrationSearch
     private $scoreBuilder;
 
     /**
-     * @var VersionCommitDataRepository
+     * @var RepositoryInterface
      */
     private $changesRepository;
 
@@ -46,7 +45,7 @@ class AdministrationSearch
         ContainerInterface $container,
         SearchTermInterpreter $interpreter,
         EntityScoreQueryBuilder $scoreBuilder,
-        VersionCommitDataRepository $changesRepository
+        RepositoryInterface $changesRepository
     ) {
         $this->container = $container;
         $this->interpreter = $interpreter;

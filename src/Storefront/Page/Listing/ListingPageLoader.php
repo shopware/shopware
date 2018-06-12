@@ -13,7 +13,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class ListingPageLoader
 {
     /**
-     * @var \Shopware\Core\Content\Product\Storefront\StorefrontProductRepository
+     * @var StorefrontProductRepository
      */
     private $productRepository;
 

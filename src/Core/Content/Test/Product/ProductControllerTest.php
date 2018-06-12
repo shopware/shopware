@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\Test\Product;
 
 use Ramsey\Uuid\Uuid;
-use Shopware\Core\Content\Product\ProductRepository;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\Api\ApiTestCase;
 
@@ -18,7 +17,7 @@ class ProductControllerTest extends ApiTestCase
     {
         parent::setUp();
 
-        $this->productRepository = self::$container->get(ProductRepository::class);
+        $this->productRepository = self::$container->get('product.repository');
     }
 
     public function testProductList()

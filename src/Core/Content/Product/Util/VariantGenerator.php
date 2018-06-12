@@ -2,14 +2,14 @@
 
 namespace Shopware\Core\Content\Product\Util;
 
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\Collection\ProductConfiguratorBasicCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorRepository;
 use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\Struct\ProductConfiguratorBasicStruct;
 use Shopware\Core\Content\Product\Exception\NoConfiguratorFoundException;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
-use Shopware\Core\Content\Product\ProductRepository;
 use Shopware\Core\Content\Product\Struct\ProductBasicStruct;
-use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Read\ReadCriteria;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
@@ -17,18 +17,18 @@ use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
 class VariantGenerator
 {
     /**
-     * @var ProductRepository
+     * @var RepositoryInterface
      */
     private $productRepository;
 
     /**
-     * @var ProductConfiguratorRepository
+     * @var RepositoryInterface
      */
     private $configuratorRepository;
 
     public function __construct(
-        ProductRepository $productRepository,
-        ProductConfiguratorRepository $configuratorRepository
+        RepositoryInterface $productRepository,
+        RepositoryInterface $configuratorRepository
     ) {
         $this->productRepository = $productRepository;
         $this->configuratorRepository = $configuratorRepository;
@@ -36,7 +36,7 @@ class VariantGenerator
 
     public function generate(string $productId, Context $context, $offset = null, $limit = null): EntityWrittenContainerEvent
     {
-        $products = $this->productRepository->readBasic([$productId], $context);
+        $products = $this->productRepository->read(new ReadCriteria([$productId]), $context);
         $product = $products->get($productId);
 
         if (!$product) {
@@ -90,7 +90,7 @@ class VariantGenerator
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('product_configurator.productId', $productId));
 
-        return $this->configuratorRepository->search($criteria, $context);
+        return $this->configuratorRepository->search($criteria, $context)->getEntities();
     }
 
     private function buildCombinations(ProductConfiguratorBasicCollection $configurator): array

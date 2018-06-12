@@ -113,7 +113,7 @@ class ApiController extends Controller
         }
 
         /** @var RepositoryInterface $repository */
-        $entities = $repository->readDetail([$id], $context->getContext());
+        $entities = $repository->read(new ReadCriteria([$id]), $context->getContext());
 
         $entity = $entities->get($id);
 
@@ -417,7 +417,7 @@ class ApiController extends Controller
 
         $association = $child['field'];
 
-        /** @var EntityDefinition $parentDefinition */
+        /** @var EntityDefinition|string $parentDefinition */
         $parentDefinition = $parent['definition'];
 
         /* @var RepositoryInterface $repository */
@@ -484,9 +484,7 @@ class ApiController extends Controller
 
         $repository = $this->getRepository($reference, $context->getVersion());
 
-        if ($responseDataType === self::RESPONSE_DETAIL) {
-            $entities = $repository->read(new ReadCriteria($event->getIds()), $context->getContext());
-        }
+        $entities = $repository->read(new ReadCriteria($event->getIds()), $context->getContext());
 
         $entity = $entities->first();
 
@@ -734,12 +732,12 @@ class ApiController extends Controller
      */
     private function getRepository(string $definition, int $version): RepositoryInterface
     {
-        $repositoryClass = sprintf('%s.v%d', $definition::getRepositoryClass(), $version);
+        $repositoryClass = $definition::getEntityName() . '.repository';
 
         if ($this->has($repositoryClass) === false) {
             throw new UnknownRepositoryVersionException($definition::getEntityName(), $version);
         }
 
-        return $this->get($repositoryClass);
+        return $this->get($definition::getEntityName() . '.repository');
     }
 }

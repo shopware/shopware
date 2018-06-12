@@ -11,7 +11,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\Api\ApiTestCase;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\System\Tax\TaxRepository;
 use Symfony\Component\Serializer\Serializer;
 
 class PriceActionControllerTest extends ApiTestCase
@@ -30,7 +29,7 @@ class PriceActionControllerTest extends ApiTestCase
     {
         parent::setUp();
 
-        $this->repository = $this->getContainer()->get(TaxRepository::class);
+        $this->repository = $this->getContainer()->get('tax.repository');
         $this->serializer = $this->getContainer()->get('serializer');
     }
 

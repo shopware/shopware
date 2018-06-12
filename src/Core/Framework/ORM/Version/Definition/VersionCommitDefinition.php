@@ -15,7 +15,6 @@ use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\Field\TenantIdField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Version\Collection\VersionCommitBasicCollection;
-use Shopware\Core\Framework\ORM\Version\Repository\VersionCommitRepository;
 use Shopware\Core\Framework\ORM\Version\Struct\VersionCommitBasicStruct;
 use Shopware\Core\Framework\ORM\Write\EntityExistence;
 use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;

@@ -3,18 +3,16 @@
 namespace Shopware\Core\Framework\Test\ORM\Write;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Write\EntityWriter;
 use Shopware\Core\Framework\ORM\Write\EntityWriterInterface;
 use Shopware\Core\Framework\ORM\Write\FieldException\WriteStackException;
 use Shopware\Core\Framework\ORM\Write\WriteContext;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\System\Country\Aggregate\CountryArea\CountryAreaDefinition;
-use Shopware\Core\System\Language\LanguageRepository;
-use Shopware\Core\System\Locale\LocaleRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class WriterTest extends KernelTestCase
@@ -431,11 +429,11 @@ class WriterTest extends KernelTestCase
         $this->insertEmptyProduct();
 
         $localeId = Uuid::uuid4()->getHex();
-        self::$container->get(LocaleRepository::class)->upsert([
+        self::$container->get('locale.repository')->upsert([
             ['id' => $localeId, 'name' => 'test', 'territory' => 'tmp', 'code' => Uuid::uuid4()->getHex()],
         ], Context::createDefaultContext(Defaults::TENANT_ID));
 
-        self::$container->get(LanguageRepository::class)->upsert([
+        self::$container->get('language.repository')->upsert([
             ['id' => '2d905256-e751-4967-8dd5-a32a81b94f1f', 'name' => 'language 2', 'localeId' => $localeId, 'localeVersionId' => Defaults::LIVE_VERSION],
         ], Context::createDefaultContext(Defaults::TENANT_ID));
 

@@ -6,12 +6,9 @@
 
     <services>
         <!-- Versioning -->
-
          <service class="Shopware\Core\System\Touchpoint\TouchpointDefinition" id="Shopware\Core\System\Touchpoint\TouchpointDefinition" >
             <tag name="shopware.entity.definition" entity="application" />
         </service>
-
-
     </services>
 </container>                
                 

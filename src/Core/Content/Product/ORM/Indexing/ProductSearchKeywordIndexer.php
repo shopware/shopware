@@ -3,22 +3,21 @@
 namespace Shopware\Core\Content\Product\ORM\Indexing;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Content\Catalog\CatalogRepository;
-use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\Product\ProductRepository;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Dbal\Indexing\IndexerInterface;
+use Shopware\Core\Framework\ORM\Read\ReadCriteria;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
 use Shopware\Core\Framework\ORM\Dbal\Common\IndexTableOperator;
 use Shopware\Core\Framework\ORM\Dbal\Common\LastIdQuery;
-use Shopware\Core\Framework\ORM\Dbal\Indexing\IndexerInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Struct\Uuid;
-use Shopware\Core\System\Language\LanguageRepository;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductSearchKeywordIndexer implements IndexerInterface
@@ -32,7 +31,7 @@ class ProductSearchKeywordIndexer implements IndexerInterface
     private $connection;
 
     /**
-     * @var ProductRepository
+     * @var RepositoryInterface
      */
     private $productRepository;
 
@@ -42,7 +41,7 @@ class ProductSearchKeywordIndexer implements IndexerInterface
     private $eventDispatcher;
 
     /**
-     * @var \Shopware\Core\Content\Product\ORM\Indexing\ProductSearchAnalyzerRegistry
+     * @var ProductSearchAnalyzerRegistry
      */
     private $analyzerRegistry;
 
@@ -52,23 +51,23 @@ class ProductSearchKeywordIndexer implements IndexerInterface
     private $indexTableOperator;
 
     /**
-     * @var LanguageRepository
+     * @var RepositoryInterface
      */
     private $languageRepository;
 
     /**
-     * @var \Shopware\Core\Content\Catalog\CatalogRepository
+     * @var RepositoryInterface
      */
     private $catalogRepository;
 
     public function __construct(
         Connection $connection,
-        ProductRepository $productRepository,
+        RepositoryInterface $productRepository,
         EventDispatcherInterface $eventDispatcher,
         ProductSearchAnalyzerRegistry $analyzerRegistry,
         IndexTableOperator $indexTableOperator,
-        LanguageRepository $languageRepository,
-        CatalogRepository $catalogRepository
+        RepositoryInterface $languageRepository,
+        RepositoryInterface $catalogRepository
     ) {
         $this->connection = $connection;
         $this->productRepository = $productRepository;
@@ -135,7 +134,7 @@ class ProductSearchKeywordIndexer implements IndexerInterface
         }
 
         $context = $productEvent->getContext();
-        $products = $this->productRepository->readBasic($productEvent->getIds(), $context);
+        $products = $this->productRepository->read(new ReadCriteria($productEvent->getIds()), $context);
 
         $queue = new MultiInsertQueryQueue($this->connection, 250, false, true);
         foreach ($products as $product) {
@@ -175,7 +174,7 @@ class ProductSearchKeywordIndexer implements IndexerInterface
                 return Uuid::fromBytesToHex($id);
             }, $ids);
 
-            $products = $this->productRepository->readBasic($ids, $context);
+            $products = $this->productRepository->read(new ReadCriteria($ids), $context);
 
             $queue = new MultiInsertQueryQueue($this->connection, 250, false, true);
             foreach ($products as $product) {

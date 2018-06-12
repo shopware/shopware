@@ -4,11 +4,10 @@ namespace Shopware\Core\Checkout\Test\Cart;
 
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
-use Shopware\Core\Checkout\Customer\CustomerRepository;
-use Shopware\Core\Content\Product\Cart\ProductProcessor;
-use Shopware\Core\Content\Product\ProductRepository;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Product\Cart\ProductProcessor;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Test\Api\ApiTestCase;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Client;
@@ -16,12 +15,12 @@ use Symfony\Bundle\FrameworkBundle\Client;
 class CheckoutControllerTest extends ApiTestCase
 {
     /**
-     * @var ProductRepository
+     * @var RepositoryInterface
      */
     private $repository;
 
     /**
-     * @var \Shopware\Core\Checkout\Customer\CustomerRepository
+     * @var RepositoryInterface
      */
     private $customerRepository;
 
@@ -44,9 +43,9 @@ class CheckoutControllerTest extends ApiTestCase
     {
         parent::setUp();
 
-        $this->connection = self::$container->get(Connection::class);
-        $this->repository = self::$container->get(ProductRepository::class);
-        $this->customerRepository = self::$container->get(CustomerRepository::class);
+        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->repository = $this->getContainer()->get('product.repository');
+        $this->customerRepository = $this->getContainer()->get('customer.repository');
         $this->taxId = Uuid::uuid4()->getHex();
         $this->manufacturerId = Uuid::uuid4()->getHex();
     }

@@ -14,7 +14,7 @@
         </service>
 
         <service class="Shopware\Core\Checkout\DiscountSurcharge\Cart\DiscountSurchargeCollector" id="Shopware\Core\Checkout\DiscountSurcharge\Cart\DiscountSurchargeCollector">
-            <argument id="Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeRepository" type="service"/>
+            <argument id="discount_surcharge.repository" type="service"/>
             <tag name="cart.collector"/>
         </service>
 
@@ -22,6 +22,8 @@
             <tag name="shopware.entity.definition" entity="discount_surcharge" />
         </service>
 
-
+        <service class="Shopware\Core\Checkout\DiscountSurcharge\Aggregate\DiscountSurchargeTranslation\DiscountSurchargeTranslationDefinition" id="Shopware\Core\Checkout\DiscountSurcharge\Aggregate\DiscountSurchargeTranslation\DiscountSurchargeTranslationDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
     </services>
 </container>

@@ -3,9 +3,8 @@
 namespace Shopware\Core\Content\Test\Product\Repository;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\Product\ProductRepository;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Term\EntityScoreQueryBuilder;
@@ -28,7 +27,7 @@ class ProductSearchScoringTest extends KernelTestCase
         parent::setUp();
         self::bootKernel();
         $this->connection = self::$container->get(Connection::class);
-        $this->repository = self::$container->get(ProductRepository::class);
+        $this->repository = self::$container->get('product.repository');
         $this->connection->beginTransaction();
         $this->connection->executeUpdate('DELETE FROM product');
     }

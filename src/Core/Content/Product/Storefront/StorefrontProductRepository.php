@@ -2,22 +2,22 @@
 
 namespace Shopware\Core\Content\Product\Storefront;
 
-use Shopware\Core\Checkout\Cart\Price\PriceCalculator;
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\Struct\ConfigurationGroupOptionBasicStruct;
+use Shopware\Core\Checkout\Cart\Price\PriceCalculator;
 use Shopware\Core\Content\Product\Aggregate\ProductService\Struct\ProductServiceBasicStruct;
 use Shopware\Core\Content\Product\Collection\ProductBasicCollection;
-use Shopware\Core\Content\Product\ProductRepository;
 use Shopware\Core\Content\Product\Struct\StorefrontProductBasicInterface;
 use Shopware\Core\Content\Product\Struct\StorefrontProductBasicStruct;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\Struct\ConfigurationGroupOptionBasicStruct;
+use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 use Shopware\Core\Framework\ORM\Search\IdSearchResult;
 
 class StorefrontProductRepository
 {
     /**
-     * @var ProductRepository
+     * @var RepositoryInterface
      */
     private $repository;
 
@@ -26,7 +26,7 @@ class StorefrontProductRepository
      */
     private $priceCalculator;
 
-    public function __construct(ProductRepository $repository, PriceCalculator $priceCalculator)
+    public function __construct(RepositoryInterface $repository, PriceCalculator $priceCalculator)
     {
         $this->repository = $repository;
         $this->priceCalculator = $priceCalculator;
@@ -34,23 +34,23 @@ class StorefrontProductRepository
 
     public function read(array $ids, CheckoutContext $context): ProductBasicCollection
     {
-        $basics = $this->repository->readBasic($ids, $context->getContext());
+        $basics = $this->repository->read($ids, $context->getContext());
 
         return $this->loadListProducts($basics, $context);
     }
 
     public function readDetail(array $ids, CheckoutContext $context): ProductBasicCollection
     {
-        $basics = $this->repository->readDetail($ids, $context->getContext());
+        $basics = $this->repository->read($ids, $context->getContext());
 
         return $this->loadDetailProducts($context, $basics);
     }
 
-    public function search(Criteria $criteria, CheckoutContext $context): ProductSearchResult
+    public function search(Criteria $criteria, CheckoutContext $context): EntitySearchResult
     {
         $basics = $this->repository->search($criteria, $context->getContext());
 
-        $listProducts = $this->loadListProducts($basics, $context);
+        $listProducts = $this->loadListProducts($basics->getEntities(), $context);
 
         $basics->clear();
         $basics->fill($listProducts->getElements());

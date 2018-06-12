@@ -16,7 +16,6 @@ use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\System\Touchpoint\TouchpointDefinition;
 use Shopware\Storefront\Api\Seo\Collection\SeoUrlBasicCollection;
-use Shopware\Storefront\Api\Seo\Repository\SeoUrlRepository;
 use Shopware\Storefront\Api\Seo\Struct\SeoUrlBasicStruct;
 
 class SeoUrlDefinition extends EntityDefinition

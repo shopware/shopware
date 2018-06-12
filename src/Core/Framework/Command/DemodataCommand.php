@@ -9,14 +9,15 @@ use Faker\Generator;
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Checkout\Cart\Rule\GoodsPriceRule;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
+use Shopware\Core\Content\Rule\RuleDefinition;
+use Shopware\Core\Checkout\Cart\Rule\GoodsPriceRule;
+use Shopware\Core\Framework\Rule\Container\AndRule;
+use Shopware\Core\Framework\Rule\Container\NotRule;
+use Shopware\Core\Framework\Rule\CurrencyRule;
 use Shopware\Core\Checkout\Customer\Rule\CustomerGroupRule;
 use Shopware\Core\Checkout\Customer\Rule\IsNewCustomerRule;
-use Shopware\Core\Content\Category\CategoryRepository;
-use Shopware\Core\Content\Configuration\ConfigurationGroupDefinition;
-use Shopware\Core\Content\Media\Aggregate\MediaAlbum\MediaAlbumRepository;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\Product\ProductRepository;
 use Shopware\Core\Content\Product\Util\VariantGenerator;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Content\Rule\RuleRepository;
@@ -113,10 +114,10 @@ class DemodataCommand extends ContainerAwareCommand
         $this->filesystem = $filesystem;
 
         $this->variantGenerator = $variantGenerator;
-        $this->productRepository = $container->get(ProductRepository::class);
-        $this->ruleRepository = $container->get(RuleRepository::class);
-        $this->categoryRepository = $container->get(CategoryRepository::class);
-        $this->albumRepository = $container->get(MediaAlbumRepository::class);
+        $this->productRepository = $container->get('product.repository');
+        $this->ruleRepository = $container->get('rule.repository');
+        $this->categoryRepository = $container->get('category.repository');
+        $this->albumRepository = $container->get('media_album.repository');
     }
 
     protected function configure()

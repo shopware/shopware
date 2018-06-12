@@ -13,7 +13,6 @@ use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\System\Unit\Aggregate\UnitTranslation\Collection\UnitTranslationBasicCollection;
 use Shopware\Core\System\Unit\Aggregate\UnitTranslation\Struct\UnitTranslationBasicStruct;
-use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationRepository;
 use Shopware\Core\System\Unit\UnitDefinition;
 
 class UnitTranslationDefinition extends EntityDefinition

@@ -2,14 +2,13 @@
 
 namespace Shopware\Storefront\Subscriber;
 
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
-use Shopware\Core\System\Listing\ListingSortingRepository;
-use Shopware\Core\System\Listing\Struct\ListingSortingBasicStruct;
 use Shopware\Storefront\Event\ListingEvents;
-use Shopware\Storefront\Event\ListingPageLoadedEvent;
-use Shopware\Storefront\Event\ListingPageRequestEvent;
 use Shopware\Storefront\Event\PageCriteriaCreatedEvent;
+use Shopware\Storefront\Event\TransformListingPageRequestEvent;
+use Shopware\Core\System\Listing\Struct\ListingSortingBasicStruct;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class SortingSubscriber implements EventSubscriberInterface
@@ -17,11 +16,11 @@ class SortingSubscriber implements EventSubscriberInterface
     public const SORTING_PARAMETER = 'o';
 
     /**
-     * @var ListingSortingRepository
+     * @var RepositoryInterface
      */
     private $repository;
 
-    public function __construct(ListingSortingRepository $repository)
+    public function __construct(RepositoryInterface $repository)
     {
         $this->repository = $repository;
     }

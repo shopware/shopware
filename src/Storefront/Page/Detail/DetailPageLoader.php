@@ -4,10 +4,8 @@ namespace Shopware\Storefront\Page\Detail;
 
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\Collection\ProductConfiguratorBasicCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorRepository;
 use Shopware\Core\Content\Product\Storefront\StorefrontProductRepository;
-use Shopware\Core\Content\Product\Struct\ProductDetailStruct;
-use Shopware\Core\Content\Product\Struct\StorefrontProductDetailStruct;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\NestedQuery;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
@@ -16,7 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 class DetailPageLoader
 {
     /**
-     * @var \Shopware\Core\Content\Product\Storefront\StorefrontProductRepository
+     * @var RepositoryInterface
      */
     private $productRepository;
 
@@ -27,7 +25,7 @@ class DetailPageLoader
 
     public function __construct(
         StorefrontProductRepository $productRepository,
-        ProductConfiguratorRepository $configuratorRepository
+        RepositoryInterface $configuratorRepository
     ) {
         $this->productRepository = $productRepository;
         $this->configuratorRepository = $configuratorRepository;

@@ -73,7 +73,7 @@
         </service>
 
         <service class="Shopware\Core\Checkout\Cart\Order\OrderPersister" id="Shopware\Core\Checkout\Cart\Order\OrderPersister">
-            <argument id="Shopware\Core\Checkout\Order\OrderRepository" type="service"/>
+            <argument id="order.repository" type="service"/>
             <argument id="Shopware\Core\Checkout\Cart\Tax\TaxDetector" type="service"/>
         </service>
 

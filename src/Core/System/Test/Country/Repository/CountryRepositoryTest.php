@@ -28,7 +28,7 @@ class CountryRepositoryTest extends KernelTestCase
     public function setUp()
     {
         self::bootKernel();
-        $this->repository = self::$container->get(\Shopware\Core\System\Country\CountryRepository::class);
+        $this->repository = self::$container->get('country.repository');
         $this->connection = self::$container->get(Connection::class);
         $this->connection->beginTransaction();
     }

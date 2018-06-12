@@ -2,18 +2,15 @@
 
 namespace Shopware\Core\Checkout\Test\Customer;
 
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository;
+use Ramsey\Uuid\Uuid;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
-use Shopware\Core\Checkout\Customer\CustomerRepository;
 use Shopware\Core\Checkout\Customer\Struct\CustomerBasicStruct;
-use Shopware\Core\Content\Product\ProductRepository;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Response\Type\JsonType;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\ORM\Read\ReadCriteria;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Test\Api\ApiTestCase;
-use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateRepository;
-use Shopware\Core\System\Country\CountryRepository;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Serializer\Serializer;
@@ -21,12 +18,12 @@ use Symfony\Component\Serializer\Serializer;
 class StorefrontCustomerControllerTest extends ApiTestCase
 {
     /**
-     * @var ProductRepository
+     * @var RepositoryInterface
      */
     private $productRepository;
 
     /**
-     * @var CustomerRepository
+     * @var RepositoryInterface
      */
     private $customerRepository;
 
@@ -36,12 +33,12 @@ class StorefrontCustomerControllerTest extends ApiTestCase
     private $serializer;
 
     /**
-     * @var CountryRepository
+     * @var RepositoryInterface
      */
     private $countryRepository;
 
     /**
-     * @var CountryStateRepository
+     * @var RepositoryInterface
      */
     private $countryStateRepository;
 
@@ -51,7 +48,7 @@ class StorefrontCustomerControllerTest extends ApiTestCase
     private $context;
 
     /**
-     * @var CustomerAddressRepository
+     * @var RepositoryInterface
      */
     private $customerAddressRepository;
 
@@ -60,11 +57,11 @@ class StorefrontCustomerControllerTest extends ApiTestCase
         parent::setUp();
 
         $this->serializer = $this->getContainer()->get('serializer');
-        $this->productRepository = $this->getContainer()->get(ProductRepository::class);
-        $this->customerRepository = $this->getContainer()->get(CustomerRepository::class);
-        $this->countryRepository = $this->getContainer()->get(CountryRepository::class);
-        $this->customerAddressRepository = $this->getContainer()->get(CustomerAddressRepository::class);
-        $this->countryStateRepository = $this->getContainer()->get(CountryStateRepository::class);
+        $this->productRepository = $this->getContainer()->get('product.repository');
+        $this->customerRepository = $this->getContainer()->get('customer.repository');
+        $this->countryRepository = $this->getContainer()->get('country.repository');
+        $this->customerAddressRepository = $this->getContainer()->get('customer_address.repository');
+        $this->countryStateRepository = $this->getContainer()->get('country_state.repository');
         $this->context = Context::createDefaultContext(\Shopware\Core\Defaults::TENANT_ID);
     }
 
@@ -539,17 +536,17 @@ class StorefrontCustomerControllerTest extends ApiTestCase
 
     private function readCustomer(string $userID): CustomerBasicStruct
     {
-        return $this->customerRepository->readBasic(
-            [$userID],
-            Context::createDefaultContext(\Shopware\Core\Defaults::TENANT_ID)
+        return $this->customerRepository->read(
+            new ReadCriteria([$userID]),
+            Context:: createDefaultContext(\Shopware\Core\Defaults::TENANT_ID)
         )->get($userID);
     }
 
     private function readCustomerAddress(string $addressId): ?CustomerAddressBasicStruct
     {
-        return $this->customerAddressRepository->readBasic(
-            [$addressId],
-            Context::createDefaultContext(\Shopware\Core\Defaults::TENANT_ID)
+        return $this->customerAddressRepository->read(
+            new ReadCriteria([$addressId]),
+            Context:: createDefaultContext(\Shopware\Core\Defaults::TENANT_ID)
         )->get($addressId);
     }
 

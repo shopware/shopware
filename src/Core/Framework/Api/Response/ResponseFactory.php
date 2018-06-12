@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Api\Response;
 
 use Shopware\Core\Framework\Api\Context\RestContext;
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 use Shopware\Core\Framework\ORM\Search\SearchResultInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,7 +30,7 @@ class ResponseFactory
             ->createDetailResponse($entity, $definition, $context, $setLocationHeader);
     }
 
-    public function createListingResponse(SearchResultInterface $searchResult, string $definition, RestContext $context): Response
+    public function createListingResponse(EntitySearchResult $searchResult, string $definition, RestContext $context): Response
     {
         return $this->getType($context->getRequest()->getAcceptableContentTypes())
             ->createListingResponse($searchResult, $definition, $context);

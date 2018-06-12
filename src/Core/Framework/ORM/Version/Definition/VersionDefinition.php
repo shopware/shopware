@@ -11,7 +11,6 @@ use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\Field\TenantIdField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Version\Collection\VersionBasicCollection;
-use Shopware\Core\Framework\ORM\Version\Repository\VersionRepository;
 use Shopware\Core\Framework\ORM\Version\Struct\VersionBasicStruct;
 use Shopware\Core\Framework\ORM\Write\EntityExistence;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;

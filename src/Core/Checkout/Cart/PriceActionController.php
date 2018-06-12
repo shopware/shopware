@@ -11,7 +11,8 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\PercentageTaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Framework\Api\Context\RestContext;
 use Shopware\Core\Framework\Api\Response\Type\JsonType;
-use Shopware\Core\System\Tax\TaxRepository;
+use Shopware\Core\Framework\ORM\Read\ReadCriteria;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,7 +26,7 @@ class PriceActionController extends Controller
     private $serializer;
 
     /**
-     * @var \Shopware\Core\System\Tax\TaxRepository
+     * @var RepositoryInterface
      */
     private $taxRepository;
 
@@ -41,7 +42,7 @@ class PriceActionController extends Controller
 
     public function __construct(
         Serializer $serializer,
-        TaxRepository $taxRepository,
+        RepositoryInterface $taxRepository,
         NetPriceCalculator $netCalculator,
         GrossPriceCalculator $grossCalculator
     ) {
@@ -77,7 +78,7 @@ class PriceActionController extends Controller
         $output = $post['output'] ?? 'gross';
         $preCalculated = (bool) ($post['calculated'] ?? true);
 
-        $taxes = $this->taxRepository->readBasic([$taxId], $context->getContext());
+        $taxes = $this->taxRepository->read(new ReadCriteria([$taxId]), $context->getContext());
         $tax = $taxes->get($taxId);
         if (!$tax) {
             throw new \InvalidArgumentException(sprintf('Tax rule with id %s not found taxId missing', $taxId));

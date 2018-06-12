@@ -25,74 +25,65 @@
 namespace Shopware\Core\Checkout\Context;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\ORM\Read\ReadCriteria;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\System\Touchpoint\Struct\TouchpointBasicStruct;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
-use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupRepository;
-use Shopware\Core\Checkout\Customer\CustomerRepository;
 use Shopware\Core\Checkout\Customer\Struct\CustomerBasicStruct;
-use Shopware\Core\Checkout\Payment\PaymentMethodRepository;
 use Shopware\Core\Checkout\Payment\Struct\PaymentMethodBasicStruct;
-use Shopware\Core\Checkout\Shipping\ShippingMethodRepository;
 use Shopware\Core\Checkout\Shipping\Struct\ShippingMethodBasicStruct;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\Struct\Uuid;
-use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateRepository;
-use Shopware\Core\System\Country\CountryRepository;
-use Shopware\Core\System\Currency\CurrencyRepository;
-use Shopware\Core\System\Language\LanguageRepository;
 use Shopware\Core\System\Tax\Collection\TaxBasicCollection;
-use Shopware\Core\System\Tax\TaxRepository;
-use Shopware\Core\System\Touchpoint\Struct\TouchpointBasicStruct;
-use Shopware\Core\System\Touchpoint\TouchpointRepository;
 
 class CheckoutContextFactory implements CheckoutContextFactoryInterface
 {
     /**
-     * @var \Shopware\Core\System\Touchpoint\TouchpointRepository
+     * @var RepositoryInterface
      */
     private $touchpointRepository;
 
     /**
-     * @var CurrencyRepository
+     * @var RepositoryInterface
      */
     private $currencyRepository;
 
     /**
-     * @var \Shopware\Core\Checkout\Customer\CustomerRepository
+     * @var RepositoryInterface
      */
     private $customerRepository;
 
     /**
-     * @var CustomerGroupRepository
+     * @var RepositoryInterface
      */
     private $customerGroupRepository;
 
     /**
-     * @var \Shopware\Core\System\Country\CountryRepository
+     * @var RepositoryInterface
      */
     private $countryRepository;
 
     /**
-     * @var \Shopware\Core\System\Tax\TaxRepository
+     * @var RepositoryInterface
      */
     private $taxRepository;
 
     /**
-     * @var CustomerAddressRepository
+     * @var RepositoryInterface
      */
     private $addressRepository;
 
     /**
-     * @var \Shopware\Core\Checkout\Payment\PaymentMethodRepository
+     * @var RepositoryInterface
      */
     private $paymentMethodRepository;
 
     /**
-     * @var \Shopware\Core\Checkout\Shipping\ShippingMethodRepository
+     * @var RepositoryInterface
      */
     private $shippingMethodRepository;
 
@@ -102,12 +93,12 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
     private $connection;
 
     /**
-     * @var \Shopware\Core\System\Country\Aggregate\CountryState\CountryStateRepository
+     * @var RepositoryInterface
      */
     private $countryStateRepository;
 
     /**
-     * @var \Shopware\Core\System\Language\LanguageRepository
+     * @var RepositoryInterface
      */
     private $languageRepository;
 
@@ -117,18 +108,18 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
     private $taxDetector;
 
     public function __construct(
-        TouchpointRepository $touchpointRepository,
-        CurrencyRepository $currencyRepository,
-        CustomerRepository $customerRepository,
-        CustomerGroupRepository $customerGroupRepository,
-        CountryRepository $countryRepository,
-        TaxRepository $taxRepository,
-        CustomerAddressRepository $addressRepository,
-        PaymentMethodRepository $paymentMethodRepository,
-        ShippingMethodRepository $shippingMethodRepository,
+        RepositoryInterface $touchpointRepository,
+        RepositoryInterface $currencyRepository,
+        RepositoryInterface $customerRepository,
+        RepositoryInterface $customerGroupRepository,
+        RepositoryInterface $countryRepository,
+        RepositoryInterface $taxRepository,
+        RepositoryInterface $addressRepository,
+        RepositoryInterface $paymentMethodRepository,
+        RepositoryInterface $shippingMethodRepository,
         Connection $connection,
-        CountryStateRepository $countryStateRepository,
-        LanguageRepository $languageRepository,
+        RepositoryInterface $countryStateRepository,
+        RepositoryInterface $languageRepository,
         TaxDetector $taxDetector
     ) {
         $this->touchpointRepository = $touchpointRepository;
@@ -154,7 +145,7 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
     ): CheckoutContext {
         $context = $this->getContext($touchpointId, $tenantId);
 
-        $touchpoint = $this->touchpointRepository->readBasic([$context->getTouchpointId()], $context)
+        $touchpoint = $this->touchpointRepository->read(new ReadCriteria([$context->getTouchpointId()]), $context)
             ->get($context->getTouchpointId());
 
         if (!$touchpoint) {
@@ -164,21 +155,21 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
         //load active currency, fallback to shop currency
         $currency = $touchpoint->getCurrency();
         if (array_key_exists(CheckoutContextService::CURRENCY_ID, $options)) {
-            $currency = $this->currencyRepository->readBasic([$options[CheckoutContextService::CURRENCY_ID]], $context)->get($options[CheckoutContextService::CURRENCY_ID]);
+            $currency = $this->currencyRepository->read(new ReadCriteria([$options[CheckoutContextService::CURRENCY_ID]]), $context)->get($options[CheckoutContextService::CURRENCY_ID]);
         }
 
         $language = $touchpoint->getLanguage();
         if (array_key_exists(CheckoutContextService::LANGUAGE_ID, $options)) {
-            $language = $this->languageRepository->readBasic([$options[CheckoutContextService::LANGUAGE_ID]], $context)->get($options[CheckoutContextService::LANGUAGE_ID]);
+            $language = $this->languageRepository->read(new ReadCriteria([$options[CheckoutContextService::LANGUAGE_ID]]), $context)->get($options[CheckoutContextService::LANGUAGE_ID]);
         }
 
         $fallbackLanguage = null;
         if ($language->getParentId()) {
-            $language = $this->languageRepository->readBasic([$language->getParentId()], $context)->get($language->getParentId());
+            $language = $this->languageRepository->read(new ReadCriteria([$language->getParentId()]), $context)->get($language->getParentId());
         }
 
         //fallback customer group is hard coded to 'EK'
-        $customerGroups = $this->customerGroupRepository->readBasic([Defaults::FALLBACK_CUSTOMER_GROUP], $context);
+        $customerGroups = $this->customerGroupRepository->read(new ReadCriteria([Defaults::FALLBACK_CUSTOMER_GROUP]), $context);
         $fallbackGroup = $customerGroups->get(Defaults::FALLBACK_CUSTOMER_GROUP);
         $customerGroup = $customerGroups->get(Defaults::FALLBACK_CUSTOMER_GROUP);
 
@@ -202,7 +193,7 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
 
         //customer group switched?
         if (array_key_exists(CheckoutContextService::CUSTOMER_GROUP_ID, $options)) {
-            $customerGroup = $this->customerGroupRepository->readBasic([$options[CheckoutContextService::CUSTOMER_GROUP_ID]], $context)->get($options[CheckoutContextService::CUSTOMER_GROUP_ID]);
+            $customerGroup = $this->customerGroupRepository->read(new ReadCriteria([$options[CheckoutContextService::CUSTOMER_GROUP_ID]]), $context)->get($options[CheckoutContextService::CUSTOMER_GROUP_ID]);
         }
 
         //loads tax rules based on active customer group and delivery address
@@ -242,7 +233,7 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
     {
         //payment switched in checkout?
         if (array_key_exists(CheckoutContextService::PAYMENT_METHOD_ID, $options)) {
-            return $this->paymentMethodRepository->readBasic([$options[CheckoutContextService::PAYMENT_METHOD_ID]], $context)->get($options[CheckoutContextService::PAYMENT_METHOD_ID]);
+            return $this->paymentMethodRepository->read(new ReadCriteria([$options[CheckoutContextService::PAYMENT_METHOD_ID]]), $context)->get($options[CheckoutContextService::PAYMENT_METHOD_ID]);
         }
 
         //customer has a last payment method from previous order?
@@ -255,7 +246,7 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
             return $customer->getDefaultPaymentMethod();
         }
 
-        return $this->paymentMethodRepository->readBasic([$touchpoint->getPaymentMethodId()], $context)
+        return $this->paymentMethodRepository->read(new ReadCriteria([$touchpoint->getPaymentMethodId()]), $context)
             ->get($touchpoint->getPaymentMethodId());
     }
 
@@ -266,7 +257,7 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
             $id = $options[CheckoutContextService::SHIPPING_METHOD_ID];
         }
 
-        return $this->shippingMethodRepository->readBasic([$id], $context)->get($id);
+        return $this->shippingMethodRepository->read(new ReadCriteria([$id]), $context)->get($id);
     }
 
     private function getContext(string $touchpointId, string $tenantId): Context
@@ -306,7 +297,7 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
     private function loadCustomer(array $options, Context $context): ?CustomerBasicStruct
     {
         $customerId = $options[CheckoutContextService::CUSTOMER_ID];
-        $customer = $this->customerRepository->readBasic([$customerId], $context)->get($customerId);
+        $customer = $this->customerRepository->read(new ReadCriteria([$customerId]), $context)->get($customerId);
 
         if (!$customer) {
             return $customer;
@@ -319,7 +310,7 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
         $billingAddressId = $options[CheckoutContextService::BILLING_ADDRESS_ID];
         $shippingAddressId = $options[CheckoutContextService::SHIPPING_ADDRESS_ID];
 
-        $addresses = $this->addressRepository->readBasic([$billingAddressId, $shippingAddressId], $context);
+        $addresses = $this->addressRepository->read(new ReadCriteria([$billingAddressId, $shippingAddressId]), $context);
 
         //billing address changed within checkout?
         if ($billingAddressId !== null) {
@@ -341,10 +332,10 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
     ): ShippingLocation {
         //allows to preview cart calculation for a specify state for not logged in customers
         if (array_key_exists(CheckoutContextService::STATE_ID, $options)) {
-            $state = $this->countryStateRepository->readBasic([$options[CheckoutContextService::STATE_ID]], $context)
+            $state = $this->countryStateRepository->read(new ReadCriteria([$options[CheckoutContextService::STATE_ID]]), $context)
                 ->get($options[CheckoutContextService::STATE_ID]);
 
-            $country = $this->countryRepository->readBasic([$state->getCountryId()], $context)
+            $country = $this->countryRepository->read(new ReadCriteria([$state->getCountryId()]), $context)
                 ->get($state->getCountryId());
 
             return new ShippingLocation($country, $state, null);
@@ -355,7 +346,7 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
             $countryId = $options[CheckoutContextService::COUNTRY_ID];
         }
 
-        $country = $this->countryRepository->readBasic([$countryId], $context)
+        $country = $this->countryRepository->read(new ReadCriteria([$countryId]), $context)
             ->get($countryId);
 
         return ShippingLocation::createFromCountry($country);

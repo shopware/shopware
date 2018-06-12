@@ -29,7 +29,7 @@
 
         <service class="Shopware\Core\Checkout\Customer\Cart\CustomerGroupDiscountCartCollector" id="Shopware\Core\Checkout\Customer\Cart\CustomerGroupDiscountCartCollector">
             <tag name="cart.collector" priority="-1000"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\CustomerGroupDiscountRepository.v1"/>
+            <argument type="service" id="customer_group_discount.repository"/>
         </service>
 
         <service class="Shopware\Core\Checkout\Customer\Storefront\CustomerController" id="Shopware\Core\Checkout\Customer\Storefront\CustomerController" public="true">
@@ -39,7 +39,7 @@
             <argument type="service" id="Shopware\Storefront\Page\Account\AccountService"/>
             <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextService"/>
             <argument type="service" id="Shopware\Core\Framework\Api\Response\ResponseFactory"/>
-            <argument type="service" id="Shopware\Core\Checkout\Order\OrderRepository.v1"/>
+            <argument type="service" id="order.repository"/>
         </service>
 
         <service class="Shopware\Core\Checkout\Context\CheckoutContextPersister" id="Shopware\Core\Checkout\Context\CheckoutContextPersister">
@@ -47,18 +47,18 @@
         </service>
 
         <service class="Shopware\Core\Checkout\Context\CheckoutContextFactory" id="Shopware\Core\Checkout\Context\CheckoutContextFactory">
-            <argument type="service" id="Shopware\Core\System\Touchpoint\TouchpointRepository"/>
-            <argument type="service" id="Shopware\Core\System\Currency\CurrencyRepository"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\CustomerRepository"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupRepository"/>
-            <argument type="service" id="Shopware\Core\System\Country\CountryRepository"/>
-            <argument type="service" id="Shopware\Core\System\Tax\TaxRepository"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository"/>
-            <argument type="service" id="Shopware\Core\Checkout\Payment\PaymentMethodRepository"/>
-            <argument type="service" id="Shopware\Core\Checkout\Shipping\ShippingMethodRepository"/>
+            <argument type="service" id="touchpoint.repository"/>
+            <argument type="service" id="currency.repository"/>
+            <argument type="service" id="customer.repository"/>
+            <argument type="service" id="customer_group.repository"/>
+            <argument type="service" id="country.repository"/>
+            <argument type="service" id="tax.repository"/>
+            <argument type="service" id="customer_address.repository"/>
+            <argument type="service" id="payment_method.repository"/>
+            <argument type="service" id="shipping_method.repository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="Shopware\Core\System\Country\Aggregate\CountryState\CountryStateRepository.v1"/>
-            <argument type="service" id="Shopware\Core\System\Language\LanguageRepository"/>
+            <argument type="service" id="country_state.repository"/>
+            <argument type="service" id="language.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\TaxDetector"/>
         </service>
 
@@ -69,7 +69,7 @@
             <argument id="Shopware\Core\Checkout\Cart\Cart\CartProcessor" type="service"/>
             <argument id="Shopware\Core\Checkout\Cart\Cart\CartValidator" type="service"/>
             <argument id="shopware.cache" type="service"/>
-            <argument id="Shopware\Core\Content\Rule\RuleRepository" type="service"/>
+            <argument id="rule.repository" type="service"/>
             <argument id="serializer" type="service"/>
             <argument id="Shopware\Core\Checkout\Cart\Storefront\CartService" type="service"/>
         </service>
@@ -83,9 +83,9 @@
         </service>
 
         <service class="Shopware\Core\Checkout\Context\Storefront\CheckoutContextController" id="Shopware\Core\Checkout\Context\Storefront\CheckoutContextController" public="true">
-            <argument id="Shopware\Core\Checkout\Payment\PaymentMethodRepository" type="service"/>
-            <argument id="Shopware\Core\Checkout\Shipping\ShippingMethodRepository" type="service"/>
-            <argument id="Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressRepository" type="service"/>
+            <argument id="payment_method.repository" type="service"/>
+            <argument id="shipping_method.repository" type="service"/>
+            <argument id="customer_address.repository" type="service"/>
             <argument id="Shopware\Core\Checkout\Context\CheckoutContextPersister" type="service"/>
             <argument type="service" id="serializer"/>
         </service>

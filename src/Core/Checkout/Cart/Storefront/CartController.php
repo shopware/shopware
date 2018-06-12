@@ -15,9 +15,10 @@ use Shopware\Core\Checkout\Cart\Order\OrderPersisterInterface;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextPersister;
 use Shopware\Core\Checkout\Order\OrderDefinition;
-use Shopware\Core\Checkout\Order\OrderRepository;
 use Shopware\Core\Content\Product\Cart\ProductProcessor;
 use Shopware\Core\Framework\Api\Response\Type\JsonType;
+use Shopware\Core\Framework\ORM\Read\ReadCriteria;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -46,7 +47,7 @@ class CartController extends Controller
     private $orderPersister;
 
     /**
-     * @var OrderRepository
+     * @var RepositoryInterface
      */
     private $orderRepository;
 
@@ -64,7 +65,7 @@ class CartController extends Controller
         CircularCartCalculation $calculation,
         CartPersisterInterface $persister,
         OrderPersisterInterface $orderPersister,
-        OrderRepository $orderRepository,
+        RepositoryInterface $orderRepository,
         Serializer $serializer,
         CheckoutContextPersister $contextPersister
     ) {
@@ -232,7 +233,7 @@ class CartController extends Controller
 
         $orderId = array_shift($ids);
 
-        $order = $this->orderRepository->readDetail([$orderId], $context->getContext());
+        $order = $this->orderRepository->read(new ReadCriteria([$orderId]), $context->getContext());
 
         $this->contextPersister->save($context->getToken(), ['cartToken' => null], $context->getTenantId());
 

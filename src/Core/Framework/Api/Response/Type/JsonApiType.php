@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Api\Response\JsonApiResponse;
 use Shopware\Core\Framework\Api\Response\ResponseTypeInterface;
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 use Shopware\Core\Framework\ORM\Search\SearchResultInterface;
 use Shopware\Core\Framework\ORM\Write\FieldException\InvalidFieldException;
 use Symfony\Component\HttpFoundation\Request;
@@ -68,7 +69,7 @@ class JsonApiType implements ResponseTypeInterface
         return new JsonApiResponse($response, JsonApiResponse::HTTP_OK, $headers, true);
     }
 
-    public function createListingResponse(SearchResultInterface $searchResult, string $definition, RestContext $context): Response
+    public function createListingResponse(EntitySearchResult $searchResult, string $definition, RestContext $context): Response
     {
         $baseUrl = $this->getBaseUrl($context);
 
@@ -86,9 +87,9 @@ class JsonApiType implements ResponseTypeInterface
             ];
         }
 
-        if ($searchResult && $searchResult->getAggregationResult()) {
+        if ($searchResult && $searchResult->getAggregations()) {
             $aggregations = [];
-            foreach ($searchResult->getAggregationResult()->getAggregations() as $aggregation) {
+            foreach ($searchResult->getAggregations()->getAggregations() as $aggregation) {
                 $aggregations[$aggregation->getName()] = $aggregation->getResult();
             }
 
@@ -128,7 +129,7 @@ class JsonApiType implements ResponseTypeInterface
         return new Response(null, Response::HTTP_NO_CONTENT, $headers);
     }
 
-    private function createPaginationLinks(SearchResultInterface $searchResult, string $uri, array $parameters): array
+    private function createPaginationLinks(EntitySearchResult $searchResult, string $uri, array $parameters): array
     {
         $limit = $searchResult->getCriteria()->getLimit() ?? 0;
         $offset = $searchResult->getCriteria()->getOffset() ?? 0;

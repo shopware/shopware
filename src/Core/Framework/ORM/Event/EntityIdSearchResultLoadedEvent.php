@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\ORM\Event;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\Search\IdSearchResult;
 
 class EntityIdSearchResultLoadedEvent extends NestedEvent
 {

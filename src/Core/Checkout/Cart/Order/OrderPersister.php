@@ -37,15 +37,15 @@ use Shopware\Core\Checkout\Order\Exception\CustomerHasNoActiveBillingAddressExce
 use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
 use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
 use Shopware\Core\Checkout\Order\Exception\NotLoggedInCustomerException;
-use Shopware\Core\Checkout\Order\OrderRepository;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Struct\Uuid;
 
 class OrderPersister implements OrderPersisterInterface
 {
     /**
-     * @var OrderRepository
+     * @var RepositoryInterface
      */
     private $repository;
 
@@ -54,7 +54,7 @@ class OrderPersister implements OrderPersisterInterface
      */
     private $taxDetector;
 
-    public function __construct(OrderRepository $repository, TaxDetector $taxDetector)
+    public function __construct(RepositoryInterface $repository, TaxDetector $taxDetector)
     {
         $this->repository = $repository;
         $this->taxDetector = $taxDetector;

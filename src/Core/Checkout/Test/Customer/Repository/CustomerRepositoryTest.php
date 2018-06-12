@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Test\Customer\Repository;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
-use Shopware\Core\Checkout\Customer\CustomerRepository;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
@@ -30,7 +29,7 @@ class CustomerRepositoryTest extends KernelTestCase
     public function setUp()
     {
         self::bootKernel();
-        $this->repository = self::$container->get(CustomerRepository::class);
+        $this->repository = self::$container->get('customer.repository');
         $this->connection = self::$container->get(Connection::class);
         $this->connection->executeUpdate('DELETE FROM `order`');
         $this->connection->executeUpdate('DELETE FROM customer');

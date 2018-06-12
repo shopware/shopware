@@ -28,7 +28,7 @@ class CurrencyRepositoryTest extends KernelTestCase
     public function setUp()
     {
         self::bootKernel();
-        $this->repository = self::$container->get(\Shopware\Core\System\Currency\CurrencyRepository::class);
+        $this->repository = self::$container->get('currency.repository');
         $this->connection = self::$container->get(Connection::class);
         $this->connection->beginTransaction();
     }

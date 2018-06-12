@@ -133,14 +133,14 @@
             <argument id="Shopware\Core\Checkout\Cart\Cart\CircularCartCalculation" type="service"/>
             <argument id="Shopware\Core\Checkout\Cart\Cart\CartPersister" type="service"/>
             <argument id="Shopware\Core\Checkout\Cart\Order\OrderPersister" type="service"/>
-            <argument type="service" id="Shopware\Core\Checkout\Order\OrderRepository"/>
+            <argument type="service" id="order.repository"/>
             <argument type="service" id="serializer"/>
             <argument type="service" id="Shopware\Core\Checkout\Context\CheckoutContextPersister"/>
         </service>
 
         <service class="Shopware\Core\Checkout\Cart\PriceActionController" id="Shopware\Core\Checkout\Cart\PriceActionController" public="true">
             <argument type="service" id="serializer"/>
-            <argument type="service" id="Shopware\Core\System\Tax\TaxRepository"/>
+            <argument type="service" id="tax.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\NetPriceCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\GrossPriceCalculator"/>
         </service>

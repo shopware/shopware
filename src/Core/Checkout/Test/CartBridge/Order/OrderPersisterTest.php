@@ -42,14 +42,14 @@ use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
 use Shopware\Core\Checkout\Customer\Struct\CustomerBasicStruct;
-use Shopware\Core\Checkout\Order\OrderRepository;
+use Shopware\Core\Framework\ORM\EntityRepository;
 
 class OrderPersisterTest extends TestCase
 {
     public function testSave(): void
     {
         $faker = Factory::create();
-        $repository = $this->createMock(OrderRepository::class);
+        $repository = $this->createMock(EntityRepository::class);
         $repository->expects($this->once())->method('create');
 
         $taxDetector = new TaxDetector();

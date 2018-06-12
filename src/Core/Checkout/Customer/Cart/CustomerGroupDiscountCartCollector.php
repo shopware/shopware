@@ -29,8 +29,8 @@ use Shopware\Core\Checkout\Cart\Cart\CartCollectorInterface;
 use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\Collection\CustomerGroupDiscountBasicCollection;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\CustomerGroupDiscountRepository;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\Struct\CustomerGroupDiscountBasicStruct;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\Struct\StructCollection;
@@ -38,11 +38,11 @@ use Shopware\Core\Framework\Struct\StructCollection;
 class CustomerGroupDiscountCartCollector implements CartCollectorInterface
 {
     /**
-     * @var CustomerGroupDiscountRepository
+     * @var RepositoryInterface
      */
     private $customerGroupDiscountRepository;
 
-    public function __construct(CustomerGroupDiscountRepository $customerGroupDiscountRepository)
+    public function __construct(RepositoryInterface $customerGroupDiscountRepository)
     {
         $this->customerGroupDiscountRepository = $customerGroupDiscountRepository;
     }

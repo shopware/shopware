@@ -7,17 +7,17 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Dbal\EntityAggregator;
-use Shopware\Core\Framework\ORM\Dbal\EntityReader;
-use Shopware\Core\Framework\ORM\Dbal\EntitySearcher;
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\Framework\ORM\EntityCollection;
 use Shopware\Core\Framework\ORM\EntityRepository;
 use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
+use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\ORM\Version\Service\VersionManager;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Struct\Uuid;
-use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Locale\LocaleDefinition;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
@@ -329,10 +329,10 @@ class EntityRepositoryTest extends KernelTestCase
     {
         return new EntityRepository(
             $definition,
-            self::$container->get(EntityReader::class),
+            self::$container->get(EntityReaderInterface::class),
             self::$container->get(VersionManager::class),
-            self::$container->get(EntitySearcher::class),
-            self::$container->get(EntityAggregator::class),
+            self::$container->get(EntitySearcherInterface::class),
+            self::$container->get(EntityAggregatorInterface::class),
             self::$container->get('event_dispatcher')
         );
     }

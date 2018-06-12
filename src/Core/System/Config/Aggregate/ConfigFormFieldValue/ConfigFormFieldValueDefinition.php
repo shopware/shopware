@@ -58,43 +58,13 @@ class ConfigFormFieldValueDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getRepositoryClass(): string
-    {
-        return ConfigFormFieldValueRepository::class;
-    }
-
     public static function getBasicCollectionClass(): string
     {
         return ConfigFormFieldValueBasicCollection::class;
     }
 
-    public static function getDeletedEventClass(): string
-    {
-        return ConfigFormFieldValueDeletedEvent::class;
-    }
-
-    public static function getWrittenEventClass(): string
-    {
-        return ConfigFormFieldValueWrittenEvent::class;
-    }
-
     public static function getBasicStructClass(): string
     {
         return ConfigFormFieldValueBasicStruct::class;
-    }
-
-    public static function getTranslationDefinitionClass(): ?string
-    {
-        return null;
-    }
-
-    public static function getDetailStructClass(): string
-    {
-        return ConfigFormFieldValueDetailStruct::class;
-    }
-
-    public static function getDetailCollectionClass(): string
-    {
-        return ConfigFormFieldValueDetailCollection::class;
     }
 }

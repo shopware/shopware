@@ -4,7 +4,7 @@ namespace Shopware\Storefront\Subscriber;
 
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\Collection\ProductManufacturerBasicCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerRepository;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Aggregation\AggregationResult;
 use Shopware\Core\Framework\ORM\Search\Aggregation\EntityAggregation;
 use Shopware\Core\Framework\ORM\Search\AggregatorResult;
@@ -28,11 +28,11 @@ class ManufacturerAggregationSubscriber implements EventSubscriberInterface
     public const AGGREGATION_NAME = 'manufacturer';
 
     /**
-     * @var \Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerRepository
+     * @var RepositoryInterface
      */
     private $manufacturerRepository;
 
-    public function __construct(ProductManufacturerRepository $manufacturerRepository)
+    public function __construct(RepositoryInterface $manufacturerRepository)
     {
         $this->manufacturerRepository = $manufacturerRepository;
     }

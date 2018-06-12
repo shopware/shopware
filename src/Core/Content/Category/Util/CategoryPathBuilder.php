@@ -3,11 +3,12 @@
 namespace Shopware\Core\Content\Category\Util;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Content\Category\CategoryRepository;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Content\Category\Collection\CategoryBasicCollection;
 use Shopware\Core\Content\Category\Struct\CategoryBasicStruct;
 use Shopware\Core\Framework\ORM\Event\EntityWrittenEvent;
-use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Read\ReadCriteria;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -17,7 +18,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class CategoryPathBuilder implements EventSubscriberInterface
 {
     /**
-     * @var CategoryRepository
+     * @var RepositoryInterface
      */
     private $repository;
 
@@ -31,7 +32,7 @@ class CategoryPathBuilder implements EventSubscriberInterface
      */
     private $eventDispatcher;
 
-    public function __construct(CategoryRepository $repository, Connection $connection, EventDispatcherInterface $eventDispatcher)
+    public function __construct(RepositoryInterface $repository, Connection $connection, EventDispatcherInterface $eventDispatcher)
     {
         $this->repository = $repository;
         $this->connection = $connection;
@@ -121,12 +122,12 @@ class CategoryPathBuilder implements EventSubscriberInterface
             ]);
         }
 
-        return $categories;
+        return $categories->getEntities();
     }
 
     private function loadParents(string $parentId, Context $context): CategoryBasicCollection
     {
-        $parents = $this->repository->readBasic([$parentId], $context);
+        $parents = $this->repository->read(new ReadCriteria([$parentId]), $context);
         $parent = $parents->get($parentId);
 
         if ($parent->getParentId() !== null) {

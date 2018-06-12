@@ -179,7 +179,7 @@
         </service>
 
         <service class="Shopware\Core\Framework\Routing\Firewall\CustomerProvider" id="Shopware\Core\Framework\Routing\Firewall\CustomerProvider">
-            <argument type="service" id="Shopware\Core\Checkout\Customer\CustomerRepository"/>
+            <argument type="service" id="customer.repository"/>
         </service>
 
         <service class="Shopware\Core\Framework\Routing\Firewall\TouchpointAuthenticator" id="Shopware\Core\Framework\Routing\Firewall\TouchpointAuthenticator">

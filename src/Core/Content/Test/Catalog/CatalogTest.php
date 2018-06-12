@@ -3,12 +3,11 @@
 namespace Shopware\Core\Content\Test\Catalog;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Content\Catalog\CatalogRepository;
-use Shopware\Core\Content\Category\CategoryRepository;
-use Shopware\Core\Content\Category\Struct\CategoryBasicStruct;
-use Shopware\Core\Content\Product\ProductRepository;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Category\Struct\CategoryBasicStruct;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\ORM\Read\ReadCriteria;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\ORM\Write\FieldException\WriteStackException;
@@ -18,7 +17,7 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 class CatalogTest extends KernelTestCase
 {
     /**
-     * @var \Shopware\Core\Content\Category\CategoryRepository
+     * @var RepositoryInterface
      */
     private $categoryRepository;
 
@@ -28,12 +27,12 @@ class CatalogTest extends KernelTestCase
     private $connection;
 
     /**
-     * @var CatalogRepository
+     * @var RepositoryInterface
      */
     private $catalogRepository;
 
     /**
-     * @var \Shopware\Core\Content\Product\ProductRepository
+     * @var RepositoryInterface
      */
     private $productRepository;
 
@@ -41,9 +40,9 @@ class CatalogTest extends KernelTestCase
     {
         static::bootKernel();
 
-        $this->categoryRepository = self::$container->get(CategoryRepository::class);
-        $this->catalogRepository = self::$container->get(CatalogRepository::class);
-        $this->productRepository = self::$container->get(ProductRepository::class);
+        $this->categoryRepository = self::$container->get('category.repository');
+        $this->catalogRepository = self::$container->get('catalog.repository');
+        $this->productRepository = self::$container->get('product.repository');
         $this->connection = self::$container->get(Connection::class);
         $this->connection->beginTransaction();
     }
@@ -137,7 +136,7 @@ class CatalogTest extends KernelTestCase
         $this->assertEquals($id->getHex(), Uuid::fromBytesToHex($createdCategory['id']));
         $this->assertEquals($catalogId, Uuid::fromBytesToHex($createdCategory['catalog_id']));
 
-        $categories = $this->categoryRepository->readBasic([$id->getHex()], $readContext);
+        $categories = $this->categoryRepository->read(new ReadCriteria([$id->getHex()]), $readContext);
         $this->assertEquals(0, $categories->count(), 'Category could be fetched but should not.');
     }
 
@@ -160,7 +159,7 @@ class CatalogTest extends KernelTestCase
         $this->assertEquals($id->getHex(), Uuid::fromBytesToHex($createdCategory['id']));
         $this->assertEquals($catalogId, Uuid::fromBytesToHex($createdCategory['catalog_id']));
 
-        $categories = $this->categoryRepository->readBasic([$id->getHex()], $context);
+        $categories = $this->categoryRepository->read(new ReadCriteria([$id->getHex()]), $context);
         $this->assertEquals(0, $categories->count(), 'Category could be fetched but should not.');
     }
 
@@ -185,7 +184,7 @@ class CatalogTest extends KernelTestCase
         $this->assertEquals($id->getHex(), Uuid::fromBytesToHex($createdCategory['id']));
         $this->assertEquals($catalogId, Uuid::fromBytesToHex($createdCategory['catalog_id']));
 
-        $categories = $this->categoryRepository->readBasic([$id->getHex()], $context);
+        $categories = $this->categoryRepository->read(new ReadCriteria([$id->getHex()]), $context);
         $this->assertEquals(1, $categories->count(), 'Category was not fetched but should be.');
     }
 
@@ -221,7 +220,7 @@ class CatalogTest extends KernelTestCase
             $context->getLanguageId()
         );
 
-        $foundCategories = $this->categoryRepository->readBasic(array_column($categories, 'id'), $context);
+        $foundCategories = $this->categoryRepository->read(new ReadCriteria(array_column($categories, 'id')), $context);
         $this->assertEquals(2, $foundCategories->count());
 
         // read with default and another two enabled catalogs
@@ -234,7 +233,7 @@ class CatalogTest extends KernelTestCase
             $context->getLanguageId()
         );
 
-        $foundCategories = $this->categoryRepository->readBasic(array_column($categories, 'id'), $context);
+        $foundCategories = $this->categoryRepository->read(new ReadCriteria(array_column($categories, 'id')), $context);
         $this->assertEquals(3, $foundCategories->count());
     }
 
@@ -292,7 +291,7 @@ class CatalogTest extends KernelTestCase
         $this->assertContains($ids[2], $foundIds);
         $this->assertEquals(Uuid::fromStringToBytes($catalogId), array_unique(array_column($createdCategory, 'catalog_id'))[0]);
 
-        $categories = $this->categoryRepository->readDetail([$parentId->getHex()], $context);
+        $categories = $this->categoryRepository->read(new ReadCriteria([$parentId->getHex()]), $context);
 
         $this->assertEquals(1, $categories->count(), 'Category was not fetched but should be.');
         $this->assertEquals(2, $categories->first()->getChildren()->count());
@@ -364,12 +363,12 @@ class CatalogTest extends KernelTestCase
         $this->assertContains($productId2->getBytes(), array_column($products, 'product_id'));
 
         // should work with context used to create the entities
-        $products = $this->productRepository->readBasic([$productId1->getHex(), $productId2->getHex()], $context);
+        $products = $this->productRepository->read(new ReadCriteria([$productId1->getHex(), $productId2->getHex()]), $context);
         $this->assertEquals(2, $products->count(), 'Products were not fetched correctly');
 
         // should not work as catalog differs from the default
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
-        $products = $this->productRepository->readBasic([$productId1->getHex(), $productId2->getHex()], $context);
+        $products = $this->productRepository->read(new ReadCriteria([$productId1->getHex(), $productId2->getHex()]), $context);
         $this->assertEquals(0, $products->count(), 'Products should not be fetched');
     }
 

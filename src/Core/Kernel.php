@@ -59,8 +59,22 @@ class Kernel extends HttpKernel
 
     public function boot($withPlugins = true)
     {
-        if ($this->booted === true) {
+        if (true === $this->booted) {
+            if ($this->debug) {
+                $this->startTime = microtime(true);
+            }
+
             return;
+        }
+
+        if ($this->debug) {
+            $this->startTime = microtime(true);
+        }
+
+        if ($this->debug && !isset($_ENV['SHELL_VERBOSITY']) && !isset($_SERVER['SHELL_VERBOSITY'])) {
+            putenv('SHELL_VERBOSITY=3');
+            $_ENV['SHELL_VERBOSITY'] = 3;
+            $_SERVER['SHELL_VERBOSITY'] = 3;
         }
 
         if ($withPlugins) {

@@ -138,7 +138,7 @@ class ShippingMethodStruct extends Entity
     protected $comment;
 
     /**
-     * @var \Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceCollection
+     * @var ShippingMethodPriceCollection
      */
     protected $prices;
 

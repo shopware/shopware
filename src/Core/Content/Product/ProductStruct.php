@@ -2,18 +2,18 @@
 
 namespace Shopware\Core\Content\Product;
 
-use Shopware\Core\Framework\Pricing\PriceRuleCollection;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\PercentageTaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleStruct;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerStruct;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaStruct;
+use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleStruct;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\Pricing\PriceRuleCollection;
 use Shopware\Core\Framework\Pricing\PriceStruct;
 use Shopware\Core\System\Tax\TaxStruct;
 use Shopware\Core\System\Unit\UnitStruct;
@@ -256,7 +256,7 @@ class ProductStruct extends Entity
     protected $unit;
 
     /**
-     * @var \Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleCollection
+     * @var ProductPriceRuleCollection
      */
     protected $priceRules;
 
@@ -755,7 +755,7 @@ class ProductStruct extends Entity
             return new PriceDefinitionCollection();
         }
 
-        /* @var \Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleCollection $prices */
+        /* @var ProductPriceRuleCollection $prices */
         $prices->sortByQuantity();
 
         $definitions = $prices->map(function (ProductPriceRuleStruct $rule) use ($taxRules) {
@@ -796,7 +796,7 @@ class ProductStruct extends Entity
             return new PriceDefinition($this->getPrice()->getGross(), $taxRules, 1, true);
         }
 
-        /** @var \Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleStruct $price */
+        /** @var ProductPriceRuleStruct $price */
         $price = $prices->first();
 
         return new PriceDefinition($price->getPrice()->getGross(), $taxRules, 1, true);
@@ -813,7 +813,7 @@ class ProductStruct extends Entity
             return new PriceDefinition($this->getPrice()->getGross(), $taxRules, $quantity, true);
         }
 
-        /** @var \Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleCollection $prices */
+        /** @var ProductPriceRuleCollection $prices */
         $price = $prices->getQuantityPrice($quantity);
 
         return new PriceDefinition($price->getPrice()->getGross(), $taxRules, $quantity, true);

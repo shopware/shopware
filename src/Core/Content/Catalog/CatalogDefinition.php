@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Catalog;
 
-
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaAlbum\MediaAlbumDefinition;

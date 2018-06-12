@@ -123,7 +123,7 @@ class PluginManager
 
     /**
      * @param Plugin $plugin
-     * @param bool          $removeUserData
+     * @param bool   $removeUserData
      *
      * @throws PluginNotInstalledException
      *

@@ -4,7 +4,6 @@ namespace Shopware\Core\System\Mail;
 
 use Shopware\Core\Framework\ORM\EntityCollection;
 
-
 class MailCollection extends EntityCollection
 {
     /**

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation;
 
-
 use Shopware\Core\Framework\ORM\EntityCollection;
 
 class ShippingMethodTranslationCollection extends EntityCollection

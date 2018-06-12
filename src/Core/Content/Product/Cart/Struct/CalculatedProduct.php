@@ -34,10 +34,10 @@ use Shopware\Core\Checkout\Cart\LineItem\GoodsInterface;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemInterface;
 use Shopware\Core\Checkout\Cart\LineItem\NestedInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Core\Framework\Rule\Rule;
-use Shopware\Core\Framework\Rule\Validatable;
 use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Content\Product\ProductStruct;
+use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\Validatable;
 use Shopware\Core\Framework\Struct\Struct;
 
 class CalculatedProduct extends Struct implements DeliverableLineItemInterface, GoodsInterface, Validatable, NestedInterface
@@ -78,12 +78,12 @@ class CalculatedProduct extends Struct implements DeliverableLineItemInterface, 
     protected $cover;
 
     /**
-     * @var \Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate
+     * @var DeliveryDate
      */
     protected $inStockDeliveryDate;
 
     /**
-     * @var \Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate
+     * @var DeliveryDate
      */
     protected $outOfStockDeliveryDate;
 

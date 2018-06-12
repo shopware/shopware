@@ -4,7 +4,6 @@ namespace Shopware\Core\System\Mail\Aggregate\MailTranslation;
 
 use Shopware\Core\Framework\ORM\EntityCollection;
 
-
 class MailTranslationCollection extends EntityCollection
 {
     /**

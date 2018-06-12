@@ -57,7 +57,6 @@ class RuleDefinition extends EntityDefinition
         ]);
     }
 
-
     public static function getCollectionClass(): string
     {
         return RuleCollection::class;
@@ -67,5 +66,4 @@ class RuleDefinition extends EntityDefinition
     {
         return RuleStruct::class;
     }
-
 }

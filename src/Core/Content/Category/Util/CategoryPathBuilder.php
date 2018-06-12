@@ -3,9 +3,9 @@
 namespace Shopware\Core\Content\Category\Util;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryStruct;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
@@ -87,7 +87,7 @@ class CategoryPathBuilder implements EventSubscriberInterface
         $version = Uuid::fromStringToBytes($context->getVersionId());
         $tenantId = Uuid::fromHexToBytes($context->getTenantId());
 
-        /** @var \Shopware\Core\Content\Category\CategoryStruct $category */
+        /** @var CategoryStruct $category */
         foreach ($categories as $category) {
             $idPath = implode('|', $parents->getIds());
 

@@ -33,7 +33,7 @@ class PriceDefinition extends Struct
     /** @var float */
     protected $price;
 
-    /** @var \Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection */
+    /** @var TaxRuleCollection */
     protected $taxRules;
 
     /** @var int */

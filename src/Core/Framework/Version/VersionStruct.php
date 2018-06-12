@@ -33,7 +33,7 @@ class VersionStruct extends Entity
     protected $updatedAt;
 
     /**
-     * @var \Shopware\Core\Framework\Version\Aggregate\VersionCommit\VersionCommitCollection
+     * @var VersionCommitCollection
      */
     protected $commits;
 
@@ -46,7 +46,7 @@ class VersionStruct extends Entity
     }
 
     /**
-     * @return \Shopware\Core\Framework\Version\Aggregate\VersionCommit\VersionCommitCollection
+     * @return VersionCommitCollection
      */
     public function getCommits(): VersionCommitCollection
     {

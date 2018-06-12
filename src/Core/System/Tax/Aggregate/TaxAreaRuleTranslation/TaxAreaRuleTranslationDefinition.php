@@ -14,7 +14,6 @@ use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleDefinition;
 
-
 class TaxAreaRuleTranslationDefinition extends EntityDefinition
 {
     /**

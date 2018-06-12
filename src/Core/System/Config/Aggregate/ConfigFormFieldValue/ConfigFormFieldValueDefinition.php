@@ -17,7 +17,6 @@ use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\System\Config\Aggregate\ConfigFormField\ConfigFormFieldDefinition;
 
-
 class ConfigFormFieldValueDefinition extends EntityDefinition
 {
     /**

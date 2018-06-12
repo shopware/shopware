@@ -13,7 +13,7 @@ class PaymentTransactionStruct extends Struct
     protected $transactionId;
 
     /**
-     * @var OrderDetailStruct
+     * @var OrderStruct
      */
     protected $order;
 
@@ -35,7 +35,7 @@ class PaymentTransactionStruct extends Struct
     public function __construct(
         string $transactionId,
         string $paymentMethodId,
-        OrderDetailStruct $order,
+        OrderStruct $order,
         CalculatedPrice $amount,
         string $returnUrl
     ) {
@@ -55,9 +55,9 @@ class PaymentTransactionStruct extends Struct
     }
 
     /**
-     * @return OrderDetailStruct
+     * @return OrderStruct
      */
-    public function getOrder(): OrderDetailStruct
+    public function getOrder(): OrderStruct
     {
         return $this->order;
     }

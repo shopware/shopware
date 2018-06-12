@@ -9,8 +9,8 @@ use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufactu
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Struct\Uuid;

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductManufacturer;
 
-
 use Shopware\Core\Framework\ORM\EntityCollection;
 
 class ProductManufacturerCollection extends EntityCollection

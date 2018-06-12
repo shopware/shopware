@@ -3,17 +3,16 @@
 namespace Shopware\Core\Content\Test\Product\Service;
 
 use Doctrine\DBAL\Connection;
-
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductStruct;
+use Shopware\Core\Content\Product\Util\VariantGenerator;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
-use Shopware\Core\Framework\Pricing\PriceStruct;
-use Shopware\Core\Content\Product\Util\VariantGenerator;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Core\Framework\Pricing\PriceStruct;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
@@ -108,8 +107,8 @@ class VariantGeneratorTest extends KernelTestCase
         $this->assertEquals('test blue', $blue->getName());
         $this->assertEquals('test red', $red->getName());
 
-        $this->assertInstanceOf(ProductDetailStruct::class, $red);
-        $this->assertInstanceOf(ProductDetailStruct::class, $blue);
+        $this->assertInstanceOf(ProductStruct::class, $red);
+        $this->assertInstanceOf(ProductStruct::class, $blue);
 
         $this->assertEquals(new PriceStruct(35, 60), $red->getPrice());
         $this->assertEquals(new PriceStruct(100, 110), $blue->getPrice());

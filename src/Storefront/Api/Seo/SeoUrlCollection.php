@@ -4,7 +4,6 @@ namespace Shopware\Storefront\Api\Seo;
 
 use Shopware\Core\Framework\ORM\EntityCollection;
 
-
 class SeoUrlCollection extends EntityCollection
 {
     /**

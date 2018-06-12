@@ -25,9 +25,9 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Checkout\Customer\Cart;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Cart\CartCollectorInterface;
 use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\CustomerGroupDiscountCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\CustomerGroupDiscountStruct;
 use Shopware\Core\Framework\ORM\RepositoryInterface;

@@ -2,10 +2,6 @@
 
 namespace Shopware\Core\System\Touchpoint;
 
-
-use Shopware\Core\System\Country\CountryDefinition;
-use Shopware\Core\System\Currency\CurrencyDefinition;
-use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
@@ -14,8 +10,7 @@ use Shopware\Core\Framework\ORM\Field\BoolField;
 use Shopware\Core\Framework\ORM\Field\DateField;
 use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\IdField;
-use Shopware\Core\Framework\ORM\Field\JsonField;
-use Shopware\Core\Framework\ORM\Field\ListField;
+use Shopware\Core\Framework\ORM\Field\JsonArrayField;
 use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
 use Shopware\Core\Framework\ORM\Field\StringField;
@@ -23,13 +18,9 @@ use Shopware\Core\Framework\ORM\Field\TenantIdField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\System\Country\CountryDefinition;
+use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\Language\LanguageDefinition;
-use Shopware\Core\System\Touchpoint\Collection\TouchpointBasicCollection;
-use Shopware\Core\System\Touchpoint\Collection\TouchpointDetailCollection;
-use Shopware\Core\System\Touchpoint\Event\TouchpointDeletedEvent;
-use Shopware\Core\System\Touchpoint\Event\TouchpointWrittenEvent;
-use Shopware\Core\System\Touchpoint\Struct\TouchpointBasicStruct;
-use Shopware\Core\System\Touchpoint\Struct\TouchpointDetailStruct;
 
 class TouchpointDefinition extends EntityDefinition
 {

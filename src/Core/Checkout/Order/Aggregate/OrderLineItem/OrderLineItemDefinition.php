@@ -3,8 +3,6 @@
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderLineItem;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\OrderDeliveryPositionDefinition;
-
-
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
@@ -72,7 +70,6 @@ class OrderLineItemDefinition extends EntityDefinition
             (new OneToManyAssociationField('orderDeliveryPositions', OrderDeliveryPositionDefinition::class, 'order_line_item_id', false, 'id'))->setFlags(new CascadeDelete(), new ReadOnly()),
         ]);
     }
-
 
     public static function getCollectionClass(): string
     {

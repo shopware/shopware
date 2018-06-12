@@ -4,11 +4,10 @@ namespace Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTranslation;
 
 use Shopware\Core\Framework\ORM\EntityCollection;
 
-
 class TaxAreaRuleTranslationCollection extends EntityCollection
 {
     /**
-     * @var \Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTranslation\TaxAreaRuleTranslationStruct[]
+     * @var TaxAreaRuleTranslationStruct[]
      */
     protected $elements = [];
 

@@ -2,9 +2,6 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword;
 
-use Shopware\Core\System\Language\LanguageDefinition;
-
-
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
@@ -19,6 +16,7 @@ use Shopware\Core\Framework\ORM\Field\VersionField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\System\Language\LanguageDefinition;
 
 class ProductSearchKeywordDefinition extends EntityDefinition
 {
@@ -70,5 +68,4 @@ class ProductSearchKeywordDefinition extends EntityDefinition
     {
         return ProductSearchKeywordStruct::class;
     }
-
 }

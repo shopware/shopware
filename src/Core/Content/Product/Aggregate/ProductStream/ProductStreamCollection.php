@@ -2,14 +2,13 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductStream;
 
-
 use Shopware\Core\Framework\ORM\EntityCollection;
 use Shopware\Core\System\Listing\ListingSortingCollection;
 
 class ProductStreamCollection extends EntityCollection
 {
     /**
-     * @var \Shopware\Core\Content\Product\Aggregate\ProductStream\ProductStreamStruct[]
+     * @var ProductStreamStruct[]
      */
     protected $elements = [];
 

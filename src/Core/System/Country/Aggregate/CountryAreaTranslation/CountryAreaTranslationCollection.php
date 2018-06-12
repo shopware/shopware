@@ -4,11 +4,10 @@ namespace Shopware\Core\System\Country\Aggregate\CountryAreaTranslation;
 
 use Shopware\Core\Framework\ORM\EntityCollection;
 
-
 class CountryAreaTranslationCollection extends EntityCollection
 {
     /**
-     * @var \Shopware\Core\System\Country\Aggregate\CountryAreaTranslation\CountryAreaTranslationStruct[]
+     * @var CountryAreaTranslationStruct[]
      */
     protected $elements = [];
 

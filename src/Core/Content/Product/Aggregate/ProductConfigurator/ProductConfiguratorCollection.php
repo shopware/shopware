@@ -3,16 +3,12 @@
 namespace Shopware\Core\Content\Product\Aggregate\ProductConfigurator;
 
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\Collection\ConfigurationGroupDetailCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\Collection\ConfigurationGroupDetailStruct;
-
 use Shopware\Core\Framework\ORM\EntityCollection;
-
 
 class ProductConfiguratorCollection extends EntityCollection
 {
     /**
-     * @var \Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorStruct[]
+     * @var ProductConfiguratorStruct[]
      */
     protected $elements = [];
 
@@ -70,7 +66,7 @@ class ProductConfiguratorCollection extends EntityCollection
             if ($groups->has($element->getOption()->getGroupId())) {
                 $group = $groups->get($element->getOption()->getGroupId());
             } else {
-                $group = ConfigurationGroupDetailStruct::createFrom(
+                $group = ConfigurationGroupStruct::createFrom(
                     $element->getOption()->getGroup()
                 );
 

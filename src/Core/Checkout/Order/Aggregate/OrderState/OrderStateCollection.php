@@ -2,13 +2,12 @@
 
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderState;
 
-
 use Shopware\Core\Framework\ORM\EntityCollection;
 
 class OrderStateCollection extends EntityCollection
 {
     /**
-     * @var \Shopware\Core\Checkout\Order\Aggregate\OrderState\OrderStateStruct[]
+     * @var OrderStateStruct[]
      */
     protected $elements = [];
 

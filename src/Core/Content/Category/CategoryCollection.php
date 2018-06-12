@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Category;
 
-
 use Shopware\Core\Framework\ORM\EntityCollection;
 
 class CategoryCollection extends EntityCollection

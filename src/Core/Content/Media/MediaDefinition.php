@@ -6,8 +6,6 @@ use Shopware\Core\Content\Catalog\ORM\CatalogField;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaAlbum\MediaAlbumDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationDefinition;
-
-
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;

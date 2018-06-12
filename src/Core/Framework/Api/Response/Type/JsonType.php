@@ -7,7 +7,6 @@ use Shopware\Core\Framework\Api\Response\ResponseTypeInterface;
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
-
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

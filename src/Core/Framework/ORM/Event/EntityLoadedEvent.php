@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\Framework\ORM\Event;
 
@@ -12,7 +12,6 @@ use Shopware\Core\Framework\ORM\Field\AssociationInterface;
 use Shopware\Core\Framework\ORM\Field\Field;
 use Shopware\Core\Framework\ORM\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
-
 
 class EntityLoadedEvent extends NestedEvent
 {
@@ -70,7 +69,6 @@ class EntityLoadedEvent extends NestedEvent
 
         $events = [];
         foreach ($associations as $definition => $entities) {
-
             /** @var string|EntityDefinition $definition */
             $collection = $definition::getCollectionClass();
 
@@ -85,14 +83,13 @@ class EntityLoadedEvent extends NestedEvent
         /** @var string|EntityDefinition $definition */
         $associations = $definition::getFields()->getElements();
 
-        $associations = array_filter($associations, function(Field $association) {
+        $associations = array_filter($associations, function (Field $association) {
             return $association instanceof AssociationInterface;
         });
 
         $events = [];
         /** @var AssociationInterface $association */
         foreach ($associations as $association) {
-
             if ($association instanceof ManyToOneAssociationField) {
                 /** @var Entity $entity */
                 foreach ($entities as $entity) {
@@ -126,7 +123,7 @@ class EntityLoadedEvent extends NestedEvent
 
         $recursive = [];
         foreach ($events as $nestedDefinition => $nested) {
-            /**
+            /*
              * contains now an array of arrays
              *
              * [

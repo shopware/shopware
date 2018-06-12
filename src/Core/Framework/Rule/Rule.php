@@ -24,7 +24,6 @@
 
 namespace Shopware\Core\Framework\Rule;
 
-
 use Shopware\Core\Framework\Struct\Struct;
 
 abstract class Rule extends Struct

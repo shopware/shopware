@@ -24,20 +24,20 @@
 
 namespace Shopware\Core\Checkout;
 
-use Shopware\Core\System\Touchpoint\TouchpointStruct;
-use Shopware\Core\Checkout\DiscountSurcharge\Exception\RulesLockedException;
-use Shopware\Core\System\Language\LanguageStruct;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupStruct;
 use Shopware\Core\Checkout\Customer\CustomerStruct;
+use Shopware\Core\Checkout\DiscountSurcharge\Exception\RulesLockedException;
 use Shopware\Core\Checkout\Payment\PaymentMethodStruct;
 use Shopware\Core\Checkout\Shipping\ShippingMethodStruct;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\Currency\CurrencyStruct;
+use Shopware\Core\System\Language\LanguageStruct;
 use Shopware\Core\System\Tax\TaxCollection;
+use Shopware\Core\System\Touchpoint\TouchpointStruct;
 
 /**
  * @category  Shopware\Core
@@ -54,12 +54,12 @@ class CheckoutContext extends Struct
     protected $token;
 
     /**
-     * @var \Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupStruct
+     * @var CustomerGroupStruct
      */
     protected $currentCustomerGroup;
 
     /**
-     * @var \Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupStruct
+     * @var CustomerGroupStruct
      */
     protected $fallbackCustomerGroup;
 
@@ -74,17 +74,17 @@ class CheckoutContext extends Struct
     protected $touchpoint;
 
     /**
-     * @var \Shopware\Core\System\Tax\TaxCollection
+     * @var TaxCollection
      */
     protected $taxRules;
 
     /**
-     * @var \Shopware\Core\Checkout\Customer\CustomerStruct|null
+     * @var CustomerStruct|null
      */
     protected $customer;
 
     /**
-     * @var \Shopware\Core\Checkout\Payment\PaymentMethodStruct
+     * @var PaymentMethodStruct
      */
     protected $paymentMethod;
 

@@ -26,7 +26,6 @@ namespace Shopware\Core\Checkout\Test\CartBridge\Order;
 
 use Faker\Factory;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
@@ -40,6 +39,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressStruct;
 use Shopware\Core\Checkout\Customer\CustomerStruct;
 use Shopware\Core\Framework\ORM\EntityRepository;

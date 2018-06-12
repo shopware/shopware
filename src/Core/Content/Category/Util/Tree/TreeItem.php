@@ -7,12 +7,12 @@ use Shopware\Core\Content\Category\CategoryStruct;
 class TreeItem
 {
     /**
-     * @var \Shopware\Core\Content\Category\CategoryStruct
+     * @var CategoryStruct
      */
     protected $category;
 
     /**
-     * @var \Shopware\Core\Content\Category\CategoryStruct[]
+     * @var CategoryStruct[]
      */
     protected $children;
 

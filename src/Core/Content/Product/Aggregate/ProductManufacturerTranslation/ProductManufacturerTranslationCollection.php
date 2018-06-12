@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation;
 
-
 use Shopware\Core\Framework\ORM\EntityCollection;
 
 class ProductManufacturerTranslationCollection extends EntityCollection

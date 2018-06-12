@@ -2,11 +2,11 @@
 
 namespace Shopware\Core\Checkout\Customer;
 
-use Shopware\Core\System\Touchpoint\TouchpointStruct;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressStruct;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupStruct;
 use Shopware\Core\Checkout\Payment\PaymentMethodStruct;
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\System\Touchpoint\TouchpointStruct;
 
 class CustomerStruct extends Entity
 {
@@ -166,17 +166,17 @@ class CustomerStruct extends Entity
     protected $group;
 
     /**
-     * @var \Shopware\Core\Checkout\Payment\PaymentMethodStruct
+     * @var PaymentMethodStruct
      */
     protected $defaultPaymentMethod;
 
     /**
-     * @var \Shopware\Core\System\Touchpoint\TouchpointStruct
+     * @var TouchpointStruct
      */
     protected $touchpoint;
 
     /**
-     * @var \Shopware\Core\Checkout\Payment\PaymentMethodStruct|null
+     * @var PaymentMethodStruct|null
      */
     protected $lastPaymentMethod;
 

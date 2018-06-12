@@ -52,9 +52,9 @@ class AbsolutePriceCalculator
     }
 
     /**
-     * @param float                                   $price
-     * @param CalculatedPriceCollection               $prices
-     * @param \Shopware\Core\Checkout\CheckoutContext $context
+     * @param float                     $price
+     * @param CalculatedPriceCollection $prices
+     * @param CheckoutContext         $context
      *
      * @return DerivedCalculatedPrice
      */

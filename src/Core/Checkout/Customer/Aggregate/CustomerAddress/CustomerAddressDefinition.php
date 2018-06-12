@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress;
 
-
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;

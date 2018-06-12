@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice;
 
-
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;

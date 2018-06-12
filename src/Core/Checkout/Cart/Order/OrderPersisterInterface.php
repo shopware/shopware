@@ -24,8 +24,8 @@
 
 namespace Shopware\Core\Checkout\Cart\Order;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
 
 interface OrderPersisterInterface

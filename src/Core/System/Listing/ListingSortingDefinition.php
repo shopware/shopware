@@ -23,9 +23,7 @@ use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
-
 use Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation\ListingSortingTranslationDefinition;
-
 
 class ListingSortingDefinition extends EntityDefinition
 {

@@ -4,11 +4,10 @@ namespace Shopware\Core\System\Mail\Aggregate\MailAttachment;
 
 use Shopware\Core\Framework\ORM\EntityCollection;
 
-
 class MailAttachmentCollection extends EntityCollection
 {
     /**
-     * @var \Shopware\Core\System\Mail\Aggregate\MailAttachment\MailAttachmentStruct[]
+     * @var MailAttachmentStruct[]
      */
     protected $elements = [];
 

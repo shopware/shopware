@@ -2,13 +2,12 @@
 
 namespace Shopware\Core\Checkout\Payment;
 
-
 use Shopware\Core\Framework\ORM\EntityCollection;
 
 class PaymentMethodCollection extends EntityCollection
 {
     /**
-     * @var \Shopware\Core\Checkout\Payment\PaymentMethodStruct[]
+     * @var PaymentMethodStruct[]
      */
     protected $elements = [];
 

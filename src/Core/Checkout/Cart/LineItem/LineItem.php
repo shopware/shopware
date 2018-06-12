@@ -51,7 +51,7 @@ class LineItem extends Struct implements LineItemInterface
     protected $payload;
 
     /**
-     * @var null|\Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinition
+     * @var null|PriceDefinition
      */
     protected $priceDefinition;
 

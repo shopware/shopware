@@ -13,7 +13,7 @@ class RuleStruct extends Entity
     protected $name;
 
     /**
-     * @var \Shopware\Core\Framework\Rule\Rule
+     * @var Rule
      */
     protected $payload;
 

@@ -2,11 +2,8 @@
 
 namespace Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption;
 
-use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupDetailCollection;
-use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupDetailStruct;
-use Shopware\Core\Framework\ORM\EntityCollection;
-
 use Shopware\Core\Content\Configuration\ConfigurationGroupCollection;
+use Shopware\Core\Framework\ORM\EntityCollection;
 
 class ConfigurationGroupOptionCollection extends EntityCollection
 {
@@ -69,7 +66,7 @@ class ConfigurationGroupOptionCollection extends EntityCollection
             if ($groups->has($element->getGroupId())) {
                 $group = $groups->get($element->getGroupId());
             } else {
-                $group = ConfigurationGroupDetailStruct::createFrom($element->getGroup());
+                $group = ConfigurationGroupStruct::createFrom($element->getGroup());
                 $groups->add($group);
             }
 

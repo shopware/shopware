@@ -4,11 +4,10 @@ namespace Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation;
 
 use Shopware\Core\Framework\ORM\EntityCollection;
 
-
 class ListingSortingTranslationCollection extends EntityCollection
 {
     /**
-     * @var \Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation\ListingSortingTranslationStruct[]
+     * @var ListingSortingTranslationStruct[]
      */
     protected $elements = [];
 

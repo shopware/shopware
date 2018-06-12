@@ -4,11 +4,10 @@ namespace Shopware\Core\System\Unit\Aggregate\UnitTranslation;
 
 use Shopware\Core\Framework\ORM\EntityCollection;
 
-
 class UnitTranslationCollection extends EntityCollection
 {
     /**
-     * @var \Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationStruct[]
+     * @var UnitTranslationStruct[]
      */
     protected $elements = [];
 

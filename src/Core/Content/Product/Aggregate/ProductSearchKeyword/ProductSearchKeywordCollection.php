@@ -2,13 +2,12 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword;
 
-
 use Shopware\Core\Framework\ORM\EntityCollection;
 
 class ProductSearchKeywordCollection extends EntityCollection
 {
     /**
-     * @var \Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordStruct[]
+     * @var ProductSearchKeywordStruct[]
      */
     protected $elements = [];
 

@@ -43,12 +43,12 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class MediaMigrateCommand extends Command implements EventSubscriberInterface
 {
     /**
-     * @var \Shopware\Core\Content\Media\Util\Strategy\StrategyFilesystem
+     * @var StrategyFilesystem
      */
     private $filesystem;
 
     /**
-     * @var \Shopware\Core\Content\Media\Util\Strategy\StrategyFactory
+     * @var StrategyFactory
      */
     private $strategyFactory;
 

@@ -3,8 +3,6 @@
 namespace Shopware\Core\Checkout\Context;
 
 use Psr\Cache\CacheItemPoolInterface;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Cart\CartCollector;
 use Shopware\Core\Checkout\Cart\Cart\CartPersisterInterface;
 use Shopware\Core\Checkout\Cart\Cart\CartProcessor;
@@ -18,7 +16,9 @@ use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Storefront\CartService;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Rule\RuleCollection;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -66,12 +66,12 @@ class CheckoutRuleLoader
     private $serializer;
 
     /**
-     * @var \Shopware\Core\Content\Rule\RuleCollection
+     * @var RuleCollection
      */
     private $rules;
 
     /**
-     * @var \Shopware\Core\Checkout\Cart\Storefront\CartService
+     * @var CartService
      */
     private $storeFrontCartService;
 

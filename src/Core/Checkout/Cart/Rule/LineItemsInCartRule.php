@@ -27,7 +27,6 @@ namespace Shopware\Core\Checkout\Cart\Rule;
 use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItemInterface;
 use Shopware\Core\Framework\Rule\Match;
 use Shopware\Core\Framework\Rule\Rule;
-
 use Shopware\Core\Framework\Rule\RuleScope;
 
 class LineItemsInCartRule extends Rule

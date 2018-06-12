@@ -4,7 +4,6 @@ namespace Shopware\Core\System\Locale\Aggregate\LocaleTranslation;
 
 use Shopware\Core\Framework\ORM\EntityCollection;
 
-
 class LocaleTranslationCollection extends EntityCollection
 {
     /**

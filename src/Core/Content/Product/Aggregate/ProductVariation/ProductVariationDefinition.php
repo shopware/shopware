@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductVariation;
 
+use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;

@@ -3,10 +3,8 @@
 namespace Shopware\Core\Content\Product;
 
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleCollection;
-
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
-
+use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleCollection;
 use Shopware\Core\Framework\ORM\EntityCollection;
 use Shopware\Core\Framework\Pricing\PriceCollection;
 use Shopware\Core\System\Tax\TaxCollection;
@@ -15,7 +13,7 @@ use Shopware\Core\System\Unit\UnitCollection;
 class ProductCollection extends EntityCollection
 {
     /**
-     * @var \Shopware\Core\Content\Product\ProductStruct[]
+     * @var ProductStruct[]
      */
     protected $elements = [];
 

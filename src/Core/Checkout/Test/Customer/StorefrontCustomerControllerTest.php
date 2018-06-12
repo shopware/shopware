@@ -2,11 +2,11 @@
 
 namespace Shopware\Core\Checkout\Test\Customer;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressStruct;
 use Shopware\Core\Checkout\Customer\CustomerStruct;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Response\Type\JsonType;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Struct\Uuid;

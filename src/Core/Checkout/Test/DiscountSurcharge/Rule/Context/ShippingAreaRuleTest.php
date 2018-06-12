@@ -25,14 +25,15 @@
 namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Rule\Context;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
+use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Checkout\Customer\Rule\ShippingAreaRule;
+use Shopware\Core\Content\Rule\Exception\UnsupportedOperatorException;
+use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\Country\Aggregate\CountryArea\CountryAreaStruct;
 use Shopware\Core\System\Country\CountryStruct;
-use Shopware\Core\Checkout\Customer\Rule\ShippingAreaRule;
-use Shopware\Core\Framework\Rule\Rule;
-use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 
 class ShippingAreaRuleTest extends TestCase
 {
@@ -42,7 +43,7 @@ class ShippingAreaRuleTest extends TestCase
      * @param array  $ruleData
      * @param string $currentArea
      *
-     * @throws \Shopware\Core\Content\Rule\Exception\UnsupportedOperatorException
+     * @throws UnsupportedOperatorException
      */
     public function testEquals(array $ruleData, string $currentArea): void
     {
@@ -81,7 +82,7 @@ class ShippingAreaRuleTest extends TestCase
      * @param array  $ruleData
      * @param string $currentArea
      *
-     * @throws \Shopware\Core\Content\Rule\Exception\UnsupportedOperatorException
+     * @throws UnsupportedOperatorException
      */
     public function testNotEquals(array $ruleData, string $currentArea): void
     {
@@ -117,7 +118,7 @@ class ShippingAreaRuleTest extends TestCase
     /**
      * @dataProvider unsupportedOperators
      *
-     * @expectedException \Shopware\Core\Content\Rule\Exception\UnsupportedOperatorException
+     * @expectedException \UnsupportedOperatorException
      *
      * @param string $operator
      */

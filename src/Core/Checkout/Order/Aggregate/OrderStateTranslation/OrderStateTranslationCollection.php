@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderStateTranslation;
 
-
 use Shopware\Core\Framework\ORM\EntityCollection;
 
 class OrderStateTranslationCollection extends EntityCollection

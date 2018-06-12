@@ -11,6 +11,8 @@ use Shopware\Core\Framework\ORM\Dbal\Common\LastIdQuery;
 use Shopware\Core\Framework\ORM\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\ORM\DefinitionRegistry;
 use Shopware\Core\Framework\ORM\EntityDefinition;
+use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\ORM\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\ORM\Field\AssociationInterface;
 use Shopware\Core\Framework\ORM\Field\Field;
 use Shopware\Core\Framework\ORM\Field\ManyToManyAssociationField;
@@ -19,7 +21,6 @@ use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\ORM\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\Inherited;
-use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -90,7 +91,7 @@ class InheritanceIndexer implements IndexerInterface
 
     public function refresh(EntityWrittenContainerEvent $event): void
     {
-        /** @var \Shopware\Core\Framework\ORM\Event\WrittenEvent $nested */
+        /** @var EntityWrittenEvent $nested */
         foreach ($event->getEvents() as $nested) {
             $definition = $nested->getDefinition();
 

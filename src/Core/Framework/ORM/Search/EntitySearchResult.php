@@ -34,7 +34,6 @@ class EntitySearchResult extends EntityCollection
      */
     protected $context;
 
-
     /**
      * @var IdSearchResult
      */

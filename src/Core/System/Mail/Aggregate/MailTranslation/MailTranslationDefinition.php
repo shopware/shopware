@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\Mail\Aggregate\MailTranslation;
 
-use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\FkField;
@@ -13,8 +12,7 @@ use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
-
-
+use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\Mail\MailDefinition;
 
 class MailTranslationDefinition extends EntityDefinition
@@ -54,6 +52,7 @@ class MailTranslationDefinition extends EntityDefinition
             new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, false),
         ]);
     }
+
     public static function getCollectionClass(): string
     {
         return MailTranslationCollection::class;

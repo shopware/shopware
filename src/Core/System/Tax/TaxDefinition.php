@@ -21,7 +21,6 @@ use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
 use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleDefinition;
 
-
 class TaxDefinition extends EntityDefinition
 {
     /**

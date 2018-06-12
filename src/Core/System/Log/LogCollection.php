@@ -4,7 +4,6 @@ namespace Shopware\Core\System\Log;
 
 use Shopware\Core\Framework\ORM\EntityCollection;
 
-
 class LogCollection extends EntityCollection
 {
     /**

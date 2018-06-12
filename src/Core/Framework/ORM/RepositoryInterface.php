@@ -8,28 +8,27 @@ use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 
-
 interface RepositoryInterface
 {
     /**
-     * @param Criteria           $criteria
-     * @param Context $context
+     * @param Criteria $criteria
+     * @param Context  $context
      *
      * @return AggregationResult
      */
     public function aggregate(Criteria $criteria, Context $context);
 
     /**
-     * @param Criteria           $criteria
-     * @param Context $context
+     * @param Criteria $criteria
+     * @param Context  $context
      *
      * @return IdSearchResult
      */
     public function searchIds(Criteria $criteria, Context $context);
 
     /**
-     * @param Criteria           $criteria
-     * @param Context $context
+     * @param Criteria $criteria
+     * @param Context  $context
      *
      * @return EntitySearchResult
      */
@@ -37,7 +36,7 @@ interface RepositoryInterface
 
     /**
      * @param ReadCriteria $criteria
-     * @param Context $context
+     * @param Context      $context
      *
      * @return EntityCollection
      */

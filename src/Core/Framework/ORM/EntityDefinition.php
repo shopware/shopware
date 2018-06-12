@@ -9,12 +9,9 @@ use Shopware\Core\Framework\ORM\Field\Field;
 use Shopware\Core\Framework\ORM\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
-use Shopware\Core\Framework\ORM\Event\DeletedEventInterface;
 use Shopware\Core\Framework\ORM\Write\EntityExistence;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\ReadOnly;
-use Shopware\Core\Framework\ORM\Field\ChildCountField;
-use Shopware\Core\Framework\ORM\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 
 abstract class EntityDefinition
@@ -46,8 +43,6 @@ abstract class EntityDefinition
     }
 
     abstract public static function getEntityName(): string;
-
-    abstract protected static function defineFields(): FieldCollection;
 
     public static function getFields(): FieldCollection
     {
@@ -175,6 +170,8 @@ abstract class EntityDefinition
     {
         return static::defineFields()->has('tenantId');
     }
+
+    abstract protected static function defineFields(): FieldCollection;
 
     protected static function filterAssociationReferences(string $type, FieldCollection $fields): array
     {

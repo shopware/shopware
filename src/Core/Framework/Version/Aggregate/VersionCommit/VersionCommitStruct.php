@@ -33,7 +33,7 @@ class VersionCommitStruct extends Entity
     protected $userId;
 
     /**
-     * @var \Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDataCollection
+     * @var VersionCommitDataCollection
      */
     protected $data;
 
@@ -126,7 +126,7 @@ class VersionCommitStruct extends Entity
     }
 
     /**
-     * @return \Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDataCollection
+     * @return VersionCommitDataCollection
      */
     public function getData(): VersionCommitDataCollection
     {

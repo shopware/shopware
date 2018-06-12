@@ -3,15 +3,15 @@
 namespace Shopware\Storefront\Test;
 
 use Doctrine\DBAL\Connection;
-use Ramsey\Uuid\Uuid;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Write\EntityWriter;
 use Shopware\Core\Framework\ORM\Write\EntityWriterInterface;
 use Shopware\Core\Framework\ORM\Write\WriteContext;
+use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\Framework\Test\Api\ApiTestCase;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
@@ -63,7 +63,7 @@ class OrderingProcessTest extends ApiTestCase
         $this->changePaymentMethod(Defaults::PAYMENT_METHOD_PAID_IN_ADVANCE);
 
         $orderId = $this->payOrder();
-        self::assertTrue(\Shopware\Core\Framework\Struct\Uuid::isValid($orderId));
+        self::assertTrue(Uuid::isValid($orderId));
 
         $order = $this->orderRepository->read(new ReadCriteria([$orderId]), Context::createDefaultContext(Defaults::TENANT_ID))->get($orderId);
 

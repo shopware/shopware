@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\Framework\Test\ORM\Event;
 
@@ -27,14 +27,14 @@ class EntityLoadedEventTest extends TestCase
 
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
         $event = new EntityLoadedEvent(TestDefinition::class, new EntityCollection([$root]), $context);
-        
+
         $this->assertEquals(
             new NestedEventCollection([
                 new EntityLoadedEvent(
                     TestDefinition::class,
                     new EntityCollection([$a]),
                     $context
-                )
+                ),
             ]),
             $event->getEvents()
         );
@@ -57,7 +57,7 @@ class EntityLoadedEventTest extends TestCase
                     TestDefinition::class,
                     new EntityCollection([$a, $b, $c]),
                     $context
-                )
+                ),
             ]),
             $event->getEvents()
         );
@@ -70,7 +70,7 @@ class EntityLoadedEventTest extends TestCase
                     TestDefinition::class,
                     new EntityCollection([$a, $b]),
                     $context
-                )
+                ),
             ]),
             $event->getEvents()
         );
@@ -92,7 +92,7 @@ class EntityLoadedEventTest extends TestCase
                     TestDefinition::class,
                     new EntityCollection([$a, $b]),
                     $context
-                )
+                ),
             ]),
             $event->getEvents()
         );
@@ -116,12 +116,11 @@ class EntityLoadedEventTest extends TestCase
                     TestDefinition::class,
                     new EntityCollection([$a, $b, $c]),
                     $context
-                )
+                ),
             ]),
             $event->getEvents()
         );
     }
-
 
     public function testExtractManyToMany(): void
     {
@@ -139,7 +138,7 @@ class EntityLoadedEventTest extends TestCase
                     TestDefinition::class,
                     new EntityCollection([$a, $b]),
                     $context
-                )
+                ),
             ]),
             $event->getEvents()
         );
@@ -163,19 +162,23 @@ class EntityLoadedEventTest extends TestCase
                     TestDefinition::class,
                     new EntityCollection([$a, $b, $c]),
                     $context
-                )
+                ),
             ]),
             $event->getEvents()
         );
     }
 }
 
-
 class TestDefinition extends EntityDefinition
 {
     public static function getEntityName(): string
     {
         return 'test';
+    }
+
+    public static function getRepositoryClass(): string
+    {
+        return '';
     }
 
     protected static function defineFields(): FieldCollection
@@ -186,10 +189,5 @@ class TestDefinition extends EntityDefinition
             new OneToManyAssociationField('one_to_many', TestDefinition::class, 'test_id', true),
             new ManyToManyAssociationField('many_to_many', TestDefinition::class, ProductCategoryDefinition::class, true, 'test_id', 'test_id'),
         ]);
-    }
-
-    public static function getRepositoryClass(): string
-    {
-        return '';
     }
 }

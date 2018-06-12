@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption;
 
+use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOptionTranslation\ConfigurationGroupOptionTranslationDefinition;
+use Shopware\Core\Content\Configuration\ConfigurationGroupDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductDatasheet\ProductDatasheetDefinition;
@@ -26,10 +28,6 @@ use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
-
-
-use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOptionTranslation\ConfigurationGroupOptionTranslationDefinition;
-use Shopware\Core\Content\Configuration\ConfigurationGroupDefinition;
 
 class ConfigurationGroupOptionDefinition extends EntityDefinition
 {

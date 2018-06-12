@@ -3,10 +3,10 @@
 namespace Shopware\Core\Framework\Test\ORM\Write;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Write\EntityWriter;
 use Shopware\Core\Framework\ORM\Write\EntityWriterInterface;
 use Shopware\Core\Framework\ORM\Write\FieldException\WriteStackException;

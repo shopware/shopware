@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\Framework\ORM\Event;
 
@@ -17,7 +17,7 @@ class EntityDeletedEvent extends EntityWrittenEvent implements DeletedEvent
     ) {
         parent::__construct($definition, $ids, $payload, $existences, $context, $errors);
 
-        /** @var string|EntityDefinition $definition */
+        /* @var string|EntityDefinition $definition */
         $this->name = $definition::getEntityName() . '.deleted';
     }
 }

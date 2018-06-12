@@ -25,12 +25,12 @@
 namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Rule\Context;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressStruct;
 use Shopware\Core\Checkout\Customer\CustomerStruct;
 use Shopware\Core\Checkout\Customer\Rule\BillingAreaRule;
-use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\System\Country\CountryStruct;
 
 class BillingAreaRuleTest extends TestCase

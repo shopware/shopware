@@ -3,13 +3,14 @@
 namespace Shopware\Core\Checkout\Test\Payment;
 
 use Doctrine\DBAL\Connection;
-
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Payment\Cart\Token\PaymentTransactionTokenFactory;
+use Shopware\Core\Checkout\Payment\Exception\InvalidTokenException;
+use Shopware\Core\Checkout\Payment\Exception\TokenExpiredException;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -28,7 +29,7 @@ class TokenFactoryTest extends KernelTestCase
     protected $tokenFactory;
 
     /**
-     * @var \Shopware\Core\Framework\Context
+     * @var Context
      */
     protected $context;
 
@@ -90,8 +91,8 @@ class TokenFactoryTest extends KernelTestCase
     }
 
     /**
-     * @throws \Shopware\Core\Checkout\Payment\Exception\InvalidTokenException
-     * @throws \Shopware\Core\Checkout\Payment\Exception\TokenExpiredException
+     * @throws InvalidTokenException
+     * @throws TokenExpiredException
      */
     public function testValidateToken()
     {
@@ -116,7 +117,7 @@ class TokenFactoryTest extends KernelTestCase
 
     /**
      * @throws \Doctrine\DBAL\Exception\InvalidArgumentException
-     * @throws \Shopware\Core\Checkout\Payment\Exception\InvalidTokenException
+     * @throws InvalidTokenException
      */
     public function testInvalidateToken()
     {

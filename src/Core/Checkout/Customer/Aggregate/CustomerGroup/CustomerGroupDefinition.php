@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup;
 
-
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\CustomerGroupDiscountDefinition;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationDefinition;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;

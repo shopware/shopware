@@ -3,8 +3,6 @@
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransactionStateTranslation;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionState\OrderTransactionStateDefinition;
-
-
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\FkField;

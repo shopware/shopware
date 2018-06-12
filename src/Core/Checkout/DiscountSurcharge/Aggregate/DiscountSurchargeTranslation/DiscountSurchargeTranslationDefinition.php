@@ -2,10 +2,7 @@
 
 namespace Shopware\Core\Checkout\DiscountSurcharge\Aggregate\DiscountSurchargeTranslation;
 
-
 use Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeDefinition;
-
-use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\FkField;

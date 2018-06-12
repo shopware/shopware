@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Content\Product\ORM\Indexing;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Content\Product\ProductStruct;
+use Shopware\Core\Framework\Context;
 
 interface ProductSearchAnalyzerInterface
 {

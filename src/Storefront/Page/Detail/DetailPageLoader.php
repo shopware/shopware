@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Page\Detail;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorCollection;
 use Shopware\Core\Content\Product\Storefront\StorefrontProductRepository;
+use Shopware\Core\Content\Product\Storefront\StorefrontProductStruct;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\NestedQuery;
@@ -43,7 +44,7 @@ class DetailPageLoader
             throw new \RuntimeException('Product was not found.');
         }
 
-        /** @var \Shopware\Core\Content\Product\Storefront\StorefrontProductStruct $product */
+        /** @var StorefrontProductStruct $product */
         $product = $collection->get($productId);
 
         $page = new DetailPageStruct($product);
@@ -92,7 +93,7 @@ class DetailPageLoader
         return $productId;
     }
 
-    private function loadConfigurator(StorefrontProductDetailStruct $product, CheckoutContext $context): ProductConfiguratorCollection
+    private function loadConfigurator(StorefrontProductStruct $product, CheckoutContext $context): ProductConfiguratorCollection
     {
         $containerId = $product->getParentId() ?? $product->getId();
 

@@ -1,11 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\Framework\ORM;
 
 use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
-use Shopware\Core\Framework\ORM\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class RepositoryRegistry
@@ -58,7 +57,7 @@ class RepositoryRegistry
 
     public function get(string $definition, int $version = 1)
     {
-        for ($i = $version; $i >= 1; $i--) {
+        for ($i = $version; $i >= 1; --$i) {
             if (array_key_exists($definition, $this->repositories)) {
                 return $this->repositories[$definition];
             }
@@ -72,7 +71,7 @@ class RepositoryRegistry
             $this->aggregator,
             $this->eventDispatcher
         );
-        
+
         return $this->repositories[$version][$definition] = $repository;
     }
 }

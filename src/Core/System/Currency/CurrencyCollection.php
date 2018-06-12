@@ -4,7 +4,6 @@ namespace Shopware\Core\System\Currency;
 
 use Shopware\Core\Framework\ORM\EntityCollection;
 
-
 class CurrencyCollection extends EntityCollection
 {
     /**

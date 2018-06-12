@@ -14,15 +14,13 @@ use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\Field\TenantIdField;
 use Shopware\Core\Framework\ORM\FieldCollection;
-use Shopware\Core\Framework\Version\Aggregate\VersionCommit\VersionCommitCollection;
-use Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition;
-use Shopware\Core\Framework\Version\Aggregate\VersionCommit\VersionCommitStruct;
 use Shopware\Core\Framework\ORM\Write\EntityExistence;
 use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\ReadOnly;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
+use Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition;
 use Shopware\Core\Framework\Version\VersionDefinition;
 
 class VersionCommitDefinition extends EntityDefinition

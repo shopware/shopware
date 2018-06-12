@@ -28,7 +28,6 @@ use Shopware\Core\Checkout\Cart\LineItem\GoodsInterface;
 use Shopware\Core\Content\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Match;
 use Shopware\Core\Framework\Rule\Rule;
-
 use Shopware\Core\Framework\Rule\RuleScope;
 
 class GoodsCountRule extends Rule

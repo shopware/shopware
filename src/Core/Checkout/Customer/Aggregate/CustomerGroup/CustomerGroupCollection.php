@@ -2,13 +2,12 @@
 
 namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup;
 
-
 use Shopware\Core\Framework\ORM\EntityCollection;
 
 class CustomerGroupCollection extends EntityCollection
 {
     /**
-     * @var \Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupStruct[]
+     * @var CustomerGroupStruct[]
      */
     protected $elements = [];
 

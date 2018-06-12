@@ -14,7 +14,7 @@ class DetailPageStruct extends Struct
     protected $product;
 
     /**
-     * @var \Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorCollection
+     * @var ProductConfiguratorCollection
      */
     protected $configurator;
 

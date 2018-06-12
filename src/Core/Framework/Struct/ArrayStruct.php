@@ -11,14 +11,14 @@ class ArrayStruct extends Entity implements \ArrayAccess
      */
     protected $data;
 
-    public function getId(): string
-    {
-        return $this->data['id'];
-    }
-
     public function __construct(array $data = [])
     {
         $this->data = $data;
+    }
+
+    public function getId(): string
+    {
+        return $this->data['id'];
     }
 
     public function offsetExists($offset)

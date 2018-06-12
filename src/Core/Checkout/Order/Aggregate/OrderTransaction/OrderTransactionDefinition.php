@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransaction;
 
-
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionState\OrderTransactionStateDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;

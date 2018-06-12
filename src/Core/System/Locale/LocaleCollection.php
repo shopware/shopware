@@ -4,7 +4,6 @@ namespace Shopware\Core\System\Locale;
 
 use Shopware\Core\Framework\ORM\EntityCollection;
 
-
 class LocaleCollection extends EntityCollection
 {
     /**

@@ -24,7 +24,6 @@
 
 namespace Shopware\Core\Content\Category\Command;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Content\Category\Util\CategoryPathBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;

@@ -22,7 +22,6 @@ use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Core\System\Locale\LocaleDefinition;
 
-
 class UserDefinition extends EntityDefinition
 {
     /**

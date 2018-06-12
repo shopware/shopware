@@ -155,7 +155,7 @@ class OrderAmountRuleTest extends TestCase
     /**
      * @dataProvider unsupportedOperators
      *
-     * @expectedException \Shopware\Core\Content\Rule\Exception\UnsupportedOperatorException
+     * @expectedException \UnsupportedOperatorException
      *
      * @param string $operator
      */

@@ -27,7 +27,6 @@ use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Core\System\Mail\Aggregate\MailAttachment\MailAttachmentDefinition;
 use Shopware\Core\System\Mail\Aggregate\MailTranslation\MailTranslationDefinition;
 
-
 class MailDefinition extends EntityDefinition
 {
     /**

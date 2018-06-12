@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Framework\Command;
 
-use Shopware\Core\Framework\Plugin\PluginManager;
 use Shopware\Core\Framework\Plugin;
+use Shopware\Core\Framework\Plugin\PluginManager;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;

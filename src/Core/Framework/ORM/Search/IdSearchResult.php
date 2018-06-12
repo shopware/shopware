@@ -23,7 +23,7 @@ class IdSearchResult extends Struct
     protected $criteria;
 
     /**
-     * @var \Shopware\Core\Framework\Context
+     * @var Context
      */
     protected $context;
 

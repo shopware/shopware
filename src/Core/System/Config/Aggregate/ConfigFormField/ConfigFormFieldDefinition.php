@@ -23,8 +23,6 @@ use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
-
-
 use Shopware\Core\System\Config\Aggregate\ConfigFormFieldTranslation\ConfigFormFieldTranslationDefinition;
 use Shopware\Core\System\Config\Aggregate\ConfigFormFieldValue\ConfigFormFieldValueDefinition;
 use Shopware\Core\System\Config\ConfigFormDefinition;

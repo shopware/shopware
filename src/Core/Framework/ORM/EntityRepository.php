@@ -7,6 +7,7 @@ use Shopware\Core\Framework\ORM\Event\EntityAggregationResultLoadedEvent;
 use Shopware\Core\Framework\ORM\Event\EntityIdSearchResultLoadedEvent;
 use Shopware\Core\Framework\ORM\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\ORM\Event\EntitySearchResultLoadedEvent;
+use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\Search\AggregatorResult;
@@ -15,8 +16,6 @@ use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 use Shopware\Core\Framework\ORM\Search\Query\TermsQuery;
-use Shopware\Core\Framework\ORM\VersionManager;
-use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\ORM\Write\WriteContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -148,6 +147,7 @@ class EntityRepository implements RepositoryInterface
         if (!$this->definition::isVersionAware()) {
             throw new \RuntimeException(sprintf('Entity %s is not version aware', $this->definition::getEntityName()));
         }
+
         return $this->versionManager->createVersion($this->definition, $id, WriteContext::createFromContext($context), $name, $versionId);
     }
 

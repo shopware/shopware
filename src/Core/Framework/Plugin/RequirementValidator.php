@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\Plugin;
 
+use Shopware\Core\Framework\Plugin;
+
 class RequirementValidator
 {
     /**
@@ -76,8 +78,8 @@ class RequirementValidator
     }
 
     /**
-     * @param array[]                                         $requiredPlugins
-     * @param \Shopware\Core\Framework\Plugin[] $availablePlugins
+     * @param array[]                                    $requiredPlugins
+     * @param Plugin[] $availablePlugins
      *
      * @throws \Exception
      */

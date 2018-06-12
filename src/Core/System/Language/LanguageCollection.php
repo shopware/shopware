@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\Language;
 
-
 use Shopware\Core\Framework\ORM\EntityCollection;
 use Shopware\Core\System\Locale\LocaleCollection;
 

@@ -3,16 +3,16 @@
 namespace Shopware\Core\Content\Test\Category\Repository;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Event\EntityDeletedEvent;
+use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\ORM\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Core\Framework\ORM\Search\Term\SearchTermInterpreter;
-use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 

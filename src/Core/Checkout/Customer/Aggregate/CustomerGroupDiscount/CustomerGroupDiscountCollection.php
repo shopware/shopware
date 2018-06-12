@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount;
 
-
 use Shopware\Core\Framework\ORM\EntityCollection;
 
 class CustomerGroupDiscountCollection extends EntityCollection

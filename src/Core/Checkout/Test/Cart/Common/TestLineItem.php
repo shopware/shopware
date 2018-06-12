@@ -42,7 +42,7 @@ class TestLineItem implements CalculatedLineItemInterface
     private $label;
 
     /**
-     * @var null|\Shopware\Core\Content\Media\MediaStruct
+     * @var null|MediaStruct
      */
     private $cover;
 

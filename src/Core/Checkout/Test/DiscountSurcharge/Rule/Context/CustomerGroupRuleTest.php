@@ -25,11 +25,11 @@
 namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Rule\Context;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
+use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupStruct;
 use Shopware\Core\Checkout\Customer\Rule\CustomerGroupRule;
-use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 
 class CustomerGroupRuleTest extends TestCase
 {

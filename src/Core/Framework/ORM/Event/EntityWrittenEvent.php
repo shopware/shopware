@@ -66,7 +66,7 @@ class EntityWrittenEvent extends NestedEvent
         $this->existences = $existences;
         $this->definition = $definition;
 
-        /** @var string|EntityDefinition $definition */
+        /* @var string|EntityDefinition $definition */
         $this->name = $definition::getEntityName() . '.written';
     }
 

@@ -26,7 +26,6 @@ use Shopware\Core\Framework\Plugin\PluginDefinition;
 use Shopware\Core\System\Config\Aggregate\ConfigFormField\ConfigFormFieldDefinition;
 use Shopware\Core\System\Config\Aggregate\ConfigFormTranslation\ConfigFormTranslationDefinition;
 
-
 class ConfigFormDefinition extends EntityDefinition
 {
     /**
@@ -73,7 +72,6 @@ class ConfigFormDefinition extends EntityDefinition
             (new TranslationsAssociationField('translations', ConfigFormTranslationDefinition::class, 'config_form_id', false, 'id'))->setFlags(new CascadeDelete()),
         ]);
     }
-
 
     public static function getCollectionClass(): string
     {

@@ -4,7 +4,6 @@ namespace Shopware\Core\System\Snippet;
 
 use Shopware\Core\Framework\ORM\EntityCollection;
 
-
 class SnippetCollection extends EntityCollection
 {
     /**

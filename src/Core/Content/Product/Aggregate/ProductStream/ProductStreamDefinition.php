@@ -4,8 +4,6 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductStream;
 
 use Shopware\Core\Content\Catalog\ORM\CatalogField;
 use Shopware\Core\Content\Category\CategoryDefinition;
-
-
 use Shopware\Core\Content\Product\Aggregate\ProductStreamAssignment\ProductStreamAssignmentDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductStreamTab\ProductStreamTabDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;

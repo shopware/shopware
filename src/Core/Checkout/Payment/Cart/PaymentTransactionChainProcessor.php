@@ -2,9 +2,8 @@
 
 namespace Shopware\Core\Checkout\Payment\Cart;
 
-
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
+use Shopware\Core\Checkout\Order\OrderStruct;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
 use Shopware\Core\Checkout\Payment\Cart\Token\PaymentTransactionTokenFactory;
@@ -12,6 +11,7 @@ use Shopware\Core\Checkout\Payment\Cart\Token\PaymentTransactionTokenFactoryInte
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -70,7 +70,7 @@ class PaymentTransactionChainProcessor
      */
     public function process(string $orderId, Context $context): ?RedirectResponse
     {
-        /** @var \Shopware\Core\Checkout\Order\OrderStruct $order */
+        /** @var OrderStruct $order */
         $order = $this->orderRepository->read(new ReadCriteria([$orderId]), $context)->first();
 
         if (!$order) {

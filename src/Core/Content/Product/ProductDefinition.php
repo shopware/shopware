@@ -2,14 +2,16 @@
 
 namespace Shopware\Core\Content\Product;
 
+use Shopware\Core\Content\Catalog\ORM\CatalogField;
 use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategoryTree\ProductCategoryTreeDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductDatasheet\ProductDatasheetDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductSeoCategory\ProductSeoCategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceDefinition;
@@ -18,8 +20,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductStreamAssignment\ProductStrea
 use Shopware\Core\Content\Product\Aggregate\ProductStreamTab\ProductStreamTabDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVariation\ProductVariationDefinition;
-
-
+use Shopware\Core\Content\Product\ORM\Field\ProductCoverField;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\BoolField;

@@ -4,11 +4,10 @@ namespace Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption
 
 use Shopware\Core\Framework\ORM\EntityCollection;
 
-
 class ConfigurationGroupOptionTranslationCollection extends EntityCollection
 {
     /**
-     * @var \Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOptionTranslation\ConfigurationGroupOptionTranslationStruct[]
+     * @var ConfigurationGroupOptionTranslationStruct[]
      */
     protected $elements = [];
 

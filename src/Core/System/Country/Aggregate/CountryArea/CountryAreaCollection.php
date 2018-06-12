@@ -4,7 +4,6 @@ namespace Shopware\Core\System\Country\Aggregate\CountryArea;
 
 use Shopware\Core\Framework\ORM\EntityCollection;
 
-
 class CountryAreaCollection extends EntityCollection
 {
     /**

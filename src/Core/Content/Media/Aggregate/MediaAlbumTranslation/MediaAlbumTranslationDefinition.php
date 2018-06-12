@@ -4,8 +4,6 @@ namespace Shopware\Core\Content\Media\Aggregate\MediaAlbumTranslation;
 
 use Shopware\Core\Content\Catalog\ORM\CatalogField;
 use Shopware\Core\Content\Media\Aggregate\MediaAlbum\MediaAlbumDefinition;
-
-
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\FkField;
@@ -52,12 +50,10 @@ class MediaAlbumTranslationDefinition extends EntityDefinition
         ]);
     }
 
-
     public static function getCollectionClass(): string
     {
         return MediaAlbumTranslationCollection::class;
     }
-
 
     public static function getStructClass(): string
     {

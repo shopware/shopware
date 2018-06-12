@@ -99,12 +99,12 @@ class CustomerAddressStruct extends Entity
     protected $updatedAt;
 
     /**
-     * @var \Shopware\Core\System\Country\CountryStruct
+     * @var CountryStruct
      */
     protected $country;
 
     /**
-     * @var \Shopware\Core\System\Country\Aggregate\CountryState\CountryStateStruct|null
+     * @var CountryStateStruct|null
      */
     protected $countryState;
 

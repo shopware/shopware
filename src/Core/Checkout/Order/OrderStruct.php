@@ -2,14 +2,13 @@
 
 namespace Shopware\Core\Checkout\Order;
 
-use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressStruct;
-use Shopware\Core\System\Touchpoint\TouchpointStruct;
 use Shopware\Core\Checkout\Customer\CustomerStruct;
-
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressStruct;
 use Shopware\Core\Checkout\Order\Aggregate\OrderState\OrderStateStruct;
 use Shopware\Core\Checkout\Payment\PaymentMethodStruct;
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\System\Currency\CurrencyStruct;
+use Shopware\Core\System\Touchpoint\TouchpointStruct;
 
 class OrderStruct extends Entity
 {
@@ -114,7 +113,7 @@ class OrderStruct extends Entity
     protected $currency;
 
     /**
-     * @var \Shopware\Core\System\Touchpoint\TouchpointStruct
+     * @var TouchpointStruct
      */
     protected $touchpoint;
 

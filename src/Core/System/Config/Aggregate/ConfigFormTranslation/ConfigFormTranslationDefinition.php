@@ -14,8 +14,6 @@ use Shopware\Core\Framework\ORM\Field\VersionField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
-
-
 use Shopware\Core\System\Config\ConfigFormDefinition;
 use Shopware\Core\System\Locale\LocaleDefinition;
 
@@ -59,7 +57,6 @@ class ConfigFormTranslationDefinition extends EntityDefinition
             new ManyToOneAssociationField('locale', 'locale_id', LocaleDefinition::class, false),
         ]);
     }
-
 
     public static function getCollectionClass(): string
     {

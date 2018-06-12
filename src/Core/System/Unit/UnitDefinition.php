@@ -20,9 +20,7 @@ use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
-
 use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationDefinition;
-
 
 class UnitDefinition extends EntityDefinition
 {

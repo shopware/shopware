@@ -11,8 +11,6 @@ use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
-
-
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\Language\LanguageDefinition;
 

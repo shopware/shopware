@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\Touchpoint;
 
-
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\System\Currency\CurrencyStruct;
 use Shopware\Core\System\Language\LanguageStruct;

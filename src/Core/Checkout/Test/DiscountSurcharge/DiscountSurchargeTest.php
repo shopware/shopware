@@ -2,9 +2,6 @@
 
 namespace Shopware\Core\Checkout\Test\DiscountSurcharge;
 
-use Shopware\Core\Checkout\DiscountSurcharge\Cart\DiscountSurchargeProcessor;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Cart\CircularCartCalculation;
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
@@ -12,20 +9,23 @@ use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
-use Shopware\Core\Checkout\Cart\Tax\Struct\PercentageTaxRule;
 use Shopware\Core\Checkout\Cart\Rule\GoodsCountRule;
 use Shopware\Core\Checkout\Cart\Rule\GoodsPriceRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemOfTypeRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemTotalPriceRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemWithQuantityRule;
 use Shopware\Core\Checkout\Cart\Rule\ProductOfManufacturerRule;
+use Shopware\Core\Checkout\Cart\Tax\Struct\PercentageTaxRule;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Checkout\DiscountSurcharge\Cart\DiscountSurchargeProcessor;
+use Shopware\Core\Checkout\Test\Cart\Common\Generator;
+use Shopware\Core\Content\Product\Cart\ProductProcessor;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Rule;
-use Shopware\Core\Checkout\Test\Cart\Common\Generator;
-use Shopware\Core\Content\Product\Cart\ProductProcessor;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
@@ -47,7 +47,7 @@ class DiscountSurchargeTest extends KernelTestCase
     public static $productRepository;
 
     /**
-     * @var \Shopware\Core\Framework\Context
+     * @var Context
      */
     public static $context;
 

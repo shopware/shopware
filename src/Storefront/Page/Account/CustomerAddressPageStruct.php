@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Struct\Struct;
 class CustomerAddressPageStruct extends Struct
 {
     /**
-     * @var \Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection
+     * @var CustomerAddressCollection
      */
     private $addresses;
 

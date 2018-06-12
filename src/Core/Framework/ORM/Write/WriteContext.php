@@ -39,7 +39,7 @@ class WriteContext
     public $paths = [];
 
     /**
-     * @var \Shopware\Core\Framework\Context
+     * @var Context
      */
     private $context;
 

@@ -129,7 +129,6 @@ class NestedDefinition extends EntityDefinition
             (new StringField('name', 'name'))->setFlags(new SearchRanking(100)),
         ]);
     }
-
 }
 
 class OnlyTranslatedFieldDefinition extends EntityDefinition

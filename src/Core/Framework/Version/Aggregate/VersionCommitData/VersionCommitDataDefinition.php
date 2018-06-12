@@ -14,12 +14,10 @@ use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\Field\TenantIdField;
 use Shopware\Core\Framework\ORM\Field\VersionDataPayloadField;
 use Shopware\Core\Framework\ORM\FieldCollection;
-use Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDataCollection;
-use Shopware\Core\Framework\Version\Aggregate\VersionCommit\VersionCommitDefinition;
-use Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDataStruct;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
+use Shopware\Core\Framework\Version\Aggregate\VersionCommit\VersionCommitDefinition;
 
 class VersionCommitDataDefinition extends EntityDefinition
 {

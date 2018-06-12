@@ -3,8 +3,6 @@
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderState;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
-
-
 use Shopware\Core\Checkout\Order\Aggregate\OrderStateTranslation\OrderStateTranslationDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;

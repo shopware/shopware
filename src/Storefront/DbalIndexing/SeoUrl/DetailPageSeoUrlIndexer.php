@@ -4,19 +4,19 @@ namespace Shopware\Storefront\DbalIndexing\SeoUrl;
 
 use Cocur\Slugify\SlugifyInterface;
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\ORM\Read\ReadCriteria;
-use Shopware\Core\Framework\ORM\RepositoryInterface;
-use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Product\Util\EventIdExtractor;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
-use Shopware\Core\Content\Product\Util\EventIdExtractor;
 use Shopware\Core\Framework\ORM\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\ORM\Dbal\Indexing\IndexerInterface;
-use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\ORM\Read\ReadCriteria;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
+use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Storefront\Api\Seo\SeoUrlDefinition;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -58,7 +58,7 @@ class DetailPageSeoUrlIndexer implements IndexerInterface
     private $eventDispatcher;
 
     /**
-     * @var \Shopware\Core\Content\Product\Util\EventIdExtractor
+     * @var EventIdExtractor
      */
     private $eventIdExtractor;
 

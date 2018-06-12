@@ -4,7 +4,6 @@ namespace Shopware\Core\System\Unit;
 
 use Shopware\Core\Framework\ORM\EntityCollection;
 
-
 class UnitCollection extends EntityCollection
 {
     /**

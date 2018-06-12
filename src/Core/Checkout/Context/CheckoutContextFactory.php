@@ -25,20 +25,20 @@
 namespace Shopware\Core\Checkout\Context;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\ORM\Read\ReadCriteria;
-use Shopware\Core\Framework\ORM\RepositoryInterface;
-use Shopware\Core\System\Touchpoint\TouchpointStruct;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\CustomerStruct;
 use Shopware\Core\Checkout\Payment\PaymentMethodStruct;
 use Shopware\Core\Checkout\Shipping\ShippingMethodStruct;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\ORM\Read\ReadCriteria;
+use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\Struct\Uuid;
 use Shopware\Core\System\Tax\TaxCollection;
+use Shopware\Core\System\Touchpoint\TouchpointStruct;
 
 class CheckoutContextFactory implements CheckoutContextFactoryInterface
 {

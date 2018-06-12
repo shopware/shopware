@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderDelivery;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
-
 use Shopware\Core\Checkout\Order\Aggregate\OrderState\OrderStateCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Framework\ORM\EntityCollection;
@@ -11,7 +10,7 @@ use Shopware\Core\Framework\ORM\EntityCollection;
 class OrderDeliveryCollection extends EntityCollection
 {
     /**
-     * @var \Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStruct[]
+     * @var OrderDeliveryStruct[]
      */
     protected $elements = [];
 

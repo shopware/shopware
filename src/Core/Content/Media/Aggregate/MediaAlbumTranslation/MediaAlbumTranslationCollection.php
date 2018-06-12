@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Media\Aggregate\MediaAlbumTranslation;
 
-
 use Shopware\Core\Framework\ORM\EntityCollection;
 
 class MediaAlbumTranslationCollection extends EntityCollection

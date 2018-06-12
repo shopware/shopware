@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Checkout\DiscountSurcharge;
 
-use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Content\Rule\RuleStruct;
 use Shopware\Core\Framework\ORM\Entity;
+use Shopware\Core\Framework\Rule\Rule;
 
 class DiscountSurchargeStruct extends Entity
 {
@@ -24,7 +24,7 @@ class DiscountSurchargeStruct extends Entity
     protected $ruleId;
 
     /**
-     * @var \Shopware\Core\Content\Rule\RuleStruct
+     * @var RuleStruct
      */
     protected $rule;
 

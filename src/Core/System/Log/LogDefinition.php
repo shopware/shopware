@@ -14,7 +14,6 @@ use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 
-
 class LogDefinition extends EntityDefinition
 {
     /**

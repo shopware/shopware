@@ -2,13 +2,12 @@
 
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderLineItem;
 
-
 use Shopware\Core\Framework\ORM\EntityCollection;
 
 class OrderLineItemCollection extends EntityCollection
 {
     /**
-     * @var \Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemStruct[]
+     * @var OrderLineItemStruct[]
      */
     protected $elements = [];
 

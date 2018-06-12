@@ -96,9 +96,9 @@ class AdministrationSearch
     }
 
     /**
-     * @param string|EntityDefinition          $definition
-     * @param string                           $term
-     * @param \Shopware\Core\Framework\Context $context
+     * @param string|EntityDefinition $definition
+     * @param string                  $term
+     * @param Context      $context
      *
      * @return SearchResultInterface
      */

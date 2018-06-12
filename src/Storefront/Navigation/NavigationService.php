@@ -2,9 +2,9 @@
 
 namespace Shopware\Storefront\Navigation;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Content\Category\CategoryStruct;
 use Shopware\Core\Content\Category\Util\Tree\TreeBuilder;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;

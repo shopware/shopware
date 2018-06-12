@@ -4,7 +4,6 @@ namespace Shopware\Core\System\User;
 
 use Shopware\Core\Framework\ORM\EntityCollection;
 
-
 class UserCollection extends EntityCollection
 {
     /**

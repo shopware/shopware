@@ -4,9 +4,9 @@ namespace Shopware\Core\Checkout\Test\Cart;
 
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Content\Product\Cart\ProductProcessor;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Test\Api\ApiTestCase;
 use Shopware\Core\PlatformRequest;

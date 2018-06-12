@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Plugin;
 
 use Shopware\Core\Framework\ORM\EntityCollection;
 
-
 class PluginCollection extends EntityCollection
 {
     /**

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Media\Aggregate\MediaAlbum;
 
-
 use Shopware\Core\Framework\ORM\EntityCollection;
 
 class MediaAlbumCollection extends EntityCollection

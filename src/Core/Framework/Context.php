@@ -24,9 +24,9 @@
 
 namespace Shopware\Core\Framework;
 
-use Shopware\Core\System\Touchpoint\TouchpointStruct;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\System\Touchpoint\TouchpointStruct;
 
 class Context extends Struct
 {

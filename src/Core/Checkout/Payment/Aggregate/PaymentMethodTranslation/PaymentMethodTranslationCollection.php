@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation;
 
-
 use Shopware\Core\Framework\ORM\EntityCollection;
 
 class PaymentMethodTranslationCollection extends EntityCollection

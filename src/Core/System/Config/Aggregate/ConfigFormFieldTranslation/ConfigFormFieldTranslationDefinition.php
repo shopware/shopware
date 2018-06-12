@@ -15,8 +15,6 @@ use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\System\Config\Aggregate\ConfigFormField\ConfigFormFieldDefinition;
-
-
 use Shopware\Core\System\Locale\LocaleDefinition;
 
 class ConfigFormFieldTranslationDefinition extends EntityDefinition

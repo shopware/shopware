@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\Response;
 class StorefrontProductController extends Controller
 {
     /**
-     * @var \Shopware\Core\Content\Product\Storefront\StorefrontProductRepository
+     * @var StorefrontProductRepository
      */
     private $repository;
 

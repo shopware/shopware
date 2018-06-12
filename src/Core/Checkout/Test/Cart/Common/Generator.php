@@ -25,9 +25,6 @@
 namespace Shopware\Core\Checkout\Test\Cart\Common;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\System\Touchpoint\TouchpointStruct;
-use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\System\Language\LanguageStruct;
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryCalculator;
@@ -40,10 +37,12 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxAmountCalculator;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressStruct;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupStruct;
 use Shopware\Core\Checkout\Customer\CustomerStruct;
@@ -58,9 +57,11 @@ use Shopware\Core\System\Country\Aggregate\CountryArea\CountryAreaStruct;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateStruct;
 use Shopware\Core\System\Country\CountryStruct;
 use Shopware\Core\System\Currency\CurrencyStruct;
+use Shopware\Core\System\Language\LanguageStruct;
 use Shopware\Core\System\Locale\LocaleStruct;
 use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\System\Tax\TaxStruct;
+use Shopware\Core\System\Touchpoint\TouchpointStruct;
 
 class Generator extends TestCase
 {
@@ -207,7 +208,7 @@ class Generator extends TestCase
     }
 
     /**
-     * @param \Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinition[] $priceDefinitions indexed by product number
+     * @param PriceDefinition[] $priceDefinitions indexed by product number
      *
      * @return \PHPUnit_Framework_MockObject_MockObject|ProductPriceGateway
      */

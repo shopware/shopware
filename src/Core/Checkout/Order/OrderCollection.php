@@ -2,15 +2,13 @@
 
 namespace Shopware\Core\Checkout\Order;
 
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderState\OrderStateCollection;
-use Shopware\Core\System\Touchpoint\TouchpointCollection;
-use Shopware\Core\Checkout\Customer\CustomerCollection;
-
-
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Framework\ORM\EntityCollection;
 use Shopware\Core\System\Currency\CurrencyCollection;
+use Shopware\Core\System\Touchpoint\TouchpointCollection;
 
 class OrderCollection extends EntityCollection
 {

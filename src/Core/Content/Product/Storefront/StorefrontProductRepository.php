@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\Content\Product\Storefront;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Price\PriceCalculator;
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionStruct;
 use Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceStruct;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
-use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionStruct;
 use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 use Shopware\Core\Framework\ORM\Search\IdSearchResult;
 
@@ -81,8 +81,8 @@ class StorefrontProductRepository
         $collection = new ProductCollection();
 
         foreach ($products as $product) {
-            /** @var StorefrontProductDetailStruct $detail */
-            $detail = StorefrontProductDetailStruct::createFrom($product);
+            /** @var StorefrontProductStruct $detail */
+            $detail = StorefrontProductStruct::createFrom($product);
 
             $this->calculatePrices($context, $detail);
 

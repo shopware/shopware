@@ -4,11 +4,10 @@ namespace Shopware\Core\System\Config\Aggregate\ConfigFormField;
 
 use Shopware\Core\Framework\ORM\EntityCollection;
 
-
 class ConfigFormFieldCollection extends EntityCollection
 {
     /**
-     * @var \Shopware\Core\System\Config\Aggregate\ConfigFormField\ConfigFormFieldStruct[]
+     * @var ConfigFormFieldStruct[]
      */
     protected $elements = [];
 

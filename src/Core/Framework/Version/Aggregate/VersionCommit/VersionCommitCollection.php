@@ -3,12 +3,11 @@
 namespace Shopware\Core\Framework\Version\Aggregate\VersionCommit;
 
 use Shopware\Core\Framework\ORM\EntityCollection;
-use Shopware\Core\Framework\Version\Aggregate\VersionCommit\VersionCommitStruct;
 
 class VersionCommitCollection extends EntityCollection
 {
     /**
-     * @var \Shopware\Core\Framework\Version\Aggregate\VersionCommit\VersionCommitStruct[]
+     * @var VersionCommitStruct[]
      */
     protected $elements = [];
 

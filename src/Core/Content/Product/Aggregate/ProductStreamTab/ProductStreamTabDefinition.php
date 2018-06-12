@@ -48,5 +48,4 @@ class ProductStreamTabDefinition extends MappingEntityDefinition
             new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, false),
         ]);
     }
-
 }

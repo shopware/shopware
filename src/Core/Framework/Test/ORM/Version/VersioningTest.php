@@ -471,7 +471,7 @@ class VersioningTest extends KernelTestCase
         $this->assertTrue($versionTax->has($uuid->getHex()));
         $tax = $versionTax->get($uuid->getHex());
 
-        /* @var TaxDetailStruct $tax */
+        /* @var TaxStruct $tax */
         $this->assertEquals(15, $tax->getRate());
         $this->assertCount(1, $tax->getAreaRules());
         $this->assertEquals(16, $tax->getAreaRules()->get($uuid->getHex())->getTaxRate());
@@ -483,7 +483,7 @@ class VersioningTest extends KernelTestCase
         $this->assertTrue($liveTax->has($uuid->getHex()));
         $tax = $liveTax->get($uuid->getHex());
 
-        /* @var \Shopware\Core\System\Tax\TaxStruct $tax */
+        /* @var TaxStruct $tax */
         $this->assertEquals(15, $tax->getRate());
         $this->assertCount(1, $tax->getAreaRules());
         $this->assertEquals(16, $tax->getAreaRules()->get($uuid->getHex())->getTaxRate());

@@ -2,13 +2,12 @@
 
 namespace Shopware\Core\Content\Media\Aggregate\MediaAlbum;
 
-
+use Shopware\Core\Content\Catalog\ORM\CatalogField;
 use Shopware\Core\Content\Media\Aggregate\MediaAlbumTranslation\MediaAlbumTranslationDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\BoolField;
-use Shopware\Core\Content\Catalog\ORM\CatalogField;
 use Shopware\Core\Framework\ORM\Field\DateField;
 use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\IdField;
@@ -77,7 +76,6 @@ class MediaAlbumDefinition extends EntityDefinition
         ]);
     }
 
-
     public static function getCollectionClass(): string
     {
         return MediaAlbumCollection::class;
@@ -92,5 +90,4 @@ class MediaAlbumDefinition extends EntityDefinition
     {
         return MediaAlbumTranslationDefinition::class;
     }
-
 }

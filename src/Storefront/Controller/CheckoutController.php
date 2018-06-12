@@ -4,19 +4,21 @@ namespace Shopware\Storefront\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
-use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Cart\Storefront\CartService;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextPersister;
 use Shopware\Core\Checkout\Context\CheckoutContextService;
-use Shopware\Core\Checkout\Cart\Storefront\CartService;
 use Shopware\Core\Checkout\Order\OrderStruct;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerInterface;
+use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionChainProcessor;
 use Shopware\Core\Checkout\Payment\Cart\Token\PaymentTransactionTokenFactory;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
+use Shopware\Core\Checkout\Payment\Exception\InvalidTokenException;
 use Shopware\Core\Checkout\Payment\Exception\InvalidTransactionException;
+use Shopware\Core\Checkout\Payment\Exception\TokenExpiredException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
@@ -221,8 +223,8 @@ class CheckoutController extends StorefrontController
      *
      * @throws UnknownPaymentMethodException
      * @throws \Doctrine\DBAL\Exception\InvalidArgumentException
-     * @throws \Shopware\Core\Checkout\Payment\Exception\InvalidTokenException
-     * @throws \Shopware\Core\Checkout\Payment\Exception\TokenExpiredException
+     * @throws InvalidTokenException
+     * @throws TokenExpiredException
      *
      * @return RedirectResponse
      */

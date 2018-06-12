@@ -4,7 +4,6 @@ namespace Shopware\Core\System\Country\Aggregate\CountryTranslation;
 
 use Shopware\Core\Framework\ORM\EntityCollection;
 
-
 class CountryTranslationCollection extends EntityCollection
 {
     /**

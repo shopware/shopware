@@ -4,11 +4,10 @@ namespace Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation;
 
 use Shopware\Core\Framework\ORM\EntityCollection;
 
-
 class ListingFacetTranslationCollection extends EntityCollection
 {
     /**
-     * @var \Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation\ListingFacetTranslationStruct[]
+     * @var ListingFacetTranslationStruct[]
      */
     protected $elements = [];
 

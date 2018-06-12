@@ -2,10 +2,9 @@
 
 namespace Shopware\Core\Checkout\Cart\Rule;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItemInterface;
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\CheckoutRuleScope;
-
 
 class CalculatedLineItemScope extends CheckoutRuleScope
 {

@@ -4,7 +4,6 @@ namespace Shopware\Core\System\Tax;
 
 use Shopware\Core\Framework\ORM\EntityCollection;
 
-
 class TaxCollection extends EntityCollection
 {
     /**

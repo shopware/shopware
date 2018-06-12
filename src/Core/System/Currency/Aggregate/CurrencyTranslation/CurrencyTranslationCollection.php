@@ -4,11 +4,10 @@ namespace Shopware\Core\System\Currency\Aggregate\CurrencyTranslation;
 
 use Shopware\Core\Framework\ORM\EntityCollection;
 
-
 class CurrencyTranslationCollection extends EntityCollection
 {
     /**
-     * @var \Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationStruct[]
+     * @var CurrencyTranslationStruct[]
      */
     protected $elements = [];
 

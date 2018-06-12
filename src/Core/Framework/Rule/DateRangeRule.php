@@ -26,7 +26,6 @@ namespace Shopware\Core\Framework\Rule;
 
 use DateTime;
 
-
 class DateRangeRule extends Rule
 {
     /**

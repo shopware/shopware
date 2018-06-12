@@ -2,13 +2,12 @@
 
 namespace Shopware\Core\Content\Category\Aggregate\CategoryTranslation;
 
-
 use Shopware\Core\Framework\ORM\EntityCollection;
 
 class CategoryTranslationCollection extends EntityCollection
 {
     /**
-     * @var \Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationStruct[]
+     * @var CategoryTranslationStruct[]
      */
     protected $elements = [];
 

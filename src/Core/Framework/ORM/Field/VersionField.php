@@ -24,12 +24,12 @@
 
 namespace Shopware\Core\Framework\ORM\Field;
 
-use Shopware\Core\Framework\Version\VersionDefinition;
 use Shopware\Core\Framework\ORM\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\ORM\Write\EntityExistence;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\Struct\Uuid;
+use Shopware\Core\Framework\Version\VersionDefinition;
 
 class VersionField extends FkField
 {

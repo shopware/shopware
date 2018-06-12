@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOptionTranslation;
 
-use Shopware\Core\System\Language\LanguageDefinition;
+use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\FkField;
@@ -12,8 +12,7 @@ use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
-use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
-
+use Shopware\Core\System\Language\LanguageDefinition;
 
 class ConfigurationGroupOptionTranslationDefinition extends EntityDefinition
 {
@@ -49,7 +48,6 @@ class ConfigurationGroupOptionTranslationDefinition extends EntityDefinition
         ]);
     }
 
-
     public static function getCollectionClass(): string
     {
         return ConfigurationGroupOptionTranslationCollection::class;
@@ -59,5 +57,4 @@ class ConfigurationGroupOptionTranslationDefinition extends EntityDefinition
     {
         return ConfigurationGroupOptionTranslationStruct::class;
     }
-
 }

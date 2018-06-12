@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress;
 
-
 use Shopware\Core\Checkout\Customer\CustomerStruct;
 use Shopware\Core\Framework\ORM\EntityCollection;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateCollection;

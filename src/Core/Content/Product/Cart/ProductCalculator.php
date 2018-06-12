@@ -32,6 +32,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemInterface;
 use Shopware\Core\Checkout\Cart\Price\PriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinition;
 use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceStruct;
 use Shopware\Core\Content\Product\Cart\Struct\CalculatedProduct;
 use Shopware\Core\Content\Product\ProductStruct;
 use Shopware\Core\Framework\Struct\StructCollection;
@@ -103,7 +104,7 @@ class ProductCalculator
                     continue;
                 }
 
-                /** @var \Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceStruct $service */
+                /** @var ProductServiceStruct $service */
                 $service = $dataCollection->get($serviceId);
                 if (!$service) {
                     continue;

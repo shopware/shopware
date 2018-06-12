@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderDelivery;
 
-
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressStruct;
 use Shopware\Core\Checkout\Order\Aggregate\OrderState\OrderStateStruct;
 use Shopware\Core\Checkout\Shipping\ShippingMethodStruct;
@@ -71,7 +70,7 @@ class OrderDeliveryStruct extends Entity
     protected $orderState;
 
     /**
-     * @var \Shopware\Core\Checkout\Shipping\ShippingMethodStruct
+     * @var ShippingMethodStruct
      */
     protected $shippingMethod;
 

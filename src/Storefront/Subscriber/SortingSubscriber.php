@@ -5,10 +5,10 @@ namespace Shopware\Storefront\Subscriber;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
+use Shopware\Core\System\Listing\ListingSortingStruct;
 use Shopware\Storefront\Event\ListingEvents;
 use Shopware\Storefront\Event\PageCriteriaCreatedEvent;
 use Shopware\Storefront\Event\TransformListingPageRequestEvent;
-
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class SortingSubscriber implements EventSubscriberInterface
@@ -59,7 +59,7 @@ class SortingSubscriber implements EventSubscriberInterface
             return;
         }
 
-        /** @var \Shopware\Core\System\Listing\ListingSortingStruct $sorting */
+        /** @var ListingSortingStruct $sorting */
         $sorting = $sortings->first();
         foreach ($sorting->getPayload() as $fieldSorting) {
             $event->getCriteria()->addSorting($fieldSorting);

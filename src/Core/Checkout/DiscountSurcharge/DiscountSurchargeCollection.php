@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\DiscountSurcharge;
 
-
 use Shopware\Core\Framework\ORM\EntityCollection;
 
 class DiscountSurchargeCollection extends EntityCollection

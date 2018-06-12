@@ -39,7 +39,7 @@ class NavigationController extends StorefrontController
      * @Route("/widgets/navigation/navigation", name="widgets/navigation/main")
      * @Method({"GET"})
      *
-     * @param \Shopware\Core\Checkout\CheckoutContext $context
+     * @param CheckoutContext $context
      *
      * @return null|Response
      */

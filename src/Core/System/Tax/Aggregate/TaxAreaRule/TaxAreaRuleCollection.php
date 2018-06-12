@@ -4,7 +4,6 @@ namespace Shopware\Core\System\Tax\Aggregate\TaxAreaRule;
 
 use Shopware\Core\Framework\ORM\EntityCollection;
 
-
 class TaxAreaRuleCollection extends EntityCollection
 {
     /**

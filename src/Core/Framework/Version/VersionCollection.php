@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Version;
 
 use Shopware\Core\Framework\ORM\EntityCollection;
-use Shopware\Core\Framework\Version\VersionStruct;
 
 class VersionCollection extends EntityCollection
 {

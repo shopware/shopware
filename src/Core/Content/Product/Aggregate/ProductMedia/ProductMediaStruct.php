@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductMedia;
 
-
 use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Framework\ORM\Entity;
 

@@ -3,13 +3,12 @@
 namespace Shopware\Core\Content\Product\Aggregate\ProductMedia;
 
 use Shopware\Core\Content\Media\MediaCollection;
-
 use Shopware\Core\Framework\ORM\EntityCollection;
 
 class ProductMediaCollection extends EntityCollection
 {
     /**
-     * @var \Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaStruct[]
+     * @var ProductMediaStruct[]
      */
     protected $elements = [];
 

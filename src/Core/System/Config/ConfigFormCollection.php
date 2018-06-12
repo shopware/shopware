@@ -4,7 +4,6 @@ namespace Shopware\Core\System\Config;
 
 use Shopware\Core\Framework\ORM\EntityCollection;
 
-
 class ConfigFormCollection extends EntityCollection
 {
     /**

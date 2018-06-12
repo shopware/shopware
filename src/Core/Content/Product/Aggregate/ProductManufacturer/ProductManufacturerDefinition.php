@@ -4,8 +4,6 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductManufacturer;
 
 use Shopware\Core\Content\Catalog\ORM\CatalogField;
 use Shopware\Core\Content\Media\MediaDefinition;
-
-
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
@@ -77,7 +75,6 @@ class ProductManufacturerDefinition extends EntityDefinition
         ]);
     }
 
-
     public static function getCollectionClass(): string
     {
         return ProductManufacturerCollection::class;
@@ -92,5 +89,4 @@ class ProductManufacturerDefinition extends EntityDefinition
     {
         return ProductManufacturerTranslationDefinition::class;
     }
-
 }

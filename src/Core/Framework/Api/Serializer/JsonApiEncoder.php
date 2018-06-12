@@ -10,7 +10,6 @@ use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
-
 use Shopware\Core\Framework\ORM\Write\Flag\Extension;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\Struct\Serializer\StructDecoder;

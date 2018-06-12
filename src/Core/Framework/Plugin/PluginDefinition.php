@@ -17,8 +17,6 @@ use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
-
-
 use Shopware\Core\System\Config\ConfigFormDefinition;
 
 class PluginDefinition extends EntityDefinition

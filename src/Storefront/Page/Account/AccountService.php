@@ -91,7 +91,7 @@ class AccountService
     }
 
     /**
-     * @throws \Shopware\Core\Checkout\Order\Exception\NotLoggedInCustomerException
+     * @throws NotLoggedInCustomerException
      */
     public function getCustomerByContext(CheckoutContext $context): CustomerStruct
     {
@@ -184,7 +184,7 @@ class AccountService
     }
 
     /**
-     * @throws \Shopware\Core\Checkout\Order\Exception\NotLoggedInCustomerException
+     * @throws NotLoggedInCustomerException
      */
     public function saveAddress(AddressSaveRequest $addressSaveRequest, CheckoutContext $context): string
     {
@@ -229,7 +229,7 @@ class AccountService
     }
 
     /**
-     * @throws \Shopware\Core\Checkout\Order\Exception\NotLoggedInCustomerException
+     * @throws NotLoggedInCustomerException
      */
     public function deleteAddress(string $addressId, CheckoutContext $context)
     {
@@ -239,7 +239,7 @@ class AccountService
     }
 
     /**
-     * @throws \Shopware\Core\Checkout\Order\Exception\NotLoggedInCustomerException
+     * @throws NotLoggedInCustomerException
      */
     public function setDefaultBillingAddress(string $addressId, CheckoutContext $context)
     {
@@ -254,7 +254,7 @@ class AccountService
     }
 
     /**
-     * @throws \Shopware\Core\Checkout\Order\Exception\NotLoggedInCustomerException
+     * @throws NotLoggedInCustomerException
      */
     public function setDefaultShippingAddress(string $addressId, CheckoutContext $context)
     {
@@ -339,7 +339,7 @@ class AccountService
     }
 
     /**
-     * @throws \Shopware\Core\Checkout\Order\Exception\NotLoggedInCustomerException
+     * @throws NotLoggedInCustomerException
      */
     private function validateCustomer(CheckoutContext $context)
     {

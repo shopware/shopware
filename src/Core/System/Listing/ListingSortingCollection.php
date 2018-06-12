@@ -4,7 +4,6 @@ namespace Shopware\Core\System\Listing;
 
 use Shopware\Core\Framework\ORM\EntityCollection;
 
-
 class ListingSortingCollection extends EntityCollection
 {
     /**

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\Framework\Test\ORM;
 
@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\Framework\ORM\EntityCollection;
 use Shopware\Core\Framework\ORM\EntityRepository;
@@ -52,7 +51,7 @@ class EntityRepositoryTest extends KernelTestCase
 
         $event = $repository->create(
             [
-                ['id' => $id, 'name' => 'Test', 'territory' => 'test', 'code' => 'test' . $id]
+                ['id' => $id, 'name' => 'Test', 'territory' => 'test', 'code' => 'test' . $id],
             ],
             $context
         );
@@ -81,7 +80,7 @@ class EntityRepositoryTest extends KernelTestCase
 
         $repository->create(
             [
-                ['id' => $id, 'name' => 'Test', 'territory' => 'test', 'code' => 'test' . $id]
+                ['id' => $id, 'name' => 'Test', 'territory' => 'test', 'code' => 'test' . $id],
             ],
             $context
         );
@@ -97,7 +96,7 @@ class EntityRepositoryTest extends KernelTestCase
 
         $repository->create(
             [
-                ['id' => $id, 'name' => 'Test', 'territory' => 'test', 'code' => 'test' . $id]
+                ['id' => $id, 'name' => 'Test', 'territory' => 'test', 'code' => 'test' . $id],
             ],
             $context
         );
@@ -123,7 +122,7 @@ class EntityRepositoryTest extends KernelTestCase
 
         $repository->create(
             [
-                ['id' => $id, 'name' => 'Test', 'territory' => 'test', 'code' => 'test' . $id]
+                ['id' => $id, 'name' => 'Test', 'territory' => 'test', 'code' => 'test' . $id],
             ],
             $context
         );
@@ -161,15 +160,15 @@ class EntityRepositoryTest extends KernelTestCase
                     'name' => 'Test',
                     'tax' => ['name' => 'test', 'rate' => 5],
                     'manufacturer' => ['name' => 'test'],
-                    'price' => ['gross' => 10, 'net' => 5]
+                    'price' => ['gross' => 10, 'net' => 5],
                 ],
                 [
                     'id' => $id2,
                     'name' => 'Test',
                     'tax' => ['name' => 'test', 'rate' => 5],
                     'manufacturer' => ['name' => 'test'],
-                    'price' => ['gross' => 10, 'net' => 5]
-                ]
+                    'price' => ['gross' => 10, 'net' => 5],
+                ],
             ],
             $context
         );
@@ -198,7 +197,6 @@ class EntityRepositoryTest extends KernelTestCase
 
         $this->assertSame('Test', $locale->get($id)->getName());
     }
-
 
     public function testReadAndWriteWithOneToMany()
     {
@@ -248,8 +246,8 @@ class EntityRepositoryTest extends KernelTestCase
                             'rule' => [
                                 'name' => 'rule 1',
                                 'priority' => 1,
-                                'payload' => new AndRule()
-                            ]
+                                'payload' => new AndRule(),
+                            ],
                         ],
                         [
                             'price' => ['gross' => 10, 'net' => 5],
@@ -258,10 +256,10 @@ class EntityRepositoryTest extends KernelTestCase
                             'rule' => [
                                 'name' => 'rule 2',
                                 'priority' => 1,
-                                'payload' => new AndRule()
-                            ]
+                                'payload' => new AndRule(),
+                            ],
                         ],
-                    ]
+                    ],
                 ],
                 [
                     'id' => $id2,
@@ -278,8 +276,8 @@ class EntityRepositoryTest extends KernelTestCase
                             'rule' => [
                                 'name' => 'rule 3',
                                 'priority' => 1,
-                                'payload' => new AndRule()
-                            ]
+                                'payload' => new AndRule(),
+                            ],
                         ],
                         [
                             'price' => ['gross' => 10, 'net' => 5],
@@ -288,11 +286,11 @@ class EntityRepositoryTest extends KernelTestCase
                             'rule' => [
                                 'name' => 'rule 4',
                                 'priority' => 1,
-                                'payload' => new AndRule()
-                            ]
+                                'payload' => new AndRule(),
+                            ],
                         ],
-                    ]
-                ]
+                    ],
+                ],
             ],
             $context
         );
@@ -323,7 +321,6 @@ class EntityRepositoryTest extends KernelTestCase
 
         $this->assertSame('Test', $locale->get($id)->getName());
     }
-
 
     protected function createRepository(string $definition)
     {

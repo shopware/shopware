@@ -2,16 +2,15 @@
 
 namespace Shopware\Core\Content\Rule;
 
-use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
-
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\ORM\EntityCollection;
 
 class RuleCollection extends EntityCollection
 {
     /**
-     * @var \Shopware\Core\Content\Rule\RuleStruct[]
+     * @var RuleStruct[]
      */
     protected $elements = [];
 

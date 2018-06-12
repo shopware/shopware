@@ -321,7 +321,7 @@ class ApiControllerTest extends ApiTestCase
             'id' => $id,
             'name' => 'Cotton Shirt',
             'tax' => ['name' => 'test', 'rate' => 10],
-            'manufacturer' => ['name' => 'Shopware\Core AG'],
+            'manufacturer' => ['name' => 'Shopware AG'],
             'price' => ['gross' => 50, 'net' => 25],
         ];
 
@@ -360,7 +360,7 @@ class ApiControllerTest extends ApiTestCase
                         [
                             'type' => 'term',
                             'field' => 'product.manufacturer.name',
-                            'value' => 'Shopware\Core AG',
+                            'value' => 'Shopware AG',
                         ],
                         [
                             'type' => 'terms',
@@ -401,7 +401,7 @@ class ApiControllerTest extends ApiTestCase
             'id' => $id,
             'name' => 'Wool Shirt',
             'tax' => ['name' => 'test', 'rate' => 10],
-            'manufacturer' => ['name' => 'Shopware\Core AG'],
+            'manufacturer' => ['name' => 'Shopware AG'],
             'price' => ['gross' => 8300, 'net' => 8300],
         ];
 

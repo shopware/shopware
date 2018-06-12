@@ -43,7 +43,7 @@ class Framework extends Bundle
     public const VERSION_TEXT = '___VERSION_TEXT___';
     public const REVISION = '___REVISION___';
 
-    protected $name = 'Shopware\Core';
+    protected $name = 'Shopware';
 
     /**
      * {@inheritdoc}
@@ -65,6 +65,7 @@ class Framework extends Bundle
         $loader->load('orm.xml');
         $loader->load('filesystem.xml');
         $loader->load('api.xml');
+        $loader->load('plugin.xml');
 
         $container->addCompilerPass(new BridgeDatabaseCompilerPass());
         $container->addCompilerPass(new ExtensionCompilerPass());

@@ -23,7 +23,7 @@ class ClassNamespaceTest extends TestCase
 
             $parts = $this->extractProductionNamespaceParts($file, $basePathParts);
 
-            $namespace = rtrim('namespace Shopware\Core\\' . implode('\\', $parts), '\\');
+            $namespace = rtrim('namespace Shopware\\' . implode('\\', $parts), '\\');
 
             if (strpos($file->getContents(), $namespace) === false) {
                 $relativePath = str_replace($basePath, '', $file->getPathname());
@@ -58,7 +58,7 @@ class ClassNamespaceTest extends TestCase
         $lines = explode("\n", $file->getContents());
 
         foreach ($lines as $line) {
-            if (preg_match('#^namespace\sShopware\Core\\\.*;$#m', $line)) {
+            if (preg_match('#^namespace\sShopware\\\.*;$#m', $line)) {
                 return true;
             }
         }

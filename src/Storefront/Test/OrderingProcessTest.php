@@ -47,9 +47,9 @@ class OrderingProcessTest extends ApiTestCase
         $customerId = $this->createCustomer($email, 'test1234');
         $this->loginUser($email, 'test1234');
 
-        $product1 = $this->createProduct('Shopware\Core stickers', 10, 11.9, 19);
-        $product2 = $this->createProduct('Shopware\Core t-shirt', 20, 23.8, 19);
-        $product3 = $this->createProduct('Shopware\Core cup', 5, 5.95, 19);
+        $product1 = $this->createProduct('Shopware stickers', 10, 11.9, 19);
+        $product2 = $this->createProduct('Shopware t-shirt', 20, 23.8, 19);
+        $product3 = $this->createProduct('Shopware cup', 5, 5.95, 19);
 
         $this->addProductToCart($product1, 1);
         $this->addProductToCart($product2, 5);

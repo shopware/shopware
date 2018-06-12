@@ -61,17 +61,17 @@ class RequirementValidator
     private function assertShopwareVersion($compatibility, $shopwareVersion): void
     {
         if (in_array($shopwareVersion, $compatibility['blacklist'])) {
-            throw new \RuntimeException(sprintf('Shopware\Core version %s is blacklisted by the plugin', $shopwareVersion));
+            throw new \RuntimeException(sprintf('Shopware version %s is blacklisted by the plugin', $shopwareVersion));
         }
 
         $min = $compatibility['minVersion'];
         if (strlen($min) > 0 && !$this->assertVersion($shopwareVersion, $min, '>=')) {
-            throw new \RuntimeException(sprintf('Plugin requires at least Shopware\Core version %s', $min));
+            throw new \RuntimeException(sprintf('Plugin requires at least Shopware version %s', $min));
         }
 
         $max = $compatibility['maxVersion'];
         if (strlen($max) > 0 && !$this->assertVersion($shopwareVersion, $max, '<=')) {
-            throw new \RuntimeException(sprintf('Plugin is only compatible with Shopware\Core version <= %s', $max));
+            throw new \RuntimeException(sprintf('Plugin is only compatible with Shopware version <= %s', $max));
         }
     }
 

@@ -12,7 +12,7 @@ trait PluginCommandTrait
 
     public function displayHeader(SymfonyStyle $io): void
     {
-        $io->title('Shopware\Core Plugin Manager');
+        $io->title('Shopware Plugin Manager');
     }
 
     /**

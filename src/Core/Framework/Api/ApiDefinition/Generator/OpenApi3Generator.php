@@ -364,7 +364,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                             'id' => ['example' => $uuid],
                             'attributes' => [
                                 'type' => 'object',
-                                'required' => $requiredAttributes,
+                                'required' => array_unique($requiredAttributes),
                                 'properties' => $attributes,
                             ],
                             'links' => [
@@ -404,7 +404,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         $schema[$schemaName . '_flat'] = [
             'type' => 'object',
             'properties' => $attributes,
-            'required' => $requiredAttributes,
+            'required' => array_unique($requiredAttributes),
         ];
 
         return $schema;

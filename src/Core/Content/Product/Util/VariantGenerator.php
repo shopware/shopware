@@ -3,11 +3,11 @@
 namespace Shopware\Core\Content\Product\Util;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\Collection\ProductConfiguratorBasicCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\Struct\ProductConfiguratorBasicStruct;
+use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorBasicCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorBasicStruct;
 use Shopware\Core\Content\Product\Exception\NoConfiguratorFoundException;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
-use Shopware\Core\Content\Product\Struct\ProductBasicStruct;
+use Shopware\Core\Content\Product\ProductBasicStruct;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;

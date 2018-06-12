@@ -4,8 +4,8 @@ namespace Shopware\Core\Checkout\Customer;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition;
-use Shopware\Core\Checkout\Customer\Collection\CustomerBasicCollection;
-use Shopware\Core\Checkout\Customer\Struct\CustomerBasicStruct;
+use Shopware\Core\Checkout\Customer\CustomerBasicCollection;
+use Shopware\Core\Checkout\Customer\CustomerBasicStruct;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;

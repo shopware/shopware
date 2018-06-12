@@ -484,7 +484,7 @@ class AccountController extends StorefrontController
         $addresses = $this->accountService->getAddressesByCustomer($context);
 
         if (!empty($addressId)) {
-            /** @var \Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct $address */
+            /** @var \Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressBasicStruct $address */
             foreach ($addresses as $key => $address) {
                 if ($address->getId() === $addressId) {
                     unset($addresses[$key]);

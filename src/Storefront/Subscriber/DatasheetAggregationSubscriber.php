@@ -109,7 +109,7 @@ class DatasheetAggregationSubscriber implements EventSubscriberInterface
 
         $actives = $filter ? $filter->get('ids') : [];
 
-        /** @var \Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\Collection\ConfigurationGroupOptionBasicCollection $values */
+        /** @var \Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionBasicCollection $values */
         $values = $aggregation->getResult();
 
         if (!$values || $values->count() <= 0) {

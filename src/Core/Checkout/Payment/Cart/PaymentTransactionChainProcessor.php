@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Checkout\Payment\Cart;
 
-use Shopware\Core\Checkout\Order\Struct\OrderBasicStruct;
+use Shopware\Core\Checkout\Order\OrderBasicStruct;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\Collection\OrderTransactionBasicCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionBasicCollection;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
 use Shopware\Core\Checkout\Payment\Cart\Token\PaymentTransactionTokenFactory;
@@ -70,7 +70,7 @@ class PaymentTransactionChainProcessor
      */
     public function process(string $orderId, Context $context): ?RedirectResponse
     {
-        /** @var OrderBasicStruct $order */
+        /** @var \Shopware\Core\Checkout\Order\OrderBasicStruct $order */
         $order = $this->orderRepository->read(new ReadCriteria([$orderId]), $context)->first();
 
         if (!$order) {

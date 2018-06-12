@@ -57,9 +57,9 @@ class PluginManager
      *
      * @throws PluginNotFoundException
      *
-     * @return Struct\Plugin
+     * @return \Shopware\Core\Framework\Plugin
      */
-    public function getPluginByName(string $pluginName): Struct\Plugin
+    public function getPluginByName(string $pluginName): \Shopware\Core\Framework\Plugin
     {
         $builder = $this->connection->createQueryBuilder();
         $plugin = $builder->select('*')
@@ -77,11 +77,11 @@ class PluginManager
     }
 
     /**
-     * @param Plugin|Struct\Plugin $plugin
+     * @param Plugin|\Shopware\Core\Framework\Plugin $plugin
      *
      * @return InstallContext
      */
-    public function installPlugin(Struct\Plugin $plugin): InstallContext
+    public function installPlugin(\Shopware\Core\Framework\Plugin $plugin): InstallContext
     {
         $pluginBootstrap = $this->getPluginBootstrap($plugin->getName());
 
@@ -121,14 +121,14 @@ class PluginManager
     }
 
     /**
-     * @param Struct\Plugin $plugin
+     * @param \Shopware\Core\Framework\Plugin $plugin
      * @param bool          $removeUserData
      *
      * @throws PluginNotInstalledException
      *
      * @return UninstallContext
      */
-    public function uninstallPlugin(Struct\Plugin $plugin, $removeUserData = true): Context\UninstallContext
+    public function uninstallPlugin(\Shopware\Core\Framework\Plugin $plugin, $removeUserData = true): Context\UninstallContext
     {
         $pluginBootstrap = $this->getPluginBootstrap($plugin->getName());
 
@@ -160,11 +160,11 @@ class PluginManager
     }
 
     /**
-     * @param Struct\Plugin $plugin
+     * @param \Shopware\Core\Framework\Plugin $plugin
      *
      * @return UpdateContext
      */
-    public function updatePlugin(Struct\Plugin $plugin): Context\UpdateContext
+    public function updatePlugin(\Shopware\Core\Framework\Plugin $plugin): Context\UpdateContext
     {
         $pluginBootstrap = $this->getPluginBootstrap($plugin->getName());
         $this->requirementValidator->validate($pluginBootstrap->getPath() . '/plugin.xml', Framework::VERSION, $this->getPlugins());
@@ -200,13 +200,13 @@ class PluginManager
     }
 
     /**
-     * @param Struct\Plugin $plugin
+     * @param \Shopware\Core\Framework\Plugin $plugin
      *
      * @throws PluginNotInstalledException
      *
      * @return ActivateContext
      */
-    public function activatePlugin(Struct\Plugin $plugin): Context\ActivateContext
+    public function activatePlugin(\Shopware\Core\Framework\Plugin $plugin): Context\ActivateContext
     {
         $pluginBootstrap = $this->getPluginBootstrap($plugin->getName());
         $context = new ActivateContext($pluginBootstrap, Framework::VERSION, $plugin->getVersion());
@@ -231,14 +231,14 @@ class PluginManager
     }
 
     /**
-     * @param Plugin|Struct\Plugin $plugin
+     * @param Plugin|\Shopware\Core\Framework\Plugin $plugin
      *
      * @throws PluginNotActivatedException
      * @throws PluginNotInstalledException
      *
      * @return DeactivateContext
      */
-    public function deactivatePlugin(Struct\Plugin $plugin): Context\DeactivateContext
+    public function deactivatePlugin(\Shopware\Core\Framework\Plugin $plugin): Context\DeactivateContext
     {
         $pluginBootstrap = $this->getPluginBootstrap($plugin->getName());
         $context = new DeactivateContext($pluginBootstrap, Framework::VERSION, $plugin->getVersion());
@@ -320,7 +320,7 @@ class PluginManager
     }
 
     /**
-     * @return Struct\Plugin[]
+     * @return \Shopware\Core\Framework\Plugin[]
      */
     public function getPlugins(): array
     {
@@ -363,11 +363,11 @@ class PluginManager
     /**
      * @param $databasePlugin
      *
-     * @return Struct\Plugin
+     * @return \Shopware\Core\Framework\Plugin
      */
-    private function hydrate($databasePlugin): Struct\Plugin
+    private function hydrate($databasePlugin): \Shopware\Core\Framework\Plugin
     {
-        $plugin = new Struct\Plugin();
+        $plugin = new \Shopware\Core\Framework\Plugin();
 
         $plugin->setId($databasePlugin['name']);
         $plugin->setName($databasePlugin['name']);

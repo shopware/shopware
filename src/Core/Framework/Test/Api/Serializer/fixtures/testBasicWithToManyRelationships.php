@@ -15,7 +15,7 @@ $album->setThumbnailHighDpi(true);
 $album->setThumbnailHighDpiQuality(60);
 $album->setIcon('sprite-blue-folder');
 
-$media = new \Shopware\Core\Content\Media\Struct\MediaBasicStruct();
+$media = new \Shopware\Core\Content\Media\MediaBasicStruct();
 $media->setId('548faa1f-7846-436c-8594-4f4aea792d96');
 $media->setAlbumId($albumId);
 $media->setFileName('teaser.jpg');
@@ -27,7 +27,7 @@ $media->setUpdatedAt(date_create_from_format(\DateTime::ATOM, '2017-11-21T11:25:
 $media->setAlbum(clone $album);
 $media->addExtension('thumbnails', $thumbnailCollection);
 
-$mediaCollection = new \Shopware\Core\Content\Media\Collection\MediaBasicCollection([$media]);
+$mediaCollection = new \Shopware\Core\Content\Media\MediaBasicCollection([$media]);
 $album->setMedia($mediaCollection);
 
 return $album;

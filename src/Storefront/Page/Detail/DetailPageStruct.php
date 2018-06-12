@@ -2,8 +2,8 @@
 
 namespace Shopware\Storefront\Page\Detail;
 
-use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\Collection\ProductConfiguratorBasicCollection;
-use Shopware\Core\Content\Product\Struct\ProductBasicStruct;
+use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorBasicCollection;
+use Shopware\Core\Content\Product\ProductBasicStruct;
 use Shopware\Core\Framework\Struct\Struct;
 
 class DetailPageStruct extends Struct
@@ -14,7 +14,7 @@ class DetailPageStruct extends Struct
     protected $product;
 
     /**
-     * @var \Shopware\Core\Content\Product\Aggregate\ProductConfigurator\Collection\ProductConfiguratorBasicCollection
+     * @var \Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorBasicCollection
      */
     protected $configurator;
 

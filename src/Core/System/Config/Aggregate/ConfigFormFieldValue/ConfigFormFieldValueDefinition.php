@@ -16,8 +16,8 @@ use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\System\Config\Aggregate\ConfigFormField\ConfigFormFieldDefinition;
-use Shopware\Core\System\Config\Aggregate\ConfigFormFieldValue\Collection\ConfigFormFieldValueBasicCollection;
-use Shopware\Core\System\Config\Aggregate\ConfigFormFieldValue\Struct\ConfigFormFieldValueBasicStruct;
+use Shopware\Core\System\Config\Aggregate\ConfigFormFieldValue\ConfigFormFieldValueBasicCollection;
+use Shopware\Core\System\Config\Aggregate\ConfigFormFieldValue\ConfigFormFieldValueBasicStruct;
 
 class ConfigFormFieldValueDefinition extends EntityDefinition
 {

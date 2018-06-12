@@ -25,13 +25,13 @@
 namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Rule\Context;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
-use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
-use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressBasicStruct;
 use Shopware\Core\Checkout\Customer\Rule\ShippingZipCodeRule;
-use Shopware\Core\System\Country\Struct\CountryBasicStruct;
+use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
+use Shopware\Core\System\Country\CountryBasicStruct;
 
 class ShippingZipCodeRuleTest extends TestCase
 {

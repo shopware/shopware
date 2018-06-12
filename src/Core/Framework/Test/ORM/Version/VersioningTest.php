@@ -16,7 +16,7 @@ use Shopware\Core\Framework\ORM\Search\Query\RangeQuery;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleDefinition;
 use Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTranslation\TaxAreaRuleTranslationDefinition;
-use Shopware\Core\System\Tax\Struct\TaxBasicStruct;
+use Shopware\Core\System\Tax\TaxBasicStruct;
 use Shopware\Core\System\Tax\TaxDefinition;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
@@ -483,7 +483,7 @@ class VersioningTest extends KernelTestCase
         $this->assertTrue($liveTax->has($uuid->getHex()));
         $tax = $liveTax->get($uuid->getHex());
 
-        /* @var TaxBasicStruct $tax */
+        /* @var \Shopware\Core\System\Tax\TaxBasicStruct $tax */
         $this->assertEquals(15, $tax->getRate());
         $this->assertCount(1, $tax->getAreaRules());
         $this->assertEquals(16, $tax->getAreaRules()->get($uuid->getHex())->getTaxRate());

@@ -20,8 +20,8 @@ use Shopware\Core\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
 use Shopware\Core\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationDefinition;
-use Shopware\Core\System\Locale\Collection\LocaleBasicCollection;
-use Shopware\Core\System\Locale\Struct\LocaleBasicStruct;
+use Shopware\Core\System\Locale\LocaleBasicCollection;
+use Shopware\Core\System\Locale\LocaleBasicStruct;
 use Shopware\Core\System\User\UserDefinition;
 
 class LocaleDefinition extends EntityDefinition

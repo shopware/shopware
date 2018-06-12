@@ -3,9 +3,9 @@
 namespace Shopware\Core\Checkout\Cart\LineItem;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Core\Content\Media\Struct\MediaBasicStruct;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\Validatable;
+use Shopware\Core\Content\Media\MediaBasicStruct;
 use Shopware\Core\Framework\Struct\Struct;
 
 class CalculatedLineItem extends Struct implements CalculatedLineItemInterface, Validatable
@@ -41,7 +41,7 @@ class CalculatedLineItem extends Struct implements CalculatedLineItemInterface, 
     protected $label;
 
     /**
-     * @var MediaBasicStruct|null
+     * @var \Shopware\Core\Content\Media\MediaBasicStruct|null
      */
     protected $cover;
 

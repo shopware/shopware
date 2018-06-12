@@ -34,10 +34,10 @@ use Shopware\Core\Checkout\Cart\LineItem\GoodsInterface;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemInterface;
 use Shopware\Core\Checkout\Cart\LineItem\NestedInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Core\Content\Media\Struct\MediaBasicStruct;
-use Shopware\Core\Content\Product\Struct\ProductBasicStruct;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\Validatable;
+use Shopware\Core\Content\Media\MediaBasicStruct;
+use Shopware\Core\Content\Product\ProductBasicStruct;
 use Shopware\Core\Framework\Struct\Struct;
 
 class CalculatedProduct extends Struct implements DeliverableLineItemInterface, GoodsInterface, Validatable, NestedInterface
@@ -73,7 +73,7 @@ class CalculatedProduct extends Struct implements DeliverableLineItemInterface, 
     protected $rule;
 
     /**
-     * @var MediaBasicStruct|null
+     * @var \Shopware\Core\Content\Media\MediaBasicStruct|null
      */
     protected $cover;
 
@@ -210,7 +210,7 @@ class CalculatedProduct extends Struct implements DeliverableLineItemInterface, 
         return $this->product->getName();
     }
 
-    public function getCover(): ?MediaBasicStruct
+    public function getCover(): ?\Shopware\Core\Content\Media\MediaBasicStruct
     {
         return $this->cover;
     }

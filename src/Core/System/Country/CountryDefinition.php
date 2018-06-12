@@ -29,8 +29,8 @@ use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
 use Shopware\Core\System\Country\Aggregate\CountryArea\CountryAreaDefinition;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition;
 use Shopware\Core\System\Country\Aggregate\CountryTranslation\CountryTranslationDefinition;
-use Shopware\Core\System\Country\Collection\CountryBasicCollection;
-use Shopware\Core\System\Country\Struct\CountryBasicStruct;
+use Shopware\Core\System\Country\CountryBasicCollection;
+use Shopware\Core\System\Country\CountryBasicStruct;
 use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleDefinition;
 use Shopware\Core\System\Touchpoint\TouchpointDefinition;
 

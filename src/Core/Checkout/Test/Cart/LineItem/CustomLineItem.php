@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Test\Cart\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItemInterface;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Core\Content\Media\Struct\MediaBasicStruct;
+use Shopware\Core\Content\Media\MediaBasicStruct;
 
 class CustomLineItem implements CalculatedLineItemInterface
 {

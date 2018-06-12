@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Test\Catalog;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Content\Category\Struct\CategoryBasicStruct;
+use Shopware\Core\Content\Category\CategoryBasicStruct;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;

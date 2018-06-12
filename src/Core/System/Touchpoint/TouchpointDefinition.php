@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\System\Touchpoint;
 
-use Shopware\Core\System\Touchpoint\Collection\TouchpointBasicCollection;
-use Shopware\Core\System\Touchpoint\Struct\TouchpointBasicStruct;
+use Shopware\Core\System\Touchpoint\TouchpointBasicCollection;
+use Shopware\Core\System\Touchpoint\TouchpointBasicStruct;
 use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;

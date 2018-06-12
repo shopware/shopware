@@ -14,7 +14,7 @@
             {% set category = treeItem.category %}
             {% set children = treeItem.children %}
 
-            {# @var category \Shopware\Core\Content\Category\Struct\CategoryBasicStruct #}
+            {# @var category \Shopware\Core\Content\Category\CategoryBasicStruct #}
             {% if category.extensions.canonicalUrl %}
                 {% set url = category.extensions.canonicalUrl.url %}
             {% else %}

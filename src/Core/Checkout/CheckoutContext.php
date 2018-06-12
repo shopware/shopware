@@ -24,20 +24,20 @@
 
 namespace Shopware\Core\Checkout;
 
+use Shopware\Core\System\Touchpoint\TouchpointBasicStruct;
+use Shopware\Core\Checkout\DiscountSurcharge\Exception\RulesLockedException;
+use Shopware\Core\System\Language\LanguageBasicStruct;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\Struct\CustomerGroupBasicStruct;
-use Shopware\Core\Checkout\Customer\Struct\CustomerBasicStruct;
-use Shopware\Core\Checkout\DiscountSurcharge\Exception\RulesLockedException;
-use Shopware\Core\Checkout\Payment\Struct\PaymentMethodBasicStruct;
-use Shopware\Core\Checkout\Shipping\Struct\ShippingMethodBasicStruct;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupBasicStruct;
+use Shopware\Core\Checkout\Customer\CustomerBasicStruct;
+use Shopware\Core\Checkout\Payment\PaymentMethodBasicStruct;
+use Shopware\Core\Checkout\Shipping\ShippingMethodBasicStruct;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Struct\Struct;
-use Shopware\Core\System\Currency\Struct\CurrencyBasicStruct;
-use Shopware\Core\System\Language\Struct\LanguageBasicStruct;
-use Shopware\Core\System\Tax\Collection\TaxBasicCollection;
-use Shopware\Core\System\Touchpoint\Struct\TouchpointBasicStruct;
+use Shopware\Core\System\Currency\CurrencyBasicStruct;
+use Shopware\Core\System\Tax\TaxBasicCollection;
 
 /**
  * @category  Shopware\Core
@@ -54,12 +54,12 @@ class CheckoutContext extends Struct
     protected $token;
 
     /**
-     * @var CustomerGroupBasicStruct
+     * @var \Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupBasicStruct
      */
     protected $currentCustomerGroup;
 
     /**
-     * @var \Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\Struct\CustomerGroupBasicStruct
+     * @var \Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupBasicStruct
      */
     protected $fallbackCustomerGroup;
 
@@ -74,17 +74,17 @@ class CheckoutContext extends Struct
     protected $touchpoint;
 
     /**
-     * @var TaxBasicCollection
+     * @var \Shopware\Core\System\Tax\TaxBasicCollection
      */
     protected $taxRules;
 
     /**
-     * @var CustomerBasicStruct|null
+     * @var \Shopware\Core\Checkout\Customer\CustomerBasicStruct|null
      */
     protected $customer;
 
     /**
-     * @var PaymentMethodBasicStruct
+     * @var \Shopware\Core\Checkout\Payment\PaymentMethodBasicStruct
      */
     protected $paymentMethod;
 

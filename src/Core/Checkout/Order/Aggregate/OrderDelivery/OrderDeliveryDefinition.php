@@ -3,8 +3,8 @@
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderDelivery;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressDefinition;
-use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\Collection\OrderDeliveryBasicCollection;
-use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\Struct\OrderDeliveryBasicStruct;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryBasicCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryBasicStruct;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\OrderDeliveryPositionDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderState\OrderStateDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;

@@ -25,29 +25,29 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Checkout\Cart\Delivery\Struct;
 
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressBasicStruct;
 use Shopware\Core\Framework\Struct\Struct;
-use Shopware\Core\System\Country\Aggregate\CountryState\Struct\CountryStateBasicStruct;
-use Shopware\Core\System\Country\Struct\CountryBasicStruct;
+use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateBasicStruct;
+use Shopware\Core\System\Country\CountryBasicStruct;
 
 class ShippingLocation extends Struct
 {
     /**
-     * @var CountryBasicStruct
+     * @var \Shopware\Core\System\Country\CountryBasicStruct
      */
     protected $country;
 
     /**
-     * @var null|CountryStateBasicStruct
+     * @var null|\Shopware\Core\System\Country\Aggregate\CountryState\CountryStateBasicStruct
      */
     protected $state;
 
     /**
-     * @var null|\Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct
+     * @var null|\Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressBasicStruct
      */
     protected $address;
 
-    public function __construct(CountryBasicStruct $country, ?CountryStateBasicStruct $state, ?CustomerAddressBasicStruct $address)
+    public function __construct(\Shopware\Core\System\Country\CountryBasicStruct $country, ?\Shopware\Core\System\Country\Aggregate\CountryState\CountryStateBasicStruct $state, ?CustomerAddressBasicStruct $address)
     {
         $this->country = $country;
         $this->state = $state;
@@ -63,7 +63,7 @@ class ShippingLocation extends Struct
         );
     }
 
-    public static function createFromCountry(CountryBasicStruct $country): self
+    public static function createFromCountry(\Shopware\Core\System\Country\CountryBasicStruct $country): self
     {
         return new self($country, null, null);
     }
@@ -86,7 +86,7 @@ class ShippingLocation extends Struct
         return $this->state;
     }
 
-    public function getAddress(): ?CustomerAddressBasicStruct
+    public function getAddress(): ?\Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressBasicStruct
     {
         return $this->address;
     }

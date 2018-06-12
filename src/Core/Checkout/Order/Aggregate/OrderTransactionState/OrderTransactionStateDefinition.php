@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransactionState;
 
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionState\Collection\OrderTransactionStateBasicCollection;
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionState\Struct\OrderTransactionStateBasicStruct;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionState\OrderTransactionStateBasicCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionState\OrderTransactionStateBasicStruct;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionStateTranslation\OrderTransactionStateTranslationDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;

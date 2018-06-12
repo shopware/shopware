@@ -1,5 +1,5 @@
 {% block frontend_detail_data %}
-    {# @var product \Shopware\Core\Content\Product\Struct\StorefrontProductBasicStruct #}
+    {# @var product \Shopware\Core\Content\Product\Storefront\StorefrontProductBasicStruct #}
     {% set price = product.calculatedPrice %}
 
     {% if product.calculatedPriceRules.count > 1 %}

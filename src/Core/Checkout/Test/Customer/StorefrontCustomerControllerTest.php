@@ -4,8 +4,8 @@ namespace Shopware\Core\Checkout\Test\Customer;
 
 use Ramsey\Uuid\Uuid;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
-use Shopware\Core\Checkout\Customer\Struct\CustomerBasicStruct;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressBasicStruct;
+use Shopware\Core\Checkout\Customer\CustomerBasicStruct;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Response\Type\JsonType;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;

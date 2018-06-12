@@ -4,8 +4,8 @@ namespace Shopware\Core\Content\Category;
 
 use Shopware\Core\Content\Catalog\ORM\CatalogField;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
-use Shopware\Core\Content\Category\Collection\CategoryBasicCollection;
-use Shopware\Core\Content\Category\Struct\CategoryBasicStruct;
+use Shopware\Core\Content\Category\CategoryBasicCollection;
+use Shopware\Core\Content\Category\CategoryBasicStruct;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductSeoCategory\ProductSeoCategoryDefinition;

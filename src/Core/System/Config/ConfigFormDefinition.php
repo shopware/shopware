@@ -25,8 +25,8 @@ use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Core\Framework\Plugin\PluginDefinition;
 use Shopware\Core\System\Config\Aggregate\ConfigFormField\ConfigFormFieldDefinition;
 use Shopware\Core\System\Config\Aggregate\ConfigFormTranslation\ConfigFormTranslationDefinition;
-use Shopware\Core\System\Config\Collection\ConfigFormBasicCollection;
-use Shopware\Core\System\Config\Struct\ConfigFormBasicStruct;
+use Shopware\Core\System\Config\ConfigFormBasicCollection;
+use Shopware\Core\System\Config\ConfigFormBasicStruct;
 
 class ConfigFormDefinition extends EntityDefinition
 {

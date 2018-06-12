@@ -3,8 +3,8 @@
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderLineItem;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\OrderDeliveryPositionDefinition;
-use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\Collection\OrderLineItemBasicCollection;
-use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\Struct\OrderLineItemBasicStruct;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemBasicCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemBasicStruct;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;

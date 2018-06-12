@@ -19,9 +19,9 @@ use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
-use Shopware\Core\System\Listing\Collection\ListingFacetBasicCollection;
+use Shopware\Core\System\Listing\ListingFacetBasicCollection;
 use Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation\ListingFacetTranslationDefinition;
-use Shopware\Core\System\Listing\Struct\ListingFacetBasicStruct;
+use Shopware\Core\System\Listing\ListingFacetBasicStruct;
 
 class ListingFacetDefinition extends EntityDefinition
 {

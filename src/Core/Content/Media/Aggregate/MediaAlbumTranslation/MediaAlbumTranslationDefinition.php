@@ -4,8 +4,8 @@ namespace Shopware\Core\Content\Media\Aggregate\MediaAlbumTranslation;
 
 use Shopware\Core\Content\Catalog\ORM\CatalogField;
 use Shopware\Core\Content\Media\Aggregate\MediaAlbum\MediaAlbumDefinition;
-use Shopware\Core\Content\Media\Aggregate\MediaAlbumTranslation\Collection\MediaAlbumTranslationBasicCollection;
-use Shopware\Core\Content\Media\Aggregate\MediaAlbumTranslation\Struct\MediaAlbumTranslationBasicStruct;
+use Shopware\Core\Content\Media\Aggregate\MediaAlbumTranslation\MediaAlbumTranslationBasicCollection;
+use Shopware\Core\Content\Media\Aggregate\MediaAlbumTranslation\MediaAlbumTranslationBasicStruct;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\FkField;

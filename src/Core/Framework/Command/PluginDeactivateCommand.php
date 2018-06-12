@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Command;
 
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\PluginManager;
-use Shopware\Core\Framework\Plugin\Struct\Plugin;
+use Shopware\Core\Framework\Plugin;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -63,7 +63,7 @@ EOF
         $io->text(sprintf('Deactivating %d plugins:', count($plugins)));
         $io->listing($this->formatPluginList($plugins));
 
-        /** @var Plugin $plugin */
+        /** @var \Shopware\Core\Framework\Plugin $plugin */
         foreach ($plugins as $plugin) {
             if ($plugin->getInstallationDate() === null) {
                 $io->note(sprintf('Plugin "%s" must be installed. Skipping.', $plugin->getLabel()));

@@ -14,8 +14,8 @@ use Shopware\Core\Framework\ORM\Field\VersionField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
-use Shopware\Core\System\Config\Aggregate\ConfigFormTranslation\Collection\ConfigFormTranslationBasicCollection;
-use Shopware\Core\System\Config\Aggregate\ConfigFormTranslation\Struct\ConfigFormTranslationBasicStruct;
+use Shopware\Core\System\Config\Aggregate\ConfigFormTranslation\ConfigFormTranslationBasicCollection;
+use Shopware\Core\System\Config\Aggregate\ConfigFormTranslation\ConfigFormTranslationBasicStruct;
 use Shopware\Core\System\Config\ConfigFormDefinition;
 use Shopware\Core\System\Locale\LocaleDefinition;
 

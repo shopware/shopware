@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Content\Media\Extension;
 
-use Shopware\Core\Content\Media\Struct\MediaBasicStruct;
-use Shopware\Core\Content\Media\Struct\ThumbnailStruct;
+use Shopware\Core\Content\Media\MediaBasicStruct;
+use Shopware\Core\Content\Media\Extension\ThumbnailStruct;
 use Shopware\Core\Content\Media\Util\UrlGeneratorInterface;
 use Shopware\Core\Framework\ORM\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\Struct\StructCollection;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Currency;
 
+use Shopware\Core\System\Touchpoint\TouchpointDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
@@ -24,10 +25,8 @@ use Shopware\Core\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
 use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationDefinition;
-use Shopware\Core\System\Currency\Collection\CurrencyBasicCollection;
-use Shopware\Core\System\Currency\Struct\CurrencyBasicStruct;
-use Shopware\Core\System\Currency\Struct\CurrencyDetailStruct;
-use Shopware\Core\System\Touchpoint\TouchpointDefinition;
+use Shopware\Core\System\Currency\CurrencyBasicCollection;
+use Shopware\Core\System\Currency\CurrencyBasicStruct;
 
 class CurrencyDefinition extends EntityDefinition
 {

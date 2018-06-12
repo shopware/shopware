@@ -26,7 +26,7 @@ declare(strict_types=1);
 namespace Shopware\Core\Checkout\Cart\LineItem;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Core\Content\Media\Struct\MediaBasicStruct;
+use Shopware\Core\Content\Media\MediaBasicStruct;
 
 interface CalculatedLineItemInterface extends \JsonSerializable
 {

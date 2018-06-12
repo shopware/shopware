@@ -24,8 +24,8 @@ use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition;
 use Shopware\Core\System\Country\CountryDefinition;
-use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\Collection\TaxAreaRuleBasicCollection;
-use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\Struct\TaxAreaRuleBasicStruct;
+use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleBasicCollection;
+use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleBasicStruct;
 use Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTranslation\TaxAreaRuleTranslationDefinition;
 use Shopware\Core\System\Tax\TaxDefinition;
 

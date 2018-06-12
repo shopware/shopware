@@ -3,7 +3,7 @@
 namespace Shopware\Storefront\Page\Checkout;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Checkout\Payment\Collection\PaymentMethodBasicCollection;
+use Shopware\Core\Checkout\Payment\PaymentMethodBasicCollection;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;

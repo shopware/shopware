@@ -13,8 +13,8 @@ use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleDefinition;
-use Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTranslation\Collection\TaxAreaRuleTranslationBasicCollection;
-use Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTranslation\Struct\TaxAreaRuleTranslationBasicStruct;
+use Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTranslation\TaxAreaRuleTranslationBasicCollection;
+use Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTranslation\TaxAreaRuleTranslationBasicStruct;
 
 class TaxAreaRuleTranslationDefinition extends EntityDefinition
 {

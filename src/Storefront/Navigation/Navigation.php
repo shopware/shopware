@@ -24,7 +24,7 @@
 
 namespace Shopware\Storefront\Navigation;
 
-use Shopware\Core\Content\Category\Struct\CategoryBasicStruct;
+use Shopware\Core\Content\Category\CategoryBasicStruct;
 use Shopware\Core\Content\Category\Util\Tree\TreeItem;
 
 class Navigation

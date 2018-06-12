@@ -25,13 +25,13 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Content\Product\Cart;
 
+use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Cart\CartCollectorInterface;
 use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
-use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Content\Product\Aggregate\ProductService\Collection\ProductServiceBasicCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceBasicCollection;
 use Shopware\Core\Content\Product\Cart\Struct\ProductFetchDefinition;
 use Shopware\Core\Content\Product\Cart\Struct\ProductServiceFetchDefinition;
-use Shopware\Core\Content\Product\Collection\ProductBasicCollection;
+use Shopware\Core\Content\Product\ProductBasicCollection;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Struct\StructCollection;

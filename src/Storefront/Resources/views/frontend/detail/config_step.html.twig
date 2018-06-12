@@ -4,7 +4,7 @@
     {% endif %}
 {% endblock %}
 
-{# @var product \Shopware\Core\Content\Product\Struct\StorefrontProductBasicStruct #}
+{# @var product \Shopware\Core\Content\Product\Storefront\StorefrontProductBasicStruct #}
 {# @var page \Shopware\Storefront\Page\Detail\DetailPageStruct #}
 {% set url = path('detail_page', { id: product.id }) %}
 
@@ -49,7 +49,7 @@
                         </option>
                     {% endif %}
 
-                    {# @var option \Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\Struct\ConfigurationGroupOptionBasicStruct #}
+                    {# @var option \Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionBasicStruct #}
                     {% for option in group.options %}
                         {% set config = page.configurator.byOptionId(option.id) %}
 

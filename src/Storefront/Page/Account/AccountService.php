@@ -4,8 +4,8 @@ namespace Shopware\Storefront\Page\Account;
 
 use Shopware\Core\Checkout\Context\CheckoutContextPersister;
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\Struct\CustomerAddressBasicStruct;
-use Shopware\Core\Checkout\Customer\Struct\CustomerBasicStruct;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressBasicStruct;
+use Shopware\Core\Checkout\Customer\CustomerBasicStruct;
 use Shopware\Core\Checkout\Order\Exception\NotLoggedInCustomerException;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;

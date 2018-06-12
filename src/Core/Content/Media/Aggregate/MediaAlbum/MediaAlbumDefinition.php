@@ -2,14 +2,14 @@
 
 namespace Shopware\Core\Content\Media\Aggregate\MediaAlbum;
 
-use Shopware\Core\Content\Catalog\ORM\CatalogField;
-use Shopware\Core\Content\Media\Aggregate\MediaAlbum\Collection\MediaAlbumBasicCollection;
-use Shopware\Core\Content\Media\Aggregate\MediaAlbum\Struct\MediaAlbumBasicStruct;
+use Shopware\Core\Content\Media\Aggregate\MediaAlbum\MediaAlbumBasicCollection;
+use Shopware\Core\Content\Media\Aggregate\MediaAlbum\MediaAlbumBasicStruct;
 use Shopware\Core\Content\Media\Aggregate\MediaAlbumTranslation\MediaAlbumTranslationDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\BoolField;
+use Shopware\Core\Content\Catalog\ORM\CatalogField;
 use Shopware\Core\Framework\ORM\Field\DateField;
 use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\IdField;

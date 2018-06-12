@@ -2,17 +2,17 @@
 
 namespace Shopware\Core\Content\Category\Util\Tree;
 
-use Shopware\Core\Content\Category\Struct\CategoryBasicStruct;
+use Shopware\Core\Content\Category\CategoryBasicStruct;
 
 class TreeItem
 {
     /**
-     * @var CategoryBasicStruct
+     * @var \Shopware\Core\Content\Category\CategoryBasicStruct
      */
     protected $category;
 
     /**
-     * @var CategoryBasicStruct[]
+     * @var \Shopware\Core\Content\Category\CategoryBasicStruct[]
      */
     protected $children;
 

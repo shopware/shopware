@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Api\Controller;
 
-use Shopware\Core\Content\Product\Struct\ProductBasicStruct;
+use Shopware\Core\Content\Product\ProductBasicStruct;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;

@@ -18,8 +18,8 @@ use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupTranslation\ConfigurationGroupTranslationDefinition;
-use Shopware\Core\Content\Configuration\Collection\ConfigurationGroupBasicCollection;
-use Shopware\Core\Content\Configuration\Struct\ConfigurationGroupBasicStruct;
+use Shopware\Core\Content\Configuration\ConfigurationGroupBasicCollection;
+use Shopware\Core\Content\Configuration\ConfigurationGroupBasicStruct;
 
 class ConfigurationGroupDefinition extends EntityDefinition
 {

@@ -12,8 +12,6 @@ use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\System\Country\Aggregate\CountryArea\CountryAreaDefinition;
-use Shopware\Core\System\Country\Aggregate\CountryAreaTranslation\Collection\CountryAreaTranslationBasicCollection;
-use Shopware\Core\System\Country\Aggregate\CountryAreaTranslation\Struct\CountryAreaTranslationBasicStruct;
 use Shopware\Core\System\Language\LanguageDefinition;
 
 class CountryAreaTranslationDefinition extends EntityDefinition

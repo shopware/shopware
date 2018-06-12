@@ -23,9 +23,9 @@ use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
-use Shopware\Core\System\Listing\Collection\ListingSortingBasicCollection;
+use Shopware\Core\System\Listing\ListingSortingBasicCollection;
 use Shopware\Core\System\Listing\Aggregate\ListingSortingTranslation\ListingSortingTranslationDefinition;
-use Shopware\Core\System\Listing\Struct\ListingSortingBasicStruct;
+use Shopware\Core\System\Listing\ListingSortingBasicStruct;
 
 class ListingSortingDefinition extends EntityDefinition
 {

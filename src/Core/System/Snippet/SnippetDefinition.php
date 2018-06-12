@@ -15,9 +15,6 @@ use Shopware\Core\Framework\ORM\Field\TenantIdField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
-use Shopware\Core\System\Snippet\Collection\SnippetBasicCollection;
-use Shopware\Core\System\Snippet\Struct\SnippetBasicStruct;
-use Shopware\Core\System\Snippet\Struct\SnippetDetailStruct;
 
 class SnippetDefinition extends EntityDefinition
 {

@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Content\Catalog;
 
-use Shopware\Core\Content\Catalog\Collection\CatalogBasicCollection;
-use Shopware\Core\Content\Catalog\Struct\CatalogBasicStruct;
+use Shopware\Core\Content\Catalog\CatalogBasicCollection;
+use Shopware\Core\Content\Catalog\CatalogBasicStruct;
 use Shopware\Core\Content\Media\Aggregate\MediaAlbum\MediaAlbumDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;

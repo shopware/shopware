@@ -26,8 +26,8 @@ use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Core\System\Mail\Aggregate\MailAttachment\MailAttachmentDefinition;
 use Shopware\Core\System\Mail\Aggregate\MailTranslation\MailTranslationDefinition;
-use Shopware\Core\System\Mail\Collection\MailBasicCollection;
-use Shopware\Core\System\Mail\Struct\MailBasicStruct;
+use Shopware\Core\System\Mail\MailBasicCollection;
+use Shopware\Core\System\Mail\MailBasicStruct;
 
 class MailDefinition extends EntityDefinition
 {

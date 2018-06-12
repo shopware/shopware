@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Test\Product\Service;
 
 use Doctrine\DBAL\Connection;
 use Psr\Container\ContainerInterface;
-use Shopware\Core\Content\Product\Struct\ProductBasicStruct;
+use Shopware\Core\Content\Product\ProductBasicStruct;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;

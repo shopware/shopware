@@ -8,10 +8,10 @@ use Shopware\Core\Framework\ORM\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\Pricing\PriceRuleStruct;
 use Shopware\Core\Framework\Rule\Container\AndRule;
-use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\Struct\ProductManufacturerBasicStruct;
-use Shopware\Core\Content\Product\Collection\ProductBasicCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerBasicStruct;
+use Shopware\Core\Content\Product\ProductBasicCollection;
 use Shopware\Core\Framework\Pricing\PriceStruct;
-use Shopware\Core\Content\Product\Struct\ProductBasicStruct;
+use Shopware\Core\Content\Product\ProductBasicStruct;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
@@ -19,7 +19,7 @@ use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
 use Shopware\Core\Framework\ORM\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\ORM\Write\FieldException\WriteStackException;
 use Shopware\Core\Framework\Struct\Uuid;
-use Shopware\Core\System\Tax\Struct\TaxBasicStruct;
+use Shopware\Core\System\Tax\TaxBasicStruct;
 use Shopware\Core\System\Tax\TaxDefinition;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -203,7 +203,7 @@ class ProductRepositoryTest extends KernelTestCase
 
         $product = $products->get($ids[0]);
 
-        /* @var ProductBasicStruct $product */
+        /* @var \Shopware\Core\Content\Product\ProductBasicStruct $product */
         $this->assertInstanceOf(ProductBasicStruct::class, $product);
         $this->assertInstanceOf(ProductManufacturerBasicStruct::class, $product->getManufacturer());
         $this->assertEquals('without id', $product->getManufacturer()->getName());
@@ -263,7 +263,7 @@ class ProductRepositoryTest extends KernelTestCase
         $this->assertCount(1, $products);
         $this->assertTrue($products->has($id->getHex()));
 
-        /** @var ProductBasicStruct $product */
+        /** @var \Shopware\Core\Content\Product\ProductBasicStruct $product */
         $product = $products->get($id->getHex());
 
         //check data loading is as expected
@@ -322,7 +322,7 @@ class ProductRepositoryTest extends KernelTestCase
 
         $product = $products->get($id->getHex());
 
-        /* @var ProductBasicStruct $product */
+        /* @var \Shopware\Core\Content\Product\ProductBasicStruct $product */
         $this->assertEquals($id->getHex(), $product->getId());
 
         $this->assertEquals(new PriceStruct(10, 15), $product->getPrice());
@@ -467,13 +467,13 @@ class ProductRepositoryTest extends KernelTestCase
         $this->assertTrue($products->has($redId));
         $this->assertTrue($products->has($greenId));
 
-        /** @var ProductBasicStruct $parent */
+        /** @var \Shopware\Core\Content\Product\ProductBasicStruct $parent */
         $parent = $parents->get($parentId);
 
         /** @var ProductBasicStruct $red */
         $red = $products->get($redId);
 
-        /** @var ProductBasicStruct $green */
+        /** @var \Shopware\Core\Content\Product\ProductBasicStruct $green */
         $green = $products->get($greenId);
 
         $this->assertEquals($parentPrice['gross'], $parent->getPrice()->getGross());
@@ -702,13 +702,13 @@ class ProductRepositoryTest extends KernelTestCase
         $this->assertTrue($products->has($redId));
         $this->assertTrue($products->has($greenId));
 
-        /** @var ProductBasicStruct $parent */
+        /** @var \Shopware\Core\Content\Product\ProductBasicStruct $parent */
         $parent = $parents->get($parentId);
 
         /** @var ProductBasicStruct $red */
         $red = $products->get($redId);
 
-        /** @var ProductBasicStruct $green */
+        /** @var \Shopware\Core\Content\Product\ProductBasicStruct $green */
         $green = $products->get($greenId);
 
         $this->assertEquals($parentTax, $parent->getTax()->getId());
@@ -816,7 +816,7 @@ class ProductRepositoryTest extends KernelTestCase
         $this->assertTrue($products->has($redId));
         $this->assertTrue($products->has($greenId));
 
-        /** @var ProductBasicStruct $parent */
+        /** @var \Shopware\Core\Content\Product\ProductBasicStruct $parent */
         $parent = $parents->get($parentId);
 
         /** @var ProductBasicStruct $green */
@@ -1136,7 +1136,7 @@ class ProductRepositoryTest extends KernelTestCase
         $this->assertCount(1, $products);
         $this->assertTrue($products->has($productId));
 
-        /** @var ProductBasicStruct $product */
+        /** @var \Shopware\Core\Content\Product\ProductBasicStruct $product */
         $product = $products->get($productId);
 
         $this->assertInstanceOf(ProductBasicStruct::class, $product);
@@ -1173,7 +1173,7 @@ class ProductRepositoryTest extends KernelTestCase
         $this->assertCount(1, $products);
         $this->assertTrue($products->has($productId));
 
-        /** @var ProductBasicStruct $product */
+        /** @var \Shopware\Core\Content\Product\ProductBasicStruct $product */
         $product = $products->get($productId);
 
         $this->assertInstanceOf(ProductBasicStruct::class, $product);

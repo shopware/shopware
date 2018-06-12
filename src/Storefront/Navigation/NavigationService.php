@@ -3,7 +3,7 @@
 namespace Shopware\Storefront\Navigation;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Content\Category\Struct\CategoryBasicStruct;
+use Shopware\Core\Content\Category\CategoryBasicStruct;
 use Shopware\Core\Content\Category\Util\Tree\TreeBuilder;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;

@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\System\Language;
 
-use Shopware\Core\System\Language\Collection\LanguageBasicCollection;
-use Shopware\Core\System\Language\Struct\LanguageBasicStruct;
+use Shopware\Core\System\Language\LanguageBasicCollection;
+use Shopware\Core\System\Language\LanguageBasicStruct;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationDefinition;
 use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationDefinition;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationDefinition;

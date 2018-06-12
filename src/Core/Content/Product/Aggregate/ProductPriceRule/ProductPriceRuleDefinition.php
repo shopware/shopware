@@ -2,10 +2,10 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductPriceRule;
 
-use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\Collection\ProductPriceRuleBasicCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\Struct\ProductPriceRuleBasicStruct;
-use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Rule\RuleDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleBasicCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleBasicStruct;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\DateField;

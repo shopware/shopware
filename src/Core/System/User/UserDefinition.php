@@ -20,8 +20,8 @@ use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Core\System\Locale\LocaleDefinition;
-use Shopware\Core\System\User\Collection\UserBasicCollection;
-use Shopware\Core\System\User\Struct\UserBasicStruct;
+use Shopware\Core\System\User\UserBasicCollection;
+use Shopware\Core\System\User\UserBasicStruct;
 
 class UserDefinition extends EntityDefinition
 {

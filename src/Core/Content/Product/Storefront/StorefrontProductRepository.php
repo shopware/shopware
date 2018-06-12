@@ -4,13 +4,11 @@ namespace Shopware\Core\Content\Product\Storefront;
 
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Price\PriceCalculator;
-use Shopware\Core\Content\Product\Aggregate\ProductService\Struct\ProductServiceBasicStruct;
-use Shopware\Core\Content\Product\Collection\ProductBasicCollection;
-use Shopware\Core\Content\Product\Struct\StorefrontProductBasicInterface;
-use Shopware\Core\Content\Product\Struct\StorefrontProductBasicStruct;
+use Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceBasicStruct;
+use Shopware\Core\Content\Product\ProductBasicCollection;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
-use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\Struct\ConfigurationGroupOptionBasicStruct;
+use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionBasicStruct;
 use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 use Shopware\Core\Framework\ORM\Search\IdSearchResult;
 
@@ -102,7 +100,7 @@ class StorefrontProductRepository
         return $collection;
     }
 
-    private function calculatePrices(CheckoutContext $context, StorefrontProductBasicInterface $product): void
+    private function calculatePrices(CheckoutContext $context, StorefrontProductBasicStruct $product): void
     {
         //calculate listing price
         $listingPriceDefinition = $product->getListingPriceDefinition($context->getContext());

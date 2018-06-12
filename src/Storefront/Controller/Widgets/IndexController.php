@@ -28,11 +28,11 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
-use Shopware\Core\System\Language\Collection\LanguageBasicCollection;
+use Shopware\Core\System\Language\LanguageBasicCollection;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermsQuery;
 use Shopware\Storefront\Controller\StorefrontController;
-use Shopware\Core\System\Currency\Collection\CurrencyBasicCollection;
+use Shopware\Core\System\Currency\CurrencyBasicCollection;
 
 class IndexController extends StorefrontController
 {

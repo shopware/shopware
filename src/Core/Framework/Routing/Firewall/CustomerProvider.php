@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Routing\Firewall;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Checkout\Customer\Struct\CustomerBasicStruct;
+use Shopware\Core\Checkout\Customer\CustomerBasicStruct;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;

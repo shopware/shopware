@@ -2,10 +2,9 @@
 
 namespace Shopware\Core\Checkout\DiscountSurcharge;
 
+use Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeBasicCollection;
 use Shopware\Core\Checkout\DiscountSurcharge\Aggregate\DiscountSurchargeTranslation\DiscountSurchargeTranslationDefinition;
-use Shopware\Core\Checkout\DiscountSurcharge\Collection\DiscountSurchargeBasicCollection;
-use Shopware\Core\Checkout\DiscountSurcharge\Aggregate\DiscountSurchargeTranslation\DiscountSurchargeTranslationDefinition;
-use Shopware\Core\Checkout\DiscountSurcharge\Struct\DiscountSurchargeBasicStruct;
+use Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeBasicStruct;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
@@ -13,8 +12,8 @@ use Shopware\Core\Framework\ORM\Field\DateField;
 use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\FloatField;
 use Shopware\Core\Framework\ORM\Field\IdField;
+use Shopware\Core\Framework\ORM\Field\JsonObjectField;
 use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
-use Shopware\Core\Framework\ORM\Field\ObjectField;
 use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\Field\TenantIdField;
 use Shopware\Core\Framework\ORM\Field\TranslatedField;
@@ -23,6 +22,7 @@ use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\Framework\ORM\Write\Flag\Serialized;
 
 class DiscountSurchargeDefinition extends EntityDefinition
 {

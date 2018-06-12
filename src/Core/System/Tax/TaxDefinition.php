@@ -20,8 +20,8 @@ use Shopware\Core\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
 use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleDefinition;
-use Shopware\Core\System\Tax\Collection\TaxBasicCollection;
-use Shopware\Core\System\Tax\Struct\TaxBasicStruct;
+use Shopware\Core\System\Tax\TaxBasicCollection;
+use Shopware\Core\System\Tax\TaxBasicStruct;
 
 class TaxDefinition extends EntityDefinition
 {

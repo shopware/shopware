@@ -4,8 +4,8 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductManufacturer;
 
 use Shopware\Core\Content\Catalog\ORM\CatalogField;
 use Shopware\Core\Content\Media\MediaDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\Collection\ProductManufacturerBasicCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\Struct\ProductManufacturerBasicStruct;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerBasicCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerBasicStruct;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;

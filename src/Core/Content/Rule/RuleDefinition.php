@@ -4,8 +4,6 @@ namespace Shopware\Core\Content\Rule;
 
 use Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleDefinition;
-use Shopware\Core\Content\Rule\Collection\RuleBasicCollection;
-use Shopware\Core\Content\Rule\Struct\RuleBasicStruct;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\DateField;

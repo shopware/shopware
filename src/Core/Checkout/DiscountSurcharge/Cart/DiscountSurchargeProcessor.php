@@ -4,7 +4,7 @@ namespace Shopware\Core\Checkout\DiscountSurcharge\Cart;
 
 use Shopware\Core\Checkout\DiscountSurcharge\Exception\UnsupportedModifierTypeException;
 
-use Shopware\Core\Checkout\DiscountSurcharge\Struct\DiscountSurchargeBasicStruct;
+use Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeBasicStruct;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Cart\CartProcessorInterface;
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
@@ -60,7 +60,7 @@ class DiscountSurchargeProcessor implements CartProcessorInterface
             return;
         }
 
-        /** @var DiscountSurchargeBasicStruct $modifier */
+        /** @var \Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeBasicStruct $modifier */
         foreach ($discountSurcharges->getElements() as $modifier) {
             if (!in_array($modifier->getRuleId(), $context->getRuleIds(), true)) {
                 continue;

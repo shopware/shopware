@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Country\Aggregate\CountryStateTranslation;
 
+use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\FkField;
@@ -12,7 +13,8 @@ use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition;
-use Shopware\Core\System\Language\LanguageDefinition;
+use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationBasicCollection;
+use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationBasicStruct;
 
 class CountryStateTranslationDefinition extends EntityDefinition
 {

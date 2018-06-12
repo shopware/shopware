@@ -11,8 +11,8 @@ use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
-use Shopware\Core\System\Country\Aggregate\CountryTranslation\Collection\CountryTranslationBasicCollection;
-use Shopware\Core\System\Country\Aggregate\CountryTranslation\Struct\CountryTranslationBasicStruct;
+use Shopware\Core\System\Country\Aggregate\CountryTranslation\CountryTranslationBasicCollection;
+use Shopware\Core\System\Country\Aggregate\CountryTranslation\CountryTranslationBasicStruct;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Language\LanguageDefinition;
 

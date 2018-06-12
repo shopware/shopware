@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Content\Media\Struct\MediaBasicStruct;
+use Shopware\Core\Content\Media\MediaBasicStruct;
 
 class TestLineItem implements CalculatedLineItemInterface
 {
@@ -42,7 +42,7 @@ class TestLineItem implements CalculatedLineItemInterface
     private $label;
 
     /**
-     * @var null|MediaBasicStruct
+     * @var null|\Shopware\Core\Content\Media\MediaBasicStruct
      */
     private $cover;
 

@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderAddress;
 
-use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\Collection\OrderAddressBasicCollection;
-use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\Struct\OrderAddressBasicStruct;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressBasicCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressBasicStruct;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;

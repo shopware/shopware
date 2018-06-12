@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Api\Seo;
 
+use Shopware\Core\System\Touchpoint\TouchpointDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\BoolField;
@@ -14,9 +15,8 @@ use Shopware\Core\Framework\ORM\Field\TenantIdField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
-use Shopware\Core\System\Touchpoint\TouchpointDefinition;
-use Shopware\Storefront\Api\Seo\Collection\SeoUrlBasicCollection;
-use Shopware\Storefront\Api\Seo\Struct\SeoUrlBasicStruct;
+use Shopware\Storefront\Api\Seo\SeoUrlBasicCollection;
+use Shopware\Storefront\Api\Seo\SeoUrlBasicStruct;
 
 class SeoUrlDefinition extends EntityDefinition
 {

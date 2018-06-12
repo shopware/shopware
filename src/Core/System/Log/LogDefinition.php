@@ -13,8 +13,8 @@ use Shopware\Core\Framework\ORM\Field\VersionField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
-use Shopware\Core\System\Log\Collection\LogBasicCollection;
-use Shopware\Core\System\Log\Struct\LogBasicStruct;
+use Shopware\Core\System\Log\LogBasicCollection;
+use Shopware\Core\System\Log\LogBasicStruct;
 
 class LogDefinition extends EntityDefinition
 {

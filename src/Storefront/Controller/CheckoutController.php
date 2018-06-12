@@ -10,7 +10,7 @@ use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextPersister;
 use Shopware\Core\Checkout\Context\CheckoutContextService;
 use Shopware\Core\Checkout\Cart\Storefront\CartService;
-use Shopware\Core\Checkout\Order\Struct\OrderBasicStruct;
+use Shopware\Core\Checkout\Order\OrderBasicStruct;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionChainProcessor;
 use Shopware\Core\Checkout\Payment\Cart\Token\PaymentTransactionTokenFactory;

@@ -5,7 +5,7 @@ namespace Shopware\Storefront\Page\Listing;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Storefront\Page\Listing\AggregationView\AggregationViewCollection;
-use Shopware\Core\System\Listing\ListingSortingBasicCollection;
+use Shopware\Core\System\Listing\ListingSortingCollection;
 
 class ListingPageStruct extends Struct
 {
@@ -45,7 +45,7 @@ class ListingPageStruct extends Struct
     protected $aggregations;
 
     /**
-     * @var ListingSortingBasicCollection
+     * @var ListingSortingCollection
      */
     protected $sortings;
 
@@ -69,7 +69,7 @@ class ListingPageStruct extends Struct
         ?string $currentSorting = null,
         string $productBoxLayout = 'basic',
         ?AggregationViewCollection $aggregations = null,
-        ?ListingSortingBasicCollection $sortings = null
+        ?ListingSortingCollection $sortings = null
     ) {
         $this->products = $products;
         $this->criteria = $criteria;
@@ -80,7 +80,7 @@ class ListingPageStruct extends Struct
         $this->productBoxLayout = $productBoxLayout;
 
         $aggregations = $aggregations ?? new AggregationViewCollection();
-        $sortings = $sortings ?? new ListingSortingBasicCollection();
+        $sortings = $sortings ?? new ListingSortingCollection();
 
         $this->aggregations = $aggregations;
         $this->sortings = $sortings;
@@ -147,7 +147,7 @@ class ListingPageStruct extends Struct
         return $this->aggregations;
     }
 
-    public function getSortings(): ListingSortingBasicCollection
+    public function getSortings(): ListingSortingCollection
     {
         return $this->sortings;
     }

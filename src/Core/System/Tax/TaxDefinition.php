@@ -20,8 +20,7 @@ use Shopware\Core\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
 use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleDefinition;
-use Shopware\Core\System\Tax\TaxBasicCollection;
-use Shopware\Core\System\Tax\TaxBasicStruct;
+
 
 class TaxDefinition extends EntityDefinition
 {
@@ -60,13 +59,13 @@ class TaxDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getCollectionClass(): string
     {
-        return TaxBasicCollection::class;
+        return TaxCollection::class;
     }
 
-    public static function getBasicStructClass(): string
+    public static function getStructClass(): string
     {
-        return TaxBasicStruct::class;
+        return TaxStruct::class;
     }
 }

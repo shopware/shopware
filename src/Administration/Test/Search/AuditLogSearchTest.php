@@ -5,7 +5,7 @@ namespace Shopware\Administration\Test\Search;
 use Doctrine\DBAL\Connection;
 use Shopware\Administration\Search\AdministrationSearch;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\Product\ProductBasicStruct;
+use Shopware\Core\Content\Product\ProductStruct;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -102,13 +102,13 @@ class AuditLogSearchTest extends KernelTestCase
         self::assertEquals(2, $result['total']);
         self::assertCount(2, $result['data']);
 
-        /** @var ProductBasicStruct $first */
+        /** @var ProductStruct $first */
         $first = $result['data'][0];
-        self::assertInstanceOf(ProductBasicStruct::class, $first);
+        self::assertInstanceOf(ProductStruct::class, $first);
 
-        /** @var ProductBasicStruct $second */
+        /** @var ProductStruct $second */
         $second = $result['data'][1];
-        self::assertInstanceOf(ProductBasicStruct::class, $second);
+        self::assertInstanceOf(ProductStruct::class, $second);
 
         $firstScore = $first->getExtension('search')->get('_score');
         $secondScore = $second->getExtension('search')->get('_score');
@@ -142,13 +142,13 @@ class AuditLogSearchTest extends KernelTestCase
         self::assertEquals(2, $result['total']);
         self::assertCount(2, $result['data']);
 
-        /** @var ProductBasicStruct $first */
+        /** @var ProductStruct $first */
         $first = $result['data'][0];
-        self::assertInstanceOf(ProductBasicStruct::class, $first);
+        self::assertInstanceOf(ProductStruct::class, $first);
 
-        /** @var ProductBasicStruct $second */
+        /** @var ProductStruct $second */
         $second = $result['data'][1];
-        self::assertInstanceOf(ProductBasicStruct::class, $second);
+        self::assertInstanceOf(ProductStruct::class, $second);
 
         // `product-2` should now be boosted
         self::assertSame($first->getId(), $productId2);

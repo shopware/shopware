@@ -40,8 +40,8 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressBasicStruct;
-use Shopware\Core\Checkout\Customer\CustomerBasicStruct;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressStruct;
+use Shopware\Core\Checkout\Customer\CustomerStruct;
 use Shopware\Core\Framework\ORM\EntityRepository;
 
 class OrderPersisterTest extends TestCase
@@ -54,7 +54,7 @@ class OrderPersisterTest extends TestCase
 
         $taxDetector = new TaxDetector();
 
-        $billingAddress = new CustomerAddressBasicStruct();
+        $billingAddress = new CustomerAddressStruct();
         $billingAddress->setId('SWAG-ADDRESS-ID-1');
         $billingAddress->setSalutation('mr');
         $billingAddress->setFirstName($faker->firstName);
@@ -63,7 +63,7 @@ class OrderPersisterTest extends TestCase
         $billingAddress->setCity($faker->city);
         $billingAddress->setCountryId('SWAG-AREA-COUNTRY-ID-1');
 
-        $customer = new CustomerBasicStruct();
+        $customer = new CustomerStruct();
         $customer->setId('SWAG-CUSTOMER-ID-1');
         $customer->setDefaultBillingAddress($billingAddress);
 

@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Api\Response;
 use Shopware\Core\Framework\Api\Context\RestContext;
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
-use Shopware\Core\Framework\ORM\Search\SearchResultInterface;
+
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\UnsupportedMediaTypeHttpException;

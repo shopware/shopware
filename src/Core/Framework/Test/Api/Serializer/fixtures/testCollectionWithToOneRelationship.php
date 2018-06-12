@@ -1,9 +1,13 @@
 <?php declare(strict_types=1);
 
-$mediaCollection = new \Shopware\Core\Content\Media\MediaBasicCollection();
+use Shopware\Core\Content\Media\Aggregate\MediaAlbum\MediaAlbumStruct;
+use Shopware\Core\Content\Media\MediaCollection;
+use Shopware\Core\Content\Media\MediaStruct;
+
+$mediaCollection = new MediaCollection();
 $albumId = 'f343a3c1-19cf-42a7-841a-a0ac5094908c';
 
-$album = new \Shopware\Core\Content\Media\Aggregate\MediaAlbum\MediaAlbumBasicStruct();
+$album = new MediaAlbumStruct();
 $album->setId($albumId);
 $album->setName('Manufacturer');
 $album->setPosition(12);
@@ -15,7 +19,7 @@ $album->setThumbnailHighDpi(true);
 $album->setThumbnailHighDpiQuality(60);
 $album->setIcon('sprite-blue-folder');
 
-$media1 = new \Shopware\Core\Content\Media\MediaBasicStruct();
+$media1 = new MediaStruct();
 $media1->setId('3e352be2-d858-46dd-9752-9c0f6b544870');
 $media1->setAlbumId($albumId);
 $media1->setAlbum($album);
@@ -26,7 +30,7 @@ $media1->setCreatedAt(date_create_from_format(\DateTime::ATOM, '2012-08-15T00:00
 $media1->setUpdatedAt(date_create_from_format(\DateTime::ATOM, '2017-11-21T11:25:34+00:00'));
 $media1->setName('Lagerkorn-5,0klein');
 
-$media2 = new \Shopware\Core\Content\Media\MediaBasicStruct();
+$media2 = new MediaStruct();
 $media2->setId('f1ad1d0c-0245-4a40-abf2-50f764d16248');
 $media2->setAlbumId($albumId);
 $media2->setAlbum($album);

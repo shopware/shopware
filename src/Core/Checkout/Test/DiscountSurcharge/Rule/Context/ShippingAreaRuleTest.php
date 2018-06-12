@@ -28,8 +28,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
-use Shopware\Core\System\Country\Aggregate\CountryArea\CountryAreaBasicStruct;
-use Shopware\Core\System\Country\CountryBasicStruct;
+use Shopware\Core\System\Country\Aggregate\CountryArea\CountryAreaStruct;
+use Shopware\Core\System\Country\CountryStruct;
 use Shopware\Core\Checkout\Customer\Rule\ShippingAreaRule;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
@@ -143,11 +143,11 @@ class ShippingAreaRuleTest extends TestCase
         ];
     }
 
-    private function createCountryWithArea(string $areaId): CountryBasicStruct
+    private function createCountryWithArea(string $areaId): CountryStruct
     {
-        $country = new CountryBasicStruct();
+        $country = new CountryStruct();
         $country->setId('SWAG-AREA-COUNTRY-ID-1');
-        $area = new CountryAreaBasicStruct();
+        $area = new CountryAreaStruct();
         $area->setId($areaId);
         $country->setAreaId($areaId);
 

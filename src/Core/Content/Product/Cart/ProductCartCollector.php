@@ -28,10 +28,10 @@ namespace Shopware\Core\Content\Product\Cart;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Cart\CartCollectorInterface;
 use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
-use Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceBasicCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceCollection;
 use Shopware\Core\Content\Product\Cart\Struct\ProductFetchDefinition;
 use Shopware\Core\Content\Product\Cart\Struct\ProductServiceFetchDefinition;
-use Shopware\Core\Content\Product\ProductBasicCollection;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Struct\StructCollection;
@@ -99,7 +99,7 @@ class ProductCartCollector implements CartCollectorInterface
         return array_filter(array_keys(array_flip($flat)));
     }
 
-    private function fetchProducts(CheckoutContext $context, StructCollection $definitions): ProductBasicCollection
+    private function fetchProducts(CheckoutContext $context, StructCollection $definitions): ProductCollection
     {
         $ids = [];
         /** @var ProductFetchDefinition[] $definitions */
@@ -112,7 +112,7 @@ class ProductCartCollector implements CartCollectorInterface
         return $this->productGateway->get($ids, $context);
     }
 
-    private function fetchServices(CheckoutContext $context, StructCollection $definitions): ProductServiceBasicCollection
+    private function fetchServices(CheckoutContext $context, StructCollection $definitions): ProductServiceCollection
     {
         $ids = [];
         /** @var ProductServiceFetchDefinition[] $definitions */

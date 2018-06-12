@@ -3,8 +3,8 @@
 namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationBasicCollection;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationBasicStruct;
+
+
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\FkField;
@@ -50,13 +50,13 @@ class CustomerGroupTranslationDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getCollectionClass(): string
     {
-        return CustomerGroupTranslationBasicCollection::class;
+        return CustomerGroupTranslationCollection::class;
     }
 
-    public static function getBasicStructClass(): string
+    public static function getStructClass(): string
     {
-        return CustomerGroupTranslationBasicStruct::class;
+        return CustomerGroupTranslationStruct::class;
     }
 }

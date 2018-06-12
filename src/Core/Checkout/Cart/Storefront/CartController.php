@@ -4,6 +4,9 @@ namespace Shopware\Core\Checkout\Cart\Storefront;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+
+use Shopware\Core\Checkout\CheckoutContext;
+use Shopware\Core\Checkout\Context\CheckoutContextPersister;
 use Shopware\Core\Checkout\Cart\Cart\CartPersisterInterface;
 use Shopware\Core\Checkout\Cart\Cart\CircularCartCalculation;
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
@@ -12,8 +15,6 @@ use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\OrderPersisterInterface;
-use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Checkout\Context\CheckoutContextPersister;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\Product\Cart\ProductProcessor;
 use Shopware\Core\Framework\Api\Response\Type\JsonType;

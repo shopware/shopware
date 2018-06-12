@@ -44,13 +44,13 @@ class EntityScoreBuilderTest extends TestCase
 
     public function testMultipleTerms()
     {
-        $builder = new \Shopware\Core\Framework\ORM\Search\Term\EntityScoreQueryBuilder();
+        $builder = new EntityScoreQueryBuilder();
 
         $pattern = new SearchPattern(
-            new \Shopware\Core\Framework\ORM\Search\Term\SearchTerm('term', 1)
+            new SearchTerm('term', 1)
         );
         $pattern->addTerm(
-            new \Shopware\Core\Framework\ORM\Search\Term\SearchTerm('test', 0.1)
+            new SearchTerm('test', 0.1)
         );
 
         $queries = $builder->buildScoreQueries($pattern, TestDefinition::class, 'test');

@@ -2,73 +2,28 @@
 
 namespace Shopware\Core\Framework\Plugin;
 
-use Closure;
+use Shopware\Core\Framework\ORM\EntityCollection;
 
-class PluginCollection
+
+class PluginCollection extends EntityCollection
 {
     /**
-     * @var Plugin[]
+     * @var PluginStruct[]
      */
-    private $plugins;
+    protected $elements = [];
 
-    /**
-     * @param Plugin[] $plugins
-     */
-    public function __construct(array $plugins = [])
+    public function get(string $id): ? PluginStruct
     {
-        $this->plugins = $plugins;
+        return parent::get($id);
     }
 
-    public function add(Plugin $plugin): void
+    public function current(): PluginStruct
     {
-        $class = get_class($plugin);
-        $class = substr($class, 0, strpos($class, '\\'));
-
-        if ($this->has($class)) {
-            return;
-        }
-
-        $this->plugins[$class] = $plugin;
+        return parent::current();
     }
 
-    /**
-     * @param Plugin[] $plugins
-     */
-    public function addList(array $plugins): void
+    protected function getExpectedClass(): string
     {
-        array_map([$this, 'add'], $plugins);
-    }
-
-    public function has($name): bool
-    {
-        return array_key_exists($name, $this->plugins);
-    }
-
-    public function get($name): ?Plugin
-    {
-        return $this->has($name) ? $this->plugins[$name] : null;
-    }
-
-    /**
-     * @return Plugin[]
-     */
-    public function all(): array
-    {
-        return $this->plugins;
-    }
-
-    /**
-     * @return Plugin[]
-     */
-    public function getActivePlugins(): array
-    {
-        return array_filter($this->plugins, function (Plugin $plugin) {
-            return $plugin->isActive();
-        });
-    }
-
-    public function filter(Closure $closure)
-    {
-        return new static(array_filter($this->plugins, $closure));
+        return PluginStruct::class;
     }
 }

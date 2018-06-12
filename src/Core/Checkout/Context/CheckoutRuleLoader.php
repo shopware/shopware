@@ -18,7 +18,7 @@ use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Storefront\CartService;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
-use Shopware\Core\Content\Rule\RuleBasicCollection;
+use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -66,7 +66,7 @@ class CheckoutRuleLoader
     private $serializer;
 
     /**
-     * @var \Shopware\Core\Content\Rule\RuleBasicCollection
+     * @var \Shopware\Core\Content\Rule\RuleCollection
      */
     private $rules;
 
@@ -159,7 +159,7 @@ class CheckoutRuleLoader
         return $rules;
     }
 
-    private function loadRules(Context $context): RuleBasicCollection
+    private function loadRules(Context $context): RuleCollection
     {
         if ($this->rules !== null) {
             return $this->rules;

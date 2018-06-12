@@ -27,25 +27,26 @@ namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Rule\Context;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressBasicStruct;
-use Shopware\Core\Checkout\Customer\CustomerBasicStruct;
-use Shopware\Core\Checkout\Customer\Rule\BillingZipCodeRule;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressStruct;
+use Shopware\Core\Checkout\Customer\CustomerStruct;
+
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
+use Shopware\Core\Checkout\Customer\Rule\BillingZipCodeRule;
 
 class BillingZipCodeRuleTest extends TestCase
 {
     public function testEqualsWithSingleCode(): void
     {
-        $rule = new \Shopware\Core\Checkout\Customer\Rule\BillingZipCodeRule(['ABC123']);
+        $rule = new BillingZipCodeRule(['ABC123']);
 
         $cart = $this->createMock(CalculatedCart::class);
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $billing = new CustomerAddressBasicStruct();
+        $billing = new CustomerAddressStruct();
         $billing->setZipcode('ABC123');
 
-        $customer = new CustomerBasicStruct();
+        $customer = new CustomerStruct();
         $customer->setDefaultBillingAddress($billing);
 
         $context->expects($this->any())
@@ -59,16 +60,16 @@ class BillingZipCodeRuleTest extends TestCase
 
     public function testEqualsWithMultipleCodes(): void
     {
-        $rule = new \Shopware\Core\Checkout\Customer\Rule\BillingZipCodeRule(['ABC1', 'ABC2', 'ABC3']);
+        $rule = new BillingZipCodeRule(['ABC1', 'ABC2', 'ABC3']);
 
         $cart = $this->createMock(CalculatedCart::class);
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $billing = new CustomerAddressBasicStruct();
+        $billing = new CustomerAddressStruct();
         $billing->setZipcode('ABC2');
 
-        $customer = new CustomerBasicStruct();
+        $customer = new CustomerStruct();
         $customer->setDefaultBillingAddress($billing);
 
         $context->expects($this->any())
@@ -82,16 +83,16 @@ class BillingZipCodeRuleTest extends TestCase
 
     public function testNotMatchWithSingleCode(): void
     {
-        $rule = new \Shopware\Core\Checkout\Customer\Rule\BillingZipCodeRule(['ABC1', 'ABC2', 'ABC3']);
+        $rule = new BillingZipCodeRule(['ABC1', 'ABC2', 'ABC3']);
 
         $cart = $this->createMock(CalculatedCart::class);
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $billing = new CustomerAddressBasicStruct();
+        $billing = new CustomerAddressStruct();
         $billing->setZipcode('ABC4');
 
-        $customer = new CustomerBasicStruct();
+        $customer = new CustomerStruct();
         $customer->setDefaultBillingAddress($billing);
 
         $context->expects($this->any())
@@ -105,7 +106,7 @@ class BillingZipCodeRuleTest extends TestCase
 
     public function testWithoutShippingAddress(): void
     {
-        $rule = new \Shopware\Core\Checkout\Customer\Rule\BillingZipCodeRule(['ABC1', 'ABC2', 'ABC3']);
+        $rule = new BillingZipCodeRule(['ABC1', 'ABC2', 'ABC3']);
 
         $cart = $this->createMock(CalculatedCart::class);
 

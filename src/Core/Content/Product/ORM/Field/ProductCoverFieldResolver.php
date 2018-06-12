@@ -2,12 +2,13 @@
 
 namespace Shopware\Core\Content\Product\ORM\Field;
 
-use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition;
 use Shopware\Core\Framework\ORM\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\ORM\Dbal\FieldResolver\FieldResolverInterface;
 use Shopware\Core\Framework\ORM\Dbal\QueryBuilder;
 use Shopware\Core\Framework\ORM\Field\Field;
+
 
 class ProductCoverFieldResolver implements FieldResolverInterface
 {

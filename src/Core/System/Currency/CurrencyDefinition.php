@@ -25,8 +25,7 @@ use Shopware\Core\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
 use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationDefinition;
-use Shopware\Core\System\Currency\CurrencyBasicCollection;
-use Shopware\Core\System\Currency\CurrencyBasicStruct;
+
 
 class CurrencyDefinition extends EntityDefinition
 {
@@ -71,14 +70,14 @@ class CurrencyDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getCollectionClass(): string
     {
-        return CurrencyBasicCollection::class;
+        return CurrencyCollection::class;
     }
 
-    public static function getBasicStructClass(): string
+    public static function getStructClass(): string
     {
-        return CurrencyBasicStruct::class;
+        return CurrencyStruct::class;
     }
 
     public static function getTranslationDefinitionClass(): ?string

@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Checkout\DiscountSurcharge;
 
-use Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeBasicCollection;
+
 use Shopware\Core\Checkout\DiscountSurcharge\Aggregate\DiscountSurchargeTranslation\DiscountSurchargeTranslationDefinition;
-use Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeBasicStruct;
+
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
@@ -64,14 +64,14 @@ class DiscountSurchargeDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getCollectionClass(): string
     {
-        return DiscountSurchargeBasicCollection::class;
+        return DiscountSurchargeCollection::class;
     }
 
-    public static function getBasicStructClass(): string
+    public static function getStructClass(): string
     {
-        return DiscountSurchargeBasicStruct::class;
+        return DiscountSurchargeStruct::class;
     }
 
     public static function getTranslationDefinitionClass(): ?string

@@ -26,6 +26,7 @@ namespace Shopware\Core\Framework\Rule;
 
 use Shopware\Core\Content\Rule\Exception\UnsupportedOperatorException;
 
+
 class TouchpointRule extends Rule
 {
     /**

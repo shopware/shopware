@@ -16,8 +16,8 @@ use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
-use Shopware\Core\System\Mail\Aggregate\MailAttachment\MailAttachmentBasicCollection;
-use Shopware\Core\System\Mail\Aggregate\MailAttachment\MailAttachmentBasicStruct;
+
+
 use Shopware\Core\System\Mail\MailDefinition;
 
 class MailAttachmentDefinition extends EntityDefinition
@@ -59,13 +59,13 @@ class MailAttachmentDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getCollectionClass(): string
     {
-        return MailAttachmentBasicCollection::class;
+        return MailAttachmentCollection::class;
     }
 
-    public static function getBasicStructClass(): string
+    public static function getStructClass(): string
     {
-        return MailAttachmentBasicStruct::class;
+        return MailAttachmentStruct::class;
     }
 }

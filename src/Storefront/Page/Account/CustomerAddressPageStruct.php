@@ -2,22 +2,22 @@
 
 namespace Shopware\Storefront\Page\Account;
 
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressBasicCollection;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Framework\Struct\Struct;
 
 class CustomerAddressPageStruct extends Struct
 {
     /**
-     * @var \Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressBasicCollection
+     * @var \Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection
      */
     private $addresses;
 
-    public function __construct(CustomerAddressBasicCollection $addresses)
+    public function __construct(CustomerAddressCollection $addresses)
     {
         $this->addresses = $addresses;
     }
 
-    public function getAddresses(): CustomerAddressBasicCollection
+    public function getAddresses(): CustomerAddressCollection
     {
         return $this->addresses;
     }

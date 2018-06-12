@@ -27,7 +27,7 @@ namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Rule\Context;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Core\Checkout\Customer\CustomerBasicStruct;
+use Shopware\Core\Checkout\Customer\CustomerStruct;
 use Shopware\Core\Checkout\Customer\Rule\IsNewCustomerRule;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 
@@ -39,7 +39,7 @@ class IsNewCustomerRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $customer = new CustomerBasicStruct();
+        $customer = new CustomerStruct();
         $customer->setFirstLogin(new \DateTime());
 
         $context = $this->createMock(CheckoutContext::class);
@@ -59,7 +59,7 @@ class IsNewCustomerRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $customer = new CustomerBasicStruct();
+        $customer = new CustomerStruct();
         $customer->setFirstLogin(
             (new \DateTime())->sub(
                 new \DateInterval('P' . 10 . 'D')
@@ -83,7 +83,7 @@ class IsNewCustomerRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $customer = new CustomerBasicStruct();
+        $customer = new CustomerStruct();
         $customer->setFirstLogin(
             (new \DateTime())->add(
                 new \DateInterval('P' . 10 . 'D')

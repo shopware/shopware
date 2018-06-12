@@ -4,8 +4,8 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductStream;
 
 use Shopware\Core\Content\Catalog\ORM\CatalogField;
 use Shopware\Core\Content\Category\CategoryDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductStream\ProductStreamBasicCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductStream\ProductStreamBasicStruct;
+
+
 use Shopware\Core\Content\Product\Aggregate\ProductStreamAssignment\ProductStreamAssignmentDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductStreamTab\ProductStreamTabDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -77,13 +77,13 @@ class ProductStreamDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getCollectionClass(): string
     {
-        return ProductStreamBasicCollection::class;
+        return ProductStreamCollection::class;
     }
 
-    public static function getBasicStructClass(): string
+    public static function getStructClass(): string
     {
-        return ProductStreamBasicStruct::class;
+        return ProductStreamStruct::class;
     }
 }

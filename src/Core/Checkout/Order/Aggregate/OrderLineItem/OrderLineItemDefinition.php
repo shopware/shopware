@@ -3,8 +3,8 @@
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderLineItem;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\OrderDeliveryPositionDefinition;
-use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemBasicCollection;
-use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemBasicStruct;
+
+
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
@@ -74,13 +74,13 @@ class OrderLineItemDefinition extends EntityDefinition
     }
 
 
-    public static function getBasicCollectionClass(): string
+    public static function getCollectionClass(): string
     {
-        return OrderLineItemBasicCollection::class;
+        return OrderLineItemCollection::class;
     }
 
-    public static function getBasicStructClass(): string
+    public static function getStructClass(): string
     {
-        return OrderLineItemBasicStruct::class;
+        return OrderLineItemStruct::class;
     }
 }

@@ -20,8 +20,8 @@ use Shopware\Core\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
 use Shopware\Core\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationDefinition;
-use Shopware\Core\System\Locale\LocaleBasicCollection;
-use Shopware\Core\System\Locale\LocaleBasicStruct;
+
+
 use Shopware\Core\System\User\UserDefinition;
 
 class LocaleDefinition extends EntityDefinition
@@ -64,14 +64,14 @@ class LocaleDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getCollectionClass(): string
     {
-        return LocaleBasicCollection::class;
+        return LocaleCollection::class;
     }
 
-    public static function getBasicStructClass(): string
+    public static function getStructClass(): string
     {
-        return LocaleBasicStruct::class;
+        return LocaleStruct::class;
     }
 
     public static function getTranslationDefinitionClass(): ?string

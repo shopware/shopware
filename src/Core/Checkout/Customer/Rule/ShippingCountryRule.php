@@ -24,6 +24,7 @@
 
 namespace Shopware\Core\Checkout\Customer\Rule;
 
+
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Content\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Match;

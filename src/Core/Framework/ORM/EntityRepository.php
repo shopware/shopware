@@ -15,7 +15,7 @@ use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
 use Shopware\Core\Framework\ORM\Search\Query\TermsQuery;
-use Shopware\Core\Framework\ORM\Version\Service\VersionManager;
+use Shopware\Core\Framework\ORM\VersionManager;
 use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\ORM\Write\WriteContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;

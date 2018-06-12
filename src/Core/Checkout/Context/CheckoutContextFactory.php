@@ -27,18 +27,18 @@ namespace Shopware\Core\Checkout\Context;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
-use Shopware\Core\System\Touchpoint\TouchpointBasicStruct;
+use Shopware\Core\System\Touchpoint\TouchpointStruct;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
-use Shopware\Core\Checkout\Customer\CustomerBasicStruct;
-use Shopware\Core\Checkout\Payment\PaymentMethodBasicStruct;
-use Shopware\Core\Checkout\Shipping\ShippingMethodBasicStruct;
+use Shopware\Core\Checkout\Customer\CustomerStruct;
+use Shopware\Core\Checkout\Payment\PaymentMethodStruct;
+use Shopware\Core\Checkout\Shipping\ShippingMethodStruct;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\Struct\Uuid;
-use Shopware\Core\System\Tax\TaxBasicCollection;
+use Shopware\Core\System\Tax\TaxCollection;
 
 class CheckoutContextFactory implements CheckoutContextFactoryInterface
 {
@@ -216,7 +216,7 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
             $currency,
             $customerGroup,
             $fallbackGroup,
-            new TaxBasicCollection($taxRules->getElements()),
+            new TaxCollection($taxRules->getElements()),
             $payment,
             $delivery,
             $shippingLocation,
@@ -229,7 +229,7 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
         return $context;
     }
 
-    private function getPaymentMethod(array $options, Context $context, TouchpointBasicStruct $touchpoint, ?CustomerBasicStruct $customer): PaymentMethodBasicStruct
+    private function getPaymentMethod(array $options, Context $context, TouchpointStruct $touchpoint, ?CustomerStruct $customer): PaymentMethodStruct
     {
         //payment switched in checkout?
         if (array_key_exists(CheckoutContextService::PAYMENT_METHOD_ID, $options)) {
@@ -250,7 +250,7 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
             ->get($touchpoint->getPaymentMethodId());
     }
 
-    private function getShippingMethod(array $options, Context $context, TouchpointBasicStruct $touchpoint): ShippingMethodBasicStruct
+    private function getShippingMethod(array $options, Context $context, TouchpointStruct $touchpoint): ShippingMethodStruct
     {
         $id = $touchpoint->getShippingMethodId();
         if (array_key_exists(CheckoutContextService::SHIPPING_METHOD_ID, $options)) {
@@ -294,7 +294,7 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
         );
     }
 
-    private function loadCustomer(array $options, Context $context): ?CustomerBasicStruct
+    private function loadCustomer(array $options, Context $context): ?CustomerStruct
     {
         $customerId = $options[CheckoutContextService::CUSTOMER_ID];
         $customer = $this->customerRepository->read(new ReadCriteria([$customerId]), $context)->get($customerId);
@@ -328,7 +328,7 @@ class CheckoutContextFactory implements CheckoutContextFactoryInterface
     private function loadShippingLocation(
         array $options,
         Context $context,
-        TouchpointBasicStruct $touchpoint
+        TouchpointStruct $touchpoint
     ): ShippingLocation {
         //allows to preview cart calculation for a specify state for not logged in customers
         if (array_key_exists(CheckoutContextService::STATE_ID, $options)) {

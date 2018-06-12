@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Cart\Rule;
 use Shopware\Core\Content\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Match;
 use Shopware\Core\Framework\Rule\Rule;
+
 use Shopware\Core\Framework\Rule\RuleScope;
 
 class LineItemTotalPriceRule extends Rule

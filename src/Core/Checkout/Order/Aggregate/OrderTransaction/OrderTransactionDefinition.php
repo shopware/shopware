@@ -2,8 +2,7 @@
 
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransaction;
 
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionBasicCollection;
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionBasicStruct;
+
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionState\OrderTransactionStateDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
@@ -69,13 +68,13 @@ class OrderTransactionDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getCollectionClass(): string
     {
-        return OrderTransactionBasicCollection::class;
+        return OrderTransactionCollection::class;
     }
 
-    public static function getBasicStructClass(): string
+    public static function getStructClass(): string
     {
-        return OrderTransactionBasicStruct::class;
+        return OrderTransactionStruct::class;
     }
 }

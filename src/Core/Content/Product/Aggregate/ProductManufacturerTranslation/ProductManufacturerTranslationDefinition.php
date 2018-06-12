@@ -4,8 +4,8 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation
 
 use Shopware\Core\Content\Catalog\ORM\CatalogField;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationBasicCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationBasicStruct;
+
+
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\FkField;
@@ -59,14 +59,14 @@ class ProductManufacturerTranslationDefinition extends EntityDefinition
     }
 
 
-    public static function getBasicCollectionClass(): string
+    public static function getCollectionClass(): string
     {
-        return ProductManufacturerTranslationBasicCollection::class;
+        return ProductManufacturerTranslationCollection::class;
     }
 
-    public static function getBasicStructClass(): string
+    public static function getStructClass(): string
     {
-        return ProductManufacturerTranslationBasicStruct::class;
+        return ProductManufacturerTranslationStruct::class;
     }
 
 }

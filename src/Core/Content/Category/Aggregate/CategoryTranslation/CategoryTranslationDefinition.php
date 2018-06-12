@@ -3,8 +3,8 @@
 namespace Shopware\Core\Content\Category\Aggregate\CategoryTranslation;
 
 use Shopware\Core\System\Language\LanguageDefinition;
-use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationBasicCollection;
-use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationBasicStruct;
+
+
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
@@ -61,13 +61,13 @@ class CategoryTranslationDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getCollectionClass(): string
     {
-        return CategoryTranslationBasicCollection::class;
+        return CategoryTranslationCollection::class;
     }
 
-    public static function getBasicStructClass(): string
+    public static function getStructClass(): string
     {
-        return CategoryTranslationBasicStruct::class;
+        return CategoryTranslationStruct::class;
     }
 }

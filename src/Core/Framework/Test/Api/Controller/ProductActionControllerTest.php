@@ -2,7 +2,8 @@
 
 namespace Shopware\Core\Framework\Test\Api\Controller;
 
-use Shopware\Core\Content\Product\ProductBasicStruct;
+use Shopware\Core\Content\Product\ProductStruct;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
@@ -64,10 +65,10 @@ class ProductActionControllerTest extends ApiTestCase
 
         $this->assertSame(204, $this->apiClient->getResponse()->getStatusCode());
 
-        $product = $this->productRepository->read(new ReadCriteria([$id]), Context::createDefaultContext(\Shopware\Core\Defaults::TENANT_ID))
+        $product = $this->productRepository->read(new ReadCriteria([$id]), Context::createDefaultContext(Defaults::TENANT_ID))
             ->get($id);
 
-        /** @var ProductBasicStruct $product */
+        /** @var ProductStruct $product */
         $configurators = $product->getConfigurators();
 
         $this->assertCount(2, $configurators);
@@ -98,7 +99,7 @@ class ProductActionControllerTest extends ApiTestCase
         $this->assertCount(2, $ids['data']);
 
         $products = $this->productRepository->read(new ReadCriteria($ids['data']), Context::createDefaultContext(
-            \Shopware\Core\Defaults::TENANT_ID));
+            Defaults::TENANT_ID));
 
         foreach ($products as $product) {
             $this->assertSame($id, $product->getParentId());

@@ -3,8 +3,8 @@
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderStateTranslation;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderState\OrderStateDefinition;
-use Shopware\Core\Checkout\Order\Aggregate\OrderStateTranslation\OrderStateTranslationBasicCollection;
-use Shopware\Core\Checkout\Order\Aggregate\OrderStateTranslation\OrderStateTranslationBasicStruct;
+
+
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\FkField;
@@ -50,13 +50,13 @@ class OrderStateTranslationDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getCollectionClass(): string
     {
-        return OrderStateTranslationBasicCollection::class;
+        return OrderStateTranslationCollection::class;
     }
 
-    public static function getBasicStructClass(): string
+    public static function getStructClass(): string
     {
-        return OrderStateTranslationBasicStruct::class;
+        return OrderStateTranslationStruct::class;
     }
 }

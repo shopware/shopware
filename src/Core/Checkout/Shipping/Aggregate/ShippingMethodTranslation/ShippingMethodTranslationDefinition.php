@@ -3,8 +3,8 @@
 namespace Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation;
 
 use Shopware\Core\System\Language\LanguageDefinition;
-use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationBasicCollection;
-use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationBasicStruct;
+
+
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
@@ -54,13 +54,13 @@ class ShippingMethodTranslationDefinition extends EntityDefinition
     }
 
 
-    public static function getBasicCollectionClass(): string
+    public static function getCollectionClass(): string
     {
-        return ShippingMethodTranslationBasicCollection::class;
+        return ShippingMethodTranslationCollection::class;
     }
 
-    public static function getBasicStructClass(): string
+    public static function getStructClass(): string
     {
-        return ShippingMethodTranslationBasicStruct::class;
+        return ShippingMethodTranslationStruct::class;
     }
 }

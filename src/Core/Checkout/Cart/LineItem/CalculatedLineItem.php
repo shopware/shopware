@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Cart\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\Validatable;
-use Shopware\Core\Content\Media\MediaBasicStruct;
+use Shopware\Core\Content\Media\MediaStruct;
 use Shopware\Core\Framework\Struct\Struct;
 
 class CalculatedLineItem extends Struct implements CalculatedLineItemInterface, Validatable
@@ -41,7 +41,7 @@ class CalculatedLineItem extends Struct implements CalculatedLineItemInterface, 
     protected $label;
 
     /**
-     * @var \Shopware\Core\Content\Media\MediaBasicStruct|null
+     * @var \Shopware\Core\Content\Media\MediaStruct|null
      */
     protected $cover;
 
@@ -64,7 +64,7 @@ class CalculatedLineItem extends Struct implements CalculatedLineItemInterface, 
         ?LineItemInterface $lineItem = null,
         ?Rule $rule = null,
         ?string $description = '',
-        ?MediaBasicStruct $cover = null
+        ?MediaStruct $cover = null
     ) {
         $this->identifier = $identifier;
         $this->price = $price;
@@ -112,7 +112,7 @@ class CalculatedLineItem extends Struct implements CalculatedLineItemInterface, 
         return $this->label;
     }
 
-    public function getCover(): ?MediaBasicStruct
+    public function getCover(): ?MediaStruct
     {
         return $this->cover;
     }

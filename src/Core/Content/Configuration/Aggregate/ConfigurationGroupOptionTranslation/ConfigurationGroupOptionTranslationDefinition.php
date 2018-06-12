@@ -13,8 +13,7 @@ use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOption\ConfigurationGroupOptionDefinition;
-use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOptionTranslation\ConfigurationGroupOptionTranslationBasicCollection;
-use Shopware\Core\Content\Configuration\Aggregate\ConfigurationGroupOptionTranslation\ConfigurationGroupOptionTranslationBasicStruct;
+
 
 class ConfigurationGroupOptionTranslationDefinition extends EntityDefinition
 {
@@ -51,14 +50,14 @@ class ConfigurationGroupOptionTranslationDefinition extends EntityDefinition
     }
 
 
-    public static function getBasicCollectionClass(): string
+    public static function getCollectionClass(): string
     {
-        return ConfigurationGroupOptionTranslationBasicCollection::class;
+        return ConfigurationGroupOptionTranslationCollection::class;
     }
 
-    public static function getBasicStructClass(): string
+    public static function getStructClass(): string
     {
-        return ConfigurationGroupOptionTranslationBasicStruct::class;
+        return ConfigurationGroupOptionTranslationStruct::class;
     }
 
 }

@@ -2,8 +2,7 @@
 
 namespace Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation;
 
-use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationBasicCollection;
-use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationBasicStruct;
+
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
@@ -15,6 +14,7 @@ use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
+use Shopware\Core\System\Language\LanguageDefinition;
 
 class PaymentMethodTranslationDefinition extends EntityDefinition
 {
@@ -43,21 +43,21 @@ class PaymentMethodTranslationDefinition extends EntityDefinition
         return new FieldCollection([
             (new FkField('payment_method_id', 'paymentMethodId', PaymentMethodDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new ReferenceVersionField(PaymentMethodDefinition::class))->setFlags(new PrimaryKey(), new Required()),
-            (new FkField('language_id', 'languageId', \Shopware\Core\System\Language\LanguageDefinition::class))->setFlags(new PrimaryKey(), new Required()),
+            (new FkField('language_id', 'languageId', LanguageDefinition::class))->setFlags(new PrimaryKey(), new Required()),
             (new StringField('name', 'name'))->setFlags(new Required()),
             (new LongTextField('additional_description', 'additionalDescription'))->setFlags(new Required()),
             new ManyToOneAssociationField('paymentMethod', 'payment_method_id', PaymentMethodDefinition::class, false),
-            new ManyToOneAssociationField('language', 'language_id', \Shopware\Core\System\Language\LanguageDefinition::class, false),
+            new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, false),
         ]);
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getCollectionClass(): string
     {
-        return PaymentMethodTranslationBasicCollection::class;
+        return PaymentMethodTranslationCollection::class;
     }
 
-    public static function getBasicStructClass(): string
+    public static function getStructClass(): string
     {
-        return PaymentMethodTranslationBasicStruct::class;
+        return PaymentMethodTranslationStruct::class;
     }
 }

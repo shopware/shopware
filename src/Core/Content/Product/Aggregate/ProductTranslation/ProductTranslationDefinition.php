@@ -3,8 +3,8 @@
 namespace Shopware\Core\Content\Product\Aggregate\ProductTranslation;
 
 use Shopware\Core\System\Language\LanguageDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationBasicCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationBasicStruct;
+
+
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
@@ -62,14 +62,14 @@ class ProductTranslationDefinition extends EntityDefinition
     }
 
 
-    public static function getBasicCollectionClass(): string
+    public static function getCollectionClass(): string
     {
-        return ProductTranslationBasicCollection::class;
+        return ProductTranslationCollection::class;
     }
 
-    public static function getBasicStructClass(): string
+    public static function getStructClass(): string
     {
-        return ProductTranslationBasicStruct::class;
+        return ProductTranslationStruct::class;
     }
 
 }

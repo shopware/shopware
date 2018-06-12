@@ -34,7 +34,7 @@ In addition to DeliveryDate, a ShippingLocation and a shipping method are define
 
 namespace Shopware\Core\Checkout\Cart\Delivery;
 use Shopware\Core\Framework\Struct\Struct;
-use Shopware\Core\ShippingMethod\Struct\ShippingMethodBasicStruct;
+use Shopware\Core\ShippingMethod\Struct\ShippingMethodStruct;
 
 class Delivery extends Struct
 {
@@ -49,7 +49,7 @@ class Delivery extends Struct
     protected $deliveryDate;
 
     /**
-     * @var ShippingMethodBasicStruct
+     * @var ShippingMethodStruct
      */
     protected $shippingMethod;
     
@@ -63,7 +63,7 @@ class Delivery extends Struct
         return $this->deliveryDate;
     }
 
-    public function getShippingMethod(): ShippingMethodBasicStruct
+    public function getShippingMethod(): ShippingMethodStruct
     {
         return $this->shippingMethod;
     }

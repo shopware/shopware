@@ -6,8 +6,8 @@ use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationDefinition;
-use Shopware\Core\Checkout\Payment\PaymentMethodBasicCollection;
-use Shopware\Core\Checkout\Payment\PaymentMethodBasicStruct;
+
+
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\BoolField;
@@ -94,14 +94,14 @@ class PaymentMethodDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getCollectionClass(): string
     {
-        return PaymentMethodBasicCollection::class;
+        return PaymentMethodCollection::class;
     }
 
-    public static function getBasicStructClass(): string
+    public static function getStructClass(): string
     {
-        return PaymentMethodBasicStruct::class;
+        return PaymentMethodStruct::class;
     }
 
     public static function getTranslationDefinitionClass(): ?string

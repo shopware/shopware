@@ -16,8 +16,7 @@ use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\System\Config\Aggregate\ConfigFormField\ConfigFormFieldDefinition;
-use Shopware\Core\System\Config\Aggregate\ConfigFormFieldValue\ConfigFormFieldValueBasicCollection;
-use Shopware\Core\System\Config\Aggregate\ConfigFormFieldValue\ConfigFormFieldValueBasicStruct;
+
 
 class ConfigFormFieldValueDefinition extends EntityDefinition
 {
@@ -58,13 +57,13 @@ class ConfigFormFieldValueDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getCollectionClass(): string
     {
-        return ConfigFormFieldValueBasicCollection::class;
+        return ConfigFormFieldValueCollection::class;
     }
 
-    public static function getBasicStructClass(): string
+    public static function getStructClass(): string
     {
-        return ConfigFormFieldValueBasicStruct::class;
+        return ConfigFormFieldValueStruct::class;
     }
 }

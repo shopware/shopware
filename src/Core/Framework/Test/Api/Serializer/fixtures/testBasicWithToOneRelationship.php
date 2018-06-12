@@ -1,8 +1,11 @@
 <?php declare(strict_types=1);
 
+use Shopware\Core\Content\Media\Aggregate\MediaAlbum\MediaAlbumStruct;
+use Shopware\Core\Content\Media\MediaStruct;
+
 $albumId = '6f51622e-b381-4c75-ae02-63cece27ce72';
 
-$album = new \Shopware\Core\Content\Media\Aggregate\MediaAlbum\MediaAlbumBasicStruct();
+$album = new MediaAlbumStruct();
 $album->setId($albumId);
 $album->setName('Manufacturer');
 $album->setPosition(12);
@@ -14,7 +17,7 @@ $album->setThumbnailHighDpi(true);
 $album->setThumbnailHighDpiQuality(60);
 $album->setIcon('sprite-blue-folder');
 
-$media = new \Shopware\Core\Content\Media\MediaBasicStruct();
+$media = new MediaStruct();
 $media->setId('548faa1f-7846-436c-8594-4f4aea792d96');
 $media->setAlbumId($albumId);
 $media->setFileName('teaser.jpg');

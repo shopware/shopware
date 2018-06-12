@@ -20,9 +20,9 @@ use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
-use Shopware\Core\System\Unit\UnitBasicCollection;
+
 use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationDefinition;
-use Shopware\Core\System\Unit\UnitBasicStruct;
+
 
 class UnitDefinition extends EntityDefinition
 {
@@ -61,14 +61,14 @@ class UnitDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getCollectionClass(): string
     {
-        return UnitBasicCollection::class;
+        return UnitCollection::class;
     }
 
-    public static function getBasicStructClass(): string
+    public static function getStructClass(): string
     {
-        return UnitBasicStruct::class;
+        return UnitStruct::class;
     }
 
     public static function getTranslationDefinitionClass(): ?string

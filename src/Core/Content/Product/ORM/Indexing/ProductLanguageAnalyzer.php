@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Content\Product\ORM\Indexing;
 
-use Shopware\Core\Content\Product\ORM\Indexing\ProductSearchAnalyzerInterface;
+
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Content\Product\ProductBasicStruct;
+use Shopware\Core\Content\Product\ProductStruct;
 use Shopware\Core\Framework\ORM\Search\Term\SearchFilterInterface;
 use Shopware\Core\Framework\ORM\Search\Term\TokenizerInterface;
 
@@ -26,7 +26,7 @@ class ProductLanguageAnalyzer implements ProductSearchAnalyzerInterface
         $this->filter = $filter;
     }
 
-    public function analyze(ProductBasicStruct $product, Context $context): array
+    public function analyze(ProductStruct $product, Context $context): array
     {
         $tokens = [];
         $tokens = $this->mergeTokens($tokens, $this->tokenizer->tokenize((string) $product->getName()), 500);

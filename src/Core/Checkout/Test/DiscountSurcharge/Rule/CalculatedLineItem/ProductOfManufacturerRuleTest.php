@@ -29,8 +29,8 @@ use Shopware\Core\Checkout\Cart\Rule\CalculatedLineItemScope;
 use Shopware\Core\Checkout\Cart\Rule\ProductOfManufacturerRule;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
-use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerBasicStruct;
-use Shopware\Core\Content\Product\ProductBasicStruct;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerStruct;
+use Shopware\Core\Content\Product\ProductStruct;
 use Shopware\Core\Framework\Struct\Uuid;
 
 class ProductOfManufacturerRuleTest extends TestCase
@@ -61,14 +61,14 @@ class ProductOfManufacturerRuleTest extends TestCase
         );
     }
 
-    private function createProductWithManufacturer(): ProductBasicStruct
+    private function createProductWithManufacturer(): ProductStruct
     {
         $id = Uuid::optimize(Uuid::uuid4()->getHex());
 
-        $manufacturer = new ProductManufacturerBasicStruct();
+        $manufacturer = new ProductManufacturerStruct();
         $manufacturer->setId($id);
 
-        $product = new ProductBasicStruct();
+        $product = new ProductStruct();
         $product->setManufacturer($manufacturer);
         $product->setManufacturerId($id);
 

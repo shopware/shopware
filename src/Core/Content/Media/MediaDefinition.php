@@ -6,8 +6,10 @@ use Shopware\Core\Content\Catalog\ORM\CatalogField;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaAlbum\MediaAlbumDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationDefinition;
-use Shopware\Core\Content\Media\MediaBasicCollection;
-use Shopware\Core\Content\Media\MediaBasicStruct;
+
+
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\DateField;
@@ -83,20 +85,20 @@ class MediaDefinition extends EntityDefinition
 
             (new OneToManyAssociationField('categories', CategoryDefinition::class, 'media_id', false, 'id'))->setFlags(new WriteOnly()),
             (new OneToManyAssociationField('mailAttachments', MailAttachmentDefinition::class, 'media_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
-            (new OneToManyAssociationField('productManufacturers', \Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition::class, 'media_id', false, 'id'))->setFlags(new WriteOnly()),
-            (new OneToManyAssociationField('productMedia', \Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition::class, 'media_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
+            (new OneToManyAssociationField('productManufacturers', ProductManufacturerDefinition::class, 'media_id', false, 'id'))->setFlags(new WriteOnly()),
+            (new OneToManyAssociationField('productMedia', ProductMediaDefinition::class, 'media_id', false, 'id'))->setFlags(new CascadeDelete(), new WriteOnly()),
             (new TranslationsAssociationField('translations', MediaTranslationDefinition::class, 'media_id', false, 'id'))->setFlags(new Required(), new CascadeDelete(), new WriteOnly()),
         ]);
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getCollectionClass(): string
     {
-        return MediaBasicCollection::class;
+        return MediaCollection::class;
     }
 
-    public static function getBasicStructClass(): string
+    public static function getStructClass(): string
     {
-        return MediaBasicStruct::class;
+        return MediaStruct::class;
     }
 
     public static function getTranslationDefinitionClass(): ?string

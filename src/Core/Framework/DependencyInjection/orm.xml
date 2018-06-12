@@ -168,13 +168,13 @@
         </service>
 
         <!-- Versioning -->
-        <service class="Shopware\Core\Framework\ORM\Version\Definition\VersionDefinition" id="Shopware\Core\Framework\ORM\Version\Definition\VersionDefinition" >
+        <service class="Shopware\Core\Framework\ORM\Version\Definition\VersionDefinition" id="Shopware\Core\Framework\Version\VersionDefinition" >
             <tag name="shopware.entity.definition" entity="version" />
         </service>
-        <service class="Shopware\Core\Framework\ORM\Version\Definition\VersionCommitDefinition" id="Shopware\Core\Framework\ORM\Version\Definition\VersionCommitDefinition" >
+        <service class="Shopware\Core\Framework\ORM\Version\Definition\VersionCommitDefinition" id="Shopware\Core\Framework\Version\Aggregate\VersionCommit\VersionCommitDefinition" >
             <tag name="shopware.entity.definition" entity="version_commit" />
         </service>
-        <service class="Shopware\Core\Framework\ORM\Version\Definition\VersionCommitDataDefinition" id="Shopware\Core\Framework\ORM\Version\Definition\VersionCommitDataDefinition" >
+        <service class="Shopware\Core\Framework\ORM\Version\Definition\VersionCommitDataDefinition" id="Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition" >
             <tag name="shopware.entity.definition" entity="version_commit_data" />
         </service>
 
@@ -208,7 +208,7 @@
             <argument type="service" id="event_dispatcher" />
         </service>
 
-        <service class="Shopware\Core\Framework\ORM\Version\Service\VersionManager" id="Shopware\Core\Framework\ORM\Version\Service\VersionManager">
+        <service class="Shopware\Core\Framework\ORM\Version\Service\VersionManager" id="Shopware\Core\Framework\ORM\VersionManager">
             <argument type="service" id="Shopware\Core\Framework\ORM\Write\EntityWriter"/>
             <argument type="service" id="Shopware\Core\Framework\ORM\Read\EntityReaderInterface"/>
             <argument type="service" id="Shopware\Core\Framework\ORM\Search\EntitySearcherInterface"/>

@@ -26,7 +26,7 @@ declare(strict_types=1);
 namespace Shopware\Core\Checkout\Cart\LineItem;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Core\Content\Media\MediaBasicStruct;
+use Shopware\Core\Content\Media\MediaStruct;
 
 interface CalculatedLineItemInterface extends \JsonSerializable
 {
@@ -42,7 +42,7 @@ interface CalculatedLineItemInterface extends \JsonSerializable
 
     public function getLabel(): string;
 
-    public function getCover(): ?MediaBasicStruct;
+    public function getCover(): ?MediaStruct;
 
     public function getDescription(): ?string;
 }

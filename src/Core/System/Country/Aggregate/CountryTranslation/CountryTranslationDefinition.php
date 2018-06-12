@@ -11,8 +11,8 @@ use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
-use Shopware\Core\System\Country\Aggregate\CountryTranslation\CountryTranslationBasicCollection;
-use Shopware\Core\System\Country\Aggregate\CountryTranslation\CountryTranslationBasicStruct;
+
+
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Language\LanguageDefinition;
 
@@ -50,13 +50,13 @@ class CountryTranslationDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getCollectionClass(): string
     {
-        return CountryTranslationBasicCollection::class;
+        return CountryTranslationCollection::class;
     }
 
-    public static function getBasicStructClass(): string
+    public static function getStructClass(): string
     {
-        return CountryTranslationBasicStruct::class;
+        return CountryTranslationStruct::class;
     }
 }

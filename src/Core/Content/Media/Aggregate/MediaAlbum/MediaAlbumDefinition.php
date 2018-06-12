@@ -2,8 +2,7 @@
 
 namespace Shopware\Core\Content\Media\Aggregate\MediaAlbum;
 
-use Shopware\Core\Content\Media\Aggregate\MediaAlbum\MediaAlbumBasicCollection;
-use Shopware\Core\Content\Media\Aggregate\MediaAlbum\MediaAlbumBasicStruct;
+
 use Shopware\Core\Content\Media\Aggregate\MediaAlbumTranslation\MediaAlbumTranslationDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
@@ -79,14 +78,14 @@ class MediaAlbumDefinition extends EntityDefinition
     }
 
 
-    public static function getBasicCollectionClass(): string
+    public static function getCollectionClass(): string
     {
-        return MediaAlbumBasicCollection::class;
+        return MediaAlbumCollection::class;
     }
 
-    public static function getBasicStructClass(): string
+    public static function getStructClass(): string
     {
-        return MediaAlbumBasicStruct::class;
+        return MediaAlbumStruct::class;
     }
 
     public static function getTranslationDefinitionClass(): ?string

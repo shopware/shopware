@@ -66,12 +66,12 @@ abstract class EntityDefinition
         return static::$fields;
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getCollectionClass(): string
     {
         return EntityCollection::class;
     }
 
-    public static function getBasicStructClass(): string
+    public static function getStructClass(): string
     {
         return ArrayStruct::class;
     }

@@ -3,8 +3,8 @@
 namespace Shopware\Core\Content\Media\Aggregate\MediaTranslation;
 
 use Shopware\Core\System\Language\LanguageDefinition;
-use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationBasicCollection;
-use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationBasicStruct;
+
+
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
@@ -54,14 +54,14 @@ class MediaTranslationDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getCollectionClass(): string
     {
-        return MediaTranslationBasicCollection::class;
+        return MediaTranslationCollection::class;
     }
 
 
-    public static function getBasicStructClass(): string
+    public static function getStructClass(): string
     {
-        return MediaTranslationBasicStruct::class;
+        return MediaTranslationStruct::class;
     }
 }

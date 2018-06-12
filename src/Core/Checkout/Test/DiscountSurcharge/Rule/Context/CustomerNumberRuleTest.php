@@ -27,7 +27,7 @@ namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Rule\Context;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Core\Checkout\Customer\CustomerBasicStruct;
+use Shopware\Core\Checkout\Customer\CustomerStruct;
 use Shopware\Core\Checkout\Customer\Rule\CustomerNumberRule;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 
@@ -39,7 +39,7 @@ class CustomerNumberRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $customer = new CustomerBasicStruct();
+        $customer = new CustomerStruct();
         $customer->setNumber('NO. 1');
 
         $context = $this->createMock(CheckoutContext::class);
@@ -59,7 +59,7 @@ class CustomerNumberRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $customer = new CustomerBasicStruct();
+        $customer = new CustomerStruct();
         $customer->setNumber('NO. 2');
 
         $context = $this->createMock(CheckoutContext::class);
@@ -79,7 +79,7 @@ class CustomerNumberRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $customer = new CustomerBasicStruct();
+        $customer = new CustomerStruct();
         $customer->setNumber('no. 1');
 
         $context = $this->createMock(CheckoutContext::class);
@@ -116,7 +116,7 @@ class CustomerNumberRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $customer = new CustomerBasicStruct();
+        $customer = new CustomerStruct();
         $customer->setNumber('no. 2');
 
         $context = $this->createMock(CheckoutContext::class);

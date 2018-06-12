@@ -4,8 +4,8 @@ namespace Shopware\Storefront\Page\Account;
 
 use Shopware\Core\Checkout\Context\CheckoutContextPersister;
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressBasicStruct;
-use Shopware\Core\Checkout\Customer\CustomerBasicStruct;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressStruct;
+use Shopware\Core\Checkout\Customer\CustomerStruct;
 use Shopware\Core\Checkout\Order\Exception\NotLoggedInCustomerException;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
@@ -67,7 +67,7 @@ class AccountService
         $this->contextPersister = $contextPersister;
     }
 
-    public function getCustomerByLogin(string $email, string $password, CheckoutContext $context): CustomerBasicStruct
+    public function getCustomerByLogin(string $email, string $password, CheckoutContext $context): CustomerStruct
     {
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('customer.email', $email));
@@ -80,7 +80,7 @@ class AccountService
             throw new CustomerNotFoundException($email);
         }
 
-        /** @var CustomerBasicStruct $customer */
+        /** @var CustomerStruct $customer */
         $customer = $customers->first();
 
         if (!password_verify($password, $customer->getPassword())) {
@@ -93,7 +93,7 @@ class AccountService
     /**
      * @throws \Shopware\Core\Checkout\Order\Exception\NotLoggedInCustomerException
      */
-    public function getCustomerByContext(CheckoutContext $context): CustomerBasicStruct
+    public function getCustomerByContext(CheckoutContext $context): CustomerStruct
     {
         $this->validateCustomer($context);
 
@@ -150,7 +150,7 @@ class AccountService
         $this->customerRepository->update([$data], $context->getContext());
     }
 
-    public function getAddressById(string $addressId, CheckoutContext $context): CustomerAddressBasicStruct
+    public function getAddressById(string $addressId, CheckoutContext $context): CustomerAddressStruct
     {
         return $this->validateAddressId($addressId, $context);
     }
@@ -348,7 +348,7 @@ class AccountService
         }
     }
 
-    private function validateAddressId(string $addressId, CheckoutContext $context): CustomerAddressBasicStruct
+    private function validateAddressId(string $addressId, CheckoutContext $context): CustomerAddressStruct
     {
         $addresses = $this->customerAddressRepository->read(new ReadCriteria([$addressId]), $context->getContext());
         $address = $addresses->get($addressId);

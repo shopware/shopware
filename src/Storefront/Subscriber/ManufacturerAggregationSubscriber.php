@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Subscriber;
 
-use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerBasicCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Aggregation\AggregationResult;
@@ -121,7 +121,7 @@ class ManufacturerAggregationSubscriber implements EventSubscriberInterface
 
         $actives = $filter ? $filter->getValue() : [];
 
-        /** @var ProductManufacturerBasicCollection $values */
+        /** @var ProductManufacturerCollection $values */
         $values = $aggregation->getResult();
 
         $items = [];

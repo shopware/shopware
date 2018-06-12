@@ -12,7 +12,7 @@ use Shopware\Core\Framework\ORM\Field\AssociationInterface;
 use Shopware\Core\Framework\ORM\Field\Field;
 use Shopware\Core\Framework\ORM\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
-use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
+
 
 class EntityLoadedEvent extends NestedEvent
 {
@@ -72,7 +72,7 @@ class EntityLoadedEvent extends NestedEvent
         foreach ($associations as $definition => $entities) {
 
             /** @var string|EntityDefinition $definition */
-            $collection = $definition::getBasicCollectionClass();
+            $collection = $definition::getCollectionClass();
 
             $events[] = new EntityLoadedEvent($definition, new $collection($entities), $this->context);
         }

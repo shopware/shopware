@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Test\Payment;
 
 use Doctrine\DBAL\Connection;
-use Psr\Container\ContainerInterface;
+
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
@@ -57,7 +57,7 @@ class TokenFactoryTest extends KernelTestCase
         self::bootKernel();
 
         $this->tokenFactory = self::$container->get(PaymentTransactionTokenFactory::class);
-        $this->context = Context::createDefaultContext(\Shopware\Core\Defaults::TENANT_ID);
+        $this->context = Context::createDefaultContext(Defaults::TENANT_ID);
         $this->connection = self::$container->get(Connection::class);
 
         $this->orderRepository = self::$container->get('order.repository');
@@ -74,7 +74,7 @@ class TokenFactoryTest extends KernelTestCase
         $transactionId = $this->prepare();
 
         $transactions = $this->orderTransactionRepository->read(new ReadCriteria([$transactionId]), Context:: createDefaultContext(
-            \Shopware\Core\Defaults::TENANT_ID));
+            Defaults::TENANT_ID));
 
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
         $tokenIdentifier = $this->tokenFactory->generateToken(
@@ -98,7 +98,7 @@ class TokenFactoryTest extends KernelTestCase
         $transactionId = $this->prepare();
 
         $transactions = $this->orderTransactionRepository->read(new ReadCriteria([$transactionId]), Context:: createDefaultContext(
-            \Shopware\Core\Defaults::TENANT_ID));
+            Defaults::TENANT_ID));
 
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
 
@@ -123,7 +123,7 @@ class TokenFactoryTest extends KernelTestCase
         $transactionId = $this->prepare();
 
         $transactions = $this->orderTransactionRepository->read(new ReadCriteria([$transactionId]), Context:: createDefaultContext(
-            \Shopware\Core\Defaults::TENANT_ID));
+            Defaults::TENANT_ID));
         $context = Context::createDefaultContext(Defaults::TENANT_ID);
 
         $tokenIdentifier = $this->tokenFactory->generateToken(

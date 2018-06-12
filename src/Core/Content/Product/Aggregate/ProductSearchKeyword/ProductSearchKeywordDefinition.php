@@ -3,8 +3,8 @@
 namespace Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword;
 
 use Shopware\Core\System\Language\LanguageDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordBasicCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordBasicStruct;
+
+
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
@@ -61,14 +61,14 @@ class ProductSearchKeywordDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getCollectionClass(): string
     {
-        return ProductSearchKeywordBasicCollection::class;
+        return ProductSearchKeywordCollection::class;
     }
 
-    public static function getBasicStructClass(): string
+    public static function getStructClass(): string
     {
-        return ProductSearchKeywordBasicStruct::class;
+        return ProductSearchKeywordStruct::class;
     }
 
 }

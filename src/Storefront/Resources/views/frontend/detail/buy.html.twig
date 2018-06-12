@@ -69,7 +69,7 @@
 
         {% block frontend_detail_buy_services %}
             {% set lastId = null %}
-            {# @var service \Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceBasicStruct #}
+            {# @var service \Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceStruct #}
             {% for service in product.services %}
                 {% if lastId != service.option.groupId %}
                     {% set lastId = service.option.groupId %}

@@ -29,8 +29,8 @@ use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
 use Shopware\Core\System\Country\Aggregate\CountryArea\CountryAreaDefinition;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition;
 use Shopware\Core\System\Country\Aggregate\CountryTranslation\CountryTranslationDefinition;
-use Shopware\Core\System\Country\CountryBasicCollection;
-use Shopware\Core\System\Country\CountryBasicStruct;
+
+
 use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleDefinition;
 use Shopware\Core\System\Touchpoint\TouchpointDefinition;
 
@@ -88,14 +88,14 @@ class CountryDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getCollectionClass(): string
     {
-        return CountryBasicCollection::class;
+        return CountryCollection::class;
     }
 
-    public static function getBasicStructClass(): string
+    public static function getStructClass(): string
     {
-        return CountryBasicStruct::class;
+        return CountryStruct::class;
     }
 
     public static function getTranslationDefinitionClass(): ?string

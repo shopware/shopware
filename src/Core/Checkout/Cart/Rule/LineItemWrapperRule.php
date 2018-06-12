@@ -6,6 +6,8 @@ use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Framework\Rule\Container\Container;
 use Shopware\Core\Framework\Rule\Match;
 use Shopware\Core\Framework\Rule\Rule;
+
+
 use Shopware\Core\Framework\Rule\RuleScope;
 
 class LineItemWrapperRule extends Rule

@@ -32,7 +32,7 @@ use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItemInterface;
 use Shopware\Core\Checkout\Cart\LineItem\NestedInterface;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
 use Shopware\Core\Checkout\Cart\Transaction\Struct\Transaction;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressBasicStruct;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressStruct;
 use Shopware\Core\Checkout\Order\Exception\CustomerHasNoActiveBillingAddressException;
 use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
 use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
@@ -172,7 +172,7 @@ class OrderPersister implements OrderPersisterInterface
         return $data;
     }
 
-    private function convertAddress(CustomerAddressBasicStruct $address): array
+    private function convertAddress(CustomerAddressStruct $address): array
     {
         return array_filter([
             'company' => $address->getCompany(),

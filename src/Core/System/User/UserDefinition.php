@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\User;
 
+use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\BoolField;
@@ -20,8 +21,7 @@ use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Core\System\Locale\LocaleDefinition;
-use Shopware\Core\System\User\UserBasicCollection;
-use Shopware\Core\System\User\UserBasicStruct;
+
 
 class UserDefinition extends EntityDefinition
 {
@@ -69,17 +69,17 @@ class UserDefinition extends EntityDefinition
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
             new ManyToOneAssociationField('locale', 'locale_id', LocaleDefinition::class, false),
-            new OneToManyAssociationField('media', \Shopware\Core\Content\Media\MediaDefinition::class, 'user_id', false, 'id'),
+            new OneToManyAssociationField('media', MediaDefinition::class, 'user_id', false, 'id'),
         ]);
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getCollectionClass(): string
     {
-        return UserBasicCollection::class;
+        return UserCollection::class;
     }
 
-    public static function getBasicStructClass(): string
+    public static function getStructClass(): string
     {
-        return UserBasicStruct::class;
+        return UserStruct::class;
     }
 }

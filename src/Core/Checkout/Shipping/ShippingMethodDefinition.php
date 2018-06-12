@@ -5,8 +5,8 @@ namespace Shopware\Core\Checkout\Shipping;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceDefinition;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationDefinition;
-use Shopware\Core\Checkout\Shipping\ShippingMethodBasicCollection;
-use Shopware\Core\Checkout\Shipping\ShippingMethodBasicStruct;
+
+
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\BoolField;
@@ -93,14 +93,14 @@ class ShippingMethodDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getCollectionClass(): string
     {
-        return ShippingMethodBasicCollection::class;
+        return ShippingMethodCollection::class;
     }
 
-    public static function getBasicStructClass(): string
+    public static function getStructClass(): string
     {
-        return ShippingMethodBasicStruct::class;
+        return ShippingMethodStruct::class;
     }
 
     public static function getTranslationDefinitionClass(): ?string

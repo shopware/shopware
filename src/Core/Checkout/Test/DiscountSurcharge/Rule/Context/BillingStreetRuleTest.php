@@ -27,8 +27,8 @@ namespace Shopware\Core\Checkout\Test\DiscountSurcharge\Rule\Context;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressBasicStruct;
-use Shopware\Core\Checkout\Customer\CustomerBasicStruct;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressStruct;
+use Shopware\Core\Checkout\Customer\CustomerStruct;
 use Shopware\Core\Checkout\Customer\Rule\BillingStreetRule;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 
@@ -42,10 +42,10 @@ class BillingStreetRuleTest extends TestCase
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $billing = new CustomerAddressBasicStruct();
+        $billing = new CustomerAddressStruct();
         $billing->setStreet('example street');
 
-        $customer = new CustomerBasicStruct();
+        $customer = new CustomerStruct();
         $customer->setDefaultBillingAddress($billing);
 
         $context->expects($this->any())
@@ -65,10 +65,10 @@ class BillingStreetRuleTest extends TestCase
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $billing = new CustomerAddressBasicStruct();
+        $billing = new CustomerAddressStruct();
         $billing->setStreet('example street');
 
-        $customer = new CustomerBasicStruct();
+        $customer = new CustomerStruct();
         $customer->setDefaultBillingAddress($billing);
 
         $context->expects($this->any())
@@ -88,10 +88,10 @@ class BillingStreetRuleTest extends TestCase
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $billing = new CustomerAddressBasicStruct();
+        $billing = new CustomerAddressStruct();
         $billing->setStreet('test street');
 
-        $customer = new CustomerBasicStruct();
+        $customer = new CustomerStruct();
         $customer->setDefaultBillingAddress($billing);
 
         $context->expects($this->any())

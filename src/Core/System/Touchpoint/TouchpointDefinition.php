@@ -2,8 +2,9 @@
 
 namespace Shopware\Core\System\Touchpoint;
 
-use Shopware\Core\System\Touchpoint\TouchpointBasicCollection;
-use Shopware\Core\System\Touchpoint\TouchpointBasicStruct;
+
+use Shopware\Core\System\Country\CountryDefinition;
+use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
@@ -58,14 +59,14 @@ class TouchpointDefinition extends EntityDefinition
             new TenantIdField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('language_id', 'languageId', LanguageDefinition::class))->setFlags(new Required()),
-            (new FkField('currency_id', 'currencyId', \Shopware\Core\System\Currency\CurrencyDefinition::class))->setFlags(new Required()),
-            new ReferenceVersionField(\Shopware\Core\System\Currency\CurrencyDefinition::class),
+            (new FkField('currency_id', 'currencyId', CurrencyDefinition::class))->setFlags(new Required()),
+            new ReferenceVersionField(CurrencyDefinition::class),
             (new FkField('payment_method_id', 'paymentMethodId', PaymentMethodDefinition::class))->setFlags(new Required()),
             new ReferenceVersionField(PaymentMethodDefinition::class),
             (new FkField('shipping_method_id', 'shippingMethodId', ShippingMethodDefinition::class))->setFlags(new Required()),
-            new ReferenceVersionField(\Shopware\Core\Checkout\Shipping\ShippingMethodDefinition::class),
-            (new FkField('country_id', 'countryId', \Shopware\Core\System\Country\CountryDefinition::class))->setFlags(new Required()),
-            new ReferenceVersionField(\Shopware\Core\System\Country\CountryDefinition::class),
+            new ReferenceVersionField(ShippingMethodDefinition::class),
+            (new FkField('country_id', 'countryId', CountryDefinition::class))->setFlags(new Required()),
+            new ReferenceVersionField(CountryDefinition::class),
             (new StringField('type', 'type'))->setFlags(new Required()),
             (new StringField('name', 'name'))->setFlags(new Required()),
             (new StringField('access_key', 'accessKey'))->setFlags(new Required()),
@@ -79,20 +80,20 @@ class TouchpointDefinition extends EntityDefinition
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
             new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, true),
-            new ManyToOneAssociationField('currency', 'currency_id', \Shopware\Core\System\Currency\CurrencyDefinition::class, true),
+            new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, true),
             new ManyToOneAssociationField('paymentMethod', 'payment_method_id', PaymentMethodDefinition::class, false),
             new ManyToOneAssociationField('shippingMethod', 'shipping_method_id', ShippingMethodDefinition::class, false),
-            new ManyToOneAssociationField('country', 'country_id', \Shopware\Core\System\Country\CountryDefinition::class, false),
+            new ManyToOneAssociationField('country', 'country_id', CountryDefinition::class, false),
         ]);
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getCollectionClass(): string
     {
-        return TouchpointBasicCollection::class;
+        return TouchpointCollection::class;
     }
 
-    public static function getBasicStructClass(): string
+    public static function getStructClass(): string
     {
-        return TouchpointBasicStruct::class;
+        return TouchpointStruct::class;
     }
 }

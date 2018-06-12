@@ -31,19 +31,19 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Content\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Checkout\Customer\Rule\ShippingCountryRule;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
-use Shopware\Core\System\Country\CountryBasicStruct;
+use Shopware\Core\System\Country\CountryStruct;
 
 class ShippingCountryRuleTest extends TestCase
 {
     public function testEquals(): void
     {
-        $rule = new \Shopware\Core\Checkout\Customer\Rule\ShippingCountryRule(['SWAG-AREA-COUNTRY-ID-1'], \Shopware\Core\Checkout\Customer\Rule\ShippingCountryRule::OPERATOR_EQ);
+        $rule = new ShippingCountryRule(['SWAG-AREA-COUNTRY-ID-1'], ShippingCountryRule::OPERATOR_EQ);
 
         $cart = $this->createMock(CalculatedCart::class);
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $country = new CountryBasicStruct();
+        $country = new CountryStruct();
         $country->setId('SWAG-AREA-COUNTRY-ID-1');
 
         $context->expects($this->any())
@@ -63,7 +63,7 @@ class ShippingCountryRuleTest extends TestCase
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $country = new CountryBasicStruct();
+        $country = new CountryStruct();
         $country->setId('SWAG-AREA-COUNTRY-ID-1');
 
         $context->expects($this->any())
@@ -77,13 +77,13 @@ class ShippingCountryRuleTest extends TestCase
 
     public function testEqualsWithMultipleCountries(): void
     {
-        $rule = new \Shopware\Core\Checkout\Customer\Rule\ShippingCountryRule(['SWAG-AREA-COUNTRY-ID-1', 'SWAG-AREA-COUNTRY-ID-2', 'SWAG-AREA-COUNTRY-ID-3'], ShippingCountryRule::OPERATOR_EQ);
+        $rule = new ShippingCountryRule(['SWAG-AREA-COUNTRY-ID-1', 'SWAG-AREA-COUNTRY-ID-2', 'SWAG-AREA-COUNTRY-ID-3'], ShippingCountryRule::OPERATOR_EQ);
 
         $cart = $this->createMock(CalculatedCart::class);
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $country = new CountryBasicStruct();
+        $country = new CountryStruct();
         $country->setId('SWAG-AREA-COUNTRY-ID-2');
 
         $context->expects($this->any())
@@ -97,13 +97,13 @@ class ShippingCountryRuleTest extends TestCase
 
     public function testNotEqualsWithMultipleCountries(): void
     {
-        $rule = new \Shopware\Core\Checkout\Customer\Rule\ShippingCountryRule(['SWAG-AREA-COUNTRY-ID-1', 'SWAG-AREA-COUNTRY-ID-2', 'SWAG-AREA-COUNTRY-ID-3'], \Shopware\Core\Checkout\Customer\Rule\ShippingCountryRule::OPERATOR_NEQ);
+        $rule = new ShippingCountryRule(['SWAG-AREA-COUNTRY-ID-1', 'SWAG-AREA-COUNTRY-ID-2', 'SWAG-AREA-COUNTRY-ID-3'], ShippingCountryRule::OPERATOR_NEQ);
 
         $cart = $this->createMock(CalculatedCart::class);
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $country = new CountryBasicStruct();
+        $country = new CountryStruct();
         $country->setId('SWAG-AREA-COUNTRY-ID-2');
 
         $context->expects($this->any())
@@ -124,13 +124,13 @@ class ShippingCountryRuleTest extends TestCase
      */
     public function testUnsupportedOperators(string $operator): void
     {
-        $rule = new \Shopware\Core\Checkout\Customer\Rule\ShippingCountryRule(['SWAG-AREA-COUNTRY-ID-1', 'SWAG-AREA-COUNTRY-ID-2', 'SWAG-AREA-COUNTRY-ID-3'], $operator);
+        $rule = new ShippingCountryRule(['SWAG-AREA-COUNTRY-ID-1', 'SWAG-AREA-COUNTRY-ID-2', 'SWAG-AREA-COUNTRY-ID-3'], $operator);
 
         $cart = $this->createMock(CalculatedCart::class);
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $country = new CountryBasicStruct();
+        $country = new CountryStruct();
         $country->setId('SWAG-AREA-COUNTRY-ID-2');
 
         $context->expects($this->any())
@@ -142,13 +142,13 @@ class ShippingCountryRuleTest extends TestCase
 
     public function testUnsupportedOperatorMessage(): void
     {
-        $rule = new \Shopware\Core\Checkout\Customer\Rule\ShippingCountryRule(['SWAG-AREA-COUNTRY-ID-1', 'SWAG-AREA-COUNTRY-ID-2', 'SWAG-AREA-COUNTRY-ID-3'], \Shopware\Core\Checkout\Customer\Rule\ShippingCountryRule::OPERATOR_GTE);
+        $rule = new ShippingCountryRule(['SWAG-AREA-COUNTRY-ID-1', 'SWAG-AREA-COUNTRY-ID-2', 'SWAG-AREA-COUNTRY-ID-3'], ShippingCountryRule::OPERATOR_GTE);
 
         $cart = $this->createMock(CalculatedCart::class);
 
         $context = $this->createMock(CheckoutContext::class);
 
-        $country = new CountryBasicStruct();
+        $country = new CountryStruct();
         $country->setId('SWAG-AREA-COUNTRY-ID-2');
 
         $context->expects($this->any())
@@ -158,8 +158,8 @@ class ShippingCountryRuleTest extends TestCase
         try {
             $rule->match(new CartRuleScope($cart, $context));
         } catch (UnsupportedOperatorException $e) {
-            $this->assertSame(\Shopware\Core\Checkout\Customer\Rule\ShippingCountryRule::OPERATOR_GTE, $e->getOperator());
-            $this->assertSame(\Shopware\Core\Checkout\Customer\Rule\ShippingCountryRule::class, $e->getClass());
+            $this->assertSame(ShippingCountryRule::OPERATOR_GTE, $e->getOperator());
+            $this->assertSame(ShippingCountryRule::class, $e->getClass());
         }
     }
 
@@ -169,7 +169,7 @@ class ShippingCountryRuleTest extends TestCase
             [true],
             [false],
             [''],
-            [\Shopware\Core\Checkout\Customer\Rule\ShippingCountryRule::OPERATOR_GTE],
+            [ShippingCountryRule::OPERATOR_GTE],
             [ShippingCountryRule::OPERATOR_LTE],
         ];
     }

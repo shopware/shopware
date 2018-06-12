@@ -7,7 +7,7 @@ use Shopware\Core\Framework\ORM\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\EntitySearchResult;
-use Shopware\Core\Framework\ORM\Search\SearchResultInterface;
+
 
 interface RepositoryInterface
 {

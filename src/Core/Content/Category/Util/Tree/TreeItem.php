@@ -2,27 +2,27 @@
 
 namespace Shopware\Core\Content\Category\Util\Tree;
 
-use Shopware\Core\Content\Category\CategoryBasicStruct;
+use Shopware\Core\Content\Category\CategoryStruct;
 
 class TreeItem
 {
     /**
-     * @var \Shopware\Core\Content\Category\CategoryBasicStruct
+     * @var \Shopware\Core\Content\Category\CategoryStruct
      */
     protected $category;
 
     /**
-     * @var \Shopware\Core\Content\Category\CategoryBasicStruct[]
+     * @var \Shopware\Core\Content\Category\CategoryStruct[]
      */
     protected $children;
 
-    public function __construct(CategoryBasicStruct $category, array $children)
+    public function __construct(CategoryStruct $category, array $children)
     {
         $this->category = $category;
         $this->children = $children;
     }
 
-    public function getCategory(): CategoryBasicStruct
+    public function getCategory(): CategoryStruct
     {
         return $this->category;
     }

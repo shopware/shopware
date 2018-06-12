@@ -2,8 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductService;
 
-use Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceBasicCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductService\ProductServiceBasicStruct;
+
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
@@ -64,13 +63,13 @@ class ProductServiceDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getCollectionClass(): string
     {
-        return ProductServiceBasicCollection::class;
+        return ProductServiceCollection::class;
     }
 
-    public static function getBasicStructClass(): string
+    public static function getStructClass(): string
     {
-        return ProductServiceBasicStruct::class;
+        return ProductServiceStruct::class;
     }
 }

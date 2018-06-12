@@ -25,6 +25,8 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\DependencyInjection;
 
+
+use Shopware\Core\Framework\Event\TraceableNestedEventDispatcher;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 

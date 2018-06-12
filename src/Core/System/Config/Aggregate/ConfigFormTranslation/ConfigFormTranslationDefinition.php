@@ -14,8 +14,8 @@ use Shopware\Core\Framework\ORM\Field\VersionField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
-use Shopware\Core\System\Config\Aggregate\ConfigFormTranslation\ConfigFormTranslationBasicCollection;
-use Shopware\Core\System\Config\Aggregate\ConfigFormTranslation\ConfigFormTranslationBasicStruct;
+
+
 use Shopware\Core\System\Config\ConfigFormDefinition;
 use Shopware\Core\System\Locale\LocaleDefinition;
 
@@ -61,13 +61,13 @@ class ConfigFormTranslationDefinition extends EntityDefinition
     }
 
 
-    public static function getBasicCollectionClass(): string
+    public static function getCollectionClass(): string
     {
-        return ConfigFormTranslationBasicCollection::class;
+        return ConfigFormTranslationCollection::class;
     }
 
-    public static function getBasicStructClass(): string
+    public static function getStructClass(): string
     {
-        return ConfigFormTranslationBasicStruct::class;
+        return ConfigFormTranslationStruct::class;
     }
 }

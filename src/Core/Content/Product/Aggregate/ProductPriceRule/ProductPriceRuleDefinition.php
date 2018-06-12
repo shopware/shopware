@@ -3,8 +3,8 @@
 namespace Shopware\Core\Content\Product\Aggregate\ProductPriceRule;
 
 use Shopware\Core\Content\Rule\RuleDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleBasicCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductPriceRule\ProductPriceRuleBasicStruct;
+
+
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
@@ -66,15 +66,15 @@ class ProductPriceRuleDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getCollectionClass(): string
     {
-        return ProductPriceRuleBasicCollection::class;
+        return ProductPriceRuleCollection::class;
     }
 
 
-    public static function getBasicStructClass(): string
+    public static function getStructClass(): string
     {
-        return ProductPriceRuleBasicStruct::class;
+        return ProductPriceRuleStruct::class;
     }
 
 }

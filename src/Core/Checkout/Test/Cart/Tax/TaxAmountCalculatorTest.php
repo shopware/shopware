@@ -25,7 +25,7 @@
 namespace Shopware\Core\Checkout\Test\Cart\Tax;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\System\Touchpoint\TouchpointBasicStruct;
+use Shopware\Core\System\Touchpoint\TouchpointStruct;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Price\PriceRounding;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
@@ -54,7 +54,7 @@ class TaxAmountCalculatorTest extends TestCase
      */
     public function testCalculation(string $calculationType, TaxDetector $taxDetector, CalculatedPriceCollection $prices, CalculatedTaxCollection $expected): void
     {
-        $shop = $this->createMock(TouchpointBasicStruct::class);
+        $shop = $this->createMock(TouchpointStruct::class);
         $shop->method('getTaxCalculationType')->will($this->returnValue($calculationType));
 
         $context = $this->createMock(CheckoutContext::class);

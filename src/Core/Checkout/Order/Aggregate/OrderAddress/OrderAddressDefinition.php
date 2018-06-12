@@ -2,8 +2,7 @@
 
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderAddress;
 
-use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressBasicCollection;
-use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressBasicStruct;
+
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
@@ -22,6 +21,8 @@ use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
+use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition;
+use Shopware\Core\System\Country\CountryDefinition;
 
 class OrderAddressDefinition extends EntityDefinition
 {
@@ -52,11 +53,11 @@ class OrderAddressDefinition extends EntityDefinition
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             new VersionField(),
 
-            (new FkField('country_id', 'countryId', \Shopware\Core\System\Country\CountryDefinition::class))->setFlags(new Required()),
-            (new ReferenceVersionField(\Shopware\Core\System\Country\CountryDefinition::class))->setFlags(new Required()),
+            (new FkField('country_id', 'countryId', CountryDefinition::class))->setFlags(new Required()),
+            (new ReferenceVersionField(CountryDefinition::class))->setFlags(new Required()),
 
-            new FkField('country_state_id', 'countryStateId', \Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition::class),
-            new ReferenceVersionField(\Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition::class),
+            new FkField('country_state_id', 'countryStateId', CountryStateDefinition::class),
+            new ReferenceVersionField(CountryStateDefinition::class),
 
             (new StringField('salutation', 'salutation'))->setFlags(new Required()),
             (new StringField('first_name', 'firstName'))->setFlags(new Required(), new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
@@ -73,20 +74,20 @@ class OrderAddressDefinition extends EntityDefinition
             (new StringField('additional_address_line2', 'additionalAddressLine2'))->setFlags(new SearchRanking(self::MIDDLE_SEARCH_RANKING)),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            (new ManyToOneAssociationField('country', 'country_id', \Shopware\Core\System\Country\CountryDefinition::class, true))->setFlags(new SearchRanking(self::ASSOCIATION_SEARCH_RANKING)),
-            (new ManyToOneAssociationField('countryState', 'country_state_id', \Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition::class, true))->setFlags(new SearchRanking(self::ASSOCIATION_SEARCH_RANKING)),
+            (new ManyToOneAssociationField('country', 'country_id', CountryDefinition::class, true))->setFlags(new SearchRanking(self::ASSOCIATION_SEARCH_RANKING)),
+            (new ManyToOneAssociationField('countryState', 'country_state_id', CountryStateDefinition::class, true))->setFlags(new SearchRanking(self::ASSOCIATION_SEARCH_RANKING)),
             (new OneToManyAssociationField('orders', OrderDefinition::class, 'billing_address_id', false, 'id'))->setFlags(new RestrictDelete()),
             (new OneToManyAssociationField('orderDeliveries', OrderDeliveryDefinition::class, 'shipping_address_id', false, 'id'))->setFlags(new RestrictDelete()),
         ]);
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getCollectionClass(): string
     {
-        return OrderAddressBasicCollection::class;
+        return OrderAddressCollection::class;
     }
 
-    public static function getBasicStructClass(): string
+    public static function getStructClass(): string
     {
-        return OrderAddressBasicStruct::class;
+        return OrderAddressStruct::class;
     }
 }

@@ -26,8 +26,7 @@ use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Core\System\Mail\Aggregate\MailAttachment\MailAttachmentDefinition;
 use Shopware\Core\System\Mail\Aggregate\MailTranslation\MailTranslationDefinition;
-use Shopware\Core\System\Mail\MailBasicCollection;
-use Shopware\Core\System\Mail\MailBasicStruct;
+
 
 class MailDefinition extends EntityDefinition
 {
@@ -78,14 +77,14 @@ class MailDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getCollectionClass(): string
     {
-        return MailBasicCollection::class;
+        return MailCollection::class;
     }
 
-    public static function getBasicStructClass(): string
+    public static function getStructClass(): string
     {
-        return MailBasicStruct::class;
+        return MailStruct::class;
     }
 
     public static function getTranslationDefinitionClass(): ?string

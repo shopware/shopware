@@ -2,8 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductConfigurator;
 
-use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorBasicCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductConfigurator\ProductConfiguratorBasicStruct;
+
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
@@ -61,15 +60,15 @@ class ProductConfiguratorDefinition extends EntityDefinition
     }
 
 
-    public static function getBasicCollectionClass(): string
+    public static function getCollectionClass(): string
     {
-        return ProductConfiguratorBasicCollection::class;
+        return ProductConfiguratorCollection::class;
     }
 
 
-    public static function getBasicStructClass(): string
+    public static function getStructClass(): string
     {
-        return ProductConfiguratorBasicStruct::class;
+        return ProductConfiguratorStruct::class;
     }
 
 }

@@ -4,8 +4,8 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductMedia;
 
 use Shopware\Core\Content\Catalog\ORM\CatalogField;
 use Shopware\Core\Content\Media\MediaDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaBasicCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaBasicStruct;
+
+
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
@@ -67,15 +67,15 @@ class ProductMediaDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getCollectionClass(): string
     {
-        return ProductMediaBasicCollection::class;
+        return ProductMediaCollection::class;
     }
 
 
-    public static function getBasicStructClass(): string
+    public static function getStructClass(): string
     {
-        return ProductMediaBasicStruct::class;
+        return ProductMediaStruct::class;
     }
 
 }

@@ -65,7 +65,7 @@ class OrderingProcessTest extends ApiTestCase
         $orderId = $this->payOrder();
         self::assertTrue(\Shopware\Core\Framework\Struct\Uuid::isValid($orderId));
 
-        $order = $this->orderRepository->read(new ReadCriteria([$orderId]), Context::createDefaultContext(\Shopware\Core\Defaults::TENANT_ID))->get($orderId);
+        $order = $this->orderRepository->read(new ReadCriteria([$orderId]), Context::createDefaultContext(Defaults::TENANT_ID))->get($orderId);
 
         self::assertEquals(Defaults::PAYMENT_METHOD_PAID_IN_ADVANCE, $order->getPaymentMethodId());
         self::assertEquals(25, $order->getAmountTotal());
@@ -180,7 +180,7 @@ class OrderingProcessTest extends ApiTestCase
         $this->entityWriter->upsert(
             CustomerDefinition::class,
             [$customer],
-            WriteContext::createFromContext(Context::createDefaultContext(\Shopware\Core\Defaults::TENANT_ID))
+            WriteContext::createFromContext(Context::createDefaultContext(Defaults::TENANT_ID))
         );
 
         return $customerId;

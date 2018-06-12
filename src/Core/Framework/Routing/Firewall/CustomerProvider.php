@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Routing\Firewall;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Checkout\Customer\CustomerBasicStruct;
+use Shopware\Core\Checkout\Customer\CustomerStruct;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
@@ -47,7 +47,7 @@ class CustomerProvider implements UserProviderInterface
             );
         }
 
-        /** @var CustomerBasicStruct $customer */
+        /** @var CustomerStruct $customer */
         $customer = $customerResult->first();
 
         $customerUser = new CustomerUser($customer->getEmail(), $customer->getPassword(), null, ['IS_AUTHENTICATED_FULLY', 'ROLE_CUSTOMER']);

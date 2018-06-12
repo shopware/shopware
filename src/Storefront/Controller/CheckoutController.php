@@ -10,7 +10,7 @@ use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Context\CheckoutContextPersister;
 use Shopware\Core\Checkout\Context\CheckoutContextService;
 use Shopware\Core\Checkout\Cart\Storefront\CartService;
-use Shopware\Core\Checkout\Order\OrderBasicStruct;
+use Shopware\Core\Checkout\Order\OrderStruct;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionChainProcessor;
 use Shopware\Core\Checkout\Payment\Cart\Token\PaymentTransactionTokenFactory;
@@ -266,7 +266,7 @@ class CheckoutController extends StorefrontController
         ]);
     }
 
-    private function getOrder(string $orderId, CheckoutContext $context): OrderBasicStruct
+    private function getOrder(string $orderId, CheckoutContext $context): OrderStruct
     {
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('order.customer.id', $context->getCustomer()->getId()));

@@ -28,8 +28,8 @@ namespace Shopware\Core\Checkout\Customer\Cart;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Cart\CartCollectorInterface;
 use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\CustomerGroupDiscountBasicCollection;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\CustomerGroupDiscountBasicStruct;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\CustomerGroupDiscountCollection;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\CustomerGroupDiscountStruct;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
@@ -68,7 +68,7 @@ class CustomerGroupDiscountCartCollector implements CartCollectorInterface
         );
         $discounts = $this->customerGroupDiscountRepository->search($criteria, $context->getContext());
 
-        $discounts->sort(function (CustomerGroupDiscountBasicStruct $a, CustomerGroupDiscountBasicStruct $b) {
+        $discounts->sort(function (CustomerGroupDiscountStruct $a, CustomerGroupDiscountStruct $b) {
             if ($a->getMinimumCartAmount() !== $b->getMinimumCartAmount()) {
                 return -1;
             }
@@ -76,7 +76,7 @@ class CustomerGroupDiscountCartCollector implements CartCollectorInterface
             return $a->getMinimumCartAmount() > $b->getMinimumCartAmount();
         });
 
-        $dataCollection->add(new CustomerGroupDiscountBasicCollection($discounts->getElements()),
+        $dataCollection->add(new CustomerGroupDiscountCollection($discounts->getElements()),
             CustomerGroupDiscountProcessor::class
         );
     }

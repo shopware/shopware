@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\Rule\Container\AndRule;
-use Shopware\Core\Content\Product\ProductBasicStruct;
+use Shopware\Core\Content\Product\ProductStruct;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -79,7 +79,7 @@ class EntityReaderTest extends KernelTestCase
         $this->assertTrue($products->has($redId));
         $this->assertTrue($products->has($greenId));
 
-        /** @var \Shopware\Core\Content\Product\ProductBasicStruct $red */
+        /** @var \Shopware\Core\Content\Product\ProductStruct $red */
         $red = $products->get($redId);
 
         $this->assertTrue($red->hasExtension('inherited'));
@@ -91,7 +91,7 @@ class EntityReaderTest extends KernelTestCase
         $this->assertTrue($inheritance->get('unitId'));
         $this->assertTrue($inheritance->get('taxId'));
 
-        /** @var \Shopware\Core\Content\Product\ProductBasicStruct $green */
+        /** @var \Shopware\Core\Content\Product\ProductStruct $green */
         $green = $products->get($greenId);
         $inheritance = $green->getExtension('inherited');
         $this->assertFalse($inheritance->get('taxId'));
@@ -155,7 +155,7 @@ class EntityReaderTest extends KernelTestCase
         $this->assertTrue($products->has($redId));
         $this->assertTrue($products->has($greenId));
 
-        /** @var ProductBasicStruct $red */
+        /** @var ProductStruct $red */
         $red = $products->get($redId);
 
         $this->assertTrue($red->hasExtension('inherited'));
@@ -167,7 +167,7 @@ class EntityReaderTest extends KernelTestCase
         $this->assertTrue($inheritance->get('unitId'));
         $this->assertTrue($inheritance->get('priceRules'));
 
-        /** @var ProductBasicStruct $green */
+        /** @var ProductStruct $green */
         $green = $products->get($greenId);
         $inheritance = $green->getExtension('inherited');
         $this->assertFalse($inheritance->get('priceRules'));
@@ -206,7 +206,7 @@ class EntityReaderTest extends KernelTestCase
         $this->assertTrue($products->has($redId));
         $this->assertTrue($products->has($greenId));
 
-        /** @var ProductBasicStruct $red */
+        /** @var ProductStruct $red */
         $red = $products->get($redId);
 
         /* @var ArrayStruct $translated */
@@ -223,7 +223,7 @@ class EntityReaderTest extends KernelTestCase
         $this->assertFalse($translated->get('description'));
         $this->assertTrue($inheritance->get('description'));
 
-        /** @var \Shopware\Core\Content\Product\ProductBasicStruct $green */
+        /** @var \Shopware\Core\Content\Product\ProductStruct $green */
         $green = $products->get($greenId);
 
         $this->assertTrue($green->hasExtension('translated'));

@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Test\Cart\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\CalculatedLineItemInterface;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Core\Content\Media\MediaBasicStruct;
+use Shopware\Core\Content\Media\MediaStruct;
 
 class CustomLineItem implements CalculatedLineItemInterface
 {
@@ -78,7 +78,7 @@ class CustomLineItem implements CalculatedLineItemInterface
         return $this->label;
     }
 
-    public function getCover(): ?MediaBasicStruct
+    public function getCover(): ?MediaStruct
     {
         return null;
     }

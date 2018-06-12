@@ -34,7 +34,7 @@ use Shopware\Core\Checkout\Cart\Price\PriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
-use Shopware\Core\Checkout\Shipping\ShippingMethodBasicStruct;
+use Shopware\Core\Checkout\Shipping\ShippingMethodStruct;
 use Shopware\Core\Framework\Struct\Uuid;
 
 class DeliveryCalculator
@@ -137,7 +137,7 @@ class DeliveryCalculator
         return $this->priceCalculator->calculate($definition, $context);
     }
 
-    private function findShippingCosts(ShippingMethodBasicStruct $shippingMethod, float $value, Context $context): float
+    private function findShippingCosts(ShippingMethodStruct $shippingMethod, float $value, Context $context): float
     {
         $query = $this->connection->createQueryBuilder();
         $query->select('costs.price');

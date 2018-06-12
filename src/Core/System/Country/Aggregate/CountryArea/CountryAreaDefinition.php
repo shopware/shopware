@@ -19,8 +19,8 @@ use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
-use Shopware\Core\System\Country\Aggregate\CountryArea\CountryAreaBasicCollection;
-use Shopware\Core\System\Country\Aggregate\CountryArea\CountryAreaBasicStruct;
+
+
 use Shopware\Core\System\Country\Aggregate\CountryAreaTranslation\CountryAreaTranslationDefinition;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleDefinition;
@@ -63,14 +63,14 @@ class CountryAreaDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getCollectionClass(): string
     {
-        return CountryAreaBasicCollection::class;
+        return CountryAreaCollection::class;
     }
 
-    public static function getBasicStructClass(): string
+    public static function getStructClass(): string
     {
-        return CountryAreaBasicStruct::class;
+        return CountryAreaStruct::class;
     }
 
     public static function getTranslationDefinitionClass(): ?string

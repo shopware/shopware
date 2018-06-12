@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Country\Aggregate\CountryAreaTranslation;
 
+use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\FkField;
@@ -12,7 +13,7 @@ use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\System\Country\Aggregate\CountryArea\CountryAreaDefinition;
-use Shopware\Core\System\Language\LanguageDefinition;
+
 
 class CountryAreaTranslationDefinition extends EntityDefinition
 {
@@ -49,13 +50,13 @@ class CountryAreaTranslationDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getCollectionClass(): string
     {
-        return CountryAreaTranslationBasicCollection::class;
+        return CountryAreaTranslationCollection::class;
     }
 
-    public static function getBasicStructClass(): string
+    public static function getStructClass(): string
     {
-        return CountryAreaTranslationBasicStruct::class;
+        return CountryAreaTranslationStruct::class;
     }
 }

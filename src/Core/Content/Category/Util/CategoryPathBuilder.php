@@ -4,8 +4,8 @@ namespace Shopware\Core\Content\Category\Util;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Content\Category\CategoryBasicCollection;
-use Shopware\Core\Content\Category\CategoryBasicStruct;
+use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\Category\CategoryStruct;
 use Shopware\Core\Framework\ORM\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\ORM\Read\ReadCriteria;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
@@ -65,7 +65,7 @@ class CategoryPathBuilder implements EventSubscriberInterface
         $this->updateRecursive($parent, $parents, $context);
     }
 
-    private function updateRecursive(CategoryBasicStruct $parent, CategoryBasicCollection $parents, Context $context): void
+    private function updateRecursive(CategoryStruct $parent, CategoryCollection $parents, Context $context): void
     {
         $categories = $this->updateByParent($parent, $parents, $context);
         foreach ($categories as $category) {
@@ -75,7 +75,7 @@ class CategoryPathBuilder implements EventSubscriberInterface
         }
     }
 
-    private function updateByParent(CategoryBasicStruct $parent, CategoryBasicCollection $parents, Context $context): CategoryBasicCollection
+    private function updateByParent(CategoryStruct $parent, CategoryCollection $parents, Context $context): CategoryCollection
     {
         $criteria = new Criteria();
         $criteria->addFilter(new TermQuery('category.parentId', $parent->getId()));
@@ -87,12 +87,12 @@ class CategoryPathBuilder implements EventSubscriberInterface
         $version = Uuid::fromStringToBytes($context->getVersionId());
         $tenantId = Uuid::fromHexToBytes($context->getTenantId());
 
-        /** @var \Shopware\Core\Content\Category\CategoryBasicStruct $category */
+        /** @var \Shopware\Core\Content\Category\CategoryStruct $category */
         foreach ($categories as $category) {
             $idPath = implode('|', $parents->getIds());
 
             $names = $parents->map(
-                function (CategoryBasicStruct $parent) {
+                function (CategoryStruct $parent) {
                     if ($parent->getLevel() === 0) {
                         return null;
                     }
@@ -125,7 +125,7 @@ class CategoryPathBuilder implements EventSubscriberInterface
         return $categories->getEntities();
     }
 
-    private function loadParents(string $parentId, Context $context): CategoryBasicCollection
+    private function loadParents(string $parentId, Context $context): CategoryCollection
     {
         $parents = $this->repository->read(new ReadCriteria([$parentId]), $context);
         $parent = $parents->get($parentId);

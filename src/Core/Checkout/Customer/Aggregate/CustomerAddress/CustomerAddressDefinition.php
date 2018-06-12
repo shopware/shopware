@@ -2,8 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress;
 
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressBasicCollection;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressBasicStruct;
+
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
@@ -54,10 +53,10 @@ class CustomerAddressDefinition extends EntityDefinition
             (new FkField('customer_id', 'customerId', CustomerDefinition::class))->setFlags(new Required()),
             (new ReferenceVersionField(CustomerDefinition::class))->setFlags(new Required()),
 
-            (new FkField('country_id', 'countryId', \Shopware\Core\System\Country\CountryDefinition::class))->setFlags(new Required()),
-            (new ReferenceVersionField(\Shopware\Core\System\Country\CountryDefinition::class))->setFlags(new Required()),
+            (new FkField('country_id', 'countryId', CountryDefinition::class))->setFlags(new Required()),
+            (new ReferenceVersionField(CountryDefinition::class))->setFlags(new Required()),
 
-            new FkField('country_state_id', 'countryStateId', \Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition::class),
+            new FkField('country_state_id', 'countryStateId', CountryStateDefinition::class),
             new ReferenceVersionField(CountryStateDefinition::class),
 
             (new StringField('salutation', 'salutation'))->setFlags(new Required()),
@@ -81,13 +80,13 @@ class CustomerAddressDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getCollectionClass(): string
     {
-        return CustomerAddressBasicCollection::class;
+        return CustomerAddressCollection::class;
     }
 
-    public static function getBasicStructClass(): string
+    public static function getStructClass(): string
     {
-        return CustomerAddressBasicStruct::class;
+        return CustomerAddressStruct::class;
     }
 }

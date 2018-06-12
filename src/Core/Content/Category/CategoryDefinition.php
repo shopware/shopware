@@ -4,8 +4,8 @@ namespace Shopware\Core\Content\Category;
 
 use Shopware\Core\Content\Catalog\ORM\CatalogField;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
-use Shopware\Core\Content\Category\CategoryBasicCollection;
-use Shopware\Core\Content\Category\CategoryBasicStruct;
+
+
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductSeoCategory\ProductSeoCategoryDefinition;
@@ -112,14 +112,14 @@ class CategoryDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getCollectionClass(): string
     {
-        return CategoryBasicCollection::class;
+        return CategoryCollection::class;
     }
 
-    public static function getBasicStructClass(): string
+    public static function getStructClass(): string
     {
-        return CategoryBasicStruct::class;
+        return CategoryStruct::class;
     }
 
     public static function getTranslationDefinitionClass(): ?string

@@ -25,7 +25,7 @@
 namespace Shopware\Core\Checkout\Test\Cart\Price;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\System\Touchpoint\TouchpointBasicStruct;
+use Shopware\Core\System\Touchpoint\TouchpointStruct;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
 use Shopware\Core\Checkout\Cart\Price\PriceRounding;
@@ -59,7 +59,7 @@ class AmountCalculatorTest extends TestCase
         $detector = $this->createMock(TaxDetector::class);
         $detector->method('useGross')->will($this->returnValue(true));
 
-        $shop = $this->createMock(TouchpointBasicStruct::class);
+        $shop = $this->createMock(TouchpointStruct::class);
         $shop->method('getTaxCalculationType')->will($this->returnValue(TaxAmountCalculator::CALCULATION_VERTICAL));
 
         $context = $this->createMock(CheckoutContext::class);
@@ -97,7 +97,7 @@ class AmountCalculatorTest extends TestCase
         $detector->method('useGross')->will($this->returnValue(false));
         $detector->method('isNetDelivery')->will($this->returnValue(false));
 
-        $shop = $this->createMock(TouchpointBasicStruct::class);
+        $shop = $this->createMock(TouchpointStruct::class);
         $shop->method('getTaxCalculationType')->will($this->returnValue(TaxAmountCalculator::CALCULATION_VERTICAL));
 
         $context = $this->createMock(CheckoutContext::class);
@@ -135,7 +135,7 @@ class AmountCalculatorTest extends TestCase
         $detector->method('useGross')->will($this->returnValue(false));
         $detector->method('isNetDelivery')->will($this->returnValue(true));
 
-        $shop = $this->createMock(TouchpointBasicStruct::class);
+        $shop = $this->createMock(TouchpointStruct::class);
         $shop->method('getTaxCalculationType')->will($this->returnValue(TaxAmountCalculator::CALCULATION_VERTICAL));
 
         $context = $this->createMock(CheckoutContext::class);

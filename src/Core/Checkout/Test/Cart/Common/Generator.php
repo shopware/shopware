@@ -25,9 +25,9 @@
 namespace Shopware\Core\Checkout\Test\Cart\Common;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\System\Touchpoint\TouchpointBasicStruct;
+use Shopware\Core\System\Touchpoint\TouchpointStruct;
 use Shopware\Core\Checkout\CheckoutContext;
-use Shopware\Core\System\Language\LanguageBasicStruct;
+use Shopware\Core\System\Language\LanguageStruct;
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
 use Shopware\Core\Checkout\Cart\Cart\Struct\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryCalculator;
@@ -44,23 +44,23 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxAmountCalculator;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressBasicStruct;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupBasicStruct;
-use Shopware\Core\Checkout\Customer\CustomerBasicStruct;
-use Shopware\Core\Checkout\Payment\PaymentMethodBasicStruct;
-use Shopware\Core\Checkout\Shipping\ShippingMethodBasicStruct;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressStruct;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupStruct;
+use Shopware\Core\Checkout\Customer\CustomerStruct;
+use Shopware\Core\Checkout\Payment\PaymentMethodStruct;
+use Shopware\Core\Checkout\Shipping\ShippingMethodStruct;
 use Shopware\Core\Content\Product\Cart\ProductProcessor;
 use Shopware\Core\Content\Product\Cart\Struct\CalculatedProduct;
-use Shopware\Core\Content\Product\ProductBasicStruct;
+use Shopware\Core\Content\Product\ProductStruct;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Struct\Uuid;
-use Shopware\Core\System\Country\Aggregate\CountryArea\CountryAreaBasicStruct;
-use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateBasicStruct;
-use Shopware\Core\System\Country\CountryBasicStruct;
-use Shopware\Core\System\Currency\CurrencyBasicStruct;
-use Shopware\Core\System\Locale\LocaleBasicStruct;
-use Shopware\Core\System\Tax\TaxBasicCollection;
-use Shopware\Core\System\Tax\TaxBasicStruct;
+use Shopware\Core\System\Country\Aggregate\CountryArea\CountryAreaStruct;
+use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateStruct;
+use Shopware\Core\System\Country\CountryStruct;
+use Shopware\Core\System\Currency\CurrencyStruct;
+use Shopware\Core\System\Locale\LocaleStruct;
+use Shopware\Core\System\Tax\TaxCollection;
+use Shopware\Core\System\Tax\TaxStruct;
 
 class Generator extends TestCase
 {
@@ -79,13 +79,13 @@ class Generator extends TestCase
         $fallbackLanguage = null
     ) {
         if ($touchpoint === null) {
-            $touchpoint = new TouchpointBasicStruct();
+            $touchpoint = new TouchpointStruct();
             $touchpoint->setId('ffa32a50e2d04cf38389a53f8d6cd594');
             $touchpoint->setTaxCalculationType(TaxAmountCalculator::CALCULATION_HORIZONTAL);
             $touchpoint->setCatalogIds([Defaults::CATALOG]);
         }
 
-        $currency = $currency ?: (new CurrencyBasicStruct())->assign([
+        $currency = $currency ?: (new CurrencyStruct())->assign([
             'id' => '4c8eba11-bd35-46d7-86af-bed481a6e665',
             'factor' => 1,
         ]);
@@ -93,77 +93,77 @@ class Generator extends TestCase
         $currency->setFactor(1);
 
         if (!$currentCustomerGroup) {
-            $currentCustomerGroup = new CustomerGroupBasicStruct();
+            $currentCustomerGroup = new CustomerGroupStruct();
             $currentCustomerGroup->setId(Defaults::FALLBACK_CUSTOMER_GROUP);
             $currentCustomerGroup->setDisplayGross(true);
         }
 
         if (!$fallbackCustomerGroup) {
-            $fallbackCustomerGroup = new CustomerGroupBasicStruct();
+            $fallbackCustomerGroup = new CustomerGroupStruct();
             $fallbackCustomerGroup->setId(Defaults::FALLBACK_CUSTOMER_GROUP);
             $currentCustomerGroup->setDisplayGross(true);
         }
 
         if (!$taxes) {
-            $tax = new TaxBasicStruct();
+            $tax = new TaxStruct();
             $tax->setId('49260353-68e3-4d9f-a695-e017d7a231b9');
             $tax->setName('test');
             $tax->setRate(19.0);
 
-            $taxes = new TaxBasicCollection([$tax]);
+            $taxes = new TaxCollection([$tax]);
         }
 
         if (!$area) {
-            $area = new CountryAreaBasicStruct();
+            $area = new CountryAreaStruct();
             $area->setId('5cff02b1-0297-41a4-891c-430bcd9e3603');
         }
 
         if (!$country) {
-            $country = new CountryBasicStruct();
+            $country = new CountryStruct();
             $country->setId('5cff02b1-0297-41a4-891c-430bcd9e3603');
             $country->setAreaId($area->getId());
             $country->setTaxFree(false);
             $country->setName('Germany');
         }
         if (!$state) {
-            $state = new CountryStateBasicStruct();
+            $state = new CountryStateStruct();
             $state->setId('bd5e2dcf-547e-4df6-bb1f-f58a554bc69e');
             $state->setCountryId($country->getId());
         }
 
         if (!$shipping) {
-            $shipping = new CustomerAddressBasicStruct();
+            $shipping = new CustomerAddressStruct();
             $shipping->setCountry($country);
             $shipping->setCountryState($state);
         }
 
         if (!$language) {
-            $locale = new LocaleBasicStruct();
+            $locale = new LocaleStruct();
             $locale->setCode('en_GB');
 
-            $language = new LanguageBasicStruct();
+            $language = new LanguageStruct();
             $language->setId(Defaults::LANGUAGE);
             $language->setLocale($locale);
             $language->setName('Language 1');
         }
 
         if (!$fallbackLanguage) {
-            $locale = new LocaleBasicStruct();
+            $locale = new LocaleStruct();
             $locale->setCode('en_GB');
 
-            $fallbackLanguage = new LanguageBasicStruct();
+            $fallbackLanguage = new LanguageStruct();
             $fallbackLanguage->setLocale($locale);
             $fallbackLanguage->setName('Fallback Language 1');
         }
 
-        $paymentMethod = (new PaymentMethodBasicStruct())->assign(['id' => '19d144ff-e15f-4772-860d-59fca7f207c1']);
-        $shippingMethod = new ShippingMethodBasicStruct();
+        $paymentMethod = (new PaymentMethodStruct())->assign(['id' => '19d144ff-e15f-4772-860d-59fca7f207c1']);
+        $shippingMethod = new ShippingMethodStruct();
         $shippingMethod->setId('8beeb66e9dda46b18891a059257a590e');
         $shippingMethod->setCalculation(DeliveryCalculator::CALCULATION_BY_PRICE);
         $shippingMethod->setMinDeliveryTime(1);
         $shippingMethod->setMaxDeliveryTime(2);
 
-        $customer = (new CustomerBasicStruct())->assign(['id' => Uuid::uuid4()->getHex()]);
+        $customer = (new CustomerStruct())->assign(['id' => Uuid::uuid4()->getHex()]);
         $customer->setId(Uuid::uuid4()->getHex());
         $customer->setGroup($currentCustomerGroup);
 
@@ -238,9 +238,9 @@ class Generator extends TestCase
         string $identifier,
         float $price,
         int $quantity,
-        ?ProductBasicStruct $productBasicStruct = null
+        ?ProductStruct $productStruct = null
     ): CalculatedProduct {
-        $product = $productBasicStruct ?? new ProductBasicStruct();
+        $product = $productStruct ?? new ProductStruct();
 
         return new CalculatedProduct(
             new LineItem($identifier, ProductProcessor::TYPE_PRODUCT, $quantity),

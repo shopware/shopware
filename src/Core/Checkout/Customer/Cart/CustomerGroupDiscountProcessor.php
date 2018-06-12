@@ -64,7 +64,7 @@ class CustomerGroupDiscountProcessor implements CartProcessorInterface
 
         $prices = $goods->getPrices();
 
-        /** @var \Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\CustomerGroupDiscountBasicCollection $discountCollection */
+        /** @var \Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\CustomerGroupDiscountCollection $discountCollection */
         $discountCollection = $dataCollection->get(self::class);
 
         if (!$discountCollection) {

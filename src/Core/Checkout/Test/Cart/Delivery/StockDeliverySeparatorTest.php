@@ -46,14 +46,14 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressBasicStruct;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressStruct;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Content\Product\Cart\ProductProcessor;
 use Shopware\Core\Content\Product\Cart\Struct\CalculatedProduct;
-use Shopware\Core\Content\Product\ProductBasicStruct;
-use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateBasicStruct;
-use Shopware\Core\System\Country\CountryBasicStruct;
+use Shopware\Core\Content\Product\ProductStruct;
+use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateStruct;
+use Shopware\Core\System\Country\CountryStruct;
 
 class StockDeliverySeparatorTest extends TestCase
 {
@@ -338,10 +338,10 @@ class StockDeliverySeparatorTest extends TestCase
 
     private static function createShippingLocation(): ShippingLocation
     {
-        $address = new CustomerAddressBasicStruct();
-        $address->setCountryState(new CountryStateBasicStruct());
+        $address = new CustomerAddressStruct();
+        $address->setCountryState(new CountryStateStruct());
 
-        $country = new CountryBasicStruct();
+        $country = new CountryStruct();
         $country->setId('5cff02b1-0297-41a4-891c-430bcd9e3603');
         $country->setAreaId('5cff02b1-0297-41a4-891c-430bcd9e3603');
 
@@ -351,9 +351,9 @@ class StockDeliverySeparatorTest extends TestCase
         return ShippingLocation::createFromAddress($address);
     }
 
-    private static function createProduct(int $stock = 5, string $name = 'test', float $weight = 5.0): ProductBasicStruct
+    private static function createProduct(int $stock = 5, string $name = 'test', float $weight = 5.0): ProductStruct
     {
-        $product = new ProductBasicStruct();
+        $product = new ProductStruct();
         $product->setStock($stock);
         $product->setName($name);
         $product->setWeight($weight);

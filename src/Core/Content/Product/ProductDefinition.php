@@ -18,8 +18,8 @@ use Shopware\Core\Content\Product\Aggregate\ProductStreamAssignment\ProductStrea
 use Shopware\Core\Content\Product\Aggregate\ProductStreamTab\ProductStreamTabDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVariation\ProductVariationDefinition;
-use Shopware\Core\Content\Product\ProductBasicCollection;
-use Shopware\Core\Content\Product\ProductBasicStruct;
+
+
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\BoolField;
@@ -180,14 +180,14 @@ class ProductDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getCollectionClass(): string
     {
-        return ProductBasicCollection::class;
+        return ProductCollection::class;
     }
 
-    public static function getBasicStructClass(): string
+    public static function getStructClass(): string
     {
-        return ProductBasicStruct::class;
+        return ProductStruct::class;
     }
 
     public static function getTranslationDefinitionClass(): ?string

@@ -58,14 +58,14 @@ class RuleDefinition extends EntityDefinition
     }
 
 
-    public static function getBasicCollectionClass(): string
+    public static function getCollectionClass(): string
     {
-        return RuleBasicCollection::class;
+        return RuleCollection::class;
     }
 
-    public static function getBasicStructClass(): string
+    public static function getStructClass(): string
     {
-        return RuleBasicStruct::class;
+        return RuleStruct::class;
     }
 
 }

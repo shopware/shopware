@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\ORM;
 use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Core\Framework\ORM\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\ORM\Search\EntitySearcherInterface;
-use Shopware\Core\Framework\ORM\Version\Service\VersionManager;
+use Shopware\Core\Framework\ORM\VersionManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class RepositoryRegistry

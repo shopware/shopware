@@ -4,8 +4,9 @@ namespace Shopware\Core\Framework\Test\Api\Serializer;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaAlbum\MediaAlbumDefinition;
-use Shopware\Core\Content\Media\Aggregate\MediaAlbum\MediaAlbumBasicStruct;
+use Shopware\Core\Content\Media\Aggregate\MediaAlbum\MediaAlbumStruct;
 use Shopware\Core\Content\Media\MediaDefinition;
+
 use Shopware\Core\Framework\Api\Serializer\JsonApiEncoder;
 use Shopware\Core\Framework\Struct\Serializer\StructDecoder;
 use Shopware\Core\Framework\Struct\Serializer\StructNormalizer;
@@ -80,7 +81,7 @@ class JsonApiEncoderTest extends TestCase
 
     public function testEncodeStruct(): void
     {
-        $struct = new MediaAlbumBasicStruct();
+        $struct = new MediaAlbumStruct();
         $struct->setId('1d23c1b0-15bf-43fb-97e8-9008cf42d6fe');
         $struct->setName('Manufacturer');
         $struct->setPosition(12);
@@ -152,7 +153,7 @@ class JsonApiEncoderTest extends TestCase
 
     public function testEncodeStructWithEmptyRelation(): void
     {
-        $struct = new MediaAlbumBasicStruct();
+        $struct = new MediaAlbumStruct();
         $struct->setId('1d23c1b0-15bf-43fb-97e8-9008cf42d6fe');
         $struct->setName('Manufacturer');
         $struct->setPosition(12);

@@ -13,8 +13,7 @@ use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleDefinition;
-use Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTranslation\TaxAreaRuleTranslationBasicCollection;
-use Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTranslation\TaxAreaRuleTranslationBasicStruct;
+
 
 class TaxAreaRuleTranslationDefinition extends EntityDefinition
 {
@@ -50,13 +49,13 @@ class TaxAreaRuleTranslationDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getCollectionClass(): string
     {
-        return TaxAreaRuleTranslationBasicCollection::class;
+        return TaxAreaRuleTranslationCollection::class;
     }
 
-    public static function getBasicStructClass(): string
+    public static function getStructClass(): string
     {
-        return TaxAreaRuleTranslationBasicStruct::class;
+        return TaxAreaRuleTranslationStruct::class;
     }
 }

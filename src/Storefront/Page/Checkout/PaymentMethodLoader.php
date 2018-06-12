@@ -3,7 +3,7 @@
 namespace Shopware\Storefront\Page\Checkout;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Checkout\Payment\PaymentMethodBasicCollection;
+use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Framework\ORM\RepositoryInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
 use Shopware\Core\Framework\ORM\Search\Query\TermQuery;
@@ -27,7 +27,7 @@ class PaymentMethodLoader
         $criteria = $this->createCriteria($request);
         $paymentMethods = $this->paymentMethodRepository->search($criteria, $context);
 
-        return new PaymentMethodBasicCollection($paymentMethods->getElements());
+        return new PaymentMethodCollection($paymentMethods->getElements());
     }
 
     private function createCriteria(Request $request): Criteria

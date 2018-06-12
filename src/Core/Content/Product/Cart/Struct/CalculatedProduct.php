@@ -36,8 +36,8 @@ use Shopware\Core\Checkout\Cart\LineItem\NestedInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\Validatable;
-use Shopware\Core\Content\Media\MediaBasicStruct;
-use Shopware\Core\Content\Product\ProductBasicStruct;
+use Shopware\Core\Content\Media\MediaStruct;
+use Shopware\Core\Content\Product\ProductStruct;
 use Shopware\Core\Framework\Struct\Struct;
 
 class CalculatedProduct extends Struct implements DeliverableLineItemInterface, GoodsInterface, Validatable, NestedInterface
@@ -73,7 +73,7 @@ class CalculatedProduct extends Struct implements DeliverableLineItemInterface, 
     protected $rule;
 
     /**
-     * @var \Shopware\Core\Content\Media\MediaBasicStruct|null
+     * @var MediaStruct|null
      */
     protected $cover;
 
@@ -88,7 +88,7 @@ class CalculatedProduct extends Struct implements DeliverableLineItemInterface, 
     protected $outOfStockDeliveryDate;
 
     /**
-     * @var ProductBasicStruct
+     * @var ProductStruct
      */
     protected $product;
 
@@ -104,10 +104,10 @@ class CalculatedProduct extends Struct implements DeliverableLineItemInterface, 
         int $quantity,
         DeliveryDate $inStockDeliveryDate,
         DeliveryDate $outOfStockDeliveryDate,
-        ProductBasicStruct $product,
+        ProductStruct $product,
         ?CalculatedLineItemCollection $children = null,
         ?Rule $rule = null,
-        ?MediaBasicStruct $cover = null
+        ?MediaStruct $cover = null
     ) {
         $this->lineItem = $lineItem;
         $this->price = $price;
@@ -150,7 +150,7 @@ class CalculatedProduct extends Struct implements DeliverableLineItemInterface, 
         return true;
     }
 
-    public function getProduct(): ProductBasicStruct
+    public function getProduct(): ProductStruct
     {
         return $this->product;
     }
@@ -210,7 +210,7 @@ class CalculatedProduct extends Struct implements DeliverableLineItemInterface, 
         return $this->product->getName();
     }
 
-    public function getCover(): ?\Shopware\Core\Content\Media\MediaBasicStruct
+    public function getCover(): ?MediaStruct
     {
         return $this->cover;
     }

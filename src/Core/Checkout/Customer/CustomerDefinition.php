@@ -4,8 +4,8 @@ namespace Shopware\Core\Checkout\Customer;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition;
-use Shopware\Core\Checkout\Customer\CustomerBasicCollection;
-use Shopware\Core\Checkout\Customer\CustomerBasicStruct;
+
+
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
@@ -108,13 +108,13 @@ class CustomerDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getCollectionClass(): string
     {
-        return CustomerBasicCollection::class;
+        return CustomerCollection::class;
     }
 
-    public static function getBasicStructClass(): string
+    public static function getStructClass(): string
     {
-        return CustomerBasicStruct::class;
+        return CustomerStruct::class;
     }
 }

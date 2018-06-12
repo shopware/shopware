@@ -11,8 +11,8 @@ use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
-use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationBasicCollection;
-use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationBasicStruct;
+
+
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\Language\LanguageDefinition;
 
@@ -51,13 +51,13 @@ class CurrencyTranslationDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getCollectionClass(): string
     {
-        return CurrencyTranslationBasicCollection::class;
+        return CurrencyTranslationCollection::class;
     }
 
-    public static function getBasicStructClass(): string
+    public static function getStructClass(): string
     {
-        return CurrencyTranslationBasicStruct::class;
+        return CurrencyTranslationStruct::class;
     }
 }

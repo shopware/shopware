@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Command;
 
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\PluginManager;
-use Shopware\Core\Framework\Plugin;
+
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;

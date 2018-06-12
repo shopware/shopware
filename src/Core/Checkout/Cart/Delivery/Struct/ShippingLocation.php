@@ -25,36 +25,36 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Checkout\Cart\Delivery\Struct;
 
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressBasicStruct;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressStruct;
 use Shopware\Core\Framework\Struct\Struct;
-use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateBasicStruct;
-use Shopware\Core\System\Country\CountryBasicStruct;
+use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateStruct;
+use Shopware\Core\System\Country\CountryStruct;
 
 class ShippingLocation extends Struct
 {
     /**
-     * @var \Shopware\Core\System\Country\CountryBasicStruct
+     * @var CountryStruct
      */
     protected $country;
 
     /**
-     * @var null|\Shopware\Core\System\Country\Aggregate\CountryState\CountryStateBasicStruct
+     * @var null|CountryStateStruct
      */
     protected $state;
 
     /**
-     * @var null|\Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressBasicStruct
+     * @var null|CustomerAddressStruct
      */
     protected $address;
 
-    public function __construct(\Shopware\Core\System\Country\CountryBasicStruct $country, ?\Shopware\Core\System\Country\Aggregate\CountryState\CountryStateBasicStruct $state, ?CustomerAddressBasicStruct $address)
+    public function __construct(CountryStruct $country, ?CountryStateStruct $state, ?CustomerAddressStruct $address)
     {
         $this->country = $country;
         $this->state = $state;
         $this->address = $address;
     }
 
-    public static function createFromAddress(CustomerAddressBasicStruct $address): self
+    public static function createFromAddress(CustomerAddressStruct $address): self
     {
         return new self(
             $address->getCountry(),
@@ -63,12 +63,12 @@ class ShippingLocation extends Struct
         );
     }
 
-    public static function createFromCountry(\Shopware\Core\System\Country\CountryBasicStruct $country): self
+    public static function createFromCountry(CountryStruct $country): self
     {
         return new self($country, null, null);
     }
 
-    public function getCountry(): CountryBasicStruct
+    public function getCountry(): CountryStruct
     {
         if ($this->address) {
             return $this->address->getCountry();
@@ -77,7 +77,7 @@ class ShippingLocation extends Struct
         return $this->country;
     }
 
-    public function getState(): ?CountryStateBasicStruct
+    public function getState(): ?CountryStateStruct
     {
         if ($this->address) {
             return $this->address->getCountryState();
@@ -86,7 +86,7 @@ class ShippingLocation extends Struct
         return $this->state;
     }
 
-    public function getAddress(): ?\Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressBasicStruct
+    public function getAddress(): ?CustomerAddressStruct
     {
         return $this->address;
     }

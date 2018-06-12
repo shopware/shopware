@@ -75,9 +75,9 @@ class EntityReader implements EntityReaderInterface
     public function read(string $definition, ReadCriteria $criteria, Context $context): EntityCollection
     {
         /** @var EntityDefinition $definition */
-        $collectionClass = $definition::getBasicCollectionClass();
+        $collectionClass = $definition::getCollectionClass();
 
-        $structClass = $definition::getBasicStructClass();
+        $structClass = $definition::getStructClass();
 
         return $this->_read(
             $criteria->getIds(),

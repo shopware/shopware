@@ -12,8 +12,8 @@ use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
-use Shopware\Core\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationBasicCollection;
-use Shopware\Core\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationBasicStruct;
+
+
 use Shopware\Core\System\Locale\LocaleDefinition;
 
 class LocaleTranslationDefinition extends EntityDefinition
@@ -51,14 +51,14 @@ class LocaleTranslationDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getCollectionClass(): string
     {
-        return LocaleTranslationBasicCollection::class;
+        return LocaleTranslationCollection::class;
     }
 
-    public static function getBasicStructClass(): string
+    public static function getStructClass(): string
     {
-        return LocaleTranslationBasicStruct::class;
+        return LocaleTranslationStruct::class;
     }
 
 }

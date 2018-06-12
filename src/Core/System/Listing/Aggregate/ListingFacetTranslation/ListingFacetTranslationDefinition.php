@@ -12,8 +12,8 @@ use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
-use Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation\ListingFacetTranslationBasicCollection;
-use Shopware\Core\System\Listing\Aggregate\ListingFacetTranslation\ListingFacetTranslationBasicStruct;
+
+
 use Shopware\Core\System\Listing\ListingFacetDefinition;
 
 class ListingFacetTranslationDefinition extends EntityDefinition
@@ -50,13 +50,13 @@ class ListingFacetTranslationDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getCollectionClass(): string
     {
-        return ListingFacetTranslationBasicCollection::class;
+        return ListingFacetTranslationCollection::class;
     }
 
-    public static function getBasicStructClass(): string
+    public static function getStructClass(): string
     {
-        return ListingFacetTranslationBasicStruct::class;
+        return ListingFacetTranslationStruct::class;
     }
 }

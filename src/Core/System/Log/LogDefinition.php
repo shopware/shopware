@@ -13,8 +13,7 @@ use Shopware\Core\Framework\ORM\Field\VersionField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
-use Shopware\Core\System\Log\LogBasicCollection;
-use Shopware\Core\System\Log\LogBasicStruct;
+
 
 class LogDefinition extends EntityDefinition
 {
@@ -57,13 +56,13 @@ class LogDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getCollectionClass(): string
     {
-        return LogBasicCollection::class;
+        return LogCollection::class;
     }
 
-    public static function getBasicStructClass(): string
+    public static function getStructClass(): string
     {
-        return LogBasicStruct::class;
+        return LogStruct::class;
     }
 }

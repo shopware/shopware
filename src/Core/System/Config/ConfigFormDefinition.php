@@ -25,8 +25,7 @@ use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Core\Framework\Plugin\PluginDefinition;
 use Shopware\Core\System\Config\Aggregate\ConfigFormField\ConfigFormFieldDefinition;
 use Shopware\Core\System\Config\Aggregate\ConfigFormTranslation\ConfigFormTranslationDefinition;
-use Shopware\Core\System\Config\ConfigFormBasicCollection;
-use Shopware\Core\System\Config\ConfigFormBasicStruct;
+
 
 class ConfigFormDefinition extends EntityDefinition
 {
@@ -76,14 +75,14 @@ class ConfigFormDefinition extends EntityDefinition
     }
 
 
-    public static function getBasicCollectionClass(): string
+    public static function getCollectionClass(): string
     {
-        return ConfigFormBasicCollection::class;
+        return ConfigFormCollection::class;
     }
 
-    public static function getBasicStructClass(): string
+    public static function getStructClass(): string
     {
-        return ConfigFormBasicStruct::class;
+        return ConfigFormStruct::class;
     }
 
     public static function getTranslationDefinitionClass(): ?string

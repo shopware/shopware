@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Plugin;
 
+use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\BoolField;
@@ -16,8 +17,8 @@ use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
-use Shopware\Core\Framework\Plugin\PluginBasicCollection;
-use Shopware\Core\Framework\Plugin\PluginBasicStruct;
+
+
 use Shopware\Core\System\Config\ConfigFormDefinition;
 
 class PluginDefinition extends EntityDefinition
@@ -74,17 +75,17 @@ class PluginDefinition extends EntityDefinition
             new StringField('update_version', 'updateVersion'),
             new DateField('updated_at', 'updatedAt'),
             (new OneToManyAssociationField('configForms', ConfigFormDefinition::class, 'plugin_id', false, 'id'))->setFlags(new CascadeDelete()),
-            (new OneToManyAssociationField('paymentMethods', \Shopware\Core\Checkout\Payment\PaymentMethodDefinition::class, 'plugin_id', false, 'id'))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('paymentMethods', PaymentMethodDefinition::class, 'plugin_id', false, 'id'))->setFlags(new CascadeDelete()),
         ]);
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getCollectionClass(): string
     {
-        return PluginBasicCollection::class;
+        return PluginCollection::class;
     }
 
-    public static function getBasicStructClass(): string
+    public static function getStructClass(): string
     {
-        return PluginBasicStruct::class;
+        return PluginStruct::class;
     }
 }

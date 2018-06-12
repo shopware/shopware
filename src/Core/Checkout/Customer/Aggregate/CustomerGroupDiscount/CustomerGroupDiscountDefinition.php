@@ -3,8 +3,8 @@
 namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\CustomerGroupDiscountBasicCollection;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupDiscount\CustomerGroupDiscountBasicStruct;
+
+
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\EntityExtensionInterface;
 use Shopware\Core\Framework\ORM\Field\DateField;
@@ -57,13 +57,13 @@ class CustomerGroupDiscountDefinition extends EntityDefinition
         ]);
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getCollectionClass(): string
     {
-        return CustomerGroupDiscountBasicCollection::class;
+        return CustomerGroupDiscountCollection::class;
     }
 
-    public static function getBasicStructClass(): string
+    public static function getStructClass(): string
     {
-        return CustomerGroupDiscountBasicStruct::class;
+        return CustomerGroupDiscountStruct::class;
     }
 }

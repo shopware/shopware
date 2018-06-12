@@ -28,18 +28,18 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\CheckoutContext;
 use Shopware\Core\Checkout\Cart\Cart\Struct\CalculatedCart;
-use Shopware\Core\Checkout\Customer\CustomerBasicStruct;
+use Shopware\Core\Checkout\Customer\CustomerStruct;
 use Shopware\Core\Checkout\Customer\Rule\LastNameRule;
 
 class LastNameRuleTest extends TestCase
 {
     public function testExactMatch(): void
     {
-        $rule = new \Shopware\Core\Checkout\Customer\Rule\LastNameRule('shopware');
+        $rule = new LastNameRule('shopware');
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $customer = new CustomerBasicStruct();
+        $customer = new CustomerStruct();
         $customer->setLastName('shopware');
 
         $context = $this->createMock(CheckoutContext::class);
@@ -55,11 +55,11 @@ class LastNameRuleTest extends TestCase
 
     public function testCaseInsensitive(): void
     {
-        $rule = new \Shopware\Core\Checkout\Customer\Rule\LastNameRule('SHOPWARE');
+        $rule = new LastNameRule('SHOPWARE');
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $customer = new CustomerBasicStruct();
+        $customer = new CustomerStruct();
         $customer->setLastName('ShopWare');
 
         $context = $this->createMock(CheckoutContext::class);
@@ -79,7 +79,7 @@ class LastNameRuleTest extends TestCase
 
         $cart = $this->createMock(CalculatedCart::class);
 
-        $customer = new CustomerBasicStruct();
+        $customer = new CustomerStruct();
         $customer->setLastName('dolore magna aliquyam');
 
         $context = $this->createMock(CheckoutContext::class);
@@ -95,7 +95,7 @@ class LastNameRuleTest extends TestCase
 
     public function testWithoutCustomer(): void
     {
-        $rule = new \Shopware\Core\Checkout\Customer\Rule\LastNameRule('test');
+        $rule = new LastNameRule('test');
 
         $cart = $this->createMock(CalculatedCart::class);
 

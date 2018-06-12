@@ -24,20 +24,20 @@
 
 namespace Shopware\Core\Checkout;
 
-use Shopware\Core\System\Touchpoint\TouchpointBasicStruct;
+use Shopware\Core\System\Touchpoint\TouchpointStruct;
 use Shopware\Core\Checkout\DiscountSurcharge\Exception\RulesLockedException;
-use Shopware\Core\System\Language\LanguageBasicStruct;
+use Shopware\Core\System\Language\LanguageStruct;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupBasicStruct;
-use Shopware\Core\Checkout\Customer\CustomerBasicStruct;
-use Shopware\Core\Checkout\Payment\PaymentMethodBasicStruct;
-use Shopware\Core\Checkout\Shipping\ShippingMethodBasicStruct;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupStruct;
+use Shopware\Core\Checkout\Customer\CustomerStruct;
+use Shopware\Core\Checkout\Payment\PaymentMethodStruct;
+use Shopware\Core\Checkout\Shipping\ShippingMethodStruct;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Struct\Struct;
-use Shopware\Core\System\Currency\CurrencyBasicStruct;
-use Shopware\Core\System\Tax\TaxBasicCollection;
+use Shopware\Core\System\Currency\CurrencyStruct;
+use Shopware\Core\System\Tax\TaxCollection;
 
 /**
  * @category  Shopware\Core
@@ -54,42 +54,42 @@ class CheckoutContext extends Struct
     protected $token;
 
     /**
-     * @var \Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupBasicStruct
+     * @var \Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupStruct
      */
     protected $currentCustomerGroup;
 
     /**
-     * @var \Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupBasicStruct
+     * @var \Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupStruct
      */
     protected $fallbackCustomerGroup;
 
     /**
-     * @var CurrencyBasicStruct
+     * @var CurrencyStruct
      */
     protected $currency;
 
     /**
-     * @var TouchpointBasicStruct
+     * @var TouchpointStruct
      */
     protected $touchpoint;
 
     /**
-     * @var \Shopware\Core\System\Tax\TaxBasicCollection
+     * @var \Shopware\Core\System\Tax\TaxCollection
      */
     protected $taxRules;
 
     /**
-     * @var \Shopware\Core\Checkout\Customer\CustomerBasicStruct|null
+     * @var \Shopware\Core\Checkout\Customer\CustomerStruct|null
      */
     protected $customer;
 
     /**
-     * @var \Shopware\Core\Checkout\Payment\PaymentMethodBasicStruct
+     * @var \Shopware\Core\Checkout\Payment\PaymentMethodStruct
      */
     protected $paymentMethod;
 
     /**
-     * @var ShippingMethodBasicStruct
+     * @var ShippingMethodStruct
      */
     protected $shippingMethod;
 
@@ -116,12 +116,12 @@ class CheckoutContext extends Struct
     protected $taxState = CartPrice::TAX_STATE_GROSS;
 
     /**
-     * @var LanguageBasicStruct
+     * @var LanguageStruct
      */
     protected $language;
 
     /**
-     * @var null|LanguageBasicStruct
+     * @var null|LanguageStruct
      */
     protected $fallbackLanguage;
 
@@ -138,17 +138,17 @@ class CheckoutContext extends Struct
     public function __construct(
         string $tenantId,
         string $token,
-        TouchpointBasicStruct $touchpoint,
-        LanguageBasicStruct $language,
-        ?LanguageBasicStruct $fallbackLanguage,
-        CurrencyBasicStruct $currency,
-        CustomerGroupBasicStruct $currentCustomerGroup,
-        CustomerGroupBasicStruct $fallbackCustomerGroup,
-        TaxBasicCollection $taxRules,
-        PaymentMethodBasicStruct $paymentMethod,
-        ShippingMethodBasicStruct $shippingMethod,
+        TouchpointStruct $touchpoint,
+        LanguageStruct $language,
+        ?LanguageStruct $fallbackLanguage,
+        CurrencyStruct $currency,
+        CustomerGroupStruct $currentCustomerGroup,
+        CustomerGroupStruct $fallbackCustomerGroup,
+        TaxCollection $taxRules,
+        PaymentMethodStruct $paymentMethod,
+        ShippingMethodStruct $shippingMethod,
         ShippingLocation $shippingLocation,
-        ?CustomerBasicStruct $customer,
+        ?CustomerStruct $customer,
         array $rulesIds = []
     ) {
         $this->currentCustomerGroup = $currentCustomerGroup;
@@ -167,42 +167,42 @@ class CheckoutContext extends Struct
         $this->tenantId = $tenantId;
     }
 
-    public function getCurrentCustomerGroup(): CustomerGroupBasicStruct
+    public function getCurrentCustomerGroup(): CustomerGroupStruct
     {
         return $this->currentCustomerGroup;
     }
 
-    public function getFallbackCustomerGroup(): CustomerGroupBasicStruct
+    public function getFallbackCustomerGroup(): CustomerGroupStruct
     {
         return $this->fallbackCustomerGroup;
     }
 
-    public function getCurrency(): CurrencyBasicStruct
+    public function getCurrency(): CurrencyStruct
     {
         return $this->currency;
     }
 
-    public function getTouchpoint(): TouchpointBasicStruct
+    public function getTouchpoint(): TouchpointStruct
     {
         return $this->touchpoint;
     }
 
-    public function getTaxRules(): TaxBasicCollection
+    public function getTaxRules(): TaxCollection
     {
         return $this->taxRules;
     }
 
-    public function getCustomer(): ?CustomerBasicStruct
+    public function getCustomer(): ?CustomerStruct
     {
         return $this->customer;
     }
 
-    public function getPaymentMethod(): PaymentMethodBasicStruct
+    public function getPaymentMethod(): PaymentMethodStruct
     {
         return $this->paymentMethod;
     }
 
-    public function getShippingMethod(): ShippingMethodBasicStruct
+    public function getShippingMethod(): ShippingMethodStruct
     {
         return $this->shippingMethod;
     }
@@ -255,12 +255,12 @@ class CheckoutContext extends Struct
         return $this->token;
     }
 
-    public function getLanguage(): LanguageBasicStruct
+    public function getLanguage(): LanguageStruct
     {
         return $this->language;
     }
 
-    public function getFallbackLanguage(): ?LanguageBasicStruct
+    public function getFallbackLanguage(): ?LanguageStruct
     {
         return $this->fallbackLanguage;
     }

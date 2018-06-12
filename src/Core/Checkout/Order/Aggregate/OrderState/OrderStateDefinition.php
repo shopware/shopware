@@ -3,8 +3,8 @@
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderState;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
-use Shopware\Core\Checkout\Order\Aggregate\OrderState\OrderStateBasicCollection;
-use Shopware\Core\Checkout\Order\Aggregate\OrderState\OrderStateBasicStruct;
+
+
 use Shopware\Core\Checkout\Order\Aggregate\OrderStateTranslation\OrderStateTranslationDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Framework\ORM\EntityDefinition;
@@ -26,6 +26,7 @@ use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\RestrictDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
 use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
+use Shopware\Core\System\Mail\MailDefinition;
 
 class OrderStateDefinition extends EntityDefinition
 {
@@ -60,21 +61,21 @@ class OrderStateDefinition extends EntityDefinition
             new BoolField('has_mail', 'hasMail'),
             new DateField('created_at', 'createdAt'),
             new DateField('updated_at', 'updatedAt'),
-            (new OneToManyAssociationField('mails', \Shopware\Core\System\Mail\MailDefinition::class, 'order_state_id', false, 'id'))->setFlags(new WriteOnly()),
+            (new OneToManyAssociationField('mails', MailDefinition::class, 'order_state_id', false, 'id'))->setFlags(new WriteOnly()),
             (new OneToManyAssociationField('orders', OrderDefinition::class, 'order_state_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
             (new OneToManyAssociationField('orderDeliveries', OrderDeliveryDefinition::class, 'order_state_id', false, 'id'))->setFlags(new RestrictDelete(), new WriteOnly()),
             (new TranslationsAssociationField('translations', OrderStateTranslationDefinition::class, 'order_state_id', false, 'id'))->setFlags(new Required(), new CascadeDelete()),
         ]);
     }
 
-    public static function getBasicCollectionClass(): string
+    public static function getCollectionClass(): string
     {
-        return OrderStateBasicCollection::class;
+        return OrderStateCollection::class;
     }
 
-    public static function getBasicStructClass(): string
+    public static function getStructClass(): string
     {
-        return OrderStateBasicStruct::class;
+        return OrderStateStruct::class;
     }
 
     public static function getTranslationDefinitionClass(): ?string

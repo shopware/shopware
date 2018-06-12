@@ -840,9 +840,9 @@ does not need its own field. This is automatically controlled in the `FkField`.
 To transport the data between the database and the corresponding endpoints, the core uses 
 so-called struct classes. These are simple PHP classes in which the properties of an entity are 
 defined as PHP properties and are available via getter/setter functions.
-The ORM distinguishes here for the corresponding read functions in `*BasicStruct` and 
+The ORM distinguishes here for the corresponding read functions in `*Struct` and 
 `*DetailStruct` classes.
-In the `BasicStruct` class  are all the properties of an entity defined but not the relations. 
+In the `Struct` class  are all the properties of an entity defined but not the relations. 
 So you have a minimum set of properties in order to work with the entity. 
 A simple struct class can look like this:
 ```
@@ -852,7 +852,7 @@ namespace Shopware\Core\System\Locale\Struct;
 
 use Shopware\Core\Framework\ORM\Entity;
 
-class LocaleBasicStruct extends Entity
+class LocaleStruct extends Entity
 {
     /**
      * @var string
@@ -932,7 +932,7 @@ class LocaleBasicStruct extends Entity
 ```
 
 The `DetailStruct` class also contains relations. Please keep in mind that it can have an significant
-performance impact if you use the `DetailStruct`. So if possible, use the `BasicStruct`
+performance impact if you use the `DetailStruct`. So if possible, use the `Struct`
 
 ## Collection classes
 To simplify working with many records, the repository classes of the core do not return 
@@ -945,8 +945,8 @@ $repository = $this->container->get('product.repository');
 
 $basics = $repository->read(new ReadCriteria($ids), $context->getContext());
 
-foreach ($basics as $productBasicStruct) {
-    echo $productBasicStruct->getName();
+foreach ($basics as $productStruct) {
+    echo $productStruct->getName();
 }
 ```
 In addition, these collections provide small helper functions to make it easier to access 

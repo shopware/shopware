@@ -2,10 +2,13 @@
 
 namespace Shopware\Core\Framework\ORM\Dbal;
 
+use Shopware\Core\Framework\Pricing\PriceRuleCollection;
+use Shopware\Core\Framework\Pricing\PriceStruct;
 use Shopware\Core\Framework\ORM\Entity;
 use Shopware\Core\Framework\ORM\EntityDefinition;
 use Shopware\Core\Framework\ORM\Field\AssociationInterface;
 use Shopware\Core\Framework\ORM\Field\BoolField;
+use Shopware\Core\Framework\ORM\Field\PriceRulesJsonField;
 use Shopware\Core\Framework\ORM\Field\DateField;
 use Shopware\Core\Framework\ORM\Field\Field;
 use Shopware\Core\Framework\ORM\Field\FkField;
@@ -21,15 +24,14 @@ use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\ORM\Field\ObjectField;
 use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\ORM\Field\PriceField;
-use Shopware\Core\Framework\ORM\Field\PriceRulesJsonField;
 use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
 use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\Field\TranslatedField;
 use Shopware\Core\Framework\ORM\Field\VersionField;
+
 use Shopware\Core\Framework\ORM\Write\Flag\Extension;
 use Shopware\Core\Framework\ORM\Write\Flag\Inherited;
-use Shopware\Core\Framework\Pricing\PriceRuleCollection;
-use Shopware\Core\Framework\Pricing\PriceStruct;
+use Shopware\Core\Framework\ORM\Write\Flag\Serialized;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Struct\Uuid;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -158,7 +160,7 @@ class EntityHydrator
             $reference = $field->getReferenceClass();
 
             /** @var EntityDefinition $reference */
-            $structClass = $reference::getBasicStructClass();
+            $structClass = $reference::getStructClass();
 
             $hydrated = $this->hydrateEntity(
                 new $structClass(),

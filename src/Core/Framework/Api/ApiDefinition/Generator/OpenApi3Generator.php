@@ -13,17 +13,13 @@ use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\FloatField;
 use Shopware\Core\Framework\ORM\Field\IdField;
 use Shopware\Core\Framework\ORM\Field\IntField;
-use Shopware\Core\Framework\ORM\Field\JsonArrayField;
-use Shopware\Core\Framework\ORM\Field\JsonObjectField;
-use Shopware\Core\Framework\ORM\Field\LongTextField;
-use Shopware\Core\Framework\ORM\Field\LongTextWithHtmlField;
+use Shopware\Core\Framework\ORM\Field\JsonField;
+use Shopware\Core\Framework\ORM\Field\ListField;
 use Shopware\Core\Framework\ORM\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
-use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\Field\TenantIdField;
-use Shopware\Core\Framework\ORM\Field\TranslatedField;
 use Shopware\Core\Framework\ORM\Field\VersionField;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\Struct\Uuid;
@@ -56,7 +52,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 ['url' => 'http://shopware.next/api'],
             ],
             'info' => [
-                'title' => 'Shopware\Core API',
+                'title' => 'Shopware API',
                 'version' => '1.0.0',
             ],
             'security' => [
@@ -207,54 +203,80 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         return str_replace(' ', '', $name);
     }
 
-    private function getType(Field $field): string
+    private function resolveJsonField(JsonField $jsonField): array
     {
-        switch (true) {
-            case $field instanceof JsonObjectField:
-                return 'json_object';
-            case $field instanceof JsonArrayField:
-                return 'json_array';
-            case $field instanceof OneToManyAssociationField:
-            case $field instanceof ManyToManyAssociationField:
-                return 'array';
-            case $field instanceof FloatField:
-                return 'number';
-            case $field instanceof IntField:
-                return 'integer';
-            case $field instanceof BoolField:
-                return 'boolean';
-            case $field instanceof DateField:
-            case $field instanceof IdField:
-            case $field instanceof FkField:
-            case $field instanceof LongTextField:
-            case $field instanceof LongTextWithHtmlField:
-            case $field instanceof TranslatedField:
-            case $field instanceof StringField:
-            default:
-                return 'string';
+        if ($jsonField instanceof ListField) {
+            $definition = [
+                'type' => 'array',
+                'items' => $jsonField->getFieldType() ? $this->getPropertyByField($jsonField->getFieldType()) : [],
+            ];
+        } else {
+            $definition = [
+                'type' => 'object',
+            ];
         }
+
+        $properties = [];
+        $required = [];
+
+        foreach ($jsonField->getPropertyMapping() as $field) {
+            if ($field instanceof JsonField) {
+                $definition['properties'][$field->getPropertyName()] = $this->resolveJsonField($field);
+                continue;
+            }
+
+            if ($field->is(Required::class)) {
+                $required[] = $field->getPropertyName();
+            }
+
+            $definition['properties'][$field->getPropertyName()] = $this->getPropertyByField(get_class($field));
+        }
+
+        if (count($properties)) {
+            $definition['properties'] = $properties;
+        }
+
+        if (count($required)) {
+            $definition['required'] = $required;
+        }
+
+        return $definition;
     }
 
-    private function getPropertyByField(Field $field): array
+    private function getType(string $fieldClass): string
+    {
+        switch ($fieldClass) {
+            case FloatField::class:
+                return 'number';
+            case IntField::class:
+                return 'integer';
+            case BoolField::class:
+                return 'boolean';
+        }
+
+        return 'string';
+    }
+
+    private function getPropertyByField(string $fieldClass): array
     {
         $property = [
-            'type' => $this->getType($field),
+            'type' => $this->getType($fieldClass),
         ];
 
-        switch (true) {
-            case $field instanceof DateField:
+        switch ($fieldClass) {
+            case DateField::class:
                 $property['format'] = 'date-time';
                 break;
-            case $field instanceof FloatField:
+            case FloatField::class:
                 $property['format'] = 'float';
                 break;
-            case $field instanceof IntField:
+            case IntField::class:
                 $property['format'] = 'int64';
                 break;
-            case $field instanceof VersionField:
-            case $field instanceof ReferenceVersionField:
-            case $field instanceof FkField:
-            case $field instanceof IdField:
+            case VersionField::class:
+            case ReferenceVersionField::class:
+            case FkField::class:
+            case IdField::class:
                 $property['type'] = 'string';
                 $property['format'] = 'uuid';
                 break;
@@ -307,7 +329,12 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 continue;
             }
 
-            $attributes[$field->getPropertyName()] = $this->getPropertyByField($field);
+            if ($field instanceof JsonField) {
+                $attributes[$field->getPropertyName()] = $this->resolveJsonField($field);
+                continue;
+            }
+
+            $attributes[$field->getPropertyName()] = $this->getPropertyByField(get_class($field));
         }
 
         if ($definition::getTranslationDefinitionClass()) {
@@ -337,7 +364,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                             'id' => ['example' => $uuid],
                             'attributes' => [
                                 'type' => 'object',
-                                'required' => $requiredAttributes,
+                                'required' => array_unique($requiredAttributes),
                                 'properties' => $attributes,
                             ],
                             'links' => [
@@ -377,7 +404,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         $schema[$schemaName . '_flat'] = [
             'type' => 'object',
             'properties' => $attributes,
-            'required' => $requiredAttributes,
+            'required' => array_unique($requiredAttributes),
         ];
 
         return $schema;
@@ -406,20 +433,6 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                     Response::HTTP_OK => [
                         'description' => 'List of ' . $humanReadableName . ' resources.',
                         'content' => [
-                            'application/json' => [
-                                'schema' => [
-                                    'type' => 'object',
-                                    'properties' => [
-                                        'total' => ['type' => 'integer'],
-                                        'data' => [
-                                            'type' => 'array',
-                                            'items' => [
-                                                '$ref' => '#/components/schemas/' . $schemaName . '_flat',
-                                            ],
-                                        ],
-                                    ],
-                                ],
-                            ],
                             'application/vnd.api+json' => [
                                 'schema' => [
                                     'allOf' => [
@@ -457,6 +470,20 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                                     ],
                                 ],
                             ],
+                            'application/json' => [
+                                'schema' => [
+                                    'type' => 'object',
+                                    'properties' => [
+                                        'total' => ['type' => 'integer'],
+                                        'data' => [
+                                            'type' => 'array',
+                                            'items' => [
+                                                '$ref' => '#/components/schemas/' . $schemaName . '_flat',
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
                         ],
                     ],
                     Response::HTTP_UNAUTHORIZED => $this->getResponseRef((string) Response::HTTP_UNAUTHORIZED),
@@ -477,14 +504,14 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 ],
                 'requestBody' => [
                     'content' => [
-                        'application/json' => [
-                            'schema' => [
-                                '$ref' => '#/components/schemas/' . $definition::getEntityName() . '_detail_flat',
-                            ],
-                        ],
                         'application/vnd.api+json' => [
                             'schema' => [
                                 '$ref' => '#/components/schemas/' . $definition::getEntityName() . '_detail',
+                            ],
+                        ],
+                        'application/json' => [
+                            'schema' => [
+                                '$ref' => '#/components/schemas/' . $definition::getEntityName() . '_detail_flat',
                             ],
                         ],
                     ],
@@ -745,8 +772,8 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         return [
             'description' => $title,
             'content' => [
-                'application/json' => $schema,
                 'application/vnd.api+json' => $schema,
+                'application/json' => $schema,
             ],
         ];
     }
@@ -761,11 +788,6 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         return [
             'description' => 'Detail of ' . $schemaName,
             'content' => [
-                'application/json' => [
-                    'schema' => [
-                        '$ref' => '#/components/schemas/' . $schemaName . '_flat',
-                    ],
-                ],
                 'application/vnd.api+json' => [
                     'schema' => [
                         'allOf' => [
@@ -779,6 +801,11 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                                 ],
                             ],
                         ],
+                    ],
+                ],
+                'application/json' => [
+                    'schema' => [
+                        '$ref' => '#/components/schemas/' . $schemaName . '_flat',
                     ],
                 ],
             ],

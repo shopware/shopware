@@ -1041,7 +1041,7 @@ class CreateTenantCommand extends ContainerAwareCommand
             [
                 [hex2bin('e84976ace9ab4928a3dcc387b66dbaa6'), hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('ffffffffffffffffffffffffffffffff'), 'Debit', 'Additional text'],
                 [hex2bin('77573b9cf7914cb5a9519945bff1d95b'), hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('ffffffffffffffffffffffffffffffff'), 'Cash on delivery', '(including 2.00 Euro VAT)'],
-                [hex2bin('19d144ffe15f4772860d59fca7f207c1'), hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('ffffffffffffffffffffffffffffffff'), 'Invoice', 'Payment by invoice. Shopware\Core provides automatic invoicing for all customers on orders after the first, in order to avoid defaults on payment.'],
+                [hex2bin('19d144ffe15f4772860d59fca7f207c1'), hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('ffffffffffffffffffffffffffffffff'), 'Invoice', 'Payment by invoice. Shopware provides automatic invoicing for all customers on orders after the first, in order to avoid defaults on payment.'],
                 [hex2bin('47160b00cd064b0188176451f9f3c247'), hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('ffffffffffffffffffffffffffffffff'), 'Paid in advance', 'The goods are delivered directly upon receipt of payment.'],
                 [hex2bin('a6ddadce4cb441f3976a32505049f037'), hex2bin('ffffffffffffffffffffffffffffffff'), hex2bin('ffffffffffffffffffffffffffffffff'), 'SEPA direct debit', ''],
             ]
@@ -1092,9 +1092,9 @@ class CreateTenantCommand extends ContainerAwareCommand
             ['id', 'version_id', 'active', 'unique_key', 'display_in_categories', 'position', 'payload', 'created_at', 'updated_at'],
             ['tenant_id'],
             [
-                [hex2bin('361D52E6A9894467B4FEAF5E5A799383'), hex2bin('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'), 1, 'cheapest-price', 1, 1, '[{"_class":"Shopware\Core\\\\Framework\\\\ORM\\\\Search\\\\Sorting\\\\FieldSorting","field":"product.listingPrices","direction":"ASC","extensions":[]}]', '2018-03-22 15:10:21', null],
-                [hex2bin('4F0B50F58286488FB8D88B43934534E2'), hex2bin('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'), 1, 'highest-price', 1, 1, '[{"_class":"Shopware\Core\\\\Framework\\\\ORM\\\\Search\\\\Sorting\\\\FieldSorting","field":"product.listingPrices","direction":"DESC","extensions":[]}]', '2018-03-22 15:10:21', null],
-                [hex2bin('5727B79736A44CB1B1CC904820570DB9'), hex2bin('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'), 1, 'product-name', 1, 1, '[{"_class":"Shopware\Core\\\\Framework\\\\ORM\\\\Search\\\\Sorting\\\\FieldSorting","field":"product.name","direction":"ASC","extensions":[]}]', '2018-03-22 15:10:21', null],
+                [hex2bin('361D52E6A9894467B4FEAF5E5A799383'), hex2bin('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'), 1, 'cheapest-price', 1, 1, '[{"_class":"Shopware\\\\Core\\\\Framework\\\\ORM\\\\Search\\\\Sorting\\\\FieldSorting","field":"product.listingPrices","direction":"ASC","extensions":[]}]', '2018-03-22 15:10:21', null],
+                [hex2bin('4F0B50F58286488FB8D88B43934534E2'), hex2bin('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'), 1, 'highest-price', 1, 1, '[{"_class":"Shopware\\\\Core\\\\Framework\\\\ORM\\\\Search\\\\Sorting\\\\FieldSorting","field":"product.listingPrices","direction":"DESC","extensions":[]}]', '2018-03-22 15:10:21', null],
+                [hex2bin('5727B79736A44CB1B1CC904820570DB9'), hex2bin('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'), 1, 'product-name', 1, 1, '[{"_class":"Shopware\\\\Core\\\\Framework\\\\ORM\\\\Search\\\\Sorting\\\\FieldSorting","field":"product.name","direction":"ASC","extensions":[]}]', '2018-03-22 15:10:21', null],
             ]
         );
         $this->importTable(

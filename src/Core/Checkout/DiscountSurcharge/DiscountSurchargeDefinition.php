@@ -16,8 +16,8 @@ use Shopware\Core\Framework\ORM\Field\DateField;
 use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\FloatField;
 use Shopware\Core\Framework\ORM\Field\IdField;
-use Shopware\Core\Framework\ORM\Field\JsonObjectField;
 use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\ORM\Field\ObjectField;
 use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\Field\TenantIdField;
 use Shopware\Core\Framework\ORM\Field\TranslatedField;
@@ -26,7 +26,6 @@ use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
-use Shopware\Core\Framework\ORM\Write\Flag\Serialized;
 
 class DiscountSurchargeDefinition extends EntityDefinition
 {
@@ -61,7 +60,7 @@ class DiscountSurchargeDefinition extends EntityDefinition
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new TranslatedField(new StringField('name', 'name')))->setFlags(new Required()),
             (new FkField('rule_id', 'ruleId', RuleDefinition::class))->setFlags(new Required()),
-            (new JsonObjectField('filter_rule', 'filterRule'))->setFlags(new Serialized(), new Required()),
+            (new ObjectField('filter_rule', 'filterRule'))->setFlags(new Required()),
             (new StringField('type', 'type'))->setFlags(new Required()),
             (new FloatField('amount', 'amount'))->setFlags(new Required()),
             new DateField('created_at', 'createdAt'),

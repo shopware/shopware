@@ -8,11 +8,11 @@ use Shopware\Core\Framework\ORM\Field\DateField;
 use Shopware\Core\Framework\ORM\Field\FkField;
 use Shopware\Core\Framework\ORM\Field\IdField;
 use Shopware\Core\Framework\ORM\Field\IntField;
-use Shopware\Core\Framework\ORM\Field\JsonArrayField;
-use Shopware\Core\Framework\ORM\Field\LongTextField;
+use Shopware\Core\Framework\ORM\Field\JsonField;
 use Shopware\Core\Framework\ORM\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\Field\TenantIdField;
+use Shopware\Core\Framework\ORM\Field\VersionDataPayloadField;
 use Shopware\Core\Framework\ORM\FieldCollection;
 use Shopware\Core\Framework\ORM\Version\Collection\VersionCommitDataBasicCollection;
 use Shopware\Core\Framework\ORM\Version\Event\VersionCommitData\VersionCommitDataDeletedEvent;
@@ -64,9 +64,9 @@ class VersionCommitDataDefinition extends EntityDefinition
             new IdField('user_id', 'userId'),
             new IntField('auto_increment', 'autoIncrement'),
             (new StringField('entity_name', 'entityName'))->setFlags(new Required(), new SearchRanking(self::HIGH_SEARCH_RANKING)),
-            (new JsonArrayField('entity_id', 'entityId'))->setFlags(new Required()),
+            (new JsonField('entity_id', 'entityId'))->setFlags(new Required()),
             (new StringField('action', 'action'))->setFlags(new Required(), new SearchRanking(self::LOW_SEARCH_RAKING)),
-            (new LongTextField('payload', 'payload'))->setFlags(new Required(), new SearchRanking(self::LOW_SEARCH_RAKING)),
+            (new VersionDataPayloadField('payload', 'payload'))->setFlags(new Required(), new SearchRanking(self::LOW_SEARCH_RAKING)),
             (new DateField('created_at', 'createdAt'))->setFlags(new Required()),
         ]);
 

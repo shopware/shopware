@@ -11,7 +11,6 @@ use Shopware\Core\Framework\ORM\Field\AssociationInterface;
 use Shopware\Core\Framework\ORM\Field\Field;
 use Shopware\Core\Framework\ORM\Field\ReferenceVersionField;
 use Shopware\Core\Framework\ORM\Field\SubresourceField;
-use Shopware\Core\Framework\ORM\Field\SubVersionField;
 use Shopware\Core\Framework\ORM\Field\VersionField;
 use Shopware\Core\Framework\ORM\Read\EntityReaderInterface;
 use Shopware\Core\Framework\ORM\Search\Criteria;
@@ -185,8 +184,7 @@ class VersionManager
                     case 'insert':
                     case 'update':
                     case 'upsert':
-                        $payload = json_decode($data->getPayload(), true);
-                        $payload = $this->addVersionToPayload($payload, $dataDefinition, Defaults::LIVE_VERSION);
+                        $payload = $this->addVersionToPayload($data->getPayload(), $dataDefinition, Defaults::LIVE_VERSION);
                         $this->entityWriter->upsert($dataDefinition, [$payload], $liveContext);
                         break;
 
@@ -207,11 +205,10 @@ class VersionManager
             $id = $data->getEntityId();
             $id = $this->addVersionToPayload($id, $definition, Defaults::LIVE_VERSION);
 
-            $payload = json_decode($data->getPayload(), true);
-            $payload = $this->addVersionToPayload($payload, $definition, Defaults::LIVE_VERSION);
+            $payload = $this->addVersionToPayload($data->getPayload(), $definition, Defaults::LIVE_VERSION);
 
             return [
-                'entityId' => json_encode($id),
+                'entityId' => $id,
                 'payload' => json_encode($payload),
                 'userId' => $data->getUserId(),
                 'entityName' => $data->getEntityName(),
@@ -289,7 +286,7 @@ class VersionManager
     private function removeVersion(string $definition, array $payload): array
     {
         $fields = $definition::getFields()->filter(function (Field $field) {
-            return $field instanceof VersionField || $field instanceof SubVersionField;
+            return $field instanceof VersionField;
         });
 
         /** @var Field $field */

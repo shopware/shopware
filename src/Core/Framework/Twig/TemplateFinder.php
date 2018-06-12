@@ -25,7 +25,7 @@ class TemplateFinder
 
     private $defaultBundles = [
         'Administration',
-        'Shopware\Core',
+        'Shopware',
     ];
 
     /**

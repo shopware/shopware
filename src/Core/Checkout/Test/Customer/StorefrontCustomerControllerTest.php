@@ -207,7 +207,7 @@ class StorefrontCustomerControllerTest extends ApiTestCase
             'city' => 'New York',
             'zipcode' => '12749',
             'country' => Defaults::COUNTRY,
-            'company' => 'Shopware\Core AG',
+            'company' => 'Shopware AG',
         ];
 
         $this->storefrontApiClient->request('POST', '/storefront-api/customer/address', [], [], [], json_encode($address));

@@ -218,7 +218,7 @@ class WriterTest extends KernelTestCase
             [
                 'id' => $productId->getHex(),
                 'name' => 'test 1',
-                'price' => 10,
+                'price' => ['gross' => 10, 'net' => 8.10],
                 'tax' => ['name' => 'test', 'rate' => 5],
                 'manufacturer' => ['name' => 'test'],
                 'categories' => [
@@ -228,7 +228,7 @@ class WriterTest extends KernelTestCase
             [
                 'id' => $productId2->getHex(),
                 'name' => 'test 1',
-                'price' => 10,
+                'price' => ['gross' => 10, 'net' => 8.10],
                 'tax' => ['name' => 'test', 'rate' => 5],
                 'manufacturer' => ['name' => 'test'],
                 'categories' => [
@@ -237,7 +237,7 @@ class WriterTest extends KernelTestCase
             ],
             [
                 'name' => 'test 1',
-                'price' => 10,
+                'price' => ['gross' => 10, 'net' => 8.10],
                 'tax' => ['name' => 'test', 'rate' => 5],
                 'manufacturer' => ['name' => 'test'],
                 'categories' => [
@@ -274,7 +274,7 @@ class WriterTest extends KernelTestCase
                 [
                     'id' => $this->id,
                     'name' => 'test',
-                    'price' => 10,
+                    'price' => ['gross' => 10, 'net' => 8.10],
                     'the_unknown_field' => 'do nothing?',
                     'tax' => ['name' => 'test', 'rate' => 5],
                     'manufacturer' => ['id' => Uuid::uuid4()->getHex(), 'link' => 'https://shopware.com', 'name' => 'shopware AG'],
@@ -308,7 +308,7 @@ class WriterTest extends KernelTestCase
                     'the_unknown_field' => 'do nothing?',
                     'tax' => ['name' => 'test', 'rate' => 5],
                     'name' => 'foo',
-                    'price' => 10,
+                    'price' => ['gross' => 10, 'net' => 8.10],
                     'manufacturer' => ['id' => Uuid::uuid4()->getHex(), 'link' => 'https://shopware.com', 'name' => 'shopware AG'],
                 ],
             ],
@@ -345,7 +345,7 @@ class WriterTest extends KernelTestCase
                     'categories' => [
                         ['name' => 'Some category'],
                     ],
-                    'price' => 10,
+                    'price' => ['gross' => 10, 'net' => 8.10],
                 ],
             ],
             $this->createWriteContext()
@@ -376,7 +376,7 @@ class WriterTest extends KernelTestCase
                     'descriptionLong' => '<p>html</p>',
                     'availableFrom' => new \DateTime('2011-01-01T15:03:01.012345Z'),
                     'availableTo' => new \DateTime('2011-01-01T15:03:01.012345Z'),
-                    'price' => 10,
+                    'price' => ['gross' => 10, 'net' => 8.10],
                     'manufacturer' => [
                         'id' => $productManufacturerId,
                         'link' => 'http://www.shopware.com',
@@ -562,7 +562,7 @@ class WriterTest extends KernelTestCase
                 [
                     'id' => $this->id,
                     'name' => 'Test product',
-                    'price' => 10,
+                    'price' => ['gross' => 10, 'net' => 8.10],
                     'tax' => ['name' => 'test', 'rate' => 5],
                     'manufacturer' => [
                         'id' => Uuid::uuid4()->getHex(),

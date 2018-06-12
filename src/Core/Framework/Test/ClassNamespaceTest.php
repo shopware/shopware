@@ -10,7 +10,7 @@ class ClassNamespaceTest extends TestCase
 {
     public function test_all_production_files_are_namespaced_correctly()
     {
-        $basePath = __DIR__ . '/../../';
+        $basePath = __DIR__ . '/../../../';
         $basePathParts = explode('/', $basePath);
 
         $phpFiles = (new Finder())->files()->in($basePath)->name('*.php')->getIterator();
@@ -23,11 +23,11 @@ class ClassNamespaceTest extends TestCase
 
             $parts = $this->extractProductionNamespaceParts($file, $basePathParts);
 
-            $namespace = rtrim('namespace Shopware\Core\\' . implode('\\', $parts), '\\');
+            $namespace = rtrim('namespace Shopware\\' . implode('\\', $parts), '\\');
 
             if (strpos($file->getContents(), $namespace) === false) {
                 $relativePath = str_replace($basePath, '', $file->getPathname());
-                $errors['src' . $relativePath] = $namespace;
+                $errors['src/' . $relativePath] = $namespace;
             }
         }
 
@@ -58,7 +58,7 @@ class ClassNamespaceTest extends TestCase
         $lines = explode("\n", $file->getContents());
 
         foreach ($lines as $line) {
-            if (preg_match('#^namespace\sShopware\Core\\\.*;$#m', $line)) {
+            if (preg_match('#^namespace\sShopware\\\.*;$#m', $line)) {
                 return true;
             }
         }

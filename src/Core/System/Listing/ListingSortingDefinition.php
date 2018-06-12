@@ -9,7 +9,8 @@ use Shopware\Core\Framework\ORM\Field\BoolField;
 use Shopware\Core\Framework\ORM\Field\DateField;
 use Shopware\Core\Framework\ORM\Field\IdField;
 use Shopware\Core\Framework\ORM\Field\IntField;
-use Shopware\Core\Framework\ORM\Field\JsonArrayField;
+use Shopware\Core\Framework\ORM\Field\ListField;
+use Shopware\Core\Framework\ORM\Field\ObjectField;
 use Shopware\Core\Framework\ORM\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\ORM\Field\StringField;
 use Shopware\Core\Framework\ORM\Field\TenantIdField;
@@ -21,7 +22,6 @@ use Shopware\Core\Framework\ORM\Write\Flag\CascadeDelete;
 use Shopware\Core\Framework\ORM\Write\Flag\PrimaryKey;
 use Shopware\Core\Framework\ORM\Write\Flag\Required;
 use Shopware\Core\Framework\ORM\Write\Flag\SearchRanking;
-use Shopware\Core\Framework\ORM\Write\Flag\Serialized;
 use Shopware\Core\Framework\ORM\Write\Flag\WriteOnly;
 use Shopware\Core\System\Listing\Collection\ListingSortingBasicCollection;
 use Shopware\Core\System\Listing\Collection\ListingSortingDetailCollection;
@@ -63,7 +63,7 @@ class ListingSortingDefinition extends EntityDefinition
             new TenantIdField(),
             new VersionField(),
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            (new JsonArrayField('payload', 'payload'))->setFlags(new Required(), new Serialized()),
+            (new ListField('payload', 'payload', ObjectField::class))->setFlags(new Required()),
             (new TranslatedField(new StringField('label', 'label')))->setFlags(new SearchRanking(self::HIGH_SEARCH_RANKING)),
             (new StringField('unique_key', 'uniqueKey'))->setFlags(new Required()),
             new BoolField('active', 'active'),

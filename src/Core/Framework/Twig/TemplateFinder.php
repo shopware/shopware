@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Twig;
 
-use Shopware\Core\Kernel;
 use Symfony\Bundle\TwigBundle\Loader\FilesystemLoader;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 
@@ -23,46 +22,44 @@ class TemplateFinder
      */
     private $queue = [];
 
-    private $defaultBundles = [
-        'Administration',
-        'Shopware',
-    ];
-
     /**
-     * @param Kernel                  $kernel
      * @param \Twig_Loader_Filesystem $loader
      */
-    public function __construct(Kernel $kernel, \Twig_Loader_Filesystem $loader)
+    public function __construct(\Twig_Loader_Filesystem $loader)
     {
         $this->loader = $loader;
 
-        foreach ($this->defaultBundles as $bundleName) {
-            $bundlePath = $kernel->getBundle($bundleName)->getPath();
-            $this->loader->addPath($bundlePath . '/Resources/views', $bundleName);
-        }
+        $defaults = [
+            'Administration',
+            'Shopware',
+            'Storefront',
+        ];
 
-        $namespaces = $this->loader->getNamespaces();
+        $directories = [];
 
-        foreach ($namespaces as $namespace) {
-            if ($namespace[0] === '!' || $namespace === '__main__') {
+        foreach ($loader->getNamespaces() as $namespace) {
+            if ($namespace[0] === '!' || $namespace === '__main__' || in_array($namespace, $defaults, true)) {
                 continue;
             }
 
-            $this->directories[] = '@' . $namespace;
+            $directories[] = $namespace;
         }
 
-        array_map([$this, 'addBundle'], $kernel::getPlugins()->getActivePlugins());
+        $directories = array_merge($directories, $defaults);
+
+        $this->directories = $directories;
     }
 
-    public function addBundle(BundleInterface $bundle): void
+    public function addBundle(BundleInterface $bundle): bool
     {
         $directory = $bundle->getPath() . '/Resources/views/';
         if (!file_exists($directory)) {
-            return;
+            return false;
         }
 
         $this->loader->addPath($directory, $bundle->getName());
-        $this->directories[] = '@' . $bundle->getName();
+
+        return true;
     }
 
     /**
@@ -70,6 +67,8 @@ class TemplateFinder
      */
     public function find(string $template, $wholeInheritance = false): string
     {
+        $template = ltrim($template, '@');
+
         $queue = [];
         if (!$wholeInheritance && array_key_exists($template, $this->queue)) {
             $queue = $this->queue[$template];
@@ -79,10 +78,9 @@ class TemplateFinder
         }
 
         foreach ($queue as $index => $prefix) {
-            $name = $prefix . '/' . $template;
+            $name = '@' . $prefix . '/' . $template;
 
             unset($this->queue[$template][$index]);
-
             if ($this->loader->exists($name)) {
                 return $name;
             }

@@ -129,7 +129,6 @@
 
         <!-- Twig -->
         <service class="Shopware\Core\Framework\Twig\TemplateFinder" public="true" id="Shopware\Core\Framework\Twig\TemplateFinder">
-            <argument id="kernel" type="service"/>
             <argument id="twig.loader" type="service"/>
         </service>
 

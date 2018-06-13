@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront;
 
+use Shopware\Storefront\DependencyInjection\DisableTemplateCachePass;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
@@ -21,5 +22,7 @@ class Storefront extends Bundle
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection'));
         $loader->load('services.xml');
         $loader->load('api.xml');
+
+        $container->addCompilerPass(new DisableTemplateCachePass());
     }
 }

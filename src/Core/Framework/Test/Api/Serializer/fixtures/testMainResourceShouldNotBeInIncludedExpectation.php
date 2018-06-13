@@ -78,6 +78,36 @@ return [
                         'related' => '/api/media/3e352be2-d858-46dd-9752-9c0f6b544870/album',
                     ],
                 ],
+                'user' => [
+                    'data' => null,
+                    'links' => [
+                        'related' => '/api/media/3e352be2-d858-46dd-9752-9c0f6b544870/user',
+                    ],
+                ],
+                'categories' => [
+                    'data' => [],
+                    'links' => [
+                        'related' => '/api/media/3e352be2-d858-46dd-9752-9c0f6b544870/categories',
+                    ],
+                ],
+                'mailAttachments' => [
+                    'data' => [],
+                    'links' => [
+                        'related' => '/api/media/3e352be2-d858-46dd-9752-9c0f6b544870/mail-attachments',
+                    ],
+                ],
+                'productManufacturers' => [
+                    'data' => [],
+                    'links' => [
+                        'related' => '/api/media/3e352be2-d858-46dd-9752-9c0f6b544870/product-manufacturers',
+                    ],
+                ],
+                'productMedia' => [
+                    'data' => [],
+                    'links' => [
+                        'related' => '/api/media/3e352be2-d858-46dd-9752-9c0f6b544870/product-media',
+                    ],
+                ],
             ],
             'links' => [
                 'self' => '/api/media/3e352be2-d858-46dd-9752-9c0f6b544870',

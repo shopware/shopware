@@ -82,8 +82,6 @@ class JsonApiEncoderTest extends TestCase
 
     public function testEncodeStruct(): void
     {
-        $this->markTestIncomplete('Will be fixed with ticket NEXT-384');
-
         $struct = new MediaAlbumBasicStruct();
         $struct->setId('1d23c1b0-15bf-43fb-97e8-9008cf42d6fe');
         $struct->setName('Manufacturer');
@@ -122,9 +120,24 @@ class JsonApiEncoderTest extends TestCase
                     'self' => '/api/media-album/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe',
                 ],
                 'relationships' => [
-                    'parent' => [],
-                    'media' => [],
-                    'children' => [],
+                    'parent' => [
+                        'data' => null,
+                        'links' => [
+                            'related' => '/api/media-album/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe/parent'
+                        ]
+                    ],
+                    'media' => [
+                        'data' => [],
+                        'links' => [
+                            'related' => '/api/media-album/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe/media'
+                        ]
+                    ],
+                    'children' => [
+                        'data' => [],
+                        'links' => [
+                            'related' => '/api/media-album/1d23c1b0-15bf-43fb-97e8-9008cf42d6fe/children'
+                        ]
+                    ],
                 ]
             ],
             'included' => [],
@@ -211,8 +224,6 @@ class JsonApiEncoderTest extends TestCase
 
     public function testEncodeStructWithToOneRelationship(): void
     {
-        $this->markTestIncomplete('Will be fixed with ticket NEXT-384');
-
         $struct = include __DIR__ . '/fixtures/testBasicWithToOneRelationship.php';
         $expected = include __DIR__ . '/fixtures/testBasicWithToOneRelationshipExpectation.php';
         $struct = $this->structNormalizer->normalize($struct);
@@ -225,8 +236,6 @@ class JsonApiEncoderTest extends TestCase
 
     public function testEncodeStructWithToManyRelationships(): void
     {
-        $this->markTestIncomplete('Will be fixed with ticket NEXT-384');
-
         $struct = include __DIR__ . '/fixtures/testBasicWithToManyRelationships.php';
         $expected = include __DIR__ . '/fixtures/testBasicWithToManyRelationshipsExpectation.php';
         $struct = $this->structNormalizer->normalize($struct);
@@ -244,8 +253,6 @@ class JsonApiEncoderTest extends TestCase
 
     public function testEncodeCollectionWithToOneRelationship(): void
     {
-        $this->markTestIncomplete('Will be fixed with ticket NEXT-384');
-
         $collection = include __DIR__ . '/fixtures/testCollectionWithToOneRelationship.php';
         $expected = include __DIR__ . '/fixtures/testCollectionWithToOneRelationshipExpectation.php';
 
@@ -259,8 +266,6 @@ class JsonApiEncoderTest extends TestCase
 
     public function testEncodeMainResourceShouldNotBeInIncluded(): void
     {
-        $this->markTestIncomplete('Will be fixed with ticket NEXT-384');
-
         $struct = include __DIR__ . '/fixtures/testMainResourceShouldNotBeInIncluded.php';
         $expected = include __DIR__ . '/fixtures/testMainResourceShouldNotBeInIncludedExpectation.php';
         $struct = $this->structNormalizer->normalize($struct);

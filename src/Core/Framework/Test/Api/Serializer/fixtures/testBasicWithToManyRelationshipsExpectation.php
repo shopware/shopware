@@ -81,6 +81,36 @@ return [
                         'related' => '/api/media/548faa1f-7846-436c-8594-4f4aea792d96/album',
                     ],
                 ],
+                'user' => [
+                    'data' => null,
+                    'links' => [
+                        'related' => '/api/media/548faa1f-7846-436c-8594-4f4aea792d96/user',
+                    ],
+                ],
+                'categories' => [
+                    'data' => [],
+                    'links' => [
+                        'related' => '/api/media/548faa1f-7846-436c-8594-4f4aea792d96/categories',
+                    ],
+                ],
+                'mailAttachments' => [
+                    'data' => [],
+                    'links' => [
+                        'related' => '/api/media/548faa1f-7846-436c-8594-4f4aea792d96/mail-attachments',
+                    ],
+                ],
+                'productManufacturers' => [
+                    'data' => [],
+                    'links' => [
+                        'related' => '/api/media/548faa1f-7846-436c-8594-4f4aea792d96/product-manufacturers',
+                    ],
+                ],
+                'productMedia' => [
+                    'data' => [],
+                    'links' => [
+                        'related' => '/api/media/548faa1f-7846-436c-8594-4f4aea792d96/product-media',
+                    ],
+                ],
             ],
         ],
     ],
